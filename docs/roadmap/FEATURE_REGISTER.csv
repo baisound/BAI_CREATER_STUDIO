@@ -129,3 +129,12 @@ REVIEW-009,REVIEW,0,VRM SpringBone物理ON/OFF比較とプリロール,物理条
 REVIEW-010,REVIEW,0,素材ライセンス・ハッシュ・生成元追跡,Mixamo/CC0/Charakuru等の権利別素材、SHA256、配布可能性を管理。,移植候補・未統合,DATA-007;DATA-014;CORE-009
 REVIEW-011,REVIEW,0,モデル完成判定とレビューキュー,ready/制作途中/ownerCompleteを分離し修正待ちを追跡。,移植候補・未統合,MOTION-021;CORE-011
 REVIEW-012,REVIEW,0,定量計測のフレーム単位操作と診断比較,実測mm・角度・位相・揺れ等のメトリクスを並列比較。,移植候補・未統合,MOTION-021;DATA-004
+OBS-001,OBS,0,統一構造化JSONLログ,全コンポーネントの追跡ID付きログ,未実装・仕様決定済み,"CORE-001,CORE-002,CORE-003"
+OBS-002,OBS,0,ローテーション・容量/保持上限,サイズ・世代・日数・障害時処理,未実装・仕様決定済み,"CORE-001,CORE-002,CORE-003"
+OBS-003,OBS,0,ブラウザログ・失敗収集,JS/WebGL/ネットワーク例外収集とローカル書き出し,未実装・仕様決定済み,"CORE-001,CORE-002,CORE-003"
+OBS-004,OBS,0,WebMCP・標準MCP呼び出し診断,操作・所要時間・競合/エラー追跡,未実装・仕様決定済み,"CORE-001,CORE-002,CORE-003"
+OBS-005,OBS,0,Blender/FFmpeg実行ログ,外部処理の制限付き標準出力・終了コード,未実装・仕様決定済み,"CORE-001,CORE-002,CORE-003"
+OBS-006,OBS,0,匿名化診断ZIP作成,明示操作・機密除外・エクスポート,未実装・仕様決定済み,"CORE-001,CORE-002,CORE-003"
+OBS-007,OBS,0,ログの秘匿・権限・保持設定,トークンやパスのマスキング、ローカル既定,未実装・仕様決定済み,"CORE-001,CORE-002,CORE-003"
+OBS-008,OBS,0,UIと両MCPのログ操作機能,共通API・削除共有の安全確認,未実装・仕様決定済み,"CORE-001,CORE-002,CORE-003"
+OBS-009,OBS,0,ロギング回帰テスト,Windows/Linux、障害注入、ローテート、秘匿検査,未実装・仕様決定済み,"CORE-001,CORE-002,CORE-003"

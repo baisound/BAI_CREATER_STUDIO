@@ -177,3 +177,6 @@
 
 ## 最優先の統合工程
 [添付v02分析](ATTACHMENT_20261015_V02_ANALYSIS_JA.md) / [Phase 00計画](PHASE_00_INTEGRATION_JA.md)
+
+## 最新の未実装・合意済み決定
+- **Phase 00の最初の実装はログ出力・ログローテーション**：[仕様](PHASE_00_LOGGING_FIRST_JA.md)。手動UI/WebMCP/標準MCPすべて対応し、実機診断ZIPを用意する。

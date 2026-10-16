@@ -1171,6 +1171,87 @@
       "detail": "実測mm・角度・位相・揺れ等のメトリクスを並列比較。",
       "status": "移植候補・未統合",
       "dependency": "MOTION-021;DATA-004"
+    },
+    {
+      "id": "OBS-001",
+      "group": "OBS",
+      "phase": 0,
+      "name": "統一構造化JSONLログ",
+      "detail": "全コンポーネントの追跡ID付きログ",
+      "status": "未実装・仕様決定済み",
+      "dependency": "CORE-001,CORE-002,CORE-003"
+    },
+    {
+      "id": "OBS-002",
+      "group": "OBS",
+      "phase": 0,
+      "name": "ローテーション・容量/保持上限",
+      "detail": "サイズ・世代・日数・障害時処理",
+      "status": "未実装・仕様決定済み",
+      "dependency": "CORE-001,CORE-002,CORE-003"
+    },
+    {
+      "id": "OBS-003",
+      "group": "OBS",
+      "phase": 0,
+      "name": "ブラウザログ・失敗収集",
+      "detail": "JS/WebGL/ネットワーク例外収集とローカル書き出し",
+      "status": "未実装・仕様決定済み",
+      "dependency": "CORE-001,CORE-002,CORE-003"
+    },
+    {
+      "id": "OBS-004",
+      "group": "OBS",
+      "phase": 0,
+      "name": "WebMCP・標準MCP呼び出し診断",
+      "detail": "操作・所要時間・競合/エラー追跡",
+      "status": "未実装・仕様決定済み",
+      "dependency": "CORE-001,CORE-002,CORE-003"
+    },
+    {
+      "id": "OBS-005",
+      "group": "OBS",
+      "phase": 0,
+      "name": "Blender/FFmpeg実行ログ",
+      "detail": "外部処理の制限付き標準出力・終了コード",
+      "status": "未実装・仕様決定済み",
+      "dependency": "CORE-001,CORE-002,CORE-003"
+    },
+    {
+      "id": "OBS-006",
+      "group": "OBS",
+      "phase": 0,
+      "name": "匿名化診断ZIP作成",
+      "detail": "明示操作・機密除外・エクスポート",
+      "status": "未実装・仕様決定済み",
+      "dependency": "CORE-001,CORE-002,CORE-003"
+    },
+    {
+      "id": "OBS-007",
+      "group": "OBS",
+      "phase": 0,
+      "name": "ログの秘匿・権限・保持設定",
+      "detail": "トークンやパスのマスキング、ローカル既定",
+      "status": "未実装・仕様決定済み",
+      "dependency": "CORE-001,CORE-002,CORE-003"
+    },
+    {
+      "id": "OBS-008",
+      "group": "OBS",
+      "phase": 0,
+      "name": "UIと両MCPのログ操作機能",
+      "detail": "共通API・削除共有の安全確認",
+      "status": "未実装・仕様決定済み",
+      "dependency": "CORE-001,CORE-002,CORE-003"
+    },
+    {
+      "id": "OBS-009",
+      "group": "OBS",
+      "phase": 0,
+      "name": "ロギング回帰テスト",
+      "detail": "Windows/Linux、障害注入、ローテート、秘匿検査",
+      "status": "未実装・仕様決定済み",
+      "dependency": "CORE-001,CORE-002,CORE-003"
     }
   ],
   "integration_review": {

@@ -29,3 +29,6 @@
 ## 未実装/実装済みの見分け方
 
 会話で「実装した」と述べた内容は完成証明ではない。ソースの該当箇所、テスト実施記録、ブラウザ・PMX・Blender実機での結果が揃うまで `要検証` とする。
+
+## 追加決定：OBS-001〜OBS-009
+要件台帳 → [詳細仕様](PHASE_00_LOGGING_FIRST_JA.md) → [Phase 00](PHASE_00_INTEGRATION_JA.md) → 共通API/UI/WebMCP/標準MCPの実装・試験（未実装）。
