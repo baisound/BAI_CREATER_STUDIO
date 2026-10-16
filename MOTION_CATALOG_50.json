@@ -1,0 +1,869 @@
+[
+  {
+    "id": 1,
+    "title_ja": "ジャブ",
+    "category": "単発",
+    "mixamo_steps": [
+      "Boxing Leading Hand Jab"
+    ],
+    "sequence": "jab"
+  },
+  {
+    "id": 2,
+    "title_ja": "クロス",
+    "category": "単発",
+    "mixamo_steps": [
+      "Back Hand Cross"
+    ],
+    "sequence": "cross"
+  },
+  {
+    "id": 3,
+    "title_ja": "左フック",
+    "category": "単発",
+    "mixamo_steps": [
+      "Boxing Lead Hand Hook"
+    ],
+    "sequence": "hook"
+  },
+  {
+    "id": 4,
+    "title_ja": "右フック",
+    "category": "単発",
+    "mixamo_steps": [
+      "Boxing Back Hand Hook"
+    ],
+    "sequence": "hook"
+  },
+  {
+    "id": 5,
+    "title_ja": "アッパーカット",
+    "category": "単発",
+    "mixamo_steps": [
+      "Boxing Back Hand Uppercut"
+    ],
+    "sequence": "upper"
+  },
+  {
+    "id": 6,
+    "title_ja": "クイックパンチ",
+    "category": "単発",
+    "mixamo_steps": [
+      "Quick Left Handed Punch"
+    ],
+    "sequence": "jab"
+  },
+  {
+    "id": 7,
+    "title_ja": "ボディ打ち",
+    "category": "単発",
+    "mixamo_steps": [
+      "Body Punch To The Knee"
+    ],
+    "sequence": "body"
+  },
+  {
+    "id": 8,
+    "title_ja": "ボディ連打",
+    "category": "連続",
+    "mixamo_steps": [
+      "Boxing Body Jab Cross Medium"
+    ],
+    "sequence": "body,cross"
+  },
+  {
+    "id": 9,
+    "title_ja": "ワンツー",
+    "category": "連続",
+    "mixamo_steps": [
+      "Boxing Jab Cross Combo"
+    ],
+    "sequence": "jab,cross"
+  },
+  {
+    "id": 10,
+    "title_ja": "フック強打",
+    "category": "単発",
+    "mixamo_steps": [
+      "A Hook Punch"
+    ],
+    "sequence": "hook"
+  },
+  {
+    "id": 11,
+    "title_ja": "ストレート強打",
+    "category": "単発",
+    "mixamo_steps": [
+      "A Cross Punch"
+    ],
+    "sequence": "cross"
+  },
+  {
+    "id": 12,
+    "title_ja": "肘アッパー",
+    "category": "単発",
+    "mixamo_steps": [
+      "Illegal Elbow Uppercut"
+    ],
+    "sequence": "upper"
+  },
+  {
+    "id": 13,
+    "title_ja": "膝蹴り",
+    "category": "単発",
+    "mixamo_steps": [
+      "Boxing Illegal Knee"
+    ],
+    "sequence": "knee"
+  },
+  {
+    "id": 14,
+    "title_ja": "前足前蹴り",
+    "category": "単発",
+    "mixamo_steps": [
+      "Male Front Snap Kick With The Lead Foot"
+    ],
+    "sequence": "frontkick"
+  },
+  {
+    "id": 15,
+    "title_ja": "後ろ足前蹴り",
+    "category": "単発",
+    "mixamo_steps": [
+      "Male Front Snap Kick With The Rear Foot Retreating"
+    ],
+    "sequence": "frontkick"
+  },
+  {
+    "id": 16,
+    "title_ja": "前進回し蹴り",
+    "category": "単発",
+    "mixamo_steps": [
+      "Roundhouse Kick With Front Foot Advancing"
+    ],
+    "sequence": "roundkick"
+  },
+  {
+    "id": 17,
+    "title_ja": "後ろ足払い",
+    "category": "単発",
+    "mixamo_steps": [
+      "Back Leg Sweep"
+    ],
+    "sequence": "sweep"
+  },
+  {
+    "id": 18,
+    "title_ja": "頭突き",
+    "category": "単発",
+    "mixamo_steps": [
+      "Zombie Headbutt With Hand Grab"
+    ],
+    "sequence": "head"
+  },
+  {
+    "id": 19,
+    "title_ja": "突進タックル",
+    "category": "単発",
+    "mixamo_steps": [
+      "Running To Tackle"
+    ],
+    "sequence": "tackle"
+  },
+  {
+    "id": 20,
+    "title_ja": "体勢を整える",
+    "category": "構え",
+    "mixamo_steps": [
+      "Boxing Idle"
+    ],
+    "sequence": "idle"
+  },
+  {
+    "id": 21,
+    "title_ja": "4連続ジャブ→クロス→フック→アッパー",
+    "category": "4連続",
+    "mixamo_steps": [
+      "Boxing Leading Hand Jab",
+      "Back Hand Cross",
+      "Boxing Lead Hand Hook",
+      "Boxing Back Hand Uppercut"
+    ],
+    "sequence": "jab,cross,hook,upper"
+  },
+  {
+    "id": 22,
+    "title_ja": "4連続ジャブ→クロス→ボディ→アッパー",
+    "category": "4連続",
+    "mixamo_steps": [
+      "Boxing Leading Hand Jab",
+      "Back Hand Cross",
+      "Body Punch To The Knee",
+      "Boxing Back Hand Uppercut"
+    ],
+    "sequence": "jab,cross,body,upper"
+  },
+  {
+    "id": 23,
+    "title_ja": "左右フック→クロス→前蹴り",
+    "category": "4連続",
+    "mixamo_steps": [
+      "Boxing Lead Hand Hook",
+      "Boxing Back Hand Hook",
+      "A Cross Punch",
+      "Male Front Snap Kick With The Lead Foot"
+    ],
+    "sequence": "hook,hook,cross,frontkick"
+  },
+  {
+    "id": 24,
+    "title_ja": "ボディ→ジャブ→クロス→回し蹴り",
+    "category": "4連続",
+    "mixamo_steps": [
+      "Body Punch To The Knee",
+      "Boxing Leading Hand Jab",
+      "Back Hand Cross",
+      "Roundhouse Kick With Front Foot Advancing"
+    ],
+    "sequence": "body,jab,cross,roundkick"
+  },
+  {
+    "id": 25,
+    "title_ja": "前蹴り→ジャブ→クロス→フック",
+    "category": "4連続",
+    "mixamo_steps": [
+      "Male Front Snap Kick With The Lead Foot",
+      "Boxing Leading Hand Jab",
+      "Back Hand Cross",
+      "Boxing Lead Hand Hook"
+    ],
+    "sequence": "frontkick,jab,cross,hook"
+  },
+  {
+    "id": 26,
+    "title_ja": "ジャブ→フック→膝蹴り→回し蹴り",
+    "category": "4連続",
+    "mixamo_steps": [
+      "Boxing Leading Hand Jab",
+      "Boxing Back Hand Hook",
+      "Boxing Illegal Knee",
+      "Roundhouse Kick With Front Foot Advancing"
+    ],
+    "sequence": "jab,hook,knee,roundkick"
+  },
+  {
+    "id": 27,
+    "title_ja": "フック→膝蹴り→アッパー",
+    "category": "3連続",
+    "mixamo_steps": [
+      "Boxing Back Hand Hook",
+      "Boxing Illegal Knee",
+      "Boxing Back Hand Uppercut"
+    ],
+    "sequence": "hook,knee,upper"
+  },
+  {
+    "id": 28,
+    "title_ja": "アッパー→フック→クロス",
+    "category": "3連続",
+    "mixamo_steps": [
+      "Boxing Back Hand Uppercut",
+      "Boxing Lead Hand Hook",
+      "Back Hand Cross"
+    ],
+    "sequence": "upper,hook,cross"
+  },
+  {
+    "id": 29,
+    "title_ja": "ジャブ→膝→アッパー→フック",
+    "category": "4連続",
+    "mixamo_steps": [
+      "Boxing Leading Hand Jab",
+      "Boxing Illegal Knee",
+      "Boxing Back Hand Uppercut",
+      "Boxing Lead Hand Hook"
+    ],
+    "sequence": "jab,knee,upper,hook"
+  },
+  {
+    "id": 30,
+    "title_ja": "タックル→ボディ→フック",
+    "category": "3連続",
+    "mixamo_steps": [
+      "Running To Tackle",
+      "Body Punch To The Knee",
+      "Boxing Back Hand Hook"
+    ],
+    "sequence": "tackle,body,hook"
+  },
+  {
+    "id": 31,
+    "title_ja": "ジャブを胸でガード",
+    "category": "攻防",
+    "mixamo_steps": [
+      "Boxing Leading Hand Jab",
+      "Blocking The Chest Area With Both Arms"
+    ],
+    "sequence": "jab|block"
+  },
+  {
+    "id": 32,
+    "title_ja": "クロスを外側ブロック",
+    "category": "攻防",
+    "mixamo_steps": [
+      "Back Hand Cross",
+      "Blocking Outward"
+    ],
+    "sequence": "cross|block"
+  },
+  {
+    "id": 33,
+    "title_ja": "フックを内側ブロック",
+    "category": "攻防",
+    "mixamo_steps": [
+      "Boxing Back Hand Hook",
+      "Blocking Inward"
+    ],
+    "sequence": "hook|block"
+  },
+  {
+    "id": 34,
+    "title_ja": "ボディを防御",
+    "category": "攻防",
+    "mixamo_steps": [
+      "Boxing Body Jab Cross Medium",
+      "Blocking Body With Arms"
+    ],
+    "sequence": "body|block"
+  },
+  {
+    "id": 35,
+    "title_ja": "パンチを後退回避",
+    "category": "攻防",
+    "mixamo_steps": [
+      "A Cross Punch",
+      "Boxing Dodge Retreat"
+    ],
+    "sequence": "cross|dodge"
+  },
+  {
+    "id": 36,
+    "title_ja": "ジャブをサイドステップ",
+    "category": "攻防",
+    "mixamo_steps": [
+      "Boxing Leading Hand Jab",
+      "Short Left Boxing Side Step"
+    ],
+    "sequence": "jab|dodge"
+  },
+  {
+    "id": 37,
+    "title_ja": "フックを右サイドステップ",
+    "category": "攻防",
+    "mixamo_steps": [
+      "A Hook Punch",
+      "Short Right Boxing Side Step"
+    ],
+    "sequence": "hook|dodge"
+  },
+  {
+    "id": 38,
+    "title_ja": "アッパー被弾",
+    "category": "被弾",
+    "mixamo_steps": [
+      "Boxing Back Hand Uppercut",
+      "Getting Hit By An Uppercut"
+    ],
+    "sequence": "upper|hit"
+  },
+  {
+    "id": 39,
+    "title_ja": "ボディ被弾",
+    "category": "被弾",
+    "mixamo_steps": [
+      "Boxing Body Jab Cross Medium",
+      "Receiving A Big Hit In The Stomach"
+    ],
+    "sequence": "body|hit"
+  },
+  {
+    "id": 40,
+    "title_ja": "側面被弾",
+    "category": "被弾",
+    "mixamo_steps": [
+      "Boxing Back Hand Hook",
+      "Receiving A Big Hit In The Side"
+    ],
+    "sequence": "hook|hit"
+  },
+  {
+    "id": 41,
+    "title_ja": "回避→ジャブ→クロス→フック",
+    "category": "4連続",
+    "mixamo_steps": [
+      "Boxing Dodge Retreat",
+      "Boxing Leading Hand Jab",
+      "Back Hand Cross",
+      "Boxing Lead Hand Hook"
+    ],
+    "sequence": "dodge,jab,cross,hook"
+  },
+  {
+    "id": 42,
+    "title_ja": "左ステップ→フック→アッパー",
+    "category": "3連続",
+    "mixamo_steps": [
+      "Short Left Boxing Side Step",
+      "Boxing Lead Hand Hook",
+      "Boxing Back Hand Uppercut"
+    ],
+    "sequence": "dodge,hook,upper"
+  },
+  {
+    "id": 43,
+    "title_ja": "右ステップ→アッパー→クロス",
+    "category": "3連続",
+    "mixamo_steps": [
+      "Short Right Boxing Side Step",
+      "Boxing Back Hand Uppercut",
+      "Back Hand Cross"
+    ],
+    "sequence": "dodge,upper,cross"
+  },
+  {
+    "id": 44,
+    "title_ja": "ブロック→ジャブ→クロス→フック",
+    "category": "4連続",
+    "mixamo_steps": [
+      "Blocking Outward",
+      "Boxing Leading Hand Jab",
+      "Back Hand Cross",
+      "Boxing Lead Hand Hook"
+    ],
+    "sequence": "block,jab,cross,hook"
+  },
+  {
+    "id": 45,
+    "title_ja": "ボディガード→膝→フック→クロス",
+    "category": "4連続",
+    "mixamo_steps": [
+      "Blocking Body With Arms",
+      "Boxing Illegal Knee",
+      "Boxing Lead Hand Hook",
+      "Back Hand Cross"
+    ],
+    "sequence": "block,knee,hook,cross"
+  },
+  {
+    "id": 46,
+    "title_ja": "攻撃→ノックダウン→キップアップ→反撃",
+    "category": "起き上がり",
+    "mixamo_steps": [
+      "A Cross Punch",
+      "Knocked Down",
+      "Kip Up",
+      "Boxing Back Hand Uppercut"
+    ],
+    "sequence": "cross,fall,kip,upper"
+  },
+  {
+    "id": 47,
+    "title_ja": "フック被弾→ノックダウン→キップアップ→ジャブ",
+    "category": "起き上がり",
+    "mixamo_steps": [
+      "A Hook Punch",
+      "Knocked Down",
+      "Kip Up",
+      "Boxing Leading Hand Jab"
+    ],
+    "sequence": "hook,fall,kip,jab"
+  },
+  {
+    "id": 48,
+    "title_ja": "回し蹴り被弾→転倒→ひねり起き→クロス",
+    "category": "起き上がり",
+    "mixamo_steps": [
+      "Roundhouse Kick With Front Foot Advancing",
+      "Knocked Down",
+      "Corkscrew Kip Up",
+      "A Cross Punch"
+    ],
+    "sequence": "roundkick,fall,corkscrew,cross"
+  },
+  {
+    "id": 49,
+    "title_ja": "足払い→転倒→キップアップ→前蹴り",
+    "category": "起き上がり",
+    "mixamo_steps": [
+      "Back Leg Sweep",
+      "Knocked Down",
+      "Kip Up",
+      "Male Front Snap Kick With The Lead Foot"
+    ],
+    "sequence": "sweep,fall,kip,frontkick"
+  },
+  {
+    "id": 50,
+    "title_ja": "クロス→ノックダウン→ひねり起き→フック",
+    "category": "起き上がり",
+    "mixamo_steps": [
+      "A Cross Punch",
+      "Knocked Down",
+      "Corkscrew Kip Up",
+      "Boxing Back Hand Hook"
+    ],
+    "sequence": "cross,fall,corkscrew,hook"
+  },
+  {
+    "id": 51,
+    "title_ja": "空中回避",
+    "category": "取得済み・回避",
+    "mixamo_steps": [
+      "Aerial Evade"
+    ],
+    "sequence": "dodge",
+    "source": "registered_fbx",
+    "duration_seconds": 3.6666666666666665
+  },
+  {
+    "id": 52,
+    "title_ja": "Au To Role（配布名のまま）",
+    "category": "取得済み・移動・回避",
+    "mixamo_steps": [
+      "Au To Role"
+    ],
+    "sequence": "dodge",
+    "source": "registered_fbx",
+    "duration_seconds": 4.0
+  },
+  {
+    "id": 53,
+    "title_ja": "バク転からアッパー",
+    "category": "取得済み・複合攻撃",
+    "mixamo_steps": [
+      "Back Flip To Uppercut"
+    ],
+    "sequence": "upper",
+    "source": "registered_fbx",
+    "duration_seconds": 5.833333333333333
+  },
+  {
+    "id": 54,
+    "title_ja": "大きなジャンプ",
+    "category": "取得済み・移動",
+    "mixamo_steps": [
+      "Big Jump"
+    ],
+    "sequence": "idle",
+    "source": "registered_fbx",
+    "duration_seconds": 2.3666666666666667
+  },
+  {
+    "id": 55,
+    "title_ja": "ブロッキング",
+    "category": "取得済み・防御",
+    "mixamo_steps": [
+      "Blocking"
+    ],
+    "sequence": "block",
+    "source": "registered_fbx",
+    "duration_seconds": 1.1833333333333333
+  },
+  {
+    "id": 56,
+    "title_ja": "ボディブロック",
+    "category": "取得済み・防御",
+    "mixamo_steps": [
+      "Body Block"
+    ],
+    "sequence": "block",
+    "source": "registered_fbx",
+    "duration_seconds": 3.433333333333333
+  },
+  {
+    "id": 57,
+    "title_ja": "中央へのガード",
+    "category": "取得済み・防御",
+    "mixamo_steps": [
+      "Center Block"
+    ],
+    "sequence": "block",
+    "source": "registered_fbx",
+    "duration_seconds": 1.7666666666666666
+  },
+  {
+    "id": 58,
+    "title_ja": "コンボパンチ",
+    "category": "取得済み・複合攻撃",
+    "mixamo_steps": [
+      "Combo Punch"
+    ],
+    "sequence": "cross",
+    "source": "registered_fbx",
+    "duration_seconds": 2.95
+  },
+  {
+    "id": 59,
+    "title_ja": "ひねり回避",
+    "category": "取得済み・回避",
+    "mixamo_steps": [
+      "Corkscrew Evade"
+    ],
+    "sequence": "dodge",
+    "source": "registered_fbx",
+    "duration_seconds": 2.5
+  },
+  {
+    "id": 60,
+    "title_ja": "後方回避",
+    "category": "取得済み・回避",
+    "mixamo_steps": [
+      "Dodging Back"
+    ],
+    "sequence": "dodge",
+    "source": "registered_fbx",
+    "duration_seconds": 2.6666666666666665
+  },
+  {
+    "id": 61,
+    "title_ja": "右への回避",
+    "category": "取得済み・回避",
+    "mixamo_steps": [
+      "Dodging Right"
+    ],
+    "sequence": "dodge",
+    "source": "registered_fbx",
+    "duration_seconds": 1.4333333333333333
+  },
+  {
+    "id": 62,
+    "title_ja": "身かわし",
+    "category": "取得済み・回避",
+    "mixamo_steps": [
+      "Dodging"
+    ],
+    "sequence": "dodge",
+    "source": "registered_fbx",
+    "duration_seconds": 2.3333333333333335
+  },
+  {
+    "id": 63,
+    "title_ja": "ドロップキック",
+    "category": "取得済み・蹴り",
+    "mixamo_steps": [
+      "Drop Kick"
+    ],
+    "sequence": "frontkick",
+    "source": "registered_fbx",
+    "duration_seconds": 2.9
+  },
+  {
+    "id": 64,
+    "title_ja": "肘からアッパーのコンボ",
+    "category": "取得済み・複合攻撃",
+    "mixamo_steps": [
+      "Elbow Uppercut Combo"
+    ],
+    "sequence": "upper",
+    "source": "registered_fbx",
+    "duration_seconds": 2.4166666666666665
+  },
+  {
+    "id": 65,
+    "title_ja": "落下からローリング",
+    "category": "取得済み・移動・回避",
+    "mixamo_steps": [
+      "Falling To Roll"
+    ],
+    "sequence": "fall",
+    "source": "registered_fbx",
+    "duration_seconds": 1.7833333333333334
+  },
+  {
+    "id": 66,
+    "title_ja": "空中バイシクルキック",
+    "category": "取得済み・蹴り",
+    "mixamo_steps": [
+      "Flying Bicycle Kick"
+    ],
+    "sequence": "frontkick",
+    "source": "registered_fbx",
+    "duration_seconds": 0.6666666666666666
+  },
+  {
+    "id": 67,
+    "title_ja": "飛び膝・パンチコンボ",
+    "category": "取得済み・複合攻撃",
+    "mixamo_steps": [
+      "Flying Knee Punch Combo"
+    ],
+    "sequence": "knee",
+    "source": "registered_fbx",
+    "duration_seconds": 2.6666666666666665
+  },
+  {
+    "id": 68,
+    "title_ja": "ハリケーンキック",
+    "category": "取得済み・蹴り",
+    "mixamo_steps": [
+      "Hurricane Kick"
+    ],
+    "sequence": "roundkick",
+    "source": "registered_fbx",
+    "duration_seconds": 1.8333333333333333
+  },
+  {
+    "id": 69,
+    "title_ja": "肘打ち",
+    "category": "取得済み・攻撃",
+    "mixamo_steps": [
+      "Illegal Elbow Punch"
+    ],
+    "sequence": "upper",
+    "source": "registered_fbx",
+    "duration_seconds": 2.25
+  },
+  {
+    "id": 70,
+    "title_ja": "内回し蹴り",
+    "category": "取得済み・蹴り",
+    "mixamo_steps": [
+      "Inside Crescent Kick"
+    ],
+    "sequence": "roundkick",
+    "source": "registered_fbx",
+    "duration_seconds": 2.6666666666666665
+  },
+  {
+    "id": 71,
+    "title_ja": "逆立ち二段蹴りから跳ね起き",
+    "category": "取得済み・複合攻撃",
+    "mixamo_steps": [
+      "Inverted Double Kick To Kip Up"
+    ],
+    "sequence": "kip",
+    "source": "registered_fbx",
+    "duration_seconds": 3.2
+  },
+  {
+    "id": 72,
+    "title_ja": "跳び越え",
+    "category": "取得済み・移動",
+    "mixamo_steps": [
+      "Jump Over"
+    ],
+    "sequence": "idle",
+    "source": "registered_fbx",
+    "duration_seconds": 2.25
+  },
+  {
+    "id": 73,
+    "title_ja": "飛び降り",
+    "category": "取得済み・移動",
+    "mixamo_steps": [
+      "Jumping Down"
+    ],
+    "sequence": "idle",
+    "source": "registered_fbx",
+    "duration_seconds": 2.5
+  },
+  {
+    "id": 74,
+    "title_ja": "膝・ジャブからアッパー",
+    "category": "取得済み・複合攻撃",
+    "mixamo_steps": [
+      "Knee Jabs To Uppercut"
+    ],
+    "sequence": "knee",
+    "source": "registered_fbx",
+    "duration_seconds": 5.666666666666667
+  },
+  {
+    "id": 75,
+    "title_ja": "パンチ連打",
+    "category": "取得済み・複合攻撃",
+    "mixamo_steps": [
+      "Punch Combo"
+    ],
+    "sequence": "cross",
+    "source": "registered_fbx",
+    "duration_seconds": 2.183333333333333
+  },
+  {
+    "id": 76,
+    "title_ja": "パンチ",
+    "category": "取得済み・攻撃",
+    "mixamo_steps": [
+      "Punching"
+    ],
+    "sequence": "jab",
+    "source": "registered_fbx",
+    "duration_seconds": 1.25
+  },
+  {
+    "id": 77,
+    "title_ja": "素早いロールから走りへ",
+    "category": "取得済み・移動・回避",
+    "mixamo_steps": [
+      "Quick Roll To Run"
+    ],
+    "sequence": "dodge",
+    "source": "registered_fbx",
+    "duration_seconds": 1.4
+  },
+  {
+    "id": 78,
+    "title_ja": "待機姿勢",
+    "category": "取得済み・構え",
+    "mixamo_steps": [
+      "Ready Idle"
+    ],
+    "sequence": "idle",
+    "source": "registered_fbx",
+    "duration_seconds": 2.5
+  },
+  {
+    "id": 79,
+    "title_ja": "ローリングキック",
+    "category": "取得済み・蹴り",
+    "mixamo_steps": [
+      "Roll Kicking"
+    ],
+    "sequence": "roundkick",
+    "source": "registered_fbx",
+    "duration_seconds": 2.25
+  },
+  {
+    "id": 80,
+    "title_ja": "回し蹴り",
+    "category": "取得済み・蹴り",
+    "mixamo_steps": [
+      "Roundhouse Kick"
+    ],
+    "sequence": "roundkick",
+    "source": "registered_fbx",
+    "duration_seconds": 2.5
+  },
+  {
+    "id": 81,
+    "title_ja": "走りからローリング",
+    "category": "取得済み・移動・回避",
+    "mixamo_steps": [
+      "Run To Rolling"
+    ],
+    "sequence": "dodge",
+    "source": "registered_fbx",
+    "duration_seconds": 2.433333333333333
+  },
+  {
+    "id": 82,
+    "title_ja": "宙返り回転蹴り",
+    "category": "取得済み・蹴り",
+    "mixamo_steps": [
+      "Spin Flip Kick"
+    ],
+    "sequence": "roundkick",
+    "source": "registered_fbx",
+    "duration_seconds": 3.7
+  }
+]

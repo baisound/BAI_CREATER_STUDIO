@@ -1,0 +1,864 @@
+{
+  "status": "COMPLETE_REGISTERED_BROWSER_VERIFIED",
+  "video_editing_root": "D:\\BAI\\2027新春企画\\10_動画編集",
+  "video_editing_fbx_count": 32,
+  "source_file_inventory": [
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Aerial Evade.fbx",
+      "name": "Aerial Evade.fbx",
+      "size": 2377120,
+      "sha256": "e188085828a0acee979f3dc6648834e412eb4547cd44c0e8751c245a9eac305a",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Au To Role.fbx",
+      "name": "Au To Role.fbx",
+      "size": 2434896,
+      "sha256": "6da214f777bb83dada1874eb1f4ff94c0f87f4b01e833ab2f96443ba9f7e64d2",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Back Flip To Uppercut.fbx",
+      "name": "Back Flip To Uppercut.fbx",
+      "size": 2606656,
+      "sha256": "4a964bc408c2ee4b87823194857e649c391e570a8f29b7cbe2cc14667eab5429",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Big Jump.fbx",
+      "name": "Big Jump.fbx",
+      "size": 2147680,
+      "sha256": "d06216d99424470bf667819e38800d9a9dcc86f6367fb27254befacda2e7a266",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Blocking.fbx",
+      "name": "Blocking.fbx",
+      "size": 1927488,
+      "sha256": "ec5410d7691ffcb168e57f11ab2a0324b7e63fde48eb5c58afd2c06050388424",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Body Block.fbx",
+      "name": "Body Block.fbx",
+      "size": 2337744,
+      "sha256": "c400124a30629d456efb796db608741729c4667a51bd2e794a6fd13939a17e84",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Center Block.fbx",
+      "name": "Center Block.fbx",
+      "size": 2132640,
+      "sha256": "768df7cd2c39a7f304090ee43e76c7d81ec753dffdffb6e6243e878de9eaa3a3",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Combo Punch.fbx",
+      "name": "Combo Punch.fbx",
+      "size": 2098448,
+      "sha256": "25f18e55b53ecadf5bcd177350fc65f755be06a708c96589a91d9ce464a83fde",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Corkscrew Evade.fbx",
+      "name": "Corkscrew Evade.fbx",
+      "size": 2178048,
+      "sha256": "5c3f0e3c48407713119a793b74d46ce5f6e56e4e4e86a18d392dfa0c2d4c4252",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Dodging Back.fbx",
+      "name": "Dodging Back.fbx",
+      "size": 2163856,
+      "sha256": "b91a035a9b5e3e8c62a9d593a80bc820f3cf544ce706bea34951432852200b93",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Dodging Right.fbx",
+      "name": "Dodging Right.fbx",
+      "size": 1971072,
+      "sha256": "10c9f75a22b9a74212ff3c5522c9b7ada17ed56dce419d5ac0850bf271ca677c",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Dodging.fbx",
+      "name": "Dodging.fbx",
+      "size": 2032112,
+      "sha256": "384f61a6598fbe4817bd95d21225d3db40c78adcd3b8dc71b5cda76de989ecb7",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Drop Kick.fbx",
+      "name": "Drop Kick.fbx",
+      "size": 2249232,
+      "sha256": "0d082fae19285c64a5e317af02eb2859db18d8091d1d24c058d1e09085c817b4",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Elbow Uppercut Combo.fbx",
+      "name": "Elbow Uppercut Combo.fbx",
+      "size": 2103248,
+      "sha256": "17893ff3b7e3250867c18259bf6529110ecebb008e5910ce7316d4e43503aae1",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Falling To Roll.fbx",
+      "name": "Falling To Roll.fbx",
+      "size": 2101728,
+      "sha256": "c42a853d2bfa224ceeeac4e6a2c2022d41fbfc21c7ca036f8b80972420a43ec5",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Flying Bicycle Kick.fbx",
+      "name": "Flying Bicycle Kick.fbx",
+      "size": 1836576,
+      "sha256": "364733cdb98c8a83ed6dbb44b8bd499d03836c8314c109e5eb7239ba686963da",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Flying Knee Punch Combo.fbx",
+      "name": "Flying Knee Punch Combo.fbx",
+      "size": 2208912,
+      "sha256": "95637d7eb16c15431541eafd6097f8980a46c8e9e2a9bf991cfe67d3f83f5a4e",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Hurricane Kick.fbx",
+      "name": "Hurricane Kick.fbx",
+      "size": 1949616,
+      "sha256": "c7e8a9ff8197c2627ea9350cf5bb41276fc5aa57e5f43c314e5585b57f4c6fc1",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Illegal Elbow Punch.fbx",
+      "name": "Illegal Elbow Punch.fbx",
+      "size": 2021312,
+      "sha256": "92175806a4c6dacbfd79cbccbb2fbbd5cbd5aa842fe1e1101b17f6be094b1b80",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Inside Crescent Kick.fbx",
+      "name": "Inside Crescent Kick.fbx",
+      "size": 2186384,
+      "sha256": "95f78d1fec61f576bef902977d0534b20a0d41ff87c67c84142cbcb7ef8202e6",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Inverted Double Kick To Kip Up.fbx",
+      "name": "Inverted Double Kick To Kip Up.fbx",
+      "size": 2300000,
+      "sha256": "388e7e4e684d014e5992fb5992f5f9d4c2694295326acefac28d72aee3d8e874",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Jump Over.fbx",
+      "name": "Jump Over.fbx",
+      "size": 2139936,
+      "sha256": "1f436eb548944ef27bc336eb0f9afc297646ccae752c7d6b0f317af7f235f5b0",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Jumping Down.fbx",
+      "name": "Jumping Down.fbx",
+      "size": 2123632,
+      "sha256": "88e0e54a0050ef7c866ad818d05d12fd4e72e0c31bf9e793d69af2b2c61f9b48",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Knee Jabs To Uppercut.fbx",
+      "name": "Knee Jabs To Uppercut.fbx",
+      "size": 2676384,
+      "sha256": "274dbcace0c11df39096c463d6ad4204557ca526f68b2d5f38f0812b8846e776",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Punch Combo.fbx",
+      "name": "Punch Combo.fbx",
+      "size": 2017360,
+      "sha256": "c9813e5faccbb519f32ba1a77c5667a0d22df381ba339c0e1fb9dd1df7801d1b",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Punching.fbx",
+      "name": "Punching.fbx",
+      "size": 1938288,
+      "sha256": "3e369641ac7c3715e0a567696f161d7fccc58ae96bd73173c3a272b703638f01",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Quick Roll To Run.fbx",
+      "name": "Quick Roll To Run.fbx",
+      "size": 2053296,
+      "sha256": "0f66628093934a6c6c10e4a88777b39b0d48dd032edfcb79c77bb6b1c3f9bb01",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Ready Idle.fbx",
+      "name": "Ready Idle.fbx",
+      "size": 2043264,
+      "sha256": "7abfcca455fca41a18432909637feaf85be1a7d96fdc60b5681853b907cf7ee1",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Roll Kicking.fbx",
+      "name": "Roll Kicking.fbx",
+      "size": 2099024,
+      "sha256": "b3967aad9aba01c85a6f8ffb3c34056d5cca65d08224f13fd6beccec07784023",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Roundhouse Kick.fbx",
+      "name": "Roundhouse Kick.fbx",
+      "size": 2178048,
+      "sha256": "2c30d536c369ad0e53b41875d608f561539a7ea6cbf8781145be0e742a061e5b",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Run To Rolling.fbx",
+      "name": "Run To Rolling.fbx",
+      "size": 2167328,
+      "sha256": "07c272ca77444a1b23287c28cee56c54c19da53472bd92db4760f294be26e0ca",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\2027新春企画\\10_動画編集\\LASTCHASE_比較ラフ_20261016_v01\\mixamo_new_sources\\Spin Flip Kick.fbx",
+      "name": "Spin Flip Kick.fbx",
+      "size": 2386576,
+      "sha256": "3f7cc17259f9474a7e9288bdb3ab8174cc17b2d2aa2524b5da28e751f8a8c58e",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Aerial Evade.fbx",
+      "name": "Aerial Evade.fbx",
+      "size": 2377120,
+      "sha256": "e188085828a0acee979f3dc6648834e412eb4547cd44c0e8751c245a9eac305a",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Au To Role.fbx",
+      "name": "Au To Role.fbx",
+      "size": 2434896,
+      "sha256": "6da214f777bb83dada1874eb1f4ff94c0f87f4b01e833ab2f96443ba9f7e64d2",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Back Flip To Uppercut.fbx",
+      "name": "Back Flip To Uppercut.fbx",
+      "size": 2606656,
+      "sha256": "4a964bc408c2ee4b87823194857e649c391e570a8f29b7cbe2cc14667eab5429",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Big Jump.fbx",
+      "name": "Big Jump.fbx",
+      "size": 2147680,
+      "sha256": "d06216d99424470bf667819e38800d9a9dcc86f6367fb27254befacda2e7a266",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Blocking.fbx",
+      "name": "Blocking.fbx",
+      "size": 1927488,
+      "sha256": "ec5410d7691ffcb168e57f11ab2a0324b7e63fde48eb5c58afd2c06050388424",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Body Block.fbx",
+      "name": "Body Block.fbx",
+      "size": 2337744,
+      "sha256": "c400124a30629d456efb796db608741729c4667a51bd2e794a6fd13939a17e84",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Center Block.fbx",
+      "name": "Center Block.fbx",
+      "size": 2132640,
+      "sha256": "768df7cd2c39a7f304090ee43e76c7d81ec753dffdffb6e6243e878de9eaa3a3",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Combo Punch.fbx",
+      "name": "Combo Punch.fbx",
+      "size": 2098448,
+      "sha256": "25f18e55b53ecadf5bcd177350fc65f755be06a708c96589a91d9ce464a83fde",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Corkscrew Evade.fbx",
+      "name": "Corkscrew Evade.fbx",
+      "size": 2178048,
+      "sha256": "5c3f0e3c48407713119a793b74d46ce5f6e56e4e4e86a18d392dfa0c2d4c4252",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Dodging Back.fbx",
+      "name": "Dodging Back.fbx",
+      "size": 2163856,
+      "sha256": "b91a035a9b5e3e8c62a9d593a80bc820f3cf544ce706bea34951432852200b93",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Dodging Right.fbx",
+      "name": "Dodging Right.fbx",
+      "size": 1971072,
+      "sha256": "10c9f75a22b9a74212ff3c5522c9b7ada17ed56dce419d5ac0850bf271ca677c",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Dodging.fbx",
+      "name": "Dodging.fbx",
+      "size": 2032112,
+      "sha256": "384f61a6598fbe4817bd95d21225d3db40c78adcd3b8dc71b5cda76de989ecb7",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Drop Kick.fbx",
+      "name": "Drop Kick.fbx",
+      "size": 2249232,
+      "sha256": "0d082fae19285c64a5e317af02eb2859db18d8091d1d24c058d1e09085c817b4",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Elbow Uppercut Combo.fbx",
+      "name": "Elbow Uppercut Combo.fbx",
+      "size": 2103248,
+      "sha256": "17893ff3b7e3250867c18259bf6529110ecebb008e5910ce7316d4e43503aae1",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Falling To Roll.fbx",
+      "name": "Falling To Roll.fbx",
+      "size": 2101728,
+      "sha256": "c42a853d2bfa224ceeeac4e6a2c2022d41fbfc21c7ca036f8b80972420a43ec5",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Flying Bicycle Kick.fbx",
+      "name": "Flying Bicycle Kick.fbx",
+      "size": 1836576,
+      "sha256": "364733cdb98c8a83ed6dbb44b8bd499d03836c8314c109e5eb7239ba686963da",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Flying Knee Punch Combo.fbx",
+      "name": "Flying Knee Punch Combo.fbx",
+      "size": 2208912,
+      "sha256": "95637d7eb16c15431541eafd6097f8980a46c8e9e2a9bf991cfe67d3f83f5a4e",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Hurricane Kick.fbx",
+      "name": "Hurricane Kick.fbx",
+      "size": 1949616,
+      "sha256": "c7e8a9ff8197c2627ea9350cf5bb41276fc5aa57e5f43c314e5585b57f4c6fc1",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Illegal Elbow Punch.fbx",
+      "name": "Illegal Elbow Punch.fbx",
+      "size": 2021312,
+      "sha256": "92175806a4c6dacbfd79cbccbb2fbbd5cbd5aa842fe1e1101b17f6be094b1b80",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Inside Crescent Kick.fbx",
+      "name": "Inside Crescent Kick.fbx",
+      "size": 2186384,
+      "sha256": "95f78d1fec61f576bef902977d0534b20a0d41ff87c67c84142cbcb7ef8202e6",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Inverted Double Kick To Kip Up.fbx",
+      "name": "Inverted Double Kick To Kip Up.fbx",
+      "size": 2300000,
+      "sha256": "388e7e4e684d014e5992fb5992f5f9d4c2694295326acefac28d72aee3d8e874",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Jump Over.fbx",
+      "name": "Jump Over.fbx",
+      "size": 2139936,
+      "sha256": "1f436eb548944ef27bc336eb0f9afc297646ccae752c7d6b0f317af7f235f5b0",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Jumping Down.fbx",
+      "name": "Jumping Down.fbx",
+      "size": 2123632,
+      "sha256": "88e0e54a0050ef7c866ad818d05d12fd4e72e0c31bf9e793d69af2b2c61f9b48",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Knee Jabs To Uppercut.fbx",
+      "name": "Knee Jabs To Uppercut.fbx",
+      "size": 2676384,
+      "sha256": "274dbcace0c11df39096c463d6ad4204557ca526f68b2d5f38f0812b8846e776",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Punch Combo.fbx",
+      "name": "Punch Combo.fbx",
+      "size": 2017360,
+      "sha256": "c9813e5faccbb519f32ba1a77c5667a0d22df381ba339c0e1fb9dd1df7801d1b",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Punching.fbx",
+      "name": "Punching.fbx",
+      "size": 1938288,
+      "sha256": "3e369641ac7c3715e0a567696f161d7fccc58ae96bd73173c3a272b703638f01",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Quick Roll To Run.fbx",
+      "name": "Quick Roll To Run.fbx",
+      "size": 2053296,
+      "sha256": "0f66628093934a6c6c10e4a88777b39b0d48dd032edfcb79c77bb6b1c3f9bb01",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Ready Idle.fbx",
+      "name": "Ready Idle.fbx",
+      "size": 2043264,
+      "sha256": "7abfcca455fca41a18432909637feaf85be1a7d96fdc60b5681853b907cf7ee1",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Roll Kicking.fbx",
+      "name": "Roll Kicking.fbx",
+      "size": 2099024,
+      "sha256": "b3967aad9aba01c85a6f8ffb3c34056d5cca65d08224f13fd6beccec07784023",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Roundhouse Kick.fbx",
+      "name": "Roundhouse Kick.fbx",
+      "size": 2178048,
+      "sha256": "2c30d536c369ad0e53b41875d608f561539a7ea6cbf8781145be0e742a061e5b",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Run To Rolling.fbx",
+      "name": "Run To Rolling.fbx",
+      "size": 2167328,
+      "sha256": "07c272ca77444a1b23287c28cee56c54c19da53472bd92db4760f294be26e0ca",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    },
+    {
+      "path": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\lastchase_ab_20261016\\mixamo_new_sources\\Spin Flip Kick.fbx",
+      "name": "Spin Flip Kick.fbx",
+      "size": 2386576,
+      "sha256": "3f7cc17259f9474a7e9288bdb3ab8174cc17b2d2aa2524b5da28e751f8a8c58e",
+      "valid_fbx_header": true,
+      "mixamo_evidence": true,
+      "registered_provenance": true
+    }
+  ],
+  "unique_mixamo_files": 32,
+  "other_fbx_in_editing_root": 0,
+  "uploaded_motions": 32,
+  "reused": 0,
+  "model_additions": [
+    {
+      "kind": "modelA",
+      "name": "Ready Idle.fbx",
+      "id": "c452125c052bef4b46a4893c"
+    },
+    {
+      "kind": "modelB",
+      "name": "Ready Idle.fbx",
+      "id": "c589443b1e0ad404f64ea34c"
+    }
+  ],
+  "manifest_entries": 34,
+  "catalog_entries": 82,
+  "original50_unchanged": true,
+  "fbx_api_readback_sha256_pass": 34,
+  "backup": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\mixamo_viewer_registration_20261017_v01\\before",
+  "modified_files": [
+    "index.html",
+    "MOTION_CATALOG_50.json",
+    "DEVELOPER_GUIDE_JA.md",
+    "data/manifest.json",
+    "data/files/*"
+  ],
+  "api_manifest": {
+    "files": [
+      {
+        "id": "e75ac5f672e1ba0d46a957e9",
+        "name": "Aerial Evade.fbx",
+        "kind": "motions",
+        "size": 2377120
+      },
+      {
+        "id": "4a572bda869be39f09f814d9",
+        "name": "Au To Role.fbx",
+        "kind": "motions",
+        "size": 2434896
+      },
+      {
+        "id": "49d2c88314d7615ebf6b0b80",
+        "name": "Back Flip To Uppercut.fbx",
+        "kind": "motions",
+        "size": 2606656
+      },
+      {
+        "id": "492cd03360e2c6798c94d240",
+        "name": "Big Jump.fbx",
+        "kind": "motions",
+        "size": 2147680
+      },
+      {
+        "id": "54cc87d21c2b7a4705def0fc",
+        "name": "Blocking.fbx",
+        "kind": "motions",
+        "size": 1927488
+      },
+      {
+        "id": "0c8671f8df3296de02e7d54a",
+        "name": "Body Block.fbx",
+        "kind": "motions",
+        "size": 2337744
+      },
+      {
+        "id": "78f48dc555736072ccac6a7d",
+        "name": "Center Block.fbx",
+        "kind": "motions",
+        "size": 2132640
+      },
+      {
+        "id": "270685fab6d6bc6be78bfbcc",
+        "name": "Combo Punch.fbx",
+        "kind": "motions",
+        "size": 2098448
+      },
+      {
+        "id": "878cc76cabe4329632cb5e01",
+        "name": "Corkscrew Evade.fbx",
+        "kind": "motions",
+        "size": 2178048
+      },
+      {
+        "id": "1c050bdec865f487832892f3",
+        "name": "Dodging Back.fbx",
+        "kind": "motions",
+        "size": 2163856
+      },
+      {
+        "id": "fa914100d0ce507e9618e8e1",
+        "name": "Dodging Right.fbx",
+        "kind": "motions",
+        "size": 1971072
+      },
+      {
+        "id": "c1b0a0a9b1e584e13ed6963e",
+        "name": "Dodging.fbx",
+        "kind": "motions",
+        "size": 2032112
+      },
+      {
+        "id": "e19c9ebb5c8db35fbbc99487",
+        "name": "Drop Kick.fbx",
+        "kind": "motions",
+        "size": 2249232
+      },
+      {
+        "id": "161e4e4629433a6f598f9bd9",
+        "name": "Elbow Uppercut Combo.fbx",
+        "kind": "motions",
+        "size": 2103248
+      },
+      {
+        "id": "fb256082204ff50273a47001",
+        "name": "Falling To Roll.fbx",
+        "kind": "motions",
+        "size": 2101728
+      },
+      {
+        "id": "d3912edbfb86c426d7416c55",
+        "name": "Flying Bicycle Kick.fbx",
+        "kind": "motions",
+        "size": 1836576
+      },
+      {
+        "id": "833747e5c4ebfa318fadaf35",
+        "name": "Flying Knee Punch Combo.fbx",
+        "kind": "motions",
+        "size": 2208912
+      },
+      {
+        "id": "702ae790d2274ac351128d5f",
+        "name": "Hurricane Kick.fbx",
+        "kind": "motions",
+        "size": 1949616
+      },
+      {
+        "id": "9200710eeb73ba9ef7f729c9",
+        "name": "Illegal Elbow Punch.fbx",
+        "kind": "motions",
+        "size": 2021312
+      },
+      {
+        "id": "a5cffd169f1a5920bd45a2b4",
+        "name": "Inside Crescent Kick.fbx",
+        "kind": "motions",
+        "size": 2186384
+      },
+      {
+        "id": "1ef732fd332117e5c37170d8",
+        "name": "Inverted Double Kick To Kip Up.fbx",
+        "kind": "motions",
+        "size": 2300000
+      },
+      {
+        "id": "e5593eb34367b1ace0e8c87f",
+        "name": "Jump Over.fbx",
+        "kind": "motions",
+        "size": 2139936
+      },
+      {
+        "id": "b2dd8ed8ba22097454546f38",
+        "name": "Jumping Down.fbx",
+        "kind": "motions",
+        "size": 2123632
+      },
+      {
+        "id": "e8de0a466ebea9c93b62694b",
+        "name": "Knee Jabs To Uppercut.fbx",
+        "kind": "motions",
+        "size": 2676384
+      },
+      {
+        "id": "ea555e6380ec52b3669ffd71",
+        "name": "Punch Combo.fbx",
+        "kind": "motions",
+        "size": 2017360
+      },
+      {
+        "id": "c4574a5e866410f4b01bf381",
+        "name": "Punching.fbx",
+        "kind": "motions",
+        "size": 1938288
+      },
+      {
+        "id": "965f947e855210b209a45849",
+        "name": "Quick Roll To Run.fbx",
+        "kind": "motions",
+        "size": 2053296
+      },
+      {
+        "id": "43c26b66b4116d20d7125910",
+        "name": "Ready Idle.fbx",
+        "kind": "motions",
+        "size": 2043264
+      },
+      {
+        "id": "83ff1b90b17b6da75a8936a6",
+        "name": "Roll Kicking.fbx",
+        "kind": "motions",
+        "size": 2099024
+      },
+      {
+        "id": "3c3af7062bb605584c90e897",
+        "name": "Roundhouse Kick.fbx",
+        "kind": "motions",
+        "size": 2178048
+      },
+      {
+        "id": "86785fc8e92f149350bf29d9",
+        "name": "Run To Rolling.fbx",
+        "kind": "motions",
+        "size": 2167328
+      },
+      {
+        "id": "05a63cfe9ee9cc90499d8d2b",
+        "name": "Spin Flip Kick.fbx",
+        "kind": "motions",
+        "size": 2386576
+      },
+      {
+        "id": "c452125c052bef4b46a4893c",
+        "name": "Ready Idle.fbx",
+        "kind": "modelA",
+        "size": 2043264
+      },
+      {
+        "id": "c589443b1e0ad404f64ea34c",
+        "name": "Ready Idle.fbx",
+        "kind": "modelB",
+        "size": 2043264
+      }
+    ],
+    "mapping": {
+      "Aerial Evade": "aerialevade",
+      "Au To Role": "autorole",
+      "Back Flip To Uppercut": "backfliptouppercut",
+      "Big Jump": "bigjump",
+      "Blocking": "blocking",
+      "Body Block": "bodyblock",
+      "Center Block": "centerblock",
+      "Combo Punch": "combopunch",
+      "Corkscrew Evade": "corkscrewevade",
+      "Dodging Back": "dodgingback",
+      "Dodging Right": "dodgingright",
+      "Dodging": "dodging",
+      "Drop Kick": "dropkick",
+      "Elbow Uppercut Combo": "elbowuppercutcombo",
+      "Falling To Roll": "fallingtoroll",
+      "Flying Bicycle Kick": "flyingbicyclekick",
+      "Flying Knee Punch Combo": "flyingkneepunchcombo",
+      "Hurricane Kick": "hurricanekick",
+      "Illegal Elbow Punch": "illegalelbowpunch",
+      "Inside Crescent Kick": "insidecrescentkick",
+      "Inverted Double Kick To Kip Up": "inverteddoublekicktokipup",
+      "Jump Over": "jumpover",
+      "Jumping Down": "jumpingdown",
+      "Knee Jabs To Uppercut": "kneejabstouppercut",
+      "Punch Combo": "punchcombo",
+      "Punching": "punching",
+      "Quick Roll To Run": "quickrolltorun",
+      "Ready Idle": "readyidle",
+      "Roll Kicking": "rollkicking",
+      "Roundhouse Kick": "roundhousekick",
+      "Run To Rolling": "runtorolling",
+      "Spin Flip Kick": "spinflipkick"
+    }
+  },
+  "limits": [
+    "No additional Claude Code FBX was present under the searched editing root.",
+    "Original50 are design/search candidates; unavailable names remain unassigned.",
+    "FBX registration does not perform MMD/VMD conversion."
+  ],
+  "playable_crown_entries": 32,
+  "browser_runtime_qa": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\mixamo_viewer_registration_20261017_v01\\browser_qa.json",
+  "crown_color_reload_qa": "D:\\BAI\\BAI Davinci Resolve DRFX\\editing_runs\\mixamo_viewer_registration_20261017_v01\\crown_qa.json",
+  "viewer_backup_folder": "D:\\BAI\\2027新春企画\\30_3D\\mixamoビューワー\\_backups\\20261017_codex_mixamo_registration",
+  "all_source_fbx_unchanged": true,
+  "current_index_sha256": "1f3e4bfee4dd2875ab78102d3edd557b6d2a6ee9fe0f93ac194109bb7793123e"
+}

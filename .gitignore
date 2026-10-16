@@ -1,0 +1,15 @@
+# Keep large/replaceable content out of Git history.
+/data/files/
+/data/mmd/
+/data/manifest.json
+/data/favorites.json
+/data/project_state.json
+/data/conversion_map.json
+/data/mmd_assets.json
+/data/sync_state.json
+/data/conversion_status.json
+/exports/
+__pycache__/
+*.pyc
+*.tmp
+*.blend1
