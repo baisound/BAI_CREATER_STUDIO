@@ -16,3 +16,5 @@ __pycache__/
 
 # Phase 00 local diagnostics
 /data/logs/
+
+/data/integrated_v02/assets/

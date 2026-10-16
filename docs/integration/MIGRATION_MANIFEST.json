@@ -1,0 +1,87 @@
+{
+  "origin": "20261015_v02(1).zip",
+  "assets": {
+    "/motions/jump.fbx": {
+      "file": "assets/jump.fbx",
+      "size": 2192528,
+      "sha256": "e2c28fcbead5a3266ab4b67403caa8794165fbe20a5218a0444ee6f611402264"
+    },
+    "/motions/library/Rig_Medium_CombatMelee.glb": {
+      "file": "assets/Rig_Medium_CombatMelee.glb",
+      "size": 999416,
+      "sha256": "c55e6ec1c79e83ae21d46fe1cd921c1b64be8b9a524a24517e51c6ba99231459"
+    },
+    "/motions/library/Rig_Medium_CombatRanged.glb": {
+      "file": "assets/Rig_Medium_CombatRanged.glb",
+      "size": 1014852,
+      "sha256": "7fef1fc0e7b0feafd34b8e12d23f514c8c1f9d068047a691b854b56f1774dff5"
+    },
+    "/motions/library/Rig_Medium_General.glb": {
+      "file": "assets/Rig_Medium_General.glb",
+      "size": 828240,
+      "sha256": "5f725c0f745f36078c7238968cd5c04843cbc6260689eb6e7f5e2bbd7ffdd7ad"
+    },
+    "/motions/library/Rig_Medium_MovementAdvanced.glb": {
+      "file": "assets/Rig_Medium_MovementAdvanced.glb",
+      "size": 719628,
+      "sha256": "8b2317cf81e3f24149e4b791c27e1932bebd46cd378ed962e7d27d642fad8c56"
+    },
+    "/motions/library/Rig_Medium_MovementBasic.glb": {
+      "file": "assets/Rig_Medium_MovementBasic.glb",
+      "size": 689624,
+      "sha256": "11422afd50abf7e8c92ea107e2e0bc94abd38023d6d15f55ad580347efbfa29e"
+    },
+    "/motions/library/Rig_Medium_Simulation.glb": {
+      "file": "assets/Rig_Medium_Simulation.glb",
+      "size": 855904,
+      "sha256": "ab6ffeed40c8281dd0ce0506534eadf7385151f1c266643a10fa2a0f0a7ba3b1"
+    },
+    "/motions/library/Rig_Medium_Tools.glb": {
+      "file": "assets/Rig_Medium_Tools.glb",
+      "size": 1461204,
+      "sha256": "e3b62dc122c5073373376a846e354137add2088ddcce8731c389fc5c20734aad"
+    },
+    "/motions/library/UAL1_Standard_RM.glb": {
+      "file": "assets/UAL1_Standard_RM.glb",
+      "size": 7620504,
+      "sha256": "be684571ed655a1b892c2c07e6e2aeca053b606c442d34004adaf1d944090d01"
+    },
+    "/motions/library/UAL2_Standard_RM.glb": {
+      "file": "assets/UAL2_Standard_RM.glb",
+      "size": 8095936,
+      "sha256": "814eee878f82934992d3ea746c539df25e981487109c591f5efbb8dd03286f99"
+    },
+    "/motions/run.fbx": {
+      "file": "assets/run.fbx",
+      "size": 1876400,
+      "sha256": "97e9b25f43476f4d190d29a3247383e2d283f5f38e703d2cad2ed6e289b13097"
+    },
+    "/motions/walk_standard.fbx": {
+      "file": "assets/walk_standard.fbx",
+      "size": 2009088,
+      "sha256": "cb9df56338ce499f3d9d4fe1a0747cb9e825dc87bd497e95a15523c8a33df96b"
+    },
+    "/VRM/K00_黒狼_バイサウンド.vrm": {
+      "file": "assets/K00_黒狼_バイサウンド.vrm",
+      "size": 30062984,
+      "sha256": "8f882c2c003bf19c65386ad3f3e0a1dad45f241a90a745c08cf4574c9de71ef0"
+    },
+    "/VRM/W02_白峰ユキナ.vrm": {
+      "file": "assets/W02_白峰ユキナ.vrm",
+      "size": 23331756,
+      "sha256": "0ff97e827ca8e9ad1a9db81795366319a478139fc3bc7e524fbb29605dcfee02"
+    },
+    "/VRM/W03_疾風カナタ.vrm": {
+      "file": "assets/W03_疾風カナタ.vrm",
+      "size": 22845032,
+      "sha256": "1a60f246cbd9a6e1b2c797325f06dae4a3875703167fba9d8c681deb24716a58"
+    }
+  },
+  "excluded": [
+    "evidence/",
+    "captures/",
+    "logs/",
+    "runtime/node.exe",
+    "runtime/node_modules/"
+  ]
+}

@@ -110,6 +110,25 @@ class Handler(BaseHTTPRequestHandler):
             try: payload=FAVORITES.read_bytes()
             except FileNotFoundError:payload=b'[]'
             self.send(200,payload);return
+        if path=='/api/integrated-v02/catalog':
+            try:
+                payload=(DATA/'integrated_v02'/'catalog.json').read_bytes()
+            except OSError:return self.bad(404,'integrated catalog is missing')
+            self.send(200,payload);return
+        if path.startswith('/api/integrated-v02/asset/'):
+            from urllib.parse import unquote
+            filename=unquote(path.split('/')[-1])
+            if not filename or filename in ('.','..') or '/' in filename or '\\' in filename:
+                return self.bad(400,'invalid asset name')
+            try:
+                c=json.loads((DATA/'integrated_v02'/'catalog.json').read_text(encoding='utf8'))
+                allowed={x['source_asset'] for x in c.get('motions',[])+c.get('models',[]) if x.get('source_asset')}
+            except (OSError,ValueError,KeyError):return self.bad(503,'catalog unavailable')
+            asset='assets/'+filename
+            if asset not in allowed:return self.bad(404,'asset is not registered')
+            p=DATA/'integrated_v02'/asset
+            if not p.is_file():return self.bad(404,'asset missing')
+            self.send(200,p.read_bytes(),'application/octet-stream');return
         if path=='/api/manifest':self.send(200,json.dumps(readmeta(),ensure_ascii=False).encode());return
         if path.startswith('/api/file/'):
             fid=path.split('/')[-1];entry=next((e for e in readmeta()['files'] if e['id']==fid),None)
