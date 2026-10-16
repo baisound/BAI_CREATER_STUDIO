@@ -174,3 +174,6 @@
 - **[LYRIC-010](FEATURE_DETAIL_JA.md#lyric-010)** 可動ドア・ギミック・マップ物理
 - **[LYRIC-011](FEATURE_DETAIL_JA.md#lyric-011)** プロシージャル歩行/待機/呼吸
 - **[LYRIC-012](FEATURE_DETAIL_JA.md#lyric-012)** 高度検索・振付ライブラリ管理
+
+## 最優先の統合工程
+[添付v02分析](ATTACHMENT_20261015_V02_ANALYSIS_JA.md) / [Phase 00計画](PHASE_00_INTEGRATION_JA.md)

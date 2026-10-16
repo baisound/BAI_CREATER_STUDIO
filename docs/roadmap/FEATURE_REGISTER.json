@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "baseline": "v0.11.0-standalone",
   "features": [
     {
@@ -1063,6 +1063,121 @@
       "detail": "ポーズ特徴量/作風/タグ",
       "status": "計画・未検証",
       "dependency": "DATA,CAM,RENDER"
+    },
+    {
+      "id": "REVIEW-001",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "原モーション・対象モデル・半透明重ね合わせの3画面比較",
+      "detail": "3画面を共通比較ビューポートに統合。F番号同期、カメラ同期、可視化の独立設定。",
+      "status": "移植候補・未統合",
+      "dependency": "MOTION-004;MOTION-009;MOTION-019"
+    },
+    {
+      "id": "REVIEW-002",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "接地・床侵入・衣装干渉の定量監査",
+      "detail": "実頂点/実ボーンを基にフレーム別結果と根拠を取得。既存品質検査エンジンへ統合。",
+      "status": "移植候補・未統合",
+      "dependency": "MOTION-012;MOTION-014;MOTION-021"
+    },
+    {
+      "id": "REVIEW-003",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "監査証跡と合否・保留・未検査の判定管理",
+      "detail": "ハッシュとモデルrevision・閾値・物理状態を監査記録へ固定。未検査を合格扱いしない。",
+      "status": "移植候補・未統合",
+      "dependency": "CORE-009;CORE-011;MOTION-021"
+    },
+    {
+      "id": "REVIEW-004",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "フレーム指定キャプチャと比較証跡ZIP",
+      "detail": "元・対象・重畳キャプチャを同フレームで生成しJSONと関連付け。",
+      "status": "移植候補・未統合",
+      "dependency": "CORE-002;CORE-003;MOTION-019"
+    },
+    {
+      "id": "REVIEW-005",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "複数ビュー・複数タブのクライアント識別",
+      "detail": "同時接続時はclientIdを必須にして誤操作を防止。",
+      "status": "移植候補・未統合",
+      "dependency": "CORE-005;CORE-004"
+    },
+    {
+      "id": "REVIEW-006",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "モデル別掌向き・前腕・指の把持校正",
+      "detail": "掌の長手/横2軸を使用し、小道具の方向・握りをモデル別補正。非破壊で適用。",
+      "status": "移植候補・未統合",
+      "dependency": "MOTION-004;DANCE-009"
+    },
+    {
+      "id": "REVIEW-007",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "専用扇モーションと開閉・保持フェーズ",
+      "detail": "正本扇モデルとの権利・参照を切り分け、扇の開閉と腕の動作を同期。",
+      "status": "移植候補・未統合",
+      "dependency": "DANCE-009;MOTION-011"
+    },
+    {
+      "id": "REVIEW-008",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "全身範囲に連動する自動カメラフレーミング",
+      "detail": "跳躍・転倒・前転でメッシュの視界外を検出し自動フレーミング。",
+      "status": "移植候補・未統合",
+      "dependency": "CAM-006;CAM-010"
+    },
+    {
+      "id": "REVIEW-009",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "VRM SpringBone物理ON/OFF比較とプリロール",
+      "detail": "物理条件と事前計算秒数を監査メタデータに保持。MMD物理と別モード。",
+      "status": "移植候補・未統合",
+      "dependency": "MOTION-018;MOTION-020"
+    },
+    {
+      "id": "REVIEW-010",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "素材ライセンス・ハッシュ・生成元追跡",
+      "detail": "Mixamo/CC0/Charakuru等の権利別素材、SHA256、配布可能性を管理。",
+      "status": "移植候補・未統合",
+      "dependency": "DATA-007;DATA-014;CORE-009"
+    },
+    {
+      "id": "REVIEW-011",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "モデル完成判定とレビューキュー",
+      "detail": "ready/制作途中/ownerCompleteを分離し修正待ちを追跡。",
+      "status": "移植候補・未統合",
+      "dependency": "MOTION-021;CORE-011"
+    },
+    {
+      "id": "REVIEW-012",
+      "group": "REVIEW",
+      "phase": 0,
+      "name": "定量計測のフレーム単位操作と診断比較",
+      "detail": "実測mm・角度・位相・揺れ等のメトリクスを並列比較。",
+      "status": "移植候補・未統合",
+      "dependency": "MOTION-021;DATA-004"
     }
-  ]
+  ],
+  "integration_review": {
+    "source": "20261015_v02(1).zip",
+    "source_date": "2026-10-15",
+    "stage": "分析・設計のみ。ソース/VRM/FBXは未移植、削除未実施",
+    "feature_count": 130,
+    "added_review_ids": 12
+  }
 }
