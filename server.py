@@ -1,5 +1,5 @@
 # Python 3.9+ standard library only. Binds to loopback, not LAN.
-import hashlib, json, mimetypes, os, re, sys, threading, shutil, subprocess, time
+import hashlib, json, mimetypes, os, re, sys, threading, shutil, subprocess, time, zipfile, io, posixpath
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
@@ -8,6 +8,7 @@ BASE=Path(__file__).resolve().parent
 DATA=BASE/'data'; FILES=DATA/'files'; FILES.mkdir(parents=True,exist_ok=True)
 MMD_DIR=DATA/'mmd'; MMD_DIR.mkdir(parents=True,exist_ok=True)
 MMD_META=DATA/'mmd_assets.json'; MMD_LOCK=threading.RLock()
+PMX_ZIP_MAX_FILES=1500; PMX_ZIP_MAX_UNCOMPRESSED=600*1024*1024
 META=DATA/'manifest.json'; FAVORITES=DATA/'favorites.json'; PROJECT=DATA/'project_state.json'; PROJECT_LOCK=threading.RLock(); MAX_SIZE=400*1024*1024
 
 def readmeta():
@@ -75,12 +76,12 @@ class Handler(BaseHTTPRequestHandler):
             self.send(200,json.dumps(read_mmd(),ensure_ascii=False).encode());return
         if path.startswith('/api/mmd-file/'):
             parts=path.split('/')
-            if len(parts)!=5 or parts[3] not in ('A','B','vmd'):
+            if len(parts)<5 or parts[3] not in ('A','B','vmd'):
                 return self.bad(400,'invalid asset path')
-            slot,name=parts[3],parts[4]
+            slot,name=parts[3],'/'.join(parts[4:])
             from urllib.parse import unquote
             name=unquote(name)
-            if '/' in name or '\\' in name or name in ('.','..') or not any(e.get('name')==name for e in read_mmd().get(slot,[])):
+            if (not name or name.startswith('/') or any(p in ('','.', '..') for p in name.split('/')) or '\\' in name or not any(e.get('name')==name for e in read_mmd().get(slot,[]))):
                 return self.bad(404,'asset not registered')
             f=MMD_DIR/slot/name
             if not f.is_file():return self.bad(404,'asset missing')
@@ -197,6 +198,57 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError,ValueError,KeyError) as exc:
                 write_conversion_status({'status':'failed','error':str(exc)});return self.bad(500,str(exc))
             finally:CONVERT_LOCK.release()
+        if u.path=='/api/pmx-zip-upload':
+            slot=qs.get('slot',[''])[0]
+            if slot not in ('A','B'):return self.bad(400,'invalid PMX slot')
+            if n<1 or n>MAX_SIZE:return self.bad(413,'ZIP exceeds upload limit')
+            payload=self.rfile.read(n)
+            if len(payload)!=n:return self.bad(400,'incomplete upload')
+            try:
+                with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+                    entries=[x for x in archive.infolist() if not x.is_dir()]
+                    if not entries or len(entries)>PMX_ZIP_MAX_FILES:raise ValueError('ZIP file count limit exceeded')
+                    total=sum(x.file_size for x in entries)
+                    if total>PMX_ZIP_MAX_UNCOMPRESSED:raise ValueError('uncompressed ZIP too large')
+                    valid=[]
+                    for e in entries:
+                        path=e.filename.replace('\\','/')
+                        segments=path.split('/')
+                        if (not path or path.startswith('/') or any(seg in ('','.', '..') for seg in segments) or
+                            ':' in path or '\x00' in path or e.flag_bits & 1 or (e.external_attr>>16)&0o170000 == 0o120000):
+                            raise ValueError('unsafe ZIP path or encrypted entry')
+                        if not re.search(r'\.(pmx|png|jpg|jpeg|bmp|tga|spa|sph|gif|dds|webp|toon)$',path,re.I):
+                            continue
+                        valid.append((e,path))
+                    models=[path for _,path in valid if path.lower().endswith('.pmx')]
+                    if len(models)!=1:raise ValueError('ZIP must contain exactly one PMX model')
+                    # Preserve the structure underneath the model directory so relative texture URLs work.
+                    model_path=models[0]; parent=posixpath.dirname(model_path)
+                    selected=[]
+                    for e,path in valid:
+                        if parent and not path.startswith(parent+'/'):continue
+                        relative=path[len(parent)+1:] if parent else path
+                        selected.append((e,relative))
+                    if not selected:raise ValueError('no PMX assets')
+                    with MMD_LOCK:
+                        slotdir=MMD_DIR/slot; slotdir.mkdir(parents=True,exist_ok=True)
+                        import tempfile
+                        with tempfile.TemporaryDirectory(prefix='pmx-',dir=MMD_DIR) as tmp:
+                            staged=Path(tmp)
+                            for entry,relative in selected:
+                                target=staged.joinpath(*relative.split('/'));target.parent.mkdir(parents=True,exist_ok=True)
+                                with archive.open(entry) as inp, target.open('wb') as dst:shutil.copyfileobj(inp,dst,1024*1024)
+                            # Copy only after validation and complete extraction; never clear existing unrelated files.
+                            for entry,relative in selected:
+                                source=staged.joinpath(*relative.split('/'));dest=slotdir.joinpath(*relative.split('/'))
+                                dest.parent.mkdir(parents=True,exist_ok=True);os.replace(source,dest)
+                        meta=read_mmd();by_name={e['name']:e for e in meta.get(slot,[])}
+                        for entry,relative in selected:by_name[relative]={'name':relative,'size':entry.file_size}
+                        meta[slot]=list(by_name.values());write_mmd(meta)
+                    event('pmx.zip.import',slot=slot,files=len(selected),bytes=total)
+                    self.send(200,json.dumps({'ok':True,'slot':slot,'model':posixpath.basename(model_path),'model_path':models[0][len(parent)+1:] if parent else model_path,'files':len(selected)},ensure_ascii=False).encode());return
+            except (zipfile.BadZipFile,ValueError,RuntimeError,OSError) as exc:
+                return self.bad(400,'PMX ZIP rejected: '+str(exc)[:180])
         if u.path=='/api/mmd-upload':
             slot=qs.get('slot',[''])[0]
             name=qs.get('name',[''])[0]
