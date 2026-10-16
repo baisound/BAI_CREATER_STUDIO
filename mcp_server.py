@@ -56,6 +56,7 @@ def update_chain(action, name=None, from_index=None,to_index=None):
 def run(name,a):
     if name=='mixamo_integrated_v02_search':
         c=api('/api/integrated-v02/catalog');q=a.get('query','').lower();return {'matches':[x for x in c['motions'] if q in json.dumps(x,ensure_ascii=False).lower()][:100]}
+    if name=='mixamo_integrated_preview':return api('/api/sync-command',{'action':'integrated_preview','name':a['asset']})
     if name=='mixamo_integrated_v02_models':return {'models':api('/api/integrated-v02/catalog')['models']}
     if name=='mixamo_health':return {'ok':True,'manifest':len(api('/api/manifest').get('files',[])),'url':HOST}
     if name=='mixamo_list_patterns':
@@ -102,6 +103,7 @@ TOOLS=[
 ('mixamo_health','Check that local viewer HTTP server is running.',S()),
 ('mixamo_integrated_v02_search','Search imported motion definitions; metadata only, no playback.',S({'query':STR})),
 ('mixamo_integrated_v02_models','List imported source VRM model metadata.',S()),
+('mixamo_integrated_preview','Ask connected browser to preview a registered GLB/VRM asset.',S({'asset':STR},['asset'])),
 ('mixamo_list_patterns','Search built-in combination catalog.',S({'query':STR,'limit':INT})),
 ('mixamo_list_fbx','List imported FBX files and name mapping.',S()),
 ('mixamo_list_mmd_assets','List imported PMX, VMD and textures.',S()),

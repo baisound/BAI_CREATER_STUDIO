@@ -217,9 +217,14 @@ class Handler(BaseHTTPRequestHandler):
             if n>8192:return self.bad(413,'command too large')
             try:
                 obj=json.loads(self.rfile.read(n))
-                assert isinstance(obj,dict) and obj.get('action') in ('play_chain','stop_chain','preview_motion','open_pmx','refresh_assets','preview_vmd')
-                if obj['action'] in ('preview_motion','preview_vmd'):assert isinstance(obj.get('name'),str) and len(obj['name'])<=250
+                assert isinstance(obj,dict) and obj.get('action') in ('play_chain','stop_chain','preview_motion','open_pmx','refresh_assets','preview_vmd','integrated_preview')
+                if obj['action'] in ('preview_motion','preview_vmd','integrated_preview'):assert isinstance(obj.get('name'),str) and len(obj['name'])<=250
             except (AssertionError,TypeError,ValueError):return self.bad(400,'invalid sync command')
+            if obj['action']=='integrated_preview':
+                if not obj['name'].lower().endswith(('.glb','.vrm')):return self.bad(400,'GLB/VRM only')
+                catalog=json.loads((DATA/'integrated_v02'/'catalog.json').read_text(encoding='utf8'))
+                allowed={x['source_asset'].split('/')[-1] for x in catalog.get('motions',[])+catalog.get('models',[]) if x.get('source_asset')}
+                if obj['name'] not in allowed:return self.bad(404,'asset not registered')
             command=sync_command(obj)
             self.send(200,json.dumps({'ok':True,'command':command},ensure_ascii=False).encode());return
         if u.path=='/api/conversion-map':
