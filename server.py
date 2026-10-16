@@ -3,6 +3,7 @@ import hashlib, json, mimetypes, os, re, sys, threading, shutil, subprocess, tim
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
+from diagnostic_logging import event, recent
 BASE=Path(__file__).resolve().parent
 DATA=BASE/'data'; FILES=DATA/'files'; FILES.mkdir(parents=True,exist_ok=True)
 MMD_DIR=DATA/'mmd'; MMD_DIR.mkdir(parents=True,exist_ok=True)
@@ -51,11 +52,23 @@ def sync_command(obj):
         return state['command']
 
 class Handler(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        # Never log arbitrary URLs, query strings, FBX paths or HTTP headers.
+        pass
+    def send_response(self, code, message=None):
+        event('http.response',method=getattr(self,'command','?'),route=urlsplit(getattr(self,'path','')).path[:120],status=code)
+        return super().send_response(code,message)
+
     def send(self,status,data,ctype='application/json'):
         self.send_response(status);self.send_header('Content-Type',ctype);self.send_header('Content-Length',str(len(data)));self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff');self.end_headers();self.wfile.write(data)
     def bad(self,status,msg):self.send(status,json.dumps({'error':msg},ensure_ascii=False).encode())
     def do_GET(self):
         path=urlsplit(self.path).path
+        if path=='/api/diagnostics/recent':
+            from urllib.parse import parse_qs
+            try:limit=int(parse_qs(urlsplit(self.path).query).get('limit',['80'])[0])
+            except (ValueError,TypeError):limit=80
+            self.send(200,json.dumps({'entries':recent(limit)},ensure_ascii=False).encode());return
         if path in ('/','/index.html'):
             self.send(200,(BASE/'index.html').read_bytes(),'text/html; charset=utf-8');return
         if path=='/api/mmd-assets':
@@ -107,6 +120,21 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        # Browser diagnostics are accepted only from a same-origin localhost page.
+        if urlsplit(self.path).path=='/api/diagnostics/client':
+            origin=self.headers.get('Origin','')
+            host=self.headers.get('Host','')
+            if origin and origin not in ('http://'+host,'https://'+host):return self.bad(403,'same-origin required')
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=4096:return self.bad(413,'invalid diagnostic size')
+                data=json.loads(self.rfile.read(length))
+                if not isinstance(data,dict):raise ValueError('invalid body')
+                name=str(data.get('kind','browser.error'))[:80]
+                if name not in ('browser.error','browser.rejection','browser.webgl','browser.info'):return self.bad(400,'invalid kind')
+                event(name,level='warning',message=str(data.get('message',''))[:500],source='browser')
+            except (ValueError,TypeError):return self.bad(400,'invalid diagnostic')
+            self.send(200,b'{"ok":true}');return
         u=urlsplit(self.path);qs=parse_qs(u.query)
         try:n=int(self.headers.get('Content-Length','-1'))
         except ValueError:n=-1
@@ -277,6 +305,9 @@ if __name__=='__main__':
     port=int(sys.argv[1]) if len(sys.argv)>1 else 8765
     try:
         server=ThreadingHTTPServer(('127.0.0.1',port),Handler)
+        event('server.started',port=port)
         print(f'Mixamo Viewer: http://127.0.0.1:{port}/',flush=True)
         server.serve_forever()
-    except OSError as e:print('ERROR:',e,flush=True);sys.exit(1)
+    except OSError as e:
+        event('server.start_failed',level='error',error_type=type(e).__name__)
+        print('ERROR:',e,flush=True);sys.exit(1)

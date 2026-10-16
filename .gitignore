@@ -13,3 +13,6 @@ __pycache__/
 *.pyc
 *.tmp
 *.blend1
+
+# Phase 00 local diagnostics
+/data/logs/
