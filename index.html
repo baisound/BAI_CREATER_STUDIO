@@ -236,6 +236,7 @@ document.getElementById('vmd-job').onclick=async()=>{const target=document.getEl
          break;
        }
        case 'open_pmx':document.getElementById('tab-pmx')?.click();break;
+       case 'preview_vmd':document.getElementById('tab-pmx')?.click();await refreshMmd();document.getElementById('vmd-select').value=s.command.name;document.getElementById('pmx-slot').value=s.command.slot||'A';document.getElementById('vmd-play').click();break;
        case 'refresh_assets':window.dispatchEvent(new Event('mixamo-refresh-assets'));break;
        }
      }

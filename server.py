@@ -1,5 +1,5 @@
 # Python 3.9+ standard library only. Binds to loopback, not LAN.
-import hashlib, json, mimetypes, os, re, sys, threading
+import hashlib, json, mimetypes, os, re, sys, threading, shutil, subprocess, time
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
@@ -27,6 +27,14 @@ def write_mmd(meta):
     tmp.write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding='utf-8')
     os.replace(tmp,MMD_META)
 # Cross-process browser ↔ MCP synchronization. One atomic revision file.
+CONVERT_LOCK=threading.Lock()
+CONVERT_STATUS=DATA/'conversion_status.json'
+def conversion_status():
+    try:return json.loads(CONVERT_STATUS.read_text(encoding='utf8'))
+    except (ValueError,OSError):return {'status':'idle'}
+def write_conversion_status(obj):
+    tmp=CONVERT_STATUS.with_suffix('.tmp');tmp.write_text(json.dumps(obj,ensure_ascii=False,indent=2),encoding='utf8');os.replace(tmp,CONVERT_STATUS)
+
 SYNC_FILE=DATA/'sync_state.json'
 SYNC_LOCK=threading.RLock()
 def sync_read():
@@ -67,6 +75,8 @@ class Handler(BaseHTTPRequestHandler):
             if f.suffix.lower() in ('.png',):ctype='image/png'
             if f.suffix.lower() in ('.jpg','.jpeg'):ctype='image/jpeg'
             self.send(200,f.read_bytes(),ctype);return
+        if path=='/api/conversion-status':
+            self.send(200,json.dumps(conversion_status(),ensure_ascii=False).encode());return
         if path=='/api/sync':
             self.send(200,json.dumps(sync_read(),ensure_ascii=False).encode());return
         if path=='/api/conversion-map':
@@ -101,6 +111,45 @@ class Handler(BaseHTTPRequestHandler):
         try:n=int(self.headers.get('Content-Length','-1'))
         except ValueError:n=-1
         if n<0 or n>MAX_SIZE:return self.bad(413,'file too large or missing length')
+        if u.path=='/api/run-vmd-conversion':
+            if n>2048:return self.bad(413,'request too large')
+            try:
+                payload=json.loads(self.rfile.read(n))
+                assert isinstance(payload,dict) and payload.get('confirm') is True
+                assert payload.get('slot','A') in ('A','B')
+            except (ValueError,AssertionError,TypeError):return self.bad(400,'confirm=true and slot A/B required')
+            if not CONVERT_LOCK.acquire(blocking=False):return self.bad(409,'conversion already running')
+            try:
+                jobpath=BASE/'exports'/'vmd_conversion_job.json'
+                if not jobpath.is_file():return self.bad(400,'generate a VMD job first')
+                job=json.loads(jobpath.read_text(encoding='utf8'))
+                # Do not execute arbitrary job paths: enforce saved registered inputs and fixed output.
+                sources={str((FILES/(e['id']+'.fbx')).resolve()) for e in readmeta()['files'] if e.get('kind')=='motions'}
+                steps=job.get('steps',[])
+                target=(BASE/'exports'/'chain_motion.vmd').resolve()
+                if not steps or len(steps)>300 or any(st.get('file') not in sources for st in steps) or Path(job.get('output','')).resolve()!=target:
+                    return self.bad(400,'conversion job contains unregistered paths')
+                blender=os.environ.get('MIXAMO_BLENDER','blender')
+                blender_path=shutil.which(blender)
+                if not blender_path:return self.bad(503,'Blender executable not found; set MIXAMO_BLENDER')
+                before=time.time();write_conversion_status({'status':'running','started':before})
+                proc=subprocess.run([blender_path,'-b','-t','2','--python',str(BASE/'tools'/'fbx_chain_to_vmd.py'),'--','--job',str(jobpath)],cwd=str(BASE),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=240,text=True,errors='replace')
+                if proc.returncode!=0 or not target.is_file() or target.stat().st_size<54 or not target.open('rb').read(30).startswith(b'Vocaloid Motion Data 0002'):
+                    outcome={'status':'failed','returncode':proc.returncode,'output_tail':proc.stdout[-3000:]};write_conversion_status(outcome)
+                    self.send(422,json.dumps(outcome,ensure_ascii=False).encode());return
+                name='chain_motion.vmd'
+                with MMD_LOCK:
+                    folder=MMD_DIR/'vmd';folder.mkdir(parents=True,exist_ok=True)
+                    tmp=folder/(name+'.tmp');shutil.copyfile(target,tmp);os.replace(tmp,folder/name)
+                    meta=read_mmd();meta['vmd']=[e for e in meta.get('vmd',[]) if e.get('name')!=name]+[{'name':name,'size':target.stat().st_size}];write_mmd(meta)
+                sync_command({'action':'preview_vmd','name':name,'slot':payload['slot']})
+                outcome={'status':'succeeded','name':name,'slot':payload['slot'],'bytes':target.stat().st_size,'elapsed_seconds':round(time.time()-before,2),'warning':'Conversion output requires visual validation on the intended PMX.'}
+                write_conversion_status(outcome);self.send(200,json.dumps(outcome,ensure_ascii=False).encode());return
+            except subprocess.TimeoutExpired:
+                write_conversion_status({'status':'failed','error':'Blender exceeded 240 seconds'});return self.bad(504,'Blender timed out')
+            except (OSError,ValueError,KeyError) as exc:
+                write_conversion_status({'status':'failed','error':str(exc)});return self.bad(500,str(exc))
+            finally:CONVERT_LOCK.release()
         if u.path=='/api/mmd-upload':
             slot=qs.get('slot',[''])[0]
             name=qs.get('name',[''])[0]
@@ -121,8 +170,8 @@ class Handler(BaseHTTPRequestHandler):
             if n>8192:return self.bad(413,'command too large')
             try:
                 obj=json.loads(self.rfile.read(n))
-                assert isinstance(obj,dict) and obj.get('action') in ('play_chain','stop_chain','preview_motion','open_pmx','refresh_assets')
-                if obj['action']=='preview_motion':assert isinstance(obj.get('name'),str) and len(obj['name'])<=250
+                assert isinstance(obj,dict) and obj.get('action') in ('play_chain','stop_chain','preview_motion','open_pmx','refresh_assets','preview_vmd')
+                if obj['action'] in ('preview_motion','preview_vmd'):assert isinstance(obj.get('name'),str) and len(obj['name'])<=250
             except (AssertionError,TypeError,ValueError):return self.bad(400,'invalid sync command')
             command=sync_command(obj)
             self.send(200,json.dumps({'ok':True,'command':command},ensure_ascii=False).encode());return

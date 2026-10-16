@@ -79,6 +79,8 @@ def run(name,a):
     if name=='mixamo_preview_motion':return api('/api/sync-command',{'action':'preview_motion','name':a['name']})
     if name=='mixamo_open_pmx':return api('/api/sync-command',{'action':'open_pmx'})
     if name=='mixamo_sync_status':return api('/api/sync')
+    if name=='mixamo_run_vmd_conversion':return api('/api/run-vmd-conversion',{'confirm':a['confirm'],'slot':a.get('slot','A')})
+    if name=='mixamo_conversion_status':return api('/api/conversion-status')
     if name=='mixamo_export_vmd_job':
         p=api('/api/project');names=[s['name'] for s in p.get('timeline',[])]
         valid_names(names)
@@ -111,6 +113,8 @@ TOOLS=[
 ('mixamo_preview_motion','Ask browser to select a motion.',S({'name':STR},['name'])),
 ('mixamo_open_pmx','Open PMX tab in connected browser.',S()),
 ('mixamo_sync_status','Read sync revision and latest browser command.',S()),
+('mixamo_conversion_status','Read last Blender conversion status.',S()),
+('mixamo_run_vmd_conversion','Execute prepared Blender conversion, register VMD and ask browser to preview; explicit confirmation required.',S({'confirm':{'type':'boolean'},'slot':{'type':'string','enum':['A','B']}},['confirm'])),
 ('mixamo_export_vmd_job','Generate Blender job JSON for saved timeline; does NOT render VMD.',S({'bone_map':{'type':'object'},'scale':{'type':'number'},'blend_frames':INT,'bone_corrections':{'type':'object'}})),
 ]
 def process(m):
