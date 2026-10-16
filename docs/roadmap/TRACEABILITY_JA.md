@@ -32,3 +32,7 @@
 
 ## 追加決定：OBS-001〜OBS-009
 要件台帳 → [詳細仕様](PHASE_00_LOGGING_FIRST_JA.md) → [Phase 00](PHASE_00_INTEGRATION_JA.md) → 共通API/UI/WebMCP/標準MCPの実装・試験（未実装）。
+
+## UI/UX設計方針（最新ユーザー決定）
+- 「1画面に詰め込まず、固定領域・内部スクロール、タブ、注釈、ホバー説明、説明書不要の操作性」→ `UX-001`〜`UX-008`、[詳細仕様](UI_UX_DESIGN_STANDARD_JA.md)。
+- 「AGENTS.MDおよびその他MDを作成してコミット」→ ルート [`AGENTS.md`](../../AGENTS.md) と本ドキュメント更新。

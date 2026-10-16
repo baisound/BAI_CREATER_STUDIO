@@ -1252,6 +1252,78 @@
       "detail": "Windows/Linux、障害注入、ローテート、秘匿検査",
       "status": "未実装・仕様決定済み",
       "dependency": "CORE-001,CORE-002,CORE-003"
+    },
+    {
+      "id": "UX-001",
+      "group": "UX",
+      "phase": 0,
+      "name": "迷わない画面構造",
+      "detail": "用途別タブと段階的開示を基本とし、一画面に全機能を詰め込まない",
+      "status": "設計確定・実装未検証",
+      "dependency": "CORE-001,CORE-004"
+    },
+    {
+      "id": "UX-002",
+      "group": "UX",
+      "phase": 0,
+      "name": "固定領域＋独立スクロール",
+      "detail": "上部ナビゲーションと主要操作を固定し、一覧・設定エリア内でスクロール",
+      "status": "設計確定・実装未検証",
+      "dependency": "CORE-001,CORE-004"
+    },
+    {
+      "id": "UX-003",
+      "group": "UX",
+      "phase": 0,
+      "name": "注釈・ホバー説明・キーボード対応",
+      "detail": "各操作に短い説明、ホバーツールチップ、フォーカスでの説明を用意",
+      "status": "設計確定・実装未検証",
+      "dependency": "CORE-001,CORE-004"
+    },
+    {
+      "id": "UX-004",
+      "group": "UX",
+      "phase": 0,
+      "name": "説明書不要の操作導線",
+      "detail": "読み込み→確認→編集→保存/出力を自然な画面順序で案内",
+      "status": "設計確定・実装未検証",
+      "dependency": "CORE-001,CORE-004"
+    },
+    {
+      "id": "UX-005",
+      "group": "UX",
+      "phase": 0,
+      "name": "誤操作防止と回復",
+      "detail": "削除/上書き確認、Undo/Redo、自動保存、処理中・成功・失敗の明示",
+      "status": "設計確定・実装未検証",
+      "dependency": "CORE-001,CORE-004"
+    },
+    {
+      "id": "UX-006",
+      "group": "UX",
+      "phase": 0,
+      "name": "画面幅・アクセシビリティ対応",
+      "detail": "狭い画面でのタブ/領域縮退、色だけに頼らない表示、キーボード可操作",
+      "status": "設計確定・実装未検証",
+      "dependency": "CORE-001,CORE-004"
+    },
+    {
+      "id": "UX-007",
+      "group": "UX",
+      "phase": 0,
+      "name": "UI・WebMCP・標準MCP機能整合",
+      "detail": "機能IDごとに共通API、手動操作、WebMCP、標準MCPを対応付け",
+      "status": "設計確定・実装未検証",
+      "dependency": "CORE-001,CORE-004"
+    },
+    {
+      "id": "UX-008",
+      "group": "UX",
+      "phase": 0,
+      "name": "ユーザビリティ回帰試験",
+      "detail": "初見タスク・ツールチップ・スクロール・操作履歴・MCP一致を試験",
+      "status": "設計確定・実装未検証",
+      "dependency": "CORE-001,CORE-004"
     }
   ],
   "integration_review": {

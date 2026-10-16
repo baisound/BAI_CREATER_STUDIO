@@ -20,3 +20,7 @@
 
 ## 最新の未実装・合意済み決定
 - **Phase 00の最初の実装はログ出力・ログローテーション**：[仕様](PHASE_00_LOGGING_FIRST_JA.md)。手動UI/WebMCP/標準MCPすべて対応し、実機診断ZIPを用意する。
+
+## 全開発エージェント・UI/UX設計の入口
+- [`../../AGENTS.md`](../../AGENTS.md) — ローカル開発者・Codex向けの最初に読む規則
+- [`UI_UX_DESIGN_STANDARD_JA.md`](UI_UX_DESIGN_STANDARD_JA.md) — 新規決定された横断UI/UX基準（UX-001〜008）
