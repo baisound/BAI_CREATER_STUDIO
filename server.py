@@ -16,6 +16,11 @@ CUSTOM_ASSETS=DATA/'integrated_v02'/'assets'; CUSTOM_ASSETS.mkdir(parents=True,e
 CUSTOM_INDEX=DATA/'integrated_v02'/'user_assets.json'
 CUSTOM_LOCK=threading.RLock()
 EDITOR_FILE=DATA/'timeline_editor.json'; EDITOR_LOCK=threading.RLock()
+LAYER_FILE=DATA/'motion_layers.json'; LAYER_LOCK=threading.RLock()
+def layer_read():
+    try:return json.loads(LAYER_FILE.read_text(encoding='utf8'))
+    except (OSError,ValueError):return {'schema':1,'layers':[]}
+
 def editor_read():
     try: return json.loads(EDITOR_FILE.read_text(encoding='utf8'))
     except (OSError,ValueError): return {'schema':1,'clips':[],'updatedAt':None}
@@ -125,10 +130,14 @@ class Handler(BaseHTTPRequestHandler):
             try:limit=int(parse_qs(urlsplit(self.path).query).get('limit',['80'])[0])
             except (ValueError,TypeError):limit=80
             self.send(200,json.dumps({'entries':recent(limit)},ensure_ascii=False).encode());return
+        if path=='/motion_layers.js':
+            self.send(200,(BASE/'motion_layers.js').read_bytes(),'text/javascript; charset=utf-8');return
         if path in ('/','/index.html'):
             self.send(200,(BASE/'index.html').read_bytes(),'text/html; charset=utf-8');return
         if path=='/api/server-version':
             self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload']}).encode());return
+        if path=='/api/motion-layers':
+            with LAYER_LOCK:self.send(200,json.dumps(layer_read(),ensure_ascii=False).encode());return
         if path=='/api/timeline-editor':
             with EDITOR_LOCK: self.send(200,json.dumps(editor_read(),ensure_ascii=False).encode());return
         if path=='/api/assets':
@@ -201,6 +210,27 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/motion-layers':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=262144:return self.bad(413,'layers too large')
+                obj=json.loads(self.rfile.read(size))
+                if not isinstance(obj,dict) or obj.get('schema')!=1 or not isinstance(obj.get('layers'),list) or len(obj['layers'])>32:return self.bad(400,'invalid layers')
+                valid=[]
+                for layer in obj['layers']:
+                    if not isinstance(layer,dict) or not isinstance(layer.get('name'),str) or not isinstance(layer.get('bone'),str):return self.bad(400,'invalid layer')
+                    if len(layer['name'])>100 or len(layer['bone'])>120 or not isinstance(layer.get('keys'),list) or len(layer['keys'])>500:return self.bad(400,'invalid keys')
+                    keys=[]
+                    for k in layer['keys']:
+                        if not isinstance(k,dict):return self.bad(400,'invalid key')
+                        frame=int(k['frame']);angles=[float(k[x]) for x in ('x','y','z')]
+                        if not 0<=frame<=1000000 or not all(-180<=a<=180 for a in angles):return self.bad(400,'invalid angles')
+                        keys.append(dict(frame=frame,x=angles[0],y=angles[1],z=angles[2]))
+                    valid.append({'name':layer['name'],'bone':layer['bone'],'enabled':bool(layer.get('enabled',True)),'keys':sorted(keys,key=lambda x:x['frame'])})
+                with LAYER_LOCK:
+                    tmp=LAYER_FILE.with_suffix('.tmp');tmp.write_text(json.dumps({'schema':1,'layers':valid},ensure_ascii=False,indent=2),encoding='utf8');os.replace(tmp,LAYER_FILE)
+                self.send(200,json.dumps({'ok':True,'count':len(valid)}).encode());return
+            except (KeyError,TypeError,ValueError,OverflowError):return self.bad(400,'invalid motion layer values')
         if urlsplit(self.path).path=='/api/timeline-editor':
             try:
                 size=int(self.headers.get('Content-Length','0'))

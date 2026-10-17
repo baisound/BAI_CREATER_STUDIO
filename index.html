@@ -228,7 +228,7 @@ function timelineFrame(t){
    if(old&&old!==next&&fade>0){old.crossFadeTo(next,fade,false)}else if(old&&old!==next){old.stop()}
    actor.lastAction=next;actor.clipKey=key;
  }
- actor.lastAction.time=Math.max(0,localTime-dt);actor.mixer.update(dt);
+ actor.lastAction.time=Math.max(0,localTime-dt);actor.mixer.update(dt);window.mixamoMotionLayers?.apply(actor.root,frameAt);
  // Restore the original model placement before adding completed source displacements.
  if(!tlsBaseline||tlsPreviousClip!==actor.root){tlsBaseline=actor.root.position.clone();tlsPreviousClip=actor.root;}
  const offset=new THREE.Vector3();
@@ -766,4 +766,5 @@ show('「'+b.textContent.trim()+'」を開きました。ファイルを選択�
  load().catch(e=>notify('読み込み失敗：'+e.message));
 })();
 </script>
+<script src="/motion_layers.js" defer></script>
 </body></html>

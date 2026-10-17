@@ -54,6 +54,8 @@ def update_chain(action, name=None, from_index=None,to_index=None):
     return {'timeline':seq,'history_count':len(history)}
 
 def run(name,a):
+    if name=='mixamo_motion_layers_get':return api('/api/motion-layers')
+    if name=='mixamo_motion_layers_set':return api('/api/motion-layers',{'schema':1,'layers':a['layers']})
     if name=='mixamo_timeline_get':return api('/api/timeline-editor')
     if name=='mixamo_timeline_set':return api('/api/timeline-editor',{'schema':1,'clips':a['clips']})
     if name=='mixamo_list_all_assets':return api('/api/assets')
@@ -104,6 +106,8 @@ def run(name,a):
 S=lambda props=None,req=None:{'type':'object','properties':props or {},'required':req or [],'additionalProperties':False}
 STR={'type':'string'};INT={'type':'integer'}
 TOOLS=[
+('mixamo_motion_layers_get','Read non-destructive rotation correction layers.',S()),
+('mixamo_motion_layers_set','Save per-bone correction keys and enable flags.',S({'layers':{'type':'array','items':{'type':'object'}}},['layers'])),
 ('mixamo_timeline_get','Read saved timeline clip positions, lengths, speeds and blends.',S()),
 ('mixamo_timeline_set','Save non-destructive timeline edit parameters.',S({'clips':{'type':'array','items':{'type':'object'}}},['clips'])),
 ('mixamo_health','Check that local viewer HTTP server is running.',S()),
