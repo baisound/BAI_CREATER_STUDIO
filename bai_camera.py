@@ -18,7 +18,9 @@ def validate(payload):
         frame=number(key.get('frame'),0,duration)
         if int(frame)!=frame or frame in seen:raise ValueError('duplicate or invalid frame')
         seen.add(frame)
-        record={'frame':int(frame),'fov':number(key.get('fov'),5,150)}
+        mode=key.get('interpolation','linear')
+        if mode not in ('linear','smooth','hold'):raise ValueError('invalid camera interpolation')
+        record={'frame':int(frame),'fov':number(key.get('fov'),5,150),'interpolation':mode}
         for attr in ('position','target'):
             arr=key.get(attr)
             if not isinstance(arr,list) or len(arr)!=3:raise ValueError('invalid camera vector')
@@ -34,6 +36,9 @@ def sample(project,frame):
     for left,right in zip(keys,keys[1:]):
         if left['frame']<=f<=right['frame']:
             t=(f-left['frame'])/(right['frame']-left['frame'])
+            mode=left.get('interpolation','linear')
+            if mode=='hold':t=0.0
+            elif mode=='smooth':t=t*t*(3-2*t)
             return {'frame':f,'position':[a+(b-a)*t for a,b in zip(left['position'],right['position'])],'target':[a+(b-a)*t for a,b in zip(left['target'],right['target'])],'fov':left['fov']+(right['fov']-left['fov'])*t}
     raise ValueError('frame not found')
 def read(path):
