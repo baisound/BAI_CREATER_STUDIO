@@ -225,7 +225,7 @@ async function uploadMmd(slot,inputId){
       const r=await fetch('/api/mmd-upload?slot='+slot+'&name='+encodeURIComponent(file.name),{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:file});
       if(!r.ok)throw Error(file.name+' HTTP '+r.status);
     }
-    await refreshMmd();const pmx=files.find(f=>f.name.toLowerCase().endsWith('.pmx'));
+    await refreshMmd();document.dispatchEvent(new Event('studio:asset-imported'));const pmx=files.find(f=>f.name.toLowerCase().endsWith('.pmx'));
     if(pmx)await loadPmx(slot,pmx.name);else mmdStatus.textContent=files.length+'ファイルを保存しました';
   }catch(e){mmdStatus.textContent='読み込み失敗: '+e.message;console.error(e)}
 }
@@ -463,7 +463,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 async function refresh(){try{const r=await fetch('/api/integrated-v02/catalog');if(!r.ok)throw Error('HTTP '+r.status);catalogue=await r.json();const items=[...catalogue.models.map(x=>({name:x.name,file:x.source_asset?.split('/').pop(),kind:'モデル'})),...catalogue.motions.filter(x=>x.source_asset?.match(/\.glb$/i)).map(x=>({name:x.name,file:x.source_asset?.split('/').pop(),kind:'モーション'}))];const unique=new Map();items.forEach(x=>{if(x.file&&!unique.has(x.file))unique.set(x.file,x)});const picker=$('unified-asset-picker');const selected=picker.value;picker.replaceChildren(new Option('素材を選択してください',''));for(const x of unique.values())picker.add(new Option(x.kind+'：'+x.name,x.file));if([...unique.keys()].includes(selected))picker.value=selected;return unique.size}catch(e){$('unified-asset-status').textContent='素材一覧の取得失敗：'+e.message;return 0}}
 async function show(){const asset=$('unified-asset-picker').value;if(!asset){$('unified-asset-status').textContent='先に素材を選択してください';return}try{$('unified-asset-status').textContent='3D読み込み中…';await window.integratedPreviewV02.load(asset);$('unified-asset-status').textContent='表示完了：'+asset}catch(e){$('unified-asset-status').textContent='表示に失敗：'+e.message}}
 $('unified-asset-file').addEventListener('change',()=>{const f=$('unified-asset-file').files[0];if(f){$('unified-asset-kind').value=/\.vrm$/i.test(f.name)?'model':'motion';$('unified-asset-status').textContent='選択：'+f.name}});
-$('unified-asset-import').onclick=async()=>{const file=$('unified-asset-file').files[0];if(!file){$('unified-asset-status').textContent='まずGLBまたはVRMを選択してください';return}const btn=$('unified-asset-import');btn.disabled=true;try{$('unified-asset-status').textContent='保存しています…';const url='/api/integrated-v02/upload?kind='+encodeURIComponent($('unified-asset-kind').value)+'&name='+encodeURIComponent(file.name);const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:file});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);await refresh();$('unified-asset-picker').value=data.asset;$('unified-asset-status').textContent='登録成功：'+file.name;await show()}catch(e){$('unified-asset-status').textContent='登録失敗：'+e.message}finally{btn.disabled=false}};
+$('unified-asset-import').onclick=async()=>{const file=$('unified-asset-file').files[0];if(!file){$('unified-asset-status').textContent='まずGLBまたはVRMを選択してください';return}const btn=$('unified-asset-import');btn.disabled=true;try{$('unified-asset-status').textContent='保存しています…';const url='/api/integrated-v02/upload?kind='+encodeURIComponent($('unified-asset-kind').value)+'&name='+encodeURIComponent(file.name);const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:file});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);await refresh();document.dispatchEvent(new Event('studio:asset-imported'));$('unified-asset-picker').value=data.asset;$('unified-asset-status').textContent='登録成功：'+file.name;await show()}catch(e){$('unified-asset-status').textContent='登録失敗：'+e.message}finally{btn.disabled=false}};
 $('unified-asset-show').onclick=show;$('unified-asset-play').onclick=()=>{try{window.integratedPreviewV02.play()}catch(e){$('unified-asset-status').textContent=e.message}};
 $('unified-asset-stop').onclick=()=>{const native=$('iv-pause')||$('iv-stop');if(native)native.click();else if(window.integratedPreviewV02.stop)window.integratedPreviewV02.stop();else $('unified-asset-status').textContent='停止処理はプレビュー側の停止ボタンを利用してください'};
 $('tab-integrated').addEventListener('click',refresh);refresh();
@@ -527,7 +527,7 @@ show('「'+b.textContent.trim()+'」を開きました。ファイルを選択�
    }else if(ext==='.zip'){
     switchTab('tab-pmx');supply($('pmx-zip-input'),selected);$('pmx-zip-slot').value=$('studio-pmx-slot').value;
     const before=$('pmx-zip-status')?.textContent||'';$('pmx-zip-submit').click();
-    const message=await waitStatus('pmx-zip-status',before);feedback('PMX ZIP：'+message,/失敗|エラー|error/i.test(message));
+    const message=await waitStatus('pmx-zip-status',before);if(/成功|登録|表示しました|保存/i.test(message))document.dispatchEvent(new Event('studio:asset-imported'));feedback('PMX ZIP：'+message,/失敗|エラー|error/i.test(message));
    }else if(ext==='.vmd'){
     switchTab('tab-pmx');supply($('vmd-input'),selected);$('vmd-save').click();feedback('VMD登録処理を開始しました。結果は下のPMX・VMD登録欄をご確認ください。');
    }else if(ext==='.fbx'){
@@ -625,9 +625,20 @@ show('「'+b.textContent.trim()+'」を開きました。ファイルを選択�
        await window.integratedPreviewV02.load(x.filename);
        status.textContent='3D表示：'+x.name;
      }else if(x.source==='mmd'){
-       switchTo('tab-pmx');status.textContent='PMX/VMD画面を開きました。登録済み素材からモデルとVMDを選択してください：'+x.name;
+       switchTo('tab-pmx');
+       if(x.format==='PMX'){
+         if(typeof loadPmx!=='function')throw Error('PMXの表示機能がありません');
+         const slot=x.kind==='B'?'B':'A';
+         await loadPmx(slot,x.name);
+         document.getElementById('pmx-slot').value=slot;
+         status.textContent='PMX表示完了：'+x.name+'（'+slot+'）';
+       }else if(x.format==='VMD'){
+         await refreshMmd();
+         document.getElementById('vmd-select').value=x.name;
+         status.textContent='VMDを選択：'+x.name+'。モデルを選択後、「PMXでVMDを再生」で適用できます。';
+       }
      }else{
-       switchTo('tab-view');status.textContent='FBX制作画面を開きました。モーション一覧から選択してください：'+x.name;
+       switchTo('tab-view');status.textContent='FBX制作画面を開きました：'+x.name+'。FBXモーション一覧から再生してください。';
      }
    }catch(e){status.textContent='表示できませんでした：'+e.message;}
  }
@@ -650,6 +661,8 @@ show('「'+b.textContent.trim()+'」を開きました。ファイルを選択�
  document.getElementById('tab-integrated')?.addEventListener('click',refreshShelf);
  refreshShelf();
 
+ window.refreshStudioAssetShelf=refreshShelf;
+ document.addEventListener('studio:asset-imported',refreshShelf);
  const p=document.getElementById('iv-play');if(p)p.title='クリックすると再生。もう一度押すと停止します。';
 })();
 </script>
