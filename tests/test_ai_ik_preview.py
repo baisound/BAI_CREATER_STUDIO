@@ -9,7 +9,7 @@ class PreviewTests(unittest.TestCase):
  def test_conversion(self):
   p={'constraints':[{'bone':'右腕','action':'up','description':'右腕上げる'},{'bone':'左脚','action':'hold','description':'固定'}]}
   out=preview(p,BASE)
-  self.assertEqual(out['pose_input']['limbs']['rightArm']['target'],[0.5,0.15])
+  self.assertEqual(out['pose_input']['limbs']['rightArm']['target'],[0.5,0.45])
   self.assertEqual(len(out['accepted']),2)
   self.assertEqual(BASE['limbs']['rightArm']['target'],[0.5,0.3])
   self.assertFalse(out['applied'])

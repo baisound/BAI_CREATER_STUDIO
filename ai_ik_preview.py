@@ -7,8 +7,8 @@ BONES = {'右腕':'rightArm','右手':'rightArm','rightArm':'rightArm',
          '左腕':'leftArm','左手':'leftArm','leftArm':'leftArm',
          '右脚':'rightLeg','右足':'rightLeg','rightLeg':'rightLeg',
          '左脚':'leftLeg','左足':'leftLeg','leftLeg':'leftLeg'}
-DIRECTIONS = {'up':(0,-0.15),'raise':(0,-0.15),'上げる':(0,-0.15),'持ち上げる':(0,-0.15),
-              'down':(0,0.15),'lower':(0,0.15),'下げる':(0,0.15),
+DIRECTIONS = {'up':(0,0.15),'raise':(0,0.15),'上げる':(0,0.15),'持ち上げる':(0,0.15),
+              'down':(0,-0.15),'lower':(0,-0.15),'下げる':(0,-0.15),
               'forward':(0.15,0),'前':(0.15,0),'前に出す':(0.15,0),
               'back':(-0.15,0),'後ろ':(-0.15,0),'後ろに引く':(-0.15,0),
               'hold':(0,0),'fix':(0,0),'固定':(0,0),'keep':(0,0)}
