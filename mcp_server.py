@@ -54,6 +54,12 @@ def update_chain(action, name=None, from_index=None,to_index=None):
     return {'timeline':seq,'history_count':len(history)}
 
 def run(name,a):
+    if name=='mixamo_retarget_analyze':return api('/api/retarget/analyze?id='+__import__('urllib.parse',fromlist=['quote']).quote(a['id'],safe=''))
+    if name=='mixamo_retarget_compare':
+        from urllib.parse import quote
+        return api('/api/retarget/compare?source='+quote(a['source'],safe='')+'&target='+quote(a['target'],safe=''))
+    if name=='mixamo_retarget_profiles_get':return api('/api/retarget/profiles')
+    if name=='mixamo_retarget_profiles_set':return api('/api/retarget/profiles',{'schema':1,'profiles':a['profiles']})
     if name=='mixamo_motion_layers_get':return api('/api/motion-layers')
     if name=='mixamo_motion_layers_set':return api('/api/motion-layers',{'schema':1,'layers':a['layers']})
     if name=='mixamo_timeline_get':return api('/api/timeline-editor')
@@ -106,6 +112,10 @@ def run(name,a):
 S=lambda props=None,req=None:{'type':'object','properties':props or {},'required':req or [],'additionalProperties':False}
 STR={'type':'string'};INT={'type':'integer'}
 TOOLS=[
+('mixamo_retarget_analyze','Analyze registered skeleton and clips without altering source.',S({'id':STR},['id'])),
+('mixamo_retarget_compare','Compare semantic role mapping of two registered assets.',S({'source':STR,'target':STR},['source','target'])),
+('mixamo_retarget_profiles_get','Read stored mapping profiles.',S()),
+('mixamo_retarget_profiles_set','Save non-destructive mapping profiles.',S({'profiles':{'type':'object'}},['profiles'])),
 ('mixamo_motion_layers_get','Read non-destructive rotation correction layers.',S()),
 ('mixamo_motion_layers_set','Save per-bone correction keys and enable flags.',S({'layers':{'type':'array','items':{'type':'object'}}},['layers'])),
 ('mixamo_timeline_get','Read saved timeline clip positions, lengths, speeds and blends.',S()),

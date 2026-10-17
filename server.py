@@ -6,6 +6,23 @@ from urllib.parse import urlsplit, parse_qs
 from diagnostic_logging import event, recent
 from qa_capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
 from operation_diagnostics import record_ui_action, diagnostics_archive
+from retarget_analysis import inspect, compare
+RETARGET_FILE=Path(__file__).resolve().parent/'data'/'retarget_profiles.json'
+RETARGET_LOCK=threading.RLock()
+def retarget_read():
+    try:return json.loads(RETARGET_FILE.read_text(encoding='utf8'))
+    except (OSError,ValueError):return {'schema':1,'profiles':{}}
+
+def resolve_asset(identifier):
+    entry=next((x for x in unified_assets() if x['id']==identifier and x['available']),None)
+    if not entry:raise ValueError('registered asset not found')
+    if entry['source']=='fbx':return FILES/(identifier.split(':',1)[1]+'.fbx')
+    if entry['source']=='integrated':return DATA/'integrated_v02'/'assets'/entry['filename']
+    if entry['source']=='mmd':
+        _,slot,name=identifier.split(':',2)
+        return MMD_DIR/slot/name
+    raise ValueError('unsupported asset source')
+
 BASE=Path(__file__).resolve().parent
 DATA=BASE/'data'; FILES=DATA/'files'; FILES.mkdir(parents=True,exist_ok=True)
 MMD_DIR=DATA/'mmd'; MMD_DIR.mkdir(parents=True,exist_ok=True)
@@ -130,12 +147,29 @@ class Handler(BaseHTTPRequestHandler):
             try:limit=int(parse_qs(urlsplit(self.path).query).get('limit',['80'])[0])
             except (ValueError,TypeError):limit=80
             self.send(200,json.dumps({'entries':recent(limit)},ensure_ascii=False).encode());return
+        if path=='/retarget_ui.js':
+            self.send(200,(BASE/'retarget_ui.js').read_bytes(),'text/javascript; charset=utf-8');return
         if path=='/motion_layers.js':
             self.send(200,(BASE/'motion_layers.js').read_bytes(),'text/javascript; charset=utf-8');return
         if path in ('/','/index.html'):
             self.send(200,(BASE/'index.html').read_bytes(),'text/html; charset=utf-8');return
         if path=='/api/server-version':
             self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload']}).encode());return
+        if path=='/api/retarget/profiles':
+            self.send(200,json.dumps(retarget_read(),ensure_ascii=False).encode());return
+        if path=='/api/retarget/analyze':
+            identifier=__import__('urllib.parse',fromlist=['parse_qs']).parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+            try:self.send(200,json.dumps(inspect(resolve_asset(identifier)),ensure_ascii=False).encode())
+            except (ValueError,OSError,IndexError) as ex:self.bad(400,str(ex))
+            return
+        if path=='/api/retarget/compare':
+            params=__import__('urllib.parse',fromlist=['parse_qs']).parse_qs(urlsplit(self.path).query)
+            try:
+                a=inspect(resolve_asset(params.get('source',[''])[0]))
+                b=inspect(resolve_asset(params.get('target',[''])[0]))
+                self.send(200,json.dumps({'source':a,'target':b,'comparison':compare(a,b)},ensure_ascii=False).encode())
+            except (ValueError,OSError,IndexError) as ex:self.bad(400,str(ex))
+            return
         if path=='/api/motion-layers':
             with LAYER_LOCK:self.send(200,json.dumps(layer_read(),ensure_ascii=False).encode());return
         if path=='/api/timeline-editor':
@@ -210,6 +244,21 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/retarget/profiles':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=262144:return self.bad(413,'profile too large')
+                obj=json.loads(self.rfile.read(size))
+                if not isinstance(obj,dict) or obj.get('schema')!=1 or not isinstance(obj.get('profiles'),dict) or len(obj['profiles'])>50:return self.bad(400,'invalid profiles')
+                for key,p in obj['profiles'].items():
+                    if not isinstance(key,str) or len(key)>100 or not isinstance(p,dict) or not isinstance(p.get('mapping'),dict) or len(p['mapping'])>200:return self.bad(400,'invalid mapping')
+                    if not all(isinstance(k,str) and isinstance(v,str) and len(k)<100 and len(v)<150 for k,v in p['mapping'].items()):return self.bad(400,'invalid bones')
+                with RETARGET_LOCK:
+                    tmp=RETARGET_FILE.with_suffix('.tmp')
+                    tmp.write_text(json.dumps(obj,ensure_ascii=False,indent=2),encoding='utf8')
+                    os.replace(tmp,RETARGET_FILE)
+                self.send(200,b'{"ok":true}');return
+            except (TypeError,ValueError):return self.bad(400,'invalid profile JSON')
         if urlsplit(self.path).path=='/api/motion-layers':
             try:
                 size=int(self.headers.get('Content-Length','0'))
