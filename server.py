@@ -5,6 +5,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
 from diagnostic_logging import event, recent
 from qa_capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
+from operation_diagnostics import record_ui_action, diagnostics_archive
 BASE=Path(__file__).resolve().parent
 DATA=BASE/'data'; FILES=DATA/'files'; FILES.mkdir(parents=True,exist_ok=True)
 MMD_DIR=DATA/'mmd'; MMD_DIR.mkdir(parents=True,exist_ok=True)
@@ -72,7 +73,9 @@ class Handler(BaseHTTPRequestHandler):
         # Never log arbitrary URLs, query strings, FBX paths or HTTP headers.
         pass
     def send_response(self, code, message=None):
-        event('http.response',method=getattr(self,'command','?'),route=urlsplit(getattr(self,'path','')).path[:120],status=code)
+        route=urlsplit(getattr(self,'path','')).path
+        if route!='/api/sync' or code>=400:
+            event('http.response',method=getattr(self,'command','?'),route=route[:120],status=code)
         return super().send_response(code,message)
 
     def send(self,status,data,ctype='application/json'):
@@ -80,6 +83,11 @@ class Handler(BaseHTTPRequestHandler):
     def bad(self,status,msg):self.send(status,json.dumps({'error':msg},ensure_ascii=False).encode())
     def do_GET(self):
         path=urlsplit(self.path).path
+        if path=='/webmcp.js':
+            self.send(200,(BASE/'webmcp.js').read_bytes(),'text/javascript; charset=utf-8');return
+        if path=='/api/diagnostics/export':
+            payload=diagnostics_archive()
+            self.send(200,payload,'application/zip');return
         if path=='/api/ui-qa/settings':
             self.send(200,json.dumps({'settings':qa_settings(),'storage':qa_cleanup()}).encode());return
         if path=='/api/diagnostics/recent':
@@ -160,6 +168,15 @@ class Handler(BaseHTTPRequestHandler):
         self.bad(404,'not found')
     def do_POST(self):
         # Browser diagnostics are accepted only from a same-origin localhost page.
+        if urlsplit(self.path).path=='/api/diagnostics/action':
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=1200:return self.bad(413,'invalid action size')
+                payload=json.loads(self.rfile.read(length))
+                if not isinstance(payload,dict):return self.bad(400,'invalid action')
+                recorded=record_ui_action(payload)
+            except (ValueError,TypeError):return self.bad(400,'invalid action')
+            self.send(200,json.dumps({'ok':True,'recorded':recorded}).encode());return
         if urlsplit(self.path).path=='/api/ui-qa/settings':
             try:
                 length=int(self.headers.get('Content-Length','0'))
