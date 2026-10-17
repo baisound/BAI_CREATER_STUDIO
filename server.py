@@ -164,7 +164,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send(200,json.dumps(camera_read(DATA/"camera_project.json"),ensure_ascii=False).encode());return
         if path=="/api/camera/sample":
             try:
-                f=float(parse_qs(urlsplit(self.path).query).get("frame",["0"])[0]);result=camera_sample(camera_read(DATA/"camera_project.json"),f)
+                f=float(__import__("urllib.parse",fromlist=["parse_qs"]).parse_qs(urlsplit(self.path).query).get("frame",["0"])[0]);result=camera_sample(camera_read(DATA/"camera_project.json"),f)
                 self.send(200,json.dumps(result).encode());return
             except (ValueError,TypeError) as exc:return self.bad(400,str(exc))
         if path=='/pose_ik_ui.js':
