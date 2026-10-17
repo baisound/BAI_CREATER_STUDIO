@@ -140,13 +140,13 @@ const ivStatus=(text)=>{const el=document.getElementById('iv-status');if(el)el.t
 function ivInit(){if(ivRenderer)return;ivRenderer=new THREE.WebGLRenderer({antialias:true});ivRenderer.setPixelRatio(Math.min(devicePixelRatio,1.5));ivRenderer.setSize(ivRoot.clientWidth||600,310);ivRenderer.setScissorTest(true);ivRoot.appendChild(ivRenderer.domElement);ivScene=new THREE.Scene();ivScene.background=new THREE.Color('#162235');ivScene.add(new THREE.HemisphereLight(0xffffff,0x556677,2.0));const lamp=new THREE.DirectionalLight(0xffffff,2);lamp.position.set(2,6,4);ivScene.add(lamp);ivFloor=new THREE.GridHelper(8,16,0x718098,0x37465e);ivScene.add(ivFloor);ivCam=new THREE.PerspectiveCamera(40,1,.03,100);ivCam.position.set(2,1.6,4.5);ivControls=new OrbitControls(ivCam,ivRenderer.domElement);ivControls.target.set(0,1,0);ivControls.update();requestAnimationFrame(ivDraw)}
 function ivDraw(){requestAnimationFrame(ivDraw);if(!ivRoot||!ivRoot.offsetParent)return;if(!ivRenderer)return;const dt=Math.min(ivClock.getDelta(),.1);if(transferActive&&transferMixer&&ivMixer){transferT=(transferT+dt)%Math.max(transferDuration,.001);ivMixer.setTime(transferT);transferMixer.setTime(transferT)}else if(ivPlaying&&ivMixer)ivMixer.update(dt);ivControls.update();const w=ivRoot.clientWidth||600,h=310;if(ivRenderer.domElement.width!==Math.round(w*ivRenderer.getPixelRatio())||ivRenderer.domElement.height!==Math.round(h*ivRenderer.getPixelRatio()))ivRenderer.setSize(w,h,false);const shots=transferActive?3:(ivThreeViews?3:1);for(let i=0;i<shots;i++){const left=Math.floor(i*w/shots),right=Math.floor((i+1)*w/shots),sw=right-left;const cam=ivCam.clone();cam.aspect=sw/h;cam.position.copy(ivCam.position);if(i===1){cam.position.set(4,1.7,0);cam.lookAt(ivControls.target)}else if(i===2){cam.position.set(2.8,2.5,3);cam.lookAt(ivControls.target)}else cam.lookAt(ivControls.target);if(transferActive){transferSource.visible=i!==1;transferTarget.visible=i!==0;if(i===2){transferTarget.position.x=.35;transferSource.position.x=-.35}else{transferTarget.position.x=0;transferSource.position.x=0}}cam.updateProjectionMatrix();ivRenderer.setViewport(left,0,sw,h);ivRenderer.setScissor(left,0,sw,h);ivRenderer.render(ivScene,cam)}if(transferActive){transferSource.visible=true;transferTarget.visible=true}}
 async function ivLoad(asset){transferActive=false;if(transferTarget){ivScene?.remove(transferTarget);transferTarget=null}transferReport=null;if(!/\.(glb|vrm)$/i.test(asset))throw Error('この形式の統合プレビューは未対応（GLB/VRMのみ）');ivInit();ivStatus('読み込み中: '+asset);const res=await fetch('/api/integrated-v02/asset/'+encodeURIComponent(asset));if(!res.ok)throw Error('原本の取得に失敗 HTTP '+res.status);const bytes=await res.arrayBuffer();const parsed=await new GLTFLoader().parseAsync(bytes,'');if(ivModel){ivScene.remove(ivModel);ivMixer?.stopAllAction();ivModel.traverse(o=>{if(o.geometry)o.geometry.dispose()})}ivModel=parsed.scene;ivScene.add(ivModel);ivMixer=parsed.animations.length?new THREE.AnimationMixer(ivModel):null;ivClips=parsed.animations;ivPlaying=false;const bounds=new THREE.Box3().setFromObject(ivModel),size=bounds.getSize(new THREE.Vector3());const scale=2/Math.max(size.y,.001);ivModel.scale.multiplyScalar(scale);ivBounds=new THREE.Box3().setFromObject(ivModel);const center=ivBounds.getCenter(new THREE.Vector3());ivModel.position.x-=center.x;ivModel.position.z-=center.z;ivModel.position.y-=ivBounds.min.y;ivControls.target.set(0,1,0);ivCam.position.set(2.8,1.8,4.5);ivControls.update();const select=document.getElementById('iv-clip');select.replaceChildren(new Option('クリップを選択',''));ivClips.forEach((c,i)=>select.add(new Option((c.name||'Animation '+(i+1))+' ('+c.duration.toFixed(2)+'s)',String(i))));if(ivClips.length){select.value='0';ivStart()}ivCurrent=asset;ivStatus(asset+' / アニメーション '+ivClips.length+'本'+(/\.vrm$/i.test(asset)?' / VRM物理・表情は未対応':'') );return {asset,animation_count:ivClips.length,animations:ivClips.map(c=>({name:c.name,duration:c.duration}))}}
-function ivStart(){if(!ivMixer)return false;ivMixer.stopAllAction();const n=Number(document.getElementById('iv-clip').value);if(!ivClips[n])return false;ivMixer.clipAction(ivClips[n]).reset().play();ivPlaying=true;document.getElementById('iv-play').textContent='❚❚ 停止';return true}
+function ivStart(){if(!ivMixer)return false;transferActive=false;ivMixer.stopAllAction();const n=Number(document.getElementById('iv-clip').value);if(!ivClips[n])return false;ivMixer.clipAction(ivClips[n]).reset().play();ivPlaying=true;document.getElementById('iv-play').textContent='❚❚ 停止';return true}
 function ivCheck(){if(!ivModel)return {ok:false,reason:'モデル未読込'};ivModel.updateWorldMatrix(true,true);const bounds=new THREE.Box3().setFromObject(ivModel);const result={asset:ivCurrent,frame_sample:'current',bounding_box_bottom_m:Math.round(bounds.min.y*10000)/10000,bounding_box_height_m:Math.round((bounds.max.y-bounds.min.y)*1000)/1000,possible_floor_penetration:bounds.min.y<-.02,limitation:'メッシュAABBの暫定判定です。足ボーンIK・接地固定・衣装貫通は検査しません。'};document.getElementById('iv-qa').textContent=JSON.stringify(result,null,2);return result}
 document.getElementById('iv-transfer').onclick=()=>ivTransfer().catch(e=>document.getElementById('iv-transfer-status').textContent='転写できません: '+e.message);
 document.getElementById('iv-sync').onclick=()=>{if(!transferTarget)return;transferActive=!transferActive;document.getElementById('iv-sync').textContent='同期比較：'+(transferActive?'ON':'OFF')};
 fetch('/api/integrated-v02/catalog').then(r=>r.json()).then(c=>{const el=document.getElementById('iv-target');for(const m of c.models||[]){const name=m.source_asset?.split('/').pop();if(/\.vrm$/i.test(name||''))el.add(new Option(m.name||name,name))}}).catch(console.warn);
-document.getElementById('iv-play').onclick=()=>{ivPlaying? (ivPlaying=false,document.getElementById('iv-play').textContent='▶ 再生'):ivStart()};document.getElementById('iv-clip').onchange=ivStart;document.getElementById('iv-compare').onclick=()=>{ivThreeViews=!ivThreeViews;document.getElementById('iv-compare').textContent='3視点：'+(ivThreeViews?'ON':'OFF')};document.getElementById('iv-check').onclick=ivCheck;
-window.integratedPreviewV02={load:ivLoad,transfer:ivTransfer,transferStatus:()=>transferReport,play:ivStart,stop:()=>{ivPlaying=false;transferActive=false;ivStatus('停止しました')},check:ivCheck,status:()=>({asset:ivCurrent,playing:ivPlaying,clips:ivClips.map(c=>c.name),three_views:ivThreeViews})};
+document.getElementById('iv-play').onclick=()=>{if(ivPlaying||transferActive){window.integratedPreviewV02.stop()}else ivStart()};document.getElementById('iv-clip').onchange=ivStart;document.getElementById('iv-compare').onclick=()=>{ivThreeViews=!ivThreeViews;document.getElementById('iv-compare').textContent='3視点：'+(ivThreeViews?'ON':'OFF')};document.getElementById('iv-check').onclick=ivCheck;
+window.integratedPreviewV02={load:ivLoad,transfer:ivTransfer,transferStatus:()=>transferReport,play:ivStart,stop:()=>{ivPlaying=false;transferActive=false;ivMixer?.stopAllAction();transferMixer?.stopAllAction();document.getElementById('iv-play').textContent='▶ 再生';ivStatus('停止しました')},check:ivCheck,status:()=>({asset:ivCurrent,playing:ivPlaying,clips:ivClips.map(c=>c.name),three_views:ivThreeViews})};
 const box=document.getElementById('threeview'),canvas=document.getElementById('threecanvas'),msg=document.getElementById('threemsg'),info=document.getElementById('importstatus'),mapping=document.getElementById('mapping');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(box.clientWidth,box.clientHeight);renderer.shadowMap.enabled=true;
 const scene=new THREE.Scene();scene.background=new THREE.Color('#111b2d');scene.add(new THREE.HemisphereLight(0xd5ebff,0x293043,2.2));const sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(3,7,6);scene.add(sun);
@@ -557,6 +557,48 @@ show('「'+b.textContent.trim()+'」を開きました。ファイルを選択�
   document.getElementById('diag-export')?.addEventListener('click',()=>{
     const a=document.createElement('a');a.href='/api/diagnostics/export';a.download='mixamo_diagnostics.zip';a.click();
   });
+})();
+</script>
+
+<style id="studio-layout-v0143">
+/* Integrated library: fixed upper preview, independently scrolling lower workspace. */
+#integrated-pane.studio-split{display:grid!important;grid-template-rows:minmax(300px,49%) minmax(160px,1fr)!important;height:clamp(520px,calc(100dvh - 235px),1100px)!important;min-height:0!important;overflow:hidden!important;gap:10px!important}
+#integrated-pane.studio-split[hidden]{display:none!important}
+#studio-preview-sticky{grid-row:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;border:1px solid #506881;border-radius:10px;background:#131e30}
+#studio-preview-sticky>header{padding:7px 12px;border:0;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0}
+#studio-preview-sticky>header h3{font-size:14px;margin:0}
+#studio-preview-sticky #integrated-preview-controls{margin:0!important;padding:6px!important;border:0!important;min-height:0;flex:1;display:flex;flex-direction:column;overflow-y:auto;scrollbar-gutter:stable}
+#studio-preview-sticky #integrated-preview-controls>h3{display:none}
+#studio-preview-sticky #integrated-preview-controls>p{display:none}
+#studio-preview-sticky #iv-view{height:auto!important;min-height:130px;flex:1 0 130px}
+#studio-preview-sticky .controls{margin:4px 0!important;gap:5px}
+#studio-preview-sticky button,#studio-preview-sticky select{padding:6px;min-height:32px}
+#studio-library-scroll{grid-row:2;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:10px;border:1px solid #455870;border-radius:10px}
+#studio-library-scroll>section{margin:0 0 12px}
+#studio-library-scroll #integrated-items{max-height:320px!important;min-height:100px}
+#studio-library-scroll #integrated-models{max-height:220px!important}
+#studio-library-scroll #asset-quickstart{order:initial!important}
+#studio-library-scroll .workspace-guide{order:initial!important}
+#studio-library-scroll .integrated-list-panel{order:initial!important}
+#studio-library-scroll .asset-models{order:initial!important}
+@media(max-width:740px){#integrated-pane.studio-split{height:calc(100dvh - 170px)!important;min-height:490px!important;grid-template-rows:minmax(250px,50%) minmax(150px,1fr)!important}}
+</style>
+<script id="studio-layout-controller-v0143">
+(()=>{
+ const pane=document.getElementById('integrated-pane'),preview=document.getElementById('integrated-preview-controls');
+ if(!pane||!preview)return;
+ const upper=document.createElement('section');upper.id='studio-preview-sticky';upper.setAttribute('aria-label','常時表示3Dプレビュー');
+ const heading=document.createElement('header');heading.innerHTML='<h3>3Dプレビュー（固定表示）</h3><span style="font-size:11px;color:#aebbd0">下の素材一覧のみスクロール</span>';upper.append(heading,preview);
+ const lower=document.createElement('section');lower.id='studio-library-scroll';lower.setAttribute('aria-label','素材登録・素材一覧（スクロール）');lower.tabIndex=0;
+ while(pane.firstChild)lower.appendChild(pane.firstChild);
+ pane.append(upper,lower);pane.classList.add('studio-split');
+ const select=document.getElementById('unified-asset-picker');
+ const imported=document.getElementById('unified-asset-status');
+ if(select){select.title='ここから登録済みGLB/VRMを選んで表示できます。再登録は不要です。';}
+ const refresh=document.createElement('button');refresh.type='button';refresh.textContent='↻ 登録済み素材を更新';refresh.title='保存済みGLB・VRM素材を再取得します。ページ更新は不要です。';
+ refresh.addEventListener('click',()=>{document.getElementById('tab-integrated')?.click(); if(imported)imported.textContent='素材一覧を再取得します';});
+ const controls=document.getElementById('asset-quickstart');if(controls)controls.append(refresh);
+ const p=document.getElementById('iv-play');if(p)p.title='クリックすると再生。もう一度押すと停止します。';
 })();
 </script>
 </body></html>
