@@ -15,6 +15,11 @@ META=DATA/'manifest.json'; FAVORITES=DATA/'favorites.json'; PROJECT=DATA/'projec
 CUSTOM_ASSETS=DATA/'integrated_v02'/'assets'; CUSTOM_ASSETS.mkdir(parents=True,exist_ok=True)
 CUSTOM_INDEX=DATA/'integrated_v02'/'user_assets.json'
 CUSTOM_LOCK=threading.RLock()
+EDITOR_FILE=DATA/'timeline_editor.json'; EDITOR_LOCK=threading.RLock()
+def editor_read():
+    try: return json.loads(EDITOR_FILE.read_text(encoding='utf8'))
+    except (OSError,ValueError): return {'schema':1,'clips':[],'updatedAt':None}
+
 def user_assets():
     try:return json.loads(CUSTOM_INDEX.read_text(encoding='utf8'))
     except (OSError,ValueError):return []
@@ -124,6 +129,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send(200,(BASE/'index.html').read_bytes(),'text/html; charset=utf-8');return
         if path=='/api/server-version':
             self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload']}).encode());return
+        if path=='/api/timeline-editor':
+            with EDITOR_LOCK: self.send(200,json.dumps(editor_read(),ensure_ascii=False).encode());return
         if path=='/api/assets':
             self.send(200,json.dumps({'items':unified_assets()},ensure_ascii=False).encode());return
         if path=='/api/mmd-assets':
@@ -194,6 +201,24 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/timeline-editor':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=262144:return self.bad(413,'timeline too large')
+                data=json.loads(self.rfile.read(size))
+                if not isinstance(data,dict) or data.get('schema')!=1 or not isinstance(data.get('clips'),list) or len(data['clips'])>200:return self.bad(400,'invalid timeline')
+                valid=[]
+                for c in data['clips']:
+                    if not isinstance(c,dict) or not isinstance(c.get('name'),str) or len(c['name'])>250:return self.bad(400,'invalid clip name')
+                    start=int(c.get('start',0));duration=int(c.get('duration',90));speed=float(c.get('speed',1));blend=int(c.get('blend',6))
+                    if not(0<=start<=1000000 and 1<=duration<=100000 and .1<=speed<=4 and 0<=blend<=120):return self.bad(400,'invalid clip timing')
+                    valid.append({'name':c['name'],'start':start,'duration':duration,'speed':speed,'blend':blend})
+                obj={'schema':1,'clips':valid,'updatedAt':time.time()}
+                with EDITOR_LOCK:
+                    tmp=EDITOR_FILE.with_suffix('.tmp');tmp.write_text(json.dumps(obj,ensure_ascii=False,indent=2),encoding='utf8');os.replace(tmp,EDITOR_FILE)
+                self.send(200,json.dumps({'ok':True,'count':len(valid)}).encode());return
+            except (TypeError,ValueError,OverflowError):return self.bad(400,'invalid timeline values')
+
         # Browser diagnostics are accepted only from a same-origin localhost page.
         if urlsplit(self.path).path=='/api/diagnostics/action':
             try:

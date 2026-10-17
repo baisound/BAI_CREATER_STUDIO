@@ -690,4 +690,41 @@ show('「'+b.textContent.trim()+'」を開きました。ファイルを選択�
  const p=document.getElementById('iv-play');if(p)p.title='クリックすると再生。もう一度押すと停止します。';
 })();
 </script>
+
+<style>
+#timeline-studio{background:#18263a;border:1px solid #456184;border-radius:10px;padding:12px;margin:8px 0 14px;min-width:0}
+#timeline-studio .tls-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;position:sticky;top:0;background:#18263a;z-index:2;padding:6px 0}
+#timeline-studio button{cursor:pointer}
+#tls-items{max-height:230px;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.tls-item{border:1px solid #405773;border-radius:8px;padding:9px;margin:7px 0;display:grid;grid-template-columns:minmax(110px,1fr) repeat(4,minmax(58px,75px)) auto;gap:8px;align-items:center}
+.tls-item input{box-sizing:border-box;width:100%;min-width:0}.tls-item label{font-size:11px;color:#b9c8db}.tls-item label input{display:block;margin-top:4px}
+#tls-ruler{position:relative;height:30px;background:#101a2c;border-radius:6px;overflow:hidden;margin:8px 0}
+.tls-bar{position:absolute;height:19px;top:5px;border-radius:4px;background:#5187b6;white-space:nowrap;overflow:hidden;font-size:10px;padding:3px 4px;box-sizing:border-box;cursor:pointer;min-width:3px}
+#tls-note{font-size:12px;color:#aac7df;min-height:18px}
+@media(max-width:850px){.tls-item{grid-template-columns:repeat(2,minmax(0,1fr))}.tls-item>strong{grid-column:1/-1}}
+</style>
+<script>
+(()=>{
+ const container=document.createElement('section');container.id='timeline-studio';container.setAttribute('aria-label','共通タイムライン編集');
+ container.innerHTML=`<div class="tls-toolbar"><strong>タイムライン編集</strong><button id="tls-from-chain" title="編集中のコンビネーションからクリップを読み込みます">コンビネーションから取り込む</button><button id="tls-add" title="登録済みモーションを選択して追加します">＋ クリップ追加</button><button id="tls-save" title="タイムラインを保存します">保存</button><button id="tls-reload" title="保存済みタイムラインを再読込します">復元</button></div><p class="small">開始フレーム・長さ・速度・遷移フレームを編集します。元のFBX/VMDは変更しません。</p><div id="tls-ruler" aria-label="クリップの配置図"></div><div id="tls-items"></div><div id="tls-note" role="status">保存データを読み込み中...</div>`;
+ const main=document.querySelector('main');main.insertAdjacentElement('afterend',container);container.style.maxWidth='1250px';container.style.margin='16px auto';
+ const $=id=>document.getElementById(id);let clips=[],timer=null;const notify=x=>$('tls-note').textContent=x;
+ const safe=c=>({name:String(c.name||''),start:Math.max(0,Math.round(+c.start||0)),duration:Math.max(1,Math.round(+c.duration||90)),speed:Math.max(.1,Math.min(4,+c.speed||1)),blend:Math.max(0,Math.min(120,Math.round(+c.blend||0)))});
+ async function save(){const r=await fetch('/api/timeline-editor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({schema:1,clips})});if(!r.ok)throw Error('HTTP '+r.status);notify('保存済み：'+new Date().toLocaleTimeString('ja-JP'))}
+ const queue=()=>{notify('未保存の変更があります');clearTimeout(timer);timer=setTimeout(()=>save().catch(e=>notify('保存失敗：'+e.message)),550)};
+ function draw(){const items=$('tls-items'),ruler=$('tls-ruler');items.replaceChildren();ruler.replaceChildren();const end=Math.max(90,...clips.map(c=>c.start+c.duration));
+ clips.forEach((c,i)=>{const line=document.createElement('div');line.className='tls-item';const title=document.createElement('strong');title.textContent=(i+1)+'. '+c.name;line.append(title);
+ for(const [key,label,min,max,step] of [['start','開始F',0,1000000,1],['duration','長さF',1,100000,1],['speed','速度',.1,4,.1],['blend','補間F',0,120,1]]){const el=document.createElement('label');el.textContent=label;const input=document.createElement('input');input.type='number';input.min=min;input.max=max;input.step=step;input.value=c[key];input.title=label+'を編集';input.onchange=()=>{const n=+input.value;if(!Number.isFinite(n)||n<min||n>max){input.value=c[key];return}c[key]=step===1?Math.round(n):n;draw();queue()};el.append(input);line.append(el)}
+ const del=document.createElement('button');del.textContent='削除';del.title='このクリップをタイムラインから外します（元素材は削除されません）';del.onclick=()=>{clips.splice(i,1);draw();queue()};line.append(del);items.append(line);
+ const bar=document.createElement('button');bar.className='tls-bar';bar.style.left=(c.start/end*100)+'%';bar.style.width=(c.duration/end*100)+'%';bar.textContent=(i+1)+'. '+c.name;bar.title=c.name+' / '+c.start+'F～'+(c.start+c.duration)+'F';bar.onclick=()=>line.scrollIntoView({block:'nearest'});ruler.append(bar)
+ });if(!clips.length){const hint=document.createElement('p');hint.textContent='クリップがありません。「コンビネーションから取り込む」または「＋ クリップ追加」を選択してください。';hint.className='small';items.append(hint)}
+ }
+ async function load(){const r=await fetch('/api/timeline-editor',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const v=await r.json();clips=(v.clips||[]).map(safe);draw();notify(clips.length+'件を読み込みました')}
+ $('tls-from-chain').onclick=()=>{const steps=window.getComboState?.().steps||[];if(!steps.length){notify('先にコンビネーションを追加してください');return}let start=0;clips=steps.map(x=>{const c=safe({name:x.name,start,duration:90,blend:6,speed:1});start+=90;return c});draw();queue()};
+ $('tls-add').onclick=()=>{const names=(window.getComboState?.().steps||[]).map(x=>x.name);const name=prompt('追加する登録済みモーション名を入力',names[0]||'');if(!name)return;const last=clips[clips.length-1];clips.push(safe({name,start:last?last.start+last.duration:0,duration:90,blend:6}));draw();queue()};
+ $('tls-save').onclick=()=>{clearTimeout(timer);save().catch(e=>notify('保存失敗：'+e.message))};$('tls-reload').onclick=()=>{if(clips.length&&!confirm('保存済みの編集状態を読み込みますか？'))return;load().catch(e=>notify('読み込み失敗：'+e.message))};
+ window.mixamoTimelineEditor={get:()=>({schema:1,clips:clips.map(c=>({...c}))}),set:async data=>{clips=(data.clips||[]).map(safe);draw();await save();return {ok:true,count:clips.length}}};
+ load().catch(e=>notify('読み込み失敗：'+e.message));
+})();
+</script>
 </body></html>
