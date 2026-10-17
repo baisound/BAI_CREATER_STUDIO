@@ -9,6 +9,7 @@ from operation_diagnostics import record_ui_action, diagnostics_archive
 from retarget_analysis import inspect, compare
 from retarget_calibration import calibrate
 from retarget_pose import propose_pose
+from retarget_mapping_preview import preview as mapping_preview
 from pose_ik import validate_pose
 from ai_ik_preview import preview as ai_ik_preview
 from retarget_root import convert_root_samples
@@ -360,6 +361,19 @@ class Handler(BaseHTTPRequestHandler):
                     result['root_offset_proposal']=root_offset_proposal(result,samples)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,TypeError,KeyError,OverflowError) as ex:return self.bad(400,str(ex))
+        if urlsplit(self.path).path=='/api/retarget/mapping-preview':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=1048576:return self.bad(413,'payload too large')
+                obj=json.loads(self.rfile.read(size))
+                source_id=obj['source'];target_id=obj['target']
+                source=inspect(resolve_asset(source_id));target=inspect(resolve_asset(target_id))
+                key=hashlib.sha256((source_id+'\0'+target_id).encode()).hexdigest()[:24]
+                profile=retarget_read().get('profiles',{}).get(key)
+                if not profile or not profile.get('mapping'):return self.bad(400,'saved bone mapping required')
+                result=mapping_preview(profile['mapping'],obj.get('samples',[]),source.get('bones',[]),target.get('bones',[]))
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError,IndexError,OverflowError) as ex:return self.bad(400,str(ex))
         if urlsplit(self.path).path=='/api/retarget/root-preview':
             try:
                 size=int(self.headers.get('Content-Length','0'))

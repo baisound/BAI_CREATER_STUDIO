@@ -75,6 +75,7 @@ def run(name,a):
     if name=='mixamo_retarget_calibration':
         from urllib.parse import quote
         return api('/api/retarget/calibration?source='+quote(a['source'],safe='')+'&target='+quote(a['target'],safe=''))
+    if name=='bai_retarget_mapping_preview':return api('/api/retarget/mapping-preview',a)
     if name=='mixamo_retarget_root_preview':return api('/api/retarget/root-preview',a)
     if name=='mixamo_retarget_profiles_get':return api('/api/retarget/profiles')
     if name=='mixamo_retarget_profiles_set':return api('/api/retarget/profiles',{'schema':1,'profiles':a['profiles']})
@@ -138,6 +139,7 @@ TOOLS=[
 ('mixamo_retarget_compare','Compare semantic role mapping of two registered assets.',S({'source':STR,'target':STR},['source','target'])),
 ('mixamo_retarget_pose_proposal','Estimate rest-direction rotations for matching bones; preview-only, not validated retarget.',S({'source':STR,'target':STR},['source','target'])),
 ('mixamo_retarget_calibration','Propose read-only scale and mapping from available positions.',S({'source':STR,'target':STR},['source','target'])),
+('bai_retarget_mapping_preview','Apply saved bone names to supplied rotation samples as read-only preview, without axis conversion or VMD output.',S({'source':STR,'target':STR,'samples':{'type':'array','items':{'type':'object'}}},['source','target','samples'])),
 ('mixamo_retarget_root_preview','Preview root position scaling and yaw without writing animation.',S({'samples':{'type':'array','items':{'type':'object'}},'scale':{'type':'number'},'yaw_offset_deg':{'type':'number'}},['samples','scale'])),
 ('bai_bvh_foot_world_qa','Sample BVH foot joint world positions and diagnose ground contact; source axes, no IK.',S({'bvh_text':STR,'foot_bone':STR,'stride':INT,'ground_y':{'type':'number'}},['bvh_text','foot_bone'])),
 ('bai_dual_foot_preview','Preview root XZ adjustments respecting simultaneous planted feet; no IK or model edits.',S({'left_samples':{'type':'array','items':{'type':'object'}},'right_samples':{'type':'array','items':{'type':'object'}},'ground_y':{'type':'number'},'conflict_tolerance':{'type':'number'},'max_offset':{'type':'number'}},['left_samples','right_samples'])),
