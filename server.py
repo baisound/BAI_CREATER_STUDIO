@@ -11,6 +11,7 @@ from retarget_calibration import calibrate
 from retarget_pose import propose_pose
 from vrm_humanoid_preview import compare_vrm_humanoid, suggest_humanoid_mapping
 from rest_rotation_transfer import preview as explicit_rest_preview
+from rest_pose_inspection import compare as inspect_rest_pairs
 from retarget_mapping_preview import preview as mapping_preview
 from pose_ik import validate_pose
 from ai_ik_preview import preview as ai_ik_preview
@@ -371,6 +372,17 @@ class Handler(BaseHTTPRequestHandler):
                 result=explicit_rest_preview(obj)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,TypeError,KeyError,OverflowError) as ex:return self.bad(400,str(ex))
+        if urlsplit(self.path).path=='/api/retarget/rest-pose-inspection':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=8192:return self.bad(413,'payload too large')
+                obj=json.loads(self.rfile.read(size))
+                a=resolve_asset(obj['source']);b=resolve_asset(obj['target'])
+                if a.suffix.lower() not in ('.vrm','.glb') or b.suffix.lower() not in ('.vrm','.glb'):
+                    return self.bad(400,'VRM/GLB files only')
+                result=inspect_rest_pairs(a.read_bytes(),b.read_bytes())
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError,IndexError,OSError) as ex:return self.bad(400,str(ex))
         if urlsplit(self.path).path=='/api/retarget/vrm-humanoid-preview':
             try:
                 size=int(self.headers.get('Content-Length','0'))
