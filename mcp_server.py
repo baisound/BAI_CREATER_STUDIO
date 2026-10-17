@@ -62,6 +62,7 @@ def run(name,a):
     if name=='bai_ai_pose_proposal':return api('/api/ai/pose-proposal',{'text':a['text']})
     if name=='bai_ai_ik_preview':return api('/api/ai/ik-preview',{'text':a['text'],'baseline':a['baseline']})
     if name=='bai_bvh_foot_world_qa':return api('/api/qa/bvh-foot-world',a)
+    if name=='bai_dual_foot_preview':return api('/api/qa/dual-foot-preview',a)
     if name=='mixamo_foot_contact_qa':return api('/api/qa/foot-contact',a)
     if name=='mixamo_motion_channels':return api('/api/retarget/motion-channels?id='+urllib.parse.quote(a['id'],safe=''))
     if name=='mixamo_retarget_analyze':return api('/api/retarget/analyze?id='+__import__('urllib.parse',fromlist=['quote']).quote(a['id'],safe=''))
@@ -139,6 +140,7 @@ TOOLS=[
 ('mixamo_retarget_calibration','Propose read-only scale and mapping from available positions.',S({'source':STR,'target':STR},['source','target'])),
 ('mixamo_retarget_root_preview','Preview root position scaling and yaw without writing animation.',S({'samples':{'type':'array','items':{'type':'object'}},'scale':{'type':'number'},'yaw_offset_deg':{'type':'number'}},['samples','scale'])),
 ('bai_bvh_foot_world_qa','Sample BVH foot joint world positions and diagnose ground contact; source axes, no IK.',S({'bvh_text':STR,'foot_bone':STR,'stride':INT,'ground_y':{'type':'number'}},['bvh_text','foot_bone'])),
+('bai_dual_foot_preview','Preview root XZ adjustments respecting simultaneous planted feet; no IK or model edits.',S({'left_samples':{'type':'array','items':{'type':'object'}},'right_samples':{'type':'array','items':{'type':'object'}},'ground_y':{'type':'number'},'conflict_tolerance':{'type':'number'},'max_offset':{'type':'number'}},['left_samples','right_samples'])),
 ('mixamo_foot_contact_qa','Analyze foot contact, drift and penetration using world-space samples; no IK application.',S({'samples':{'type':'array','items':{'type':'object'}},'ground_y':{'type':'number'},'propose_root_offsets':{'type':'boolean'}},['samples'])),
 ('mixamo_motion_channels','Inspect GLB/BVH animation channels without changing files.',S({'id':{'type':'string'}},['id'])),
 ('mixamo_retarget_profiles_get','Read stored mapping profiles.',S()),

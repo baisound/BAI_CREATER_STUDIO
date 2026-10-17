@@ -14,6 +14,7 @@ from ai_ik_preview import preview as ai_ik_preview
 from retarget_root import convert_root_samples
 from motion_interchange import analyze_motion
 from foot_contact import diagnose, root_offset_proposal
+from dual_foot_plan import propose_dual_foot
 from bvh_foot_world import sample_bvh_foot_world
 from bai_ai_manager import read_config as ai_read_config, save_config as ai_save_config, status as ai_status, interpret_pose as ai_interpret_pose, AIUnavailable
 RETARGET_FILE=Path(__file__).resolve().parent/'data'/'retarget_profiles.json'
@@ -338,6 +339,14 @@ class Handler(BaseHTTPRequestHandler):
                 if obj.get('diagnose',True):
                     report=diagnose(result['samples'],ground_y=float(obj.get('ground_y',0)),height_tolerance=float(obj.get('height_tolerance',0.06)),motion_tolerance=float(obj.get('motion_tolerance',0.025)))
                     result['diagnosis']=report
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError,OverflowError) as ex:return self.bad(400,str(ex))
+        if urlsplit(self.path).path=='/api/qa/dual-foot-preview':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=1048576:return self.bad(413,'payload too large')
+                obj=json.loads(self.rfile.read(size))
+                result=propose_dual_foot(obj['left_samples'],obj['right_samples'],ground_y=obj.get('ground_y',0.0),height_tolerance=obj.get('height_tolerance',0.06),motion_tolerance=obj.get('motion_tolerance',0.025),max_offset=obj.get('max_offset',0.2),conflict_tolerance=obj.get('conflict_tolerance',0.05))
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,TypeError,KeyError,OverflowError) as ex:return self.bad(400,str(ex))
         if urlsplit(self.path).path=='/api/qa/foot-contact':
