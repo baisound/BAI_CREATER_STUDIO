@@ -54,6 +54,7 @@ def update_chain(action, name=None, from_index=None,to_index=None):
     return {'timeline':seq,'history_count':len(history)}
 
 def run(name,a):
+    if name=='mixamo_motion_channels':return api('/api/retarget/motion-channels?id='+urllib.parse.quote(a['id'],safe=''))
     if name=='mixamo_retarget_analyze':return api('/api/retarget/analyze?id='+__import__('urllib.parse',fromlist=['quote']).quote(a['id'],safe=''))
     if name=='mixamo_retarget_compare':
         from urllib.parse import quote
@@ -124,6 +125,7 @@ TOOLS=[
 ('mixamo_retarget_pose_proposal','Estimate rest-direction rotations for matching bones; preview-only, not validated retarget.',S({'source':STR,'target':STR},['source','target'])),
 ('mixamo_retarget_calibration','Propose read-only scale and mapping from available positions.',S({'source':STR,'target':STR},['source','target'])),
 ('mixamo_retarget_root_preview','Preview root position scaling and yaw without writing animation.',S({'samples':{'type':'array','items':{'type':'object'}},'scale':{'type':'number'},'yaw_offset_deg':{'type':'number'}},['samples','scale'])),
+('mixamo_motion_channels','Inspect GLB/BVH animation channels without changing files.',S({'id':{'type':'string'}},['id'])),
 ('mixamo_retarget_profiles_get','Read stored mapping profiles.',S()),
 ('mixamo_retarget_profiles_set','Save non-destructive mapping profiles.',S({'profiles':{'type':'object'}},['profiles'])),
 ('mixamo_motion_layers_get','Read non-destructive rotation correction layers.',S()),

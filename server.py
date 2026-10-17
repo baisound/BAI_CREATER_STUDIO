@@ -10,6 +10,7 @@ from retarget_analysis import inspect, compare
 from retarget_calibration import calibrate
 from retarget_pose import propose_pose
 from retarget_root import convert_root_samples
+from motion_interchange import analyze_motion
 RETARGET_FILE=Path(__file__).resolve().parent/'data'/'retarget_profiles.json'
 RETARGET_LOCK=threading.RLock()
 def retarget_read():
@@ -165,6 +166,13 @@ class Handler(BaseHTTPRequestHandler):
             self.send(200,json.dumps({'source':source,'target':target,'profile':profile},ensure_ascii=False).encode());return
         if path=='/api/retarget/profiles':
             self.send(200,json.dumps(retarget_read(),ensure_ascii=False).encode());return
+        if path=='/api/retarget/motion-channels':
+            identifier=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+            try:
+                result=analyze_motion(resolve_asset(identifier))
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (ValueError,IndexError,OSError,KeyError,TypeError) as ex:self.bad(400,str(ex))
+            return
         if path=='/api/retarget/analyze':
             identifier=__import__('urllib.parse',fromlist=['parse_qs']).parse_qs(urlsplit(self.path).query).get('id',[''])[0]
             try:self.send(200,json.dumps(inspect(resolve_asset(identifier)),ensure_ascii=False).encode())
