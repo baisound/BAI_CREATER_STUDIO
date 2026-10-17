@@ -54,6 +54,9 @@ def update_chain(action, name=None, from_index=None,to_index=None):
     return {'timeline':seq,'history_count':len(history)}
 
 def run(name,a):
+    if name=="bai_camera_get":return api("/api/camera/project")
+    if name=="bai_camera_set":return api("/api/camera/project",a)
+    if name=="bai_camera_sample":return api("/api/camera/sample?frame="+str(a["frame"]))
     if name=='bai_pose_ik_get':return api('/api/pose/last')
     if name=='bai_pose_ik_solve':return api('/api/pose/solve',a)
     if name=='bai_pose_ik_save':return api('/api/pose/save',a)
@@ -141,6 +144,9 @@ def run(name,a):
 S=lambda props=None,req=None:{'type':'object','properties':props or {},'required':req or [],'additionalProperties':False}
 STR={'type':'string'};INT={'type':'integer'}
 TOOLS=[
+('bai_camera_get','Read BAI Camera keyframe project.',S()),
+('bai_camera_set','Save non-destructive BAI Camera keyframes; original motions unaffected.',S({'schema':INT,'fps':INT,'duration':INT,'keys':{'type':'array','items':{'type':'object'}}},['schema','fps','duration','keys'])),
+('bai_camera_sample','Read interpolated camera transform at a specified frame.',S({'frame':INT},['frame'])),
 ('bai_ai_status','Check optional local Ollama availability.',S({})),
 ('bai_ai_settings','Read local Ollama configuration.',S({})),
 ('bai_ai_pose_proposal','Preview-only Qwen pose interpretation, without editing source files.',S({'text':{'type':'string'}},['text'])),

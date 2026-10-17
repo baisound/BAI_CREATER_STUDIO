@@ -7,6 +7,9 @@
  const validIndex=n=>Number.isInteger(n)&&n>=1&&n<=rows.length;
  const toolSpecs=[];
  function def(name,description,inputSchema,handler,readOnly=false){toolSpecs.push({name,description,inputSchema,handler,readOnly});}
+ def('bai_camera_get','Read non-destructive BAI Camera timeline.',schema(),async()=>await request('/api/camera/project'),true);
+ def('bai_camera_set','Save BAI Camera keyframes.',schema({schema:integer,fps:integer,duration:integer,keys:{type:'array',items:{type:'object'}}},['schema','fps','duration','keys']),async args=>await request('/api/camera/project',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(args)}));
+ def('bai_camera_sample','Read camera keyframe interpolation.',schema({frame:integer},['frame']),async({frame})=>await request('/api/camera/sample?frame='+frame),true);
  const wait=ms=>new Promise(r=>setTimeout(r,ms));
  async function request(path,options){const r=await fetch(path,options);if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
  const currentRow=()=>rows[current];

@@ -1,6 +1,7 @@
 # Python 3.9+ standard library only. Binds to loopback, not LAN.
 import hashlib, json, mimetypes, os, re, sys, threading, shutil, subprocess, time, zipfile, io, posixpath
 from pathlib import Path
+from bai_camera import read as camera_read, save as camera_save, sample as camera_sample
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
 from diagnostic_logging import event, recent
@@ -157,6 +158,15 @@ class Handler(BaseHTTPRequestHandler):
     def bad(self,status,msg):self.send(status,json.dumps({'error':msg},ensure_ascii=False).encode())
     def do_GET(self):
         path=urlsplit(self.path).path
+        if path in ("/camera.html", "/camera.css", "/camera.js"):
+            file=BASE/path[1:];self.send(200,file.read_bytes(),"text/css" if path.endswith(".css") else "text/javascript" if path.endswith(".js") else "text/html; charset=utf-8");return
+        if path=="/api/camera/project":
+            self.send(200,json.dumps(camera_read(DATA/"camera_project.json"),ensure_ascii=False).encode());return
+        if path=="/api/camera/sample":
+            try:
+                f=float(parse_qs(urlsplit(self.path).query).get("frame",["0"])[0]);result=camera_sample(camera_read(DATA/"camera_project.json"),f)
+                self.send(200,json.dumps(result).encode());return
+            except (ValueError,TypeError) as exc:return self.bad(400,str(exc))
         if path=='/pose_ik_ui.js':
             self.send(200,(BASE/'pose_ik_ui.js').read_bytes(),'text/javascript; charset=utf-8');return
         if path=='/api/pose/last':
@@ -311,6 +321,13 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=="/api/camera/project":
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=1024*1024:return self.bad(413,'camera project too large')
+                obj=json.loads(self.rfile.read(length));result=camera_save(DATA/'camera_project.json',obj)
+                self.send(200,json.dumps(result).encode());return
+            except (ValueError,TypeError,KeyError) as exc:return self.bad(400,str(exc))
         if urlsplit(self.path).path=='/api/pose/solve':
             try:
                 n=int(self.headers.get('Content-Length','0'))
