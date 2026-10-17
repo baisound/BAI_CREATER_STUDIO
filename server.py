@@ -184,6 +184,9 @@ class Handler(BaseHTTPRequestHandler):
             self.send(200,json.dumps({'entries':recent(limit)},ensure_ascii=False).encode());return
         if path=='/foot_qa_ui.js':
             self.send(200,(BASE/'foot_qa_ui.js').read_bytes(),'text/javascript; charset=utf-8');return
+        if path in ('/v01629_mesh_compare.js','/v01630_32_review.js','/v01633_35_scrub.js','/v01636_40_playback.js'):
+            filename=path.lstrip('/')
+            self.send(200,(BASE/filename).read_bytes(),'text/javascript; charset=utf-8');return
         if path=='/retarget_ui.js':
             self.send(200,(BASE/'retarget_ui.js').read_bytes(),'text/javascript; charset=utf-8');return
         if path=='/motion_layers.js':

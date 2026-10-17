@@ -23,3 +23,12 @@ $('sk-mapping-save').onclick=async()=>{try{if(!mapSource||!mapTarget)throw Error
 $('sk-mapping-preview-run').onclick=async()=>{try{const source=$('sk-source').value,target=$('sk-target').value;const samples=JSON.parse($('sk-mapping-preview-input').value);if(!Array.isArray(samples))throw Error('サンプルはJSON配列で入力してください');const result=await post('/api/retarget/mapping-preview',{source,target,samples});$('sk-mapping-preview-result').textContent=JSON.stringify(result,null,2)}catch(e){$('sk-mapping-preview-result').textContent='プレビュー失敗: '+e.message}};
 for(const id of ['sk-source','sk-target'])$(id).addEventListener('change',()=>{mapSource=null;mapTarget=null;rows.replaceChildren();mapStatus.textContent='素材の選択が変わりました。候補を再読み込みしてください。'});
 $('sk-refresh').click()})();
+// v0.16.28 provisional VRM local rotation QA: non-destructive, AI-free.
+(()=>{const panel=document.createElement('section');panel.style.cssText='padding:12px;margin:12px 0;border:1px solid #8886;border-radius:8px';panel.innerHTML='<h3>VRMローカル回転の仮転写・品質検査（読取のみ）</h3><p>未校正の関節軸とスキニングは検証できません。VMD保存・モデル変更は行いません。</p>';
+const clip=document.createElement('input');clip.placeholder='クリップ名（複数ある場合）';clip.style.width='100%';
+const agree=document.createElement('label'),check=document.createElement('input');check.type='checkbox';agree.append(check,document.createTextNode(' GLB/VRMの共通座標系を確認済み（試験計算）'));
+const run=document.createElement('button');run.type='button';run.textContent='仮転写と品質チェック';
+const output=document.createElement('pre');output.style.cssText='max-height:270px;overflow:auto;white-space:pre-wrap';
+panel.append(clip,agree,run,output);document.body.append(panel);
+run.onclick=async()=>{try{if(!check.checked)throw Error('座標系の確認が必要です');output.textContent='解析中…';const body={source:document.getElementById('sk-source')?.value,target:document.getElementById('sk-target')?.value,clip:clip.value||null,fps:30,coordinate_convention_confirmed:true};const resp=await fetch('/api/retarget/vrm-local-transfer-preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!resp.ok)throw Error('HTTP '+resp.status+' '+(await resp.text()).slice(0,300));const d=await resp.json();output.textContent='品質ゲート: '+d.quality.quality_gate+'（VMD出力不可）\n'+JSON.stringify(d,null,2)}catch(err){output.textContent='確認または解析エラー: '+err.message}};
+})();
