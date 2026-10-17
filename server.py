@@ -7,6 +7,7 @@ from diagnostic_logging import event, recent
 from qa_capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
 from operation_diagnostics import record_ui_action, diagnostics_archive
 from retarget_analysis import inspect, compare
+from retarget_calibration import calibrate
 RETARGET_FILE=Path(__file__).resolve().parent/'data'/'retarget_profiles.json'
 RETARGET_LOCK=threading.RLock()
 def retarget_read():
@@ -169,6 +170,13 @@ class Handler(BaseHTTPRequestHandler):
                 b=inspect(resolve_asset(params.get('target',[''])[0]))
                 self.send(200,json.dumps({'source':a,'target':b,'comparison':compare(a,b)},ensure_ascii=False).encode())
             except (ValueError,OSError,IndexError) as ex:self.bad(400,str(ex))
+            return
+        if path=='/api/retarget/calibration':
+            params=parse_qs(urlsplit(self.path).query)
+            try:
+                a=inspect(resolve_asset(params.get('source',[''])[0]));b=inspect(resolve_asset(params.get('target',[''])[0]))
+                self.send(200,json.dumps(calibrate(a,b),ensure_ascii=False).encode())
+            except (ValueError,OSError,IndexError,KeyError) as ex:self.bad(400,str(ex))
             return
         if path=='/api/motion-layers':
             with LAYER_LOCK:self.send(200,json.dumps(layer_read(),ensure_ascii=False).encode());return

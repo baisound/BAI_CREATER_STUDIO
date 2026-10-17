@@ -58,6 +58,9 @@ def run(name,a):
     if name=='mixamo_retarget_compare':
         from urllib.parse import quote
         return api('/api/retarget/compare?source='+quote(a['source'],safe='')+'&target='+quote(a['target'],safe=''))
+    if name=='mixamo_retarget_calibration':
+        from urllib.parse import quote
+        return api('/api/retarget/calibration?source='+quote(a['source'],safe='')+'&target='+quote(a['target'],safe=''))
     if name=='mixamo_retarget_profiles_get':return api('/api/retarget/profiles')
     if name=='mixamo_retarget_profiles_set':return api('/api/retarget/profiles',{'schema':1,'profiles':a['profiles']})
     if name=='mixamo_motion_layers_get':return api('/api/motion-layers')
@@ -114,6 +117,7 @@ STR={'type':'string'};INT={'type':'integer'}
 TOOLS=[
 ('mixamo_retarget_analyze','Analyze registered skeleton and clips without altering source.',S({'id':STR},['id'])),
 ('mixamo_retarget_compare','Compare semantic role mapping of two registered assets.',S({'source':STR,'target':STR},['source','target'])),
+('mixamo_retarget_calibration','Propose read-only scale and mapping from available positions.',S({'source':STR,'target':STR},['source','target'])),
 ('mixamo_retarget_profiles_get','Read stored mapping profiles.',S()),
 ('mixamo_retarget_profiles_set','Save non-destructive mapping profiles.',S({'profiles':{'type':'object'}},['profiles'])),
 ('mixamo_motion_layers_get','Read non-destructive rotation correction layers.',S()),
