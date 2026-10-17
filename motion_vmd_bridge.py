@@ -6,6 +6,7 @@ uses the order of its declared rotation channels. Output uses MMD 30fps timing.
 import json, math, struct, argparse
 from pathlib import Path
 from motion_interchange import analyze_motion
+from vmd_readback import compare_vmd_bones
 
 
 def mul(a,b):
@@ -69,6 +70,8 @@ def convert(source, bone_map, output, fps=30, scale=1., model_name='BAI Creator 
         if 'bvh_rot' in values:
             w,x,y,z=euler_channels_to_quat(values['bvh_rot']);rot=[x,y,z,w]
         if len(pos)!=3 or len(rot)!=4:raise ValueError('Invalid channel width')
+        rot=normalize((rot[3],rot[0],rot[1],rot[2]))
+        rot=[rot[1],rot[2],rot[3],rot[0]]
         if not all(math.isfinite(v) for v in [*pos,*rot]):raise ValueError('Nonfinite key')
         records.append((target,frame,[v*scale for v in pos],rot))
     output=Path(output);output.parent.mkdir(parents=True,exist_ok=True)
@@ -80,6 +83,7 @@ def convert(source, bone_map, output, fps=30, scale=1., model_name='BAI Creator 
             fd.write(pack_name(target,15));fd.write(struct.pack('<I3f4f',frame,*pos,*rot));fd.write(interpolation)
         for _ in range(5):fd.write(struct.pack('<I',0))
     report={'status':'exported_requires_pmx_visual_validation','source':str(source),'output':str(output),'bone_keys':len(records),'matched_bones':sorted(set(r[0] for r in records)), 'warnings':['Raw channel coordinates are NOT PMX calibrated. Check axes, reference pose, IK and root translation before use.','VMD is not a universal skeleton animation format; explicit bone mapping alone cannot resolve bind pose differences.',*data.get('warnings',[])]}
+    report['binary_readback']=compare_vmd_bones(output,records)
     output.with_suffix('.report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     return report
 
