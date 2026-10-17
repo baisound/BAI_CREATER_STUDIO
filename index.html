@@ -207,6 +207,39 @@ const ck=(manual[step]||norm(step))+'-'+idx;if(actor.clipKey!==ck){actor.mixer.s
 let comboLastFrame=performance.now();let chainOffsets=[];let chainAnchor=null;
 // Track hip/root translation delta for each clip; delta is accumulated across steps.
 function clipOffset(clip,t){const tr=clip.tracks.find(x=>x.name.endsWith('.position')&&/hips|root|pelvis/i.test(x.name));if(!tr)return new THREE.Vector3();const interp=tr.createInterpolant();const a=interp.evaluate(0),b=interp.evaluate(Math.max(0,Math.min(t,clip.duration)));return new THREE.Vector3((b[0]-a[0]),0,(b[2]-a[2]));}
+// v0.14.8: Timeline-driven FBX preview, independent of the legacy chain player.
+let tlsPrevious=-1,tlsBaseline=null,tlsPreviousClip=null;
+function timelineFrame(t){
+ const tr=window.mixamoTimelineTransport;
+ if(!tr||!tr.playing)return false;
+ const actor=actors[0];if(!actor||actor.isDummy){msg.textContent='タイムライン再生には実FBXモデルAが必要です';tr.pause('実FBXモデルAがありません');return true;}
+ const dt=Math.min(.08,Math.max(0,(t-comboLastFrame)/1000));tr.advance(dt);
+ const frameAt=tr.frame();const schedules=tr.clips().slice().sort((a,b)=>a.start-b.start);
+ const selected=schedules.map((c,i)=>({c,i})).filter(({c})=>frameAt>=c.start&&frameAt<c.start+c.duration).pop();
+ if(!selected){actor.mixer.stopAllAction();actor.clipKey=null;msg.textContent='タイムライン：待機 '+Math.floor(frameAt)+'F';return true;}
+ const {c,i}=selected;const clip=clips.get(manual[c.name])||choose(c.name);
+ if(!clip){msg.textContent='未登録のFBXモーション：'+c.name;tr.pause('登録されていないモーション：'+c.name);return true;}
+ const localTime=Math.min(clip.duration,Math.max(0,(frameAt-c.start)/30*c.speed));
+ const key='timeline-'+i+'-'+c.name;
+ if(actor.clipKey!==key){
+   const old=actor.lastAction;
+   const next=actor.mixer.clipAction(clip);next.reset();next.enabled=true;next.setEffectiveWeight(1);next.play();
+   const fade=Math.min(c.blend/30,clip.duration);
+   if(old&&old!==next&&fade>0){old.crossFadeTo(next,fade,false)}else if(old&&old!==next){old.stop()}
+   actor.lastAction=next;actor.clipKey=key;
+ }
+ actor.lastAction.time=Math.max(0,localTime-dt);actor.mixer.update(dt);
+ // Restore the original model placement before adding completed source displacements.
+ if(!tlsBaseline||tlsPreviousClip!==actor.root){tlsBaseline=actor.root.position.clone();tlsPreviousClip=actor.root;}
+ const offset=new THREE.Vector3();
+ for(let j=0;j<i;j++){
+   const previous=schedules[j].c;const prevClip=clips.get(manual[previous.name])||choose(previous.name);
+   if(prevClip)offset.add(clipOffset(prevClip,Math.min(prevClip.duration,previous.duration/30*previous.speed)));
+ }
+ actor.root.position.x=tlsBaseline.x+offset.x*actor.root.scale.x;
+ actor.root.position.z=tlsBaseline.z+offset.z*actor.root.scale.z;
+ msg.textContent='タイムライン '+Math.floor(frameAt)+'F / '+c.name+' / 速度 '+c.speed+'x';return true;
+}
 function chainFrame(t){const state=window.getComboState();if(!state.active)return false;const dt=Math.min(.08,Math.max(0,(t-comboLastFrame)/1000));window.comboClock+=dt*Number(document.getElementById('speed').value);let lengths=state.steps.map(x=>(clips.get(manual[x.name])||choose(x.name))?.duration||1);const total=lengths.reduce((a,b)=>a+b,0);if(window.comboClock>=total){window.comboClock=0;chainAnchor=null;}let remain=window.comboClock,idx=0;while(idx<lengths.length-1&&remain>=lengths[idx])remain-=lengths[idx++];const step=state.steps[idx],clip=clips.get(manual[step.name])||choose(step.name);const actor=actors[0];if(!clip||actor.isDummy){msg.textContent='チェイン再生には実FBXモデルAと登録済みモーションが必要です';return true;}
 // Absolute cumulative offset is rebuilt on every frame, including seeking/loop.
 const baseline=actor.root.userData.chainBaseline||(actor.root.userData.chainBaseline={x:actor.root.position.x,y:actor.root.position.y,z:actor.root.position.z});
@@ -274,7 +307,7 @@ document.getElementById('pmx-reset').onclick=()=>{
 }}catch(e){mmdStatus.textContent='PMX復元失敗: '+e.message;console.warn(e)}})();
 window.updateMMD=t=>{const dt=mmdFrameStamp?Math.min(.08,Math.max(0,(t-mmdFrameStamp)/1000)):0;mmdFrameStamp=t;for(const m of Object.values(vmdMixers))if(m)m.update(dt)};
 
-function frame(t){window.updateMMD?.(t);comboLastFrame=comboLastFrame||t;const was=chainFrame(t);comboLastFrame=t;if(was){controls.update();renderer.render(scene,camera);requestAnimationFrame(frame);return;}const st=window.previewState?.();if(st){const m=motionState(st);if(previousId!==m.r.id){previousId=m.r.id;updateMapping()}const isRecovery=m.r.category==='起き上がり';const aKey=isRecovery&&m.index>0?'idle':m.action;const bKey=isRecovery? m.index===0?'hit':m.action :m.bAction;let actualA=animateActor(0,aKey,m.index,m.fraction,st.time);let actualB=animateActor(1,bKey,m.index,m.fraction,st.time);msg.textContent=(actualA?'A: 実FBX':actors[0].isDummy?'A: 3D模式':'A: 未割当')+' / '+(actualB?'B: 実FBX':actors[1].isDummy?'B: 3D模式':'B: 未割当')+' — '+m.r.title;}controls.update();renderer.render(scene,camera);requestAnimationFrame(frame)}
+function frame(t){window.updateMMD?.(t);comboLastFrame=comboLastFrame||t;const was=timelineFrame(t)||chainFrame(t);comboLastFrame=t;if(was){controls.update();renderer.render(scene,camera);requestAnimationFrame(frame);return;}const st=window.previewState?.();if(st){const m=motionState(st);if(previousId!==m.r.id){previousId=m.r.id;updateMapping()}const isRecovery=m.r.category==='起き上がり';const aKey=isRecovery&&m.index>0?'idle':m.action;const bKey=isRecovery? m.index===0?'hit':m.action :m.bAction;let actualA=animateActor(0,aKey,m.index,m.fraction,st.time);let actualB=animateActor(1,bKey,m.index,m.fraction,st.time);msg.textContent=(actualA?'A: 実FBX':actors[0].isDummy?'A: 3D模式':'A: 未割当')+' / '+(actualB?'B: 実FBX':actors[1].isDummy?'B: 3D模式':'B: 未割当')+' — '+m.r.title;}controls.update();renderer.render(scene,camera);requestAnimationFrame(frame)}
 window.addEventListener('resize',()=>{camera.aspect=box.clientWidth/box.clientHeight;camera.updateProjectionMatrix();renderer.setSize(box.clientWidth,box.clientHeight)});frame();
 
 // Project state: timeline and edit history saved independently of FBX/favorites.
@@ -706,13 +739,19 @@ show('「'+b.textContent.trim()+'」を開きました。ファイルを選択�
 <script>
 (()=>{
  const container=document.createElement('section');container.id='timeline-studio';container.setAttribute('aria-label','共通タイムライン編集');
- container.innerHTML=`<div class="tls-toolbar"><strong>タイムライン編集</strong><button id="tls-from-chain" title="編集中のコンビネーションからクリップを読み込みます">コンビネーションから取り込む</button><button id="tls-add" title="登録済みモーションを選択して追加します">＋ クリップ追加</button><button id="tls-save" title="タイムラインを保存します">保存</button><button id="tls-reload" title="保存済みタイムラインを再読込します">復元</button></div><p class="small">開始フレーム・長さ・速度・遷移フレームを編集します。元のFBX/VMDは変更しません。</p><div id="tls-ruler" aria-label="クリップの配置図"></div><div id="tls-items"></div><div id="tls-note" role="status">保存データを読み込み中...</div>`;
+ container.innerHTML=`<div class="tls-toolbar"><strong>タイムライン編集</strong><button id="tls-from-chain" title="編集中のコンビネーションからクリップを読み込みます">コンビネーションから取り込む</button><button id="tls-add" title="登録済みモーションを選択して追加します">＋ クリップ追加</button><button id="tls-play" title="保存されたタイムラインをモデルAで再生します">▶ タイムライン再生</button><button id="tls-stop" title="タイムライン再生を停止します">■ 停止</button><label class="tls-seek-label">再生位置 <input id="tls-seek" type="range" min="0" max="300" step="1" value="0" aria-label="タイムラインの再生位置"></label><span id="tls-play-status" role="status">停止中</span><button id="tls-save" title="タイムラインを保存します">保存</button><button id="tls-reload" title="保存済みタイムラインを再読込します">復元</button></div><p class="small">開始フレーム・長さ・速度・遷移フレームを編集します。元のFBX/VMDは変更しません。</p><div id="tls-ruler" aria-label="クリップの配置図"></div><div id="tls-items"></div><div id="tls-note" role="status">保存データを読み込み中...</div>`;
  const main=document.querySelector('main');main.insertAdjacentElement('afterend',container);container.style.maxWidth='1250px';container.style.margin='16px auto';
  const $=id=>document.getElementById(id);let clips=[],timer=null;const notify=x=>$('tls-note').textContent=x;
+ const transport={playing:false,position:0,lastStatus:'停止中',clips:()=>clips,frame(){return this.position},pause(reason){this.playing=false;this.lastStatus=reason||'停止中';$('tls-play-status').textContent=this.lastStatus;},advance(dt){if(!this.playing)return;this.position+=dt*30;const end=Math.max(1,...clips.map(c=>c.start+c.duration));if(this.position>=end){this.position=end;this.pause('終端に到達しました')}if(Math.abs(+$('tls-seek').value-this.position)>1){$('tls-seek').value=Math.floor(this.position)}$('tls-play-status').textContent=Math.floor(this.position)+'F / '+end+'F';}};
+ window.mixamoTimelineTransport=transport;
+ $('tls-play').onclick=()=>{if(!clips.length){notify('先にクリップを追加してください');return}window.stopCombo?.();transport.position=Math.min(transport.position,Math.max(...clips.map(c=>c.start+c.duration))-1);transport.playing=true;transport.lastStatus='再生中';window.setCenterTab?.('view');$('tls-play-status').textContent='再生中';};
+ $('tls-stop').onclick=()=>transport.pause();
+ $('tls-seek').oninput=()=>{transport.position=Number($('tls-seek').value)||0;$('tls-play-status').textContent='シーク：'+transport.position+'F';};
+
  const safe=c=>({name:String(c.name||''),start:Math.max(0,Math.round(+c.start||0)),duration:Math.max(1,Math.round(+c.duration||90)),speed:Math.max(.1,Math.min(4,+c.speed||1)),blend:Math.max(0,Math.min(120,Math.round(+c.blend||0)))});
  async function save(){const r=await fetch('/api/timeline-editor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({schema:1,clips})});if(!r.ok)throw Error('HTTP '+r.status);notify('保存済み：'+new Date().toLocaleTimeString('ja-JP'))}
  const queue=()=>{notify('未保存の変更があります');clearTimeout(timer);timer=setTimeout(()=>save().catch(e=>notify('保存失敗：'+e.message)),550)};
- function draw(){const items=$('tls-items'),ruler=$('tls-ruler');items.replaceChildren();ruler.replaceChildren();const end=Math.max(90,...clips.map(c=>c.start+c.duration));
+ function draw(){const endFrame=Math.max(1,...clips.map(c=>c.start+c.duration));$('tls-seek').max=String(endFrame);const items=$('tls-items'),ruler=$('tls-ruler');items.replaceChildren();ruler.replaceChildren();const end=Math.max(90,...clips.map(c=>c.start+c.duration));
  clips.forEach((c,i)=>{const line=document.createElement('div');line.className='tls-item';const title=document.createElement('strong');title.textContent=(i+1)+'. '+c.name;line.append(title);
  for(const [key,label,min,max,step] of [['start','開始F',0,1000000,1],['duration','長さF',1,100000,1],['speed','速度',.1,4,.1],['blend','補間F',0,120,1]]){const el=document.createElement('label');el.textContent=label;const input=document.createElement('input');input.type='number';input.min=min;input.max=max;input.step=step;input.value=c[key];input.title=label+'を編集';input.onchange=()=>{const n=+input.value;if(!Number.isFinite(n)||n<min||n>max){input.value=c[key];return}c[key]=step===1?Math.round(n):n;draw();queue()};el.append(input);line.append(el)}
  const del=document.createElement('button');del.textContent='削除';del.title='このクリップをタイムラインから外します（元素材は削除されません）';del.onclick=()=>{clips.splice(i,1);draw();queue()};line.append(del);items.append(line);
