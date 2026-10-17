@@ -78,6 +78,7 @@ def run(name,a):
     if name=='bai_retarget_explicit_rest_preview':return api('/api/retarget/explicit-rest-preview',a)
     if name=='bai_retarget_rest_pose_inspection':return api('/api/retarget/rest-pose-inspection',a)
     if name=='bai_retarget_glb_clip_hierarchy_inspection':return api('/api/retarget/glb-clip-hierarchy-inspection',a)
+    if name=='bai_retarget_keyframe_review':return api('/api/retarget/keyframe-review',a)
     if name=='bai_retarget_review_bundle':return api('/api/retarget/review-bundle',a)
     if name=='bai_retarget_vrm_local_transfer_preview':return api('/api/retarget/vrm-local-transfer-preview',a)
     if name=='bai_retarget_glb_clip_rest_preview':return api('/api/retarget/glb-clip-rest-preview',a)
