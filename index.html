@@ -582,6 +582,16 @@ show('「'+b.textContent.trim()+'」を開きました。ファイルを選択�
 #studio-library-scroll .integrated-list-panel{order:initial!important}
 #studio-library-scroll .asset-models{order:initial!important}
 @media(max-width:740px){#integrated-pane.studio-split{height:calc(100dvh - 170px)!important;min-height:490px!important;grid-template-rows:minmax(250px,50%) minmax(150px,1fr)!important}}
+
+/* v0.14.4: shared asset shelf in the independently scrolling lower workspace */
+#common-asset-shelf{border:1px solid #506881;border-radius:10px;padding:12px;margin:0 0 12px;background:#162238}
+#common-asset-shelf .shelf-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+#common-asset-shelf input{min-width:170px;flex:1}
+#common-asset-shelf button{min-height:35px}
+#common-asset-results{max-height:210px;overflow:auto;display:grid;gap:5px;scrollbar-gutter:stable}
+#common-asset-results button{text-align:left;white-space:normal;width:100%;display:flex;justify-content:space-between;gap:10px}
+#common-asset-results .asset-unavailable{opacity:.55}
+#common-asset-feedback{min-height:18px;font-size:12px}
 </style>
 <script id="studio-layout-controller-v0143">
 (()=>{
@@ -598,6 +608,48 @@ show('「'+b.textContent.trim()+'」を開きました。ファイルを選択�
  const refresh=document.createElement('button');refresh.type='button';refresh.textContent='↻ 登録済み素材を更新';refresh.title='保存済みGLB・VRM素材を再取得します。ページ更新は不要です。';
  refresh.addEventListener('click',()=>{document.getElementById('tab-integrated')?.click(); if(imported)imported.textContent='素材一覧を再取得します';});
  const controls=document.getElementById('asset-quickstart');if(controls)controls.append(refresh);
+
+ const shelf=document.createElement('section');shelf.id='common-asset-shelf';
+ shelf.innerHTML='<h3>登録済み素材を使う</h3><p class="small">形式を問わず登録済み素材を検索。選ぶと適切なプレビュー・編集画面へ移ります。</p><div class="shelf-row"><input id="common-asset-search" placeholder="素材名で検索" aria-label="登録済み素材を検索"><select id="common-asset-type" aria-label="素材形式"><option value="">全形式</option><option>FBX</option><option>GLB</option><option>VRM</option><option>PMX</option><option>VMD</option></select><button id="common-asset-refresh" title="登録済み素材を再取得">↻ 更新</button></div><div id="common-asset-feedback" role="status">素材一覧を読み込み中…</div><div id="common-asset-results" aria-label="登録済み素材一覧"></div>';
+ lower.prepend(shelf);
+ let library=[];
+ const status=shelf.querySelector('#common-asset-feedback');
+ const find=shelf.querySelector('#common-asset-search');const filter=shelf.querySelector('#common-asset-type');
+ const list=shelf.querySelector('#common-asset-results');
+ const switchTo=id=>document.getElementById(id)?.click();
+ async function openAsset(x){
+   if(!x.available){status.textContent='元ファイルが見つかりません。素材を再登録してください';return;}
+   status.textContent=x.name+' を開いています…';
+   try{
+     if(x.source==='integrated'){
+       await window.integratedPreviewV02.load(x.filename);
+       status.textContent='3D表示：'+x.name;
+     }else if(x.source==='mmd'){
+       switchTo('tab-pmx');status.textContent='PMX/VMD画面を開きました。登録済み素材からモデルとVMDを選択してください：'+x.name;
+     }else{
+       switchTo('tab-view');status.textContent='FBX制作画面を開きました。モーション一覧から選択してください：'+x.name;
+     }
+   }catch(e){status.textContent='表示できませんでした：'+e.message;}
+ }
+ function render(){
+   const q=find.value.trim().toLowerCase(),kind=filter.value;
+   const matches=library.filter(x=>(!kind||x.format===kind)&&(!q||x.name.toLowerCase().includes(q)));
+   list.replaceChildren();
+   for(const x of matches.slice(0,300)){
+     const btn=document.createElement('button');btn.type='button';btn.className=x.available?'':'asset-unavailable';
+     const label=document.createElement('span');label.textContent=x.format+' ・ '+x.name;
+     const action=document.createElement('span');action.textContent=x.available?'開く →':'ファイルなし';
+     btn.append(label,action);btn.title=x.available?'クリックすると素材を表示・使用します':'保存ファイルを確認できません';
+     btn.addEventListener('click',()=>openAsset(x));list.append(btn);
+   }
+   status.textContent=`${matches.length}件を表示（登録済み計${library.length}件）`;
+ }
+ async function refreshShelf(){try{const r=await fetch('/api/assets',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);library=(await r.json()).items||[];render();}catch(e){status.textContent='素材一覧の読み込み失敗：'+e.message;}}
+ find.addEventListener('input',render);filter.addEventListener('change',render);
+ shelf.querySelector('#common-asset-refresh').addEventListener('click',refreshShelf);
+ document.getElementById('tab-integrated')?.addEventListener('click',refreshShelf);
+ refreshShelf();
+
  const p=document.getElementById('iv-play');if(p)p.title='クリックすると再生。もう一度押すと停止します。';
 })();
 </script>

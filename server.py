@@ -27,6 +27,31 @@ def catalog_combined():
     return c
 
 
+def unified_assets():
+    """Read-only, normalized inventory across the existing storage backends."""
+    result=[]
+    for e in readmeta().get('files',[]):
+        fid=e.get('id','');name=e.get('name','')
+        if not fid or not name:continue
+        result.append({'id':'fbx:'+fid,'name':name,'format':'FBX','kind':e.get('kind','motions'),'source':'fbx','available':(FILES/(fid+'.fbx')).is_file(),'previewable':True})
+    c=catalog_combined()
+    used=set()
+    for e in c.get('motions',[])+c.get('models',[]):
+        source=e.get('source_asset','')
+        if not source or source in used:continue
+        used.add(source)
+        filename=source.split('/')[-1]
+        fmt=Path(filename).suffix.lower().lstrip('.').upper()
+        result.append({'id':'integrated:'+filename,'name':e.get('name',filename),'format':fmt,'kind':'model' if e in c.get('models',[]) else 'motion','source':'integrated','filename':filename,'available':(DATA/'integrated_v02'/source).is_file(),'previewable':fmt in ('GLB','VRM')})
+    for slot,entries in read_mmd().items():
+        for e in entries:
+            name=e.get('name','')
+            if not name:continue
+            fmt=Path(name).suffix.lower().lstrip('.').upper()
+            if fmt not in ('PMX','VMD'):continue
+            result.append({'id':'mmd:'+slot+':'+name,'name':name,'format':fmt,'kind':slot,'source':'mmd','available':(MMD_DIR/slot/name).is_file(),'previewable':True})
+    return result
+
 def readmeta():
     try:
         obj=json.loads(META.read_text(encoding='utf-8'))
@@ -99,6 +124,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send(200,(BASE/'index.html').read_bytes(),'text/html; charset=utf-8');return
         if path=='/api/server-version':
             self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload']}).encode());return
+        if path=='/api/assets':
+            self.send(200,json.dumps({'items':unified_assets()},ensure_ascii=False).encode());return
         if path=='/api/mmd-assets':
             self.send(200,json.dumps(read_mmd(),ensure_ascii=False).encode());return
         if path.startswith('/api/mmd-file/'):
