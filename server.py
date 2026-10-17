@@ -9,7 +9,7 @@ from operation_diagnostics import record_ui_action, diagnostics_archive
 from retarget_analysis import inspect, compare
 from retarget_calibration import calibrate
 from retarget_pose import propose_pose
-from vrm_humanoid_preview import compare_vrm_humanoid
+from vrm_humanoid_preview import compare_vrm_humanoid, suggest_humanoid_mapping
 from retarget_mapping_preview import preview as mapping_preview
 from pose_ik import validate_pose
 from ai_ik_preview import preview as ai_ik_preview
@@ -370,7 +370,7 @@ class Handler(BaseHTTPRequestHandler):
                 a=resolve_asset(obj['source']);b=resolve_asset(obj['target'])
                 if a.suffix.lower() not in ('.vrm','.glb') or b.suffix.lower() not in ('.vrm','.glb'):
                     return self.bad(400,'VRM/GLB files only')
-                result=compare_vrm_humanoid(a.read_bytes(),b.read_bytes())
+                result=suggest_humanoid_mapping(a.read_bytes(),b.read_bytes())
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,TypeError,KeyError,IndexError,OSError) as ex:return self.bad(400,str(ex))
         if urlsplit(self.path).path=='/api/retarget/mapping-preview':

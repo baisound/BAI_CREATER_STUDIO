@@ -21,3 +21,11 @@ def compare_vrm_humanoid(source_data, target_data):
             'safe_for_animation_transfer':False,'model_modified':False,
             'warnings':['VRM roles are paired, but local rest-bone orientations, axis twists, and inverse bind matrices have not been resolved.',
                         'No bone rotations, mesh skinning, IK, or VMD export are applied.']}
+
+
+def suggest_humanoid_mapping(source_data, target_data):
+    """Read-only role suggestions; never assigns rest-space rotations."""
+    report = compare_vrm_humanoid(source_data, target_data)
+    report['mapping_suggestion'] = {row['source_bone']:row['target_bone'] for row in report['pairs']}
+    report['mapping_is_provisional'] = True
+    return report
