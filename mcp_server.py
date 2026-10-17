@@ -78,6 +78,8 @@ def run(name,a):
     if name=='bai_retarget_explicit_rest_preview':return api('/api/retarget/explicit-rest-preview',a)
     if name=='bai_retarget_rest_pose_inspection':return api('/api/retarget/rest-pose-inspection',a)
     if name=='bai_retarget_glb_clip_hierarchy_inspection':return api('/api/retarget/glb-clip-hierarchy-inspection',a)
+    if name=='bai_retarget_review_bundle':return api('/api/retarget/review-bundle',a)
+    if name=='bai_retarget_vrm_local_transfer_preview':return api('/api/retarget/vrm-local-transfer-preview',a)
     if name=='bai_retarget_glb_clip_rest_preview':return api('/api/retarget/glb-clip-rest-preview',a)
     if name=='bai_retarget_world_rest_motion_preview':return api('/api/retarget/world-rest-motion-preview',a)
     if name=='bai_retarget_rest_hierarchy_inspection':return api('/api/retarget/rest-hierarchy-inspection',a)
@@ -149,6 +151,7 @@ TOOLS=[
 ('bai_retarget_explicit_rest_preview','Preview local quaternion deltas with user-confirmed rest frames; no mesh/VMD mutation.',S({'rest_pairs':{'type':'object'},'samples':{'type':'array','items':{'type':'object'}},'coordinate_convention_confirmed':{'type':'boolean'}},['rest_pairs','samples','coordinate_convention_confirmed'])),
 ('bai_retarget_rest_pose_inspection','Read only VRM local rest rotations by role; NOT a calibrated common coordinate basis.',S({'source':STR,'target':STR},['source','target'])),
 ('bai_retarget_glb_clip_hierarchy_inspection','Inspect exact GLB rotation keys and parent animation hierarchy, read-only; missing parent keys skipped.',S({'source':STR,'clip':STR,'fps':{'type':'number'}},['source'])),
+('bai_retarget_vrm_local_transfer_preview','Preview provisional target VRM local rotations and safety QA; never apply or export VMD.',S({'source':STR,'target':STR,'clip':STR,'fps':{'type':'number'},'coordinate_convention_confirmed':{'type':'boolean'}},['source','target','coordinate_convention_confirmed'])),
 ('bai_retarget_glb_clip_rest_preview','Read-only real GLB clip rotation keys to rest-delta numeric preview; NO animation applied.',S({'source':STR,'target':STR,'clip':STR,'fps':{'type':'number'},'coordinate_convention_confirmed':{'type':'boolean'}},['source','target','coordinate_convention_confirmed'])),
 ('bai_retarget_world_rest_motion_preview','Read-only world-rest numeric rotation delta preview; NOT locally applicable animation.',S({'source':STR,'target':STR,'samples':{'type':'array','items':{'type':'object'}},'coordinate_convention_confirmed':{'type':'boolean'}},['source','target','samples','coordinate_convention_confirmed'])),
 ('bai_retarget_rest_hierarchy_inspection','Inspect glTF ancestor world rest orientations; NOT an auto retarget basis.',S({'source':STR,'target':STR},['source','target'])),

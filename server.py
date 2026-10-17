@@ -16,6 +16,8 @@ from rest_hierarchy_inspection import inspect as inspect_rest_hierarchy
 from world_rest_motion_preview import preview as world_rest_motion_preview
 from animated_world_preview import preview as animated_world_preview
 from animated_hierarchy_preview import preview as animated_hierarchy_preview
+from vrm_local_transfer import transfer as vrm_local_transfer, quality as vrm_transfer_quality
+from retarget_review_bundle import build as build_review_bundle
 from retarget_mapping_preview import preview as mapping_preview
 from pose_ik import validate_pose
 from ai_ik_preview import preview as ai_ik_preview
@@ -384,6 +386,29 @@ class Handler(BaseHTTPRequestHandler):
                 src=resolve_asset(obj['source'])
                 if src.suffix.lower() not in ('.vrm','.glb'):return self.bad(400,'VRM/GLB files only')
                 result=animated_hierarchy_preview(src.read_bytes(),obj.get('clip'),obj.get('fps',30))
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError,IndexError,OverflowError,OSError) as ex:return self.bad(400,str(ex))
+        if urlsplit(self.path).path=='/api/retarget/review-bundle':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=8192:return self.bad(413,'payload too large')
+                obj=json.loads(self.rfile.read(size))
+                a=resolve_asset(obj['source']);b=resolve_asset(obj['target'])
+                if a.suffix.lower() not in ('.vrm','.glb') or b.suffix.lower() not in ('.vrm','.glb'):
+                    return self.bad(400,'VRM/GLB files only')
+                result=build_review_bundle(a.read_bytes(),b.read_bytes(),obj.get('clip'),obj.get('fps',30),obj.get('coordinate_convention_confirmed') is True,obj.get('max_samples',2000))
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError,IndexError,OverflowError,OSError) as ex:return self.bad(400,str(ex))
+        if urlsplit(self.path).path=='/api/retarget/vrm-local-transfer-preview':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=8192:return self.bad(413,'payload too large')
+                obj=json.loads(self.rfile.read(size))
+                a=resolve_asset(obj['source']);b=resolve_asset(obj['target'])
+                if a.suffix.lower() not in ('.vrm','.glb') or b.suffix.lower() not in ('.vrm','.glb'):
+                    return self.bad(400,'VRM/GLB files only')
+                result=vrm_local_transfer(a.read_bytes(),b.read_bytes(),obj.get('clip'),obj.get('fps',30),obj.get('coordinate_convention_confirmed') is True,obj.get('max_samples',2000))
+                result['quality']=vrm_transfer_quality(result)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,TypeError,KeyError,IndexError,OverflowError,OSError) as ex:return self.bad(400,str(ex))
         if urlsplit(self.path).path=='/api/retarget/glb-clip-rest-preview':
