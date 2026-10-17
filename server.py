@@ -9,6 +9,7 @@ from operation_diagnostics import record_ui_action, diagnostics_archive
 from retarget_analysis import inspect, compare
 from retarget_calibration import calibrate
 from retarget_pose import propose_pose
+from retarget_root import convert_root_samples
 RETARGET_FILE=Path(__file__).resolve().parent/'data'/'retarget_profiles.json'
 RETARGET_LOCK=threading.RLock()
 def retarget_read():
@@ -157,6 +158,11 @@ class Handler(BaseHTTPRequestHandler):
             self.send(200,(BASE/'index.html').read_bytes(),'text/html; charset=utf-8');return
         if path=='/api/server-version':
             self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload']}).encode());return
+        if path=='/api/retarget/profile-for-pair':
+            params=parse_qs(urlsplit(self.path).query);source=params.get('source',[''])[0];target=params.get('target',[''])[0]
+            if not source or not target:return self.bad(400,'source and target required')
+            profile=retarget_read().get('profiles',{}).get(hashlib.sha256((source+'\0'+target).encode()).hexdigest()[:24])
+            self.send(200,json.dumps({'source':source,'target':target,'profile':profile},ensure_ascii=False).encode());return
         if path=='/api/retarget/profiles':
             self.send(200,json.dumps(retarget_read(),ensure_ascii=False).encode());return
         if path=='/api/retarget/analyze':
@@ -261,6 +267,16 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/retarget/root-preview':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=1048576:return self.bad(413,'too large')
+                obj=json.loads(self.rfile.read(size))
+                samples=obj.get('samples',[])
+                if not isinstance(samples,list):return self.bad(400,'invalid samples')
+                converted=convert_root_samples(samples,obj['scale'],obj.get('yaw_offset_deg',0),obj.get('origin',[0,0,0]),obj.get('target_origin',[0,0,0]))
+                self.send(200,json.dumps({'ok':True,'samples':converted,'applied_to_model':False,'warning':'Preview only; no animation, IK or VMD is modified.'}).encode());return
+            except (ValueError,TypeError,KeyError,IndexError) as ex:return self.bad(400,str(ex))
         if urlsplit(self.path).path=='/api/retarget/profiles':
             try:
                 size=int(self.headers.get('Content-Length','0'))
