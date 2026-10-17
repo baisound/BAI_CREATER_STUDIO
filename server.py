@@ -11,6 +11,7 @@ from retarget_calibration import calibrate
 from retarget_pose import propose_pose
 from retarget_root import convert_root_samples
 from motion_interchange import analyze_motion
+from foot_contact import diagnose, root_offset_proposal
 RETARGET_FILE=Path(__file__).resolve().parent/'data'/'retarget_profiles.json'
 RETARGET_LOCK=threading.RLock()
 def retarget_read():
@@ -151,6 +152,8 @@ class Handler(BaseHTTPRequestHandler):
             try:limit=int(parse_qs(urlsplit(self.path).query).get('limit',['80'])[0])
             except (ValueError,TypeError):limit=80
             self.send(200,json.dumps({'entries':recent(limit)},ensure_ascii=False).encode());return
+        if path=='/foot_qa_ui.js':
+            self.send(200,(BASE/'foot_qa_ui.js').read_bytes(),'text/javascript; charset=utf-8');return
         if path=='/retarget_ui.js':
             self.send(200,(BASE/'retarget_ui.js').read_bytes(),'text/javascript; charset=utf-8');return
         if path=='/motion_layers.js':
@@ -275,6 +278,17 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/qa/foot-contact':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=1048576:return self.bad(413,'payload too large')
+                obj=json.loads(self.rfile.read(size))
+                samples=obj['samples']
+                result=diagnose(samples,ground_y=float(obj.get('ground_y',0)),height_tolerance=float(obj.get('height_tolerance',0.06)),motion_tolerance=float(obj.get('motion_tolerance',0.025)))
+                if obj.get('propose_root_offsets'):
+                    result['root_offset_proposal']=root_offset_proposal(result,samples)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError,OverflowError) as ex:return self.bad(400,str(ex))
         if urlsplit(self.path).path=='/api/retarget/root-preview':
             try:
                 size=int(self.headers.get('Content-Length','0'))
