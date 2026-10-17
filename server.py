@@ -10,6 +10,20 @@ MMD_DIR=DATA/'mmd'; MMD_DIR.mkdir(parents=True,exist_ok=True)
 MMD_META=DATA/'mmd_assets.json'; MMD_LOCK=threading.RLock()
 PMX_ZIP_MAX_FILES=1500; PMX_ZIP_MAX_UNCOMPRESSED=600*1024*1024
 META=DATA/'manifest.json'; FAVORITES=DATA/'favorites.json'; PROJECT=DATA/'project_state.json'; PROJECT_LOCK=threading.RLock(); MAX_SIZE=400*1024*1024
+CUSTOM_ASSETS=DATA/'integrated_v02'/'assets'; CUSTOM_ASSETS.mkdir(parents=True,exist_ok=True)
+CUSTOM_INDEX=DATA/'integrated_v02'/'user_assets.json'
+CUSTOM_LOCK=threading.RLock()
+def user_assets():
+    try:return json.loads(CUSTOM_INDEX.read_text(encoding='utf8'))
+    except (OSError,ValueError):return []
+def catalog_combined():
+    c=json.loads((DATA/'integrated_v02'/'catalog.json').read_text(encoding='utf8'))
+    for x in user_assets():
+        if x['kind']=='model':c['models'].append({'name':x['name'],'source_asset':'assets/'+x['filename'],'owner_complete':True})
+        else:c['motions'].append({'id':x['id'],'name':x['name'],'category':'ユーザー登録','provider':'ローカル','source_asset':'assets/'+x['filename']})
+    c['asset_count']=len({x.get('source_asset') for x in c['motions']+c['models'] if x.get('source_asset')})
+    return c
+
 
 def readmeta():
     try:
@@ -73,7 +87,7 @@ class Handler(BaseHTTPRequestHandler):
         if path in ('/','/index.html'):
             self.send(200,(BASE/'index.html').read_bytes(),'text/html; charset=utf-8');return
         if path=='/api/server-version':
-            self.send(200,json.dumps({'version':'0.12.7','features':['pmx_zip_upload','mmd_assets','integrated_v02']}).encode());return
+            self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload']}).encode());return
         if path=='/api/mmd-assets':
             self.send(200,json.dumps(read_mmd(),ensure_ascii=False).encode());return
         if path.startswith('/api/mmd-file/'):
@@ -115,7 +129,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send(200,payload);return
         if path=='/api/integrated-v02/catalog':
             try:
-                payload=(DATA/'integrated_v02'/'catalog.json').read_bytes()
+                payload=json.dumps(catalog_combined(),ensure_ascii=False).encode()
             except OSError:return self.bad(404,'integrated catalog is missing')
             self.send(200,payload);return
         if path.startswith('/api/integrated-v02/asset/'):
@@ -124,7 +138,7 @@ class Handler(BaseHTTPRequestHandler):
             if not filename or filename in ('.','..') or '/' in filename or '\\' in filename:
                 return self.bad(400,'invalid asset name')
             try:
-                c=json.loads((DATA/'integrated_v02'/'catalog.json').read_text(encoding='utf8'))
+                c=catalog_combined()
                 allowed={x['source_asset'] for x in c.get('motions',[])+c.get('models',[]) if x.get('source_asset')}
             except (OSError,ValueError,KeyError):return self.bad(503,'catalog unavailable')
             asset='assets/'+filename
@@ -200,6 +214,23 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError,ValueError,KeyError) as exc:
                 write_conversion_status({'status':'failed','error':str(exc)});return self.bad(500,str(exc))
             finally:CONVERT_LOCK.release()
+        if u.path=='/api/integrated-v02/upload':
+            from urllib.parse import unquote
+            name=unquote(qs.get('name',[''])[0]);kind=qs.get('kind',[''])[0]
+            if kind not in ('model','motion') or not re.fullmatch(r'[^/\\\x00]{1,180}\.(glb|vrm)',name,re.I):return self.bad(400,'GLBまたはVRMファイルを選択してください')
+            if n<=0 or n>MAX_SIZE:return self.bad(413,'ファイルサイズを確認してください')
+            extension=Path(name).suffix.lower()
+            if extension=='.vrm' and kind!='model':return self.bad(400,'VRMはモデルとして登録してください')
+            payload=self.rfile.read(n)
+            if len(payload)!=n or payload[:4]!=b'glTF':return self.bad(400,'GLB/VRM形式として認識できません')
+            ident=hashlib.sha256(payload).hexdigest()[:20];stored=ident+extension
+            with CUSTOM_LOCK:
+                target=CUSTOM_ASSETS/stored;tmp=target.with_suffix('.incoming');tmp.write_bytes(payload);os.replace(tmp,target)
+                entries=[x for x in user_assets() if x['filename']!=stored]
+                entries.append({'id':'user-'+ident,'name':name,'filename':stored,'kind':kind,'bytes':len(payload)})
+                mt=CUSTOM_INDEX.with_suffix('.tmp');mt.write_text(json.dumps(entries,ensure_ascii=False,indent=2),encoding='utf8');os.replace(mt,CUSTOM_INDEX)
+            event('integrated.asset.import',kind=kind,bytes=len(payload))
+            self.send(200,json.dumps({'ok':True,'name':name,'asset':stored,'kind':kind},ensure_ascii=False).encode());return
         if u.path=='/api/pmx-zip-upload':
             slot=qs.get('slot',[''])[0]
             if slot not in ('A','B'):return self.bad(400,'invalid PMX slot')
