@@ -1,6 +1,7 @@
 """Offline skeleton metadata inspector. No claim of fully corrected VMD export."""
 import json,struct,re,unicodedata,shutil,subprocess,tempfile,os
 from pmx_bones import parse as parse_pmx
+from bvh_skeleton import parse_bvh_skeleton
 from pathlib import Path
 
 ALIASES={
@@ -39,7 +40,9 @@ def inspect(path):
     if not bones:warning.append('Skin joints absent: cannot infer humanoid skeleton')
   elif fmt=='.bvh':
     text=raw[:5_000_000].decode('utf-8',errors='replace')
-    bones=re.findall(r'^\s*(?:ROOT|JOINT)\s+([^\s{}]+)',text,re.M)
+    skeleton=parse_bvh_skeleton(raw[:5_000_000])
+    meta.update(skeleton)
+    bones=[item['name'] for item in skeleton['bones_detail']]
     match=re.search(r'Frames:\s*(\d+)',text)
     if match:meta['frames']=int(match.group(1));clips=['BVH Motion']
     if 'MOTION' not in text:warning.append('BVH MOTION section missing')
