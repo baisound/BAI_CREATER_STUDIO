@@ -14,6 +14,7 @@ from ai_ik_preview import preview as ai_ik_preview
 from retarget_root import convert_root_samples
 from motion_interchange import analyze_motion
 from foot_contact import diagnose, root_offset_proposal
+from bvh_foot_world import sample_bvh_foot_world
 from bai_ai_manager import read_config as ai_read_config, save_config as ai_save_config, status as ai_status, interpret_pose as ai_interpret_pose, AIUnavailable
 RETARGET_FILE=Path(__file__).resolve().parent/'data'/'retarget_profiles.json'
 RETARGET_LOCK=threading.RLock()
@@ -326,6 +327,19 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(503,json.dumps({'ok':False,'state':'offline','manual_available':True,'error':str(e)},ensure_ascii=False).encode());return
             except (ValueError,TypeError,KeyError) as e:return self.bad(400,str(e))
 
+        if urlsplit(self.path).path=='/api/qa/bvh-foot-world':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=2400000:return self.bad(413,'BVH request too large')
+                obj=json.loads(self.rfile.read(size))
+                if not isinstance(obj,dict) or not isinstance(obj.get('bvh_text'),str):return self.bad(400,'Missing BVH text')
+                raw=obj['bvh_text'].encode('utf8')
+                result=sample_bvh_foot_world(raw,obj.get('foot_bone',''),obj.get('stride',1))
+                if obj.get('diagnose',True):
+                    report=diagnose(result['samples'],ground_y=float(obj.get('ground_y',0)),height_tolerance=float(obj.get('height_tolerance',0.06)),motion_tolerance=float(obj.get('motion_tolerance',0.025)))
+                    result['diagnosis']=report
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError,OverflowError) as ex:return self.bad(400,str(ex))
         if urlsplit(self.path).path=='/api/qa/foot-contact':
             try:
                 size=int(self.headers.get('Content-Length','0'))
