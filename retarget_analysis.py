@@ -1,6 +1,7 @@
 """Offline skeleton metadata inspector. No claim of fully corrected VMD export."""
 import json,struct,re,unicodedata,shutil,subprocess,tempfile,os
 from pmx_bones import parse as parse_pmx
+from model_rest_skeleton import parse as parse_model_rest
 from bvh_skeleton import parse_bvh_skeleton
 from pathlib import Path
 
@@ -37,6 +38,9 @@ def inspect(path):
     bones=[nodes[i].get('name',f'node_{i}') for i in sorted(skin_ids) if i<len(nodes)]
     clips=[x.get('name',f'animation_{i}') for i,x in enumerate(doc.get('animations',[]))]
     meta={'nodes':len(nodes),'skins':len(doc.get('skins',[])),'animations':len(clips),'vrm_extension':any(k.startswith('VRM') for k in doc.get('extensions',{}))}
+    rest=parse_model_rest(raw)
+    meta.update(rest)
+    warning.extend(rest['warnings'])
     if not bones:warning.append('Skin joints absent: cannot infer humanoid skeleton')
   elif fmt=='.bvh':
     text=raw[:5_000_000].decode('utf-8',errors='replace')
@@ -69,6 +73,10 @@ def inspect(path):
     parsed=parse_pmx(raw)
     meta={k:v for k,v in parsed.items() if k!='bones_detail'}
     meta['bones_detail']=parsed['bones_detail'][:5000]
+    for bone in meta['bones_detail']:
+      parent=bone['parent_index']
+      bone['local_offset']=[bone['position'][j]-(parsed['bones_detail'][parent]['position'][j] if 0<=parent<len(parsed['bones_detail']) else 0) for j in range(3)]
+    meta['unit']='PMX model units (scale calibration required)'
     bones=[x['name'] for x in parsed['bones_detail']]
     if len(bones)>5000:warning.append('Bone detail listing truncated to 5000')
     warning.append('PMX bone positions are not a unique rest-pose orientation; model-specific calibration remains necessary')
