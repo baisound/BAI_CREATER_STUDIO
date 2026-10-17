@@ -46,12 +46,12 @@ def status(cfg):
 
 def interpret_pose(cfg,text):
     if not isinstance(text,str) or not text.strip() or len(text)>1500:raise ValueError('pose instruction must contain 1-1500 characters')
-    prompt='ユーザーの姿勢指示を安全な提案JSONに整理してください。ボーン角度を創作せず、constraints配列の各要素に bone, action, description を入れ、preview_only=true を守る。'
+    prompt='ユーザーの姿勢指示を安全な提案JSONに整理してください。ボーン角度を創作せず、constraints配列の各要素に bone (右腕/左腕/右脚/左脚), action (up/down/forward/back/hold), description を入れ、preview_only=true を守る。曖昧な指示は constraints に入れない。'
     schema={
         'type':'object',
         'properties':{
             'constraints':{'type':'array','items':{'type':'object','properties':{
-                'bone':{'type':'string'},'action':{'type':'string'},'description':{'type':'string'}
+                'bone':{'type':'string','enum':['右腕','左腕','右脚','左脚']},'action':{'type':'string','enum':['up','down','forward','back','hold']},'description':{'type':'string'}
             },'required':['bone','action','description']}},
             'preview_only':{'type':'boolean'}
         },'required':['constraints','preview_only']

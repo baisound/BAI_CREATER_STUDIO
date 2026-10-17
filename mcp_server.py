@@ -60,6 +60,7 @@ def run(name,a):
     if name=='bai_ai_status':return api('/api/ai/status')
     if name=='bai_ai_settings':return api('/api/ai/settings')
     if name=='bai_ai_pose_proposal':return api('/api/ai/pose-proposal',{'text':a['text']})
+    if name=='bai_ai_ik_preview':return api('/api/ai/ik-preview',{'text':a['text'],'baseline':a['baseline']})
     if name=='mixamo_foot_contact_qa':return api('/api/qa/foot-contact',a)
     if name=='mixamo_motion_channels':return api('/api/retarget/motion-channels?id='+urllib.parse.quote(a['id'],safe=''))
     if name=='mixamo_retarget_analyze':return api('/api/retarget/analyze?id='+__import__('urllib.parse',fromlist=['quote']).quote(a['id'],safe=''))
@@ -130,6 +131,7 @@ TOOLS=[
 ('bai_ai_status','Check optional local Ollama availability.',S({})),
 ('bai_ai_settings','Read local Ollama configuration.',S({})),
 ('bai_ai_pose_proposal','Preview-only Qwen pose interpretation, without editing source files.',S({'text':{'type':'string'}},['text'])),
+('bai_ai_ik_preview','Qwen Japanese instruction to non-destructive planar IK preview; no original changes.',S({'text':STR,'baseline':{'type':'object'}},['text','baseline'])),
 ('mixamo_retarget_analyze','Analyze registered skeleton and clips without altering source.',S({'id':STR},['id'])),
 ('mixamo_retarget_compare','Compare semantic role mapping of two registered assets.',S({'source':STR,'target':STR},['source','target'])),
 ('mixamo_retarget_pose_proposal','Estimate rest-direction rotations for matching bones; preview-only, not validated retarget.',S({'source':STR,'target':STR},['source','target'])),

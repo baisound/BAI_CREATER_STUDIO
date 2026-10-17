@@ -10,6 +10,7 @@ from retarget_analysis import inspect, compare
 from retarget_calibration import calibrate
 from retarget_pose import propose_pose
 from pose_ik import validate_pose
+from ai_ik_preview import preview as ai_ik_preview
 from retarget_root import convert_root_samples
 from motion_interchange import analyze_motion
 from foot_contact import diagnose, root_offset_proposal
@@ -310,13 +311,16 @@ class Handler(BaseHTTPRequestHandler):
                 temp.write_text(json.dumps(obj,ensure_ascii=False,indent=2),encoding='utf8');os.replace(temp,path)
                 self.send(200,json.dumps({'ok':True,'frame':result['frame'],'limbs':list(result['limbs'])}).encode());return
             except (TypeError,ValueError,OverflowError,KeyError) as e:return self.bad(400,str(e))
-        if urlsplit(self.path).path in ('/api/ai/settings','/api/ai/pose-proposal'):
+        if urlsplit(self.path).path in ('/api/ai/settings','/api/ai/pose-proposal','/api/ai/ik-preview'):
             try:
                 n=int(self.headers.get('Content-Length','0'))
                 if not 0<n<=8192:return self.bad(413,'request too large')
                 obj=json.loads(self.rfile.read(n))
                 if urlsplit(self.path).path=='/api/ai/settings':result=ai_save_config(AI_CONFIG,obj)
-                else:result=ai_interpret_pose(ai_read_config(AI_CONFIG),obj.get('text',''))
+                elif urlsplit(self.path).path=='/api/ai/pose-proposal':result=ai_interpret_pose(ai_read_config(AI_CONFIG),obj.get('text',''))
+                else:
+                    proposal=ai_interpret_pose(ai_read_config(AI_CONFIG),obj.get('text',''))['proposal']
+                    result=ai_ik_preview(proposal,obj.get('baseline'))
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except AIUnavailable as e:
                 self.send(503,json.dumps({'ok':False,'state':'offline','manual_available':True,'error':str(e)},ensure_ascii=False).encode());return
