@@ -4,6 +4,7 @@ from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
 from diagnostic_logging import event, recent
+from qa_capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
 BASE=Path(__file__).resolve().parent
 DATA=BASE/'data'; FILES=DATA/'files'; FILES.mkdir(parents=True,exist_ok=True)
 MMD_DIR=DATA/'mmd'; MMD_DIR.mkdir(parents=True,exist_ok=True)
@@ -79,6 +80,8 @@ class Handler(BaseHTTPRequestHandler):
     def bad(self,status,msg):self.send(status,json.dumps({'error':msg},ensure_ascii=False).encode())
     def do_GET(self):
         path=urlsplit(self.path).path
+        if path=='/api/ui-qa/settings':
+            self.send(200,json.dumps({'settings':qa_settings(),'storage':qa_cleanup()}).encode());return
         if path=='/api/diagnostics/recent':
             from urllib.parse import parse_qs
             try:limit=int(parse_qs(urlsplit(self.path).query).get('limit',['80'])[0])
@@ -157,6 +160,15 @@ class Handler(BaseHTTPRequestHandler):
         self.bad(404,'not found')
     def do_POST(self):
         # Browser diagnostics are accepted only from a same-origin localhost page.
+        if urlsplit(self.path).path=='/api/ui-qa/settings':
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if length>200 or length<=0: return self.bad(400,'invalid size')
+                payload=json.loads(self.rfile.read(length))
+                if type(payload.get('enabled')) is not bool: return self.bad(400,'enabled must be boolean')
+                d=qa_update(payload['enabled'])
+                self.send(200,json.dumps({'settings':d,'storage':qa_cleanup()}).encode());return
+            except (ValueError,TypeError):return self.bad(400,'invalid settings')
         if urlsplit(self.path).path=='/api/diagnostics/client':
             origin=self.headers.get('Origin','')
             host=self.headers.get('Host','')
