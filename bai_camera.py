@@ -48,3 +48,34 @@ def save(path,payload):
         finally:
             if temp.exists():temp.unlink()
     return value
+
+def camera_move(pose, operation, amount):
+    """Return a non-destructive camera pose; angles in degrees, translations in scene units."""
+    if not isinstance(pose,dict):raise ValueError('pose must be a dict')
+    amount=number(amount,-360,360)
+    eye=[number(v,-10000,10000) for v in pose['position']]
+    tar=[number(v,-10000,10000) for v in pose['target']]
+    fov=number(pose['fov'],5,150)
+    d=[eye[i]-tar[i] for i in range(3)]; radius=math.hypot(*d)
+    if radius<1e-4:raise ValueError('camera position and target must differ')
+    def rotate(v,axis,angle):
+        c,s=math.cos(angle),math.sin(angle)
+        dot=sum(a*b for a,b in zip(axis,v))
+        cross=[axis[1]*v[2]-axis[2]*v[1],axis[2]*v[0]-axis[0]*v[2],axis[0]*v[1]-axis[1]*v[0]]
+        return [c*v[i]+s*cross[i]+(1-c)*dot*axis[i] for i in range(3)]
+    forward=[-v/radius for v in d]
+    right=[forward[2],0,-forward[0]];rn=math.hypot(*right)
+    if rn<1e-8:right=[1.,0.,0.]
+    else:right=[x/rn for x in right]
+    up=[right[1]*forward[2]-right[2]*forward[1],right[2]*forward[0]-right[0]*forward[2],right[0]*forward[1]-right[1]*forward[0]]
+    a=math.radians(amount)
+    if operation=='orbit':eye=[tar[i]+v for i,v in enumerate(rotate(d,[0,1,0],a))]
+    elif operation=='dolly':
+        if radius-amount<=.05:raise ValueError('dolly would cross target')
+        eye=[eye[i]+forward[i]*amount for i in range(3)]
+    elif operation=='pan':
+        shift=[x*amount for x in right];eye=[eye[i]+shift[i] for i in range(3)];tar=[tar[i]+shift[i] for i in range(3)]
+    elif operation=='tilt':
+        v=rotate([-x for x in d],right,a);tar=[eye[i]+v[i] for i in range(3)]
+    else:raise ValueError('unsupported operation')
+    return {'position':eye,'target':tar,'fov':fov}
