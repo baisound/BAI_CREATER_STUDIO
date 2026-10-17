@@ -1,5 +1,6 @@
 """Offline skeleton metadata inspector. No claim of fully corrected VMD export."""
-import json,struct,re,unicodedata
+import json,struct,re,unicodedata,shutil,subprocess,tempfile,os
+from pmx_bones import parse as parse_pmx
 from pathlib import Path
 
 ALIASES={
@@ -43,17 +44,31 @@ def inspect(path):
     if match:meta['frames']=int(match.group(1));clips=['BVH Motion']
     if 'MOTION' not in text:warning.append('BVH MOTION section missing')
   elif fmt=='.fbx':
-    if raw.startswith(b'Kaydara FBX Binary'):
-      warning.append('Binary FBX requires Blender SDK/importer for verified skeleton extraction')
-    else:
-      text=raw[:8_000_000].decode('utf-8',errors='replace')
-      bones=list(dict.fromkeys(re.findall(r'Model:\s*[^,]*,\s*"LimbNode"',text)))
-      # ASCII FBX parsing is only heuristic; do not invent successful mapping.
-      bones=[];warning.append('ASCII FBX: reliable skeleton parsing requires Blender')
+    meta={'binary':raw.startswith(b'Kaydara FBX Binary')}
+    blender=shutil.which('blender')
+    if blender:
+      with tempfile.TemporaryDirectory() as td:
+        out=Path(td)/'fbx_skeleton.json'
+        script=Path(__file__).parent/'tools'/'extract_fbx_skeleton_blender.py'
+        try:
+          proc=subprocess.run([blender,'-b','--python',str(script),'--',str(p.resolve()),str(out)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=120)
+          if proc.returncode==0 and out.is_file():
+            result=json.loads(out.read_text(encoding='utf-8'))
+            meta['bones_detail']=result['bones_detail'][:5000]
+            bones=[x['name'] for x in result['bones_detail']]
+            clips=[x['name'] for x in result['clips']]
+            meta['clip_details']=result['clips']
+            warning+=result.get('warnings',[])
+          else:warning.append('Blender FBX import failed (see local diagnostic logs); no verified bones returned')
+        except (OSError,subprocess.TimeoutExpired,ValueError) as exc:warning.append('Blender FBX extraction failed: '+type(exc).__name__)
+    else:warning.append('FBX bone extraction requires locally installed Blender on PATH; format detection only')
   elif fmt=='.pmx':
-    if raw[:4]!=b'PMX ':raise ValueError('PMX signature invalid')
-    warning.append('PMX bone index/pose extraction requires full PMX parser; metadata only in this phase')
-    meta={'signature':'PMX','version':round(struct.unpack_from('<f',raw,4)[0],2)}
+    parsed=parse_pmx(raw)
+    meta={k:v for k,v in parsed.items() if k!='bones_detail'}
+    meta['bones_detail']=parsed['bones_detail'][:5000]
+    bones=[x['name'] for x in parsed['bones_detail']]
+    if len(bones)>5000:warning.append('Bone detail listing truncated to 5000')
+    warning.append('PMX bone positions are not a unique rest-pose orientation; model-specific calibration remains necessary')
   else:raise ValueError('Unsupported skeleton file type')
   mapping,unmatched=propose(bones)
   return {'filename':p.name,'format':fmt[1:].upper(),'size':len(raw),'bone_count':len(bones),'bones':bones[:500], 'clips':clips[:100], 'suggested_mapping':mapping,'unmatched_roles':unmatched,'metadata':meta,'warnings':warning,'status':'inspectable' if bones else 'metadata_only'}
