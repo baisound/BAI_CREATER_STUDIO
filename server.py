@@ -12,6 +12,7 @@ from retarget_pose import propose_pose
 from retarget_root import convert_root_samples
 from motion_interchange import analyze_motion
 from foot_contact import diagnose, root_offset_proposal
+from bai_ai_manager import read_config as ai_read_config, save_config as ai_save_config, status as ai_status, interpret_pose as ai_interpret_pose, AIUnavailable
 RETARGET_FILE=Path(__file__).resolve().parent/'data'/'retarget_profiles.json'
 RETARGET_LOCK=threading.RLock()
 def retarget_read():
@@ -29,6 +30,7 @@ def resolve_asset(identifier):
     raise ValueError('unsupported asset source')
 
 BASE=Path(__file__).resolve().parent
+AI_CONFIG=BASE/'data'/'bai_ai_config.json'
 DATA=BASE/'data'; FILES=DATA/'files'; FILES.mkdir(parents=True,exist_ok=True)
 MMD_DIR=DATA/'mmd'; MMD_DIR.mkdir(parents=True,exist_ok=True)
 MMD_META=DATA/'mmd_assets.json'; MMD_LOCK=threading.RLock()
@@ -140,6 +142,12 @@ class Handler(BaseHTTPRequestHandler):
     def bad(self,status,msg):self.send(status,json.dumps({'error':msg},ensure_ascii=False).encode())
     def do_GET(self):
         path=urlsplit(self.path).path
+        if path=='/bai_ai_ui.js':
+            self.send(200,(BASE/'bai_ai_ui.js').read_bytes(),'text/javascript; charset=utf-8');return
+        if path=='/api/ai/settings':
+            self.send(200,json.dumps(ai_read_config(AI_CONFIG),ensure_ascii=False).encode());return
+        if path=='/api/ai/status':
+            self.send(200,json.dumps(ai_status(ai_read_config(AI_CONFIG)),ensure_ascii=False).encode());return
         if path=='/webmcp.js':
             self.send(200,(BASE/'webmcp.js').read_bytes(),'text/javascript; charset=utf-8');return
         if path=='/api/diagnostics/export':
@@ -278,6 +286,18 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path in ('/api/ai/settings','/api/ai/pose-proposal'):
+            try:
+                n=int(self.headers.get('Content-Length','0'))
+                if not 0<n<=8192:return self.bad(413,'request too large')
+                obj=json.loads(self.rfile.read(n))
+                if urlsplit(self.path).path=='/api/ai/settings':result=ai_save_config(AI_CONFIG,obj)
+                else:result=ai_interpret_pose(ai_read_config(AI_CONFIG),obj.get('text',''))
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except AIUnavailable as e:
+                self.send(503,json.dumps({'ok':False,'state':'offline','manual_available':True,'error':str(e)},ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError) as e:return self.bad(400,str(e))
+
         if urlsplit(self.path).path=='/api/qa/foot-contact':
             try:
                 size=int(self.headers.get('Content-Length','0'))

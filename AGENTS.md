@@ -33,3 +33,7 @@
 
 ## PMX登録の現行方針（v0.12.7）
 PMXはテクスチャを含むZIPで登録する。従来のPMX＋テクスチャ個別複数選択UIは再導入しない。サーバーと画面のバージョン不一致を診断できること。詳細は `PMX_ZIP_UI_FIX_V0127_JA.md`。
+
+## v0.15.9 Ollama任意連携
+- 詳細: docs/ai/V0159_OLLAMA_OPTIONAL_JA.md
+- 実機検証: docs/ai/V0159_TEST_REPORT_JA.md
