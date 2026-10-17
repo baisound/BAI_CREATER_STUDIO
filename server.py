@@ -15,6 +15,7 @@ from rest_pose_inspection import compare as inspect_rest_pairs
 from rest_hierarchy_inspection import inspect as inspect_rest_hierarchy
 from world_rest_motion_preview import preview as world_rest_motion_preview
 from animated_world_preview import preview as animated_world_preview
+from animated_hierarchy_preview import preview as animated_hierarchy_preview
 from retarget_mapping_preview import preview as mapping_preview
 from pose_ik import validate_pose
 from ai_ik_preview import preview as ai_ik_preview
@@ -375,6 +376,16 @@ class Handler(BaseHTTPRequestHandler):
                 result=explicit_rest_preview(obj)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,TypeError,KeyError,OverflowError) as ex:return self.bad(400,str(ex))
+        if urlsplit(self.path).path=='/api/retarget/glb-clip-hierarchy-inspection':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=8192:return self.bad(413,'payload too large')
+                obj=json.loads(self.rfile.read(size))
+                src=resolve_asset(obj['source'])
+                if src.suffix.lower() not in ('.vrm','.glb'):return self.bad(400,'VRM/GLB files only')
+                result=animated_hierarchy_preview(src.read_bytes(),obj.get('clip'),obj.get('fps',30))
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError,IndexError,OverflowError,OSError) as ex:return self.bad(400,str(ex))
         if urlsplit(self.path).path=='/api/retarget/glb-clip-rest-preview':
             try:
                 size=int(self.headers.get('Content-Length','0'))
