@@ -45,6 +45,9 @@
  def('mixamo_motion_channels','Inspect source GLB/BVH animation channels (no retarget or VMD export)',schema({id:{type:'string'}},['id']),async(args)=>await request('/api/retarget/motion-channels?id='+encodeURIComponent(args.id)));
  def('mixamo_retarget_profiles_get','Read saved skeleton mappings.',schema(),async()=>await request('/api/retarget/profiles'),true);
  def('mixamo_retarget_profiles_set','Save non-destructive mapping profiles.',schema({profiles:{type:'object'}},['profiles']),async({profiles})=>await request('/api/retarget/profiles',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({schema:1,profiles})}));
+ def('bai_pose_ik_get','Read saved manual IK target positions.',schema(),async()=>await request('/api/pose/last'),true);
+ def('bai_pose_ik_solve','Preview planar two-bone IK without changing models.',schema({limbs:{type:'object'},frame:integer},['limbs']),async({limbs,frame=0})=>await request('/api/pose/solve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({schema:1,frame,limbs})}));
+ def('bai_pose_ik_save','Store IK target settings, not original motion.',schema({limbs:{type:'object'},frame:integer},['limbs']),async({limbs,frame=0})=>await request('/api/pose/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({schema:1,frame,limbs})}));
  def('bai_ai_status','Check optional local Ollama availability without blocking normal editing.',schema(),async()=>await request('/api/ai/status'),true);
  def('bai_ai_settings','Read optional Ollama settings.',schema(),async()=>await request('/api/ai/settings'),true);
  def('bai_ai_pose_proposal','Interpret Japanese pose instructions into a preview-only proposal. Never edits motion.',schema({text:str},['text']),async({text})=>await request('/api/ai/pose-proposal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})}));

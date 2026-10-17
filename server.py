@@ -9,6 +9,7 @@ from operation_diagnostics import record_ui_action, diagnostics_archive
 from retarget_analysis import inspect, compare
 from retarget_calibration import calibrate
 from retarget_pose import propose_pose
+from pose_ik import validate_pose
 from retarget_root import convert_root_samples
 from motion_interchange import analyze_motion
 from foot_contact import diagnose, root_offset_proposal
@@ -142,6 +143,13 @@ class Handler(BaseHTTPRequestHandler):
     def bad(self,status,msg):self.send(status,json.dumps({'error':msg},ensure_ascii=False).encode())
     def do_GET(self):
         path=urlsplit(self.path).path
+        if path=='/pose_ik_ui.js':
+            self.send(200,(BASE/'pose_ik_ui.js').read_bytes(),'text/javascript; charset=utf-8');return
+        if path=='/api/pose/last':
+            f=DATA/'pose_ik_last.json'
+            try:payload=json.loads(f.read_text(encoding='utf8'))
+            except (ValueError,OSError):payload={'schema':1,'frame':0,'limbs':{}}
+            self.send(200,json.dumps(payload,ensure_ascii=False).encode());return
         if path=='/bai_ai_ui.js':
             self.send(200,(BASE/'bai_ai_ui.js').read_bytes(),'text/javascript; charset=utf-8');return
         if path=='/api/ai/settings':
@@ -286,6 +294,22 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/pose/solve':
+            try:
+                n=int(self.headers.get('Content-Length','0'))
+                if not 0<n<=16384:return self.bad(413,'pose payload too large')
+                obj=json.loads(self.rfile.read(n));result=validate_pose(obj)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (TypeError,ValueError,OverflowError,KeyError) as e:return self.bad(400,str(e))
+        if urlsplit(self.path).path=='/api/pose/save':
+            try:
+                n=int(self.headers.get('Content-Length','0'))
+                if not 0<n<=16384:return self.bad(413,'pose payload too large')
+                obj=json.loads(self.rfile.read(n));result=validate_pose(obj)
+                path=DATA/'pose_ik_last.json';temp=path.with_suffix('.tmp')
+                temp.write_text(json.dumps(obj,ensure_ascii=False,indent=2),encoding='utf8');os.replace(temp,path)
+                self.send(200,json.dumps({'ok':True,'frame':result['frame'],'limbs':list(result['limbs'])}).encode());return
+            except (TypeError,ValueError,OverflowError,KeyError) as e:return self.bad(400,str(e))
         if urlsplit(self.path).path in ('/api/ai/settings','/api/ai/pose-proposal'):
             try:
                 n=int(self.headers.get('Content-Length','0'))

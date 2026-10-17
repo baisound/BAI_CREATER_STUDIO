@@ -54,6 +54,9 @@ def update_chain(action, name=None, from_index=None,to_index=None):
     return {'timeline':seq,'history_count':len(history)}
 
 def run(name,a):
+    if name=='bai_pose_ik_get':return api('/api/pose/last')
+    if name=='bai_pose_ik_solve':return api('/api/pose/solve',a)
+    if name=='bai_pose_ik_save':return api('/api/pose/save',a)
     if name=='bai_ai_status':return api('/api/ai/status')
     if name=='bai_ai_settings':return api('/api/ai/settings')
     if name=='bai_ai_pose_proposal':return api('/api/ai/pose-proposal',{'text':a['text']})
@@ -135,6 +138,9 @@ TOOLS=[
 ('mixamo_foot_contact_qa','Analyze foot contact, drift and penetration using world-space samples; no IK application.',S({'samples':{'type':'array','items':{'type':'object'}},'ground_y':{'type':'number'},'propose_root_offsets':{'type':'boolean'}},['samples'])),
 ('mixamo_motion_channels','Inspect GLB/BVH animation channels without changing files.',S({'id':{'type':'string'}},['id'])),
 ('mixamo_retarget_profiles_get','Read stored mapping profiles.',S()),
+('bai_pose_ik_get','Read saved non-destructive manual IK target positions.',S()),
+('bai_pose_ik_solve','Solve 2-segment planar IK for arm/leg targets without AI or PMX changes.',S({'schema':INT,'frame':INT,'limbs':{'type':'object'}},['limbs'])),
+('bai_pose_ik_save','Save manual IK target settings; does not alter original motion.',S({'schema':INT,'frame':INT,'limbs':{'type':'object'}},['limbs'])),
 ('mixamo_retarget_profiles_set','Save non-destructive mapping profiles.',S({'profiles':{'type':'object'}},['profiles'])),
 ('mixamo_motion_layers_get','Read non-destructive rotation correction layers.',S()),
 ('mixamo_motion_layers_set','Save per-bone correction keys and enable flags.',S({'layers':{'type':'array','items':{'type':'object'}}},['layers'])),
