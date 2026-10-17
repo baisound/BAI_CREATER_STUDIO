@@ -72,6 +72,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send(200,json.dumps({'entries':recent(limit)},ensure_ascii=False).encode());return
         if path in ('/','/index.html'):
             self.send(200,(BASE/'index.html').read_bytes(),'text/html; charset=utf-8');return
+        if path=='/api/server-version':
+            self.send(200,json.dumps({'version':'0.12.7','features':['pmx_zip_upload','mmd_assets','integrated_v02']}).encode());return
         if path=='/api/mmd-assets':
             self.send(200,json.dumps(read_mmd(),ensure_ascii=False).encode());return
         if path.startswith('/api/mmd-file/'):
