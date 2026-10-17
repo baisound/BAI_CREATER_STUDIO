@@ -1,3 +1,4 @@
+BAI Creator Studio v0.16.19 — explicit rest quaternion preview (non-destructive)
 Mixamo格闘ビューワー（ローカル保存対応）
 
 1. ZIPをすべて展開します。

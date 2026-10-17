@@ -10,6 +10,7 @@ from retarget_analysis import inspect, compare
 from retarget_calibration import calibrate
 from retarget_pose import propose_pose
 from vrm_humanoid_preview import compare_vrm_humanoid, suggest_humanoid_mapping
+from rest_rotation_transfer import preview as explicit_rest_preview
 from retarget_mapping_preview import preview as mapping_preview
 from pose_ik import validate_pose
 from ai_ik_preview import preview as ai_ik_preview
@@ -360,6 +361,14 @@ class Handler(BaseHTTPRequestHandler):
                 result=diagnose(samples,ground_y=float(obj.get('ground_y',0)),height_tolerance=float(obj.get('height_tolerance',0.06)),motion_tolerance=float(obj.get('motion_tolerance',0.025)))
                 if obj.get('propose_root_offsets'):
                     result['root_offset_proposal']=root_offset_proposal(result,samples)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError,OverflowError) as ex:return self.bad(400,str(ex))
+        if urlsplit(self.path).path=='/api/retarget/explicit-rest-preview':
+            try:
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=1048576:return self.bad(413,'payload too large')
+                obj=json.loads(self.rfile.read(size))
+                result=explicit_rest_preview(obj)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,TypeError,KeyError,OverflowError) as ex:return self.bad(400,str(ex))
         if urlsplit(self.path).path=='/api/retarget/vrm-humanoid-preview':

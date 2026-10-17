@@ -75,6 +75,7 @@ def run(name,a):
     if name=='mixamo_retarget_calibration':
         from urllib.parse import quote
         return api('/api/retarget/calibration?source='+quote(a['source'],safe='')+'&target='+quote(a['target'],safe=''))
+    if name=='bai_retarget_explicit_rest_preview':return api('/api/retarget/explicit-rest-preview',a)
     if name=='bai_vrm_humanoid_mapping_suggest':return api('/api/retarget/vrm-humanoid-preview',a)
     if name=='bai_retarget_mapping_preview':return api('/api/retarget/mapping-preview',a)
     if name=='mixamo_retarget_root_preview':return api('/api/retarget/root-preview',a)
@@ -140,6 +141,7 @@ TOOLS=[
 ('mixamo_retarget_compare','Compare semantic role mapping of two registered assets.',S({'source':STR,'target':STR},['source','target'])),
 ('mixamo_retarget_pose_proposal','Estimate rest-direction rotations for matching bones; preview-only, not validated retarget.',S({'source':STR,'target':STR},['source','target'])),
 ('mixamo_retarget_calibration','Propose read-only scale and mapping from available positions.',S({'source':STR,'target':STR},['source','target'])),
+('bai_retarget_explicit_rest_preview','Preview local quaternion deltas with user-confirmed rest frames; no mesh/VMD mutation.',S({'rest_pairs':{'type':'object'},'samples':{'type':'array','items':{'type':'object'}},'coordinate_convention_confirmed':{'type':'boolean'}},['rest_pairs','samples','coordinate_convention_confirmed'])),
 ('bai_vrm_humanoid_mapping_suggest','Suggest read-only role-based VRM bone mapping; no rotation calibration or automatic save.',S({'source':STR,'target':STR},['source','target'])),
 ('bai_retarget_mapping_preview','Apply saved bone names to supplied rotation samples as read-only preview, without axis conversion or VMD output.',S({'source':STR,'target':STR,'samples':{'type':'array','items':{'type':'object'}}},['source','target','samples'])),
 ('mixamo_retarget_root_preview','Preview root position scaling and yaw without writing animation.',S({'samples':{'type':'array','items':{'type':'object'}},'scale':{'type':'number'},'yaw_offset_deg':{'type':'number'}},['samples','scale'])),
