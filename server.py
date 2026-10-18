@@ -336,6 +336,15 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/camera/vmd/preview-pose':
+            try:
+                n=int(self.headers.get('Content-Length','0'))
+                if not 0<n<=16*1024*1024:return self.bad(413,'camera track too large')
+                request=json.loads(self.rfile.read(n))
+                from camera_vmd_bridge import preview_pose
+                result=preview_pose(request['track'],request['frame'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError,OverflowError) as exc:return self.bad(400,str(exc))
         if urlsplit(self.path).path=='/api/camera/vmd/native/sample':
             try:
                 n=int(self.headers.get('Content-Length','0'))
