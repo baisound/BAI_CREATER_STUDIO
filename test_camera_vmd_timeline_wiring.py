@@ -12,10 +12,10 @@ class TimelineWiringTests(unittest.TestCase):
     def test_opt_in_disabled_until_track_import(self):
         self.assertIn('id="vmd-follow-timeline" type="checkbox" disabled',self.html)
         self.assertIn('nativeFollow.disabled=false',self.js)
-    def test_drops_stale_frames(self):
-        self.assertIn('wanted!==frame',self.js)
-        self.assertIn('generation!==nativePreviewGeneration',self.js)
-        self.assertIn('nativePreviewPending=frame',self.js)
+    def test_local_synchronous_sampling(self):
+        self.assertIn('nativeLocalSampler.preview(', self.js)
+        self.assertNotIn('nativePreviewPending', self.js)
+        self.assertIn('nativeFollow.checked', self.js)
     def test_separate_non_destructive_event(self):
         self.assertIn('bai-camera-vmd-preview',self.js)
         self.assertIn('bai-camera-vmd-preview',self.render)

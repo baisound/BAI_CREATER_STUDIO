@@ -24,40 +24,21 @@ $('vmd-inspect-button').onclick=async()=>{const result=$('vmd-inspect-result'),f
 let nativeVmdTrack=null;
 // Experimental preview stays separate from editable project keys. Rate-limit async
 // requests and drop stale responses when the user scrubs or changes the track.
-let nativePreviewGeneration=0,nativePreviewBusy=false,nativePreviewPending=null,nativePreviewLast=-1;
-const nativeFollow=$('vmd-follow-timeline'), nativeFollowStatus=$('vmd-timeline-status');
-function cancelNativeFollow(){nativePreviewGeneration++;nativePreviewPending=null;nativePreviewLast=-1;nativeFollowStatus.textContent='追従OFF';}
+let nativeLocalSampler=null;
+const nativeFollow=$('vmd-follow-timeline'),nativeFollowStatus=$('vmd-timeline-status');
+function cancelNativeFollow(){nativeFollowStatus.textContent='追従OFF';}
 function requestNativeFrame(f){
- if(!nativeFollow.checked||!nativeVmdTrack)return;
- const requested=Math.max(0,Math.round(f));
- if(requested===nativePreviewLast&&!nativePreviewBusy)return;
- nativePreviewPending=requested;
- if(nativePreviewBusy)return;
- void runNativePreviewQueue();
-}
-async function runNativePreviewQueue(){
- if(nativePreviewBusy)return;nativePreviewBusy=true;
- const generation=nativePreviewGeneration,track=nativeVmdTrack;
+ if(!nativeFollow.checked||!nativeLocalSampler)return;
  try{
-  while(nativeFollow.checked&&generation===nativePreviewGeneration&&nativePreviewPending!==null){
-   const wanted=nativePreviewPending;nativePreviewPending=null;
-   if(wanted===nativePreviewLast)continue;
-   const response=await fetch('/api/camera/vmd/preview-pose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({track,frame:wanted})});
-   const result=await response.json();if(!response.ok)throw Error(result.error||'HTTP '+response.status);
-   if(generation!==nativePreviewGeneration||!nativeFollow.checked)break;
-   // Do not apply a response for a frame that is no longer current.
-   if(wanted!==frame){nativePreviewPending=frame;continue}
-   nativePreviewLast=wanted;
-   window.dispatchEvent(new CustomEvent('bai-camera-vmd-preview',{detail:{pose:result,frame:wanted}}));
-   nativeFollowStatus.textContent=`試験VMD追従: ${wanted}F（保存・MMD互換性未検証）`;
-  }
- }catch(error){if(generation===nativePreviewGeneration){nativeFollow.checked=false;cancelNativeFollow();nativeFollowStatus.textContent='追従停止: '+error.message}}
- finally{nativePreviewBusy=false;if(nativeFollow.checked&&nativePreviewPending!==null)void runNativePreviewQueue()}
+  const pose=nativeLocalSampler.preview(Math.max(0,Math.round(f)));
+  window.dispatchEvent(new CustomEvent('bai-camera-vmd-preview',{detail:{pose,frame:f}}));
+  nativeFollowStatus.textContent=`試験VMDローカル追従: ${Math.round(f)}F（保存なし・互換性未検証）`;
+ }catch(error){nativeFollow.checked=false;cancelNativeFollow();nativeFollowStatus.textContent='追従停止: '+error.message}
 }
 nativeFollow.onchange=()=>{cancelNativeFollow();if(nativeFollow.checked)requestNativeFrame(frame)};
 window.addEventListener('bai-camera-frame',event=>requestNativeFrame(event.detail.frame));
 
-$('vmd-native-import').onclick=async()=>{const el=$('vmd-native-input'),out=$('vmd-native-status'),file=el.files[0];cancelNativeFollow();nativeFollow.checked=false;nativeFollow.disabled=true;nativeVmdTrack=null;$('vmd-native-export').disabled=true;$('vmd-native-sample').disabled=true;$('vmd-preview-pose').disabled=true;if(!file){out.textContent='VMDファイルを選択してください';return}if(file.size>32*1024*1024){out.textContent='32MB以下にしてください';return}out.textContent='カメラデータを読み込み中…';try{const response=await fetch('/api/camera/vmd/native/import',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:await file.arrayBuffer()});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);nativeVmdTrack=data;nativeFollow.disabled=false;$('vmd-native-export').disabled=false;$('vmd-native-sample').disabled=false;$('vmd-preview-pose').disabled=false;out.textContent=`ネイティブキー ${data.keys.length}件 / MMD座標 / 試験プレビュー追従は任意ON・原本非破壊`;}catch(error){out.textContent='VMD読込失敗: '+error.message}};
+$('vmd-native-import').onclick=async()=>{const el=$('vmd-native-input'),out=$('vmd-native-status'),file=el.files[0];cancelNativeFollow();nativeFollow.checked=false;nativeFollow.disabled=true;nativeVmdTrack=null;nativeLocalSampler=null;$('vmd-native-export').disabled=true;$('vmd-native-sample').disabled=true;$('vmd-preview-pose').disabled=true;if(!file){out.textContent='VMDファイルを選択してください';return}if(file.size>32*1024*1024){out.textContent='32MB以下にしてください';return}out.textContent='カメラデータを読み込み中…';try{const response=await fetch('/api/camera/vmd/native/import',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:await file.arrayBuffer()});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);nativeLocalSampler=window.BAIVmdLocal.createSampler(data);nativeVmdTrack=data;nativeFollow.disabled=false;$('vmd-native-export').disabled=false;$('vmd-native-sample').disabled=false;$('vmd-preview-pose').disabled=false;out.textContent=`ネイティブキー ${data.keys.length}件 / MMD座標 / 試験プレビュー追従は任意ON・原本非破壊`;}catch(error){out.textContent='VMD読込失敗: '+error.message}};
 $('vmd-native-sample').onclick=async()=>{const out=$('vmd-native-sample-result');if(!nativeVmdTrack)return;const requested=Number($('vmd-native-frame').value);if(!Number.isInteger(requested)||requested<0||requested>4294967295){out.textContent='不正なフレーム番号';return}try{const response=await fetch('/api/camera/vmd/native/sample',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({track:nativeVmdTrack,frame:requested})});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);out.textContent='MMD座標の補間値（撮影カメラへは未適用）\n'+JSON.stringify(data,null,2)}catch(error){out.textContent='補間値取得失敗: '+error.message}};
 $('vmd-preview-pose').onclick=async()=>{const out=$('vmd-native-sample-result');if(!nativeVmdTrack)return;const requested=Number($('vmd-native-frame').value);if(!Number.isInteger(requested)||requested<0||requested>4294967295){out.textContent='不正なフレーム番号';return}try{const response=await fetch('/api/camera/vmd/preview-pose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({track:nativeVmdTrack,frame:requested})});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);window.dispatchEvent(new CustomEvent('bai-camera-pose',{detail:{pose:data}}));out.textContent='試験表示のみ（MMD互換未検証・キー保存なし）\n'+JSON.stringify(data,null,2)}catch(error){out.textContent='試験表示失敗: '+error.message}};
 $('vmd-native-export').onclick=async()=>{if(!nativeVmdTrack)return;const out=$('vmd-native-status');try{const response=await fetch('/api/camera/vmd/native/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(nativeVmdTrack)});if(!response.ok){const data=await response.json();throw Error(data.error||'HTTP '+response.status)}const url=URL.createObjectURL(await response.blob()),a=document.createElement('a');a.href=url;a.download='bai-camera-native-roundtrip.vmd';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);out.textContent='VMD書き出し完了（MMDネイティブキー）'}catch(error){out.textContent='VMD書出失敗: '+error.message}};
