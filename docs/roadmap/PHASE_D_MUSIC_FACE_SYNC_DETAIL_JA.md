@@ -1,0 +1,15 @@
+# Phase D 音楽・リップシンク・表情 詳細設計 v1
+
+リップ/表情の前倒し設計は `EARLY_LIP_EXPRESSION_MME_DESIGN_JA.md` を正本として参照。対象LIP-001〜011、LYRIC-006（BPM/イベント）。
+
+## 時刻系
+すべて `frame_index` + project_fps と音声のsample_rateで正規化。音声サンプル→フレーム変換は丸め方を明記し、累積丸め誤差を避ける。可変FPS動画の同期基準にはタイムスタンプを採用。音声ステムは原音を非破壊参照。
+
+## レイヤー
+Body / Lip / Expression / Blink / Gaze の各独立トラック。優先順はユーザー固定キー > 明示モーフマッピング > 自動推定。モデル固有のVRM expression/PMX morphへのマッピングは可視化し、対応しない音素・表情は警告する。複数モーフ強度は範囲制限・正規化を行う。
+
+## UI
+波形と歌詞(SRT)を並置、音素候補をキー単位で編集、歌声ステムの基準オフセットを試聴・視覚確認。瞬き・視線はロック、上書き、レイヤー合成を選べる。表情を当てても身体トラックが壊れない。
+
+## 操作契約と試験
+`import_srt`/`align_phonemes`/`assign_morph_map`/`edit_lip_key`/`edit_expression_key`/`set_audio_offset`/`preview_av_sync`。無音・長音・促音・子音・不正SRT、無モーフVRM、音声未導入、BPM変更、Undo、VMD書出→再読込で検証。音声推定結果は確信度付きで提示し、確定キーを上書きしない。
