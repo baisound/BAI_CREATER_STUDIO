@@ -11,4 +11,6 @@ def validate_follow(value):
     if role not in (*ROLES,''):raise ValueError('invalid bone role')
     if not isinstance(offset,list) or len(offset)!=3 or any(type(x) not in (int,float) or not math.isfinite(x) or abs(x)>10000 for x in offset):raise ValueError('invalid follow offset')
     if type(enabled) is not bool:raise ValueError('invalid follow enabled')
-    return {'boneName':name,'role':role,'offset':[float(x) for x in offset],'enabled':enabled}
+    smooth=value.get('smoothingSeconds',0)
+    if type(smooth) not in (int,float) or not math.isfinite(smooth) or not 0<=smooth<=5:raise ValueError('invalid follow smoothing')
+    return {'boneName':name,'role':role,'offset':[float(x) for x in offset],'enabled':enabled,'smoothingSeconds':float(smooth)}

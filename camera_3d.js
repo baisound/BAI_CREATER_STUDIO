@@ -1,6 +1,7 @@
 /** Phase E GLB/VRM beta: shared pose and animation time across scene and shooting camera. */
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {advanceFollow,validateSmoothing} from './camera_follow_smoothing.js';
 import {classifyBone,parseOffset,validFollowConfig,pickBone,FOLLOW_STORAGE_KEY} from './camera_follow_config.js';
 const $=id=>document.getElementById(id), status=s=>$('camera-asset-status').textContent=s;
 const world=new THREE.Scene();world.background=new THREE.Color('#101b2c');
@@ -14,33 +15,33 @@ const orthographicCam=new THREE.OrthographicCamera(-1,1,1,-1,.02,1000);
 let activeFilmingCamera=filmingCam;let orthographicHalfHeight=1;
 const views=[{host:$('scene').parentElement,camera:sceneCam},{host:$('preview').parentElement,camera:filmingCam}];
 let model=null,mixer=null,clips=[],activeClip=null,lastFrame=0,fps=30,shootingPose=null,rendererFailed=false;
-let trackingBone=null,trackingOffset=null,trackingBaseTarget=null,untrackedPose=null;
+let trackingBone=null,trackingOffset=null,trackingBaseTarget=null,untrackedPose=null,followSmoothState=null;
 const boneSelect=$('camera-follow-bone'),trackEnabled=$('camera-follow-enabled'),trackStatus=$('camera-follow-status');
-const offsetInput=$('camera-follow-offset');
-let savedFollow={boneName:'',role:'',offset:[0,0,0],enabled:false};
+const offsetInput=$('camera-follow-offset'),smoothingInput=$('camera-follow-smoothing');
+let savedFollow={boneName:'',role:'',offset:[0,0,0],enabled:false,smoothingSeconds:0};
 try{savedFollow=validFollowConfig(JSON.parse(localStorage.getItem(FOLLOW_STORAGE_KEY)||'{}'))}catch(_){/* Broken preference must never prevent camera startup. */}
-offsetInput.value=savedFollow.offset.join(',');
+offsetInput.value=savedFollow.offset.join(',');smoothingInput.value=String(savedFollow.smoothingSeconds);
 function offsetValues(){return parseOffset(offsetInput.value.split(',').map(v=>v.trim()))}
 function saveFollow(){
- try{const offset=offsetValues();savedFollow=validFollowConfig({boneName:trackingBone?.name||'',role:classifyBone(trackingBone?.name),offset,enabled:trackEnabled.checked});localStorage.setItem(FOLLOW_STORAGE_KEY,JSON.stringify(savedFollow));trackStatus.textContent='追従設定を保存しました（このブラウザー）'}
+ try{const offset=offsetValues();const smoothingSeconds=validateSmoothing(smoothingInput.value);savedFollow=validFollowConfig({boneName:trackingBone?.name||'',role:classifyBone(trackingBone?.name),offset,enabled:trackEnabled.checked,smoothingSeconds});localStorage.setItem(FOLLOW_STORAGE_KEY,JSON.stringify(savedFollow));trackStatus.textContent='追従設定を保存しました（このブラウザー）'}
  catch(err){trackStatus.textContent='保存失敗: '+err.message}
 }
 $('camera-follow-save').onclick=saveFollow;
 window.addEventListener('bai-camera-project-loaded',event=>{
  const config=event.detail?.project?.bone_follow;
  if(!config)return;
- try{savedFollow=validFollowConfig(config);offsetInput.value=savedFollow.offset.join(',');discoverBones()}
+ try{savedFollow=validFollowConfig(config);offsetInput.value=savedFollow.offset.join(',');smoothingInput.value=String(savedFollow.smoothingSeconds);followSmoothState=null;discoverBones()}
  catch(err){trackStatus.textContent='プロジェクト追従設定が不正: '+err.message}
 });
 window.addEventListener('bai-camera-before-save',event=>{
  const project=event.detail?.project;if(!project)return;
  // Bad offsets abort save, preventing silent corruption of persisted follow settings.
- const offset=offsetValues();
- project.bone_follow=validFollowConfig({boneName:trackingBone?.name||savedFollow.boneName,role:classifyBone(trackingBone?.name)||savedFollow.role,offset,enabled:trackEnabled.checked});
+ const offset=offsetValues();const smoothingSeconds=validateSmoothing(smoothingInput.value);
+ project.bone_follow=validFollowConfig({boneName:trackingBone?.name||savedFollow.boneName,role:classifyBone(trackingBone?.name)||savedFollow.role,offset,enabled:trackEnabled.checked,smoothingSeconds});
 });
 
 function discoverBones(){
- boneSelect.replaceChildren(new Option('なし',''));trackingBone=null;trackingOffset=null;trackingBaseTarget=null;
+ boneSelect.replaceChildren(new Option('なし',''));trackingBone=null;trackingOffset=null;trackingBaseTarget=null;followSmoothState=null;
  if(!model){trackStatus.textContent='モデル未選択';return}
  const nodes=[];model.traverse(node=>{if(node.isBone&&node.name)nodes.push(node)});
  nodes.forEach((node,i)=>{const role=classifyBone(node.name);boneSelect.add(new Option((role?'['+({head:'頭',neck:'首',chest:'胸',hips:'腰'}[role])+'] ':'')+node.name+' ('+i+')',String(i)))});
@@ -55,15 +56,17 @@ function trackSubject(){
  model.updateMatrixWorld(true);
  const subject=trackingBone.getWorldPosition(new THREE.Vector3());
  if(![subject.x,subject.y,subject.z].every(Number.isFinite))return;
- const target=subject.toArray();
+ const rawTarget=subject.toArray();
+ let target;try{followSmoothState=advanceFollow(followSmoothState,rawTarget,lastFrame,fps,smoothingInput.value);target=followSmoothState.target}catch(err){trackStatus.textContent=err.message;return}
  if(!trackingOffset){trackingBaseTarget=target;const base=untrackedPose||shootingPose;trackingOffset=base.position.map((x,i)=>x-base.target[i])}
  let manualOffset;
  try{manualOffset=offsetValues()}catch(err){trackStatus.textContent='追従停止: '+err.message;return}
  const next={...shootingPose,position:target.map((x,i)=>x+trackingOffset[i]+manualOffset[i]),target};
  applyPose(next);trackStatus.textContent=trackingBone.name+' を追従中（キー未変更）';
 }
-boneSelect.onchange=()=>{trackingBone=boneSelect._bones?.[Number(boneSelect.value)]||null;trackingOffset=null;trackingBaseTarget=null;trackStatus.textContent=trackingBone?'追従候補: '+trackingBone.name:'追従なし'};
-trackEnabled.onchange=()=>{trackingOffset=null;trackingBaseTarget=null;if(!trackEnabled.checked){trackStatus.textContent='追従OFF';if(untrackedPose)applyPose(untrackedPose)}};
+boneSelect.onchange=()=>{trackingBone=boneSelect._bones?.[Number(boneSelect.value)]||null;trackingOffset=null;trackingBaseTarget=null;followSmoothState=null;trackStatus.textContent=trackingBone?'追従候補: '+trackingBone.name:'追従なし'};
+smoothingInput.onchange=()=>{followSmoothState=null};
+trackEnabled.onchange=()=>{trackingOffset=null;trackingBaseTarget=null;followSmoothState=null;if(!trackEnabled.checked){trackStatus.textContent='追従OFF';if(untrackedPose)applyPose(untrackedPose)}};
 let camHelper=new THREE.CameraHelper(filmingCam);world.add(camHelper);
 function selectFilmingCamera(camera){if(activeFilmingCamera===camera)return;activeFilmingCamera=camera;views[1].camera=camera;world.remove(camHelper);camHelper.dispose();camHelper=new THREE.CameraHelper(camera);world.add(camHelper)}
 const moveTarget=new THREE.Vector3(0,1,0);let yaw=.6,pitch=.3,distance=8;
