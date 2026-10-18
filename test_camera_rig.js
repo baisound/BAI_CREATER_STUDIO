@@ -20,3 +20,13 @@ near(railKeys[1].position[0],5);
 assert.throws(()=>r.bake(p,{type:'orbit',from:0,to:10000,step:1,start:[0,1,0]}),/2000/);
 assert.throws(()=>r.bake(p,{type:'follow',from:0,to:10}),/Invalid/);
 console.log('camera rig segment: 7 assertions passed');
+
+const curve=r.curvedRail(p,{start:[0,2,5],control:[5,6,5],end:[10,2,5],t:.5});
+near(curve.position[0],5);near(curve.position[1],4);
+near(r.curvedRail(p,{start:[0,2,5],control:[5,6,5],end:[10,2,5],t:0}).position[0],0);
+near(r.curvedRail(p,{start:[0,2,5],control:[5,6,5],end:[10,2,5],t:1}).position[0],10);
+const curveKeys=r.bake(p,{type:'curve',from:0,to:10,step:5,start:[0,2,5],control:[5,6,5],end:[10,2,5]});
+near(curveKeys[1].position[1],4);
+assert.throws(()=>r.curvedRail(p,{start:[0,0,0],control:[NaN,0,0],end:[1,0,0],t:.5}));
+assert.throws(()=>r.bake(p,{type:'curve',from:0,to:5,start:[0,0,0],end:[1,0,0]}));
+console.log('curved rail: 7 assertions passed');

@@ -28,6 +28,12 @@ function rail(base,{start,end,t=0,lookAt=null}={}){
  const target=lookAt===null?add(position,sub(base.target,base.position)):lookAt;
  return pose(base,position,target);
 }
+function curvedRail(base,{start,control,end,t=0,lookAt=null}={}){
+ if(!valid(start)||!valid(control)||!valid(end)||!Number.isFinite(t)||t<0||t>1)throw Error('Invalid curved rail parameters');
+ const position=start.map((v,i)=>(1-t)*(1-t)*v+2*(1-t)*t*control[i]+t*t*end[i]);
+ const target=lookAt===null?add(position,sub(base.target,base.position)):lookAt;
+ return pose(base,position,target);
+}
 function follow(base,{subject,offset=null,lookAt=true}={}){
  if(!valid(subject))throw Error('Invalid subject position');
  const position=add(subject,offset===null?sub(base.position,base.target):offset);
@@ -35,9 +41,9 @@ function follow(base,{subject,offset=null,lookAt=true}={}){
 }
 // Bake a parametric camera movement into ordinary project keys. The resulting
 // keys remain editable and use the project's existing persistence format.
-function bake(base,{type,from,to,step=1,start,end,amount=90,easing='linear'}={}){
+function bake(base,{type,from,to,step=1,start,end,control=null,amount=90,easing='linear'}={}){
  if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<=from||!Number.isInteger(step)||step<1)throw Error('Invalid rig frame interval');
- if(!['orbit','crane','rail'].includes(type)||!['linear','smooth'].includes(easing)||!Number.isFinite(amount))throw Error('Invalid rig motion');
+ if(!['orbit','crane','rail','curve'].includes(type)||!['linear','smooth'].includes(easing)||!Number.isFinite(amount))throw Error('Invalid rig motion');
  const count=Math.ceil((to-from)/step)+1;
  if(count>2000)throw Error('Rig bake exceeds 2000 keys; increase the step');
  const result=[];
@@ -46,11 +52,12 @@ function bake(base,{type,from,to,step=1,start,end,amount=90,easing='linear'}={})
   let p;
   if(type==='orbit')p=orbit(base,{center:start,azimuth:amount*t});
   else if(type==='crane')p=crane(base,{pivot:start,angle:amount*t});
+  else if(type==='curve')p=curvedRail(base,{start,control,end,t});
   else p=rail(base,{start,end,t});
   result.push({frame,position:p.position,target:p.target,fov:p.fov,interpolation:'linear'});
   if(frame===to)break;
  }
  return result;
 }
-return Object.freeze({orbit,crane,rail,follow,bake});
+return Object.freeze({orbit,crane,rail,curvedRail,follow,bake});
 });
