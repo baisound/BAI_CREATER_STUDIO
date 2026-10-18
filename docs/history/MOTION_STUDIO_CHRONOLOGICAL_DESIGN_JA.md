@@ -69,3 +69,11 @@
 4. Phase F、リップ・表情、MMDエフェクト、C/D/G/Hについて、詳細設計・API契約・テストケースの不足を個別の次期設計へ展開。
 
 未確認の内容を「なかったこと」にしない。正式な更新は設計変更ログで時刻・根拠・影響を追跡する。
+
+## G. 第2次照合による追補（2026-10-18）
+
+- 10/17 製品名は **BAI Creator Studio** とし、BAI Motion / BAI Camera / BAI Lyrics等を機能モジュールとする2階層ブランド方式を確定。原則は「AI不要の手動基本操作、既存Git/素材/API互換、UI・WebMCP・標準MCPの機能整合」。
+- 同日、ローカルAI連携は `127.0.0.1:11434` の Ollama、共有モデル・preview、keep_alive 5分、auto_discovery/RAG、標準モデル`qwen3.5:9b`という指定があった。連携停止が制作機能を停止させてはならない。
+- 10/18 初期のカメラVMD段取りは修正されたが、のちにバージョン番号は概略の順序として扱うよう明示。**v0.16.46/47がUI修正版とVMD段階の両方で使われているため番号だけで機能完了を認定しない。**
+- 台帳現行総数は **147件**。本書の「118機能」は当時の構築経緯を記述したものであり現行対象数ではない。集計は `../roadmap/FEATURE_REGISTER_AUDIT_147_JA.md`。
+- 詳細な第2次設計草案: `../roadmap/PHASE_F_RENDER_PIPELINE_DESIGN_JA.md`、`../roadmap/EARLY_LIP_EXPRESSION_MME_DESIGN_JA.md`。いずれもユーザーによる個別承認前の設計草案であり実装済みではない。
