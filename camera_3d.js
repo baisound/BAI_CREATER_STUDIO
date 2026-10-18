@@ -13,6 +13,27 @@ const orthographicCam=new THREE.OrthographicCamera(-1,1,1,-1,.02,1000);
 let activeFilmingCamera=filmingCam;let orthographicHalfHeight=1;
 const views=[{host:$('scene').parentElement,camera:sceneCam},{host:$('preview').parentElement,camera:filmingCam}];
 let model=null,mixer=null,clips=[],activeClip=null,lastFrame=0,fps=30,shootingPose=null,rendererFailed=false;
+let trackingBone=null,trackingOffset=null,trackingBaseTarget=null,untrackedPose=null;
+const boneSelect=$('camera-follow-bone'),trackEnabled=$('camera-follow-enabled'),trackStatus=$('camera-follow-status');
+function discoverBones(){
+ boneSelect.replaceChildren(new Option('なし',''));trackingBone=null;trackingOffset=null;trackingBaseTarget=null;
+ if(!model){trackStatus.textContent='モデル未選択';return}
+ const nodes=[];model.traverse(node=>{if(node.isBone&&node.name)nodes.push(node)});
+ nodes.forEach((node,i)=>boneSelect.add(new Option(node.name+' ('+i+')',String(i))));
+ boneSelect._bones=nodes;trackStatus.textContent=nodes.length+'ボーンを検出';
+}
+function trackSubject(){
+ if(!trackEnabled.checked||!trackingBone||!shootingPose||!model||document.getElementById('vmd-follow-timeline')?.checked)return;
+ model.updateMatrixWorld(true);
+ const subject=trackingBone.getWorldPosition(new THREE.Vector3());
+ if(![subject.x,subject.y,subject.z].every(Number.isFinite))return;
+ const target=subject.toArray();
+ if(!trackingOffset){trackingBaseTarget=target;const base=untrackedPose||shootingPose;trackingOffset=base.position.map((x,i)=>x-base.target[i])}
+ const next={...shootingPose,position:target.map((x,i)=>x+trackingOffset[i]),target};
+ applyPose(next);trackStatus.textContent=trackingBone.name+' を追従中（キー未変更）';
+}
+boneSelect.onchange=()=>{trackingBone=boneSelect._bones?.[Number(boneSelect.value)]||null;trackingOffset=null;trackingBaseTarget=null;trackStatus.textContent=trackingBone?'追従候補: '+trackingBone.name:'追従なし'};
+trackEnabled.onchange=()=>{trackingOffset=null;trackingBaseTarget=null;if(!trackEnabled.checked){trackStatus.textContent='追従OFF';if(untrackedPose)applyPose(untrackedPose)}};
 let camHelper=new THREE.CameraHelper(filmingCam);world.add(camHelper);
 function selectFilmingCamera(camera){if(activeFilmingCamera===camera)return;activeFilmingCamera=camera;views[1].camera=camera;world.remove(camHelper);camHelper.dispose();camHelper=new THREE.CameraHelper(camera);world.add(camHelper)}
 const moveTarget=new THREE.Vector3(0,1,0);let yaw=.6,pitch=.3,distance=8;
@@ -49,18 +70,18 @@ function resizeProjection(camera,aspect){
 function resizeRender(){for(const v of views){if(!v.renderer)continue;const w=Math.max(2,v.host.clientWidth),h=Math.max(2,v.host.clientHeight);resizeProjection(v.camera,w/h);v.renderer.setSize(w,h,false)}}
 function render(){if(!rendererFailed){resizeRender();camHelper.visible=true;views[0].renderer?.render(world,sceneCam);camHelper.visible=false;views[1].renderer?.render(world,activeFilmingCamera)}requestAnimationFrame(render)}
 const loader=new GLTFLoader();
-function clean(){if(!model)return;world.remove(model);mixer?.stopAllAction();model.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()});model=null;mixer=null;clips=[];activeClip=null}
+function clean(){if(!model)return;trackEnabled.checked=false;trackingBone=null;trackingOffset=null;world.remove(model);mixer?.stopAllAction();model.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()});model=null;mixer=null;clips=[];activeClip=null}
 async function loadAsset(asset){if(!/^[^/\\]+\.(glb|vrm)$/i.test(asset))throw Error('GLB/VRMのみ対応');status('モデル読み込み中…');const response=await fetch('/api/integrated-v02/asset/'+encodeURIComponent(asset));if(!response.ok)throw Error('モデル取得エラー HTTP '+response.status);const parsed=await loader.parseAsync(await response.arrayBuffer(),'');clean();model=parsed.scene;world.add(model);const bounds=new THREE.Box3().setFromObject(model);const size=bounds.getSize(new THREE.Vector3());const scale=2/Math.max(.001,size.y);model.scale.multiplyScalar(scale);bounds.setFromObject(model);const center=bounds.getCenter(new THREE.Vector3());model.position.x-=center.x;model.position.z-=center.z;model.position.y-=bounds.min.y;
-clips=parsed.animations||[];mixer=clips.length?new THREE.AnimationMixer(model):null;const select=$('camera-clip');select.replaceChildren(new Option('静止モデル',''));clips.forEach((clip,i)=>select.add(new Option(`${clip.name||'Animation '+(i+1)} (${clip.duration.toFixed(1)}s)`,String(i))));if(clips.length){select.value='0';setClip(0)}else select.value='';updateTime();
+clips=parsed.animations||[];mixer=clips.length?new THREE.AnimationMixer(model):null;const select=$('camera-clip');select.replaceChildren(new Option('静止モデル',''));clips.forEach((clip,i)=>select.add(new Option(`${clip.name||'Animation '+(i+1)} (${clip.duration.toFixed(1)}s)`,String(i))));if(clips.length){select.value='0';setClip(0)}else select.value='';discoverBones();updateTime();
 $('scene').style.visibility='hidden';$('preview').style.visibility='hidden';views[0].renderer.domElement.style.pointerEvents='auto';status(`${asset} / 3D表示中 / ${clips.length}クリップ。FBX・VMD・VRM物理は未対応`)}
 function setClip(i){mixer?.stopAllAction();activeClip=Number.isInteger(i)&&clips[i]?clips[i]:null;if(activeClip)mixer.clipAction(activeClip).play();updateTime()}
-function updateTime(){if(!mixer||!activeClip)return;const time=lastFrame/Math.max(1,fps);mixer.setTime(time%Math.max(.001,activeClip.duration))}
+function updateTime(){if(mixer&&activeClip){const time=lastFrame/Math.max(1,fps);mixer.setTime(time%Math.max(.001,activeClip.duration))}trackSubject()}
 window.addEventListener('bai-camera-frame',e=>{lastFrame=e.detail.frame;fps=e.detail.fps||30;
 // Preserve the separately dispatched native VMD pose while experimental follow is enabled.
 // The ordinary camera-frame event still updates model animation time.
-if(!document.getElementById('vmd-follow-timeline')?.checked)applyPose(e.detail.pose);
+if(!document.getElementById('vmd-follow-timeline')?.checked){untrackedPose=e.detail.pose;applyPose(e.detail.pose)}
 updateTime()});
-window.addEventListener('bai-camera-pose',e=>applyPose(e.detail.pose));
+window.addEventListener('bai-camera-pose',e=>{trackingOffset=null;untrackedPose=e.detail.pose;applyPose(e.detail.pose);trackSubject()});
 window.addEventListener('bai-camera-vmd-preview',e=>applyPose(e.detail.pose));
 $('camera-clip').onchange=e=>{const i=Number(e.target.value);setClip(e.target.value===''?null:i)};
 $('camera-load-asset').onclick=()=>{const name=$('camera-asset').value;if(!name){status('素材を選択してください');return}loadAsset(name).catch(err=>status('読み込み失敗: '+err.message))};
