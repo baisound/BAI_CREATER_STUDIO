@@ -1,6 +1,7 @@
 /** Phase E GLB/VRM beta: shared pose and animation time across scene and shooting camera. */
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {classifyBone,parseOffset,validFollowConfig,pickBone,FOLLOW_STORAGE_KEY} from './camera_follow_config.js';
 const $=id=>document.getElementById(id), status=s=>$('camera-asset-status').textContent=s;
 const world=new THREE.Scene();world.background=new THREE.Color('#101b2c');
 world.add(new THREE.HemisphereLight(0xffffff,0x46546a,2.4));
@@ -15,21 +16,38 @@ const views=[{host:$('scene').parentElement,camera:sceneCam},{host:$('preview').
 let model=null,mixer=null,clips=[],activeClip=null,lastFrame=0,fps=30,shootingPose=null,rendererFailed=false;
 let trackingBone=null,trackingOffset=null,trackingBaseTarget=null,untrackedPose=null;
 const boneSelect=$('camera-follow-bone'),trackEnabled=$('camera-follow-enabled'),trackStatus=$('camera-follow-status');
+const offsetInput=$('camera-follow-offset');
+let savedFollow={boneName:'',role:'',offset:[0,0,0],enabled:false};
+try{savedFollow=validFollowConfig(JSON.parse(localStorage.getItem(FOLLOW_STORAGE_KEY)||'{}'))}catch(_){/* Broken preference must never prevent camera startup. */}
+offsetInput.value=savedFollow.offset.join(',');
+function offsetValues(){return parseOffset(offsetInput.value.split(',').map(v=>v.trim()))}
+function saveFollow(){
+ try{const offset=offsetValues();savedFollow=validFollowConfig({boneName:trackingBone?.name||'',role:classifyBone(trackingBone?.name),offset,enabled:trackEnabled.checked});localStorage.setItem(FOLLOW_STORAGE_KEY,JSON.stringify(savedFollow));trackStatus.textContent='追従設定を保存しました（このブラウザー）'}
+ catch(err){trackStatus.textContent='保存失敗: '+err.message}
+}
+$('camera-follow-save').onclick=saveFollow;
+
 function discoverBones(){
  boneSelect.replaceChildren(new Option('なし',''));trackingBone=null;trackingOffset=null;trackingBaseTarget=null;
  if(!model){trackStatus.textContent='モデル未選択';return}
  const nodes=[];model.traverse(node=>{if(node.isBone&&node.name)nodes.push(node)});
- nodes.forEach((node,i)=>boneSelect.add(new Option(node.name+' ('+i+')',String(i))));
- boneSelect._bones=nodes;trackStatus.textContent=nodes.length+'ボーンを検出';
+ nodes.forEach((node,i)=>{const role=classifyBone(node.name);boneSelect.add(new Option((role?'['+({head:'頭',neck:'首',chest:'胸',hips:'腰'}[role])+'] ':'')+node.name+' ('+i+')',String(i)))});
+ boneSelect._bones=nodes;trackingBone=pickBone(nodes,savedFollow);
+ if(trackingBone)boneSelect.value=String(nodes.indexOf(trackingBone));
+ trackEnabled.checked=Boolean(savedFollow.enabled&&trackingBone);
+ trackStatus.textContent=nodes.length+'ボーンを検出'+(savedFollow.boneName&&!trackingBone?'（保存済みボーンが見つかりません）':'');
 }
 function trackSubject(){
- if(!trackEnabled.checked||!trackingBone||!shootingPose||!model||document.getElementById('vmd-follow-timeline')?.checked)return;
+ if(!trackEnabled.checked||!trackingBone||!shootingPose||!model)return;
+ if(document.getElementById('vmd-follow-timeline')?.checked){trackStatus.textContent='VMDカメラ優先のためボーン追従停止中';return;}
  model.updateMatrixWorld(true);
  const subject=trackingBone.getWorldPosition(new THREE.Vector3());
  if(![subject.x,subject.y,subject.z].every(Number.isFinite))return;
  const target=subject.toArray();
  if(!trackingOffset){trackingBaseTarget=target;const base=untrackedPose||shootingPose;trackingOffset=base.position.map((x,i)=>x-base.target[i])}
- const next={...shootingPose,position:target.map((x,i)=>x+trackingOffset[i]),target};
+ let manualOffset;
+ try{manualOffset=offsetValues()}catch(err){trackStatus.textContent='追従停止: '+err.message;return}
+ const next={...shootingPose,position:target.map((x,i)=>x+trackingOffset[i]+manualOffset[i]),target};
  applyPose(next);trackStatus.textContent=trackingBone.name+' を追従中（キー未変更）';
 }
 boneSelect.onchange=()=>{trackingBone=boneSelect._bones?.[Number(boneSelect.value)]||null;trackingOffset=null;trackingBaseTarget=null;trackStatus.textContent=trackingBone?'追従候補: '+trackingBone.name:'追従なし'};

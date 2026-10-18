@@ -12,7 +12,7 @@ class BoneTrackingWiring(unittest.TestCase):
   self.assertIn('mixer.setTime(time%Math.max(.001,activeClip.duration))}trackSubject()',js)
  def test_disabled_under_vmd(self):
   js=(R/'camera_3d.js').read_text()
-  self.assertIn("document.getElementById('vmd-follow-timeline')?.checked)return",js)
+  self.assertIn("if(document.getElementById('vmd-follow-timeline')?.checked)",js)
  def test_tracks_world_position_without_key_write(self):
   js=(R/'camera_3d.js').read_text()
   block=js.split('function trackSubject(){',1)[1].split('boneSelect.onchange=',1)[0]
