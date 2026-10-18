@@ -31,7 +31,66 @@ window.addEventListener('bai-camera-pose',e=>applyPose(e.detail.pose));
 $('camera-clip').onchange=e=>{const i=Number(e.target.value);setClip(e.target.value===''?null:i)};
 $('camera-load-asset').onclick=()=>{const name=$('camera-asset').value;if(!name){status('素材を選択してください');return}loadAsset(name).catch(err=>status('読み込み失敗: '+err.message))};
 async function catalog(){try{const r=await fetch('/api/integrated-v02/catalog');if(!r.ok)throw Error('HTTP '+r.status);const c=await r.json(),sel=$('camera-asset'),seen=new Set();for(const entry of [...(c.models||[]),...(c.motions||[])]){const name=entry.source_asset?.split('/').pop();if(!name||!/\.(glb|vrm)$/i.test(name)||seen.has(name))continue;seen.add(name);sel.add(new Option((entry.name||name)+' — '+name,name))}status(seen.size+'件のGLB/VRM素材を選択できます')}catch(err){status('カタログ取得失敗: '+err.message)}}
-let dragging=false,lastX=0,lastY=0;
+// Scene view controls: Unreal-style RMB+WASD fly, LMB orbit, Shift+LMB truck/crane.
+// The independent scene camera never writes filming-camera keys.
+let dragButton=null,lastX=0,lastY=0,rightHeld=false;
 const canvas=()=>views[0].renderer?.domElement;
-function controlInit(){const el=canvas();if(!el)return;el.addEventListener('contextmenu',e=>e.preventDefault());el.addEventListener('pointerdown',e=>{if(e.button!==0&&e.button!==2)return;dragging=true;lastX=e.clientX;lastY=e.clientY;el.setPointerCapture(e.pointerId)});el.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;yaw-=dx*.007;pitch=Math.max(-1.4,Math.min(1.4,pitch+dy*.005));scenePosition()});el.addEventListener('pointerup',()=>dragging=false);el.addEventListener('pointercancel',()=>dragging=false);el.addEventListener('wheel',e=>{e.preventDefault();distance=Math.max(.35,Math.min(100,distance*Math.exp(e.deltaY*.001)));scenePosition()},{passive:false});el.tabIndex=0;el.addEventListener('keydown',e=>{const dir=new THREE.Vector3();sceneCam.getWorldDirection(dir);dir.y=0;dir.normalize();const right=new THREE.Vector3().crossVectors(dir,new THREE.Vector3(0,1,0)).normalize();const speed=e.shiftKey?.4:.15;let delta=null;switch(e.code){case'KeyW':delta=dir.clone().multiplyScalar(speed);break;case'KeyS':delta=dir.clone().multiplyScalar(-speed);break;case'KeyA':delta=right.clone().multiplyScalar(-speed);break;case'KeyD':delta=right.clone().multiplyScalar(speed);break;case'KeyQ':delta=new THREE.Vector3(0,-speed,0);break;case'KeyE':delta=new THREE.Vector3(0,speed,0);break;case'KeyF':moveTarget.set(0,1,0);distance=5;scenePosition();e.preventDefault();return}if(delta){moveTarget.add(delta);scenePosition();e.preventDefault()}})}
+function focusSelectedModel(){
+  const bounds=model?new THREE.Box3().setFromObject(model):null;
+  if(bounds&&!bounds.isEmpty()){
+    bounds.getCenter(moveTarget);
+    const size=bounds.getSize(new THREE.Vector3());
+    distance=Math.max(1.5,Math.min(100,size.length()*1.5));
+  }else{moveTarget.set(0,1,0);distance=5}
+  scenePosition();
+}
+function controlInit(){
+  const el=canvas();if(!el)return;
+  el.tabIndex=0;
+  el.addEventListener('contextmenu',e=>e.preventDefault());
+  el.addEventListener('pointerdown',e=>{
+    if(e.button!==0&&e.button!==2)return;
+    dragButton=e.button;rightHeld=e.button===2;
+    lastX=e.clientX;lastY=e.clientY;
+    el.focus();el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove',e=>{
+    if(dragButton===null)return;
+    const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;
+    if(dragButton===0&&e.shiftKey){
+      const forward=new THREE.Vector3();sceneCam.getWorldDirection(forward);
+      const right=new THREE.Vector3().crossVectors(forward,new THREE.Vector3(0,1,0)).normalize();
+      const scale=distance*.0015;
+      moveTarget.addScaledVector(right,-dx*scale);
+      moveTarget.y+=dy*scale;
+    }else{
+      yaw-=dx*.007;pitch=Math.max(-1.4,Math.min(1.4,pitch+dy*.005));
+    }
+    scenePosition();
+  });
+  const stop=e=>{dragButton=null;rightHeld=false;if(el.hasPointerCapture?.(e.pointerId))el.releasePointerCapture(e.pointerId)};
+  el.addEventListener('pointerup',stop);el.addEventListener('pointercancel',stop);
+  el.addEventListener('blur',()=>{dragButton=null;rightHeld=false});
+  el.addEventListener('wheel',e=>{
+    e.preventDefault();distance=Math.max(.35,Math.min(100,distance*Math.exp(e.deltaY*.001)));scenePosition();
+  },{passive:false});
+  el.addEventListener('keydown',e=>{
+    if(e.code==='KeyF'){focusSelectedModel();e.preventDefault();return}
+    // Do not hijack WASD unless the user is explicitly flying with RMB held.
+    if(!rightHeld)return;
+    const dir=new THREE.Vector3();sceneCam.getWorldDirection(dir);dir.normalize();
+    const right=new THREE.Vector3().crossVectors(dir,new THREE.Vector3(0,1,0)).normalize();
+    const speed=e.shiftKey?.4:.15;
+    let delta=null;
+    switch(e.code){
+      case'KeyW':delta=dir.clone().multiplyScalar(speed);break;
+      case'KeyS':delta=dir.clone().multiplyScalar(-speed);break;
+      case'KeyA':delta=right.clone().multiplyScalar(-speed);break;
+      case'KeyD':delta=right.clone().multiplyScalar(speed);break;
+      case'KeyQ':delta=new THREE.Vector3(0,-speed,0);break;
+      case'KeyE':delta=new THREE.Vector3(0,speed,0);break;
+    }
+    if(delta){moveTarget.add(delta);scenePosition();e.preventDefault()}
+  });
+}
 initRender();if(!rendererFailed){controlInit();render();catalog()}
