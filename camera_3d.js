@@ -9,16 +9,45 @@ const ground=new THREE.GridHelper(24,24,0x516e89,0x2c3d50);world.add(ground);
 const reference=new THREE.Group();const marker=new THREE.Mesh(new THREE.SphereGeometry(.12),new THREE.MeshBasicMaterial({color:0xffcb63}));reference.add(marker);world.add(reference);
 const sceneCam=new THREE.PerspectiveCamera(55,1,.02,1000);sceneCam.position.set(5,3,7);sceneCam.lookAt(0,1,0);
 const filmingCam=new THREE.PerspectiveCamera(40,1,.02,1000);filmingCam.position.set(0,1.6,5);filmingCam.lookAt(0,1,0);
+const orthographicCam=new THREE.OrthographicCamera(-1,1,1,-1,.02,1000);
+let activeFilmingCamera=filmingCam;let orthographicHalfHeight=1;
 const views=[{host:$('scene').parentElement,camera:sceneCam},{host:$('preview').parentElement,camera:filmingCam}];
 let model=null,mixer=null,clips=[],activeClip=null,lastFrame=0,fps=30,shootingPose=null,rendererFailed=false;
-const camHelper=new THREE.CameraHelper(filmingCam);world.add(camHelper);
+let camHelper=new THREE.CameraHelper(filmingCam);world.add(camHelper);
+function selectFilmingCamera(camera){if(activeFilmingCamera===camera)return;activeFilmingCamera=camera;views[1].camera=camera;world.remove(camHelper);camHelper.dispose();camHelper=new THREE.CameraHelper(camera);world.add(camHelper)}
 const moveTarget=new THREE.Vector3(0,1,0);let yaw=.6,pitch=.3,distance=8;
 function scenePosition(){sceneCam.position.set(moveTarget.x+distance*Math.sin(yaw)*Math.cos(pitch),moveTarget.y+distance*Math.sin(pitch),moveTarget.z+distance*Math.cos(yaw)*Math.cos(pitch));sceneCam.lookAt(moveTarget)}
 scenePosition();
 function initRender(){for(const view of views){try{const renderer=new THREE.WebGLRenderer({alpha:false,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.domElement.className='view-3d-canvas';view.host.append(renderer.domElement);view.renderer=renderer;}catch(err){rendererFailed=true;status('WebGL利用不可: 2Dガイドへ戻します ('+err.message+')');return}}}
-function applyPose(p){if(!p||!p.position||!p.target)return;shootingPose=p;filmingCam.position.fromArray(p.position);filmingCam.up.set(0,1,0);if(Array.isArray(p.up)&&p.up.length===3&&p.up.every(Number.isFinite)&&new THREE.Vector3().fromArray(p.up).lengthSq()>1e-10)filmingCam.up.fromArray(p.up).normalize();filmingCam.lookAt(new THREE.Vector3().fromArray(p.target));filmingCam.fov=p.fov||40;filmingCam.updateProjectionMatrix();camHelper.update()}
-function resizeRender(){for(const v of views){if(!v.renderer)continue;const w=Math.max(2,v.host.clientWidth),h=Math.max(2,v.host.clientHeight);v.camera.aspect=w/h;v.camera.updateProjectionMatrix();v.renderer.setSize(w,h,false)}}
-function render(){if(!rendererFailed){resizeRender();camHelper.visible=true;views[0].renderer?.render(world,sceneCam);camHelper.visible=false;views[1].renderer?.render(world,filmingCam)}requestAnimationFrame(render)}
+function applyPose(p){
+ if(!p||!p.position||!p.target)return;
+ shootingPose=p;
+ // In native camera VMD, 0 is perspective and 1 is orthographic.
+ // An orthographic view has no optical FOV; use the perspective-equivalent
+ // framing at this distance to make the mode switch manageable in editing.
+ const orthographic=p.perspective===1;
+ const camera=orthographic?orthographicCam:filmingCam;
+ selectFilmingCamera(camera);
+ camera.position.fromArray(p.position);
+ camera.up.set(0,1,0);
+ if(Array.isArray(p.up)&&p.up.length===3&&p.up.every(Number.isFinite)&&new THREE.Vector3().fromArray(p.up).lengthSq()>1e-10)camera.up.fromArray(p.up).normalize();
+ camera.lookAt(new THREE.Vector3().fromArray(p.target));
+ const fov=Number(p.fov)||40;
+ if(orthographic){
+  const distance=camera.position.distanceTo(new THREE.Vector3().fromArray(p.target));
+  orthographicHalfHeight=Math.max(.001,distance*Math.tan(THREE.MathUtils.degToRad(THREE.MathUtils.clamp(fov,5,150))*.5));
+ }else camera.fov=fov;
+ resizeProjection(camera,views[1].host.clientWidth/Math.max(1,views[1].host.clientHeight));
+ camHelper.update();
+}
+function resizeProjection(camera,aspect){
+ aspect=Number.isFinite(aspect)&&aspect>0?aspect:1;
+ if(camera.isPerspectiveCamera)camera.aspect=aspect;
+ else if(camera.isOrthographicCamera){camera.left=-orthographicHalfHeight*aspect;camera.right=orthographicHalfHeight*aspect;camera.top=orthographicHalfHeight;camera.bottom=-orthographicHalfHeight}
+ camera.updateProjectionMatrix();
+}
+function resizeRender(){for(const v of views){if(!v.renderer)continue;const w=Math.max(2,v.host.clientWidth),h=Math.max(2,v.host.clientHeight);resizeProjection(v.camera,w/h);v.renderer.setSize(w,h,false)}}
+function render(){if(!rendererFailed){resizeRender();camHelper.visible=true;views[0].renderer?.render(world,sceneCam);camHelper.visible=false;views[1].renderer?.render(world,activeFilmingCamera)}requestAnimationFrame(render)}
 const loader=new GLTFLoader();
 function clean(){if(!model)return;world.remove(model);mixer?.stopAllAction();model.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()});model=null;mixer=null;clips=[];activeClip=null}
 async function loadAsset(asset){if(!/^[^/\\]+\.(glb|vrm)$/i.test(asset))throw Error('GLB/VRMのみ対応');status('モデル読み込み中…');const response=await fetch('/api/integrated-v02/asset/'+encodeURIComponent(asset));if(!response.ok)throw Error('モデル取得エラー HTTP '+response.status);const parsed=await loader.parseAsync(await response.arrayBuffer(),'');clean();model=parsed.scene;world.add(model);const bounds=new THREE.Box3().setFromObject(model);const size=bounds.getSize(new THREE.Vector3());const scale=2/Math.max(.001,size.y);model.scale.multiplyScalar(scale);bounds.setFromObject(model);const center=bounds.getCenter(new THREE.Vector3());model.position.x-=center.x;model.position.z-=center.z;model.position.y-=bounds.min.y;
