@@ -58,6 +58,18 @@ document.querySelectorAll('[data-camera-move]').forEach(b=>b.onclick=()=>{try{co
 $('interpolation').addEventListener('change',()=>{if(!project.keys.some(k=>k.frame===frame)){status('先に現在のフレームをキーとして保存してください');return}try{writeKey(inputPose())}catch(e){status(e.message)}});
 function rigVector(id){const v=$(id).value.split(',').map(n=>Number(n.trim()));if(v.length!==3||!v.every(Number.isFinite))throw Error('座標はX,Y,Zの3数値で指定してください');return v}
 $('rig-apply').onclick=()=>{try{const base=previewPose||sample(frame),type=$('rig-type').value,amount=Number($('rig-amount').value),start=rigVector('rig-start'),end=rigVector('rig-end');if(!Number.isFinite(amount))throw Error('操作量は数値で指定してください');const rig=window.BAICameraRig;let p;if(type==='orbit')p=rig.orbit(base,{center:start,azimuth:amount});else if(type==='crane')p=rig.crane(base,{pivot:start,angle:amount});else if(type==='rail')p=rig.rail(base,{start,end,t:amount});else if(type==='follow')p=rig.follow(base,{subject:end});else throw Error('不明なリグ');commitPose(p);$('rig-status').textContent=type+' 適用（'+($('auto-key').checked?'キー登録':'プレビューのみ')+'）'}catch(e){$('rig-status').textContent='エラー: '+e.message}};
+$('rig-bake').onclick=()=>{try{
+ const from=Number($('rig-bake-from').value),to=Number($('rig-bake-to').value),step=Number($('rig-bake-step').value);
+ if(!Number.isInteger(from)||!Number.isInteger(to)||to>project.duration)throw Error('区間を総フレーム内で指定してください');
+ const collisions=project.keys.filter(k=>k.frame>=from&&k.frame<=to);
+ if(collisions.length)throw Error(`範囲内に既存キーが${collisions.length}個あります。上書きを避けるため中止しました`);
+ const start=rigVector('rig-start'),end=rigVector('rig-end');
+ const keys=window.BAICameraRig.bake(sample(from),{type:$('rig-type').value,from,to,step,start,end,amount:Number($('rig-amount').value),easing:$('rig-bake-ease').value});
+ // One edit = one undo checkpoint. Do not rewrite imported VMD data.
+ project.keys.push(...keys);project.keys.sort((a,b)=>a.frame-b.frame);selected=from;checkpoint();updateRangeControls();setFrame(from);
+ $('rig-bake-status').textContent=`${keys.length}キーを作成しました（未保存）。Undoで一括取消できます`;
+ }catch(e){$('rig-bake-status').textContent='エラー: '+e.message}
+};
 $('preset-apply').onclick=()=>{try{commitPose(clone(presets[$('preset').value]))}catch(e){status(e.message)}};
 $('undo').onclick=()=>{if(cursor<=0)return;cursor--;project=clone(history[cursor]);$('duration').value=project.duration;$('frame').max=project.duration;$('frame-number').max=project.duration;updateRangeControls();setFrame(frame);status('元に戻しました（未保存）')};$('redo').onclick=()=>{if(cursor>=history.length-1)return;cursor++;project=clone(history[cursor]);$('duration').value=project.duration;$('frame').max=project.duration;$('frame-number').max=project.duration;updateRangeControls();setFrame(frame);status('やり直しました（未保存）')};
 $('save').onclick=async()=>{try{const r=await fetch('/api/camera/project',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(project)});const j=await r.json();if(!r.ok)throw Error(j.error);dirty=false;status('保存しました')}catch(e){status('保存失敗: '+e.message)}};

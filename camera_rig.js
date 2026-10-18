@@ -33,5 +33,24 @@ function follow(base,{subject,offset=null,lookAt=true}={}){
  const position=add(subject,offset===null?sub(base.position,base.target):offset);
  return pose(base,position,lookAt?subject:add(position,sub(base.target,base.position)));
 }
-return Object.freeze({orbit,crane,rail,follow});
+// Bake a parametric camera movement into ordinary project keys. The resulting
+// keys remain editable and use the project's existing persistence format.
+function bake(base,{type,from,to,step=1,start,end,amount=90,easing='linear'}={}){
+ if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<=from||!Number.isInteger(step)||step<1)throw Error('Invalid rig frame interval');
+ if(!['orbit','crane','rail'].includes(type)||!['linear','smooth'].includes(easing)||!Number.isFinite(amount))throw Error('Invalid rig motion');
+ const count=Math.ceil((to-from)/step)+1;
+ if(count>2000)throw Error('Rig bake exceeds 2000 keys; increase the step');
+ const result=[];
+ for(let frame=from;frame<=to;frame=Math.min(to,frame+step)){
+  let t=(frame-from)/(to-from);if(easing==='smooth')t=t*t*(3-2*t);
+  let p;
+  if(type==='orbit')p=orbit(base,{center:start,azimuth:amount*t});
+  else if(type==='crane')p=crane(base,{pivot:start,angle:amount*t});
+  else p=rail(base,{start,end,t});
+  result.push({frame,position:p.position,target:p.target,fov:p.fov,interpolation:'linear'});
+  if(frame===to)break;
+ }
+ return result;
+}
+return Object.freeze({orbit,crane,rail,follow,bake});
 });
