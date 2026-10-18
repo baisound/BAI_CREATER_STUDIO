@@ -27,7 +27,11 @@ def validate(payload):
             record[attr]=[number(v,-10000,10000) for v in arr]
         if sum((a-b)**2 for a,b in zip(record['position'],record['target']))<1e-8:raise ValueError('camera position and target must differ')
         out.append(record)
-    return {'schema':1,'fps':int(fps),'duration':int(duration),'keys':sorted(out,key=lambda k:k['frame'])}
+    result={'schema':1,'fps':int(fps),'duration':int(duration),'keys':sorted(out,key=lambda k:k['frame'])}
+    if 'bone_follow' in payload:
+        from camera_follow_store import validate_follow
+        result['bone_follow']=validate_follow(payload['bone_follow'])
+    return result
 def sample(project,frame):
     p=validate(project); f=number(frame,0,p['duration']); keys=p['keys']
     if not keys:raise ValueError('no camera keyframes')

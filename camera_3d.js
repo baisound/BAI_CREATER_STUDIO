@@ -26,6 +26,18 @@ function saveFollow(){
  catch(err){trackStatus.textContent='保存失敗: '+err.message}
 }
 $('camera-follow-save').onclick=saveFollow;
+window.addEventListener('bai-camera-project-loaded',event=>{
+ const config=event.detail?.project?.bone_follow;
+ if(!config)return;
+ try{savedFollow=validFollowConfig(config);offsetInput.value=savedFollow.offset.join(',');discoverBones()}
+ catch(err){trackStatus.textContent='プロジェクト追従設定が不正: '+err.message}
+});
+window.addEventListener('bai-camera-before-save',event=>{
+ const project=event.detail?.project;if(!project)return;
+ // Bad offsets abort save, preventing silent corruption of persisted follow settings.
+ const offset=offsetValues();
+ project.bone_follow=validFollowConfig({boneName:trackingBone?.name||savedFollow.boneName,role:classifyBone(trackingBone?.name)||savedFollow.role,offset,enabled:trackEnabled.checked});
+});
 
 function discoverBones(){
  boneSelect.replaceChildren(new Option('なし',''));trackingBone=null;trackingOffset=null;trackingBaseTarget=null;
