@@ -26,7 +26,11 @@ clips=parsed.animations||[];mixer=clips.length?new THREE.AnimationMixer(model):n
 $('scene').style.visibility='hidden';$('preview').style.visibility='hidden';views[0].renderer.domElement.style.pointerEvents='auto';status(`${asset} / 3D表示中 / ${clips.length}クリップ。FBX・VMD・VRM物理は未対応`)}
 function setClip(i){mixer?.stopAllAction();activeClip=Number.isInteger(i)&&clips[i]?clips[i]:null;if(activeClip)mixer.clipAction(activeClip).play();updateTime()}
 function updateTime(){if(!mixer||!activeClip)return;const time=lastFrame/Math.max(1,fps);mixer.setTime(time%Math.max(.001,activeClip.duration))}
-window.addEventListener('bai-camera-frame',e=>{lastFrame=e.detail.frame;fps=e.detail.fps||30;applyPose(e.detail.pose);updateTime()});
+window.addEventListener('bai-camera-frame',e=>{lastFrame=e.detail.frame;fps=e.detail.fps||30;
+// Preserve the separately dispatched native VMD pose while experimental follow is enabled.
+// The ordinary camera-frame event still updates model animation time.
+if(!document.getElementById('vmd-follow-timeline')?.checked)applyPose(e.detail.pose);
+updateTime()});
 window.addEventListener('bai-camera-pose',e=>applyPose(e.detail.pose));
 window.addEventListener('bai-camera-vmd-preview',e=>applyPose(e.detail.pose));
 $('camera-clip').onchange=e=>{const i=Number(e.target.value);setClip(e.target.value===''?null:i)};
