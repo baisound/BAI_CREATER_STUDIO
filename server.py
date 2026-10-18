@@ -3,6 +3,7 @@ import hashlib, json, mimetypes, os, re, sys, threading, shutil, subprocess, tim
 from pathlib import Path
 from bai_camera import read as camera_read, save as camera_save, sample as camera_sample
 from camera_focus import diagnose as focus_diagnose, diagnose_range as focus_diagnose_range
+from camera_vmd_inspect import inspect_camera_vmd
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
 from diagnostic_logging import event, recent
@@ -333,6 +334,13 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/camera/vmd/inspect':
+            try:
+                n=int(self.headers.get('Content-Length','0'))
+                if not 0<n<=32*1024*1024:return self.bad(413,'VMD too large')
+                result=inspect_camera_vmd(self.rfile.read(n))
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,OverflowError) as exc:return self.bad(400,str(exc))
         if urlsplit(self.path).path=="/api/camera/project":
             try:
                 length=int(self.headers.get('Content-Length','0'))
