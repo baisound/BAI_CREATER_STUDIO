@@ -22,7 +22,42 @@ $('track').ondragover=e=>e.preventDefault();$('track').ondrop=e=>{e.preventDefau
 function drawFocusDiagnostic(){const result=$('focus-result');if(!$('focus-enabled').checked){result.textContent='診断OFF';return}const lens=Number($('focus-lens').value),aperture=Number($('focus-aperture').value),focus=Number($('focus-distance').value);if(!(lens>0&&aperture>0&&focus>0)){result.textContent='レンズ/F値/焦点距離を確認してください';return}const p=previewPose||sample(frame),height={face:2.4,chest:1.5,hips:1}[$('focus-subject').value]||2.4,subject=[0,height,0];const actual=Math.hypot(...p.position.map((v,i)=>v-subject[i]));const f=lens/1000,c=.00003,hyperfocal=f*f/(aperture*c)+f,near=hyperfocal*focus/(hyperfocal+(focus-f)),far=focus>=hyperfocal?Infinity:hyperfocal*focus/(hyperfocal-(focus-f));const inside=actual>=near&&actual<=far;result.textContent=`${inside?'許容被写界深度内':'被写界深度外'} / 被写体 ${actual.toFixed(2)}m / 合焦 ${focus.toFixed(2)}m / 許容 ${near.toFixed(2)}–${Number.isFinite(far)?far.toFixed(2):'∞'}m`;result.style.color=inside?'#77e0a8':'#ffb570'}
 $('vmd-inspect-button').onclick=async()=>{const result=$('vmd-inspect-result'),file=$('vmd-inspect-input').files[0];if(!file){result.textContent='VMDファイルを選択してください';return}if(file.size>32*1024*1024){result.textContent='32MB以下のファイルのみ対応';return}result.textContent='VMDを検査中…';try{const response=await fetch('/api/camera/vmd/inspect',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:await file.arrayBuffer()});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);result.textContent=`カメラキー ${data.camera_count} 件 / 範囲 ${data.first_camera_frame??'-'}〜${data.last_camera_frame??'-'} / 画角 ${data.fov_range?.join('〜')||'-'}°（読み取りのみ）`}catch(error){result.textContent='VMD検査失敗: '+error.message}};
 let nativeVmdTrack=null;
-$('vmd-native-import').onclick=async()=>{const el=$('vmd-native-input'),out=$('vmd-native-status'),file=el.files[0];nativeVmdTrack=null;$('vmd-native-export').disabled=true;$('vmd-native-sample').disabled=true;$('vmd-preview-pose').disabled=true;if(!file){out.textContent='VMDファイルを選択してください';return}if(file.size>32*1024*1024){out.textContent='32MB以下にしてください';return}out.textContent='カメラデータを読み込み中…';try{const response=await fetch('/api/camera/vmd/native/import',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:await file.arrayBuffer()});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);nativeVmdTrack=data;$('vmd-native-export').disabled=false;$('vmd-native-sample').disabled=false;$('vmd-preview-pose').disabled=false;out.textContent=`ネイティブキー ${data.keys.length}件 / MMD座標 / BAIカメラへの変換・再生なし`;}catch(error){out.textContent='VMD読込失敗: '+error.message}};
+// Experimental preview stays separate from editable project keys. Rate-limit async
+// requests and drop stale responses when the user scrubs or changes the track.
+let nativePreviewGeneration=0,nativePreviewBusy=false,nativePreviewPending=null,nativePreviewLast=-1;
+const nativeFollow=$('vmd-follow-timeline'), nativeFollowStatus=$('vmd-timeline-status');
+function cancelNativeFollow(){nativePreviewGeneration++;nativePreviewPending=null;nativePreviewLast=-1;nativeFollowStatus.textContent='追従OFF';}
+function requestNativeFrame(f){
+ if(!nativeFollow.checked||!nativeVmdTrack)return;
+ const requested=Math.max(0,Math.round(f));
+ if(requested===nativePreviewLast&&!nativePreviewBusy)return;
+ nativePreviewPending=requested;
+ if(nativePreviewBusy)return;
+ void runNativePreviewQueue();
+}
+async function runNativePreviewQueue(){
+ if(nativePreviewBusy)return;nativePreviewBusy=true;
+ const generation=nativePreviewGeneration,track=nativeVmdTrack;
+ try{
+  while(nativeFollow.checked&&generation===nativePreviewGeneration&&nativePreviewPending!==null){
+   const wanted=nativePreviewPending;nativePreviewPending=null;
+   if(wanted===nativePreviewLast)continue;
+   const response=await fetch('/api/camera/vmd/preview-pose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({track,frame:wanted})});
+   const result=await response.json();if(!response.ok)throw Error(result.error||'HTTP '+response.status);
+   if(generation!==nativePreviewGeneration||!nativeFollow.checked)break;
+   // Do not apply a response for a frame that is no longer current.
+   if(wanted!==frame){nativePreviewPending=frame;continue}
+   nativePreviewLast=wanted;
+   window.dispatchEvent(new CustomEvent('bai-camera-vmd-preview',{detail:{pose:result,frame:wanted}}));
+   nativeFollowStatus.textContent=`試験VMD追従: ${wanted}F（保存・MMD互換性未検証）`;
+  }
+ }catch(error){if(generation===nativePreviewGeneration){nativeFollow.checked=false;cancelNativeFollow();nativeFollowStatus.textContent='追従停止: '+error.message}}
+ finally{nativePreviewBusy=false;if(nativeFollow.checked&&nativePreviewPending!==null)void runNativePreviewQueue()}
+}
+nativeFollow.onchange=()=>{cancelNativeFollow();if(nativeFollow.checked)requestNativeFrame(frame)};
+window.addEventListener('bai-camera-frame',event=>requestNativeFrame(event.detail.frame));
+
+$('vmd-native-import').onclick=async()=>{const el=$('vmd-native-input'),out=$('vmd-native-status'),file=el.files[0];cancelNativeFollow();nativeFollow.checked=false;nativeFollow.disabled=true;nativeVmdTrack=null;$('vmd-native-export').disabled=true;$('vmd-native-sample').disabled=true;$('vmd-preview-pose').disabled=true;if(!file){out.textContent='VMDファイルを選択してください';return}if(file.size>32*1024*1024){out.textContent='32MB以下にしてください';return}out.textContent='カメラデータを読み込み中…';try{const response=await fetch('/api/camera/vmd/native/import',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:await file.arrayBuffer()});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);nativeVmdTrack=data;nativeFollow.disabled=false;$('vmd-native-export').disabled=false;$('vmd-native-sample').disabled=false;$('vmd-preview-pose').disabled=false;out.textContent=`ネイティブキー ${data.keys.length}件 / MMD座標 / 試験プレビュー追従は任意ON・原本非破壊`;}catch(error){out.textContent='VMD読込失敗: '+error.message}};
 $('vmd-native-sample').onclick=async()=>{const out=$('vmd-native-sample-result');if(!nativeVmdTrack)return;const requested=Number($('vmd-native-frame').value);if(!Number.isInteger(requested)||requested<0||requested>4294967295){out.textContent='不正なフレーム番号';return}try{const response=await fetch('/api/camera/vmd/native/sample',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({track:nativeVmdTrack,frame:requested})});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);out.textContent='MMD座標の補間値（撮影カメラへは未適用）\n'+JSON.stringify(data,null,2)}catch(error){out.textContent='補間値取得失敗: '+error.message}};
 $('vmd-preview-pose').onclick=async()=>{const out=$('vmd-native-sample-result');if(!nativeVmdTrack)return;const requested=Number($('vmd-native-frame').value);if(!Number.isInteger(requested)||requested<0||requested>4294967295){out.textContent='不正なフレーム番号';return}try{const response=await fetch('/api/camera/vmd/preview-pose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({track:nativeVmdTrack,frame:requested})});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);window.dispatchEvent(new CustomEvent('bai-camera-pose',{detail:{pose:data}}));out.textContent='試験表示のみ（MMD互換未検証・キー保存なし）\n'+JSON.stringify(data,null,2)}catch(error){out.textContent='試験表示失敗: '+error.message}};
 $('vmd-native-export').onclick=async()=>{if(!nativeVmdTrack)return;const out=$('vmd-native-status');try{const response=await fetch('/api/camera/vmd/native/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(nativeVmdTrack)});if(!response.ok){const data=await response.json();throw Error(data.error||'HTTP '+response.status)}const url=URL.createObjectURL(await response.blob()),a=document.createElement('a');a.href=url;a.download='bai-camera-native-roundtrip.vmd';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);out.textContent='VMD書き出し完了（MMDネイティブキー）'}catch(error){out.textContent='VMD書出失敗: '+error.message}};
