@@ -16,7 +16,7 @@ class VMDLocalTests(unittest.TestCase):
         local=json.loads(proc.stdout)['poses']
         for f,p in zip(frames,local):
             expected=preview_pose(track,f)
-            for field in ('position','target'):
+            for field in ('position','target','up'):
                 for actual,want in zip(p[field],expected[field]):self.assertAlmostEqual(actual,want,places=9)
             self.assertAlmostEqual(p['fov'],expected['fov'],places=9)
     def test_wiring_and_no_per_frame_fetch(self):
