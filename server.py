@@ -2,6 +2,7 @@
 import hashlib, json, mimetypes, os, re, sys, threading, shutil, subprocess, time, zipfile, io, posixpath
 from pathlib import Path
 from bai_camera import read as camera_read, save as camera_save, sample as camera_sample
+from camera_focus import diagnose as focus_diagnose, diagnose_range as focus_diagnose_range
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
 from diagnostic_logging import event, recent
@@ -162,6 +163,17 @@ class Handler(BaseHTTPRequestHandler):
             file=BASE/path[1:];self.send(200,file.read_bytes(),"text/css" if path.endswith(".css") else "text/javascript" if path.endswith(".js") else "text/html; charset=utf-8");return
         if path=="/api/camera/project":
             self.send(200,json.dumps(camera_read(DATA/"camera_project.json"),ensure_ascii=False).encode());return
+        if path=="/api/camera/focus":
+            try:
+                args=parse_qs(urlsplit(self.path).query)
+                def arg(name, default):return args.get(name,[default])[0]
+                opts=dict(focal_mm=float(arg('focal_mm',50)),aperture=float(arg('aperture',2.8)),focus_m=float(arg('focus_m',4)),target=arg('target','face'))
+                project=camera_read(DATA/'camera_project.json')
+                if 'end' in args:
+                    result=focus_diagnose_range(project,int(arg('start',0)),int(arg('end',0)),step=int(arg('step',1)),**opts)
+                else:result=focus_diagnose(project,int(arg('frame',0)),**opts)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,OverflowError) as exc:return self.bad(400,str(exc))
         if path=="/api/camera/sample":
             try:
                 f=float(__import__("urllib.parse",fromlist=["parse_qs"]).parse_qs(urlsplit(self.path).query).get("frame",["0"])[0]);result=camera_sample(camera_read(DATA/"camera_project.json"),f)
