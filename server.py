@@ -188,7 +188,6 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError,TypeError,OverflowError) as exc:return self.bad(400,str(exc))
         if path=="/api/camera/sequence/evaluate":
             try:
-                from urllib.parse import parse_qs
                 from camera_sequence_api import evaluate
                 f=float(parse_qs(urlsplit(self.path).query).get('frame',['0'])[0])
                 result=evaluate(camera_read(DATA/'camera_project.json'),f)
@@ -220,7 +219,6 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/api/ui-qa/settings':
             self.send(200,json.dumps({'settings':qa_settings(),'storage':qa_cleanup()}).encode());return
         if path=='/api/diagnostics/recent':
-            from urllib.parse import parse_qs
             try:limit=int(parse_qs(urlsplit(self.path).query).get('limit',['80'])[0])
             except (ValueError,TypeError):limit=80
             self.send(200,json.dumps({'entries':recent(limit)},ensure_ascii=False).encode());return
