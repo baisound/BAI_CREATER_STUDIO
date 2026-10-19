@@ -1,0 +1,63 @@
+/* BAI Creator Studio design tokens.
+   Adopted: "graphite" (A). Comparison: "paper" (B). See docs/ui/STUDIO_DESIGN_SYSTEM_JA.md.
+   Colour is reserved for state/meaning; no gradients, glows or neon. */
+:root, [data-theme="graphite"] {
+  --bg: #171615;
+  --surface-0: #1d1c1a;   /* app chrome */
+  --surface-1: #232220;   /* panels */
+  --surface-2: #2b2a27;   /* raised controls */
+  --surface-3: #34322f;   /* hover */
+  --border: #3a3834;
+  --border-strong: #4a4742;
+  --text: #e6e2da;
+  --text-2: #b3aea4;
+  --text-3: #8a857c;
+  --accent: #c79b55;        /* brass, used for selection/current only */
+  --accent-strong: #d9b072;
+  --accent-ink: #1b1a18;
+  --accent-soft: rgba(199,155,85,.14);
+  --focus: #e0bb7c;
+  --ok: #7fa877;
+  --warn: #cf9f45;
+  --danger: #c96a60;
+  --info: #87a2b4;
+  --viewport: #121211;
+  --viewport-grid: #262523;
+  --key: #c79b55;
+  --shadow: 0 8px 28px rgba(0,0,0,.45);
+  color-scheme: dark;
+}
+[data-theme="paper"] {
+  --bg: #e7e4de;
+  --surface-0: #efede8;
+  --surface-1: #f7f6f2;
+  --surface-2: #ffffff;
+  --surface-3: #ebe8e1;
+  --border: #d6d2c9;
+  --border-strong: #bdb8ad;
+  --text: #22211e;
+  --text-2: #55524b;
+  --text-3: #7b776e;
+  --accent: #2f6b53;        /* deep green */
+  --accent-strong: #245641;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(47,107,83,.12);
+  --focus: #2f6b53;
+  --ok: #3f7a45;
+  --warn: #9a6a12;
+  --danger: #a8443b;
+  --info: #3f6479;
+  --viewport: #2a2927;
+  --viewport-grid: #3a3936;
+  --key: #2f6b53;
+  --shadow: 0 8px 24px rgba(40,36,28,.18);
+  color-scheme: light;
+}
+:root {
+  --font: "Inter", "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  --mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+  --fs-xs: 11px; --fs-sm: 12px; --fs-md: 13px; --fs-lg: 15px; --fs-xl: 18px;
+  --radius: 4px; --radius-lg: 6px;
+  --gap: 8px;
+}
+[data-density="comfortable"] { --fs-sm: 13px; --fs-md: 14px; --fs-lg: 16px; }

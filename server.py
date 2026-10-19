@@ -233,6 +233,11 @@ class Handler(BaseHTTPRequestHandler):
             self.send(200,(BASE/'motion_layers.js').read_bytes(),'text/javascript; charset=utf-8');return
         if path in ('/','/index.html'):
             self.send(200,(BASE/'index.html').read_bytes(),'text/html; charset=utf-8');return
+        if path.startswith('/workspace') or path.startswith('/studio/'):
+            from studio_routes import resolve as studio_resolve
+            found=studio_resolve(path)
+            if found:
+                self.send(200,found[0].read_bytes(),found[1]);return
         if path=='/api/server-version':
             self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload']}).encode());return
         if path=='/api/retarget/profile-for-pair':
