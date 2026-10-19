@@ -182,6 +182,14 @@ class Handler(BaseHTTPRequestHandler):
                 else:result=focus_diagnose(project,int(arg('frame',0)),**opts)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,TypeError,OverflowError) as exc:return self.bad(400,str(exc))
+        if path=="/api/camera/sequence/evaluate":
+            try:
+                from urllib.parse import parse_qs
+                from camera_sequence_api import evaluate
+                f=float(parse_qs(urlsplit(self.path).query).get('frame',['0'])[0])
+                result=evaluate(camera_read(DATA/'camera_project.json'),f)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except (ValueError,TypeError,OverflowError,KeyError) as exc:return self.bad(400,str(exc))
         if path=="/api/camera/sample":
             try:
                 f=float(__import__("urllib.parse",fromlist=["parse_qs"]).parse_qs(urlsplit(self.path).query).get("frame",["0"])[0]);result=camera_sample(camera_read(DATA/"camera_project.json"),f)

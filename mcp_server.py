@@ -56,6 +56,7 @@ def update_chain(action, name=None, from_index=None,to_index=None):
 def run(name,a):
     if name=="bai_camera_get":return api("/api/camera/project")
     if name=="bai_camera_set":return api("/api/camera/project",a)
+    if name=="bai_camera_sequence_evaluate":return api("/api/camera/sequence/evaluate?frame="+str(a["frame"]))
     if name=="bai_camera_sample":return api("/api/camera/sample?frame="+str(a["frame"]))
     if name=='bai_pose_ik_get':return api('/api/pose/last')
     if name=='bai_pose_ik_solve':return api('/api/pose/solve',a)
@@ -147,6 +148,7 @@ TOOLS=[
 ('bai_camera_get','Read BAI Camera keyframe project.',S()),
 ('bai_camera_set','Save non-destructive BAI Camera keyframes; original motions unaffected.',S({'schema':INT,'fps':INT,'duration':INT,'keys':{'type':'array','items':{'type':'object'}}},['schema','fps','duration','keys'])),
 ('bai_camera_sample','Read interpolated camera transform at a specified frame.',S({'frame':INT},['frame'])),
+('bai_camera_sequence_evaluate','Read CAM-015 effective cut shot or fallback keys at frame (does not override VMD preview).',S({'frame':INT},['frame'])),
 ('bai_ai_status','Check optional local Ollama availability.',S({})),
 ('bai_ai_settings','Read local Ollama configuration.',S({})),
 ('bai_ai_pose_proposal','Preview-only Qwen pose interpretation, without editing source files.',S({'text':{'type':'string'}},['text'])),
