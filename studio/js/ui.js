@@ -262,7 +262,7 @@ export function selectList(o) {
     for (const it of rows) {
       ul.append(h('li', { role: 'option', 'aria-selected': String(it.id === selected), style: { '--depth': it.depth || 0 }, dataset: { id: it.id },
         onclick: () => { selected = it.id; render(); o.onSelect && o.onSelect(it.id); } },
-        it.thumb ? h('span', { class: 'thumb' }) : null, h('span', null, it.label), it.meta ? h('span', { class: 'meta' }, it.meta) : null));
+        it.thumb ? (typeof it.thumb === 'string' ? h('img', { class: 'thumb', src: it.thumb, alt: '' }) : h('span', { class: 'thumb' })) : null, h('span', null, it.label), it.meta ? h('span', { class: 'meta' }, it.meta) : null));
     }
   };
   ul.addEventListener('keydown', (e) => {

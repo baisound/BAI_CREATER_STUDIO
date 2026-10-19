@@ -21,6 +21,20 @@ class StudioRoutesTest(unittest.TestCase):
     def test_assets_have_types(self):
         self.assertEqual(resolve('/studio/js/app.js')[1], 'text/javascript; charset=utf-8')
         self.assertEqual(resolve('/studio/styles/app.css')[1], 'text/css; charset=utf-8')
+        self.assertEqual(resolve('/studio/assets/samples/hero.webp')[1], 'image/webp')
+
+    def test_sample_images_referenced_exist(self):
+        import re
+        samples = STUDIO_DIR / 'assets' / 'samples'
+        src = ''.join((STUDIO_DIR / 'js' / f).read_text(encoding='utf8') for f in ('screens.js', 'samples.js', 'app.js'))
+        names = set(re.findall(r"'((?:char|stage|prop|tex|mat|fx|audio|motion|video|img|hdr|preview|hero|proj|render|asset|viewport|shot|preset|lens|tpl|camshot)(?:-[a-z0-9]+)+)'", src))
+        css = (STUDIO_DIR / 'styles' / 'app.css').read_text(encoding='utf8')
+        names = {n for n in names if f'.{n}' not in css and f"class: '{n}" not in src}  # skip CSS class names
+        self.assertGreater(len(names), 40)
+        for n in names:
+            self.assertTrue((samples / f'{n}.webp').is_file(), n)
+        total = sum(f.stat().st_size for f in samples.glob('*.webp'))
+        self.assertLess(total, 1_500_000, 'sample images must stay small')
 
     def test_all_25_screens_defined(self):
         src = (STUDIO_DIR / 'js' / 'screens.js').read_text(encoding='utf8')

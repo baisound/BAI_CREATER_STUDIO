@@ -1,0 +1,908 @@
+# Phase E 詳細設計（CAM-001〜018・横断要件）v3 — 2026-10-20 【レビュー中の草案：批評3回＋最終判定の前。実装に使わない】
+
+- 位置付け：承認済み Phase E の**残作業を実装可能な粒度まで落とした詳細設計**。新機能の追加ではない。本書に書いた項目はすべて `FEATURE_REGISTER.json` の CAM-001〜018、`PHASE_E_IMPLEMENTATION_STATUS.json` の E-FOCUS-01/02、およびオーナー決定文書に根拠がある。根拠のない案は本書に入れない（入れた場合は §9 の「未承認候補」に送る）。
+- 正本の優先順位：`AGENTS.md`（スコープ凍結）＞ オーナー決定文書（`docs/camera/BAI_CAMERA_INTERACTION_DESIGN_V1_JA.md`、`docs/camera/PHASE_E_CAM005_FOCUS_CONSISTENCY_CONTRACT_JA.md`、`docs/camera/BAI_CAMERA_FOCUS_DOF_TEST_MODE_DESIGN_V1_JA.md`、`docs/roadmap/PHASE_E_PROJECT_STATE_ROUNDTRIP_DESIGN_JA.md`、`docs/camera/KEY_INTERVAL_EASING_AND_LENS_20261018_JA.md`、`docs/camera/MASTER_MULTICAMERA_SEQUENCER_DESIGN_V1_JA.md`）＞ 本書。**本書が上位文書と矛盾したら上位文書が正しい**。矛盾を見つけたら実装を止めて本書を直す。
+- 基準コード：ブランチ `claude/project-thread-8gcwq2` の `2d76ac8`（コードは `28af8c3` から未変更）。本書の「ファイル:行」はこの時点の行番号。v3 作成時に該当コードを読み直して確認した（§1）。
+- 対象読者：実装担当（標準モデル想定）。各作業パッケージ（WP）は「何を・どのファイルに・どの関数名で・どのテストで・何を満たせば完了か」まで決めてある。**本書に書いていない仕様を独自に足さない。** 迷ったら §9 に従う。
+
+---
+
+## 変更履歴
+
+### v2→v3（批評2回目）
+
+| 指摘 | 内容（要約） | v3 での変更 | 本書の場所 |
+|---|---|---|---|
+| 2-B1 モデル正規化 | `loadAsset` が全モデルを高さ 2.0 に正規化（`camera_3d.js:278`）しており、「1単位=1m」「12.5単位/m」の前提が崩れる | **正規化は維持**（既存利用者の見た目を変えない）。読込モデルごとに縮尺 `s` とオフセット `o` を記録し、samples と `BAICameraDebug` に出す。VMD 取込・書出・ブリッジは `MMD_UNIT_PER_M` と `s`・`o` の両方を使う。光学距離はシーン単位で計算し、`s` が分かれば物理 m（＝シーン値/`s`）も返す。`s` 不明時は物理値を `null`・理由 `scale_unknown`。テスト GLB は高さちょうど 2.0、中心、足 y=0（`s=1`）、ボーン10本 | §0.2、§2.9、CAM-001/005/012/016/017、付録B |
+| 2-B2 共通基盤の置き場所 | `bad(status,msg,code)`・応答形・エラー表・単位定数が WP-02 にあり、先行 WP-04 が使えない | `bad()` の拡張、新規エンドポイントの応答形 `{ok,revision,result}`（失敗時 `ok:false`）、エラーコード表、`MMD_UNIT_PER_M` を **WP-00a** へ移動。同じコミットで更新するテストを列挙 | §2.4、§4.2 |
+| 2-B3 移動の符号 | 旧 `pan`/`tilt` の右ベクトルが実際はカメラ左、`truck` との関係が曖昧、`draw()` が鏡像 | `truck(+a)` はカメラ右 `right0 = f×Y` へ動き、**旧 `pan(−a)` と等しい**ことを明記。`pan_yaw`/`tilt`/`roll`/`orbit`/`zoom` の符号を期待値表で固定。`draw()` は `upVector()`/`right0` を使う（G-14）。2D 投影の fixture を追加 | §0.2、§1、CAM-006、§2.2 |
+| 2-B4 レンズ値の書込規則 | 確定時の自動キー扱いが上位文書と不一致、値の出所×状態の表がない、追従対象と評価対象の混同 | 上位文書（フォーカス設計 §5）に従い**確定も自動キー ON/OFF に従う**。値の出所×自動キー×（キーあり／キーなし／キー以外が姿勢を決める）の全表、F値・合焦距離のプレビュー置き場所（`previewPose`）を定義。追従対象（焦点を決める点）と評価対象（診断する点）を分け、両眼の選択規則と保存先（project／workspace）を定義。焦点距離の範囲は FOV 5〜150 から **8〜274mm**。`camera_dof.js` の範囲も一致させる | CAM-005 |
+| 2-M1 bundle の競合検出 | v2 の `X-Bai-Bundle-Revision`/`bundle_revision:null` 方式が複雑 | 批評の案を採用：bundle 保存は**直前に GET した combination と revision**で If-Match、同時に `X-Bai-Camera-Revision`（カメラ画面が読込・保存で保持している値）を送り、サーバーが現在のカメラファイルと照合。`bundle_revision:null`・ボタン無効化は削除。bundle 保存成功後に `dirty` を解除。`test_bundle_revision.py` を更新 | §2.4、§2.8 |
+| 2-M2 読込エラーの復旧 | 退避の取り出し方・中身確認・読めないファイル・退避場所・メイン画面表示が未定義 | 退避ファイルのダウンロード、緩い読取専用プレビュー（不正フィールドの一覧）、読めない場合は `backup:null`、退避は読んだファイルと同じフォルダ、423 時にメイン画面で「カメラ画面で復旧してください」 | §2.7、§2.8 |
+| 2-M3 互換と revision 規則 | `bai_camera_get` の破壊的変更、revision 必須/任意の不統一、新規作成時、応答キーの再送、FIELD 初期集合 | `bai_camera_get` は**既定で旧形**、`with_revision:true` で新形（互換維持）。revision 規則を表で統一（MCP は必須、HTTP の旧経路のみ任意）。ファイル新規作成の書込は If-Match 不要。書込時の `_revision`・`bundle_revision`・`revision` キーは無視。FIELD 初期集合を列挙 | §2.3、§2.4、§2.5 |
+| 2-M4 ツール定義 | WebMCP 専用ツール・バイナリ・samples の表現がない、登録の順序 | `camera_tools.json` に `transport`・`bodyEncoding`・`samples` を追加。標準MCPとの一致テストは `transport:'http'` のみ。`webmcp.js` は取得を await してから登録 | §2.5 |
+| 2-M5 sample の出力 | `sample()` の出力キーが端と中間で違い、parity の比較対象が不明 | 既存 `bai_camera.sample` は互換のため不変。正規化版 `sample_pose` を新設し、**WP ごとの出力フィールド一覧**と parity 比較フィールドを固定。後の WP のフィールドを先に足さない | §2.1、§2.2 |
+| 2-M6 既存テストの扱い | 各 WP で壊れる既存テスト、ソース文字列テスト、実行コマンド、ポート衝突 | WP ごとの「更新する既存テスト」一覧、置き換え方針（ソース文字列テストは同じコミットで振る舞いテストへ置換）、ルートの `*.js`/`*.mjs` を含むコマンド、Playwright ファイルごとに別ポート | §4.2、§5 |
+| 2-M7 データ隔離 | `BAI_DATA_DIR` が server.py の一部パスだけ | `bai_paths.data_dir()` 1関数で全パス（server・ログ・QA キャプチャ・リターゲット設定）を解決。テスト前後で実 `data/` ツリーのハッシュ比較 | §2.9 |
+| 2-M8 テンプレート値 | 付録Aが表だけで生成できない | 18件すべての完全なパラメータ JSON を付録Aに記載（被写体高さ h 基準） | 付録A |
+| 2-M9 フォーカス設計の欠落 | 設定の get/set API、性能計測、外部更新の Undo 単位 | フォーカステスト設定の取得・変更 API と MCP を復活。開発テストでフレーム時間と GPU 効果 ON/OFF を計測。外部（MCP）更新の再取得を1 Undo 単位として履歴に積む | CAM-005、§2.10、§2.8 |
+| 2-M10 保存範囲の明示 | VMD 参照・追従状態がどこで保存されるか | WP-02 のゲートに「VMD 参照・追従状態は WP-13 で保存（原本保存の仕組みが WP-13 で初めてできるため）」と明記。他の保存範囲の注記も整理 | §2.8、§4.1 |
+| 2-M11 WP-02 が大きすぎる | 1 WP に4系統 | WP-02a（読込エラー・未知フィールド）、02b（revision・応答・書込 API）、02c（MCP・WebMCP）、02d（統合保存・ジャーナル・素材ID・設定 API）に分割 | §4 |
+| 2-M12 深度カラー | `overrideMaterial` ではスキニングが失われる | 組み込みマテリアルの `onBeforeCompile` で深度色を注入（スキニング・モーフ維持）。アニメーション付きテスト GLB で Playwright 確認 | CAM-005 |
+| 2-m1 | VMD 書出しが常に密な線形キー | 全区間の曲線が VMD で表せる（y∈[0,1] 等）ときは**キー保持書出し**を選べる。それ以外は密な線形 | CAM-016 |
+| 2-m2 | `camera_dof.js` の焦点距離範囲 8–300 が UI と不一致 | 8–274mm に統一 | CAM-005 |
+| 2-m3 | `focus-follow-bone` と `focus_tracking` を別物として記述していた | 同じチェックボックス（`camera_3d.js:51`）であることを §1 の事実に記載し記述を修正 | §1、CAM-005 |
+| 2-m4 | `draw()` の右ベクトル符号が逆で 2D プレビューが左右反転 | G-14 として WP-00a で修正 | §1 |
+| 2-m5 | 外部変更の再取得で Undo 履歴が消える（`camera.js:194`） | 1 Undo 単位として積む（2-M9 と同じ） | §2.10 |
+
+### v1→v2（批評1回目）
+
+| 指摘 | 内容（要約） | v2 での変更 | 本書の場所 |
+|---|---|---|---|
+| 1-A 作業順・循環依存 | WP-13/14 の循環、WP-02 に vmd_clips が入り CAM-001 と相互依存、WP-01 が全APIを先取り | 実装順を固定し、WP-01（全API先行）を廃止して**各WPが自分のAPIを追加**。vmd_clips は VMD 統合 WP（WP-13）へ移動。最大化・分割幅変更の WP-17 を追加 | §4 |
+| 1-B リビジョン | UI・MCP・bundle の revision の持ち方が未定義、既存応答形の破壊 | UI は読込時の revision を保持し保存応答で更新。MCP 書込ツールに `revision`、`api()`／`request()` に If-Match。既存エンドポイントは `error` を残し `error_code` を追加。新規は `{ok, revision, result}`（v3 で一部改訂：2-M1・2-M3） | §2.4、§2.5 |
+| 1-C 読込エラー（G-06） | 409 の意味違い、退避名のコロン、退避の増殖、未知フィールド | ファイル無し＝既定値（保存まで書かない）、不正＝422 `camera_project_invalid`、内容ハッシュごと1つの退避、`POST /api/camera/project/reset`、未知フィールドは読込で破棄・書込で拒否（v3 で 2-M2 を追加） | §2.7、§2.3 |
+| 1-D CAM-005 | 値の出所の二重化、追従失敗時の代替、範囲診断が別計算、状態版の粒度、承認済み項目の欠落 | 値の出所を1つずつ、`bone_missing` は代替しない、`evaluateOptics` 1関数、`contentVersion`＋frame、承認済み項目の復活、厳密許容 0.02m、上限 10,000（v3 で 2-B4 により改訂） | CAM-005 |
+| 1-E VMD | 補間の帰属、分割式、バイト順、座標変換、単位、fps、FOV、件数、非カメラ節、原本保存 | 到着側キー規則、ド・カステリョ分割と退避、`VMD_CAMERA_INTERP_ORDER`（未検証）、ブリッジの厳密な逆、既定カメラ fixture、12.5単位/m、fps 写像、FOV クランプ、既定 step、照明/影/IK の読み飛ばし、原本 `data/camera_clips/<id>.vmd`（v3 で 2-B1 の縮尺を追加） | CAM-001/016、付録B |
+| 1-F リグ互換 | 旧データの黙った意味変更 | 黙った移行なし。新リグ種 `jib`・`spline`・`spin`。ドローンのバンク削除。CAM-002 固定重み | CAM-002、007〜011 |
+| 1-G CAM-015 | keys ソース、inherit、音声オフセット、改名 | `source:{kind:'preset'|'clip'}`、inherit＝平行移動、音声オフセット削除、改名連動 | CAM-015、014 |
+| 1-H 計算の置き場所・MCP | 実態と不一致 | MCP は HTTP ブリッジ、UI はローカル計算、Python 専用生成器はプレビュー HTTP、カメラ画面に WebMCP | §0、§2.5、§2.6 |
+| 1-I テスト基盤 | CDN 依存、GPU 表記、テストモデル、データ汚染 | three devDependency と CDN 振替、SwiftShader、テスト GLB、`BAI_DATA_DIR`（v3 で 2-M7 により拡張） | §2.9 |
+| 1-J CAM-018 | 指標が曖昧 | activity・d/h・スコア表を数値で固定 | CAM-018 |
+| 1-K その他 | 細部 | G-09 上限100、クライアント付与の時刻、workspace 緩和、ジャーナル、素材ID、選択状態、ロール定義、hold 明記、15モード、衝突体形式、aspect、+Z 前方、静的配信、`lens`、`notes`、P1、`camera_move` の置き場所 | 各所 |
+| 追加（v2 で発見） | JS `cross()` が2要素 | G-13 | §1 |
+
+---
+
+## 0. 全体方針（全WP共通の約束）
+
+| # | 約束 | 理由 |
+|---|---|---|
+| P1 | **同じ入力サンプルに対し、JS と Python が同じ出力を返す（Parity）**。補間・カメラ移動・光学の評価関数は JS では `camera_core.js`、Python では `bai_camera.py`／`camera_focus.py` にそれぞれ1つだけ置き、他のモジュールはそれを呼ぶ。一致は共通の照合データ（fixture）で自動検証する。 | 現状 JS は3モード、Python は15モード（`camera.js:2`、`bai_camera.py:59-75`）で食い違う。 |
+| P2 | 保存データは **schema 1 のまま、任意フィールドの追加のみ**。既存フィールドの意味は変えない。**黙った移行（読込時の書き換え）をしない**。旧データは読込時に既定値で「解釈」するだけで、保存しても旧形のまま残る。 | 互換性。旧 `pan` の意味も保持（操作設計 §3）。 |
+| P3 | 編集は**プレビュー → 確定**の2段階。プレビューは保存データを変えない。確定は1操作＝1 Undo。外部（API/MCP）からの書き込みは revision（If-Match）必須（例外は §2.4 の表）。 | 操作設計 §5・§8。 |
+| P4 | MCP（標準 `mcp_server.py`・WebMCP `webmcp.js`）は**HTTP API を呼ぶ薄い橋渡し**。画面は移動・リグ・補間を JS でローカル計算し、ブラウザ内の Undo に積み、保存ボタンで HTTP 保存する。Python にしかない生成器はプレビュー用 HTTP を呼び、返ったキーを UI でローカル適用する（§2.6）。 | 現行構造を壊さずに4経路を揃える。 |
+| P5 | 「できない」「未読込」「判定不能」は**成功扱いしない**。数値が出せない時は `null` と理由コードを返す。代替値で埋めるのは承認文書が認める箇所だけで、必ず代替したことを返す。 | CAM-005 契約・操作設計 §7。 |
+| P6 | 構図の良し悪しを**自動で NG にしない**。出すのは事実と任意の補助線だけ。 | 残件監査 CAM-004/017。 |
+| P7 | 実GPU・実MMDでの確認は開発環境では**未検証**と記録する。SwiftShader の自動テスト合格を GPU 検証と呼ばない。完成判定は §8。 | AGENTS.md 規則6・7。 |
+| P8 | 1 WP ＝ 1〜数コミット。各コミットで `PHASE_E_IMPLEMENTATION_STATUS.json` の該当IDの `implementation_assessment` と `notes`（§6）を更新し、テスト結果を書く。 | AGENTS.md 規則6。 |
+| P9 | 各WPは**自分が使う HTTP エンドポイント・MCP ツール・保存フィールド・出力フィールドを自分で追加**する。後のWPの分を先に作らない。 | 循環依存の防止。 |
+| P10 | 既存の見た目・操作結果を変える修正（G-13/G-14、VMD プレビューの縮尺）は、変わる内容をコミット本文と該当ガイド文書に書く。 | 非破壊・後方互換。 |
+
+### 0.1 用語（本書内の固定訳）
+- **キー**：`keys[]` の1要素。**区間**：あるキーから次のキーまで（BAI キーは**左キー**の補間設定を使う。VMD は**到着側キー**の補間を使う。両者を混同しない）。
+- **ショット**：`sequence[]` の1要素（CAM-015）。**プリセット**：`custom_presets[]` の1要素（名前＋姿勢）。
+- **ネイティブトラック**：カメラVMDを読み込んだ中間形式（`camera_vmd_codec.decode_camera_track` の戻り値、MMD座標・MMD単位）。
+- **クリップ**：`vmd_clips[]` の1要素。保存済み VMD 原本の一区間への参照（CAM-001）。
+- **プロジェクトキー**：`camera_project.json` の `keys[]`（BAI形式、`position`＋`target`＋縦FOV、**シーン単位**）。
+- **シーン単位／物理 m**：§0.2。
+- **サンプル（samples）**：ブラウザーが実モデルを評価して作る数値列。サーバー単独では作れない（§2.6）。
+- **追従対象**：焦点距離を決める1点（CAM-005）。**評価対象**：合焦を診断する点（1点または両眼の2点）。
+
+### 0.2 共通の数値・座標の約束
+- **シーン単位とモデル縮尺（2-B1）**：BAI のカメラ座標・キーは**シーン単位**。`camera_3d.js:278` の `loadAsset` は読込モデルを高さ 2.0 シーン単位に正規化し（`scale = 2/size.y`）、x・z を中心化、足を y=0 に置く。**この正規化は変更しない**。
+  - 読込ごとに `modelTransform = {s, o:[ox,oy,oz], sourceHeight}` を記録する。`s` = 適用した拡大率（`2/size.y`）、`o` = 拡大後に足した平行移動（`model.position` の変化量）、`sourceHeight` = 正規化前の高さ（ソース単位）。ソースの単位は**メートルとみなす**（GLB/VRM の規約。ソース単位が m でないモデルは物理 m が不正確になる＝未検証、§付録D）。
+  - 変換：物理 m の点 `p` → シーン `s·p + o`。距離はシーン = 物理 × `s`。
+  - モデル未読込：`s` 不明。シーン単位の計算はそのまま行い、物理 m の値は `null`、理由 `scale_unknown`。VMD 変換は `s=1, o=0` で行い結果に `scale_source:'unknown'` を付けて UI に「モデル未読込のため縮尺1で表示」と出す。
+  - `modelTransform` は `BAICameraDebug.getState().model` と、すべての samples の先頭（`samples` を包む `{modelTransform, samples:[...]}`）に入れる。
+  - 既定キー（`DEFAULT`、位置 (0,1.6,5)）や付録A の値はシーン単位／被写体高さ基準で書く。
+- MMD 換算：`MMD_UNIT_PER_M = 12.5`（MMD 単位/物理 m）。`camera_vmd_bridge.py` に定義し、JS は `camera_vmd_local.js` に同値（WP-00a で定義、parity で一致確認）。MMD ↔ シーンの変換は付録B（`12.5` と `s`・`o` の両方を使う）。
+- 座標：右手系 Y 上。**モデルの前方は +Z**（モデル正面を撮る既定カメラは +Z 側）。
+- FOV：BAI の `fov` は**縦方向の画角（度、5〜150）**。焦点距離換算はセンサー縦 24mm で `fov = 2·atan(24/(2·focalMm))`。FOV 5〜150 に対応する焦点距離は **3.2〜274.8mm**、UI の焦点距離入力は **8〜274mm**（8 未満は対象外）。
+- 補間モード：**15種で固定**。`linear, hold, smooth, bezier, sine, quad, cubic, quart, quint, expo, circ, back, bounce, elastic, custom`（`camera_easing.py MODES` の順）。
+- **hold の挙動（現行コードどおり。変更しない）**：左キー a が `hold` の区間 [a, b] では値は a。**b が中間キーなら b のフレームちょうどでも a の値**（`bai_camera.py:63-66`）。**b が最終キーなら b のフレームで b の値**（`bai_camera.py:62`、`camera.js:2` の早期 return）。parity fixture にこの境界を必ず入れる。
+- **カメラ基底**：前方 `f = normalize(target − position)`、**右 `right0 = normalize(f × (0,1,0))`**、上 `up0 = right0 × f`。例：`f=(0,0,−1)` なら `right0=(1,0,0)`、`up0=(0,1,0)`。**注意：現行コードの `right=[f.z,0,−f.x]`（`bai_camera.py:99`、`camera.js:96`、`camera.js:87`）は `−right0`（カメラ左）である**（§1 G-14、CAM-006 の符号表）。
+- **ロール**：度、−180〜180。**正＝カメラの後ろから光軸方向を見て時計回り**（画面上端がカメラ右側へ傾く）。`up = cos(roll)·up0 + sin(roll)·right0`。
+  - 縮退（`|f × (0,1,0)| < 1e-6`）：`right0` は直前に評価した姿勢の `right0` を `f` に直交化して使う。直前が無ければ `(1,0,0)`。
+  - 補間：最短経路 `Δ = ((b − a + 540) mod 360) − 180`、`roll(t) = a + Δ·t` を (−180,180] に正規化。
+  - 逆算：`roll = atan2(up·right0, up·up0)`。
+- 角度入出力の API 単位は度。VMD 内部のみラジアン。
+
+---
+
+## 1. 現状の事実と、先に直すべき不整合（G-xx）
+
+v3 作成時に全件をコードで再確認した。直すWPを右端に示す。
+
+| ID | 不整合（確認済みの事実） | 証拠 | 影響 | WP |
+|---|---|---|---|---|
+| G-01 | JS `sample()` は linear/smooth/hold のみ。fStop を補間しない。Python は15モード＋custom＋fStop | `camera.js:2`、`bai_camera.py:59-75` | API・MCPで入れたキーがプレビューと違う動き | WP-00a |
+| G-02 | `camera_easing.js`・`camera_cinematic.js`・`camera_vmd_preview.js`・`webmcp.js` が `camera.html` 未読込。前3つは静的配信リスト外 | `server.py:166`、`camera.html` | 計算が画面から使えない | WP-00a、以後各WP |
+| G-03 | `writeKey` がキーを丸ごと置換し、既存の `customCurve`・`fStop` を消す | `camera.js:11` | 再キーでデータ消失 | WP-00a |
+| G-04 | 統合保存が `bai-camera-before-save` を発火しない。`focus_tracking`・`bone_follow` は通常保存時にしか project へ入らない | `camera.js:208,210`、`camera_project_bundle_ui.js:6,18`、`camera_3d.js:90-96` | 保存→復元で追従設定が古い | WP-02d |
+| G-05 | MCP `bai_camera_set` のスキーマが schema/fps/duration/keys のみ（`additionalProperties:false`）。MCP保存で sequence/rig/presets 等が**消える**。`bai_camera_get` は revision を返さない（非 envelope の GET） | `mcp_server.py:57-58,146,149-150`、`webmcp.js:10-11` | MCP保存でデータ消失・競合検出不能 | WP-02c |
+| G-06 | `bai_camera.read` が読込・検証失敗時に**黙って既定値を返す** | `bai_camera.py:76-78` | データ消失（重大） | WP-02a |
+| G-07 | フォーカス距離が JS は光軸方向深度、Python は3D距離。Python は合焦近傍分類なし | `camera_focus_consistency.js:15-18`、`camera_focus.py:21-23` | 単一診断と区間診断が不一致 | WP-00a |
+| G-08 | F値範囲が UI 0.7–32、JS診断 0.5–64、Python診断 0.5–64、保存 0.7–64、DOF 0.7–32。焦点距離範囲が UI 8–300、JS診断 1–500、Python 1–500、DOF 8–300 | `camera.html` `#focus-aperture`・`#focus-lens`、`camera_focus_consistency.js:6`、`camera_focus.py:12`、`bai_camera.py:6`、`camera_dof.js:5` | 入力できるのに保存できない等 | WP-00a（F値・診断）、WP-04（焦点距離 8–274） |
+| G-09 | `easingPresets` 上限：上位文書 **100件**、実装64件 | `KEY_INTERVAL_EASING_AND_LENS_20261018_JA.md`、`bai_camera.py:38` | 上位文書の100が正 | WP-05 |
+| G-10 | `camera_vmd.py`（旧、補間 0–127 必須）と `camera_vmd_codec.py`（0–255 受理）で範囲が違う。旧は server 未使用 | 各ファイル | 混乱。旧は削除せず「非推奨・server未使用」と docstring に明記 | WP-13 |
+| G-11 | `test_camera_lens.js`・`test_camera_lens_shots.js` が実行すると失敗（exit 1） | `node` で実行して確認 | テスト結果の信用を下げる | WP-00a |
+| G-12 | `POST /api/camera/project` は If-Match 任意。`sequence/edit` は revision 検査なし。bundle 保存後に `camera.js` の `serverRevision` が更新されず次の通常保存が 409。bundle UI は保存直前の GET の revision を使うためカメラファイルの外部変更を検出しない | `server.py:415-437`、`server.py:363-372`、`camera.js:210`、`camera_project_bundle_ui.js:18` | 古い画面からの上書き・誤った競合 | WP-02b、02d |
+| G-13 | JS の `cross()` が**2要素しか返さない**。`moveCamera` の `orbit`・`tilt` が NaN（`rot([0,0.6,5],[0,1,0],0.5)` → z=NaN を node で確認） | `camera.js:93,96` | ドラッグ・ボタン操作の結果が不正 | WP-00a |
+| G-14 | 2D プレビュー `draw()` の右ベクトル `[front.z,0,−front.x]` は `−right0`（カメラ左）で、`point()` の x が左右反転する。up も G-13 で壊れる | `camera.js:87` | 2D 構図ガイドが鏡像 | WP-00a |
+| G-15 | 合焦追従のチェックボックスは `#focus-follow-bone` 1つで、`camera_3d.js` は同じ要素を `focusTrackToggle` として使い、`focus_tracking.enabled` に保存する。追従点は**カメラ追従用に選んだボーン**（`trackingBone`）。追従中は `#focus-distance` の画面値を書き換える | `camera_3d.js:51,90-96,120-130` | v2 は2つの別スイッチと誤記していた。追従対象を独立に選べない | WP-04 |
+| G-16 | 外部変更の再取得（`refreshSequenceFromServer`）が Undo 履歴を消す | `camera.js:194`（`history=[clone(project)]`） | 外部更新を1手で戻せない | WP-02d |
+| G-17 | モデルは読込時に高さ 2.0 へ正規化される。VMD プレビュー（ブリッジ・`camera_vmd_local.js`）は単位換算なし（MMD 1単位＝シーン1単位） | `camera_3d.js:278`、`camera_vmd_bridge.py:23-40`、`camera_vmd_local.js` | VMD カメラの構図が約 12.5/s 倍ずれる | WP-13 |
+
+**G-xx の決定事項**
+- G-03：`camera_core.mergeKey(existing, edit)` に置換（§2.1）。
+- G-06：§2.7。
+- G-07：**Python を光軸方向深度に合わせる**。分類も JS と同じ5分類。既存 `GET /api/camera/focus` の応答キーは残し、`classification` の値に `focus`・`unknown` を追加、`method` を `'optical-depth-coc'` に変更。
+- G-08：F値は保存・API・診断を **0.7–64** に統一、UI 入力 `max=64`。DOF プレビュー（`camera_dof.js`）だけは F 0.7–32 にクランプして「プレビューはF32までの近似」と表示（保存値は変えない）。焦点距離は WP-04 で UI・診断・DOF とも **8–274mm**（`camera_dof.js:5` の 300 も 274 に）。
+- G-09：上限を **100**。
+- G-11：2ファイルを `tests/legacy/` へ `git mv`、実行対象外（削除しない）。
+- G-12：§2.4。
+- G-13・G-14：`camera_core.js` のベクトル関数と `upVector()`/`right0` に置換。**G-14 の修正で 2D プレビューの左右が正しくなる（見た目が変わる）**ことをコミット本文に書く（P10）。
+- G-15：CAM-005 §1。
+- G-16：§2.10。
+- G-17：CAM-016 §1、付録B。
+
+---
+
+## 2. 横断設計
+
+### 2.1 JS 共通コア `camera_core.js`（WP-00a）
+- 形式：UMD（`camera_rig.js` と同じ書き方）。ブラウザ `window.BAICameraCore`、Node `require('./camera_core.js')`。
+- 中身（純関数のみ。DOM・Three.js 参照禁止）：
+  - ベクトル：`add, sub, scale, dot, cross, norm, length`（`cross` は3要素）。
+  - `basis(pose, prevRight0=null) → {f, right0, up0, up, degenerate}`：§0.2。
+  - `project2d(pose, point, {width, height, scaleK}) → [x, y] | null`：`draw()` 用。`z = (point−eye)·f`、`z ≤ 0.03` は null、`x = w/2 + k·((point−eye)·right0)/z`、`y = h/2 − k·((point−eye)·up)/z`（`k = min(w,h)·0.85/tan(fov/2)`、現行 `draw()` と同じ係数）。
+  - `ease(mode, t, customCurve)`、`MODES`（15種）：`camera_easing.js` から移し、同ファイルは互換ラッパー（`window.BAICameraEasing` は残す）。
+  - `sampleKeys(keys, frame) → SamplePose`：Python `bai_camera.sample_pose` と同仕様（出力フィールドは下表、WP ごとに追加）。
+  - `mergeKey(existing, edit) → key`：既存キーのフィールドを保ち `edit` の項目だけ上書き。`interpolation` を `custom` 以外へ変えたときだけ `customCurve` を削除。`KEY_FIELDS`（§2.3）以外は捨てる。
+  - `focalToVerticalFov(mm, sensorH=24)`、`verticalFovToFocal(deg, sensorH=24)`：`camera_lens.js` から移す（同ファイルは互換ラッパー、`presets` は残す）。
+  - `moveCamera(pose, operation, amount, opts)`：Python `bai_camera.camera_move` と同じ結果（WP-00a は既存4種 `orbit, dolly, pan, tilt` を**現行 Python の結果どおり**に。WP-06 で拡張）。
+  - `opticalDepth(position, target, point)`、`thinLens({focalMm, fNumber, focusM, cocMm})`（WP-00a）、`evaluateOptics(input)`（WP-04）。
+- `camera.js`：`sample()` は `BAICameraCore.sampleKeys(project.keys, f)` を呼ぶだけ。`moveCamera`・`dot/norm/cross` の重複実装を削除。`draw()` は `basis()`・`project2d()` を使う（G-14）。`drawScene()` も同じ `basis()` を使う。
+- `camera.html` に `<script src="/camera_core.js" defer>` を最初の defer（`camera_vmd_local.js` より前）に置く。
+
+**`sample_pose`／`sampleKeys` の出力フィールド（2-M5）**
+既存 `bai_camera.sample(project, frame)` は `/api/camera/sample` と既存テストのため**出力を変えない**（端では元キーの複製、中間では `frame/position/target/fov(/fStop)`）。正規化版を新設する：
+
+| WP | `sample_pose(project, frame)`（Python）／`sampleKeys(keys, frame)`（JS）の出力 | parity で比較するフィールド |
+|---|---|---|
+| WP-00a | `{frame, position, target, fov, fStop}`（`fStop` は常に出す。両キーに無ければ 4.0、片側だけなら欠けた側 4.0） | 5つすべて |
+| WP-04 | 上記＋`focusDistance`（欠けた側 4.0）、`focusDistanceSource:'key'|'default'`（両側とも無いとき `default`） | 7つ |
+| WP-05 | フィールド追加なし（トラック別補間の挙動のみ） | 7つ |
+| WP-06 | 上記＋`roll`（欠けた側 0） | 8つ |
+
+- `/api/camera/sample` に `?normalized=1` を追加すると `sample_pose` を返す（WP-00a）。MCP `bai_camera_sample` は引数 `normalized`（既定 false）。
+- 後の WP のフィールドを先に出さない（P9）。
+
+### 2.2 照合テスト（Parity fixture）（WP-00a で作成、各WPで追加）
+- 定義：「同じサンプル入力に同じ出力」。
+- `tests/fixtures/camera_parity.json`：`{schema:1, cases:[{id, kind, input, expected}]}`。`kind`：`ease`・`sample`・`move`・`basis`・`project2d`・`optics`・`rig`・`vmd_pose`。
+  - WP-00a で 70 件以上：15モード×t（0.1, 0.5, 0.9）、custom、hold の中間キー境界・最終キー境界、fStop 片側、範囲外フレーム、`move` 既存4種（CAM-006 符号表の旧操作の行）、`basis`（通常・真上・真下）、**`project2d`**（基準姿勢 position (0,1,5)・target (0,1,0)・fov 40、幅 800×高さ 450 で点 (1,1,0) は x > 400、(0,2,0) は y < 225、(0,1,0) は (400,225)、カメラ背後の点は null）。
+  - WP-04 `optics`、WP-05 トラック別、WP-06 roll・新操作、WP-07 `rig`、WP-13 `vmd_pose`（縮尺 s=1 と s=1.25 の両方）。
+- 生成：`tools/gen_camera_parity.py`（Python 実装で `expected` を作りコミット）。`project2d` だけは Python 側に参照実装 `bai_camera.project2d` を置く（テスト専用ではなく WP-15 の衝突表示でも使わない＝テスト用の参照実装と明記）。
+- Python：`tests/test_camera_parity.py`（許容 1e-9、`vmd_pose` は 1e-5）。Node：`tests/test_camera_parity.cjs`。
+
+### 2.3 保存データ（schema 1 のまま・すべて任意）
+**既知フィールドの初期集合（WP-02a で定数化、2-M3）**：
+- `bai_camera.TOP_FIELDS = {schema, fps, duration, keys, easingPresets, custom_presets, sequence, rig, focus_tracking, bone_follow}`
+- `KEY_FIELDS = {frame, position, target, fov, interpolation, customCurve, fStop}`
+- `PRESET_FIELDS = {name, pose}`（`pose` 内は `{position, target, fov}`）
+- `SHOT_FIELDS = {start, end, preset, transition}`
+- 各WPが下表のフィールドを追加するときに同じコミットで定数へ足す。MCP `bai_camera_set` の入力スキーマとの一致をテストする（§2.5）。
+
+| 場所 | フィールド | 型・範囲 | 既定（未指定時の解釈） | WP |
+|---|---|---|---|---|
+| keys[] | `focusDistance` | 0.01〜10000（**シーン単位**） | 4.0（`focusDistanceSource:'default'`） | WP-04 |
+| （トップ） | `focus_tracking` | 既存 `{enabled}` に任意 `target:{marker:'bone'|'face'|'eyes'|'chest'|'hips', bone?:string(≤256), eye?:'nearest'|'left'|'right'}` を追加 | `target` 無し＝カメラ追従ボーン（現行動作） | WP-04 |
+| keys[] | `trackInterpolation`／`trackCustomCurve` | §CAM-003 | なし | WP-05 |
+| keys[] | `roll` | −180〜180 | 0 | WP-06 |
+| （トップ） | `easingPresets` | 既存、上限 64→**100** | — | WP-05 |
+| rig | 拡張 | §CAM-007〜010 | 旧形は現行の意味 | WP-07 |
+| bone_follow | `targets` | 2〜8件のときだけ | 旧単一形 | WP-08 |
+| custom_presets[] | `tags`・`favorite`・`lens{fStop?, focusDistance?}`・`pose.roll`・`createdAt`/`updatedAt` | §CAM-014（時刻はクライアント付与、`YYYY-MM-DDTHH:MM:SSZ`） | — | WP-10 |
+| （トップ） | `preset_history` | `[{name, usedAt}]` 最大20 | `[]` | WP-10 |
+| custom_presets[] | `category` | `fight|mv|horror|arch|product|sns|custom` | `custom` | WP-11 |
+| sequence[] | `source` | `{kind:'preset', name}`（WP-12）／`{kind:'clip', clip, from}`（WP-13） | 無ければ旧形 `preset` | WP-12、13 |
+| sequence[] | `inherit` | bool（clip のみ） | false | WP-13 |
+| （トップ） | `vmd_clips` | §CAM-001（最大128） | `[]` | WP-13 |
+| （トップ） | `collision` | `{enabled, minDistance:0.05–5（物理 m）, floor:bool, colliders:[{name, min, max}]}`（最大64、シーン単位） | 無効 | WP-15 |
+
+- 既存上限は変えない：`custom_presets` 64、`sequence` 256、`keys` 5000。
+- **未知フィールド（WP-02a）**：対象はトップレベル・`keys[]`・`custom_presets[]`・`sequence[]` の4階層。
+  - 読込：破棄し、パスを `dropped_fields` に列挙（`GET /api/camera/project?envelope=1` に追加）。ファイルは書き換えない。UI は「保存すると次の項目が失われます：…」。
+  - 書込：400 `unknown_field`。ただし**応答由来のキー `_revision`・`revision`・`bundle_revision`・`dropped_fields` はトップレベルにあっても黙って無視**（UI が応答をそのまま送り返しても通る）。
+  - `bai_camera.validate(payload, strict=True)` が書込、`strict=False` が読込。
+
+### 2.4 リビジョン・応答形・エラーコード
+**WP-00a で入れる共通部品（2-B2）**
+- `server.py`：`def bad(self, status, msg, code=None)`。`code` があれば `{"error":msg,"error_code":code}`、無ければ従来の `{"error":msg}`（既存呼出は不変）。
+- 新規エンドポイントの応答ヘルパー：`def ok(self, result, revision)` → `{"ok":true,"revision":revision,"result":result}`、`def fail(self, status, msg, code)` → `{"ok":false,"error":msg,"error_code":code}`（`error` は既存と同じく文字列）。
+- エラーコード表（付録C）を `camera_errors.py` に定数として置く（`CODES = {'revision_required':428, ...}`）。
+- `MMD_UNIT_PER_M = 12.5`（`camera_vmd_bridge.py`、JS `camera_vmd_local.js`）。WP-00a では定義だけで、使うのは WP-13。
+- WP-00a は G-07 の `GET /api/camera/focus` のエラーに `error_code:'invalid_payload'` を付けるところまで使う。
+
+**revision の値**：`camera_project_revision.revision(validated_project)`（既存）。bundle は `bundle_revision`（既存）。
+
+**revision 規則（2-M3、WP-02b）**
+
+| 書込経路 | revision | 不在時 | 不一致時 |
+|---|---|---|---|
+| `POST /api/camera/project`（UI・MCP） | If-Match **必須**。ただし `camera_project.json` が**存在しない**ときの新規作成は不要 | 428 `revision_required` | 409 `revision_conflict` |
+| `POST /api/camera/sequence/edit`（HTTP） | `expected_sequence` 必須（既存）。revision は**任意**（旧 MCP クライアント互換のため。カメラ画面はこの API を使わない） | — | 409 `revision_conflict` |
+| MCP `bai_camera_sequence_edit` | `revision` **必須**（ツールのスキーマで必須） | スキーマエラー | 409 |
+| `POST /api/project/bundle` | If-Match 必須（既存）＋`X-Bai-Camera-Revision` 必須（WP-02d） | 428 | 409（どちらの不一致かを `error_code` `revision_conflict`／`camera_revision_conflict` で区別） |
+| 新規の書込エンドポイント（keys/merge 等） | If-Match 必須。ファイルが無い場合の新規作成は不要 | 428 | 409 |
+| `POST /api/camera/project/reset`・`/api/project/bundle/recover` | 不要（確認文字列で代替、§2.7・§2.8） | — | — |
+| `POST /api/camera/focus-test/settings`（workspace のみ） | If-Match に **bundle revision** 必須 | 428 | 409 |
+
+**保持の規則（UI）**
+- `camera.js`：読込時の envelope `revision` を `serverRevision` に保持。更新は ①通常保存応答 `_revision` ②再取得 ③bundle 保存応答の `camera_revision`（イベント `bai-camera-revision`）④bundle 復元時の `camera_revision`（bundle GET 応答に追加）。
+- `camera_project_bundle_ui.js`（2-M1）：保存時に**その場で** `GET /api/project/bundle` して `combination` と `revision` を得る（現行どおり。メイン画面の最新コンビネーションを使うため）。POST は `If-Match: <その revision>` と **`X-Bai-Camera-Revision: <camera.js の serverRevision>`**（イベント `bai-camera-revision-query` で取得）を送る。サーバーは現在のカメラファイルの revision と照合し、違えば 409 `camera_revision_conflict`（「カメラが他の場所（MCP 等）で変更されました。再取得してから保存してください」）。成功したら `camera.js` に `camera_revision` を渡し、**`dirty=false`** にする。v2 の `X-Bai-Bundle-Revision`／`bundle_revision:null`／ボタン無効化は廃止。
+
+**送信側（WP-02c）**
+- `mcp_server.py`：`api(path, payload=None, revision=None, method=None, headers=None)`。`revision` は `If-Match`。HTTPError は本文 JSON を解析して `ValueError(f"HTTP {code} {error_code}: {error}")`（`error_code` が無ければ従来文字列）。
+- `webmcp.js`：`request(path, options={}, revision)`。`!r.ok` 時は本文の `{error, error_code}` を含む Error。
+
+**既存エンドポイントの応答（形を壊さない、追加キーのみ）**
+- エラー：`{"error"}` に `"error_code"` を追加（`camera.js:55,73-76,210`、`camera_project_bundle_ui.js:4` は `data.error` を読むので壊れない）。
+- `POST /api/camera/project` → `{...project, _revision}`（従来どおり）。
+- `POST /api/project/bundle` → `{ok, schema, revision, camera_revision}`。`GET /api/project/bundle` → 従来＋`camera_revision`、`recovery_pending`。
+- `POST /api/camera/sequence/edit` → `{ok, sequence, revision}`。`expected_sequence` 不一致は 409 `sequence_conflict`（現行 400 から変更、`error` 文字列は同じ）。
+
+**新規エンドポイント**：成功 `{"ok":true,"revision":<保存済みプロジェクトの revision または null>,"result":{...}}`、失敗 `{"ok":false,"error":"...","error_code":"..."}`。
+
+### 2.5 MCP・WebMCP（WP-02c で基盤、各WPでツール追加）
+- **標準MCP も WebMCP も HTTP API の橋渡し**（P4）。
+- **ツール定義 `camera_tools.json`**（リポジトリ直下、2-M4）：
+  ```json
+  {"schema":1,"tools":[
+   {"name":"bai_camera_get","description":"...","transport":"http","method":"GET",
+    "path":"/api/camera/project","query":["with_revision"],"bodyEncoding":"none",
+    "revision":"none","samples":"none","readOnly":true,"scope":"camera",
+    "inputSchema":{"type":"object","properties":{"with_revision":{"type":"boolean"}},"required":[],"additionalProperties":false}}]}
+  ```
+  - `transport`：`http`（両 MCP が HTTP を呼ぶ）／`browser`（WebMCP 専用。カメラ画面の `BAICameraDebug` を読む。標準MCPには出さない）。
+  - `bodyEncoding`：`none`／`json`（引数から `revision` を除いた全部を JSON 本文）／`json:<引数名>`（その引数だけ）／`binary_base64:<引数名>`（その引数を base64 復号してバイナリ本文、上限 8MB）。
+  - `revision`：`none`／`required`（引数 `revision` を If-Match に）／`optional`。
+  - `samples`：`none`／`browser`（WebMCP はカメラ画面で `BAICameraDebug.collectSamples(kind, args)` の結果を本文 `samples`・`modelTransform` に付ける。標準MCPは付けない）。
+  - `scope`：`camera`（カメラ画面と main 画面の両方で登録）／`main`。
+  - `mcp_server.py`：起動時に読み、`transport:'http'` のツールだけ `TOOLS` に追加、`run()` は汎用ディスパッチ（既存の手書き `bai_camera_*` 分岐は JSON へ移す）。
+  - `webmcp.js`：`register()` を `async` にし、**`await fetch('/camera_tools.json')` の完了後に**既存ツールとまとめて登録する（取得失敗時は `mixamoWebMcpDiagnostics.errors` に記録し、他のツールは登録する）。
+  - `server.py` 静的配信に `/camera_tools.json`（`application/json`）。
+  - テスト：`tests/test_camera_tool_parity.py`（`transport:'http'` の全ツールが tools/list に同じスキーマで出る。`bai_camera_set` のプロパティ集合 = `TOP_FIELDS ∪ {revision}`）、`tests/test_camera_tools_webmcp.cjs`（`vm` で `webmcp.js` を偽 `document.modelContext`・偽 fetch と実行し、カメラ画面で登録される名前の集合が JSON の全ツール、main 用ツールは含まれない）。
+- **WebMCP をカメラ画面へ**：`camera.html` に `<script src="/webmcp.js" defer data-webmcp-scope="camera">` を `camera_project_bundle_ui.js` の後に追加。`webmcp.js` は `document.currentScript.dataset.webmcpScope==='camera'` のとき `scope:'camera'` のツールだけ登録（main 用ツールは `rows`・`chain` 等 main 画面のグローバルに依存するため）。
+- **互換（2-M3）**：`bai_camera_get` は**既定で従来どおり project そのもの**を返す。`with_revision:true` で `{project, revision, dropped_fields}`（`?envelope=1` を呼ぶ）。`bai_camera_set` は従来の引数（schema/fps/duration/keys）に全フィールドと `revision`（**必須**）を追加。`revision` 必須化は**データ消失防止のための意図的な非互換**として `MCP_SETUP_JA.md` に移行手順（先に `bai_camera_get{with_revision:true}`）を書く。
+- **WP-02c で追加・移行するツール**：`bai_camera_get`、`bai_camera_set`、`bai_camera_sample`（`normalized` 追加）、`bai_camera_sequence_evaluate`、`bai_camera_sequence_edit`（`revision` 必須）、`bai_project_bundle_get`、`bai_project_bundle_save`（`{bundle:{schema,combination,camera,workspace?}, revision, camera_revision}`）、`bai_camera_keys_merge`、`bai_camera_keys_apply`、`bai_camera_focus_commit`（実体は keys/merge の `focusDistance`）、WP-04 の読取ツール（手書きから JSON へ移す）。WP-02d で `bai_camera_focus_test_get`・`bai_camera_focus_test_set`。
+- MCP に出さない操作（安全上・明記）：`reset`、`recover`、退避ファイルのダウンロード。
+
+### 2.6 計算の置き場所（UI ローカル計算と Python プレビュー）
+| 計算 | UI（画面） | Python（HTTP/MCP） | parity |
+|---|---|---|---|
+| キー補間 | `camera_core.sampleKeys` | `bai_camera.sample_pose` | ○ |
+| カメラ移動 | `camera_core.moveCamera` | `bai_camera.camera_move`（`POST /api/camera/move`） | ○ |
+| リグ評価・ベイク | `camera_rig.js` | `camera_rig.py`（`POST /api/camera/rig/bake`） | ○ |
+| 光学評価 | `camera_core.evaluateOptics` | `camera_focus.evaluate_optics`（`POST /api/camera/focus/evaluate`） | ○ |
+| 映画演出・テンプレート・類似・衝突・ディレクター | プレビュー HTTP を呼び、結果を UI でローカル適用（1 Undo） | Python のみ | — |
+| 実モデルのボーン座標・包囲箱・`modelTransform` | `camera_3d.js` が samples を作る | 受け取るだけ | — |
+
+- プレビュー HTTP の共通引数：`project`（任意、未保存の UI 状態。`strict` 検証するが保存しない。結果に `based_on:'request'|'saved'`）、`samples`・`modelTransform`（任意）。
+- 確定（MCP・HTTP 経由の書込、WP-02b）：
+  - `POST /api/camera/keys/apply`：`{keys, from, to, mode:'insert'|'replace', revision}`。`insert` は区間内に既存キーがあれば 409 `keys_in_range`（UI ベイクと同じ規則、`camera.js:124-125`）。結果 `{inserted, removed}`。
+  - `POST /api/camera/keys/merge`：`{frame, fields, create:true|false, revision}`。`bai_camera.merge_key`（`mergeKey` と同仕様、parity）。`create:true` でキーが無ければ `sample_pose(frame)` の姿勢に `fields` を重ねて新規。
+
+### 2.7 読み込みエラー（G-06、WP-02a、2-M2）
+- `bai_camera.read_project(path) → (project, dropped_fields)` を新設、旧 `read(path)` は `read_project(path)[0]`（呼出元互換）。
+  - **ファイルが無い**：`DEFAULT` を返す。書かない。
+  - **読めない（OSError：権限・ロック等）**：退避できないので `backup:null` で `CameraProjectInvalid` を投げる。
+  - **JSON 不正／検証失敗**：`sha8 = sha256(生バイト)[:8]`。**読んだファイルと同じフォルダ**に `camera_project.invalid-<sha8>-*.json` が既にあれば作らず、無ければ `camera_project.invalid-<sha8>-<YYYYmmddTHHMMSSZ>.json`（UTC、コロンなし）に生バイトをコピー。元ファイルは動かさない。`CameraProjectInvalid(message, backup_name)` を投げる。
+- サーバー：カメラを読む全 GET（`/api/camera/project` 両形式・`sample`・`focus`・`sequence/evaluate`・`/api/project/bundle`）と全書込は 422 `{error, error_code:'camera_project_invalid', backup:<名前>|null}`。
+- **復旧用（UI・HTTP のみ）**：
+  - `GET /api/camera/project/backup?name=<退避名>`：退避ファイルをそのままダウンロード（`application/json`、`Content-Disposition: attachment`）。名前は正規表現 `^camera_project\.invalid-[0-9a-f]{8}-\d{8}T\d{6}Z\.json$` のみ。
+  - `GET /api/camera/project/invalid-preview`：**読取専用の緩い解析**。JSON として読めれば、トップレベル・各キーを個別に検証し `{ok:true, revision:null, result:{readable:true, valid_fields:[...], invalid_fields:[{path, reason}], key_count, valid_key_count}}`。JSON として読めなければ `{readable:false, reason}`。何も保存しない。
+  - `POST /api/camera/project/reset`：本文 `{"confirm":"reset-camera-project"}` 必須（違えば 400 `confirmation_required`）。退避を確認（読めるのに無ければ作る）してから `DEFAULT` を保存。応答 `{ok, revision, result:{backup}}`。
+- UI：`camera.js` は読込時に 422 なら編集を開始せず、「カメラ保存データを読めませんでした。元ファイルはそのまま。退避コピー：<名前>（なし）」＋［退避ファイルをダウンロード］［中身を確認］（invalid-preview の一覧表示）［初期状態から始める］（確認ダイアログ後 reset）。
+- テスト（`tests/test_camera_project_read_errors.py`）：ファイル無し→既定値・未作成、不正 JSON→422・退避1件・元不変、同じ内容2回→退避1件、別内容→2件目、読めないファイル（権限なしを模擬）→`backup:null`、退避が読んだファイルのフォルダにできる、backup ダウンロードの名前検査、invalid-preview の一覧、reset の確認なし→400、reset 後は正常、未知フィールド→`dropped_fields`、書込の未知フィールド→400、`_revision` 等は無視。
+
+### 2.8 統合保存の完成（WP-02d）
+`PHASE_E_PROJECT_STATE_ROUNDTRIP_DESIGN_JA.md` の残りを埋める。
+
+1. **保存前イベントの統一（G-04）**：`collectCameraState()` を作り、通常保存と bundle スナップショットの両方がこれを呼ぶ。`bai-camera-before-save` を同期発火（`detail.project` に clone）し、その clone を返す。ハンドラーの例外で保存中止。
+2. **workspace の拡張**（`data/project_state.workspace.json`。必須 `{frame, asset, clip}`、以下は任意）：
+   ```json
+   {"frame":0,"asset":"abc.glb","clip":0,
+    "assetRef":{"filename":"abc.glb","sha256":"<64桁>"},
+    "timelineView":{"start":0,"size":300},
+    "autoKey":false,
+    "selection":{"keyFrame":null,"presetName":null,"shotIndex":null},
+    "focusTest":{"enabled":false,"viewMode":"normal","targetMarker":"face","boneName":"",
+                 "circleOfConfusionMm":0.03,"strictToleranceM":0.02,"showNearFarPlanes":true,"rangeStep":1},
+    "dofPreview":false,
+    "framing":{"enabled":false,"mode":"full","aspect":1.7778,"margin":5,
+               "guides":{"thirds":false,"safe":false,"headroom":false}}}
+   ```
+   - 範囲：`viewMode` `normal|color`、`targetMarker` `face|eyes|chest|hips|bone`、CoC 0.001–0.1mm、`strictToleranceM` 0.001–1（シーン単位）、`rangeStep` 1–1000、`aspect` 0.2–5、`margin` 0–40。
+   - 再生中フラグは保存しない。独立した「再生範囲」機能は現行に無いので表示範囲を `timelineView` に保存（新機能は作らない）。
+   - メイン画面状態＝コンビネーション（既存 bundle に含まれる）。保存・復元後に既存 `sync_bump()` でメイン画面に再読込させる。追加のメイン画面 UI 状態は保存しない。
+   - **保存範囲の明示（2-M10）**：VMD 参照・VMD 追従状態は **WP-13 で保存する**（現行のネイティブトラックはメモリ上だけで、原本を保存する仕組み `data/camera_clips/` が WP-13 で初めてできるため。WP-02d の時点で保存すると復元できない参照になる）。画面レイアウト（最大化・分割比）は WP-17。WP-02d のゲートではこの2つを「後続 WP で保存」と記録する。
+   - `validate_workspace` を緩和（必須3つ＋上記任意キーのみ、他は `unknown_field`）。`validateRestore` も任意キーを受け入れ型だけ確認。
+3. **素材 ID＝ファイル名＋sha256**：`GET /api/camera/asset-ref?name=` → `{ok, revision:null, result:{filename, sha256, bytes}}`（`catalog_combined()` 登録済みのみ、無ければ 404 `not_found`）。復元時：無い→読み込まず「モデルが見つかりません」、sha256 不一致→［このまま読み込む］［中止］、`assetRef` 無しの旧形→名前だけ照合し「旧形式のため中身の照合なし」。
+4. **原子的保存とジャーナル**：
+   - 書込順：①全体検証 ②`txid` 決定、既存3ファイル（camera・workspace・combination）を `<name>.bak-<txid>` にコピー ③`data/.bundle-journal.json` を書き fsync（`{schema:1, txid, startedAt, files:[{target, tmp, backup|null}]}`）④3つの `<name>.tmp-<txid>` を書き fsync ⑤`os.replace` を camera → workspace → combination ⑥ジャーナル削除 ⑦バックアップ削除。
+   - ジャーナル残存中：カメラ・コンビネーション・bundle・workspace の**全書込エンドポイント**は 423 `recovery_pending`。GET は通常どおり、bundle GET に `recovery_pending:true`。
+   - **メイン画面（`index.html` の保存処理）**は 423 を受けたら「前回の統合保存が途中で止まっています。カメラ画面で復旧してください」（リンク付き）を表示する（2-M2）。
+   - `POST /api/project/bundle/recover`：`{"action":"restore_backup"|"keep_current","confirm":true}`。応答 `{ok, revision, result:{action}}`。カメラ画面の bundle 欄に2択（自動では選ばない）。
+   - 単一ファイル保存の tmp 名を `<name>.tmp-<乱数>` に。
+   - 既存テスト `test_bundle_snapshot_consistency.py` はソース文字列を検査している。同じコミットで振る舞いテストへ置換（§4.2）。
+5. **追従設定**：`bone_follow`・`focus_tracking` は project。localStorage `bai-camera-follow-v1` は project 未保存時の下書きに限定。
+6. **フォーカステスト設定 API（2-M9、フォーカス設計 §6 の `get_settings`/`set_settings`）**：
+   - `GET /api/camera/focus-test/settings` → `{ok, revision:<bundle revision>, result:{focusTest}}`（workspace に無ければ既定値）。
+   - `POST /api/camera/focus-test/settings` 本文 `{focusTest:{...部分}}`、If-Match＝bundle revision → workspace の `focusTest` だけを置き換えて保存（ジャーナル規則に従う）。撮影キーは変えない。応答 `{ok, revision, result:{focusTest}}`。
+   - 画面が開いていれば、`/api/sync` の更新でカメラ画面が設定を再読込（未保存の設定変更があれば上書きせず通知）。
+   - MCP `bai_camera_focus_test_get`・`bai_camera_focus_test_set`。
+7. **テスト**：`tests/test_project_bundle_roundtrip.py`（保存→再 import 相当→読込→全フィールド比較、ジャーナル 423 と recover 2種、sha256 不一致、素材欠損、未知フィールド、If-Match 競合、`X-Bai-Camera-Revision` 不一致で 409 `camera_revision_conflict`、bundle 保存後に `camera_revision` で通常保存が通り `dirty=false`、focus-test settings の get/set と撮影キー不変）、Playwright：bundle 保存→ページ再読込→復元→`readState` 一致、メイン画面の 423 表示。
+
+### 2.9 実ブラウザーテストの土台（WP-03）
+- 新規 `tests/camera-ui.test.cjs`（`tests/studio-ui.test.cjs` と同じ起動方式）。
+- **ポート**：Playwright ファイルごとに別ポート。`studio-ui` は既存 8799、`camera-ui` は環境変数 `CAMERA_UI_TEST_PORT`（既定 **8798**）。
+- **データ隔離（2-M7、必要な依存作業）**：新規 `bai_paths.py` に `data_dir() → Path`（環境変数 `BAI_DATA_DIR` があればそれ、無ければ `BASE/'data'`）。次の**すべて**を `data_dir()` から作る：`server.py` の `DATA`（`FILES`・`MMD_DIR`・`MMD_META`・`META`・`FAVORITES`・`PROJECT`・`CUSTOM_ASSETS`・`CUSTOM_INDEX`・`EDITOR_FILE`・`LAYER_FILE`・`CONVERT_STATUS`・`SYNC_FILE`・`camera_project.json`・`pose_ik_last.json`・`conversion_map.json`・`integrated_v02/catalog.json` を含む）、`server.py:37` `RETARGET_FILE`、`server.py:54` `AI_CONFIG`、`diagnostic_logging.py:5` `LOG_DIR`、`qa_capture.py:5` `ROOT`、および本書で追加する `camera_clips/`・`camera_exports/`。テストは一時ディレクトリに `integrated_v02/catalog.json`（`{"models":[],"motions":[]}`）を置いてから起動。
+  - 検証：テスト開始前と終了後に実 `data/` ツリーの全ファイル（相対パス＋内容）の sha256 を計算して一致を確認（`tests/test_data_isolation.py` と Playwright の after フック）。
+- **three**：devDependencies に `"three": "0.160.1"`（importmap と完全一致）。`page.route('https://cdn.jsdelivr.net/npm/three@0.160.1/**', ...)` で `node_modules/three/` から返す。
+- **Chromium**：`chromium.launch({executablePath: process.env.CHROMIUM_PATH || undefined, args:['--enable-unsafe-swiftshader']})`。ブラウザーは `/opt/pw-browsers`。SwiftShader は GPU 検証ではない。結果に `webgl_renderer` を記録し、SwiftShader/llvmpipe なら「GPU未検証」。
+- **テスト用モデル（2-B1）**：`tools/make_test_glb.py`（標準ライブラリのみ）が `tests/fixtures/synthetic_test_model.glb` を生成。
+  - 形状：頂点の包囲箱が**ちょうど x −0.25〜0.25、y 0〜2.0、z −0.15〜0.15**（中心 x=z=0、足 y=0、高さ 2.0）。読込時の正規化で `s=1`・`o=(0,0,0)` になる。
+  - ボーン10本（名前固定）：`hips`(y1.0) → `spine`(1.2) → `chest`(1.45) → `head`(1.75) → `eye_l`(1.85, x−0.04, z0.1)・`eye_r`(1.85, x0.04, z0.1)、`chest` → `hand_l`(1.0, x−0.4)・`hand_r`(1.0, x0.4)、`hips` → `foot_l`(0.05, x−0.1)・`foot_r`(0.05, x0.1)。頭ボーンのローカル +Z はモデル前方 +Z と一致。
+  - アニメ1本（30フレーム、30fps）：`hips` を z 方向に 0→0.5→0 移動、`head` を y 軸回りに 0→30度。期待するボーンのワールド座標を JSON（`tests/fixtures/synthetic_test_model.expected.json`）に同時出力。
+  - 登録は `POST /api/integrated-v02/upload?name=合成テストモデル.glb&kind=model`、カタログ名「合成テストモデル」。
+- `window.BAICameraDebug`（読取専用）：`getState() → {frame, contentVersion, pose, lens, optics, keysCount, dirty, serverRevision, model:{loaded, s, o, sourceHeight}|null, renderer}`、`collectSamples(kind, args)`（WP-04 で `focus`、WP-08 で `follow`、WP-09 で `cinematic`、WP-15 で `collision`、WP-16 で `director` を追加）。
+- WP-03 の受け入れ：テスト GLB 登録→選択→両 View に描画（非背景ピクセル > 0）→`getState().model` が `s=1`・`o=(0,0,0)`（1e-9）→フレーム変更でボーン位置が期待 JSON と 1e-3 以内→実 `data/` ハッシュ不変。
+
+### 2.10 状態バージョンとキャッシュ無効化（WP-04）、外部変更の Undo（WP-02d）
+- `contentVersion`：キー編集・補間変更・VMD/通常キー切替・VMD 追従 ON/OFF・ショット変更・レンズ/F値/合焦距離・`previewPose` の変更・追従 ON/OFF・追従対象変更・モデル/クリップ変更・フォーカステスト設定変更・Undo/Redo・再取得/復元で +1。
+- フレームは別の値。キャッシュと非同期結果のキーは `(contentVersion, frame)`。不一致の結果は捨てる。範囲診断は開始時の値を保持し、変わったら中止して通知。
+- **外部変更の再取得（G-16、2-M9）**：`refreshSequenceFromServer` は履歴を消さず、取得した project を**1件のチェックポイント**（ラベル「外部変更（MCP 等）」）として積む。Undo でその外部変更前の状態に戻せる（戻した状態を保存すれば revision 照合のうえ通常の保存になる）。未保存の UI 編集がある間は再取得しない（現行規則）。
+
+### 2.11 静的配信リスト（`server.py:166`）
+追加：`/camera_core.js`（WP-00a）、`/camera_easing.js`（WP-00a）、`/camera_tools.json`（WP-02c）、`/camera_curve_editor.js`（WP-05）。`/webmcp.js` は既存の個別ルート。`camera_cinematic.js`・`camera_vmd_preview.js` は読み込まない（削除しない、docstring に「カメラ画面未使用」）。テスト `tests/test_camera_static_files.py`：`camera.html` の全 `<script src>` が 200。
+
+---
+
+## 3. 機能ごとの詳細設計（ID 順。実装順は §4）
+
+### CAM-001 カメラVMDの読込・分割・登録（任意区間抽出と境界補間）— WP-13
+- 現状：inspect・native import・sample・preview-pose あり。ボーン/モーフ入り、カメラ節の後の照明・セルフ影・IK 節があると拒否（`camera_vmd_codec.py:21-22,37`）。分割・登録なし。トラックはメモリ上だけ。
+- 設計：
+  1. **デコーダ**：`decode_camera_track(raw, *, skip_non_camera=False)`。カメラ節の後の照明（28バイト）・セルフ影（9バイト）・IK（`u32 + u8 + n:u32 + n×21`）は**常に読み飛ばして件数を数える**。途中切れは 400 `vmd_truncated`。ボーン・モーフは `skip_non_camera=True` のときだけ読み飛ばす（既定は従来どおり拒否）。戻り値に `skipped:{bones, morphs, lights, shadows, ik}`。
+  2. **補間バイト順**：`camera_vmd_playback.py` に `VMD_CAMERA_INTERP_ORDER = ('x1','y1','x2','y2')`（現行コードの仮定、チャンネル X,Y,Z,回転,距離,視野角 ごとに4バイト連続）。JS 同値。**未検証**。検証方法：mmd_tools のカメラ補間読取部との照合、またはオーナー提供の実 MMD カメラ VMD。確定まで CAM-001/016 は未完成。
+  3. **原本保存**：`camera_vmd_clip.store_original(raw, name) → {file, sha256, bytes}`、`file='vmd-'+sha256[:16]`、`data_dir()/camera_clips/<file>.vmd`（同一 sha256 は書かない）。
+  4. **クリップ参照**（`vmd_clips[]`）：`{id, name, file, sha256, start, end, keyCount, importedAt}`（`start`・`end` は VMD フレーム、両端含む。`id` は1〜64文字 `[A-Za-z0-9_-]`。`importedAt` クライアント付与）。
+  5. **分割** `split(track, start, end, *, rebase=True) → {track, changed_keys}`：
+     - 到着側キー規則。区間内の元キーはそのまま。境界 τ にキーが無ければ τ を含む元区間 (a,b) で境界キーを作る（値は `sample_native_camera(track, τ)`）。
+     - チャンネルごとに `u=(τ−a.frame)/(b.frame−a.frame)`、制御点 `P0=(0,0),P1=(x1,y1),P2=(x2,y2),P3=(1,1)`（/127）。`x(s)=u` を二分法（40回）で解き、ド・カステリョ分割（`P01,P12,P23,P012,P123,P0123`）。左 `P0,P01,P012,P0123`、右 `P0123,P123,P23,P3`、`yτ=P0123.y`。左の正規化 `x'=x/u, y'=y/yτ`、右 `x'=(x−u)/(1−u), y'=(y−yτ)/(1−yτ)`、`round(v·127)`。境界キー τ ← 左、元キー b ← 右。クリップ先頭の境界キーは線形 `(20,20,107,107)`。
+     - 退避：(i) 正規化後 0〜127 外 (ii) `|yτ|<1e-9` か `|1−yτ|<1e-9` (iii) 量子化後 `x1>x2` → 切り出し側を毎フレームの線形キーで置換。
+     - `changed_keys:[{frame, reason:'boundary_inserted'|'split_left'|'split_right'|'fallback_dense'}]` を表示。`rebase=True` で `start` を 0 に。
+  6. **プロジェクトキーへの変換** `to_project_keys(track, *, fps, start, end, step=None, model_transform=None) → {keys, clamped_fov, merged_frames, scale_source}`：
+     - フレーム：キー位置 `f_project = round(f_vmd·fps/30)`、サンプリングは `g·30/fps` の実数フレーム。
+     - 既定 `step = max(1, ceil(区間のプロジェクトフレーム数/4000))`。既存＋生成 > 5000 は 400 `too_many_keys`。
+     - 各サンプルを付録B の取込変換（`12.5` と `model_transform` の `s`・`o`）でシーン姿勢へ。`model_transform` 無しは `s=1, o=0`、`scale_source:'unknown'`。`up` から `roll`。
+     - FOV は [5,150] にクランプし件数を返す。補間は `linear`。
+     - 平行投影（`perspective=1`）を含めば 400 `vmd_unsupported`。
+  7. **UI**：「VMDを登録」、クリップ一覧（欠損表示）、「区間を切り出す」（`changed_keys` 表示）、「プロジェクトのキーに変換」（確認ダイアログ、`keys_in_range` で中止、ローカル適用 1 Undo）。試験プレビュー・追従はクリップに対して動き、workspace に `vmdPreview:{clip, follow}` を保存（WP-13 で `validate_workspace` に追加）。
+  8. **欠損**：`file` 無し／sha256 不一致は一覧に表示。そのクリップを使うショットは CAM-015 の欠損表示。
+- API・MCP：`POST /api/camera/vmd/clips/upload?name=`（≤32MB）→ `{ok, revision, result:{file, sha256, bytes, keyCount, frames, skipped}}`。`GET /api/camera/vmd/clips` → `{clips:[...available, reason?]}`。`POST /api/camera/vmd/clips/preview` 本文 `{file, start, end, rebase, to_keys:{fps, step?}?, modelTransform?}` → `{track, changed_keys, keys?, clamped_fov?, scale_source?}`。MCP `bai_camera_vmd_clip_upload`（`bodyEncoding:'binary_base64:data_base64'`、8MB 上限）、`bai_camera_vmd_clip_list`、`bai_camera_vmd_clip_preview`（`samples:'browser'` で WebMCP は `modelTransform` を付ける）。登録・挿入は `bai_camera_set`／`bai_camera_keys_apply`。
+- テスト：`tests/test_camera_vmd_clip.py`：境界値一致（1e-6）、分割後曲線の一致（1/127 相当）、退避3種、区間内不変、原本 sha256 不変・1ファイル、照明/影/IK の `skipped`、`vmd_truncated`、`to_project_keys` 後の `sample_pose` がブリッジ（縮尺込み）と一致（位置 1e-4、角度 1e-3度）、`s=1` と `s=1.25, o=(0,0.1,0)` の両方、fps 24/30/60、FOV クランプ、`too_many_keys`、`vmd_unsupported`、`VMD_CAMERA_INTERP_ORDER` の JS/Python 一致。
+- 完了ゲート：上記＋バイト順検証。実 MMD データの目視は未検証記録。
+- 規模：中。**標準モデル可**。
+
+### CAM-002 カメラ類似分類（距離・回転・速度・画角を比較）— WP-14
+- 現状：実装なし。
+- 設計（読取専用）：`camera_similarity.py`：
+  - `features(poses, fps)`：8次元（`dist_mean`, `dist_range`, `yaw_total`, `pitch_mean`, `roll_absmax`, `speed_mean`, `speed_max`, `fov_mean`）。距離・速度は**シーン単位**（同じプロジェクト内の比較なので縮尺に依存しない）。1姿勢のときは速度・変化量 0。
+  - `distance(a,b)`：固定スケール（距離 10、角度 180度、速度 5/s、fov 90度）・**固定重み1**。重み UI は作らない。
+  - `rank(query, items, limit=20)`（同距離は ID 順）、`cluster(items, threshold=0.25)`（単連結、ID 順で決定的）。
+  - 対象：プリセット・クリップ（`s=1` で変換したシーン姿勢、`scale_source` を結果に付記）・ショット。
+  - UI：「似ているものを探す」→近い順と各次元の差。「グループに分ける」で閾値入力。**自動でタグ付け・削除・並べ替えをしない**。
+- API・MCP：`POST /api/camera/similarity` 本文 `{query:{kind, id}, mode:'rank'|'cluster', threshold?, project?}` → `{ranked|clusters, features}`。MCP `bai_camera_similarity`。
+- テスト：`tests/test_camera_similarity.py`：同一入力で0、既知値、決定性、1姿勢の速度0。
+- 完了ゲート：UI・API・両MCP同順位。実クリップは未検証記録。
+- 規模：小〜中。**標準モデル可**。
+
+### CAM-003 キーフレーム・カーブ編集（位置/回転/距離/FOV）— WP-05
+- 現状：キー追加・削除・ドラッグ・Undo/Redo（上限80）。UI の補間3種（`#interpolation`）。保存は15モード対応済み。グラフエディタなし。`easingPresets` 上限64。
+- 設計：
+  1. 補間選択を15モードに（表示名：`linear` 線形、`hold` 保持、`smooth` 滑らか（旧互換）、`bezier` ベジェ（既定曲線）、`sine` サイン、`quad` 2次、`cubic` 3次、`quart` 4次、`quint` 5次、`expo` 指数、`circ` 円、`back` バック（行き過ぎあり）、`bounce` バウンド（行き過ぎあり）、`elastic` 弾性（行き過ぎあり）、`custom` カスタム）。
+  2. **トラック別補間** `trackInterpolation:{position?, target?, fov?, roll?, fStop?, focusDistance?}`（値は15モード名）、`trackCustomCurve:{トラック名:[x1,y1,x2,y2]}`（`custom` のトラックは必須）。キー詳細の「トラック別に設定」スイッチ（既定 OFF）。`sampleKeys`／`sample_pose` はトラックごとに `trackInterpolation[track] ?? interpolation`。hold 規則もトラック単位。`roll` トラックは WP-06 以降に有効（WP-05 では受理のみ、`roll` 自体が無いので影響なし）。
+  3. **カーブエディタ** `camera_curve_editor.js`（Canvas 2D、UMD `window.BAICameraCurveEditor`）：custom のみハンドル2つ（x 0≤x1≤x2≤1、y −2〜3）。ドラッグ中プレビュー、離して1 Undo、Esc 取消、数値入力4つ。登録カーブ（`easingPresets`、上限 **100**、適用はコピー・遡及しない）。
+  4. 派生値（注視点までの距離、ヨー/ピッチ）の表示と数値編集：`target` 固定で `position` を球座標再計算（`d=position−target`、`yaw=atan2(d.x,d.z)`、`pitch=asin(d.y/|d|)`）。
+  5. Undo：上限80。すべて1操作1件。
+- API・MCP：専用 API なし。`bai_camera_keys_merge`（`fields:{interpolation, customCurve, trackInterpolation, trackCustomCurve}`）、`bai_camera_set`（`easingPresets`）。
+- テスト：parity にトラック別・custom。`tests/test_camera_curve_editor.cjs`（クランプ・単調性・Esc）。`tests/test_camera_easing_presets_limit.py`（100可・101で400）。Playwright：`back` でスクラブ→`/api/camera/sample?normalized=1` と一致、カーブのドラッグ1回で Undo 1件。
+- 完了ゲート：4経路で同じキー、保存往復、SwiftShader でのドラッグ。
+- 規模：中〜大。**標準モデル可**。
+
+### CAM-004 カメラ矩形フレームと被写体見切れ検出 — WP-15
+- 現状：球・8頂点 AABB 判定（`camera_framing.js`、`camera.js:23-34`）。三分割線は CSS で常時表示（`camera.css` `.camera-frame::before/::after`）。
+- 設計（判定ロジックを増やさない）：
+  1. 文言は事実のみ（はみ出し方向と量 %）。既存「構図の良否は判定しません」を維持。
+  2. 補助表示（三分割線・セーフフレーム90%・ヘッドルーム目安）は**任意 ON/OFF、初期 OFF**。現行の常時三分割線も対象（既定 OFF に変わることを記録、P10）。保存は workspace `framing.guides`。
+  3. テンプレートの aspect は補助線の縦横比（`#framing-aspect`）だけを設定。出力解像度・撮影カメラは変えない。
+  4. 遮蔽・輪郭は承認範囲外。
+- API・MCP：JS のみ。WebMCP `bai_camera_framing_state`（`transport:'browser'`、読取）。標準MCP非対応（制限明記）。
+- テスト：Playwright：補助表示 ON/OFF で撮影キー不変、補助線は `.camera-frame` オーバーレイだけ、文言に良否語なし。
+- 規模：小。**標準モデル可**。
+
+### CAM-005 焦点距離・F値・ピント距離＋フォーカス契約＋E-FOCUS-01/02 — WP-04
+- 現状（確認済み）：`#focus-lens`（8–300）・`#focus-aperture`（0.7–32）・`#focus-distance`（0.01–100000）はキーと無関係な画面値。レンズプリセット適用（`camera.js:215-224`）は FOV をキーへ、mm/F を画面値へ。JS 診断は光軸深度・厳密許容 0.01（`camera_focus_consistency.js:18`）、Python は3D距離（G-07）。範囲診断は上限10,000（`camera.js:78`、`camera_focus.py:36`）。Scene View に焦点面1枚と対象マーカー（`camera_3d.js:186-202`）。合焦追従は `#focus-follow-bone`＝`focus_tracking.enabled`、追従点はカメラ追従ボーン、追従中は `#focus-distance` を書き換える（G-15）。
+- 設計：
+  1. **値の出所（1か所ずつ）**：
+     - `focalMm = verticalFovToFocal(有効 FOV, 24)`。有効 FOV＝`previewPose.fov`（現在フレームでプレビュー中）→ なければ有効姿勢（シーケンス・VMD 追従を含む）の FOV。
+     - `fNumber = previewPose.fStop ?? sample_pose.fStop`（既定 4.0）。
+     - `focusM`：追従 ON → 追従点の光軸深度（`focusSource:'tracking'`、未解決なら `null`・`unknown`・`bone_missing`、代替しない）。追従 OFF → `previewPose.focusDistance ?? sample_pose.focusDistance`（`focusSource:'preview'|'key'|'default'`）。
+     - 範囲：焦点距離入力 **8〜274mm**、F値 0.7〜64、合焦距離 0.01〜10000（シーン単位）。`camera_dof.js` の焦点距離範囲も 8–274 に（2-m2）。
+  2. **入力と自動キーの規則（2-B4、フォーカス設計 §5「自動キーON/OFFに従う」に準拠）**：
+     - プレビューの置き場所：`camera.js` の `previewPose` を `{position, target, fov, roll?, fStop?, focusDistance?}` に拡張（現行と同じく `setFrame` で破棄）。`evaluateOptics`・DOF・色分けは現在フレームでは `previewPose` を優先。
+     - 対象となる入力：焦点距離（`#focus-lens`・10段選択・ラベル付きレンズプリセット）→`fov`、F値（`#focus-aperture`）→`fStop`、合焦距離（`#focus-distance`、追従 ON 中は読取専用）→`focusDistance`、「対象にピントを合わせる」の［確定］→`focusDistance`、レンズプリセットは `fov`＋`fStop` を同時に。
+
+     | 状態 | 自動キー ON | 自動キー OFF |
+     |---|---|---|
+     | 現在フレームにキーあり | `mergeKey` でそのキーの該当フィールドだけ更新（1 Undo） | `previewPose` に入れる（「未確定」表示）。［キー化］で `mergeKey`（姿勢＋プレビュー中のレンズ値、1 Undo） |
+     | 現在フレームにキーなし | 有効姿勢＋現在のサンプル値（fStop・focusDistance）＋入力値で新規キー（1 Undo） | `previewPose` に入れる。［キー化］で新規キー |
+     | キー以外が姿勢を決めている（シーケンスのショット区間内、または VMD 追従 ON） | **キーに書かない**。`previewPose` にも入れず、「ショット／VMD 表示中はキーを編集できません（該当区間外で編集してください）」を表示 | 同左 |
+     - ［キー化］は既存の `#key-save`（現在フレームへキー保存）を使い、`previewPose` のレンズ値も含めて書く（現行は位置・注視点・FOV のみ）。
+     - テストモード ON/OFF・診断・範囲診断はキーも `previewPose` も変えない。
+  3. **追従対象と評価対象（2-B4）**：
+     - **追従対象**（焦点距離を決める1点、project に保存）：`focus_tracking.target`（§2.3）。無ければカメラ追従ボーン（現行動作、G-15）。`marker:'eyes'` のとき `eye:'nearest'`（既定。両眼のうち光軸深度が小さい方）／`left`／`right`。片眼しか解決できなければ解決できた方（`nearest` の場合のみ。`left`/`right` 指定で欠落なら `bone_missing`）。
+     - **評価対象**（診断する点、workspace `focusTest` に保存）：`targetMarker`（`face|eyes|chest|hips|bone`）＋`boneName`。モデル未読込時はガイド位置（face (0,2.4,0)・chest (0,1.5,0)・hips (0,1,0)、`target_source:'guide'`）。`eyes` は両眼を評価し最悪値（下記）。
+     - 眼ボーンの分類：`classifyBone` に `LeftEye|RightEye|左目|右目|J_Adj_L_FaceEye|J_Adj_R_FaceEye|eye_l|eye_r`（大文字小文字無視）を追加。
+     - 保存先の理由：追従対象は撮影結果（焦点）を決めるショットデータなので project、評価対象は診断表示の設定なので workspace。
+  4. **唯一の評価関数** `BAICameraCore.evaluateOptics(input) → OpticsResult`：
+     - 入力：`{frame, contentVersion, pose:{position,target,fov,roll}, lens:{fStop, focusDistance, focusSource}, tracking:{enabled, point|null, reason?}, targets:[{name, point|null, reason?}], settings:{circleOfConfusionMm, strictToleranceM}, modelTransform:{s, o}|null}`。
+     - 出力：
+       ```json
+       {"frame":120,"contentVersion":37,
+        "lens":{"focalMm":50.0,"fNumber":2.8,"focusM":3.2,"focusSource":"key","cocMm":0.03},
+        "dof":{"nearM":2.9,"farM":3.57,"hyperfocalM":29.8},
+        "targets":[{"name":"eye_l","depthM":3.25,"errorM":0.05,"class":"acceptable"},
+                   {"name":"eye_r","depthM":3.31,"errorM":0.11,"class":"acceptable"}],
+        "worst":{"name":"eye_r","class":"acceptable","errorM":0.11},
+        "physical":{"focusM":2.56,"nearM":2.32,"farM":2.86,"depthM":2.65,"reason":null},
+        "class":"acceptable","reason":null}
+       ```
+     - **単位（2-B1）**：`depthM`・`focusM`・`nearM`・`farM` などは**シーン単位**で計算・分類する（キー・姿勢と同じ単位）。`physical` は `s` が分かれば各値 ÷ `s`、分からなければ各値 `null`・`reason:'scale_unknown'`。薄レンズ式は縮尺に対して不変ではないため、シーン単位での分類は「正規化モデル上の近似」であることを UI に注記する（§9 Q5）。
+     - 分類：`depth < near` → `near_blur`（マゼンタ）、`depth > far` → `far_blur`（橙）、`|depth − focusM| ≤ strictToleranceM` → `in_focus`（青）、それ以外 → `acceptable`（緑）、評価不能 → `unknown`（灰＋斜線）。
+     - `unknown` の理由：`bone_missing`、`model_not_loaded`、`behind_camera`、`focus_inside_focal`（`focusM ≤ focalMm/1000`）、`invalid_number`。
+     - 両眼：`worst` = どちらかが `unknown` ならそれ、そうでなければ `|errorM|` が大きい方。片眼欠落なら全体 `unknown`・`bone_missing`。
+     - 既定：厳密許容 **0.02**、CoC 0.03mm。センサー 36×24mm 固定（§9 Q3）。
+  5. **全部同じ関数**：色分け・単一診断・範囲診断・DOF プレビュー。`camera_focus_consistency.diagnose` は互換ラッパー。追従中に `#focus-distance` を書き換える現行処理（`camera_3d.js:127`）は削除し、表示は `OpticsResult.lens.focusM` から行う。
+  6. **範囲診断（E-FOCUS-02）**：JS で `[start,end]` を `step`（既定 `max(1, ceil((end−start+1)/10000))`、上限 10,000 サンプル）ごとに、撮影に実際に使う姿勢と対象点（`bai-camera-query-focus-target` でモデル時刻を合わせる）を評価。200 フレームごとに描画を譲る、キャンセル、進捗は実処理数。結果：逸脱区間（理由別）、焦点面誤差の最小・最大、見失い区間、タイムライン色帯。
+  7. **出力（export_report）**：CSV 列 `frame,class,reason,target,depth_m,focus_m,error_m,near_m,far_m,physical_depth_m,physical_focus_m,focal_mm,f_number,focus_source,camera_source,target_source`。JSON `{schema:1, generatedAt, conditions:{start,end,step,cocMm,strictToleranceM,targetMarker,boneName,renderer,modelTransform}, intervals, samples}`。project に保存しない。
+  8. **Scene View の焦点面ガイド**：焦点面＋**近点面・遠点面**（遠点が無限なら「∞」）。`showNearFarPlanes`。Scene View 専用レイヤー（Camera View・書き出しに映さない）。
+  9. **「対象にピントを合わせる」**：［合わせる］で現在フレームの評価対象（両眼は `nearest`）の深度を `previewPose.focusDistance` に入れる（プレビュー）。［確定］は §2 の表に従う（自動キー ON → キー更新、OFF → プレビューのまま［キー化］待ち）。［取消］／Esc でプレビュー破棄。追従 ON 中・対象未解決・キー以外が姿勢を決めている間は押せない（理由表示）。
+  10. **深度カラー表示（2-M12）**：Camera View の `viewMode:'color'`。`camera_3d.js` がモデルの全マテリアル（組み込みの `MeshStandardMaterial` 等）に `onBeforeCompile` で、ビュー空間深度 varying と、uniform（`uNear, uFar, uFocus, uStrict, uEnabled`）による5色の混合を注入する（**スキニング・モーフのシェーダー部分はそのまま**）。`uEnabled=0` で通常表示（再コンパイル不要）。マテリアルの `customProgramCacheKey` に深度色フラグを加える。シーン単位の深度で `OpticsResult` と同じ境界。書き出し・本番映像には使わない。**GPU での正しさは未検証**。左右比較・ブラー差分は F-DOF-01（Phase F）。
+  11. **レンダラー状態表示**：`WebGL: 有効/無効・レンダラー: <UNMASKED_RENDERER_WEBGL>・ソフトウェア描画: はい/いいえ・DOF: BokehPass/OFF/利用不可・深度色: 有効/無効`。`getState().renderer` にも同値。
+  12. **性能計測（2-M9、契約の GPU 優先方針）**：Playwright で、テスト GLB 再生中の平均フレーム時間（`requestAnimationFrame` 120回）を「効果なし／DOF ON／深度色 ON／両方 ON」で計測し、テスト出力と台帳 `notes` に記録（合否基準なし。SwiftShader の値は GPU 性能を表さないと明記）。毎フレームのピクセル読み戻しを使わないこと（深度色の確認は下記テストの時だけ `readPixels`）。
+  13. **Python（G-07・G-08）**：`camera_focus.evaluate_optics(input)`（JS と同仕様、parity）。既存 `diagnose`・`diagnose_range` はこれを使う。
+  14. **VMD**：F値・合焦距離はサイドカー（CAM-016）。
+- API・MCP（WP-04、読取のみ）：
+  - `POST /api/camera/focus/evaluate` 本文 `{frame? | start,end,step?, settings, samples?, modelTransform?, report?:'csv'|'json'}` → `{samples:[OpticsResult], intervals, camera_source, target_source, report?}`。samples あり → そのまま評価（`camera_source/target_source:'samples'`）。なし → 保存済みキー（シーケンス適用後、VMD 試験・未保存編集・実ボーンを含まない）でガイド位置を評価（`'keys_only'`／`'guide'`）、`physical` は `scale_unknown`、`focus_tracking.enabled` なら `unknown`・`model_not_loaded`。上限超過は 400 `invalid_range`。
+  - `POST /api/camera/focus/target-preview` 本文 `{frame, samples:[1件], modelTransform?}` → `{focusDistance, depthM}`（samples なしは 409 `model_not_loaded`）。
+  - 既存 `GET /api/camera/focus` は互換で残す（G-07 の定義修正のみ）。
+  - MCP（WP-04 は手書き、WP-02c で JSON 化）：`bai_camera_focus_evaluate`（`samples:'browser'`）、`bai_camera_focus_target_preview`。確定 `bai_camera_focus_commit` は WP-02c、設定 get/set は WP-02d。
+- テスト：
+  - `tests/test_camera_optics.py`＋parity `optics`：焦点面・手前・奥・無限遠境界、mm/m、`focus_inside_focal`、`behind_camera`、両眼最悪値、0.02 境界、`physical`（s=1.25 で ÷1.25、s 不明で `scale_unknown`）。
+  - `tests/test_camera_focus_evaluate_api.py`：samples あり/なし、`model_not_loaded`、上限、CSV 列順。
+  - `tests/test_camera_lens_input_rules.cjs`：§2 の表の6セル（自動キー×3状態）を jsdom 無しの純関数 `lensEditAction(state)`（`camera.js` から切り出す）で検証。
+  - `tests/test_camera_optics_wiring.cjs`：`contentVersion` 変化後の遅延結果を捨てる。
+  - Playwright：契約ゲート1（単一と範囲が同じ `depthM`・`class`）、2（アニメで同フレームに色・数値・DOF 焦点が変わる）、3（VMD 追従切替・順逆スクラブで古い値なし）、4（追従 ON＋ボーン無し → `bone_missing`、モデル未読込 → `model_not_loaded`）。テスト ON/OFF でキー・Undo 不変。自動キー ON/OFF それぞれで焦点距離・F値・合焦距離・［確定］が表どおり。シーケンス区間内で入力が拒否される。近点/遠点面が Scene View にだけある。**深度色**：アニメーション付きテスト GLB で `viewMode:'color'` にし、`hips` が手前に動くフレーム（15）と元の位置（0）で、モデル中心画素の色が期待帯の色（凡例 RGB と各成分 ±40）に変わる。スキニングで動いた位置に色が付く（静止メッシュの位置ではない）。レンダラー表示に SwiftShader。性能計測が記録される。
+- 完了ゲート：契約ゲート1〜5（GPU 実描画は未検証記録＝完成扱いしない）。フォーカス設計 §8 の 1〜6 は自動、7・8 は全実装後の確認。
+- 規模：大。**標準モデル可**。実装後の契約適合レビューを高性能モデルで1回。
+
+### CAM-006 パン・ティルト・ロール・自転（固定位置からの向き操作）— WP-06
+- 現状：`orbit/dolly/pan/tilt`（Python `camera_move`、JS `moveCamera`）。旧 `pan`・`tilt` の「右」は `[f.z,0,−f.x]`＝**カメラ左**（`bai_camera.py:99`）。ロールなし。HTTP なし。`applyPose` は `up` を受ける（`camera_3d.js:169`）。
+- 設計：
+  1. キーに `roll`。描画は `basis()` の `up` を `applyPose` に渡す。
+  2. 操作（`bai_camera.camera_move`（**bai_camera.py に置く**）と `camera_core.moveCamera`）。シグネチャ：Python `camera_move(pose, operation, amount, *, prev_right=None) → {position, target, fov, roll}`、JS `moveCamera(pose, operation, amount, {prevRight})`。`amount` −360〜360。
+  3. **符号の固定（2-B3）**：基準姿勢 `position (0,1,5)・target (0,1,0)・fov 40・roll 0`（`f=(0,0,−1)`、`right0=(1,0,0)`、`up0=(0,1,0)`）での期待値（parity `move` に全行を入れる）：
+
+     | 操作 | amount | position | target | fov | roll | 備考 |
+     |---|---|---|---|---|---|---|
+     | `truck` | +1 | (1,1,5) | (1,1,0) | 40 | 0 | **カメラ右 `right0` へ**。`truck(+a) = 旧 pan(−a)` |
+     | `pan`（旧・互換） | +1 | (−1,1,5) | (−1,1,0) | 40 | 0 | 現行どおり（カメラ左へ）。結果を変えない |
+     | `pedestal` | +1 | (0,2,5) | (0,2,0) | 40 | 0 | ワールド上 |
+     | `dolly` | +1 | (0,1,4) | (0,1,0) | 40 | 0 | 現行どおり（前進） |
+     | `pan_yaw` | +90 | (0,1,5) | (5,1,5) | 40 | 0 | **カメラ右へ向く**（上から見て時計回り） |
+     | `tilt` | +90 | (0,1,5) | (0,−4,5) | 40 | 0 | 現行どおり（**正＝下を向く**） |
+     | `orbit` | +90 | (5,1,0) | (0,1,0) | 40 | 0 | 現行どおり（ワールド Y 右手回り、カメラは右側へ回り込む） |
+     | `roll` | +30 | (0,1,5) | (0,1,0) | 40 | 30 | `up=(0.5, 0.8660, 0)`（画面上端が右へ） |
+     | `zoom` | +10 | (0,1,5) | (0,1,0) | 31.2065 | 0 | 焦点距離 +10mm（32.970→42.970mm）、8〜274 にクランプ |
+     - UI の操作方向：左ドラッグ右＝`pan_yaw` 正、左ドラッグ上＝`tilt` 負（上を向く）、中ドラッグ右＝`truck` 正、中ドラッグ上＝`pedestal` 正、R＋ドラッグ右＝`roll` 正、Z＋ドラッグ上＝`zoom` 正、ホイール前＝`dolly` 正、A/D＝`truck` −/＋、E/Q＝`pedestal` ＋/−、W/S＝`dolly` ＋/−（入力欄フォーカス時は無効）。
+     - 現行 UI のシフトドラッグ（`moveCamera(base,'pan',-dx*.01)`、`camera.js:17`）は「右へドラッグでカメラ右へ」の結果になっており、新割当の中ドラッグ `truck(+dx·k)` と同じ向き。
+  4. 旧 `pan` は保存・API 互換で残す（UI のボタン表示は「トラック」に統一、ツールチップで旧名を説明）。
+  5. 「自転」は CAM-010 の `spin`。
+  6. Camera View 割当（操作設計 §4）、ドラッグ中の操作名表示、Esc 取消、pointerup で1キー＝1 Undo（自動キー OFF はプレビュー）。Scene View は UE 方式で撮影キーを変えない。
+- API・MCP：`POST /api/camera/move` 本文 `{frame, operation, amount, commit, revision?}`（commit 時 revision 必須、`merge_key`）。MCP `bai_camera_move`。
+- テスト：parity（上表全行＋縮退）。`tests/test_camera_move_ops.py`：旧 `pan`/`tilt`/`orbit`/`dolly` の結果が WP-00a の fixture と同一（回帰）、`truck(+a)==pan(−a)`、`pan_yaw`/`tilt`/`roll`/`zoom` で位置不変。Playwright：CAM-UI-01〜04、CAM-KEY-01〜03、ドラッグ方向と符号。
+- 規模：中。**標準モデル可**。
+
+### CAM-007 ドリー・トラック・スライダー・ズーム（移動と画角独立）— WP-07
+- 設計：rig に任意 `fov_start`・`fov_end`（5–150）。未指定は開始姿勢の FOV で固定（現状互換）。位置は FOV 指定の有無で同一。ドリーズームは CAM-012。「スライダー」＝短い `rail` の UI プリセット（0.3〜2、既定 1、`right0` 方向）。
+- テスト：両端の FOV、中間のイージング、位置の独立性。
+- 規模：小。**標準モデル可**。
+
+### CAM-008 レール・曲線カメラパス — WP-07
+- 現状：`rail`・`curve`（二次ベジェ3点、等速化）・ベイク（linear/smooth、上限2000）・3D ハンドル。
+- 設計：
+  1. `bake_ease` を15モードに（`custom` は `bake_custom_curve` 必須）。生成キーは `linear`。
+  2. **旧 `curve` は現行の意味のまま**。新リグ種 **`spline`**：`rig.points`（2〜8点）、`constant_speed`。centripetal Catmull-Rom（α=0.5）、端点複製、ノット間隔 `max(|Pi+1−Pi|^0.5, 1e-4)`、t を区間数で等分、等速化は区間あたり64分割の弧長表。3D ハンドルで追加（Shift＋クリック、最大8）・削除（Delete、最小2）、ドラッグは rig 設定のみ変更。
+  3. 範囲外キーは不変。
+- テスト：旧 `curve` の回帰一致、制御点通過（1e-9）、端点で有限、等速化 < 1%、2点＝直線。
+- 規模：中。**標準モデル可**。
+
+### CAM-009 クレーン・ジブ・ブーム・ドローン — WP-07
+- 設計：旧 `crane` は現行の意味のまま。新リグ種 **`jib`**：`{pivot, armLength:[s,e](0.5〜20), elevation:[s,e](−80〜80度), swing:[s,e](度), pedestal:[s,e](−10〜10), lookAt|null}`、位置 `= pivot + (0,pedestal,0) + armLength·(cos el·sin sw, sin el, cos el·cos sw)`。UI プリセット「クレーン」「ジブ」「ブーム」。**ドローン**＝`spline`＋高所の点＋注視点固定の UI プリセット（バンクなし）。数値はシーン単位。
+- テスト：アーム端の球面（1e-9）、旧 `crane` 回帰、swing のみで高さ不変。
+- 規模：中。**標準モデル可**。
+
+### CAM-010 オービット・スパイラル・自転 — WP-07
+- 設計：旧 `orbit` は現行の意味のまま。任意 `rig.orbit = {radius:[s,e]|null, height:[s,e]|null, elevation:[s,e]|null, startAzimuth?:度}`（null は現行どおり）。スパイラル＝radius か height が変化（プリセット「スパイラル上昇」「スパイラル接近」）。新リグ種 **`spin`**：`{yaw:[s,e], pitch:[s,e](−89〜89)}`、位置固定、視線をヨー（`pan_yaw` と同じ符号）・ピッチ（**正＝上を向く**。`tilt` と逆符号であることを UI 注記）。「オービット」と「自転」は別ボタン・別アイコン。
+- テスト：radius 固定で距離一定、スパイラル両端、spin で位置不変、pitch のみでヨー不変、pitch 正で target.y 増加。
+- 規模：小〜中。**標準モデル可**。
+
+**CAM-007〜010 共通（WP-07）**：`validate_rig` に `jib`・`spline`・`spin` と任意フィールドを追加、旧データは旧フィールドだけで有効。Python 移植 `camera_rig.py`（parity `rig`）。`POST /api/camera/rig/bake` 本文 `{rig, from, to, step, base_frame?, project?}` → `{keys}`（プレビュー、確定は `keys/apply`）。MCP `bai_camera_rig_bake`。
+
+### CAM-011 被写体追従・複数人自動構図 — WP-08
+- 設計：
+  1. 旧単一形はそのまま。2つ以上のときだけ `bone_follow.targets:[{marker:'face'|'eyes'|'chest'|'hips'|'full'|'hand_l'|'hand_r'|'bone', bone?, weight:0–1}]`（2〜8件）。単一形フィールドも残す（`boneName` は先頭対象）。1件以下になったら `targets` を削除して保存。
+  2. マーカー解決：`classifyBone` を拡張（眼は CAM-005、手 `LeftHand|RightHand|左手首|右手首|hand_l|hand_r` 等）。**注視（追従カメラの向き）では**未解決時に包囲箱中心へ代替し `resolved:'fallback_bbox'` を表示（操作設計 §7）。**フォーカスでは代替しない**（CAM-005）。UI に違いを注記。
+  3. 注視点＝重み付き平均（重み合計0は 400）。「全員を画面に入れる」：`camera_framing.js` に `fitAll(pose, points, opts)`（注視点固定で最小ドリー距離、または位置固定で最小 FOV、二分法）。プレビュー→確定1 Undo。自動で動かし続けない。
+  4. 別モデル複数人の実機検証は Phase C 以降（§9 Q1）。
+- API・MCP：保存は `bai_camera_set`。WebMCP `bai_camera_follow_fit_all`（`transport:'browser'`）。標準MCP非対応（明記）。
+- テスト：旧データの形不変、重み平均、注視の代替表示とフォーカスの非代替、`fitAll`（合成点群、テスト GLB の10ボーン）、bundle 往復。
+- 規模：中。**標準モデル可**。
+
+### CAM-012 映画演出カメラ（POV・OTS・Whip・Dolly Zoom・衝撃）— WP-09
+- 設計：**Python のみ** `camera_cinematic.py`。UI はプレビュー HTTP→確定でローカル挿入（1 Undo）。`camera_cinematic.js` は使わない。
+  - **縮尺（2-B1）**：パラメータの長さ（オフセット・振幅・後方距離など）は**物理 m** で指定し、`modelTransform.s` を掛けてシーン単位にする。samples（＝`modelTransform`）が無い POV・OTS は 409 `model_not_loaded`、Whip・Dolly Zoom・衝撃は `s=1` で計算し `scale_source:'unknown'` を返す。
+  1. **POV**：頭ボーン位置＋オフセット（前 0.08m・上 0.02m、×s）、向きは頭ボーンのワールド回転を (0,0,1) に適用した前方（samples の `forward.head`）。頭ボーンのローカル +Z＝モデル前方はモデル依存で**未検証**（テスト GLB は一致）。
+  2. **OTS**：被写体 A の肩（無ければ頭から横 0.2m×s）の後方 0.6m・上 0.1m・横 0.35m（×s、左右選択）、注視点は `lookAt`（無ければ A の前方 3m×s）。
+  3. **Whip**：`pan_yaw` と同じ符号のヨー回転を `duration`（既定6）で、補間 `expo`、前後 `hold`。`meta.motionBlurHint:true` は結果のみ。
+  4. **Dolly Zoom**：`d·tan(θ/2)=一定`、`fov:[s,e]`（5〜150）、`d<0.1×s` は 400 `invalid_range`。
+  5. **衝撃**：`duration` 既定12、振幅 位置 0.03m（×s）・ロール 1.0度（上限 0.3m・10度）、`exp(−5t)` 減衰、mulberry32（seed 既定1）、位置は `right0`・`up` 方向、毎フレームキー。
+- API・MCP：`POST /api/camera/cinematic/preview` 本文 `{type:'pov'|'ots'|'whip'|'dolly_zoom'|'shake', from, to, params, base_frame?, samples?, modelTransform?, project?}` → `{keys, meta, scale_source}`。MCP `bai_camera_cinematic_preview`（`samples:'browser'`）、確定は `bai_camera_keys_apply`。
+- テスト：`tests/test_camera_cinematic.py`：POV＝頭＋オフセット×s（s=1 と 1.25）、Dolly Zoom 一定（1e-9）、衝撃の決定性・上限・減衰、Whip の hold、`model_not_loaded`。Playwright：プレビューでキー不変、確定1 Undo。
+- 規模：中。**標準モデル可**。
+
+### CAM-013 撮影用途別テンプレートライブラリ — WP-11
+- 設計：
+  1. `camera_templates.json`（読取専用）。各要素の形と18件の値は付録A（完全な JSON）。長さは**被写体高さ h 基準**（h＝samples の包囲箱高さ。samples 無しは h=2.0＝正規化モデルの高さ、`scale_source:'unknown'`）。
+  2. 生成は Python `camera_templates.py`（`camera_cinematic.py`・`camera_rig.py` を呼ぶ）。
+  3. aspect は補助線の縦横比だけ。`lens` は生成キーの `fov`（focalMm 換算）と `fStop`。
+  4. UI：カテゴリタブ→カード。範囲指定→プレビュー（HTTP）→確定（ローカル、1 Undo）。「マイプリセットに複製」（開始姿勢、`category` 付き）。
+  5. 新 UI（/workspace/22）は P2 で同じ JSON を読む。
+- API・MCP：`GET /api/camera/templates`、`POST /api/camera/templates/preview` 本文 `{id, from, to, base_frame?, samples?, modelTransform?, project?}` → `{keys, aspect, lens, scale_source}`。MCP `bai_camera_template_list`・`bai_camera_template_preview`。
+- テスト：JSON スキーマ（18件とも生成可能。POV は samples ありで）、適用→Undo、複製後に元不変、aspect 適用で撮影キー不変、h=2.0 と h=1.6 で長さが比例。
+- 規模：中。**標準モデル可**。
+
+### CAM-014 カメラプリセット お気に入り・タグ・検索（JSON/VMDと履歴）— WP-10（JSON）、WP-13（VMD）
+- 現状：名前（1〜48）＋姿勢の保存・適用・削除（最大64）。使用中削除は UI で禁止（`camera.js:204`）。
+- 設計：
+  1. フィールド：§2.3。
+  2. 検索：NFKC＋casefold の部分一致（名前・タグ・カテゴリ）、お気に入りのみ、タグ AND。並び：お気に入り→最近使った順→名前。
+  3. 履歴：使用履歴20件＋Undo/Redo（版管理なし、§9 Q2）。
+  4. 名前変更：同じトランザクションで `sequence[]` の `preset`・`source.name` と `preset_history` を更新。重複は 409 `invalid_payload`。
+  5. 削除：使用中は 409 `preset_in_use`。
+  6. JSON 入出力：`{schema:1, presets}`、重複名は「 (2)」…、64件超は読まずに件数報告。
+  7. VMD 入出力（WP-13）：1フレームのカメラ VMD＋サイドカー（`lens`・`tags`・`favorite`・FOV 小数）。取込は付録B（`modelTransform` があれば使う）。
+  8. UI：カード・検索・タグチップ・★・複製・改名・JSON（VMD は WP-13）。適用時に `preset_history` 更新（Undo に含めない、dirty にする）。
+- API・MCP：`GET /api/camera/presets/search`、`POST /api/camera/presets/manage`（`add|update|rename|delete|duplicate|favorite|tag|untag|import`、revision 必須）、`POST /api/camera/presets/apply`（`merge_key`）。MCP 3種。
+- テスト：`tests/test_camera_presets.py`：検索、自動改名、JSON 往復、改名連動、`preset_in_use`、履歴20、上限64。VMD 往復（WP-13）。
+- 規模：中。**標準モデル可**。
+
+### CAM-015 カメラ連結・カット・時間同期＋シーケンサー — WP-12（preset）、WP-13（clip・inherit）
+- 現状：検証・編集 API・評価 API・MCP・UI（追加/削除/移動/再取得）。UI に update なし。プリセット参照のみ。
+- 設計：
+  1. ショットの形：preset ショットは旧形 `{start,end,preset,transition:'cut'}`（UI もこの形）、新形 `{start,end,source:{kind:'preset',name},transition:'cut'}` も受理し与えられた形のまま保存。clip ショット（WP-13）`{start,end,source:{kind:'clip',clip,from},inherit?,transition:'cut'}`、`clipFrame = from + (f − start)`、短ければ最終姿勢保持。keys ソースは作らない。
+  2. `inherit:true`（clip のみ、preset で true は 400）：直前ショット（接している場合。隙間があれば `start−1` のプロジェクトキー姿勢）の `start−1` の姿勢 P とクリップ最初の姿勢 C0 の差 `Δ=P.position−C0.position` をクリップ全体の `position`・`target` に加える。向き・FOV・ロールは不変。`orientationDeltaDeg` を返し表示。
+  3. 瞬時カット、半開区間（既存）、隙間はプロジェクトキー（既存）。
+  4. 時間同期：共通タイムライン。音声オフセットは作らない。
+  5. UI：ショット帯（色帯・名前・境界ドラッグ・分割・削除・update）、再生中ショット強調。
+  6. 評価：`activeShot`（JS）・`evaluate`（Python）を clip 対応（WP-13、parity）。clip 欠損は `{source:'clip_missing', pose:null}`、Camera View はプロジェクトキー姿勢に「クリップ欠損：キー姿勢を表示中」を必ず表示。
+  7. CAM-016 はシーケンス適用後をベイク。
+- API・MCP（WP-12）：`sequence/edit` に revision（§2.4）。UI でも update。WP-16 で `action:'replace'`。
+- テスト：`tests/test_camera_sequence_v2.py`（update、旧形・新形の保存形維持、境界ゼロ遅延、隙間、往復、MCP update と競合）。WP-13：clip 時刻、保持、inherit、`orientationDeltaDeg`、欠損。Playwright：ショット帯ドラッグ1回＝1 Undo。
+- 規模：中〜大。**標準モデル可**。
+
+### CAM-016 MMDカメラVMD書出し（FOV・位置・距離・回転・補間）— WP-13
+- 現状：ネイティブトラックの往復書出しのみ。ブリッジ・`camera_vmd_local.js` は単位換算なし（G-17）。
+- 設計：
+  1. **単位と縮尺（2-B1）**：取込・書出・ブリッジ（Python `preview_pose`、JS `camera_vmd_local.preview`）のすべてで付録B の変換（`MMD_UNIT_PER_M=12.5` と `modelTransform` の `s`・`o`）を使う。`preview_pose(track, frame, model_transform=None)`。**既存の試験プレビューの見え方が変わる**（現在は MMD 単位のまま表示しており、正規化モデルに対して約 12.5/s 倍）。コミット本文と `VMD_EXPERIMENTAL_PREVIEW_20261018_JA.md` に記録（P10）。モデル未読込は `s=1, o=0` と「縮尺1で表示」。
+  2. `camera_vmd_export.export_project(project, *, start, end, step=1, fps, mode='dense', model_transform=None) → {raw, sidecar, report}`：シーケンス適用後の姿勢（`camera_sequence_api.evaluate` と同じ）を付録B の逆変換で MMD キーへ。
+     - フレーム `f_vmd = round(f_project·30/fps)`、重複は先を残し `report.merged_frames`。
+     - 距離は負。オイラー角は前キーと ±2π で連続化。
+     - 視野角は整数度、[1,180]、`report.fov_round_max_deg`。`perspective=0`。100000 キー超は 400 `too_many_keys`。
+     - **`mode:'dense'`（既定）**：`step` ごとのサンプル、補間は線形 `(20,20,107,107)`×6（並びは `VMD_CAMERA_INTERP_ORDER`）。
+     - **`mode:'keys'`（キー保持書出し、2-m1）**：範囲内の**全区間**が次を満たすときだけ選べる：補間が `linear`・`bezier`・`custom`（制御点の y がすべて [0,1]）のいずれか、`trackInterpolation` なし、`hold` なし、範囲内にショットなし、`roll` が区間内で ±180 を跨がない。BAI キー1つを VMD キー1つにし、区間（左キー a → 右キー b）の曲線を**到着側キー b** の6チャンネルすべてに入れる（`linear` は `(20,20,107,107)`、`bezier`/`custom` は `round(v·127)`）。条件を満たさなければ 400 `invalid_payload`（理由に最初の違反区間）。**注意**：BAI は位置・注視点を直線補間し、MMD は注視点・回転（オイラー）・距離を補間するため、キー間の経路は一致しない。書出し後の再読込差分（下記6）で最大誤差を必ず表示する。
+  3. **サイドカー** `<name>.vmd.bai.json`：`{schema:1, fps, mmdUnitPerM:12.5, modelTransform:{s,o}|null, frames:[{vmdFrame, projectFrame, fov, fStop, focusDistance, roll}]}`。読込時にあれば FOV 小数・レンズ値を復元、無ければ「レンズ情報なし」（紛失検出）。
+  4. UI：「プロジェクトをVMDに書き出す」（範囲・step・モード。`keys` は条件を満たすときだけ選択可、理由をツールチップ表示）。
+  5. 出力先：`data_dir()/camera_exports/<name>.vmd`（＋サイドカー）。`name` は1〜64文字、`/`・`\`・`..` 不可。
+  6. 書出し後に自動で再読込し差分（位置 シーン単位と物理 m、角度、FOV）を表示。
+- API・MCP：`POST /api/camera/vmd/export-project` 本文 `{start, end, step?, mode?, name, modelTransform?, project?}` → `{file, sidecar, report}`、`?download=1` でバイナリ。MCP `bai_camera_vmd_export`（`samples:'browser'` で WebMCP は `modelTransform` を付ける）。プリセット VMD 入出力 `POST /api/camera/presets/vmd-export`・`vmd-import`。
+- テスト：`tests/test_camera_vmd_export_project.py`：**固定試験データ MMD 既定カメラ**（target (0,10,0)、distance −45、rotation 0、fov 30）→ `s=1, o=0` でシーン姿勢 target (0,0.8,0)・position (0,0.8,3.6)・up (0,1,0)・roll 0、`s=1.25, o=(0,0.1,0)` で target (0,1.1,0)・position (0,1.1,4.6)（付録B）。往復で位置 < 1e-3、角度 < 1e-3度、ロール ±170度、真下（ジンバル）、連続化、FOV 丸め ≤0.5度、サイドカー往復、fps 24/60、件数。`mode:'keys'`：条件を満たす線形2キーでキー数一致、`hold` を含むと 400、custom の y が 1.2 で 400。
+- 完了ゲート：上記＋バイト順検証。MMD 本体での確認・ブリッジ回転順の一致は未検証記録。
+- 規模：中。付録B の実装後レビューのみ高性能モデル。
+
+### CAM-017 カメラ衝突回避・構図品質 — WP-15
+- 設計（事実検出とユーザーが選ぶ回避案のみ）：
+  1. 衝突体：被写体＝samples の各フレーム包囲箱を `margin`（既定 0.05m×s）膨らませたもの。ステージ＝`collision.colliders`（`{name,min,max}`、シーン単位、最大64）＋床（y=0）。メッシュからの自動生成はしない（Phase H）。
+  2. 判定：カメラ位置が衝突体内、または表面まで `minDistance`（物理 m、既定 0.2、×s でシーン単位）未満。ニアクリップ 0.1 で被写体にめり込む場合も「近すぎ」。`s` 不明時は ×1 とし `scale_source:'unknown'`。
+  3. 出力：区間一覧（開始・終了・種類・衝突体名・最小距離（シーン単位と物理 m））とタイムライン色帯。
+  4. 回避案：最近点から外向きに `minDistance` まで押し出した位置をプレビュー、確定で該当キーの `position` のみ（1 Undo）。注視点不変。
+  5. 構図品質は CAM-004 の事実を並べるだけ。点数化しない。
+- API・MCP：`camera_collision.py`、`POST /api/camera/collision/check` 本文 `{from, to, step?, samples?, modelTransform?, project?}` → `{intervals, fixes, subject_source, scale_source}`（samples 無しはステージ・床のみ、`subject_source:'none'`）。MCP `bai_camera_collision_check`（確定は `keys/merge`）。
+- テスト：`tests/test_camera_collision.py`：内側/近接/外側、床、押し出し後 ≥ minDistance、注視点不変、`subject_source:'none'`、s=1.25 で閾値×1.25。
+- 規模：中。**標準モデル可**。
+
+### CAM-018 自動ディレクターとショット選択 — WP-16
+- 設計（提案のみ、適用はユーザー確定）。`camera_director.py`：
+  1. 入力：範囲、候補（プリセット・テンプレート・クリップ）、ルール `{minShotFrames:45, maxShotFrames:240}`、samples：各被写体・各フレームの `hips, spine, chest, head, hand_l, hand_r, foot_l, foot_r` 座標と包囲箱。
+  2. activity：解決できたボーンの速度 `|p(f)−p(f−1)|·fps` の平均を、範囲内の全被写体・全フレームの最大値で割る（0なら全0、最初のフレームは次との差）。縮尺は正規化で消えるので `s` 不要。
+  3. 主役：activity 最大、直前との差 0.1 未満なら維持。
+  4. カット候補：主役交代＋山（15フレーム移動平均の極大、谷との差 0.2 以上）、`minShotFrames` で間引き、`maxShotFrames` 超は等分割。
+  5. ショットサイズ：主役包囲箱の高さ h と候補カメラ位置から包囲箱中心までの距離 d の比 `d/h`：> 2.5 `wide`、1.2〜2.5 `medium`、< 1.2 `close`（比なので縮尺不変）。
+  6. スコア：a ≥ 0.5 → wide +2・medium +1。0.2〜0.5 → medium +2・wide +1・close +1。< 0.2 → close +2・medium +1。直前と同じ候補 −1。同点は候補順。
+  7. 出力：`sequence` 案（各ショットに `reason`・`score`・`shotSize`）。
+  8. UI：ショット帯に半透明表示、「この案を適用」で置換（1 Undo、確認ダイアログ）。
+  9. 1体では動きの山だけ。複数人は Phase C 以降。
+- API・MCP：`POST /api/camera/director/propose`（samples 無しは 409 `model_not_loaded`）。適用は `sequence/edit` の `action:'replace'`。MCP `bai_camera_director_propose`。
+- テスト：`tests/test_camera_director.py`：合成 activity で期待カット、min/max、d/h 境界、スコア表、決定性、`replace` の競合。Playwright：適用→Undo。
+- 規模：中。**標準モデル可**。
+
+---
+
+## 4. 作業パッケージ（WP）と順番
+
+上から順に実装（前提は必ず上にある WP だけ。循環なし）。
+
+| 順 | WP | 内容 | 対象ID | 前提 | 追加する API・MCP | モデル |
+|---|---|---|---|---|---|---|
+| 1 | WP-00a | G-01/03/07/08(F値)/11/13/14、`camera_core.js`、`sample_pose`、parity（2D 投影含む）、静的配信、**共通部品**（`bad(...,code)`・`ok/fail`・`camera_errors.py`・`MMD_UNIT_PER_M`） | 全体 | なし | `/api/camera/sample?normalized=1` | 標準 |
+| 2 | WP-03 | テスト土台（`bai_paths.data_dir()`、three、SwiftShader、テスト GLB、`BAICameraDebug`、ポート） | 全体 | WP-00a | なし | 標準 |
+| 3 | WP-04 | CAM-005／E-FOCUS-01/02（G-08 焦点距離、G-15） | CAM-005 | WP-00a, 03 | `focus/evaluate`、`focus/target-preview`、MCP 読取2種 | 標準＋契約レビュー（高性能1回） |
+| 4 | WP-02a | 読込エラー（G-06）・退避・invalid-preview・reset・未知フィールド・FIELD 定数 | 保存 | WP-00a | `project/backup`、`project/invalid-preview`、`project/reset` | 標準 |
+| 5 | WP-02b | revision 規則（G-12）・If-Match 必須化・`keys/merge`・`keys/apply`・sequence/edit の revision | 保存 | WP-02a | `keys/merge`、`keys/apply` | 標準 |
+| 6 | WP-02c | MCP・WebMCP（G-05、`camera_tools.json`、カメラ画面に WebMCP、bundle MCP、focus_commit） | 全体 | WP-02b, 04 | MCP 一式（§2.5） | 標準 |
+| 7 | WP-02d | 統合保存（G-04・G-16、workspace 拡張、素材ID、ジャーナル・recover、`X-Bai-Camera-Revision`、focus-test settings） | 保存 | WP-02c | `asset-ref`、`bundle/recover`、`focus-test/settings`、MCP 2種 | 標準（ジャーナルのレビューのみ高性能） |
+| 8 | WP-12 | CAM-015（preset ショット） | CAM-015 | WP-02d | sequence/edit の応答 revision | 標準 |
+| 9 | WP-05 | CAM-003（G-09） | CAM-003 | WP-02d | なし | 標準 |
+| 10 | WP-06 | CAM-006 | CAM-006 | WP-02d | `move`、MCP | 標準 |
+| 11 | WP-07 | CAM-007〜010 | CAM-007〜010 | WP-06 | `rig/bake`、MCP | 標準 |
+| 12 | WP-08 | CAM-011 | CAM-011 | WP-02d, 04 | WebMCP `follow_fit_all` | 標準 |
+| 13 | WP-09 | CAM-012 | CAM-012 | WP-06, 07 | `cinematic/preview`、MCP | 標準 |
+| 14 | WP-10 | CAM-014（JSON） | CAM-014 | WP-12 | `presets/*`、MCP 3種 | 標準 |
+| 15 | WP-11 | CAM-013 | CAM-013 | WP-07, 09, 10 | `templates*`、MCP 2種 | 標準 |
+| 16 | WP-13 | VMD 統合（CAM-016・CAM-001・CAM-015 clip・CAM-014 VMD・G-10・G-17） | CAM-016, 001 | WP-12, 10 | `vmd/*`、`presets/vmd-*`、MCP 4種 | 標準＋付録Bレビュー（高性能1回） |
+| 17 | WP-14 | CAM-002 | CAM-002 | WP-13 | `similarity`、MCP | 標準 |
+| 18 | WP-15 | CAM-004＋CAM-017 | CAM-004, 017 | WP-04, 02d | `collision/check`、MCP、WebMCP `framing_state` | 標準 |
+| 19 | WP-16 | CAM-018 | CAM-018 | WP-12, 08, 11, 13 | `director/propose`、`replace`、MCP | 標準 |
+| 20 | WP-17 | 片側最大化・分割幅変更 | 横断（UI） | WP-03, 02d | なし | 標準 |
+| 21 | WP-18 | 4経路一致の総合テスト・台帳・未検証一覧 | 全体 | 全部 | なし | 標準（最終レビュー高性能1回） |
+
+- WP-04 は WP-02a〜d より前に実装するため、レンズ値の保存は既存の通常保存（`POST /api/camera/project`、If-Match 任意の現行仕様）で行い、`focusTest` 設定の保存・往復テストは WP-02d で追加する。
+
+### 4.1 WP ごとの受け入れ条件
+共通：§4.2 の更新テストを含む全テスト合格（§5 のコマンド）、台帳 `implementation_assessment`・`notes` 更新、コミット本文に要件ID・テスト件数・未検証事項・見た目の変化（P10）。
+
+- **WP-00a**：parity 70件以上（2D 投影含む）が JS・Python で合格。`sampleKeys` と `sample_pose` が §2.1 の WP-00a フィールドで一致。`writeKey` で `customCurve`・`fStop` が残る。JS `moveCamera` 旧4種が Python と一致（G-13）。2D プレビューで +X の点が画面右（G-14）。`/api/camera/focus` が光軸深度。F値 64 を入力・保存できる。`bad()` に code を渡すと `error_code` が付き、渡さないと従来形。旧テスト2件が `tests/legacy/`。
+- **WP-03**：§2.9 の受け入れ（`s=1`・`o=0`、ボーン位置、データハッシュ不変）。
+- **WP-04**：CAM-005 のテスト全部、契約ゲート1〜4。ゲート5の保存往復は WP-02d で追加（WP-04 時点は未検証記録）。
+- **WP-02a**：§2.7 のテスト全部。
+- **WP-02b**：§2.4 の表の全行（428/409、新規作成時に If-Match 不要、`_revision` 等の無視、sequence/edit の revision 任意と `sequence_conflict` 409）。
+- **WP-02c**：MCP `bai_camera_set` で sequence/rig/presets が消えない（G-05 回帰）、`bai_camera_get` 既定は旧形・`with_revision` で新形、ツール一致テスト、カメラ画面で camera スコープのみ登録、`await` 後に登録。
+- **WP-02d**：§2.8 のテスト全部、bundle 保存→再読込→復元で workspace 全項目と camera が一致（Playwright）、423 と recover、メイン画面の 423 表示、外部変更の再取得が1 Undo。**ゲートの記録事項：VMD 参照・追従状態は WP-13、画面レイアウトは WP-17 で保存する（理由は §2.8-2）。CAM-005 ゲート5の保存往復をここで合格させる**。
+- **WP-12 以降**：各 §3 のテスト。WP-07 は旧 `crane`・`curve`・`orbit` の回帰一致。WP-13 は `VMD_CAMERA_INTERP_ORDER` の検証状況を `notes` に記録、VMD プレビューの縮尺変更を記録。WP-17 は §4.3。WP-18 は §8。
+
+### 4.2 WP ごとに更新する既存テスト（2-B2・2-M6）
+**方針**：実装を変えたことで成り立たなくなる**ソース文字列テスト**（`read_text()`／`readFileSync` でソースに特定文字列があるかを見るもの）は、同じコミットで**振る舞いテスト**（関数を呼ぶ・HTTP を叩く・Playwright）に置き換える。削除だけはしない。置き換えた旨と理由をコミット本文に書く。値の期待が変わるテストは期待値を更新し、変わった理由を書く。
+
+| WP | 更新する既存テスト（予定） | 理由 |
+|---|---|---|
+| WP-00a | `test_camera_focus_consistency.cjs`（厳密許容・F範囲）、`test_camera_focus_fail_closed.cjs`・`test_camera_focus_vmd_range.cjs`（`camera.js` の文字列検査）、`test_camera_lens.cjs`（`camera.js`・`camera.html`・`server.py` の文字列、F値 max）、`test_camera_dof.cjs`（`server.py` 静的リストの文字列）、`test_camera_focus.py`・`tests/test_camera_focus_endpoint.py`（3D距離→光軸深度、分類値）、`test_camera_easing.js`（ラッパー化）、`test_camera_lens.js`・`test_camera_lens_shots.js`（`tests/legacy/` へ移動） | G-01/07/08/11/13/14、静的配信、共通部品 |
+| WP-03 | `tests/studio-ui.test.cjs`（`BAI_DATA_DIR` で起動するよう変更） | データ隔離 |
+| WP-04 | `test_camera_focus_overlay.cjs`・`test_camera_focus_update_order.cjs`（`camera_3d.js` の文字列）、`test_camera_3d_focus_contract.py`、`test_camera_focus_tracking.cjs`、`test_camera_focus_tracking_project.py`（`focus_tracking.target` 追加）、`test_camera_dof.cjs`（焦点距離範囲） | G-15、evaluateOptics、深度色 |
+| WP-02a | `test_bai_camera.py`・`test_camera_lens_fstop.py`（`read` の挙動変更、既定値返却の削除） | G-06 |
+| WP-02b | `test_camera_project_revision.py`（If-Match 必須化）、`test_camera_sequence_api.py`・`test_camera_sequence_edit.py`（409 化、revision） | G-12 |
+| WP-02c | `mcp_server.py` を使う既存テスト（無ければ新規のみ）、`test_camera_workspace_contract.py` に関係なし | G-05 |
+| WP-02d | `test_bundle_revision.py`（`existing.revision)` の検査は残し、`X-Bai-Camera-Revision` の振る舞いテストを追加）、`test_bundle_snapshot_consistency.py`（ソース文字列→振る舞い）、`test_camera_project_bundle_ui.py`・`test_camera_bundle_preflight.cjs`（文言・イベント）、`test_camera_workspace_contract.py`・`test_project_state_bundle.py`（workspace 緩和）、`test_camera_bone_follow_wiring.py`、`test_camera_sequence_ui.py`（再取得の履歴） | G-04、G-16、2-M1 |
+| WP-05 | `test_camera_interpolation.py`（UI 選択肢）、`test_camera_easing.py`（上限100） | G-09 |
+| WP-06 | `test_camera_move.py`（旧4種は不変であることを確認、新操作は新規ファイル） | 符号表 |
+| WP-07 | `test_camera_rig.js`、`test_camera_rig_store.py`、`test_camera_rail_handles.py` | rig 拡張 |
+| WP-08 | `test_camera_follow_config.mjs`・`test_camera_follow_smoothing.mjs`・`test_camera_follow_project.py` | targets |
+| WP-09 | `test_camera_cinematic.js`（JS 版は未使用と明記して残す） | Python 専用化 |
+| WP-12 | `test_camera_sequence.py`・`test_camera_sequence_playback.cjs`・`test_camera_sequence_ui.py` | update・新形 |
+| WP-13 | `test_camera_vmd_codec.py`（照明等の読み飛ばし）、`test_camera_vmd_bridge.py`・`test_camera_vmd_local.py`・`test_camera_vmd_preview.js`・`test_camera_vmd_playback.py`（縮尺・バイト順定数）、`test_camera_vmd_render_priority.py`・`test_camera_vmd_timeline_wiring.py`（文字列→振る舞い）、`test_camera_vmd.py`・`test_camera_vmd_export.py`（旧 `camera_vmd.py` 用として残す） | G-10/17 |
+| WP-15 | `test_camera_framing.cjs`・`test_camera_model_bounds_wiring.py`（補助線既定 OFF） | CAM-004 |
+| WP-17 | `test_camera_projection_wiring.py`・`test_camera_html_wiring_recovery.py`（レイアウト変更） | 最大化・分割 |
+
+一覧に無い既存テストが壊れた場合も、同じ方針で同じコミット内に直し、本表に追記する。
+
+### 4.3 WP-17 の詳細
+各ペイン右上に片側最大化ボタン（もう一度押すと2画面）、中央スプリッター（ドラッグで分割比 0.2〜0.8、←→ で 0.05 刻み、`role="separator"`・`aria-valuenow`）、幅 950px 以下は上下配置（既存 CSS）でスプリッターも上下。workspace `view:{layout:'split'|'scene'|'camera', splitRatio}` を保存（このWPで `validate_workspace` に追加）。リサイズ中にキー・姿勢不変、`resizeRender` が呼ばれ両 canvas の縦横比が正しい（Playwright、CAM-PERF-01 の一部）。
+
+---
+
+## 5. テスト方針（まとめ）
+- 単体：Python `tests/test_camera_*.py` と既存のルート `test_*.py`、Node `tests/test_camera_*.cjs` と既存のルート `test_camera_*.cjs`・`test_camera_*.js`・`test_camera_*.mjs`。
+- 照合：parity（§2.2）、ツール定義（§2.5）、静的配信（§2.11）。
+- 画面：`tests/camera-ui.test.cjs`（ポート 8798）、`tests/studio-ui.test.cjs`（8799）。SwiftShader、「GPU未検証」記録。
+- データ隔離：実 `data/` のハッシュ不変（§2.9）。
+- **コミットごとのコマンド**：`npm run typecheck`、`python -m pytest -q`、`node --test tests/test_camera_*.cjs test_camera_*.cjs test_camera_*.js test_camera_*.mjs`、該当 Playwright（`node --test tests/camera-ui.test.cjs`）。`package.json` に `test:camera`（上の node コマンド）と `test:camera-ui` を追加。結果（件数）をコミット本文と台帳に書く。既存の失敗は件名と理由を書き、隠さない。
+
+## 6. 台帳（PHASE_E_IMPLEMENTATION_STATUS.json）の更新ルール
+- 各 feature に `notes`（文字列配列、任意）を追加（schema_version 1 のまま）。要素は `"YYYY-MM-DD WP-xx: 内容"`。
+- `implementation_assessment`：1〜3文。`evidence_paths`：実装・テストを追加。
+- `ui_api_webmcp_stdio_mcp_verified`：WP-18 の4経路一致が通った ID だけ true。
+- `real_browser_verified`：実GPU確認済みだけ true（SwiftShader は false、`notes` に記録）。
+- `release_complete`：§8 を満たしオーナー確認済みのみ true。
+
+## 7. 新UI（/workspace）との関係
+- Phase E は既存 `camera.html` 系に実装。新UIへの移植は P2（Phase E の後）。API・MCP は共通。モック画面の項目名は P2 で本書に合わせる。
+
+## 8. 完了ゲート（Phase E 全体）
+1. 18機能と E-FOCUS-01/02 の本書のテストがすべて自動で合格。
+2. 4経路で同じ操作・同じ samples が同じ結果（WP-18）。標準MCP の制限（`transport:'browser'` のツール、samples が必要な機能）を一覧で明記。
+3. 保存→再起動相当→復元で全状態一致（WP-02d、WP-13 の clip・VMD 追従、WP-17 の view を含む）。
+4. テスト GLB で Scene View と Camera View が同一時刻に表示（SwiftShader）。
+5. 未検証事項（付録D）をオーナーに提示。**ここで初めてオーナーに動作確認を依頼**。
+
+## 9. 判断に迷ったとき・オーナーへの確認事項
+- 迷ったとき：①上位文書 ②本書の最小解釈 ③書いていない機能は作らず「未決」と追記して報告。
+- **Q1（既定で進める）**：別モデル複数人の実機検証は Phase C 以降。
+- **Q2（既定で進める）**：CAM-014 の履歴は使用履歴＋Undo/Redo。
+- **Q3（要確認・既定で進める）**：フォーカス設計 §4 はセンサー幅を変更可能としているが、本書は 36×24mm 固定（FOV が正本のため）。変更可能化はオーナー確認後。
+- **Q4（情報）**：12.5 MMD単位/m。VMD 補間バイト順は未検証。
+- **Q5（要確認・既定で進める）**：モデル正規化（高さ 2.0）を維持するため、光学計算はシーン単位で行い、物理 m は参考値として併記する。薄レンズの DOF は縮尺に不変でないため、物理 m で分類すべきかはオーナー確認後に決める（変更は `evaluateOptics` の入力単位の切替1か所で済む設計にする）。
+- 未承認候補（実装しない）：現時点で無し（ドローンのバンク、CAM-002 の重みスライダー、CAM-015 の keys ソースと音声オフセットは削除済み）。
+
+---
+
+## 付録A CAM-013 組み込みテンプレート（完全な定義、2-M8）
+**座標の約束**：被写体基準点 B＝被写体包囲箱の底面中心（正規化モデルなら原点）。長さの単位は **h（被写体の高さ、シーン単位）**。`startPose.position`・`lookAt`・各点は `B + h·(x,y,z)`（+Z＝モデル前方）。`lookAtMarker` があれば samples のそのマーカー点を注視（無ければ `lookAt` の値、`target_source:'guide'`）。rail の `moveLocal:[右, 上, 前]` は開始姿勢のカメラ基底（`right0`・`up0`・`f`）での移動量（h 単位）。cinematic の長さは CAM-012 の物理 m 指定（×s）。
+
+```json
+{"schema":1,"templates":[
+ {"id":"fight-impact","category":"fight","name":"インパクト・シェイク","description":"打撃の瞬間に揺れを加える","aspect":"16:9",
+  "lens":{"focalMm":35,"fStop":4},"recommendedFrames":[8,24],
+  "startPose":{"position":[0,0.55,1.6],"lookAt":[0,0.55,0],"lookAtMarker":"chest"},
+  "generator":{"kind":"cinematic","type":"shake","params":{"duration":12,"amplitudeM":0.05,"amplitudeRollDeg":2,"seed":1}}},
+ {"id":"fight-orbit","category":"fight","name":"回り込みオービット","description":"被写体の周りを半周回り込む","aspect":"16:9",
+  "lens":{"focalMm":28,"fStop":5.6},"recommendedFrames":[60,150],
+  "startPose":{"position":[0,0.75,2.2],"lookAt":[0,0.55,0],"lookAtMarker":"chest"},
+  "generator":{"kind":"rig","type":"orbit","params":{"center":[0,0.55,0],"amount":180,"orbit":{"radius":[2.2,2.2],"height":[0.75,0.75],"elevation":null},"bake_ease":"sine","bake_step":2}}},
+ {"id":"fight-low","category":"fight","name":"ローアングル見上げ","description":"低い位置から見上げる静止構図","aspect":"16:9",
+  "lens":{"focalMm":24,"fStop":4},"recommendedFrames":[1,1],
+  "startPose":{"position":[0,0.25,1.55],"lookAt":[0,0.72,0],"lookAtMarker":"chest","roll":0},
+  "generator":{"kind":"pose","type":"static","params":{}}},
+ {"id":"mv-push","category":"mv","name":"スロープッシュイン","description":"ゆっくり前進して寄る","aspect":"16:9",
+  "lens":{"focalMm":50,"fStop":2.8},"recommendedFrames":[90,240],
+  "startPose":{"position":[0,0.6,2.5],"lookAt":[0,0.6,0],"lookAtMarker":"chest"},
+  "generator":{"kind":"rig","type":"rail","params":{"moveLocal":[0,0,0.9],"constant_speed":false,"bake_ease":"sine","bake_step":2}}},
+ {"id":"mv-half-orbit","category":"mv","name":"半周オービット","description":"横から反対側の横まで回る","aspect":"2.39:1",
+  "lens":{"focalMm":50,"fStop":2},"recommendedFrames":[90,240],
+  "startPose":{"position":[0,0.6,1.9],"lookAt":[0,0.55,0],"lookAtMarker":"chest"},
+  "generator":{"kind":"rig","type":"orbit","params":{"center":[0,0.55,0],"amount":180,"orbit":{"radius":[1.9,1.9],"height":[0.6,0.6],"elevation":null,"startAzimuth":-90},"bake_ease":"sine","bake_step":2}}},
+ {"id":"mv-crane-up","category":"mv","name":"クレーン上昇","description":"アームで持ち上げながら見下ろす","aspect":"16:9",
+  "lens":{"focalMm":35,"fStop":4},"recommendedFrames":[90,240],
+  "startPose":{"position":[0,0.17,2.46],"lookAt":[0,0.55,0],"lookAtMarker":"chest"},
+  "generator":{"kind":"rig","type":"jib","params":{"jib":{"pivot":[0,0.6,0],"armLength":[2.5,2.5],"elevation":[-10,35],"swing":[0,0],"pedestal":[0,0],"lookAt":[0,0.55,0]},"bake_ease":"cubic","bake_step":2}}},
+ {"id":"horror-pov","category":"horror","name":"主観POV","description":"被写体の目線で見る","aspect":"16:9",
+  "lens":{"focalMm":24,"fStop":2.8},"recommendedFrames":[30,240],
+  "startPose":{"position":[0,0.9,0.05],"lookAt":[0,0.9,1.0]},
+  "generator":{"kind":"cinematic","type":"pov","params":{"offsetForwardM":0.08,"offsetUpM":0.02}}},
+ {"id":"horror-pullback","category":"horror","name":"ゆっくり後退","description":"不安を残してゆっくり離れる","aspect":"16:9",
+  "lens":{"focalMm":35,"fStop":2},"recommendedFrames":[120,300],
+  "startPose":{"position":[0,0.6,1.5],"lookAt":[0,0.6,0],"lookAtMarker":"face"},
+  "generator":{"kind":"rig","type":"rail","params":{"moveLocal":[0,0,-1.25],"constant_speed":false,"bake_ease":"quad","bake_step":2}}},
+ {"id":"horror-dutch","category":"horror","name":"ダッチアングル","description":"傾けた静止構図","aspect":"16:9",
+  "lens":{"focalMm":35,"fStop":2.8},"recommendedFrames":[1,1],
+  "startPose":{"position":[0,0.6,1.9],"lookAt":[0,0.85,0],"lookAtMarker":"face","roll":15},
+  "generator":{"kind":"pose","type":"static","params":{}}},
+ {"id":"arch-slide","category":"arch","name":"等速レール横移動","description":"一定速度で横に流す","aspect":"2.39:1",
+  "lens":{"focalMm":24,"fStop":8},"recommendedFrames":[120,360],
+  "startPose":{"position":[-1.25,0.6,3.0],"lookAt":[-1.25,0.6,0]},
+  "generator":{"kind":"rig","type":"rail","params":{"moveLocal":[2.5,0,0],"constant_speed":true,"bake_ease":"linear","bake_step":2}}},
+ {"id":"arch-drone","category":"arch","name":"ドローン俯瞰","description":"高所を曲線で移動しながら見下ろす（バンクなし）","aspect":"16:9",
+  "lens":{"focalMm":18,"fStop":8},"recommendedFrames":[150,450],
+  "startPose":{"position":[-3,5,4],"lookAt":[0,0.5,0]},
+  "generator":{"kind":"rig","type":"spline","params":{"points":[[-3,5,4],[0,6.25,3],[3,7.5,4]],"lookAt":[0,0.5,0],"constant_speed":true,"bake_ease":"sine","bake_step":3}}},
+ {"id":"arch-tiltup","category":"arch","name":"ティルトアップ","description":"位置を固定して下から上へ見上げる","aspect":"16:9",
+  "lens":{"focalMm":24,"fStop":8},"recommendedFrames":[90,240],
+  "startPose":{"position":[0,0.3,3.0],"lookAt":[0,-0.23,0]},
+  "generator":{"kind":"rig","type":"spin","params":{"spin":{"yaw":[0,0],"pitch":[-10,30]},"bake_ease":"sine","bake_step":2}}},
+ {"id":"prod-turntable","category":"product","name":"ターンテーブル","description":"近距離で一周回る","aspect":"1:1",
+  "lens":{"focalMm":85,"fStop":5.6},"recommendedFrames":[180,360],
+  "startPose":{"position":[0,0.7,0.75],"lookAt":[0,0.5,0]},
+  "generator":{"kind":"rig","type":"orbit","params":{"center":[0,0.5,0],"amount":360,"orbit":{"radius":[0.75,0.75],"height":[0.2,0.2],"elevation":null},"bake_ease":"linear","bake_step":2}}},
+ {"id":"prod-dollyzoom","category":"product","name":"ドリーズーム","description":"大きさを保ったまま背景の遠近感を変える","aspect":"16:9",
+  "lens":{"focalMm":50,"fStop":4},"recommendedFrames":[60,180],
+  "startPose":{"position":[0,0.6,2.0],"lookAt":[0,0.6,0],"lookAtMarker":"chest"},
+  "generator":{"kind":"cinematic","type":"dolly_zoom","params":{"fov":[40,20]}}},
+ {"id":"prod-macro","category":"product","name":"マクロ寄り","description":"至近距離でわずかに前進","aspect":"1:1",
+  "lens":{"focalMm":105,"fStop":8},"recommendedFrames":[60,180],
+  "startPose":{"position":[0,0.6,0.8],"lookAt":[0,0.6,0]},
+  "generator":{"kind":"rig","type":"rail","params":{"moveLocal":[0,0,0.2],"constant_speed":false,"bake_ease":"sine","bake_step":1}}},
+ {"id":"sns-bust","category":"sns","name":"縦型バストアップ","description":"縦長画面の胸から上","aspect":"9:16",
+  "lens":{"focalMm":50,"fStop":2.8},"recommendedFrames":[1,1],
+  "startPose":{"position":[0,0.9,1.0],"lookAt":[0,0.85,0],"lookAtMarker":"face","roll":0},
+  "generator":{"kind":"pose","type":"static","params":{}}},
+ {"id":"sns-dollyin","category":"sns","name":"縦型ドリーイン","description":"縦長画面で前進して寄る","aspect":"9:16",
+  "lens":{"focalMm":35,"fStop":2.8},"recommendedFrames":[60,180],
+  "startPose":{"position":[0,0.7,2.0],"lookAt":[0,0.7,0],"lookAtMarker":"chest"},
+  "generator":{"kind":"rig","type":"rail","params":{"moveLocal":[0,0,0.6],"constant_speed":false,"bake_ease":"cubic","bake_step":2}}},
+ {"id":"sns-whip","category":"sns","name":"縦型ウィップ","description":"素早く横に振る","aspect":"9:16",
+  "lens":{"focalMm":28,"fStop":4},"recommendedFrames":[6,30],
+  "startPose":{"position":[0,0.6,2.5],"lookAt":[0,0.6,0]},
+  "generator":{"kind":"cinematic","type":"whip","params":{"yaw":[0,90],"duration":6}}}
+]}
+```
+
+- `kind:'pose'`：`startPose` をそのまま1キー（`roll` を含む）。
+- `kind:'rig'`：`startPose` を開始姿勢とし、`params` を rig 設定として `camera_rig.py` でベイク（長さは h 倍してシーン単位）。`moveLocal` は rail の `start`＝開始位置、`end`＝開始位置＋基底での移動量に変換。
+- `kind:'cinematic'`：`startPose` を開始姿勢、`params` を CAM-012 の引数に渡す。
+- スキーマ検証で全18件について `id` 一意、`category` 6種、`aspect` 4種、`focalMm` が10段選択または 8〜274、`fStop` 0.7〜64、`recommendedFrames[0] ≤ [1]`。
+
+## 付録B MMD カメラ座標変換（コードで確認した式＋縮尺。MMD 実機との一致は未検証）
+**定数**：`k = MMD_UNIT_PER_M = 12.5`、モデル縮尺 `s`・オフセット `o`（§0.2、未読込は `s=1, o=0`）。
+
+**取込（現行 `preview_pose`・`camera_vmd_local.preview` の回転部分と同一。WP-13 で単位・縮尺を追加）**
+- 入力：注視点 `c`、回転 `(x,y,z)`（ラジアン）、距離 `d`、`fov`。
+- `_rotate_xyz` はベクトルに X→Y→Z の順で回転（`camera_vmd_bridge.py:14-21`）。`R = Rz(z)·Ry(y)·Rx(x)`：
+  ```
+  R = [[cz·cy, cz·sy·sx − sz·cx, cz·sy·cx + sz·sx],
+       [sz·cy, sz·sy·sx + cz·cx, sz·sy·cx − cz·sx],
+       [−sy,   cy·sx,            cy·cx          ]]
+  ```
+- `v = R·(0,0,d)`、`u = R·(0,1,0)`。Z 反転して物理 m：`T_phys = (cx, cy, −cz)/k`、`P_phys = T_phys + (vx, vy, −vz)/k`。シーン：`target = s·T_phys + o`、`position = s·P_phys + o`、`up = (ux, uy, −uz)`（向きは縮尺の影響なし）。`roll` は §0.2 の逆算。
+
+**書出し（取込の厳密な逆）**
+1. シーン姿勢 `(p, t, fov, roll)` から `up`（縮退時は前サンプルの right0）。
+2. 物理 m：`T_phys = (t − o)/s`、`P_phys = (p − o)/s`。
+3. MMD 空間：`c = (T.x, T.y, −T.z)·k`、`v' = ((P−T).x, (P−T).y, −(P−T).z)·k`、`u' = (up.x, up.y, −up.z)`。
+4. `d = −|v'|`、`w = v'/d`（R の第3列）、`u'' = normalize(u' − (u'·w)w)`（第2列）、`r1 = u'' × w`（第1列）。
+5. 分解：`y = asin(−R[2][0])`、`x = atan2(R[2][1], R[2][2])`、`z = atan2(R[1][0], R[0][0])`。ジンバル（`|R[2][0]| > 1−1e-9`）：`z` は前サンプル（無ければ0）、`R[2][0]=−1` なら `x = z + atan2(R[0][1], R[0][2])`、`+1` なら `x = −z + atan2(−R[0][1], −R[0][2])`。
+6. ±2π で連続化。`fov_vmd = clamp(round(fov),1,180)`、`perspective=0`。
+
+**固定試験データ（MMD 既定カメラ）**：`c=(0,10,0)`、回転0、`d=−45`、`fov=30`。
+- `s=1, o=0`：`T_phys=(0,0.8,0)`、`P_phys=(0,0.8,3.6)` → target (0,0.8,0)、position (0,0.8,3.6)、up (0,1,0)、roll 0。カメラは +Z 側から −Z（モデル正面）を見る＝モデル前方 +Z と整合。
+- `s=1.25, o=(0,0.1,0)`：target (0,1.1,0)、position (0,1.1,4.6)。
+- 書出しで `c=(0,10,0)`、`d=−45`、回転0に戻る（1e-5）。追加ケース：回転 `(0.3,−0.5,0.2)`、ロール ±170度、真下（ジンバル）、距離 −10。
+
+**未検証**：①ブリッジの回転順・符号・Z 反転と MMD 表示の一致 ②VMD 補間バイト順 ③VMD 視野角が縦 FOV か ④「VMD は物理 1.6m 前後の MMD モデル向けに作られ、ソース GLB/VRM も m 単位」という縮尺の前提。検証は mmd_tools のコード照合またはオーナー提供の実データ。
+
+## 付録C エラーコード一覧（WP-00a で `camera_errors.py` に定数化）
+
+| error_code | HTTP | 意味 | 主な発生箇所 |
+|---|---|---|---|
+| `revision_required` | 428 | revision が無い | 書込系 |
+| `revision_conflict` | 409 | revision 不一致 | 書込系 |
+| `camera_revision_conflict` | 409 | bundle 保存時のカメラファイル不一致 | bundle |
+| `sequence_conflict` | 409 | `expected_sequence` 不一致 | sequence/edit |
+| `invalid_payload` | 400 | 形・範囲・重複名・条件不成立 | 全般 |
+| `unknown_field` | 400 | 未知フィールド（書込） | project・bundle・workspace |
+| `invalid_range` | 400 | 範囲・上限・幾何的に不可能 | focus・cinematic 等 |
+| `too_many_keys` | 400 | キー上限超過 | keys/apply・VMD |
+| `keys_in_range` | 409 | 挿入区間に既存キー | keys/apply |
+| `preset_in_use` | 409 | 使用中プリセット削除 | presets/manage |
+| `not_found` | 404 | 素材・クリップ・テンプレート・退避が無い | 各所 |
+| `payload_too_large` | 413 | 本文が上限超過 | 各所 |
+| `camera_project_invalid` | 422 | 保存ファイルが読めない | camera 読込・書込 |
+| `confirmation_required` | 400 | reset・recover の確認なし | reset・recover |
+| `recovery_pending` | 423 | bundle ジャーナル残存 | 全書込系 |
+| `model_not_loaded` | 409 | samples が必要なのに無い | focus・cinematic・director |
+| `vmd_unsupported` | 400 | 非対応 VMD | VMD |
+| `vmd_truncated` | 400 | 節が途中で切れている | VMD |
+| `clip_missing` | 409 | クリップ原本が無い／不一致 | VMD・sequence |
+
+結果内の理由コード：`bone_missing`、`model_not_loaded`、`behind_camera`、`focus_inside_focal`、`invalid_number`、`scale_unknown`、`fallback_bbox`（CAM-011 注視のみ）。
+
+## 付録D 未検証事項（Phase E 全実装後にオーナーへ提示する一覧の初期版）
+1. 実 GPU での描画（2画面・DOF・深度カラー・焦点面ガイド）と性能。開発環境は SwiftShader のみ。
+2. MMD 本体での VMD 読込・書出し、補間バイト順、ブリッジの回転順・符号、視野角の定義、`mode:'keys'` 書出しの見た目。
+3. 実 FBX/VRM・実アニメーションでのフォーカス・追従・POV（頭ボーン前方 +Z）。
+4. モデル縮尺の前提（ソースが m 単位、VMD が物理 1.6m 前後のモデル向け）と、シーン単位での光学分類（Q5）。
+5. 別モデル複数人（Phase C 以降）。
+6. センサー寸法変更（Q3）。
+7. 実 MMD カメラ VMD クリップでの類似分類。

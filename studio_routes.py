@@ -8,6 +8,9 @@ STUDIO_TYPES = {
     '.css': 'text/css; charset=utf-8',
     '.js': 'text/javascript; charset=utf-8',
     '.json': 'application/json',
+    '.webp': 'image/webp',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
     '.svg': 'image/svg+xml',
 }
 # /workspace, /workspace/, /workspace/01 .. /workspace/25 (extra segments are not routes)

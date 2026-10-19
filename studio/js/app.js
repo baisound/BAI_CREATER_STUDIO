@@ -3,6 +3,8 @@
 import { h, badge, toast, openModal, closeModal, showUnimplemented, tabs, slider, selectField, toggle, chips, dropdown, selectList, section, timecode, STATUS_LABEL } from './ui.js';
 import { SCREENS, GROUPS, FORMS, PH } from './screens.js';
 import { LIVE, summarize } from './live.js';
+import { icon, SCREEN_ICON } from './icons.js';
+import { img, ASSETS, ASSET_CATS, PROJECTS, RENDERS } from './samples.js';
 
 /** @typedef {import('./screens.js').Screen} Screen */
 /** @typedef {import('./screens.js').Control} Control */
@@ -10,14 +12,14 @@ import { LIVE, summarize } from './live.js';
 /* ---------- preferences (per-viewer convenience only) ---------- */
 const PREF_KEY = 'bai.studio.prefs.v1';
 /** @type {{theme: string, density: string, bottomCollapsed: boolean}} */
-const prefs = { theme: 'graphite', density: 'compact', bottomCollapsed: false };
+const prefs = { theme: 'night', density: 'compact', bottomCollapsed: false };
 try { Object.assign(prefs, JSON.parse(localStorage.getItem(PREF_KEY) || '{}')); } catch { /* storage unavailable */ }
 function savePrefs() {
   try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch { /* ignore */ }
   applyPrefs();
 }
 function applyPrefs() {
-  document.documentElement.dataset.theme = prefs.theme === 'paper' ? 'paper' : 'graphite';
+  document.documentElement.dataset.theme = ['paper', 'graphite'].includes(prefs.theme) ? prefs.theme : 'night';
   document.documentElement.dataset.density = prefs.density;
 }
 applyPrefs();
@@ -64,7 +66,7 @@ function buildNav() {
     if (!list.length) continue;
     navEl.append(h('div', { class: 'nav-group' }, h('h2', null, g),
       list.map((s) => h('a', { class: 'nav-item', href: routeOf(s.id), dataset: { route: s.id }, title: s.summary },
-        h('span', { class: 'nav-num' }, s.id), h('span', null, s.nav), h('i', { class: `nav-dot ${screenDot(s)}`, 'aria-hidden': 'true' })))));
+        icon(SCREEN_ICON[s.id] || 'more'), h('span', { class: 'nav-label' }, s.nav), h('i', { class: `nav-dot ${screenDot(s)}`, 'aria-hidden': 'true' })))));
   }
 }
 document.addEventListener('click', (e) => {
@@ -214,6 +216,7 @@ function control(c) {
     case 'checks': return h('div', null, c.rows.map((/** @type {string[]} */ [st, l, m]) => h('div', { class: 'check-row' }, h('i', { class: `dot ${st}` }), h('span', null, l), h('span', { class: 'xs muted' }, m))));
     case 'live': return liveBlock(c.key);
     case 'curve': return curve();
+    case 'tiles': return tiles(c);
     case 'browserInfo': return h('dl', { class: 'kv' }, h('dt', null, 'UA'), h('dd', null, navigator.userAgent), h('dt', null, '画面'), h('dd', null, `${innerWidth}×${innerHeight} @${devicePixelRatio}x`), h('dt', null, '言語'), h('dd', null, navigator.language));
     case 'prefToggle': return toggle({ label: c.label, checked: /** @type {any} */ (prefs)[c.key], onChange: (v) => { /** @type {any} */ (prefs)[c.key] = v; savePrefs(); toast('表示設定を保存しました（このブラウザのみ）。', 'real'); } });
     case 'prefDensity': return selectField({ label: '表示密度', options: [['compact', '標準（高密度）'], ['comfortable', 'ゆったり']], value: prefs.density, onChange: (v) => { prefs.density = v; savePrefs(); } });
@@ -224,6 +227,18 @@ function control(c) {
 function actionButton(c) {
   const un = c.act === 'unimpl';
   return h('button', { type: 'button', dataset: { act: String(c.act).split(':')[0] }, class: `btn ${c.primary ? 'primary' : ''} ${un ? 'is-unimpl' : ''}`, title: un ? `◇ 未実装：${c.why || ''}` : (c.title || ''), onclick: () => runAction(c) }, c.label);
+}
+/** Picture tiles (presets / templates). Selection is local only. @param {Control} c */
+function tiles(c) {
+  let sel = 0;
+  const box = h('div', { class: `tiles cols-${c.cols || 3}`, role: 'listbox', 'aria-label': c.label });
+  const draw = () => {
+    box.textContent = '';
+    c.items.forEach((/** @type {string[]} */ [im, l], /** @type {number} */ i) => box.append(h('button', { type: 'button', class: 'tile', role: 'option', 'aria-selected': String(i === sel), onclick: () => { sel = i; draw(); toast(`サンプル表示：${c.label}「${l}」を選択（反映・保存はされません）`, 'mock'); } },
+      h('img', { src: img(im), alt: '', loading: 'lazy' }), h('span', null, l))));
+  };
+  draw();
+  return h('div', { class: 'field stack' }, h('label', null, c.label), box);
 }
 /** @param {string[]} cols @param {string[][]} rows */
 function sortableTable(cols, rows) {
@@ -291,7 +306,7 @@ function statusTab(s) {
 
 /** @param {Screen} s @param {string|null} tab */
 function rightPane(s, tab) {
-  const defs = [...(s.right ? s.right.tabs.map((t) => ({ id: t.id, label: t.label, render: () => renderSections(t.sections) })) : []), statusTab(s)];
+  const defs = [...(s.right ? s.right.tabs.map((t) => ({ id: t.id, label: t.label, render: () => (/** @type {any} */ (t).custom === 'assetDetail' ? assetDetail() : renderSections(t.sections)) })) : []), statusTab(s)];
   const t = tabs({ tabs: defs, selected: tab || undefined, label: `${s.title}のインスペクター`, onChange: (id) => {
     const url = new URL(location.href);
     if (url.searchParams.get('tab') !== id && location.pathname.startsWith('/workspace')) {
@@ -305,6 +320,7 @@ function rightPane(s, tab) {
 /** @param {Screen} s */
 function leftPane(s) {
   const L = /** @type {NonNullable<Screen['left']>} */ (s.left);
+  if (/** @type {any} */ (L).custom === 'assetCats') return assetCats();
   return h('section', { class: 'pane pane-left', 'aria-label': L.title },
     h('div', { class: 'pane-head' }, h('h2', null, L.title), h('span', { class: 'spacer' }), badge(L.status)),
     h('div', { class: 'pane-body' }, L.list ? selectList({ items: L.list, search: L.search, tree: L.tree, label: L.title, selected: L.list[0] && L.list[0].id, onSelect: (id) => toast(`サンプル表示：「${(L.list || []).find((x) => x.id === id)?.label}」を選択`, 'mock') }) : null));
@@ -316,18 +332,20 @@ function centerPane(s) {
   const pane = h('section', { class: 'pane pane-center', 'aria-label': 'メインビュー' });
   switch (c.type) {
     case 'viewport': pane.append(viewport(c)); break;
+    case 'home': pane.append(homeView(c)); break;
+    case 'library': pane.append(libraryView()); break;
     case 'quad': {
       let sel = 0;
       const grid = h('div', { class: 'quad' });
-      const draw = () => { grid.textContent = ''; c.labels.forEach((/** @type {string} */ l, /** @type {number} */ i) => grid.append(h('div', { class: 'viewport', role: 'button', tabindex: '0', 'aria-selected': String(i === sel), 'aria-label': `${l}ビューを選択`, onclick: () => { sel = i; draw(); }, onkeydown: (/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sel = i; draw(); } } }, h('div', { class: 'vp-hud' }, h('span', null, l)), h('div', { class: 'vp-subject' }), h('div', { class: 'vp-note' }, i === sel ? 'アクティブ' : '')))); };
+      const draw = () => { grid.textContent = ''; c.labels.forEach((/** @type {string} */ l, /** @type {number} */ i) => grid.append(h('div', { class: 'viewport', role: 'button', tabindex: '0', 'aria-selected': String(i === sel), 'aria-label': `${l}ビューを選択`, onclick: () => { sel = i; draw(); }, onkeydown: (/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sel = i; draw(); } } }, c.imgs ? h('img', { class: 'vp-img', src: img(c.imgs[i]), alt: '' }) : h('div', { class: 'vp-subject' }), h('div', { class: 'vp-hud' }, h('span', null, l)), h('div', { class: 'vp-note' }, i === sel ? h('span', { class: 'vp-active' }, 'アクティブ') : '')))); };
       draw();
-      pane.append(h('div', { class: 'pane-head' }, h('h2', null, 'マルチビュー'), h('span', { class: 'spacer' }), badge('mock'), h('span', { class: 'xs muted' }, '3D描画は未接続')), grid);
+      pane.append(h('div', { class: 'pane-head' }, h('h2', null, 'マルチビュー'), h('span', { class: 'spacer' }), badge('mock'), h('span', { class: 'xs muted' }, c.imgs ? 'サンプル画像・3D描画は未接続' : '3D描画は未接続')), grid);
       break;
     }
     case 'thumbs': {
       let sel = '';
       const grid = h('div', { class: 'thumbs', role: 'listbox', 'aria-label': '一覧' });
-      const draw = () => { grid.textContent = ''; for (const it of c.items) grid.append(h('button', { type: 'button', class: 'thumb-card', role: 'option', 'aria-selected': String(it.id === sel), onclick: () => { sel = it.id; draw(); toast(`サンプル表示：「${it.label}」を選択`, 'mock'); } }, h('div', { class: 'img' }, it.meta), h('div', { class: 'cap' }, h('b', null, it.label), 'サンプル'))); };
+      const draw = () => { grid.textContent = ''; for (const it of c.items) grid.append(h('button', { type: 'button', class: 'thumb-card', role: 'option', 'aria-selected': String(it.id === sel), onclick: () => { sel = it.id; draw(); toast(`サンプル表示：「${it.label}」を選択`, 'mock'); } }, h('div', { class: 'img' }, it.img ? h('img', { src: img(it.img), alt: '', loading: 'lazy' }) : null, h('span', { class: 'fmt' }, it.meta)), h('div', { class: 'cap' }, h('b', null, it.label), 'サンプル'))); };
       draw();
       const filter = /** @type {HTMLInputElement} */ (h('input', { class: 'input', type: 'search', placeholder: '名前で絞り込み', 'aria-label': '名前で絞り込み', style: { maxWidth: '220px' } }));
       filter.addEventListener('input', () => { const q = filter.value.trim().toLowerCase(); for (const el of grid.children) /** @type {HTMLElement} */ (el).hidden = !!q && !el.textContent?.toLowerCase().includes(q); });
@@ -349,18 +367,22 @@ function centerPane(s) {
   return pane;
 }
 
+/** @type {Record<string, string>} */
+const TOOL_ICON = { 選択: 'cursor', 移動: 'move', 回転: 'rotate', 拡大縮小: 'scale', ドリー: 'dolly', オービット: 'orbit', 焦点面: 'focus' };
 /** @param {any} c */
 function viewport(c) {
   const toolsEl = c.tools ? h('div', { class: 'vp-tools', role: 'toolbar', 'aria-label': 'ビューポートツール' }) : null;
   if (toolsEl) c.tools.forEach((/** @type {string} */ t, /** @type {number} */ i) => toolsEl.append(h('button', { class: 'icon-btn', type: 'button', title: `${t}（サンプル表示）`, 'aria-label': t, 'aria-pressed': String(i === 0), onclick: (/** @type {Event} */ e) => {
     for (const b of toolsEl.children) b.setAttribute('aria-pressed', 'false');
     /** @type {HTMLElement} */ (e.currentTarget).setAttribute('aria-pressed', 'true');
-  } }, t.slice(0, 1))));
-  return h('div', { class: 'viewport', role: 'img', 'aria-label': `${(c.hud || [])[0] || 'ビュー'}（3D描画は未接続）` },
-    c.plain ? null : h('div', { class: 'vp-frame' }), c.plain ? null : h('div', { class: 'vp-subject' }),
+  } }, icon(TOOL_ICON[t] || 'cursor', 16))));
+  return h('div', { class: `viewport ${c.img ? 'has-img' : ''}`, role: 'img', 'aria-label': `${(c.hud || [])[0] || 'ビュー'}（${c.img ? 'サンプル画像。' : ''}3D描画は未接続）` },
+    c.img ? h('img', { class: 'vp-img', src: img(c.img), alt: '' }) : null,
+    c.plain ? null : h('div', { class: 'vp-frame' }), c.plain || c.img ? null : h('div', { class: 'vp-subject' }),
     c.focusPlane ? h('div', { class: 'vp-focus-plane', style: { top: '46%' } }) : null,
-    h('div', { class: 'vp-hud' }, (c.hud || []).map((/** @type {string} */ x) => h('span', null, x)), h('span', { class: 'right' }, 'サンプル表示')),
+    h('div', { class: 'vp-hud' }, (c.hud || []).map((/** @type {string} */ x) => h('span', null, x)), h('span', { class: 'right' }, c.img ? 'サンプル画像' : 'サンプル表示')),
     toolsEl,
+    c.pip ? h('figure', { class: 'vp-pip' }, h('img', { src: img(c.pip), alt: '' }), h('figcaption', null, 'カメラプレビュー（サンプル）')) : null,
     h('div', { class: 'vp-note' }, badge('unimpl', '新UIでの3D描画は未接続です。'), h('span', null, c.foot || '3D描画は未接続です。')));
 }
 
@@ -415,14 +437,14 @@ function bottomPane(s) {
       const off = hidden.has(tr.label);
       const cb = /** @type {HTMLInputElement} */ (h('input', { type: 'checkbox', checked: !off, 'aria-label': `${tr.label}を表示` }));
       cb.addEventListener('change', () => { if (cb.checked) hidden.delete(tr.label); else hidden.add(tr.label); draw(); });
-      const lane = h('div', { class: `tl-track ${off ? 'tl-off' : ''}` });
+      const lane = h('div', { class: `tl-track ${off ? 'tl-off' : ''} ${tr.thumbs ? 'tl-tall' : ''}` });
       if (tr.wave) lane.append(h('i', { class: 'tl-wave' }));
-      for (const [a, z, l] of tr.clips || []) lane.append(h('button', { type: 'button', class: 'tl-clip', style: { left: pct(a), width: `calc(${pct(z - a)} - 2px)` }, title: `${l}（${a}〜${z}f）`, onclick: (/** @type {Event} */ e) => { lane.querySelectorAll('.tl-clip').forEach((x) => x.setAttribute('aria-pressed', 'false')); /** @type {HTMLElement} */ (e.currentTarget).setAttribute('aria-pressed', 'true'); setFrame(a); } }, l));
+      for (const [ci, [a, z, l]] of (tr.clips || []).entries()) lane.append(h('button', { type: 'button', class: `tl-clip ${tr.thumbs ? 'has-thumb' : ''}`, style: { left: pct(a), width: `calc(${pct(z - a)} - 2px)`, backgroundImage: tr.thumbs && tr.thumbs[ci] ? `linear-gradient(90deg, rgba(14,16,20,.85) 0 38%, rgba(14,16,20,.15)), url(${img(tr.thumbs[ci])})` : undefined }, title: `${l}（${a}〜${z}f）`, onclick: (/** @type {Event} */ e) => { lane.querySelectorAll('.tl-clip').forEach((x) => x.setAttribute('aria-pressed', 'false')); /** @type {HTMLElement} */ (e.currentTarget).setAttribute('aria-pressed', 'true'); setFrame(a); } }, l));
       for (const k of tr.keys || []) lane.append(h('button', { type: 'button', class: 'tl-key', style: { left: pct(k) }, title: `${tr.label} キー ${k}f`, 'aria-label': `${tr.label} キー ${k}フレーム`, onclick: () => setFrame(k) }));
       if (tr.keys && !tr.keys.length) lane.append(h('span', { class: 'xs muted', style: { position: 'absolute', left: '8px', top: '4px' } }, 'キーなし'));
       lane.append(h('i', { class: 'tl-head', style: { left: pct(frame) } }));
       lane.addEventListener('dblclick', (e) => { const r = lane.getBoundingClientRect(); setFrame(((e.clientX - r.left) / r.width) * b.frames); });
-      grid.append(h('div', { class: 'tl-label' }, cb, tr.label), lane);
+      grid.append(h('div', { class: `tl-label ${tr.thumbs ? 'tl-tall' : ''}` }, cb, tr.label), lane);
     }
   };
   draw();
@@ -438,18 +460,171 @@ function bottomPane(s) {
   return pane;
 }
 
+/* ---------- home (SCR-01) ---------- */
+/** @param {string} title @param {import('./ui.js').Status} st @param {Node | null} more @param {...any} body */
+const block = (title, st, more, ...body) => h('section', { class: 'block' }, h('div', { class: 'block-head' }, h('h2', null, title), badge(st), h('span', { class: 'spacer' }), more), ...body);
+/** @param {string} label @param {string} id */
+const navLink = (label, id) => h('button', { type: 'button', class: 'link-btn', dataset: { act: 'nav' }, onclick: () => navigate(id) }, label, ' ›');
+
+/** @param {any} c */
+function homeView(c) {
+  const hero = h('section', { class: 'hero' },
+    h('img', { class: 'hero-img', src: img('hero'), alt: '' }),
+    h('div', { class: 'hero-copy' },
+      h('p', { class: 'eyebrow' }, 'BAI CREATOR STUDIO'),
+      h('h2', null, '創る、撮る、繋ぐ。', h('br'), 'すべてをひとつのスタジオで。'),
+      h('p', { class: 'lead' }, '3D・カメラ・アニメーション・VMD・AI をひとつにまとめた制作環境'),
+      h('div', { class: 'btn-row' },
+        actionButton({ t: 'btn', label: '新規プロジェクト', act: 'form:newProject', primary: true }),
+        actionButton({ t: 'btn', label: '紹介ムービーを再生', act: 'unimpl', why: '紹介ムービー・動画チュートリアルはまだありません。', ids: [], phase: PH.P4 }))),
+    h('ul', { class: 'hero-steps', 'aria-label': 'できること' }, ['キャラクターを動かす', 'シーンで魅せる', 'カメラで語る', 'エフェクトで彩る', 'AIで広げる'].map((x) => h('li', null, x))),
+    h('span', { class: 'sample-tag' }, 'サンプル画像'));
+
+  const projects = block('最近のプロジェクト', 'mock', navLink('保存・復元へ', '18'),
+    h('div', { class: 'card-row cols-4' }, PROJECTS.map((p) => h('button', { type: 'button', class: 'media-card', onclick: () => toast(`サンプル表示：「${p.name}」は仮のプロジェクトです（開けません）。`, 'mock') },
+      h('div', { class: 'media' }, h('img', { src: img(p.img), alt: '', loading: 'lazy' }), h('span', { class: 'pill' }, p.state)),
+      h('div', { class: 'media-body' }, h('b', null, p.name), h('span', { class: 'xs muted' }, `更新 ${p.updated}（サンプル）`), h('span', { class: 'small muted clamp' }, p.desc))))),
+    h('p', { class: 'section-note' }, '一覧は仮データです。実在するのは現行サーバーの単一制作状態のみです。'));
+
+  /** @type {[string, string, string, string][]} */
+  const qa = [['plus', '新規プロジェクト', '作品制作を開始', 'form:newProject'], ['stage', 'シーンを作成', 'ステージ・背景を配置', 'nav:06'], ['user', 'キャラクターを追加', 'モデルを読み込み', 'nav:12'], ['motion', 'モーションを読み込み', 'VMD・モーション', 'nav:13'], ['camera', 'カメラを設定', 'カメラワーク・プリセット', 'nav:02'],
+    ['sparkle', 'マテリアル・効果', '質感・演出', 'nav:09'], ['render', 'レンダリング', '書き出し・バッチ', 'nav:17'], ['folder', '素材を管理', 'モデル・ステージ・音楽', 'nav:08'], ['focus', 'ピントを診断', 'フォーカス・DOF', 'nav:03'], ['plug', 'MCP連携', 'AI・外部ツール', 'nav:19']];
+  const quick = block('クイックアクション', 'partial', null, h('div', { class: 'qa-grid' }, qa.map(([ic, t, sub, act]) => h('button', { type: 'button', class: 'qa', dataset: { act: act.split(':')[0] }, onclick: () => runAction({ t: 'btn', label: t, act }) },
+    h('span', { class: 'qa-ico' }, icon(ic, 22)), h('span', null, h('b', null, t), h('span', { class: 'xs muted' }, sub))))));
+
+  const renders = block('最近のレンダリング', 'mock', navLink('すべて見る', '17'), h('div', { class: 'card-row cols-4 compact' }, RENDERS.map((r) => h('button', { type: 'button', class: 'media-card', onclick: () => toast(`サンプル表示：「${r.name}」は仮の書き出し結果です。`, 'mock') },
+    h('div', { class: 'media' }, h('img', { src: img(r.img), alt: '', loading: 'lazy' }), h('span', { class: 'dur mono' }, r.dur)),
+    h('div', { class: 'media-body' }, h('b', { class: 'small' }, r.name), h('span', { class: 'xs muted' }, `${r.spec}・サンプル`))))));
+
+  const recent = ['a04', 'a14', 'a06', 'a19'].map((id) => /** @type {import('./samples.js').SampleAsset} */ (ASSETS.find((a) => a.id === id)));
+  const assets = block('最近の素材', 'mock', navLink('素材管理へ', '08'), h('div', { class: 'card-row cols-4 compact' }, recent.map((a) => h('button', { type: 'button', class: 'media-card', onclick: () => { lib.sel = a.id; navigate('08'); } },
+    h('div', { class: 'media' }, h('img', { src: img(a.img), alt: '', loading: 'lazy' })),
+    h('div', { class: 'media-body' }, h('b', { class: 'small' }, a.name), h('span', { class: 'xs muted' }, a.type))))));
+
+  const rest = (c.cards || []).filter((/** @type {any} */ card) => !['最近のプロジェクト', 'クイックアクション'].includes(card.title));
+  return h('div', { class: 'home' }, hero, projects, quick, h('div', { class: 'home-split' }, renders, assets),
+    h('div', { class: 'dash flush' }, rest.map((/** @type {any} */ card) => h('section', { class: `card span-${card.span}` },
+      h('div', { class: 'pane-head' }, h('h2', null, card.title), h('span', { class: 'spacer' }), badge(card.status)),
+      h('div', { class: 'pane-body' }, card.title === '新規作成' && mockProjects.length ? h('p', { class: 'small' }, `画面内で追加：${mockProjects.join('、')}（未保存）`) : null, card.controls.map(control))))));
+}
+
+/* ---------- asset library (SCR-08) ---------- */
+/** View state of the sample library (in memory only). */
+const lib = { cat: 'all', sel: 'a04', q: '', fmt: 'all', sort: 'new', view: 'grid', size: 2, source: 'lib', queueTab: 'queue',
+  favs: new Set(ASSETS.filter((a) => a.fav).map((a) => a.id)) };
+const COLLECTIONS = [['和風セット', '和風'], ['桜コレクション', '桜'], ['夜景', '夜景'], ['オリジナル', 'オリジナル']];
+/** @param {string} cat */
+const inCat = (cat) => ASSETS.filter((a) => cat === 'all' ? true : cat === 'fav' ? lib.favs.has(a.id) : cat.startsWith('tag:') ? (a.tags || []).includes(cat.slice(4)) : a.cat === cat);
+const catLabel = (/** @type {string} */ cat) => cat === 'all' ? 'すべての素材' : cat === 'fav' ? 'お気に入り' : cat.startsWith('tag:') ? (COLLECTIONS.find((x) => x[1] === cat.slice(4)) || ['', ''])[0] : (ASSET_CATS.find((x) => x.id === cat) || { label: cat }).label;
+function refreshLibrary() {
+  const center = document.querySelector('.pane-center');
+  const left = document.querySelector('.pane-left');
+  if (center) center.replaceChildren(libraryView());
+  if (left) left.replaceWith(assetCats());
+  const tab = document.querySelector('.pane-right [role="tab"][aria-selected="true"]');
+  const panel = document.querySelector('.pane-right [role="tabpanel"]');
+  if (panel && tab && /** @type {HTMLElement} */ (tab).dataset.tab === 'meta') panel.replaceChildren(assetDetail());
+}
+
+function assetCats() {
+  /** @param {string} id @param {string} label @param {string} ic */
+  const row = (id, label, ic) => h('li', { role: 'option', 'aria-selected': String(lib.cat === id), tabindex: '-1', onclick: () => { lib.cat = id; refreshLibrary(); } }, icon(ic, 16), h('span', null, label), h('span', { class: 'meta' }, String(inCat(id).length)));
+  return h('section', { class: 'pane pane-left lib-cats', 'aria-label': '素材カテゴリ' },
+    h('div', { class: 'pane-head' }, h('h2', null, '素材管理'), h('span', { class: 'spacer' }), badge('mock')),
+    h('div', { class: 'pane-body' },
+      h('ul', { class: 'list cat-list', role: 'listbox', 'aria-label': 'カテゴリ' }, row('all', 'すべての素材', 'grid'), ASSET_CATS.map((c) => row(c.id, c.label, c.icon))),
+      h('ul', { class: 'list cat-list sep-top', role: 'listbox', 'aria-label': 'お気に入り' }, row('fav', 'お気に入り', 'heart')),
+      h('div', { class: 'cat-head' }, h('span', null, 'コレクション'), h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'コレクションを追加', dataset: { act: 'unimpl' }, onclick: () => showUnimplemented({ name: 'コレクションを追加', why: 'コレクション（素材のまとまり）の作成・保存は未実装です。ここではタグで絞り込んだ表示例を出しています。', ids: ['NF-004'], phase: PH.P4 }) }, icon('plus', 16))),
+      h('ul', { class: 'list cat-list', role: 'listbox', 'aria-label': 'コレクション' }, COLLECTIONS.map(([l, t]) => row(`tag:${t}`, l, 'folder'))),
+      h('p', { class: 'section-note' }, '件数は画面内のサンプル素材の数です。')));
+}
+
+function libraryView() {
+  const q = lib.q.toLowerCase();
+  let list = inCat(lib.cat).filter((a) => (!q || a.name.toLowerCase().includes(q) || (a.tags || []).some((t) => t.includes(q)) || a.type.includes(q)) && (lib.fmt === 'all' || a.file === lib.fmt));
+  if (lib.sort === 'name') list = [...list].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  if (lib.sort === 'type') list = [...list].sort((a, b) => a.type.localeCompare(b.type, 'ja'));
+
+  /** @type {[string, string][]} */
+  const sources = [['lib', 'ライブラリ'], ['local', 'ローカル'], ['proj', 'プロジェクト内'], ['cloud', 'クラウド'], ['recent', '最近追加'], ['used', '使用中']];
+  const srcBar = h('div', { class: 'seg', role: 'group', 'aria-label': '素材の場所' }, sources.map(([id, l]) => h('button', { type: 'button', 'aria-pressed': String(lib.source === id), onclick: () => { if (id === 'lib') return; toast(`サンプル表示：「${l}」の一覧はまだありません（ライブラリのサンプルを表示中）。`, 'mock'); } }, l)));
+  const bulk = h('div', { class: 'btn-row' },
+    actionButton({ t: 'btn', label: '一括タグ付け', act: 'unimpl', why: '複数素材へのタグ一括付与は未実装です。', ids: ['NF-004'], phase: PH.P4 }),
+    actionButton({ t: 'btn', label: '一括変換', act: 'unimpl', why: '形式の一括変換（例：PMX→VRM）は未実装です。', ids: ['NF-004'], phase: PH.P4 }),
+    actionButton({ t: 'btn', label: '参照関係を確認', act: 'unimpl', why: '素材の参照追跡（どのシーンで使っているか）は移植候補です。', ids: ['REVIEW-010'], phase: PH.P2 }));
+
+  const search = /** @type {HTMLInputElement} */ (h('input', { class: 'input', type: 'search', placeholder: '素材を検索…（名前・タグ・種類）', 'aria-label': '素材を検索', value: lib.q }));
+  search.addEventListener('input', () => { lib.q = search.value; const pos = search.selectionStart; refreshLibrary(); const n = /** @type {HTMLInputElement|null} */ (document.querySelector('.lib input[type="search"]')); if (n) { n.focus(); n.setSelectionRange(pos, pos); } });
+  const fmts = ['all', ...new Set(ASSETS.map((a) => a.file))];
+  const fmtSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '形式で絞り込み', onchange: (/** @type {Event} */ e) => { lib.fmt = /** @type {HTMLSelectElement} */ (e.target).value; refreshLibrary(); } }, fmts.map((f) => h('option', { value: f, selected: lib.fmt === f }, f === 'all' ? 'すべての形式' : f))));
+  const sortSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '並び替え', onchange: (/** @type {Event} */ e) => { lib.sort = /** @type {HTMLSelectElement} */ (e.target).value; refreshLibrary(); } }, [['new', '追加順'], ['name', '名前順'], ['type', '種類順']].map(([v, l]) => h('option', { value: v, selected: lib.sort === v }, l))));
+  const viewBtns = h('div', { class: 'seg icon-seg', role: 'group', 'aria-label': '表示形式' },
+    h('button', { type: 'button', 'aria-pressed': String(lib.view === 'grid'), 'aria-label': 'グリッド表示', onclick: () => { lib.view = 'grid'; refreshLibrary(); } }, icon('grid', 16)),
+    h('button', { type: 'button', 'aria-pressed': String(lib.view === 'list'), 'aria-label': 'リスト表示', onclick: () => { lib.view = 'list'; refreshLibrary(); } }, icon('list', 16)));
+  const size = /** @type {HTMLInputElement} */ (h('input', { type: 'range', min: 1, max: 3, step: 1, value: lib.size, class: 'size-range', 'aria-label': 'サムネイルの大きさ' }));
+  size.addEventListener('input', () => { lib.size = Number(size.value); const g = document.querySelector('.asset-grid'); if (g) /** @type {HTMLElement} */ (g).dataset.size = size.value; });
+
+  /** @param {import('./samples.js').SampleAsset} a */
+  const fav = (a) => h('button', { type: 'button', class: `fav ${lib.favs.has(a.id) ? 'on' : ''}`, 'aria-pressed': String(lib.favs.has(a.id)), 'aria-label': `${a.name}をお気に入り`, onclick: (/** @type {Event} */ e) => { e.stopPropagation(); if (lib.favs.has(a.id)) lib.favs.delete(a.id); else lib.favs.add(a.id); refreshLibrary(); } }, icon('heart', 16));
+  /** @param {import('./samples.js').SampleAsset} a */
+  const pick = (a) => { lib.sel = a.id; refreshLibrary(); };
+  const body = !list.length ? h('div', { class: 'empty' }, '条件に一致する素材はありません。')
+    : lib.view === 'grid'
+      ? h('div', { class: 'asset-grid', role: 'listbox', 'aria-label': '素材一覧', dataset: { size: String(lib.size) } }, list.map((a) => h('div', { class: 'asset', role: 'option', tabindex: '0', 'aria-selected': String(lib.sel === a.id), onclick: () => pick(a), onkeydown: (/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(a); } } },
+        h('div', { class: 'asset-img' }, h('img', { src: img(a.img), alt: '', loading: 'lazy' }), h('span', { class: 'type' }, a.type), lib.sel === a.id ? h('span', { class: 'check' }, icon('check', 14)) : null),
+        h('div', { class: 'asset-cap' }, h('span', null, h('b', null, a.name), h('span', { class: 'xs muted' }, a.file)), fav(a)))))
+      : h('table', { class: 'table asset-table' }, h('thead', null, h('tr', null, ['', '名前', '種類', '形式', 'タグ', ''].map((x) => h('th', { scope: 'col' }, x)))),
+        h('tbody', null, list.map((a) => h('tr', { 'aria-selected': String(lib.sel === a.id), onclick: () => pick(a) }, h('td', null, h('img', { class: 'row-thumb', src: img(a.img), alt: '' })), h('td', null, a.name), h('td', null, a.type), h('td', { class: 'mono' }, a.file), h('td', null, (a.tags || []).join('・') || '—'), h('td', null, fav(a))))));
+
+  /** @type {[string, string][]} */
+  const qtabs = [['queue', 'インポートキュー（3）'], ['sync', '同期ステータス'], ['deps', '依存関係の確認'], ['dl', '最近のダウンロード']];
+  const rows = [['和風小物セット.zip', '小物', 62, '読み込み中（表示例）'], ['桜ステージパック.glb', 'ステージ', 28, '変換中（表示例）'], ['BGM_和風.zip', 'オーディオ', 100, '完了（表示例）']];
+  const queue = h('section', { class: 'lib-queue' },
+    h('div', { class: 'seg', role: 'group', 'aria-label': 'キュー表示' }, qtabs.map(([id, l]) => h('button', { type: 'button', 'aria-pressed': String(lib.queueTab === id), onclick: () => { lib.queueTab = id; refreshLibrary(); } }, l)), h('span', { class: 'spacer' }), badge('mock')),
+    lib.queueTab === 'queue'
+      ? h('div', null, h('table', { class: 'table' }, h('thead', null, h('tr', null, ['ファイル名', '種類', '進み具合', '状態'].map((x) => h('th', { scope: 'col' }, x)))),
+        h('tbody', null, rows.map(([n, t, p, st]) => h('tr', null, h('td', null, icon('folder', 14), ' ', n), h('td', null, t), h('td', null, h('div', { class: 'progress wide', role: 'img', 'aria-label': `表示例 ${p}%` }, h('i', { style: { width: `${p}%` } }))), h('td', { class: 'xs muted' }, st))))),
+        h('p', { class: 'section-note' }, '動きのイメージです。実際の素材登録は現行画面（FBX / GLB / VRM / PMX ZIP / VMD）で行えます。', h('a', { href: '/' }, ' 現行画面で素材を登録 ↗')))
+      : h('div', { class: 'empty' }, '◇ 未実装：この一覧はまだありません。'));
+
+  return h('div', { class: 'lib' },
+    h('div', { class: 'lib-bar' }, srcBar, h('span', { class: 'spacer' }), bulk),
+    h('div', { class: 'lib-bar' }, h('div', { class: 'search-wrap' }, icon('search', 16), search), fmtSel, sortSel, h('span', { class: 'spacer' }), viewBtns, size),
+    h('div', { class: 'lib-crumb' }, icon('home', 14), ' ライブラリ › ', h('b', null, catLabel(lib.cat)), h('span', { class: 'xs muted' }, `　${list.length}件（サンプル）`)),
+    h('div', { class: 'lib-body' }, body), queue);
+}
+
+function assetDetail() {
+  const a = ASSETS.find((x) => x.id === lib.sel) || ASSETS[0];
+  const deps = (a.deps || ASSETS.filter((x) => x.cat === a.cat && x.id !== a.id).slice(0, 4).map((x) => x.img));
+  const tagBox = h('div', { class: 'tag-box' }, (a.tags || []).map((t) => h('span', { class: 'tag' }, t)), h('span', { class: 'xs muted' }, (a.tags || []).length ? '' : 'タグなし'));
+  return h('div', { class: 'asset-detail' },
+    h('div', { class: 'detail-preview' }, h('img', { src: img(a.id === 'a04' ? 'preview-shrine' : a.img), alt: `${a.name}のサンプル画像` }), h('span', { class: 'sample-tag' }, 'サンプル画像')),
+    h('div', { class: 'detail-title' }, h('h2', null, a.name), lib.favs.has(a.id) ? h('span', { class: 'fav on', 'aria-label': 'お気に入り' }, icon('heart', 16)) : null, h('span', { class: 'spacer' }), h('span', { class: 'pill' }, a.type)),
+    section('情報', 'mock', h('dl', { class: 'kv' }, [['ファイル名', `${a.img.replace(/-/g, '_')}${a.file}`], ['種類', a.type], ['形式', a.file.slice(1).toUpperCase()], ['作成者', 'サンプル素材'], ['ライセンス', '未設定（サンプル）'], ['ハッシュ', '—']].map(([k, v]) => [h('dt', null, k), h('dd', null, v)]))),
+    section('タグ', 'mock', tagBox),
+    a.desc ? section('説明', 'mock', h('p', { class: 'small muted', style: { margin: 0 } }, a.desc)) : null,
+    section(`依存素材（${deps.length}）`, 'unimpl', h('div', { class: 'dep-strip' }, deps.map((d) => h('img', { src: img(d), alt: '' }))), h('p', { class: 'section-note' }, '依存関係の追跡は未実装です。並びは表示例です。')),
+    h('div', { class: 'detail-actions' },
+      actionButton({ t: 'btn', label: 'シーンで使う', act: 'unimpl', why: '新UIから素材をシーンへ配置する機能は未接続です。現行の制作画面で素材を選んで使えます。', ids: ['MOTION-002'], phase: PH.P2, primary: true }),
+      h('div', { class: 'btn-row' },
+        actionButton({ t: 'btn', label: '置換', act: 'unimpl', why: 'シーン内の素材差し替えは未実装です。', ids: ['REVIEW-010'], phase: PH.P2 }),
+        actionButton({ t: 'btn', label: 'エクスポート', act: 'unimpl', why: '素材単体の書き出しは外部連携（23）の範囲です。', ids: ['NF-010'], phase: PH.P4 }))));
+}
+
 /* ---------- special pages ---------- */
 function themeStudy() {
   /** @param {string} id @param {string} name @param {string} desc @param {string[]} colors */
   const card = (id, name, desc, colors) => h('button', { type: 'button', class: 'swatch-card', 'aria-pressed': String(prefs.theme === id), onclick: () => { prefs.theme = id; savePrefs(); render(); toast(`テーマ「${name}」に切り替えました（このブラウザに保存）。`, 'real'); }, style: { textAlign: 'left', cursor: 'pointer' } },
-    h('b', null, name, id === 'graphite' ? '（採用案）' : '（比較案）'), h('div', { class: 'swatches' }, colors.map((c) => h('i', { style: { background: c } }))), h('p', { class: 'small muted', style: { margin: 0 } }, desc));
+    h('b', null, name, id === 'night' ? '（既定）' : '（切替可）'), h('div', { class: 'swatches' }, colors.map((c) => h('i', { style: { background: c } }))), h('p', { class: 'small muted', style: { margin: 0 } }, desc));
   return h('div', { class: 'doc' },
-    h('h2', null, 'デザイン比較'), h('p', null, '参考画像の青紫ネオンは採用せず、制作ソフトとして長時間見ても疲れにくい2案を比較しました。色は選択中・状態表示にだけ使います。'),
+    h('h2', null, 'デザイン比較'), h('p', null, '参考画像の画面構成・画像の多さはそのまま活かし、AIっぽい青紫ネオンだけを外しました。既定は深いスレート＋琥珀色のナイトです。色は選択中・主操作・状態表示にだけ使います。'),
     h('div', { class: 'compare' },
+      card('night', 'N: ナイト', '深いスレート（青みの黒）＋琥珀色アクセント。参考画像の暗く引き締まった雰囲気を保ちつつ、紫・ネオン発光を使わない。映像・画像が主役になる配色。', ['#0c0f13', '#151a20', '#252c36', '#e9ecf0', '#e2a54c']),
       card('graphite', 'A: グラファイト', '温かみのあるチャコール＋真鍮色アクセント。3Dビュー・映像の色を邪魔しない暗色。DaVinci Resolve や Blender の作業密度を参考に、グラデーション・発光なし。', ['#1d1c1a', '#232220', '#34322f', '#e6e2da', '#c79b55']),
       card('paper', 'B: ペーパー', 'オフホワイト＋深緑アクセント。文書・設定・素材整理の多い作業向けの明色。ビューポートだけは暗色を維持。', ['#efede8', '#f7f6f2', '#d6d2c9', '#22211e', '#2f6b53'])),
     h('h3', null, '採用理由'),
-    h('ul', null, h('li', null, '映像制作では素材の色判断が重要なため、UIは低彩度の暗色を既定にする（A）。'), h('li', null, 'アクセントは1色に限定し、選択・現在位置・主操作だけに使う。'), h('li', null, '状態（実機能・既存部分・サンプル・未実装）は色だけでなく文字と枠線の種類でも区別する。')),
+    h('ul', null, h('li', null, '映像制作では素材の色判断が重要なため、UIは低彩度の暗色を既定にする（N）。'), h('li', null, 'アクセントは1色に限定し、選択・現在位置・主操作だけに使う。'), h('li', null, '状態（実機能・既存部分・サンプル・未実装）は色だけでなく文字と枠線の種類でも区別する。')),
     h('p', { class: 'small muted' }, '詳細：docs/ui/STUDIO_DESIGN_SYSTEM_JA.md'));
 }
 
@@ -513,7 +688,7 @@ function render() {
       h('span', { class: 'sep' }),
       dropdown('表示', [
         { label: 'タイムラインを折りたたむ / 展開', onSelect: () => { prefs.bottomCollapsed = !prefs.bottomCollapsed; savePrefs(); render(); } },
-        { label: `テーマ：${prefs.theme === 'paper' ? 'グラファイトに切替' : 'ペーパーに切替'}`, onSelect: () => { prefs.theme = prefs.theme === 'paper' ? 'graphite' : 'paper'; savePrefs(); } },
+        { label: `テーマ：${prefs.theme === 'paper' ? 'ナイトに切替' : 'ペーパーに切替'}`, onSelect: () => { prefs.theme = prefs.theme === 'paper' ? 'night' : 'paper'; savePrefs(); } },
         { label: '実装状態タブを開く', onSelect: () => navigate(s.id, { replace: true, tab: 'status' }) },
       ], 'btn ghost')));
   const ws = h('div', { class: `ws ${s.left ? '' : 'no-left'}` });

@@ -1,4 +1,5 @@
 // @ts-check
+import { img, CAM_PRESETS, LENS_PRESETS, SHOT_TEMPLATES, ASSETS } from './samples.js';
 // 25 screen definitions (SCR-01..SCR-25). Source: handoff 05_AI_DATA/screen_inventory.json.
 // Status of every panel is from the repository audit in docs/ui/STUDIO_UI_AUDIT_JA.md:
 //   real    = reads an existing Python API (read-only from this shell)
@@ -10,14 +11,14 @@
 /**
  * @typedef {{t: string, [k: string]: any}} Control
  * @typedef {{title: string, status?: Status, note?: string, controls: Control[]}} Section
- * @typedef {{id: string, label: string, sections: Section[]}} Tab
+ * @typedef {{id: string, label: string, sections: Section[], custom?: string}} Tab
  * @typedef {{name: string, status: Status, note?: string, ids?: string[]}} Panel
  * @typedef {{
  *   id: string, title: string, nav: string, group: string, summary: string,
  *   classification: string, ids: string[], panels: Panel[],
  *   existing?: {label: string, href: string}[], live?: string[],
  *   modes?: string[], tools?: Control[],
- *   left?: {title: string, status: Status, list?: any[], tree?: boolean, search?: boolean, controls?: Control[]},
+ *   left?: {title: string, status: Status, list?: any[], tree?: boolean, search?: boolean, controls?: Control[], custom?: string},
  *   center: {type: string, [k: string]: any},
  *   right?: {tabs: Tab[]},
  *   bottom?: {type: 'timeline', status: Status, fps: number, frames: number, tracks: any[]} | null,
@@ -67,7 +68,7 @@ const MAIN = { label: '制作画面（現行）', href: '/' };
 const camTimeline = ({
   type: 'timeline', status: 'mock', fps: 30, frames: 1350,
   tracks: [
-    { label: 'ショット', clips: [[0, 150, 'Shot 01'], [150, 360, 'Shot 02'], [360, 600, 'Shot 03'], [600, 840, 'Shot 04'], [840, 1080, 'Shot 05']] },
+    { label: 'ショット', thumbs: ['shot-01', 'shot-02', 'shot-03', 'shot-04', 'shot-05'], clips: [[0, 150, 'Shot 01'], [150, 360, 'Shot 02'], [360, 600, 'Shot 03'], [600, 840, 'Shot 04'], [840, 1080, 'Shot 05']] },
     { label: 'カメラ', keys: [0, 90, 150, 270, 360, 480, 600, 780, 840, 1080] },
     { label: 'フォーカス', keys: [0, 150, 300, 360, 600, 900] },
     { label: 'F値 / DOF', keys: [0, 360, 840] },
@@ -91,7 +92,7 @@ export const SCREENS = [
     ],
     tools: [btn('新規プロジェクト', 'form:newProject', { primary: true }), un('プロジェクトを開く', '複数プロジェクトのファイル選択・切替は未実装。現行は単一の制作状態を自動で読み込みます。', ['DATA-008'], PH.P2)],
     center: {
-      type: 'cards', cards: [
+      type: 'home', cards: [
         { title: '最近のプロジェクト', span: 8, status: 'mock', controls: [
           { t: 'table', cols: ['名前', '種別', '最終更新', '状態'], rows: [['Sample_Project', 'ダンスMV', '—', 'サンプル'], ['Camera_Test', 'カメラ試験', '—', 'サンプル'], ['Motion_Library', 'モーション整理', '—', 'サンプル']] },
           note('一覧は仮データです。実在するのは現行サーバーの単一制作状態のみ（「プロジェクト保存・復元」画面で読み取り可能）。'),
@@ -127,12 +128,12 @@ export const SCREENS = [
       { name: 'カット編集', status: 'partial', note: 'シーケンス評価APIあり。編集UIは部分。', ids: ['CAM-015'] },
     ],
     tools: [ch('縦横比', ['16:9', '9:16', '2.39:1', '1:1']), btn('現行カメラ画面で開く', 'href:/camera.html'), un('レンダリング', '動画書き出しは Phase F の範囲です。', ['RENDER-001'], PH.F)],
-    left: { title: 'カメラ・ショット', status: 'mock', search: true, list: items('Shot', 6, (i) => `${i * 8}s`) },
-    center: { type: 'viewport', hud: ['Camera View', 'Shot 03', '1920×1080', '30fps'], tools: ['選択', '移動', '回転', 'ドリー', 'オービット'], foot: 'Focal 50mm · F2.8 · Focus 3.2m（サンプル値）' },
+    left: { title: 'カメラ・ショット', status: 'mock', search: true, list: items('Shot', 6, (i) => `${i * 8}s`).map((x, i) => ({ ...x, thumb: img(`camshot-0${(i % 5) + 1}`) })) },
+    center: { type: 'viewport', img: 'viewport-shrine', pip: 'camshot-03', hud: ['Camera View', 'Shot 03', '1920×1080', '30fps'], tools: ['選択', '移動', '回転', 'ドリー', 'オービット'], foot: 'Focal 50mm · F2.8 · Focus 3.2m（サンプル値）' },
     right: { tabs: [
       { id: 'camera', label: 'カメラ', sections: [
-        { title: 'カメラプリセット', status: 'mock', controls: [ch('プリセット', ['標準', 'シネマ', 'ポートレート', 'ダイナミック', 'ローアングル']), btn('現在の設定をプリセットに保存', 'form:savePreset')] },
-        { title: 'レンズ', status: 'mock', note: '現行カメラ画面では実装済み。ここでは表示のみ。', controls: [sl('焦点距離', 14, 200, 50, 'mm'), ch('レンズ', ['24mm', '35mm', '50mm', '85mm', '135mm'], '50mm'), sl('絞り', 1.4, 16, 2.8, 'F', 0.1), sl('ピント距離', 0.3, 30, 3.2, 'm', 0.1)] },
+        { title: 'カメラプリセット', status: 'mock', controls: [{ t: 'tiles', label: 'カメラプリセット', items: CAM_PRESETS }, btn('現在の設定をプリセットに保存', 'form:savePreset')] },
+        { title: 'レンズ', status: 'mock', note: '現行カメラ画面では実装済み。ここでは表示のみ。', controls: [{ t: 'tiles', label: 'レンズプリセット', items: LENS_PRESETS, cols: 2 }, sl('焦点距離', 14, 200, 50, 'mm'), ch('レンズ', ['24mm', '35mm', '50mm', '85mm', '135mm'], '50mm'), sl('絞り', 1.4, 16, 2.8, 'F', 0.1), sl('ピント距離', 0.3, 30, 3.2, 'm', 0.1)] },
         { title: '姿勢', status: 'mock', controls: [sl('高さ Y', -2, 10, 1.5, 'm', 0.05), sl('チルト', -90, 90, -5, '°'), sl('パン', -180, 180, 12, '°'), sl('ロール', -45, 45, 0, '°')] },
       ] },
       { id: 'focus', label: 'フォーカス', sections: [
@@ -161,7 +162,7 @@ export const SCREENS = [
     ],
     tools: [btn('現行カメラ画面で開く', 'href:/camera.html'), un('CSV/JSON出力', 'フォーカス逸脱診断の書き出しUIは未実装（E-FOCUS-02）。', ['E-FOCUS-02'], PH.E)],
     left: { title: '診断区間', status: 'mock', list: [{ id: 'a', label: '全フレーム', meta: '0–1350' }, { id: 'b', label: 'Shot 02', meta: '150–360' }, { id: 'c', label: 'Shot 03', meta: '360–600' }] },
-    center: { type: 'viewport', hud: ['Scene View', '焦点面ガイド'], focusPlane: true, tools: ['選択', '焦点面'], foot: '焦点面の位置はサンプル表示です。' },
+    center: { type: 'viewport', img: 'viewport-camera', hud: ['Scene View', '焦点面ガイド'], focusPlane: true, tools: ['選択', '焦点面'], foot: '焦点面の位置はサンプル表示です。' },
     right: { tabs: [
       { id: 'diag', label: '診断', sections: [
         { title: '既存APIの診断結果（0フレーム）', status: 'real', note: '保存済みカメラ設定とガイド人体から計算。実モデル・全区間ではありません。', controls: [live('cameraFocus')] },
@@ -191,7 +192,7 @@ export const SCREENS = [
     ],
     tools: [btn('マルチカメラ画面（16）へ', 'nav:16')],
     left: { title: 'シーケンス', status: 'mock', list: [{ id: 's1', label: 'Main Sequence', meta: '5 shots' }, { id: 's2', label: 'Alt Sequence', meta: '3 shots' }] },
-    center: { type: 'viewport', hud: ['Sequence Preview'], foot: 'プレビュー描画は現行カメラ画面で利用できます。' },
+    center: { type: 'viewport', img: 'hero', hud: ['Sequence Preview'], foot: 'プレビュー描画は現行カメラ画面で利用できます。' },
     right: { tabs: [
       { id: 'shot', label: 'ショット', sections: [
         { title: '既存APIのシーケンス評価（0フレーム）', status: 'real', controls: [live('sequenceEval')] },
@@ -214,7 +215,7 @@ export const SCREENS = [
     ],
     tools: [btn('VMD編集画面（13）へ', 'nav:13'), btn('現行の制作画面で開く', 'href:/')],
     left: { title: 'モーション検索', status: 'mock', search: true, list: items('Motion', 8, (i) => ['ダンス', '格闘', '歩行', '待機'][i % 4]) },
-    center: { type: 'viewport', hud: ['Motion Preview'], foot: '3D再生は現行の制作画面で利用できます。' },
+    center: { type: 'viewport', img: 'viewport-character', hud: ['Motion Preview'], foot: '3D再生は現行の制作画面で利用できます。' },
     right: { tabs: [
       { id: 'layer', label: 'レイヤー', sections: [
         { title: '表情レイヤー', status: 'unimpl', controls: [un('表情レイヤーを追加', '表情・視線・瞬き編集はリップシンク・表情フェーズの範囲です。', ['LIP-009'], PH.LIP)] },
@@ -236,7 +237,7 @@ export const SCREENS = [
     ],
     tools: [ch('座標系', ['ワールド', 'ローカル']), un('ステージを読み込む', '大型ステージの分割読込は Phase G の範囲です。', ['LYRIC-009'], PH.G)],
     left: { title: 'シーンツリー', status: 'mock', tree: true, list: [{ id: 'r', label: 'Scene', depth: 0 }, { id: 'st', label: 'Stage', depth: 1 }, { id: 'fl', label: 'Floor', depth: 2 }, { id: 'ch', label: 'Characters', depth: 1 }, { id: 'a', label: 'Model A', depth: 2 }, { id: 'b', label: 'Model B', depth: 2 }, { id: 'li', label: 'Lights', depth: 1 }, { id: 'k', label: 'Key Light', depth: 2 }, { id: 'cam', label: 'Camera', depth: 1 }] },
-    center: { type: 'viewport', hud: ['Scene View', 'Perspective'], tools: ['選択', '移動', '回転', '拡大縮小'], foot: 'ステージ配置ビューは ◇ 未実装。' },
+    center: { type: 'viewport', img: 'preview-shrine', hud: ['Scene View', 'Perspective'], tools: ['選択', '移動', '回転', '拡大縮小'], foot: 'ステージ配置ビューは ◇ 未実装。' },
     right: { tabs: [
       { id: 'xf', label: 'トランスフォーム', sections: [
         { title: '位置', status: 'mock', controls: [sl('X', -50, 50, 0, 'm', 0.1), sl('Y', -50, 50, 0, 'm', 0.1), sl('Z', -50, 50, 0, 'm', 0.1)] },
@@ -260,7 +261,7 @@ export const SCREENS = [
       { name: '素材書き出し', status: 'partial', note: 'カメラVMD書き出し（CAM-016）は部分実装。', ids: ['CAM-016'] },
     ],
     tools: [btn('レンダリング詳細（17）へ', 'nav:17'), un('レンダリング開始', '動画レンダリングは Phase F の範囲です。偽の進捗は表示しません。', ['RENDER-001'], PH.F)],
-    center: { type: 'viewport', hud: ['Render Preview'], foot: 'レンダラー未接続（◇ 未実装）。' },
+    center: { type: 'viewport', img: 'viewport-camera', hud: ['Render Preview'], foot: 'レンダラー未接続（◇ 未実装）。' },
     right: { tabs: [
       { id: 'fmt', label: '形式', sections: [
         { title: '動画形式', status: 'unimpl', controls: [sel('形式', ['MP4 (H.264)', 'MOV (ProRes)', 'PNG連番', 'WebM']), sel('解像度', ['1920×1080', '3840×2160', '1080×1920']), sel('FPS', ['30', '60', '24'])] },
@@ -282,10 +283,10 @@ export const SCREENS = [
       { name: 'インポートキュー', status: 'partial', note: '現行画面の素材登録（FBX/GLB/VRM/PMX ZIP/VMD）。', ids: ['MOTION-003'] },
     ],
     tools: [btn('現行画面で素材を登録', 'href:/'), un('一括インポート', 'インポートキューの一括処理は未実装。', ['NF-004'], PH.P4), sel('並び替え', ['名前', '種別', '追加日'])],
-    left: { title: 'カテゴリ', status: 'mock', list: [{ id: 'all', label: 'すべて', meta: '—' }, { id: 'model', label: 'モデル（PMX/VRM）' }, { id: 'motion', label: 'モーション（FBX/VMD）' }, { id: 'stage', label: 'ステージ' }, { id: 'audio', label: '音声' }, { id: 'image', label: '画像' }] },
-    center: { type: 'thumbs', status: 'mock', items: ['Model A', 'Model B', 'Dance 01', 'Dance 02', 'Kick 03', 'Stage Hall', 'BGM Demo', 'Ref Image'].map((n, i) => ({ id: `as${i}`, label: n, meta: ['PMX', 'VRM', 'VMD', 'VMD', 'FBX', 'PMX', 'WAV', 'PNG'][i] })) },
+    left: { title: '素材管理', status: 'mock', custom: 'assetCats' },
+    center: { type: 'library', status: 'mock' },
     right: { tabs: [
-      { id: 'meta', label: 'メタデータ', sections: [
+      { id: 'meta', label: '素材の詳細', custom: 'assetDetail', sections: [
         { title: '選択中の素材', status: 'mock', controls: [{ t: 'kv', rows: [['名前', '選択してください'], ['形式', '—'], ['ライセンス', '—'], ['ハッシュ', '—']] }] },
         { title: 'タグ', status: 'mock', controls: [{ t: 'text', label: 'タグを追加', placeholder: '例: ダンス', required: false }] },
       ] },
@@ -344,7 +345,7 @@ export const SCREENS = [
     ],
     tools: [btn('素材管理（08）へ', 'nav:08'), un('トリミング', '画像編集は未承認の新規候補（NF-003）。素材管理と同一索引に統合する方針。', ['NF-003'], PH.P4)],
     left: { title: 'フォルダー', status: 'mock', tree: true, list: [{ id: 'ref', label: '参照画像', depth: 0 }, { id: 'pose', label: 'ポーズ', depth: 1 }, { id: 'stage', label: 'ステージ', depth: 1 }, { id: 'tex', label: 'テクスチャ', depth: 0 }] },
-    center: { type: 'thumbs', status: 'mock', items: Array.from({ length: 10 }, (_, i) => ({ id: `im${i}`, label: `ref_${String(i + 1).padStart(3, '0')}`, meta: 'PNG' })) },
+    center: { type: 'thumbs', status: 'mock', items: ASSETS.filter((a) => ['image', 'mat', 'stage', 'fx'].includes(a.cat)).map((a) => ({ id: a.id, label: a.name, meta: a.file.slice(1).toUpperCase(), img: a.img })) },
     right: { tabs: [{ id: 'meta', label: 'メタデータ', sections: [{ title: '画像情報', status: 'mock', controls: [{ t: 'kv', rows: [['名前', '—'], ['サイズ', '—'], ['タグ', '—']] }] }, { title: 'バージョン', status: 'unimpl', controls: [un('版を比較', '画像のバージョン管理は未実装。', ['NF-003'], PH.P4)] }] }] },
   },
   {
@@ -362,8 +363,8 @@ export const SCREENS = [
       { name: '物理', status: 'unimpl', ids: ['MOTION-021', 'REVIEW-009'] },
     ],
     tools: [btn('現行画面でモデルを表示', 'href:/'), un('物理ベイク', 'MMD物理ベイクは未実装（MOTION-021）。', ['MOTION-021'], PH.B)],
-    left: { title: 'キャラクター', status: 'mock', search: true, list: [{ id: 'a', label: 'Model A', meta: 'PMX' }, { id: 'b', label: 'Model B', meta: 'PMX' }, { id: 'v', label: 'VRM Sample', meta: 'VRM' }] },
-    center: { type: 'viewport', hud: ['Model Preview', 'T-Pose'], tools: ['選択', '回転'], foot: '3D表示は現行の制作画面で利用できます。' },
+    left: { title: 'キャラクター', status: 'mock', search: true, list: [['baisound', 'バイサウンド', 'VRM'], ['s01', 'サンプル 01', 'VRM'], ['s02', 'サンプル 02', 'PMX'], ['s03', 'サンプル 03', 'PMX'], ['s04', 'サンプル 04', 'VRM'], ['s05', 'サンプル 05', 'GLB']].map(([id, label, meta]) => ({ id, label, meta, thumb: img(id === 'baisound' ? 'char-baisound' : `char-${id}`) })) },
+    center: { type: 'viewport', img: 'viewport-character', hud: ['Model Preview', 'A-Pose'], tools: ['選択', '回転'], foot: '3D表示は現行の制作画面で利用できます。' },
     right: { tabs: [
       { id: 'bone', label: 'ボーン', sections: [{ title: 'ボーン', status: 'partial', controls: [{ t: 'list', items: ['センター', '上半身', '首', '頭', '左腕', '右腕', '左足', '右足'].map((n) => ({ id: n, label: n })) }] }] },
       { id: 'morph', label: 'モーフ', sections: [{ title: '口・目モーフ', status: 'unimpl', controls: [un('モーフを解析', 'モデル別PMX口モーフ解析はリップシンクフェーズ（LIP-004）。', ['LIP-004'], PH.LIP)] }] },
@@ -388,7 +389,7 @@ export const SCREENS = [
     ],
     tools: [btn('現行画面で開く', 'href:/'), un('VMDを書き出す', 'この新UIからの書き出しは未接続。現行画面の変換機能を利用してください。', ['MOTION-006'], PH.P2)],
     left: { title: 'VMDライブラリ', status: 'mock', search: true, list: items('Dance', 6, (i) => `${(i + 2) * 120}f`) },
-    center: { type: 'quad', labels: ['元モーション', '対象モデル', '重ね合わせ', '側面'] },
+    center: { type: 'quad', labels: ['元モーション', '対象モデル', '重ね合わせ', '側面'], imgs: ['motion-dance', 'viewport-character', 'motion-walk', 'char-baisound'] },
     right: { tabs: [
       { id: 'map', label: 'ボーンマップ', sections: [{ title: 'ボーン対応', status: 'mock', controls: [{ t: 'table', cols: ['元', '対象', '状態'], rows: [['Hips', 'センター', '対応'], ['Spine', '上半身', '対応'], ['LeftUpLeg', '左足', '対応'], ['LeftFoot', '左足ＩＫ', '要確認']] }] }] },
       { id: 'ik', label: '足IK', sections: [{ title: '足IK・接地', status: 'partial', note: '接地計算は既存。新UIからは未接続。', controls: [tg('接地補正'), sl('床の高さ', -0.5, 0.5, 0, 'm', 0.01), un('接地を再計算', '新UIからの再計算は未接続（既存API移植は P2）。', ['MOTION-011'], PH.P2)] }] },
@@ -411,7 +412,7 @@ export const SCREENS = [
     ],
     tools: [btn('現行カメラ画面で開く', 'href:/camera.html'), ch('ビュー', ['上面', '側面', 'カメラ'], 'カメラ')],
     left: { title: '移動プリセット', status: 'partial', list: ['ドリーイン', 'トラック', 'クレーンアップ', 'ジブ', 'オービット', 'スパイラル', 'ドローン'].map((n) => ({ id: n, label: n })) },
-    center: { type: 'quad', labels: ['上面', '側面', '正面', 'カメラ'] },
+    center: { type: 'quad', labels: ['上面', '側面', '正面', 'カメラ'], imgs: ['stage-sakura-path', 'stage-shrine', 'viewport-shrine', 'viewport-camera'] },
     right: { tabs: [
       { id: 'rail', label: 'レール', sections: [{ title: 'レール', status: 'mock', controls: [sel('形状', ['直線', 'ベジェ曲線', '円弧']), sl('長さ', 0.5, 30, 6, 'm', 0.1), sl('速度', 0.1, 5, 1, '×', 0.1), tg('注視点を被写体に固定', true)] }] },
       { id: 'pose', label: '姿勢', sections: [{ title: 'カメラ姿勢', status: 'mock', controls: [sl('パン', -180, 180, 0, '°'), sl('チルト', -90, 90, 0, '°'), sl('ロール', -45, 45, 0, '°')] }] },
@@ -433,7 +434,7 @@ export const SCREENS = [
     ],
     tools: [btn('現行カメラ画面で開く', 'href:/camera.html'), un('VMDを書き出す', '新UIからの書き出しは未接続。現行カメラ画面を利用してください。', ['CAM-016'], PH.P2)],
     left: { title: 'カメラVMD', status: 'mock', search: true, list: [{ id: 'c1', label: 'camera_intro.vmd', meta: '450f' }, { id: 'c2', label: 'camera_chorus.vmd', meta: '900f' }] },
-    center: { type: 'quad', labels: ['MMD座標', '内部座標', '重ね合わせ', 'カメラ'] },
+    center: { type: 'quad', labels: ['MMD座標', '内部座標', '重ね合わせ', 'カメラ'], imgs: ['viewport-character', 'viewport-character', 'viewport-shrine', 'viewport-camera'] },
     right: { tabs: [
       { id: 'proj', label: '現在の状態', sections: [{ title: '保存済みカメラプロジェクト', status: 'real', controls: [live('cameraProject')] }] },
       { id: 'conv', label: '変換', sections: [{ title: '座標変換', status: 'mock', controls: [sel('入力座標', ['MMD (左手系)', '内部 (右手系)']), sl('スケール', 0.01, 1, 0.08, '', 0.01), tg('F値・焦点距離を拡張JSONに保存', true), note('標準VMDはF値・焦点距離を保持できないため拡張JSONが必須です。')] }] },
@@ -456,7 +457,7 @@ export const SCREENS = [
     ],
     tools: [un('自動ディレクター', '自動ショット選択は CAM-018（Phase E 後半）。', ['CAM-018'], PH.E), btn('カット（ショット分割）', 'mock:ショット分割（サンプル表示：画面内のみ）')],
     left: { title: 'ショット', status: 'mock', list: items('Shot', 6, (i) => `Cam ${'ABCD'[i % 4]}`) },
-    center: { type: 'quad', labels: ['Cam A', 'Cam B', 'Cam C', 'Cam D'] },
+    center: { type: 'quad', labels: ['Cam A', 'Cam B', 'Cam C', 'Cam D'], imgs: ['viewport-shrine', 'viewport-camera', 'hero', 'viewport-character'] },
     right: { tabs: [
       { id: 'assign', label: '割当', sections: [{ title: 'カメラ割当', status: 'mock', controls: [sel('ショットのカメラ', ['Cam A', 'Cam B', 'Cam C', 'Cam D']), sl('開始', 0, 1350, 360, 'f'), sl('終了', 0, 1350, 600, 'f')] }] },
       { id: 'eval', label: '評価', sections: [{ title: '既存APIのシーケンス評価', status: 'real', controls: [live('sequenceEval')] }] },
@@ -591,7 +592,7 @@ export const SCREENS = [
     ],
     tools: [un('テンプレートを適用', 'テンプレート一括適用は未承認の新規候補（NF-006）。', ['NF-006'], PH.P4)],
     left: { title: '種類', status: 'mock', list: [{ id: 'cam', label: 'カメラ構図' }, { id: 'mot', label: 'モーション組合せ' }, { id: 'proj', label: 'プロジェクト' }, { id: 'out', label: '出力設定' }] },
-    center: { type: 'thumbs', status: 'mock', items: ['正面バストアップ', 'ローアングル', '回り込み', 'ダンス全身', 'ショート縦型', '格闘2人'].map((n, i) => ({ id: `tp${i}`, label: n, meta: 'テンプレート' })) },
+    center: { type: 'thumbs', status: 'mock', items: SHOT_TEMPLATES.map(([im, n], i) => ({ id: `tp${i}`, label: n, meta: 'カメラ構図', img: im })) },
     right: { tabs: [{ id: 'detail', label: '詳細', sections: [{ title: 'プリセット（既存）', status: 'partial', controls: [link('カメラのカスタム構図（現行）', '/camera.html'), link('モーションのお気に入り（現行）', '/')] }, { title: '適用前比較', status: 'unimpl', controls: [un('比較する', '適用前比較は未実装。', ['NF-006'], PH.P4)] }] }] },
   },
   {
