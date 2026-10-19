@@ -7,7 +7,7 @@ def validate_rig(data):
     if not isinstance(data, dict):
         raise ValueError('rig config must be an object')
     result = {}
-    if data.get('type') not in ('orbit', 'crane', 'rail', 'curve', 'follow'):
+    if data.get('type') not in ('orbit', 'crane', 'rail', 'curve', 'follow', 'parent'):
         raise ValueError('invalid rig type')
     result['type'] = data['type']
     for name in VECTORS:

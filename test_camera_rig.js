@@ -43,3 +43,20 @@ near(equalKeys[5].position[0],samples[5][0]);
 assert.throws(()=>r.curveArcTable(start,start,start),/Degenerate/);
 assert.throws(()=>r.curveConstantSpeedT(start,control,end,2),/progress/);
 console.log('constant speed rail: 6 assertions passed');
+
+// Parent rig and crane sequence invariants.
+const parent=r.parentTransform(p,{pivot:[0,1,0],translation:[2,0,0],yaw:90});
+near(parent.position[0],7);near(parent.position[1],2);near(parent.position[2],0);
+near(parent.target[0],2);near(parent.target[1],1);near(parent.target[2],0);
+assert.deepEqual(p.position,[0,2,5]);
+assert.deepEqual(r.parentTransform(p,{}).position,p.position);
+assert.throws(()=>r.parentTransform(p,{yaw:Infinity}),/parent/);
+assert.throws(()=>r.parentTransform(p,{translation:[0,NaN,0]}),/parent/);
+const cs0=r.craneSequence(p,{pivot:[0,1,0],fromAngle:0,toAngle:90,t:0});
+const cs1=r.craneSequence(p,{pivot:[0,1,0],fromAngle:0,toAngle:90,t:1});
+assert.deepEqual(cs0.position,p.position);near(cs1.position[1],-4);near(cs1.position[2],1);
+assert.throws(()=>r.craneSequence(p,{t:2}),/sequence/);
+console.log('parent rig and crane sequence: 12 assertions passed');
+
+const parentKeys=r.bake(p,{type:'parent',from:0,to:10,step:5,start:[0,1,0],end:[4,0,0],amount:0});
+near(parentKeys[1].position[0],2);near(parentKeys[2].position[0],4);

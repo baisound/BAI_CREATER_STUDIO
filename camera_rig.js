@@ -56,11 +56,27 @@ function follow(base,{subject,offset=null,lookAt=true}={}){
  const position=add(subject,offset===null?sub(base.position,base.target):offset);
  return pose(base,position,lookAt?subject:add(position,sub(base.target,base.position)));
 }
+// Parent-child camera rig: apply a rigid Y-axis parent transform to both camera
+// and its target. The source pose is never mutated. World pivot remains fixed.
+function parentTransform(base,{pivot=[0,0,0],translation=[0,0,0],yaw=0}={}){
+ if(!valid(pivot)||!valid(translation)||!Number.isFinite(yaw)||Math.abs(yaw)>360000)throw Error('Invalid parent rig transform');
+ if(!valid(base.position)||!valid(base.target))throw Error('Invalid source camera pose');
+ const theta=yaw*Math.PI/180,c=Math.cos(theta),s=Math.sin(theta);
+ const transform=point=>{const d=sub(point,pivot);return add(add(pivot,[d[0]*c+d[2]*s,d[1],-d[0]*s+d[2]*c]),translation);};
+ return pose(base,transform(base.position),transform(base.target));
+}
+// Animated parent boom, evaluated at a normalized position. This can be baked
+// to ordinary keys while leaving source camera data unchanged.
+function craneSequence(base,{pivot=base.target,fromAngle=0,toAngle=0,t=0,easing='linear'}={}){
+ if(!Number.isFinite(t)||t<0||t>1||!Number.isFinite(fromAngle)||!Number.isFinite(toAngle)||!['linear','smooth'].includes(easing))throw Error('Invalid crane sequence');
+ const u=easing==='smooth'?t*t*(3-2*t):t;
+ return crane(base,{pivot,angle:fromAngle+(toAngle-fromAngle)*u});
+}
 // Bake a parametric camera movement into ordinary project keys. The resulting
 // keys remain editable and use the project's existing persistence format.
 function bake(base,{type,from,to,step=1,start,end,control=null,amount=90,easing='linear',constantSpeed=false}={}){
  if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<=from||!Number.isInteger(step)||step<1)throw Error('Invalid rig frame interval');
- if(!['orbit','crane','rail','curve'].includes(type)||!['linear','smooth'].includes(easing)||!Number.isFinite(amount))throw Error('Invalid rig motion');
+ if(!['orbit','crane','rail','curve','parent'].includes(type)||!['linear','smooth'].includes(easing)||!Number.isFinite(amount))throw Error('Invalid rig motion');
  const count=Math.ceil((to-from)/step)+1;
  if(count>2000)throw Error('Rig bake exceeds 2000 keys; increase the step');
  const result=[];
@@ -69,6 +85,7 @@ function bake(base,{type,from,to,step=1,start,end,control=null,amount=90,easing=
   let p;
   if(type==='orbit')p=orbit(base,{center:start,azimuth:amount*t});
   else if(type==='crane')p=crane(base,{pivot:start,angle:amount*t});
+  else if(type==='parent')p=parentTransform(base,{pivot:start,translation:scale(end,t),yaw:amount*t});
   else if(type==='curve')p=curvedRail(base,{start,control,end,t,constantSpeed});
   else p=rail(base,{start,end,t});
   result.push({frame,position:p.position,target:p.target,fov:p.fov,interpolation:'linear'});
@@ -76,5 +93,5 @@ function bake(base,{type,from,to,step=1,start,end,control=null,amount=90,easing=
  }
  return result;
 }
-return Object.freeze({orbit,crane,rail,curvedRail,curveArcTable,curveConstantSpeedT,curvePoint,follow,bake});
+return Object.freeze({orbit,crane,parentTransform,craneSequence,rail,curvedRail,curveArcTable,curveConstantSpeedT,curvePoint,follow,bake});
 });
