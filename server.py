@@ -164,6 +164,11 @@ class Handler(BaseHTTPRequestHandler):
         path=urlsplit(self.path).path
         if path in ("/camera.html", "/camera.css", "/camera.js", "/camera_3d.js", "/camera_vmd_local.js", "/camera_rig.js", "/camera_follow_config.js", "/camera_follow_smoothing.js", "/camera_framing.js", "/camera_lens.js", "/camera_dof.js", "/camera_focus_tracking.js", "/camera_focus_consistency.js"):
             file=BASE/path[1:];self.send(200,file.read_bytes(),"text/css" if path.endswith(".css") else "text/javascript" if path.endswith(".js") else "text/html; charset=utf-8");return
+        if path=="/api/project/bundle":
+            from project_state_bundle import read_bundle
+            with PROJECT_LOCK:
+                payload=read_bundle(PROJECT, DATA/'camera_project.json')
+            self.send(200,json.dumps(payload,ensure_ascii=False).encode());return
         if path=="/api/camera/project":
             self.send(200,json.dumps(camera_read(DATA/"camera_project.json"),ensure_ascii=False).encode());return
         if path=="/api/camera/focus":
@@ -336,6 +341,17 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/project/bundle':
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=4*1024*1024:return self.bad(413,'bundle too large')
+                from project_state_bundle import save_bundle
+                data=json.loads(self.rfile.read(length))
+                with PROJECT_LOCK:
+                    result=save_bundle(PROJECT,DATA/'camera_project.json',data)
+                sync_bump()
+                self.send(200,json.dumps(result).encode());return
+            except (ValueError,TypeError,KeyError) as exc:return self.bad(400,str(exc))
         if urlsplit(self.path).path=='/api/camera/vmd/preview-pose':
             try:
                 n=int(self.headers.get('Content-Length','0'))
