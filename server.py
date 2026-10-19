@@ -901,6 +901,12 @@ class Handler(BaseHTTPRequestHandler):
                     assert isinstance(h,dict) and isinstance(h.get('timeline'),list) and len(h['timeline'])<=300
             except (ValueError,AssertionError,TypeError,KeyError):return self.bad(400,'invalid project')
             with PROJECT_LOCK:
+                expected=self.headers.get('If-Match')
+                if expected:
+                    try: current=json.loads(PROJECT.read_text(encoding='utf-8'))
+                    except FileNotFoundError: current={}
+                    if expected!=camera_revision(current):
+                        return self.bad(409,'project changed on server: refresh before saving')
                 tmp=PROJECT.with_suffix('.tmp');tmp.write_text(json.dumps(obj,ensure_ascii=False,indent=2),encoding='utf-8');os.replace(tmp,PROJECT)
             sync_bump()
             self.send(200,b'{"ok":true}');return
@@ -918,6 +924,12 @@ class Handler(BaseHTTPRequestHandler):
                     assert isinstance(h,dict) and isinstance(h.get('timeline'),list) and len(h['timeline'])<=300
             except (ValueError,AssertionError,TypeError,KeyError):return self.bad(400,'invalid project')
             with PROJECT_LOCK:
+                expected=self.headers.get('If-Match')
+                if expected:
+                    try: current=json.loads(PROJECT.read_text(encoding='utf-8'))
+                    except FileNotFoundError: current={}
+                    if expected!=camera_revision(current):
+                        return self.bad(409,'project changed on server: refresh before saving')
                 tmp=PROJECT.with_suffix('.tmp');tmp.write_text(json.dumps(obj,ensure_ascii=False,indent=2),encoding='utf-8');os.replace(tmp,PROJECT)
             sync_bump()
             self.send(200,b'{"ok":true}');return
