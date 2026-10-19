@@ -225,6 +225,7 @@
     }
   ],
   "recovery_notes": [
-    "9724a16後: レールギズモ可視性バグ修正とVMD優先順位のソース回帰検査を実施。Python 275 pass / Node 37 pass。実GPU・ブラウザー未検証につき完成認定なし。詳細 docs/recovery/20261019_CAMERA_RENDER_PRIORITY_AUDIT_JA.md"
+    "9724a16後: レールギズモ可視性バグ修正とVMD優先順位のソース回帰検査を実施。Python 275 pass / Node 37 pass。実GPU・ブラウザー未検証につき完成認定なし。詳細 docs/recovery/20261019_CAMERA_RENDER_PRIORITY_AUDIT_JA.md",
+    "2026-10-20 必須修正（CAM-005 / E-FOCUS-01・02）: GET /api/camera/focus が do_GET 内の局所 import により UnboundLocalError で常に応答なし（接続切断）だった不具合を修正。回帰テスト tests/test_camera_focus_endpoint.py を追加。API応答の回復のみで、実モデル・実ブラウザー・MCP検証は未実施。完成認定なし。"
   ]
 }

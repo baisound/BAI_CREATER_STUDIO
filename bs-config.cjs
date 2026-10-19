@@ -12,7 +12,9 @@ module.exports = {
   watch: true,
   files: [
     '*.html', '*.css', '*.js',
-    'docs/ui/**/*.css', 'docs/ui/**/*.js'
+    'docs/ui/**/*.css', 'docs/ui/**/*.js',
+    // New 25-screen UI shell (served by Python at /workspace/NN and /studio/*)
+    'studio/**/*.html', 'studio/**/*.css', 'studio/**/*.js'
   ],
   // BrowserSync injects CSS without a full reload, and reloads for HTML/JS.
   // Exclude data/files and exports: large media and auto-written state are not sources.
