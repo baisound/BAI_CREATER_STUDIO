@@ -223,5 +223,8 @@
       "implementation_assessment": "Phase Fへ繰越・実DOFレンダリング未検証",
       "release_complete": false
     }
+  ],
+  "recovery_notes": [
+    "9724a16後: レールギズモ可視性バグ修正とVMD優先順位のソース回帰検査を実施。Python 275 pass / Node 37 pass。実GPU・ブラウザー未検証につき完成認定なし。詳細 docs/recovery/20261019_CAMERA_RENDER_PRIORITY_AUDIT_JA.md"
   ]
 }

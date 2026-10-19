@@ -4,8 +4,8 @@ BASE=pathlib.Path(__file__).parent
 class TimelineRenderPriority(unittest.TestCase):
  def test_camera_frame_does_not_override_follow_pose(self):
   js=(BASE/'camera_3d.js').read_text()
-  self.assertIn("if(!document.getElementById('vmd-follow-timeline')?.checked)applyPose(e.detail.pose)",js)
-  self.assertIn("window.addEventListener('bai-camera-vmd-preview',e=>applyPose(e.detail.pose))",js)
+  self.assertIn("if(!document.getElementById('vmd-follow-timeline')?.checked){untrackedPose=e.detail.pose;applyPose(e.detail.pose)}",js)
+  self.assertIn("window.addEventListener('bai-camera-vmd-preview',e=>{applyPose(e.detail.pose);updateTrackedFocus()})",js)
   self.assertIn('updateTime()',js)
  def test_fractional_playback_clock_accumulates(self):
   js=(BASE/'camera.js').read_text()
