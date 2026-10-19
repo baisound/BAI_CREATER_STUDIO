@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "398aff7",
+  "assessment_date": "2026-10-19",
+  "scope": "CAM-001..CAM-018",
+  "method": "コード存在確認（実行試験とは区別）。ロードマップ進捗は完成判定ではない。",
+  "features": [
+    {
+      "id": "CAM-001",
+      "name": "カメラVMDの読込・分割・登録",
+      "evidence_paths": [
+        "camera_vmd_codec.py",
+        "camera_vmd_local.js"
+      ],
+      "implementation_assessment": "部分実装・統合未検証",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-002",
+      "name": "カメラ類似分類",
+      "evidence_paths": [],
+      "implementation_assessment": "未監査／完了根拠なし",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-003",
+      "name": "キーフレーム・カーブ編集",
+      "evidence_paths": [
+        "camera.js",
+        "camera_rig.js"
+      ],
+      "implementation_assessment": "部分実装・統合未検証",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-004",
+      "name": "カメラ矩形フレームと被写体見切れ検出",
+      "evidence_paths": [],
+      "implementation_assessment": "未監査／完了根拠なし",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-005",
+      "name": "焦点距離・F値・ピント距離",
+      "evidence_paths": [
+        "camera_focus.py",
+        "camera_3d.js"
+      ],
+      "implementation_assessment": "部分実装・統合未検証",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-006",
+      "name": "パン・ティルト・ロール・自転",
+      "evidence_paths": [
+        "camera_rig.js",
+        "camera_3d.js"
+      ],
+      "implementation_assessment": "部分実装・統合未検証",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-007",
+      "name": "ドリー・トラック・スライダー・ズーム",
+      "evidence_paths": [
+        "camera_rig.js",
+        "camera_3d.js"
+      ],
+      "implementation_assessment": "部分実装・統合未検証",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-008",
+      "name": "レール・曲線カメラパス",
+      "evidence_paths": [
+        "camera_rig.js",
+        "test_camera_rig.js"
+      ],
+      "implementation_assessment": "部分実装・統合未検証",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-009",
+      "name": "クレーン・ジブ・ブーム・ドローン",
+      "evidence_paths": [
+        "camera_rig.js",
+        "test_camera_rig.js"
+      ],
+      "implementation_assessment": "部分実装・統合未検証",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-010",
+      "name": "オービット・スパイラル・自転",
+      "evidence_paths": [
+        "camera_rig.js"
+      ],
+      "implementation_assessment": "部分実装・統合未検証",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-011",
+      "name": "被写体追従・複数人自動構図",
+      "evidence_paths": [
+        "camera_follow_config.js",
+        "camera_follow_smoothing.js"
+      ],
+      "implementation_assessment": "部分実装・統合未検証",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-012",
+      "name": "映画演出カメラ",
+      "evidence_paths": [],
+      "implementation_assessment": "未監査／完了根拠なし",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-013",
+      "name": "撮影用途別テンプレートライブラリ",
+      "evidence_paths": [],
+      "implementation_assessment": "未監査／完了根拠なし",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-014",
+      "name": "カメラプリセットお気に入り・タグ・検索",
+      "evidence_paths": [],
+      "implementation_assessment": "未監査／完了根拠なし",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-015",
+      "name": "カメラ連結・カット・時間同期",
+      "evidence_paths": [],
+      "implementation_assessment": "未監査／完了根拠なし",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-016",
+      "name": "MMDカメラVMD書出し",
+      "evidence_paths": [
+        "camera_vmd_codec.py",
+        "test_camera_vmd_codec.py"
+      ],
+      "implementation_assessment": "部分実装・統合未検証",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-017",
+      "name": "カメラ衝突回避・構図品質",
+      "evidence_paths": [],
+      "implementation_assessment": "未監査／完了根拠なし",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    },
+    {
+      "id": "CAM-018",
+      "name": "自動ディレクターとショット選択",
+      "evidence_paths": [],
+      "implementation_assessment": "未監査／完了根拠なし",
+      "ui_api_webmcp_stdio_mcp_verified": false,
+      "real_browser_verified": false,
+      "release_complete": false
+    }
+  ],
+  "additional_requirements": [
+    {
+      "id": "E-FOCUS-01",
+      "implementation_assessment": "camera_focus.py に診断計算基盤。画面・実モデル統合は未検証",
+      "release_complete": false
+    },
+    {
+      "id": "E-FOCUS-02",
+      "implementation_assessment": "範囲診断基盤あり。MCP・全区間検証は未完了",
+      "release_complete": false
+    },
+    {
+      "id": "F-DOF-01",
+      "implementation_assessment": "Phase Fへ繰越・実DOFレンダリング未検証",
+      "release_complete": false
+    }
+  ]
+}
