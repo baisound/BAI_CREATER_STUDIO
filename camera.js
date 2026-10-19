@@ -64,16 +64,16 @@ $('rig-bake').onclick=()=>{try{
  const collisions=project.keys.filter(k=>k.frame>=from&&k.frame<=to);
  if(collisions.length)throw Error(`範囲内に既存キーが${collisions.length}個あります。上書きを避けるため中止しました`);
  const start=rigVector('rig-start'),end=rigVector('rig-end');
- const keys=window.BAICameraRig.bake(sample(from),{type:$('rig-type').value,from,to,step,start,end,control:rigVector('rig-control'),amount:Number($('rig-amount').value),easing:$('rig-bake-ease').value,constantSpeed:$('rig-constant-speed').checked});
+ const keys=window.BAICameraRig.bake(sample(from),{type:$('rig-type').value,from,to,step,start,end,control:rigVector('rig-control'),amount:Number($('rig-amount').value),craneFromAngle:Number($('rig-crane-from').value),easing:$('rig-bake-ease').value,constantSpeed:$('rig-constant-speed').checked});
  // One edit = one undo checkpoint. Do not rewrite imported VMD data.
  project.keys.push(...keys);project.keys.sort((a,b)=>a.frame-b.frame);selected=from;checkpoint();updateRangeControls();setFrame(from);
  $('rig-bake-status').textContent=`${keys.length}キーを作成しました（未保存）。Undoで一括取消できます`;
  }catch(e){$('rig-bake-status').textContent='エラー: '+e.message}
 };
 // Persist rig controls inside the canonical camera project; config edits are undoable.
-const rigFields=['rig-type','rig-amount','rig-start','rig-control','rig-end','rig-constant-speed','rig-show-path','rig-bake-from','rig-bake-to','rig-bake-step','rig-bake-ease'];
-function collectRig(){return {type:$('rig-type').value,amount:Number($('rig-amount').value),start:rigVector('rig-start'),control:rigVector('rig-control'),end:rigVector('rig-end'),constant_speed:$('rig-constant-speed').checked,show_path:$('rig-show-path').checked,bake_from:Number($('rig-bake-from').value),bake_to:Number($('rig-bake-to').value),bake_step:Number($('rig-bake-step').value),bake_ease:$('rig-bake-ease').value}}
-function restoreRig(){if(!project?.rig)return;const r=project.rig;for(const [id,key] of [['rig-type','type'],['rig-amount','amount'],['rig-start','start'],['rig-control','control'],['rig-end','end'],['rig-bake-from','bake_from'],['rig-bake-to','bake_to'],['rig-bake-step','bake_step'],['rig-bake-ease','bake_ease']])$(id).value=Array.isArray(r[key])?r[key].join(','):r[key];$('rig-constant-speed').checked=r.constant_speed;$('rig-show-path').checked=r.show_path;notifyRailPath()}
+const rigFields=['rig-type','rig-amount','rig-start','rig-control','rig-end','rig-constant-speed','rig-show-path','rig-bake-from','rig-bake-to','rig-bake-step','rig-bake-ease','rig-crane-from'];
+function collectRig(){return {type:$('rig-type').value,amount:Number($('rig-amount').value),start:rigVector('rig-start'),control:rigVector('rig-control'),end:rigVector('rig-end'),constant_speed:$('rig-constant-speed').checked,show_path:$('rig-show-path').checked,bake_from:Number($('rig-bake-from').value),bake_to:Number($('rig-bake-to').value),bake_step:Number($('rig-bake-step').value),bake_ease:$('rig-bake-ease').value,crane_from_angle:Number($('rig-crane-from').value)}}
+function restoreRig(){if(!project?.rig)return;const r=project.rig;for(const [id,key] of [['rig-type','type'],['rig-amount','amount'],['rig-start','start'],['rig-control','control'],['rig-end','end'],['rig-bake-from','bake_from'],['rig-bake-to','bake_to'],['rig-bake-step','bake_step'],['rig-bake-ease','bake_ease'],['rig-crane-from','crane_from_angle']])$(id).value=Array.isArray(r[key])?r[key].join(','):(r[key]??(key==='crane_from_angle'?0:''));$('rig-constant-speed').checked=r.constant_speed;$('rig-show-path').checked=r.show_path;notifyRailPath()}
 function saveRigEdit(){if(!project)return;try{const next=collectRig();if(JSON.stringify(next)===JSON.stringify(project.rig))return;project.rig=next;checkpoint();status('リグ設定に未保存の変更があります')}catch(e){$('rig-status').textContent='設定エラー: '+e.message}}
 for(const id of rigFields)$(id).addEventListener('change',saveRigEdit);
 // A separate visualization event; invalid numeric edits hide the path rather than crashing the workspace.

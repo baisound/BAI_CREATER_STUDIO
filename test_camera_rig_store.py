@@ -26,3 +26,13 @@ class RigStoreTests(unittest.TestCase):
         p=deepcopy(DEFAULT);p['rig']=dict(self.rig,start=[0,1])
         with self.assertRaises(ValueError):validate(p)
 if __name__=='__main__':unittest.main()
+
+class TestCraneStartAngle(unittest.TestCase):
+    def test_legacy_defaults_to_zero(self):
+        from camera_rig_store import validate_rig
+        sample=dict(type='crane', amount=90, start=[0,1,0],control=[0,0,0],end=[0,0,1],constant_speed=False,show_path=False,bake_from=0,bake_to=120,bake_step=5,bake_ease='linear')
+        self.assertEqual(validate_rig(sample)['crane_from_angle'],0)
+        sample['crane_from_angle']=30
+        self.assertEqual(validate_rig(sample)['crane_from_angle'],30)
+        sample['crane_from_angle']=float('nan')
+        with self.assertRaises(ValueError): validate_rig(sample)

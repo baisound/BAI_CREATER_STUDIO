@@ -31,4 +31,8 @@ def validate_rig(data):
     if data.get('bake_ease') not in ('linear','smooth'):
         raise ValueError('invalid rig easing')
     result['bake_ease'] = data['bake_ease']
+    value = data.get('crane_from_angle', 0)
+    if type(value) not in (int, float) or not math.isfinite(value) or abs(value)>360:
+        raise ValueError('invalid crane start angle')
+    result['crane_from_angle'] = float(value)
     return result

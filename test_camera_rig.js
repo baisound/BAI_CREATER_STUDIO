@@ -60,3 +60,14 @@ console.log('parent rig and crane sequence: 12 assertions passed');
 
 const parentKeys=r.bake(p,{type:'parent',from:0,to:10,step:5,start:[0,1,0],end:[4,0,0],amount:0});
 near(parentKeys[1].position[0],2);near(parentKeys[2].position[0],4);
+
+// Crane bake must honor its configurable start and end angles.
+const craneKeys=r.bake(p,{type:'crane',from:0,to:20,step:10,start:[0,1,0],craneFromAngle:30,amount:90});
+const craneAt30=r.crane(p,{pivot:[0,1,0],angle:30});
+const craneAt60=r.crane(p,{pivot:[0,1,0],angle:60});
+const craneAt90=r.crane(p,{pivot:[0,1,0],angle:90});
+for (const [key,expected] of [[craneKeys[0],craneAt30],[craneKeys[1],craneAt60],[craneKeys[2],craneAt90]]) {
+  key.position.forEach((v,i)=>near(v,expected.position[i]));
+}
+assert.throws(()=>r.bake(p,{type:'crane',from:0,to:10,start:[0,1,0],craneFromAngle:NaN}),/Invalid/);
+console.log('crane configurable segment: passed');

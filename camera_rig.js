@@ -74,9 +74,9 @@ function craneSequence(base,{pivot=base.target,fromAngle=0,toAngle=0,t=0,easing=
 }
 // Bake a parametric camera movement into ordinary project keys. The resulting
 // keys remain editable and use the project's existing persistence format.
-function bake(base,{type,from,to,step=1,start,end,control=null,amount=90,easing='linear',constantSpeed=false}={}){
+function bake(base,{type,from,to,step=1,start,end,control=null,amount=90,craneFromAngle=0,easing='linear',constantSpeed=false}={}){
  if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<=from||!Number.isInteger(step)||step<1)throw Error('Invalid rig frame interval');
- if(!['orbit','crane','rail','curve','parent'].includes(type)||!['linear','smooth'].includes(easing)||!Number.isFinite(amount))throw Error('Invalid rig motion');
+ if(!['orbit','crane','rail','curve','parent'].includes(type)||!['linear','smooth'].includes(easing)||!Number.isFinite(amount)||!Number.isFinite(craneFromAngle)||Math.abs(craneFromAngle)>360000)throw Error('Invalid rig motion');
  const count=Math.ceil((to-from)/step)+1;
  if(count>2000)throw Error('Rig bake exceeds 2000 keys; increase the step');
  const result=[];
@@ -84,7 +84,7 @@ function bake(base,{type,from,to,step=1,start,end,control=null,amount=90,easing=
   let t=(frame-from)/(to-from);if(easing==='smooth')t=t*t*(3-2*t);
   let p;
   if(type==='orbit')p=orbit(base,{center:start,azimuth:amount*t});
-  else if(type==='crane')p=crane(base,{pivot:start,angle:amount*t});
+  else if(type==='crane')p=crane(base,{pivot:start,angle:craneFromAngle+(amount-craneFromAngle)*t});
   else if(type==='parent')p=parentTransform(base,{pivot:start,translation:scale(end,t),yaw:amount*t});
   else if(type==='curve')p=curvedRail(base,{start,control,end,t,constantSpeed});
   else p=rail(base,{start,end,t});
