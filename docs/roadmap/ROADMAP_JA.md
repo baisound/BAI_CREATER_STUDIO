@@ -103,5 +103,5 @@
 ## 2026-10-20 所有者指示：25画面UIモック先行（P0/P1）
 - 所有者の明示依頼により、Phase E 再開の前に現行監査（P0）と25画面の操作可能なUIモック（P1）を実施。既承認フェーズの順序 E → F → リップシンク・表情・MMDエフェクト → C → D → G → H と Phase B 残課題の保持は**変更なし**。
 - 新UI：`/workspace/01`〜`/workspace/25`（`studio/`）。UIの外殻のみで、機能完成の根拠にしない。各パネルは 実機能（既存API読み取り）/ 既存・部分 / サンプル表示 / ◇ 未実装 を明示。
-- P2（既存機能を新UIへ移植）は再編案のまま**所有者確認待ち**。新規候補 NF-001〜013 は末尾の未承認候補（実装しない）。
+- P2（既存機能を新UIへ移植）は**Phase E の後に実施**（2026-10-20 所有者決定）。新規候補 NF-001〜013 は末尾の未承認候補（実装しない）。
 - 詳細：[ROADMAP_RECONCILED_20261020_JA.md](ROADMAP_RECONCILED_20261020_JA.md)、[../ui/STUDIO_UI_AUDIT_JA.md](../ui/STUDIO_UI_AUDIT_JA.md)、[../ui/SCREEN_IMPLEMENTATION_MATRIX.json](../ui/SCREEN_IMPLEMENTATION_MATRIX.json)。
