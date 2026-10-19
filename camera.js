@@ -80,6 +80,18 @@ for(const id of rigFields)$(id).addEventListener('change',saveRigEdit);
 function notifyRailPath(){try{const parse=id=>rigVector(id);window.dispatchEvent(new CustomEvent('bai-camera-rail-path',{detail:{visible:$('rig-show-path').checked&&$('rig-type').value==='curve',start:parse('rig-start'),control:parse('rig-control'),end:parse('rig-end')}}))}catch(_){window.dispatchEvent(new CustomEvent('bai-camera-rail-path',{detail:{visible:false}}))}}
 for(const id of ['rig-type','rig-start','rig-control','rig-end','rig-show-path'])$(id).addEventListener('input',notifyRailPath);
 notifyRailPath();window.addEventListener('bai-camera-rail-ready',notifyRailPath);
+// Rail handles edit rig configuration only; no camera key is written during dragging.
+const railInputIds={start:'rig-start',control:'rig-control',end:'rig-end'};
+window.addEventListener('bai-camera-rail-handle-preview',event=>{
+ const d=event.detail,id=railInputIds[d?.name];if(!id||!Array.isArray(d.position))return;
+ $(id).value=d.position.map(v=>Number(v.toFixed(4))).join(',');notifyRailPath();
+});
+window.addEventListener('bai-camera-rail-handle-end',event=>{
+ const d=event.detail,id=railInputIds[d?.name];if(!id||!Array.isArray(d.position))return;
+ $(id).value=d.position.map(v=>Number(v.toFixed(4))).join(',');notifyRailPath();
+ if(d.commit)saveRigEdit();else restoreRig();
+});
+
 $('preset-apply').onclick=()=>{try{commitPose(clone(presets[$('preset').value]))}catch(e){status(e.message)}};
 $('undo').onclick=()=>{if(cursor<=0)return;cursor--;project=clone(history[cursor]);$('duration').value=project.duration;$('frame').max=project.duration;$('frame-number').max=project.duration;updateRangeControls();restoreRig();setFrame(frame);status('元に戻しました（未保存）')};$('redo').onclick=()=>{if(cursor>=history.length-1)return;cursor++;project=clone(history[cursor]);$('duration').value=project.duration;$('frame').max=project.duration;$('frame-number').max=project.duration;updateRangeControls();restoreRig();setFrame(frame);status('やり直しました（未保存）')};
 $('save').onclick=async()=>{try{window.dispatchEvent(new CustomEvent('bai-camera-before-save',{detail:{project}}));const r=await fetch('/api/camera/project',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(project)});const j=await r.json();if(!r.ok)throw Error(j.error);dirty=false;status('保存しました')}catch(e){status('保存失敗: '+e.message)}};

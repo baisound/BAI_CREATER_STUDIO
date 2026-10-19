@@ -101,16 +101,54 @@ function resizeProjection(camera,aspect){
  camera.updateProjectionMatrix();
 }
 function resizeRender(){for(const v of views){if(!v.renderer)continue;const w=Math.max(2,v.host.clientWidth),h=Math.max(2,v.host.clientHeight);resizeProjection(v.camera,w/h);v.renderer.setSize(w,h,false)}}
-function render(){if(!rendererFailed){resizeRender();camHelper.visible=true;views[0].renderer?.render(world,sceneCam);camHelper.visible=false;if(railPath)railPath.visible=false;views[1].renderer?.render(world,activeFilmingCamera);if(railPath)railPath.visible=true}requestAnimationFrame(render)}
+function render(){if(!rendererFailed){resizeRender();camHelper.visible=true;views[0].renderer?.render(world,sceneCam);camHelper.visible=false;if(railPath)railPath.visible=false;railHandles.visible=false;views[1].renderer?.render(world,activeFilmingCamera);if(railPath)railPath.visible=true;railHandles.visible=true}requestAnimationFrame(render)}
 // Scene-only rail gizmo; hidden from the final filming-camera view.
 let railPath=null;
+const railHandles=new THREE.Group();world.add(railHandles);
+const railRaycaster=new THREE.Raycaster();const railPointer=new THREE.Vector2();
+let railDrag=null;
+function clearRailHandles(){for(const child of [...railHandles.children]){railHandles.remove(child);child.geometry.dispose();child.material.dispose()}}
+function railPointerRay(event,element){const rect=element.getBoundingClientRect();railPointer.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);railRaycaster.setFromCamera(railPointer,sceneCam);return railRaycaster.ray}
+function installRailDrag(element){
+ element.addEventListener('pointerdown',event=>{
+  if(event.button!==0||event.shiftKey||!railHandles.visible)return;
+  railPointerRay(event,element);
+  const hits=railRaycaster.intersectObjects(railHandles.children,false);
+  if(!hits.length)return;
+  const handle=hits[0].object;
+  const normal=new THREE.Vector3();sceneCam.getWorldDirection(normal);
+  railDrag={pointerId:event.pointerId,name:handle.userData.railName,handle,plane:new THREE.Plane().setFromNormalAndCoplanarPoint(normal,handle.position),before:handle.position.toArray(),current:handle.position.toArray()};
+  event.stopImmediatePropagation();event.preventDefault();element.setPointerCapture(event.pointerId);
+ },true);
+ element.addEventListener('pointermove',event=>{
+  if(!railDrag||railDrag.pointerId!==event.pointerId)return;
+  const point=new THREE.Vector3();if(!railPointerRay(event,element).intersectPlane(railDrag.plane,point))return;
+  railDrag.current=point.toArray();railDrag.handle.position.copy(point);
+  window.dispatchEvent(new CustomEvent('bai-camera-rail-handle-preview',{detail:{name:railDrag.name,position:point.toArray()}}));
+  event.stopImmediatePropagation();event.preventDefault();
+ },true);
+ const finish=(event,cancel)=>{
+  if(!railDrag||railDrag.pointerId!==event.pointerId)return;
+  const d=railDrag;railDrag=null;
+  window.dispatchEvent(new CustomEvent('bai-camera-rail-handle-end',{detail:{name:d.name,position:cancel?d.before:d.current,commit:!cancel}}));
+  event.stopImmediatePropagation();event.preventDefault();
+ };
+ element.addEventListener('pointerup',event=>finish(event,false),true);
+ element.addEventListener('pointercancel',event=>finish(event,true),true);
+ window.addEventListener('blur',()=>{if(railDrag){const d=railDrag;railDrag=null;window.dispatchEvent(new CustomEvent('bai-camera-rail-handle-end',{detail:{name:d.name,position:d.before,commit:false}}))}});
+}
+
 window.addEventListener('bai-camera-rail-path',event=>{
- if(railPath){world.remove(railPath);railPath.geometry.dispose();railPath.material.dispose();railPath=null;}
+ if(railPath){world.remove(railPath);railPath.geometry.dispose();railPath.material.dispose();railPath=null;}clearRailHandles();railHandles.visible=false;
  const d=event.detail;if(!d?.visible)return;
  if(![d.start,d.control,d.end].every(v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite)))return;
  const curve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(...d.start),new THREE.Vector3(...d.control),new THREE.Vector3(...d.end));
  railPath=new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(128)),new THREE.LineBasicMaterial({color:0x40e4c5,depthTest:false}));
  railPath.renderOrder=999;world.add(railPath);
+ for(const [name,coords,color] of [['start',d.start,0x5ac7ff],['control',d.control,0xffc75a],['end',d.end,0xff6e9b]]){
+  const handle=new THREE.Mesh(new THREE.SphereGeometry(.19,16,12),new THREE.MeshBasicMaterial({color,depthTest:false}));handle.position.fromArray(coords);handle.userData.railName=name;handle.renderOrder=1000;railHandles.add(handle);
+ }
+ railHandles.visible=true;
 });
 window.dispatchEvent(new Event('bai-camera-rail-ready'));
 const loader=new GLTFLoader();
@@ -192,4 +230,4 @@ function controlInit(){
     if(delta){moveTarget.add(delta);scenePosition();e.preventDefault()}
   });
 }
-initRender();if(!rendererFailed){controlInit();render();catalog()}
+initRender();if(!rendererFailed){controlInit();installRailDrag(canvas());render();catalog()}
