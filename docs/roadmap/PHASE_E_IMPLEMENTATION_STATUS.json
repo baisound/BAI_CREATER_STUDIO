@@ -45,9 +45,10 @@
         "camera_framing.js",
         "camera.html",
         "camera.js",
-        "test_camera_framing.cjs"
+        "test_camera_framing.cjs",
+        "camera_3d.js"
       ],
-      "implementation_assessment": "ガイド人体の包囲球ベースの見切れ診断を実装・単体テスト済み。実モデル形状・GPU表示との統合未検証",
+      "implementation_assessment": "ガイド人体または読み込んだGLB/VRMのアニメーション時メッシュ包囲球による保守的な見切れ診断を接続。輪郭の精密判定・遮蔽・GPU表示の統合検証は未完了",
       "ui_api_webmcp_stdio_mcp_verified": false,
       "real_browser_verified": false,
       "release_complete": false

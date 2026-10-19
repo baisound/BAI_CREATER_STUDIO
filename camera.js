@@ -19,10 +19,12 @@ $('preview').addEventListener('pointerup',e=>{if(!pointer)return;const dx=e.clie
 $('preview').addEventListener('pointercancel',()=>pointer=null);
 $('preview').addEventListener('wheel',e=>{if(!project)return;e.preventDefault();try{const p=previewPose||sample(frame),r=Math.hypot(...p.position.map((n,i)=>n-p.target[i])),step=Math.sign(e.deltaY)*-Math.min(r*.15,1);commitPose(moveCamera(p,'dolly',step))}catch(err){status(err.message)}},{passive:false});
 $('track').ondragover=e=>e.preventDefault();$('track').ondrop=e=>{e.preventDefault();const old=Number(e.dataTransfer.getData('text/plain'));if(!project.keys.some(k=>k.frame===old))return;const rect=$('track').getBoundingClientRect(),next=Math.round(Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width))*rangeSize+rangeStart);if(project.keys.some(k=>k.frame===next&&next!==old)){status('同じフレームにキーがあります');return}project.keys.find(k=>k.frame===old).frame=next;project.keys.sort((a,b)=>a.frame-b.frame);selected=next;checkpoint();setFrame(next)};
+let modelFramingBounds=null;
+window.addEventListener('bai-camera-model-bounds',e=>{modelFramingBounds=e.detail;drawFramingDiagnostic()});
 function drawFramingDiagnostic(){
  const out=$('framing-result');if(!$('framing-enabled').checked){out.textContent='診断OFF';return}
- try{const pose=previewPose||sample(frame);const result=window.BAICameraFraming.framing(pose,{aspect:Number($('framing-aspect').value),margin:Number($('framing-margin').value)/100});
- out.textContent=result.inside?'ガイド人体：安全余白内に収まっています':result.behind?'ガイド人体：カメラ背面または近すぎます':'ガイド人体：画面から見切れる可能性があります';out.style.color=result.inside?'#77e0a8':'#ffb570';
+ try{const pose=previewPose||sample(frame);const result=window.BAICameraFraming.framing(pose,{...(modelFramingBounds||{}),aspect:Number($('framing-aspect').value),margin:Number($('framing-margin').value)/100});
+ const label=modelFramingBounds?'実モデルの包囲球':'ガイド人体';out.textContent=label+'：'+(result.inside?'安全余白内に収まっています':result.behind?'カメラ背面または近すぎます':'画面から見切れる可能性があります');out.style.color=result.inside?'#77e0a8':'#ffb570';
  }catch(e){out.textContent='診断不可: '+e.message;out.style.color='#ffb570'}
 }
 for(const id of ['framing-enabled','framing-aspect','framing-margin'])$(id).addEventListener('change',drawFramingDiagnostic);

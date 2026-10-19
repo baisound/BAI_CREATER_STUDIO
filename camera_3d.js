@@ -171,12 +171,32 @@ window.addEventListener('bai-camera-rail-path',event=>{
 });
 window.dispatchEvent(new Event('bai-camera-rail-ready'));
 const loader=new GLTFLoader();
-function clean(){if(!model)return;trackEnabled.checked=false;trackingBone=null;trackingOffset=null;world.remove(model);mixer?.stopAllAction();model.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()});model=null;mixer=null;clips=[];activeClip=null}
+// CAM-004: conservative world-space bounds sampled after animation updates.
+// Only geometry-backed meshes count; helpers/rig handles are excluded.
+function publishModelFraming(){
+ if(!model){window.dispatchEvent(new CustomEvent('bai-camera-model-bounds',{detail:null}));return}
+ model.updateWorldMatrix(true,true);
+ const bounds=new THREE.Box3();let found=false;
+ model.traverse(node=>{
+  if(!node.isMesh||!node.geometry)return;
+  if(!node.geometry.boundingBox)node.geometry.computeBoundingBox();
+  if(!node.geometry.boundingBox)return;
+  // Skinned meshes require posed bounds (Three.js r160 computes them).
+  const local=node.isSkinnedMesh&&typeof node.computeBoundingBox==='function'
+   ?(node.computeBoundingBox(),node.boundingBox):node.geometry.boundingBox;
+  if(!local||local.isEmpty())return;
+  bounds.union(local.clone().applyMatrix4(node.matrixWorld));found=true;
+ });
+ if(!found||bounds.isEmpty())return;
+ const sphere=bounds.getBoundingSphere(new THREE.Sphere());
+ window.dispatchEvent(new CustomEvent('bai-camera-model-bounds',{detail:{center:sphere.center.toArray(),radius:sphere.radius,source:'model',frame:lastFrame}}));
+}
+function clean(){if(!model)return;trackEnabled.checked=false;trackingBone=null;trackingOffset=null;world.remove(model);mixer?.stopAllAction();model.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()});model=null;mixer=null;clips=[];activeClip=null;publishModelFraming()}
 async function loadAsset(asset){if(!/^[^/\\]+\.(glb|vrm)$/i.test(asset))throw Error('GLB/VRMのみ対応');status('モデル読み込み中…');const response=await fetch('/api/integrated-v02/asset/'+encodeURIComponent(asset));if(!response.ok)throw Error('モデル取得エラー HTTP '+response.status);const parsed=await loader.parseAsync(await response.arrayBuffer(),'');clean();model=parsed.scene;world.add(model);const bounds=new THREE.Box3().setFromObject(model);const size=bounds.getSize(new THREE.Vector3());const scale=2/Math.max(.001,size.y);model.scale.multiplyScalar(scale);bounds.setFromObject(model);const center=bounds.getCenter(new THREE.Vector3());model.position.x-=center.x;model.position.z-=center.z;model.position.y-=bounds.min.y;
 clips=parsed.animations||[];mixer=clips.length?new THREE.AnimationMixer(model):null;const select=$('camera-clip');select.replaceChildren(new Option('静止モデル',''));clips.forEach((clip,i)=>select.add(new Option(`${clip.name||'Animation '+(i+1)} (${clip.duration.toFixed(1)}s)`,String(i))));if(clips.length){select.value='0';setClip(0)}else select.value='';discoverBones();updateTime();
 $('scene').style.visibility='hidden';$('preview').style.visibility='hidden';views[0].renderer.domElement.style.pointerEvents='auto';status(`${asset} / 3D表示中 / ${clips.length}クリップ。FBX・VMD・VRM物理は未対応`)}
 function setClip(i){mixer?.stopAllAction();activeClip=Number.isInteger(i)&&clips[i]?clips[i]:null;if(activeClip)mixer.clipAction(activeClip).play();updateTime()}
-function updateTime(){if(mixer&&activeClip){const time=lastFrame/Math.max(1,fps);mixer.setTime(time%Math.max(.001,activeClip.duration))}trackSubject()}
+function updateTime(){if(mixer&&activeClip){const time=lastFrame/Math.max(1,fps);mixer.setTime(time%Math.max(.001,activeClip.duration))}trackSubject();publishModelFraming()}
 window.addEventListener('bai-camera-frame',e=>{lastFrame=e.detail.frame;fps=e.detail.fps||30;
 // Preserve the separately dispatched native VMD pose while experimental follow is enabled.
 // The ordinary camera-frame event still updates model animation time.
