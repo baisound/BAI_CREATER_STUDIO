@@ -1,0 +1,12 @@
+{
+  "restored_head": "121350b",
+  "upstream_target": "ff5c555",
+  "is_latest": false,
+  "restored_scope": [
+    "CAM-004 model bounds",
+    "CAM-004 box framing",
+    "CAM-004 optional composition UI"
+  ],
+  "remaining": "e751d4a other-file differences and subsequent commits; not yet verified",
+  "integrity": "node --check camera.js; node --test test_camera_framing.cjs: 11 passed"
+}
