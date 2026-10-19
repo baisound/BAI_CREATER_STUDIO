@@ -30,3 +30,16 @@ near(curveKeys[1].position[1],4);
 assert.throws(()=>r.curvedRail(p,{start:[0,0,0],control:[NaN,0,0],end:[1,0,0],t:.5}));
 assert.throws(()=>r.bake(p,{type:'curve',from:0,to:5,start:[0,0,0],end:[1,0,0]}));
 console.log('curved rail: 7 assertions passed');
+
+// Arc-length parameterization should give substantially equal travel distances.
+const start=[0,0,0],control=[1,8,0],end=[12,0,0];
+const arc=r.curveArcTable(start,control,end);assert.ok(arc.length>12);
+const samples=Array.from({length:11},(_,i)=>r.curvedRail(p,{start,control,end,t:i/10,constantSpeed:true}).position);
+const distances=samples.slice(1).map((v,i)=>Math.hypot(...v.map((n,j)=>n-samples[i][j])));
+assert.ok(Math.max(...distances)/Math.min(...distances)<1.1, 'constant speed segments diverged');
+assert.deepEqual(samples[0],start);assert.deepEqual(samples.at(-1),end);
+const equalKeys=r.bake(p,{type:'curve',from:0,to:10,step:1,start,control,end,constantSpeed:true});
+near(equalKeys[5].position[0],samples[5][0]);
+assert.throws(()=>r.curveArcTable(start,start,start),/Degenerate/);
+assert.throws(()=>r.curveConstantSpeedT(start,control,end,2),/progress/);
+console.log('constant speed rail: 6 assertions passed');

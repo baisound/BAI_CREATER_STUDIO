@@ -101,7 +101,18 @@ function resizeProjection(camera,aspect){
  camera.updateProjectionMatrix();
 }
 function resizeRender(){for(const v of views){if(!v.renderer)continue;const w=Math.max(2,v.host.clientWidth),h=Math.max(2,v.host.clientHeight);resizeProjection(v.camera,w/h);v.renderer.setSize(w,h,false)}}
-function render(){if(!rendererFailed){resizeRender();camHelper.visible=true;views[0].renderer?.render(world,sceneCam);camHelper.visible=false;views[1].renderer?.render(world,activeFilmingCamera)}requestAnimationFrame(render)}
+function render(){if(!rendererFailed){resizeRender();camHelper.visible=true;views[0].renderer?.render(world,sceneCam);camHelper.visible=false;if(railPath)railPath.visible=false;views[1].renderer?.render(world,activeFilmingCamera);if(railPath)railPath.visible=true}requestAnimationFrame(render)}
+// Scene-only rail gizmo; hidden from the final filming-camera view.
+let railPath=null;
+window.addEventListener('bai-camera-rail-path',event=>{
+ if(railPath){world.remove(railPath);railPath.geometry.dispose();railPath.material.dispose();railPath=null;}
+ const d=event.detail;if(!d?.visible)return;
+ if(![d.start,d.control,d.end].every(v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite)))return;
+ const curve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(...d.start),new THREE.Vector3(...d.control),new THREE.Vector3(...d.end));
+ railPath=new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(128)),new THREE.LineBasicMaterial({color:0x40e4c5,depthTest:false}));
+ railPath.renderOrder=999;world.add(railPath);
+});
+window.dispatchEvent(new Event('bai-camera-rail-ready'));
 const loader=new GLTFLoader();
 function clean(){if(!model)return;trackEnabled.checked=false;trackingBone=null;trackingOffset=null;world.remove(model);mixer?.stopAllAction();model.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()});model=null;mixer=null;clips=[];activeClip=null}
 async function loadAsset(asset){if(!/^[^/\\]+\.(glb|vrm)$/i.test(asset))throw Error('GLB/VRMのみ対応');status('モデル読み込み中…');const response=await fetch('/api/integrated-v02/asset/'+encodeURIComponent(asset));if(!response.ok)throw Error('モデル取得エラー HTTP '+response.status);const parsed=await loader.parseAsync(await response.arrayBuffer(),'');clean();model=parsed.scene;world.add(model);const bounds=new THREE.Box3().setFromObject(model);const size=bounds.getSize(new THREE.Vector3());const scale=2/Math.max(.001,size.y);model.scale.multiplyScalar(scale);bounds.setFromObject(model);const center=bounds.getCenter(new THREE.Vector3());model.position.x-=center.x;model.position.z-=center.z;model.position.y-=bounds.min.y;

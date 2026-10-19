@@ -28,9 +28,26 @@ function rail(base,{start,end,t=0,lookAt=null}={}){
  const target=lookAt===null?add(position,sub(base.target,base.position)):lookAt;
  return pose(base,position,target);
 }
-function curvedRail(base,{start,control,end,t=0,lookAt=null}={}){
+function curvePoint(start,control,end,t){return start.map((v,i)=>(1-t)*(1-t)*v+2*(1-t)*t*control[i]+t*t*end[i]);}
+// Arc-length lookup gives approximately uniform world-space speed, including non-linear bends.
+function curveArcTable(start,control,end,segments=256){
+ if(![start,control,end].every(valid)||!Number.isInteger(segments)||segments<8||segments>4096)throw Error('Invalid curve arc table');
+ const table=[0];let prev=start,total=0;
+ for(let i=1;i<=segments;i++){const point=curvePoint(start,control,end,i/segments);total+=magnitude(sub(point,prev));table.push(total);prev=point;}
+ if(total<1e-8)throw Error('Degenerate curved rail');
+ return {length:total,cumulative:table,segments};
+}
+function curveConstantSpeedT(start,control,end,progress,table=null){
+ if(!Number.isFinite(progress)||progress<0||progress>1)throw Error('Invalid curved rail progress');
+ const arc=table||curveArcTable(start,control,end);
+ if(progress===0)return 0;if(progress===1)return 1;
+ const desired=progress*arc.length,values=arc.cumulative;
+ let lo=0,hi=arc.segments;while(hi-lo>1){const mid=(lo+hi)>>1;if(values[mid]<desired)lo=mid;else hi=mid;}
+ const denom=values[hi]-values[lo];return (lo+(denom>0?(desired-values[lo])/denom:0))/arc.segments;
+}
+function curvedRail(base,{start,control,end,t=0,lookAt=null,constantSpeed=false}={}){
  if(!valid(start)||!valid(control)||!valid(end)||!Number.isFinite(t)||t<0||t>1)throw Error('Invalid curved rail parameters');
- const position=start.map((v,i)=>(1-t)*(1-t)*v+2*(1-t)*t*control[i]+t*t*end[i]);
+ const position=curvePoint(start,control,end,constantSpeed?curveConstantSpeedT(start,control,end,t):t);
  const target=lookAt===null?add(position,sub(base.target,base.position)):lookAt;
  return pose(base,position,target);
 }
@@ -41,7 +58,7 @@ function follow(base,{subject,offset=null,lookAt=true}={}){
 }
 // Bake a parametric camera movement into ordinary project keys. The resulting
 // keys remain editable and use the project's existing persistence format.
-function bake(base,{type,from,to,step=1,start,end,control=null,amount=90,easing='linear'}={}){
+function bake(base,{type,from,to,step=1,start,end,control=null,amount=90,easing='linear',constantSpeed=false}={}){
  if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<=from||!Number.isInteger(step)||step<1)throw Error('Invalid rig frame interval');
  if(!['orbit','crane','rail','curve'].includes(type)||!['linear','smooth'].includes(easing)||!Number.isFinite(amount))throw Error('Invalid rig motion');
  const count=Math.ceil((to-from)/step)+1;
@@ -52,12 +69,12 @@ function bake(base,{type,from,to,step=1,start,end,control=null,amount=90,easing=
   let p;
   if(type==='orbit')p=orbit(base,{center:start,azimuth:amount*t});
   else if(type==='crane')p=crane(base,{pivot:start,angle:amount*t});
-  else if(type==='curve')p=curvedRail(base,{start,control,end,t});
+  else if(type==='curve')p=curvedRail(base,{start,control,end,t,constantSpeed});
   else p=rail(base,{start,end,t});
   result.push({frame,position:p.position,target:p.target,fov:p.fov,interpolation:'linear'});
   if(frame===to)break;
  }
  return result;
 }
-return Object.freeze({orbit,crane,rail,curvedRail,follow,bake});
+return Object.freeze({orbit,crane,rail,curvedRail,curveArcTable,curveConstantSpeedT,curvePoint,follow,bake});
 });
