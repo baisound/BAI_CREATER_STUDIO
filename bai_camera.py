@@ -1,7 +1,9 @@
 """BAI Camera: standalone, offline camera keyframe store and deterministic interpolation."""
 import json, math, os, threading
 from pathlib import Path
+from camera_easing import MODES as EASING_MODES, handles as easing_handles, ease
 LOCK=threading.RLock()
+FSTOP_MIN,FSTOP_MAX,FSTOP_DEFAULT=0.7,64.0,4.0
 DEFAULT={'schema':1,'fps':30,'duration':300,'keys':[{'frame':0,'position':[0,1.6,5],'target':[0,1,0],'fov':40},{'frame':90,'position':[4,2,3],'target':[0,1,0],'fov':35}]}
 def number(value,lo,hi):
     if isinstance(value,bool) or not isinstance(value,(float,int)) or not math.isfinite(value) or not lo<=value<=hi:raise ValueError('camera number out of range')
@@ -19,8 +21,11 @@ def validate(payload):
         if int(frame)!=frame or frame in seen:raise ValueError('duplicate or invalid frame')
         seen.add(frame)
         mode=key.get('interpolation','linear')
-        if mode not in ('linear','smooth','hold'):raise ValueError('invalid camera interpolation')
+        if mode not in EASING_MODES:raise ValueError('invalid camera interpolation')
         record={'frame':int(frame),'fov':number(key.get('fov'),5,150),'interpolation':mode}
+        if mode=='custom':record['customCurve']=easing_handles(key.get('customCurve'))
+        # F-number is optional: legacy projects without it stay unchanged (CAM-005).
+        if 'fStop' in key:record['fStop']=number(key.get('fStop'),FSTOP_MIN,FSTOP_MAX)
         for attr in ('position','target'):
             arr=key.get(attr)
             if not isinstance(arr,list) or len(arr)!=3:raise ValueError('invalid camera vector')
@@ -28,6 +33,12 @@ def validate(payload):
         if sum((a-b)**2 for a,b in zip(record['position'],record['target']))<1e-8:raise ValueError('camera position and target must differ')
         out.append(record)
     result={'schema':1,'fps':int(fps),'duration':int(duration),'keys':sorted(out,key=lambda k:k['frame'])}
+    if 'easingPresets' in payload:
+        presets=payload['easingPresets']
+        if not isinstance(presets,dict) or len(presets)>64:raise ValueError('invalid easing presets')
+        for name in presets:
+            if not isinstance(name,str) or not 1<=len(name.strip())<=48:raise ValueError('invalid easing preset name')
+        result['easingPresets']={name:easing_handles(curve) for name,curve in presets.items()}
     if 'custom_presets' in payload:
         from camera_custom_presets import validate_presets
         result['custom_presets']=validate_presets(payload['custom_presets'])
@@ -54,9 +65,13 @@ def sample(project,frame):
         if left['frame']<=f<=right['frame']:
             t=(f-left['frame'])/(right['frame']-left['frame'])
             mode=left.get('interpolation','linear')
-            if mode=='hold':t=0.0
-            elif mode=='smooth':t=t*t*(3-2*t)
-            return {'frame':f,'position':[a+(b-a)*t for a,b in zip(left['position'],right['position'])],'target':[a+(b-a)*t for a,b in zip(left['target'],right['target'])],'fov':left['fov']+(right['fov']-left['fov'])*t}
+            # hold keeps the left key even at the right key's frame, matching camera.js sample().
+            t=0.0 if mode=='hold' else ease(mode,t,left.get('customCurve'))
+            pose={'frame':f,'position':[a+(b-a)*t for a,b in zip(left['position'],right['position'])],'target':[a+(b-a)*t for a,b in zip(left['target'],right['target'])],'fov':left['fov']+(right['fov']-left['fov'])*t}
+            if 'fStop' in left or 'fStop' in right:
+                a,b=left.get('fStop',FSTOP_DEFAULT),right.get('fStop',FSTOP_DEFAULT)
+                pose['fStop']=a+(b-a)*t
+            return pose
     raise ValueError('frame not found')
 def read(path):
     try:return validate(json.loads(Path(path).read_text(encoding='utf8')))
