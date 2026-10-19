@@ -1,0 +1,6 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');const ctx={};vm.runInNewContext(fs.readFileSync(__dirname+'/camera_lens.js','utf8'),ctx);const L=ctx.BAICameraLens;
+test('all approved lens presets have valid photographic values',()=>{for(const p of Object.values(L.presets)){assert.ok(p.mm>0&&p.aperture>0);const f=L.focalToVerticalFov(p.mm);assert.ok(f>5&&f<150)}});
+test('focal conversion round trips',()=>{for(const mm of [35,50,80,135])assert.ok(Math.abs(mm-L.verticalFovToFocal(L.focalToVerticalFov(mm)))<1e-9)});
+test('focal length narrows field of view',()=>assert.ok(L.focalToVerticalFov(35)>L.focalToVerticalFov(80)));
+test('invalid focal data rejected',()=>{for(const n of [0,-1,NaN,Infinity])assert.throws(()=>L.focalToVerticalFov(n))});
+test('lens is connected to UI and HTTP',()=>{const h=fs.readFileSync(__dirname+'/camera.html','utf8'),s=fs.readFileSync(__dirname+'/server.py','utf8'),j=fs.readFileSync(__dirname+'/camera.js','utf8');for(const id of ['lens-preset','lens-apply','lens-result'])assert.ok(h.includes('id="'+id+'"'));assert.ok(s.includes('"/camera_lens.js"'));assert.ok(j.includes('BAICameraLens.focalToVerticalFov'))});

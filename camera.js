@@ -129,5 +129,17 @@ $('save').onclick=async()=>{try{window.dispatchEvent(new CustomEvent('bai-camera
 $('copy').onclick=()=>{const blob=new Blob([JSON.stringify(project,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='bai-camera-project.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 $('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'■ 停止':'▶ 再生';lastTime=0;playhead=frame;if(playing)raf=requestAnimationFrame(tick);else cancelAnimationFrame(raf)};function tick(t){if(!playing)return;if(lastTime)playhead+=Math.min(250,t-lastTime)*project.fps/1000;lastTime=t;setFrame(playhead);if(frame>=project.duration){playing=false;$('play').textContent='▶ 再生';return}raf=requestAnimationFrame(tick)}
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});window.addEventListener('resize',()=>{if(project)draw()});if(typeof ResizeObserver!=='undefined'){new ResizeObserver(()=>{if(project)draw()}).observe(document.querySelector('.dual-views'))};
+// Approved lens presets: convert 35mm full-frame focal length to vertical FOV.
+$('lens-apply').addEventListener('click',()=>{try{
+ if(!project)throw Error('プロジェクトを読み込んでください');
+ const preset=window.BAICameraLens.presets[$('lens-preset').value];
+ if(!preset)throw Error('レンズ設定が見つかりません');
+ const fov=window.BAICameraLens.focalToVerticalFov(preset.mm);
+ $('focus-lens').value=preset.mm;$('focus-aperture').value=preset.aperture;
+ commitPose({...clone(previewPose||sample(frame)),fov});
+ drawFocusDiagnostic();
+ $('lens-result').textContent=`${preset.mm}mm / f${preset.aperture} / 垂直画角 ${fov.toFixed(2)}°（実ボケは未対応）`;
+ }catch(e){$('lens-result').textContent='エラー: '+e.message}
+});
 fetch('/api/camera/project').then(r=>r.json()).then(p=>{project=p;history=[clone(project)];cursor=0;$('frame').max=project.duration;$('frame-number').max=project.duration;$('duration').value=project.duration;rangeSize=Math.min(300,project.duration);updateRangeControls();restoreRig();setFrame(0);window.dispatchEvent(new CustomEvent('bai-camera-project-loaded',{detail:{project}}));status('カメラ編集を開始できます（AI不要）')}).catch(e=>status('読み込みエラー: '+e.message));
 })();

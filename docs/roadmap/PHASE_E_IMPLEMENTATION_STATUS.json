@@ -57,10 +57,14 @@
       "id": "CAM-005",
       "name": "焦点距離・F値・ピント距離",
       "evidence_paths": [
+        "camera.html",
+        "camera.js",
+        "camera_3d.js",
         "camera_focus.py",
-        "camera_3d.js"
+        "camera_lens.js",
+        "test_camera_lens.cjs"
       ],
-      "implementation_assessment": "部分実装・統合未検証",
+      "implementation_assessment": "35/50/80/135mmレンズ+F値のラベル付きプリセット、垂直画角(FOV)反映、フォーカス計算の入力連携を実装・単体テスト通過。実DOF描画・プロジェクト内F値保存・MCP・実ブラウザー未検証。部分実装。",
       "ui_api_webmcp_stdio_mcp_verified": false,
       "real_browser_verified": false,
       "release_complete": false
