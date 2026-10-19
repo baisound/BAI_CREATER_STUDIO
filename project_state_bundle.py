@@ -4,6 +4,7 @@ The two legacy stores stay authoritative.  This is a staged integration, not a
 claim of atomic multi-file durability or full workspace restoration.
 """
 import json
+from camera_project_revision import revision
 from pathlib import Path
 from bai_camera import validate as validate_camera
 
@@ -120,3 +121,8 @@ def save_bundle(combination_path, camera_path, obj):
     finally:
         tmp.unlink(missing_ok=True)
     return {'ok': True, 'schema': 1}
+
+
+def bundle_revision(snapshot):
+    """Revision of persisted bundle components, excluding response-only flags."""
+    return revision({key: snapshot.get(key) for key in ('combination', 'camera', 'workspace')})

@@ -166,9 +166,10 @@ class Handler(BaseHTTPRequestHandler):
         if path in ("/camera.html", "/camera.css", "/camera.js", "/camera_3d.js", "/camera_vmd_local.js", "/camera_rig.js", "/camera_follow_config.js", "/camera_follow_smoothing.js", "/camera_framing.js", "/camera_lens.js", "/camera_dof.js", "/camera_focus_tracking.js", "/camera_focus_consistency.js", "/camera_project_bundle_ui.js", "/camera_sequence_playback.js"):
             file=BASE/path[1:];self.send(200,file.read_bytes(),"text/css" if path.endswith(".css") else "text/javascript" if path.endswith(".js") else "text/html; charset=utf-8");return
         if path=="/api/project/bundle":
-            from project_state_bundle import read_bundle
+            from project_state_bundle import read_bundle, bundle_revision
             with PROJECT_LOCK:
                 payload=read_bundle(PROJECT, DATA/'camera_project.json')
+                payload['revision']=bundle_revision(payload)
             self.send(200,json.dumps(payload,ensure_ascii=False).encode());return
         if path=="/api/camera/project":
             camera_project=camera_read(DATA/"camera_project.json")
@@ -355,9 +356,15 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=4*1024*1024:return self.bad(413,'bundle too large')
-                from project_state_bundle import save_bundle
+                from project_state_bundle import save_bundle, read_bundle, bundle_revision
                 data=json.loads(self.rfile.read(length))
                 with PROJECT_LOCK:
+                    expected=self.headers.get('If-Match')
+                    if not expected:
+                        return self.bad(428,'bundle revision required: reload before saving')
+                    current=read_bundle(PROJECT,DATA/'camera_project.json')
+                    if expected!=bundle_revision(current):
+                        return self.bad(409,'bundle changed on server: refresh before saving')
                     result=save_bundle(PROJECT,DATA/'camera_project.json',data)
                 sync_bump()
                 self.send(200,json.dumps(result).encode());return
