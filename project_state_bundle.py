@@ -87,12 +87,12 @@ def save_bundle(combination_path, camera_path, obj):
     before_wp = wp.read_bytes() if wp.exists() else None
     cp.parent.mkdir(parents=True, exist_ok=True)
     tmp = cp.with_suffix('.bundle-tmp')
+    workspace_tmp = wp.with_suffix('.workspace-tmp')
     try:
         tmp.write_text(json.dumps(payload['combination'], ensure_ascii=False, indent=2), encoding='utf-8')
         # Camera validation and serialization happen before combination switch.
         camera_save(cam, payload['camera'])
         if 'workspace' in payload:
-            workspace_tmp = wp.with_suffix('.workspace-tmp')
             workspace_tmp.write_text(json.dumps(payload['workspace'], ensure_ascii=False, indent=2), encoding='utf-8')
             workspace_tmp.replace(wp)
         else:
@@ -120,6 +120,7 @@ def save_bundle(combination_path, camera_path, obj):
         raise
     finally:
         tmp.unlink(missing_ok=True)
+        workspace_tmp.unlink(missing_ok=True)
     return {'ok': True, 'schema': 1}
 
 

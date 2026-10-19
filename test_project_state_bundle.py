@@ -57,3 +57,40 @@ class ProjectStateBundleTest(TestCase):
 
     def test_old_bundle_still_valid(self):
         self.assertNotIn('workspace',validate_bundle(self.bundle))
+
+    def test_camera_write_failure_preserves_existing_bundle(self):
+        from unittest.mock import patch
+        with TemporaryDirectory() as tmp:
+            cp, cam = Path(tmp)/'comb.json', Path(tmp)/'camera.json'
+            initial={**self.bundle,'workspace':{'asset':'original.glb','clip':0,'frame':4}}
+            save_bundle(cp,cam,initial)
+            paths=[cp,cam,cp.with_suffix('.workspace.json')]
+            original=[p.read_bytes() for p in paths]
+            updated={**self.bundle,'workspace':{'asset':'new.glb','clip':0,'frame':9}}
+            with patch('bai_camera.save',side_effect=OSError('camera write failed')):
+                with self.assertRaisesRegex(OSError,'camera write failed'):
+                    save_bundle(cp,cam,updated)
+            self.assertEqual(original,[p.read_bytes() for p in paths])
+            self.assertFalse(cp.with_suffix('.bundle-tmp').exists())
+            self.assertFalse(cp.with_suffix('.workspace-tmp').exists())
+
+    def test_combination_replace_failure_rolls_back_camera_workspace(self):
+        from unittest.mock import patch
+        with TemporaryDirectory() as tmp:
+            cp, cam = Path(tmp)/'comb.json', Path(tmp)/'camera.json'
+            initial={**self.bundle,'workspace':{'asset':'old.glb','clip':0,'frame':4}}
+            save_bundle(cp,cam,initial)
+            paths=[cp,cam,cp.with_suffix('.workspace.json')]
+            original=[p.read_bytes() for p in paths]
+            updated={**self.bundle,'workspace':{'asset':'new.glb','clip':0,'frame':9}}
+            real_replace=Path.replace
+            def fail_bundle_replace(self, dest):
+                if self == cp.with_suffix('.bundle-tmp'):
+                    raise OSError('combination rename failed')
+                return real_replace(self,dest)
+            with patch.object(Path,'replace',fail_bundle_replace):
+                with self.assertRaisesRegex(OSError,'combination rename failed'):
+                    save_bundle(cp,cam,updated)
+            self.assertEqual(original,[p.read_bytes() for p in paths])
+            self.assertFalse(cp.with_suffix('.bundle-tmp').exists())
+            self.assertFalse(cp.with_suffix('.workspace-tmp').exists())
