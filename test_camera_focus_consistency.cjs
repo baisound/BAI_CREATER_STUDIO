@@ -13,3 +13,12 @@ test('front and back classification',()=>{
  assert.equal(C.diagnose({pose,lens:50,aperture:2.8,focus:5,point:[0,0,10]}).classification,'back');
 });
 test('reject behind camera',()=> assert.throws(()=>C.diagnose({pose,lens:50,aperture:2.8,focus:5,point:[0,0,-1]})));
+
+test('interval diagnostics normalize out-of-order and duplicate failing frames',()=>{
+ assert.deepEqual(C.intervals([{frame:6,inside:false},{frame:3,inside:false},{frame:4,inside:false},{frame:4,inside:false},{frame:2,inside:true},{frame:9,inside:false},{frame:5,inside:false}]),[[3,6],[9,9]]);
+ assert.deepEqual(C.intervals([]),[]);
+});
+test('interval diagnostics fail closed for invalid inputs',()=>{
+ for(const samples of [null,{},[{frame:-1,inside:false}],[{frame:2.5,inside:false}],[{frame:0}], [null]])
+  assert.throws(()=>C.intervals(samples));
+});
