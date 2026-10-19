@@ -308,7 +308,7 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/api/conversion-map':
             try:payload=(DATA/'conversion_map.json').read_bytes()
             except FileNotFoundError:payload=b'{}'
-            self.send(200,payload);return
+            self.send(200,json.dumps({'project':json.loads(payload),'revision':camera_revision(json.loads(payload))},ensure_ascii=False).encode() if 'envelope=1' in urlsplit(self.path).query else payload);return
         if path=='/api/project':
             with PROJECT_LOCK:
                 try: payload=PROJECT.read_bytes()
@@ -318,7 +318,7 @@ class Handler(BaseHTTPRequestHandler):
             with PROJECT_LOCK:
                 try: payload=PROJECT.read_bytes()
                 except FileNotFoundError:payload=b'{}'
-            self.send(200,payload);return
+            self.send(200,json.dumps({'project':json.loads(payload),'revision':camera_revision(json.loads(payload))},ensure_ascii=False).encode() if 'envelope=1' in urlsplit(self.path).query else payload);return
         if path=='/api/favorites':
             try: payload=FAVORITES.read_bytes()
             except FileNotFoundError:payload=b'[]'
@@ -909,7 +909,7 @@ class Handler(BaseHTTPRequestHandler):
                         return self.bad(409,'project changed on server: refresh before saving')
                 tmp=PROJECT.with_suffix('.tmp');tmp.write_text(json.dumps(obj,ensure_ascii=False,indent=2),encoding='utf-8');os.replace(tmp,PROJECT)
             sync_bump()
-            self.send(200,b'{"ok":true}');return
+            self.send(200,json.dumps({"ok":True,"revision":camera_revision(obj)}).encode());return
         if u.path=='/api/project':
             if n>3*1024*1024:return self.bad(413,'project too large')
             try:
@@ -932,7 +932,7 @@ class Handler(BaseHTTPRequestHandler):
                         return self.bad(409,'project changed on server: refresh before saving')
                 tmp=PROJECT.with_suffix('.tmp');tmp.write_text(json.dumps(obj,ensure_ascii=False,indent=2),encoding='utf-8');os.replace(tmp,PROJECT)
             sync_bump()
-            self.send(200,b'{"ok":true}');return
+            self.send(200,json.dumps({"ok":True,"revision":camera_revision(obj)}).encode());return
         if u.path=='/api/favorites':
             if n>2*1024*1024:return self.bad(413,'favorites too large')
             try:
