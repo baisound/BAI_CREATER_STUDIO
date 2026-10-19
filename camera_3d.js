@@ -13,6 +13,36 @@ const sceneCam=new THREE.PerspectiveCamera(55,1,.02,1000);sceneCam.position.set(
 const filmingCam=new THREE.PerspectiveCamera(40,1,.02,1000);filmingCam.position.set(0,1.6,5);filmingCam.lookAt(0,1,0);
 const orthographicCam=new THREE.OrthographicCamera(-1,1,1,-1,.02,1000);
 let activeFilmingCamera=filmingCam;let orthographicHalfHeight=1;
+let dofPass=null,dofComposer=null,dofRequested=false,dofWidth=0,dofHeight=0;
+const dofToggle=$('dof-preview-enabled'),dofStatus=$('dof-preview-status');
+async function setupDOF(){
+ if(dofComposer||!views[1]?.renderer)return;
+ try{
+  const [{EffectComposer},{RenderPass},{BokehPass}]=await Promise.all([
+   import('three/addons/postprocessing/EffectComposer.js'),
+   import('three/addons/postprocessing/RenderPass.js'),
+   import('three/addons/postprocessing/BokehPass.js')]);
+  const composer=new EffectComposer(views[1].renderer);
+  composer.addPass(new RenderPass(world,activeFilmingCamera));
+  const pass=new BokehPass(world,activeFilmingCamera,{focus:4,aperture:.00004,maxblur:.008,width:2,height:2});
+  composer.addPass(pass);dofComposer=composer;dofPass=pass;
+  dofStatus.textContent='DOFプレビュー有効（近似ボケ）';
+ }catch(error){dofRequested=false;dofToggle.checked=false;dofStatus.textContent='DOFが使えません（通常描画へ復帰）: '+error.message}
+}
+function syncDOF(){
+ if(!dofPass)return false;
+ if(activeFilmingCamera.isOrthographicCamera){dofStatus.textContent='平行投影ではDOFを適用しません';return false}
+ try{
+  const params=window.BAICameraDOF.settings($('focus-lens').value,$('focus-aperture').value,$('focus-distance').value);
+  Object.assign(dofPass.uniforms.focus,{value:params.focus});
+  Object.assign(dofPass.uniforms.aperture,{value:params.aperture});
+  Object.assign(dofPass.uniforms.maxblur,{value:params.maxblur});
+  dofPass.camera=activeFilmingCamera;
+  return true;
+ }catch(err){dofStatus.textContent='DOF設定を確認: '+err.message;return false}
+}
+dofToggle.addEventListener('change',()=>{dofRequested=dofToggle.checked;if(dofRequested)setupDOF();else dofStatus.textContent='DOF OFF（通常描画）'});
+
 const views=[{host:$('scene').parentElement,camera:sceneCam},{host:$('preview').parentElement,camera:filmingCam}];
 let model=null,mixer=null,clips=[],activeClip=null,lastFrame=0,fps=30,shootingPose=null,rendererFailed=false;
 let trackingBone=null,trackingOffset=null,trackingBaseTarget=null,untrackedPose=null,followSmoothState=null;
@@ -120,7 +150,7 @@ function resizeProjection(camera,aspect){
  camera.updateProjectionMatrix();
 }
 function resizeRender(){for(const v of views){if(!v.renderer)continue;const w=Math.max(2,v.host.clientWidth),h=Math.max(2,v.host.clientHeight);resizeProjection(v.camera,w/h);v.renderer.setSize(w,h,false)}}
-function render(){if(!rendererFailed){resizeRender();camHelper.visible=true;views[0].renderer?.render(world,sceneCam);camHelper.visible=false;if(railPath)railPath.visible=false;railHandles.visible=false;views[1].renderer?.render(world,activeFilmingCamera);if(railPath)railPath.visible=true;railHandles.visible=true}requestAnimationFrame(render)}
+function render(){if(!rendererFailed){resizeRender();camHelper.visible=true;views[0].renderer?.render(world,sceneCam);camHelper.visible=false;if(railPath)railPath.visible=false;railHandles.visible=false;if(dofRequested&&dofComposer&&syncDOF()){dofComposer.passes[0].camera=activeFilmingCamera;const w=Math.max(2,views[1].host.clientWidth),h=Math.max(2,views[1].host.clientHeight);if(w!==dofWidth||h!==dofHeight){dofComposer.setSize(w,h);dofWidth=w;dofHeight=h}dofComposer.render()}else views[1].renderer?.render(world,activeFilmingCamera);if(railPath)railPath.visible=true;railHandles.visible=true}requestAnimationFrame(render)}
 // Scene-only rail gizmo; hidden from the final filming-camera view.
 let railPath=null;
 const railHandles=new THREE.Group();world.add(railHandles);
