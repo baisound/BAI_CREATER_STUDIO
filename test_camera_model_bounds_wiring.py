@@ -10,5 +10,5 @@ class ModelBoundsWiringTest(unittest.TestCase):
     def test_consumer_and_fallback(self):
         src=(ROOT/'camera.js').read_text()
         self.assertIn('modelFramingBounds||{}',src)
-        self.assertIn("modelFramingBounds?'実モデルの包囲球':'ガイド人体'",src)
+        self.assertIn("useBox?'実モデルの包囲箱':'実モデルの包囲球'",src)
 if __name__=='__main__':unittest.main()

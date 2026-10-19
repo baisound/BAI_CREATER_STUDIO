@@ -11,7 +11,7 @@ def test_camera_asset_ui_and_renderer():
     assert "'/api/integrated-v02/asset/'" in js
     assert "new THREE.WebGLRenderer" in js
     assert 'views[0].renderer?.render(world,sceneCam)' in js
-    assert 'views[1].renderer?.render(world,filmingCam)' in js
+    assert 'views[1].renderer?.render(world,activeFilmingCamera)' in js
 
 def test_synchronous_animation_sampling_and_focus():
     main=(ROOT/'camera.js').read_text()

@@ -189,7 +189,7 @@ function publishModelFraming(){
  });
  if(!found||bounds.isEmpty())return;
  const sphere=bounds.getBoundingSphere(new THREE.Sphere());
- window.dispatchEvent(new CustomEvent('bai-camera-model-bounds',{detail:{center:sphere.center.toArray(),radius:sphere.radius,source:'model',frame:lastFrame}}));
+ window.dispatchEvent(new CustomEvent('bai-camera-model-bounds',{detail:{center:sphere.center.toArray(),radius:sphere.radius,min:bounds.min.toArray(),max:bounds.max.toArray(),source:'model',frame:lastFrame}}));
 }
 function clean(){if(!model)return;trackEnabled.checked=false;trackingBone=null;trackingOffset=null;world.remove(model);mixer?.stopAllAction();model.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()});model=null;mixer=null;clips=[];activeClip=null;publishModelFraming()}
 async function loadAsset(asset){if(!/^[^/\\]+\.(glb|vrm)$/i.test(asset))throw Error('GLB/VRMのみ対応');status('モデル読み込み中…');const response=await fetch('/api/integrated-v02/asset/'+encodeURIComponent(asset));if(!response.ok)throw Error('モデル取得エラー HTTP '+response.status);const parsed=await loader.parseAsync(await response.arrayBuffer(),'');clean();model=parsed.scene;world.add(model);const bounds=new THREE.Box3().setFromObject(model);const size=bounds.getSize(new THREE.Vector3());const scale=2/Math.max(.001,size.y);model.scale.multiplyScalar(scale);bounds.setFromObject(model);const center=bounds.getCenter(new THREE.Vector3());model.position.x-=center.x;model.position.z-=center.z;model.position.y-=bounds.min.y;

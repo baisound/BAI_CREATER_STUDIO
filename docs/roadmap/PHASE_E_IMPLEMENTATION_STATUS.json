@@ -48,7 +48,7 @@
         "test_camera_framing.cjs",
         "camera_3d.js"
       ],
-      "implementation_assessment": "ガイド人体または読み込んだGLB/VRMのアニメーション時メッシュ包囲球による保守的な見切れ診断を接続。輪郭の精密判定・遮蔽・GPU表示の統合検証は未完了",
+      "implementation_assessment": "実モデルのアニメーション時メッシュ包囲箱の8頂点によるフレーム診断へ改善。ガイド人体・旧データは球判定へフォールバック。輪郭・遮蔽・GPU統合検証は未完了",
       "ui_api_webmcp_stdio_mcp_verified": false,
       "real_browser_verified": false,
       "release_complete": false

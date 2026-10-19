@@ -23,8 +23,8 @@ let modelFramingBounds=null;
 window.addEventListener('bai-camera-model-bounds',e=>{modelFramingBounds=e.detail;drawFramingDiagnostic()});
 function drawFramingDiagnostic(){
  const out=$('framing-result');if(!$('framing-enabled').checked){out.textContent='診断OFF';return}
- try{const pose=previewPose||sample(frame);const result=window.BAICameraFraming.framing(pose,{...(modelFramingBounds||{}),aspect:Number($('framing-aspect').value),margin:Number($('framing-margin').value)/100});
- const label=modelFramingBounds?'実モデルの包囲球':'ガイド人体';out.textContent=label+'：'+(result.inside?'安全余白内に収まっています':result.behind?'カメラ背面または近すぎます':'画面から見切れる可能性があります');out.style.color=result.inside?'#77e0a8':'#ffb570';
+ try{const pose=previewPose||sample(frame);const diagnostic={...(modelFramingBounds||{}),aspect:Number($('framing-aspect').value),margin:Number($('framing-margin').value)/100};const useBox=Array.isArray(diagnostic.min)&&Array.isArray(diagnostic.max);const result=useBox?window.BAICameraFraming.framingBox(pose,diagnostic):window.BAICameraFraming.framing(pose,diagnostic);
+ const label=modelFramingBounds?(useBox?'実モデルの包囲箱':'実モデルの包囲球'):'ガイド人体';out.textContent=label+'：'+(result.inside?'安全余白内に収まっています':result.behind?'カメラ背面または近すぎます':'画面から見切れる可能性があります');out.style.color=result.inside?'#77e0a8':'#ffb570';
  }catch(e){out.textContent='診断不可: '+e.message;out.style.color='#ffb570'}
 }
 for(const id of ['framing-enabled','framing-aspect','framing-margin'])$(id).addEventListener('change',drawFramingDiagnostic);
