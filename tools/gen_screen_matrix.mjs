@@ -18,7 +18,7 @@ const rows = SCREENS.flatMap((s) => s.panels.map((p) => ({
   test: 'tests/studio-ui.test.cjs',
   browser_test: 'headless_chromium_navigation_and_controls',
   verdict: p.status === 'real' ? 'read_only_display_only' : 'not_implemented_in_new_ui',
-  blockers: p.status === 'unimpl' ? 'no implementation' : p.status === 'partial' ? 'port to new UI via common API (P2, awaiting owner approval)' : null,
+  blockers: p.status === 'unimpl' ? 'no implementation' : p.status === 'partial' ? 'port to new UI via common API (P2, after Phase E per owner decision)' : null,
 })));
 const doc = {
   schema: 'bai.screen_implementation_matrix.v1',

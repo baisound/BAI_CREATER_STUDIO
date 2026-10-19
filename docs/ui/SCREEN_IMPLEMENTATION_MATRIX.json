@@ -10,7 +10,7 @@
     "D": "Phase D 音楽同期・表情（承認済み）",
     "G": "Phase G リリック・MMDエフェクト（承認済み）",
     "H": "Phase H 格闘・演出・ステージ（承認済み）",
-    "P2": "P2 既存機能の新UI移植（再編案・所有者確認待ち）",
+    "P2": "P2 既存機能の新UI移植（Phase E の後に実施・所有者決定）",
     "P4": "P4 新規機能候補（未承認・承認まで実装しない）",
     "B": "Phase B 残課題（保持・E/F のブロッカーにしない）",
     "OBS": "Phase 00 ログ基盤（OBS、仕様決定済み）"
@@ -505,7 +505,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-01",
@@ -524,7 +524,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-01",
@@ -579,7 +579,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-02",
@@ -598,7 +598,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-02",
@@ -616,7 +616,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-02",
@@ -634,7 +634,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-02",
@@ -652,7 +652,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-03",
@@ -671,7 +671,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-03",
@@ -725,7 +725,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-03",
@@ -779,7 +779,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-04",
@@ -815,7 +815,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-04",
@@ -852,7 +852,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-05",
@@ -871,7 +871,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-05",
@@ -889,7 +889,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-05",
@@ -1110,7 +1110,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-08",
@@ -1149,7 +1149,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-08",
@@ -1224,7 +1224,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-09",
@@ -1576,7 +1576,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-12",
@@ -1594,7 +1594,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-12",
@@ -1612,7 +1612,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-12",
@@ -1666,7 +1666,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-12",
@@ -1704,7 +1704,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-13",
@@ -1722,7 +1722,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-13",
@@ -1740,7 +1740,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-13",
@@ -1794,7 +1794,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-13",
@@ -1812,7 +1812,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-14",
@@ -1832,7 +1832,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-14",
@@ -1850,7 +1850,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-14",
@@ -1868,7 +1868,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-14",
@@ -1886,7 +1886,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-14",
@@ -1944,7 +1944,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-15",
@@ -1962,7 +1962,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-15",
@@ -2000,7 +2000,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-15",
@@ -2018,7 +2018,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-15",
@@ -2036,7 +2036,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-16",
@@ -2054,7 +2054,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-16",
@@ -2321,7 +2321,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-18",
@@ -2339,7 +2339,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-18",
@@ -2430,7 +2430,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-19",
@@ -2623,7 +2623,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-20",
@@ -2901,7 +2901,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-22",
@@ -2980,7 +2980,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-23",
@@ -2999,7 +2999,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-23",
@@ -3017,7 +3017,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-23",
@@ -3053,7 +3053,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-24",
@@ -3111,7 +3111,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-24",
@@ -3129,7 +3129,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-24",
@@ -3285,7 +3285,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, awaiting owner approval)"
+      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
     },
     {
       "screen_id": "SCR-25",
