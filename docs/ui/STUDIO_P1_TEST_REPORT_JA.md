@@ -19,3 +19,5 @@
 - 所有者PCでの `npm run dev`（BrowserSync）による自動リロードの実演。
 - 実モデル・GPU描画（新UIは3D描画に未接続）。WebMCP・標準MCPからの新UI操作（未接続）。
 - Firefox / Safari、実機タブレット。
+
+> 追記（2026-10-20）：上記の既存テスト3件の失敗は `bai_camera.validate` を修正して解消し、pytest は304件すべて成功しています。

@@ -54,3 +54,5 @@ node tools/gen_screen_matrix.mjs   # 画面×機能の実装マトリクスを�
 - SCR-08 と SCR-11 は同一素材索引に統合する方針を画面上にも明記。
 - SCR-19 の稼働率・GPU負荷などの画像内サンプル値は採用せず、既存 `/api/ai/status` の実値または「未接続」を表示。
 - 25画面の参照画像（52.7MB）はリポジトリに含めない（原本素材はGit管理対象外の規則）。所在：プロジェクト共有フォルダ `設計書/BAI_Creator_Studio_UI_Design_25_Screens_PACKAGE.zip`、ローカル `D:\BAI\BAI_CREATER_STUDIO\`。
+
+> 追記（2026-10-20）：上記の既存テスト3件の失敗は `bai_camera.validate` を修正して解消し、pytest は304件すべて成功しています。
