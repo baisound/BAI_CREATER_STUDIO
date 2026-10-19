@@ -1,0 +1,32 @@
+{
+  "schema": "bai.claude.handoff.v1",
+  "generated_at": "2026-10-20",
+  "primary_instruction": "START_HERE_JA.md",
+  "source_code_location": "Existing GitHub repository already accessible to Claude Code; DO NOT overwrite",
+  "github_head_verified": false,
+  "local_comparison_zip": "BAI_Creator_Studio_DEV_LIVE_RELOAD_FULL_20261019.zip",
+  "design_source": "06_REFERENCE/design_manifest.json",
+  "proposed_priority": [
+    "P0",
+    "P1-A",
+    "P1-B",
+    "P1-C",
+    "P2",
+    "P3-E",
+    "P3-F",
+    "P3-EARLY",
+    "P3-C",
+    "P3-D",
+    "P3-G",
+    "P3-H",
+    "P4"
+  ],
+  "feature_status_rule": "unknown until current repo audit; mock != implemented",
+  "delivery": "Use existing local Git repository and GitHub: commit changed code/docs/tests, push to authorized branch, optionally PR; report commit SHA, branch, push/PR status and tests. Full project ZIP NOT required unless owner explicitly requests it.",
+  "unimplemented_visual": "◇ 未実装",
+  "reference_style": "information architecture only; do not copy neon purple/blue color scheme",
+  "delivery_mode": "github_direct",
+  "full_project_zip_required": false,
+  "full_project_zip_exception": "only_when_explicitly_requested_by_owner",
+  "github_push_policy": "push only to authorized remote/branch; report if unavailable; never claim push success without verification"
+}

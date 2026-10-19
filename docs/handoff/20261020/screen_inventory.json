@@ -1,0 +1,1477 @@
+{
+  "schema": "bai.handoff.screens.v1",
+  "source": "2026-10-19 design ZIP",
+  "classification_is_proposal": true,
+  "screens": [
+    {
+      "id": "SCR-01",
+      "number": 1,
+      "title": "ホーム・ダッシュボード",
+      "image_path": "06_REFERENCE/images/01____________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-01",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/01",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "最近のプロジェクト",
+          "behavior": "最近のプロジェクトを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "クイックアクション",
+          "behavior": "クイックアクションを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "制作ステータス",
+          "behavior": "制作ステータスを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "新規作成",
+          "behavior": "新規作成を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "通知・進捗",
+          "behavior": "通知・進捗を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "最近のプロジェクトの表示・変更・復元が一致する",
+        "クイックアクションの表示・変更・復元が一致する",
+        "制作ステータスの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-02",
+      "number": 2,
+      "title": "カメラワーク・撮影設定",
+      "image_path": "06_REFERENCE/images/02____________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-02",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/02",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "3D撮影ビュー",
+          "behavior": "3D撮影ビューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "カメラプリセット",
+          "behavior": "カメラプリセットを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "レンズ・F値",
+          "behavior": "レンズ・F値を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "キーフレーム",
+          "behavior": "キーフレームを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "カット編集",
+          "behavior": "カット編集を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "3D撮影ビューの表示・変更・復元が一致する",
+        "カメラプリセットの表示・変更・復元が一致する",
+        "レンズ・F値の表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-03",
+      "number": 3,
+      "title": "フォーカス・DOF診断",
+      "image_path": "06_REFERENCE/images/03_______DOF__.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-03",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/03",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "ボーン追従",
+          "behavior": "ボーン追従を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "フォーカスヒートマップ",
+          "behavior": "フォーカスヒートマップを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "実DOFプレビュー",
+          "behavior": "実DOFプレビューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "失敗区間",
+          "behavior": "失敗区間を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "距離グラフ",
+          "behavior": "距離グラフを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "ボーン追従の表示・変更・復元が一致する",
+        "フォーカスヒートマップの表示・変更・復元が一致する",
+        "実DOFプレビューの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-04",
+      "number": 4,
+      "title": "シーケンス・ショット編集（初期構想）",
+      "image_path": "06_REFERENCE/images/04___________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-04",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/04",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "シーケンス一覧",
+          "behavior": "シーケンス一覧を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "ショット一覧",
+          "behavior": "ショット一覧を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "タイムライン",
+          "behavior": "タイムラインを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "プレビュー",
+          "behavior": "プレビューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "トランジション",
+          "behavior": "トランジションを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "シーケンス一覧の表示・変更・復元が一致する",
+        "ショット一覧の表示・変更・復元が一致する",
+        "タイムラインの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": [
+        "初期構想モック。後続の専用画面にも関連機能があり、重複は意図的な段階差。"
+      ]
+    },
+    {
+      "id": "SCR-05",
+      "number": 5,
+      "title": "モーション・VMD制作（初期構想）",
+      "image_path": "06_REFERENCE/images/05_______VMD________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-05",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/05",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "モーション検索",
+          "behavior": "モーション検索を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "VMD再生",
+          "behavior": "VMD再生を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "ボーン設定",
+          "behavior": "ボーン設定を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "表情レイヤー",
+          "behavior": "表情レイヤーを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "タイムライン",
+          "behavior": "タイムラインを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "モーション検索の表示・変更・復元が一致する",
+        "VMD再生の表示・変更・復元が一致する",
+        "ボーン設定の表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": [
+        "初期構想モック。後続の専用画面にも関連機能があり、重複は意図的な段階差。"
+      ]
+    },
+    {
+      "id": "SCR-06",
+      "number": 6,
+      "title": "シーン・ステージ・素材配置",
+      "image_path": "06_REFERENCE/images/06______________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-06",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/06",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "シーンツリー",
+          "behavior": "シーンツリーを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "3Dビュー",
+          "behavior": "3Dビューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "トランスフォーム",
+          "behavior": "トランスフォームを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "アセットブラウザー",
+          "behavior": "アセットブラウザーを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "表示・依存関係",
+          "behavior": "表示・依存関係を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "シーンツリーの表示・変更・復元が一致する",
+        "3Dビューの表示・変更・復元が一致する",
+        "トランスフォームの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-07",
+      "number": 7,
+      "title": "レンダリング・出力（初期構想）",
+      "image_path": "06_REFERENCE/images/07________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-07",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/07",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "レンダープレビュー",
+          "behavior": "レンダープレビューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "動画形式",
+          "behavior": "動画形式を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "出力プリセット",
+          "behavior": "出力プリセットを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "ジョブ進捗",
+          "behavior": "ジョブ進捗を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "素材書き出し",
+          "behavior": "素材書き出しを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "レンダープレビューの表示・変更・復元が一致する",
+        "動画形式の表示・変更・復元が一致する",
+        "出力プリセットの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": [
+        "初期構想モック。後続の専用画面にも関連機能があり、重複は意図的な段階差。"
+      ]
+    },
+    {
+      "id": "SCR-08",
+      "number": 8,
+      "title": "素材管理・アセットライブラリ",
+      "image_path": "06_REFERENCE/images/08_______________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-08",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/08",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "素材カテゴリ",
+          "behavior": "素材カテゴリを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "検索・タグ",
+          "behavior": "検索・タグを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "サムネイル",
+          "behavior": "サムネイルを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "メタデータ",
+          "behavior": "メタデータを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "依存参照",
+          "behavior": "依存参照を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "インポートキュー",
+          "behavior": "インポートキューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "素材カテゴリの表示・変更・復元が一致する",
+        "検索・タグの表示・変更・復元が一致する",
+        "サムネイルの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-09",
+      "number": 9,
+      "title": "マテリアル・シェーダー編集",
+      "image_path": "06_REFERENCE/images/09______________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-09",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/09",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "マテリアル一覧",
+          "behavior": "マテリアル一覧を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "PBRパラメータ",
+          "behavior": "PBRパラメータを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "テクスチャ",
+          "behavior": "テクスチャを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "UV",
+          "behavior": "UVを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "ノードグラフ",
+          "behavior": "ノードグラフを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "ベイク",
+          "behavior": "ベイクを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "マテリアル一覧の表示・変更・復元が一致する",
+        "PBRパラメータの表示・変更・復元が一致する",
+        "テクスチャの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-10",
+      "number": 10,
+      "title": "音声・BGM・効果音編集",
+      "image_path": "06_REFERENCE/images/10____BGM______.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-10",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/10",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "音声ライブラリ",
+          "behavior": "音声ライブラリを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "マルチトラック",
+          "behavior": "マルチトラックを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "波形",
+          "behavior": "波形を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "EQ・ミキサー",
+          "behavior": "EQ・ミキサーを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "リップ同期",
+          "behavior": "リップ同期を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "音声書き出し",
+          "behavior": "音声書き出しを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "音声ライブラリの表示・変更・復元が一致する",
+        "マルチトラックの表示・変更・復元が一致する",
+        "波形の表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-11",
+      "number": 11,
+      "title": "画像管理・参照画像編集",
+      "image_path": "06_REFERENCE/images/11____________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-11",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/11",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "フォルダー",
+          "behavior": "フォルダーを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "画像グリッド",
+          "behavior": "画像グリッドを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "プレビュー",
+          "behavior": "プレビューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "メタデータ",
+          "behavior": "メタデータを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "トリミング",
+          "behavior": "トリミングを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "バージョン",
+          "behavior": "バージョンを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "フォルダーの表示・変更・復元が一致する",
+        "画像グリッドの表示・変更・復元が一致する",
+        "プレビューの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": [
+        "当初の11番として生成された実画像管理UIを記録。キャラクター管理は12番に分離。"
+      ]
+    },
+    {
+      "id": "SCR-12",
+      "number": 12,
+      "title": "キャラクター管理・3Dモデル編集",
+      "image_path": "06_REFERENCE/images/12__________3D_____.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-12",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/12",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "キャラクター一覧",
+          "behavior": "キャラクター一覧を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "3Dプレビュー",
+          "behavior": "3Dプレビューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "ボーン・ウェイト",
+          "behavior": "ボーン・ウェイトを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "衣装",
+          "behavior": "衣装を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "モーフ",
+          "behavior": "モーフを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "リターゲット",
+          "behavior": "リターゲットを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 7,
+          "name": "物理",
+          "behavior": "物理を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "キャラクター一覧の表示・変更・復元が一致する",
+        "3Dプレビューの表示・変更・復元が一致する",
+        "ボーン・ウェイトの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-13",
+      "number": 13,
+      "title": "モーションVMD編集・リターゲティング",
+      "image_path": "06_REFERENCE/images/13______VMD___________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-13",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/13",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "VMDライブラリ",
+          "behavior": "VMDライブラリを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "3D比較",
+          "behavior": "3D比較を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "ボーンマップ",
+          "behavior": "ボーンマップを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "編集タイムライン",
+          "behavior": "編集タイムラインを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "曲線",
+          "behavior": "曲線を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "足IK",
+          "behavior": "足IKを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 7,
+          "name": "入出力",
+          "behavior": "入出力を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "VMDライブラリの表示・変更・復元が一致する",
+        "3D比較の表示・変更・復元が一致する",
+        "ボーンマップの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-14",
+      "number": 14,
+      "title": "カメラレール・パスアニメーション",
+      "image_path": "06_REFERENCE/images/14_________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-14",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/14",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "移動プリセット",
+          "behavior": "移動プリセットを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "レール編集",
+          "behavior": "レール編集を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "カメラ姿勢",
+          "behavior": "カメラ姿勢を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "キーフレーム",
+          "behavior": "キーフレームを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "カーブ",
+          "behavior": "カーブを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "マルチビュー",
+          "behavior": "マルチビューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "移動プリセットの表示・変更・復元が一致する",
+        "レール編集の表示・変更・復元が一致する",
+        "カメラ姿勢の表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-15",
+      "number": 15,
+      "title": "カメラVMD入出力・変換統合",
+      "image_path": "06_REFERENCE/images/15____VMD________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-15",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/15",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "カメラVMDライブラリ",
+          "behavior": "カメラVMDライブラリを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "座標変換",
+          "behavior": "座標変換を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "3D比較",
+          "behavior": "3D比較を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "タイムライン",
+          "behavior": "タイムラインを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "優先順位診断",
+          "behavior": "優先順位診断を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "書き出し",
+          "behavior": "書き出しを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "カメラVMDライブラリの表示・変更・復元が一致する",
+        "座標変換の表示・変更・復元が一致する",
+        "3D比較の表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": [
+        "カメラVMD統合の専用構成図。通常の画像生成モックとは制作方法が異なる。"
+      ]
+    },
+    {
+      "id": "SCR-16",
+      "number": 16,
+      "title": "シーケンス・ショット・マルチカメラ",
+      "image_path": "06_REFERENCE/images/16__________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-16",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/16",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "ショット一覧",
+          "behavior": "ショット一覧を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "4分割プレビュー",
+          "behavior": "4分割プレビューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "カメラ割当",
+          "behavior": "カメラ割当を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "マルチトラック",
+          "behavior": "マルチトラックを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "トランジション",
+          "behavior": "トランジションを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "曲線",
+          "behavior": "曲線を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "ショット一覧の表示・変更・復元が一致する",
+        "4分割プレビューの表示・変更・復元が一致する",
+        "カメラ割当の表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-17",
+      "number": 17,
+      "title": "レンダリング・バッチ処理／書き出し",
+      "image_path": "06_REFERENCE/images/17__________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-17",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/17",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "出力プリセット",
+          "behavior": "出力プリセットを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "レンダープレビュー",
+          "behavior": "レンダープレビューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "品質設定",
+          "behavior": "品質設定を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "キュー",
+          "behavior": "キューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "AOV",
+          "behavior": "AOVを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "統計",
+          "behavior": "統計を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 7,
+          "name": "履歴",
+          "behavior": "履歴を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "出力プリセットの表示・変更・復元が一致する",
+        "レンダープレビューの表示・変更・復元が一致する",
+        "品質設定の表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-18",
+      "number": 18,
+      "title": "プロジェクト保存・復元・バージョン管理",
+      "image_path": "06_REFERENCE/images/18____________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-18",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "existing_or_partial_to_audit",
+      "ui_mock_contract": {
+        "route": "/workspace/18",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "プロジェクト一覧",
+          "behavior": "プロジェクト一覧を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "保存・復元",
+          "behavior": "保存・復元を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "バージョン",
+          "behavior": "バージョンを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "差分比較",
+          "behavior": "差分比較を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "素材参照",
+          "behavior": "素材参照を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "アーカイブ",
+          "behavior": "アーカイブを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "プロジェクト一覧の表示・変更・復元が一致する",
+        "保存・復元の表示・変更・復元が一致する",
+        "バージョンの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-19",
+      "number": 19,
+      "title": "WebMCP・標準MCP・AIエージェント統合",
+      "image_path": "06_REFERENCE/images/19_WebMCP___MCP_AI________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-19",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/19",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "エージェント",
+          "behavior": "エージェントを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "MCP接続",
+          "behavior": "MCP接続を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "権限",
+          "behavior": "権限を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "実行ログ",
+          "behavior": "実行ログを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "タスクキュー",
+          "behavior": "タスクキューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "リソース",
+          "behavior": "リソースを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 7,
+          "name": "チャット",
+          "behavior": "チャットを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "エージェントの表示・変更・復元が一致する",
+        "MCP接続の表示・変更・復元が一致する",
+        "権限の表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-20",
+      "number": 20,
+      "title": "システム設定・環境構築・プラグイン",
+      "image_path": "06_REFERENCE/images/20__________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-20",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/20",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "システム情報",
+          "behavior": "システム情報を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "保存パス",
+          "behavior": "保存パスを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "プラグイン",
+          "behavior": "プラグインを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "外部アプリ",
+          "behavior": "外部アプリを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "MCP",
+          "behavior": "MCPを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "ショートカット",
+          "behavior": "ショートカットを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 7,
+          "name": "ログ",
+          "behavior": "ログを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "システム情報の表示・変更・復元が一致する",
+        "保存パスの表示・変更・復元が一致する",
+        "プラグインの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-21",
+      "number": 21,
+      "title": "UIテーマ・レイアウト・ワークスペース",
+      "image_path": "06_REFERENCE/images/21_UI_________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-21",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/21",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "テーマ",
+          "behavior": "テーマを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "色・文字",
+          "behavior": "色・文字を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "テンプレート",
+          "behavior": "テンプレートを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "ドラッグ配置",
+          "behavior": "ドラッグ配置を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "パネル表示",
+          "behavior": "パネル表示を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "複数画面",
+          "behavior": "複数画面を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 7,
+          "name": "出力",
+          "behavior": "出力を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "テーマの表示・変更・復元が一致する",
+        "色・文字の表示・変更・復元が一致する",
+        "テンプレートの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-22",
+      "number": 22,
+      "title": "テンプレート・プリセット・制作ワークフロー",
+      "image_path": "06_REFERENCE/images/22______________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-22",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/22",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "テンプレート一覧",
+          "behavior": "テンプレート一覧を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "プレビュー",
+          "behavior": "プレビューを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "適用前比較",
+          "behavior": "適用前比較を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "ワークフロー",
+          "behavior": "ワークフローを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "プリセット",
+          "behavior": "プリセットを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "共有",
+          "behavior": "共有を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "テンプレート一覧の表示・変更・復元が一致する",
+        "プレビューの表示・変更・復元が一致する",
+        "適用前比較の表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-23",
+      "number": 23,
+      "title": "外部アプリ連携・インポート／エクスポート",
+      "image_path": "06_REFERENCE/images/23_____________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-23",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/23",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "外部アプリ",
+          "behavior": "外部アプリを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "接続設定",
+          "behavior": "接続設定を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "インポート",
+          "behavior": "インポートを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "エクスポート",
+          "behavior": "エクスポートを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "変換",
+          "behavior": "変換を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "バッチ",
+          "behavior": "バッチを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 7,
+          "name": "互換性",
+          "behavior": "互換性を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "外部アプリの表示・変更・復元が一致する",
+        "接続設定の表示・変更・復元が一致する",
+        "インポートの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-24",
+      "number": 24,
+      "title": "診断・品質保証・パフォーマンス管理",
+      "image_path": "06_REFERENCE/images/24__________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-24",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/24",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "総合評価",
+          "behavior": "総合評価を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "リソース",
+          "behavior": "リソースを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "品質検査",
+          "behavior": "品質検査を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "検証項目",
+          "behavior": "検証項目を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "詳細レポート",
+          "behavior": "詳細レポートを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "性能",
+          "behavior": "性能を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 7,
+          "name": "再診断",
+          "behavior": "再診断を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "総合評価の表示・変更・復元が一致する",
+        "リソースの表示・変更・復元が一致する",
+        "品質検査の表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    },
+    {
+      "id": "SCR-25",
+      "number": 25,
+      "title": "ヘルプ・チュートリアル・初回セットアップ",
+      "image_path": "06_REFERENCE/images/25_____________________.png",
+      "design_source": "06_REFERENCE/design_manifest.json#SCR-25",
+      "priority_ui": "P1",
+      "implementation_status": "unverified; requires repository audit",
+      "feature_classification_proposal": "candidate_late",
+      "ui_mock_contract": {
+        "route": "/workspace/25",
+        "navigation": "menu click routes to independent screen",
+        "interaction": "tabs/dialogs/buttons/form state work; no inert controls",
+        "unimplemented_label": "◇ 未実装",
+        "mock_data_label": "サンプル表示",
+        "browser_test_required": true
+      },
+      "feature_details": [
+        {
+          "index": 1,
+          "name": "ウェルカム",
+          "behavior": "ウェルカムを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 2,
+          "name": "初回セットアップ",
+          "behavior": "初回セットアップを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 3,
+          "name": "目的別ガイド",
+          "behavior": "目的別ガイドを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 4,
+          "name": "動画",
+          "behavior": "動画を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 5,
+          "name": "マニュアル",
+          "behavior": "マニュアルを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 6,
+          "name": "FAQ",
+          "behavior": "FAQを操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        },
+        {
+          "index": 7,
+          "name": "用語集",
+          "behavior": "用語集を操作・参照する。現在のプロジェクト状態に応じて表示し、変更があれば共通サービスへ反映する。"
+        }
+      ],
+      "acceptance_tests": [
+        "ウェルカムの表示・変更・復元が一致する",
+        "初回セットアップの表示・変更・復元が一致する",
+        "目的別ガイドの表示・変更・復元が一致する",
+        "UI/API/WebMCP/標準MCPの結果整合",
+        "保存・復元・回帰テストで損失がないこと"
+      ],
+      "notes": []
+    }
+  ]
+}

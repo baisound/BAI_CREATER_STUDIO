@@ -18,7 +18,20 @@
   const classification=actual<near?'front':actual>far?'back':Math.abs(actual-focus)<=.01?'focus':'within';
   return {frame,classification,inside:classification==='focus'||classification==='within',actual,focus,near,far,point:subject};
  }
- function intervals(samples){const fail=samples.filter(s=>!s.inside).map(s=>s.frame),ranges=[];let previous=null;
-  for(const f of fail){if(previous!==null&&f===previous+1)ranges.at(-1)[1]=f;else ranges.push([f,f]);previous=f;}return ranges;}
+ function intervals(samples){
+  if(!Array.isArray(samples))throw Error('区間診断の入力が不正です');
+  const failed=new Set();
+  for(const sample of samples){
+   if(!sample||!Number.isSafeInteger(sample.frame)||sample.frame<0||typeof sample.inside!=='boolean')throw Error('区間診断のフレーム状態が不正です');
+   if(!sample.inside)failed.add(sample.frame);
+  }
+  const frames=[...failed].sort((a,b)=>a-b),ranges=[];
+  for(const frame of frames){
+   const last=ranges.at(-1);
+   if(last&&frame===last[1]+1)last[1]=frame;
+   else ranges.push([frame,frame]);
+  }
+  return ranges;
+ }
  root.BAICameraFocusConsistency={diagnose,intervals,proxies};
 })(typeof window!=='undefined'?window:globalThis);

@@ -20,3 +20,8 @@ __pycache__/
 /data/integrated_v02/assets/
 
 /data/ui_qa/
+
+# Local frontend developer tooling
+/node_modules/
+/.cache/
+.npm/

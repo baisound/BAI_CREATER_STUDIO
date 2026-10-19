@@ -1,0 +1,3 @@
+const assert=require('node:assert/strict');const {shot,mergeKeys,templates}=require('./camera_cinematic.js');
+for(const type of Object.keys(templates)){const keys=shot(type,{...templates[type],start:2,end:122,samples:13});assert.equal(keys[0].frame,2);assert.equal(keys.at(-1).frame,122);assert.equal(keys.length,13);assert(keys.every(k=>k.position.every(Number.isFinite)));}
+const orbit=shot('orbit',{start:0,end:60,samples:3,angle:360});assert(Math.abs(orbit[0].position[0]-orbit[2].position[0])<1e-8);assert.equal(mergeKeys([{frame:0,x:1}],[{frame:0,x:2},{frame:5,x:3}])[0].x,2);assert.throws(()=>shot('orbit',{radius:0}));assert.throws(()=>shot('orbit',{start:30,end:20}));console.log('cinematic camera tests passed');

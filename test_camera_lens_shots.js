@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict');const lens=require('./camera_lens');assert(lens.SHOT_PRESETS.length>=8);for(const p of lens.SHOT_PRESETS){assert.equal(lens.getShotPreset(p.id),p);assert(lens.validFStop(p.fStop));assert(lens.verticalFov(p.focal)>0)}assert.equal(lens.getShotPreset('invalid'),null);assert(!lens.validFStop(0));console.log('shot lens presets OK');

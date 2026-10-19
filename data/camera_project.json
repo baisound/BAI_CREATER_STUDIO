@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "fps": 30,
+  "duration": 300,
+  "keys": [
+    {
+      "frame": 0,
+      "fov": 40.0,
+      "interpolation": "linear",
+      "position": [
+        0.0,
+        1.6,
+        5.0
+      ],
+      "target": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "frame": 90,
+      "fov": 35.0,
+      "interpolation": "linear",
+      "position": [
+        4.0,
+        2.0,
+        3.0
+      ],
+      "target": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    }
+  ]
+}

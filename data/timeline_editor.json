@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "clips": [
+    {
+      "name": "Knee Jabs To Uppercut",
+      "start": 0,
+      "duration": 90,
+      "speed": 1.0,
+      "blend": 6
+    },
+    {
+      "name": "Back Leg Sweep",
+      "start": 90,
+      "duration": 90,
+      "speed": 1.0,
+      "blend": 6
+    },
+    {
+      "name": "Punch Combo",
+      "start": 180,
+      "duration": 90,
+      "speed": 1.0,
+      "blend": 6
+    },
+    {
+      "name": "Roundhouse Kick",
+      "start": 270,
+      "duration": 90,
+      "speed": 1.0,
+      "blend": 6
+    },
+    {
+      "name": "Flying Knee Punch Combo",
+      "start": 360,
+      "duration": 90,
+      "speed": 1.0,
+      "blend": 6
+    },
+    {
+      "name": "Combo Punch",
+      "start": 450,
+      "duration": 90,
+      "speed": 1.0,
+      "blend": 6
+    },
+    {
+      "name": "Center Block",
+      "start": 540,
+      "duration": 90,
+      "speed": 1.0,
+      "blend": 6
+    }
+  ],
+  "updatedAt": 1792308024.5239978
+}
