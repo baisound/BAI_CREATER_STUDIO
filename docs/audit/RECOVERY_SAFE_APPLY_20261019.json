@@ -1,0 +1,382 @@
+[
+  {
+    "patch": "e751d4a",
+    "applied": [],
+    "pending": [
+      "camera.html",
+      "camera.js",
+      "camera_3d.js",
+      "camera_framing.js",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md",
+      "test_camera_3d_focus_contract.py",
+      "test_camera_framing.cjs",
+      "test_camera_model_bounds_wiring.py"
+    ]
+  },
+  {
+    "patch": "53ad622",
+    "applied": [],
+    "pending": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "CODEX_NEXT_STEPS_JA.md",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "3ea3024",
+    "applied": [
+      "camera_3d.js",
+      "camera_dof.js",
+      "docs/audit/PHASE_E_DOF_PREVIEW_20261019_JA.md",
+      "server.py",
+      "test_camera_dof.cjs"
+    ],
+    "pending": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json"
+    ]
+  },
+  {
+    "patch": "7058754",
+    "applied": [
+      "bai_camera.py",
+      "camera_3d.js",
+      "camera_focus_tracking.js",
+      "docs/audit/PHASE_E_FOCUS_TRACKING_20261019_JA.md",
+      "server.py",
+      "test_camera_focus_tracking.cjs",
+      "test_camera_focus_tracking_project.py"
+    ],
+    "pending": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json"
+    ]
+  },
+  {
+    "patch": "0e94c75",
+    "applied": [
+      "docs/audit/PHASE_E_CAM005_FOCUS_CONSISTENCY_CHECKPOINT_20261019_JA.md",
+      "docs/camera/BAI_CAMERA_FOCUS_DOF_TEST_MODE_DESIGN_V1_JA.md",
+      "docs/camera/PHASE_E_CAM005_FOCUS_CONSISTENCY_CONTRACT_JA.md"
+    ],
+    "pending": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "CODEX_NEXT_STEPS_JA.md",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "b7a1687",
+    "applied": [
+      "camera.js",
+      "camera_3d.js",
+      "camera_focus_consistency.js",
+      "camera_focus_tracking.js",
+      "docs/camera/PHASE_E_CAM005_FOCUS_CONSISTENCY_CONTRACT_JA.md",
+      "server.py",
+      "test_camera_focus_consistency.cjs"
+    ],
+    "pending": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "e88a767",
+    "applied": [
+      "camera.js",
+      "camera_3d.js",
+      "docs/audit/PHASE_E_CAM005_FOCUS_OVERLAY_CHECKPOINT_20261019_JA.md",
+      "test_camera_focus_overlay.cjs"
+    ],
+    "pending": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "650e551",
+    "applied": [
+      "camera.js",
+      "docs/audit/PHASE_E_CAM005_VMD_RANGE_CHECKPOINT_20261019_JA.md",
+      "test_camera_focus_overlay.cjs",
+      "test_camera_focus_vmd_range.cjs"
+    ],
+    "pending": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "a183347",
+    "applied": [
+      "camera_3d.js",
+      "docs/audit/PHASE_E_CAM005_FOCUS_UPDATE_ORDER_20261019_JA.md",
+      "test_camera_focus_update_order.cjs"
+    ],
+    "pending": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json"
+    ]
+  },
+  {
+    "patch": "31936c6",
+    "applied": [
+      "camera.js",
+      "camera_3d.js",
+      "docs/audit/PHASE_E_CAM005_FOCUS_FAIL_CLOSED_20261019_JA.md",
+      "test_camera_focus_fail_closed.cjs"
+    ],
+    "pending": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json"
+    ]
+  },
+  {
+    "patch": "78e55c7",
+    "applied": [
+      "camera.js",
+      "docs/audit/PHASE_E_CAM005_RANGE_FOCUS_MODE_CHECKPOINT_20261019_JA.md",
+      "test_camera_focus_vmd_range.cjs"
+    ],
+    "pending": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "885025b",
+    "applied": [
+      "bai_camera.py",
+      "camera.js",
+      "camera_custom_presets.py",
+      "docs/audit/PHASE_E_CUSTOM_SHOTS_CHECKPOINT_20261019_JA.md",
+      "test_camera_custom_presets.py"
+    ],
+    "pending": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "93fd42c",
+    "applied": [
+      "docs/roadmap/PHASE_E_PROJECT_STATE_ROUNDTRIP_DESIGN_JA.md"
+    ],
+    "pending": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "CODEX_NEXT_STEPS_JA.md",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "5a52f46",
+    "applied": [
+      "docs/audit/PHASE_E_PROJECT_BUNDLE_CHECKPOINT_20261019_JA.md",
+      "docs/roadmap/PHASE_E_PROJECT_STATE_ROUNDTRIP_DESIGN_JA.md",
+      "project_state_bundle.py",
+      "server.py",
+      "test_project_state_bundle.py"
+    ],
+    "pending": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json"
+    ]
+  },
+  {
+    "patch": "45b0ef6",
+    "applied": [
+      "camera.js",
+      "camera_project_bundle_ui.js",
+      "docs/audit/PHASE_E_BUNDLE_UI_CHECKPOINT_20261019_JA.md",
+      "server.py",
+      "test_camera_project_bundle_ui.py"
+    ],
+    "pending": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "34c6758",
+    "applied": [
+      "camera_3d.js",
+      "camera_project_bundle_ui.js",
+      "docs/audit/PHASE_E_WORKSPACE_REFERENCES_CHECKPOINT_20261019_JA.md",
+      "project_state_bundle.py",
+      "test_camera_project_bundle_ui.py",
+      "test_project_state_bundle.py"
+    ],
+    "pending": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "b949556",
+    "applied": [
+      "bai_camera.py",
+      "camera_sequence.py",
+      "docs/roadmap/PHASE_E_FULL_REMAINING_SCOPE_20261019_JA.md",
+      "test_camera_sequence.py"
+    ],
+    "pending": [
+      "CODEX_NEXT_STEPS_JA.md",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "31553a1",
+    "applied": [
+      "camera.js",
+      "docs/audit/PHASE_E_SEQUENCE_UI_CHECKPOINT_20261019_JA.md",
+      "test_camera_sequence_ui.py"
+    ],
+    "pending": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "abc9459",
+    "applied": [
+      "camera.js",
+      "camera_sequence_playback.js",
+      "docs/audit/PHASE_E_CAM015_PLAYBACK_CHECKPOINT_20261019_JA.md",
+      "server.py",
+      "test_camera_sequence_playback.cjs"
+    ],
+    "pending": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "eb05335",
+    "applied": [
+      "docs/camera/MASTER_MULTICAMERA_SEQUENCER_DESIGN_V1_JA.md"
+    ],
+    "pending": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "CODEX_NEXT_STEPS_JA.md",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "7a6fd56",
+    "applied": [
+      "camera_sequence_api.py",
+      "docs/audit/PHASE_E_CAM015_SEQUENCE_MCP_20261019_JA.md",
+      "mcp_server.py",
+      "server.py",
+      "test_camera_sequence_api.py",
+      "webmcp.js"
+    ],
+    "pending": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "147f278",
+    "applied": [
+      "camera_sequence_edit.py",
+      "docs/audit/PHASE_E_CAM015_EDIT_MCP_CHECKPOINT_20261019_JA.md",
+      "mcp_server.py",
+      "server.py",
+      "test_camera_sequence_edit.py",
+      "webmcp.js"
+    ],
+    "pending": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "631befe",
+    "applied": [
+      "camera.js",
+      "docs/audit/PHASE_E_CAM015_EXTERNAL_REFRESH_20261019_JA.md",
+      "test_camera_sequence_ui.py",
+      "camera_project_revision.py",
+      "server.py",
+      "test_camera_project_revision.py"
+    ],
+    "pending": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "1193145",
+    "applied": [
+      "camera_project_bundle_ui.js",
+      "docs/audit/PHASE_E_BUNDLE_CONCURRENCY_CHECKPOINT_20261019_JA.md",
+      "project_state_bundle.py",
+      "server.py",
+      "test_bundle_revision.py"
+    ],
+    "pending": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "642a8ad",
+    "applied": [
+      "docs/audit/PHASE_E_BUNDLE_FAILURE_ROLLBACK_20261019_JA.md",
+      "project_state_bundle.py",
+      "test_project_state_bundle.py"
+    ],
+    "pending": [
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "7a7db22",
+    "applied": [
+      "docs/audit/PHASE_E_LEGACY_SAVE_REVISION_CHECKPOINT_20261019_JA.md",
+      "server.py",
+      "test_legacy_project_revision.py"
+    ],
+    "pending": [
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "e4a6187",
+    "applied": [
+      "docs/audit/PHASE_E_LEGACY_CLIENT_REVISION_20261019_JA.md",
+      "index.html",
+      "server.py",
+      "test_legacy_project_client_revision.py"
+    ],
+    "pending": [
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "ff5c555",
+    "applied": [
+      "docs/audit/PHASE_E_BUNDLE_SNAPSHOT_CHECKPOINT_20261019_JA.md",
+      "server.py",
+      "test_bundle_snapshot_consistency.py"
+    ],
+    "pending": [
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  }
+]

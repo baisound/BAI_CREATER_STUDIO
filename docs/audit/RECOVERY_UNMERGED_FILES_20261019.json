@@ -1,0 +1,217 @@
+[
+  {
+    "patch": "e751d4a",
+    "files": [
+      "camera.html",
+      "camera.js",
+      "camera_3d.js",
+      "camera_framing.js",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md",
+      "test_camera_3d_focus_contract.py",
+      "test_camera_framing.cjs",
+      "test_camera_model_bounds_wiring.py"
+    ]
+  },
+  {
+    "patch": "53ad622",
+    "files": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "CODEX_NEXT_STEPS_JA.md",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "3ea3024",
+    "files": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json"
+    ]
+  },
+  {
+    "patch": "7058754",
+    "files": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json"
+    ]
+  },
+  {
+    "patch": "0e94c75",
+    "files": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "CODEX_NEXT_STEPS_JA.md",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "b7a1687",
+    "files": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "e88a767",
+    "files": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "650e551",
+    "files": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "a183347",
+    "files": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json"
+    ]
+  },
+  {
+    "patch": "31936c6",
+    "files": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json"
+    ]
+  },
+  {
+    "patch": "78e55c7",
+    "files": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "885025b",
+    "files": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "93fd42c",
+    "files": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "CODEX_NEXT_STEPS_JA.md",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "5a52f46",
+    "files": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json"
+    ]
+  },
+  {
+    "patch": "45b0ef6",
+    "files": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "34c6758",
+    "files": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "b949556",
+    "files": [
+      "CODEX_NEXT_STEPS_JA.md",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "31553a1",
+    "files": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "abc9459",
+    "files": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "eb05335",
+    "files": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "CODEX_NEXT_STEPS_JA.md",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "7a6fd56",
+    "files": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "147f278",
+    "files": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "631befe",
+    "files": [
+      "camera.html",
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "1193145",
+    "files": [
+      "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "642a8ad",
+    "files": [
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "7a7db22",
+    "files": [
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "e4a6187",
+    "files": [
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  },
+  {
+    "patch": "ff5c555",
+    "files": [
+      "docs/roadmap/ROADMAP_JA.md"
+    ]
+  }
+]

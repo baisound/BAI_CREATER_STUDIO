@@ -1,0 +1,34 @@
+{
+  "timestamp_jst": "2026-10-19",
+  "target_original_commit": "ff5c555",
+  "target_verified": false,
+  "recovery_status": "partial / not release-ready",
+  "original_git_sha_reconstructed": false,
+  "safe_partial_patch_commits": 26,
+  "individually_applied_file_diffs": 111,
+  "pending_patch_file_diffs": 75,
+  "python_tests": {
+    "passed": 268,
+    "failed": 5,
+    "subtests_passed": 5
+  },
+  "node_tests": {
+    "passed": 36,
+    "failed": 1
+  },
+  "known_failures": [
+    "camera_project_bundle_ui missing HTML controls",
+    "rail handle visibility contract",
+    "sequence controls and external refresh missing HTML wiring",
+    "camera VMD focus follow source-contract mismatch",
+    "DOF limited to filming renderer contract"
+  ],
+  "blocked_integrations": [
+    "camera.html patch conflicts",
+    "camera.js and camera_3d.js integration",
+    "file menu save/open full workflow",
+    "CAM-005 DOF and focus unified runtime",
+    "CAM-015 UI/API/MCP playback coherence"
+  ],
+  "next_action": "Resolve complete UI conflicts manually with feature and integration tests before release certification"
+}
