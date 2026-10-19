@@ -10,6 +10,7 @@
  def('bai_camera_get','Read non-destructive BAI Camera timeline.',schema(),async()=>await request('/api/camera/project'),true);
  def('bai_camera_set','Save BAI Camera keyframes.',schema({schema:integer,fps:integer,duration:integer,keys:{type:'array',items:{type:'object'}}},['schema','fps','duration','keys']),async args=>await request('/api/camera/project',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(args)}));
  def('bai_camera_sample','Read camera keyframe interpolation.',schema({frame:integer},['frame']),async({frame})=>await request('/api/camera/sample?frame='+frame),true);
+ def('bai_camera_sequence_edit','Edit CAM-015 intervals after confirming the expected prior sequence.',schema({action:{type:'string',enum:['add','update','remove']},index:integer,shot:{type:'object'},expected_sequence:{type:'array',items:{type:'object'}}},['action','expected_sequence']),async args=>await request('/api/camera/sequence/edit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(args)}));
  def('bai_camera_sequence_evaluate','Read CAM-015 effective cut shot or fallback keys (VMD override remains separate).',schema({frame:integer},['frame']),async({frame})=>await request('/api/camera/sequence/evaluate?frame='+frame),true);
  const wait=ms=>new Promise(r=>setTimeout(r,ms));
  async function request(path,options){const r=await fetch(path,options);if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}

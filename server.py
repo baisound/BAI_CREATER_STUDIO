@@ -398,6 +398,18 @@ class Handler(BaseHTTPRequestHandler):
                 result=inspect_camera_vmd(self.rfile.read(n))
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,OverflowError) as exc:return self.bad(400,str(exc))
+        if urlsplit(self.path).path=="/api/camera/sequence/edit":
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0 < length <= 65536:return self.bad(413,'sequence edit too large')
+                request=json.loads(self.rfile.read(length))
+                from camera_sequence_edit import edit
+                with PROJECT_LOCK:
+                    path=DATA/'camera_project.json'
+                    updated=edit(camera_read(path),request)
+                    camera_save(path,updated)
+                self.send(200,json.dumps({'ok':True,'sequence':updated.get('sequence',[])},ensure_ascii=False).encode());return
+            except (ValueError,TypeError,KeyError) as exc:return self.bad(400,str(exc))
         if urlsplit(self.path).path=="/api/camera/project":
             try:
                 length=int(self.headers.get('Content-Length','0'))
