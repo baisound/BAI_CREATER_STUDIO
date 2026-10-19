@@ -172,7 +172,8 @@ class Handler(BaseHTTPRequestHandler):
                 payload['revision']=bundle_revision(payload)
             self.send(200,json.dumps(payload,ensure_ascii=False).encode());return
         if path=="/api/camera/project":
-            camera_project=camera_read(DATA/"camera_project.json")
+            with PROJECT_LOCK:
+                camera_project=camera_read(DATA/"camera_project.json")
             self.send(200,json.dumps({'project':camera_project,'revision':camera_revision(camera_project)},ensure_ascii=False).encode() if 'envelope=1' in urlsplit(self.path).query else json.dumps(camera_project,ensure_ascii=False).encode());return
         if path=="/api/camera/focus":
             try:
@@ -366,6 +367,7 @@ class Handler(BaseHTTPRequestHandler):
                     if expected!=bundle_revision(current):
                         return self.bad(409,'bundle changed on server: refresh before saving')
                     result=save_bundle(PROJECT,DATA/'camera_project.json',data)
+                    result['revision']=bundle_revision(read_bundle(PROJECT,DATA/'camera_project.json'))
                 sync_bump()
                 self.send(200,json.dumps(result).encode());return
             except (ValueError,TypeError,KeyError) as exc:return self.bad(400,str(exc))
