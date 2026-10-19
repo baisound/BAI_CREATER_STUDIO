@@ -58,6 +58,26 @@ document.querySelectorAll('[data-camera-move]').forEach(b=>b.onclick=()=>{try{co
 $('interpolation').addEventListener('change',()=>{if(!project.keys.some(k=>k.frame===frame)){status('先に現在のフレームをキーとして保存してください');return}try{writeKey(inputPose())}catch(e){status(e.message)}});
 function rigVector(id){const v=$(id).value.split(',').map(n=>Number(n.trim()));if(v.length!==3||!v.every(Number.isFinite))throw Error('座標はX,Y,Zの3数値で指定してください');return v}
 $('rig-apply').onclick=()=>{try{const base=previewPose||sample(frame),type=$('rig-type').value,amount=Number($('rig-amount').value),start=rigVector('rig-start'),end=rigVector('rig-end');if(!Number.isFinite(amount))throw Error('操作量は数値で指定してください');const rig=window.BAICameraRig;let p;if(type==='orbit')p=rig.orbit(base,{center:start,azimuth:amount});else if(type==='crane')p=rig.crane(base,{pivot:start,angle:amount});else if(type==='parent')p=rig.parentTransform(base,{pivot:start,translation:end,yaw:amount});else if(type==='rail')p=rig.rail(base,{start,end,t:amount});else if(type==='curve')p=rig.curvedRail(base,{start,control:rigVector('rig-control'),end,t:amount,constantSpeed:$('rig-constant-speed').checked});else if(type==='follow')p=rig.follow(base,{subject:end});else throw Error('不明なリグ');commitPose(p);$('rig-status').textContent=type+' 適用（'+($('auto-key').checked?'キー登録':'プレビューのみ')+'）'}catch(e){$('rig-status').textContent='エラー: '+e.message}};
+window.addEventListener('bai-camera-query-pose',event=>{if(project&&Number.isInteger(event.detail?.frame)&&typeof event.detail.resolve==='function')event.detail.resolve(sample(event.detail.frame))});
+window.addEventListener('bai-camera-follow-bake',event=>{
+ const report=$('camera-follow-bake-status');
+ try{
+  if(!project)throw Error('プロジェクトが未読込です');
+  const {positions,offset,basePose}=event.detail||{};
+  if(!Array.isArray(positions)||positions.length<2||positions.length>2000||!Array.isArray(offset)||offset.length!==3||!offset.every(Number.isFinite))throw Error('追従サンプルが不正です');
+  if(!basePose||!Array.isArray(basePose.position)||!Array.isArray(basePose.target))throw Error('開始構図が不正です');
+  const frames=positions.map(p=>p.frame);
+  if(frames.some((f,i)=>!Number.isInteger(f)||f<0||f>project.duration||(i>0&&f<=frames[i-1])))throw Error('生成範囲が不正です');
+  if(project.keys.some(k=>k.frame>=frames[0]&&k.frame<=frames.at(-1)))throw Error('区間に既存キーがあります。上書きせず中止しました');
+  const delta=basePose.position.map((x,i)=>x-basePose.target[i]);
+  const keys=positions.map(({frame,target})=>{
+   if(!Array.isArray(target)||target.length!==3||!target.every(Number.isFinite))throw Error('ボーン位置が不正です');
+   return {frame,target:[...target],position:target.map((x,i)=>x+delta[i]+offset[i]),fov:basePose.fov,interpolation:'linear'};
+  });
+  project.keys.push(...keys);project.keys.sort((a,b)=>a.frame-b.frame);selected=keys[0].frame;checkpoint();updateRangeControls();setFrame(selected);
+  report.textContent=`追従${keys.length}キー生成（未保存・Undoで一括取消）`;
+ }catch(err){report.textContent='生成失敗: '+err.message}
+});
 $('rig-bake').onclick=()=>{try{
  const from=Number($('rig-bake-from').value),to=Number($('rig-bake-to').value),step=Number($('rig-bake-step').value);
  if(!Number.isInteger(from)||!Number.isInteger(to)||to>project.duration)throw Error('区間を総フレーム内で指定してください');

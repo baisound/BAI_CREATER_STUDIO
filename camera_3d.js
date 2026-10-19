@@ -27,6 +27,25 @@ function saveFollow(){
  catch(err){trackStatus.textContent='保存失敗: '+err.message}
 }
 $('camera-follow-save').onclick=saveFollow;
+$('camera-follow-bake').onclick=()=>{
+ try{
+  if(!model||!trackingBone)throw Error('先にモデルと追従ボーンを選択してください');
+  if(!activeClip||!mixer)throw Error('ボーンの動作をキー化するにはGLBアニメーションクリップが必要です');
+  if(document.getElementById('vmd-follow-timeline')?.checked)throw Error('VMDカメラ追従をOFFにしてください');
+  const from=Number($('rig-bake-from').value),to=Number($('rig-bake-to').value),step=Number($('rig-bake-step').value);
+  let fromPose=null;
+  window.dispatchEvent(new CustomEvent('bai-camera-query-pose',{detail:{frame:from,resolve:pose=>{fromPose=pose}}}));
+  if(!fromPose)throw Error('開始フレームのカメラ構図を取得できません');
+  if(!Number.isInteger(from)||!Number.isInteger(to)||!Number.isInteger(step)||from<0||to<from||step<1||step>100000)throw Error('区間と間隔を確認してください');
+  const count=Math.ceil((to-from)/step)+1;if(count>2000)throw Error('キー数が2000を超えています');
+  const before=lastFrame;const offset=offsetValues();const positions=[];
+  try{
+   const frames=[];for(let f=from;f<=to;f+=step)frames.push(f);if(frames.at(-1)!==to)frames.push(to);
+   for(const f of frames){mixer.setTime((f/Math.max(1,fps))%Math.max(.001,activeClip.duration));model.updateMatrixWorld(true);const point=trackingBone.getWorldPosition(new THREE.Vector3()).toArray();if(!point.every(Number.isFinite))throw Error('ボーン座標が不正です');positions.push({frame:f,target:point})}
+  }finally{mixer.setTime((before/Math.max(1,fps))%Math.max(.001,activeClip.duration));model.updateMatrixWorld(true)}
+  window.dispatchEvent(new CustomEvent('bai-camera-follow-bake',{detail:{positions,offset,basePose:structuredClone(fromPose)}}));
+ }catch(err){$('camera-follow-bake-status').textContent='生成失敗: '+err.message}
+};
 window.addEventListener('bai-camera-project-loaded',event=>{
  const config=event.detail?.project?.bone_follow;
  if(!config)return;
