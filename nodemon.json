@@ -1,0 +1,11 @@
+{
+  "watch": ["."],
+  "ext": "py",
+  "ignore": [
+    "node_modules/**", ".git/**", "data/**", "exports/**", "__pycache__/**",
+    "*.pyc", "*.tmp", "docs/**", "tests/**"
+  ],
+  "delay": "700ms",
+  "exec": "python server.py 8765",
+  "signal": "SIGTERM"
+}

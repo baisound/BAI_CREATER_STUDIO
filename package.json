@@ -1,0 +1,21 @@
+{
+  "name": "bai-creator-studio",
+  "private": true,
+  "version": "0.0.0-recovery",
+  "description": "Local development hot reload for the existing Python-backed BAI Creator Studio",
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail --names API,LIVE \"npm:dev:api\" \"npm:dev:live\"",
+    "dev:api": "nodemon --config nodemon.json",
+    "dev:live": "browser-sync start --config bs-config.cjs",
+    "start": "python server.py 8765",
+    "test:dev-config": "node --test tests/dev-workflow.test.cjs"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.4",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
