@@ -105,14 +105,29 @@ function discoverBones(){
  trackEnabled.checked=Boolean(savedFollow.enabled&&trackingBone);
  trackStatus.textContent=nodes.length+'ボーンを検出'+(savedFollow.boneName&&!trackingBone?'（保存済みボーンが見つかりません）':'');
 }
+function currentFocusPoint(){
+ if(!model||!trackingBone)return null;
+ model.updateMatrixWorld(true);
+ const point=trackingBone.getWorldPosition(new THREE.Vector3()).toArray();
+ return point.every(Number.isFinite)?point:null;
+}
+window.addEventListener('bai-camera-query-focus-target',e=>{
+ const {frame,resolve}=e.detail||{};
+ if(!Number.isInteger(frame)||!model||!trackingBone||!mixer||!activeClip)return resolve?.(null);
+ const restore=lastFrame;
+ try{mixer.setTime((frame/Math.max(1,fps))%Math.max(.001,activeClip.duration));
+ const point=currentFocusPoint();resolve?.(point?{point}:null);
+ }catch(_){resolve?.(null)}finally{mixer.setTime((restore/Math.max(1,fps))%Math.max(.001,activeClip.duration));model.updateMatrixWorld(true)}
+});
 function updateTrackedFocus(){
- if(!focusTrackToggle.checked)return;
+ if(!focusTrackToggle.checked){window.dispatchEvent(new CustomEvent('bai-camera-focus-target',{detail:{frame:lastFrame,point:null}}));return;}
  if(!model||!trackingBone||!shootingPose){focusTrackStatus.textContent='ボーン・モデル・撮影カメラを選択してください';return}
  try{
   model.updateMatrixWorld(true);
   const point=trackingBone.getWorldPosition(new THREE.Vector3()).toArray();
-  const focus=window.BAICameraFocusTracking.distance(activeFilmingCamera.position.toArray(),point);
+  const focus=window.BAICameraFocusTracking.distance(activeFilmingCamera.position.toArray(),point,shootingPose.target);
   $('focus-distance').value=String(Number(focus.toFixed(4)));
+  window.dispatchEvent(new CustomEvent('bai-camera-focus-target',{detail:{frame:lastFrame,point}}));
   $('focus-distance').dispatchEvent(new Event('change'));
   focusTrackStatus.textContent=trackingBone.name+' 合焦距離 '+focus.toFixed(2)+'m（近似）';
  }catch(error){focusTrackStatus.textContent='合焦追従停止: '+error.message}
