@@ -133,9 +133,8 @@ function updateTrackedFocus(){
  }catch(error){focusTrackStatus.textContent='合焦追従停止: '+error.message}
 }
 function trackSubject(){
- updateTrackedFocus();
- if(!trackEnabled.checked||!trackingBone||!shootingPose||!model)return;
- if(document.getElementById('vmd-follow-timeline')?.checked){trackStatus.textContent='VMDカメラ優先のためボーン追従停止中';return;}
+ if(!trackEnabled.checked||!trackingBone||!shootingPose||!model){updateTrackedFocus();return;}
+ if(document.getElementById('vmd-follow-timeline')?.checked){trackStatus.textContent='VMDカメラ優先のためボーン追従停止中';updateTrackedFocus();return;}
  model.updateMatrixWorld(true);
  const subject=trackingBone.getWorldPosition(new THREE.Vector3());
  if(![subject.x,subject.y,subject.z].every(Number.isFinite))return;
@@ -145,7 +144,7 @@ function trackSubject(){
  let manualOffset;
  try{manualOffset=offsetValues()}catch(err){trackStatus.textContent='追従停止: '+err.message;return}
  const next={...shootingPose,position:target.map((x,i)=>x+trackingOffset[i]+manualOffset[i]),target};
- applyPose(next);trackStatus.textContent=trackingBone.name+' を追従中（キー未変更）';
+ applyPose(next);updateTrackedFocus();trackStatus.textContent=trackingBone.name+' を追従中（キー未変更）';
 }
 boneSelect.onchange=()=>{trackingBone=boneSelect._bones?.[Number(boneSelect.value)]||null;trackingOffset=null;trackingBaseTarget=null;followSmoothState=null;trackStatus.textContent=trackingBone?'追従候補: '+trackingBone.name:'追従なし'};
 smoothingInput.onchange=()=>{followSmoothState=null};
@@ -287,7 +286,7 @@ window.addEventListener('bai-camera-frame',e=>{lastFrame=e.detail.frame;fps=e.de
 if(!document.getElementById('vmd-follow-timeline')?.checked){untrackedPose=e.detail.pose;applyPose(e.detail.pose)}
 updateTime()});
 window.addEventListener('bai-camera-pose',e=>{trackingOffset=null;untrackedPose=e.detail.pose;applyPose(e.detail.pose);trackSubject()});
-window.addEventListener('bai-camera-vmd-preview',e=>applyPose(e.detail.pose));
+window.addEventListener('bai-camera-vmd-preview',e=>{applyPose(e.detail.pose);updateTrackedFocus()});
 $('camera-clip').onchange=e=>{const i=Number(e.target.value);setClip(e.target.value===''?null:i)};
 $('camera-load-asset').onclick=()=>{const name=$('camera-asset').value;if(!name){status('素材を選択してください');return}loadAsset(name).catch(err=>status('読み込み失敗: '+err.message))};
 async function catalog(){try{const r=await fetch('/api/integrated-v02/catalog');if(!r.ok)throw Error('HTTP '+r.status);const c=await r.json(),sel=$('camera-asset'),seen=new Set();for(const entry of [...(c.models||[]),...(c.motions||[])]){const name=entry.source_asset?.split('/').pop();if(!name||!/\.(glb|vrm)$/i.test(name)||seen.has(name))continue;seen.add(name);sel.add(new Option((entry.name||name)+' — '+name,name))}status(seen.size+'件のGLB/VRM素材を選択できます')}catch(err){status('カタログ取得失敗: '+err.message)}}
