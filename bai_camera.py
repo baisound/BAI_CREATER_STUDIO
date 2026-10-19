@@ -28,6 +28,9 @@ def validate(payload):
         if sum((a-b)**2 for a,b in zip(record['position'],record['target']))<1e-8:raise ValueError('camera position and target must differ')
         out.append(record)
     result={'schema':1,'fps':int(fps),'duration':int(duration),'keys':sorted(out,key=lambda k:k['frame'])}
+    if 'rig' in payload:
+        from camera_rig_store import validate_rig
+        result['rig']=validate_rig(payload['rig'])
     if 'bone_follow' in payload:
         from camera_follow_store import validate_follow
         result['bone_follow']=validate_follow(payload['bone_follow'])
