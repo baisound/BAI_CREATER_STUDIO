@@ -74,7 +74,7 @@ $('focus-range-check').onclick=()=>{const result=$('focus-range-result');result.
  try{const step=Math.max(1,Math.ceil((project.duration+1)/10000)),samples=[];
  for(let f=0;f<=project.duration;f+=step){let point=null;
   if($('focus-follow-bone').checked){let response=null;window.dispatchEvent(new CustomEvent('bai-camera-query-focus-target',{detail:{frame:f,resolve:value=>{response=value}}}));if(!response?.point)throw Error('実ボーンの評価に失敗しました。固定ガイドへ置換せず診断を中止します');point=response.point;}
-  const override=point?window.BAICameraFocusConsistency.diagnose({frame:f,pose:diagnosticCameraPose(f),lens:$('focus-lens').value,aperture:$('focus-aperture').value,focus:$('focus-distance').value,point}).actual:null;
+  const override=point&&$('focus-follow-bone').checked?window.BAICameraFocusConsistency.diagnose({frame:f,pose:diagnosticCameraPose(f),lens:$('focus-lens').value,aperture:$('focus-aperture').value,focus:$('focus-distance').value,point}).actual:null;
   samples.push(focusDiagnosticAt(f,point,override));}
  const failures=samples.filter(x=>!x.inside),ranges=[];for(let i=0;i<failures.length;i++){const f=failures[i].frame;if(ranges.length&&f-failures[i-1]?.frame===step)ranges.at(-1)[1]=f;else ranges.push([f,f]);}
  result.textContent=`${samples.length}サンプル / 被写界深度外 ${failures.length}サンプル / 区間: ${ranges.slice(0,12).map(([a,b])=>a===b?a:a+'〜'+b).join(', ')||'なし'}（${$('focus-follow-bone').checked?'選択ボーン':'ガイド位置'}・同一光学計算・${step}フレーム間隔）`;

@@ -6,7 +6,7 @@ test('every VMD diagnostic sample uses frame-specific local pose, not cached cur
  assert.match(editor,/function diagnosticCameraPose\(f\)/);
  assert.match(editor,/return nativeLocalSampler\.preview\(f\)/);
  assert.match(editor,/function focusDiagnosticAt\(f,point,focusOverride=null\)\{const pose=diagnosticCameraPose\(f\)/);
- assert.match(editor,/const override=point\?window\.BAICameraFocusConsistency\.diagnose\(\{frame:f,pose:diagnosticCameraPose\(f\)/);
+ assert.match(editor,/const override=point&&\$\('focus-follow-bone'\)\.checked\?window\.BAICameraFocusConsistency\.diagnose\(\{frame:f,pose:diagnosticCameraPose\(f\)/);
 });
 test('missing local VMD track is not silently substituted with project camera',()=>{
  assert.match(editor,/if\(!nativeLocalSampler\)throw Error\(/);
