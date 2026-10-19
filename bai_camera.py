@@ -31,6 +31,10 @@ def validate(payload):
     if 'rig' in payload:
         from camera_rig_store import validate_rig
         result['rig']=validate_rig(payload['rig'])
+    if 'focus_tracking' in payload:
+        focus=payload['focus_tracking']
+        if not isinstance(focus,dict) or type(focus.get('enabled')) is not bool:raise ValueError('invalid focus tracking')
+        result['focus_tracking']={'enabled':focus['enabled']}
     if 'bone_follow' in payload:
         from camera_follow_store import validate_follow
         result['bone_follow']=validate_follow(payload['bone_follow'])

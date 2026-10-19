@@ -48,6 +48,9 @@ let model=null,mixer=null,clips=[],activeClip=null,lastFrame=0,fps=30,shootingPo
 let trackingBone=null,trackingOffset=null,trackingBaseTarget=null,untrackedPose=null,followSmoothState=null;
 const boneSelect=$('camera-follow-bone'),trackEnabled=$('camera-follow-enabled'),trackStatus=$('camera-follow-status');
 const offsetInput=$('camera-follow-offset'),smoothingInput=$('camera-follow-smoothing');
+const focusTrackToggle=$('focus-follow-bone'),focusTrackStatus=$('focus-follow-status');
+focusTrackToggle.addEventListener('change',()=>{focusTrackStatus.textContent=focusTrackToggle.checked?'合焦追従ON（ボーンが必要）':'合焦追従OFF'});
+
 let savedFollow={boneName:'',role:'',offset:[0,0,0],enabled:false,smoothingSeconds:0};
 try{savedFollow=validFollowConfig(JSON.parse(localStorage.getItem(FOLLOW_STORAGE_KEY)||'{}'))}catch(_){/* Broken preference must never prevent camera startup. */}
 offsetInput.value=savedFollow.offset.join(',');smoothingInput.value=String(savedFollow.smoothingSeconds);
@@ -77,6 +80,8 @@ $('camera-follow-bake').onclick=()=>{
  }catch(err){$('camera-follow-bake-status').textContent='生成失敗: '+err.message}
 };
 window.addEventListener('bai-camera-project-loaded',event=>{
+ const focusConfig=event.detail?.project?.focus_tracking;
+ if(focusConfig){try{focusTrackToggle.checked=window.BAICameraFocusTracking.validate(focusConfig).enabled}catch(err){focusTrackToggle.checked=false;focusTrackStatus.textContent=err.message}}else focusTrackToggle.checked=false;
  const config=event.detail?.project?.bone_follow;
  if(!config)return;
  try{savedFollow=validFollowConfig(config);offsetInput.value=savedFollow.offset.join(',');smoothingInput.value=String(savedFollow.smoothingSeconds);followSmoothState=null;discoverBones()}
@@ -86,6 +91,7 @@ window.addEventListener('bai-camera-before-save',event=>{
  const project=event.detail?.project;if(!project)return;
  // Bad offsets abort save, preventing silent corruption of persisted follow settings.
  const offset=offsetValues();const smoothingSeconds=validateSmoothing(smoothingInput.value);
+ project.focus_tracking=window.BAICameraFocusTracking.validate({enabled:focusTrackToggle.checked});
  project.bone_follow=validFollowConfig({boneName:trackingBone?.name||savedFollow.boneName,role:classifyBone(trackingBone?.name)||savedFollow.role,offset,enabled:trackEnabled.checked,smoothingSeconds});
 });
 
@@ -99,7 +105,20 @@ function discoverBones(){
  trackEnabled.checked=Boolean(savedFollow.enabled&&trackingBone);
  trackStatus.textContent=nodes.length+'ボーンを検出'+(savedFollow.boneName&&!trackingBone?'（保存済みボーンが見つかりません）':'');
 }
+function updateTrackedFocus(){
+ if(!focusTrackToggle.checked)return;
+ if(!model||!trackingBone||!shootingPose){focusTrackStatus.textContent='ボーン・モデル・撮影カメラを選択してください';return}
+ try{
+  model.updateMatrixWorld(true);
+  const point=trackingBone.getWorldPosition(new THREE.Vector3()).toArray();
+  const focus=window.BAICameraFocusTracking.distance(activeFilmingCamera.position.toArray(),point);
+  $('focus-distance').value=String(Number(focus.toFixed(4)));
+  $('focus-distance').dispatchEvent(new Event('change'));
+  focusTrackStatus.textContent=trackingBone.name+' 合焦距離 '+focus.toFixed(2)+'m（近似）';
+ }catch(error){focusTrackStatus.textContent='合焦追従停止: '+error.message}
+}
 function trackSubject(){
+ updateTrackedFocus();
  if(!trackEnabled.checked||!trackingBone||!shootingPose||!model)return;
  if(document.getElementById('vmd-follow-timeline')?.checked){trackStatus.textContent='VMDカメラ優先のためボーン追従停止中';return;}
  model.updateMatrixWorld(true);
