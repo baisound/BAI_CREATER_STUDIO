@@ -81,13 +81,13 @@ export const SCREENS = [
   {
     id: '01', title: 'ホーム・ダッシュボード', nav: 'ホーム', group: 'ホーム',
     summary: '制作プロジェクトの入口と全体進捗をひと目で把握する。',
-    classification: 'existing_or_partial_to_audit', ids: ['DATA-008', 'CORE-013'],
+    classification: 'existing_or_partial_to_audit', ids: ['DATA-008', 'CORE-013', 'NF-015', 'NF-019'],
     existing: [MAIN, CAMERA], live: ['serverVersion', 'diagnostics'],
     panels: [
       { name: '最近のプロジェクト', status: 'mock', note: '現行サーバーは単一の制作状態のみを保持。複数プロジェクト一覧は未実装。', ids: ['DATA-008'] },
       { name: 'クイックアクション', status: 'partial', note: '現行画面へのリンクのみ実在。' },
       { name: '制作ステータス', status: 'partial', note: 'Phase E 台帳（docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json）の要約。' },
-      { name: '新規作成', status: 'mock', note: '入力検証のみ。保存されない。', ids: ['DATA-008'] },
+      { name: '新規作成', status: 'mock', note: '入力検証のみ。保存されない。テンプレート（ダンスMV等）からの作成は NF-019（未承認）。', ids: ['DATA-008', 'NF-019'] },
       { name: '通知・進捗', status: 'real', note: '/api/diagnostics/recent を読み取り表示。' },
     ],
     tools: [btn('新規プロジェクト', 'form:newProject', { primary: true }), un('プロジェクトを開く', '複数プロジェクトのファイル選択・切替は未実装。現行は単一の制作状態を自動で読み込みます。', ['DATA-008'], PH.P2)],
@@ -227,7 +227,7 @@ export const SCREENS = [
   {
     id: '06', title: 'シーン・ステージ・素材配置', nav: 'シーン・ステージ', group: '制作',
     summary: 'ステージ・小道具・ライトを配置し、表示と依存関係を管理する。',
-    classification: 'candidate_late', ids: ['LYRIC-009', 'LYRIC-010'],
+    classification: 'candidate_late', ids: ['LYRIC-009', 'LYRIC-010', 'NF-014'],
     panels: [
       { name: 'シーンツリー', status: 'mock' },
       { name: '3Dビュー', status: 'unimpl', note: 'ステージ配置ビューは未実装（モデル表示は現行画面にあり）。' },
@@ -272,7 +272,7 @@ export const SCREENS = [
   {
     id: '08', title: '素材管理・アセットライブラリ', nav: '素材管理', group: '素材',
     summary: 'モデル・モーション・ステージ・音声などの素材をカテゴリ・タグで管理する。',
-    classification: 'candidate_late', ids: ['MOTION-002', 'DATA-013', 'REVIEW-010', 'NF-004'],
+    classification: 'candidate_late', ids: ['MOTION-002', 'DATA-013', 'REVIEW-010', 'NF-004', 'NF-013'],
     existing: [MAIN],
     panels: [
       { name: '素材カテゴリ', status: 'mock' },
@@ -351,12 +351,12 @@ export const SCREENS = [
   {
     id: '12', title: 'キャラクター管理・3Dモデル編集', nav: 'キャラクター', group: 'モーション',
     summary: 'キャラクターモデルの一覧・プレビュー・ボーン・モーフ・リターゲット・物理を扱う。',
-    classification: 'existing_or_partial_to_audit', ids: ['MOTION-003', 'MOTION-004', 'MOTION-005', 'MOTION-019', 'MOTION-021', 'LIP-004'],
+    classification: 'existing_or_partial_to_audit', ids: ['MOTION-003', 'MOTION-004', 'MOTION-005', 'MOTION-019', 'MOTION-021', 'LIP-004', 'NF-023'],
     existing: [MAIN],
     panels: [
       { name: 'キャラクター一覧', status: 'partial', note: '現行画面の登録済みVRMモデル・PMXスロット。', ids: ['MOTION-002'] },
       { name: '3Dプレビュー', status: 'partial', note: '現行画面の3Dプレビュー（GLB/VRM）。', ids: ['MOTION-009'] },
-      { name: 'ボーン・ウェイト', status: 'partial', note: 'pmx_bones.py・骨格解析あり。ウェイト編集は未。', ids: ['MOTION-005'] },
+      { name: 'ボーン・ウェイト', status: 'partial', note: 'pmx_bones.py・骨格解析あり。ウェイト編集は NF-023（未承認）。', ids: ['MOTION-005', 'NF-023'] },
       { name: '衣装', status: 'unimpl', ids: ['NF-005'] },
       { name: 'モーフ', status: 'unimpl', ids: ['LIP-004'] },
       { name: 'リターゲット', status: 'partial', note: 'retarget_*.py とマッピングUI。', ids: ['MOTION-004'] },
@@ -472,11 +472,11 @@ export const SCREENS = [
   {
     id: '17', title: 'レンダリング・バッチ処理／書き出し', nav: 'レンダリング・バッチ', group: '出力',
     summary: '出力プリセット・品質設定・キュー・AOV・統計・履歴を管理する。',
-    classification: 'existing_or_partial_to_audit', ids: ['RENDER-001', 'RENDER-002', 'RENDER-003', 'RENDER-005', 'RENDER-006', 'RENDER-007', 'RENDER-010'],
+    classification: 'existing_or_partial_to_audit', ids: ['RENDER-001', 'RENDER-002', 'RENDER-003', 'RENDER-005', 'RENDER-006', 'RENDER-007', 'RENDER-010', 'NF-016', 'NF-017', 'NF-018'],
     panels: [
       { name: '出力プリセット', status: 'unimpl', ids: ['RENDER-006'] }, { name: 'レンダープレビュー', status: 'unimpl', ids: ['RENDER-001'] },
       { name: '品質設定', status: 'unimpl', ids: ['RENDER-003'] }, { name: 'キュー', status: 'unimpl', ids: ['RENDER-007'] },
-      { name: 'AOV', status: 'unimpl', note: 'ブラウザ描画エンジンの対応状況を先に確認する。', ids: ['RENDER-005'] }, { name: '統計', status: 'unimpl' }, { name: '履歴', status: 'unimpl' },
+      { name: 'AOV', status: 'unimpl', note: 'ブラウザ描画エンジンの対応状況を先に確認する。深度・法線・オブジェクトIDは NF-018（未承認）。', ids: ['RENDER-005', 'NF-018'] }, { name: '統計', status: 'unimpl', ids: ['RENDER-010', 'NF-016', 'NF-017'] }, { name: '履歴', status: 'unimpl', ids: ['RENDER-010', 'NF-017'] },
     ],
     tools: [un('キューに追加', 'レンダーキューは Phase F（RENDER-007）。偽の進捗は表示しません。', ['RENDER-007'], PH.F), un('すべて開始', 'レンダリングは Phase F の範囲です。', ['RENDER-001'], PH.F)],
     center: { type: 'cards', cards: [
@@ -514,7 +514,7 @@ export const SCREENS = [
   {
     id: '19', title: 'WebMCP・標準MCP・AIエージェント統合', nav: 'MCP・AI', group: '連携',
     summary: 'エージェント・MCP接続・権限・実行ログ・タスクキューを確認する。',
-    classification: 'candidate_late', ids: ['CORE-002', 'CORE-003', 'CORE-004', 'CORE-011', 'OBS-004', 'NF-007'],
+    classification: 'candidate_late', ids: ['CORE-002', 'CORE-003', 'CORE-004', 'CORE-011', 'OBS-004', 'NF-007', 'NF-016'],
     live: ['aiStatus'],
     panels: [
       { name: 'エージェント', status: 'unimpl', ids: ['NF-007'] },
@@ -522,7 +522,7 @@ export const SCREENS = [
       { name: '権限', status: 'unimpl', ids: ['CORE-011'] },
       { name: '実行ログ', status: 'unimpl', ids: ['OBS-004'] },
       { name: 'タスクキュー', status: 'unimpl', ids: ['NF-007'] },
-      { name: 'リソース', status: 'unimpl' },
+      { name: 'リソース', status: 'unimpl', note: '稼働率・GPU負荷の実測は NF-016（未承認）。', ids: ['NF-016'] },
       { name: 'チャット', status: 'unimpl', ids: ['NF-007'] },
     ],
     tools: [un('エージェントを追加', 'AIエージェント統合GUIは未承認の新規候補（NF-007）。', ['NF-007'], PH.P4)],
@@ -537,11 +537,11 @@ export const SCREENS = [
   {
     id: '20', title: 'システム設定・環境構築・プラグイン', nav: 'システム設定', group: 'システム',
     summary: 'システム情報・保存パス・プラグイン・外部アプリ・ショートカット・ログ設定。',
-    classification: 'candidate_late', ids: ['CORE-006', 'CORE-013', 'OBS-002', 'OBS-007', 'NF-008'],
+    classification: 'candidate_late', ids: ['CORE-006', 'CORE-013', 'OBS-002', 'OBS-007', 'NF-008', 'NF-021'],
     live: ['serverVersion', 'qaSettings'],
     panels: [
       { name: 'システム情報', status: 'real', note: '/api/server-version。' },
-      { name: '保存パス', status: 'unimpl', note: '現行は data/ 固定。' },
+      { name: '保存パス', status: 'unimpl', note: '現行は data/ 固定。保存先の変更は NF-021（未承認）。', ids: ['CORE-006', 'NF-021'] },
       { name: 'プラグイン', status: 'unimpl', ids: ['NF-008'] },
       { name: '外部アプリ', status: 'unimpl', ids: ['MOTION-007'] },
       { name: 'MCP', status: 'partial', ids: ['CORE-003'] },
@@ -560,10 +560,10 @@ export const SCREENS = [
   {
     id: '21', title: 'UIテーマ・レイアウト・ワークスペース', nav: 'テーマ・レイアウト', group: 'システム',
     summary: 'テーマ・文字・レイアウトテンプレート・パネル表示を切り替える。',
-    classification: 'candidate_late', ids: ['UX-001', 'UX-002', 'UX-006', 'NF-009'],
+    classification: 'candidate_late', ids: ['UX-001', 'UX-002', 'UX-006', 'NF-009', 'NF-022'],
     panels: [
-      { name: 'テーマ', status: 'real', note: 'この新UIのテーマ切替（ブラウザに保存）。' },
-      { name: '色・文字', status: 'real', note: '表示密度の切替。' },
+      { name: 'テーマ', status: 'real', note: 'この新UIのテーマ切替（ブラウザに保存）。製品機能としては NF-022（未承認）。', ids: ['NF-022'] },
+      { name: '色・文字', status: 'real', note: '表示密度の切替。製品機能としては NF-022（未承認）。', ids: ['NF-022'] },
       { name: 'テンプレート', status: 'mock' },
       { name: 'ドラッグ配置', status: 'unimpl', ids: ['NF-009'] },
       { name: 'パネル表示', status: 'real', note: '左パネル・下部タイムラインの表示切替。' },
@@ -580,7 +580,7 @@ export const SCREENS = [
   {
     id: '22', title: 'テンプレート・プリセット・制作ワークフロー', nav: 'テンプレート', group: 'プロジェクト',
     summary: 'テンプレートの一覧・プレビュー・適用前比較・ワークフロー・共有。',
-    classification: 'candidate_late', ids: ['CAM-013', 'CAM-014', 'DATA-011', 'NF-006'],
+    classification: 'candidate_late', ids: ['CAM-013', 'CAM-014', 'DATA-011', 'NF-006', 'NF-019', 'NF-020'],
     existing: [CAMERA, MAIN],
     panels: [
       { name: 'テンプレート一覧', status: 'mock' },
@@ -588,7 +588,7 @@ export const SCREENS = [
       { name: '適用前比較', status: 'unimpl', ids: ['NF-006'] },
       { name: 'ワークフロー', status: 'unimpl', note: '自動操作フローは承認済みロードマップに混入させない。', ids: ['NF-006'] },
       { name: 'プリセット', status: 'partial', note: 'カメラのカスタム構図・モーションのお気に入りが現行画面にあり。', ids: ['CAM-014', 'DATA-011'] },
-      { name: '共有', status: 'unimpl' },
+      { name: '共有', status: 'unimpl', note: 'テンプレートの書き出し・取り込みによる共有は NF-020（未承認）。', ids: ['NF-020'] },
     ],
     tools: [un('テンプレートを適用', 'テンプレート一括適用は未承認の新規候補（NF-006）。', ['NF-006'], PH.P4)],
     left: { title: '種類', status: 'mock', list: [{ id: 'cam', label: 'カメラ構図' }, { id: 'mot', label: 'モーション組合せ' }, { id: 'proj', label: 'プロジェクト' }, { id: 'out', label: '出力設定' }] },
@@ -618,15 +618,15 @@ export const SCREENS = [
   {
     id: '24', title: '診断・品質保証・パフォーマンス管理', nav: '診断・品質', group: 'システム',
     summary: '診断ログ・品質検査・検証項目・性能を確認し、診断ZIPを保存する。',
-    classification: 'candidate_late', ids: ['CORE-013', 'OBS-001', 'OBS-006', 'REVIEW-003', 'NF-011'],
+    classification: 'candidate_late', ids: ['CORE-013', 'OBS-001', 'OBS-006', 'REVIEW-003', 'NF-011', 'NF-016'],
     existing: [MAIN], live: ['diagnostics'],
     panels: [
       { name: '総合評価', status: 'unimpl', ids: ['NF-011'] },
-      { name: 'リソース', status: 'unimpl', note: '実測していない値は表示しない。' },
+      { name: 'リソース', status: 'unimpl', note: '実測していない値は表示しない。CPU/メモリ/GPU/FPSの実測は NF-016（未承認）。', ids: ['NF-016'] },
       { name: '品質検査', status: 'partial', note: 'phase_b_release_gate.py・qa/phase_b_gate.py（Phase B ゲート）。', ids: ['REVIEW-003'] },
       { name: '検証項目', status: 'partial', note: 'Phase E 台帳。', ids: ['CAM-001'] },
       { name: '詳細レポート', status: 'real', note: '/api/diagnostics/recent・診断ZIP。', ids: ['OBS-006'] },
-      { name: '性能', status: 'unimpl' },
+      { name: '性能', status: 'unimpl', ids: ['NF-016'] },
       { name: '再診断', status: 'unimpl', ids: ['NF-011'] },
     ],
     tools: [btn('診断ZIPを保存', 'href:/api/diagnostics/export'), un('再診断', '自動品質採点・再診断は未承認の新規候補（NF-011）。', ['NF-011'], PH.P4)],
@@ -639,12 +639,12 @@ export const SCREENS = [
   {
     id: '25', title: 'ヘルプ・チュートリアル・初回セットアップ', nav: 'ヘルプ', group: 'システム',
     summary: '初回セットアップ、目的別ガイド、マニュアル、FAQ、用語集。',
-    classification: 'candidate_late', ids: ['CORE-009', 'UX-004', 'NF-012'],
+    classification: 'candidate_late', ids: ['CORE-009', 'UX-004', 'NF-012', 'NF-015'],
     panels: [
       { name: 'ウェルカム', status: 'real', note: 'この新UIの案内。' },
       { name: '初回セットアップ', status: 'mock', note: '手順チェックは画面内のみ。' },
       { name: '目的別ガイド', status: 'real', note: '各画面へのリンク。' },
-      { name: '動画', status: 'unimpl' },
+      { name: '動画', status: 'unimpl', note: '紹介ムービー・動画チュートリアルは NF-015（未承認）。', ids: ['NF-015'] },
       { name: 'マニュアル', status: 'partial', note: 'リポジトリ内の日本語文書（AI不要_通常利用ガイド.md 等）。', ids: ['CORE-009'] },
       { name: 'FAQ', status: 'real' },
       { name: '用語集', status: 'real' },

@@ -23,7 +23,9 @@
       "classification_proposal": "existing_or_partial_to_audit",
       "feature_ids": [
         "DATA-008",
-        "CORE-013"
+        "CORE-013",
+        "NF-015",
+        "NF-019"
       ],
       "existing_ui": [
         {
@@ -126,7 +128,8 @@
       "classification_proposal": "candidate_late",
       "feature_ids": [
         "LYRIC-009",
-        "LYRIC-010"
+        "LYRIC-010",
+        "NF-014"
       ],
       "existing_ui": [],
       "live_endpoints": []
@@ -153,7 +156,8 @@
         "MOTION-002",
         "DATA-013",
         "REVIEW-010",
-        "NF-004"
+        "NF-004",
+        "NF-013"
       ],
       "existing_ui": [
         {
@@ -210,7 +214,8 @@
         "MOTION-005",
         "MOTION-019",
         "MOTION-021",
-        "LIP-004"
+        "LIP-004",
+        "NF-023"
       ],
       "existing_ui": [
         {
@@ -313,7 +318,10 @@
         "RENDER-005",
         "RENDER-006",
         "RENDER-007",
-        "RENDER-010"
+        "RENDER-010",
+        "NF-016",
+        "NF-017",
+        "NF-018"
       ],
       "existing_ui": [],
       "live_endpoints": []
@@ -351,7 +359,8 @@
         "CORE-004",
         "CORE-011",
         "OBS-004",
-        "NF-007"
+        "NF-007",
+        "NF-016"
       ],
       "existing_ui": [],
       "live_endpoints": [
@@ -368,7 +377,8 @@
         "CORE-013",
         "OBS-002",
         "OBS-007",
-        "NF-008"
+        "NF-008",
+        "NF-021"
       ],
       "existing_ui": [],
       "live_endpoints": [
@@ -385,7 +395,8 @@
         "UX-001",
         "UX-002",
         "UX-006",
-        "NF-009"
+        "NF-009",
+        "NF-022"
       ],
       "existing_ui": [],
       "live_endpoints": []
@@ -399,7 +410,9 @@
         "CAM-013",
         "CAM-014",
         "DATA-011",
-        "NF-006"
+        "NF-006",
+        "NF-019",
+        "NF-020"
       ],
       "existing_ui": [
         {
@@ -443,7 +456,8 @@
         "OBS-001",
         "OBS-006",
         "REVIEW-003",
-        "NF-011"
+        "NF-011",
+        "NF-016"
       ],
       "existing_ui": [
         {
@@ -463,7 +477,8 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
       ],
       "existing_ui": [],
       "live_endpoints": []
@@ -494,7 +509,9 @@
       "panel": "クイックアクション",
       "feature_ids": [
         "DATA-008",
-        "CORE-013"
+        "CORE-013",
+        "NF-015",
+        "NF-019"
       ],
       "new_ui_state": "partial",
       "source_evidence": "現行画面へのリンクのみ実在。",
@@ -513,7 +530,9 @@
       "panel": "制作ステータス",
       "feature_ids": [
         "DATA-008",
-        "CORE-013"
+        "CORE-013",
+        "NF-015",
+        "NF-019"
       ],
       "new_ui_state": "partial",
       "source_evidence": "Phase E 台帳（docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json）の要約。",
@@ -531,10 +550,11 @@
       "route": "/workspace/01",
       "panel": "新規作成",
       "feature_ids": [
-        "DATA-008"
+        "DATA-008",
+        "NF-019"
       ],
       "new_ui_state": "mock",
-      "source_evidence": "入力検証のみ。保存されない。",
+      "source_evidence": "入力検証のみ。保存されない。テンプレート（ダンスMV等）からの作成は NF-019（未承認）。",
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -550,7 +570,9 @@
       "panel": "通知・進捗",
       "feature_ids": [
         "DATA-008",
-        "CORE-013"
+        "CORE-013",
+        "NF-015",
+        "NF-019"
       ],
       "new_ui_state": "real",
       "source_evidence": "/api/diagnostics/recent を読み取り表示。",
@@ -933,7 +955,8 @@
       "panel": "シーンツリー",
       "feature_ids": [
         "LYRIC-009",
-        "LYRIC-010"
+        "LYRIC-010",
+        "NF-014"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
@@ -952,7 +975,8 @@
       "panel": "3Dビュー",
       "feature_ids": [
         "LYRIC-009",
-        "LYRIC-010"
+        "LYRIC-010",
+        "NF-014"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": "ステージ配置ビューは未実装（モデル表示は現行画面にあり）。",
@@ -971,7 +995,8 @@
       "panel": "トランスフォーム",
       "feature_ids": [
         "LYRIC-009",
-        "LYRIC-010"
+        "LYRIC-010",
+        "NF-014"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
@@ -990,7 +1015,8 @@
       "panel": "アセットブラウザー",
       "feature_ids": [
         "LYRIC-009",
-        "LYRIC-010"
+        "LYRIC-010",
+        "NF-014"
       ],
       "new_ui_state": "mock",
       "source_evidence": "素材管理（08）と同一索引にする方針。",
@@ -1009,7 +1035,8 @@
       "panel": "表示・依存関係",
       "feature_ids": [
         "LYRIC-009",
-        "LYRIC-010"
+        "LYRIC-010",
+        "NF-014"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
@@ -1120,7 +1147,8 @@
         "MOTION-002",
         "DATA-013",
         "REVIEW-010",
-        "NF-004"
+        "NF-004",
+        "NF-013"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
@@ -1177,7 +1205,8 @@
         "MOTION-002",
         "DATA-013",
         "REVIEW-010",
-        "NF-004"
+        "NF-004",
+        "NF-013"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
@@ -1601,10 +1630,11 @@
       "route": "/workspace/12",
       "panel": "ボーン・ウェイト",
       "feature_ids": [
-        "MOTION-005"
+        "MOTION-005",
+        "NF-023"
       ],
       "new_ui_state": "partial",
-      "source_evidence": "pmx_bones.py・骨格解析あり。ウェイト編集は未。",
+      "source_evidence": "pmx_bones.py・骨格解析あり。ウェイト編集は NF-023（未承認）。",
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -2225,10 +2255,11 @@
       "route": "/workspace/17",
       "panel": "AOV",
       "feature_ids": [
-        "RENDER-005"
+        "RENDER-005",
+        "NF-018"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": "ブラウザ描画エンジンの対応状況を先に確認する。",
+      "source_evidence": "ブラウザ描画エンジンの対応状況を先に確認する。深度・法線・オブジェクトIDは NF-018（未承認）。",
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2243,13 +2274,9 @@
       "route": "/workspace/17",
       "panel": "統計",
       "feature_ids": [
-        "RENDER-001",
-        "RENDER-002",
-        "RENDER-003",
-        "RENDER-005",
-        "RENDER-006",
-        "RENDER-007",
-        "RENDER-010"
+        "RENDER-010",
+        "NF-016",
+        "NF-017"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
@@ -2267,13 +2294,8 @@
       "route": "/workspace/17",
       "panel": "履歴",
       "feature_ids": [
-        "RENDER-001",
-        "RENDER-002",
-        "RENDER-003",
-        "RENDER-005",
-        "RENDER-006",
-        "RENDER-007",
-        "RENDER-010"
+        "RENDER-010",
+        "NF-017"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
@@ -2491,15 +2513,10 @@
       "route": "/workspace/19",
       "panel": "リソース",
       "feature_ids": [
-        "CORE-002",
-        "CORE-003",
-        "CORE-004",
-        "CORE-011",
-        "OBS-004",
-        "NF-007"
+        "NF-016"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": null,
+      "source_evidence": "稼働率・GPU負荷の実測は NF-016（未承認）。",
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2536,7 +2553,8 @@
         "CORE-013",
         "OBS-002",
         "OBS-007",
-        "NF-008"
+        "NF-008",
+        "NF-021"
       ],
       "new_ui_state": "real",
       "source_evidence": "/api/server-version。",
@@ -2555,13 +2573,10 @@
       "panel": "保存パス",
       "feature_ids": [
         "CORE-006",
-        "CORE-013",
-        "OBS-002",
-        "OBS-007",
-        "NF-008"
+        "NF-021"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": "現行は data/ 固定。",
+      "source_evidence": "現行は data/ 固定。保存先の変更は NF-021（未承認）。",
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2634,7 +2649,8 @@
         "CORE-013",
         "OBS-002",
         "OBS-007",
-        "NF-008"
+        "NF-008",
+        "NF-021"
       ],
       "new_ui_state": "mock",
       "source_evidence": "この新UIのショートカットのみ実在。",
@@ -2670,13 +2686,10 @@
       "route": "/workspace/21",
       "panel": "テーマ",
       "feature_ids": [
-        "UX-001",
-        "UX-002",
-        "UX-006",
-        "NF-009"
+        "NF-022"
       ],
       "new_ui_state": "real",
-      "source_evidence": "この新UIのテーマ切替（ブラウザに保存）。",
+      "source_evidence": "この新UIのテーマ切替（ブラウザに保存）。製品機能としては NF-022（未承認）。",
       "UI": "mock_route_operable",
       "API": "read_only_get",
       "WebMCP": "unknown",
@@ -2691,13 +2704,10 @@
       "route": "/workspace/21",
       "panel": "色・文字",
       "feature_ids": [
-        "UX-001",
-        "UX-002",
-        "UX-006",
-        "NF-009"
+        "NF-022"
       ],
       "new_ui_state": "real",
-      "source_evidence": "表示密度の切替。",
+      "source_evidence": "表示密度の切替。製品機能としては NF-022（未承認）。",
       "UI": "mock_route_operable",
       "API": "read_only_get",
       "WebMCP": "unknown",
@@ -2715,7 +2725,8 @@
         "UX-001",
         "UX-002",
         "UX-006",
-        "NF-009"
+        "NF-009",
+        "NF-022"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
@@ -2754,7 +2765,8 @@
         "UX-001",
         "UX-002",
         "UX-006",
-        "NF-009"
+        "NF-009",
+        "NF-022"
       ],
       "new_ui_state": "real",
       "source_evidence": "左パネル・下部タイムラインの表示切替。",
@@ -2793,7 +2805,8 @@
         "UX-001",
         "UX-002",
         "UX-006",
-        "NF-009"
+        "NF-009",
+        "NF-022"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
@@ -2814,7 +2827,9 @@
         "CAM-013",
         "CAM-014",
         "DATA-011",
-        "NF-006"
+        "NF-006",
+        "NF-019",
+        "NF-020"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
@@ -2835,7 +2850,9 @@
         "CAM-013",
         "CAM-014",
         "DATA-011",
-        "NF-006"
+        "NF-006",
+        "NF-019",
+        "NF-020"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
@@ -2908,13 +2925,10 @@
       "route": "/workspace/22",
       "panel": "共有",
       "feature_ids": [
-        "CAM-013",
-        "CAM-014",
-        "DATA-011",
-        "NF-006"
+        "NF-020"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": null,
+      "source_evidence": "テンプレートの書き出し・取り込みによる共有は NF-020（未承認）。",
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -3078,14 +3092,10 @@
       "route": "/workspace/24",
       "panel": "リソース",
       "feature_ids": [
-        "CORE-013",
-        "OBS-001",
-        "OBS-006",
-        "REVIEW-003",
-        "NF-011"
+        "NF-016"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": "実測していない値は表示しない。",
+      "source_evidence": "実測していない値は表示しない。CPU/メモリ/GPU/FPSの実測は NF-016（未承認）。",
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -3154,11 +3164,7 @@
       "route": "/workspace/24",
       "panel": "性能",
       "feature_ids": [
-        "CORE-013",
-        "OBS-001",
-        "OBS-006",
-        "REVIEW-003",
-        "NF-011"
+        "NF-016"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
@@ -3196,7 +3202,8 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
       ],
       "new_ui_state": "real",
       "source_evidence": "この新UIの案内。",
@@ -3216,7 +3223,8 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
       ],
       "new_ui_state": "mock",
       "source_evidence": "手順チェックは画面内のみ。",
@@ -3236,7 +3244,8 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
       ],
       "new_ui_state": "real",
       "source_evidence": "各画面へのリンク。",
@@ -3254,12 +3263,10 @@
       "route": "/workspace/25",
       "panel": "動画",
       "feature_ids": [
-        "CORE-009",
-        "UX-004",
-        "NF-012"
+        "NF-015"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": null,
+      "source_evidence": "紹介ムービー・動画チュートリアルは NF-015（未承認）。",
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -3294,7 +3301,8 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
       ],
       "new_ui_state": "real",
       "source_evidence": null,
@@ -3314,7 +3322,8 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
       ],
       "new_ui_state": "real",
       "source_evidence": null,
