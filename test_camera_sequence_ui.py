@@ -18,6 +18,12 @@ class SequenceUIContract(unittest.TestCase):
         self.assertIn("(project.sequence||[]).some(c=>c.preset===name)",self.js)
     def test_overlap_rejected(self):
         self.assertIn('start<c.end&&end>c.start',self.js)
+    def test_mcp_refresh_is_explicit_and_fail_closed(self):
+        self.assertIn('id="sequence-refresh"',self.html)
+        self.assertIn("if(dirty){out.textContent=",self.js)
+        self.assertIn("fetch('/api/camera/project?envelope=1',{cache:'no-store'})",self.js)
+        self.assertIn("取得中に編集されました",self.js)
+        self.assertIn("window.addEventListener('bai-camera-sequence-refresh'",self.js)
     def test_restoration_rerenders(self):
         self.assertIn('function renderCustomPresets(){renderSequence()',self.js)
 if __name__=='__main__':unittest.main()

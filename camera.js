@@ -1,4 +1,4 @@
-(()=>{'use strict';const $=id=>document.getElementById(id),ctx=$('preview').getContext('2d');let project,frame=0,selected=null,playing=false,raf=0,lastTime=0,playhead=0,history=[],cursor=-1,dirty=false,rangeStart=0,rangeSize=300,previewPose=null,sceneYaw=.6,scenePitch=.37;const clone=x=>JSON.parse(JSON.stringify(x)),status=t=>$('status').textContent=t;const presets={front:{position:[0,1.6,5],target:[0,1,0],fov:40},close:{position:[0,1.6,1.7],target:[0,1.5,0],fov:32},side:{position:[5,1.7,0],target:[0,1,0],fov:40},overhead:{position:[0,7,2],target:[0,1,0],fov:50},orbit:{position:[-3,2,4],target:[0,1,0],fov:38}};
+(()=>{'use strict';const $=id=>document.getElementById(id),ctx=$('preview').getContext('2d');let serverRevision=null;let project,frame=0,selected=null,playing=false,raf=0,lastTime=0,playhead=0,history=[],cursor=-1,dirty=false,rangeStart=0,rangeSize=300,previewPose=null,sceneYaw=.6,scenePitch=.37;const clone=x=>JSON.parse(JSON.stringify(x)),status=t=>$('status').textContent=t;const presets={front:{position:[0,1.6,5],target:[0,1,0],fov:40},close:{position:[0,1.6,1.7],target:[0,1.5,0],fov:32},side:{position:[5,1.7,0],target:[0,1,0],fov:40},overhead:{position:[0,7,2],target:[0,1,0],fov:50},orbit:{position:[-3,2,4],target:[0,1,0],fov:38}};
 function sample(f){const keys=project.keys;if(!keys.length)return clone(presets.front);if(f<=keys[0].frame)return clone(keys[0]);if(f>=keys.at(-1).frame)return clone(keys.at(-1));let i=keys.findIndex(k=>k.frame>=f),a=keys[i-1],b=keys[i],t=(f-a.frame)/(b.frame-a.frame);if(a.interpolation==='hold')t=0;else if(a.interpolation==='smooth')t=t*t*(3-2*t);return {position:a.position.map((n,j)=>n+(b.position[j]-n)*t),target:a.target.map((n,j)=>n+(b.target[j]-n)*t),fov:a.fov+(b.fov-a.fov)*t}}
 function effectivePose(f){
  const cut=window.BAICameraSequencePlayback?.activeShot(project,f);
@@ -179,6 +179,27 @@ function validCutInput(){
 }
 $('sequence-add').onclick=()=>{try{const cut=validCutInput();project.sequence=[...(project.sequence||[]),cut].sort((a,b)=>a.start-b.start);checkpoint();renderSequence();setFrame(frame);$('sequence-status').textContent='区間を追加しました（未保存）';}catch(e){$('sequence-status').textContent='エラー: '+e.message}};
 $('sequence-delete').onclick=()=>{try{const i=Number($('sequence-list').value);if(!Number.isInteger(i)||i<0||i>=(project?.sequence||[]).length)throw Error('削除する区間を選択してください');project.sequence=project.sequence.filter((_,j)=>i!==j);checkpoint();renderSequence();setFrame(frame);$('sequence-status').textContent='区間を削除しました（未保存）';}catch(e){$('sequence-status').textContent='エラー: '+e.message}};
+// MCP edits occur outside this browser's in-memory project. Refresh only when no unsaved UI edits exist.
+async function refreshSequenceFromServer(){
+ const out=$('sequence-status');
+ if(dirty){out.textContent='未保存の編集があります。保存またはUndoしてから再取得してください';return false}
+ try{
+  const response=await fetch('/api/camera/project?envelope=1',{cache:'no-store'});
+  if(!response.ok)throw Error('HTTP '+response.status);
+  const envelope=await response.json();const next=envelope.project;
+  if(!next||!Array.isArray(next.keys)||!Array.isArray(next.sequence)||!Array.isArray(next.custom_presets)||!Number.isInteger(next.duration))throw Error('サーバーのプロジェクト形式が不正です');
+  // No client edits may be overwritten while the async request was in flight.
+  if(dirty){out.textContent='取得中に編集されました。再取得を中止しました';return false}
+  playing=false;cancelAnimationFrame(raf);$('play').textContent='▶ 再生';
+  project=clone(next);serverRevision=envelope.revision;history=[clone(project)];cursor=0;dirty=false;selected=null;previewPose=null;
+  $('duration').value=project.duration;$('frame').max=project.duration;$('frame-number').max=project.duration;
+  updateRangeControls();restoreRig();renderCustomPresets();setFrame(Math.min(frame,project.duration));
+  window.dispatchEvent(new CustomEvent('bai-camera-project-loaded',{detail:{project}}));
+  out.textContent='サーバーの最新状態を反映しました（MCP編集を含む）';return true;
+ }catch(e){out.textContent='再取得失敗: '+e.message;return false}
+}
+$('sequence-refresh').onclick=refreshSequenceFromServer;
+window.addEventListener('bai-camera-sequence-refresh',()=>{void refreshSequenceFromServer()});
 $('sequence-jump').onclick=()=>{const i=Number($('sequence-list').value),cut=project?.sequence?.[i];if(!cut){$('sequence-status').textContent='区間を選択してください';return}setFrame(cut.start);$('sequence-status').textContent=`${cut.start}フレームへ移動しました`};
 $('custom-preset-delete').onclick=()=>{try{const name=$('custom-preset-list').value;if(!name||!(project?.custom_presets||[]).some(p=>p.name===name))throw Error('登録を選択してください');if((project.sequence||[]).some(c=>c.preset===name))throw Error('カット区間で使用中です。先に該当区間を削除してください');project.custom_presets=project.custom_presets.filter(p=>p.name!==name);checkpoint();renderCustomPresets();$('custom-preset-status').textContent='削除しました（プロジェクト保存が必要）';}catch(e){customPresetError(e)}};
 
@@ -186,7 +207,7 @@ $('undo').onclick=()=>{if(cursor<=0)return;cursor--;project=clone(history[cursor
 // Phase E: explicit, validated project-bundle UI bridge. No implicit write on load.
 window.addEventListener('bai-camera-bundle-snapshot',event=>{if(project&&typeof event.detail?.resolve==='function')event.detail.resolve(clone(project))});
 window.addEventListener('bai-camera-bundle-restore',event=>{try{const next=event.detail?.project;if(!next||!Array.isArray(next.keys)||!Number.isInteger(next.duration)||next.duration<1)throw Error('カメラ状態が不正です');if(dirty&&!event.detail?.confirmed)throw Error('未保存のカメラ編集があります');playing=false;cancelAnimationFrame(raf);$('play').textContent='▶ 再生';project=clone(next);history=[clone(project)];cursor=0;dirty=false;previewPose=null;selected=null;$('duration').value=project.duration;$('frame').max=project.duration;$('frame-number').max=project.duration;rangeSize=Math.min(300,project.duration);rangeStart=0;updateRangeControls();restoreRig();renderCustomPresets();setFrame(Math.min(event.detail?.frame??0,project.duration));window.dispatchEvent(new CustomEvent('bai-camera-project-loaded',{detail:{project}}));event.detail?.resolve?.(true);status('統合プロジェクトを再読み込みしました')}catch(error){event.detail?.reject?.(error)}});
-$('save').onclick=async()=>{try{window.dispatchEvent(new CustomEvent('bai-camera-before-save',{detail:{project}}));const r=await fetch('/api/camera/project',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(project)});const j=await r.json();if(!r.ok)throw Error(j.error);dirty=false;status('保存しました')}catch(e){status('保存失敗: '+e.message)}};
+$('save').onclick=async()=>{try{window.dispatchEvent(new CustomEvent('bai-camera-before-save',{detail:{project}}));const r=await fetch('/api/camera/project',{method:'POST',headers:{'Content-Type':'application/json',...(serverRevision?{'If-Match':serverRevision}:{})},body:JSON.stringify(project)});const j=await r.json();if(!r.ok)throw Error((r.status===409?'MCP等でサーバー側が変更されました。再取得してから編集してください: ':'')+(j.error||r.status));serverRevision=j._revision||null;dirty=false;status('保存しました')}catch(e){status('保存失敗: '+e.message)}};
 $('copy').onclick=()=>{const blob=new Blob([JSON.stringify(project,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='bai-camera-project.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 $('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'■ 停止':'▶ 再生';lastTime=0;playhead=frame;if(playing)raf=requestAnimationFrame(tick);else cancelAnimationFrame(raf)};function tick(t){if(!playing)return;if(lastTime)playhead+=Math.min(250,t-lastTime)*project.fps/1000;lastTime=t;setFrame(playhead);if(frame>=project.duration){playing=false;$('play').textContent='▶ 再生';return}raf=requestAnimationFrame(tick)}
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});window.addEventListener('resize',()=>{if(project)draw()});if(typeof ResizeObserver!=='undefined'){new ResizeObserver(()=>{if(project)draw()}).observe(document.querySelector('.dual-views'))};
@@ -202,5 +223,5 @@ $('lens-apply').addEventListener('click',()=>{try{
  $('lens-result').textContent=`${preset.mm}mm / f${preset.aperture} / 垂直画角 ${fov.toFixed(2)}°（実ボケは未対応）`;
  }catch(e){$('lens-result').textContent='エラー: '+e.message}
 });
-fetch('/api/camera/project').then(r=>r.json()).then(p=>{project=p;history=[clone(project)];cursor=0;$('frame').max=project.duration;$('frame-number').max=project.duration;$('duration').value=project.duration;rangeSize=Math.min(300,project.duration);updateRangeControls();restoreRig();setFrame(0);window.dispatchEvent(new CustomEvent('bai-camera-project-loaded',{detail:{project}}));status('カメラ編集を開始できます（AI不要）')}).catch(e=>status('読み込みエラー: '+e.message));
+fetch('/api/camera/project?envelope=1').then(r=>r.json()).then(envelope=>{serverRevision=envelope.revision;project=envelope.project;history=[clone(project)];cursor=0;$('frame').max=project.duration;$('frame-number').max=project.duration;$('duration').value=project.duration;rangeSize=Math.min(300,project.duration);updateRangeControls();restoreRig();setFrame(0);window.dispatchEvent(new CustomEvent('bai-camera-project-loaded',{detail:{project}}));status('カメラ編集を開始できます（AI不要）')}).catch(e=>status('読み込みエラー: '+e.message));
 })();
