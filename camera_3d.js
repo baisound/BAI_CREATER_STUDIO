@@ -184,7 +184,27 @@ function resizeProjection(camera,aspect){
  camera.updateProjectionMatrix();
 }
 function resizeRender(){for(const v of views){if(!v.renderer)continue;const w=Math.max(2,v.host.clientWidth),h=Math.max(2,v.host.clientHeight);resizeProjection(v.camera,w/h);v.renderer.setSize(w,h,false)}}
-function render(){if(!rendererFailed){resizeRender();camHelper.visible=true;views[0].renderer?.render(world,sceneCam);camHelper.visible=false;if(railPath)railPath.visible=false;railHandles.visible=false;if(dofRequested&&dofComposer&&syncDOF()){dofComposer.passes[0].camera=activeFilmingCamera;const w=Math.max(2,views[1].host.clientWidth),h=Math.max(2,views[1].host.clientHeight);if(w!==dofWidth||h!==dofHeight){dofComposer.setSize(w,h);dofWidth=w;dofHeight=h}dofComposer.render()}else views[1].renderer?.render(world,activeFilmingCamera);if(railPath)railPath.visible=true;railHandles.visible=true}requestAnimationFrame(render)}
+// Scene-only focus diagnostic: GPU-rendered plane/target indicator, never baked into camera output.
+const focusOverlay=new THREE.Group();world.add(focusOverlay);
+const focusPlane=new THREE.Mesh(new THREE.PlaneGeometry(1.4,1.4),new THREE.MeshBasicMaterial({color:0x75b8ff,transparent:true,opacity:.17,side:THREE.DoubleSide,depthWrite:false}));
+const focusMarker=new THREE.Mesh(new THREE.SphereGeometry(.075,12,8),new THREE.MeshBasicMaterial({color:0x75b8ff,depthTest:false}));
+focusOverlay.add(focusPlane,focusMarker);focusOverlay.visible=false;
+const focusPalette={front:0xf08ad0,focus:0x75b8ff,within:0x77e0a8,back:0xffb570};
+let lastFocusDiagnostic=null;
+function positionFocusOverlay(){
+ const d=lastFocusDiagnostic;
+ if(!d?.enabled||!Array.isArray(d.point)||!activeFilmingCamera){focusOverlay.visible=false;return;}
+ const forward=new THREE.Vector3();activeFilmingCamera.getWorldDirection(forward);
+ if(forward.lengthSq()<1e-10){focusOverlay.visible=false;return;}
+ const location=activeFilmingCamera.position.clone().addScaledVector(forward,d.focus);
+ focusPlane.position.copy(location);focusPlane.quaternion.copy(activeFilmingCamera.quaternion);
+ focusMarker.position.fromArray(d.point);
+ const color=focusPalette[d.classification]??0x75b8ff;
+ focusMarker.material.color.setHex(color);focusPlane.material.color.setHex(color);
+ focusOverlay.visible=true;
+}
+window.addEventListener('bai-camera-focus-diagnostic',e=>{lastFocusDiagnostic=e.detail||null;positionFocusOverlay()});
+function render(){if(!rendererFailed){resizeRender();positionFocusOverlay();camHelper.visible=true;views[0].renderer?.render(world,sceneCam);camHelper.visible=false;focusOverlay.visible=false;if(railPath)railPath.visible=false;railHandles.visible=false;if(dofRequested&&dofComposer&&syncDOF()){dofComposer.passes[0].camera=activeFilmingCamera;const w=Math.max(2,views[1].host.clientWidth),h=Math.max(2,views[1].host.clientHeight);if(w!==dofWidth||h!==dofHeight){dofComposer.setSize(w,h);dofWidth=w;dofHeight=h}dofComposer.render()}else views[1].renderer?.render(world,activeFilmingCamera);if(railPath)railPath.visible=true;railHandles.visible=true;positionFocusOverlay()}requestAnimationFrame(render)}
 // Scene-only rail gizmo; hidden from the final filming-camera view.
 let railPath=null;
 const railHandles=new THREE.Group();world.add(railHandles);

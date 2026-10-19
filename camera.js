@@ -30,14 +30,16 @@ function drawFramingDiagnostic(){
 for(const id of ['framing-enabled','framing-aspect','framing-margin','framing-mode'])$(id).addEventListener('change',drawFramingDiagnostic);
 window.addEventListener('bai-camera-frame',drawFramingDiagnostic);
 window.addEventListener('bai-camera-pose',drawFramingDiagnostic);
-let focusPoint=null,focusPointFrame=null;
+let focusPoint=null,focusPointFrame=null,diagnosticVmdPose=null,diagnosticVmdFrame=null;
+window.addEventListener('bai-camera-vmd-preview',e=>{diagnosticVmdPose=e.detail?.pose||null;diagnosticVmdFrame=e.detail?.frame??null;drawFocusDiagnostic()});
+$('vmd-follow-timeline').addEventListener('change',()=>{if(!$('vmd-follow-timeline').checked){diagnosticVmdPose=null;diagnosticVmdFrame=null;}drawFocusDiagnostic()});
 window.addEventListener('bai-camera-focus-target',e=>{focusPoint=e.detail?.point||null;focusPointFrame=e.detail?.frame??null;drawFocusDiagnostic()});
-function focusDiagnosticAt(f,point,focusOverride=null){const pose=previewPose&&f===frame?previewPose:sample(f);return window.BAICameraFocusConsistency.diagnose({frame:f,pose,lens:$('focus-lens').value,aperture:$('focus-aperture').value,focus:focusOverride??$('focus-distance').value,target:$('focus-subject').value,point});}
-function drawFocusDiagnostic(){const result=$('focus-result'),color=$('focus-color-status');if(!$('focus-enabled').checked){result.textContent='診断OFF';color.textContent='色分け OFF';return}
+function focusDiagnosticAt(f,point,focusOverride=null){const pose=$('vmd-follow-timeline').checked&&diagnosticVmdFrame===f&&diagnosticVmdPose?diagnosticVmdPose:previewPose&&f===frame?previewPose:sample(f);return window.BAICameraFocusConsistency.diagnose({frame:f,pose,lens:$('focus-lens').value,aperture:$('focus-aperture').value,focus:focusOverride??$('focus-distance').value,target:$('focus-subject').value,point});}
+function drawFocusDiagnostic(){const result=$('focus-result'),color=$('focus-color-status');if(!$('focus-enabled').checked){result.textContent='診断OFF';color.textContent='色分け OFF';window.dispatchEvent(new CustomEvent('bai-camera-focus-diagnostic',{detail:{enabled:false}}));return}
  try{const r=focusDiagnosticAt(frame,focusPointFrame===frame?focusPoint:null);const labels={front:'マゼンタ／手前ボケ',focus:'青／焦点面',within:'緑／許容範囲',back:'橙／奥ボケ'};
  result.textContent=`${r.inside?'許容被写界深度内':'被写界深度外'} / 被写体 ${r.actual.toFixed(2)}m / 合焦 ${r.focus.toFixed(2)}m / 許容 ${r.near.toFixed(2)}–${Number.isFinite(r.far)?r.far.toFixed(2):'∞'}m`;
- color.textContent='色分け: '+labels[r.classification]+(focusPointFrame===frame?'（実ボーン）':'（ガイド位置）');color.style.color={front:'#f08ad0',focus:'#75b8ff',within:'#77e0a8',back:'#ffb570'}[r.classification];result.style.color=r.inside?'#77e0a8':'#ffb570';
- }catch(err){result.textContent='診断できません: '+err.message;color.textContent='色分け判定不能';color.style.color='';}}
+ color.textContent='色分け: '+labels[r.classification]+(focusPointFrame===frame?'（実ボーン）':'（ガイド位置）');color.style.color={front:'#f08ad0',focus:'#75b8ff',within:'#77e0a8',back:'#ffb570'}[r.classification];result.style.color=r.inside?'#77e0a8':'#ffb570';window.dispatchEvent(new CustomEvent('bai-camera-focus-diagnostic',{detail:{enabled:true,classification:r.classification,point:r.point,focus:r.focus,frame,near:r.near,far:r.far}}));
+ }catch(err){result.textContent='診断できません: '+err.message;color.textContent='色分け判定不能';color.style.color='';window.dispatchEvent(new CustomEvent('bai-camera-focus-diagnostic',{detail:{enabled:false}}));}}
 
 $('vmd-inspect-button').onclick=async()=>{const result=$('vmd-inspect-result'),file=$('vmd-inspect-input').files[0];if(!file){result.textContent='VMDファイルを選択してください';return}if(file.size>32*1024*1024){result.textContent='32MB以下のファイルのみ対応';return}result.textContent='VMDを検査中…';try{const response=await fetch('/api/camera/vmd/inspect',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:await file.arrayBuffer()});const data=await response.json();if(!response.ok)throw Error(data.error||'HTTP '+response.status);result.textContent=`カメラキー ${data.camera_count} 件 / 範囲 ${data.first_camera_frame??'-'}〜${data.last_camera_frame??'-'} / 画角 ${data.fov_range?.join('〜')||'-'}°（読み取りのみ）`}catch(error){result.textContent='VMD検査失敗: '+error.message}};
 let nativeVmdTrack=null;
