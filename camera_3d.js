@@ -121,7 +121,7 @@ window.addEventListener('bai-camera-query-focus-target',e=>{
 });
 function updateTrackedFocus(){
  if(!focusTrackToggle.checked){window.dispatchEvent(new CustomEvent('bai-camera-focus-target',{detail:{frame:lastFrame,point:null}}));return;}
- if(!model||!trackingBone||!shootingPose){focusTrackStatus.textContent='ボーン・モデル・撮影カメラを選択してください';return}
+ if(!model||!trackingBone||!shootingPose){window.dispatchEvent(new CustomEvent('bai-camera-focus-target',{detail:{frame:lastFrame,point:null}}));focusTrackStatus.textContent='ボーン・モデル・撮影カメラを選択してください';return}
  try{
   model.updateMatrixWorld(true);
   const point=trackingBone.getWorldPosition(new THREE.Vector3()).toArray();
@@ -130,7 +130,7 @@ function updateTrackedFocus(){
   window.dispatchEvent(new CustomEvent('bai-camera-focus-target',{detail:{frame:lastFrame,point}}));
   $('focus-distance').dispatchEvent(new Event('change'));
   focusTrackStatus.textContent=trackingBone.name+' 合焦距離 '+focus.toFixed(2)+'m（近似）';
- }catch(error){focusTrackStatus.textContent='合焦追従停止: '+error.message}
+ }catch(error){window.dispatchEvent(new CustomEvent('bai-camera-focus-target',{detail:{frame:lastFrame,point:null}}));focusTrackStatus.textContent='合焦追従停止: '+error.message}
 }
 function trackSubject(){
  if(!trackEnabled.checked||!trackingBone||!shootingPose||!model){updateTrackedFocus();return;}
