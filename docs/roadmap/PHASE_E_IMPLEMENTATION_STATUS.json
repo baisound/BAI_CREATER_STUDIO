@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "baseline_commit": "398aff7",
+  "baseline_commit": "ce47fe3",
   "assessment_date": "2026-10-19",
   "scope": "CAM-001..CAM-018",
   "method": "コード存在確認（実行試験とは区別）。ロードマップ進捗は完成判定ではない。",
@@ -41,8 +41,13 @@
     {
       "id": "CAM-004",
       "name": "カメラ矩形フレームと被写体見切れ検出",
-      "evidence_paths": [],
-      "implementation_assessment": "未監査／完了根拠なし",
+      "evidence_paths": [
+        "camera_framing.js",
+        "camera.html",
+        "camera.js",
+        "test_camera_framing.cjs"
+      ],
+      "implementation_assessment": "ガイド人体の包囲球ベースの見切れ診断を実装・単体テスト済み。実モデル形状・GPU表示との統合未検証",
       "ui_api_webmcp_stdio_mcp_verified": false,
       "real_browser_verified": false,
       "release_complete": false
