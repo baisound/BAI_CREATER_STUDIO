@@ -32,22 +32,43 @@ def validate_combination(obj):
     return obj
 
 
+def validate_workspace(value):
+    """Portable editor references, not a claim to embed external assets."""
+    if not isinstance(value, dict) or set(value) != {'frame', 'asset', 'clip'}:
+        raise ValueError('invalid workspace fields')
+    frame, asset, clip = value['frame'], value['asset'], value['clip']
+    if type(frame) is not int or not 0 <= frame <= 1000000:
+        raise ValueError('invalid workspace frame')
+    if not isinstance(asset, str) or len(asset) > 250 or (asset and (not asset.lower().endswith(('.glb','.vrm')) or '/' in asset or chr(92) in asset)):
+        raise ValueError('invalid workspace asset')
+    if clip is not None and (type(clip) is not int or not 0 <= clip <= 1000):
+        raise ValueError('invalid workspace clip')
+    if not asset and clip is not None:
+        raise ValueError('clip requires a model')
+    return {'frame': frame, 'asset': asset, 'clip': clip}
+
+
 def validate_bundle(obj):
     if not isinstance(obj, dict) or obj.get('schema') != 1:
         raise ValueError('invalid bundle schema')
-    if set(obj) != {'schema', 'combination', 'camera'}:
+    if set(obj) not in ({'schema', 'combination', 'camera'}, {'schema', 'combination', 'camera', 'workspace'}):
         raise ValueError('unsupported bundle fields')
-    return {'schema': 1,
-            'combination': validate_combination(obj['combination']),
-            'camera': validate_camera(obj['camera'])}
+    result = {'schema': 1, 'combination': validate_combination(obj['combination']), 'camera': validate_camera(obj['camera'])}
+    if 'workspace' in obj:
+        result['workspace'] = validate_workspace(obj['workspace'])
+        if result['workspace']['frame'] > result['camera']['duration']:
+            raise ValueError('workspace frame exceeds camera duration')
+    return result
 
 
 def read_bundle(combination_path, camera_path):
     from bai_camera import read as camera_read
     cp = Path(combination_path)
     combination = json.loads(cp.read_text(encoding='utf-8')) if cp.exists() else None
+    workspace_path = cp.with_suffix('.workspace.json')
+    workspace = json.loads(workspace_path.read_text(encoding='utf-8')) if workspace_path.exists() else None
     return {'schema': 1, 'combination': combination, 'camera': camera_read(camera_path),
-            'complete': combination is not None}
+            'workspace': workspace, 'complete': combination is not None}
 
 
 def save_bundle(combination_path, camera_path, obj):
@@ -59,16 +80,30 @@ def save_bundle(combination_path, camera_path, obj):
     from bai_camera import save as camera_save
     payload = validate_bundle(obj)
     cp, cam = Path(combination_path), Path(camera_path)
+    wp = cp.with_suffix('.workspace.json')
     before_comb = cp.read_bytes() if cp.exists() else None
     before_cam = cam.read_bytes() if cam.exists() else None
+    before_wp = wp.read_bytes() if wp.exists() else None
     cp.parent.mkdir(parents=True, exist_ok=True)
     tmp = cp.with_suffix('.bundle-tmp')
     try:
         tmp.write_text(json.dumps(payload['combination'], ensure_ascii=False, indent=2), encoding='utf-8')
         # Camera validation and serialization happen before combination switch.
         camera_save(cam, payload['camera'])
+        if 'workspace' in payload:
+            workspace_tmp = wp.with_suffix('.workspace-tmp')
+            workspace_tmp.write_text(json.dumps(payload['workspace'], ensure_ascii=False, indent=2), encoding='utf-8')
+            workspace_tmp.replace(wp)
+        else:
+            wp.unlink(missing_ok=True)
         tmp.replace(cp)
     except Exception:
+        if before_wp is None:
+            wp.unlink(missing_ok=True)
+        else:
+            restore_workspace = wp.with_suffix('.workspace-restore')
+            restore_workspace.write_bytes(before_wp)
+            restore_workspace.replace(wp)
         if before_cam is None:
             cam.unlink(missing_ok=True)
         else:

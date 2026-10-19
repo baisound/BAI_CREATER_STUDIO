@@ -14,7 +14,8 @@ class CameraBundleUiContractTests(TestCase):
         self.assertIn('bai-camera-bundle-snapshot',source)
         self.assertIn('bai-camera-bundle-restore',source)
         self.assertIn('cancelAnimationFrame(raf)',source)
-    def test_no_asset_restoration_claim(self):
+    def test_workspace_and_external_vmd_limit(self):
         source=(ROOT/'camera_project_bundle_ui.js').read_text()
-        self.assertIn('素材・再生位置は未保存',source)
+        self.assertIn('外部VMDファイル本体は未保存',source)
+        self.assertIn('bai-camera-workspace-restore',source)
         self.assertIn('window.confirm',source)

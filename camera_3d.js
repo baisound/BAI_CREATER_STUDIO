@@ -287,6 +287,26 @@ if(!document.getElementById('vmd-follow-timeline')?.checked){untrackedPose=e.det
 updateTime()});
 window.addEventListener('bai-camera-pose',e=>{trackingOffset=null;untrackedPose=e.detail.pose;applyPose(e.detail.pose);trackSubject()});
 window.addEventListener('bai-camera-vmd-preview',e=>{applyPose(e.detail.pose);updateTrackedFocus()});
+window.addEventListener('bai-camera-workspace-snapshot',e=>{
+  e.detail?.resolve?.({frame:lastFrame,asset:$('camera-asset').value||'',clip:$('camera-clip').value===''?null:Number($('camera-clip').value)});
+});
+window.addEventListener('bai-camera-workspace-restore',async e=>{
+  const {workspace,resolve,reject}=e.detail||{};
+  try{
+    if(!workspace||!Number.isInteger(workspace.frame))throw Error('再生位置が不正です');
+    if(workspace.asset){
+      await catalog();
+      if(!Array.from($('camera-asset').options).some(o=>o.value===workspace.asset))throw Error('保存されたモデル素材が見つかりません: '+workspace.asset);
+      $('camera-asset').value=workspace.asset;
+      await loadAsset(workspace.asset);
+      if(workspace.clip!==null){
+        if(!clips[workspace.clip])throw Error('保存されたアニメーションクリップが存在しません');
+        $('camera-clip').value=String(workspace.clip);setClip(workspace.clip);
+      }else{$('camera-clip').value='';setClip(null)}
+    }else {clean();$('camera-asset').value='';$('camera-clip').value='';}
+    resolve?.(true);
+  }catch(error){reject?.(error)}
+});
 $('camera-clip').onchange=e=>{const i=Number(e.target.value);setClip(e.target.value===''?null:i)};
 $('camera-load-asset').onclick=()=>{const name=$('camera-asset').value;if(!name){status('素材を選択してください');return}loadAsset(name).catch(err=>status('読み込み失敗: '+err.message))};
 async function catalog(){try{const r=await fetch('/api/integrated-v02/catalog');if(!r.ok)throw Error('HTTP '+r.status);const c=await r.json(),sel=$('camera-asset'),seen=new Set();for(const entry of [...(c.models||[]),...(c.motions||[])]){const name=entry.source_asset?.split('/').pop();if(!name||!/\.(glb|vrm)$/i.test(name)||seen.has(name))continue;seen.add(name);sel.add(new Option((entry.name||name)+' — '+name,name))}status(seen.size+'件のGLB/VRM素材を選択できます')}catch(err){status('カタログ取得失敗: '+err.message)}}
