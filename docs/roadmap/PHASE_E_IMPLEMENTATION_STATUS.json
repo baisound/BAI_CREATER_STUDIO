@@ -227,6 +227,7 @@
   "recovery_notes": [
     "9724a16後: レールギズモ可視性バグ修正とVMD優先順位のソース回帰検査を実施。Python 275 pass / Node 37 pass。実GPU・ブラウザー未検証につき完成認定なし。詳細 docs/recovery/20261019_CAMERA_RENDER_PRIORITY_AUDIT_JA.md",
     "2026-10-20 必須修正（CAM-005 / E-FOCUS-01・02）: GET /api/camera/focus が do_GET 内の局所 import により UnboundLocalError で常に応答なし（接続切断）だった不具合を修正。回帰テスト tests/test_camera_focus_endpoint.py を追加。API応答の回復のみで、実モデル・実ブラウザー・MCP検証は未実施。完成認定なし。",
-    "2026-10-20 CAM-003 / CAM-005: 保存時の検証（bai_camera.validate）が15種のイージング・カスタム曲線（customCurve）・イージングプリセット（easingPresets）・F値（fStop、0.7〜64、省略時は保存しない）を受け付けるよう修正し、sample() でイージングとF値（片側未設定は既定F4）を補間。8b9d9d2 から失敗していた test_camera_easing / test_camera_lens_fstop の3件が成功し、pytest 304件すべて成功。camera.js 側のUI・実ブラウザー・MCPは未検証。完成認定なし。"
+    "2026-10-20 CAM-003 / CAM-005: 保存時の検証（bai_camera.validate）が15種のイージング・カスタム曲線（customCurve）・イージングプリセット（easingPresets）・F値（fStop、0.7〜64、省略時は保存しない）を受け付けるよう修正し、sample() でイージングとF値（片側未設定は既定F4）を補間。8b9d9d2 から失敗していた test_camera_easing / test_camera_lens_fstop の3件が成功し、pytest 304件すべて成功。camera.js 側のUI・実ブラウザー・MCPは未検証。完成認定なし。",
+    "2026-10-20: 残り作業の詳細設計 docs/roadmap/PHASE_E_DETAILED_DESIGN_20261020_JA.md v4 を批評3回＋最終判定（条件付き承認、条件C1〜C7反映済み）で確定。API・計算・保存・MCP は実装可、UI部分は新UIへの移植（P2⑥）後に読み替え表を作りレビューしてから。所有者決定により P2 移植を Phase E より先に行う。機能の完成判定は変更なし。"
   ]
 }
