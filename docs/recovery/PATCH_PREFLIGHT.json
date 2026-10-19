@@ -1,0 +1,901 @@
+[
+  {
+    "archive": "CAM005_Fail_Closed_31936c6.zip",
+    "patch_files": [
+      "CAM005_Fail_Closed_31936c6.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "CAM005_Fail_Closed_31936c6_CAM005_Fail_Closed_31936c6.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.js:43\nerror: camera.js: patch does not apply\nerror: patch failed: camera_3d.js:121\nerror: camera_3d.js: patch does not apply\nerror: "
+      }
+    ],
+    "metadata_commit_candidates": [
+      "31936c64f31abebf2f067614ccfac9780499ade4",
+      "1ea09e4",
+      "a05c04a"
+    ]
+  },
+  {
+    "archive": "CAM005_GPU_Focus_b7a1687.zip",
+    "patch_files": [
+      "CAM005_GPU_Focus_b7a1687.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "CAM005_GPU_Focus_b7a1687_CAM005_GPU_Focus_b7a1687.patch",
+        "ok": false,
+        "error": "error: patch failed: AGENTS.md:20\nerror: AGENTS.md: patch does not apply\nerror: patch failed: CLAUDE.md:9\nerror: CLAUDE.md: patch does not apply\nerror: patch fa"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "b7a16875a94adeed99346cf0217532affa20b485",
+      "b9d4592",
+      "72862e2",
+      "37b7777",
+      "89cf8a3",
+      "0e94c75",
+      "b7a1687"
+    ]
+  },
+  {
+    "archive": "MASTER_Multicamera_Design_eb05335.zip",
+    "patch_files": [
+      "MASTER_Multicamera_Design_eb05335.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "MASTER_Multicamera_Design_eb05335_MASTER_Multicamera_Design_eb05335.patch",
+        "ok": false,
+        "error": "error: patch failed: AGENTS.md:60\nerror: AGENTS.md: patch does not apply\nerror: patch failed: CLAUDE.md:13\nerror: CLAUDE.md: patch does not apply\nerror: patch f"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "eb053351eb0d9cecaf19cda9854fcbbca45d2696",
+      "e255adc",
+      "57c8288",
+      "e138b3b",
+      "d5f1c0b",
+      "f46acda",
+      "08ed70a",
+      "abc9459",
+      "eb05335"
+    ]
+  },
+  {
+    "archive": "Owner_First_Rules_53ad622.zip",
+    "patch_files": [
+      "Owner_First_Rules_53ad622.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Owner_First_Rules_53ad622_Owner_First_Rules_53ad622.patch",
+        "ok": false,
+        "error": "error: patch failed: AGENTS.md:2\nerror: AGENTS.md: patch does not apply\nerror: CLAUDE.md: already exists in working directory\nerror: patch failed: CODEX_NEXT_ST"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "53ad622b35aa12cec786a02ece905c801f3e54cc",
+      "d326662",
+      "b3e3f60",
+      "0000000",
+      "5ae583b"
+    ]
+  },
+  {
+    "archive": "Phase_E_Backlog_Sequence_b949556.zip",
+    "patch_files": [
+      "Phase_E_Backlog_Sequence_b949556.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Backlog_Sequence_b949556_Phase_E_Backlog_Sequence_b949556.patch",
+        "ok": false,
+        "error": "error: patch failed: CODEX_NEXT_STEPS_JA.md:28\nerror: CODEX_NEXT_STEPS_JA.md: patch does not apply\nerror: patch failed: bai_camera.py:31\nerror: bai_camera.py: p"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "b949556411d4e1f14921f9de491f6fe615f5b783",
+      "3c12076",
+      "f46acda",
+      "7f27d04",
+      "06dd78e",
+      "b949556",
+      "34c6758"
+    ]
+  },
+  {
+    "archive": "Phase_E_Bone_Follow_Bake_9c83f52.zip",
+    "patch_files": [
+      "Phase_E_Bone_Follow_Bake_9c83f52.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Bone_Follow_Bake_9c83f52_Phase_E_Bone_Follow_Bake_9c83f52.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:58\nerror: camera.js: patch does not apply\nerror: patc"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "9c83f52a2c1f94b5c0b57fc26c6254fc5a3fa02e",
+      "a20c383",
+      "1dc2185",
+      "28582a9",
+      "9c83f52"
+    ]
+  },
+  {
+    "archive": "Phase_E_Bone_Follow_Patch.zip",
+    "patch_files": [
+      "Phase_E_Bone_Follow.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Bone_Follow_Patch_Phase_E_Bone_Follow.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera_3d.js:13\nerror: camera_3d.js: patch does not apply\nerror"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "bc01ce09a9572e304abe4f86c5ad258edf299245",
+      "e47c37b",
+      "e1320d2"
+    ]
+  },
+  {
+    "archive": "Phase_E_Box_Framing_83cc28e.zip",
+    "patch_files": [
+      "Phase_E_Box_Framing_83cc28e.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Box_Framing_83cc28e_Phase_E_Box_Framing_83cc28e.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.js:23\nerror: camera.js: patch does not apply\nerror: patch failed: camera_3d.js:189\nerror: camera_3d.js: patch does not apply\nerror: "
+      }
+    ],
+    "metadata_commit_candidates": [
+      "83cc28e52b7e384d9c88614608e2c1bf50700160",
+      "0ca8263",
+      "e8f9855"
+    ]
+  },
+  {
+    "archive": "Phase_E_Bundle_Concurrency_1193145.zip",
+    "patch_files": [
+      "Phase_E_Bundle_Concurrency_1193145.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Bundle_Concurrency_1193145_Phase_E_Bundle_Concurrency_1193145.patch",
+        "ok": false,
+        "error": "error: camera_project_bundle_ui.js: No such file or directory\nerror: patch failed: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json:283\nerror: docs/roadmap/PHASE"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "1193145cb242df53408829166ac898be8dd0768c",
+      "e9c673d",
+      "09c41f6",
+      "631befe",
+      "1193145"
+    ]
+  },
+  {
+    "archive": "Phase_E_Bundle_Rollback_642a8ad.zip",
+    "patch_files": [
+      "642a8ad.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Bundle_Rollback_642a8ad_642a8ad.patch",
+        "ok": false,
+        "error": "error: patch failed: docs/roadmap/ROADMAP_JA.md:200\nerror: docs/roadmap/ROADMAP_JA.md: patch does not apply\nerror: project_state_bundle.py: No such file or dire"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "642a8adad1c18dfe581d515f9dc23380f6bf0dfe",
+      "0000000",
+      "fc0b595",
+      "1193145",
+      "cd5a83b",
+      "0f829cd"
+    ]
+  },
+  {
+    "archive": "Phase_E_Bundle_Snapshot_ff5c555.zip",
+    "patch_files": [
+      "Phase_E_Bundle_Snapshot_ff5c555.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Bundle_Snapshot_ff5c555_Phase_E_Bundle_Snapshot_ff5c555.patch",
+        "ok": false,
+        "error": "error: patch failed: docs/roadmap/ROADMAP_JA.md:214\nerror: docs/roadmap/ROADMAP_JA.md: patch does not apply\nerror: patch failed: server.py:172\nerror: server.py:"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "ff5c5558e26c3f57d9ed3e820eda39f438f07d4a",
+      "0000000",
+      "91e48ea",
+      "e4a6187",
+      "fbe4f2e",
+      "63d5b41"
+    ]
+  },
+  {
+    "archive": "Phase_E_Bundle_UI_45b0ef6.zip",
+    "patch_files": [
+      "Phase_E_Bundle_UI_45b0ef6.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Bundle_UI_45b0ef6_Phase_E_Bundle_UI_45b0ef6.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:158\nerror: camera.js: patch does not apply\nerror: pat"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "45b0ef6b22e4e9e0c2e732c5947288a87728edbd",
+      "e24de6a",
+      "9ca3466",
+      "5a52f46",
+      "45b0ef6"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM004_ModelBounds.zip",
+    "patch_files": [
+      "Phase_E_CAM004_ModelBounds.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM004_ModelBounds_Phase_E_CAM004_ModelBounds.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:19\nerror: camera.js: patch does not apply\nerror: patc"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "a26aef5a5a7c01f0cb978ab56b6dd9f972bf3102",
+      "2b635b2",
+      "785e4eb"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM004_cc64262.zip",
+    "patch_files": [
+      "Phase_E_CAM004_cc64262.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM004_cc64262_Phase_E_CAM004_cc64262.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:19\nerror: camera.js: patch does not apply\nerror: came"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "cc64262e9791ed13ba8eb47b8bec8c83379ccdd8",
+      "e158d95",
+      "2b635b2"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM005_Fixed_Focus_78e55c7.zip",
+    "patch_files": [
+      "Phase_E_CAM005_Fixed_Focus_78e55c7.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM005_Fixed_Focus_78e55c7_Phase_E_CAM005_Fixed_Focus_78e55c7.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.js:74\nerror: camera.js: patch does not apply\nerror: patch failed: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json:71\nerror: docs/roa"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "78e55c7f9adfc63ab607e42924885c86e7c52e4b",
+      "a05c04a",
+      "eafbc07",
+      "31936c6",
+      "78e55c7"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM005_Focus_Consistency_0e94c75.zip",
+    "patch_files": [
+      "Phase_E_CAM005_Focus_Consistency_0e94c75.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM005_Focus_Consistency_0e94c75_Phase_E_CAM005_Focus_Consistency_0e94c75.patch",
+        "ok": false,
+        "error": "error: patch failed: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json:68\nerror: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json: patch does not apply\nerror: patc"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "0e94c754a062db5712e50cfb01bcd53fd6ff7b94",
+      "b3e3f60",
+      "b9d4592",
+      "5ae583b",
+      "37b7777"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM005_Focus_Order_a183347.zip",
+    "patch_files": [
+      "0001-CAM005-focus-update-order.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM005_Focus_Order_a183347_0001-CAM005-focus-update-order.patch",
+        "ok": false,
+        "error": "error: patch failed: camera_3d.js:133\nerror: camera_3d.js: patch does not apply\nerror: patch failed: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json:70\nerror: d"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "a18334750e860e26f9405b1b13afca915c271d16",
+      "98eecdf",
+      "49d1405"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM005_Focus_Overlay_e88a767.zip",
+    "patch_files": [
+      "Phase_E_CAM005_Focus_Overlay_e88a767.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM005_Focus_Overlay_e88a767_Phase_E_CAM005_Focus_Overlay_e88a767.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.js:30\nerror: camera.js: patch does not apply\nerror: patch failed: camera_3d.js:184\nerror: camera_3d.js: patch does not apply\nerror: "
+      }
+    ],
+    "metadata_commit_candidates": [
+      "e88a767eee2f07851c9baa95c99c3fdf22321f3a",
+      "1d9fa4f",
+      "b67d4a5",
+      "b7a1687",
+      "e88a767"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM005_VMD_Range_650e551.zip",
+    "patch_files": [
+      "Phase_E_CAM005_VMD_Range_650e551.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM005_VMD_Range_650e551_Phase_E_CAM005_VMD_Range_650e551.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.js:34\nerror: camera.js: patch does not apply\nerror: patch failed: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json:67\nerror: docs/roa"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "650e551653a2bb9e69d8051599bb8b81ebebbbb9",
+      "b67d4a5",
+      "1ea09e4"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM015_Edit_MCP_147f278.zip",
+    "patch_files": [
+      "cam015_147f278/0001-CAM015-edit-MCP.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM015_Edit_MCP_147f278_0001-CAM015-edit-MCP.patch",
+        "ok": false,
+        "error": "error: patch failed: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json:179\nerror: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json: patch does not apply\nerror: pat"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "147f278fc4d1dfe130f08703f65e1aa0677f2b18",
+      "0000000",
+      "e136609",
+      "7a6fd56",
+      "147f278"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM015_MCP_7a6fd56.zip",
+    "patch_files": [
+      "Phase_E_CAM015_MCP_7a6fd56.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM015_MCP_7a6fd56_Phase_E_CAM015_MCP_7a6fd56.patch",
+        "ok": false,
+        "error": "error: patch failed: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json:186\nerror: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json: patch does not apply\nerror: pat"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "7a6fd56bb9706334c4912513b6a24d02bb9d0c65",
+      "0000000",
+      "eba9767",
+      "eb05335",
+      "7a6fd56"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM015_MCP_Sync_631befe.zip",
+    "patch_files": [
+      "Phase_E_CAM015_MCP_Sync_147f278_to_HEAD.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM015_MCP_Sync_631befe_Phase_E_CAM015_MCP_Sync_147f278_to_HEAD.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:180\nerror: camera.js: patch does not apply\nerror: pat"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "f2e64f7b8a2d8361438af96ca1252bb6c58a76a9",
+      "fc1dd65",
+      "ade68f2"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM015_Playback_abc9459.zip",
+    "patch_files": [
+      "Phase_E_CAM015_Playback_abc9459.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM015_Playback_abc9459_Phase_E_CAM015_Playback_abc9459.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:1\nerror: camera.js: patch does not apply\nerror: patch"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "c36e757",
+      "fc1dd65",
+      "31553a1",
+      "abc9459"
+    ]
+  },
+  {
+    "archive": "Phase_E_CAM015_Sequence_UI_31553a1.zip",
+    "patch_files": [
+      "0001-feat-camera-add-CAM-015-cut-sequence-editing-UI.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_CAM015_Sequence_UI_31553a1_0001-feat-camera-add-CAM-015-cut-sequence-editing-UI.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:151\nerror: camera.js: patch does not apply\nerror: pat"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "31553a17cdd18cd46e5a5b3d86d431c5beb19fd6",
+      "9ca3466",
+      "c36e757",
+      "b949556",
+      "31553a1"
+    ]
+  },
+  {
+    "archive": "Phase_E_Composition_e751d4a.zip",
+    "patch_files": [
+      "Phase_E_Composition_e751d4a.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Composition_e751d4a_Phase_E_Composition_e751d4a.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:23\nerror: camera.js: patch does not apply\nerror: patc"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "785e4eb",
+      "f2c1817",
+      "a26aef5",
+      "e751d4a"
+    ]
+  },
+  {
+    "archive": "Phase_E_Crane_StartAngle.zip",
+    "patch_files": [
+      "Phase_E_Crane_StartAngle.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Crane_StartAngle_Phase_E_Crane_StartAngle.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:64\nerror: camera.js: patch does not apply\nerror: patc"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "28582a9aee9f89bd416bb51795c10c4e39d1c6e0",
+      "2170b10",
+      "a20c383"
+    ]
+  },
+  {
+    "archive": "Phase_E_Curved_Rail_Patch.zip",
+    "patch_files": [
+      "Phase_E_Curved_Rail.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Curved_Rail_Patch_Phase_E_Curved_Rail.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:57\nerror: camera.js: patch does not apply\nerror: patc"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "c5f4c0a48516d68e15158e1872091514d9e87240",
+      "7625613",
+      "6a4df58"
+    ]
+  },
+  {
+    "archive": "Phase_E_Custom_Shots_885025b.zip",
+    "patch_files": [
+      "custom_presets/0001-feat-camera-persist-approved-custom-camera-shot-pres.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Custom_Shots_885025b_0001-feat-camera-persist-approved-custom-camera-shot-pres.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: docs/roadmap/ROADMAP_JA.md:132\nerror: docs/roadmap/ROADMAP_JA.m"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "885025bd87374dffc9fe6095e0aa71f90d12701f",
+      "5dd1c16",
+      "7f27d04",
+      "680b9e6",
+      "e24de6a",
+      "78e55c7",
+      "885025b"
+    ]
+  },
+  {
+    "archive": "Phase_E_DOF_3ea3024.zip",
+    "patch_files": [
+      "Phase_E_DOF_3ea3024.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_DOF_3ea3024_Phase_E_DOF_3ea3024.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "3ea3024c0968ef9ab92266b74bd023c0feac439a",
+      "305fd7e",
+      "e45d3af"
+    ]
+  },
+  {
+    "archive": "Phase_E_Focus_Tracking_7058754.zip",
+    "patch_files": [
+      "Phase_E_Focus_Tracking_7058754.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Focus_Tracking_7058754_Phase_E_Focus_Tracking_7058754.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json:64\nerror: docs/"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "7058754abcef8532313c5935b4231b057b6c4011",
+      "9aa9564",
+      "5dd1c16",
+      "3ea3024",
+      "7058754"
+    ]
+  },
+  {
+    "archive": "Phase_E_Follow_Config_469b272.zip",
+    "patch_files": [
+      "Phase_E_Follow_Config_469b272.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Follow_Config_469b272_Phase_E_Follow_Config_469b272.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera_3d.js:1\nerror: camera_3d.js: patch does not apply\nerror:"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "469b272906658c489a1b56598768a5530a64c415",
+      "e1320d2",
+      "912b2d2"
+    ]
+  },
+  {
+    "archive": "Phase_E_Follow_Smoothing_12bbd89.zip",
+    "patch_files": [
+      "Phase_E_Follow_Smoothing_12bbd89.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Follow_Smoothing_12bbd89_Phase_E_Follow_Smoothing_12bbd89.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera_3d.js:1\nerror: camera_3d.js: patch does not apply\nerror:"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "12bbd896dbe03b31ec5b17b18067d410b2453fe1",
+      "912b2d2",
+      "7625613",
+      "12bbd89"
+    ]
+  },
+  {
+    "archive": "Phase_E_Legacy_Client_Revision_e4a6187.zip",
+    "patch_files": [
+      "0001-fix-project-send-revision-from-legacy-editor-saves.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Legacy_Client_Revision_e4a6187_0001-fix-project-send-revision-from-legacy-editor-saves.patch",
+        "ok": false,
+        "error": "error: patch failed: docs/roadmap/ROADMAP_JA.md:209\nerror: docs/roadmap/ROADMAP_JA.md: patch does not apply\nerror: patch failed: server.py:909\nerror: server.py:"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "e4a618794df45af651a5e4cbc24327f4d9adad2c",
+      "0000000",
+      "8990688",
+      "7a7db22",
+      "6aa8a61",
+      "fbe4f2e",
+      "e4a6187"
+    ]
+  },
+  {
+    "archive": "Phase_E_Legacy_Revision_7a7db22.zip",
+    "patch_files": [
+      "Phase_E_Legacy_Revision_7a7db22.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Legacy_Revision_7a7db22_Phase_E_Legacy_Revision_7a7db22.patch",
+        "ok": false,
+        "error": "error: patch failed: docs/roadmap/ROADMAP_JA.md:204\nerror: docs/roadmap/ROADMAP_JA.md: patch does not apply"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "7a7db227e3302f4d30b6492c1d4be74d1a52ac52",
+      "0000000",
+      "8b2b899",
+      "642a8ad",
+      "0f829cd",
+      "6aa8a61"
+    ]
+  },
+  {
+    "archive": "Phase_E_Lens_Presets.zip",
+    "patch_files": [
+      "Phase_E_Lens_Presets.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Lens_Presets_Phase_E_Lens_Presets.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:130\nerror: camera.js: patch does not apply\nerror: cam"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "64ecf5cce343092820cd6bd02a971f20af29b6d2",
+      "f2c1817",
+      "305fd7e",
+      "53ad622"
+    ]
+  },
+  {
+    "archive": "Phase_E_Parent_Rig_5dcf714.zip",
+    "patch_files": [
+      "Phase_E_Parent_Rig_ced7d0a_to_5dcf714.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Parent_Rig_5dcf714_Phase_E_Parent_Rig_ced7d0a_to_5dcf714.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:57\nerror: camera.js: patch does not apply\nerror: patc"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "3102788",
+      "2170b10"
+    ]
+  },
+  {
+    "archive": "Phase_E_Project_Bundle_5a52f46.zip",
+    "patch_files": [
+      "Phase_E_Project_Bundle_5a52f46.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Project_Bundle_5a52f46_Phase_E_Project_Bundle_5a52f46.patch",
+        "ok": false,
+        "error": "error: patch failed: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json:243\nerror: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json: patch does not apply\nerror: doc"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "5a52f466195d044ac7decc4ed845c341066e2526",
+      "0000000",
+      "3b87af6",
+      "93fd42c",
+      "eca6e0a",
+      "3a55d72"
+    ]
+  },
+  {
+    "archive": "Phase_E_Project_Follow_939e162.zip",
+    "patch_files": [
+      "Phase_E_Project_Follow_939e162.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Project_Follow_939e162_Phase_E_Project_Follow_939e162.patch",
+        "ok": false,
+        "error": "error: patch failed: bai_camera.py:27\nerror: bai_camera.py: patch does not apply\nerror: patch failed: camera.js:72\nerror: camera.js: patch does not apply\nerror:"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "939e162dc12612a9cf916ce8d01c325e412afdbe",
+      "234e881",
+      "1319499",
+      "469b272",
+      "939e162"
+    ]
+  },
+  {
+    "archive": "Phase_E_Project_State_93fd42c.zip",
+    "patch_files": [
+      "Phase_E_Project_State_93fd42c.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Project_State_93fd42c_Phase_E_Project_State_93fd42c.patch",
+        "ok": false,
+        "error": "error: patch failed: CLAUDE.md:11\nerror: CLAUDE.md: patch does not apply\nerror: patch failed: CODEX_NEXT_STEPS_JA.md:25\nerror: CODEX_NEXT_STEPS_JA.md: patch doe"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "93fd42c6bc40ab74452f6dc725db8f08f1a12e9e",
+      "72862e2",
+      "e255adc",
+      "89cf8a3",
+      "e138b3b"
+    ]
+  },
+  {
+    "archive": "Phase_E_Rail_ArcLength_17632e5.zip",
+    "patch_files": [
+      "Phase_E_Rail_ArcLength_17632e5.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Rail_ArcLength_17632e5_Phase_E_Rail_ArcLength_17632e5.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:57\nerror: camera.js: patch does not apply\nerror: patc"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "17632e579e94659df0e58d9752556512526b6f07",
+      "6a4df58",
+      "f33f4aa"
+    ]
+  },
+  {
+    "archive": "Phase_E_Rail_Gizmo_ced7d0a.zip",
+    "patch_files": [
+      "Phase_E_Rail_Gizmo_92cf85c_to_ced7d0a.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Rail_Gizmo_ced7d0a_Phase_E_Rail_Gizmo_92cf85c_to_ced7d0a.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.js:80\nerror: camera.js: patch does not apply\nerror: patch failed: camera_3d.js:101\nerror: camera_3d.js: patch does not apply\nerror: "
+      }
+    ],
+    "metadata_commit_candidates": [
+      "610519125dfb761a3118b0c19deffa27f2b5ff4b",
+      "07d7d3d",
+      "b1f2074",
+      "92cf85c",
+      "ced7d0a"
+    ]
+  },
+  {
+    "archive": "Phase_E_Recovery_CAM004_22efce1.zip",
+    "patch_files": [
+      "Phase_E_Recovery_CAM004_22efce1.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Recovery_CAM004_22efce1_Phase_E_Recovery_CAM004_22efce1.patch",
+        "ok": false,
+        "error": "error: patch failed: camera.html:1\nerror: camera.html: patch does not apply\nerror: patch failed: camera.js:19\nerror: camera.js: patch does not apply\nerror: came"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "c92d921b77129246c1d85cdd6316990687f2edf0",
+      "1dc2185",
+      "debf512"
+    ]
+  },
+  {
+    "archive": "Phase_E_Restore_Checkpoint_fc11259.zip",
+    "patch_files": [
+      "Phase_E_Restore_Checkpoint_fc11259.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Restore_Checkpoint_fc11259_Phase_E_Restore_Checkpoint_fc11259.patch",
+        "ok": true,
+        "error": ""
+      }
+    ],
+    "metadata_commit_candidates": [
+      "fc11259d11e6a2d77f6e8c297aff7d5d604b2050",
+      "0000000",
+      "3e179de",
+      "ff5c555"
+    ]
+  },
+  {
+    "archive": "Phase_E_Rig_Persistence_92cf85c.zip",
+    "patch_files": [
+      "Phase_E_Rig_Persistence_92cf85c.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Rig_Persistence_92cf85c_Phase_E_Rig_Persistence_92cf85c.patch",
+        "ok": false,
+        "error": "error: patch failed: bai_camera.py:28\nerror: bai_camera.py: patch does not apply\nerror: patch failed: camera.js:70\nerror: camera.js: patch does not apply\nerror:"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "92cf85ce612d525fb37d87d5ced37ecd9f6c8822",
+      "1319499",
+      "9aa9564",
+      "208a232",
+      "07d7d3d"
+    ]
+  },
+  {
+    "archive": "Phase_E_Roadmap_Tracking.zip",
+    "patch_files": [
+      "Phase_E_Roadmap_Tracking.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Roadmap_Tracking_Phase_E_Roadmap_Tracking.patch",
+        "ok": false,
+        "error": "error: docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json: already exists in working directory\nerror: patch failed: docs/roadmap/ROADMAP_JA.md:77\nerror: docs/roadm"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "ce47fe3f9c5f85c3df27041f11072f53019c1ddc",
+      "0000000",
+      "464dcee",
+      "398aff7"
+    ]
+  },
+  {
+    "archive": "Phase_E_Workspace_34c6758.zip",
+    "patch_files": [
+      "Phase_E_Workspace_34c6758.patch"
+    ],
+    "check_at_cc3ab90": [
+      {
+        "patch": "Phase_E_Workspace_34c6758_Phase_E_Workspace_34c6758.patch",
+        "ok": false,
+        "error": "error: patch failed: camera_3d.js:287\nerror: camera_3d.js: patch does not apply\nerror: camera_project_bundle_ui.js: No such file or directory\nerror: patch faile"
+      }
+    ],
+    "metadata_commit_candidates": [
+      "34c67588d349893759091326e04e6c8010e6219a",
+      "f1257d7",
+      "48fadbb",
+      "45b0ef6",
+      "34c6758"
+    ]
+  }
+]

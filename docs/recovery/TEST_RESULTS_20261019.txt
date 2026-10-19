@@ -1,0 +1,15 @@
+PYTEST SUMMARY
+................................................................... [ 30%]
+........F............................................................... [ 63%]
+........................................................................ [ 95%]
+.........                                                                [100%]
+=================================== FAILURES ===================================
+____ TimelineRenderPriority.test_camera_frame_does_not_override_follow_pose ____
+
+self = <test_camera_vmd_render_priority.TimelineRenderPriority testMethod=test_camera_frame_does_not_override_follow_pose>
+
+    def test_camera_frame_does_not_override_follow_pose(self):
+     js=(BASE/'camera_3d.js').read_text()
+>    self.assertIn("if(!document.getElementById('vmd-follow-timeline')?.checked)applyPose(e.d
+
+Node test_camera_lens + test_camera_framing: 16 passed, 0 failed.
