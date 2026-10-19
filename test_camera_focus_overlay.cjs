@@ -10,7 +10,7 @@ test('diagnostics emitted from shared calculation and disabled state',()=>{
 });
 test('VMD preview pose replaces ordinary camera pose for frame matching',()=>{
  assert.match(editor,/bai-camera-vmd-preview/);
- assert.match(editor,/diagnosticVmdFrame===f&&diagnosticVmdPose/);
+ assert.match(editor,/nativeLocalSampler\.preview\(f\)/);
  assert.match(editor,/diagnosticVmdPose=null/);
 });
 test('GPU visualization is scene-only and hidden for filming renderer',()=>{

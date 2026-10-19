@@ -34,7 +34,14 @@ let focusPoint=null,focusPointFrame=null,diagnosticVmdPose=null,diagnosticVmdFra
 window.addEventListener('bai-camera-vmd-preview',e=>{diagnosticVmdPose=e.detail?.pose||null;diagnosticVmdFrame=e.detail?.frame??null;drawFocusDiagnostic()});
 $('vmd-follow-timeline').addEventListener('change',()=>{if(!$('vmd-follow-timeline').checked){diagnosticVmdPose=null;diagnosticVmdFrame=null;}drawFocusDiagnostic()});
 window.addEventListener('bai-camera-focus-target',e=>{focusPoint=e.detail?.point||null;focusPointFrame=e.detail?.frame??null;drawFocusDiagnostic()});
-function focusDiagnosticAt(f,point,focusOverride=null){const pose=$('vmd-follow-timeline').checked&&diagnosticVmdFrame===f&&diagnosticVmdPose?diagnosticVmdPose:previewPose&&f===frame?previewPose:sample(f);return window.BAICameraFocusConsistency.diagnose({frame:f,pose,lens:$('focus-lens').value,aperture:$('focus-aperture').value,focus:focusOverride??$('focus-distance').value,target:$('focus-subject').value,point});}
+function diagnosticCameraPose(f){
+ if($('vmd-follow-timeline').checked){
+  if(!nativeLocalSampler)throw Error('VMD追従中ですがVMDカメラが未読込です');
+  return nativeLocalSampler.preview(f);
+ }
+ return previewPose&&f===frame?previewPose:sample(f);
+}
+function focusDiagnosticAt(f,point,focusOverride=null){const pose=diagnosticCameraPose(f);return window.BAICameraFocusConsistency.diagnose({frame:f,pose,lens:$('focus-lens').value,aperture:$('focus-aperture').value,focus:focusOverride??$('focus-distance').value,target:$('focus-subject').value,point});}
 function drawFocusDiagnostic(){const result=$('focus-result'),color=$('focus-color-status');if(!$('focus-enabled').checked){result.textContent='診断OFF';color.textContent='色分け OFF';window.dispatchEvent(new CustomEvent('bai-camera-focus-diagnostic',{detail:{enabled:false}}));return}
  try{const r=focusDiagnosticAt(frame,focusPointFrame===frame?focusPoint:null);const labels={front:'マゼンタ／手前ボケ',focus:'青／焦点面',within:'緑／許容範囲',back:'橙／奥ボケ'};
  result.textContent=`${r.inside?'許容被写界深度内':'被写界深度外'} / 被写体 ${r.actual.toFixed(2)}m / 合焦 ${r.focus.toFixed(2)}m / 許容 ${r.near.toFixed(2)}–${Number.isFinite(r.far)?r.far.toFixed(2):'∞'}m`;
@@ -67,7 +74,7 @@ $('focus-range-check').onclick=()=>{const result=$('focus-range-result');result.
  try{const step=Math.max(1,Math.ceil((project.duration+1)/10000)),samples=[];
  for(let f=0;f<=project.duration;f+=step){let point=null;
   if($('focus-follow-bone').checked){let response=null;window.dispatchEvent(new CustomEvent('bai-camera-query-focus-target',{detail:{frame:f,resolve:value=>{response=value}}}));if(!response?.point)throw Error('実ボーンの評価に失敗しました。固定ガイドへ置換せず診断を中止します');point=response.point;}
-  const override=point?window.BAICameraFocusConsistency.diagnose({frame:f,pose:sample(f),lens:$('focus-lens').value,aperture:$('focus-aperture').value,focus:$('focus-distance').value,point}).actual:null;
+  const override=point?window.BAICameraFocusConsistency.diagnose({frame:f,pose:diagnosticCameraPose(f),lens:$('focus-lens').value,aperture:$('focus-aperture').value,focus:$('focus-distance').value,point}).actual:null;
   samples.push(focusDiagnosticAt(f,point,override));}
  const failures=samples.filter(x=>!x.inside),ranges=[];for(let i=0;i<failures.length;i++){const f=failures[i].frame;if(ranges.length&&f-failures[i-1]?.frame===step)ranges.at(-1)[1]=f;else ranges.push([f,f]);}
  result.textContent=`${samples.length}サンプル / 被写界深度外 ${failures.length}サンプル / 区間: ${ranges.slice(0,12).map(([a,b])=>a===b?a:a+'〜'+b).join(', ')||'なし'}（${$('focus-follow-bone').checked?'選択ボーン':'ガイド位置'}・同一光学計算・${step}フレーム間隔）`;
