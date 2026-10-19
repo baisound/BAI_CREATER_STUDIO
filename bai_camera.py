@@ -31,6 +31,9 @@ def validate(payload):
     if 'custom_presets' in payload:
         from camera_custom_presets import validate_presets
         result['custom_presets']=validate_presets(payload['custom_presets'])
+    if 'sequence' in payload:
+        from camera_sequence import validate_sequence
+        result['sequence']=validate_sequence(payload['sequence'], int(duration), [p['name'] for p in result.get('custom_presets', [])])
     if 'rig' in payload:
         from camera_rig_store import validate_rig
         result['rig']=validate_rig(payload['rig'])
