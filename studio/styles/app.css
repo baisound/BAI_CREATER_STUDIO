@@ -19,6 +19,9 @@ kbd { font: var(--fs-xs) var(--mono); border: 1px solid var(--border-strong); bo
 .breadcrumb { color: var(--text-2); font-size: var(--fs-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
 .breadcrumb b { color: var(--text); font-weight: 600; }
 .topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-shortcuts { display: flex; align-items: center; gap: 3px; flex: none; }
+.topbar-shortcuts a { color: var(--text-2); text-decoration: none; font-size: var(--fs-sm); padding: 3px 8px; border-radius: var(--radius); white-space: nowrap; }
+.topbar-shortcuts a:hover, .topbar-shortcuts a[aria-current="page"] { background: var(--accent-soft); color: var(--text); }
 .search-btn { white-space: nowrap; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 3px 8px; color: var(--text-2); cursor: pointer; }
 .mock-chip { font-size: var(--fs-xs); border: 1px dashed var(--border-strong); color: var(--text-2); padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
 .text-link { font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
@@ -268,6 +271,11 @@ details.faq { border-bottom: 1px solid var(--border); padding: 6px 0; } details.
   .search-btn kbd, .mock-chip, .breadcrumb, .text-link { display: none; }
   .topbar-right { margin-left: auto; }
   .compare { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .brand-word span { display: none; }
+  .history-btns { display: none; }
+  .topbar-shortcuts a { padding: 3px 5px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 

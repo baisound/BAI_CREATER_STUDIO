@@ -243,6 +243,7 @@ function control(c) {
     case 'btn': return actionButton(c);
     case 'btns': return h('div', { class: 'btn-row' }, c.items.map(actionButton));
     case 'note': return h('p', { class: 'section-note' }, c.text);
+    case 'textarea': return h('div', { class: 'field stack' }, h('label', null, c.label), h('textarea', { class: 'input', rows: c.rows || 7, placeholder: c.placeholder || '', disabled: true, 'aria-label': c.label, title: '◇ 未実装：入力と保存はまだできません' }), h('span', { class: 'section-note' }, '◇ 未実装：入力と保存はまだできません。'));
     case 'link': return h('p', { class: 'small', style: { margin: '4px 0' } }, h('a', { href: c.href }, `${c.label} ↗`));
     case 'code': return h('pre', { class: 'log' }, c.text);
     case 'kv': return h('dl', { class: 'kv' }, c.rows.map((/** @type {string[]} */ [k, v]) => [h('dt', null, k), h('dd', null, v)]));
@@ -376,14 +377,15 @@ function statusTab(s) {
       section('この画面の機能', null, h('div', null, s.panels.map((p) => h('div', { class: 'check-row', title: p.note || '' },
         h('span', null, ''), h('span', null, p.name, p.note ? h('div', { class: 'xs muted' }, p.note) : null), badge(p.status))))),
       s.existing && s.existing.length ? section('現行画面（既存機能）', 'partial', ...s.existing.map((e) => h('p', { class: 'small', style: { margin: '3px 0' } }, h('a', { href: e.href }, `${e.label} ↗`)))) : null,
-      section('関連機能ID', null, h('p', { class: 'small mono' }, s.ids.join(', ') || '—'), h('p', { class: 'section-note' }, `25画面台帳の分類：${s.classification === 'candidate_late' ? '後方候補（新規要素を含む）' : '既存・部分実装を監査'}`)),
+      section('関連機能ID', null, h('p', { class: 'small mono' }, s.ids.join(', ') || '—'), h('p', { class: 'section-note' }, `画面台帳の分類：${s.classification === 'candidate_late' ? '後方候補（新規要素を含む）' : '既存・部分実装を監査'}`)),
     ],
   };
 }
 
 /** @param {Screen} s @param {string|null} tab */
 function rightPane(s, tab) {
-  const defs = scopedTabs([...(s.right ? s.right.tabs.map((t) => ({ id: t.id, label: t.label, render: () => (/** @type {any} */ (t).custom === 'assetDetail' ? assetDetail() : renderSections(t.sections)) })) : []), statusTab(s)]);
+  const modeTabs = s.id === '27' && s.right ? s.right.tabs.filter((t) => (tab && tab !== 'quick' && tab !== 'status' ? t.id !== 'quick' : t.id === 'quick')) : s.right?.tabs;
+  const defs = scopedTabs([...(modeTabs ? modeTabs.map((t) => ({ id: t.id, label: t.label, render: () => (/** @type {any} */ (t).custom === 'assetDetail' ? assetDetail() : renderSections(t.sections)) })) : []), statusTab(s)]);
   const t = tabs({ tabs: defs, selected: tab || undefined, label: `${s.title}のインスペクター`, onChange: (id) => {
     const url = new URL(location.href);
     if (url.searchParams.get('tab') !== id && location.pathname.startsWith('/workspace')) {
@@ -400,7 +402,7 @@ function leftPane(s) {
   if (/** @type {any} */ (L).custom === 'assetCats') return assetCats();
   return region(h('section', { class: 'pane pane-left', 'aria-label': L.title },
     h('div', { class: 'pane-head' }, h('h2', null, L.title), h('span', { class: 'spacer' }), regionTag(L.status)),
-    h('div', { class: 'pane-body' }, L.list ? selectList({ items: L.list, search: L.search, tree: L.tree, label: L.title, selected: L.list[0] && L.list[0].id, onSelect: (id) => toast(`サンプル表示：「${(L.list || []).find((x) => x.id === id)?.label}」を選択`, 'mock') }) : null)), L.status);
+    h('div', { class: 'pane-body' }, L.list && L.list.length ? selectList({ items: L.list, search: L.search, tree: L.tree, label: L.title, selected: L.list[0] && L.list[0].id, onSelect: (id) => toast(`サンプル表示：「${(L.list || []).find((x) => x.id === id)?.label}」を選択`, 'mock') }) : null, L.controls?.map(control))), L.status);
 }
 
 /** @param {Screen} s */
@@ -726,7 +728,7 @@ function helpPage() {
   ];
   const glossary = [['VMD', 'MMD のモーション／カメラデータ形式'], ['PMX', 'MMD のモデル形式'], ['DOF', '被写界深度（ピントの合う奥行き範囲）'], ['リターゲット', '別の骨格へモーションを移し替えること'], ['WebMCP / 標準MCP', 'AI からアプリを操作するための接続方式（手動UIと同じAPIを使う）']];
   const t = tabs({ label: 'ヘルプ', tabs: [
-    { id: 'welcome', label: 'ウェルカム', render: () => h('div', { class: 'doc' }, h('h2', null, 'BAI Creator Studio 新UI（操作モック）'), h('p', null, '25画面の導線を確認するための新しい画面です。左のメニュー、上部の戻る・進む、Ctrl+K の画面検索で移動できます。'), h('p', { dataset: { legend: '1' } }, '凡例：', badge('real'), ' ', badge('partial'), ' ', badge('mock'), ' ', badge('unimpl'))) },
+    { id: 'welcome', label: 'ウェルカム', render: () => h('div', { class: 'doc' }, h('h2', null, 'BAI Creator Studio 新UI（操作モック）'), h('p', null, '27画面の導線を確認するための新しい画面です。左のメニュー、上部の戻る・進む、Ctrl+K の画面検索で移動できます。'), h('p', { dataset: { legend: '1' } }, '凡例：', badge('real'), ' ', badge('partial'), ' ', badge('mock'), ' ', badge('unimpl'))) },
     { id: 'setup', label: '初回セットアップ', render: () => region(h('div', { class: 'doc' }, h('h2', null, '初回セットアップ', regionTag('mock')), h('p', { class: 'small muted' }, 'チェックは画面内だけで、保存されません。'), steps), 'mock') },
     { id: 'guides', label: '目的別ガイド', render: () => h('div', { class: 'doc' }, h('h2', null, '目的別ガイド'), h('ul', { class: 'list' }, guides.map(([l, id]) => h('li', { onclick: () => navigate(id) }, h('span', { class: 'nav-num' }, id), l, h('span', { class: 'meta' }, '開く →'))))) },
     { id: 'video', label: '動画', render: () => h('div', { class: 'doc' }, h('h2', null, '動画チュートリアル'), h('div', { class: 'empty' }, '◇ 未実装：動画チュートリアルはまだありません。')) },
@@ -764,14 +766,14 @@ function render() {
   runCleanups(); // 同じ画面の再描画（タブ切替・テーマ変更など）でも毎回行う
   currentParams = params;
   currentScreenId = id;
-  for (const a of navEl.querySelectorAll('a[data-route]')) {
+  for (const a of document.querySelectorAll('a[data-route]')) {
     if (/** @type {HTMLElement} */ (a).dataset.route === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   }
   main.textContent = '';
   if (!s) {
     document.title = '画面が見つかりません — BAI Creator Studio';
     crumb.textContent = '画面が見つかりません';
-    main.append(h('div', { class: 'doc' }, h('h2', null, `画面 ${id} はありません`), h('p', null, '01〜25 の画面を開けます。'), h('button', { class: 'btn primary', type: 'button', onclick: () => navigate('01') }, 'ホームへ')));
+    main.append(h('div', { class: 'doc' }, h('h2', null, `画面 ${id} はありません`), h('p', null, '01〜27 の画面を開けます。'), h('button', { class: 'btn primary', type: 'button', onclick: () => navigate('01') }, 'ホームへ')));
     return;
   }
   document.title = `${s.id} ${s.title} — BAI Creator Studio`;
@@ -780,7 +782,7 @@ function render() {
   main.dataset.screen = s.id;
 
   const head = h('div', { class: 'screen-head' }, h('span', { class: 'screen-id' }, `SCR-${s.id}`), h('h1', null, s.title),
-    s.modes ? modeSwitch(s.modes) : null,
+    s.modes ? modeSwitch(s.modes, s, tab) : null,
     h('div', { class: 'tools', role: 'toolbar', 'aria-label': '画面の操作' },
       s.left ? h('button', { class: 'btn ghost only-mid', type: 'button', title: '左パネルの表示切替', onclick: () => ws.classList.toggle('show-left') }, '☰ ' + s.left.title) : null,
       (s.tools || []).map((c) => { const el = control(c); return el; }),
@@ -809,10 +811,11 @@ function render() {
   lastId = s.id;
 }
 
-/** @param {string[]} modes */
-function modeSwitch(modes) {
+/** @param {string[]} modes @param {Screen} s @param {string|null} tab */
+function modeSwitch(modes, s, tab) {
   const box = h('div', { class: 'mode-switch', role: 'group', 'aria-label': 'モード' });
-  modes.forEach((m, i) => box.append(h('button', { type: 'button', 'aria-pressed': String(i === 0), onclick: (/** @type {Event} */ e) => {
+  modes.forEach((m, i) => box.append(h('button', { type: 'button', 'aria-pressed': String(s.id === '27' ? ((tab && tab !== 'quick' && tab !== 'status') ? i === 1 : i === 0) : i === 0), onclick: (/** @type {Event} */ e) => {
+    if (s.id === '27') { navigate('27', { replace: true, tab: i === 0 ? 'quick' : 'cues' }); return; }
     for (const b of box.children) b.setAttribute('aria-pressed', 'false');
     /** @type {HTMLElement} */ (e.currentTarget).setAttribute('aria-pressed', 'true');
     toast(`サンプル表示：${m}モード（表示の切替のみ）`, 'mock');

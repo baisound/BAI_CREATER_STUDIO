@@ -1,5 +1,5 @@
 'use strict';
-// Browser acceptance test for the 25-screen UI mock (P1-B).
+// Browser acceptance test for the 27-screen UI mock.
 // Starts the real Python server and drives Chromium with Playwright.
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -23,7 +23,15 @@ const pages = [];
 const newPage = async (opts = {}) => { const page = await server.newPage(browser, opts); pages.push(page); return page; };
 
 test.before(async () => {
-  server = await harness.startServer({ port: PORT });
+  // 閲覧中のサーバーに接続せず、テスト専用の隔離データで空きポートを探す。
+  for (let port = PORT; port < PORT + 20; port++) {
+    try { server = await harness.startServer({ port }); break; }
+    catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      if (!/既に使われています|Address already in use|10048/.test(message)) throw e;
+    }
+  }
+  if (!server) throw new Error(`${PORT}〜${PORT + 19} にテスト用の空きポートがありません`);
   BASE = server.base;
   browser = await server.launchBrowser();
   if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
@@ -31,10 +39,10 @@ test.before(async () => {
 // ブラウザーを閉じてからサーバーを止める（逆だと閉じる途中の通信がエラーとして残る）
 test.after(async () => { await browser?.close(); await server?.stop(); });
 
-test('all 25 screens open from the sidebar with their own route and title', async () => {
+test('all 27 screens open from the sidebar with their own route and title', async () => {
   const page = await newPage();
   await page.goto(`${BASE}/workspace/01`);
-  for (let n = 1; n <= 25; n++) {
+  for (let n = 1; n <= 27; n++) {
     const id = pad(n);
     await page.click(`#nav a[data-route="${id}"]`);
     await page.waitForFunction((x) => location.pathname === `/workspace/${x}`, id);
@@ -64,6 +72,106 @@ test('direct URL, reload, back and forward keep the right screen', async () => {
   assert.match(await page.textContent('#main'), /画面 99 はありません/);
   await page.goto(`${BASE}/workspace`);
   await atRoute(page, '01');
+});
+
+test('FX and lyrics pages keep their tabs and explain unavailable actions', async () => {
+  const page = await newPage();
+  await page.goto(`${BASE}/workspace/01`);
+  await page.click('.topbar-shortcuts a[data-route="26"]');
+  await atRoute(page, '26');
+  assert.equal(await page.getAttribute('.topbar-shortcuts a[data-route="26"]', 'aria-current'), 'page');
+  await page.click('.topbar-shortcuts a[data-route="27"]');
+  await atRoute(page, '27');
+  assert.equal(await page.getAttribute('.topbar-shortcuts a[data-route="27"]', 'aria-current'), 'page');
+  for (const [id, tab, title, feature] of [
+    ['26', 'stack', 'MMDエフェクト', 'RENDER-014'],
+    ['27', 'cues', '歌詞・MV構成', 'LYRIC-002'],
+  ]) {
+    await page.goto(`${BASE}/workspace/${id}?tab=${tab}`);
+    assert.match(await page.textContent('.screen-head h1'), new RegExp(title));
+    assert.equal(await page.getAttribute('.pane-right [role="tab"][aria-selected="true"]', 'data-tab'), tab);
+    await page.reload();
+    assert.equal(await page.getAttribute('.pane-right [role="tab"][aria-selected="true"]', 'data-tab'), tab);
+    await page.locator('.pane-right .btn.is-unimpl').first().click();
+    assert.match(await page.textContent('[role="dialog"]'), new RegExp(feature));
+    await page.keyboard.press('Escape');
+    assert.equal(await page.locator('[role="dialog"]').count(), 0);
+    assert.equal(await page.locator('.pane-center .badge-real').count(), 0);
+  }
+  await page.goto(`${BASE}/workspace/26?tab=params`);
+  assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /Bloom 閾値/);
+  assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /保存されません/);
+  await page.click('.pane-right button:has-text("現在フレームにキーを追加")');
+  assert.match(await page.textContent('[role="dialog"]'), /RENDER-014/);
+  await page.keyboard.press('Escape');
+  await page.goto(`${BASE}/workspace/27`);
+  assert.equal(await page.getAttribute('.screen-head .mode-switch button:has-text("かんたん")', 'aria-pressed'), 'true');
+  assert.equal(await page.getAttribute('.pane-right [role="tab"][aria-selected="true"]', 'data-tab'), 'quick');
+  assert.equal(await page.locator('.pane-left textarea[disabled]').count(), 1);
+  const srtPick = page.locator('.pane-left button:has-text("SRTを読み込む")');
+  assert.equal(await srtPick.isVisible(), true);
+  await srtPick.click();
+  assert.match(await page.textContent('[role="dialog"]'), /LYRIC-002/);
+  await page.keyboard.press('Escape');
+  await page.click('.screen-head .mode-switch button:has-text("詳細")');
+  assert.equal(await page.getAttribute('.screen-head .mode-switch button:has-text("詳細")', 'aria-pressed'), 'true');
+  assert.equal(await page.getAttribute('.pane-right [role="tab"][aria-selected="true"]', 'data-tab'), 'cues');
+  await page.click('.pane-right [role="tab"][data-tab="textMotion"]');
+  assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /文字や映像には反映・保存されません/);
+  await page.click('.pane-right button:has-text("現在フレームに文字キーを追加")');
+  assert.match(await page.textContent('[role="dialog"]'), /LYRIC-002/);
+  await page.keyboard.press('Escape');
+  await page.click('.screen-head .mode-switch button:has-text("かんたん")');
+  assert.equal(await page.getAttribute('.pane-right [role="tab"][aria-selected="true"]', 'data-tab'), 'quick');
+  await page.keyboard.press('Control+k');
+  await page.fill('.palette input', 'MMDエフェクト');
+  await page.keyboard.press('Enter');
+  await atRoute(page, '26');
+  harness.assertNoErrors(page);
+});
+
+test('approved feature panes stay reachable at desktop and narrow widths', async () => {
+  const targets = [['06', 'dancers'], ['10', 'sync'], ['12', 'morph'], ['13', 'combat'], ['17', 'verify'], ['26', 'params'], ['27', 'cues']];
+  for (const width of [1280, 390]) {
+    const page = await newPage({ viewport: { width, height: 720 } });
+    for (const [id, targetTab] of targets) {
+      await page.goto(`${BASE}/workspace/${id}`);
+      if (id === '27') await page.click('.screen-head .mode-switch button:has-text("詳細")');
+      assert.equal(await page.locator('.screen-head h1').count(), 1, `${id} heading at ${width}`);
+      assert.ok(await page.locator('.screen-head .tools button').count() > 0, `${id} main action at ${width}`);
+      const tabs = page.locator('.pane-right [role="tab"]');
+      await tabs.first().focus();
+      const targetIndex = await tabs.evaluateAll((els, tab) => els.findIndex((el) => el.getAttribute('data-tab') === tab), targetTab);
+      assert.ok(targetIndex >= 0, `${id} has ${targetTab} tab`);
+      for (let n = 0; n < targetIndex; n++) await page.keyboard.press('ArrowRight');
+      assert.equal(await tabs.nth(targetIndex).getAttribute('aria-selected'), 'true', `${id} keyboard reaches ${targetTab} at ${width}`);
+      assert.equal(await page.locator('.pane-right [role="tabpanel"]').count(), 1, `${id} inspector at ${width}`);
+      assert.ok(await page.locator('.pane-right [role="tabpanel"] > *').count() > 0, `${id} inspector content at ${width}`);
+      await page.locator('.pane-right [role="tabpanel"] > *').last().scrollIntoViewIfNeeded();
+      assert.ok(await page.locator('.pane-right [role="tabpanel"] > *').last().isVisible(), `${id} last inspector section at ${width}`);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      assert.ok(overflow <= 1, `${id} horizontal overflow ${overflow}px at ${width}`);
+      if (['10', '13', '26', '27'].includes(id)) {
+        const timeline = page.locator('.pane-bottom');
+        assert.equal(await timeline.count(), 1, `${id} timeline at ${width}`);
+        await timeline.scrollIntoViewIfNeeded();
+        assert.ok(await timeline.isVisible(), `${id} timeline reachable at ${width}`);
+      }
+    }
+    harness.assertNoErrors(page);
+  }
+});
+
+test('audio import shows the approved phase and unresolved BGM management ID', async () => {
+  const page = await newPage();
+  await page.goto(`${BASE}/workspace/10`);
+  await page.click('.screen-head button:has-text("音声を読み込む")');
+  const body = await page.textContent('[role="dialog"]');
+  assert.match(body, /O-LIP-01/);
+  assert.match(body, /リップシンク/);
+  assert.doesNotMatch(body, /Phase D/);
+  await page.keyboard.press('Escape');
+  harness.assertNoErrors(page);
 });
 
 test('tabs, dropdown, palette and keyboard work', async () => {
@@ -141,7 +249,7 @@ test('SCR-01 has no new-project form: all five buttons are unimplemented', async
 
 test('every action button on every screen responds', async () => {
   const page = await newPage();
-  for (let n = 1; n <= 25; n++) {
+  for (let n = 1; n <= 27; n++) {
     const id = pad(n);
     await page.goto(`${BASE}/workspace/${id}`);
     const tabsCount = await page.locator('.pane-right [role="tab"]').count();
@@ -171,7 +279,7 @@ test('read-only live data comes from the existing API', async () => {
   await page.waitForSelector('[data-live="projectBundle"] dl, [data-live="projectBundle"] p[style]');
   // 実データの区画（status: real）はすべて、既存 API の値を表示する。取得できないときは「未接続」と出す（偽の値は出さない）。
   const seen = new Set();
-  for (let n = 1; n <= 25; n++) {
+  for (let n = 1; n <= 27; n++) {
     const id = pad(n);
     await page.goto(`${BASE}/workspace/${id}`);
     const tabsCount = await page.locator(TAB_SEL).count();
@@ -201,7 +309,7 @@ test('read-only live data comes from the existing API', async () => {
 test('unconnected sections are dimmed and labelled', async () => {
   const page = await newPage();
   let dimmed = 0, normal = 0;
-  for (let n = 1; n <= 25; n++) {
+  for (let n = 1; n <= 27; n++) {
     const id = pad(n);
     await page.goto(`${BASE}/workspace/${id}`);
     const tabsCount = await page.locator(TAB_SEL).count();
@@ -253,7 +361,7 @@ test('unconnected sections are dimmed and labelled', async () => {
 
 test('unimplemented dialog shows next action', async () => {
   const page = await newPage();
-  for (let n = 1; n <= 25; n++) {
+  for (let n = 1; n <= 27; n++) {
     const id = pad(n);
     await page.goto(`${BASE}/workspace/${id}`);
     const tabsCount = await page.locator(TAB_SEL).count();
