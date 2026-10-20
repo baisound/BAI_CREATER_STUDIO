@@ -168,13 +168,73 @@
       "owner_check": null
     },
     {
-      "id": "P2-WP-05",
-      "step": "⑤ モーションの適用・タイムライン",
+      "id": "P2-WP-05a",
+      "step": "⑤ SCR-13［編集］の1体の再生（PMX＋VMD・GLB/VRM のクリップ）。S5 を有効にする",
       "state": "not_started",
       "commits": [],
       "tests": [],
       "unverified": [],
-      "notes": "",
+      "notes": "設計書 §2.5(d)(f) 05a。O-⑤-1〜8 は 2026-10-20 に Opus で決定（§2.5(h)）。テスト用 minimal.vmd に センター 30F を足す。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05b",
+      "step": "⑤ clip・frame の記録（O-⑤-7）と外部同期のコマンド（O-⑤-5）",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "設計書 §2.5 05b。②の controller の変更は Opus でレビュー。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05c",
+      "step": "⑤ SCR-05 の82パターン・お気に入り・コンビネーションの編集",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "設計書 §2.5 05c。新しいタブは作らない（O-⑤-3）。Q6（SCR-05 の使い方）は既定のまま進める。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05d",
+      "step": "⑤ SCR-05 の A/B の 3D・連結再生・手順名の対応表・スロット別の PMX＋VMD",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "設計書 §2.5 05d。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05e",
+      "step": "⑤ SCR-13 下部のタイムライン編集・再生と補正レイヤー",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "設計書 §2.5 05e。競合は内容の比べ（O-⑤-4）。GET と POST の間の隙は残る（リスク K12）。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05f",
+      "step": "⑤ 転写タイムライン・QA、キー候補のフレーム比較、足の接地",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "設計書 §2.5 05f（O-⑤-6）。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05g",
+      "step": "⑤ 2D・3D の模式再生",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "設計書 §2.5 05g。Q2 の追加（外してよいか）は所有者確認待ち。既定は移植する。",
       "owner_check": null
     },
     {
@@ -194,7 +254,7 @@
       "commits": [],
       "tests": [],
       "unverified": [],
-      "notes": "",
+      "notes": "テストのポートの食い違い（設計書 §4.1 の注記）：studio-p2-normalize-parity の実装が 8794（studio-p2-camera の予約）を使っているので、studio-p2-camera を作る前に parity を 8789 に直す。studio-p2-retarget の 8791 は Phase E camera-ui の予約と衝突する（Phase E WP-03 の前に直す）。依存は WP-05b（workspace の clip・frame）。",
       "owner_check": null
     },
     {
@@ -224,7 +284,7 @@
       "commits": [],
       "tests": [],
       "unverified": [],
-      "notes": "",
+      "notes": "VMD 変換用のボーン対応表 /api/conversion-map の編集を⑤から移した（設計書 §2.5 批評 5-1、O-⑦-1）。依存は WP-05c。",
       "owner_check": null
     },
     {

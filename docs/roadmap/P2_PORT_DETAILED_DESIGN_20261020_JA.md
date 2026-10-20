@@ -18,6 +18,13 @@
 
 ## 変更履歴
 
+### §2.5（⑤ モーション）の詳細化（2026-10-20、Opus。HEAD `8de3801`）
+
+- §2.5 を WP-05a〜05g に分け、O-⑤-1〜8 を旧コードの行を根拠に決めた（§2.5(h)）。主な決定：82パターン表・連結再生・タイムライン・補正レイヤー・模式再生の計算はフォーク（`*.fork.js` は計5つ）、**新しいタブは作らない**（モックが正本。コンビネーションは SCR-05 の下部、タイムライン編集は SCR-13 の下部。O-⑤-3）、自動保存の競合は内容の比べ（O-⑤-4）、外部コマンドは表示中の画面だけ（O-⑤-5）、`clip`・`frame` は明示の［記録］だけ（O-⑤-7）、VRM への VMD は P2 に入れない（O-⑤-8）。
+- S5 は最初の小さな WP-05a（SCR-13［編集］の PMX＋VMD・GLB/VRM のクリップの再生）で通す。Q5 には依存しない（依存点は §2.5(h) に明記）。
+- 批評（1回、§2.5(j) 5-1〜5-13）を反映：`/api/mapping` と `/api/conversion-map` の混同（変換用の対応表は WP-07 へ）、§1.8 の `v01641_preview_guard.js` の誤り、最小 VMD にボーンの動きが無い（センター 30F を足す）、テストのポートの食い違い（§4.1 に注記）ほか。
+- 連動して直した節：§1.2・§1.5（`studio:sync-command`）・§1.6-7・§1.8・§1.9・§2.7 O-⑦-1・§2.9 S5・§3（WP-05a〜05g、06b・07 の依存）・§3.1・§4.1・§4.2・§5.1 K12・§5.3・§5.4（Q6・Q2 の追加・O-⑤-8）。
+
 ### v4→v5（最終判定、2026-10-20）
 
 **判定：条件付き承認（APPROVED WITH CONDITIONS）。** 判定者は高性能モデル（Opus 系）で、v4 を `server.py`・`project_state_bundle.py`・`bai_camera.py`・`camera.js`・`camera_3d.js`・`camera_project_bundle_ui.js`・`index.html`・`studio/` と突き合わせた（HEAD `eda0a46`。`5865209` からコードの変更は `tools/work_state.py` だけで、本書の行番号はすべて合っていた）。スコープ（AGENTS.md・ROADMAP_JA.md の 2026-10-20 所有者決定）への違反と、未承認の NF の混入は見つからなかった。B-1〜B-3・隔離ハーネス・厳格な読込の方針は正しい。次の条件 C1〜C10 は**どれも文書の修正だけで済む**ので、判定者が本版に反映した。標準モデル（Sonnet 系）は本版だけを見て WP-00a-1 から実装してよい。
@@ -240,7 +247,11 @@
 | `studio/js/viewport/model-loader.js` ＋ `normalize.fork.js` | ④ GLB/VRM/PMX/FBX の取得と解析（新規）。正規化の式は旧コードのフォーク（`normalize.fork.js`）。 | WP-04 |
 | `studio/js/features/character-view.js` | ④ SCR-12。 | WP-04 |
 | `studio/js/features/retarget-view.js` | ④ リターゲット検証（`retarget_ui.js` 等の接着コードの書き直し。§2.4）。 | WP-04b |
-| `studio/js/motion/patterns.fork.js`、`motion/chain.fork.js`、`features/motion-view.js` ほか | ⑤（§2.5。O-⑤ で確定）。 | WP-05 |
+| `studio/js/motion/player.js`・`vmd.js`、`features/motion-view.js` | ⑤ SCR-13［編集］の1体の再生（PMX＋VMD、GLB/VRM のクリップ）と記録・外部コマンド（§2.5(c)）。 | WP-05a・05b |
+| `studio/js/motion/patterns.fork.js`・`fbx-clips.js`、`features/chain-view.js`・`favorites.js` | ⑤ SCR-05 の82パターン・お気に入り・コンビネーション・A/B の 3D・連結再生（§2.5(c)）。 | WP-05c・05d |
+| `studio/js/motion/chain.fork.js`・`layers.fork.js`、`features/motion-timeline.js` | ⑤ SCR-13 下部のタイムライン編集と補正レイヤー（§2.5(c)）。 | WP-05e |
+| `studio/js/features/motion-review.js` | ⑤ 転写タイムライン・キー候補の比較・足の接地の QA（§2.5 ⑤-11・12・14）。 | WP-05f |
+| `studio/js/motion/schematic.fork.js` | ⑤ 2D・3D の模式再生（§2.5 ⑤-10・15）。 | WP-05g |
 | `studio/js/camera/camera-host.js`、`camera/legacy-ids.json`、`styles/camera-host.css` | ⑥ カメラ画面のホスト（`mount(root)` の受け皿。§2.6）。 | WP-06b |
 | `studio/js/features/export-view.js` | ⑦。 | WP-07 |
 | `studio/styles/features.css` | 新しい部品の見た目（トークンだけを使う）。`studio/index.html` で `app.css` の後に読む。 | WP-00c |
@@ -344,6 +355,7 @@ export function on(name, fn) { const h = (e) => fn(e.detail); bus.addEventListen
 | `studio:asset-imported` | `{id}`（`/api/assets` の id） | import.js |
 | `studio:assets-refresh` | `{}` | 外部同期（`refresh_assets` コマンド）・取り込みの後 |
 | `studio:model-loaded` | `{assetId, format, scale, offset}` | ④ viewport |
+| `studio:sync-command` | `{id, action, name, slot, target}`（`refresh_assets` 以外の外部コマンド。同じ `id` は1回だけ） | project.js の `tick`（WP-05b。§2.5 O-⑤-5） |
 
 旧カメラ画面の `window` イベント（`bai-camera-*`。`camera.js:208〜210`、`camera_3d.js:290〜293`、`camera_project_bundle_ui.js:5〜6・16・19`）は、mount したカメラコードの中でそのまま使う。新UIのバスとの橋渡しは `camera-host.js` だけが行う（§2.6）。
 
@@ -355,7 +367,7 @@ export function on(name, fn) { const h = (e) => fn(e.detail); bus.addEventListen
 4. **部分再描画**：実データの部品は、自分の根要素だけを作り直す。`refreshLibrary()` のように画面全体の DOM を差し替える処理は、③の移植でサンプル版ごと削除する。
 5. **ボタンの印**：実際に API を呼ぶボタンには `data-act="real"` を付ける。このボタンは feature 部品が自分で `onclick` を付けて処理し、`runAction` には渡さない（`runAction` は `real` を扱わない）。`tests/studio-ui.test.cjs` の総当たりテスト（「every action button…」）の対象から `real` を外し（`:not([data-act="real"])` を足す）、各 WP の専用テストで検査する。`unimpl`・`mock`・`form` はこれまでどおり総当たりの対象にする。
 6. **`navigate` のクエリ対応**：`navigate(id, { replace, tab, query })`。`query` は `Record<string,string>` で、`tab` と合わせて `URLSearchParams` に組み立てる。`runAction` の `nav:` は `nav:08?import=1&cat=motion` の形を読み、`?` の前を画面ID、後ろを `query` として `navigate` に渡す。`href:` は外部ページ（旧画面など）にだけ使う。
-7. **`window.baiStudio` の拡張**（読み取り専用、テスト用）：`project: { getState: () => project.get() }`、`assets: { getState: () => assets.get() }`、④で `viewport: { getState() }`、そして `cleanupCount: () => cleanups.length`。書き込みの関数は公開しない。
+7. **`window.baiStudio` の拡張**（読み取り専用、テスト用）：`project: { getState: () => project.get() }`、`assets: { getState: () => assets.get() }`、④で `viewport: { getState() }`、⑤で `motion: { getState, probe }`（05a）・`chain: { getState, probe }`（05d）・`timeline: { getState }`（05e。形は §2.5(d)）、そして `cleanupCount: () => cleanups.length`。書き込みの関数は公開しない。
 8. **後始末のテスト**（`tests/studio-ui.test.cjs` に追加、WP-00c）：実データの部品（`live`）がある画面でタブを10回切り替え、`baiStudio.cleanupCount()` が増え続けないこと（毎回、同じ数に戻ること）を確かめる。
 
 ### 1.7 3D ビューポートの埋め込み（④⑤⑥共通の決定）
@@ -385,13 +397,15 @@ export function on(name, fn) { const h = (e) => fn(e.detail); bus.addEventListen
 | `camera.js`, `camera_3d.js` | あり（94個・24個の要素ID） | **動作を変えない `mount(root)` 化**（WP-06a）をして共有する。 | ⑥（§2.6）。 |
 | `camera_project_bundle_ui.js` | あり（3個） | 新UIでは読まない（②の保存に統合）。DOM を使わない部分（復元前の検証 `validateRestore`、保存の本文作り）を共有モジュール `camera_bundle_core.js` へ動作を変えずに移す。 | ⑥（§2.6、WP-06c）。 |
 | `camera_bundle_core.js`（新規、ルート直下、UMD、`window.BAICameraBundleCore`） | なし | **共有**：`camera_project_bundle_ui.js` と `features/project.js` の両方が使う（新UIは `loadLegacyScript` で読み、読めなければ統合保存を無効にする。単体テストは `vm` で読む。3-M8、§2.6 の 3）。Phase E WP-02d の追加（assetRef の記入、検証の緩和、フレームの整数化、423 の扱い）もここに入れる。`server.py:166` の配信許可リストに足す。 | ⑥（WP-06c） |
-| `v01641_preview_guard.js`, `camera_easing.js`, `camera_cinematic.js`, `camera_vmd_preview.js` | なし | P2 では使わない（camera.html も読んでいない。Phase E §2.11）。 | — |
+| `v01641_preview_guard.js`（ESM。`inspectPreviewKeys` を export） | なし | **共有**：⑤-12 で `import` する（`v01633_35_scrub.js:5` も import している。v5 の「P2 では使わない」は誤りで、§2.5 批評 5-2 で直した）。`tsconfig.json` の `paths` に型宣言を足す。 | ⑤（WP-05f） |
+| `camera_easing.js`, `camera_cinematic.js`, `camera_vmd_preview.js` | なし | P2 では使わない（camera.html も読んでいない。Phase E §2.11）。 | — |
 | `index.html` インライン：制作状態・素材登録・素材棚・同期 | あり | **接着コードを `api.js` で書き直す**（R2-3）。 | ②③ |
 | `index.html` インライン：3D の正規化の式 | あり | **フォーク** `viewport/normalize.fork.js`。 | ④ |
-| `index.html` インライン：82パターン表（80行）・FBX 連結再生（`chainFrame` 291行〜）・2D 模式再生（71行） | あり | 表と計算は**フォーク**（`motion/patterns.fork.js`・`motion/chain.fork.js`）、表示は新しく作る。 | ⑤（O-⑤-1/2） |
+| `index.html` インライン：82パターン表（80行）・FBX 連結再生（`clipOffset` 257行・`chainFrame` 291〜299行）・タイムライン再生（`timelineFrame` 260〜290行）・2D/3D 模式再生（95〜113行・228行・243〜250行） | あり | 表と計算は**フォーク**（`motion/patterns.fork.js`・`motion/chain.fork.js`・`motion/schematic.fork.js`）、表示は新しく作る。 | ⑤（O-⑤-1/2、§2.5） |
 | `retarget_ui.js`（34行。`#sk-source` が無ければ何もしない） | あり | 接着コードを書き直す。 | ④（§2.4 ④-9） |
 | `v01629_mesh_compare.js`（26行、three を使う） | あり | 接着コードを書き直す。three での描画は three-host を使う（O-④-5）。 | ④（§2.4 ④-10） |
-| `v01630_32_review.js`、`v01633_35_scrub.js`（three を使う）、`v01636_40_playback.js`、`motion_layers.js`、`foot_qa_ui.js` | あり | 接着コードを書き直す（O-⑤-6）。 | ⑤（§2.5 ⑤-10〜⑤-14） |
+| `v01630_32_review.js`、`v01633_35_scrub.js`（three を使う）、`v01636_40_playback.js`、`foot_qa_ui.js` | あり | 接着コードを書き直す（O-⑤-6）。 | ⑤（§2.5 ⑤-11〜⑤-14） |
+| `motion_layers.js` | あり | 計算（`safe`・`values`・`apply`）は**フォーク** `motion/layers.fork.js`、保存と表示は書き直す。 | ⑤（§2.5 ⑤-13、WP-05e） |
 | `pose_ik_ui.js`（21行）、`bai_ai_ui.js`（25行） | あり | 接着コードを書き直す。 | **⑦の後**（§2.8。既定は残す。Q2） |
 | `webmcp.js` | あり | P2 では新UIに読み込まない（R10）。 | Phase E WP-02c |
 
@@ -399,7 +413,7 @@ export function on(name, fn) { const h = (e) => fn(e.detail); bus.addEventListen
 - ルート直下の旧 ESM を `import '/camera_follow_config.js'` で読むと、tsc は TS2307（モジュールが見つからない）になる。批評案の `declare module '/camera_follow_config.js'` は、`/` で始まる名前が相対パス扱いになるため **TS2436 で失敗する**。
 - そこで `tsconfig.json` の `compilerOptions.paths` に `{"/camera_follow_config.js": ["./studio/types/legacy/camera_follow_config.d.ts"], "/camera_follow_smoothing.js": ["./studio/types/legacy/camera_follow_smoothing.d.ts"], "/camera_3d.js": ["./studio/types/legacy/camera_3d.d.ts"]}` を足し、宣言ファイルを置く。この方式で型が効くことを、作業用ディレクトリで tsc 5 で確かめた。
 - `window.BAICameraRig` などの UMD と `window.BAICameraPage`（§2.6）は、`studio/js/legacy-globals.d.ts`（`interface Window { … }`、`any` で宣言）に書く。`tsconfig.json` の `include` に `studio/js/**/*.d.ts` と `studio/types/**/*.d.ts` を足す。
-- **写したコード**は `*.fork.js` という名前にして、先頭に `// @ts-nocheck 旧コード <file>:<行> @5865209 のフォーク。照合テスト <テスト名> で一致を保証` を書く。対象は次の3つで固定する：`viewport/normalize.fork.js`、`motion/patterns.fork.js`、`motion/chain.fork.js`。増やすときは本書を更新する。`tests/test_screen_status_honesty.mjs`（§1.13）の中で、`@ts-nocheck` が `*.fork.js` にしか無いことも確かめる。新しく書くコードは必ず型検査を通す。
+- **写したコード**は `*.fork.js` という名前にして、先頭に `// @ts-nocheck 旧コード <file>:<行> @5865209 のフォーク。照合テスト <テスト名> で一致を保証` を書く。対象は次の5つで固定する：`viewport/normalize.fork.js`、`motion/patterns.fork.js`、`motion/chain.fork.js`、`motion/layers.fork.js`、`motion/schematic.fork.js`（後ろの2つは §2.5 で追加）。増やすときは本書を更新する。`tests/test_screen_status_honesty.mjs`（§1.13）の中で、`@ts-nocheck` が `*.fork.js` にしか無いことも確かめる。新しく書くコードは必ず型検査を通す。
 
 `studio/js/legacy.js`：
 ```js
@@ -419,6 +433,8 @@ export async function loadLegacyScripts(list) {}
 | `asset=<id>` | 08, 12 | 選択中の素材（`/api/assets` の id、`encodeURIComponent`） |
 | `import=1` | 08 | 取り込みダイアログを開く（SCR-23・SCR-01 から遷移）。開いたら `history.replaceState` で `import` を消す（戻る・再読込でダイアログが再び開かないように） |
 | `cat=<id>` | 08 | 左の分類（`char`、`motion`、…、`all`） |
+| `mode=compare\|edit` | 13 | SCR-13 のモード（既定 `compare`。§2.5(b)、WP-05a） |
+| `asset=<id>`・`vmd=<id>`・`clip=<n>` | 13 | ［編集］の対象モデル・当てた VMD・GLB/VRM のクリップ番号（WP-05a） |
 
 - 選択を変えたら、`history.replaceState` でクエリだけを更新する（タブ切替の既存処理 `app.js:310〜316` と同じ方法）。
 - 画面を移っても `project`・`assets`・`imports` のストアは保たれる（同じページの中なので）。
@@ -1041,7 +1057,7 @@ SCR-12 左の6件、中央の `img:'viewport-character'`、右「ボーン」の
   - 確認：`tests/studio-p2-pmx-fixture.test.cjs` が、three@0.160.1 の `MMDParser` で解析し（頂点3・面1・材質1・ボーン1・モーフ「あ」）、Chromium（SwiftShader）で旧画面と同じ `MMDLoader` で読んで、`SkinnedMesh`・モーフ辞書 `{あ}`・相対パスのテクスチャの読込・描画されたピクセルを確かめる。`tests/test_make_test_pmx.py` が、コミットした ZIP と生成スクリプトの出力のバイト一致を確かめる。three が無い環境では 3D の2件が skip（理由付き）。
   - 残る未検証：実在の PMX（多材質・IK・剛体・物理・スフィア・トゥーンの個別テクスチャ・PMX 2.1）と GPU。最小 PMX は形式の入口を確かめるだけ。§2.5 のモーフ「あ」の再生テスト（OWNER-4）と §2.9 S5 は、この最小 PMX で「未検証」ではなく実際に確かめる。
 - **O-④-3**：A/B の2体を並べる表示（`index.html:231, 310` の ±1.4 の配置と ±90° の向き）。
-  - **決定（2026-10-20、Opus）：WP-04 では作らず、⑤（WP-05）の連結再生で扱う。** SCR-12 と SCR-06 は1体（SCR-06 はキャラクター1体＋ステージ1つ）。
+  - **決定（2026-10-20、Opus）：WP-04 では作らず、⑤（WP-05d。SCR-05 の A/B の 3D と連結再生：§2.5(d)）で扱う。** SCR-12 と SCR-06 は1体（SCR-06 はキャラクター1体＋ステージ1つ）。
   - 理由：±1.4 と向きの回転は、旧画面の A/B の連結再生（2体が向き合って交互に動く）のための配置で、単体の表示・ステージ配置には要らない。歌ってみたの主な形（キャラクター1体＋ステージ＋ダンス VMD）でも1体で足りる。⑤で連結再生を移すときに、旧の値（±1.4・±90°）をそのまま写す。
 - **O-④-5**：④-9・④-10 の画面の割り付けと、`v01629_mesh_compare.js` の three 表示を three-host に載せる方法。
   - **決定（2026-10-20、Opus）：SCR-13 にまとめる（既定どおり）。** SCR-12 の「リターゲット」タブは、今ある［VMD編集・リターゲット（13）へ］（`nav:13`、`screens.js:392`）だけにする。
@@ -1064,53 +1080,376 @@ SCR-12 左の6件、中央の `img:'viewport-character'`、右「ボーン」の
 
 ---
 
-### 2.5 ⑤ モーション（VMD）適用・タイムライン再生（WP-05。未決は O-⑤。着手前に Opus で本節を詳しくする）
+### 2.5 ⑤ モーション（VMD）適用・タイムライン再生（WP-05a〜05g。2026-10-20 に Opus で詳しくした。O-⑤-1〜8 は (h) で決定済み。所有者確認待ちは (i)）
 
-#### (a) 移植する機能（候補一覧。根拠付き）
+- 基準：HEAD `8de3801`（`index.html` は `5865209` の行番号のまま。`server.py` は WP-00b〜04b の変更で行がずれたので、**本節の `server.py:行` は `8de3801` の番号**）。旧画面は今後も変わることがあるので、実装時は関数名・要素IDで探す。
+- 本節の前提（WP-04・04b で実装済み）：`viewport/three-host.js`（同時に1つ。描画は必要なときだけ `invalidate()`）、`viewport/model-loader.js`（`loadLibs`・`loadModel`・`modelSource`）、`viewport/normalize.fork.js`（O-④-1 の高さ）、SCR-13 の右タブ「ボーンマップ」（`retargetPanel`）と中央の「3D比較」（`retargetViewport`）、`features/project.js` の `setWorkspaceFields`。
+- **主シナリオ S5 を最初の小さな WP（05a）で通す**。05a は SCR-13 で「PMX＋VMD（表情モーフを含む）」と「GLB/VRM の中のクリップ」を再生するだけで、②の保存経路にも FBX にも触らない。
 
-| # | 機能 | 根拠 |
+#### (a) 移植する機能（根拠付き。v5 の候補一覧を旧コードと照合して直した）
+
+| # | 機能 | 根拠（旧コード） | WP |
+|---|---|---|---|
+| ⑤-1 | GLB/VRM の中のアニメーションの選択・再生・停止（位置を保つ）・シーク | `index.html:206〜207`（`ivLoad` が `ivClips` を作り、クリップがあれば `ivStart`）、`:212〜213`（`iv-play`・`integratedPreviewV02.stop`「停止しました（現在位置を保持）」）、`:162`・`:217`（`iv-seek`、0.01 秒刻み、`mixer.setTime`）、`:203`（`dt=min(delta,.1)`） | 05a |
+| ⑤-2 | PMX に VMD を当てて再生（`MMDLoader.loadAnimation(url, mesh)`＋`AnimationMixer`。IK・物理なし）。VMD の表情・口パクのモーフも同じ呼び出しで再生される（OWNER-4） | `index.html:340〜348`（`vmd-play`）、`:349〜352`（`pmx-reset`）、`:356`（`updateMMD`、`dt=min(…,.08)`） | 05a（1体）、05d（A/B の2体） |
+| ⑤-3 | 82パターンの一覧・分類・検索・👑（全手順に実FBXがある） | `index.html:80`（`rows`）、`:81`（`names`）、`:82〜90`（分類・`list()`・👑）、`:92`（`select`、尺の規則）、`:233`（`motionAvailability`）、`:229`（`norm`）、`:232`（`choose`） | 05c |
+| ⑤-4 | コンビネーション（追加・並べ替え・削除・全消去）と編集履歴（②の `history` に積み、②の自動保存で保存） | `index.html:118〜128`（`chain`・`renderChain`・`chain-add`・`chain-clear`）、`:368`（`snapshot`）、`:374`（`record`）、`:383`（最初の「初期状態」）、`:382`（速度の変更で自動保存） | 05c（編集）、05d（連結再生） |
+| ⑤-4b | 連結再生（A の FBX にコンビネーションを順に当て、前の手順の腰の移動を積み上げる）・停止 | `index.html:257`（`clipOffset`）、`:291〜299`（`chainFrame`）、`:124`（`stopCombo`）、`:128`（`chain-play`）、`:231`（`fitModel`：高さ 1.95・±1.4・±90°） | 05d |
+| ⑤-5 | お気に入りのコンビネーション（保存・検索・読み込み・削除） | `index.html:129〜133`、`GET/POST /api/favorites`（`server.py:340〜343`・`972〜981`） | 05c |
+| ⑤-6 | タイムライン編集（クリップの開始F・長さF・速度・補間F、削除、追加、コンビネーションからの取り込み、保存・復元）と **550ms の自動保存**、タイムライン再生（再生・停止・シーク） | `index.html:790〜815`（`transport`：794、`safe`：800、`save`：801、`queue` 550ms：802、取り込み：811、追加：812）、`:260〜290`（`timelineFrame`）、`GET/POST /api/timeline-editor`（`server.py:301〜302`・`698〜713`） | 05e |
+| ⑤-7 | **パターンの手順名→登録済みFBX の対応表**（「このパターンの実FBX対応表」）の編集と保存。v5 は「ボーン対応表」と書き、`/api/conversion-map` と混同していた（批評 5-1） | `index.html:233`（`updateMapping`）、`:235`（`saveMapping` → `POST /api/mapping`、`server.py:982〜986`）、`:236`（`manifest.mapping` を復元） | 05d |
+| ⑤-8 | 作業中のクリップ・再生位置を制作状態へ（`workspace.clip`・`workspace.frame`） | `camera_3d.js:281〜282`（`setClip`・`updateTime`：時刻＝`frame/fps`）、`:290〜292`（スナップショット） | 05b |
+| ⑤-9 | 外部同期のコマンド（`play_chain`・`stop_chain`・`preview_motion`・`preview_vmd`・`integrated_preview`。`open_pmx`・`integrated_retarget` は受けない：O-⑤-5） | `index.html:435〜450`、`POST /api/sync-command`（`server.py:876〜891`） | 05b（SCR-13 側）、05c・05d（SCR-05 側） |
+| ⑤-10 | 2D 模式アニメーション（前・再生・次・速度・シーク） | `index.html:71`、`:92〜115`（`select`・`pose`・`fighter`・`draw`・`tick`） | 05g |
+| ⑤-11 | 転写タイムライン・QA・JSON 保存（読み取りのみ） | `v01630_32_review.js`（26行、`POST /api/retarget/review-bundle`：`server.py:561〜571`） | 05f |
+| ⑤-12 | キー候補のフレーム比較（three）と試験フレーム再生 | `v01633_35_scrub.js`（36行、`POST /api/retarget/keyframe-review`：`server.py:550〜560`、`v01641_preview_guard.js` の `inspectPreviewKeys` を import）、`v01636_40_playback.js`（35行、API なし） | 05f |
+| ⑤-13 | 非破壊のモーション補正レイヤー（タイムライン再生のときにだけ当てる） | `motion_layers.js`（29行。`safe`：15、`queue` 500ms：18、キー追加：21、`values`：25、`apply`：26）、`index.html:279`（`timelineFrame` の中で `apply`）、`GET/POST /api/motion-layers`（`server.py:299〜300`・`677〜697`） | 05e |
+| ⑤-14 | 足の接地・足滑りの診断（サンプル JSON・BVH・両足） | `foot_qa_ui.js`（7行）、`index.html:819` の `#foot-qa`、`POST /api/qa/foot-contact`・`bvh-foot-world`・`dual-foot-preview`（`server.py:500〜528`） | 05f |
+| ⑤-15 | **82パターンの 3D 模式再生**（A/B の2体。実FBX が割り当てられていればその FBX を、無ければダミー人形を、パターンの時刻で動かす）。v5 の一覧に無かった旧機能（批評 5-8） | `index.html:228`（`dummy`）、`:241`（`motionState`）、`:242`（`keywords`）、`:243〜254`（`animateActor`）、`:358`（`frame` の既定の描画） | 05g |
+| — | （⑦へ移す）変換用ボーン対応表 `/api/conversion-map` の編集（`#vmd-bonemap`・`vmd-map-save`） | `index.html:416〜417`、`server.py:893〜900` | WP-07（O-⑦-1） |
+
+#### (b) 移植先（決定。モックのタブは増やさない：O-⑤-3）
+
+| 画面 | 区画（モックの既存のもの） | 中身 | WP |
+|---|---|---|---|
+| SCR-13 | モード切替（モックの既存の［比較］［編集］、`screens.js` の `modes`） | 今の「表示の切替のみ」のトーストをやめ、`?mode=compare`（既定）／`?mode=edit` に結線する。［比較］は今の `retargetViewport`（WP-04b）、［編集］は ⑤ の再生ビュー | 05a |
+| SCR-13 | 中央（`center`） | ［編集］のとき：three-host の再生ビュー（`motionViewport`）。下に操作の帯（対象モデル・クリップ・再生・停止・位置・状態行）。［比較］のときは今のまま（05f で ⑤-12 の節を帯に足す） | 05a、05f |
+| SCR-13 | 左「VMDライブラリ」（今は `mock`） | `/api/assets` の VMD（`mmd:vmd:*`）の一覧（検索付き）。行を押すと、対象モデルに当てて再生する（［比較］モードなら［編集］に移ってから） | 05a |
+| SCR-13 | 下部タイムライン（パネル「編集タイムライン」DATA-001。今は `mock`） | ⑤-6 のタイムライン編集と再生、⑤-13 の補正レイヤー（折りたたみ）。モックのサンプルのトラック（センター・上半身・足IK・表情・ダンサー・接触）は「サンプル表示」として薄く残す | 05e |
+| SCR-13 | 右「ボーンマップ」タブ（WP-04b） | 末尾に折りたたみの節「転写タイムライン・QA（試験）」（⑤-11）。旧画面でも同じ `#skeleton-lab` の中にあり、同じ元・対象の選択を使う | 05f |
+| SCR-13 | 中央［比較］の帯 | 「キー候補のフレーム比較（試験）」（⑤-12） | 05f |
+| SCR-13 | 右「足IK」タブの節「足IK・接地」（今は `partial`） | ⑤-14 | 05f |
+| SCR-05 | 左「モーション検索」（パネルの注記が「82パターンの検索・分類・お気に入り」） | ⑤-3 の一覧（検索・分類・👑）と ⑤-5 のお気に入り。左パネルの中の切替［パターン］［★ お気に入り］（旧 `tab-catalog`・`tab-favorites` と同じ2つ） | 05c |
+| SCR-05 | 下部タイムライン（パネル「タイムライン」、トラック「体」「表情」） | ⑤-4 のコンビネーション。トラック「体」＝コンビネーションの手順（並び順だけを表す同じ幅のブロック）。帯に［▶ 連結再生］［■ 停止］（05d）・［全消去］・［★ お気に入りに保存］、選んだ手順の［↑］［↓］［削除］。トラック「表情」は ◇（LIP-009）のまま | 05c、05d |
+| SCR-05 | 中央（今は画像） | three-host の A/B の 3D（FBX モデル・PMX・ダミー）。下の帯に「このパターンの実FBX対応表」（⑤-7）、スロット別の PMX 表示と VMD（MOTION-009）、05g で模式再生の操作と 2D の折りたたみ | 05d、05g |
+| SCR-05 | 右「レイヤー」タブの節「再生」（今は `mock`） | 速度（0.5×・1×・1.5×・2×。旧 `#speed` と同じ値）＝ `combination.playbackSpeed`。「ループ再生」は旧画面に止める設定が無い（パターンも連結も常にループ）ので、オンのまま操作できない表示にし、title に「旧画面と同じく常にループします」 | 05c |
+| SCR-12 | — | ⑤-1 は置かない（v5 の案から変更。入口を SCR-13 の1つにする。O-④-5 と同じ考え方） | — |
+
+- 新しいタブは作らない。足すのは**既存の区画の中の部品だけ**（SCR-13 中央の帯の［対象モデル］、SCR-05 左の［パターン］［★ お気に入り］の切替、SCR-05 中央の帯、SCR-13「ボーンマップ」の末尾の折りたたみ）。WP-04（④-11「ステージの素材」）・WP-04b（中央の帯）と同じ扱いで、各 WP の Opus/Sonnet のレビューで見た目を確かめる。
+- `app.js` の変更（05a・05c・05e）：①SCR-13 の `modeSwitch` を `navigate('13',{replace:true, tab, query:{...今のクエリ, mode}})` にし、`aria-pressed` を `params.get('mode')` から決める（SCR-27 の扱いと同じ形。他の画面はトーストのまま）。ボタンに `data-mode="compare"`／`"edit"` を付ける。②`bottom` に `{type:'feature', key, status, evidence}` を書けるようにし、`render()` で `s.bottom.type==='feature'` なら `bottomPane` の代わりに、同じ外枠（`section.pane.pane-bottom`、折りたたみボタン、`prefs.bottomCollapsed`）の中に `FEATURES[key](ctx, c)` を置く（`featureBottom(s)`。`Screen['bottom']` の型に足す）。
+
+#### (c) 使う既存 API・コードと新しいモジュール
+
+**既存 API**（どれも `api.js` 経由。サーバーは変えない：R1）
+
+| API | 使う WP | 備考 |
 |---|---|---|
-| ⑤-1 | GLB の中のアニメーションの選択・再生・停止・シーク | `camera_3d.js:281〜282`（`setClip`・`updateTime`）、`index.html:213`（`integratedPreviewV02.play`） |
-| ⑤-2 | PMX に VMD を当てて再生（`MMDLoader.loadAnimation`＋`AnimationMixer`。IK・物理なし）。**VMD に含まれる表情・口パクのモーフも再生する**（OWNER-4。three の `MMDLoader.loadAnimation(url, mesh)` は、ボーンのトラックに加えて、VMD のモーフのキーから `morphTargetInfluences` のトラックも作る。旧画面は同じ呼び出しをしているので、コードの上では既に再生されている。実ファイルでは未検証） | `index.html:340〜347, 356` |
-| ⑤-3 | FBX モーションの82パターンの一覧・分類・絞り込み・再生できるか（👑） | `index.html:80〜90`（表は80行に埋め込み） |
-| ⑤-4 | コンビネーション（追加・連結再生・停止・全消去）と履歴の記録（②の `history` に積む。②の自動保存を使う） | `index.html:118〜133, 291〜302, 366〜377` |
-| ⑤-5 | お気に入りのコンビネーション（保存・一覧・開く・削除） | `index.html:129〜133`、`POST /api/favorites`（`server.py:941〜950`） |
-| ⑤-6 | タイムラインの編集（クリップ：開始・長さ・速度・補間。保存・読込・コンビネーションからの取り込み・再生）と、**550ms の自動保存** | `index.html:788〜817`（自動保存は802行）、`/api/timeline-editor`（`server.py:287〜288, 668〜686`） |
-| ⑤-7 | ボーン対応表（FBX→モデル）の編集と保存 | `index.html:233〜235`（`/api/mapping`）、`/api/conversion-map`（`server.py:312〜315, 863〜872`） |
-| ⑤-8 | 作業中のクリップ・フレームを制作状態へ（`workspace.clip`・`workspace.frame`） | `camera_3d.js:290〜292` |
-| ⑤-9 | 外部同期のコマンド（`play_chain`・`stop_chain`・`preview_motion`・`preview_vmd`・`integrated_preview`） | `index.html:435〜450` |
-| ⑤-10 | 2D 模式アニメーション（前・再生・次・速度・シーク） | `index.html:71`（`<details>`「従来の2D模式アニメーション」、要素 `prev`/`play`/`next`/`speed`/`seek`） |
-| ⑤-11 | リターゲットのレビュー一式（JSON の QA レポート、読み取りのみ） | `v01630_32_review.js`（26行、`/api/retarget/review-bundle`） |
-| ⑤-12 | キーフレームのスクラブと校正レポート（読み取りのみ、three を使う）とその再生 | `v01633_35_scrub.js`（36行、`/api/retarget/keyframe-review`）、`v01636_40_playback.js`（35行、API なし） |
-| ⑤-13 | 補正レイヤー（`#timeline-studio` の中） | `motion_layers.js`（29行、`/api/motion-layers`） |
-| ⑤-14 | 足の接地・足滑りの検査 | `foot_qa_ui.js`（7行）、`/api/qa/bvh-foot-world`・`/api/qa/dual-foot-preview`・`/api/qa/foot-contact` |
+| `GET /api/assets` | 05a | VMD は `mmd:vmd:<name>`、PMX は `mmd:A|B:<name>`、GLB/VRM は `integrated:<file>`、FBX は `fbx:<id>`（`kind` が `modelA`・`modelB`・`motions`） |
+| `GET /api/mmd-file/vmd/<name>` | 05a・05d | `MMDLoader.loadAnimation` が自分で取得する（`model-loader.js` の PMX と同じ）。URL は `encodeURIComponent(name)` |
+| `GET /api/integrated-v02/asset/<file>`・`GET /api/mmd-file/<slot>/<name>`・`GET /api/file/<id>` | 05a・05d・05e | `model-loader.js` の `loadModel` をそのまま使う |
+| `GET /api/manifest`（`files`・`mapping`）、`POST /api/mapping`（本文は対応表の全体） | 05c・05d | `server.py:363`、`982〜986`。`mapping` は「手順名→登録名の正規化キー」 |
+| `GET/POST /api/favorites`（本文はお気に入りの配列の全体） | 05c | `server.py:340〜343`、`972〜981`（1000件・各200手順まで） |
+| `GET/POST /api/timeline-editor` | 05e | POST は `{schema:1, clips:[{name,start,duration,speed,blend}]}`、200件・各値の範囲は `server.py:704〜709`。If-Match なし。`sync_bump` を呼ばない |
+| `GET/POST /api/motion-layers` | 05e | POST は `{schema:1, layers:[{name,bone,enabled,keys:[{frame,x,y,z}]}]}`、32レイヤー・各500キー・角度 ±180（`server.py:681〜692`）。If-Match なし。GET に版も時刻も無い |
+| `POST /api/retarget/review-bundle`・`keyframe-review` | 05f | 本文 `{source, target, fps:30, coordinate_convention_confirmed:true}`。GLB/VRM 以外は 400 |
+| `POST /api/qa/foot-contact`・`bvh-foot-world`・`dual-foot-preview` | 05f | 本文は旧画面と同じ（下の 05f） |
+| `GET /api/sync`（②の tick が読む） | 05b | `command` の `{id, action, name?, slot?, target?}` |
 
-#### (b) 移植先（案）
+**新しいモジュール**（`// @ts-check`。`*.fork.js` を除く）
 
-- SCR-13（主）：左「VMDライブラリ」は mmd VMD の実素材。中央は④の three-host（モックの4分割表示は「1面＝実際の描画、他の3面＝◇（REVIEW-001 の3視点比較は対象外）」）。右「ボーンマップ」は⑤-7。下部のタイムラインは⑤-6 の実クリップ。⑤-11〜⑤-14 は右の既存のタブ（または O-⑤-3 の扱い）に置く。
-- SCR-05（初期構想）：左「モーション検索」は⑤-3。右「再生」は速度・ループ。コンビネーションは右の新しいタブ（モックに無いタブを足すことになる：O-⑤-3）。⑤-10 はここに置く。
-- SCR-12：⑤-1 のクリップの選択。
+```js
+// studio/js/motion/player.js（05a）— 1体のモデルに1つのモーションを当てる。DOM を使わない（rAF は呼び出し側）。
+/** @typedef {{kind: 'vmd'|'clip', id: string, clipIndex: number|null, duration: number}} MotionInfo */
+export function createPlayer(THREE) {}
+// 戻り値 { setModel(object, format, animations), clearModel(), applyClip(index), applyVmd(clip, id), play(), pause(), seek(sec), update(dt),
+//          state(): {format, motion: MotionInfo|null, playing: boolean, time: number}, probe({bones?: string[], morphs?: string[]}), dispose() }
+//  - setModel：前のモデルの mixer を stopAllAction して捨てる。モーションは null、playing=false、time=0。
+//  - applyClip(i)：animations[i] を mixer.clipAction(...).reset().play()（index.html:207、camera_3d.js:281 と同じ）。範囲外は Error('クリップがありません')。
+//  - applyVmd(clip, id)：前の action を止め、mixer.clipAction(clip).reset().play()（index.html:345）。
+//  - play()/pause()：playing を切り替えるだけ。pause は位置を保つ（index.html:213「現在位置を保持」）。
+//  - seek(t)：0〜duration に丸めて mixer.setTime(t)（index.html:162 と同じ）。
+//  - update(dt)：playing のときだけ mixer.update(dt)。time は action.time（ループは three の既定 LoopRepeat。旧と同じ）。
+//  - probe：bones は object.getObjectByName(name) の position（ローカル）を [x,y,z] で、morphs は最初の morphTargetDictionary を持つメッシュの
+//    morphTargetInfluences[dict[name]] を返す。無い名前は null。テスト用の読み取りだけ（書き込みはしない）。
 
-#### (c)〜(g)
+// studio/js/motion/vmd.js（05a）
+export function vmdUrl(item) {}                 // item.id 'mmd:vmd:<name>' → '/api/mmd-file/vmd/' + encodeURIComponent(name)
+export function loadVmdClip(libs, url, mesh) {} // new libs.MMDLoader().loadAnimation(url, mesh, resolve, undefined, reject) を Promise に（index.html:344 と同じ）。404 は NotFoundError
+export function canApplyVmd(format) {}          // 'PMX' だけ true。'VRM'・'GLB'・'FBX' は false（O-⑤-8）
 
-着手前に本節を詳しくする（Opus）。決めること：
-- **O-⑤-1**：82パターン表（`index.html:80`）の扱い。既定は `studio/js/motion/patterns.fork.js` へ写し（データのフォーク）、`tests/test_motion_patterns_parity.py` で `index.html` の `const rows=[…]` の配列と JSON として一致することを確かめる（旧画面は変えない）。
-- **O-⑤-2**：FBX の連結再生の位置合わせ（`chainFrame`・`clipOffset`、`index.html:291〜301`）はインラインの計算。既定は `studio/js/motion/chain.fork.js` へ関数単位でフォークし、DOM を参照する部分（`msg.textContent` など）だけを戻り値に変える。単体テストで旧の式と同じ結果になることを確かめる。
-- **O-⑤-3**：コンビネーションの編集の置き場所（SCR-05 の右タブを足すのはモックの変更になる）。既定は、SCR-13 の下部タイムラインの上に「コンビネーション」のトラックとして表示し、編集は右の新しいタブ「コンビネーション」で行う。タブを足すことが、見た目の変更として所有者決定「モックが正本」に反するかを Opus のレビューで判断する。
-- **O-⑤-4**：タイムラインの自動保存（550ms、`index.html:802`）は旧画面と同じく再現する（1-m11）。ただし `/api/timeline-editor` には If-Match が無い（`server.py:668〜686`）。そこで、保存の前に GET して `updatedAt` を比べ、変わっていたら自動保存を止めて確認するクライアント側の簡易な検知を既定とする（Opus のレビューの対象）。
-- **O-⑤-5**：⑤-9 の外部コマンドのうち、どれを新UIで受けるか（旧画面と新UIを同時に開くと、両方が反応する）。
-- **O-⑤-6**：⑤-11〜⑤-14 の割り付け（どのタブに置くか）と、three を使う⑤-12 の表示を three-host に載せる方法。
-- **O-⑤-7**：⑤-8 で `clip`・`frame` を書く時（再生を止めたとき、明示の操作）と、⑥のカメラ画面との所有の分担（§2.2(d)-9）。決まっている制約（3-M6）：
-  - `frame` は 0 以上の整数で、**`camera.duration` 以下**（統合バンドルの `validateRestore` が `workspace.frame > camera.duration` を拒否する。`camera_project_bundle_ui.js:11`）。⑤の再生位置が長い場合は、書くときに `camera.duration` で頭打ちにし、状態行に「再生位置をカメラの長さ（{duration} フレーム）までに丸めて記録しました」と出す。
-  - `clip` は、**`workspace.asset` の GLB の中のアニメーションの番号**（0 始まり、`camera_3d.js:281`）。PMX＋VMD・FBX のモーションは `clip` に書かない（統合保存に記録できるのは GLB/VRM のクリップだけ）。
-  - `frame` だけの変化は dirty にしない（§2.2(d)-9）。
-- **O-⑤-8（OWNER-4）**：VRM に VMD を当てて再生する経路は、旧画面に無い（旧画面の VMD の再生は PMX だけ。`index.html:340〜347`）。VMD→VRM のボーン・表情の対応を作るのは新機能なので、P2 では入れない。既定は「VRM を選んで VMD を当てようとしたら、◇『VRM への VMD の適用は、リップシンク・表情フェーズ（Phase E の次）で扱います』を出す」。所有者が P2 に必要と判断した場合は、計画の追加として指示を受けてから設計する。
-- モーフのテスト（OWNER-4）：`tools/make_test_vmd.py` の最小 VMD に、モーフのキー1つ（名前「あ」、フレーム 0 で 0、フレーム 30 で 1）を入れる。O-④-2 の最小 PMX に同じ名前のモーフを1つ持たせ、フレーム 30 で `mesh.morphTargetInfluences[0]` が 1（誤差 1e-6）になることを確かめる。最小 PMX が作れなければ、モーフの再生は「コードの経路はあるが未検証」と台帳の `unverified` に書く。
-- テスト：連結再生のフレーム位置（合成 GLB のアニメーションで `hips` の z が期待値になる）、VMD の適用（O-④-2 の最小 PMX と `tools/make_test_vmd.py` の最小 VMD）、タイムラインの保存の往復、自動保存の 550ms、⑤-11〜⑤-14 の API 応答の表示。
+// studio/js/motion/fbx-clips.js（05c：名前だけ、05d：解析とキャッシュ）
+export async function loadManifest() {}          // GET /api/manifest → {motions: [{id,name,key}], models: {A: entry|null, B: entry|null}, mapping}
+export function motionKeys(manifest) {}          // Set<key>。key = normClipName(name)。kind==='motions' だけ（index.html:236 と同じく modelA/B は入れない）
+export async function getClip(key, libs) {}      // 05d：GET /api/file/<id> → FBXLoader.parse → animations[0]。無ければ Error('<name> にアニメーションがありません')（index.html:236 の文言）。ページの間キャッシュ
+export async function saveMappingEntry(step, key) {} // 05d：GET /api/manifest で最新の mapping を取り、step だけ変えて POST /api/mapping（key が '' なら削除）
 
-#### (h) ◇ 未実装のまま
+// studio/js/motion/patterns.fork.js（05c。index.html:80〜92・229・232〜233・241〜242 のフォーク）
+export const ROWS;      // index.html:80 の rows と JSON として同じ
+export const NAMES;     // :81
+export const KEYWORDS;  // :242
+export function normClipName(x) {}                  // :229 の norm
+export function clipKeyFor(step, manual, keys) {}   // :232〜233 の clips.get(manual[step])||choose(step) を「キー」で行う。見つからなければ null
+export function isAvailable(row, keys, manual) {}   // :233 の motionAvailability
+export function durationOf(row) {}                  // :92 の r.duration ?? max(2.6, 手順数×1.05+.8)
+export function describe(row) {}                    // :92 の説明文の3通り
+export function motionState(row, time, duration) {} // :241（05g）
 
-表情レイヤー・表情の編集（LIP-009）、自動リップシンク（LIP-*。リップシンク・表情フェーズ）、VRM への VMD の適用（O-⑤-8）、曲線の編集（DATA-003）、3視点比較・同期比較（REVIEW-001 の範囲。旧画面へのリンクのまま）、MMD の IK・物理（旧画面にも無い）。
+// studio/js/motion/chain.fork.js（05d・05e。index.html:257・291〜299・260〜290・794・800 のフォーク。DOM を参照する部分は戻り値にした）
+export function clipOffset(clip, t, THREE) {}             // :257。[dx, 0, dz]
+export function chainLocate(lengths, clock) {}            // :291。{clock(ループ後), index, remain}
+export function chainShift(prevClips, THREE) {}           // :294。前の手順の clipOffset(prev, prev.duration) の和
+export function safeTimelineClip(c) {}                    // :800 の safe
+export function timelineEnd(clips) {}                     // :794 の max(1, …start+duration)
+export function timelineAdvance(position, dt, clips) {}   // :794 の advance。{position, ended}
+export function timelineSelect(clips, frame) {}           // :265〜266。{clip, index}|null（start で並べ、frame∈[start,start+duration) の最後）
+export function timelineLocalTime(clipDuration, c, frame) {} // :270
+export function timelineShift(prevPairs, THREE) {}        // :283〜286（prevPairs = [{clip, c}]）
+
+// studio/js/motion/layers.fork.js（05e。motion_layers.js:15・25〜26 のフォーク）
+export function safeLayer(o) {}
+export function layerValues(keys, frame) {}
+export function applyLayers(model, layers, frame) {}
+
+// studio/js/motion/schematic.fork.js（05g。index.html:95〜113・228・243〜250 のフォーク）
+export function pose(act, p) {}                         // :95〜109
+export function fighterSvg(x, flipped, act, p, color) {} // :110〜112 の SVG 文字列
+export function drawPattern(row, now, duration) {}       // :113 → {svgA, svgB, phase, hit}
+export function buildDummy(THREE, idx) {}                // :228（material も同じ色）
+export function animateDummy(actor, key, normalized) {}  // :243〜250
+
+// studio/js/viewport/normalize.fork.js に足す（05d）
+export function fitActorFbx(object, idx, THREE) {}  // index.html:231（高さ 1.95、足 y=0、x=±1.4、rotation.y=±π/2。XZ の中心合わせはしない＝旧のまま）
+export function placeActorPmx(mesh, idx, THREE) {}  // index.html:310〜312（高さ 1.8、x=±1.4、rotation.y=±π/2）
+
+// studio/js/features/motion-view.js（05a・05b）  : motionCenter, motionViewport, vmdLibrary
+// studio/js/features/motion-timeline.js（05e）    : motionTimeline（SCR-13 の bottom）
+// studio/js/features/motion-review.js（05f）      : reviewBundle, keyframeReview, footQa
+// studio/js/features/chain-view.js（05c・05d・05g）: patternList, chainTimeline, chainViewport, playbackSettings
+// studio/js/features/favorites.js（05c）          : loadFavorites, upsertFavorite, deleteFavorite（各操作の前に GET で最新を取り、全体を POST）
+```
+
+- `*.fork.js` の固定一覧（§1.8）に `motion/layers.fork.js`・`motion/schematic.fork.js` を足す（計5つ）。`normalize.fork.js` に関数を足すのは同じファイルなので一覧は変わらない。
+- `v01641_preview_guard.js`（DOM なしの ESM、`server.py:241` で配信済み）は ⑤-12 で `import { inspectPreviewKeys } from '/v01641_preview_guard.js'` で共有する。§1.8 の表の「P2 では使わない」は誤り（`v01633_35_scrub.js:5` が import している）なので直した（批評 5-2）。`tsconfig.json` の `paths` に `/v01641_preview_guard.js` と型宣言 `studio/types/legacy/v01641_preview_guard.d.ts` を足す（05f）。
+- **②への追加（`features/project.js`。05b・05c。Opus でレビュー）**：
+  - 05b：`tick()` の中で、`refresh_assets` 以外の `command` も、`!first && cmdId !== lastCommandId` のときに `ui.emit('studio:sync-command', {id, action, name, slot, target})` する（`refresh_assets` の扱いは今のまま）。§1.5 のイベント表に `studio:sync-command` を足す。
+  - 05c：`editCombination(timeline, {label = 'コンビネーション変更', selected})`、`setCombinationSpeed(speed)`、`setCombinationSelected(id)` を `createProjectController` に足して export する（下の 05c）。
+
+#### (d) 新UIの動作（WP ごと）
+
+**WP-05a：SCR-13［編集］の1体再生（⑤-1・⑤-2、O-⑤-8 の ◇）— S5 を通す**
+
+1. モード：`?mode=edit` のとき、中央の `motionCenter` が `motionViewport` を描く。それ以外は `retargetViewport`（今のまま）。three-host は同時に1つなので、モードを切り替えると前のビューポートは §1.6 の後始末で dispose される。
+2. 対象モデル（帯の選択欄 `[data-role="motion-model"]`）：③の素材一覧のうち `available` な PMX（`mmd:A:`・`mmd:B:`）と GLB/VRM（`integrated:`）。表示は「形式｜名前（スロット）」。初期値は `?asset=` → 無ければ旧画面と同じく A の最初の PMX、無ければ B の最初の PMX（`index.html:353〜355`）→ それも無ければ未選択。選ぶと `history.replaceState` で `?asset=` を更新し、`loadModel` で読み、`normalizeModel`（O-④-1 の高さ：PMX 1.8・GLB/VRM 2.0）で置く（SCR-12 の単体表示と同じ）。`player.setModel(object, format, animations)`。
+3. クリップ（帯の `[data-role="motion-clip"]`）：GLB/VRM でアニメーションがあるときだけ有効。項目は「名前（なければ `Animation n`）（d.dd s）」（`index.html:206` と同じ書式）。モデルを読んだら、クリップがあれば 0 を当てて再生を始める（旧 `ivLoad` → `ivStart`）。`?clip=` があればその番号。
+4. VMD（左「VMDライブラリ」`vmdLibrary`）：`/api/assets` の `mmd:vmd:*`（`available`）を名前順に出す（検索付き）。行を押したとき：
+   - ［比較］モードなら、`navigate('13', {replace:true, tab, query:{...今のクエリ, mode:'edit', vmd:id}})` してから当てる。
+   - 対象モデルが PMX：状態行「VMDを読み込み中…」→ `loadVmdClip` → `player.applyVmd` → `play()`。状態行「{モデル名} : {VMD名} を再生中」（`index.html:346` の書式）。`?vmd=` を更新。失敗は「VMD読み込み失敗: {message}」（`:347`）。404 は `MISSING_FILE_TEXT`。
+   - 対象モデルが VRM・GLB・未選択：**O-⑤-8**。VMD を取得しない。VRM/GLB なら `showUnimplemented({name:'VRM・GLB への VMD の適用', why:'旧画面の VMD の再生は PMX だけです（index.html:340〜347）。VRM へ VMD のボーンを当てる対応表は承認済みの計画にありません（表情・口形のモーフの対応はリップシンク・表情フェーズ LIP-004 の範囲）。PMX のモデルを選んでください。', ids:['MOTION-006','LIP-004'], phase: PH.P4})`。未選択なら状態行「まずモデルを選んでください」（`index.html:342` と同じ意味）。
+5. 再生の操作（帯）：［▶ 再生］／［❚❚ 一時停止］（`[data-role="motion-play"]`）、［■ 停止］（`motion-stop`：一時停止して状態行「停止しました（現在位置を保持）」）、位置（`input[type=range]` `motion-seek`、0〜duration、`step=0.01`）と「t / d 秒」（`index.html:163` の書式。小数2桁）。位置を動かすと `player.seek(Number(value))`（一時停止のままでも姿勢が変わる。`ivSetTime` と同じ）。VMD にも同じ位置の操作を使う（旧画面の VMD には位置の操作が無かった。§5.3）。
+6. 毎フレーム：再生中だけ `requestAnimationFrame` のループを回し、`dt = min(clock.getDelta(), 0.1)`（`index.html:203`）で `player.update(dt)` → `viewport.invalidate()` → 位置の表示を更新する。一時停止で止める（rAF を残さない）。画面を離れたら `ctx.onCleanup` で rAF を止め、`player.dispose()` と three-host の `dispose()`。
+7. ［表示解除］（`motion-clear`、旧 `pmx-reset` の1体版）：モデルとモーションを外す。
+8. `window.baiStudio.motion = { getState: () => ({ mode, modelId, format, motion, playing, time, duration }), probe: (q) => player.probe(q) }`（読み取り専用。§1.6-7 に足す）。モデルの読み込みの完了は `getState().modelId` と `baiStudio.viewport.getState().loaded`。
+9. 区画の状態：SCR-13 のパネル「VMDライブラリ」と、新しく足すパネル「VMD再生（編集モード）」（`ids:['MOTION-006','DATA-014']`）を `real`（evidence は下の 05a のテスト）。左の `left.status` も `real`。
+
+**WP-05b：制作状態への記録（⑤-8、O-⑤-7）と外部コマンドの受け口（⑤-9、O-⑤-5）**
+
+1. 帯に［この再生位置を制作に記録］（`[data-role="motion-record"]`、`data-act="real"`）。有効になる条件：対象モデルが `integrated:` の GLB/VRM で、`item.filename === project.bundle.workspace?.asset`、かつ `status==='ready'` で `cameraInvalid` が無い。無効のときの title：違うモデル「作業中の素材（{asset|なし}）と違うモデルです。キャラクター管理（12）の［このモデルを制作に使う］で選んでから記録してください。」、PMX/FBX「制作状態に記録できるのは GLB/VRM のクリップだけです（project_state_bundle.py の制限）」。
+2. 押したとき：`fps = bundle.camera?.fps ?? 30`、`frame = Math.round(player.state().time * fps)`。`bundle.camera` があり `frame > camera.duration` なら `frame = camera.duration` にし、状態行に「再生位置をカメラの長さ（{duration} フレーム）までに丸めて記録しました」。`clip` は再生中のクリップの番号（VMD やクリップ無しのときは `null`）。`setWorkspaceFields({clip, frame}, {source:'store'})`。`clip` が変われば dirty（［保存］で保存）、`frame` だけなら dirty にしない（§2.2(d)-9）。トースト「作業中のクリップ {clip}・再生位置 F {frame} を記録しました。［保存］で保存されます。」。
+3. 開いたとき：対象モデルが `workspace.asset` と同じなら、クリップの初期値を `workspace.clip`（`null` なら 0）、位置を `workspace.frame / fps`（duration で丸める）にして一時停止で始める（`camera_3d.js` の restore と同じ向きの復元。自動再生はしない）。
+4. 外部コマンド（O-⑤-5）：`motion-view.js` が `on('studio:sync-command', …)` を購読し、**SCR-13 が表示されているときだけ**反応する（購読の解除は `ctx.onCleanup`）。
+   - `preview_vmd {name, slot}`：［編集］へ移り、対象モデルを `slot`（既定 A）の最初の PMX にし、`mmd:vmd:<name>` を当てて再生する（`index.html:446`）。無ければ状態行に「外部からの指示：{name} が見つかりません」。
+   - `integrated_preview {name}`：［編集］へ移り、`integrated:<name>` を読み、クリップ 0 を再生する（`index.html:447`）。
+   - `open_pmx`・`integrated_retarget`：受けない（`open_pmx` は旧画面の中のタブ切替で新UIに当たる操作が無い。`integrated_retarget` は旧画面の仮転写 `ivTransfer`（`index.html:199`）で、REVIEW-001 の範囲として旧画面のまま：(h)）。
+   - SCR-13 が表示されていないときは何もせず、トースト（`kind:'real'`）「外部から再生の指示（{action}）がありました。モーション画面（05・13）を開いているときだけ反応します。」を1回出す（同じ `id` では出さない）。
+   - SCR-05 側（`play_chain`・`stop_chain`・`preview_motion`）は 05c・05d で同じ規則で足す。
+
+**WP-05c：SCR-05 の一覧・お気に入り・コンビネーションの編集（⑤-3・⑤-4・⑤-5。3D なし）**
+
+1. 左「モーション検索」（`patternList`）：切替［パターン］［★ お気に入り］（`[data-role="pattern-tab"]`）。［パターン］は `ROWS` を、検索（`id title mixamo` を小文字で部分一致：`index.html:85`）と分類（`category` の一覧：`:82`）で絞る。行の表示は `NN タイトル`、👑 は `isAvailable(row, motionKeys(manifest), manifest.mapping)`、凡例「👑 {n}件：色付き＝全モーションを実FBXで再生可能」（`:87`）。行を押すと選択（`setCombinationSelected(row.id)`：ストアの `combination.selected` を書くが dirty にしない。旧画面も選択だけでは保存しない）。選択中の行の下に Mixamo 検索名（実行順）を出す（`:92` の `searchname`）。
+   - 手順名と登録の照合は名前だけで行う（`motionKeys`）。旧画面は起動時に全 FBX を解析し、アニメーションの無いファイルを「未登録」にしていた（`:236`）。新UIは解析しない（§5.3）。解析で失敗するファイルは、05d の再生のときに「{name} にアニメーションがありません」と出す。
+2. ［＋ コンビネーションに追加］（左パネルの上、`[data-role="chain-add"]`）：選択中の行が `isAvailable` でなければトースト「このモーションは実FBXが未登録です。FBXを登録・割当してから追加してください。」（`:126` の文言。`alert` はトーストに置き換える）。登録済みなら行の `steps` をすべて `{name}` で末尾に足す（`:126`）→ `editCombination`。
+3. 下部（`chainTimeline`）：トラック「体（コンビネーション）」に手順を同じ幅のブロックで並べる（`(i+1). name`。長さは表さない。`title` に「並び順だけを表します（長さは再生時に決まります）」）。ブロックを押すと選択し、帯の［↑］［↓］［削除］が使える（`:123` と同じ：入れ替え・削除）。［全消去］（`chain-clear`）は確認なし（旧と同じ）。どれも `editCombination`。件数「{n}件」と案内（`index.html:500〜508` の `chain-feedback` の文言）を帯に出す。トラック「表情」は ◇（`un('表情キー', …, ['LIP-009'], PH.LIP)`、薄い表示）。
+4. `editCombination(timeline, {label})`（②の controller。旧 `record` と同じ規則：`index.html:374`）：
+   - `status!=='ready'` なら何もしない。`timeline` は `[{name}]` だけに正規化する。
+   - `history` が空なら、先に「初期状態」（`{label:'初期状態', at, timeline: 今の timeline, selected, playbackSpeed}`）を積み `cursor=0` にする（`:383` と同じ）。
+   - `history[cursor].timeline` と新しい `timeline` が JSON として同じなら、`combination.timeline` だけ変えて終わる（履歴も自動保存も増やさない）。
+   - 違えば `history = history.slice(0, cursor+1)` に `{label, at:new Date().toISOString(), timeline, selected, playbackSpeed}` を足し、101件以上なら先頭を捨て（100件まで）、`cursor = history.length-1`。`selected` は SCR-05 で選んだ行の id（無ければ `combination.selected || 1`）、`playbackSpeed` はストアの値。
+   - `combination.timeline = timeline`、`dirty.combination = true`、`scheduleAutosave()`（450ms。§2.2(d)-4 のまま）。
+   - `setCombinationSpeed(v)`：`v ∈ {0.5,1,1.5,2}` だけ。`combination.playbackSpeed = v`、dirty、自動保存（`:382` と同じく履歴には積まない）。
+   - ②の戻す・やり直す（`restoreHistory`）でコンビネーションが変わると、SCR-05 の下部はストアを購読しているので表示が変わる。
+5. 右「レイヤー」の節「再生」（`playbackSettings`）：速度の選択欄を `combination.playbackSpeed` に結ぶ（変えたら `setCombinationSpeed`）。「ループ再生」は (b) のとおり。
+6. お気に入り（左の［★ お気に入り］）：検索（空白で区切った語がすべて `name tags steps` に含まれる：`:131`）、カード「{name} ({n}動作)」「#tag …」［読み込み］［削除］。
+   - ［読み込み］：`editCombination(fav.steps の複製)` し、画面の中の `activeFavorite = fav`（`:131`）。
+   - ［★ お気に入りに保存］（下部の帯）：ダイアログ（`openModal`）で名前（既定は `activeFavorite?.name || '新規コンビネーション'`）とタグ（既定 `activeFavorite?.tags.join(', ') || '格闘, コンボ'`、`[,，\n]` で分けて重複を除く）を入れる（`:129` の `prompt` 2回の置き換え）。名前が空なら「名前が必要です」。`upsertFavorite({id: activeFavorite?.id || 'combo-'+Date.now(), name, tags, steps})`：**GET で最新の一覧を取り**、同じ id があれば置き換え、無ければ末尾に足して POST（MCP の `mixamo_save_favorite` が足したものを消さないため。§5.3）。成功で［★ お気に入り］に切り替え、案内「「★ お気に入り」に「{name}」を保存しました。」。失敗「保存失敗: {message}」。
+   - ［削除］：確認ダイアログ「このお気に入りを削除しますか？」→ GET で最新を取り、その id を除いて POST。失敗「削除の保存に失敗しました」。
+7. 外部コマンド `preview_motion {name}`：SCR-05 表示中だけ、`steps` に `name` を含むか `title===name` の最初の行を選ぶ（`index.html:441`。旧画面は存在しない関数 `selectRow` を呼んでいて何もしていなかった：§5.3）。
+8. 区画：SCR-05 のパネル「モーション検索」「タイムライン」と左・下部を `real`。SCR-05 のパネル「VMD再生」の注記を「VMD の再生は 13（編集モード）。A/B の2体は 05d」に直す（状態は 05d まで `partial`）。
+
+**WP-05d：SCR-05 の 3D（A/B の2体・連結再生・対応表・スロット別の VMD。⑤-2・⑤-4b・⑤-7、MOTION-009、O-④-3）**
+
+1. 中央（`chainViewport`）：three-host。開いたら `loadManifest()` し、`models.A`・`models.B`（`kind` が `modelA`・`modelB`）があれば `loadModel` → `fitActorFbx(object, 0|1)`。PMX：A/B それぞれ、`mmd:A:`・`mmd:B:` の最初の PMX があれば `placeActorPmx` で置き、同じスロットの FBX を隠す（`index.html:309, 353〜355`）。スロットごとの選択欄［表示］（`[data-role="actor-a"]`・`actor-b`）：「FBX モデル」「PMX：{name}」（そのスロットの PMX の数だけ）、［PMX 表示解除］で FBX に戻す（`:349〜352`）。どちらも無いスロットは空（ダミーは 05g）。
+2. スロット別の VMD（MOTION-009）：帯の［対象］（A/B）・［VMD］の選択欄・［▶ PMXでVMDを再生］（`:77`・`:340〜348` と同じ）。対象のスロットが PMX 表示でなければ「まずPMXモデルとVMDを選択してください」。スロットごとに `createPlayer` を持ち、毎フレーム `dt=min(…,0.08)`（`:356`）で両方を `update`。
+3. 連結再生（［▶ 連結再生］`chain-play`・［■ 停止］`chain-stop`。下部の帯）：
+   - コンビネーションが空ならトースト「チェインにモーションを追加してください」（`:128`）。
+   - A が FBX モデルでない（無い）とき：状態行「チェイン再生には実FBXモデルAと登録済みモーションが必要です」（`:291`）で始めない。A が PMX 表示なら、FBX 表示に切り替えてから始め、トースト「連結再生のため、A を FBX モデルの表示に戻しました」（旧画面は PMX の陰で FBX が動いて見えなかった：§5.3）。
+   - 手順ごとに `getClip(clipKeyFor(step.name, mapping, keys))` を解析して集める（失敗した手順があれば、その名前を状態行に出して始めない）。`lengths = clip.duration`。
+   - 毎フレーム：`clock += dt × playbackSpeed`（`dt=min(…,0.08)`）→ `chainLocate(lengths, clock)` → 手順が変わったら `stopAllAction` して新しい action を `reset().play()`（`:295`）→ `action.time = remain; mixer.update(0)` → `chainShift(前の手順のクリップ)` を `baseline + shift × scale.x`（x・z だけ）で A の位置に当てる（`:293〜298`）。`baseline` は最初の再生のときの A の位置（`userData.chainBaseline` と同じく1回だけ覚える）。状態行「チェイン {i+1}/{n} — {name} / {clock.toFixed(2)}s」（`:299`）。
+   - ［■ 停止］：`clock=0`、再生をやめ、`activeFavorite=null`（旧 `stopCombo`：`:124` と同じ）。状態行「再生を停止しました。」（`:498〜500`）。
+   - 外部コマンド `play_chain`・`stop_chain`：SCR-05 表示中だけ、ボタンと同じ処理（`:438〜439`）。
+4. 対応表（⑤-7。中央の帯の折りたたみ「このパターンの実FBX対応表」）：選択中の行の重複のない手順ごとに、選択欄［自動一致 / 未割当］＋登録済みのモーション（`motions` の `key`、表示は `name`）。今の値は `mapping[step]`。変えたら `saveMappingEntry(step, key)` → 👑 を計算し直す（`:233`）。失敗は状態行に「対応表を保存できませんでした：{message}」（旧は console だけ）。
+5. `window.baiStudio.chain = { getState: () => ({ actors: [{kind:'fbx'|'pmx'|null, id}, …], playing, clock, index, remain, steps }), probe: (q) => …（A のオブジェクトの名前付きノードの position。05a の probe と同じ形） }`。
+6. 区画：SCR-05 の中央（「Motion Preview」）とパネル「VMD再生」（MOTION-006・009）を `real`。SCR-05 の「サンプル再生（3D未接続）」の表示は、3D ビューの区画が `real` になるので自動で消える（WP-00c の規則）。
+
+**WP-05e：SCR-13 のタイムライン編集・再生と補正レイヤー（⑤-6・⑤-13、O-⑤-4）**
+
+1. 下部（`motionTimeline`）：帯に［コンビネーションから取り込む］［＋ クリップ追加］［▶ タイムライン再生］［■ 停止］、位置（`0〜timelineEnd`、1F 刻み）と「{F}F / {end}F」、［保存］［復元］、状態行（`index.html:791` と同じ並び）。レーン「クリップ」にクリップを `start/end` の比で置き（`:803〜807`。押すとその行へスクロール）、下に行ごとの「開始F・長さF・速度・補間F」の数値欄と［削除］（範囲は `:805` と同じ：開始 0〜1000000、長さ 1〜100000、速度 0.1〜4（0.1刻み）、補間 0〜120。範囲外・非数は元の値に戻す）。クリップが無ければ「クリップがありません。「コンビネーションから取り込む」または「＋ クリップ追加」を選択してください。」（`:808`）。
+2. 取り込み：ストアの `combination.timeline` から、`start` を 0 から 90 ずつ増やし `duration:90, blend:6, speed:1`（`:811`）。空なら「先にコンビネーションを追加してください」。
+3. 追加：ダイアログで名前（候補は `datalist` にコンビネーションの手順名と登録済みの FBX 名。既定は最初の手順名）。末尾のクリップの終わりから `duration:90, blend:6`（`:812`）。
+4. 自動保存（O-⑤-4）：編集のたびに状態行「未保存の変更があります」、550ms 後に保存（`:802`）。保存の手順（`createTimelineSync`。偽の時計・偽の fetch で単体テストできる形にする）：
+   1. 競合中なら何もしない。
+   2. `GET /api/timeline-editor` を取り、`clips.map(safeTimelineClip)` が、この画面が最後に読んだ／保存した内容（`base`）と JSON として同じか比べる。**違えば競合**：自動保存を止め、状態行「サーバー側のタイムラインが更新されています（他の画面・MCP）。この画面の変更はまだ保存していません。」と［再読込して変更を破棄］［この画面の内容で上書き保存］を出す。上書きは確認ダイアログの後、比べずに POST する。
+   3. 同じなら `POST /api/timeline-editor {schema:1, clips}`。200 なら `base = clips`、状態行「保存済み：{HH:MM:SS}」（`:801`）。失敗は「保存失敗：{message}」で未保存のまま（次の編集で再び予約）。
+   - 比べるのは内容で、`updatedAt` は使わない（同じ方式を版も時刻も持たない `/api/motion-layers` にも使えるため。§(h) O-⑤-4）。GET と POST の間に他から書かれる隙は残る（サーバーに If-Match が無いので、クライアントだけでは閉じられない。旧画面は確かめずに上書きしていたので、今より悪くはならない）。
+   - ［保存］は待たずに同じ手順を実行する。［復元］は未保存があれば確認「保存済みの編集状態を読み込みますか？」（`:813`）。
+   - 画面を離れるとき：予約中の保存があれば**すぐに実行する**（取り消さない）。`beforeunload` は、未保存か保存中なら警告する（この画面を開いている間だけ登録する）。
+5. タイムライン再生：対象モデル（05a の選択欄に、05e で FBX モデル `fbx:`（`kind` が `modelA`・`modelB`）を足す）が FBX のときだけ有効。FBX でなければ［▶］を無効にし、title「タイムライン再生には FBX のモデルが必要です（旧画面と同じ。モデルA など）」。05a の1体再生とは同時に動かさない（どちらかを始めたら、もう一方を一時停止する。旧 `tls-play` が `stopCombo` を呼ぶのと同じ考え方）。
+   - 毎フレーム（再生中）：`timelineAdvance(position, dt, clips)`（`dt=min(…,0.08)`。終わりに着いたら停止し「終端に到達しました」）→ `timelineSelect(clips, frame)`。無ければ action を止めて「タイムライン：待機 {F}F」。あれば `getClip`（無ければ「登録されていないモーション：{name}」で一時停止）→ 手順が変わったら新しい action を `reset().play()`、補間 `fade = min(blend/30, clip.duration)` で `crossFadeTo`（`:272〜278`）→ `action.time = max(0, local − dt); mixer.update(dt)`（`:279`）→ `applyLayers(model, layers, frame)`（⑤-13）→ `timelineShift` で位置（`:281〜288`）。状態行「タイムライン {F}F / {name} / 速度 {speed}x」。
+   - 位置の操作は `position` を変えるだけ（旧 `:798` と同じ。一時停止中は姿勢を変えない）。
+6. 補正レイヤー（⑤-13。下部の折りたたみ「非破壊モーション補正レイヤー」）：［＋ レイヤー］［◆ キー追加］（タイムラインの今の F に `{x:0,y:0,z:0}`。同じ F にあれば「{F}F にはキーが既にあります」）［保存］［復元］、レイヤーごとに選択・有効・名前・ボーン名・キーの x/y/z（度）・［削除］（`motion_layers.js:19〜24`）。保存は 500ms の自動保存（`:18`）で、手順は 4 と同じ内容比べ（`GET /api/motion-layers` の `layers.map(safeLayer)` と `base`）。
+7. 外部の MCP（`mixamo_timeline_set`・`mixamo_motion_layers_set`：`mcp_server.py:98・100`）の書き込みは 4 の比べで競合として見つかる（開いている間に自動では読み直さない。`sync_bump` が呼ばれないため）。
+8. `window.baiStudio.timeline = { getState: () => ({ clips, frame, playing, end, dirty, conflict, active: {index, name}|null, layers: layers.length }) }`。
+9. 区画：SCR-13 のパネル「編集タイムライン」を `real`。下部の `status` を `real`（サンプルのトラックは薄い表示のまま）。
+
+**WP-05f：SCR-13 の検証ツール（⑤-11・⑤-12・⑤-14、O-⑤-6）**
+
+1. ⑤-11（「ボーンマップ」タブの末尾、折りたたみ「転写タイムライン・QA・JSON保存（試験）」）：同意のチェック「共通座標系であることを確認（VRM正規化・ひねりは未校正）」、［解析・品質診断］、［検証JSONを保存］（`v01630_32_review.js:8〜14` の文言）。元・対象は `retargetPanel` の選択（ストア `rt`）。同意が無ければ「解析失敗: 座標系の確認が必要です」。結果は旧と同じ5行（品質・対象フレーム・対象ボーン・回転キー候補・診断警告・「VMD出力: 禁止（未校正）」）と `warnings` の先頭15件の JSON（`:23`）。保存はブラウザーのダウンロード（`BAI_retarget_review_unverified.json`。サーバーには書かない）。
+2. ⑤-12（中央［比較］の帯、2つ目の節「キー候補・フレーム比較（試験）」）：同意のチェック「転写先モデルと同じモデルで、未校正の比較であることを確認した」、［キー候補を取得］、フレーム（range）、［試験フレーム再生］［停止］［次のフレーム］・更新速度 5/10/15 FPS（既定 10）・「未検証プレビュー・モデル保存なし」（`v01636_40_playback.js`）、［検証用キーJSONを保存］（`BAI_UNVERIFIED_keyframes.json`）。
+   - 比べるモデルは、旧画面のローカルファイルの選択（`v01633_35_scrub.js:10`）の代わりに、**対象の素材（`rt.target`）を `/api/integrated-v02/asset/` から読む**（④-10 と同じ置き換え。旧の「選んだファイルが対象と一致するか」の確認が要らなくなる）。対象が GLB/VRM の `integrated:` でなければ「GLB/VRM の対象を選んでください」。150MB を超えたら「150MB以下のモデルのみ」（`:29`）。
+   - 応答の検査は旧と同じ：`quality_gate==='blocked_for_production' && vmd_export_allowed===false` でなければ「未校正品質ゲートが不正です」、`inspectPreviewKeys(keys, nodeCount)`（`nodeCount` は GLTFLoader の `parser.json.nodes.length`）で不正なら、その `errors`。要求の世代番号（`requestEpoch`）で古い応答を捨てる（`:20〜21, 29`）。
+   - 表示：three-host の `content` を `clear()` し、同じ GLB を2回解析して、高さ 1.9 に拡大、足 y=0、x = −1.1 / +1.1（各自の XZ の中心を合わせる。`v01633_35_scrub.js:25`。④-10 の ±1.15 とは別の旧の値）。`showFrame(n)`：右のモデルの全ノードを元の回転に戻し、`frame===n` のキーの `rotation_xyzw` を `target_node` に当てる（同じノードは最初の1つだけ）。状態行「フレーム {n}：候補 {applied} ボーン。未校正・プレビューのみ。VMD出力は禁止。」（`:28`）。
+   - 元・対象・同意が変わったら結果を捨てる（`:31〜34`）。試験フレーム再生は画面が隠れたら止める（`v01636_40_playback.js:32`）。
+3. ⑤-14（右「足IK」タブの節「足IK・接地」）：モックの部品を結線する。「床の高さ」スライダー＝`ground_y`（数値欄はスライダーの範囲 −0.5〜0.5 m の外も入力できるようにする。旧の数値欄に範囲が無いため）。［接地を再計算］＝旧［診断する］：`POST /api/qa/foot-contact {samples, ground_y, propose_root_offsets:true}`。サンプルは折りたたみ「サンプルの編集（上級者向け）」の JSON 欄（既定値は `index.html:819` の4点）。BVH：ファイル（2MB まで。超えたら「2MB以内のBVHを選択してください」）・足ボーン名（既定 `LeftFoot`）・サンプル間隔（1〜1000）→ `POST /api/qa/bvh-foot-world {bvh_text, foot_bone, stride, ground_y, diagnose:true}`。両足：右足サンプルの JSON 欄（既定は `foot_qa_ui.js:5` の4点）→ `POST /api/qa/dual-foot-preview {left_samples, right_samples, ground_y}`。結果はどれも JSON を `pre` に出す。失敗は「診断失敗: …」「解析失敗: …」（旧の文言）。「接地補正」のトグルは旧画面に無い設定なので、操作できない表示にし、title「旧画面には無い設定です（診断は常に補正候補を出します）」。
+4. 区画：SCR-13 のパネル「足IK」を `real`。「ボーンマップ」「ポーズ比較（2体）」の evidence はそのまま（05f の節は同じパネルの中）。
+
+**WP-05g：SCR-05 の模式再生（⑤-10・⑤-15）**
+
+1. 選択中のパターンの時計（`now`・`duration = durationOf(row)`・`playing`（既定 true：旧と同じ）・速度＝`combination.playbackSpeed`）を `chain-view.js` に持つ。中央の帯に［◀ 前］［❚❚ 一時停止／▶ 再生］［次 ▶］と位置（ms 刻み：`index.html:93`）。行の選択で `now=0`。説明文は `describe(row)`。
+2. 3D：連結再生も 05a の再生もしていないとき、毎フレーム `motionState(row, now, duration)` で A/B の手順を決め、`animateActor`（`:243〜254`）と同じ規則で動かす：実FBX があれば `clipKeyFor` のクリップを `normalized × duration` の時刻で、無ければダミー人形（`buildDummy`・`animateDummy`）。A/B にモデルが無いスロットにはダミーを置く（`:229`）。状態行「A: 実FBX|3D模式|未割当 / B: … — {title}」（`:358`）。
+3. 2D：中央の帯の下に折りたたみ「従来の2D模式アニメーション」（`index.html:71`）。`drawPattern` の SVG を `textContent` ではなく、`h('svg')` の中に組み立てる（文字列の `innerHTML` を使わない。値は数だけなので、`DOMParser` で SVG として読む方法でもよい）。
+4. 区画：SCR-05 の中央は 05d で `real`。05g で状態行と模式の部品を足す。
+
+#### (e) 置き換えるサンプル
+
+SCR-13：左 `items('Dance', 6, …)`、下部の `tracks` の固定キー（クリップのレーンを足し、残りは薄いサンプルのまま）、`modes` のトースト。SCR-05：左 `items('Motion', 8, …)`、中央の `img:'viewport-character'` と HUD・`foot`、右「再生」の `sel`・`tg`、下部の `tracks`（「体」を実データにし、「表情」は ◇）。
+
+#### (f) 受け入れ条件（WP ごと。どれも自動テストで確かめる）
+
+**05a**
+1. 一時データに最小 PMX（`minimal_pmx.zip` の `model/test.pmx` を A）と `minimal.vmd`（(g) の生成スクリプトで センター 30F を足したもの）を登録した状態で、SCR-13［編集］で PMX を選ぶと、`baiStudio.viewport.getState()` が `{loaded:true, format:'PMX', scale:≈1.8}`（誤差 1e-6）、キャンバスに背景以外の画素が 50 以上。
+2. VMD の行を押すと `getState().motion` が `{kind:'vmd', id:'mmd:vmd:minimal.vmd', duration:≈1.0}`（誤差 1e-6）、`playing:true`。位置を 1.0 にすると `probe({morphs:['あ'], bones:['センター']})` の `あ` が 1（誤差 1e-6）、センターの y が位置 0 のときより 1.0 大きい（誤差 1e-4）。位置 0.5 では `あ` が 0 より大きく 1 より小さい。
+3. 合成 GLB（VRM として登録）を選ぶと、クリップの選択欄に `test30 (1.00s)` があり、自動で再生が始まる。位置 0.5 で `probe({bones:['hips']})` の z が 0.5（誤差 1e-6。`make_test_glb.py` の `_hips_z`）。［■ 停止］の後 1 秒待っても `time` が変わらない。
+4. VRM を選んで VMD の行を押すと、◇ ダイアログに「VMD」と「PMX」が出て、`/api/mmd-file/vmd/` への要求が0回。
+5. ［比較］と［編集］の切替でクエリの `mode` が変わり、再読込しても同じモード・同じモデル（`?asset=`）が出る。［比較］では今の `retargetViewport` のテストがすべて合格のまま。
+6. SCR-13 から SCR-08 へ移ると、`WEBGL_lose_context` が呼ばれ、rAF のループが残らない（`baiStudio.motion` の `getState().playing` が読めない＝ビューが無い、または `requestAnimationFrame` のスパイの呼び出しが止まる）。
+7. 通し確認 S5 が `pass`（(g) の E2E）。
+
+**05b**
+1. 作業中の素材の GLB を SCR-13 で選び、位置 0.5 で［この再生位置を制作に記録］→［保存］すると、workspace のファイルが `{frame:15, clip:0}`（`asset`・`stage` は変わらない）。
+2. カメラの `duration` を 10 にした種データでは `frame` が 10 になり、丸めの文言が出る。
+3. 位置だけ変えて記録しても `dirty.workspace` は false のまま（`frame` だけの変化）。クリップが変われば true。
+4. 別の GLB・PMX では［記録］が無効で、title が (d) の文言。`cameraInvalid` のときも無効。
+5. 外部から `POST /api/sync-command {action:'preview_vmd', name:'minimal.vmd', slot:'A'}` を送ると、SCR-13 表示中は3秒以内に VMD の再生が始まる。SCR-08 表示中はトーストだけが出て、SCR-13 に移っても再生は始まらない。同じコマンドで2回反応しない。
+
+**05c**
+1. FBX `Boxing Leading Hand Jab.fbx`（中身は `minimal_motion.fbx`）を `motions` で登録した種データで、SCR-05 のパターン1に 👑 があり、凡例が「👑 1件」以上。`ROWS` が `index.html:80` の配列と JSON として同じ（Node のテスト）。
+2. パターン1を選んで［＋ コンビネーションに追加］→ 450ms 後に `POST /api/project` が1回、保存後の `project_state.json` の `timeline` が `[{name:'Boxing Leading Hand Jab'}]`、`history` が2件（「初期状態」と「コンビネーション変更」）、`cursor:1`。`selected` は 1。
+3. 未登録のパターンを追加すると、トーストの文言が出て `POST /api/project` は送られない。
+4. 2件にして［↓］で入れ替える・［削除］・［全消去］のそれぞれで、`timeline` と `history` が旧 `record` の規則どおりになる（同じ内容への変更では履歴が増えない）。②の［戻す］でトラックの表示が戻る。
+5. 速度を 1.5 にすると `playbackSpeed:1.5` が自動保存され、`history` は増えない。
+6. お気に入りに保存すると `favorites.json` に `{id:'combo-…', name, tags, steps}` が増える。保存の前にテストから別のお気に入りを `POST /api/favorites` で足しておいても、それが消えない。［読み込み］でコンビネーションが置き換わり、［削除］で消える（確認ダイアログの［キャンセル］では消えない）。
+7. 外部コマンド `preview_motion`（`name:'Back Hand Cross'`）でパターン2が選ばれる（SCR-05 表示中だけ）。
+
+**05d**
+1. `minimal_model.fbx` を `modelA` で登録すると、A が x=−1.4・rotation.y=π/2・高さ 1.95（誤差 1e-6）で置かれる。`index.html:231` の式を写した照合（Node）と一致。
+2. 05c の 1 の状態でパターン1を2回追加し、［▶ 連結再生］すると、`baiStudio.chain.getState()` の `playing:true`、同じ評価の中の `probe` の `Tri` の x と `remain` の差が 1e-3 以内（`minimal_motion.fbx` は 1 秒で x が 0→1）。`clock` が 1 を超えると `index:1`。A の位置の x は −1.4 のまま（`clipOffset` は腰のトラックが無いので 0）。［■ 停止］で `playing:false`・`clock:0`。
+3. `clipOffset`・`chainLocate`・`chainShift` が、腰の移動のある合成クリップで、`index.html:257` の関数を `vm` で取り出して実行した結果と一致する（Node）。`chainLocate` はループ・境界（ちょうど手順の長さ）を含む。
+4. 対応表で、手順 `Back Hand Cross` を登録名 `boxingleadinghandjab` に割り当てると、`manifest.json` の `mapping` に入り、パターン2に 👑 が付く。保存の前にテストから別の `mapping` のキーを足しておいても消えない。
+5. PMX を A に登録すると A は PMX 表示になり、［▶ PMXでVMDを再生］で A の `あ` が動く。B は FBX のまま。連結再生を始めると A が FBX 表示に戻り、トーストが出る。
+6. 外部コマンド `play_chain`・`stop_chain` が SCR-05 表示中だけ効く。
+
+**05e**
+1. タイムラインの数値を変えると 550ms 後に `POST /api/timeline-editor` が1回で、その前に `GET` が1回ある。保存後のファイルの `clips` が画面と同じ。
+2. 画面を開いた後で、テストから別の `clips` を POST しておくと、次の編集の自動保存で POST が送られず、競合の文言と2つのボタンが出る。［再読込して変更を破棄］でテストの内容が出る。［この画面の内容で上書き保存］で確認の後、画面の内容になる。
+3. 補正レイヤーも同じ（500ms、内容の比べ、競合）。
+4. FBX モデル A を選び、クリップ `{name:'Boxing Leading Hand Jab', start:0, duration:90, speed:1, blend:0}` で［▶ タイムライン再生］すると、`baiStudio.timeline.getState().playing:true`、同じ評価の中の `probe` の `Tri` の x と `frame/30` の差が 2/30 以内（`dt` の分）。終わり（90F）で止まり「終端に到達しました」。PMX を選んでいると［▶］が無効。
+5. ボーン `Tri`・キー 0F `{x:0,y:90,z:0}` の補正レイヤーがあると、再生中の `Tri` の rotation.y が、レイヤー無しのときより π/2 大きい（誤差 1e-3）。
+6. 予約中の自動保存があるまま SCR-08 へ移ると、POST がすぐに送られる。
+7. `timelineAdvance`・`timelineSelect`・`timelineLocalTime`・`timelineShift`・`safeTimelineClip`・`layerValues` が、旧の式（`index.html:794・800・265〜286`、`motion_layers.js:25` を `vm` で取り出したもの）と一致する（Node）。偽の時計・偽の fetch で、自動保存の 550ms・競合の判定・画面を離れるときの即時保存を確かめる（Node）。
+
+**05f**
+1. ⑤-11：同意なしでは `POST /api/retarget/review-bundle` が0回。同意ありで合成 GLB の元・対象（同じ GLB）を選ぶと1回送られ、本文が `{source, target, fps:30, coordinate_convention_confirmed:true}`、結果に「品質:」と「VMD出力: 禁止（未校正）」が出る。［検証JSONを保存］でダウンロードのファイル名が `BAI_retarget_review_unverified.json`。
+2. ⑤-12：同意ありで［キー候補を取得］すると、`page.route` で返したスタブ（`quality_gate:'blocked_for_production', vmd_export_allowed:false, keys:[{frame:0,target_node:<hips の番号>,rotation_xyzw:[0,0.7071068,0,0.7071068]}]`）が当たり、`baiStudio.viewport.getState().keyReview` が `{objects:2, applied:1}`、2体の x の中心が −1.1／+1.1（誤差 1e-6）、高さ 1.9。`quality_gate` が違うスタブでは「未校正品質ゲートが不正です」で表示しない。範囲外の `target_node` では `inspectPreviewKeys` の文言。（実 API は合成 GLB では 400 になりうるので、表示の確認はスタブで行う。実 API への送信の本文は 1 と同じく確かめる）
+3. ⑤-14：［接地を再計算］で `POST /api/qa/foot-contact` の本文が `{samples:<既定の4点>, ground_y:<スライダーの値>, propose_root_offsets:true}`、結果の JSON が出る（実サーバー）。BVH（テストの中で作る2フレームの BVH）で `bvh-foot-world` の結果が出る。2MB を超える BVH は送らない。両足の診断も実サーバーで結果が出る。
+
+**05g**
+1. パターン1を選ぶと `describe` の文と Mixamo 検索名が出て、2D の SVG に `fighterA`・`fighterB` の図がある。`pose`・`drawPattern` が `index.html:95〜113` の関数を `vm` で取り出した結果と一致する（Node）。
+2. FBX モデルが無いとき A/B にダミー人形が置かれ、再生中に腕の関節の回転が変わる（`baiStudio.chain.probe`）。実FBX が割り当てられた手順では A が実FBX のクリップで動く（状態行「A: 実FBX」）。
+3. 連結再生中は模式再生が A を動かさない（連結の `remain` との関係が 05d の 2 のまま）。
+
+#### (g) テスト
+
+| ファイル | 種類・ポート | WP | 主な検査 |
+|---|---|---|---|
+| `tests/studio-p2-motion.test.cjs` | Playwright、`P2_MOTION_PORT` 既定 **8793**（§4.1 の予約どおり） | 05a・05b・05e・05f | 05a：`pmx with vmd plays bones and morphs`（(f) 05a の1・2）、`glb clip plays and seeks`（3）、`vmd on vrm shows unimplemented and fetches nothing`（4）、`mode switch is kept in the url`（5）、`motion viewport is disposed on leave`（6）。05b：`record clip and frame into workspace`、`frame is capped to camera duration`、`frame-only record is not dirty`、`record is disabled for other models`、`sync command preview_vmd only on SCR-13`。05e：`timeline autosave checks the server first`、`timeline conflict keeps local edits`、`motion layers conflict`、`timeline playback on fbx model`、`layer rotates the bone during playback`、`pending timeline save is flushed on leave`。05f：`review bundle requires consent`、`keyframe review places two models and applies keys`（スタブ）、`keyframe review rejects bad gate`、`foot qa calls the three apis` |
+| `tests/studio-p2-chain.test.cjs` | Playwright、`P2_CHAIN_PORT` 既定 **8784**（新規。§4.1 に足す） | 05c・05d・05g | 05c：`pattern list marks registered fbx with a crown`、`add to combination records history and autosaves`、`unregistered pattern is not added`、`reorder delete clear follow record rules`、`speed autosaves without history`、`favorites keep entries added elsewhere`、`preview_motion selects the row`。05d：`fbx model a is placed like the legacy page`、`chain playback follows the clip clock`、`mapping keeps keys added elsewhere`、`pmx slot vmd and chain switch`、`play_chain and stop_chain`。05g：`pattern preview draws 2d and animates dummies` |
+| `tests/studio-p2-motion-fork.test.mjs` | `node --test`（ブラウザー不要。three は `THREE_DIR`／`node_modules/three` を `import`。無ければ three を使う検査だけ skip（理由付き）） | 05c・05d・05e・05g | 照合：`ROWS`・`NAMES`・`KEYWORDS` と `index.html:80〜81・242`（正規表現で取り出して `JSON.parse`／`Function`）。`clipOffset`・`pose` など1行で書かれた旧関数は、`index.html` から `function 名(` から対応する `}` までを取り出して `new Function` で作り、同じ入力で比べる。`chainFrame`・`timelineFrame` のように DOM に絡む関数は取り出さず、旧の式を写した期待値（本節の (d) の式）と比べる。`motion_layers.js:25` の `values` も同じ方法。O-⑤-1 の既定にあった `tests/test_motion_patterns_parity.py` は作らない（フォークは JS なので、Node で直接 import して比べる方が確実） |
+| `tests/studio-p2-motion-logic.test.mjs` | `node --test` | 05c・05e | ②の controller の `editCombination`（偽のストア・偽の時計。旧 `record` の規則：初期状態・同じ内容・100件・`cursor` の後ろを捨てる）、`setCombinationSpeed`、`createTimelineSync`（550ms・500ms、内容の比べ、競合、即時保存、失敗の後の再予約） |
+| `tests/studio-p2-e2e-main.test.cjs` の S5 | 既存（8787） | 05a・05b・05d | 下の S5 |
+| `tests/studio-ui.test.cjs` | 既存 | 05a・05c | 総当たりの対象から `real` が外れることの確認（SCR-05・13 のサンプルのボタンが減る）。SCR-13 の modes が SCR-13 では URL を変え、他の画面ではトーストのまま |
+
+- **テスト用ファイルの変更（05a）**：`tools/make_test_vmd.py` のボーンキーを2件にする（`センター` の 0F 位置 (0,0,0) と **30F 位置 (0,1,0)**、回転は単位）。`tests/fixtures/minimal.vmd` を作り直してコミットする。`tests/test_make_test_vmd.py`（新規、pytest）でコミットしたファイルと生成結果のバイト一致を確かめる（`test_make_test_pmx.py` と同じ形）。`minimal.vmd` を使う既存のテストは `studio-p2-assets.test.cjs` の登録だけで、中身に依存しない。§4.2 の表も直す。
+- **FBX の種データ**：テストの中で `data/files/<fid>.fbx` と `data/manifest.json` を作る（`fid = sha256(kind + '\0' + name)` の先頭24桁、`server.py:988` と同じ）。名前 `Boxing Leading Hand Jab.fbx`（中身 `minimal_motion.fbx`、`motions`）と `model.fbx`（中身 `minimal_model.fbx`、`modelA`）。
+- **通し確認 S5（`tests/studio-p2-e2e-main.test.cjs`）**：`kind:'active', needs3d:true` にする。手順：①SCR-08 の取り込みで `minimal_pmx.zip`（A）と `minimal.vmd` を1回で取り込む。②SCR-13 を開き［編集］（`[data-mode="edit"]`）。③PMX を選び、VMD の行を押し、位置 1.0 で `あ`=1・センターの y が +1.0。④S1 の VRM（`ctx.vrmId`）を選び、位置 0.5 で `hips` の z=0.5。⑤（05b で足す）［この再生位置を制作に記録］→［保存］で workspace の `clip:0, frame:15`（S7 が使う）。⑥（05d で足す）SCR-05 で FBX のコンビネーションを連結再生し、`Tri` が動く（FBX の素材は E2E の中で取り込む：③の取り込みで `Boxing Leading Hand Jab.fbx` をモーション、`model.fbx` をモデルA）。S5 は 05a で `pass` になり、05b・05d は手順を足しても `pass` のままであること（後退させない）。S3 が WP-06 まで `skip`（未着手）なので、`furthest_step` は WP-06c まで S2 のまま変わらない（§2.9(b) の規則どおり。S5 の `pass` は WP-05a の完了ゲートで確かめる）。
+
+#### (h) ◇ 未実装のまま／決定（O-⑤）
+
+◇ のまま：表情レイヤー・表情の編集（LIP-009）、自動リップシンク（LIP-*）、VRM・GLB への VMD の適用（O-⑤-8）、曲線の編集（DATA-003）、3視点比較・同期比較・仮転写 `ivTransfer`（REVIEW-001 の範囲。旧画面の統合プレビューのまま。外部コマンド `integrated_retarget` も旧画面だけが受ける）、MMD の IK・物理（旧画面にも無い）、SCR-13 の4分割（REVIEW-001）、SCR-13 の右「曲線」「表情・リップ」「比較・版」「複数ダンサー」「格闘」「追加動作」タブ（今のまま）、SCR-05 の「表情レイヤー」「ボーン設定」、PMX の物理・剛体。
+
+- **O-⑤-1（決定）**：82パターン表は `motion/patterns.fork.js` へ写す（データのフォーク）。照合は Node（`tests/studio-p2-motion-fork.test.mjs`）で `index.html:80` の `const rows=[…];` を取り出して `JSON.parse` し、`ROWS` と `deepStrictEqual`。`names`（`:81`）・`keywords`（`:242`）・`norm`（`:229`）・尺の規則（`:92`）も同じファイルに写して照合する。旧画面は変えない。
+  - 理由：表は `index.html` のインラインで、import できない（R2-(2)）。v5 の既定は pytest だったが、写した先が JS なので Node で import して比べる方が、文字列の取り出しを1回で済ませられる。
+- **O-⑤-2（決定）**：連結再生とタイムライン再生の計算は `motion/chain.fork.js` へ**関数単位**で写す。DOM を参照する部分（`msg.textContent`・`$('speed')`・`tr.pause(...)`）は呼び出し側に残し、関数は値を返すだけにする（(c) の一覧）。照合は、1行で完結する旧関数（`clipOffset`：`index.html:257`）は `index.html` から取り出して実行して比べ、DOM に絡む `chainFrame`（`:291〜299`）・`timelineFrame`（`:260〜290`）は、本節 (d) に写した式からの期待値で比べる。
+  - 理由：`chainFrame` は `window.getComboState()`・`document.getElementById('speed')`・`actors` を直接読むので、そのまま `vm` で動かすには偽物が多すぎて、照合の意味が薄い。式は数行なので、期待値を手で書く方が読みやすい。
+  - 旧の行番号の訂正：v5 は「`chainFrame`・`clipOffset`、`index.html:291〜301`」と書いていた。`clipOffset` は 257 行、`chainFrame` は 291〜299 行（`5865209`）。
+- **O-⑤-3（決定：モックを変えない案）**：新しいタブは作らない。コンビネーションは SCR-05 の下部タイムライン（モックのパネル「タイムライン」のトラック「体」）で表示・編集し、帯の操作は下部の枠の中に置く。お気に入りは SCR-05 左（モックのパネル「モーション検索」の注記が「82パターンの検索・分類・お気に入り」）。タイムライン編集（⑤-6）は SCR-13 の下部（パネル「編集タイムライン」DATA-001）。
+  - 理由：所有者決定「見た目・レイアウトの正本は新UIモック」（ROADMAP_JA.md:108、R6）。v5 の既定（SCR-13 に新しいタブ「コンビネーション」）はモックのタブ構成を変える。モックには、コンビネーション（順番に並んだモーション）とタイムライン編集（開始・長さを持つクリップ）の置き場所が、それぞれ SCR-05 と SCR-13 の下部に既にある。下部の枠は今 `bottomPane`（サンプル専用）が描くので、`app.js` に `type:'feature'` の下部を足す（(b)）。これは部品の置き換えで、区画は増えない。
+  - 残る点：SCR-05 は画面名が「初期構想」で、導線点検の項目8（要所有者OK、未承認）は初期構想の画面をメニューの初期表示から外す案である。項目8 が承認されたときの扱いは (i) の Q6 で確かめる。
+- **O-⑤-4（決定）**：タイムライン（550ms）と補正レイヤー（500ms）の自動保存は旧画面どおり再現する。保存の前に GET し、**内容**が最後に読んだ／保存した内容と違えば競合として止める（(d) 05e の 4）。`updatedAt` は使わない。
+  - 理由：`/api/timeline-editor` は If-Match が無い（`server.py:698〜713`）。`updatedAt`（`time.time()`）はあるが、`/api/motion-layers` には版も時刻も無い（`server.py:677〜697`）。同じ方式（内容の比べ）を両方に使う。サーバーに If-Match を足すのは保存形式・API の変更（R1 の外）なので行わない。GET と POST の間の隙は残る（リスク K12）。旧画面は確かめずに上書きしていたので、これより悪くはならない。
+- **O-⑤-5（決定）**：新UIが受けるのは `play_chain`・`stop_chain`・`preview_motion`（SCR-05 表示中）と `preview_vmd`・`integrated_preview`（SCR-13 表示中）だけ。他の画面では反応せず、トーストで知らせる。`open_pmx`・`integrated_retarget` は受けない。`refresh_assets` は②のまま。
+  - 理由：旧画面と新UIを同時に開くと両方が反応する（K2 と同じ種類の問題）。表示していない画面を勝手に開くと、利用者の作業中の画面を奪う。表示している画面だけが反応すれば、利用者が見ている所でだけ再生が始まる。`open_pmx` は旧画面の中央タブの切替で、新UIに当たる操作が無い。`integrated_retarget` は旧画面の仮転写で、移植の対象外（REVIEW-001）。
+- **O-⑤-6（決定）**：⑤-11 は SCR-13「ボーンマップ」タブの末尾の折りたたみ。⑤-12 は SCR-13 中央［比較］の帯の2つ目の節で、three の表示は `retargetViewport` の three-host の `content` に2体を置く（④-10 と同じ方法。同時に1つの規則を守る）。⑤-14 は SCR-13 右「足IK」タブ（モックの既存の節）。⑤-13 は SCR-13 の下部（タイムラインの中。旧画面でも `#timeline-studio` の中）。新しいタブは作らない。
+  - 理由：旧画面で ⑤-11・⑤-12 は `#skeleton-lab`（④-9 の移植先＝「ボーンマップ」）の中にあり、同じ元・対象の選択（`sk-source`・`sk-target`）を使う。⑤-12 は three で2体を並べるので、④-10 と同じビューポートに置くのがいちばん小さい。足の接地はモックに「足IK・接地」の節が既にある。
+- **O-⑤-7（決定）**：`clip`・`frame` は**明示の操作［この再生位置を制作に記録］のときだけ**書く（再生を止めたとき・クリップを選んだときには書かない）。書けるのは、対象モデルが `workspace.asset` と同じ GLB/VRM のときだけ。`frame = round(time × camera.fps)`（`camera.fps` が無ければ 30）を `camera.duration` で頭打ちにする。`clip` は GLTF の `animations` の番号（`camera_3d.js:281` と同じ並び。同じ `GLTFLoader` を使うので一致する）。PMX＋VMD・FBX は `clip` に書かない。
+  - 理由：⑥のカメラ画面は `frame/fps` をクリップの時刻にする（`camera_3d.js:282`）ので、同じ単位で書く。止めたときに自動で書くと、利用者が意図しない `clip` の変更で未保存になる（`clip` は dirty になる）。別のモデルの番号を書くと、⑥で違うクリップが再生される。
+- **O-⑤-8（決定、既定どおり）**：P2 では VRM・GLB への VMD の適用を入れない。押したときの ◇ の文言は (d) 05a の 4。v5 の既定の文言「リップシンク・表情フェーズ（Phase E の次）で扱います」は、計画の記載と合わない（リップシンク・表情フェーズが扱うのは VRM/PMX の**口形・表情のモーフの対応**で、VMD の**ボーン**を VRM に当てる計画は承認済みの文書に無い：`EARLY_LIP_EXPRESSION_MME_DESIGN_JA.md:7・14`）。そこで phase は `PH.P4`（未承認）にし、モーフの対応は LIP-004 と書き分けた（批評 5-3）。
+- **Q5 との関係（決定）**：WP-05 の設計は Q5 の答えに依存しない。SCR-13 の PMX＋VMD の再生（S5）は workspace を使わない。依存するのは次の2点だけで、どちらも WP-05 の範囲の外：
+  - Q5 が「入れる」になったとき、PMX＋VMD の組（どの PMX にどの VMD を当てたか）を制作状態に記録する先が要る（今の workspace には無い。`workspace.character` などの設計の中で決める）。そのときは ⑤-8 の［記録］を PMX にも広げるかを、その設計で決める。
+  - S7（踊らせる）を PMX で通すには、⑥のカメラ画面（`camera_3d.js`）で PMX＋VMD を再生する必要がある（Q5 の (2)）。WP-05 は⑥に PMX の再生を足さない。
+  - Q5 が「入れない」（既定）のままなら、S7 は今のとおり GLB/VRM のクリップ（05b で記録した `clip`・`frame`）で通す。
+
+#### (i) 所有者確認待ち（既定のまま進める。§5.4 にも書いた）
+
+- **Q6 SCR-05（初期構想）の使い方**：既定は、SCR-05 を FBX の82パターン・お気に入り・コンビネーション・A/B の2体表示（MOTION-009）の画面として使う（モックのパネルの注記どおり）。導線点検の項目8（初期構想の画面をメニューの初期表示から外す）が承認された場合も、SCR-05 は消さず、SCR-13 のツールに［コンビネーション（05）へ］のリンクを残す。
+- **Q2 の追加**：⑤-10（2D 模式）と ⑤-15（3D 模式・ダミー人形）は格闘の82パターン向けの表示で、歌ってみたの主シナリオでは使わない。既定は「移植する」（WP-05g を最後に置く）。移さずに旧画面のリンクだけで残してよければ指示してください（05g を外すだけで、他の WP に影響しない）。
+- **O-⑤-8**：既定どおり P2 では入れない。VRM で VMD を使いたい場合は、計画への追加として指示してください。
+
+#### (j) 批評（2026-10-20、Opus。別の視点で1回：旧コードとの食い違い・テストできない受け入れ条件・スコープ）
+
+| ID | 見つけたこと | 本節での反映 |
+|---|---|---|
+| 5-1 | v5 の ⑤-7「ボーン対応表（FBX→モデル）」は、`/api/mapping`（パターンの手順名→登録FBX の対応、`index.html:233〜235`）と `/api/conversion-map`（VMD 変換用のボーン対応、`:416〜417`）の2つを混ぜていた | ⑤-7 を手順名の対応表に限定し、変換用の対応表は WP-07（O-⑦-1）へ移した |
+| 5-2 | §1.8 の表は `v01641_preview_guard.js` を「P2 では使わない」としていたが、⑤-12 の `v01633_35_scrub.js:5` が import している | ⑤-12 で import して共有すると決め、§1.8 の表を直した |
+| 5-3 | O-⑤-8 の既定の文言が、リップシンク・表情フェーズが VMD のボーンを VRM に当てるかのように読めた。計画の文書にその記載は無い | ◇ の phase を `PH.P4`（未承認）にし、モーフの対応（LIP-004）と書き分けた |
+| 5-4 | 最小 VMD はボーンキーが 0F の1件だけで、S5 の「ボーンが動く」を PMX で確かめられなかった（モーフしか動かない） | `make_test_vmd.py` に センター 30F のキーを足し、バイト一致のテストを足す（05a） |
+| 5-5 | 旧のタイムライン再生は、一時停止中に位置を動かしても姿勢を変えない（`index.html:798`）。v5 のテスト案「連結再生のフレーム位置」は、位置を指定して姿勢を読む前提で、旧の動きでは確かめられない | 連結・タイムラインは「再生中の同じ評価の中で、状態の時刻と姿勢の関係」を確かめる形にした（05d の 2、05e の 4）。05a の1体再生は旧 `ivSetTime` と同じく一時停止中も姿勢を変えるので、位置を指定して確かめる |
+| 5-6 | v5 の O-⑤-4 の「`updatedAt` を比べる」は、`/api/motion-layers` に時刻が無いので補正レイヤーに使えない。また POST の応答に `updatedAt` が無いので、自分の保存の後の値が分からない | 内容の比べに変えた。残る隙はリスク K12 に書いた |
+| 5-7 | 1体だけの SCR-13 にすると、旧画面の PMX の A/B 2体表示（MOTION-009「PMX二体プレビュー」、`index.html:305〜317`）が新UIから消える | SCR-05 の A/B の 3D（05d）に置いた |
+| 5-8 | v5 の一覧に、パターンを選んだときの 3D の模式再生（ダミー人形・実FBX、`index.html:228・243〜254・358`）が無かった | ⑤-15 として足し、05g に置いた。主シナリオで使わないので Q2 の対象にした |
+| 5-9 | v5 の (b) は ⑤-1 を SCR-12 にも置いていた。SCR-13 と入口が2つになる | SCR-13 だけにした |
+| 5-10 | テストのポートが §4.1 の表と実装で食い違う：`studio-p2-normalize-parity` は実装 8794（表 8789。8794 は `studio-p2-camera` の予約）、`studio-p2-retarget` は実装 8791（表に無い。8791 は Phase E `camera-ui` の予約）、`studio-harness.test.cjs` は 8785（表に無い） | WP-05 の新しいテストは空いている 8793・8784 を使う。食い違いは §4.1 の表に注記した。直すのは、衝突が実際に起きる WP-06b（8794）と Phase E WP-03（8791）の前（WP-05 の範囲外。台帳の WP-06b の notes に書いた） |
+| 5-11 | スコープ：VMD に位置の操作（シーク）を付けるのは旧画面に無い操作 | 05a は GLB の再生と同じ操作部品を VMD にも使う、と決めた（新しい計算は無い）。§5.3 に書き、異論があれば外せる（外すと S5 のモーフの確認は再生中の時刻との関係で行う） |
+| 5-12 | スコープ：お気に入り・対応表の保存の前に GET し直すのは、旧画面に無い動き | 保存の本文は旧と同じ（全体の置き換え）で、外部（MCP）が足したものを消さないための安全側の変更。§5.3 に書いた |
+| 5-13 | テストできない条件：05a の「rAF のループが残らない」は、そのままでは観測しにくい | `requestAnimationFrame` を `page.addInitScript` で数えるスパイにし、画面を離れた後 500ms で呼び出しが増えないことで確かめる（ほかの画面の rAF は 08 には無い。増えたら失敗の理由に呼び出し元を出す） |
 
 ---
 
@@ -1222,7 +1561,7 @@ SCR-23 の中央のカード「エクスポート」（`screens.js:607` のパ�
 
 #### (c)〜(g)
 
-- **O-⑦-1**：⑦-1 はコンビネーション（⑤）とボーン対応（⑤-7）に依存する。⑤の完了後に詳しくする。
+- **O-⑦-1**：⑦-1 はコンビネーション（⑤、WP-05c）に依存する。VMD 変換用のボーン対応表 `/api/conversion-map` の編集（`index.html:416〜417`、`#vmd-bonemap`・`vmd-map-save`）は §2.5 の詳細化で⑤から⑦へ移した（§2.5 批評 5-1。⑤-7 はパターンの手順名→登録FBX の対応表 `/api/mapping` で、別物）。⑤の完了後に詳しくする。
 - **O-⑦-2**：Blender の実行には 240 秒かかることがある（`server.py:745`）。新UIでの待ち方（`/api/conversion-status` を1秒ごとに取る、画面を離れても続ける）を決める。偽の進捗は出さない（出すのは「実行中（経過 N 秒）」だけ）。
 - **O-⑦-3**：書き出し先は `exports/`（`data_dir()` の外。Phase E §2.9 の「対象外の書出し先」）。テストでは Blender を呼ばず、503 の表示だけを確かめる（Blender の実行は開発環境で未検証）。
 - **テストの決まり（決定、v5 C1）**：`POST /api/export-vmd-job` は隔離していても実リポジトリの `exports/vmd_conversion_job.json` を書き（`server.py:891〜892`）、`POST /api/run-vmd-conversion` は Blender があれば実行して `exports/chain_motion.vmd` を書く（`server.py:732〜761`）。そのため、**テスト（`studio-p2-export`・§2.9 の S8）ではこの2つを必ず `page.route` で受け止め、サーバーへ送らない**（`route.fulfill` でスタブの応答を返す。ジョブは `{ok:true, job:'exports/vmd_conversion_job.json', …}`、変換は `{status:503, body:'{"error":"Blender not found"}'}`）。確かめるのは、送られる本文（`page.waitForRequest` で取る）と、スタブの応答の画面の表示だけ。`route` を登録する前にボタンを押すコードを書かない。`run-guarded.cjs` の `exports/` のハッシュの確認が最後の砦になる。`/api/camera/vmd/native/export` はバイト列を返すだけで書かないので、そのまま送ってよい。
@@ -1259,7 +1598,7 @@ SCR-23 の中央のカード「エクスポート」（`screens.js:607` のパ�
 | S2 | ステージの配置 | ④-11 | WP-04 | 位置・回転・大きさを変えて保存し、読み直しても同じ |
 | S3 | カメラの設定 | ⑥のホスト（キーを2つ足す） | WP-06b・06c | 統合保存の後、カメラのファイルにキーが2つ |
 | S4 | BGM（歌の音声）の配置 | **既存のコードが無い**（音声の登録 API・タイムラインの音声トラックは旧画面に無い。LYRIC-006 は未承認） | — | **「既存機能なし」として記録**し、飛ばす（Q4） |
-| S5 | VMD/FBX の設置 | ⑤-2（PMX＋VMD）、⑤-1（GLB のクリップ）、⑤-4（FBX のコンビネーション） | WP-05 | SCR-13 で再生を始めると、ボーンが動く（`hips` の位置が変わる）。最小 PMX（O-④-2）があるときだけ、VMD のモーフ「あ」で `morphTargetInfluences` が変わる（無ければこの確認だけ理由付きで記録し、S5 の合否には含めない） |
+| S5 | VMD/FBX の設置 | ⑤-2（PMX＋VMD）、⑤-1（GLB/VRM のクリップ）、⑤-8（`clip`・`frame` の記録）、⑤-4b（FBX のコンビネーションの連結再生） | WP-05a（05b・05d で手順を足す） | SCR-13［編集］で最小 PMX に `minimal.vmd` を当て、位置 1.0 秒で `センター` の y が +1.0・モーフ `あ` が 1（`baiStudio.motion.probe`）。S1 の VRM のクリップ 0 を位置 0.5 秒にすると `hips` の z が 0.5。05b で［この再生位置を制作に記録］→［保存］で workspace が `clip:0, frame:15`。05d で SCR-05 の連結再生で FBX のメッシュが動く。詳細は §2.5(g) |
 | S6 | エフェクト | 承認済みの後段（MMDエフェクトのフェーズ） | — | 飛ばす（「後段のフェーズ」として記録） |
 | S7 | 踊らせる（再生） | **SCR-02（⑥のホスト）の中の既存の同期だけ**を使う：`camera_3d.js` は workspace の GLB のクリップをカメラの時刻で動かす（`updateTime`、282行）。⑤のビューポートと⑥のカメラを新しく同期させる処理は**作らない**（既存コードに無い。v5 C6） | WP-06c | SCR-02 で workspace の合成 GLB（クリップ0）とカメラのキー2つを再生すると、モデルのボーン（`hips`）が動き、カメラの位置がキーの間で補間される（`#status` のフレームと `bai-camera-pose` の値で確かめる） |
 | S8 | 書き出し | 既存は VMD（⑦-1・⑦-2）とカメラ VMD（⑦-3）だけ。**音声付き 1080p の動画の書き出しは既存のコードが無い**（Phase F の RENDER-001・006、計画・未検証） | WP-07 | ⑦-1・⑦-2 の要求の本文が正しく作られ、スタブの応答（ジョブ作成の成功・Blender が無い 503）が画面に出る。**この2つは `page.route` で受け止め、サーバーへ送らない**（`exports/` は隔離の外。§2.7 のテストの決まり、v5 C1）。カメラ VMD はサーバーへ送ってよい（書かない）。動画は「既存機能なし」として記録（Q4） |
@@ -1313,12 +1652,18 @@ SCR-23 の中央のカード「エクスポート」（`screens.js:607` のパ�
 | **P2-WP-03** | ③ 取り込み（§2.3 の取り込み規則・複数選択・ダイアログ・衝突の確認・送信）とホームの「最近の素材」 | 02 | M | Sonnet で実装 → **Opus でレビュー**（置き換え・上書き・再分類の確認） | §2.3(f) の 2〜4・6、取り込みのテストが全件合格 |
 | **P2-WP-04** | ④ 3D 表示（§2.4 の ④-1〜④-8）と**ステージ配置の基本（④-11、OWNER-2）**、§1.15 B-4（`stage` の保存先） | 03（素材の登録が必要）、O-④-1〜3・6・7（**決定済み** 2026-10-20、Opus。§2.4(h)） | L | O-④ を Opus で決める → Sonnet で実装 → B-4 は **Opus でレビュー**（保存形式の変更） | §2.4(f)、viewport・照合のテスト、`test_project_state_bundle.py` の `stage` の追加分が合格。GPU と単位の換算（O-④-6）の未検証を台帳に記録 |
 | **P2-WP-04b** | ④ リターゲット検証の移植（④-9・④-10） | 04、O-④-5（**決定済み** 2026-10-20、Opus。§2.4(h)） | M | Sonnet | 各 API の応答の表示のテスト（隔離データ、合成 GLB） |
-| **P2-WP-05** | ⑤ モーションの適用・タイムライン（§2.5） | 04、§2.5 を詳しくした版 | L〜XL | **Opus で §2.5 を詳しくする**（批評1回）→ Sonnet で実装 → Opus でレビュー | 詳しくした版の受け入れ条件 |
+| **P2-WP-05a** | ⑤ SCR-13［編集］モードの1体の再生：PMX＋VMD（モーフを含む）、GLB/VRM のクリップ、VMD ライブラリ、モード切替の結線、`make_test_vmd.py` の センター 30F、**S5 を有効にする**（§2.5(d)05a） | 04、04b | M | Sonnet で実装 → Sonnet でレビュー（`app.js` の `featureBottom`・`modeSwitch` は Opus でレビュー） | §2.5(f)05a、S5 が `pass` |
+| **P2-WP-05b** | ⑤ `clip`・`frame` の記録（O-⑤-7）と外部同期のコマンド（O-⑤-5。`studio:sync-command`） | 05a | S〜M | Sonnet で実装 → **Opus でレビュー**（②の controller と workspace の所有） | §2.5(f)05b、S5 が `pass` のまま |
+| **P2-WP-05c** | ⑤ SCR-05：82パターンの一覧・お気に入り・コンビネーションの編集（②の `history`・自動保存）・速度 | 05a（`app.js` の下部の feature）、01 | M | Sonnet で実装 → **Opus でレビュー**（`editCombination` が②の保存に書く） | §2.5(f)05c、照合テスト（`ROWS` ほか） |
+| **P2-WP-05d** | ⑤ SCR-05：A/B の 3D（FBX・PMX）・連結再生・手順名の対応表（⑤-7）・スロット別の PMX＋VMD（MOTION-009） | 05c | M〜L | Sonnet | §2.5(f)05d、S5 が `pass` のまま |
+| **P2-WP-05e** | ⑤ SCR-13 下部：タイムライン編集・再生と補正レイヤー（内容の比べによる競合の検知。O-⑤-4） | 05a | M〜L | Sonnet で実装 → **Opus でレビュー**（自動保存と競合） | §2.5(f)05e |
+| **P2-WP-05f** | ⑤ 転写タイムライン・QA（⑤-11）、キー候補のフレーム比較（⑤-12）、足の接地（⑤-14） | 05a、04b | M | Sonnet | §2.5(f)05f |
+| **P2-WP-05g** | ⑤ 2D・3D の模式再生（⑤-10・⑤-15）。**Q2 の追加で外せる**（§2.5(i)） | 05d | S〜M | Sonnet | §2.5(f)05g |
 | **P2-WP-06a** | ⑥ mount 化（§2.6 の 1。`mount(root,{host})`・`MountHandle`）。**2コミット**（`camera.js`、`camera_3d.js`） | 01、00a-2 | M | Sonnet で実装 → **Opus でレビュー**（旧画面の変更） | §2.6 の 1 の完了条件（各コミットで） |
-| **P2-WP-06b** | ⑥ ホスト・配置表・包含と重複IDのテスト・常駐 | 06a、04、05（workspace の clip・frame）、O-⑥-4 の配置表 | L | **Opus で配置表を決める** → Sonnet で実装 | `studio-p2-camera` のホストの部分が合格 |
+| **P2-WP-06b** | ⑥ ホスト・配置表・包含と重複IDのテスト・常駐 | 06a、04、05b（workspace の clip・frame）、O-⑥-4 の配置表 | L | **Opus で配置表を決める** → Sonnet で実装 | `studio-p2-camera` のホストの部分が合格 |
 | **P2-WP-06c** | ⑥ ②の保存との統合：`camera_bundle_core.js`（共有モジュール、`camera_project_bundle_ui.js` からの抽出、`camera.html` に1行）、workspace の所有（O-⑥-5）、`dirty.camera`（O-⑥-1）、`camera.js` の `bai-camera-saved`（3-M5） | 06b | M | Sonnet で実装 → **Opus でレビュー** | 統合保存・カメラ単独の保存の後の統合保存（200）・`test_camera_bundle_core.cjs`（`vm` で読む）・`test_camera_html_wiring_recovery.py`・直したソース文字列のテストが合格 |
 | **P2-WP-06d** | ⑥ Phase E §7 の読み替え表 | 06c | S（文書） | **Opus** | 読み替え表のレビュー完了 |
-| **P2-WP-07** | ⑦ 書き出し（§2.7） | 05 | M | O-⑦ を Opus で決める → Sonnet | §2.7 の受け入れ条件（Blender の実行は未検証として記録） |
+| **P2-WP-07** | ⑦ 書き出し（§2.7）。VMD 変換用のボーン対応表 `/api/conversion-map` の編集を含む（§2.5 から移した） | 05c | M | O-⑦ を Opus で決める → Sonnet | §2.7 の受け入れ条件（Blender の実行は未検証として記録） |
 | **P2-WP-08** | IK・AI（§2.8） | 07、Q2 | M | Opus で詳しくする → Sonnet | 詳しくした版の受け入れ条件 |
 | **P2-WP-99** | 締め：マトリクス・監査文書（`STUDIO_UI_AUDIT_JA.md` の件数表）・台帳・旧画面との比較（`tools/legacy_ui_inventory.mjs` を新UIにも走らせる版は作らない。手順書にテストの一覧を書く） | 08 | S | Sonnet（文書） | 未検証の一覧（§5.2）を台帳に写す |
 
@@ -1367,7 +1712,13 @@ WP-06 全体の規模は **XL**（v1 では L としていたが、旧画面の�
 | 03 | ①08 の「素材を取り込む」で、手元の GLB か VRM を1つ選ぶ。②形式が自動で表示され、［取り込む］を押す。③一覧に増える。④サーバーを再起動して 08 を開いても残っている。 |
 | 04 | ①「キャラクター管理（12）」で取り込んだモデルを選ぶ。②中央にモデルが表示され、マウスで回せる。③［このモデルを制作に使う］を押し、［保存］する。④「シーン・ステージ（06）」でステージにするモデルを選び、位置・回転・大きさのスライダーを動かすと、表示が変わる。⑤［保存］して再読込しても、同じ位置にある。 |
 | 04b | ①「モーションVMD編集（13）」の右の「リターゲット」タブを開く。②素材を選び、［ボーン対応の提案］を押す。③表が出る（エラーが出ない）。 |
-| 05 | ①13 で PMX と VMD を選ぶ。②［再生］でモデルが踊る。③口や表情が VMD どおりに動く（VMD に表情が入っているとき）。④［停止］で止まる。⑤タイムラインのクリップの長さを変えて再読込しても残っている。 |
+| 05a | ①「モーションVMD編集（13）」で上の［編集］を押す。②対象モデルに PMX を選び、左の VMD を1つ押す。③［▶ 再生］でモデルが動き、VMD に表情が入っていれば口や表情も動く。④［停止］で止まり、位置がそのまま残る。 |
+| 05b | ①13［編集］で GLB/VRM のモデル（制作に使うもの）を選び、クリップを再生して止める。②［この再生位置を制作に記録］を押し、［保存］する。③「カメラ（02）」を開くと、同じクリップの同じ位置になっている（WP-06 の後）。 |
+| 05c | ①「モーション選択（05）」の左で、👑 の付いたパターンを1つ押し、［＋ コンビネーションに追加］を押す。②下のタイムラインに増える。③旧制作画面（`/`）を再読込すると、同じものが入っている。 |
+| 05d | ①05 で中央に3Dのモデルが2体出る。②［▶ 連結再生］でモデルAがコンビネーションの順に動く。③［■ 停止］で止まる。 |
+| 05e | ①13［編集］の下のタイムラインで［＋ クリップ追加］を押し、長さを変える。②1秒待ってから再読込しても長さが残っている。③［▶ タイムライン再生］で FBX のモデルが動く。 |
+| 05f | ①13 の右「ボーンマップ」の一番下の「転写タイムライン・QA・JSON保存（試験）」を開く。②同意にチェックして［解析・品質診断］を押す。③結果か、エラーの文言が出る（画面が止まらない）。 |
+| 05g | ①05 でパターンを1つ押す。②2D の図とダミー人形が動く。 |
 | 06a | ①旧 `camera.html` を開く。②キーを1つ足し、［保存］する。③再読込してもキーが残っている。（旧画面が今までどおり動くことの確認） |
 | 06b・06c | ①「カメラ（02）」を開く。②キーを2つ足す。③他の画面へ移ってから 02 に戻っても、キーが残っている。④［保存］して再読込しても残っている。⑤旧 `camera.html` を開くと、同じキーが見える。 |
 | 06d | 文書だけなので、所有者の確認は無い。 |
@@ -1406,12 +1757,15 @@ function expectErrors(page, patterns) {}
 | `studio-p2-normalize-parity` | 8789 | `P2_PARITY_PORT` |
 | `studio-p2-camera-ids`（ホストの DOM を列挙する部分） | 8788 | `P2_CAMERA_IDS_PORT` |
 | `studio-p2-camera` | 8794 | `P2_CAMERA_PORT` |
-| `studio-p2-motion` | 8793 | `P2_MOTION_PORT` |
+| `studio-p2-motion`（WP-05a・b・e・f） | 8793 | `P2_MOTION_PORT` |
+| `studio-p2-chain`（WP-05c・d・g。§2.5 で追加） | 8784 | `P2_CHAIN_PORT` |
 | `studio-p2-export` | 8792 | `P2_EXPORT_PORT` |
 | Phase E `camera-ui`（Phase E WP-03） | **8791**（Phase E §2.9 の既定 8798 を変更。Phase E §2.9 に注記した） | `CAMERA_UI_TEST_PORT` |
 | `legacy-project-save`（旧画面のバグ修正のテストは、この1ファイルにまとめる。3-m2） | 8790 | `P2_LEGACY_PORT` |
 | `studio-p2-e2e-main`（§2.9） | 8787 | `P2_E2E_PORT` |
 | WP-06a の前後比較（手で実行。前の版） | 8786 | `P2_BEFORE_PORT` |
+
+- **実装との食い違い（§2.5 の詳細化で確認、`8de3801`。§2.5 批評 5-10）**：`studio-p2-normalize-parity` は実装の既定が **8794**（表は 8789。8794 は `studio-p2-camera` の予約）、`studio-p2-retarget`（WP-04b）は実装の既定が **8791**（表に無い。8791 は Phase E `camera-ui` の予約）、`studio-harness.test.cjs` は **8785**（表に無い）。同時に走らせると衝突するので、`studio-p2-camera`（WP-06b）と Phase E `camera-ui`（Phase E WP-03）を作る前に、実装側を表の値（parity 8789、retarget は空いている番号）に直す。WP-05 の新しいテストは 8793・8784 を使い、衝突しない。
 
 - **エラーの監視**：`pageerror` とコンソールの `error` を集め、各テストの最後に、`expectErrors` で許可したもの以外が0件であることを確かめる（既存の `studio-ui.test.cjs:36〜37` と同じ考え方）。意図して 404/400/409/422 を起こすテストは、その URL と文言の正規表現を許可する。
 
@@ -1420,7 +1774,7 @@ function expectErrors(page, patterns) {}
 | ファイル | 生成 | 中身 |
 |---|---|---|
 | `synthetic_test_model.glb` ＋ `.expected.json` | `tools/make_test_glb.py`（標準ライブラリだけ） | Phase E §2.9 の合成モデル（直方体・ボーン10本・アニメ30F）。 |
-| `minimal.vmd` | `tools/make_test_vmd.py` | `Vocaloid Motion Data 0002` のヘッダー＋モデル名20バイト＋ボーンキー1件（`センター` の 0F）＋モーフのキー2件（`あ` の 0F で 0、30F で 1。OWNER-4）＋他の件数は0。 |
+| `minimal.vmd` | `tools/make_test_vmd.py` | `Vocaloid Motion Data 0002` のヘッダー＋モデル名20バイト＋ボーンキー**2件**（`センター` の 0F で位置 (0,0,0)、**30F で位置 (0,1,0)**。回転は単位。WP-05a で足す：§2.5 批評 5-4）＋モーフのキー2件（`あ` の 0F で 0、30F で 1。OWNER-4）＋他の件数は0。`tests/test_make_test_vmd.py` でバイト一致を確かめる。 |
 | `minimal_pmx.zip` | `tools/make_test_pmx_zip.py` | `model/test.pmx`（O-④-2 の最小 PMX 2.0。`tools/make_test_pmx.py` の `build_pmx()`。③の登録と④⑤の表示・モーフのテストに使う）＋ `model/tex/a.png`（1×1）。 |
 | `bad.fbx` | テストの中で生成 | ランダムな256バイト。 |
 | 壊れたカメラ | テストの中で生成 | `{"broken":`（B-3）。 |
@@ -1455,6 +1809,7 @@ function expectErrors(page, patterns) {}
 | K9 | 自動保存（450ms）と統合保存、外部の同期が重なる | 保存は同時に1つ（`saving`）。自動保存の待ちは統合保存に含める。外部の変更を検知したら自動保存の待ちを止める。世代番号 `saveSeq` を await のたびに確かめ、自動保存は `tick()` の終わりを待つ（3-M3）。§2.2(g) の競合のテストと偽の時計のテストで確かめる。 |
 | K10 | ［初期状態から始める…］（カメラ保存データの初期化、3-M2）で、壊れたファイルの中のカメラの状態が新UIから見えなくなる | 初期化の前に必ず確認ダイアログを出し、今のファイルは（正常でも）退避コピーとして残す（消さない。読めない・退避に失敗したら初期化しない：§1.15 B-3 の 2b の判定の順番、v5 C3）。422 の文言に退避名と手で直す手順を入れる。退避ファイルのダウンロードと中身の確認は Phase E WP-02a。 |
 | K11 | ステージの保存（`workspace.stage`、§1.15 B-4）を知らない旧 `camera.html` の統合保存が、ステージ配置を消す | サーバーは、本文に `stage` のキーが無ければ既存の値を残す（B-4）。§2.4(g) の `stage is kept when legacy camera bundle save omits it` で確かめる。 |
+| K12 | タイムライン・補正レイヤーの自動保存（WP-05e）は、保存の直前に GET して内容を比べるが、GET と POST の間に旧画面・MCP が書くと、その変更を上書きする（`/api/timeline-editor`・`/api/motion-layers` に If-Match が無い。O-⑤-4） | 隙は数十ミリ秒で、旧画面（確かめずに上書き）より狭い。サーバーに If-Match を足すのは API の変更（R1 の外）なので P2 では行わない。お気に入り・手順名の対応表（全体の置き換え）も同じ方式（直前の GET）で、同じ隙が残る。 |
 
 ### 5.2 未検証事項（実装後もこのままなら台帳の `unverified` に書く）
 
@@ -1478,6 +1833,13 @@ function expectErrors(page, patterns) {}
 - workspace は1つの所有者の規則に従ってマージする（§2.2(d)-9）。
 - 再生位置（`frame`）だけの変化では未保存にしない（3-M6）。
 - 同期の失敗では画面を止めず、`syncError` に出すだけにする（3-M4）。
+- ⑤（§2.5 の詳細化で決めたこと）：
+  - SCR-13 の1体の再生は、GLB/VRM のクリップと同じ位置の操作（シーク）を PMX＋VMD にも付ける（旧画面の VMD には位置の操作が無い。新しい計算は無く、同じ部品を使うだけ。批評 5-11）。
+  - SCR-05 の 👑（実FBX がある）の判定は名前だけで行い、旧画面のように起動時に全 FBX を解析しない。アニメーションの無いファイルは再生のときに旧と同じ文言で知らせる。
+  - お気に入り（`/api/favorites`）と手順名の対応表（`/api/mapping`）は、本文は旧と同じ全体の置き換えのまま、保存の直前に GET し直して最新に自分の変更を重ねる（外部が足したものを消さない。批評 5-12、K12）。
+  - 旧画面の外部コマンド `preview_motion` は存在しない関数 `selectRow` を呼んでいて動かない（`index.html:442`）。新UIは「その行を選ぶ」として実装する。旧画面のこの不具合は WP-05 では直さない（直すなら §1.15 のバグ修正として足し、別のコミットにする）。
+  - SCR-05 で［▶ 連結再生］を押すと、スロット A に PMX を表示していても FBX のモデルに戻す（旧 `chain-play` と同じ）。
+  - `clip`・`frame` は明示の操作［この再生位置を制作に記録］のときだけ書く（O-⑤-7）。
 
 ### 5.4 所有者への確認（既定のまま進める）
 
@@ -1486,6 +1848,9 @@ function expectErrors(page, patterns) {}
 - **Q3 ⑥の後の旧 `camera.html`**：§2.6(h) のとおり。**既定：編集できるまま残し、案内を1行出す（案内は承認の後）。**
 - **Q4 主要シナリオのうち、既存のコードが無いもの**（§2.9(e)）：「BGM（歌の音声）の配置」と「音声付きの 1080p 動画の書き出し」は、旧画面にも API にもコードが無い。P2 は既存機能の移植なので入れられない。**既定：通し確認では「既存機能なし」と記録するだけにし、BGM は未承認（LYRIC-006）、動画の書き出しは Phase F（RENDER-001・006）のまま。** 前倒しする場合は、計画への追加として指示してください。
 - **Q5 PMX のキャラクターをシーン・カメラ画面に置く**（§2.4(h) O-④-6 の Opus レビューの注記、2026-10-20 追加）：今の保存形式（`workspace.asset` は GLB/VRM だけ）と⑥のカメラ画面（GLB/VRM だけ）では、PMX のキャラクターを SCR-06 とカメラ画面に置けない。主要シナリオを PMX で通すには、workspace に任意のキー（例 `character`）を足す保存形式の変更と、カメラ画面での PMX 表示が要る。**既定：P2 では入れない（PMX はステージの素材としてだけ置ける）。** 入れる場合は、計画への追加として指示してください（B-4 と同じく Opus で保存形式を設計・レビューする）。
+- **Q6 SCR-05（初期構想「モーション選択」）の使い方**（§2.5(i)、2026-10-20 追加）：**既定：SCR-05 を FBX の82パターン・お気に入り・コンビネーション・A/B の 3D の画面として使う**（モックのパネルの注記どおり。新しいタブは作らない：O-⑤-3）。導線点検の項目8（初期構想の画面をメニューの初期表示から外す）が承認されても SCR-05 は消さず、SCR-13 から［コンビネーション（05）へ］のリンクで開けるようにする。
+- **Q2 の追加（⑤-10・⑤-15）**（§2.5(i)）：2D の模式再生とダミー人形の 3D 模式再生は格闘の82パターン向けで、歌ってみたの主シナリオでは使わない。**既定：移植する**（WP-05g を⑤の最後に置く）。旧画面のリンクだけで残してよければ指示してください（05g を外すだけで他に影響しない）。
+- **O-⑤-8 VRM・GLB への VMD の適用**（§2.5(h)）：**既定：P2 では入れない**（旧画面の VMD 再生は PMX だけ。承認済みの計画にも無い）。押すと ◇（phase `PH.P4`、未承認）の説明を出す。使いたい場合は計画への追加として指示してください。
 - **導線点検（`docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md` §5）の項目6〜14【要所有者OK】**：表示の修正だが、画面の構成・メニュー・文言を変えるので、所有者の承認があるまで入れない（項目1〜5 は WP-00c に入れた）。
   - 6：共通の上部バーに「保存・復元」の入口と未保存の表示の枠を置く（実際の保存は WP-01）。
   - 7：左のメニューを作業の流れの順に並べ替え、使う頻度の低いグループを折りたたむ。
@@ -1515,7 +1880,7 @@ function expectErrors(page, patterns) {}
 | `/api/integrated-v02/asset/<file>` | GET | ④⑤ | 335〜348 |
 | `/api/mmd-file/<slot>/<name>` | GET | ④⑤ | 293〜307 |
 | `/api/file/<id>` | GET | ④⑤ | 350〜355 |
-| `/api/retarget/*`（§2.4 ④-9 の16本と `review-bundle`・`keyframe-review`） | GET/POST | ④⑤ | 各ハンドラー（WP-04b・WP-05 の詳細化で行番号を記録） |
+| `/api/retarget/*`（§2.4 ④-9 の16本と `review-bundle`・`keyframe-review`） | GET/POST | ④⑤ | 各ハンドラー（WP-04b で記録。`review-bundle`・`keyframe-review` は `8de3801` の 561〜571・550〜560：§2.5(c)） |
 | `/api/motion-layers`、`/api/qa/*` | 各種 | ⑤ | 同上 |
 | `/api/favorites` | GET / POST | ⑤ | 326〜329 / 941〜950 |
 | `/api/timeline-editor` | GET / POST | ⑤ | 287〜288 / 668〜686 |
