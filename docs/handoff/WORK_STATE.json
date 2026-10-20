@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T04:36:29+00:00",
+  "updated_at": "2026-10-20T08:46:41+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "7e68f40",
+  "head_at_update": "37a28a2",
   "current": {
     "task": "P2（新UIへの移植）の詳細設計",
-    "status": "blocked",
-    "step": "設計書 v4 を作成中（批評3回目の指摘 M1〜M8 と導線点検 §5 の項目1〜5 を反映）。次は最終判定（高性能モデル）。",
+    "status": "in_progress",
+    "step": "設計書 v4 の残り（批評3回目 M1〜M8・m1〜m10、所有者決定、導線点検 §5 の1〜5）を仕上げる",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -38,6 +38,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T08:46:41+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "37a28a2",
+      "text": "P2（新UIへの移植）の詳細設計: 設計書 v4 の残り（批評3回目 M1〜M8・m1〜m10、所有者決定、導線点検 §5 の1〜5）を仕上げる"
+    },
     {
       "at": "2026-10-20T04:36:29+00:00",
       "by": "claude-code",
