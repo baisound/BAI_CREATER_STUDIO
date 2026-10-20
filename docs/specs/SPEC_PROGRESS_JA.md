@@ -18,7 +18,9 @@ A2 の所有者決定: [`A2_RENDER_DECISIONS_JA.md`](A2_RENDER_DECISIONS_JA.md) 
 
 A2決定の文書検査: 台帳JSON/CSVは148件でID集合一致。変更した `RENDER-002/004/005/006` の詳細・状態・依存は両形式で一致し、状態はすべて「計画・未検証」。`git -c core.whitespace=cr-at-eol diff --check` は成功。コード変更がないためブラウザ・FFmpeg・GPUの実機試験は行っていない。
 
-A3 の所有者判断資料: [`A3_MMD_EFFECTS_DECISIONS_JA.md`](A3_MMD_EFFECTS_DECISIONS_JA.md) に、Ray-MMDと内蔵効果の初期範囲、効果別の比較判定、許諾不明素材の扱いを整理した。**未承認**であり、`RENDER-011`〜`015` は計画・未検証のまま。
+A3 の所有者決定: [`A3_MMD_EFFECTS_DECISIONS_JA.md`](A3_MMD_EFFECTS_DECISIONS_JA.md) の `O-MMD-01/02/03` を **A/A/A** で承認。Ray-MMDと内蔵効果の初期境界、効果別測定＋目視、許諾不明素材のローカル参照を正本へ同期する。後続指示で霧・塵・桜・きらめき・影・ボケ／ブラーを優先し、[`A3_VISUAL_EFFECT_PRIORITY_JA.md`](A3_VISUAL_EFFECT_PRIORITY_JA.md) に候補と検証計画を記録した。外部候補の具体名・権利は照合中。`RENDER-011`〜`015` は計画・未検証のまま。
+
+A3文書検査: 台帳JSON/CSVは148件でID集合一致。`RENDER-011`〜`015` の詳細・状態・依存は両形式で一致し、5件とも「計画・未検証」。`git -c core.whitespace=cr-at-eol diff --check` 成功。実装・GPU・外部MME素材の試験は行っていない。
 
 レビュー: `reviews/CRITIC_01_JA.md` → `CRITIC_02_JA.md` → `CRITIC_03_JA.md` → `reviews/JUDGE_JA.md`。Judge の進捗ID不一致と詳細モード消失は修正した。
 

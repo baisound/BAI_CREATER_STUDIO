@@ -925,7 +925,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "Ray-MMD/MME素材登録",
-      "detail": "設定・依存ファイル管理",
+      "detail": "Ray-MMD/MME素材と依存・出典・許諾を登録。許諾不明はローカル参照のみ",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -934,7 +934,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "AutoLuminous/Bloom/DOF/MotionBlur",
-      "detail": "ブラウザ側の近似再現",
+      "detail": "内蔵発光・Bloom・DOF・MotionBlur・影を効果別に検証。原MMEとの差は明示",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -943,7 +943,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "発光・火花・煙・衝撃波",
-      "detail": "ヒットフレーム同期",
+      "detail": "発光・火花・煙・衝撃波、霧・塵・桜・きらめきのイベント／持続区間を同期",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -952,7 +952,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "エフェクト設定・描画順・テンプレート",
-      "detail": "モデル・材質・ショット別",
+      "detail": "シーン・モデル・材質・ショット別に対象・順序・強度・効果固有キーを保存",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
