@@ -36,6 +36,8 @@ B3所有者決定: [`B3_LYRICS_STAGE_DECISIONS_JA.md`](B3_LYRICS_STAGE_DECISIONS
 
 B4所有者決定: [`B4_COMBAT_STAGE_DECISIONS_JA.md`](B4_COMBAT_STAGE_DECISIONS_JA.md) の `O-COMBAT-01/02/03` を **A/A/A** で承認。接点差と同一フレーム映像の併記、再現性確認後のベイク再利用、登録済み可動ピボットのイベント連動を台帳・詳細・概要・Phase H文書・ロードマップ・トレーサビリティへ同期した（`c115de4`、PR #13）。`MOTION-021` は「要検証」、現行新UI操作は未実装表示、`DANCE-008/009`・`LYRIC-010` は計画・未検証のままで、実装順は不変。文書検査は148件の台帳ID集合と対象4件の名前・詳細・状態・依存がJSON/CSVで一致し、`git -c core.whitespace=cr-at-eol diff --cached --check` 成功。コード変更・実モデル・物理・MCPの試験は行っていない。
 
+2026-10-21 B4実装設計: [A1〜B4共通契約](IMPLEMENTATION_COMMON_CONTRACT_JA.md) に schema=2 の統合保存拡張、revision/競合/失敗契約、時刻・座標・原本保護を固定し、[B4実装設計](B4_COMBAT_IMPLEMENTATION_DESIGN_JA.md) に6 IDのスキーマ、フレーム評価順、共通コマンド、物理エンジン導入と再現性判定、UI/MCP/実データ試験を記述。対象IDは `DANCE-008`〜`011`、`LYRIC-010`、`MOTION-021`。これは設計であり、機能・依存エンジンの導入・GPU/物理実測・保存移行は未実施。P2/Eや先行B1/B3の実装差を照合してから着手する。
+
 A3対応コミット: 承認境界と優先効果の仕様・台帳を `757ebb2`、FX画面の説明用パラメータと仮区間を `0435fbb` で記録し、ともに `origin/codex/specs` へプッシュした。後者は `npm run typecheck`、状態表示検査6/6、Chrome対象画面試験（FX・歌詞2/2、追加した霧・桜・影の表示1/1）に成功。画面例は素材登録、GPU描画、保存、動画出力の完成を意味しない。
 
 レビュー: `reviews/CRITIC_01_JA.md` → `CRITIC_02_JA.md` → `CRITIC_03_JA.md` → `reviews/JUDGE_JA.md`。Judge の進捗ID不一致と詳細モード消失は修正した。
