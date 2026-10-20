@@ -75,6 +75,8 @@ export const newProjectUnimpl = (label, x = {}) => ({ ...un(label, '現在のサ
 
 /** ④ の実機能の区画の根拠（tests/test_screen_status_honesty.mjs が実在を確かめる）。 */
 const EV_CHAR = 'tests/studio-p2-viewport.test.cjs::glb renders and normalizes like the camera page';
+const EV_RT_PANEL = 'tests/studio-p2-retarget.test.cjs::retarget panel shows every API response and saves the mapping';
+const EV_RT_VIEW = 'tests/studio-p2-retarget.test.cjs::pose compare places two models at x = -1.15 and +1.15 and applies the rotation to the right one';
 const EV_STAGE = 'tests/studio-p2-viewport.test.cjs::stage placement saves and restores';
 
 const CAMERA = { label: 'カメラ画面（現行）', href: '/camera.html' };
@@ -403,7 +405,9 @@ export const SCREENS = [
     panels: [
       { name: 'VMDライブラリ', status: 'partial', note: '現行画面の PMX・VMD タブ。', ids: ['MOTION-006', 'DATA-014'] },
       { name: '3D比較', status: 'partial', note: '現行画面の3視点比較・同期比較。', ids: ['REVIEW-001'] },
-      { name: 'ボーンマップ', status: 'partial', note: 'retarget_ui.js / retarget_mapping_preview.py。', ids: ['MOTION-005'] },
+      { name: 'ボーンマップ', status: 'real', evidence: EV_RT_PANEL, note: '骨格解析・プロファイル・ボーン対応表・基準姿勢の検査を /api/retarget/* で行う（読取・試算のみ。モーションやモデルには適用しない）。', ids: ['MOTION-005'] },
+      { name: 'ポーズ比較（2体）', status: 'real', evidence: EV_RT_VIEW, note: 'GLB/VRM の元の静止姿勢と補正候補を左右に並べる（試験。モデルは変えない）。', ids: ['MOTION-005'] },
+      { name: '4分割ビュー', status: 'unimpl', note: '元モーション・対象・重ね合わせ・側面の4分割は未実装（中央は1つのビューポート）。', ids: ['REVIEW-001'] },
       { name: '編集タイムライン', status: 'mock', ids: ['DATA-001'] },
       { name: '曲線', status: 'mock', ids: ['DATA-003'] },
       { name: '足IK', status: 'partial', note: 'foot_contact.py・dual_foot_plan.py（Phase B 残課題を含む）。', ids: ['MOTION-011'] },
@@ -411,9 +415,9 @@ export const SCREENS = [
     ],
     tools: [btn('現行画面で開く', 'href:/'), un('VMDを書き出す', 'この新UIからの書き出しは未接続。現行画面の変換機能を利用してください。', ['MOTION-006'], PH.P2, { text: '今は現行画面で行えます。', label: '現行画面で開く', act: 'href:/' })],
     left: { title: 'VMDライブラリ', status: 'mock', search: true, list: items('Dance', 6, (i) => `${(i + 2) * 120}f`) },
-    center: { type: 'quad', labels: ['元モーション', '対象モデル', '重ね合わせ', '側面'], imgs: ['motion-dance', 'viewport-character', 'motion-walk', 'char-baisound'] },
+    center: { type: 'feature', key: 'retargetViewport', status: 'real', evidence: EV_RT_VIEW },
     right: { tabs: [
-      { id: 'map', label: 'ボーンマップ', sections: [{ title: 'ボーン対応', status: 'mock', controls: [{ t: 'table', cols: ['元', '対象', '状態'], rows: [['Hips', 'センター', '対応'], ['Spine', '上半身', '対応'], ['LeftUpLeg', '左足', '対応'], ['LeftFoot', '左足ＩＫ', '要確認']] }] }] },
+      { id: 'map', label: 'ボーンマップ', custom: 'retargetPanel', sections: [] },
       { id: 'ik', label: '足IK', sections: [{ title: '足IK・接地', status: 'partial', note: '接地計算は既存。新UIからは未接続。', controls: [tg('接地補正'), sl('床の高さ', -0.5, 0.5, 0, 'm', 0.01), un('接地を再計算', '新UIからの再計算は未接続（既存API移植は P2）。', ['MOTION-011'], PH.P2)] }] },
       { id: 'curve', label: '曲線', sections: [{ title: '補間曲線', status: 'mock', controls: [{ t: 'curve' }, sel('チャンネル', ['回転 X', '回転 Y', '回転 Z', '位置'])] }] },
       { id: 'expression', label: '表情・リップ', sections: [

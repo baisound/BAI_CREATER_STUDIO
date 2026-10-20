@@ -331,7 +331,7 @@ test('stage placement saves and restores', harness.skip3d(), async () => {
     await page.waitForFunction(() => window.baiStudio.viewport.getState().character?.assetId === 'integrated:aaaaaaaaaaaaaaaaaaaa.glb', null, { timeout: 20000 });
     // 「ステージを読み込む」は右の選択欄へ移る
     await page.click('.screen-head [data-role="stage-load"]');
-    assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('data-role')), 'stage-asset');
+    await page.waitForFunction(() => document.activeElement?.getAttribute('data-role') === 'stage-asset'); // フォーカスは setTimeout 0 で移る
     await pickStage(page, GLB2_ID);
     await setSlider(page, 0, 3);       // X
     await setSlider(page, 3, 90);      // 回転 Y

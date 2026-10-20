@@ -91,3 +91,24 @@
 .bone-table { width: 100%; }
 .use-note { max-width: 260px; line-height: 1.3; }
 .stage-message:empty { display: none; }
+
+/* ---- ④-9・④-10 リターゲット検証（features/retarget-view.js、SCR-13） ---- */
+.rt-panel { display: flex; flex-direction: column; gap: 8px; }
+.rt-fields { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: flex-end; }
+.rt-fields label { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-xs); color: var(--text-3); min-width: 0; }
+.rt-fields select, .rt-fields input.input { max-width: 100%; }
+.rt-group { border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
+.rt-group > summary { cursor: pointer; font-weight: 600; font-size: var(--fs-sm); }
+.rt-body { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.rt-pre { margin: 0; max-height: 220px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; padding: 8px; border-radius: 6px; background: var(--viewport); font-size: var(--fs-xs); }
+.rt-pre[data-kind="error"], .rt-compare [data-kind="error"] { color: var(--danger); }
+.rt-sum { width: 100%; margin-bottom: 4px; }
+.rt-sum th { text-align: left; font-weight: 500; }
+.rt-area { width: 100%; box-sizing: border-box; resize: vertical; }
+.rt-check { display: flex; gap: 4px; align-items: flex-start; font-size: var(--fs-xs); }
+.rt-rows { max-height: 280px; overflow: auto; }
+.rt-row { display: flex; gap: 8px; align-items: center; padding: 3px 0; border-bottom: 1px solid var(--border); }
+.rt-row label { flex: 1; min-width: 100px; overflow-wrap: anywhere; font-size: var(--fs-xs); }
+.rt-row select { flex: 1; min-width: 110px; }
+.rt-compare { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-top: 1px solid var(--border); }
+.vp3d-wrap .vp3d { min-height: 240px; }
