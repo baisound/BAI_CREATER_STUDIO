@@ -1,24 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T09:37:56+00:00",
+  "updated_at": "2026-10-20T10:02:58+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "a3cebf5",
+  "head_at_update": "2b271f8",
   "current": {
     "task": "P2-WP-00c 基盤",
-    "status": "in_progress",
+    "status": "done",
     "step": "api/store/bus・薄表示・導線点検§5の1〜5",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-00c 基盤（api/store/bus、薄表示、導線点検§5の1〜5）"
+    "WP-01 保存・読込"
   ],
   "unverified": [
-    "Opus レビュー未実施（②が対象）",
-    "Windows 実機未検証",
-    "GPU 実機未検証（SwiftShader）",
-    "three は手元コピー（THREE_DIR）で検証。npm ci 未実行",
-    "focus・sample・sequence/evaluate の GET は read() のまま（WP-02a）"
+    "Opus レビュー未実施",
+    "GPU・Windows 実機未検証（SwiftShader のみ）",
+    "POST /api/project で project_state.json が壊れていて If-Match があると、500 を返さずに接続が切れる（WP-01 で扱うか要判断）",
+    "導線点検 §5 の6〜14 は所有者OK待ちで未着手"
   ],
   "blockers": [],
   "owner_questions": [
@@ -35,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T10:02:58+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "2b271f8",
+      "text": "P2-WP-00c 基盤（api/store/bus、薄表示、導線点検§5の1〜5）を実装。コミット efa2b7e・2b271f8"
+    },
     {
       "at": "2026-10-20T09:37:56+00:00",
       "by": "claude-code",

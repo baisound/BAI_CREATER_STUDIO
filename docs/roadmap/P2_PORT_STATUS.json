@@ -52,10 +52,18 @@
     {
       "id": "P2-WP-00c",
       "step": "新UIの基盤",
-      "state": "in_progress",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
+      "state": "verified",
+      "commits": [
+        "efa2b7e",
+        "2b271f8"
+      ],
+      "tests": [
+        "pytest 351 passed、npm run test:node-all 103 pass・10 skip・0 fail、tsc 合格、通し確認 furthest_step=null、実 data/ ハッシュ不変"
+      ],
+      "unverified": [
+        "Opus レビュー未実施。GPU・Windows 実機未検証。薄表示の見え方は SwiftShader のスクリーンショットのみ。導線点検 §5 の6〜14 は所有者OK待ちで未着手",
+        "POST /api/project で project_state.json が壊れていて If-Match があると 500 を返さずに接続が切れる（前からある問題。WP-01 で扱うか要判断）"
+      ],
       "notes": "",
       "owner_check": null
     },

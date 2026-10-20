@@ -293,9 +293,9 @@
       "phase_e_wp": "（P2 の土台。Phase E の機能追加ではない）",
       "planned_in": "P2-WP-00c",
       "status": "done",
-      "commit": "（コミット後に追記）",
-      "tests": "",
-      "unverified": ""
+      "commit": "efa2b7e, 2b271f8",
+      "tests": "pytest 351 passed、npm run test:node-all 103 pass・10 skip・0 fail、tsc 合格、通し確認 furthest_step=null、実 data/ ハッシュ不変",
+      "unverified": "Opus レビュー未実施。GPU・Windows 実機未検証。薄表示の見え方は SwiftShader のスクリーンショットのみ。導線点検 §5 の6〜14 は所有者OK待ちで未着手"
     }
   ]
 }
