@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T09:03:56+00:00",
+  "updated_at": "2026-10-20T09:04:33+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "2056420",
+  "head_at_update": "e3fb511",
   "current": {
-    "task": "P2 設計の最終判定",
-    "status": "done",
-    "step": "設計書 v4 をコードと突き合わせて最終判定し、条件を v5 に反映する",
+    "task": "P2-WP-00a-1 データ隔離",
+    "status": "in_progress",
+    "step": "設計 v5 承認済み。OWNER-5 を ROADMAP に記録し、Sonnet で WP-00a-1 の実装を開始",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T09:04:33+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "e3fb511",
+      "text": "P2-WP-00a-1 データ隔離: 設計 v5 承認済み。OWNER-5 を ROADMAP に記録し、Sonnet で WP-00a-1 の実装を開始"
+    },
     {
       "at": "2026-10-20T09:03:56+00:00",
       "by": "claude-code",
