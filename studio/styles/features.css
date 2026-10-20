@@ -112,3 +112,17 @@
 .rt-row select { flex: 1; min-width: 110px; }
 .rt-compare { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-top: 1px solid var(--border); }
 .vp3d-wrap .vp3d { min-height: 240px; }
+
+/* ---- ⑤ SCR-05 のモーション検索・コンビネーション（features/chain-view.js、WP-05c） ---- */
+.pattern-list li { display: flex; align-items: center; gap: 6px; }
+.pattern-list li.available .char-name { font-weight: 600; }
+.pattern-list li.pattern-detail { display: block; padding: 4px 8px 6px 28px; font-size: var(--fs-xs); color: var(--text-3); cursor: default; }
+.pattern-list li.pattern-detail ol { margin: 2px 0 0; padding-left: 18px; }
+.favorite-card .imp-name { flex: 1; min-width: 0; }
+.chain-timeline { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+.chain-bar { align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+.chain-tracks { display: flex; flex-direction: column; gap: 6px; }
+.chain-track-row { display: flex; align-items: stretch; gap: 8px; }
+.chain-track-row .tl-label { flex: 0 0 9em; align-self: center; font-size: var(--fs-xs); color: var(--text-3); }
+.chain-track { display: flex; flex: 1; gap: 3px; min-width: 0; overflow-x: auto; padding-bottom: 2px; }
+.chain-step.tl-clip { position: static; flex: 1 1 0; min-width: 7em; height: 26px; line-height: 24px; text-overflow: ellipsis; text-align: left; }

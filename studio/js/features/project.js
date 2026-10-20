@@ -241,6 +241,67 @@ export function createProjectController(deps = {}) {
   const redo = () => { const c = get().bundle?.combination; if (c) restoreHistory(c.cursor + 1); };
 
   /**
+   * コンビネーションの編集（設計 §2.5 WP-05c の 4。旧 index.html:374 の `record` と同じ規則）。
+   * 履歴に積み、②の自動保存で保存する。⑤の画面はコンビネーションをこの関数でだけ書く。
+   * @param {{name: string}[]} timeline 新しい手順の並び（name だけを使う）
+   * @param {{label?: string}} [o]
+   * @returns {boolean} 受け付けたら true（変化なし・読込前は false）
+   */
+  function editCombination(timeline, { label = 'コンビネーション変更' } = {}) {
+    const s = get();
+    const c = s.bundle && s.bundle.combination;
+    if (s.status !== 'ready' || !c || !Array.isArray(timeline)) return false;
+    const next = timeline.filter((x) => x && typeof x.name === 'string').map((x) => ({ name: x.name }));
+    const selected = c.selected || 1;
+    const playbackSpeed = c.playbackSpeed || 1;
+    const curTimeline = Array.isArray(c.timeline) ? c.timeline : [];
+    /** @type {any[]} */
+    let history = Array.isArray(c.history) ? c.history : [];
+    let cursor = Number.isInteger(c.cursor) ? c.cursor : -1;
+    if (!history.length) {
+      if (same(curTimeline, next)) return false; // 何も変わらないなら「初期状態」も作らない
+      history = [{ label: '初期状態', at: new Date(now()).toISOString(), timeline: clone(curTimeline), selected, playbackSpeed }]; // 旧 :383
+      cursor = 0;
+    }
+    const last = history[cursor];
+    /** @type {any} */ let patch;
+    if (last && same(last.timeline, next)) {
+      // 履歴の最新と同じ内容。履歴は増やさず、表示中の並びが違うときだけ並びを直す。
+      if (same(curTimeline, next)) return false;
+      patch = { ...c, timeline: next };
+    } else {
+      history = history.slice(0, cursor + 1);
+      history.push({ label, at: new Date(now()).toISOString(), timeline: clone(next), selected, playbackSpeed });
+      if (history.length > 100) history.shift();
+      patch = { ...c, timeline: next, history, cursor: history.length - 1 };
+    }
+    combVersion++;
+    store.set({ bundle: { ...s.bundle, combination: patch }, dirty: { ...s.dirty, combination: true } }, 'edit-combination');
+    scheduleAutosave();
+    return true;
+  }
+
+  /** 再生速度（0.5・1・1.5・2 だけ）。履歴には積まない（旧 :382）。 @param {number} v */
+  function setCombinationSpeed(v) {
+    const s = get();
+    const c = s.bundle && s.bundle.combination;
+    if (s.status !== 'ready' || !c || ![0.5, 1, 1.5, 2].includes(v) || c.playbackSpeed === v) return false;
+    combVersion++;
+    store.set({ bundle: { ...s.bundle, combination: { ...c, playbackSpeed: v } }, dirty: { ...s.dirty, combination: true } }, 'combination-speed');
+    scheduleAutosave();
+    return true;
+  }
+
+  /** SCR-05 で選んだパターンの番号。選んだだけでは保存しない（dirty にしない。旧画面も同じ）。 @param {number} id */
+  function setCombinationSelected(id) {
+    const s = get();
+    const c = s.bundle && s.bundle.combination;
+    if (s.status !== 'ready' || !c || !Number.isInteger(id) || id < 1 || c.selected === id) return false;
+    store.set({ bundle: { ...s.bundle, combination: { ...c, selected: id } } }, 'combination-selected');
+    return true;
+  }
+
+  /**
    * workspace を書く唯一の経路（設計 §2.2(d)-9）。frame だけの変化は dirty にしない。
    * @param {{asset?: string, clip?: number|null, frame?: number, stage?: any}} fields
    * @param {{source?: 'store'|'host'}} [_o]
@@ -513,7 +574,7 @@ export function createProjectController(deps = {}) {
   }
 
   return {
-    loadProject, restoreHistory, undo, redo, setWorkspaceFields, setWorkspaceAsset, saveProject, reloadWithConfirm,
+    loadProject, restoreHistory, undo, redo, editCombination, setCombinationSpeed, setCombinationSelected, setWorkspaceFields, setWorkspaceAsset, saveProject, reloadWithConfirm,
     startExternalSync, tick, autosave, scheduleAutosave, hasUnsaved: () => hasUnsavedOf(get()),
     store,
   };
@@ -557,6 +618,9 @@ export const loadProject = controller.loadProject;
 export const restoreHistory = controller.restoreHistory;
 export const undo = controller.undo;
 export const redo = controller.redo;
+export const editCombination = controller.editCombination;
+export const setCombinationSpeed = controller.setCombinationSpeed;
+export const setCombinationSelected = controller.setCombinationSelected;
 export const setWorkspaceFields = controller.setWorkspaceFields;
 export const setWorkspaceAsset = controller.setWorkspaceAsset;
 export const saveProject = controller.saveProject;

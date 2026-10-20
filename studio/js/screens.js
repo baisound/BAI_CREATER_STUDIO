@@ -24,7 +24,7 @@ import { img, CAM_PRESETS, LENS_PRESETS, SHOT_TEMPLATES, ASSETS } from './sample
  *   left?: {title: string, status: Status, list?: any[], tree?: boolean, search?: boolean, controls?: Control[], custom?: string, evidence?: string},
  *   center: {type: string, [k: string]: any},
  *   right?: {tabs: Tab[]},
- *   bottom?: {type: 'timeline', status: Status, fps: number, frames: number, tracks: any[], demoEditable?: boolean} | null,
+ *   bottom?: {type: 'timeline', status: Status, fps: number, frames: number, tracks: any[], demoEditable?: boolean} | {type: 'feature', key: string, status: Status, evidence?: string} | null,
  * }} Screen
  */
 
@@ -77,6 +77,9 @@ export const newProjectUnimpl = (label, x = {}) => ({ ...un(label, '現在のサ
 const EV_CHAR = 'tests/studio-p2-viewport.test.cjs::glb renders and normalizes like the camera page';
 const EV_RT_PANEL = 'tests/studio-p2-retarget.test.cjs::retarget panel shows every API response and saves the mapping';
 const EV_MOTION_VIEW = 'tests/studio-p2-motion.test.cjs::pmx with vmd plays bones and morphs';
+const EV_CHAIN_LIST = 'tests/studio-p2-chain.test.cjs::pattern list marks registered fbx with a crown';
+const EV_CHAIN_EDIT = 'tests/studio-p2-chain.test.cjs::add to combination records history and autosaves';
+const EV_CHAIN_SPEED = 'tests/studio-p2-chain.test.cjs::speed autosaves without history';
 const EV_MOTION_LIB = 'tests/studio-p2-motion.test.cjs::vmd library lists registered vmd and applies it';
 const EV_RT_VIEW = 'tests/studio-p2-retarget.test.cjs::pose compare places two models at x = -1.15 and +1.15 and applies the rotation to the right one';
 const EV_STAGE = 'tests/studio-p2-viewport.test.cjs::stage placement saves and restores';
@@ -228,22 +231,22 @@ export const SCREENS = [
     classification: 'existing_or_partial_to_audit', ids: ['MOTION-006', 'LIP-009'],
     existing: [MAIN],
     panels: [
-      { name: 'モーション検索', status: 'partial', note: '現行画面に82パターンの検索・分類・お気に入りあり。', ids: ['MOTION-001', 'MOTION-017'] },
-      { name: 'VMD再生', status: 'partial', note: '現行画面の PMX・VMD タブ。', ids: ['MOTION-006', 'MOTION-009'] },
+      { name: 'モーション検索', status: 'real', evidence: EV_CHAIN_LIST, note: '82パターンの検索・分類・👑（全手順に実FBXがある）と、お気に入りの読み込み・保存・削除。', ids: ['MOTION-001', 'MOTION-017'] },
+      { name: 'VMD再生', status: 'partial', note: 'VMD の再生は 13（編集モード）。A/B の2体の3D表示・連結再生はこれから（05d）。', ids: ['MOTION-006', 'MOTION-009'] },
       { name: 'ボーン設定', status: 'partial', note: 'retarget_ui.js のボーンマッピング。', ids: ['MOTION-005'] },
       { name: '表情レイヤー', status: 'unimpl', ids: ['LIP-009'] },
-      { name: 'タイムライン', status: 'mock', ids: ['DATA-001'] },
+      { name: 'タイムライン', status: 'real', evidence: EV_CHAIN_EDIT, note: 'コンビネーション（トラック「体」）の追加・並べ替え・削除・全消去・お気に入りへの保存。編集履歴は保存・復元（18）に積まれ、自動保存されます。', ids: ['DATA-001'] },
     ],
     tools: [btn('VMD編集画面（13）へ', 'nav:13'), btn('現行の制作画面で開く', 'href:/')],
-    left: { title: 'モーション検索', status: 'mock', search: true, list: items('Motion', 8, (i) => ['ダンス', '格闘', '歩行', '待機'][i % 4]) },
+    left: { title: 'モーション検索', status: 'real', evidence: EV_CHAIN_LIST, custom: 'patternList' },
     center: { type: 'viewport', img: 'viewport-character', hud: ['Motion Preview'], foot: '3D再生は現行の制作画面で利用できます。' },
     right: { tabs: [
       { id: 'layer', label: 'レイヤー', sections: [
         { title: '表情レイヤー', status: 'unimpl', controls: [note('表情キーの編集と版比較は 13「VMD編集」に統合します。'), btn('表情・リップ編集（13）へ', 'nav:13')] },
-        { title: '再生', status: 'mock', controls: [sel('速度', ['0.5×', '1×', '1.5×', '2×'], '1×'), tg('ループ再生', true)] },
+        { title: '再生', status: 'real', evidence: EV_CHAIN_SPEED, controls: [{ t: 'feature', key: 'playbackSettings' }] },
       ] },
     ] },
-    bottom: { type: 'timeline', status: 'mock', fps: 30, frames: 900, tracks: [{ label: '体', keys: [0, 120, 300, 450, 600, 840] }, { label: '表情', keys: [] }] },
+    bottom: { type: 'feature', key: 'chainTimeline', status: 'real', evidence: EV_CHAIN_EDIT },
   },
   {
     id: '06', title: 'シーン・ステージ・素材配置', nav: 'シーン・ステージ', group: '制作',

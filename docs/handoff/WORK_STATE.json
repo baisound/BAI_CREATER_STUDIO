@@ -1,24 +1,24 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T20:38:09+00:00",
+  "updated_at": "2026-10-20T21:08:35+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "7b3327e",
+  "head_at_update": "5b4711a",
   "current": {
-    "task": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド studio:sync-command の受け口（O-⑤-5）",
+    "task": "P2-WP-05c SCR-05 の82パターン一覧・お気に入り・コンビネーション編集・速度（3Dなし）",
     "status": "done",
     "step": "実装→テスト→台帳更新→コミット",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-05c：SCR-05 の一覧・お気に入り・コンビネーション編集と play_chain・stop_chain・preview_motion の受け口",
-    "P2-WP-05b を Opus でレビュー（project.js の tick、motion-view.js）",
+    "P2-WP-05d：SCR-05 の A/B の3D・連結再生・play_chain・stop_chain の受け口",
+    "P2-WP-05b・05c を Opus でレビュー（project.js の tick・editCombination、motion-view.js、chain-view.js）",
     "WP-06b の前にテストのポートの食い違い（parity 8794・retarget 8791）を直す"
   ],
   "unverified": [
     "GPU 実機・Windows 実機は未検証（SwiftShader のみ）",
-    "Opus レビュー未実施（05b）",
-    "カメラ画面（02）での同位置の再生は WP-06 の後でなければ確認できない"
+    "Opus レビュー未実施（05b・05c）",
+    "実際の FBX 登録（data/manifest.json）での👑の数は未確認（隔離データのみ）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -36,6 +36,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T21:08:35+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "5b4711a",
+      "text": "P2-WP-05c 完了：SCR-05 の82パターン一覧（検索・分類・👑）・お気に入り・コンビネーション編集（editCombination）・速度"
+    },
+    {
+      "at": "2026-10-20T20:42:01+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "7e701e0",
+      "text": "P2-WP-05c SCR-05 の82パターン一覧・お気に入り・コンビネーション編集・速度（3Dなし）: 実装→テスト→台帳更新→コミット"
+    },
     {
       "at": "2026-10-20T20:38:09+00:00",
       "by": "claude-code",
@@ -231,20 +245,6 @@
       "event": "done",
       "head": "3e8a79d",
       "text": "P2-WP-00a-2 完了：studio-harness.cjs・run-guarded.cjs・テスト用ファイル生成3種・studio-ui/legacy-ui-layout のハーネス移行・通し確認の土台・conftest と Node ハーネスの後始末"
-    },
-    {
-      "at": "2026-10-20T09:12:14+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "704e5be",
-      "text": "P2-WP-00a-2 ハーネス: studio-harness.cjs・run-guarded.cjs・テスト用ファイル生成・既存node試験の移行・conftest後始末"
-    },
-    {
-      "at": "2026-10-20T09:10:44+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "187441a",
-      "text": "WP-00a-1 Opus レビュー済み。pytest.ini で rootdir を固定（tests/ から起動しても conftest が効く）、conftest でセッション前後の実 data/・exports/ ハッシュ確認を追加"
     }
   ]
 }
