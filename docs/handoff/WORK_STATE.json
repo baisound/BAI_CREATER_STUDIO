@@ -1,23 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T19:29:19+00:00",
+  "updated_at": "2026-10-20T19:50:21+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "8de3801",
+  "head_at_update": "255ad3d",
   "current": {
     "task": "P2 §2.5 ⑤ モーション（VMD）の詳細設計（O-⑤-1〜8 の決定と WP-05 の分割）",
-    "status": "in_progress",
+    "status": "done",
     "step": "旧コード調査 → §2.5 詳細化 → 自己批評 → コミット",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-05 モーション（VMD）の適用・タイムライン再生"
+    "P2-WP-05a：SCR-13［編集］の PMX＋VMD・GLB/VRM クリップ再生と S5 の有効化（設計書 §2.5(d)(f)(g) 05a。Sonnet で実装）",
+    "WP-06b の前にテストのポートの食い違い（parity 8794・retarget 8791）を直す（§4.1 の注記）"
   ],
   "unverified": [
-    "O-④-6：実在の PMX/GLB/FBX ステージでの単位の換算と見え方",
-    "実在の PMX（多材質・IK・剛体・PMX 2.1）の表示、GPU（SwiftShader でのみ確認）",
-    "PMX キャラクターを SCR-06・カメラ画面に置く経路が無い（計画の空白。所有者の判断待ち Q5）",
-    "WP-04b：実在の VRM（Humanoid あり）での仮転写・ポーズ比較の見え方、GPU"
+    "§2.5 は設計のみ。実ファイルの PMX＋VMD のモーフ再生・GPU は未検証",
+    "所有者確認待ち：Q6（SCR-05 の使い方）、Q2 の追加（⑤-10・⑤-15）、O-⑤-8（既定：入れない）、Q5（変わらず）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -35,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T19:50:21+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "255ad3d",
+      "text": "P2 §2.5（⑤ モーション）を WP-05a〜05g に分けて詳しくした（255ad3d）。O-⑤-1〜8 決定、批評1回反映、台帳更新。コード変更なし"
+    },
     {
       "at": "2026-10-20T19:29:19+00:00",
       "by": "claude-code",
@@ -237,13 +243,6 @@
       "event": "done",
       "head": "2056420",
       "text": "P2 設計 v4 を最終判定し、条件付き承認。条件 C1〜C10（exports への書込のスタブ化、所有者確認の試用データ、reset の判定順、B-4 の関数単位、cameraInvalid 中の自動保存、S7 の範囲、新規作成5か所、導線点検の規則、旧画面テストの待ち、node テストのコマンド）を v5 に反映"
-    },
-    {
-      "at": "2026-10-20T08:56:42+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "eda0a46",
-      "text": "P2 設計の最終判定: 設計書 v4 をコードと突き合わせて最終判定し、条件を v5 に反映する"
     }
   ]
 }
