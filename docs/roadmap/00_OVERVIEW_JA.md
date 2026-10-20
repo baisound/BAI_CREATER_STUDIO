@@ -119,13 +119,13 @@
 - **[LIP-002](FEATURE_DETAIL_JA.md#lip-002)** SRT＋歌声ステム音素同期
 - **[LIP-003](FEATURE_DETAIL_JA.md#lip-003)** 日本語子音・長音・閉口補正
 - **[LIP-004](FEATURE_DETAIL_JA.md#lip-004)** モデル別PMX口モーフ解析
-- **[LIP-005](FEATURE_DETAIL_JA.md#lip-005)** 作者の手癖分析
+- **[LIP-005](FEATURE_DETAIL_JA.md#lip-005)** 作者の手癖分析（選択VMD集合の傾向。本人性は推定しない）
 - **[LIP-006](FEATURE_DETAIL_JA.md#lip-006)** リップ修正案提示と評価
 - **[LIP-007](FEATURE_DETAIL_JA.md#lip-007)** リップ比較・適用前後プレビュー
 - **[LIP-008](FEATURE_DETAIL_JA.md#lip-008)** モデル別VMD版管理
 - **[LIP-009](FEATURE_DETAIL_JA.md#lip-009)** 表情・視線・瞬き編集
 - **[LIP-010](FEATURE_DETAIL_JA.md#lip-010)** 身体と表情の感情同期
-- **[LIP-011](FEATURE_DETAIL_JA.md#lip-011)** フェイシャルキャプチャ
+- **[LIP-011](FEATURE_DETAIL_JA.md#lip-011)** フェイシャルキャプチャ（元映像は既定で保存しない）
 
 ## Phase 06 / CAM — カメラ・撮影テンプレート
 
@@ -177,7 +177,7 @@
 - **[LYRIC-003](FEATURE_DETAIL_JA.md#lyric-003)** JIZURA歌詞・演出パック管理
 - **[LYRIC-004](FEATURE_DETAIL_JA.md#lyric-004)** 2D文字モーションと3D文字配置
 - **[LYRIC-005](FEATURE_DETAIL_JA.md#lyric-005)** 歌詞テンプレート・お気に入り・タグ
-- **[LYRIC-006](FEATURE_DETAIL_JA.md#lyric-006)** 音楽BPM・ビート・イベントマーカー
+- **[LYRIC-006](FEATURE_DETAIL_JA.md#lyric-006)** 音楽BPM・ビート・イベントマーカー（時刻付き拍マーカー列を同期正本にする）
 - **[LYRIC-007](FEATURE_DETAIL_JA.md#lyric-007)** シーン・ショット・絵コンテ管理
 - **[LYRIC-008](FEATURE_DETAIL_JA.md#lyric-008)** Blender .blend/.fbx/.glb→PMXステージ
 - **[LYRIC-009](FEATURE_DETAIL_JA.md#lyric-009)** 大型ステージ分割・テクスチャ・床データ
