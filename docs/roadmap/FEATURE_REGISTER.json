@@ -439,7 +439,7 @@
       "group": "MOTION",
       "phase": 3,
       "name": "MMD物理ベイクと部分再計算",
-      "detail": "髪・衣装・アクセサリ",
+      "detail": "髪・衣装・アクセサリの非破壊ベイク。入力・計算条件と対象環境の再現性を確認した場合だけ再利用",
       "status": "要検証",
       "dependency": "CORE,DATA"
     },
@@ -520,7 +520,7 @@
       "group": "DANCE",
       "phase": 4,
       "name": "2キャラ格闘攻防同期",
-      "detail": "命中フレーム・被弾反応・ダウン",
+      "detail": "命中・反応時刻と同一フレームの接点差・映像を併記。物理・安全の自動合否は断定しない",
       "status": "計画・未検証",
       "dependency": "MOTION,DATA"
     },
@@ -529,7 +529,7 @@
       "group": "DANCE",
       "phase": 4,
       "name": "掴み・接触コンストレイント",
-      "detail": "腕/肩/手/小道具の接点固定",
+      "detail": "実在骨・小道具の接点拘束と解除。接点差を同一フレーム映像と併記し元キー不変",
       "status": "計画・未検証",
       "dependency": "MOTION,DATA"
     },
@@ -1051,7 +1051,7 @@
       "group": "LYRIC",
       "phase": 8,
       "name": "可動ドア・ギミック・マップ物理",
-      "detail": "将来段階のステージ拡張",
+      "detail": "登録済み可動ピボットと時刻付きイベントの連動。扉等を対象にし未承認ゲームロジックは含めない",
       "status": "計画・未検証",
       "dependency": "DATA,CAM,RENDER"
     },
