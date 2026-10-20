@@ -72,3 +72,40 @@ def test_reload_without_env_uses_repo_data(monkeypatch):
 
 def test_real_data_and_exports_unchanged():
     assert (tree_hash(REAL_DATA), tree_hash(REAL_EXPORTS)) == BEFORE
+
+
+def test_cleanup_closes_log_handlers_and_removes_dir(tmp_path):
+    """一時ディレクトリ内のログを開いたままのハンドラーを閉じてから削除できる（Windows のゴミ対策）。"""
+    import logging
+    import conftest
+    target = tmp_path / 'cleanup_case'
+    (target / 'logs').mkdir(parents=True)
+    other = tmp_path / 'other.log'
+    logger = logging.getLogger('bai_cleanup_probe')
+    inside = logging.FileHandler(target / 'logs' / 'server.jsonl', encoding='utf-8')
+    outside = logging.FileHandler(other, encoding='utf-8')
+    logger.addHandler(inside)
+    logger.addHandler(outside)
+    try:
+        logger.warning('x')
+        assert inside.stream is not None
+        assert conftest.close_handlers_under(target) == 1
+        assert inside.stream is None and inside not in logger.handlers
+        assert outside.stream is not None and outside in logger.handlers  # 外のファイルは触らない
+        assert conftest.remove_tree(target) is True
+        assert not target.exists()
+    finally:
+        logger.removeHandler(outside)
+        outside.close()
+        logger.removeHandler(inside)
+        inside.close()
+
+
+def test_remove_tree_warns_when_directory_stays(tmp_path, monkeypatch, capsys):
+    import shutil
+    import conftest
+    target = tmp_path / 'stuck'
+    target.mkdir()
+    monkeypatch.setattr(shutil, 'rmtree', lambda *a, **k: None)
+    assert conftest.remove_tree(target) is False
+    assert '警告' in capsys.readouterr().out

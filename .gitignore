@@ -25,3 +25,6 @@ __pycache__/
 /node_modules/
 /.cache/
 .npm/
+
+# P2 通し確認の結果（tools/record_e2e_main.mjs が読む）
+/test-results/

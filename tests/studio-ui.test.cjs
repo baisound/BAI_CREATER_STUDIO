@@ -5,47 +5,30 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const fs = require('node:fs');
-const { spawn } = require('node:child_process');
-const { chromium } = require('playwright');
+const harness = require('./helpers/studio-harness.cjs');
 
-const root = path.resolve(__dirname, '..');
 const PORT = Number(process.env.STUDIO_TEST_PORT || 8799);
-const BASE = `http://127.0.0.1:${PORT}`;
 const SHOTS = process.env.STUDIO_SHOTS || '';
-const python = process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
 const pad = (n) => String(n).padStart(2, '0');
 
-let server, browser;
-const errors = [];
+let server, browser, BASE;
 
-async function waitForServer() {
-  for (let i = 0; i < 60; i++) {
-    try { const r = await fetch(`${BASE}/api/server-version`); if (r.ok) return; } catch { /* not up yet */ }
-    await new Promise((r) => setTimeout(r, 200));
-  }
-  throw new Error('server did not start');
-}
 // History API navigation never fires "load", so poll the pathname instead of waitForURL.
 async function atRoute(page, pattern) {
   const src = pattern instanceof RegExp ? pattern.source : `/workspace/${pattern}$`;
   await page.waitForFunction((re) => new RegExp(re).test(location.pathname), src, { timeout: 5000 });
 }
-async function newPage(opts = {}) {
-  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, ...opts });
-  const page = await ctx.newPage();
-  page.on('pageerror', (e) => errors.push(`${page.url()} ${e.message}`));
-  page.on('console', (m) => { if (m.type() === 'error') errors.push(`${page.url()} console: ${m.text()}`); });
-  return page;
-}
+const pages = [];
+const newPage = async (opts = {}) => { const page = await server.newPage(browser, opts); pages.push(page); return page; };
 
 test.before(async () => {
-  server = spawn(python, ['server.py', String(PORT)], { cwd: root, stdio: 'ignore' });
-  await waitForServer();
-  const executablePath = process.env.CHROMIUM_PATH || undefined;
-  browser = await chromium.launch({ executablePath });
+  server = await harness.startServer({ port: PORT });
+  BASE = server.base;
+  browser = await server.launchBrowser();
   if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
 });
-test.after(async () => { await browser?.close(); server?.kill(); });
+// ブラウザーを閉じてからサーバーを止める（逆だと閉じる途中の通信がエラーとして残る）
+test.after(async () => { await browser?.close(); await server?.stop(); });
 
 test('all 25 screens open from the sidebar with their own route and title', async () => {
   const page = await newPage();
@@ -60,7 +43,7 @@ test('all 25 screens open from the sidebar with their own route and title', asyn
     assert.ok(await page.locator('.pane-right [role="tab"]').count() >= 1, `inspector tabs on ${id}`);
     if (SHOTS) await page.screenshot({ path: path.join(SHOTS, `scr-${id}.png`) });
   }
-  assert.deepEqual(errors, []);
+  harness.assertNoErrors(page);
 });
 
 test('direct URL, reload, back and forward keep the right screen', async () => {
@@ -154,7 +137,7 @@ test('every action button on every screen responds', async () => {
       }
     }
   }
-  assert.deepEqual(errors, []);
+  harness.assertNoErrors(page);
 });
 
 test('read-only live data comes from the existing API', async () => {
@@ -188,4 +171,8 @@ test('theme preference persists and narrow screens do not scroll sideways', asyn
   await mobile.click('#nav a[data-route="14"]');
   await atRoute(mobile, '14');
   if (SHOTS) await mobile.screenshot({ path: path.join(SHOTS, 'mobile-14.png') });
+});
+
+test('no unexpected browser errors on any page of this run', () => {
+  for (const page of pages) harness.assertNoErrors(page);
 });

@@ -9,6 +9,7 @@
 """
 import hashlib
 import json
+import logging
 import os
 import shutil
 import tempfile
@@ -39,8 +40,43 @@ _TMP = tempfile.mkdtemp(prefix='bai_test_data_')
 os.environ['BAI_DATA_DIR'] = _TMP
 
 
+def close_handlers_under(directory):
+    """directory の中のファイルを開いている logging のハンドラーを閉じて外す（P2-WP-00a-2）。
+
+    Windows では開いたままのファイルは削除できず、%TEMP% にゴミが残る。閉じたハンドラー数を返す。
+    """
+    root = os.path.normcase(os.path.realpath(str(directory)))
+    loggers = [logging.getLogger()] + [
+        lg for lg in logging.Logger.manager.loggerDict.values() if isinstance(lg, logging.Logger)]
+    closed = 0
+    for lg in loggers:
+        for handler in list(lg.handlers):
+            target = getattr(handler, 'baseFilename', None)
+            if not target:
+                continue
+            path = os.path.normcase(os.path.realpath(target))
+            if path == root or path.startswith(root + os.sep):
+                lg.removeHandler(handler)
+                try:
+                    handler.close()
+                except Exception:
+                    pass
+                closed += 1
+    return closed
+
+
+def remove_tree(directory):
+    """ハンドラーを閉じてから directory を削除する。消えていれば True、残れば警告を出して False。"""
+    close_handlers_under(directory)
+    shutil.rmtree(str(directory), ignore_errors=True)
+    if Path(directory).exists():
+        print('\n[cleanup] 警告: 一時ディレクトリを削除できませんでした。手で消してください: ' + str(directory))
+        return False
+    return True
+
+
 def pytest_sessionfinish(session, exitstatus):
-    shutil.rmtree(_TMP, ignore_errors=True)
+    remove_tree(_TMP)
     if hasattr(session.config, 'workerinput'):
         return  # pytest-xdist のワーカーでは比べない（親プロセスが全体の終了後に比べる）
     changed = [str(p) for p, before in zip(_REAL, _BEFORE) if _tree_hash(p) != before]
