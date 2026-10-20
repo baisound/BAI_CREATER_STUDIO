@@ -212,11 +212,23 @@
     {
       "id": "P2-WP-05c",
       "step": "⑤ SCR-05 の82パターン・お気に入り・コンビネーションの編集",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "設計書 §2.5 05c。新しいタブは作らない（O-⑤-3）。Q6（SCR-05 の使い方）は既定のまま進める。",
+      "state": "verified",
+      "commits": [
+        "(SHA は次のコミットで記入)"
+      ],
+      "tests": [
+        "tests/studio-p2-chain.test.cjs 新規9件（pattern list marks registered fbx with a crown、pattern list says so when the registration cannot be read、add to combination records history and autosaves、unregistered pattern is not added、reorder delete clear follow record rules、speed autosaves without history、favorites keep entries added elsewhere、favorite save failure keeps the dialog、preview_motion selects the row）。ポート 8784（P2_CHAIN_PORT）",
+        "tests/studio-p2-motion-logic.test.mjs 新規14件（editCombination：初期状態・変化なし・履歴と同じ内容・カーソルの後ろを捨てる・100件・name だけ保持・読込前は無視・保存中の編集、setCombinationSpeed、setCombinationSelected、お気に入りの通信と検索）",
+        "tests/studio-p2-motion-fork.test.mjs 新規6件（index.html から rows・names・keywords・norm・尺の規則・motionAvailability を取り出して ROWS ほかと照合。登録の組み合わせ60通り×82行）",
+        "npm run test:node-all 276件中 271 pass・5 skip・0 fail、npm run test:p2 190件中 185 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass のまま、実データ data/ のハッシュ前後一致"
+      ],
+      "unverified": [
+        "Opus レビュー未実施（features/project.js の editCombination・setCombinationSpeed・setCombinationSelected、features/chain-view.js、features/favorites.js、app.js の featureBottom）。",
+        "GPU 実機・Windows 実機未検証（05c は 3D を使わないが、ブラウザーは Chromium のみ）。",
+        "旧画面で作った実際の FBX 登録（data/manifest.json）での👑の数は未確認（隔離データの合成 manifest のみ）。",
+        "play_chain・stop_chain の受け口は 05d（今はどの画面でも無反応でトーストも出ない）。"
+      ],
+      "notes": "設計 §2.5(d)05c のとおり。新しいタブは作らない（O-⑤-3）。最小の解釈：(1) 下部の feature 化は app.js に featureBottom を足した（bottom に {type:'feature', key, status, evidence}）。(2) editCombination：履歴が空で並びも同じなら「初期状態」も作らず false を返す。履歴の最新と同じ内容でも表示中の並びが違うときは、履歴を増やさず並びだけ直して dirty＋自動保存にする（保存されない変更を残さないため）。(3) 履歴の label は操作別（追加：NN タイトル、並べ替え、削除、全消去、お気に入り「x」を読み込み）。旧画面は常に『コンビネーション変更』。(4) 選択は combination.selected（setCombinationSelected。dirty にしない）。未選択(0)のとき履歴の selected は 1。選ばずに［＋追加］すると『追加するパターンを選んでください。』。(5) 👑 は /api/manifest が読めた後だけ表示（読込中・失敗は凡例に出す）。追加は manifest 未読込のとき止める。(6) 手順の選択は下部のブロックを押し、帯の［↑］［↓］［削除］で操作（旧画面の行ごとのボタンの代わり）。選択は並べ替え後も同じ手順に追従する。(7) お気に入りの保存・削除は GET→変更→POST を1つずつ順に行い、他が足した項目は手を加えずに書き戻す。保存失敗はダイアログを閉じずに『保存失敗: …』と出す。(8) preview_motion は SCR-05 のときだけ行を選び、分類・検索を空に戻す。他の画面ではトーストを1回だけ。(9) 『ループ再生』は操作できない（常にオン）表示。",
       "owner_check": null
     },
     {

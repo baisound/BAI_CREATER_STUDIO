@@ -500,9 +500,25 @@ function nodeGraph(c) {
   return box;
 }
 
+/**
+ * 実データの下部（P2 設計 §2.5 (b)）。同じ外枠（折りたたみ・見出し）の中に FEATURES[key] を置く。
+ * @param {Screen} s
+ */
+function featureBottom(s) {
+  const b = /** @type {{type: 'feature', key: string, status: import('./ui.js').Status}} */ (s.bottom);
+  const pane = h('section', { class: `pane pane-bottom ${prefs.bottomCollapsed ? 'collapsed' : ''}`, 'aria-label': 'タイムライン' });
+  const collapse = h('button', { class: 'icon-btn', type: 'button', 'aria-expanded': String(!prefs.bottomCollapsed), title: 'タイムラインを折りたたむ / 展開', 'aria-label': 'タイムラインを折りたたむ' }, prefs.bottomCollapsed ? '▴' : '▾');
+  collapse.addEventListener('click', () => { prefs.bottomCollapsed = !prefs.bottomCollapsed; savePrefs(); pane.classList.toggle('collapsed', prefs.bottomCollapsed); collapse.textContent = prefs.bottomCollapsed ? '▴' : '▾'; collapse.setAttribute('aria-expanded', String(!prefs.bottomCollapsed)); });
+  pane.append(
+    h('div', { class: 'pane-head' }, collapse, h('h2', null, 'タイムライン'), h('span', { class: 'spacer' }), regionTag(b.status)),
+    h('div', { class: 'pane-body' }, ...[featureBlock(/** @type {any} */ ({ t: 'feature', key: b.key }))].flat()));
+  return region(pane, b.status);
+}
+
 /** @param {Screen} s */
 function bottomPane(s) {
-  const b = /** @type {NonNullable<Screen['bottom']>} */ (s.bottom);
+  if (s.bottom && s.bottom.type === 'feature') return featureBottom(s);
+  const b = /** @type {Extract<NonNullable<Screen['bottom']>, {type: 'timeline'}>} */ (s.bottom);
   const demoEditable = !!b.demoEditable;
   // SCR-26/27 の仮データだけを画面ローカルに複製する。制作状態へ保存しない。
   const tracks = demoEditable ? b.tracks.map((tr) => ({ ...tr, clips: tr.clips?.map((clip) => [...clip]), keys: tr.keys ? [...tr.keys] : undefined })) : b.tracks;
