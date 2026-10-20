@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T19:27:19+00:00",
+  "updated_at": "2026-10-20T19:29:19+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "7cea229",
+  "head_at_update": "8de3801",
   "current": {
-    "task": "P2-WP-04b ④ リターゲット検証の移植（④-9・④-10）",
-    "status": "done",
-    "step": "実装開始（SCR-13 ボーンマップタブ → three-host 比較 → テスト）",
+    "task": "P2 §2.5 ⑤ モーション（VMD）の詳細設計（O-⑤-1〜8 の決定と WP-05 の分割）",
+    "status": "in_progress",
+    "step": "旧コード調査 → §2.5 詳細化 → 自己批評 → コミット",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -35,6 +35,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T19:29:19+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "8de3801",
+      "text": "P2 §2.5 ⑤ モーション（VMD）の詳細設計（O-⑤-1〜8 の決定と WP-05 の分割）: 旧コード調査 → §2.5 詳細化 → 自己批評 → コミット"
+    },
     {
       "at": "2026-10-20T19:27:19+00:00",
       "by": "claude-code",
@@ -237,13 +244,6 @@
       "event": "start",
       "head": "eda0a46",
       "text": "P2 設計の最終判定: 設計書 v4 をコードと突き合わせて最終判定し、条件を v5 に反映する"
-    },
-    {
-      "at": "2026-10-20T08:55:44+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "9056819",
-      "text": "P2 移植の詳細設計 v4 を完成（批評3回目と所有者決定・導線点検§5の1〜5を反映、最終判定前）"
     }
   ]
 }
