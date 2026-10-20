@@ -11,13 +11,19 @@
     "test:dev-config": "node --test tests/dev-workflow.test.cjs",
     "typecheck": "tsc -p tsconfig.json",
     "test:studio": "node --test tests/studio-ui.test.cjs",
-    "test:studio-routes": "python -m pytest -q tests/test_studio_routes.py"
+    "test:studio-routes": "python -m pytest -q tests/test_studio_routes.py",
+    "test:p2": "node tests/run-guarded.cjs \"tests/studio-p2-*.test.cjs\" \"tests/studio-p2-*.test.mjs\" tests/legacy-project-save.test.cjs tests/test_screen_status_honesty.mjs",
+    "test:p2-py": "python -m pytest -q tests/test_project_envelope.py tests/test_bundle_camera_invalid.py tests/test_data_isolation.py",
+    "test:p2-e2e": "node tests/run-guarded.cjs tests/studio-p2-e2e-main.test.cjs && node tools/record_e2e_main.mjs",
+    "test:node-all": "node tests/run-guarded.cjs \"tests/*.test.cjs\" \"tests/*.test.mjs\" \"test_camera_*.cjs\" \"test_camera_*.mjs\" tests/test_screen_status_honesty.mjs",
+    "test:evidence": "node tools/run_evidence_tests.mjs"
   },
   "devDependencies": {
     "browser-sync": "^3.0.4",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.10",
     "playwright": "^1.56.1",
+    "three": "0.160.1",
     "typescript": "^5.9.3"
   },
   "engines": {

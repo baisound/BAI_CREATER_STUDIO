@@ -1,0 +1,33 @@
+/* 新しい部品の見た目（P2 設計 §1.2）。トークン（tokens.css）だけを使い、色を直書きしない。app.css の後に読む。 */
+
+/* ---- 未接続の区画の薄い表示（OWNER-3、設計 §1.13） ----
+   data-dim="1" は screens.js の status が real 以外の区画（partial / mock / unimpl）。
+   見出し・バッジ・ラベルは薄くしない。操作は消さず、押せるまま・フォーカスも通常どおり。
+   入れ子の薄い区画は二重に薄くしない（--dim を入れ子で 1 に戻す）。 */
+[data-dim="1"] { --dim: .58; }
+[data-dim="1"] [data-dim="1"] { --dim: 1; }
+[data-dim="1"] > :not(.pane-head):not(.block-head):not(.section-title):not(.vp-note):not(.lib-crumb):not(h2):not(.state-box) { opacity: var(--dim); }
+/* 狭い見出し（左パネル・右タブの節）でも題名を縦に潰さない：ラベルが入らなければ次の行へ回す */
+.pane-left .pane-head, .card .pane-head, .block-head, .section-title { flex-wrap: wrap; row-gap: 2px; }
+.pane-left .pane-head, .card .pane-head { padding-top: 4px; padding-bottom: 4px; }
+.pane-left .pane-head h2, .card .pane-head h2, .block-head h2 { white-space: nowrap; }
+.unconn-label { font-size: var(--fs-xs); color: var(--text-2); white-space: nowrap; margin-left: auto; }
+.unconn-label + .badge { margin-left: 0; }
+.section-title .unconn-label { margin-left: auto; }
+.section-title .unconn-label + .badge { margin-left: 6px; }
+.doc h2 .unconn-label { margin-left: 10px; font-weight: 400; }
+.doc h2 .badge { margin-left: 6px; vertical-align: middle; }
+
+/* ---- 導線点検 §5 ---- */
+.modal .unimpl-next { margin: 10px 0 0; padding: 8px 10px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+.sample-banner { flex: none; margin: 0 8px 6px; padding: 5px 12px; font-size: var(--fs-sm); color: var(--text-2); background: var(--surface-1); border: 1px dashed var(--border-strong); border-radius: 8px; }
+.sample-banner b { color: var(--text); }
+.media .ribbon { position: absolute; right: -26px; top: 12px; transform: rotate(35deg); width: 96px; text-align: center; font-size: 10px; letter-spacing: .08em; padding: 1px 0; color: var(--text); background: var(--surface-0); border: 1px dashed var(--border-strong); opacity: .92; pointer-events: none; }
+
+/* ---- 読込中・空・失敗・未接続（state-box.js） ---- */
+.state-box[data-kind="error"], .state-box[data-kind="offline"] { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 50%, transparent); }
+.state-box b { display: block; margin-bottom: 4px; }
+.state-box .btn { margin-top: 8px; }
+
+/* ---- 共通：feature 部品の置き場 ---- */
+#keepalive { display: none; }

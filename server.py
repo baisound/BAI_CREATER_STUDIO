@@ -1,7 +1,7 @@
 # Python 3.9+ standard library only. Binds to loopback, not LAN.
 import hashlib, json, mimetypes, os, re, sys, threading, shutil, subprocess, time, zipfile, io, posixpath
 from pathlib import Path
-from bai_camera import read as camera_read, save as camera_save, sample as camera_sample
+from bai_camera import read as camera_read, save as camera_save, sample as camera_sample, read_project as camera_read_project, reset_project as camera_reset_project, CameraProjectInvalid
 from camera_project_revision import revision as camera_revision
 from camera_focus import diagnose as focus_diagnose, diagnose_range as focus_diagnose_range
 from camera_vmd_inspect import inspect_camera_vmd
@@ -9,6 +9,7 @@ from camera_vmd_codec import decode_camera_track, encode_camera_track
 from camera_vmd_playback import sample_native_camera
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
+from bai_paths import data_dir
 from diagnostic_logging import event, recent
 from qa_capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
 from operation_diagnostics import record_ui_action, diagnostics_archive
@@ -34,7 +35,7 @@ from foot_contact import diagnose, root_offset_proposal
 from dual_foot_plan import propose_dual_foot
 from bvh_foot_world import sample_bvh_foot_world
 from bai_ai_manager import read_config as ai_read_config, save_config as ai_save_config, status as ai_status, interpret_pose as ai_interpret_pose, AIUnavailable
-RETARGET_FILE=Path(__file__).resolve().parent/'data'/'retarget_profiles.json'
+RETARGET_FILE=data_dir()/'retarget_profiles.json'
 RETARGET_LOCK=threading.RLock()
 def retarget_read():
     try:return json.loads(RETARGET_FILE.read_text(encoding='utf8'))
@@ -51,8 +52,8 @@ def resolve_asset(identifier):
     raise ValueError('unsupported asset source')
 
 BASE=Path(__file__).resolve().parent
-AI_CONFIG=BASE/'data'/'bai_ai_config.json'
-DATA=BASE/'data'; FILES=DATA/'files'; FILES.mkdir(parents=True,exist_ok=True)
+DATA=data_dir(); AI_CONFIG=DATA/'bai_ai_config.json'
+FILES=DATA/'files'; FILES.mkdir(parents=True,exist_ok=True)
 MMD_DIR=DATA/'mmd'; MMD_DIR.mkdir(parents=True,exist_ok=True)
 MMD_META=DATA/'mmd_assets.json'; MMD_LOCK=threading.RLock()
 PMX_ZIP_MAX_FILES=1500; PMX_ZIP_MAX_UNCOMPRESSED=600*1024*1024
@@ -160,20 +161,33 @@ class Handler(BaseHTTPRequestHandler):
 
     def send(self,status,data,ctype='application/json'):
         self.send_response(status);self.send_header('Content-Type',ctype);self.send_header('Content-Length',str(len(data)));self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff');self.end_headers();self.wfile.write(data)
-    def bad(self,status,msg):self.send(status,json.dumps({'error':msg},ensure_ascii=False).encode())
+    def bad(self,status,msg,code=None):
+        body={'error':msg}
+        if code:body['error_code']=code
+        self.send(status,json.dumps(body,ensure_ascii=False).encode())
+    def send_camera_invalid(self,exc):
+        # 422 は backup を含めるため bad() を使わず本文を直接送る（B-3）。理由は exc.message にあり、ログにだけ出す。
+        event('camera.project_invalid',level='error',reason=str(exc.message)[:200],backup=exc.backup_name)
+        msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
+        self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
     def do_GET(self):
         path=urlsplit(self.path).path
         if path in ("/camera.html", "/camera.css", "/camera.js", "/camera_3d.js", "/camera_vmd_local.js", "/camera_rig.js", "/camera_follow_config.js", "/camera_follow_smoothing.js", "/camera_framing.js", "/camera_lens.js", "/camera_dof.js", "/camera_focus_tracking.js", "/camera_focus_consistency.js", "/camera_project_bundle_ui.js", "/camera_sequence_playback.js"):
             file=BASE/path[1:];self.send(200,file.read_bytes(),"text/css" if path.endswith(".css") else "text/javascript" if path.endswith(".js") else "text/html; charset=utf-8");return
         if path=="/api/project/bundle":
             from project_state_bundle import read_bundle, bundle_revision
-            with PROJECT_LOCK:
-                payload=read_bundle(PROJECT, DATA/'camera_project.json')
-                payload['revision']=bundle_revision(payload)
+            try:
+                with PROJECT_LOCK:
+                    payload=read_bundle(PROJECT, DATA/'camera_project.json', strict=True)
+                    payload['revision']=bundle_revision(payload)
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
+            except Exception as exc:return self.bad(500,'統合保存データを読めませんでした: '+type(exc).__name__)
             self.send(200,json.dumps(payload,ensure_ascii=False).encode());return
         if path=="/api/camera/project":
-            with PROJECT_LOCK:
-                camera_project=camera_read(DATA/"camera_project.json")
+            try:
+                with PROJECT_LOCK:
+                    camera_project=camera_read_project(DATA/"camera_project.json")[0]
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
             self.send(200,json.dumps({'project':camera_project,'revision':camera_revision(camera_project)},ensure_ascii=False).encode() if 'envelope=1' in urlsplit(self.path).query else json.dumps(camera_project,ensure_ascii=False).encode());return
         if path=="/api/camera/focus":
             try:
@@ -314,15 +328,15 @@ class Handler(BaseHTTPRequestHandler):
             except FileNotFoundError:payload=b'{}'
             self.send(200,json.dumps({'project':json.loads(payload),'revision':camera_revision(json.loads(payload))},ensure_ascii=False).encode() if 'envelope=1' in urlsplit(self.path).query else payload);return
         if path=='/api/project':
-            with PROJECT_LOCK:
-                try: payload=PROJECT.read_bytes()
-                except FileNotFoundError:payload=b'{}'
+            try:
+                with PROJECT_LOCK:
+                    try: payload=PROJECT.read_bytes()
+                    except FileNotFoundError:payload=b'{}'
+                    if 'envelope=1' in urlsplit(self.path).query:
+                        obj=json.loads(payload)
+                        payload=json.dumps({'project':obj,'revision':camera_revision(obj)},ensure_ascii=False).encode()
+            except Exception:return self.bad(500,'制作状態（project_state.json）を読めませんでした')
             self.send(200,payload);return
-        if path=='/api/project':
-            with PROJECT_LOCK:
-                try: payload=PROJECT.read_bytes()
-                except FileNotFoundError:payload=b'{}'
-            self.send(200,json.dumps({'project':json.loads(payload),'revision':camera_revision(json.loads(payload))},ensure_ascii=False).encode() if 'envelope=1' in urlsplit(self.path).query else payload);return
         if path=='/api/favorites':
             try: payload=FAVORITES.read_bytes()
             except FileNotFoundError:payload=b'[]'
@@ -366,13 +380,14 @@ class Handler(BaseHTTPRequestHandler):
                     expected=self.headers.get('If-Match')
                     if not expected:
                         return self.bad(428,'bundle revision required: reload before saving')
-                    current=read_bundle(PROJECT,DATA/'camera_project.json')
+                    current=read_bundle(PROJECT,DATA/'camera_project.json',strict=True)
                     if expected!=bundle_revision(current):
                         return self.bad(409,'bundle changed on server: refresh before saving')
                     result=save_bundle(PROJECT,DATA/'camera_project.json',data)
                     result['revision']=bundle_revision(read_bundle(PROJECT,DATA/'camera_project.json'))
                 sync_bump()
                 self.send(200,json.dumps(result).encode());return
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
             except (ValueError,TypeError,KeyError) as exc:return self.bad(400,str(exc))
         if urlsplit(self.path).path=='/api/camera/vmd/preview-pose':
             try:
@@ -420,10 +435,23 @@ class Handler(BaseHTTPRequestHandler):
                 from camera_sequence_edit import edit
                 with PROJECT_LOCK:
                     path=DATA/'camera_project.json'
-                    updated=edit(camera_read(path),request)
+                    updated=edit(camera_read_project(path)[0],request)
                     camera_save(path,updated)
                 self.send(200,json.dumps({'ok':True,'sequence':updated.get('sequence',[])},ensure_ascii=False).encode());return
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
             except (ValueError,TypeError,KeyError) as exc:return self.bad(400,str(exc))
+        if urlsplit(self.path).path=="/api/camera/project/reset":
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<=length<=4096:raise ValueError('bad length')
+                body=json.loads(self.rfile.read(length)) if length else None
+                if not isinstance(body,dict) or body.get('confirm')!='reset-camera-project':raise ValueError('no confirm')
+            except (ValueError,TypeError):return self.bad(400,'確認の文字列がありません',code='confirmation_required')
+            try:
+                with PROJECT_LOCK:
+                    backup=camera_reset_project(DATA/'camera_project.json')
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
+            self.send(200,json.dumps({'backup':backup},ensure_ascii=False).encode());return
         if urlsplit(self.path).path=="/api/camera/project":
             try:
                 length=int(self.headers.get('Content-Length','0'))
@@ -431,10 +459,12 @@ class Handler(BaseHTTPRequestHandler):
                 obj=json.loads(self.rfile.read(length))
                 with PROJECT_LOCK:
                     expected=self.headers.get('If-Match')
-                    if expected and expected!=camera_revision(camera_read(DATA/'camera_project.json')):
+                    current=camera_read_project(DATA/'camera_project.json')[0]  # If-Match の有無にかかわらず書く前に厳格に読む（B-3）
+                    if expected and expected!=camera_revision(current):
                         return self.bad(409,'camera project changed on server: refresh before saving')
                     result=camera_save(DATA/'camera_project.json',obj)
                 self.send(200,json.dumps({**result,'_revision':camera_revision(result)}).encode());return
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
             except (ValueError,TypeError,KeyError) as exc:return self.bad(400,str(exc))
         if urlsplit(self.path).path=='/api/pose/solve':
             try:

@@ -53,3 +53,6 @@
 - SCR-25 の初回セットアップ手順チェックは NF-012、素材の一括タグ付け・コレクションは NF-004、素材単体の書き出しは NF-010 に含める。
 - SCR-06「依存素材を表示」と SCR-08 の依存参照は REVIEW-010（P2 移植候補）として扱う。
 - 対応表は `docs/ui/SCREEN_IMPLEMENTATION_MATRIX.json`（`tools/gen_screen_matrix.mjs` で `studio/js/screens.js` から再生成）に NF 番号を反映した。
+
+
+> 2026-10-20 所有者決定：NF-014 のうち「ステージ配置の基本（位置・回転・大きさ）」のみ承認し P2 ④ に編入。残りは未承認のまま。

@@ -62,13 +62,14 @@ def validate_bundle(obj):
     return result
 
 
-def read_bundle(combination_path, camera_path):
-    from bai_camera import read as camera_read
+def read_bundle(combination_path, camera_path, strict=False):
+    """strict=True のときだけカメラを read_project で読み、壊れていれば CameraProjectInvalid を投げる（B-3）。"""
+    from bai_camera import read as camera_read, read_project
     cp = Path(combination_path)
     combination = json.loads(cp.read_text(encoding='utf-8')) if cp.exists() else None
     workspace_path = cp.with_suffix('.workspace.json')
     workspace = json.loads(workspace_path.read_text(encoding='utf-8')) if workspace_path.exists() else None
-    return {'schema': 1, 'combination': combination, 'camera': camera_read(camera_path),
+    return {'schema': 1, 'combination': combination, 'camera': read_project(camera_path)[0] if strict else camera_read(camera_path),
             'workspace': workspace, 'complete': combination is not None}
 
 

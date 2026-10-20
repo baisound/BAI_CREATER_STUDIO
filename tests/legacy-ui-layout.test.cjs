@@ -5,32 +5,23 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const fs = require('node:fs');
-const { spawn } = require('node:child_process');
-const { chromium } = require('playwright');
+const harness = require('./helpers/studio-harness.cjs');
 
-const root = path.resolve(__dirname, '..');
 const PORT = Number(process.env.LEGACY_UI_TEST_PORT || 8798);
-const BASE = `http://127.0.0.1:${PORT}`;
-const python = process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
-const exe = process.env.CHROMIUM || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+const exe = harness.chromiumPath();
 
-test('legacy UI layout', { skip: !fs.existsSync(exe) && 'chromium not available' }, async () => {
-  const server = spawn(python, ['server.py', String(PORT)], { cwd: root, stdio: 'ignore' });
+test('legacy UI layout', { skip: exe && !fs.existsSync(exe) && 'chromium not available' }, async () => {
+  const server = await harness.startServer({ port: PORT });
+  const BASE = server.base;
   let browser;
   try {
-    for (let i = 0; i < 60; i++) { try { if ((await fetch(`${BASE}/api/server-version`)).ok) break; } catch { /* wait */ } await new Promise((r) => setTimeout(r, 200)); }
-    browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--enable-unsafe-swiftshader'] });
-    const THREE_DIR = process.env.THREE_DIR || path.join(root, 'node_modules', 'three');
-    const haveThree = fs.existsSync(THREE_DIR);
+    browser = await server.launchBrowser();
+    const haveThree = harness.haveThree();
     const SECTIONS = ['timeline-studio', 'skeleton-lab', 'foot-qa', 'bai-ai-manager', 'bai-pose-editor'];
     const shotDir = process.env.LAYOUT_SHOT_DIR;
     for (const [w, hgt] of [[1280, 720], [1600, 900], [1920, 1080]]) {
       const page = await browser.newPage({ viewport: { width: w, height: hgt } });
-      if (haveThree) await page.route(/cdn\.jsdelivr\.net\/npm\/three@[^/]+\/(.*)/, (route) => {
-        const f = path.join(THREE_DIR, route.request().url().match(/three@[^/]+\/([^?#]*)/)[1]);
-        if (!fs.existsSync(f)) return route.fulfill({ status: 404, body: 'not found' });
-        route.fulfill({ status: 200, contentType: 'text/javascript', body: fs.readFileSync(f), headers: { 'access-control-allow-origin': '*' } });
-      });
+      await harness.routeThree(page);
       const errs = []; page.on('pageerror', (e) => errs.push(e.message));
       await page.goto(`${BASE}/index.html`); await page.waitForTimeout(2000);
       const box = (sel) => page.evaluate((s) => { const e = document.querySelector(s); if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }, sel);
@@ -66,5 +57,5 @@ test('legacy UI layout', { skip: !fs.existsSync(exe) && 'chromium not available'
     const fh = await page.evaluate(() => document.getElementById('frame-number').getBoundingClientRect().height);
     assert.ok(fh < 60, `frame-number height ${fh}`);
     await page.click('#next', { timeout: 3000 });
-  } finally { if (browser) await browser.close(); server.kill(); }
+  } finally { if (browser) await browser.close(); await server.stop(); }
 });

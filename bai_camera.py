@@ -1,5 +1,6 @@
 """BAI Camera: standalone, offline camera keyframe store and deterministic interpolation."""
-import json, math, os, threading
+import copy, hashlib, json, math, os, threading
+from datetime import datetime, timezone
 from pathlib import Path
 from camera_easing import MODES as EASING_MODES, handles as easing_handles, ease
 LOCK=threading.RLock()
@@ -76,6 +77,51 @@ def sample(project,frame):
 def read(path):
     try:return validate(json.loads(Path(path).read_text(encoding='utf8')))
     except (OSError,ValueError,TypeError):return validate(DEFAULT)
+class CameraProjectInvalid(Exception):
+    """camera_project.json を読めない（P2-WP-00b B-3）。ValueError を継承しない：既存の except (ValueError,...) に捕まって 400 になるのを避ける。"""
+    def __init__(self,message,backup_name=None):
+        super().__init__(message);self.message=message;self.backup_name=backup_name
+BACKUP_PREFIX='camera_project.invalid-'
+def _ensure_backup(path,raw):
+    """読んだファイルと同じフォルダに退避コピーを確かめる（同じ内容なら1回だけ）。退避名を返す。書けなければ OSError。"""
+    folder=Path(path).parent;sha8=hashlib.sha256(raw).hexdigest()[:8]
+    # 既存の退避は中身が同じときだけ使う（途中で切れた・手で直された退避を当てにしない）。
+    for found in sorted(folder.glob(f'{BACKUP_PREFIX}{sha8}-*.json')):
+        try:
+            if found.read_bytes()==raw:return found.name
+        except OSError:pass
+    stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ');name=f"{BACKUP_PREFIX}{sha8}-{stamp}.json";n=1
+    while (folder/name).exists():  # 同じ秒・同じ sha8 で中身が違う退避を上書きしない
+        name=f"{BACKUP_PREFIX}{sha8}-{stamp}-{n}.json";n+=1
+    temp=folder/(name+'.tmp')
+    try:
+        with open(temp,'wb') as f:
+            f.write(raw);f.flush();os.fsync(f.fileno())  # reset が元のファイルを置き換える前に、退避を確実にディスクへ書く
+        os.replace(temp,folder/name)
+    finally:
+        if temp.exists():temp.unlink()
+    return name
+def read_project(path):
+    """厳格な読込。(project, dropped_fields) を返す。ファイルが無ければ DEFAULT の複製（書かない）。読めなければ CameraProjectInvalid。"""
+    try:raw=Path(path).read_bytes()
+    except FileNotFoundError:return validate(copy.deepcopy(DEFAULT)),[]
+    except OSError as exc:raise CameraProjectInvalid('camera project is unreadable: '+type(exc).__name__,None)
+    try:return validate(json.loads(raw.decode('utf-8'))),[]
+    except (ValueError,TypeError,KeyError,AttributeError,UnicodeDecodeError,RecursionError) as exc:  # RecursionError：深く入れ子の JSON
+        reason='camera project is invalid: '+type(exc).__name__+': '+str(exc)
+    try:backup=_ensure_backup(path,raw)
+    except OSError:raise CameraProjectInvalid(reason,None)
+    raise CameraProjectInvalid(reason,backup)
+def reset_project(path):
+    """カメラ保存データを DEFAULT に戻す。先に退避を確かめ、退避できなければ何も書かない。退避名（無ければ None）を返す。"""
+    with LOCK:
+        try:raw=Path(path).read_bytes()
+        except FileNotFoundError:
+            save(path,copy.deepcopy(DEFAULT));return None
+        except OSError as exc:raise CameraProjectInvalid('camera project is unreadable: '+type(exc).__name__,None)
+        try:backup=_ensure_backup(path,raw)
+        except OSError as exc:raise CameraProjectInvalid('camera project backup failed: '+type(exc).__name__,None)
+        save(path,copy.deepcopy(DEFAULT));return backup
 def save(path,payload):
     value=validate(payload);p=Path(path);p.parent.mkdir(parents=True,exist_ok=True)
     with LOCK:
