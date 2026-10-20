@@ -561,6 +561,15 @@
       "dependency": "MOTION,DATA"
     },
     {
+      "id": "AUDIO-001",
+      "group": "AUDIO",
+      "phase": 5,
+      "name": "歌音声の取込・配置・同期",
+      "detail": "実波形・開始フレーム・サンプル頭出し・映像との試聴同期・保存復元",
+      "status": "計画・未検証",
+      "dependency": "CORE,DATA"
+    },
+    {
       "id": "LIP-001",
       "group": "LIP",
       "phase": 5,

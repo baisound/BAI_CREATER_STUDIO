@@ -190,6 +190,7 @@
       "route": "/workspace/10",
       "classification_proposal": "candidate_late",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
         "LIP-003",
@@ -1497,6 +1498,7 @@
       "route": "/workspace/10",
       "panel": "音声ライブラリ",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
         "LIP-003",
@@ -1521,6 +1523,7 @@
       "route": "/workspace/10",
       "panel": "マルチトラック",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
         "LIP-003",
@@ -1545,6 +1548,7 @@
       "route": "/workspace/10",
       "panel": "波形",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
         "LIP-003",
@@ -1563,6 +1567,25 @@
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
       "blockers": null
+    },
+    {
+      "screen_id": "SCR-10",
+      "route": "/workspace/10",
+      "panel": "歌音声の取込・配置",
+      "feature_ids": [
+        "AUDIO-001"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
     },
     {
       "screen_id": "SCR-10",

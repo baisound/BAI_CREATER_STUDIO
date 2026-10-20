@@ -1,8 +1,8 @@
 # 機能概要・要件台帳（正本）
 
-**対象:** v0.11.0-standalone（ドキュメントのみの追加コミット）
+**対象:** v0.11.0-standalone を起点に、2026-10-20 の追加決定を反映
 
-この会話の最初の「Mixamo格闘50パターン」から最新の提案までを、重複する要求を統合して **118 個の追跡可能な機能ID** に整理。
+最初の v0.11.0-standalone では118個の機能IDを整理した。その後の OBS・UX・REVIEW などと、2026-10-20に所有者が独立管理を承認した歌音声配置 `AUDIO-001` を含め、現行台帳は **148個**。件数と状態の正本は `FEATURE_REGISTER.json`。
 
 ## 読み方
 
@@ -29,9 +29,12 @@
 | 03 | MOTION: モーション素材・変換・品質 | 22 | CORE,DATA |
 | 04 | DANCE: マルチダンサー・接触 | 12 | MOTION,DATA |
 | 05 | LIP: リップ・表情・音声 | 11 | MOTION,DATA |
+| 05 | AUDIO: 歌音声の取込・配置・同期 | 1 | CORE,DATA |
 | 06 | CAM: カメラ・撮影テンプレート | 18 | DATA,MOTION |
 | 07 | RENDER: レンダリング・エフェクト | 15 | CORE,DATA,CAM |
 | 08 | LYRIC: JIZURA・MV・ステージ | 12 | DATA,CAM,RENDER |
+
+この表は Phase 01〜08 の制作機能を示す。残る横断ID（OBS・UX・REVIEW）は `FEATURE_REGISTER.json` で管理する。
 
 ## Phase 01 / CORE — 基盤・運用
 
@@ -109,6 +112,7 @@
 
 ## Phase 05 / LIP — リップ・表情・音声
 
+- **[AUDIO-001](FEATURE_DETAIL_JA.md#audio-001)** 歌音声の取込・配置・同期（リップシンクと同段階）
 - **[LIP-001](FEATURE_DETAIL_JA.md#lip-001)** SRT読込→リップVMD
 - **[LIP-002](FEATURE_DETAIL_JA.md#lip-002)** SRT＋歌声ステム音素同期
 - **[LIP-003](FEATURE_DETAIL_JA.md#lip-003)** 日本語子音・長音・閉口補正

@@ -216,12 +216,12 @@ test('approved feature panes stay reachable at desktop and narrow widths', async
   }
 });
 
-test('audio import shows the approved phase and unresolved BGM management ID', async () => {
+test('audio import shows its approved independent ID and phase', async () => {
   const page = await newPage();
   await page.goto(`${BASE}/workspace/10`);
   await page.click('.screen-head button:has-text("音声を読み込む")');
   const body = await page.textContent('[role="dialog"]');
-  assert.match(body, /O-LIP-01/);
+  assert.match(body, /AUDIO-001/);
   assert.match(body, /リップシンク/);
   assert.doesNotMatch(body, /Phase D/);
   await page.keyboard.press('Escape');

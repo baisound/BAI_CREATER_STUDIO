@@ -341,18 +341,18 @@ export const SCREENS = [
   {
     id: '10', title: '音声・BGM・効果音編集', nav: '音声・BGM', group: '制作',
     summary: '楽曲・効果音・歌声のトラックを並べ、リップ同期と書き出しを行う。',
-    classification: 'candidate_late', ids: ['LIP-001', 'LIP-002', 'LIP-003', 'LYRIC-006', 'RENDER-006', 'NF-002'],
+    classification: 'candidate_late', ids: ['AUDIO-001', 'LIP-001', 'LIP-002', 'LIP-003', 'LYRIC-006', 'RENDER-006', 'NF-002'],
     panels: [
       { name: '音声ライブラリ', status: 'mock' }, { name: 'マルチトラック', status: 'mock' }, { name: '波形', status: 'mock', note: '波形は装飾表示。音声デコードは未実装。' },
-      { name: 'EQ・ミキサー', status: 'unimpl', ids: ['NF-002'] }, { name: 'リップ同期', status: 'unimpl', ids: ['LIP-001', 'LIP-002'] }, { name: '音声書き出し', status: 'unimpl', ids: ['RENDER-006'] },
+      { name: '歌音声の取込・配置', status: 'unimpl', ids: ['AUDIO-001'] }, { name: 'EQ・ミキサー', status: 'unimpl', ids: ['NF-002'] }, { name: 'リップ同期', status: 'unimpl', ids: ['LIP-001', 'LIP-002'] }, { name: '音声書き出し', status: 'unimpl', ids: ['RENDER-006'] },
     ],
-    tools: [un('音声を読み込む', '歌音声の読込・配置・再生はリップシンク段階の承認済み範囲です。BGM配置の管理IDは未決（O-LIP-01）。LYRIC-006 は拍解析を扱います。', [], PH.LIP), un('リップVMDを生成', 'SRT/音素同期によるリップVMDはリップシンクフェーズの範囲です。', ['LIP-001', 'LIP-002'], PH.LIP)],
+    tools: [un('音声を読み込む', '歌音声の読込・配置・再生は AUDIO-001 としてリップシンク段階の承認済み範囲です。実音声の処理は未実装です。LYRIC-006 は拍解析を扱います。', ['AUDIO-001'], PH.LIP), un('リップVMDを生成', 'SRT/音素同期によるリップVMDはリップシンクフェーズの範囲です。', ['LIP-001', 'LIP-002'], PH.LIP)],
     left: { title: '音声ライブラリ', status: 'mock', search: true, list: [{ id: 'bgm', label: 'BGM Demo', meta: '3:12' }, { id: 'vo', label: 'Vocal Stem', meta: '3:12' }, { id: 'se1', label: 'SE Kick', meta: '0:01' }, { id: 'se2', label: 'SE Whoosh', meta: '0:02' }] },
     center: { type: 'viewport', hud: ['Mixer'], foot: 'ミキサー・EQ は ◇ 未実装（NF-002・未承認）。', plain: true },
     right: { tabs: [
       { id: 'mix', label: 'ミキサー', sections: [{ title: 'トラック', status: 'mock', controls: [sl('BGM 音量', -60, 6, 0, 'dB'), sl('Vocal 音量', -60, 6, -3, 'dB'), sl('SE 音量', -60, 6, -6, 'dB')] }, { title: 'EQ', status: 'unimpl', controls: [un('EQを開く', 'DAW型の音声編集は未承認の新規候補（NF-002）です。', ['NF-002'], PH.P4)] }] },
       { id: 'lip', label: 'リップ同期', sections: [{ title: 'リップ同期', status: 'unimpl', controls: [sel('入力', ['SRT字幕', '歌声ステム']), un('解析を開始', 'リップ同期は承認済みのリップシンクフェーズで実装予定です。', ['LIP-001', 'LIP-002'], PH.LIP)] }] },
-      { id: 'sync', label: '配置・同期', sections: [{ title: '歌音声と映像', status: 'unimpl', controls: [note('実波形、開始フレーム、サンプル頭出し、映像との同期をここで確認します。BGM配置の管理IDは O-LIP-01 で未決です。'), un('歌音声を配置', '歌音声の実読込・配置・同期は未実装です。管理IDは未決（O-LIP-01）。', [], PH.LIP)] }] },
+      { id: 'sync', label: '配置・同期', sections: [{ title: '歌音声と映像', status: 'unimpl', controls: [note('AUDIO-001：実波形、開始フレーム、サンプル頭出し、映像との同期をここで確認する予定です。'), un('歌音声を配置', 'AUDIO-001 の実読込・配置・同期は未実装です。', ['AUDIO-001'], PH.LIP)] }] },
       { id: 'phoneme', label: '口形補正', sections: [{ title: '歌声と口形キー', status: 'unimpl', controls: [note('SRTの読み修正、歌声境界の手修正、子音先行・長音・促音・閉口のキーを扱います。歌詞画面と同じ確定SRT素材IDを参照しても口形キーは別トラックに保存します。'), un('口形キーを編集', '口形の解析と補正は未実装です。', ['LIP-001', 'LIP-002', 'LIP-003'], PH.LIP)] }] },
       { id: 'beat', label: '拍・イベント', sections: [{ title: '拍の解析と手動修正', status: 'unimpl', controls: [un('拍を設定', '音声からの拍解析と時刻付きマーカーは未実装です。', ['LYRIC-006'], PH.D)] }] },
     ] },
