@@ -1,27 +1,29 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T13:40:00+09:00",
+  "updated_at": "2026-10-20T04:36:29+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "0620206",
+  "head_at_update": "7e68f40",
   "current": {
     "task": "P2（新UIへの移植）の詳細設計",
-    "status": "in_progress",
+    "status": "blocked",
     "step": "設計書 v4 を作成中（批評3回目の指摘 M1〜M8 と導線点検 §5 の項目1〜5 を反映）。次は最終判定（高性能モデル）。",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2 設計 v4 を仕上げ、最終判定を1回受けて条件を反映し、コミットする",
-    "所有者に Q1（新規プロジェクト作成の扱い）をカードで聞く。既定は ◇（未実装表示）",
-    "P2 を WP 順に実装する：WP-00a-1（データ隔離、高性能モデルでレビュー）→ 00a-2 → 00b → 00c（未接続区画の薄表示と導線点検 §5 の1〜5 を含む）→ 01 保存・読込 → 02/03 素材 → 04 3D表示・ステージ配置 → 05 モーション → 06 カメラ → 07 書き出し",
-    "各 WP の後に主要シナリオの通しE2E（tests/studio-p2-e2e-main.test.cjs）を回し、どこまで通しで動いたかを記録する",
-    "PR #5 以降のコミットを日本語の新しい PR にまとめる（base: recovery/phase-e-20261019）"
+    "解除後に P2 設計 v4 の残りを仕上げる（途中の差分は WIP コミット済み。git diff 0620206 -- docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md で確認）",
+    "最終判定を1回受けて条件を反映し、コミットする",
+    "Q1 をカードで所有者に聞く",
+    "P2 を WP-00a-1 から WP 順に実装する（各 WP の後に主要シナリオの通しE2E）",
+    "PR #5 以降のコミットを日本語の新しい PR にまとめる"
   ],
   "unverified": [
     "新UIの3D描画、実ファイルの取り込みと保存の往復は未確認",
     "既存の旧画面（index.html）は配置のみ復元。機能ごとの動作は未確認"
   ],
-  "blockers": [],
+  "blockers": [
+    "利用上限（2026-10-20 08:40 UTC＝17:40 JST に解除）。解除後、v4 の残り（批評3回目 M1〜M8、導線点検 §5 の1〜5 の WP-00c 反映）を仕上げる"
+  ],
   "owner_questions": [
     "Q1 新規プロジェクト作成の扱い（既定：◇ 未実装表示）",
     "Q2 旧機能を削ってよいか（既定：すべて残す）",
@@ -36,6 +38,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T04:36:29+00:00",
+      "by": "claude-code",
+      "event": "blocked",
+      "head": "7e68f40",
+      "text": "P2 設計 v4 の作成途中で利用上限に達し中断。途中の差分を WIP としてコミット。"
+    },
     {
       "at": "2026-10-20T13:40:00+09:00",
       "by": "claude-code",
