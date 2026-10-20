@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T09:04:33+00:00",
+  "updated_at": "2026-10-20T09:05:25+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "e3fb511",
+  "head_at_update": "6bf71a1",
   "current": {
     "task": "P2-WP-00a-1 データ隔離",
     "status": "in_progress",
-    "step": "設計 v5 承認済み。OWNER-5 を ROADMAP に記録し、Sonnet で WP-00a-1 の実装を開始",
+    "step": "bai_paths.py・conftest.py・test_data_isolation.py を実装し server.py ほかの保存先を data_dir() 化",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T09:05:25+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "6bf71a1",
+      "text": "P2-WP-00a-1 データ隔離: bai_paths.py・conftest.py・test_data_isolation.py を実装し server.py ほかの保存先を data_dir() 化"
+    },
     {
       "at": "2026-10-20T09:04:33+00:00",
       "by": "claude-code",
