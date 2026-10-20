@@ -161,12 +161,12 @@
 - **[RENDER-009](FEATURE_DETAIL_JA.md#render-009)** レンダリング自動検品
 - **[RENDER-010](FEATURE_DETAIL_JA.md#render-010)** レンダリング停止・再開・進捗
 - **[RENDER-011](FEATURE_DETAIL_JA.md#render-011)** Ray-MMD/MME素材登録
-- **[RENDER-012](FEATURE_DETAIL_JA.md#render-012)** AutoLuminous/Bloom/DOF/MotionBlur
+- **[RENDER-012](FEATURE_DETAIL_JA.md#render-012)** 発光・Bloom・MotionBlur・影
 - **[RENDER-013](FEATURE_DETAIL_JA.md#render-013)** 発光・火花・煙・衝撃波
 - **[RENDER-014](FEATURE_DETAIL_JA.md#render-014)** エフェクト設定・描画順・テンプレート
 - **[RENDER-015](FEATURE_DETAIL_JA.md#render-015)** MME適用設定のMMD向け出力
 
-`RENDER-011`〜`015` のA3所有者決定は [A3判断記録](../specs/A3_MMD_EFFECTS_DECISIONS_JA.md)。内蔵効果とRay-MMD素材の登録・MMD向け出力を区別し、効果別の測定と代表フレーム目視を併用する。見た目の優先候補は霧・塵・桜・きらめき・影・ボケ／ブラーで、[効果別候補](../specs/A3_VISUAL_EFFECT_PRIORITY_JA.md) に既存IDとの対応を記録した。機能実装とGPU実測は未完。
+`RENDER-011`〜`015` のA3所有者決定は [A3判断記録](../specs/A3_MMD_EFFECTS_DECISIONS_JA.md)。内蔵効果とRay-MMD素材の登録・MMD向け出力を区別し、効果別の測定と代表フレーム目視を併用する。見た目の優先候補は霧・塵・桜・きらめき・影・ボケ／ブラーで、[効果別候補](../specs/A3_VISUAL_EFFECT_PRIORITY_JA.md) に既存IDとの対応を記録した。ピントのボケはカメラの `CAM-005/E-FOCUS-01/02/F-DOF-01` が所有し、FXから同じ設定を参照する。機能実装とGPU実測は未完。
 
 ## Phase 08 / LYRIC — JIZURA・MV・ステージ
 
