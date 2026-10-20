@@ -23,30 +23,40 @@ export function createStore(initial) {
 
 /** @typedef {import('./api.js').ApiErr} ApiErr */
 
-export const project = createStore({
-  /** @type {'idle'|'loading'|'ready'|'error'} */ status: 'idle',
-  /** GET /api/project/bundle の data（combination は欠けていれば既定値で補う） @type {any} */ bundle: null,
-  /** 読込時の { combination, camera, workspace } の複製（外部変更の判定に使う） @type {any} */ base: null,
-  /** 統合バンドルの版（bundle_revision） @type {string|null} */ revision: null,
-  /** コンビネーション単体の版（GET /api/project?envelope=1 の revision） @type {string|null} */ projectRevision: null,
-  /** project_state.json が無い */ combinationMissing: false,
-  dirty: { combination: false, workspace: false, camera: false },
-  autosavePending: false,
-  saving: false,
-  /** 読込の失敗だけ（status は 'error'） @type {ApiErr|null} */ error: null,
-  /** 同期 tick の失敗（status は 'ready' のまま） @type {ApiErr|null} */ syncError: null,
-  /** 世代番号。読込・自動保存・統合保存を始めるたびに +1。await の後で値が変わっていたら結果を捨てる */ saveSeq: 0,
-  /** B-3 の 422 を受けたとき。status は 'ready' のまま @type {{backup: string|null}|null} */ cameraInvalid: null,
-  externalChange: false,
-  /** @type {string|null} */ syncRevision: null,
-  /** @type {string|null} */ lastCommandId: null,
-  /** @type {number|null} */ loadedAt: null,
-});
+/** project ストアの初期値。テストでは新しいストアを作るために使う。 */
+export function initialProjectState() {
+  return {
+    /** @type {'idle'|'loading'|'ready'|'error'} */ status: 'idle',
+    /** GET /api/project/bundle の data（combination は欠けていれば既定値で補う） @type {any} */ bundle: null,
+    /** 読込時の { combination, camera, workspace } の複製（外部変更の判定に使う） @type {any} */ base: null,
+    /** 統合バンドルの版（bundle_revision） @type {string|null} */ revision: null,
+    /** コンビネーション単体の版（GET /api/project?envelope=1 の revision） @type {string|null} */ projectRevision: null,
+    /** project_state.json が無い */ combinationMissing: false,
+    dirty: { combination: false, workspace: false, camera: false },
+    autosavePending: false,
+    saving: false,
+    /** 読込の失敗だけ（status は 'error'） @type {ApiErr|null} */ error: null,
+    /** 同期 tick の失敗（status は 'ready' のまま） @type {ApiErr|null} */ syncError: null,
+    /** 世代番号。読込・自動保存・統合保存を始めるたびに +1。await の後で値が変わっていたら結果を捨てる */ saveSeq: 0,
+    /** B-3 の 422 を受けたとき。status は 'ready' のまま。message はサーバーの文言（退避名と手順を含む） @type {{backup: string|null, message?: string}|null} */ cameraInvalid: null,
+    /** 未保存の変更がある間にサーバー側が更新された */ externalChange: false,
+    /** cameraInvalid の間にカメラ保存データが外部で直された（未保存があるので自動では読み込まない） */ cameraRecovered: false,
+    /** @type {string|null} */ syncRevision: null,
+    /** @type {string|number|null} */ lastCommandId: null,
+    /** @type {number|null} */ loadedAt: null,
+  };
+}
+
+export const project = createStore(initialProjectState());
+
+/** 「未保存がある」の判定（設計 §1.4）。状態を渡せる版（ストアを複数作るテスト用）。 @param {{dirty: {combination: boolean, workspace: boolean, camera: boolean}, autosavePending: boolean, saving: boolean}} s */
+export function hasUnsavedOf(s) {
+  return !!(s.dirty.combination || s.dirty.workspace || s.dirty.camera || s.autosavePending || s.saving);
+}
 
 /** 「未保存がある」の判定（設計 §1.4）。 */
 export function hasUnsaved() {
-  const s = project.get();
-  return !!(s.dirty.combination || s.dirty.workspace || s.dirty.camera || s.autosavePending || s.saving);
+  return hasUnsavedOf(project.get());
 }
 
 export const assets = createStore({

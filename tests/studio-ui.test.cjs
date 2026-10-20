@@ -108,11 +108,10 @@ test('unimplemented actions explain themselves; forms validate; nothing claims s
   assert.equal(await page.locator('#f-newProject-name').count(), 0);
   await page.keyboard.press('Escape');
 
+  // SCR-18 の「復元…」（模擬の確認フォーム）は ② で実際の［再読込］（確認付き）に置き換わった（P2 設計 §1.14、WP-01）。
   await page.goto(`${BASE}/workspace/18`);
-  await page.click('.screen-head button:has-text("復元…")');
-  await page.fill('#f-confirmRestore-confirm', '復元');
-  await page.click('[role="dialog"] footer button:has-text("復元を実行")');
-  assert.match(await page.textContent('.toast >> nth=-1'), /未接続/);
+  assert.equal(await page.locator('.screen-head button:has-text("復元…")').count(), 0);
+  await page.waitForSelector('[data-role="project-reload"]');
 });
 
 test('SCR-01 has no new-project form: all five buttons are unimplemented', async () => {
@@ -147,7 +146,7 @@ test('every action button on every screen responds', async () => {
     const tabsCount = await page.locator('.pane-right [role="tab"]').count();
     for (let t = 0; t < tabsCount; t++) {
       await page.locator('.pane-right [role="tab"]').nth(t).click();
-      const btns = page.locator('#main button[data-act]:not([data-act="href"]):not([data-act="nav"])');
+      const btns = page.locator('#main button[data-act]:not([data-act="href"]):not([data-act="nav"]):not([data-act="real"])');
       const count = await btns.count();
       for (let i = 0; i < count; i++) {
         const before = await page.locator('.toast').count();
@@ -168,7 +167,8 @@ test('read-only live data comes from the existing API', async () => {
   await page.waitForSelector('[data-live="serverVersion"] dl');
   assert.match(await page.textContent('[data-live="serverVersion"]'), /version/);
   await page.goto(`${BASE}/workspace/18`);
-  await page.waitForSelector('[data-live="projectBundle"] dl, [data-live="projectBundle"] p[style]');
+  // SCR-18 の制作状態は ② で features/project.js の実データ部品（projectSummary）になった。
+  await page.waitForSelector('[data-feature="projectSummary"] dl, [data-feature="projectSummary"] [data-kind]');
   // 実データの区画（status: real）はすべて、既存 API の値を表示する。取得できないときは「未接続」と出す（偽の値は出さない）。
   const seen = new Set();
   for (let n = 1; n <= 25; n++) {
@@ -186,7 +186,7 @@ test('read-only live data comes from the existing API', async () => {
       }
     }
   }
-  for (const key of ['serverVersion', 'projectBundle', 'cameraProject', 'cameraFocus', 'sequenceEval', 'aiStatus', 'diagnostics', 'qaSettings']) assert.ok(seen.has(key), `live key ${key} is shown somewhere`);
+  for (const key of ['serverVersion', 'cameraProject', 'cameraFocus', 'sequenceEval', 'aiStatus', 'diagnostics', 'qaSettings']) assert.ok(seen.has(key), `live key ${key} is shown somewhere`);
   await page.goto(`${BASE}/workspace/20`);
   await page.locator('.pane-center [role="tab"][data-tab="sys"]').click();
   assert.match(await page.textContent('#main'), /UA/);
@@ -353,20 +353,6 @@ test('mock playback is labelled as sample', async () => {
     await page.goto(`${BASE}/workspace/${id}`);
     assert.equal(await page.locator('#main .sample-banner').count(), 0, `no banner on ${id}`);
   }
-});
-
-test('sample project cards are marked', async () => {
-  const page = await newPage();
-  await page.goto(`${BASE}/workspace/01`);
-  const cards = page.locator('.media-card:has([data-role="sample-ribbon"])');
-  assert.equal(await cards.count(), 4);
-  assert.match(await page.textContent('[data-role="sample-ribbon"]'), /サンプル/);
-  const note = page.locator('[data-role="sample-project-note"]');
-  assert.match(await note.textContent(), /今のサーバーの制作状態は1つです/);
-  assert.match(await note.textContent(), /プロジェクト保存・復元（18）/);
-  await note.locator('button').click();
-  await atRoute(page, '18');
-  harness.assertNoErrors(page);
 });
 
 test('help pages render their content', async () => {

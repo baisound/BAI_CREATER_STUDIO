@@ -344,9 +344,7 @@
           "href": "/camera.html"
         }
       ],
-      "live_endpoints": [
-        "projectBundle"
-      ]
+      "live_endpoints": []
     },
     {
       "id": "SCR-19",
@@ -492,16 +490,16 @@
       "feature_ids": [
         "DATA-008"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": "現行サーバーは単一の制作状態のみを保持。複数プロジェクト一覧は未実装。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "現行サーバーは単一の制作状態のみを保持（実データ1枚）。複数プロジェクト一覧・新規作成は未実装（新規作成は ◇）。",
+      "evidence": "tests/studio-p2-project.test.cjs::home shows one real project card and no sample projects",
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "read_only_display_only",
       "blockers": null
     },
     {
@@ -2413,16 +2411,16 @@
       "feature_ids": [
         "DATA-008"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": "現行は単一制作状態。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "単一の制作状態（複数プロジェクトの一覧・切替は未実装）。",
+      "evidence": "tests/studio-p2-project.test.cjs::SCR-18 shows the real production state",
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "read_only_display_only",
       "blockers": null
     },
     {
@@ -2433,17 +2431,17 @@
         "DATA-008",
         "CORE-012"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "project_state_bundle.py（リビジョン検査・事前検証付き復元）。現行カメラ画面の保存/復元UI。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "自動保存（コンビネーション）と統合保存（コンビネーション＋カメラ＋作業参照）、履歴の戻す・やり直す、外部変更の検知。版（revision）による同時編集の検知付き。",
+      "evidence": "tests/studio-p2-project.test.cjs::undo autosaves the combination with the envelope revision",
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "read_only_display_only",
+      "blockers": null
     },
     {
       "screen_id": "SCR-18",
@@ -2452,17 +2450,17 @@
       "feature_ids": [
         "DATA-009"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "camera_project_revision.py（楽観的同時実行リビジョン）。履歴一覧は未。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "編集履歴はコンビネーションのみ。任意の版との差分比較は未実装。",
+      "evidence": "tests/studio-p2-project.test.cjs::SCR-18 shows the real production state",
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "read_only_display_only",
+      "blockers": null
     },
     {
       "screen_id": "SCR-18",

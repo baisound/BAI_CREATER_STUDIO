@@ -70,10 +70,15 @@
     {
       "id": "P2-WP-01",
       "step": "② プロジェクト新規作成・保存/読込",
-      "state": "not_started",
+      "state": "verified",
       "commits": [],
-      "tests": [],
-      "unverified": [],
+      "tests": [
+        "pytest 357 passed（test_project_envelope.py に壊れた project_state.json への POST の3件を追加）、tests/studio-p2-project-logic.test.mjs 22件、tests/studio-p2-project.test.cjs 16件、npm run test:node-all 全件合格、tsc 合格、通し確認は S1〜S8 に WP-01 で有効になる手順なし（furthest_step=null のまま）、実 data/ ハッシュ不変"
+      ],
+      "unverified": [
+        "Opus レビュー未実施（設計の指定：上書き・競合・自動保存・世代番号）。GPU・Windows 実機未検証。beforeunload の確認は headless Chromium のみ。",
+        "ブラウザーで3D・外部 MCP からの同時保存の組み合わせは自動テストの範囲のみ（所有者の手順 §3.1 は任意）。"
+      ],
       "notes": "Q1（新規作成）：所有者回答待ち。既定は ◇ のまま",
       "owner_check": null
     },

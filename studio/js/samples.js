@@ -58,14 +58,6 @@ export const ASSETS = [
   { id: 'a28', name: '空_夜（月）', file: '.hdr', type: '画像', cat: 'image', img: 'hdr-moon', tags: ['HDRI'] },
 ];
 
-/** @type {{name: string, img: string, state: string, desc: string, updated: string}[]} */
-export const PROJECTS = [
-  { name: 'City_Night_MV', img: 'proj-city-night', state: '進行中', desc: '夜の街を舞台にしたミュージックビデオ', updated: '10/19 14:28' },
-  { name: 'Blue_Resonance', img: 'proj-blue-resonance', state: '書き出し待ち', desc: '水と光の世界の短編アニメーション', updated: '10/18 22:41' },
-  { name: 'Sakura_Dance', img: 'proj-sakura-dance', state: '編集中', desc: '和風ステージでのダンスアニメーション', updated: '10/17 19:03' },
-  { name: 'Virtual_Stage_Live', img: 'proj-virtual-stage', state: '企画', desc: 'バーチャルライブ向けステージ制作', updated: '10/15 11:20' },
-];
-
 /** @type {{name: string, img: string, spec: string, dur: string}[]} */
 export const RENDERS = [
   { name: 'City_Night_MV_final.mp4', img: 'render-city', spec: '4K / 60fps', dur: '00:04:32' },

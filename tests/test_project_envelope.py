@@ -81,6 +81,39 @@ class ProjectEnvelopeTest(unittest.TestCase):
         _, body = self.get('/api/project?envelope=1')
         self.assertEqual(json.loads(body)['revision'], saved['revision'])
 
+    def post(self, project, if_match=None):
+        headers = {'Content-Type': 'application/json'}
+        if if_match:
+            headers['If-Match'] = if_match
+        req = urllib.request.Request(self.base + '/api/project', data=json.dumps(project).encode(), method='POST', headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=5) as r:
+                return r.status, r.read()
+        except urllib.error.HTTPError as e:
+            return e.code, e.read()
+
+    def test_post_with_if_match_on_broken_file_is_500_and_keeps_the_file(self):
+        # P2-WP-01 / DATA-008：壊れた project_state.json に If-Match 付きで保存すると、500 を返さずに接続が切れていた。
+        raw = b'{"broken":'
+        server.PROJECT.write_bytes(raw)
+        project = {'schema': 1, 'timeline': [], 'history': [], 'cursor': -1}
+        status, body = self.post(project, if_match='x')
+        self.assertEqual(status, 500)
+        self.assertIn('project_state.json', json.loads(body)['error'])
+        self.assertEqual(server.PROJECT.read_bytes(), raw, 'ファイルは上書きしない')
+
+    def test_post_with_if_match_on_undecodable_file_is_500(self):
+        raw = b'\xff\xfe'
+        server.PROJECT.write_bytes(raw)
+        status, _ = self.post({'schema': 1, 'timeline': [], 'history': [], 'cursor': -1}, if_match='x')
+        self.assertEqual(status, 500)
+        self.assertEqual(server.PROJECT.read_bytes(), raw)
+
+    def test_post_with_stale_if_match_is_still_409(self):
+        server.PROJECT.write_text(json.dumps({'schema': 1, 'timeline': [], 'history': [], 'cursor': -1}), encoding='utf8')
+        status, _ = self.post({'schema': 1, 'timeline': [], 'history': [], 'cursor': -1}, if_match='stale')
+        self.assertEqual(status, 409)
+
 
 if __name__ == '__main__':
     unittest.main()

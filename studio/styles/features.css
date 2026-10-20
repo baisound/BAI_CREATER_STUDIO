@@ -31,3 +31,18 @@
 
 /* ---- 共通：feature 部品の置き場 ---- */
 #keepalive { display: none; }
+
+/* ---- ② プロジェクト（features/project-view.js） ---- */
+.proj-status { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sm); }
+.proj-status .proj-status-text { font-weight: 600; }
+.proj-status[data-tone="ok"] .proj-status-text { color: var(--ok); }
+.proj-status[data-tone="warn"] .proj-status-text { color: var(--warn); }
+.proj-status[data-tone="error"] .proj-status-text { color: var(--danger); }
+.proj-status[data-tone="busy"] .proj-status-text { color: var(--text-2); }
+.proj-status .proj-status-detail { margin: 0; color: var(--text-2); overflow-wrap: anywhere; }
+.proj-status.compact { display: block; }
+.proj-status.compact .proj-status-text { font-weight: 400; font-size: var(--fs-xs); }
+.proj-hist { max-height: 220px; overflow: auto; margin-bottom: 6px; }
+.proj-hist li { justify-content: space-between; }
+.media.tile-plain { display: flex; align-items: center; justify-content: center; background: var(--surface-3); color: var(--text-2); }
+.project-card .media-body { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px 10px; }

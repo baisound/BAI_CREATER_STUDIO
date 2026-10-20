@@ -7,7 +7,8 @@ import { stateBox } from './state-box.js';
 import { project, assets } from './store.js';
 import { LIVE, summarize } from './live.js';
 import { icon, SCREEN_ICON } from './icons.js';
-import { img, ASSETS, ASSET_CATS, PROJECTS, RENDERS } from './samples.js';
+import { img, ASSETS, ASSET_CATS, RENDERS } from './samples.js';
+import { loadProject, startExternalSync, installUnloadGuard, describeStatus } from './features/project.js';
 
 /** @typedef {import('./screens.js').Screen} Screen */
 /** @typedef {import('./screens.js').Control} Control */
@@ -398,6 +399,13 @@ function rightPane(s, tab) {
 function leftPane(s) {
   const L = /** @type {NonNullable<Screen['left']>} */ (s.left);
   if (/** @type {any} */ (L).custom === 'assetCats') return assetCats();
+  const customKey = /** @type {any} */ (L).custom;
+  if (customKey && FEATURES[customKey]) {
+    // 実データの左パネル（P2 設計 §1.6-1）。custom の値は FEATURES のキーにそろえる。
+    return region(h('section', { class: 'pane pane-left', 'aria-label': L.title },
+      h('div', { class: 'pane-head' }, h('h2', null, L.title), h('span', { class: 'spacer' }), regionTag(L.status)),
+      h('div', { class: 'pane-body' }, FEATURES[customKey](makeCtx(), { t: 'feature', key: customKey }))), L.status);
+  }
   return region(h('section', { class: 'pane pane-left', 'aria-label': L.title },
     h('div', { class: 'pane-head' }, h('h2', null, L.title), h('span', { class: 'spacer' }), regionTag(L.status)),
     h('div', { class: 'pane-body' }, L.list ? selectList({ items: L.list, search: L.search, tree: L.tree, label: L.title, selected: L.list[0] && L.list[0].id, onSelect: (id) => toast(`サンプル表示：「${(L.list || []).find((x) => x.id === id)?.label}」を選択`, 'mock') }) : null)), L.status);
@@ -560,11 +568,9 @@ function homeView(c) {
     h('ul', { class: 'hero-steps', 'aria-label': 'できること' }, ['キャラクターを動かす', 'シーンで魅せる', 'カメラで語る', 'エフェクトで彩る', 'AIで広げる'].map((x) => h('li', null, x))),
     h('span', { class: 'sample-tag' }, 'サンプル画像'));
 
-  const projects = block('最近のプロジェクト', 'mock', navLink('保存・復元へ', '18'),
-    h('div', { class: 'card-row cols-4' }, PROJECTS.map((p) => h('button', { type: 'button', class: 'media-card', onclick: () => toast(`サンプル表示：「${p.name}」は仮のプロジェクトです（開けません）。`, 'mock') },
-      h('div', { class: 'media' }, h('img', { src: img(p.img), alt: '', loading: 'lazy' }), h('span', { class: 'pill' }, p.state), h('span', { class: 'ribbon', dataset: { role: 'sample-ribbon' } }, 'サンプル')),
-      h('div', { class: 'media-body' }, h('b', null, p.name), h('span', { class: 'xs muted' }, `更新 ${p.updated}（サンプル）`), h('span', { class: 'small muted clamp' }, p.desc))))),
-    h('p', { class: 'section-note', dataset: { role: 'sample-project-note' } }, '一覧は仮データです。今のサーバーの制作状態は1つです。', navLink('プロジェクト保存・復元（18）', '18'), 'で確認できます。'));
+  const projects = block('最近のプロジェクト', 'real', navLink('保存・復元へ', '18'),
+    h('div', { class: 'card-row cols-4' }, FEATURES.projectCard(makeCtx(), { t: 'feature', key: 'projectCard' })),
+    h('p', { class: 'section-note', dataset: { role: 'project-note' } }, '複数のプロジェクト管理は未実装です（新規作成は ◇）。今のサーバーの制作状態は1つです。'));
 
   /** @type {[string, string, string, string][]} */
   const qa = [['plus', '新規プロジェクト', '作品制作を開始', 'unimpl:newProject'], ['stage', 'シーンを作成', 'ステージ・背景を配置', 'nav:06'], ['user', 'キャラクターを追加', 'モデルを読み込み', 'nav:12'], ['motion', 'モーションを読み込み', 'VMD・モーション', 'nav:13'], ['camera', 'カメラを設定', 'カメラワーク・プリセット', 'nav:02'],
@@ -719,7 +725,7 @@ function helpPage() {
   drawSteps();
   const guides = [['ダンスMVのカメラを作る', '02'], ['ピントの外れを調べる', '03'], ['VMDを確認・リターゲットする', '13'], ['カメラVMDを読み書きする', '15'], ['制作状態を確認する', '18'], ['不具合を報告する（診断ZIP）', '24']];
   const faq = [
-    ['この新UIで保存できますか？', 'できません。新UIは操作確認用のモックです。保存・復元・変換は「現行画面」から行えます。「実機能」表示の箇所だけ既存APIを読み取っています。'],
+    ['この新UIで保存できますか？', '「プロジェクト保存・復元（18）」でコンビネーション・カメラ・作業中の素材参照を保存・復元できます。それ以外の保存・変換はまだ「現行画面」から行います。「実機能」表示の箇所だけが既存APIにつながっています。'],
     ['「◇ 未実装」は何ですか？', 'まだ実装していない機能です。押すと説明と、ロードマップ上の予定（承認済みフェーズ／未承認候補）を表示します。'],
     ['「サンプル表示」の数値は本物ですか？', 'いいえ。画面内だけの仮データで、保存も計算もしていません。'],
     ['現行の画面はなくなりますか？', 'なくなりません。既存機能は段階的に新UIへ移植し、移植が終わるまで現行画面を残します。'],
@@ -821,6 +827,21 @@ function modeSwitch(modes) {
 }
 
 buildNav();
+// 制作状態の読込・外部変更の検知は、どの画面から開いても1回だけ始める（P2 設計 §2.2(d)-1）。
+void loadProject();
+startExternalSync();
+installUnloadGuard();
+// 保存・復元（18）以外の画面では、制作状態に注意が要る状態へ変わったときにトーストで知らせる（設計 §2.2(b)。トップバーの印は作らない）。
+{
+  let lastKey = '';
+  const ATTENTION = new Set(['offline', 'error', 'sync-error', 'camera-invalid', 'camera-recovered', 'external']);
+  project.subscribe((st) => {
+    const d = describeStatus(st);
+    if (d.key === lastKey) return;
+    lastKey = d.key;
+    if (currentScreenId !== '18' && ATTENTION.has(d.key)) toast(`プロジェクト：${d.text}（保存・復元（18）で確認できます）`, 'err');
+  });
+}
 if (location.pathname === '/workspace' || location.pathname === '/workspace/') navigate('01', { replace: true });
 else render();
 
