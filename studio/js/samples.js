@@ -11,19 +11,6 @@ export const img = (name) => `/studio/assets/samples/${name}.webp`;
  *   meta?: [string, string][], tags?: string[], desc?: string, deps?: string[]}} SampleAsset
  */
 
-/** @type {{id: string, label: string, icon: string}[]} */
-export const ASSET_CATS = [
-  { id: 'char', label: 'キャラクター', icon: 'user' },
-  { id: 'stage', label: 'ステージ', icon: 'stage' },
-  { id: 'prop', label: '小物', icon: 'template' },
-  { id: 'mat', label: 'マテリアル', icon: 'sphere' },
-  { id: 'fx', label: 'エフェクト', icon: 'sparkle' },
-  { id: 'audio', label: 'オーディオ', icon: 'music' },
-  { id: 'video', label: '動画', icon: 'render' },
-  { id: 'image', label: '画像', icon: 'image' },
-  { id: 'motion', label: 'モーション（VMD）', icon: 'motion' },
-];
-
 /** @type {SampleAsset[]} */
 export const ASSETS = [
   { id: 'a01', name: '朱華（しゅか）', file: '.vrm', type: 'キャラクター', cat: 'char', img: 'char-shuka', tags: ['和風', 'オリジナル'] },

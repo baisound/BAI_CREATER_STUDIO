@@ -97,6 +97,7 @@ export const SCREENS = [
     existing: [MAIN, CAMERA], live: ['serverVersion', 'diagnostics'],
     panels: [
       { name: '最近のプロジェクト', status: 'real', evidence: 'tests/studio-p2-project.test.cjs::home shows one real project card and no sample projects', note: '現行サーバーは単一の制作状態のみを保持（実データ1枚）。複数プロジェクト一覧・新規作成は未実装（新規作成は ◇）。', ids: ['DATA-008'] },
+      { name: '最近の素材', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::home shows only assets imported in this page', note: 'このページで取り込んだ素材だけ（API に登録日時が無いため）。', ids: ['MOTION-003'] },
       { name: 'クイックアクション', status: 'partial', note: '現行画面へのリンクのみ実在。' },
       { name: '制作ステータス', status: 'partial', note: 'Phase E 台帳（docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json）の要約。' },
       { name: '新規作成', status: 'unimpl', note: '現在のサーバーは制作状態を1つだけ保持。新規作成は未実装（Q1 回答待ち）。テンプレート（ダンスMV等）からの作成は NF-019（未承認）。', ids: ['DATA-008', 'NF-019'] },
@@ -295,21 +296,18 @@ export const SCREENS = [
     classification: 'candidate_late', ids: ['MOTION-002', 'DATA-013', 'REVIEW-010', 'NF-004', 'NF-013'],
     existing: [MAIN],
     panels: [
-      { name: '素材カテゴリ', status: 'mock' },
-      { name: '検索・タグ', status: 'partial', note: '現行画面の統合素材ライブラリに検索・カテゴリあり。', ids: ['MOTION-002'] },
+      { name: '素材カテゴリ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::library lists real assets by category', note: '/api/assets の実数で分類・件数を表示。ステージ・オーディオなどは登録手段がなく0件。', ids: ['MOTION-002'] },
+      { name: '検索・タグ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::search and format filter work on real data', note: '名前・形式で検索。タグは未実装。', ids: ['MOTION-002'] },
       { name: 'サムネイル', status: 'unimpl', ids: ['MOTION-016'] },
-      { name: 'メタデータ', status: 'mock' },
+      { name: 'メタデータ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::detail shows registration facts', note: '登録情報のみ。作者・ライセンスは未記録。', ids: ['MOTION-002'] },
       { name: '依存参照', status: 'unimpl', ids: ['REVIEW-010'] },
-      { name: 'インポートキュー', status: 'partial', note: '現行画面の素材登録（FBX/GLB/VRM/PMX ZIP/VMD）。', ids: ['MOTION-003'] },
+      { name: 'インポートキュー', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::multiple files import sequentially', note: 'GLB・VRM・PMX ZIP・VMD・FBX を登録（複数選択可）。上書き・置き換えは事前に確認。', ids: ['MOTION-003'] },
     ],
-    tools: [btn('現行画面で素材を登録', 'href:/'), un('一括インポート', 'インポートキューの一括処理は未実装。', ['NF-004'], PH.P4), sel('並び替え', ['名前', '種別', '追加日'])],
-    left: { title: '素材管理', status: 'mock', custom: 'assetCats' },
-    center: { type: 'library', status: 'mock' },
+    tools: [{ t: 'feature', key: 'importButton' }, un('一括インポート', '一括のタグ付け・変換は未実装です（複数ファイルの取り込みは［素材を取り込む…］でできます）。', ['NF-004'], PH.P4)],
+    left: { title: '素材管理', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::library lists real assets by category', custom: 'assetCategories' },
+    center: { type: 'feature', key: 'assetLibrary', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::library lists real assets by category' },
     right: { tabs: [
-      { id: 'meta', label: '素材の詳細', custom: 'assetDetail', sections: [
-        { title: '選択中の素材', status: 'mock', controls: [{ t: 'kv', rows: [['名前', '選択してください'], ['形式', '—'], ['ライセンス', '—'], ['ハッシュ', '—']] }] },
-        { title: 'タグ', status: 'mock', controls: [{ t: 'text', label: 'タグを追加', placeholder: '例: ダンス', required: false }] },
-      ] },
+      { id: 'meta', label: '素材の詳細', custom: 'assetDetail', sections: [] },
       { id: 'deps', label: '依存参照', sections: [
         { title: '依存参照', status: 'unimpl', controls: [un('参照元を表示', '素材の参照追跡（ライセンス・生成元）は移植候補（REVIEW-010）。', ['REVIEW-010'], PH.P2)] },
       ] },
@@ -649,7 +647,7 @@ export const SCREENS = [
     panels: [
       { name: '外部アプリ', status: 'unimpl', ids: ['MOTION-007'] },
       { name: '接続設定', status: 'unimpl' },
-      { name: 'インポート', status: 'partial', note: '現行画面の素材登録（FBX/GLB/VRM/PMX ZIP/VMD）。', ids: ['MOTION-003'] },
+      { name: 'インポート', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::import dialog opens from nav query and clears it', note: '素材管理（08）の取り込みダイアログで FBX/GLB/VRM/PMX ZIP/VMD を登録。', ids: ['MOTION-003'] },
       { name: 'エクスポート', status: 'partial', note: 'VMD書き出し・カメラVMD書き出しは部分実装。', ids: ['MOTION-006', 'CAM-016'] },
       { name: '変換', status: 'partial', note: 'tools/extract_fbx_motion_blender.py（Blender必須）。', ids: ['MOTION-007'] },
       { name: 'バッチ', status: 'unimpl', ids: ['NF-010'] },
@@ -658,7 +656,7 @@ export const SCREENS = [
     center: { type: 'cards', cards: [
       { title: '対応形式（現行コード）', span: 12, status: 'partial', controls: [{ t: 'table', cols: ['形式', '読込', '書出', '備考'], rows: [['FBX', '可（Blender経由の抽出あり）', '—', 'MOTION-003/007'], ['GLB / VRM', '可（プレビュー）', '—', 'VRMは静的形状確認'], ['PMX ZIP', '可', '—', 'テクスチャ同梱ZIP'], ['VMD（モーション）', '可', '部分', 'MOTION-006'], ['VMD（カメラ）', '可', '部分', 'F値等は拡張JSON'], ['BVH', '部分', '—', 'bvh_skeleton.py']] }] },
       { title: 'バッチ変換', span: 6, status: 'unimpl', controls: [un('バッチを作成', '外部アプリ自動連携・バッチ変換は未承認の新規候補（NF-010）。', ['NF-010'], PH.P4)] },
-      { title: 'インポート', span: 6, status: 'partial', controls: [link('現行画面で素材を登録', '/')] },
+      { title: 'インポート', span: 6, status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::import dialog opens from nav query and clears it', controls: [btn('素材を取り込む', 'nav:08?import=1', { primary: true }), note('素材管理（08）の取り込みダイアログが開きます（複数ファイル可）。')] },
     ] },
   },
   {

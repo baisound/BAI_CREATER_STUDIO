@@ -67,4 +67,4 @@ export const assets = createStore({
 });
 
 /** このページを開いている間だけ（保存しない）。 */
-export const imports = createStore({ /** @type {any[]} */ rows: [] });
+export const imports = createStore({ rows: /** @type {any[]} */ ([]) });

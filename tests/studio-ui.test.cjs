@@ -465,20 +465,16 @@ test('unimplemented dialog shows next action', async () => {
 
 test('leaving to legacy page asks first', async () => {
   const page = await newPage();
-  await page.goto(`${BASE}/workspace/08`);
-  await page.click('.screen-head button:has-text("現行画面で素材を登録")');
+  await page.goto(`${BASE}/workspace/12`);
+  await page.click('.screen-head button:has-text("現行画面でモデルを表示")');
   assert.match(await page.textContent('[role="dialog"]'), /新UIから離れます/);
   assert.match(await page.textContent('[role="dialog"]'), /戻る/);
   await page.keyboard.press('Escape');
-  assert.match(page.url(), /\/workspace\/08/);
-  await page.click('.screen-head button:has-text("現行画面で素材を登録")');
+  assert.match(page.url(), /\/workspace\/12/);
+  await page.click('.screen-head button:has-text("現行画面でモデルを表示")');
   await page.click('[role="dialog"] [data-role="leave-cancel"]');
-  assert.match(page.url(), /\/workspace\/08/);
-  // 本文中の <a>（08 のキューの注記、各画面の実装状態タブの「現行画面」）も同じ確認を通る
-  const anchor = page.locator('#main .lib-queue a[href="/"]').first();
-  await anchor.click();
-  assert.match(await page.textContent('[role="dialog"]'), /新UIから離れます/);
-  await page.keyboard.press('Escape');
+  assert.match(page.url(), /\/workspace\/12/);
+  // 本文中の <a>（各画面の実装状態タブの「現行画面」）も同じ確認を通る
   for (const id of ['06', '12', '23']) {
     await page.goto(`${BASE}/workspace/${id}?tab=status`);
     const a = page.locator('#main a[href="/"], #main a[href="/camera.html"]').first();
@@ -493,8 +489,8 @@ test('leaving to legacy page asks first', async () => {
   // 確認を通ると移動する
   // 旧画面は外部 CDN を読むので、ここでは / を空のページに差し替えて「移動した」ことだけを確かめる
   await page.route(`${BASE}/`, (route) => route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>legacy stub</title>' }));
-  await page.goto(`${BASE}/workspace/08`);
-  await page.click('.screen-head button:has-text("現行画面で素材を登録")');
+  await page.goto(`${BASE}/workspace/12`);
+  await page.click('.screen-head button:has-text("現行画面でモデルを表示")');
   await Promise.all([page.waitForURL(`${BASE}/`), page.click('[role="dialog"] [data-role="leave-go"]')]);
 });
 

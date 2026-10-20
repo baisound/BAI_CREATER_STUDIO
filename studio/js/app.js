@@ -7,7 +7,7 @@ import { stateBox } from './state-box.js';
 import { project, assets } from './store.js';
 import { LIVE, summarize } from './live.js';
 import { icon, SCREEN_ICON } from './icons.js';
-import { img, ASSETS, ASSET_CATS, RENDERS } from './samples.js';
+import { img, RENDERS } from './samples.js';
 import { loadProject, startExternalSync, installUnloadGuard, describeStatus } from './features/project.js';
 
 /** @typedef {import('./screens.js').Screen} Screen */
@@ -390,7 +390,7 @@ function statusTab(s) {
 /** @param {Screen} s @param {string|null} tab */
 function rightPane(s, tab) {
   const modeTabs = s.id === '27' && s.right ? s.right.tabs.filter((t) => lyricMode(tab) === 'detail' ? t.id !== 'quick' : t.id === 'quick') : s.right?.tabs;
-  const defs = scopedTabs([...(modeTabs ? modeTabs.map((t) => ({ id: t.id, label: t.label, render: () => (/** @type {any} */ (t).custom === 'assetDetail' ? assetDetail() : renderSections(t.sections)) })) : []), statusTab(s)]);
+  const defs = scopedTabs([...(modeTabs ? modeTabs.map((t) => ({ id: t.id, label: t.label, render: () => { const key = /** @type {any} */ (t).custom; return key && FEATURES[key] ? FEATURES[key](makeCtx(), { t: 'feature', key }) : renderSections(t.sections); } })) : []), statusTab(s)]);
   const t = tabs({ tabs: defs, selected: tab || undefined, label: `${s.title}のインスペクター`, onChange: (id) => {
     const url = new URL(location.href);
     if (url.searchParams.get('tab') !== id && location.pathname.startsWith('/workspace')) {
@@ -405,7 +405,6 @@ function rightPane(s, tab) {
 /** @param {Screen} s */
 function leftPane(s) {
   const L = /** @type {NonNullable<Screen['left']>} */ (s.left);
-  if (/** @type {any} */ (L).custom === 'assetCats') return assetCats();
   const customKey = /** @type {any} */ (L).custom;
   if (customKey && FEATURES[customKey]) {
     // 実データの左パネル（P2 設計 §1.6-1）。custom の値は FEATURES のキーにそろえる。
@@ -425,7 +424,7 @@ function centerPane(s) {
   switch (c.type) {
     case 'viewport': pane.append(viewport(c)); break;
     case 'home': pane.append(homeView(c)); break;
-    case 'library': pane.append(libraryView()); break;
+    case 'feature': pane.append(...[featureBlock(/** @type {any} */ (c))].flat()); region(pane, c.status || 'real'); break;
     case 'quad': {
       let sel = 0;
       const grid = h('div', { class: 'quad' });
@@ -641,120 +640,13 @@ function homeView(c) {
     h('div', { class: 'media' }, h('img', { src: img(r.img), alt: '', loading: 'lazy' }), h('span', { class: 'dur mono' }, r.dur)),
     h('div', { class: 'media-body' }, h('b', { class: 'small' }, r.name), h('span', { class: 'xs muted' }, `${r.spec}・サンプル`))))));
 
-  const recent = ['a04', 'a14', 'a06', 'a19'].map((id) => /** @type {import('./samples.js').SampleAsset} */ (ASSETS.find((a) => a.id === id)));
-  const assets = block('最近の素材', 'mock', navLink('素材管理へ', '08'), h('div', { class: 'card-row cols-4 compact' }, recent.map((a) => h('button', { type: 'button', class: 'media-card', onclick: () => { lib.sel = a.id; navigate('08'); } },
-    h('div', { class: 'media' }, h('img', { src: img(a.img), alt: '', loading: 'lazy' })),
-    h('div', { class: 'media-body' }, h('b', { class: 'small' }, a.name), h('span', { class: 'xs muted' }, a.type))))));
+  const recentBlock = block('最近の素材', 'real', navLink('素材管理へ', '08'), FEATURES.recentImports(makeCtx(), { t: 'feature', key: 'recentImports' }));
 
   const rest = (c.cards || []).filter((/** @type {any} */ card) => !['最近のプロジェクト', 'クイックアクション'].includes(card.title));
-  return h('div', { class: 'home' }, hero, projects, quick, h('div', { class: 'home-split' }, renders, assets),
+  return h('div', { class: 'home' }, hero, projects, quick, h('div', { class: 'home-split' }, renders, recentBlock),
     h('div', { class: 'dash flush' }, rest.map((/** @type {any} */ card) => region(h('section', { class: `card span-${card.span}` },
       h('div', { class: 'pane-head' }, h('h2', null, card.title), h('span', { class: 'spacer' }), regionTag(card.status)),
       h('div', { class: 'pane-body' }, card.title === '新規作成' && mockProjects.length ? h('p', { class: 'small' }, `画面内で追加：${mockProjects.join('、')}（未保存）`) : null, card.controls.map(control))), card.status))));
-}
-
-/* ---------- asset library (SCR-08) ---------- */
-/** View state of the sample library (in memory only). */
-const lib = { cat: 'all', sel: 'a04', q: '', fmt: 'all', sort: 'new', view: 'grid', size: 2, source: 'lib', queueTab: 'queue',
-  favs: new Set(ASSETS.filter((a) => a.fav).map((a) => a.id)) };
-const COLLECTIONS = [['和風セット', '和風'], ['桜コレクション', '桜'], ['夜景', '夜景'], ['オリジナル', 'オリジナル']];
-/** @param {string} cat */
-const inCat = (cat) => ASSETS.filter((a) => cat === 'all' ? true : cat === 'fav' ? lib.favs.has(a.id) : cat.startsWith('tag:') ? (a.tags || []).includes(cat.slice(4)) : a.cat === cat);
-const catLabel = (/** @type {string} */ cat) => cat === 'all' ? 'すべての素材' : cat === 'fav' ? 'お気に入り' : cat.startsWith('tag:') ? (COLLECTIONS.find((x) => x[1] === cat.slice(4)) || ['', ''])[0] : (ASSET_CATS.find((x) => x.id === cat) || { label: cat }).label;
-function refreshLibrary() {
-  const center = document.querySelector('.pane-center');
-  const left = document.querySelector('.pane-left');
-  if (center) center.replaceChildren(libraryView());
-  if (left) left.replaceWith(assetCats());
-  const tab = document.querySelector('.pane-right [role="tab"][aria-selected="true"]');
-  const panel = document.querySelector('.pane-right [role="tabpanel"]');
-  if (panel && tab && /** @type {HTMLElement} */ (tab).dataset.tab === 'meta') panel.replaceChildren(assetDetail());
-}
-
-function assetCats() {
-  /** @param {string} id @param {string} label @param {string} ic */
-  const row = (id, label, ic) => h('li', { role: 'option', 'aria-selected': String(lib.cat === id), tabindex: '-1', onclick: () => { lib.cat = id; refreshLibrary(); } }, icon(ic, 16), h('span', null, label), h('span', { class: 'meta' }, String(inCat(id).length)));
-  return region(h('section', { class: 'pane pane-left lib-cats', 'aria-label': '素材カテゴリ' },
-    h('div', { class: 'pane-head' }, h('h2', null, '素材管理'), h('span', { class: 'spacer' }), regionTag('mock')),
-    h('div', { class: 'pane-body' },
-      h('ul', { class: 'list cat-list', role: 'listbox', 'aria-label': 'カテゴリ' }, row('all', 'すべての素材', 'grid'), ASSET_CATS.map((c) => row(c.id, c.label, c.icon))),
-      h('ul', { class: 'list cat-list sep-top', role: 'listbox', 'aria-label': 'お気に入り' }, row('fav', 'お気に入り', 'heart')),
-      h('div', { class: 'cat-head' }, h('span', null, 'コレクション'), h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'コレクションを追加', dataset: { act: 'unimpl' }, onclick: () => showUnimplemented({ name: 'コレクションを追加', why: 'コレクション（素材のまとまり）の作成・保存は未実装です。ここではタグで絞り込んだ表示例を出しています。', ids: ['NF-004'], phase: PH.P4 }) }, icon('plus', 16))),
-      h('ul', { class: 'list cat-list', role: 'listbox', 'aria-label': 'コレクション' }, COLLECTIONS.map(([l, t]) => row(`tag:${t}`, l, 'folder'))),
-      h('p', { class: 'section-note' }, '件数は画面内のサンプル素材の数です。'))), 'mock');
-}
-
-function libraryView() {
-  const q = lib.q.toLowerCase();
-  let list = inCat(lib.cat).filter((a) => (!q || a.name.toLowerCase().includes(q) || (a.tags || []).some((t) => t.includes(q)) || a.type.includes(q)) && (lib.fmt === 'all' || a.file === lib.fmt));
-  if (lib.sort === 'name') list = [...list].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
-  if (lib.sort === 'type') list = [...list].sort((a, b) => a.type.localeCompare(b.type, 'ja'));
-
-  /** @type {[string, string][]} */
-  const sources = [['lib', 'ライブラリ'], ['local', 'ローカル'], ['proj', 'プロジェクト内'], ['cloud', 'クラウド'], ['recent', '最近追加'], ['used', '使用中']];
-  const srcBar = h('div', { class: 'seg', role: 'group', 'aria-label': '素材の場所' }, sources.map(([id, l]) => h('button', { type: 'button', 'aria-pressed': String(lib.source === id), onclick: () => { if (id === 'lib') return; toast(`サンプル表示：「${l}」の一覧はまだありません（ライブラリのサンプルを表示中）。`, 'mock'); } }, l)));
-  const bulk = h('div', { class: 'btn-row' },
-    actionButton({ t: 'btn', label: '一括タグ付け', act: 'unimpl', why: '複数素材へのタグ一括付与は未実装です。', ids: ['NF-004'], phase: PH.P4 }),
-    actionButton({ t: 'btn', label: '一括変換', act: 'unimpl', why: '形式の一括変換（例：PMX→VRM）は未実装です。', ids: ['NF-004'], phase: PH.P4 }),
-    actionButton({ t: 'btn', label: '参照関係を確認', act: 'unimpl', why: '素材の参照追跡（どのシーンで使っているか）は移植候補です。', ids: ['REVIEW-010'], phase: PH.P2 }));
-
-  const search = /** @type {HTMLInputElement} */ (h('input', { class: 'input', type: 'search', placeholder: '素材を検索…（名前・タグ・種類）', 'aria-label': '素材を検索', value: lib.q }));
-  search.addEventListener('input', () => { lib.q = search.value; const pos = search.selectionStart; refreshLibrary(); const n = /** @type {HTMLInputElement|null} */ (document.querySelector('.lib input[type="search"]')); if (n) { n.focus(); n.setSelectionRange(pos, pos); } });
-  const fmts = ['all', ...new Set(ASSETS.map((a) => a.file))];
-  const fmtSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '形式で絞り込み', onchange: (/** @type {Event} */ e) => { lib.fmt = /** @type {HTMLSelectElement} */ (e.target).value; refreshLibrary(); } }, fmts.map((f) => h('option', { value: f, selected: lib.fmt === f }, f === 'all' ? 'すべての形式' : f))));
-  const sortSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '並び替え', onchange: (/** @type {Event} */ e) => { lib.sort = /** @type {HTMLSelectElement} */ (e.target).value; refreshLibrary(); } }, [['new', '追加順'], ['name', '名前順'], ['type', '種類順']].map(([v, l]) => h('option', { value: v, selected: lib.sort === v }, l))));
-  const viewBtns = h('div', { class: 'seg icon-seg', role: 'group', 'aria-label': '表示形式' },
-    h('button', { type: 'button', 'aria-pressed': String(lib.view === 'grid'), 'aria-label': 'グリッド表示', onclick: () => { lib.view = 'grid'; refreshLibrary(); } }, icon('grid', 16)),
-    h('button', { type: 'button', 'aria-pressed': String(lib.view === 'list'), 'aria-label': 'リスト表示', onclick: () => { lib.view = 'list'; refreshLibrary(); } }, icon('list', 16)));
-  const size = /** @type {HTMLInputElement} */ (h('input', { type: 'range', min: 1, max: 3, step: 1, value: lib.size, class: 'size-range', 'aria-label': 'サムネイルの大きさ' }));
-  size.addEventListener('input', () => { lib.size = Number(size.value); const g = document.querySelector('.asset-grid'); if (g) /** @type {HTMLElement} */ (g).dataset.size = size.value; });
-
-  /** @param {import('./samples.js').SampleAsset} a */
-  const fav = (a) => h('button', { type: 'button', class: `fav ${lib.favs.has(a.id) ? 'on' : ''}`, 'aria-pressed': String(lib.favs.has(a.id)), 'aria-label': `${a.name}をお気に入り`, onclick: (/** @type {Event} */ e) => { e.stopPropagation(); if (lib.favs.has(a.id)) lib.favs.delete(a.id); else lib.favs.add(a.id); refreshLibrary(); } }, icon('heart', 16));
-  /** @param {import('./samples.js').SampleAsset} a */
-  const pick = (a) => { lib.sel = a.id; refreshLibrary(); };
-  const body = !list.length ? h('div', { class: 'empty' }, '条件に一致する素材はありません。')
-    : lib.view === 'grid'
-      ? h('div', { class: 'asset-grid', role: 'listbox', 'aria-label': '素材一覧', dataset: { size: String(lib.size) } }, list.map((a) => h('div', { class: 'asset', role: 'option', tabindex: '0', 'aria-selected': String(lib.sel === a.id), onclick: () => pick(a), onkeydown: (/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(a); } } },
-        h('div', { class: 'asset-img' }, h('img', { src: img(a.img), alt: '', loading: 'lazy' }), h('span', { class: 'type' }, a.type), lib.sel === a.id ? h('span', { class: 'check' }, icon('check', 14)) : null),
-        h('div', { class: 'asset-cap' }, h('span', null, h('b', null, a.name), h('span', { class: 'xs muted' }, a.file)), fav(a)))))
-      : h('table', { class: 'table asset-table' }, h('thead', null, h('tr', null, ['', '名前', '種類', '形式', 'タグ', ''].map((x) => h('th', { scope: 'col' }, x)))),
-        h('tbody', null, list.map((a) => h('tr', { 'aria-selected': String(lib.sel === a.id), onclick: () => pick(a) }, h('td', null, h('img', { class: 'row-thumb', src: img(a.img), alt: '' })), h('td', null, a.name), h('td', null, a.type), h('td', { class: 'mono' }, a.file), h('td', null, (a.tags || []).join('・') || '—'), h('td', null, fav(a))))));
-
-  /** @type {[string, string][]} */
-  const qtabs = [['queue', 'インポートキュー（3）'], ['sync', '同期ステータス'], ['deps', '依存関係の確認'], ['dl', '最近のダウンロード']];
-  const rows = [['和風小物セット.zip', '小物', 62, '読み込み中（表示例）'], ['桜ステージパック.glb', 'ステージ', 28, '変換中（表示例）'], ['BGM_和風.zip', 'オーディオ', 100, '完了（表示例）']];
-  const queue = h('section', { class: 'lib-queue' },
-    h('div', { class: 'seg', role: 'group', 'aria-label': 'キュー表示' }, qtabs.map(([id, l]) => h('button', { type: 'button', 'aria-pressed': String(lib.queueTab === id), onclick: () => { lib.queueTab = id; refreshLibrary(); } }, l)), h('span', { class: 'spacer' }), badge('mock')),
-    lib.queueTab === 'queue'
-      ? h('div', null, h('table', { class: 'table' }, h('thead', null, h('tr', null, ['ファイル名', '種類', '進み具合', '状態'].map((x) => h('th', { scope: 'col' }, x)))),
-        h('tbody', null, rows.map(([n, t, p, st]) => h('tr', null, h('td', null, icon('folder', 14), ' ', n), h('td', null, t), h('td', null, h('div', { class: 'progress wide', role: 'img', 'aria-label': `表示例 ${p}%` }, h('i', { style: { width: `${p}%` } }))), h('td', { class: 'xs muted' }, st))))),
-        h('p', { class: 'section-note' }, '動きのイメージです。実際の素材登録は現行画面（FBX / GLB / VRM / PMX ZIP / VMD）で行えます。', h('a', { href: '/' }, ' 現行画面で素材を登録 ↗')))
-      : h('div', { class: 'empty' }, '◇ 未実装：この一覧はまだありません。'));
-
-  return region(h('div', { class: 'lib' },
-    h('div', { class: 'lib-bar' }, srcBar, h('span', { class: 'spacer' }), bulk),
-    h('div', { class: 'lib-bar' }, h('div', { class: 'search-wrap' }, icon('search', 16), search), fmtSel, sortSel, h('span', { class: 'spacer' }), viewBtns, size),
-    h('div', { class: 'lib-crumb' }, icon('home', 14), ' ライブラリ › ', h('b', null, catLabel(lib.cat)), h('span', { class: 'xs muted' }, `　${list.length}件（サンプル）`), h('span', { class: 'spacer' }), regionTag('mock')),
-    h('div', { class: 'lib-body' }, body), queue), 'mock');
-}
-
-function assetDetail() {
-  const a = ASSETS.find((x) => x.id === lib.sel) || ASSETS[0];
-  const deps = (a.deps || ASSETS.filter((x) => x.cat === a.cat && x.id !== a.id).slice(0, 4).map((x) => x.img));
-  const tagBox = h('div', { class: 'tag-box' }, (a.tags || []).map((t) => h('span', { class: 'tag' }, t)), h('span', { class: 'xs muted' }, (a.tags || []).length ? '' : 'タグなし'));
-  return h('div', { class: 'asset-detail' },
-    h('div', { class: 'detail-preview' }, h('img', { src: img(a.id === 'a04' ? 'preview-shrine' : a.img), alt: `${a.name}のサンプル画像` }), h('span', { class: 'sample-tag' }, 'サンプル画像')),
-    h('div', { class: 'detail-title' }, h('h2', null, a.name), lib.favs.has(a.id) ? h('span', { class: 'fav on', 'aria-label': 'お気に入り' }, icon('heart', 16)) : null, h('span', { class: 'spacer' }), h('span', { class: 'pill' }, a.type)),
-    section('情報', 'mock', h('dl', { class: 'kv' }, [['ファイル名', `${a.img.replace(/-/g, '_')}${a.file}`], ['種類', a.type], ['形式', a.file.slice(1).toUpperCase()], ['作成者', 'サンプル素材'], ['ライセンス', '未設定（サンプル）'], ['ハッシュ', '—']].map(([k, v]) => [h('dt', null, k), h('dd', null, v)]))),
-    section('タグ', 'mock', tagBox),
-    a.desc ? section('説明', 'mock', h('p', { class: 'small muted', style: { margin: 0 } }, a.desc)) : null,
-    section(`依存素材（${deps.length}）`, 'unimpl', h('div', { class: 'dep-strip' }, deps.map((d) => h('img', { src: img(d), alt: '' }))), h('p', { class: 'section-note' }, '依存関係の追跡は未実装です。並びは表示例です。')),
-    h('div', { class: 'detail-actions' },
-      actionButton({ t: 'btn', label: 'シーンで使う', act: 'unimpl', why: '新UIから素材をシーンへ配置する機能は未接続です。現行の制作画面で素材を選んで使えます。', ids: ['MOTION-002'], phase: PH.P2, primary: true }),
-      h('div', { class: 'btn-row' },
-        actionButton({ t: 'btn', label: '置換', act: 'unimpl', why: 'シーン内の素材差し替えは未実装です。', ids: ['REVIEW-010'], phase: PH.P2 }),
-        actionButton({ t: 'btn', label: 'エクスポート', act: 'unimpl', why: '素材単体の書き出しは外部連携（23）の範囲です。', ids: ['NF-010'], phase: PH.P4 }))));
 }
 
 /* ---------- special pages ---------- */
