@@ -172,14 +172,14 @@
 
 ## Phase 08 / LYRIC — JIZURA・MV・ステージ
 
-- **[LYRIC-001](FEATURE_DETAIL_JA.md#lyric-001)** JIZURAソース取り込み・ライセンス管理
+- **[LYRIC-001](FEATURE_DETAIL_JA.md#lyric-001)** JIZURAソース取り込み・ライセンス管理（監査後に必要部分を段階統合）
 - **[LYRIC-002](FEATURE_DETAIL_JA.md#lyric-002)** リリックタイムライン統合
 - **[LYRIC-003](FEATURE_DETAIL_JA.md#lyric-003)** JIZURA歌詞・演出パック管理
-- **[LYRIC-004](FEATURE_DETAIL_JA.md#lyric-004)** 2D文字モーションと3D文字配置
+- **[LYRIC-004](FEATURE_DETAIL_JA.md#lyric-004)** 2D文字モーションと3D文字配置（フォント欠損時は差分から代替を選択）
 - **[LYRIC-005](FEATURE_DETAIL_JA.md#lyric-005)** 歌詞テンプレート・お気に入り・タグ
 - **[LYRIC-006](FEATURE_DETAIL_JA.md#lyric-006)** 音楽BPM・ビート・イベントマーカー（時刻付き拍マーカー列を同期正本にする）
 - **[LYRIC-007](FEATURE_DETAIL_JA.md#lyric-007)** シーン・ショット・絵コンテ管理
-- **[LYRIC-008](FEATURE_DETAIL_JA.md#lyric-008)** Blender .blend/.fbx/.glb→PMXステージ
+- **[LYRIC-008](FEATURE_DETAIL_JA.md#lyric-008)** Blender .blend/.fbx/.glb→PMXステージ（確認後に欠落レポート付き部分出力）
 - **[LYRIC-009](FEATURE_DETAIL_JA.md#lyric-009)** 大型ステージ分割・テクスチャ・床データ
 - **[LYRIC-010](FEATURE_DETAIL_JA.md#lyric-010)** 可動ドア・ギミック・マップ物理
 - **[LYRIC-011](FEATURE_DETAIL_JA.md#lyric-011)** プロシージャル歩行/待機/呼吸
