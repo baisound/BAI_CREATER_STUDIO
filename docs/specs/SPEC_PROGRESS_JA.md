@@ -22,6 +22,8 @@ A3 の所有者決定: [`A3_MMD_EFFECTS_DECISIONS_JA.md`](A3_MMD_EFFECTS_DECISIO
 
 A3文書検査: 台帳JSON/CSVは148件でID集合一致。`RENDER-011`〜`015` の詳細・状態・依存は両形式で一致し、5件とも「計画・未検証」。`git -c core.whitespace=cr-at-eol diff --check` 成功。実装・GPU・外部MME素材の試験は行っていない。
 
+A3対応コミット: 承認境界と優先効果の仕様・台帳を `757ebb2`、FX画面の説明用パラメータと仮区間を `0435fbb` で記録し、ともに `origin/codex/specs` へプッシュした。後者は `npm run typecheck`、状態表示検査6/6、Chrome対象画面試験（FX・歌詞2/2、追加した霧・桜・影の表示1/1）に成功。画面例は素材登録、GPU描画、保存、動画出力の完成を意味しない。
+
 レビュー: `reviews/CRITIC_01_JA.md` → `CRITIC_02_JA.md` → `CRITIC_03_JA.md` → `reviews/JUDGE_JA.md`。Judge の進捗ID不一致と詳細モード消失は修正した。
 
 検証: `npm run typecheck` 成功、`node tests/test_screen_status_honesty.mjs` 6/6、Chrome 全画面試験 21/21（27画面の導線・レスポンシブ・実装状態、FX／歌詞画像、仮区間の移動・端トリム・再読込リセットを含む）。スクリーンショットで `SCR-26/27` の画像と時間軸を確認した。テスト用 Python サーバーは閲覧用の 8765 と別ポート（既定 8799）で隔離データを使い、占有時は次の空きポートを選ぶ。
