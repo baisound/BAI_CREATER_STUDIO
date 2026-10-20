@@ -242,7 +242,7 @@
       "phase_e_wp": "WP-03",
       "planned_in": "P2-WP-00a-1",
       "status": "done",
-      "commit": "SHA_PLACEHOLDER",
+      "commit": "c0dd018",
       "tests": "pytest 316 passed（tests/test_data_isolation.py を含む）、node --test tests/*.test.cjs 12 passed（BAI_DATA_DIR を一時ディレクトリに設定して実行）、tsc 変更前後とも出力なし、実 data/ ハッシュ不変",
       "unverified": "Opus レビュー未実施。Windows 実機未検証。node のサーバー起動テストの隔離は WP-00a-2"
     },
