@@ -1,20 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T15:26:06+00:00",
+  "updated_at": "2026-10-20T15:30:25+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "f265ded",
+  "head_at_update": "28cd93e",
   "current": {
     "task": "P2-WP-04 O-④ の決定",
-    "status": "in_progress",
+    "status": "done",
     "step": "O-④-1〜7 の決定と O-④-2 の最小 PMX",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-04 3D表示・ステージ配置"
+    "WP-04 を Sonnet で実装"
   ],
   "unverified": [
-    "WP-03：再確認からサーバー書き込みまでの間の別画面の登録は検出できない（R1）。400MB 級 FBX の実測未実施。GPU・Windows 実機未検証。実 VRM・PMX・FBX での登録は未確認",
+    "O-④-6：実在の PMX/GLB/FBX ステージでの単位の換算と見え方",
+    "実在の PMX（多材質・IK・剛体・PMX 2.1）の表示、GPU（SwiftShader でのみ確認）",
+    "WP-03：再確認からサーバー書き込みまでの間の別画面の登録は検出できない（R1）。400MB 級 FBX の実測未実施。Windows 実機未検証",
     "旧画面は自分の保存でも同期の取り込み（「MCPから更新を同期しました」）が走る（既存の挙動、今回は変えていない）"
   ],
   "blockers": [],
@@ -32,6 +34,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T15:30:25+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "28cd93e",
+      "text": "P2-WP-04 の O-④-1・2・3・5・6・7 を Opus で決定（設計書 §2.4(h)）。最小 PMX 2.0（tools/make_test_pmx.py）を作り minimal_pmx.zip を本物に置き換え、MMDLoader での読込をテストで確認"
+    },
+    {
+      "at": "2026-10-20T15:30:09+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "28cd93e",
+      "text": "P2-WP-04 の O-④-1・2・3・5・6・7 を Opus で決定（設計書 §2.4(h)）。最小 PMX 2.0（tools/make_test_pmx.py）を作り minimal_pmx.zip を本物に置き換え、MMDLoader での読込をテストで確認"
+    },
     {
       "at": "2026-10-20T15:26:06+00:00",
       "by": "claude-code",
