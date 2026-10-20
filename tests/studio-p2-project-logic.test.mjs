@@ -47,7 +47,7 @@ const comb = (n = 3, cursor = n - 1) => ({
 /** 本物のサーバーと同じ規則（版の比較・同期の番号）を持つ偽のサーバー。呼び出しを記録し、指定した要求を保留できる。 */
 function makeServer({ combination = comb(), camera = CAMERA, workspace = null } = {}) {
   const srv = {
-    comb: combination, camera, workspace, syncRev: 0, cameraBroken: false, offline: false, failBundle: false,
+    comb: combination, camera, workspace, syncRev: 0, command: null, cameraBroken: false, offline: false, failBundle: false,
     /** @type {string[]} */ calls: [],
     /** @type {Map<string, {promise: Promise<void>, release: () => void}>} */ gates: new Map(),
     projectRev: () => 'P' + canon(srv.comb ?? {}),
@@ -70,7 +70,7 @@ function makeServer({ combination = comb(), camera = CAMERA, workspace = null } 
     if (srv.offline) return makeError('offline');
     const gate = srv.gates.get(key);
     if (gate) { srv.gates.delete(key); await gate.promise; }
-    if (method === 'GET' && path === '/api/sync') return { ok: true, status: 200, data: { revision: srv.syncRev, commandId: 0, command: null } };
+    if (method === 'GET' && path === '/api/sync') return { ok: true, status: 200, data: { revision: srv.syncRev, commandId: srv.command ? srv.command.id : 0, command: srv.command } };
     if (method === 'GET' && path === '/api/project?envelope=1') return { ok: true, status: 200, data: { project: srv.comb ?? {}, revision: srv.projectRev() } };
     if (method === 'GET' && path === '/api/project/bundle') {
       if (srv.failBundle) return makeError('server', 500, { error: 'x' });
@@ -550,4 +550,25 @@ test('describeStatus covers every state in the design list', () => {
   assert.match(t({ status: 'ready', externalChange: true }), /^サーバー側が更新されました/);
   assert.equal(t({ status: 'ready', cameraInvalid: { backup: null } }), 'カメラ保存データを読めません');
   assert.match(t({ status: 'ready', syncError: makeError('server', 500, null) }), /サーバーでエラーが起きました（HTTP 500）/);
+});
+
+test('05b: external commands other than refresh_assets are emitted once per id, and not for the first tick', async () => {
+  const { srv, store, ctrl, log } = setup();
+  srv.command = { id: 7, action: 'preview_vmd', name: 'old.vmd', slot: 'A' }; // 読込前からあった古い指示は実行しない
+  await ctrl.loadProject();
+  await ctrl.tick(); // 初回
+  const cmds = () => log.emits.filter(([n]) => n === 'studio:sync-command');
+  assert.equal(cmds().length, 0, 'first tick does not replay an old command');
+  srv.command = { id: 8, action: 'preview_vmd', name: 'a.vmd', slot: 'B' };
+  await ctrl.tick();
+  await ctrl.tick();
+  assert.deepEqual(cmds().map(([, d]) => d), [{ id: 8, action: 'preview_vmd', name: 'a.vmd', slot: 'B', target: undefined }]);
+  srv.command = { id: 9, action: 'refresh_assets' };
+  await ctrl.tick();
+  assert.equal(cmds().length, 1, 'refresh_assets keeps its own event');
+  assert.equal(log.emits.filter(([n]) => n === 'studio:assets-refresh').length, 1);
+  srv.command = { id: 10, action: 'integrated_preview', name: 'x.glb' };
+  await ctrl.tick();
+  assert.equal(cmds().length, 2);
+  assert.equal(store.get().lastCommandId, 10);
 });

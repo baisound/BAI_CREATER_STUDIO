@@ -3,9 +3,12 @@
 //  - motionCenter：中央。?mode=edit なら motionViewport、それ以外は retargetViewport（WP-04b のまま）。
 //  - motionViewport：three-host に1体を置き、PMX＋VMD（表情モーフを含む）または GLB/VRM のクリップを再生する。
 //  - vmdLibrary：左「VMDライブラリ」。/api/assets の VMD の一覧。行を押すと対象モデルに当てて再生する。
-// 制作状態（workspace）には書かない（clip・frame の記録は 05b）。
-import { h, regionTag, showUnimplemented } from '../ui.js';
-import { assets, createStore } from '../store.js';
+// 制作状態（workspace）へ書くのは［この再生位置を制作に記録］のときだけ（05b。O-⑤-7。書く経路は setWorkspaceFields だけ）。
+// 外部コマンド preview_vmd・integrated_preview（05b。O-⑤-5）は SCR-13 が表示されているときだけ反応する。
+import { h, regionTag, showUnimplemented, toast as uiToast } from '../ui.js';
+import { assets, createStore, project } from '../store.js';
+import { on } from '../bus.js';
+import { setWorkspaceFields } from './project.js';
 import { stateBox } from '../state-box.js';
 import { PH } from '../screens.js';
 import { ensureAssets, loadAssets, watchAssets } from './assets.js';
@@ -29,6 +32,24 @@ const motionUi = createStore({
 let current = null;
 export const currentMotion = () => current;
 
+/** 編集モードの再生ビューが開いているときの操作口（外部コマンド用）。無ければ null。 @type {{open: (id: string, o: {vmd?: string|null, clip?: number|null}) => void, say: (t: string, bad?: boolean) => void}|null} */
+let editor = null;
+/** SCR-13 が表示されている間だけある、外部コマンドの受け口。 @type {{ctx: FeatureCtx, run: (cmd: any) => void}|null} */
+let cmdTarget = null;
+/** 処理済みのコマンド id（同じ id は1回だけ。トーストも1回） @type {Set<string>} */
+const seenCommands = new Set();
+/** SCR-13 が受ける外部コマンド（O-⑤-5）。play_chain・stop_chain・preview_motion は SCR-05 側（05c・05d）。 */
+const SCREEN13_ACTIONS = ['preview_vmd', 'integrated_preview'];
+on('studio:sync-command', (/** @type {any} */ cmd) => {
+  if (!cmd || !SCREEN13_ACTIONS.includes(cmd.action)) return;
+  const key = String(cmd.id);
+  if (seenCommands.has(key)) return;
+  seenCommands.add(key);
+  if (seenCommands.size > 200) seenCommands.delete(/** @type {string} */ (seenCommands.values().next().value));
+  if (cmdTarget && isScreen13()) { cmdTarget.run(cmd); return; }
+  uiToast(`外部から再生の指示（${cmd.action}）がありました。モーション画面（05・13）を開いているときだけ反応します。`, 'real');
+});
+
 /** @type {WeakSet<URLSearchParams>} */
 const booted = new WeakSet();
 /** @param {FeatureCtx} ctx */
@@ -37,6 +58,61 @@ function boot(ctx) {
   booted.add(ctx.params);
   ctx.onCleanup(watchAssets());
   ensureAssets();
+  const me = { ctx, run: (/** @type {any} */ cmd) => { void runCommand(ctx, cmd); } };
+  cmdTarget = me;
+  ctx.onCleanup(() => { if (cmdTarget === me) cmdTarget = null; });
+}
+
+/** 素材の一覧が読み込み済みになるのを待つ（失敗でも返る）。 */
+function whenAssets() {
+  return new Promise((resolve) => {
+    const done = () => { const st = assets.get().status; return st === 'ready' || st === 'error'; };
+    if (done()) { resolve(undefined); return; }
+    const off = assets.subscribe(() => { if (done()) { off(); resolve(undefined); } });
+    ensureAssets();
+  });
+}
+/** 制作状態の読込が終わる（成功・失敗）のを待つ。進まなければ 8 秒で諦める。 */
+function whenProject() {
+  return new Promise((resolve) => {
+    const done = () => { const st = project.get().status; return st !== 'idle' && st !== 'loading'; };
+    if (done()) { resolve(undefined); return; }
+    const timer = setTimeout(() => { off(); resolve(undefined); }, 8000);
+    const off = project.subscribe(() => { if (done()) { clearTimeout(timer); off(); resolve(undefined); } });
+  });
+}
+
+/** 外部コマンドを処理する（SCR-13 が表示されているときだけ呼ばれる。O-⑤-5）。 @param {FeatureCtx} ctx @param {any} cmd */
+async function runCommand(ctx, cmd) {
+  await whenAssets();
+  if (cmdTarget?.ctx !== ctx || !isScreen13()) return; // 待っている間に画面を離れた
+  const items = assets.get().items;
+  /** @param {string} text */
+  const fail = (text) => { editor?.say(text, true); uiToast(text, 'err'); };
+  /** @type {{asset: string, vmd: string|null, clip: number|null}} */
+  let target;
+  if (cmd.action === 'preview_vmd') {
+    const name = String(cmd.name || '');
+    const slot = cmd.slot === 'B' ? 'B' : 'A';
+    const vmd = items.find((/** @type {any} */ a) => a.id === `mmd:vmd:${name}` && a.available);
+    if (!vmd) { fail(`外部からの指示：${name} が見つかりません`); return; }
+    const pmx = items.find((/** @type {any} */ a) => isPlayable(a) && a.source === 'mmd' && a.kind === slot);
+    if (!pmx) { fail(`外部からの指示：スロット ${slot} に再生できる PMX がありません`); return; }
+    target = { asset: pmx.id, vmd: vmd.id, clip: null };
+  } else {
+    const name = String(cmd.name || '');
+    const it = items.find((/** @type {any} */ a) => a.id === `integrated:${name}` && isPlayable(a));
+    if (!it) { fail(`外部からの指示：${name} が見つかりません`); return; }
+    target = { asset: it.id, vmd: null, clip: 0 };
+  }
+  if (editor) { editor.open(target.asset, { vmd: target.vmd, clip: target.clip }); return; }
+  // ［比較］のときは［編集］へ移る（?asset=・?vmd=・?clip= を持って再描画）
+  const query = Object.fromEntries(new URLSearchParams(location.search));
+  delete query.tab; delete query.vmd; delete query.clip;
+  const next = { ...query, mode: 'edit', asset: target.asset };
+  if (target.vmd) /** @type {Record<string,string>} */ (next).vmd = target.vmd;
+  if (target.clip !== null) /** @type {Record<string,string>} */ (next).clip = String(target.clip);
+  ctx.navigate('13', { replace: true, tab: ctx.params.get('tab'), query: next });
 }
 
 const isScreen13 = () => /^\/workspace\/13\/?$/.test(location.pathname);
@@ -73,6 +149,7 @@ export const motionViewport = (ctx) => {
   const clipSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'GLB/VRM のクリップ', dataset: { role: 'motion-clip' } }));
   const playBtn = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { role: 'motion-play' } }, '▶ 再生'));
   const stopBtn = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', title: '一時停止して、現在位置を保ちます', dataset: { role: 'motion-stop' } }, '■ 停止'));
+  const recordBtn = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { role: 'motion-record', act: 'real' } }, 'この再生位置を制作に記録'));
   const clearBtn = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', title: 'モデルとモーションを外します', dataset: { role: 'motion-clear' } }, '表示解除'));
   const seek = /** @type {HTMLInputElement} */ (h('input', { type: 'range', min: '0', max: '1', step: '0.01', value: '0', 'aria-label': '再生位置（秒）', dataset: { role: 'motion-seek' } }));
   const timeLabel = h('span', { class: 'mono xs', dataset: { role: 'motion-time' } }, '0.00 / 0.00 秒');
@@ -109,6 +186,21 @@ export const motionViewport = (ctx) => {
     timeLabel.textContent = `${st.time.toFixed(2)} / ${dur.toFixed(2)} 秒`;
     const clips = loaded.format !== 'PMX' && clipSel.options.length > 0 && !clipSel.dataset.empty;
     clipSel.disabled = !clips;
+    refreshRecord();
+  }
+  /** ［この再生位置を制作に記録］の有効・無効と理由（O-⑤-7）。 */
+  function refreshRecord() {
+    const ps = project.get();
+    const ws = ps.bundle && ps.bundle.workspace;
+    const item = loaded.id ? assets.get().items.find((/** @type {any} */ a) => a.id === loaded.id) : null;
+    /** @type {string|null} */ let why = null;
+    if (!loaded.object || !item) why = '先にモデルを選んでください。';
+    else if (!(item.source === 'integrated' && (loaded.format === 'GLB' || loaded.format === 'VRM'))) why = '制作状態に記録できるのは GLB/VRM のクリップだけです（project_state_bundle.py の制限）';
+    else if (ps.cameraInvalid) why = 'カメラ保存データを読めないため、記録できません。プロジェクト（18）で状況を確認してください。';
+    else if (!item.filename || item.filename !== (ws && ws.asset)) why = `作業中の素材（${(ws && ws.asset) || 'なし'}）と違うモデルです。キャラクター管理（12）の［このモデルを制作に使う］で選んでから記録してください。`;
+    else if (ps.status !== 'ready') why = '制作状態を読み込み中です。';
+    recordBtn.disabled = why !== null;
+    recordBtn.title = why || '作業中のクリップ・再生位置を制作状態に書きます。［保存］で保存されます';
   }
   function stopLoop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
   /** @param {number} now */
@@ -129,6 +221,7 @@ export const motionViewport = (ctx) => {
     alive = false; seq++;
     stopLoop();
     current = null;
+    editor = null;
     player?.dispose(); player = null;
     if (host) { host.dispose(); host = null; }
   });
@@ -194,12 +287,29 @@ export const motionViewport = (ctx) => {
       } else if (r.animations.length) {
         delete clipSel.dataset.empty;
         clipSel.replaceChildren(...r.animations.map((/** @type {any} */ c, /** @type {number} */ i) => h('option', { value: String(i) }, `${c.name || `Animation ${i}`} (${c.duration.toFixed(2)}s)`)));
-        const want = Number.isInteger(o.clip) && /** @type {number} */ (o.clip) >= 0 && /** @type {number} */ (o.clip) < r.animations.length ? /** @type {number} */ (o.clip) : 0;
+        const okClip = (/** @type {any} */ n) => Number.isInteger(n) && n >= 0 && n < r.animations.length;
+        // 作業中の素材と同じモデルなら、記録した clip・frame から一時停止で始める（O-⑤-7、③。明示の ?clip= があれば従来どおり再生）
+        /** @type {any} */ let resume = null;
+        if (o.clip === null || o.clip === undefined) {
+          if (item.source === 'integrated' && item.filename) {
+            await whenProject();
+            if (!alive || my !== seq || !player) { return; }
+            const ws = project.get().bundle && project.get().bundle.workspace;
+            if (ws && ws.asset && ws.asset === item.filename) resume = ws;
+          }
+        }
+        const want = resume ? (okClip(resume.clip) ? resume.clip : 0) : (okClip(o.clip) ? /** @type {number} */ (o.clip) : 0);
         clipSel.value = String(want);
         player.applyClip(want);
-        player.play();
-        startLoop();
-        say(`${item.name} : クリップ ${want} を再生中`);
+        if (resume) {
+          const fps = Number(project.get().bundle?.camera?.fps) > 0 ? Number(project.get().bundle.camera.fps) : 30;
+          player.seek(Math.max(0, Number(resume.frame) || 0) / fps);
+          say(`${item.name} : 制作状態に記録した クリップ ${want}・F ${Math.max(0, Number(resume.frame) || 0)} から（一時停止）`);
+        } else {
+          player.play();
+          startLoop();
+          say(`${item.name} : クリップ ${want} を再生中`);
+        }
       } else {
         clipSel.replaceChildren(h('option', { value: '' }, '（クリップなし）'));
         clipSel.dataset.empty = '1';
@@ -284,6 +394,22 @@ export const motionViewport = (ctx) => {
     host?.invalidate();
     refreshUi();
   });
+  recordBtn.addEventListener('click', () => {
+    if (!player || recordBtn.disabled) return;
+    const b = project.get().bundle;
+    const cam = b && b.camera;
+    const fps = cam && Number(cam.fps) > 0 ? Number(cam.fps) : 30;
+    const st = player.state();
+    let frame = Math.max(0, Math.round(st.time * fps));
+    let capped = false;
+    if (cam && Number.isFinite(Number(cam.duration)) && frame > Number(cam.duration)) { frame = Number(cam.duration); capped = true; }
+    const clip = st.motion && st.motion.kind === 'clip' ? st.motion.clipIndex : null;
+    setWorkspaceFields({ clip, frame }, { source: 'store' });
+    const ws = project.get().bundle && project.get().bundle.workspace;
+    if (!ws || ws.frame !== frame || ws.clip !== clip) return; // 書けなかった（setWorkspaceFields が理由を知らせた）
+    say(capped ? `再生位置をカメラの長さ（${cam.duration} フレーム）までに丸めて記録しました` : `クリップ ${clip === null ? 'なし' : clip}・F ${frame} を記録しました`);
+    uiToast(`作業中のクリップ ${clip === null ? 'なし' : clip}・再生位置 F ${frame} を記録しました。［保存］で保存されます。`, 'real');
+  });
   clearBtn.addEventListener('click', () => {
     seq++; loading = false; pendingVmd = null;
     stopLoop();
@@ -325,7 +451,18 @@ export const motionViewport = (ctx) => {
     void loadSelected(pick, { vmd: ctx.params.get('vmd'), clip: clipParam === null || clipParam === '' ? null : Number(clipParam) });
   };
   ctx.onCleanup(assets.subscribe(init));
+  ctx.onCleanup(project.subscribe(refreshRecord));
   init();
+  editor = {
+    say,
+    open(id, o) { // 外部コマンド（O-⑤-5）：対象モデルを選んで読み込む
+      initialized = true;
+      fillModels();
+      modelSel.value = id;
+      replaceQuery({ asset: id, vmd: null, clip: o.clip === null || o.clip === undefined ? null : String(o.clip) });
+      void loadSelected(id, o);
+    },
+  };
 
   // ライブラリで押された VMD
   let handled = motionUi.get().vmdReq.seq;
@@ -346,7 +483,7 @@ export const motionViewport = (ctx) => {
   const bar = h('div', { class: 'rt-compare motion-bar', dataset: { role: 'motion-bar' } },
     h('div', { class: 'rt-fields' },
       h('label', null, '対象モデル', modelSel), h('label', null, 'クリップ（GLB/VRM）', clipSel), clearBtn),
-    h('div', { class: 'rt-fields' }, playBtn, stopBtn, h('label', null, '位置', seek), timeLabel),
+    h('div', { class: 'rt-fields' }, playBtn, stopBtn, h('label', null, '位置', seek), timeLabel, recordBtn),
     status);
   refreshUi();
   return h('div', { class: 'vp3d-wrap', dataset: { feature: 'motionViewport' } },

@@ -449,7 +449,11 @@ export function createProjectController(deps = {}) {
         const first = cur.syncRevision === null;
         needBundle = first || sync.revision !== cur.syncRevision;
         const cmdId = sync.commandId ?? sync.command?.id ?? null;
-        if (!first && cmdId !== cur.lastCommandId && sync.command && sync.command.action === 'refresh_assets') ui.emit('studio:assets-refresh', {});
+        if (!first && cmdId !== cur.lastCommandId && sync.command) {
+          const c = sync.command;
+          if (c.action === 'refresh_assets') ui.emit('studio:assets-refresh', {});
+          else ui.emit('studio:sync-command', { id: cmdId, action: c.action, name: c.name, slot: c.slot, target: c.target }); // 同じ id は1回だけ（上の条件）。反応するのは SCR-13/05 の表示中だけ（O-⑤-5）
+        }
         pendingSync = { syncRevision: sync.revision, lastCommandId: cmdId };
       }
       if (!needBundle) {

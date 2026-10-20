@@ -316,3 +316,142 @@ test('motion viewport is disposed on leave', harness.skip3d(), async () => {
     assert.equal(await page.evaluate(() => window.__raf), before, 'rAF のループが残っていない');
   });
 });
+
+/* ---------------------------------------------------------------- 05b：制作状態への記録と外部コマンド */
+
+const NOW = '2026-10-20T05:00:00.000Z';
+const COMB = { schema: 1, title: '記録テスト', timeline: [{ name: 'a' }], selected: 1, playbackSpeed: 1, updatedAt: NOW, cursor: 0, history: [{ label: '初期', at: NOW, timeline: [{ name: 'a' }], selected: 1, playbackSpeed: 1 }] };
+const camera = (duration) => ({ schema: 1, fps: 30, duration, keys: [{ frame: 0, position: [0, 1.6, 5], target: [0, 1, 0], fov: 40, interpolation: 'linear' }] });
+/** 種データに制作状態（作業中の素材）を足す。 */
+function seedWs(workspace, { duration = 300, cameraRaw = null } = {}) {
+  return {
+    ...seed(),
+    'project_state.json': JSON.stringify(COMB),
+    'camera_project.json': cameraRaw ?? JSON.stringify(camera(duration)),
+    'project_state.workspace.json': JSON.stringify(workspace),
+  };
+}
+const readWs = (server) => JSON.parse(fs.readFileSync(path.join(server.dataDir, 'project_state.workspace.json'), 'utf8'));
+const proj = (page) => page.evaluate(() => window.baiStudio.project.getState());
+const REC = '[data-role="motion-record"]';
+async function projectReady(page) {
+  await page.waitForFunction(() => { const x = window.baiStudio.project.getState(); return x.status === 'ready' && x.syncRevision !== null; }, null, { timeout: 15000 });
+}
+async function saveProject(page) {
+  await page.click('#nav a[data-route="18"]'); // ［保存］はプロジェクト（18）にある（画面は SPA で移るので状態は保たれる）
+  await page.waitForSelector('[data-role="project-save"]');
+  await page.click('.screen-head [data-role="project-save"]');
+  await page.waitForFunction(() => { const x = window.baiStudio.project.getState(); return !x.saving && !x.dirty.workspace && !x.dirty.combination; }, null, { timeout: 10000 });
+}
+
+test('record clip and frame into workspace', harness.skip3d(), async () => {
+  await withApp(seedWs({ frame: 0, asset: STORED_GLB, clip: null }), async ({ page, server }) => {
+    await openEdit(page, server, `&asset=${encodeURIComponent(GLB_ID)}`);
+    await waitModel(page, GLB_ID);
+    await projectReady(page);
+    // 作業中の素材と同じモデルなので一時停止で始まり、［記録］が有効
+    assert.equal((await mo(page)).playing, false);
+    assert.equal(await page.isDisabled(REC), false);
+    await seekTo(page, 0.5);
+    await page.click(REC);
+    const st = await proj(page);
+    assert.deepEqual({ frame: st.bundle.workspace.frame, clip: st.bundle.workspace.clip }, { frame: 15, clip: 0 });
+    assert.equal(st.dirty.workspace, true, 'clip が変わったので未保存');
+    assert.match(await page.textContent('#toasts'), /作業中のクリップ 0・再生位置 F 15 を記録しました。［保存］で保存されます。/);
+    await saveProject(page);
+    assert.deepEqual(readWs(server), { frame: 15, clip: 0, asset: STORED_GLB });
+    // 開き直すと、同じクリップ・同じ位置で一時停止している（自動再生しない）
+    await openEdit(page, server, `&asset=${encodeURIComponent(GLB_ID)}`);
+    await waitModel(page, GLB_ID);
+    await page.waitForFunction(() => Math.abs(window.baiStudio.motion.getState().time - 0.5) < 1e-6, null, { timeout: 5000 });
+    assert.equal((await mo(page)).playing, false);
+    assert.equal(await page.inputValue('[data-role="motion-clip"]'), '0');
+    await page.waitForTimeout(500);
+    near((await mo(page)).time, 0.5, 1e-6, 'time stays');
+  });
+});
+
+test('frame is capped to camera duration', harness.skip3d(), async () => {
+  await withApp(seedWs({ frame: 0, asset: STORED_GLB, clip: null }, { duration: 10 }), async ({ page, server }) => {
+    await openEdit(page, server, `&asset=${encodeURIComponent(GLB_ID)}`);
+    await waitModel(page, GLB_ID);
+    await projectReady(page);
+    await seekTo(page, 0.5);
+    await page.click(REC);
+    assert.equal((await proj(page)).bundle.workspace.frame, 10);
+    assert.match(await page.textContent('[data-role="motion-status"]'), /再生位置をカメラの長さ（10 フレーム）までに丸めて記録しました/);
+    await saveProject(page);
+    assert.equal(readWs(server).frame, 10);
+  });
+});
+
+test('frame-only record is not dirty', harness.skip3d(), async () => {
+  await withApp(seedWs({ frame: 0, asset: STORED_GLB, clip: 0 }), async ({ page, server }) => {
+    await openEdit(page, server, `&asset=${encodeURIComponent(GLB_ID)}`);
+    await waitModel(page, GLB_ID);
+    await projectReady(page);
+    await seekTo(page, 0.5);
+    await page.click(REC);
+    const st = await proj(page);
+    assert.equal(st.bundle.workspace.frame, 15);
+    assert.equal(st.dirty.workspace, false, 'frame だけの変化は未保存にしない');
+    assert.deepEqual(readWs(server), { frame: 0, asset: STORED_GLB, clip: 0 }, '保存していないのでファイルは変わらない');
+  });
+});
+
+test('record is disabled for other models', harness.skip3d(), async () => {
+  await withApp(seedWs({ frame: 0, asset: STORED_GLB, clip: null }), async ({ page, server }) => {
+    await openEdit(page, server, `&asset=${encodeURIComponent(VRM_ID)}`);
+    await waitModel(page, VRM_ID);
+    assert.equal(await page.isDisabled(REC), true);
+    assert.match(await page.getAttribute(REC, 'title'), new RegExp(`作業中の素材（${STORED_GLB}）と違うモデルです。キャラクター管理（12）の［このモデルを制作に使う］で選んでから記録してください。`));
+    await page.selectOption(MODEL, PMX_ID);
+    await waitModel(page, PMX_ID);
+    assert.equal(await page.isDisabled(REC), true);
+    assert.match(await page.getAttribute(REC, 'title'), /GLB\/VRM のクリップだけ/);
+    assert.deepEqual(readWs(server), { frame: 0, asset: STORED_GLB, clip: null });
+  });
+});
+
+test('record is disabled when the camera file is invalid', harness.skip3d(), async () => {
+  await withApp(seedWs({ frame: 0, asset: STORED_GLB, clip: null }, { cameraRaw: '{"broken":' }), async ({ page, server }) => {
+    await openEdit(page, server, `&asset=${encodeURIComponent(GLB_ID)}`);
+    await waitModel(page, GLB_ID);
+    await page.waitForFunction(() => window.baiStudio.project.getState().cameraInvalid !== null, null, { timeout: 15000 });
+    assert.equal(await page.isDisabled(REC), true);
+    assert.match(await page.getAttribute(REC, 'title'), /カメラ保存データを読めない/);
+  }, { errors: [/422/] });
+});
+
+test('sync command preview_vmd only on SCR-13', harness.skip3d(), async () => {
+  await withApp(seed(), async ({ page, server }) => {
+    const send = (cmd) => page.evaluate((c) => fetch('/api/sync-command', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(c) }).then((r) => r.status), cmd);
+    // SCR-08 では何もせず、トーストを1回だけ出す
+    await page.goto(`${server.base}/workspace/08`);
+    await page.waitForSelector('[data-feature="assetLibrary"]');
+    await projectReady(page);
+    assert.equal(await send({ action: 'preview_vmd', name: 'minimal.vmd', slot: 'A' }), 200);
+    await page.waitForFunction(() => /外部から再生の指示（preview_vmd）がありました。モーション画面（05・13）を開いているときだけ反応します。/.test(document.getElementById('toasts').textContent), null, { timeout: 8000 });
+    await page.waitForTimeout(2500); // 次の tick でも同じ id なので増えない
+    assert.equal(await page.locator('#toasts .toast', { hasText: '外部から再生の指示' }).count() <= 1, true);
+    assert.match(new URL(page.url()).pathname, /\/workspace\/08$/);
+    // SCR-13［比較］では［編集］へ移り、A の最初の PMX に VMD を当てて再生する
+    await page.click('#nav a[data-route="13"]');
+    await page.waitForSelector('[data-feature="retargetViewport"]');
+    assert.equal(await send({ action: 'preview_vmd', name: 'minimal.vmd', slot: 'A' }), 200);
+    await page.waitForFunction(() => window.baiStudio.motion?.getState()?.motion?.kind === 'vmd', null, { timeout: 25000 });
+    assert.equal(new URL(page.url()).searchParams.get('mode'), 'edit');
+    assert.equal((await mo(page)).modelId, PMX_ID);
+    assert.equal((await mo(page)).motion.id, VMD_ID);
+    assert.equal((await mo(page)).playing, true);
+    // ［編集］のまま、integrated_preview も受ける（クリップ 0 を再生）
+    const catalog = { models: [{ source_asset: `assets/${STORED_VRM}` }], motions: [] };
+    fs.writeFileSync(path.join(server.dataDir, 'integrated_v02', 'catalog.json'), JSON.stringify(catalog));
+    assert.equal(await send({ action: 'integrated_preview', name: STORED_VRM }), 200);
+    await waitModel(page, VRM_ID);
+    await page.waitForFunction(() => { const m = window.baiStudio.motion.getState(); return m.motion?.kind === 'clip' && m.playing; }, null, { timeout: 10000 });
+    // 無い VMD は状態行に出す
+    assert.equal(await send({ action: 'preview_vmd', name: 'nothing.vmd', slot: 'A' }), 200);
+    await page.waitForFunction(() => /外部からの指示：nothing\.vmd が見つかりません/.test(document.querySelector('[data-role="motion-status"]').textContent), null, { timeout: 8000 });
+  });
+});
