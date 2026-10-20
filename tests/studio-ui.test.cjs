@@ -102,6 +102,9 @@ test('FX and lyrics pages keep their tabs and explain unavailable actions', asyn
   assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /Bloom 閾値/);
   assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /霧の濃度/);
   assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /影の強さ/);
+  assert.doesNotMatch(await page.textContent('.pane-right [role="tabpanel"]'), /DOF ピント距離/);
+  assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /DOFの焦点・区間はカメラ画面で設定/);
+  assert.equal(await page.locator('.tl-clip:has-text("DOF")').count(), 0);
   assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /保存されません/);
   await page.click('.pane-right button:has-text("現在フレームにキーを追加")');
   assert.match(await page.textContent('[role="dialog"]'), /RENDER-014/);
@@ -109,6 +112,8 @@ test('FX and lyrics pages keep their tabs and explain unavailable actions', asyn
   await page.goto(`${BASE}/workspace/26?tab=events`);
   assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /舞う桜/);
   assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /持続区間/);
+  await page.click('.screen-head button:has-text("カメラDOF（03）へ")');
+  await atRoute(page, '03');
   await page.goto(`${BASE}/workspace/27`);
   assert.equal(await page.getAttribute('.screen-head .mode-switch button:has-text("かんたん")', 'aria-pressed'), 'true');
   assert.equal(await page.getAttribute('.pane-right [role="tab"][aria-selected="true"]', 'data-tab'), 'quick');

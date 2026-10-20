@@ -933,8 +933,8 @@
       "id": "RENDER-012",
       "group": "RENDER",
       "phase": 7,
-      "name": "AutoLuminous/Bloom/DOF/MotionBlur",
-      "detail": "内蔵発光・Bloom・DOF・MotionBlur・影を効果別に検証。原MMEとの差は明示",
+      "name": "発光・Bloom・MotionBlur・影",
+      "detail": "内蔵発光・Bloom・MotionBlur・影を効果別に検証。DOFはカメラ機能から参照し、FX側に重複インスタンスを作らない",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
