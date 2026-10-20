@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T10:02:58+00:00",
+  "updated_at": "2026-10-20T10:06:40+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "2b271f8",
+  "head_at_update": "3a784bb",
   "current": {
-    "task": "P2-WP-00c 基盤",
-    "status": "done",
-    "step": "api/store/bus・薄表示・導線点検§5の1〜5",
+    "task": "P2-WP-01 保存・読込",
+    "status": "in_progress",
+    "step": "設計書読込・実装着手",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T10:06:40+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "3a784bb",
+      "text": "P2-WP-01 保存・読込: 設計書読込・実装着手"
+    },
     {
       "at": "2026-10-20T10:02:58+00:00",
       "by": "claude-code",
