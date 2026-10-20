@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T20:38:09+00:00",
+  "updated_at": "2026-10-20T20:42:01+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "7b3327e",
+  "head_at_update": "7e701e0",
   "current": {
-    "task": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド studio:sync-command の受け口（O-⑤-5）",
-    "status": "done",
+    "task": "P2-WP-05c SCR-05 の82パターン一覧・お気に入り・コンビネーション編集・速度（3Dなし）",
+    "status": "in_progress",
     "step": "実装→テスト→台帳更新→コミット",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
@@ -36,6 +36,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T20:42:01+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "7e701e0",
+      "text": "P2-WP-05c SCR-05 の82パターン一覧・お気に入り・コンビネーション編集・速度（3Dなし）: 実装→テスト→台帳更新→コミット"
+    },
     {
       "at": "2026-10-20T20:38:09+00:00",
       "by": "claude-code",
@@ -238,13 +245,6 @@
       "event": "start",
       "head": "704e5be",
       "text": "P2-WP-00a-2 ハーネス: studio-harness.cjs・run-guarded.cjs・テスト用ファイル生成・既存node試験の移行・conftest後始末"
-    },
-    {
-      "at": "2026-10-20T09:10:44+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "187441a",
-      "text": "WP-00a-1 Opus レビュー済み。pytest.ini で rootdir を固定（tests/ から起動しても conftest が効く）、conftest でセッション前後の実 data/・exports/ ハッシュ確認を追加"
     }
   ]
 }
