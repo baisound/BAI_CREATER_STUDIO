@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T14:46:08+00:00",
+  "updated_at": "2026-10-20T15:15:56+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "30601de",
+  "head_at_update": "8a01f5f",
   "current": {
     "task": "P2-WP-02/03 素材",
     "status": "done",
@@ -11,14 +11,11 @@
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-02/03 の Opus レビュー（設計で要求されていれば）",
     "WP-04 3D表示・ステージ配置"
   ],
   "unverified": [
-    "WP-03 の Opus レビュー未実施（置き換え・上書き・再分類の確認）",
-    "GPU・Windows 実機未検証。実 VRM・PMX・FBX での登録は未確認（合成ファイルのみ）",
-    "three 無しの環境では FBX 解析を使う4件が skip",
-    "Q1 新規プロジェクト作成は所有者回答待ち（◇のまま）"
+    "WP-03：再確認からサーバー書き込みまでの間の別画面の登録は検出できない（R1）。400MB 級 FBX の実測未実施。GPU・Windows 実機未検証。実 VRM・PMX・FBX での登録は未確認",
+    "旧画面は自分の保存でも同期の取り込み（「MCPから更新を同期しました」）が走る（既存の挙動、今回は変えていない）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -35,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T15:15:56+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "8a01f5f",
+      "text": "P2-WP-03 Opus レビュー完了（送る直前の衝突の再確認・VMD の大文字小文字を修正）、legacy-project-save.test.cjs の時々の失敗（テスト側、b082ad8 から）を修正"
+    },
     {
       "at": "2026-10-20T14:46:08+00:00",
       "by": "claude-code",

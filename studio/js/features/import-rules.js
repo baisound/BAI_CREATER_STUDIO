@@ -89,6 +89,12 @@ export function conflictOf(entry, items, { contentSha20, fbxId } = {}) {
     if (items.some((i) => i.id === `mmd:vmd:${name}`)) {
       return { kind: 'overwrite', message: `同じ名前の VMD『${name}』があります。上書きすると元の内容は戻せません。` };
     }
+    // VMD は名前のままファイルに保存される（server.py の /api/mmd-upload）。Windows では大文字・小文字の違いだけの名前は同じファイルになる。
+    const lower = name.toLowerCase();
+    const near = items.find((i) => i.id.startsWith('mmd:vmd:') && i.id.slice(8).toLowerCase() === lower);
+    if (near) {
+      return { kind: 'overwrite', message: `大文字・小文字だけが違う VMD『${near.id.slice(8)}』があります。Windows では同じファイルとして上書きされ、元の内容は戻せません。` };
+    }
     return null;
   }
   if (entry.route === 'fbx') {
@@ -133,7 +139,7 @@ export function batchErrorRows(entries) {
     let key = null;
     if (e.route === 'fbx') key = e.kind === 'motions' ? `fbx-motions:${e.name}` : `fbx-${e.kind}`;
     else if (e.route === 'pmxZip') key = `pmx:${e.kind}`;
-    else if (e.route === 'vmd') key = `vmd:${e.name}`;
+    else if (e.route === 'vmd') key = `vmd:${e.name.toLowerCase()}`; // Windows では大文字・小文字の違いだけの名前は同じファイル
     if (key) groups.set(key, [...(groups.get(key) || []), i]);
   });
   const out = entries.map(() => '');

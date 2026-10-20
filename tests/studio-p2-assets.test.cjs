@@ -410,6 +410,58 @@ test('continue without the conflicting files sends only the others', async () =>
   });
 });
 
+// Opus レビュー：確認はダイアログの時点の一覧で行うので、送る直前にも最新の一覧で求め直す（了承していない上書き・再分類を送らない）。
+test('same bytes twice in one import: the second is stopped before sending, and retry asks first', async () => {
+  await withApp({}, async ({ server, page }) => {
+    await open08(page, server);
+    let posts = 0;
+    page.on('request', (r) => { if (/\/api\/integrated-v02\/upload/.test(r.url())) posts += 1; });
+    await pickFiles(page, [{ name: 'a.glb', buffer: GLB }, { name: 'b.glb', buffer: GLB }]);
+    await setKind(page, 'b.glb', 'model');
+    await page.click('[role="dialog"] [data-role="import-go"]');
+    // どちらもまだ登録されていないので、ダイアログの時点では確認が出ない
+    await waitRow(page, 'a.glb', /^完了$/);
+    await waitRow(page, 'b.glb', /失敗：確認の後に登録済みの素材が変わったため、送りませんでした：同じ内容の素材『a\.glb』（モーション）が登録済みです/);
+    assert.equal(posts, 1, 'the second file is not sent');
+    let idx = readJson(server, 'integrated_v02/user_assets.json');
+    assert.deepEqual(idx.map((x) => [x.name, x.kind]), [['a.glb', 'motion']], 'a.glb is not silently reclassified');
+    // ［もう一度］では確認が出て、了承すれば送られる
+    await page.click(`${QROW}[data-name="b.glb"] [data-role="row-retry"]`);
+    await page.waitForSelector('[role="dialog"] [data-role="conflicts"]');
+    assert.match(await page.textContent('[role="dialog"] [data-role="conflicts"]'), /名前と種類が『b\.glb』（モデル）に置き換わります/);
+    await page.click('[role="dialog"] [data-role="conflict-all"]');
+    await waitRow(page, 'b.glb', /^完了$/);
+    assert.equal(posts, 2);
+    idx = readJson(server, 'integrated_v02/user_assets.json');
+    assert.deepEqual(idx.map((x) => [x.name, x.kind]), [['b.glb', 'model']]);
+  });
+});
+
+test('a file queued behind the same name is rechecked when its turn comes', async () => {
+  await withApp({}, async ({ server, page }) => {
+    await open08(page, server);
+    const posts = [];
+    const held = [];
+    await page.route('**/api/mmd-upload**', (r) => { posts.push(r.request().url()); if (posts.length === 1) held.push(r); else r.continue(); });
+    await pickFiles(page, [{ name: 'dance.vmd', buffer: VMD }]);
+    await page.click('[role="dialog"] [data-role="import-go"]');
+    await waitRow(page, 'dance.vmd', /送信中|サーバーで処理中/);
+    // 1件目の送信中に、同じ名前をもう一度選ぶ（まだ一覧に無いので、ダイアログの時点では確認が出ない）
+    await pickFiles(page, [{ name: 'dance.vmd', buffer: rand(VMD.length, 3) }]);
+    await page.click('[role="dialog"] [data-role="import-go"]');
+    await page.waitForFunction(() => document.querySelectorAll('[data-feature="importQueue"] tbody tr[data-name="dance.vmd"]').length === 2);
+    assert.equal(await page.locator('[data-role="conflicts"]').count(), 0);
+    await held[0].continue();
+    await page.waitForFunction(() => {
+      const s = [...document.querySelectorAll('[data-feature="importQueue"] tbody tr[data-name="dance.vmd"] [data-role="status"]')].map((e) => e.textContent || '');
+      return s.length === 2 && s.some((t) => /^完了$/.test(t)) && s.some((t) => /失敗：確認の後に登録済みの素材が変わったため、送りませんでした：同じ名前の VMD『dance\.vmd』があります/.test(t));
+    }, null, { timeout: 10000 });
+    assert.equal(posts.length, 1, 'the second file is not sent');
+    assert.deepEqual(fs.readFileSync(path.join(server.dataDir, 'mmd/vmd/dance.vmd')), VMD, 'the first upload is kept');
+    await page.unroute('**/api/mmd-upload**');
+  });
+});
+
 test('FBX same-name overwrite requires confirmation', async () => {
   await withApp(seedLibrary(), async ({ server, page }) => {
     await open08(page, server);
