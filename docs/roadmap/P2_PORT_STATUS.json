@@ -171,7 +171,9 @@
       "id": "P2-WP-05a",
       "step": "⑤ SCR-13［編集］の1体の再生（PMX＋VMD・GLB/VRM のクリップ）。S5 を有効にする",
       "state": "verified",
-      "commits": [],
+      "commits": [
+        "df75fe3"
+      ],
       "tests": [
         "tests/studio-p2-motion.test.cjs（10件：PMX＋VMD のモーフ・ボーン、VMD ライブラリ、GLB クリップと位置・停止、VRM への VMD は ◇ で取得0回、モデル未選択、404、モード切替の URL 保持、表示解除、画面を離れたときの破棄）",
         "tests/test_make_test_vmd.py（2件）",

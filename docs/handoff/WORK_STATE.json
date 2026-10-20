@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T19:52:34+00:00",
+  "updated_at": "2026-10-20T20:11:08+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "f675061",
+  "head_at_update": "df75fe3",
   "current": {
     "task": "P2-WP-05a SCR-13 編集モードの1体再生（PMX+VMD・GLB/VRMクリップ・VMDライブラリ）と S5 の有効化",
-    "status": "in_progress",
+    "status": "done",
     "step": "実装→テスト→台帳更新→コミット",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-05a：SCR-13［編集］の PMX＋VMD・GLB/VRM クリップ再生と S5 の有効化（設計書 §2.5(d)(f)(g) 05a。Sonnet で実装）",
+    "P2-WP-05b：clip・frame の記録（O-⑤-7）と外部コマンド preview_vmd（Opus でレビュー）",
     "WP-06b の前にテストのポートの食い違い（parity 8794・retarget 8791）を直す（§4.1 の注記）"
   ],
   "unverified": [
-    "§2.5 は設計のみ。実ファイルの PMX＋VMD のモーフ再生・GPU は未検証",
-    "所有者確認待ち：Q6（SCR-05 の使い方）、Q2 の追加（⑤-10・⑤-15）、O-⑤-8（既定：入れない）、Q5（変わらず）"
+    "実ファイルの PMX＋VMD のモーフ再生・GPU 実機・Windows 実機は未検証（合成の最小ファイルと SwiftShader のみ）",
+    "Opus レビュー未実施（app.js の modeSwitch）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T20:11:08+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "df75fe3",
+      "text": "P2-WP-05a 完了：SCR-13［編集］の PMX＋VMD・GLB/VRM クリップの1体再生、VMD ライブラリ、モード切替の結線、minimal.vmd の センター 30F、S5 pass"
+    },
     {
       "at": "2026-10-20T19:52:34+00:00",
       "by": "claude-code",
@@ -236,13 +243,6 @@
       "event": "start",
       "head": "6bf71a1",
       "text": "P2-WP-00a-1 データ隔離: bai_paths.py・conftest.py・test_data_isolation.py を実装し server.py ほかの保存先を data_dir() 化"
-    },
-    {
-      "at": "2026-10-20T09:04:33+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "e3fb511",
-      "text": "P2-WP-00a-1 データ隔離: 設計 v5 承認済み。OWNER-5 を ROADMAP に記録し、Sonnet で WP-00a-1 の実装を開始"
     }
   ]
 }
