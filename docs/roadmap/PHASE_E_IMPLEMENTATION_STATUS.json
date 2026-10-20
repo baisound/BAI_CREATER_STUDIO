@@ -251,7 +251,7 @@
       "phase_e_wp": "WP-03",
       "planned_in": "P2-WP-00a-2",
       "status": "done",
-      "commit": "SHA_PLACEHOLDER",
+      "commit": "5fa72eb",
       "tests": "pytest 318 passed（conftest の後始末のテスト2件を含む）、npm run test:node-all（tests/run-guarded.cjs 経由）74 passed・8 skipped（通し確認 S1〜S8 の理由付き skip）・0 failed、tsc 出力なし、実 data/ ハッシュ不変（run-guarded と独立計算の両方）、一時ディレクトリ（bai-p2-*・bai_test_data_*）は残らない",
       "unverified": "Opus レビュー未実施。three は node_modules に無く（npm ci 未実行）、THREE_DIR の手元コピー（0.160.1）で検証。GPU 実機未検証（SwiftShader）。Windows 実機未検証（ハンドラーを閉じてから削除する処理は Linux では効果を確かめられない。ハンドラーが閉じられ外れることまでをテスト）。test:p2・test:p2-py は対象のファイルがまだ無いため未定義（作る WP で足す）。test:p2-e2e の台帳記録は P2_PORT_STATUS.json（WP-00c で新設）が出来るまで実行できない"
     },
