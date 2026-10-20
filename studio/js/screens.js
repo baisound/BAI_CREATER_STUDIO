@@ -1,6 +1,6 @@
 // @ts-check
 import { img, CAM_PRESETS, LENS_PRESETS, SHOT_TEMPLATES, ASSETS } from './samples.js';
-// 25 screen definitions (SCR-01..SCR-25). Source: handoff 05_AI_DATA/screen_inventory.json.
+// 27 screen definitions. SCR-01..25: handoff inventory; SCR-26/27: owner-approved FX/lyrics placement.
 // Status of every panel is from the repository audit in docs/ui/STUDIO_UI_AUDIT_JA.md:
 //   real    = reads an existing Python API (read-only from this shell)
 //   partial = code exists in the current UI (/, /camera.html) but is not ported here yet
@@ -24,7 +24,7 @@ import { img, CAM_PRESETS, LENS_PRESETS, SHOT_TEMPLATES, ASSETS } from './sample
  *   left?: {title: string, status: Status, list?: any[], tree?: boolean, search?: boolean, controls?: Control[], custom?: string},
  *   center: {type: string, [k: string]: any},
  *   right?: {tabs: Tab[]},
- *   bottom?: {type: 'timeline', status: Status, fps: number, frames: number, tracks: any[]} | null,
+ *   bottom?: {type: 'timeline', status: Status, fps: number, frames: number, tracks: any[], demoEditable?: boolean} | null,
  * }} Screen
  */
 
@@ -32,9 +32,10 @@ export const PH = {
   E: 'Phase E カメラ（承認済み・進行中）',
   F: 'Phase F レンダリング（承認済み・Phase E の後）',
   LIP: 'リップシンク・表情モーフ（承認済み・Phase E の後、F の前。所有者決定 2026-10-20）。MMDエフェクトは F の後',
+  FX: 'MMDエフェクト（承認済み・Phase F とリップシンク／表情の後、Phase C の前）',
   C: 'Phase C マルチダンサー（承認済み）',
   D: 'Phase D 音楽同期・表情（承認済み）',
-  G: 'Phase G リリック・MMDエフェクト（承認済み）',
+  G: 'Phase G リリック・ステージ（承認済み）',
   H: 'Phase H 格闘・演出・ステージ（承認済み）',
   P2: 'P2 既存機能の新UI移植（Phase E より前・作業の流れ順。所有者決定 2026-10-20）',
   P4: 'P4 新規機能候補（未承認・承認まで実装しない）',
@@ -229,7 +230,7 @@ export const SCREENS = [
     center: { type: 'viewport', img: 'viewport-character', hud: ['Motion Preview'], foot: '3D再生は現行の制作画面で利用できます。' },
     right: { tabs: [
       { id: 'layer', label: 'レイヤー', sections: [
-        { title: '表情レイヤー', status: 'unimpl', controls: [un('表情レイヤーを追加', '表情・視線・瞬き編集はリップシンク・表情フェーズの範囲です。', ['LIP-009'], PH.LIP)] },
+        { title: '表情レイヤー', status: 'unimpl', controls: [note('表情キーの編集と版比較は 13「VMD編集」に統合します。'), btn('表情・リップ編集（13）へ', 'nav:13')] },
         { title: '再生', status: 'mock', controls: [sel('速度', ['0.5×', '1×', '1.5×', '2×'], '1×'), tg('ループ再生', true)] },
       ] },
     ] },
@@ -238,7 +239,7 @@ export const SCREENS = [
   {
     id: '06', title: 'シーン・ステージ・素材配置', nav: 'シーン・ステージ', group: '制作',
     summary: 'ステージ・小道具・ライトを配置し、表示と依存関係を管理する。',
-    classification: 'candidate_late', ids: ['LYRIC-009', 'LYRIC-010', 'NF-014'],
+    classification: 'candidate_late', ids: ['LYRIC-009', 'LYRIC-010', 'DANCE-001', 'DANCE-002', 'DANCE-003', 'DANCE-006', 'DANCE-012', 'NF-014'],
     panels: [
       { name: 'シーンツリー', status: 'mock' },
       { name: '3Dビュー', status: 'unimpl', note: 'ステージ配置ビューは未実装（モデル表示は現行画面にあり）。' },
@@ -257,6 +258,14 @@ export const SCREENS = [
       { id: 'vis', label: '表示', sections: [
         { title: '表示', status: 'mock', controls: [tg('表示', true), tg('影を落とす', true), tg('ロック')] },
         { title: '依存関係', status: 'unimpl', controls: [un('依存素材を表示', '素材の依存参照グラフは未実装。', [], PH.P4)] },
+      ] },
+      { id: 'dancers', label: 'ダンサー配置', sections: [
+        { title: '複数個体と隊形', status: 'unimpl', controls: [note('登録モデルとシーン内の個体を区別します。位置交換・V字／円／列／千鳥の隊形をここで設定します。'), un('交換・隊形を編集', '複数ダンサーの配置は Phase C の承認済み要件です。', ['DANCE-001', 'DANCE-002', 'DANCE-003'], PH.C)] },
+        { title: '接近と回避', status: 'unimpl', controls: [note('接近候補から回避経路を提案し、手で修正して適用後に再評価します。警告のみでは完了としません。'), un('回避経路を確認', '経路の提案・修正・再評価は未実装です。', ['DANCE-006'], PH.C)] },
+      ] },
+      { id: 'stage', label: '小道具・ステージ', sections: [
+        { title: '小道具の接続', status: 'unimpl', controls: [un('接続骨と持ち替えを設定', '小道具の骨接続と持ち替えは未実装です。', ['DANCE-012'], PH.C)] },
+        { title: '大型ステージと可動物', status: 'unimpl', controls: [note('床、チャンク／LOD、可動ピボット、依存素材の状態を確認します。'), un('ステージ詳細を編集', '大型ステージと可動物の設定は未実装です。', ['LYRIC-009', 'LYRIC-010'], PH.G)] },
       ] },
     ] },
   },
@@ -332,19 +341,22 @@ export const SCREENS = [
   {
     id: '10', title: '音声・BGM・効果音編集', nav: '音声・BGM', group: '制作',
     summary: '楽曲・効果音・歌声のトラックを並べ、リップ同期と書き出しを行う。',
-    classification: 'candidate_late', ids: ['LIP-001', 'LIP-002', 'LYRIC-006', 'NF-002'],
+    classification: 'candidate_late', ids: ['AUDIO-001', 'LIP-001', 'LIP-002', 'LIP-003', 'LYRIC-006', 'RENDER-006', 'NF-002'],
     panels: [
       { name: '音声ライブラリ', status: 'mock' }, { name: 'マルチトラック', status: 'mock' }, { name: '波形', status: 'mock', note: '波形は装飾表示。音声デコードは未実装。' },
-      { name: 'EQ・ミキサー', status: 'unimpl', ids: ['NF-002'] }, { name: 'リップ同期', status: 'unimpl', ids: ['LIP-001', 'LIP-002'] }, { name: '音声書き出し', status: 'unimpl', ids: ['RENDER-006'] },
+      { name: '歌音声の取込・配置', status: 'unimpl', ids: ['AUDIO-001'] }, { name: 'EQ・ミキサー', status: 'unimpl', ids: ['NF-002'] }, { name: 'リップ同期', status: 'unimpl', ids: ['LIP-001', 'LIP-002'] }, { name: '音声書き出し', status: 'unimpl', ids: ['RENDER-006'] },
     ],
-    tools: [un('音声を読み込む', '音声ファイルの読込・再生は未実装。', ['LYRIC-006'], PH.D), un('リップVMDを生成', 'SRT/音素同期によるリップVMDはリップシンクフェーズの範囲です。', ['LIP-001', 'LIP-002'], PH.LIP)],
+    tools: [un('音声を読み込む', '歌音声の読込・配置・再生は AUDIO-001 としてリップシンク段階の承認済み範囲です。実音声の処理は未実装です。LYRIC-006 は拍解析を扱います。', ['AUDIO-001'], PH.LIP), un('リップVMDを生成', 'SRT/音素同期によるリップVMDはリップシンクフェーズの範囲です。', ['LIP-001', 'LIP-002'], PH.LIP)],
     left: { title: '音声ライブラリ', status: 'mock', search: true, list: [{ id: 'bgm', label: 'BGM Demo', meta: '3:12' }, { id: 'vo', label: 'Vocal Stem', meta: '3:12' }, { id: 'se1', label: 'SE Kick', meta: '0:01' }, { id: 'se2', label: 'SE Whoosh', meta: '0:02' }] },
     center: { type: 'viewport', hud: ['Mixer'], foot: 'ミキサー・EQ は ◇ 未実装（NF-002・未承認）。', plain: true },
     right: { tabs: [
       { id: 'mix', label: 'ミキサー', sections: [{ title: 'トラック', status: 'mock', controls: [sl('BGM 音量', -60, 6, 0, 'dB'), sl('Vocal 音量', -60, 6, -3, 'dB'), sl('SE 音量', -60, 6, -6, 'dB')] }, { title: 'EQ', status: 'unimpl', controls: [un('EQを開く', 'DAW型の音声編集は未承認の新規候補（NF-002）です。', ['NF-002'], PH.P4)] }] },
       { id: 'lip', label: 'リップ同期', sections: [{ title: 'リップ同期', status: 'unimpl', controls: [sel('入力', ['SRT字幕', '歌声ステム']), un('解析を開始', 'リップ同期は承認済みのリップシンクフェーズで実装予定です。', ['LIP-001', 'LIP-002'], PH.LIP)] }] },
+      { id: 'sync', label: '配置・同期', sections: [{ title: '歌音声と映像', status: 'unimpl', controls: [note('AUDIO-001：実波形、開始フレーム、サンプル頭出し、映像との同期をここで確認する予定です。'), un('歌音声を配置', 'AUDIO-001 の実読込・配置・同期は未実装です。', ['AUDIO-001'], PH.LIP)] }] },
+      { id: 'phoneme', label: '口形補正', sections: [{ title: '歌声と口形キー', status: 'unimpl', controls: [note('SRTの読み修正、歌声境界の手修正、子音先行・長音・促音・閉口のキーを扱います。歌詞画面と同じ確定SRT素材IDを参照しても口形キーは別トラックに保存します。'), un('口形キーを編集', '口形の解析と補正は未実装です。', ['LIP-001', 'LIP-002', 'LIP-003'], PH.LIP)] }] },
+      { id: 'beat', label: '拍・イベント', sections: [{ title: '拍の解析と手動修正', status: 'unimpl', controls: [un('拍を設定', '音声からの拍解析と時刻付きマーカーは未実装です。', ['LYRIC-006'], PH.D)] }] },
     ] },
-    bottom: { type: 'timeline', status: 'mock', fps: 30, frames: 5760, tracks: [{ label: 'BGM', wave: true }, { label: 'Vocal', wave: true }, { label: 'SE', clips: [[300, 330, 'Kick'], [1800, 1860, 'Whoosh']] }, { label: 'ビート', keys: [0, 480, 960, 1440, 1920, 2400, 2880, 3360, 3840, 4320, 4800, 5280] }] },
+    bottom: { type: 'timeline', status: 'mock', fps: 30, frames: 5760, tracks: [{ label: 'BGM', wave: true }, { label: 'Vocal', wave: true }, { label: 'SE', clips: [[300, 330, 'Kick'], [1800, 1860, 'Whoosh']] }, { label: '口形', keys: [] }, { label: 'ビート', keys: [0, 480, 960, 1440, 1920, 2400, 2880, 3360, 3840, 4320, 4800, 5280] }] },
   },
   {
     id: '11', title: '画像管理・参照画像編集', nav: '画像管理', group: '素材',
@@ -362,14 +374,14 @@ export const SCREENS = [
   {
     id: '12', title: 'キャラクター管理・3Dモデル編集', nav: 'キャラクター', group: 'モーション',
     summary: 'キャラクターモデルの一覧・プレビュー・ボーン・モーフ・リターゲット・物理を扱う。',
-    classification: 'existing_or_partial_to_audit', ids: ['MOTION-003', 'MOTION-004', 'MOTION-005', 'MOTION-019', 'MOTION-021', 'LIP-004', 'NF-023'],
+    classification: 'existing_or_partial_to_audit', ids: ['MOTION-003', 'MOTION-004', 'MOTION-005', 'MOTION-019', 'MOTION-021', 'LIP-004', 'LIP-011', 'NF-023'],
     existing: [MAIN],
     panels: [
       { name: 'キャラクター一覧', status: 'partial', note: '現行画面の登録済みVRMモデル・PMXスロット。', ids: ['MOTION-002'] },
       { name: '3Dプレビュー', status: 'partial', note: '現行画面の3Dプレビュー（GLB/VRM）。', ids: ['MOTION-009'] },
       { name: 'ボーン・ウェイト', status: 'partial', note: 'pmx_bones.py・骨格解析あり。ウェイト編集は NF-023（未承認）。', ids: ['MOTION-005', 'NF-023'] },
       { name: '衣装', status: 'unimpl', ids: ['NF-005'] },
-      { name: 'モーフ', status: 'unimpl', ids: ['LIP-004'] },
+      { name: 'モーフ', status: 'unimpl', ids: ['LIP-004', 'LIP-011'] },
       { name: 'リターゲット', status: 'partial', note: 'retarget_*.py とマッピングUI。', ids: ['MOTION-004'] },
       { name: '物理', status: 'unimpl', ids: ['MOTION-021', 'REVIEW-009'] },
     ],
@@ -378,15 +390,15 @@ export const SCREENS = [
     center: { type: 'viewport', img: 'viewport-character', hud: ['Model Preview', 'A-Pose'], tools: ['選択', '回転'], foot: '3D表示は現行の制作画面で利用できます。' },
     right: { tabs: [
       { id: 'bone', label: 'ボーン', sections: [{ title: 'ボーン', status: 'partial', controls: [{ t: 'list', items: ['センター', '上半身', '首', '頭', '左腕', '右腕', '左足', '右足'].map((n) => ({ id: n, label: n })) }] }] },
-      { id: 'morph', label: 'モーフ', sections: [{ title: '口・目モーフ', status: 'unimpl', controls: [un('モーフを解析', 'モデル別PMX口モーフ解析はリップシンクフェーズ（LIP-004）。', ['LIP-004'], PH.LIP)] }] },
+      { id: 'morph', label: 'モーフ', sections: [{ title: '口・目モーフ', status: 'unimpl', controls: [note('モデル別の口モーフ対応、PMX頂点変位・複合モーフ・強度、VRM expression の欠落を検査します。'), un('モーフを解析', 'モデル別口モーフ解析は未実装です。', ['LIP-004'], PH.LIP), un('顔動画から候補を取得', '顔動画／カメラの明示許可と候補の手動確定は未実装です。', ['LIP-011'], PH.D)] }] },
       { id: 'retarget', label: 'リターゲット', sections: [{ title: 'リターゲット', status: 'partial', controls: [btn('VMD編集・リターゲット（13）へ', 'nav:13')] }] },
-      { id: 'physics', label: '物理', sections: [{ title: '物理', status: 'unimpl', controls: [tg('SpringBone 物理'), un('物理を比較', 'SpringBone ON/OFF 比較は移植候補（REVIEW-009）。', ['REVIEW-009'], PH.P2)] }] },
+      { id: 'physics', label: '物理', sections: [{ title: '物理', status: 'unimpl', controls: [tg('SpringBone 物理'), un('物理を比較', 'SpringBone ON/OFF 比較は移植候補（REVIEW-009）。', ['REVIEW-009'], PH.P2), note('ベイク対象、seed、時間刻み、入力hashと新規レイヤーを指定します。'), un('物理をベイク', 'MMD物理ベイクと貫通検品は未実装です。', ['MOTION-021'], PH.B)] }] },
     ] },
   },
   {
     id: '13', title: 'モーションVMD編集・リターゲティング', nav: 'VMD編集・リターゲット', group: 'モーション',
     summary: 'VMDライブラリ、3D比較、ボーンマップ、曲線、足IK、入出力をまとめたモーション編集。',
-    classification: 'existing_or_partial_to_audit', ids: ['MOTION-004', 'MOTION-005', 'MOTION-006', 'MOTION-008', 'MOTION-011', 'DATA-003', 'REVIEW-001'],
+    classification: 'existing_or_partial_to_audit', ids: ['MOTION-004', 'MOTION-005', 'MOTION-006', 'MOTION-008', 'MOTION-011', 'DATA-003', 'REVIEW-001', 'LIP-005', 'LIP-006', 'LIP-007', 'LIP-008', 'LIP-009', 'LIP-010', 'DANCE-004', 'DANCE-005', 'DANCE-007', 'DANCE-008', 'DANCE-009', 'DANCE-010', 'DANCE-011', 'LYRIC-011'],
     existing: [MAIN],
     modes: ['比較', '編集'],
     panels: [
@@ -405,8 +417,25 @@ export const SCREENS = [
       { id: 'map', label: 'ボーンマップ', sections: [{ title: 'ボーン対応', status: 'mock', controls: [{ t: 'table', cols: ['元', '対象', '状態'], rows: [['Hips', 'センター', '対応'], ['Spine', '上半身', '対応'], ['LeftUpLeg', '左足', '対応'], ['LeftFoot', '左足ＩＫ', '要確認']] }] }] },
       { id: 'ik', label: '足IK', sections: [{ title: '足IK・接地', status: 'partial', note: '接地計算は既存。新UIからは未接続。', controls: [tg('接地補正'), sl('床の高さ', -0.5, 0.5, 0, 'm', 0.01), un('接地を再計算', '新UIからの再計算は未接続（既存API移植は P2）。', ['MOTION-011'], PH.P2)] }] },
       { id: 'curve', label: '曲線', sections: [{ title: '補間曲線', status: 'mock', controls: [{ t: 'curve' }, sel('チャンネル', ['回転 X', '回転 Y', '回転 Z', '位置'])] }] },
+      { id: 'expression', label: '表情・リップ', sections: [
+        { title: '表情キー', status: 'unimpl', controls: [note('眉・目・瞬き・視線・感情・口形と身体キーの競合を同じ時刻で確認します。'), un('表情キーを編集', '表情・リップの重ね合わせは未実装です。', ['LIP-009'], PH.LIP)] },
+        { title: '身体との連動', status: 'unimpl', controls: [un('連動候補を比較', '身体区間との表情連動は未実装です。', ['LIP-010'], PH.D)] },
+      ] },
+      { id: 'versions', label: '比較・版', sections: [
+        { title: '許諾済みVMDの比較', status: 'unimpl', controls: [note('元・提案・適用後を同一フレームで比較し、理由と3段階評価から部分採用します。'), un('修正案を比較', 'VMD比較・提案・部分採用は未実装です。', ['LIP-005', 'LIP-006', 'LIP-007'], PH.D)] },
+        { title: 'モデル別の親版と出力版', status: 'unimpl', controls: [un('版を管理', '原本を残すモデル別版管理は未実装です。', ['LIP-008'], PH.D)] },
+      ] },
+      { id: 'dancers', label: '複数ダンサー', sections: [
+        { title: '人物別トラック', status: 'unimpl', controls: [note('カノン開始差、ミラー、主役交代、身体部位マスクを人物別に扱います。'), un('振付を編集', '複数ダンサーの編集は未実装です。', ['DANCE-004', 'DANCE-005'], PH.C)] },
+        { title: '人物別VMD', status: 'unimpl', controls: [un('別名で一括出力', '人物別VMD一括出力と失敗一覧は未実装です。', ['DANCE-007'], PH.C)] },
+      ] },
+      { id: 'combat', label: '格闘', sections: [
+        { title: '接触イベント', status: 'unimpl', controls: [note('攻撃／反応、掴み骨、接触誤差と開始／解除時刻をここで編集します。'), un('接触を編集', '格闘接触と掴みは未実装です。', ['DANCE-008', 'DANCE-009'], PH.H)] },
+        { title: '連続技と起き上がり', status: 'unimpl', controls: [un('連続技を編集', 'ノックダウン、Kip Up、回避／カウンター分岐は未実装です。', ['DANCE-010', 'DANCE-011'], PH.H)] },
+      ] },
+      { id: 'motionExtra', label: '追加動作', sections: [{ title: '歩行・待機・呼吸', status: 'unimpl', controls: [un('動作を補完', '元VMDを保持した追加動作は未実装です。', ['LYRIC-011'], PH.G)] }] },
     ] },
-    bottom: { type: 'timeline', status: 'mock', fps: 30, frames: 900, tracks: [{ label: 'センター', keys: [0, 60, 180, 300, 420, 600] }, { label: '上半身', keys: [0, 90, 240, 480, 720] }, { label: '左足IK', keys: [0, 30, 120, 210, 330] }, { label: '右足IK', keys: [15, 105, 195, 315] }] },
+    bottom: { type: 'timeline', status: 'mock', fps: 30, frames: 900, tracks: [{ label: 'センター', keys: [0, 60, 180, 300, 420, 600] }, { label: '上半身', keys: [0, 90, 240, 480, 720] }, { label: '左足IK', keys: [0, 30, 120, 210, 330] }, { label: '右足IK', keys: [15, 105, 195, 315] }, { label: '表情・リップ', keys: [] }, { label: 'ダンサー別', keys: [] }, { label: '接触イベント', keys: [] }] },
   },
   {
     id: '14', title: 'カメラレール・パスアニメーション', nav: 'カメラレール', group: 'カメラ',
@@ -483,7 +512,7 @@ export const SCREENS = [
   {
     id: '17', title: 'レンダリング・バッチ処理／書き出し', nav: 'レンダリング・バッチ', group: '出力',
     summary: '出力プリセット・品質設定・キュー・AOV・統計・履歴を管理する。',
-    classification: 'existing_or_partial_to_audit', ids: ['RENDER-001', 'RENDER-002', 'RENDER-003', 'RENDER-005', 'RENDER-006', 'RENDER-007', 'RENDER-010', 'NF-016', 'NF-017', 'NF-018'],
+    classification: 'existing_or_partial_to_audit', ids: ['RENDER-001', 'RENDER-002', 'RENDER-003', 'RENDER-004', 'RENDER-005', 'RENDER-006', 'RENDER-007', 'RENDER-008', 'RENDER-009', 'RENDER-010', 'NF-016', 'NF-017', 'NF-018'],
     panels: [
       { name: '出力プリセット', status: 'unimpl', ids: ['RENDER-006'] }, { name: 'レンダープレビュー', status: 'unimpl', ids: ['RENDER-001'] },
       { name: '品質設定', status: 'unimpl', ids: ['RENDER-003'] }, { name: 'キュー', status: 'unimpl', ids: ['RENDER-007'] },
@@ -499,6 +528,11 @@ export const SCREENS = [
       { id: 'preset', label: 'プリセット', sections: [{ title: '出力プリセット', status: 'unimpl', controls: [ch('プリセット', ['YouTube 1080p', 'ショート縦型', 'MMD用連番', 'アルファ付き']), sel('コーデック', ['H.264', 'H.265', 'ProRes 422', 'PNG']), sel('背景', ['透過（アルファ）', '単色', 'クロマキー'])] }] },
       { id: 'quality', label: '品質', sections: [{ title: '品質設定', status: 'unimpl', controls: [sl('サンプル数', 1, 64, 8), sl('解像度倍率', 0.25, 2, 1, '×', 0.25), tg('モーションブラー')] }] },
       { id: 'aov', label: 'AOV', sections: [{ title: 'AOV', status: 'unimpl', controls: [tg('深度'), tg('法線'), tg('オブジェクトID'), note('EXR/AOV はブラウザ描画では制限があります。対応可否を Phase F で確認します。')] }] },
+      { id: 'audio', label: '音声・同期', sections: [{ title: '歌音声付き書き出し', status: 'unimpl', controls: [note('10「音声」の素材とオフセットを参照し、出力ファイルの同期を検品します。'), un('音声設定を開く', '音声多重化は未実装です。', ['RENDER-006'], PH.F)] }] },
+      { id: 'verify', label: '検品', sections: [
+        { title: '実ファイルの検品', status: 'unimpl', controls: [note('寸法・FPS・フレーム数・音声・黒画面を出力ファイルの再読込で検査します。'), un('出力を検品', '出力ファイルの検品は未実装です。', ['RENDER-009'], PH.F)] },
+        { title: '差分と再開', status: 'unimpl', controls: [un('再利用可否を確認', '入力差分による再描画判定、取消・再試行・再開は未実装です。', ['RENDER-008', 'RENDER-010'], PH.F)] },
+      ] },
     ] },
   },
   {
@@ -661,6 +695,87 @@ export const SCREENS = [
       { name: '用語集', status: 'real', evidence: 'tests/studio-ui.test.cjs::help pages render their content', shell: true },
     ],
     center: { type: 'help' },
+  },
+  {
+    id: '26', title: 'MMDエフェクト', nav: 'MMDエフェクト', group: '制作',
+    summary: '登録済み効果の互換性、対象割当、順序、時刻付きパラメータと出力差分を確認する。',
+    classification: 'existing_or_partial_to_audit', ids: ['RENDER-011', 'RENDER-012', 'RENDER-013', 'RENDER-014', 'RENDER-015'],
+    panels: [
+      { name: '効果素材', status: 'unimpl', ids: ['RENDER-011'] },
+      { name: 'プレビュー差分', status: 'unimpl', ids: ['RENDER-012'] },
+      { name: 'イベント', status: 'unimpl', ids: ['RENDER-013'] },
+      { name: '効果スタック', status: 'unimpl', ids: ['RENDER-014'] },
+      { name: 'MMD設定書', status: 'unimpl', ids: ['RENDER-015'] },
+    ],
+    tools: [btn('素材管理（08）へ', 'nav:08'), un('MMD設定書を出す', '互換レベルと未対応項目を記した設定書の出力は未実装です。', ['RENDER-015'], PH.FX)],
+    left: { title: '登録済み効果', status: 'unimpl', list: [], controls: [note('FX素材の出典・許諾・依存は素材管理で登録します。')] },
+    center: { type: 'cards', cards: [
+      { title: 'プレビューと出力の差分', span: 8, status: 'unimpl', controls: [{ t: 'conceptPreview', kind: 'fx', src: '/studio/assets/mock-previews/mmd-fx-concept.png', alt: '仮想ダンサーの発光とステージ照明を描いたMMD効果の構想図' }, note('画像は効果の構想例です。タイムラインは仮データで、ブラウザー描画・動画出力には反映されません。')] },
+      { title: '互換レベル', span: 4, status: 'unimpl', controls: [note('原 .fx の実行、ブラウザー近似、MMD向け設定出力を区別します。')] },
+    ] },
+    right: { tabs: [
+      { id: 'stack', label: '効果スタック', sections: [{ title: '適用先と順序', status: 'unimpl', controls: [note('左の登録済み効果を選び、シーン／モデル／材質／ショットへ割り当てます。ここに見える設定例は保存されません。'), sel('適用先の種類', ['シーン', 'モデル', '材質', 'ショット']), sel('描画順', ['発光', 'ポスト処理', 'オーバーレイ']), un('効果を追加', '効果スタックの編集は未実装です。', ['RENDER-014'], PH.FX)] }] },
+      { id: 'params', label: 'パラメータ', sections: [
+        { title: '共通設定', status: 'unimpl', controls: [note('選択中の効果と対象を確認してから、ON/OFF・強度を調整します。下のキー操作は現在フレームに記録する予定です。表示値は操作例で、描画・保存されません。'), tg('効果を有効にする'), sl('強度', 0, 2, 1, '×', 0.05), un('現在フレームにキーを追加', 'パラメータキーの記録は未実装です。', ['RENDER-014'], PH.FX)] },
+        { title: '内蔵効果ごとの項目例', status: 'unimpl', controls: [note('効果選択に応じて該当項目だけを表示する設計です。原 .fx のパラメータとは別管理します。値は描画・保存されません。'), sl('Bloom 閾値', 0, 2, 1, '', 0.05), sl('DOF ピント距離', 0.1, 100, 3, 'm', 0.1), sl('MotionBlur シャッター角', 0, 360, 180, '°', 1), sl('発光 強度', 0, 5, 1, '×', 0.1), sl('影の強さ', 0, 2, 1, '×', 0.05)] },
+        { title: '空間演出の項目例', status: 'unimpl', controls: [note('霧はまず奥行き霧として扱い、局所的な体積霧とは区別します。粒子と花びらは同一フレームの再評価・透過・動画出力を検証します。'), sl('霧の濃度', 0, 0.1, 0.02, '', 0.005), sl('塵・花びらの量', 0, 100, 30, '%', 1), sl('きらめき強度', 0, 5, 1, '×', 0.1)] },
+      ] },
+      { id: 'builtin', label: '内蔵効果', sections: [{ title: '描画効果と互換性', status: 'unimpl', controls: [note('発光・Bloom・DOF・MotionBlur・影の強調を効果別に扱い、ブラウザーと動画の対応を分けて表示します。'), un('効果を設定', '内蔵描画効果は未実装です。', ['RENDER-012'], PH.FX)] }] },
+      { id: 'events', label: '対象・時刻', sections: [{ title: '演出イベントと区間', status: 'unimpl', controls: [note('発光・火花・煙・衝撃波はヒットフレーム、霧・細かな塵・舞う桜・きらめきは持続区間にも結びます。'), un('イベントを追加', '時刻付き演出は未実装です。', ['RENDER-013'], PH.FX)] }] },
+    ] },
+    bottom: { type: 'timeline', status: 'unimpl', demoEditable: true, fps: 30, frames: 900, tracks: [
+      { label: '効果区間', clips: [[80, 300, '霧'], [330, 580, '桜・塵'], [600, 820, 'DOF・影']] },
+      { label: '強度キー', keys: [80, 150, 240, 330, 430, 600, 750] },
+      { label: 'FXイベント', keys: [365, 420, 510] },
+    ] },
+  },
+  {
+    id: '27', title: '歌詞・MV構成', nav: '歌詞・MV構成', group: '制作',
+    summary: '歌詞の行入力と同期、文字PVの案と行ごとの補正、2D/3D配置、ショット参照を同じ時間軸に置く。',
+    modes: ['かんたん', '詳細'],
+    classification: 'existing_or_partial_to_audit', ids: ['LYRIC-001', 'LYRIC-002', 'LYRIC-003', 'LYRIC-004', 'LYRIC-005', 'LYRIC-007'],
+    panels: [
+      { name: '歌詞素材', status: 'unimpl', ids: ['LYRIC-001'] },
+      { name: '歌詞キュー', status: 'unimpl', ids: ['LYRIC-002'] },
+      { name: '演出パック', status: 'unimpl', ids: ['LYRIC-003', 'LYRIC-005'] },
+      { name: '文字配置', status: 'unimpl', ids: ['LYRIC-004'] },
+      { name: 'MV構成', status: 'unimpl', ids: ['LYRIC-007'] },
+    ],
+    tools: [btn('音声・BGM（10）へ', 'nav:10'), btn('ショット（16）へ', 'nav:16'), btn('動画出力（17）へ', 'nav:17')],
+    left: { title: '歌詞とタイミング', status: 'unimpl', controls: [
+      { t: 'textarea', label: '歌詞（1行＝1フレーズ）', rows: 7, placeholder: '歌詞を1行ずつ入力。/ はカット、[mm:ss] はLRC時刻' },
+      note('入力した歌詞は現在のモックでは保存されません。JIZURA由来の記法は、取り込み範囲とライセンスを確認してから対応します。'),
+      un('LRCを読み込む', 'LRCの選択と時刻の検証は未実装です。', ['LYRIC-002'], PH.G),
+      un('SRTを読み込む', 'BAI独自の互換入力です。解析プレビューを経て共通の歌詞キューに変換する処理は未実装です。', ['LYRIC-002'], PH.G),
+      un('曲を選ぶ（10）', '歌音声との連携は未実装です。音声の正本は10「音声・BGM」に置きます。', ['LYRIC-002'], PH.G),
+      un('タップで同期', '再生中にSpaceで行、Tabでカットの頭を刻む同期は未実装です。', ['LYRIC-002'], PH.G),
+      note('行とカット：未作成。各行の開始時刻、カット数、固定、再抽選をここで編集します。'),
+    ] },
+    center: { type: 'cards', cards: [
+      { title: '文字PV・ステージプレビュー', span: 12, status: 'unimpl', controls: [{ t: 'conceptPreview', kind: 'lyrics', src: '/studio/assets/mock-previews/lyrics-mv-concept.png', alt: '歌い手と夜のステージを描いた歌詞MVの構想図', lyric: '光の向こうへ' }, note('画像と歌詞は構想例です。タイムライン操作はこの画面だけのサンプルで、映像には反映されません。')] },
+      { title: '再生と行／カット', span: 8, status: 'unimpl', controls: [note('再生位置、行・カット、音声、文字モーションを下の時間軸に重ねます。SRTの発話ブロックは各キューの［開始, 終了）を示し、間の無音や重なりも残します。')] },
+      { title: '連携先', span: 4, status: 'unimpl', controls: [note('音声の編集は10、ショット本体は16、動画出力は17です。ここでは共通時刻の参照と文字PVの構成を扱います。')] },
+    ] },
+    right: { tabs: [
+      { id: 'quick', label: 'おまかせ', sections: [
+        { title: '文字PVの案', status: 'unimpl', controls: [note('歌詞・音声・許諾済み演出パックから文字PVの案を作ります。歌詞・音声・手動時刻と固定した行は変えず、構成だけを再提案します。'), un('おまかせで作る', '文字PVの自動構成は未実装です。', ['LYRIC-002', 'LYRIC-003'], PH.G), un('前の案', '案の履歴は未実装です。', ['LYRIC-002'], PH.G), un('次の案', '案の履歴は未実装です。', ['LYRIC-002'], PH.G)] },
+        { title: '気になるところを直す', status: 'unimpl', controls: [note('左の行を選択し、その行だけ再抽選・固定できます。位置や動きの詳細は「詳細」に切り替えます。'), un('選択行だけ再抽選', '行ごとの文字演出の再抽選は未実装です。', ['LYRIC-002', 'LYRIC-003'], PH.G), un('選択行を固定', '行の構成を固定する処理は未実装です。', ['LYRIC-002'], PH.G)] },
+      ] },
+      { id: 'cues', label: '行・カット', sections: [{ title: '入力と時刻の確認', status: 'unimpl', controls: [note('1行1フレーズ、/でカットを分け、LRC時刻を読みます。SRTはBAI互換入力として共通LyricCueへ変換します。原時刻と編集時刻を分けて保持します。'), un('入力を確認', '歌詞の解析とキューの配置は未実装です。', ['LYRIC-002'], PH.G)] }, { title: 'SRT発話ブロック', status: 'unimpl', controls: [note('下の歌詞トラックは各発話の［開始, 終了）を表示します。サンプルではブロック本体を動かすと両時刻が同量ずれ、端を動かすと片方の時刻をトリムできます。原SRTを残す保存処理は未実装です。'), un('SRT時刻を編集して保存', 'SRTブロックの非破壊な時刻補正と保存は未実装です。', ['LYRIC-002'], PH.G)] }, { title: '音声との同期', status: 'unimpl', controls: [note('行頭Space／カット頭Tab、時刻の直接修正、拍への吸着を使います。口形キーへ渡す場合は確定素材IDを明示し、自動上書きしません。'), un('行の時刻を編集', '音声と同じ時刻軸の歌詞編集は未実装です。', ['LYRIC-002'], PH.G)] }] },
+      { id: 'placement', label: '文字配置', sections: [{ title: '2D／3D配置', status: 'unimpl', controls: [note('画面固定と空間固定を区別し、遮蔽・見切れ・カメラ切替を検査します。'), un('文字位置を編集', '2D／3D文字配置は未実装です。', ['LYRIC-004'], PH.G)] }] },
+      { id: 'textMotion', label: '文字モーション', sections: [
+        { title: '選択キューの動き', status: 'unimpl', controls: [note('歌詞キューを選び、現在フレームで位置・大きさ・透明度を設定します。ここに見える値は説明用で、文字や映像には反映・保存されません。'), sl('位置 X', -100, 100, 0, '%', 1), sl('位置 Y', -100, 100, 0, '%', 1), sl('大きさ', 0, 300, 100, '%', 1), sl('不透明度', 0, 100, 100, '%', 1), un('現在フレームに文字キーを追加', '歌詞文字のキーフレーム編集は未実装です。', ['LYRIC-002', 'LYRIC-004'], PH.G)] },
+        { title: '時間と補間', status: 'unimpl', controls: [note('歌詞キューの開始・終了を基準にキーを置き、下部の文字モーショントラックで前後を確認します。許諾済み演出パックは別タブから選びます。')] },
+      ] },
+      { id: 'structure', label: 'MV構成', sections: [{ title: '絵コンテとショット参照', status: 'unimpl', controls: [note('ショットID・順序・範囲・カメラ割当は 16「ショット」で編集します。ここでは絵コンテと歌詞イベントを既存ショットへ結びます。'), btn('ショット編集（16）へ', 'nav:16'), un('絵コンテ参照を編集', '既存ショットへの絵コンテ・歌詞イベント参照は未実装です。', ['LYRIC-007'], PH.G)] }] },
+      { id: 'packs', label: '演出パック', sections: [{ title: '許諾済みスタイル', status: 'unimpl', controls: [un('パックを選ぶ', '許諾と依存を確認した演出パック・スタイルの適用は未実装です。', ['LYRIC-003', 'LYRIC-005'], PH.G)] }] },
+    ] },
+    bottom: { type: 'timeline', status: 'unimpl', demoEditable: true, fps: 30, frames: 900, tracks: [
+      { label: '音声参照', wave: true, clips: [[0, 900, '楽曲サンプル']] },
+      { label: '歌詞・SRTブロック', clips: [[60, 150, '発話 1'], [210, 340, '発話 2'], [330, 480, '発話 3']] },
+      { label: '文字モーション', keys: [60, 90, 150, 210, 270, 340, 390, 480] },
+      { label: 'ショット参照', clips: [[0, 300, 'Shot 01'], [300, 600, 'Shot 02'], [600, 900, 'Shot 03']] },
+    ] },
   },
 ];
 

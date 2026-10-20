@@ -58,7 +58,7 @@ const P = {
 export const SCREEN_ICON = /** @type {Record<string, string>} */ ({
   '01': 'home', '02': 'camera', '03': 'focus', '04': 'film', '05': 'motion', '06': 'stage', '07': 'render', '08': 'folder', '09': 'sphere',
   '10': 'music', '11': 'image', '12': 'user', '13': 'bone', '14': 'path', '15': 'swap', '16': 'grid', '17': 'layers', '18': 'history',
-  '19': 'plug', '20': 'gear', '21': 'palette', '22': 'template', '23': 'link', '24': 'pulse', '25': 'help',
+  '19': 'plug', '20': 'gear', '21': 'palette', '22': 'template', '23': 'link', '24': 'pulse', '25': 'help', '26': 'sparkle', '27': 'music',
 });
 
 /** @param {string} name @param {number} [size] @returns {SVGSVGElement} */

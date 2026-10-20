@@ -1,8 +1,8 @@
 # 機能概要・要件台帳（正本）
 
-**対象:** v0.11.0-standalone（ドキュメントのみの追加コミット）
+**対象:** v0.11.0-standalone を起点に、2026-10-20 の追加決定を反映
 
-この会話の最初の「Mixamo格闘50パターン」から最新の提案までを、重複する要求を統合して **118 個の追跡可能な機能ID** に整理。
+最初の v0.11.0-standalone では118個の機能IDを整理した。その後の OBS・UX・REVIEW などと、2026-10-20に所有者が独立管理を承認した歌音声配置 `AUDIO-001` を含め、現行台帳は **148個**。件数と状態の正本は `FEATURE_REGISTER.json`。
 
 ## 読み方
 
@@ -29,9 +29,12 @@
 | 03 | MOTION: モーション素材・変換・品質 | 22 | CORE,DATA |
 | 04 | DANCE: マルチダンサー・接触 | 12 | MOTION,DATA |
 | 05 | LIP: リップ・表情・音声 | 11 | MOTION,DATA |
+| 05 | AUDIO: 歌音声の取込・配置・同期 | 1 | CORE,DATA |
 | 06 | CAM: カメラ・撮影テンプレート | 18 | DATA,MOTION |
 | 07 | RENDER: レンダリング・エフェクト | 15 | CORE,DATA,CAM |
 | 08 | LYRIC: JIZURA・MV・ステージ | 12 | DATA,CAM,RENDER |
+
+この表は Phase 01〜08 の制作機能を示す。残る横断ID（OBS・UX・REVIEW）は `FEATURE_REGISTER.json` で管理する。
 
 ## Phase 01 / CORE — 基盤・運用
 
@@ -109,6 +112,7 @@
 
 ## Phase 05 / LIP — リップ・表情・音声
 
+- **[AUDIO-001](FEATURE_DETAIL_JA.md#audio-001)** 歌音声の取込・配置・同期（リップシンクと同段階）
 - **[LIP-001](FEATURE_DETAIL_JA.md#lip-001)** SRT読込→リップVMD
 - **[LIP-002](FEATURE_DETAIL_JA.md#lip-002)** SRT＋歌声ステム音素同期
 - **[LIP-003](FEATURE_DETAIL_JA.md#lip-003)** 日本語子音・長音・閉口補正
@@ -144,6 +148,8 @@
 
 ## Phase 07 / RENDER — レンダリング・エフェクト
 
+2026-10-20所有者決定: 動画出力は使用環境で試験エンコード・再読込を通ったMP4の組合せだけ提示し、同名完成物は版名を提案する。明示置換時は旧版を退避する。透過の初期受入はRGBA PNG連番とする。詳細は [A2決定記録](../specs/A2_RENDER_DECISIONS_JA.md)。機能は計画・未検証。
+
 - **[RENDER-001](FEATURE_DETAIL_JA.md#render-001)** MMD無し動画書出し
 - **[RENDER-002](FEATURE_DETAIL_JA.md#render-002)** 背景色/クロマキー/アルファ
 - **[RENDER-003](FEATURE_DETAIL_JA.md#render-003)** 解像度・縦横比・FPS
@@ -159,6 +165,8 @@
 - **[RENDER-013](FEATURE_DETAIL_JA.md#render-013)** 発光・火花・煙・衝撃波
 - **[RENDER-014](FEATURE_DETAIL_JA.md#render-014)** エフェクト設定・描画順・テンプレート
 - **[RENDER-015](FEATURE_DETAIL_JA.md#render-015)** MME適用設定のMMD向け出力
+
+`RENDER-011`〜`015` のA3所有者決定は [A3判断記録](../specs/A3_MMD_EFFECTS_DECISIONS_JA.md)。内蔵効果とRay-MMD素材の登録・MMD向け出力を区別し、効果別の測定と代表フレーム目視を併用する。見た目の優先候補は霧・塵・桜・きらめき・影・ボケ／ブラーで、[効果別候補](../specs/A3_VISUAL_EFFECT_PRIORITY_JA.md) に既存IDとの対応を記録した。機能実装とGPU実測は未完。
 
 ## Phase 08 / LYRIC — JIZURA・MV・ステージ
 

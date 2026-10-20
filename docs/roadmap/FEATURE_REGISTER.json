@@ -561,6 +561,15 @@
       "dependency": "MOTION,DATA"
     },
     {
+      "id": "AUDIO-001",
+      "group": "AUDIO",
+      "phase": 5,
+      "name": "歌音声の取込・配置・同期",
+      "detail": "実波形・開始フレーム・サンプル頭出し・映像との試聴同期・保存復元",
+      "status": "計画・未検証",
+      "dependency": "CORE,DATA"
+    },
+    {
       "id": "LIP-001",
       "group": "LIP",
       "phase": 5,
@@ -835,7 +844,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "背景色/クロマキー/アルファ",
-      "detail": "グリーン・ブルー・任意色・透過",
+      "detail": "グリーン・ブルー・任意色・透過。初期透過出力はRGBA PNG連番",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -853,7 +862,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "動画コーデック設定",
-      "detail": "H264/H265/VP9/AV1/ProRes4444",
+      "detail": "H264等を環境別の試験エンコード・再読込で選択可否判定",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -862,7 +871,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "PNG・EXR連番出力",
-      "detail": "透過と高精度中間素材",
+      "detail": "透過初期受入はRGBA PNG連番。EXRは実書出し・再読込後",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -871,9 +880,9 @@
       "group": "RENDER",
       "phase": 7,
       "name": "FFmpeg変換と書出しプリセット",
-      "detail": "codec/画質/音声同期",
+      "detail": "H264と音声encoderを実測して多重化。同名時は版名提案・明示置換時に旧版退避",
       "status": "計画・未検証",
-      "dependency": "CORE,DATA,CAM"
+      "dependency": "CORE,DATA,CAM,AUDIO"
     },
     {
       "id": "RENDER-007",
@@ -916,7 +925,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "Ray-MMD/MME素材登録",
-      "detail": "設定・依存ファイル管理",
+      "detail": "Ray-MMD/MME素材と依存・出典・許諾を登録。許諾不明はローカル参照のみ",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -925,7 +934,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "AutoLuminous/Bloom/DOF/MotionBlur",
-      "detail": "ブラウザ側の近似再現",
+      "detail": "内蔵発光・Bloom・DOF・MotionBlur・影を効果別に検証。原MMEとの差は明示",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -934,7 +943,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "発光・火花・煙・衝撃波",
-      "detail": "ヒットフレーム同期",
+      "detail": "発光・火花・煙・衝撃波、霧・塵・桜・きらめきのイベント／持続区間を同期",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -943,7 +952,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "エフェクト設定・描画順・テンプレート",
-      "detail": "モデル・材質・ショット別",
+      "detail": "シーン・モデル・材質・ショット別に対象・順序・強度・効果固有キーを保存",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
