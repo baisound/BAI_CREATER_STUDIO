@@ -1929,17 +1929,55 @@
       "feature_ids": [
         "MOTION-005"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "retarget_ui.js / retarget_mapping_preview.py。",
+      "new_ui_state": "real",
+      "source_evidence": "骨格解析・プロファイル・ボーン対応表・基準姿勢の検査を /api/retarget/* で行う（読取・試算のみ。モーションやモデルには適用しない）。",
+      "evidence": "tests/studio-p2-retarget.test.cjs::retarget panel shows every API response and saves the mapping",
+      "UI": "mock_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "read_only_display_only",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-13",
+      "route": "/workspace/13",
+      "panel": "ポーズ比較（2体）",
+      "feature_ids": [
+        "MOTION-005"
+      ],
+      "new_ui_state": "real",
+      "source_evidence": "GLB/VRM の元の静止姿勢と補正候補を左右に並べる（試験。モデルは変えない）。",
+      "evidence": "tests/studio-p2-retarget.test.cjs::pose compare places two models at x = -1.15 and +1.15 and applies the rotation to the right one",
+      "UI": "mock_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "read_only_display_only",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-13",
+      "route": "/workspace/13",
+      "panel": "4分割ビュー",
+      "feature_ids": [
+        "REVIEW-001"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": "元モーション・対象・重ね合わせ・側面の4分割は未実装（中央は1つのビューポート）。",
       "evidence": null,
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "none",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "blockers": "no implementation"
     },
     {
       "screen_id": "SCR-13",

@@ -1,22 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T16:13:56+00:00",
+  "updated_at": "2026-10-20T19:27:19+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "81a0c79",
+  "head_at_update": "7cea229",
   "current": {
-    "task": "P2-WP-04 ④ 3D表示とステージ配置・B-4",
+    "task": "P2-WP-04b ④ リターゲット検証の移植（④-9・④-10）",
     "status": "done",
-    "step": "実装開始（B-4 → viewport → ステージ配置 → テスト）",
+    "step": "実装開始（SCR-13 ボーンマップタブ → three-host 比較 → テスト）",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-04b リターゲット検証の移植"
+    "WP-05 モーション（VMD）の適用・タイムライン再生"
   ],
   "unverified": [
     "O-④-6：実在の PMX/GLB/FBX ステージでの単位の換算と見え方",
     "実在の PMX（多材質・IK・剛体・PMX 2.1）の表示、GPU（SwiftShader でのみ確認）",
-    "PMX キャラクターを SCR-06・カメラ画面に置く経路が無い（計画の空白。保存形式の追加と camera_3d.js の PMX 表示が要る。所有者の判断待ち Q5）"
+    "PMX キャラクターを SCR-06・カメラ画面に置く経路が無い（計画の空白。所有者の判断待ち Q5）",
+    "WP-04b：実在の VRM（Humanoid あり）での仮転写・ポーズ比較の見え方、GPU"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +35,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T19:27:19+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "7cea229",
+      "text": "P2-WP-04b 完了：④-9（SCR-13 ボーンマップ）・④-10（three-host で2体を±1.15）を移植。コミット 7cea229"
+    },
+    {
+      "at": "2026-10-20T16:28:34+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "e9e14eb",
+      "text": "P2-WP-04b ④ リターゲット検証の移植（④-9・④-10）: 実装開始（SCR-13 ボーンマップタブ → three-host 比較 → テスト）"
+    },
     {
       "at": "2026-10-20T16:13:56+00:00",
       "by": "claude-code",
@@ -229,20 +244,6 @@
       "event": "done",
       "head": "9056819",
       "text": "P2 移植の詳細設計 v4 を完成（批評3回目と所有者決定・導線点検§5の1〜5を反映、最終判定前）"
-    },
-    {
-      "at": "2026-10-20T08:46:41+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "37a28a2",
-      "text": "P2（新UIへの移植）の詳細設計: 設計書 v4 の残り（批評3回目 M1〜M8・m1〜m10、所有者決定、導線点検 §5 の1〜5）を仕上げる"
-    },
-    {
-      "at": "2026-10-20T04:36:29+00:00",
-      "by": "claude-code",
-      "event": "blocked",
-      "head": "7e68f40",
-      "text": "P2 設計 v4 の作成途中で利用上限に達し中断。途中の差分を WIP としてコミット。"
     }
   ]
 }

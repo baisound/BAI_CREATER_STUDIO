@@ -9,6 +9,7 @@
 
 import { importButton, assetCategories, assetLibrary, assetDetail, recentImports } from './assets-view.js';
 import { characterList, characterViewport, characterBones, useModelButton } from './character-view.js';
+import { retargetPanel, retargetViewport } from './retarget-view.js';
 import { sceneViewport, stageLoadButton, stageTransform } from './scene-view.js';
 import { projectToolbar, projectStatus, projectSummary, projectHistory, projectList, projectCard } from './project-view.js';
 
@@ -20,5 +21,7 @@ export const FEATURES = {
   importButton, assetCategories, assetLibrary, assetDetail, recentImports,
   // WP-04（④、ステージ配置④-11）
   characterList, characterViewport, characterBones, useModelButton, sceneViewport, stageLoadButton, stageTransform,
+  // WP-04b（④-9・④-10 リターゲット検証、SCR-13）
+  retargetPanel, retargetViewport,
   // WP-05 以降が追加する。
 };

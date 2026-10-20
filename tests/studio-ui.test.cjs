@@ -507,14 +507,14 @@ test('stage load is scheduled for P2', async () => {
 
 test('mock playback is labelled as sample', async () => {
   const page = await newPage();
-  for (const id of ['02', '05', '13']) {
+  for (const id of ['02', '05']) { // 13 は 3D 比較が実機能（WP-04b）になったので出ない
     await page.goto(`${BASE}/workspace/${id}`);
     const banner = page.locator('#main .sample-banner');
     assert.equal(await banner.count(), 1, `banner on ${id}`);
     assert.match(await banner.textContent(), /サンプル再生（3D未接続）/);
     assert.equal(await banner.getAttribute('role'), 'status');
   }
-  for (const id of ['01', '03', '06', '08', '18', '25']) { // 06 は 3D ビューが実機能（WP-04）になったので出ない
+  for (const id of ['01', '03', '06', '08', '13', '18', '25']) { // 06 は 3D ビューが実機能（WP-04）、13 は 3D 比較が実機能（WP-04b）になったので出ない
     await page.goto(`${BASE}/workspace/${id}`);
     assert.equal(await page.locator('#main .sample-banner').count(), 0, `no banner on ${id}`);
   }
