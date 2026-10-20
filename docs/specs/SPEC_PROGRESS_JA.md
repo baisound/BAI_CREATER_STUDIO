@@ -51,3 +51,5 @@ A3対応コミット: 承認境界と優先効果の仕様・台帳を `757ebb2`
 Git 対応: 初期仕様7件 `49557ab`、配置仕様・批評3回 `f6fae2f`、27画面モック `59b29e4`、Judge指摘とSRT区間 `a17a7dd`・`37856d2`、SRT事実確認とAGENTS方針 `d3532a1`、生成画像と操作可能な仮時間軸 `23e4964`。`23e4964` は承認済み `RENDER-012/013/014`・`LYRIC-002/004` の画面配置例であり、機能実装・保存・出力は未完。ロードマップの順序と機能台帳の実装状態は変えない。
 
 A1の所有者決定 `AUDIO-001`・`LIP-001/009` は `2e9e2f5` で台帳・概要・詳細・トレーサビリティ・画面表示・試験に同期した。実装状態は「計画・未検証」のまま。後続の詳細設計とCritic/Judge、実装・実データ試験は別工程。
+
+2026-10-21 実装引継ぎ設計: [入口](IMPLEMENTATION_HANDOFF_JA.md)から[A1](A1_LIP_IMPLEMENTATION_DESIGN_JA.md)、[A2](A2_RENDER_IMPLEMENTATION_DESIGN_JA.md)、[A3](A3_MMD_EFFECTS_IMPLEMENTATION_DESIGN_JA.md)、[B1](B1_MULTI_DANCER_IMPLEMENTATION_DESIGN_JA.md)、[B2](B2_MUSIC_EXPRESSION_IMPLEMENTATION_DESIGN_JA.md)、[B3](B3_LYRICS_STAGE_IMPLEMENTATION_DESIGN_JA.md)、[B4](B4_COMBAT_IMPLEMENTATION_DESIGN_JA.md)、[共通契約](IMPLEMENTATION_COMMON_CONTRACT_JA.md)へ到達できる。領域ごとのデータスキーマ・計算/時刻・API入出力/エラー・実装順・UI/MCP/保存・試験ゲートを固定した。B3はJIZURA公式ソース `fc16bfe4`（0.10.1）とMIT/第三者通知を確認し、取り込む機能を限定した。設計文書内リンク、JSON例、対象ID参照、差分を検査。コード・外部依存・実素材・GPU・両MCPの実装/動作試験はまだない。各機能台帳の状態は変更しない。B4共通契約/詳細設計は `49f3c51` に記録した。
