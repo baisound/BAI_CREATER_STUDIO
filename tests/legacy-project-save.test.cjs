@@ -48,3 +48,28 @@ test('legacy index.html: save works, and again after an external sync (B-1, B-2)
     await server.stop();
   }
 });
+
+// B-3（CAM-G06 の一部）：壊れたカメラ保存データのとき、旧 camera.html は黙って既定値を編集せず、エラーを出して止まる。
+test('legacy camera.html: broken camera_project.json shows an error and is never overwritten (B-3)', { ...harness.skip3d(), ...chromiumSkip }, async () => {
+  const BROKEN = '{"broken":';
+  const server = await harness.startServer({ port: PORT + 1, seed: { 'camera_project.json': BROKEN } });
+  let browser;
+  try {
+    browser = await server.launchBrowser();
+    // 保存を押すと本文が空になり 413、読込は 422 になるのでコンソールのエラーを許可する（3-m3）
+    const page = await server.newPage(browser, { expectErrors: [/413/, /422/, /camera_project/] });
+    await page.goto(`${server.base}/camera.html`);
+    await page.waitForFunction(() => /読み込みエラー/.test(document.getElementById('status').textContent), null, { timeout: 15000 });
+    const text = await page.textContent('#status');
+    assert.match(text, /カメラ保存データ（camera_project\.json）を読めません/);
+    await page.click('#save');
+    await page.waitForFunction(() => /保存失敗/.test(document.getElementById('status').textContent), null, { timeout: 10000 });
+    assert.equal(fs.readFileSync(`${server.dataDir}/camera_project.json`, 'utf8'), BROKEN);
+    const backups = fs.readdirSync(server.dataDir).filter((f) => /^camera_project\.invalid-[0-9a-f]{8}-\d{8}T\d{6}Z\.json$/.test(f));
+    assert.equal(backups.length, 1);
+    harness.assertNoErrors(page);
+  } finally {
+    if (browser) await browser.close();
+    await server.stop();
+  }
+});

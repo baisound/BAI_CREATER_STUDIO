@@ -259,7 +259,10 @@
       "item": "G-06 の一部（read_project の読込エラー分岐・CameraProjectInvalid・退避・bad(code)。/api/project/bundle の GET と POST の書込前読込、GET/POST /api/camera/project、POST /api/camera/sequence/edit で 422）",
       "phase_e_wp": "WP-02a",
       "planned_in": "P2-WP-00b",
-      "status": "planned"
+      "status": "done",
+      "commit": "COMMIT2",
+      "tests": "pytest 全件合格（tests/test_bundle_camera_invalid.py 22件・tests/test_project_envelope.py・test_bundle_snapshot_consistency.py の振る舞いテスト）、tests/legacy-project-save.test.cjs 2件（旧 camera.html は壊れたデータでエラー表示して止まり、バイト列不変）、npm run test:node-all・tsc 合格、実 data/ ハッシュ不変",
+      "unverified": "G-06 のうち一部のみ実施（エラー分岐、統合バンドルとカメラの GET/POST・sequence/edit の 422）。focus・sample・sequence/evaluate の GET は read() のまま、未知フィールド・backup・invalid-preview・UI の復旧操作は WP-02a。Opus レビュー未実施（②のコミットはレビュー対象）"
     },
     {
       "item": "WP-02d の画面側の規則（assetRef 記入・validateRestore 緩和・frame 整数化・423）の置き場所として共有モジュール camera_bundle_core.js を作る（現行ロジックの抽出のみ）",
@@ -271,7 +274,19 @@
       "item": "WP-02a POST /api/camera/project/reset（Phase E §2.7 の仕様どおり。UI のダウンロード・invalid-preview は WP-02a のまま）",
       "phase_e_wp": "WP-02a",
       "planned_in": "P2-WP-00b",
-      "status": "planned"
+      "status": "done",
+      "commit": "COMMIT2",
+      "tests": "tests/test_bundle_camera_invalid.py の reset テスト（確認なし 400、壊れたファイル・正常なファイル・無いファイルの reset、読めない・退避失敗では何も書かない、退避は重複しない）",
+      "unverified": "Opus レビュー未実施。UI（確認ダイアログ・ダウンロード・invalid-preview）は WP-02a"
+    },
+    {
+      "item": "B-1（DATA-008）GET /api/project?envelope=1 の重複分岐の削除と try、B-2 index.html externalProjectApply の版の取り直し1文（旧制作画面のコンビネーション保存の修正）",
+      "phase_e_wp": "（P2 前提の既存不具合修正）",
+      "planned_in": "P2-WP-00b",
+      "status": "done",
+      "commit": "b082ad8",
+      "tests": "tests/test_project_envelope.py、tests/legacy-project-save.test.cjs（B-2 の1文を外すと失敗することを確認）、pytest 322 passed、test:node-all 75 passed・8 skipped・0 failed、tsc 合格、実 data/ ハッシュ不変",
+      "unverified": "Windows 実機・GPU 実機未検証。three は THREE_DIR の手元コピー（npm ci 未実行）"
     }
   ]
 }

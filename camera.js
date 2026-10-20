@@ -223,5 +223,5 @@ $('lens-apply').addEventListener('click',()=>{try{
  $('lens-result').textContent=`${preset.mm}mm / f${preset.aperture} / 垂直画角 ${fov.toFixed(2)}°（実ボケは未対応）`;
  }catch(e){$('lens-result').textContent='エラー: '+e.message}
 });
-fetch('/api/camera/project?envelope=1').then(r=>r.json()).then(envelope=>{serverRevision=envelope.revision;project=envelope.project;history=[clone(project)];cursor=0;$('frame').max=project.duration;$('frame-number').max=project.duration;$('duration').value=project.duration;rangeSize=Math.min(300,project.duration);updateRangeControls();restoreRig();setFrame(0);window.dispatchEvent(new CustomEvent('bai-camera-project-loaded',{detail:{project}}));status('カメラ編集を開始できます（AI不要）')}).catch(e=>status('読み込みエラー: '+e.message));
+fetch('/api/camera/project?envelope=1').then(r=>r.json().then(j=>{if(!r.ok)throw Error(j.error||('HTTP '+r.status));return j})).then(envelope=>{serverRevision=envelope.revision;project=envelope.project;history=[clone(project)];cursor=0;$('frame').max=project.duration;$('frame-number').max=project.duration;$('duration').value=project.duration;rangeSize=Math.min(300,project.duration);updateRangeControls();restoreRig();setFrame(0);window.dispatchEvent(new CustomEvent('bai-camera-project-loaded',{detail:{project}}));status('カメラ編集を開始できます（AI不要）')}).catch(e=>status('読み込みエラー: '+e.message));
 })();
