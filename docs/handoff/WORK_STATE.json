@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T09:10:44+00:00",
+  "updated_at": "2026-10-20T09:12:14+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "187441a",
+  "head_at_update": "704e5be",
   "current": {
-    "task": "P2-WP-00a-1 データ隔離",
-    "status": "done",
-    "step": "bai_paths.py・conftest.py・test_data_isolation.py を実装し server.py ほかの保存先を data_dir() 化",
+    "task": "P2-WP-00a-2 ハーネス",
+    "status": "in_progress",
+    "step": "studio-harness.cjs・run-guarded.cjs・テスト用ファイル生成・既存node試験の移行・conftest後始末",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T09:12:14+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "704e5be",
+      "text": "P2-WP-00a-2 ハーネス: studio-harness.cjs・run-guarded.cjs・テスト用ファイル生成・既存node試験の移行・conftest後始末"
+    },
     {
       "at": "2026-10-20T09:10:44+00:00",
       "by": "claude-code",
