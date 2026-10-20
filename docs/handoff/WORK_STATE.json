@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T13:57:32+00:00",
+  "updated_at": "2026-10-20T14:06:04+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "910cc5a",
+  "head_at_update": "d33496a",
   "current": {
     "task": "P2-WP-01 保存・読込",
     "status": "done",
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T14:06:04+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "d33496a",
+      "text": "WP-01 Opus レビュー：自動保存と統合保存が同じ tick を待つと saving:true のまま止まる不具合を修正（テスト追加）。If-Match・世代番号・C5・server.py の 500 分岐は問題なし"
+    },
     {
       "at": "2026-10-20T13:57:32+00:00",
       "by": "claude-code",
