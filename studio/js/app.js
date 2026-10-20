@@ -476,7 +476,7 @@ function homeView(c) {
       h('p', { class: 'lead' }, '3D・カメラ・アニメーション・VMD・AI をひとつにまとめた制作環境'),
       h('div', { class: 'btn-row' },
         actionButton({ t: 'btn', label: '新規プロジェクト', act: 'form:newProject', primary: true }),
-        actionButton({ t: 'btn', label: '紹介ムービーを再生', act: 'unimpl', why: '紹介ムービー・動画チュートリアルはまだありません。', ids: [], phase: PH.P4 }))),
+        actionButton({ t: 'btn', label: '紹介ムービーを再生', act: 'unimpl', why: '紹介ムービー・動画チュートリアルはまだありません。', ids: ['NF-015'], phase: PH.P4 }))),
     h('ul', { class: 'hero-steps', 'aria-label': 'できること' }, ['キャラクターを動かす', 'シーンで魅せる', 'カメラで語る', 'エフェクトで彩る', 'AIで広げる'].map((x) => h('li', null, x))),
     h('span', { class: 'sample-tag' }, 'サンプル画像'));
 

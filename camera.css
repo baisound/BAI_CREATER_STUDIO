@@ -17,3 +17,5 @@ fieldset label input{flex:1 1 120px;width:100%;min-width:80px}
 
 /* Real model camera workspace integration */
 .asset-toolbar{display:flex;align-items:end;flex-wrap:wrap;gap:9px;padding:8px 10px;background:#1a2a3d;border:1px solid #364d65;border-radius:8px}.asset-toolbar label{display:flex;flex-direction:column;gap:3px;margin:0;min-width:130px;max-width:320px;flex:1}.asset-toolbar select{width:100%}.asset-toolbar #camera-asset-status{font-size:12px;color:#b5c7db;flex:1 1 210px}.view-3d-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}.panel-caption,.camera-frame,.camera-frame-label,.scene-tools{z-index:3}.scene-panel,.preview-shell{position:relative}.scene-panel>canvas#scene,.preview-shell>canvas#preview{position:relative;z-index:0}.view-3d-canvas{background:transparent}
+
+.transport .inline-control{display:flex;align-items:center;gap:6px;margin:0;flex:0 0 auto}.transport .inline-control input{flex:0 0 auto;width:90px}
