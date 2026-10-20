@@ -221,7 +221,7 @@ export const motionViewport = (ctx) => {
     alive = false; seq++;
     stopLoop();
     current = null;
-    editor = null;
+    if (editor === me) editor = null; // 後から開いた別のビューの受け口は消さない
     player?.dispose(); player = null;
     if (host) { host.dispose(); host = null; }
   });
@@ -453,7 +453,7 @@ export const motionViewport = (ctx) => {
   ctx.onCleanup(assets.subscribe(init));
   ctx.onCleanup(project.subscribe(refreshRecord));
   init();
-  editor = {
+  const me = {
     say,
     open(id, o) { // 外部コマンド（O-⑤-5）：対象モデルを選んで読み込む
       initialized = true;
@@ -463,6 +463,7 @@ export const motionViewport = (ctx) => {
       void loadSelected(id, o);
     },
   };
+  editor = me;
 
   // ライブラリで押された VMD
   let handled = motionUi.get().vmdReq.seq;
