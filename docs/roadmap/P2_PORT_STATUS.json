@@ -150,11 +150,21 @@
     {
       "id": "P2-WP-04b",
       "step": "④ リターゲット検証",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "O-④-5 を 2026-10-20 に Opus で決定（SCR-13 にまとめる。設計書 §2.4(h)）。",
+      "state": "verified",
+      "commits": [
+        "0b57f83（作業位置の記録）",
+        "7cea229（本体：④-9 SCR-13「ボーンマップ」タブ、④-10 three-host で2体を ±1.15 に配置）"
+      ],
+      "tests": [
+        "tests/studio-p2-retarget.test.cjs（4件：/api/retarget/* の16本をすべて画面から呼ぶ・表と JSON・プロファイルと対応表の保存（隔離データ）・同意なしは呼ばない・2体の配置 x=∓1.15 と回転の適用（右のみ）・欠損ファイルの文言・画面を離れると dispose）",
+        "tests/studio-ui.test.cjs（13 のサンプル再生バナーを出さない）"
+      ],
+      "unverified": [
+        "実在の VRM（Humanoid あり）での仮転写・基準姿勢・ポーズ比較の見え方（合成 GLB は Humanoid が無く、vrm-humanoid-preview は 400、仮転写の samples は空。比較の回転は手で入れた samples で確認）",
+        "GPU（SwiftShader でのみ確認）",
+        "中央の4分割ビュー（◇ のまま。REVIEW-001）"
+      ],
+      "notes": "O-④-5 を 2026-10-20 に Opus で決定（SCR-13 にまとめる。設計書 §2.4(h)）。決定どおりに実装：④-9 は SCR-13 右の既存タブ「ボーンマップ」（新タブなし）、④-10 は中央を three-host にして比較の間だけ2体を x=-1.15/+1.15 に並べる（setObject は拡張せず content に add、clear で一緒に消す）。SCR-12 の「リターゲット」タブは [VMD編集・リターゲット（13）へ] のまま。旧画面の retarget_ui.js・v01629_mesh_compare.js は変更せず配信を続ける。副修正：studio-p2-viewport の focus の競合（基準でも間欠失敗）と、13 のサンプル再生バナー（3D 比較が実機能になったため、06 と同じ扱い）。",
       "owner_check": null
     },
     {
