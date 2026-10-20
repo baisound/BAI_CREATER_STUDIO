@@ -148,6 +148,8 @@
 
 ## Phase 07 / RENDER — レンダリング・エフェクト
 
+2026-10-20所有者決定: 動画出力は使用環境で試験エンコード・再読込を通ったMP4の組合せだけ提示し、同名完成物は版名を提案する。明示置換時は旧版を退避する。透過の初期受入はRGBA PNG連番とする。詳細は [A2決定記録](../specs/A2_RENDER_DECISIONS_JA.md)。機能は計画・未検証。
+
 - **[RENDER-001](FEATURE_DETAIL_JA.md#render-001)** MMD無し動画書出し
 - **[RENDER-002](FEATURE_DETAIL_JA.md#render-002)** 背景色/クロマキー/アルファ
 - **[RENDER-003](FEATURE_DETAIL_JA.md#render-003)** 解像度・縦横比・FPS

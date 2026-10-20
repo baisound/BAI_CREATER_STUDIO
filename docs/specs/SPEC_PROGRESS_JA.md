@@ -14,7 +14,9 @@
 
 A1 の所有者決定: [`A1_LIP_BGM_DECISIONS_JA.md`](A1_LIP_BGM_DECISIONS_JA.md) の `O-LIP-01`（歌音声配置の独立ID）、`O-LIP-02`（手動→確定生成→元VMDの優先置換）、`O-LIP-03`（曖昧な読みは確定または明示的な無音指定）をすべて推奨案Aで承認。`AUDIO-001` として台帳へ登録したが、機能は未実装。ロードマップの実装順は変えていない。
 
-A2 の所有者判断資料: [`A2_RENDER_DECISIONS_JA.md`](A2_RENDER_DECISIONS_JA.md) に MP4 の環境別能力検査、同名完成物の衝突、透過の初期受入形式の3件を整理した。**未承認**であり、`RENDER-001`〜`010` の実装状態は変えていない。実音声付きMP4は、先行する `AUDIO-001` の配置結果を入力にする。
+A2 の所有者決定: [`A2_RENDER_DECISIONS_JA.md`](A2_RENDER_DECISIONS_JA.md) の `O-RENDER-01/02/03` を **A/A/A** で承認。MP4の環境別実測、同名完成物の版名・明示置換時の旧版退避、透過初期RGBA PNG連番を台帳・詳細・概要・トレーサビリティ・Phase F設計へ同期した。`RENDER-001`〜`010` の実装状態は「計画・未検証」のまま。実音声付きMP4は、先行する `AUDIO-001` の配置結果を入力にする。
+
+A2決定の文書検査: 台帳JSON/CSVは148件でID集合一致。変更した `RENDER-002/004/005/006` の詳細・状態・依存は両形式で一致し、状態はすべて「計画・未検証」。`git -c core.whitespace=cr-at-eol diff --check` は成功。コード変更がないためブラウザ・FFmpeg・GPUの実機試験は行っていない。
 
 レビュー: `reviews/CRITIC_01_JA.md` → `CRITIC_02_JA.md` → `CRITIC_03_JA.md` → `reviews/JUDGE_JA.md`。Judge の進捗ID不一致と詳細モード消失は修正した。
 

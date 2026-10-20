@@ -844,7 +844,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "背景色/クロマキー/アルファ",
-      "detail": "グリーン・ブルー・任意色・透過",
+      "detail": "グリーン・ブルー・任意色・透過。初期透過出力はRGBA PNG連番",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -862,7 +862,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "動画コーデック設定",
-      "detail": "H264/H265/VP9/AV1/ProRes4444",
+      "detail": "H264等を環境別の試験エンコード・再読込で選択可否判定",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -871,7 +871,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "PNG・EXR連番出力",
-      "detail": "透過と高精度中間素材",
+      "detail": "透過初期受入はRGBA PNG連番。EXRは実書出し・再読込後",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -880,9 +880,9 @@
       "group": "RENDER",
       "phase": 7,
       "name": "FFmpeg変換と書出しプリセット",
-      "detail": "codec/画質/音声同期",
+      "detail": "H264と音声encoderを実測して多重化。同名時は版名提案・明示置換時に旧版退避",
       "status": "計画・未検証",
-      "dependency": "CORE,DATA,CAM"
+      "dependency": "CORE,DATA,CAM,AUDIO"
     },
     {
       "id": "RENDER-007",
