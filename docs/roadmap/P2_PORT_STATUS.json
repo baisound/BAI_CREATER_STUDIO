@@ -75,10 +75,11 @@
         "ff51eb0"
       ],
       "tests": [
-        "2026-10-20 PR #7 取り込み後（7170100）で再実行：pytest 354 passed（1回、既存の test_bundle_snapshot_consistency の並行20+20件が ConnectionReset で落ちたが、再実行で単独4回・全件2回合格。WP-01 の変更と無関係な既存の不安定さ）、npm run test:node-all 145 pass・10 skip・0 fail、tsc 合格、node tools/run_evidence_tests.mjs 合格。新規：tests/studio-p2-project-logic.test.mjs 22件、tests/studio-p2-project.test.cjs 16件、test_project_envelope.py に壊れた project_state.json への POST の3件。通し確認 S1〜S8 は WP-01 で有効になる手順が設計に無く全 skip（furthest_step=null）。実 data/ ハッシュ不変"
+        "2026-10-20 PR #7 取り込み後（7170100）で再実行：pytest 354 passed（1回、既存の test_bundle_snapshot_consistency の並行20+20件が ConnectionReset で落ちたが、再実行で単独4回・全件2回合格。WP-01 の変更と無関係な既存の不安定さ）、npm run test:node-all 145 pass・10 skip・0 fail、tsc 合格、node tools/run_evidence_tests.mjs 合格。新規：tests/studio-p2-project-logic.test.mjs 22件、tests/studio-p2-project.test.cjs 16件、test_project_envelope.py に壊れた project_state.json への POST の3件。通し確認 S1〜S8 は WP-01 で有効になる手順が設計に無く全 skip（furthest_step=null）。実 data/ ハッシュ不変",
+        "2026-10-20 Opus レビュー後：pytest 354 passed、npm run test:node-all 146 pass・10 skip・0 fail、tsc 合格、実 data/ ハッシュ不変。追加：studio-p2-project-logic.test.mjs「3-M3 save sequencing (4)」（自動保存と統合保存が同じ tick を待つと saving:true のまま止まる不具合の再現と修正）"
       ],
       "unverified": [
-        "Opus レビュー未実施（設計の指定：上書き・競合・自動保存・世代番号）。GPU・Windows 実機未検証。beforeunload は headless Chromium のみ。",
+        "Opus レビュー実施済み（2026-10-20。上書き・競合・自動保存・世代番号。1件修正、残りの懸念は作業報告）。GPU・Windows 実機未検証。beforeunload は headless Chromium のみ。",
         "旧画面 legacy-project-save.test.cjs は three.js がローカルに無く skip（WP-00b 以来）。"
       ],
       "notes": "Q1（新規作成）：所有者回答待ち。既定は ◇ のまま",

@@ -286,10 +286,16 @@ export function createProjectController(deps = {}) {
     const seq0 = first.saveSeq;
     if (syncInFlight) { try { await syncInFlight; } catch { /* tick は例外を出さない */ } }
     if (get().saveSeq !== seq0) return;
-    const my = bump();
     const s = get();
     // tick が外部変更を見つけて予約を止めていたら（autosavePending=false）、送らない（送れば 409 になるだけ）。
-    if (s.status !== 'ready' || !s.bundle || !s.dirty.combination || !s.autosavePending) { store.set({ autosavePending: false }, 'autosave-nothing'); return; }
+    // 統合保存が予約を引き取ったときも同じ（saving=true）。送らないときは世代番号を進めない
+    // （進めると、同じ tick を待っている統合保存が自分の結果を捨て、saving:true のまま止まる）。
+    if (s.status !== 'ready' || !s.bundle || !s.dirty.combination || !s.autosavePending || s.saving) {
+      if (!s.saving) store.set({ autosavePending: false }, 'autosave-nothing');
+      else if (s.autosavePending && timer === null) timer = st(() => { timer = null; void autosave(); }, AUTOSAVE_MS); // 保存中なら終わってから
+      return;
+    }
+    const my = bump();
     const sentVersion = combVersion;
     const body = { ...s.bundle.combination, updatedAt: new Date(now()).toISOString() };
     store.set({ saving: true }, 'autosave-start');

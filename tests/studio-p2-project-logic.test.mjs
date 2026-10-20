@@ -305,6 +305,31 @@ test('3-M3 save sequencing (3): while the post-save GET is held, tick does nothi
   assert.equal(store.get().projectRevision, srv.projectRev());
 });
 
+test('3-M3 save sequencing (4): an explicit save while an autosave and a tick are both waiting is not stuck', async () => {
+  // 自動保存が tick の終わりを待っている間に［保存］を押すと、自動保存が世代番号だけを進めて何もせずに戻り、
+  // 統合保存が「別の読込・保存が始まった」と誤って判断して saving:true のまま止まっていた（レビューで修正）。
+  const { srv, clock, store, ctrl } = setup();
+  await ctrl.loadProject();
+  const rel = srv.hold('GET /api/sync');
+  const tickP = ctrl.tick();
+  await settle();
+  ctrl.undo();
+  await clock.advance(AUTOSAVE_MS + 1); // 自動保存は tick を待つ
+  const saveP = ctrl.saveProject();     // 統合保存も tick を待つ
+  await settle();
+  rel();
+  await tickP;
+  assert.equal(await saveP, true, 'the explicit save is sent');
+  await clock.advance(AUTOSAVE_MS * 2);
+  const s = store.get();
+  assert.equal(s.saving, false);
+  assert.equal(s.autosavePending, false);
+  assert.equal(s.dirty.combination, false);
+  assert.equal(srv.count('POST /api/project/bundle'), 1);
+  assert.equal(srv.count('POST /api/project'), 0);
+  assert.equal(srv.comb.cursor, 1);
+});
+
 test('own autosave/save are never reported as external changes over many ticks', async () => {
   const { srv, clock, store, ctrl, log } = setup();
   await ctrl.loadProject();
