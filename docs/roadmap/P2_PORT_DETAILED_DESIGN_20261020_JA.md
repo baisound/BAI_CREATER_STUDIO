@@ -364,7 +364,7 @@ export function on(name, fn) { const h = (e) => fn(e.detail); bus.addEventListen
 | `camera_follow_config.js`, `camera_follow_smoothing.js` | なし（ESM。export あり） | **共有**：`import { classifyBone } from '/camera_follow_config.js'` で直接 import する。 | ④（ボーン一覧）。配信許可済み。 |
 | `camera.js`, `camera_3d.js` | あり（94個・24個の要素ID） | **動作を変えない `mount(root)` 化**（WP-06a）をして共有する。 | ⑥（§2.6）。 |
 | `camera_project_bundle_ui.js` | あり（3個） | 新UIでは読まない（②の保存に統合）。DOM を使わない部分（復元前の検証 `validateRestore`、保存の本文作り）を共有モジュール `camera_bundle_core.js` へ動作を変えずに移す。 | ⑥（§2.6、WP-06c）。 |
-| `camera_bundle_core.js`（新規、ルート直下、UMD、`window.BAICameraBundleCore`） | なし | **共有**：`camera_project_bundle_ui.js` と `features/project.js` の両方が使う。Phase E WP-02d の追加（assetRef の記入、検証の緩和、フレームの整数化、423 の扱い）もここに入れる。`server.py:166` の配信許可リストに足す。 | ⑥（WP-06c） |
+| `camera_bundle_core.js`（新規、ルート直下、UMD、`window.BAICameraBundleCore`） | なし | **共有**：`camera_project_bundle_ui.js` と `features/project.js` の両方が使う（新UIは `loadLegacyScript` で読み、読めなければ統合保存を無効にする。単体テストは `vm` で読む。3-M8、§2.6 の 3）。Phase E WP-02d の追加（assetRef の記入、検証の緩和、フレームの整数化、423 の扱い）もここに入れる。`server.py:166` の配信許可リストに足す。 | ⑥（WP-06c） |
 | `v01641_preview_guard.js`, `camera_easing.js`, `camera_cinematic.js`, `camera_vmd_preview.js` | なし | P2 では使わない（camera.html も読んでいない。Phase E §2.11）。 | — |
 | `index.html` インライン：制作状態・素材登録・素材棚・同期 | あり | **接着コードを `api.js` で書き直す**（R2-3）。 | ②③ |
 | `index.html` インライン：3D の正規化の式 | あり | **フォーク** `viewport/normalize.fork.js`。 | ④ |
@@ -431,6 +431,12 @@ export async function loadLegacyScripts(list) {}
 - 新しいテスト `tests/test_screen_status_honesty.mjs`（`node --test`）：
   - `studio/js/screens.js` を **import** し、`status:'real'` の各パネルに `evidence` があること、そのファイルが存在すること、テスト名の文字列がそのファイルの中にあることを確かめる。
   - あわせて次も確かめる：`screens.js` の import 先が `./samples.js` だけであること、`shell:true` のパネルの `evidence` が `tests/studio-ui.test.cjs` を指していること、`@ts-nocheck` が `*.fork.js` にしかないこと（§1.8）。
+- **未接続の区画の薄い表示（OWNER-3、WP-00c）**：
+  - 対象：`status` が `partial`（既存・部分）・`mock`（サンプル表示）・`unimpl`（◇ 未実装）の区画（パネル・カード・左右の一覧・右タブの節）。`real` の区画は通常の表示。
+  - 表示：区画の根要素に `data-dim="1"` を付け、CSS（`features.css`、トークンだけを使う）で文字と部品の不透明度を下げる。見出しの横に、バッジに加えてラベル「未接続（まだ使えません）」を付ける。**操作は消さず、押せるまま**にする（押したときの ◇ ダイアログや案内はこれまでどおり）。キーボードのフォーカスも通常どおり。
+  - 区画の状態は `screens.js` の `status` だけから決める（別の印を作らない）。移植で `status` を `real` に変えると、自動で通常の表示に戻る。
+  - テスト：`tests/studio-ui.test.cjs` に `unconnected sections are dimmed and labelled` を足す。25画面を開き、`data-status` が `real` 以外の区画にはすべて `data-dim="1"` とラベルがあり、`real` の区画には無いことを確かめる。区画の中のボタンを1つずつ押して、反応すること（トーストかダイアログ）も確かめる。
+  - 正直さの一貫性：`tests/test_screen_status_honesty.mjs` で、`real` の区画に `evidence` か `shell` があることを確かめる（上記）。こうすると「通常の表示なのに未接続」も「薄いのに実機能」も起きない。
 - **完了ゲート**：各 WP の最後に、`evidence` に書かれたテストファイルを全部実行する（`node tools/run_evidence_tests.mjs`。`screens.js` から一覧を作り、`node --test` に渡すだけの小さなスクリプト。WP-00c で作る）。
 - `tools/gen_screen_matrix.mjs`：`API` の対応（6行）を `real: 'existing_api_read_write'` にする。`blockers` の文言（21行）の「after Phase E per owner decision」を「P2 (before Phase E, owner decision 2026-10-20)」に直す。`evidence` を行に出力する。各 WP の最後に再生成し、コミットに含める。
 - `screens.js:36` の `PH.P2` を `'P2 既存機能の新UI移植（Phase E より前・作業の流れ順。所有者決定 2026-10-20）'` に直す。`docs/ui/STUDIO_DESIGN_SYSTEM_JA.md:3` の「P2、Phase E の後」も同じように直す（WP-00c）。
@@ -453,6 +459,7 @@ export async function loadLegacyScripts(list) {}
 | `tests/studio-ui.test.cjs`、`tests/legacy-ui-layout.test.cjs` の起動処理 | 共通ハーネス（§4）に移す。 | WP-00a-2 |
 | `tests/studio-ui.test.cjs`「every action button…」 | 対象から `[data-act="real"]` を外す。後始末のテスト（§1.6-8）を足す。 | WP-00c |
 | `test_legacy_project_client_revision.py:8〜11` | 文字列の出現回数ではなく、実際の HTTP 応答を検査する `tests/test_project_envelope.py` に置き換える（B-1）。 | WP-00b |
+| `test_bundle_snapshot_consistency.py:18`（`'with PROJECT_LOCK:\n                camera_project=camera_read'` の文字列を探す検査） | B-3 で `GET /api/camera/project` が `read_project` を使うと失敗する。**振る舞いのテストに置き換える**：同じプロセスでサーバーを起動し、`POST /api/camera/project` と `GET /api/camera/project?envelope=1` を並行で20回ずつ送り、各 GET の `revision` がその `project` から計算した `camera_revision` と一致すること（ロックの中で読んでいること）を確かめる。17行の検査（統合保存の版をロックの中で返す）はそのまま残す（3-M1）。 | WP-00b |
 | `tests/studio-ui.test.cjs`「unimplemented actions…」SCR-18 の「復元…」 | ②で `form:confirmRestore` が実際の再読込に変わるので、この行を削除し、②のテストへ移す。 | WP-01 |
 | 同 SCR-01 の新規プロジェクトのフォーム | Q1 の既定で［新規プロジェクト］が ◇ になる。フォームの検証の検査を削除し、「◇ ダイアログに DATA-008 が出る」検査に置き換える。Q1 が承認されたら元に戻す。 | WP-01 |
 | 同「read-only live data…」SCR-18 | `[data-live="projectBundle"]` は `[data-feature="projectSummary"]` になる。 | WP-01 |
@@ -462,6 +469,7 @@ export async function loadLegacyScripts(list) {}
 
 - **B-1**（DATA-008）：`server.py:316〜320` の重複した分岐を削除し、321〜325行（封筒付き）を残す。
   - 期待する動作：`GET /api/project` はこれまでどおり生データを返す。`GET /api/project?envelope=1` は `{"project": <生データ>, "revision": camera_revision(<生データ>)}` を返す。ファイルが無いときは `{"project": {}, "revision": camera_revision({})}`。
+  - 残す封筒の分岐（321〜325行）は今 try が無く、`project_state.json` が JSON として壊れていると例外がハンドラーの外へ出る。B-1 の一部として try で囲み、例外は 500 `{error:'制作状態（project_state.json）を読めませんでした'}` にする（3-m5）。
   - `POST /api/project` の重複（918〜940行）は到達しないだけで害がないので、触らない（変更を最小にする）。
   - これで旧画面の保存・読込が直る（見た目は変えない）。コミット本文に「DATA-008：旧制作画面のコンビネーション保存が常に失敗していた不具合の修正。新機能ではない」と書く。
 - **B-2**：`index.html` の `externalProjectApply`（376行）で、適用が終わった後（`info(...)` の後）に次の1文を足す。
@@ -475,10 +483,12 @@ export async function loadLegacyScripts(list) {}
   1. `bai_camera.py` に `class CameraProjectInvalid(Exception)`（`message`、`backup_name`）と `read_project(path) → (project, dropped_fields)` を新しく作る。**`CameraProjectInvalid` は `Exception` を直接継承する**。`ValueError` を継承すると、既存の `except (ValueError,TypeError,KeyError)`（例：`server.py:426, 438`）に捕まって 400 になるため。作るのは**読込エラーの分岐だけ**で、次の順番で判定する。
      - `FileNotFoundError`（**最初に判定する**。`OSError` の一種なので、後に置くと下の分岐に入る）：`DEFAULT` を返し、ファイルは書かない。
      - その他の `OSError`（権限・ロックなど）：`backup_name=None` で `CameraProjectInvalid` を投げる。
-     - JSON が不正・検証に失敗：生のバイト列の `sha8` を求める。読んだファイルと同じフォルダに `camera_project.invalid-<sha8>-*.json` が無ければ、`camera_project.invalid-<sha8>-<YYYYmmddTHHMMSSZ>.json` に生のバイト列をコピーする（同じ内容なら1回だけ）。元のファイルは動かさずに `CameraProjectInvalid` を投げる。
+     - 読み方（3-M7）：`raw = Path(path).read_bytes()` で読み、`json.loads(raw.decode('utf-8'))` して `validate()` する。JSON が不正・検証に失敗、とみなす例外は `ValueError, TypeError, KeyError, AttributeError, UnicodeDecodeError`（`json.JSONDecodeError` と `UnicodeDecodeError` は `ValueError` の一種だが、意図を示すために並べて書く）。ファイルが無いときは `validate(copy.deepcopy(DEFAULT))`（`DEFAULT` を直接返して、呼び出し側に書き換えられないように複製する）。
+     - JSON が不正・検証に失敗：生のバイト列の `sha8` を求める。読んだファイルと同じフォルダに `camera_project.invalid-<sha8>-*.json` が無ければ、`camera_project.invalid-<sha8>-<YYYYmmddTHHMMSSZ>.json` に生のバイト列をコピーする（同じ内容なら1回だけ）。元のファイルは動かさずに `CameraProjectInvalid` を投げる。**退避コピーを作れなかったとき**（書き込みの `OSError`）は、`CameraProjectInvalid(backup=None)` を投げる（読めないことは伝え、退避が無いことも正直に出す）。
      - `dropped_fields` は P2 では常に `[]` を返す（未知のフィールドを検出する処理は WP-02a のまま）。
      - **旧 `read()` は変えない**（WP-02a で `read_project(path)[0]` にする）。焦点・サンプル・シーケンス評価の GET（`/api/camera/focus`・`sample`・`sequence/evaluate`）は読むだけで書かないので、WP-02a まで `read()` のまま。
-  2. `server.py:163` の `bad` を `def bad(self,status,msg,code=None)` にする（Phase E §2.4 と同じ形）。`code` があれば本文に `error_code` を足す。既存の呼び出しは変えない。**422 は `bad` を使わず**、`self.send(422, json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())` で本文を直接送る（`backup` を含めるため）。共通の小さな関数 `send_camera_invalid(self, exc)` にまとめる。`error` の文言は固定で `'カメラ保存データ（camera_project.json）を読めません'`（理由は `CameraProjectInvalid.message` に入れてログにだけ出す）。
+  2. `server.py:163` の `bad` を `def bad(self,status,msg,code=None)` にする（Phase E §2.4 と同じ形）。`code` があれば本文に `error_code` を足す。既存の呼び出しは変えない。**422 は `bad` を使わず**、`self.send(422, json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())` で本文を直接送る（`backup` を含めるため）。共通の小さな関数 `send_camera_invalid(self, exc)` にまとめる。`error` の文言は、退避名と手で直す手順を含める（3-M2(a)）：`'カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：{backup または なし}。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'`（理由は `CameraProjectInvalid.message` に入れてログにだけ出す）。
+  2b. **`POST /api/camera/project/reset` の前倒し**（3-M2(b)。承認済みの Phase E §2.7 の仕様どおり）：本文 `{"confirm":"reset-camera-project"}` が必須（違えば 400 `confirmation_required`）。読めるのに退避が無ければ作ってから、`DEFAULT` を保存する。応答は `{backup}`（退避名か `null`）。`PROJECT_LOCK` の中で行い、`sync_bump()` は呼ばない（カメラの保存と同じ）。新UIの使い方は §2.2(d)-2。Phase E WP-02a はこれを作り直さず、そのまま使う（Phase E §2.7 に注記）。
   3. `project_state_bundle.read_bundle(combination_path, camera_path, strict=False)`：`strict=True` のときだけ `read_project` を使う。
   4. 厳格に読む（`strict=True`／`read_project`）のは、次の場所だけ。`CameraProjectInvalid` を捕まえたら 2 の 422 を返す。どこも**書く前に読む**ので、壊れたファイルは上書きされない。
      - 統合バンドルの GET（171行）。今は try が無いので try で囲み、`CameraProjectInvalid` は 422、想定外の例外は 500 `{error:'統合保存データを読めませんでした: <例外の種類>'}` にする。
@@ -489,8 +499,16 @@ export async function loadLegacyScripts(list) {}
   5. 旧画面への影響（すべて安全側。コミット本文に書く）：
      - `camera_project_bundle_ui.js` は、422 を受けると `data.error` を `#bundle-status` に出して止まる（既存の `api()` が `!r.ok` で例外を出すので、変更は不要）。
      - `camera.js` の読込（226行）は今 `r.json()` をそのまま `envelope` として使うので、422 の本文を受けると `project.duration` で TypeError になり、「読み込みエラー: Cannot read properties of undefined…」と分かりにくい文言を出す。**最小のバグ修正として**、`.then(r=>r.json())` を `.then(r=>r.json().then(j=>{if(!r.ok)throw Error(j.error||('HTTP '+r.status));return j}))` に変える（この1か所だけ）。`project` は未設定のままなので編集は始まらず、［保存］を押しても本文が空になって 413 になり、サーバー側の 4 でも 422 になるので書かれない。
+     - `POST /api/camera/sequence/edit`（旧 `camera.js` のシーケンス編集から呼ばれる）も 422 になり、`camera.js` は既存の失敗表示を出して止まる（3-m10）。
      - MCP など HTTP でカメラを読む外部の利用者も、壊れたファイルのときは 422 を受ける（今までは既定値を受けていた）。
 - 新UIの②の自動保存は B-1 に依存する。②の統合保存と⑥は B-3 に依存する。どれも WP-01 より前（WP-00b）に直す。
+- **B-4（ステージ配置の保存先。OWNER-2、WP-04 で行う。不具合ではなく承認済みの機能のための最小の変更）**：
+  - `project_state_bundle.validate_workspace` が、`frame`・`asset`・`clip` に加えて、任意のキー `stage` を受け付けるようにする（今は3つのキーと完全一致でないと拒否する：36〜49行）。`stage` は `null` か `{asset, position, rotation, scale}`：
+    - `asset`：`/api/assets` の id の文字列（250文字以内、`integrated:`・`mmd:A:`・`mmd:B:`・`fbx:` のどれかで始まる）。
+    - `position`：有限の数3つ（各 −1000〜1000、メートル）。`rotation`：有限の数3つ（各 −360〜360、度）。`scale`：0.01〜100 の有限の数。
+  - `save_bundle` の規則：本文の `workspace` に `stage` のキーが**無ければ、既存の workspace ファイルの `stage` を残す**。`stage: null` なら消す。値があれば置き換える。こうすると、`stage` を知らない旧 `camera.html` の統合保存（`{frame,asset,clip}` だけを送る）が、ステージ配置を消さない。
+  - Phase E WP-02d の workspace の拡張は、この `stage` を残す（Phase E §2.8 に注記した）。
+  - テスト：`test_project_state_bundle.py` に、`stage` の正常・範囲外・未知のキーの拒否、`stage` なしの保存で既存の値が残ること、`stage: null` で消えることを足す。`test_camera_workspace_contract.py` が3つのキーとの完全一致を前提にしていれば、同じ意味の検査に直す。
 
 ---
 
@@ -545,7 +563,7 @@ export async function loadProject({ discardLocal = false } = {}) {}  // 未保�
 export function restoreHistory(index) {}                               // status!=='ready' または範囲外なら何もしない
 export const undo = () => restoreHistory(project.get().bundle?.combination.cursor - 1);
 export const redo = () => restoreHistory(project.get().bundle?.combination.cursor + 1);
-export function setWorkspaceFields(fields) {}                          // asset/clip/frame を書く唯一の経路（下の 9）
+export function setWorkspaceFields(fields, { source = 'store' } = {}) {} // asset/clip/frame/stage を書く唯一の経路（下の 9）
 export const setWorkspaceAsset = (filename) => setWorkspaceFields({ asset: filename }); // ④ が使う（§2.4）
 export async function saveProject() {}                                 // 統合保存（下の 5）
 export function startExternalSync() {}                                 // 1回だけ呼ぶ。app.js の起動時
@@ -560,15 +578,20 @@ export function summarize(bundle) {}                                   // 表示
      - `envelope.project` と `bundle.combination ?? {}` を JSON として比べる。違えば読込中に変更があったので、1回だけ取り直す。それでも違えば `status:'error'`（「保存データを一貫した状態で読めませんでした。再読込してください。」）。
      - 一致すれば、`bundle = data` にする。`combination` が `null` なら、**ストアの中でだけ** `structuredClone(DEFAULT_COMBINATION)` を入れ、`combinationMissing: true` にする。
      - `base = structuredClone({combination: data.combination, camera: data.camera, workspace: data.workspace})`、`revision = data.revision`、`projectRevision = envelope.revision`、`dirty` を全部 false、`status:'ready'`、`loadedAt = Date.now()`、`emit('studio:project-loaded')`。
-   - 統合バンドルが 422 で `serverCode==='camera_project_invalid'` のとき：`status:'error'`、`cameraInvalid:{backup: body.backup}`。状態行と SCR-18 に「カメラ保存データ（camera_project.json）を読めませんでした。元のファイルはそのままです。退避コピー：{backup ?? 'なし（ファイルを開けません）'}。この状態では保存できません。」と出し、［保存］と自動保存を止める。復旧の手段（invalid-preview・reset・退避ファイルのダウンロード）は Phase E WP-02a で作るので、ここでは ◇ の説明だけを出す（ids `['CAM-G06']`、phase「Phase E WP-02a」）。
+   - 統合バンドルが 422 で `serverCode==='camera_project_invalid'` のとき（3-M4(b)）：**コンビネーションは封筒から読み込んで使えるようにする**。
+     - `bundle = {schema:1, combination: envelope.project が空 {} なら null／そうでなければ envelope.project, camera: null, workspace: null, complete: false, revision: null}`、`combinationMissing` は上と同じ規則、`projectRevision = envelope.revision`、`revision = null`、`cameraInvalid = {backup: body.backup}`、**`status:'ready'`**。
+     - 使えるもの：コンビネーションの履歴・戻す・やり直す・自動保存（`POST /api/project` はカメラを読まない）。止めるもの：統合保存（［保存］は無効）、workspace の変更（`setWorkspaceFields` は何もせずトースト「カメラ保存データを読めないため、作業中の素材は変えられません」）、SCR-02 の mount（§2.6）。
+     - 状態行と SCR-18 に、サーバーの `error` の文言（退避名と手で直す手順を含む：§1.15 B-3）をそのまま出す。その下に［初期状態から始める…］（`data-act="real"`）を置く。押すと確認ダイアログ「カメラの保存データを初期状態に戻します。今のファイルは退避コピー（{backup}）として残ります。よろしいですか？」（［初期状態に戻す］［キャンセル］）を出し、確定したら `POST /api/camera/project/reset`（本文 `{"confirm":"reset-camera-project"}`、§1.15 B-3 の 2b）を送り、成功したら `loadProject({discardLocal:false})` で読み直す。退避ファイルのダウンロードと中身の確認（invalid-preview）は Phase E WP-02a のまま ◇（ids `['CAM-G06']`、phase「Phase E WP-02a」）。
    - その他の失敗：`status:'error'`、`error` を入れる。
+   - **世代番号（3-M3）**：`loadProject` の最初に `const my = ++saveSeq` とし、**すべての await の後で** `my === project.get().saveSeq` を確かめる。違えば（その間に別の読込・保存が始まった）、結果を捨てて何もせずに戻る。自動保存・統合保存・`tick()` の読み直しも同じ規則に従う。
 3. **履歴の復元** `restoreHistory(i)`：
    - 実行するのは `status==='ready'` かつ `0 ≤ i < history.length` のときだけ。
    - 変えるのは次の3つ：`combination.timeline = structuredClone(history[i].timeline)`、`combination.cursor = i`、`combination.playbackSpeed = history[i].playbackSpeed || 1`。**`selected` と `history` 配列は変えない**（旧 `restore` と同じ）。
    - `dirty.combination = true` にして、自動保存の予約（下の 4）をする。
 4. **自動保存**（旧 `autosave()` と同じく 450ms 後。`index.html:373`）：
    - コンビネーションが変わるたびにタイマーを引き直し（`autosavePending:true`）、450ms 後に `autosave()` を実行する。
-   - `saving` 中なら、終わってからもう一度予約する（旧と同じ）。`status!=='ready'` や `cameraInvalid` のときは予約しない。
+   - 送る前に、動いている `tick()` があれば、その終わりを待つ（`await syncInFlight`。3-M3）。待っている間に `saveSeq` が変わったら送らない。
+   - `saving` 中なら、終わってからもう一度予約する（旧と同じ）。`status!=='ready'` のときは予約しない（`cameraInvalid` のときも、コンビネーションの自動保存は行う。3-M4(b)）。
    - 本文は `{ ...combination, updatedAt: new Date().toISOString() }`（`selected`・`playbackSpeed` はストアの値のまま）。`POST /api/project` に `If-Match: projectRevision` を付けて送る。
    - 200 のとき：
      - `projectRevision = data.revision`、`bundle.combination = 送った本文`、`base.combination = 送った本文`、`combinationMissing:false`、`dirty.combination:false`、`autosavePending:false`。
@@ -580,7 +603,7 @@ export function summarize(bundle) {}                                   // 表示
    - offline/timeout のとき：「未接続：自動保存できませんでした。変更はこの画面に残っています。」と出し、`dirty` は残す。回復したら（下の 7 の tick が成功したら）もう一度予約する。
 5. **統合保存** `saveProject()`（［保存］）：
    - 未保存が何も無い（`hasUnsaved()===false`）なら、何もせずにトースト「変更はありません」（`kind:'real'`）。`saving` 中なら何もしない（ボタンは無効になっている）。
-   - 自動保存の待ちがあれば、タイマーを取り消して統合保存に含める。
+   - 自動保存の待ちがあれば、タイマーを取り消して統合保存に含める。動いている `tick()` があれば、その終わりを待ってから送る。`const my = ++saveSeq` を取り、await のたびに確かめる（3-M3）。
    - 本文は `{ schema: 1, combination: { ...combination, updatedAt: new Date().toISOString() }, camera: bundle.camera }`。**`bundle.workspace` が `null` でなければ、必ず `workspace` を含める**（含めないとサーバーが workspace のファイルを削除する：`project_state_bundle.py:95〜98`）。
    - ⑥の後は、カメラホストが読み込み済みなら `camera`・`workspace` をホストから集める（§2.6）。
    - `combinationMissing` のときは、確認ダイアログ「コンビネーション（project_state.json）はまだ作られていません。保存すると空のコンビネーションも一緒に作られます。」で［続ける］［キャンセル］を選ばせる。
@@ -597,16 +620,19 @@ export function summarize(bundle) {}                                   // 表示
      - 未保存がある：`externalChange:true` にし、状態行に「サーバー側が更新されました。保存されていない変更があるため、自動では読み込みません。［再読込して変更を破棄］」と出す。自動保存の待ちがあれば、それも止める（送れば 409 になるだけなので）。
    - `visibilitychange` のときは `/api/sync` を見ずに、直接 `GET /api/project/bundle` の `revision` を比べる（カメラ画面の保存 `POST /api/camera/project` は `sync_bump` を呼ばないため：`server.py:427〜438`）。
    - `command`（`play_chain` など、`server.py:846〜862`）のうち、②で扱うのは `refresh_assets` だけ（`emit('studio:assets-refresh')`）。他のコマンドは無視する（⑤⑥で扱う。旧画面は `index.html:435〜450`）。`commandId` が `lastCommandId` と同じなら処理しない。
-   - `tick()` の中の統合バンドルの GET が 422 `camera_project_invalid` なら、「未接続」ではなく `cameraInvalid` の状態にする（2 と同じ表示。保存を止める）。500 などのサーバーエラーは `status:'error'`、`error` に入れて `messageFor` の文言を出す（自動では読み込まない。［再読込］で回復）。
-   - 通信の失敗（offline/timeout）が続いても例外は出さない。状態行に「未接続」と出し、回復したら元の表示に戻す。
+   - `tick()` の中の統合バンドルの GET が 422 `camera_project_invalid` なら、「未接続」ではなく 2 の 422 と同じ状態（`cameraInvalid`、`status:'ready'`、コンビネーションは使える）にする。
+   - **同期の失敗は `syncError` に入れ、`status` は `ready` のまま**（3-M4(a)）。500 などのサーバーエラーは、状態行に `messageFor(syncError)` を出す（自動では読み込まない。次の tick が成功したら `syncError:null` に戻す）。画面の操作は止めない。
+   - `tick()` は始まるときに `syncInFlight` に自分の Promise を入れ、終わったら消す（自動保存・統合保存が待てるように）。
+   - 通信の失敗（offline/timeout）も `syncError` に入れる。例外は出さない。状態行に「未接続」と出し、回復したら元の表示に戻す。
 8. **離脱の警告**：`window.addEventListener('beforeunload', e => { if (hasUnsaved()) { e.preventDefault(); e.returnValue = ''; } })`。画面内の移動（SPA）では警告しない（ストアは保たれるので）。
 9. **workspace のマージ規則**（④⑤⑥共通。`setWorkspaceAsset` などが使う）：
    - **フィールド単位の所有者**（2-M4。O-⑥-5 として決定済み）：
-     - `asset`・`clip`・`frame` は**ストア**（`features/project.js`）が持つ。書く経路は `setWorkspaceFields({asset?, clip?, frame?})` の1つだけ。④は `asset` を、⑤は `clip`・`frame` を（O-⑤-7）、⑥のカメラホストは利用者がカメラ画面でモデル・クリップ・再生位置を変えたときに、この関数で書く。
+     - `asset`・`clip`・`frame` は**ストア**（`features/project.js`）が持つ。書く経路は `setWorkspaceFields({asset?, clip?, frame?, stage?}, {source})` の1つだけ。④は `asset` を、⑤は `clip`・`frame` を（O-⑤-7）、⑥のカメラホストは利用者がカメラ画面でモデル・クリップ・再生位置を変えたときに、この関数で書く。
      - それ以外のフィールド（Phase E WP-02d で足すカメラ側のもの。今は無い）は**カメラホスト**が持つ。統合保存のとき、ホストのスナップショット（`bai-camera-workspace-snapshot`）から、カメラ側のフィールドの一覧 `CAMERA_OWNED_WORKSPACE_FIELDS`（`camera_bundle_core.js` に定義。P2 の時点では空の配列）に入っているものだけを取る。スナップショットの `asset`・`clip`・`frame` は使わない。
-     - ストアの `asset`・`clip`・`frame` が変わり、ホストが mount 済みなら、`bai-camera-workspace-restore`（`camera_3d.js:293`）でホストに伝える（ホストが SCR-02 にいないときは、SCR-02 に戻ったときに1回伝える）。
+     - ストアからホストへ伝えるのは**外部からの変更だけ**（3-M6）。`setWorkspaceFields(fields, {source})` の `source` は `'store'`（④⑤・再読込）か `'host'`（カメラホスト自身）。`source==='host'` の変更はホストへ返さない。`source==='store'` で、**`asset` か `clip` がホストの今の値と違うときだけ** `bai-camera-workspace-restore` を送る（`camera_3d.js` の restore は `catalog()` を呼んで選択肢を作り直すので、必要なときしか呼ばない）。`frame` だけが違うときは restore を送らず、カメラの統合状態の復元（`bai-camera-bundle-restore` の `frame`）で送るときだけ伝える。ホストが SCR-02 にいないときは、SCR-02 に戻ったときに1回だけ同じ判定をする。
+     - **`stage`**（OWNER-2、§2.4 ④-11）もストアが持つ。カメラホストには送らない（`camera_3d.js` は知らないキーを無視する）。
    - 値の作り方：`{ ...(bundle.workspace ?? { frame: 0, asset: '', clip: null }), ...変更したフィールド }`。`asset` が変わり、`clip` が指定されていないときだけ `clip: null` にする。他のフィールドは残す。`setWorkspaceAsset(filename)` は `setWorkspaceFields({asset: filename})` の別名。
-   - 変更したら `dirty.workspace=true` にする（保存は［保存］で行う）。
+   - `asset`・`clip`・`stage` を変えたら `dirty.workspace=true` にする（保存は［保存］で行う）。**`frame` だけの変化は dirty にしない**（決定、3-M6。再生位置は作業の状態であり、それだけで保存を促さない。他の変更と一緒に保存されるときに最新の値が入る）。
 10. **表示**（`project-view.js`。`summarize(bundle)` の出力を使う）：
 
 | 表示項目 | 値 | 例 |
@@ -648,13 +674,15 @@ export function summarize(bundle) {}                                   // 表示
 |---|---|
 | `SCR-18 shows the real production state` | 種データ（コンビネーション2件・履歴3件で cursor=2、カメラ2キー・300F、workspace `{frame:0, asset:'', clip:null}`）を使う。`[data-feature="projectSummary"]` に「2件」「履歴3件（3番目）」「2キー」「300F」が出て、版の先頭12文字が `GET /api/project/bundle` の `revision` と一致する。カードの見出しに `.badge-real` がある。 |
 | `undo autosaves the combination with the envelope revision` | ［戻す］を押し、`page.waitForRequest` で `POST /api/project` を待つ。`If-Match` が `GET /api/project?envelope=1` の `revision` と一致し、送るまでの時間が 400ms 以上であることを確かめる。保存後の `project_state.json` は `cursor===1`、`timeline` が history[1] と同じ、`selected` は種データのまま。workspace とカメラのファイルは JSON として変わらない。状態行は「保存済み」。続けて［戻す］→（450ms 以内に）［保存］で統合保存が 200 になる。 |
+| `save sequencing is guarded against overlapping loads and ticks`（`tests/studio-p2-project-logic.test.mjs`、`node --test`、ブラウザー不要） | `features/project.js` の中の、DOM を使わない部分（`createProjectController({fetchJson, now, setTimeout, clearTimeout})` のように依存を渡せる形にする）を、偽の時計と偽の fetch で動かす（3-M3）。①自動保存の応答を待つ間に `loadProject` を始めると、自動保存の結果は捨てられる。②`tick()` の GET を保留にしたまま［戻す］をすると、450ms たっても `POST /api/project` は送られず、tick が終わってから送られる。③統合保存の応答の後の GET を保留にしている間、tick は何もしない。 |
 | `own autosave is not reported as an external change` | ［戻す］の後、自動保存と保存後の GET が終わるまで待ち、さらに3秒（`tick` が2回以上動く時間）待つ。トースト「外部の変更を読み込みました」と状態行「サーバー側が更新されました」が一度も出ない（`MutationObserver` で記録して確かめる）。統合保存の後も同じ。 |
 | `explicit save flushes the pending autosave into the bundle` | ［戻す］の直後に［保存］を押す。`POST /api/project/bundle` が1回、`POST /api/project` が0回（2秒待って確かめる）。workspace のファイルが残っている。 |
 | `autosave conflict keeps local edits and offers reload` | `page.route('**/api/sync', r => r.abort())` で同期を止める。読込の後、テストから Node の fetch で `POST /api/project`（timeline 3件）を送る。UI で［戻す］を押すとダイアログに「他の画面」が出て、ファイルは3件のまま。［再読込して変更を破棄］を押すと「3件」が出る。 |
 | `bundle conflict keeps local edits` | 同期を止めて、外部から `POST /api/project/bundle`（正しい版、camera.duration=400）を送る。［戻す］の直後に［保存］を押すとダイアログが出て、ファイルの duration は 400 のまま。 |
-| `invalid camera file blocks saving and is never overwritten` | 種データの `camera_project.json` を `{"broken":` にする。状態行に「カメラ保存データ」と退避名 `camera_project.invalid-` が出る。［保存］は `disabled`。ファイルのバイト列は変わらず、退避コピーは1つ。テストから直接 `POST /api/project/bundle`（`If-Match: x`）を送っても 422 で、バイト列は変わらない。 |
+| `invalid camera file blocks bundle saving but keeps the combination usable` | 種データの `camera_project.json` を `{"broken":` にする。状態行に退避名 `camera_project.invalid-` と「手で直す場合」の手順が出る。［保存］は `disabled`。［戻す］は使え、450ms 後に `POST /api/project` が 200 になり `project_state.json` が変わる（3-M4(b)）。カメラファイルのバイト列は変わらず、退避コピーは1つ。テストから直接 `POST /api/project/bundle`（`If-Match: x`）を送っても 422 で、バイト列は変わらない。 |
+| `reset from the invalid state requires confirmation and keeps the backup` | 上の状態で［初期状態から始める…］を押すと確認ダイアログが出る。［キャンセル］なら `POST /api/camera/project/reset` は0回。もう一度押して［初期状態に戻す］なら1回送られ、カメラファイルが既定値になり、退避コピーは残り、状態行が通常に戻って［保存］が使える（3-M2）。 |
 | `camera file broken after load is reported, not treated as offline` | 正常なデータで開いた後、テストからカメラファイルを壊し、外部から `POST /api/project` を送る。次の `tick` で状態行が「カメラ保存データを読めません」になり（「未接続」ではない）、［保存］が無効になる。 |
-| `server error during sync shows an error state` | 開いた後、`page.route('**/api/project/bundle', r => r.fulfill({status:500, body:'{"error":"x"}'}))` にして外部から `POST /api/project` を送る。状態行に「サーバーでエラーが起きました（HTTP 500）」が出る。表示中の内容は変わらない。 |
+| `server error during sync keeps the page usable` | 開いた後、`page.route('**/api/project/bundle', r => r.fulfill({status:500, body:'{"error":"x"}'}))` にして外部から `POST /api/project` を送る。状態行に「サーバーでエラーが起きました（HTTP 500）」が出る。`baiStudio.project.getState().status` は `'ready'` のままで、［戻す］が使える（3-M4(a)）。route を外すと、次の tick で状態行が元に戻る。 |
 | `missing combination is not created without an edit` | `project_state.json` が無い。表示は「コンビネーション未保存」で、［保存］は `disabled`。10秒待っても `project_state.json` は無い。 |
 | `external change reloads when clean` | テストから `POST /api/project`（timeline 3件、If-Match なし）を送ると、3秒以内に「3件」が出て、トースト「外部の変更を読み込みました」が出る。 |
 | `beforeunload guard while autosave is in flight` | `page.route` で `POST /api/project` を保留にする（応答しない）。［戻す］の 500ms 後に `page.reload()` すると、`page.on('dialog')` の type が `beforeunload` になる。`dialog.accept()` で再読込を続けさせる（dismiss すると再読込が止まり、`page.reload()` が終わらない）。 |
@@ -664,12 +692,15 @@ export function summarize(bundle) {}                                   // 表示
 
 `tests/legacy-project-save.test.cjs`（Playwright、ポートは `P2_LEGACY_PORT` で既定 8790、§4 のハーネスで隔離データ、WP-00b）：最初に `page.on('dialog', d => { failures.push(d.message()); d.dismiss(); })` を登録する（旧画面は失敗を `alert` で出すので、出たらテストを失敗にする）。旧 `/index.html` を開き、起動時の読込が終わるのを待つ（`#project-info` に「件の履歴」が出るまで。`index.html:369` の `info()` の書式）。`#project-save` を押すと、`#project-info` に「保存済み」が出る。テストから `POST /api/project` を送ると、`#project-info` に「MCPから更新を同期しました」が出る。もう一度 `#project-save` を押すと、また「保存済み」が出る（B-2）。three が無いときは skip する（§4.1）。
 
+**同じファイル `tests/legacy-project-save.test.cjs` の2つ目のテスト**（旧 `camera.html`。3-m2 で1ファイルに統一）：壊れたカメラファイルで旧 `/camera.html` を開くと、`#status` に「読み込みエラー」とサーバーの文言「カメラ保存データ（camera_project.json）を読めません」が出る。`#save` を押すと `#status` に「保存失敗」が出て、カメラファイルのバイト列は変わらない。このとき空の本文の保存が 413 になり、コンソールにエラーが出るので、`expectErrors(page,[/413/,/camera_project/])` で許可する（3-m3）。
+
 `tests/test_project_envelope.py`（pytest、WP-00b。サーバーは同じプロセスで起動し、ルートの `conftest.py` で一時データを使う）：`GET /api/project?envelope=1` が `{"project":…, "revision":…}` を返し、`revision == camera_revision(project)` であること。`GET /api/project` が生データを返すこと。ファイルが無いときは `{"project": {}, …}` であること。
 
 `tests/test_bundle_camera_invalid.py`（pytest、WP-00b）：壊れたカメラファイルを置くと、`GET /api/project/bundle` が 422 `camera_project_invalid` で `backup` に名前を返し、退避コピーが同じフォルダに1つだけでき、元のファイルのバイト列は変わらないこと。同じ内容でもう一度 GET しても、退避コピーは1つのままであること。`POST /api/project/bundle`（正しい If-Match を付けても）が 422 で、バイト列が変わらないこと。ファイルが無いときは 200 で、既定のカメラを返し、ファイルは作られないこと。読めないファイルでは `backup:null` になること。読めないファイルは `chmod` では作らない（root で動かすと読めてしまう）。`monkeypatch.setattr(pathlib.Path, 'read_bytes', …)` で、対象のパスのときだけ `PermissionError` を出させる。`CameraProjectInvalid` が `ValueError` の一種でないこと。統合バンドルの POST の後の読み直し（373行）が非厳格のままであること（保存後に 200 が返る）。
 - カメラの経路（2-B1）：壊れたファイルのとき、`GET /api/camera/project`（両形式）、`POST /api/camera/project`（If-Match なしと、ありの両方）、`POST /api/camera/sequence/edit` がすべて 422 `camera_project_invalid` を返し、バイト列が変わらず、退避コピーが1つだけであること。ファイルが無いときは、`POST /api/camera/project` が今までどおり保存できること。旧 `bai_camera.read()` が今のまま既定値を返すこと（WP-02a まで互換を保つ）。
+- `read_project` の細部（3-M7）：UTF-8 として不正なバイト列（`b'\xff\xfe'`）・JSON の配列（`[]`）・必須キーの型違いのそれぞれで 422 と退避1つ。ファイルが無いときに返した値を書き換えても、次の呼び出しの既定値が変わらない（複製している）。退避の書き込みを `monkeypatch` で `OSError` にすると `backup:null` で 422、元のファイルは変わらない。
+- `POST /api/camera/project/reset`（3-M2(b)）：本文なし・違う文言で 400 `confirmation_required`、正しい本文で、壊れたファイルなら退避（既にあれば作らない）してから既定値を保存し `{backup:<名前>}`、ファイルが無ければ `{backup:null}` で既定値を保存。
 
-`tests/legacy-camera-invalid.test.cjs`（Playwright、ハーネスで隔離データ、ポート 8790 を `legacy-project-save` と同じファイルにまとめてもよい。WP-00b）：壊れたカメラファイルで旧 `/camera.html` を開くと、`#status` に「読み込みエラー」とサーバーの文言「カメラ保存データ（camera_project.json）を読めません」が出る。`#save` を押してもカメラファイルのバイト列は変わらない。
 
 #### (h) ◇ 未実装のまま
 
@@ -882,9 +913,10 @@ export function fbxIdFor(kind, name) {} // Promise<string>：crypto.subtle.diges
 | ④-5 | ボーン一覧と分類（`classifyBone`） | `camera_3d.js:98`（`discoverBones`）、`camera_follow_config.js`（共有） |
 | ④-6 | 素材一覧からモデルを開く | `index.html:726〜749`（`openAsset`） |
 | ④-7 | 作業中のモデルを制作状態に記録（`workspace.asset`、GLB/VRM のみ） | `camera_3d.js:290〜292`（workspace の `asset`）、`project_state_bundle.py:36〜49` |
-| ④-8 | ステージの読込 | 旧画面に無い（`LEGACY_UI_INVENTORY_JA.md` ③）→ ◇ |
+| ④-8 | ステージ専用の読込（大型ステージの分割読込・ステージ素材の種類） | 旧画面に無い（`LEGACY_UI_INVENTORY_JA.md` ③）→ ◇（LYRIC-009、Phase G）。④-11 は、登録済みのモデル素材をステージとして置くだけ |
 | ④-9 | 骨格解析・リターゲット準備（`#skeleton-lab`）：素材の選択、骨格・レストポーズの検査、ボーン対応の提案・プレビュー、キャリブレーション、比較、プロファイル | `retarget_ui.js`（34行）。API は `/api/assets` と `/api/retarget/` 配下の `calibration`・`compare`・`explicit-rest-preview`・`glb-clip-hierarchy-inspection`・`glb-clip-rest-preview`・`mapping-preview`・`motion-channels`・`pose-proposal`・`profile-for-pair`・`profiles`・`rest-hierarchy-inspection`・`rest-pose-inspection`・`root-preview`・`vrm-humanoid-preview`・`vrm-local-transfer-preview`・`world-rest-motion-preview` |
 | ④-10 | GLB/VRM のポーズ比較（実験。モデルは変えない） | `v01629_mesh_compare.js`（26行、three を使う。API は `/api/retarget/vrm-local-transfer-preview`） |
+| ④-11 | **ステージ配置の基本（OWNER-2：NF-014 の一部を承認）**：登録済みのモデル素材1つをステージとして置き、位置・回転・大きさを調整して制作状態に保存する | 所有者決定 2026-10-20（`ROADMAP_JA.md` 4249bc0・8373b54）。表示は④-1〜④-3 のローダーを使い回す。保存先は §1.15 B-4。旧画面には無い（承認済みの追加） |
 
 #### (b) 移植先
 
@@ -893,7 +925,12 @@ export function fbxIdFor(kind, name) {} // Promise<string>：crypto.subtle.diges
   - 中央：three-host のビューポート。
   - 右タブ：「ボーン」は実際のボーン一覧（④-5）。「モーフ」「物理」は ◇。「リターゲット」は、④-9・④-10 の移植先（既定は SCR-13。O-④-5）へのリンクにする（WP-04b。それまでは既存の旧画面へのリンクのまま）。
   - ツールの `現行画面でモデルを表示`（href）は、旧画面との比較用に残す。
-- SCR-06 は ◇ のまま（ステージ）。
+- SCR-06 シーン・ステージ・素材配置（`screens.js:228〜245`）は、④-11 の分だけ結線する（WP-04）：
+  - 中央：three-host のビューポート（§1.7）。作業中のキャラクター（`workspace.asset`）とステージを並べて表示する。
+  - 右「トランスフォーム」タブ：モックの既存の部品をそのまま使う。位置 X/Y/Z（−50〜50 m、0.1 刻み）、回転 Y（−180〜180°）、拡大（0.1〜10 倍、0.1 刻み）。モックに無い回転 X/Z は足さない（保存では 0 にする。O-④-7）。
+  - ステージの素材の選択：モックのパネル一覧にある「アセットブラウザー」（`screens.js:235`）は、右のタブに置き場所が無い。そこで「トランスフォーム」タブの先頭に節「ステージの素材」（選択欄1つと［ステージを外す］）を足し、パネル「アセットブラウザー」の実体とする（承認済みの④-11 に要る最小の部品。見た目の追加なので WP-04 の Opus のレビューで確かめる）。選べるのは③の素材一覧のうちモデルの素材（GLB/VRM の `integrated:`、PMX の `mmd:A:`/`mmd:B:`、FBX モデルの `fbx:`）だけ。新しい種類・新しいスロットは作らない。
+  - ツールの `ステージを読み込む`：WP-00c で予定の表示を「P2 ④」に直しておき（導線点検の項目3）、WP-04 で実際のボタン（`data-act="real"`。「トランスフォーム」タブの「ステージの素材」の選択欄へ移る）に変える。大型ステージの分割読込（LYRIC-009、Phase G）は作らない。
+  - 左「シーンツリー」、「表示・依存関係」、表示/影/ロック、座標系の切替、ライトは ◇ のまま（NF-014 の残り。未承認）。§1.13 の薄い表示のまま。
 - SCR-08 の詳細の［3D で表示］を結線する。
 
 #### (c) 使う既存 API・コード
@@ -921,6 +958,12 @@ export async function loadModel(item, THREE, loaders) {} // item は /api/assets
 - ツール「選択」は ◇（オブジェクトの選択は旧画面に無い）。「回転」は OrbitControls を有効にする（既定）。
 - 画面を離れたら three-host を破棄する（§1.6、§1.7）。
 - **O-④-4（決定済み）**：workspace の所有者を1つにする規則（§2.2(d)-9）。Phase E §7 にも注記した。
+- **ステージ配置（④-11、SCR-06）**：
+  - 「ステージの素材」で選ぶと、④-1〜④-3 と同じローダーで読み込み、ステージとして置く。**高さの正規化はしない**（ステージは実寸で置く）。単位の換算だけ行う：PMX は 1 単位 = 0.08 m、GLB/VRM/FBX は 1 単位 = 1 m（FBX は読込時の単位をそのまま使う）。この換算の値は実ファイルで未検証（O-④-6）。
+  - スライダーを動かすと、表示にすぐ反映し、`setWorkspaceFields({stage:{asset, position:[x,y,z], rotation:[0,ry,0], scale}}, {source:'store'})` を呼ぶ（§2.2(d)-9。dirty になり、保存は［保存］）。範囲外の値はスライダーの範囲で丸める（サーバーも §1.15 B-4 の範囲で拒否する）。
+  - ［ステージを外す］で `stage:null` にする。読込に失敗したら、④(d) の失敗の文言を出し、`stage` は変えない。
+  - 起動時・読込時に `workspace.stage` があれば、その素材を読んで同じ配置で置く。素材が一覧に無ければ「ステージの素材が見つかりません：{asset}」と出し、`stage` は消さない（利用者が［ステージを外す］で消す）。
+  - 区画の状態：「3Dビュー」「トランスフォーム」「アセットブラウザー」は `real`（`evidence` は下のテスト）。他は今のまま。
 
 #### (e) 置き換えるサンプル
 
@@ -931,6 +974,7 @@ SCR-12 左の6件、中央の `img:'viewport-character'`、右「ボーン」の
 - 合成 GLB（§4）を登録し、SCR-12 で選ぶと、キャンバスに背景以外のピクセルが1つ以上ある。`baiStudio.viewport.getState()` が `{loaded:true, scale:≈1, offset:≈[0,0,0]}`（誤差 1e-9。合成モデルは高さ 2.0・中心 0 だから）。ボーン一覧に10本（`hips`〜`foot_r`）が出る。
 - ［このモデルを制作に使う］の後、`workspace.frame` は種データの値のまま。［保存］の後のファイルで `asset` だけが変わっている。
 - PMX の最小 ZIP は、O-④-2 が決まるまで「読込中の例外を正しく表示する」ことだけを確かめる。
+- ステージ配置（④-11）：合成 GLB をステージに選び、位置 X=3・回転 Y=90・拡大 2 にして［保存］すると、workspace ファイルの `stage` が `{asset:'integrated:…', position:[3,0,0], rotation:[0,90,0], scale:2}` になる。読み直すと同じ配置（`baiStudio.viewport.getState().stage`、誤差 1e-9）。`frame`・`asset`・`clip` は変わらない。
 
 #### (g) テスト（案）
 
@@ -942,11 +986,16 @@ SCR-12 左の6件、中央の `img:'viewport-character'`、右「ボーン」の
   - `workspace asset is set only for GLB/VRM`。
   - `missing combination warns before creating it`。
   - `external change warns while workspace is dirty`（②から移したテスト）：dirty にした後で外部から `POST /api/project` を送ると、表示は変わらず、警告文「自動では読み込みません」が出る。
+  - `stage placement saves and restores`（上記の受け入れ条件）。
+  - `stage is kept when legacy camera bundle save omits it`：ステージを保存した後、旧 `camera.html` の形の本文（`workspace` が `{frame,asset,clip}` だけ）で `POST /api/project/bundle` を送っても、`stage` が残る（§1.15 B-4 の画面側の確認）。
+  - `stage missing asset keeps value`：`stage.asset` を一覧に無い id にした種データで開くと、文言が出て、保存しても `stage` が残る。
 - 照合（`tests/studio-p2-normalize-parity.test.cjs`）：同じ合成 GLB を `/camera.html` の［3Dモデルを表示］で読む。`camera_3d.js` のモデルは `window` から辿れないので、`publishModelFraming` の `bai-camera-model-bounds` イベントの `min/max` を受け取る。それと新UIの包囲箱が、誤差 1e-6 で一致することを確かめる。
 
 #### (h) ◇ 未実装のまま／未決
 
-ステージ（SCR-06、NF-014/LYRIC-009）、モーフ（LIP-004）、物理（MOTION-021）、衣装（NF-005）、ウェイトの編集（NF-023）、オブジェクトの選択。
+ステージ専用の読込（LYRIC-009）、NF-014 のうち ④-11 以外（シーンツリーの編集・表示/影/ロック・依存関係・ライト・複数のステージ・小物）、モーフの編集（LIP-004）、物理（MOTION-021）、衣装（NF-005）、ウェイトの編集（NF-023）、オブジェクトの選択（ビューポート上で掴んで動かす操作を含む）。
+- **O-④-6**：ステージの単位の換算（PMX 0.08 m/単位、GLB 1 m/単位）と、FBX の単位（cm で書かれたファイル）の扱い。既定は上記の値で、実ファイルでは未検証として台帳に書く。所有者確認（§3.1）で見た目が明らかにおかしければ、拡大で合わせてもらい、値の見直しは WP-04 の中で Opus が決める。
+- **O-④-7**：回転 X/Z。モックに部品が無いので P2 では足さない（保存形式は3つの値を持つので、後で足しても形式は変わらない）。
 - **O-④-1**：PMX/FBX の単体表示の正規化（旧の 1.8/1.95 を保つか、2.0 にそろえるか）。既定は旧の値を保つ（旧画面と見え方を比べられるように）。
 - **O-④-2**：PMX の自動テスト用の最小モデル（`tools/make_test_pmx.py`。PMX 2.0 の最小構成：頂点3・面1・材質1・ボーン1）を作れるか。作れなければ、PMX の表示は「未検証」と台帳に書く。
 - **O-④-3**：A/B の2体を並べる表示（`index.html:231, 310` の ±1.4 の配置）は、⑤の連結再生で必要になるので⑤で扱う。
@@ -961,7 +1010,7 @@ SCR-12 左の6件、中央の `img:'viewport-character'`、右「ボーン」の
 | # | 機能 | 根拠 |
 |---|---|---|
 | ⑤-1 | GLB の中のアニメーションの選択・再生・停止・シーク | `camera_3d.js:281〜282`（`setClip`・`updateTime`）、`index.html:213`（`integratedPreviewV02.play`） |
-| ⑤-2 | PMX に VMD を当てて再生（`MMDLoader.loadAnimation`＋`AnimationMixer`。IK・物理なし） | `index.html:340〜347, 356` |
+| ⑤-2 | PMX に VMD を当てて再生（`MMDLoader.loadAnimation`＋`AnimationMixer`。IK・物理なし）。**VMD に含まれる表情・口パクのモーフも再生する**（OWNER-4。three の `MMDLoader.loadAnimation(url, mesh)` は、ボーンのトラックに加えて、VMD のモーフのキーから `morphTargetInfluences` のトラックも作る。旧画面は同じ呼び出しをしているので、コードの上では既に再生されている。実ファイルでは未検証） | `index.html:340〜347, 356` |
 | ⑤-3 | FBX モーションの82パターンの一覧・分類・絞り込み・再生できるか（👑） | `index.html:80〜90`（表は80行に埋め込み） |
 | ⑤-4 | コンビネーション（追加・連結再生・停止・全消去）と履歴の記録（②の `history` に積む。②の自動保存を使う） | `index.html:118〜133, 291〜302, 366〜377` |
 | ⑤-5 | お気に入りのコンビネーション（保存・一覧・開く・削除） | `index.html:129〜133`、`POST /api/favorites`（`server.py:941〜950`） |
@@ -990,12 +1039,17 @@ SCR-12 左の6件、中央の `img:'viewport-character'`、右「ボーン」の
 - **O-⑤-4**：タイムラインの自動保存（550ms、`index.html:802`）は旧画面と同じく再現する（1-m11）。ただし `/api/timeline-editor` には If-Match が無い（`server.py:668〜686`）。そこで、保存の前に GET して `updatedAt` を比べ、変わっていたら自動保存を止めて確認するクライアント側の簡易な検知を既定とする（Opus のレビューの対象）。
 - **O-⑤-5**：⑤-9 の外部コマンドのうち、どれを新UIで受けるか（旧画面と新UIを同時に開くと、両方が反応する）。
 - **O-⑤-6**：⑤-11〜⑤-14 の割り付け（どのタブに置くか）と、three を使う⑤-12 の表示を three-host に載せる方法。
-- **O-⑤-7**：⑤-8 で `clip`・`frame` を書く時（再生を止めたとき、明示の操作）と、⑥のカメラ画面との所有の分担（§2.2(d)-9）。
+- **O-⑤-7**：⑤-8 で `clip`・`frame` を書く時（再生を止めたとき、明示の操作）と、⑥のカメラ画面との所有の分担（§2.2(d)-9）。決まっている制約（3-M6）：
+  - `frame` は 0 以上の整数で、**`camera.duration` 以下**（統合バンドルの `validateRestore` が `workspace.frame > camera.duration` を拒否する。`camera_project_bundle_ui.js:11`）。⑤の再生位置が長い場合は、書くときに `camera.duration` で頭打ちにし、状態行に「再生位置をカメラの長さ（{duration} フレーム）までに丸めて記録しました」と出す。
+  - `clip` は、**`workspace.asset` の GLB の中のアニメーションの番号**（0 始まり、`camera_3d.js:281`）。PMX＋VMD・FBX のモーションは `clip` に書かない（統合保存に記録できるのは GLB/VRM のクリップだけ）。
+  - `frame` だけの変化は dirty にしない（§2.2(d)-9）。
+- **O-⑤-8（OWNER-4）**：VRM に VMD を当てて再生する経路は、旧画面に無い（旧画面の VMD の再生は PMX だけ。`index.html:340〜347`）。VMD→VRM のボーン・表情の対応を作るのは新機能なので、P2 では入れない。既定は「VRM を選んで VMD を当てようとしたら、◇『VRM への VMD の適用は、リップシンク・表情フェーズ（Phase E の次）で扱います』を出す」。所有者が P2 に必要と判断した場合は、計画の追加として指示を受けてから設計する。
+- モーフのテスト（OWNER-4）：`tools/make_test_vmd.py` の最小 VMD に、モーフのキー1つ（名前「あ」、フレーム 0 で 0、フレーム 30 で 1）を入れる。O-④-2 の最小 PMX に同じ名前のモーフを1つ持たせ、フレーム 30 で `mesh.morphTargetInfluences[0]` が 1（誤差 1e-6）になることを確かめる。最小 PMX が作れなければ、モーフの再生は「コードの経路はあるが未検証」と台帳の `unverified` に書く。
 - テスト：連結再生のフレーム位置（合成 GLB のアニメーションで `hips` の z が期待値になる）、VMD の適用（O-④-2 の最小 PMX と `tools/make_test_vmd.py` の最小 VMD）、タイムラインの保存の往復、自動保存の 550ms、⑤-11〜⑤-14 の API 応答の表示。
 
 #### (h) ◇ 未実装のまま
 
-表情レイヤー（LIP-009）、曲線の編集（DATA-003）、3視点比較・同期比較（REVIEW-001 の範囲。旧画面へのリンクのまま）、MMD の IK・物理（旧画面にも無い）。
+表情レイヤー・表情の編集（LIP-009）、自動リップシンク（LIP-*。リップシンク・表情フェーズ）、VRM への VMD の適用（O-⑤-8）、曲線の編集（DATA-003）、3視点比較・同期比較（REVIEW-001 の範囲。旧画面へのリンクのまま）、MMD の IK・物理（旧画面にも無い）。
 
 ---
 
@@ -1031,11 +1085,12 @@ SCR-12 左の6件、中央の `img:'viewport-character'`、右「ボーン」の
      - **`camera.html` は変えない**（フラグが無ければ今と同じ順番・同じ時点で `mount(document)` が動く）。
      - `camera_project_bundle_ui.js` は新UIでは読まないので、mount 化しない（1-M4 補足）。WP-06c で、DOM を使わない部分だけを共有モジュールへ移す（下の 3）。
      - 字下げは変えない（差分を最小にし、ソースの文字列を検査するテストへの影響を減らす）。
-     - 完了条件：§1.14 の一覧のテストと、カメラ関係の全テスト・`legacy-ui-layout`・`studio-ui` が合格する。直したテストの一覧をコミット本文に書く。旧画面の操作で動作が変わらない（Phase E WP-03 の `camera-ui.test.cjs` がまだ無いので、WP-06a では `tests/studio-p2-camera.test.cjs` の中で旧 `camera.html` を開く同じ操作の検査（キー追加→Undo→保存→再読込で復元）を、mount 化の前後で走らせ、結果が一致することを確かめる）。
+     - 完了条件：§1.14 の一覧のテストと、カメラ関係の全テスト・`legacy-ui-layout`・`studio-ui` が合格する。直したテストの一覧をコミット本文に書く。旧画面の操作で動作が変わらない（Phase E WP-03 の `camera-ui.test.cjs` がまだ無いので、WP-06a では `tests/studio-p2-camera.test.cjs` の中で旧 `camera.html` を開く同じ操作の検査（キー追加→Undo→保存→再読込で復元）を、mount 化の前後で走らせ、結果が一致することを確かめる）。前後の比べ方（3-m4）：`git worktree add ../bai-before <mount化の直前のコミット>` で前の版を別のディレクトリに取り出し、`tests/helpers/studio-harness.cjs` で前の版をポート 8786、今の版を 8794 で起動する。同じ操作を両方に行い、`#status` の文言・キーの数と値・保存したファイルの JSON が一致することを確かめる。比べた後で `git worktree remove ../bai-before` で消す（このテストは WP-06a の確認のためだけに手で走らせ、`npm test` には入れない。結果はコミット本文に書く）。
   2. **WP-06b：ホスト**。`studio/js/camera/camera-host.js` が、mount したコードが参照する全ての要素ID・クラス・属性を、**新UIモックの SCR-02 のパネル構成の中に**配置した DOM を作る。
      - 配置：左はショット（シーケンスの一覧）。中央は `#scene` と `#preview` のキャンバス。右のタブはカメラ／フォーカス／レール／補間。下部は `#track` を含むタイムライン。配置表は O-⑥-4。
      - 見た目は `studio/styles/camera-host.css`（`.camera-host` の中だけに効く。`camera.css` は読まない）。
-     - **壊れたカメラ保存データのときは mount しない**（2-B1）：`project.cameraInvalid` が立っている間（§2.2(d)-2）は、ホストを作らず、SCR-02 の中央に ◇ の説明「カメラ保存データ（camera_project.json）を読めないため、カメラ画面を開けません。元のファイルはそのままです。退避コピー：{backup ?? 'なし'}。復旧の操作は Phase E WP-02a で追加されます。」を出す（ids `['CAM-G06']`）。`cameraInvalid` が消えたら（［再読込］で正常に読めたら）、次に SCR-02 を開いたときに mount する。mount した後で壊れたことが分かった場合は、ホストを `#keepalive` に移したままにして同じ説明を出す（サーバー側の 422 で書き込みは止まる：§1.15 B-3）。
+     - **壊れたカメラ保存データのときは mount しない**（2-B1）：`project.cameraInvalid` が立っている間（§2.2(d)-2）は、ホストを作らず、SCR-02 の中央に ◇ の説明「カメラ保存データ（camera_project.json）を読めないため、カメラ画面を開けません。元のファイルはそのままです。退避コピー：{backup ?? 'なし'}。」と、§2.2(d)-2 の［初期状態から始める…］（同じ確認ダイアログ、同じ `POST /api/camera/project/reset`）を出す（3-M2。退避ファイルのダウンロードと中身の確認は Phase E WP-02a のまま ◇、ids `['CAM-G06']`）。`cameraInvalid` が消えたら（［再読込］で正常に読めたら）、次に SCR-02 を開いたときに mount する。mount した後で壊れたことが分かった場合は、ホストを `#keepalive` に移したままにして同じ説明を出す（サーバー側の 422 で書き込みは止まる：§1.15 B-3）。
+     - workspace としてホストに送るのは `{frame, asset, clip}` だけ（3-m7。WP-02d より前。`stage` などストアだけが持つキーは送らない）。
      - DOM を作った後で、`window.BAI_CAMERA_MANUAL_MOUNT=true` を立てる。次に `camera.html` と**同じ順番**で共有 UMD（`/camera_vmd_local.js`、`/camera_rig.js`、`/camera_framing.js`、`/camera_lens.js`、`/camera_dof.js`、`/camera_focus_tracking.js`、`/camera_focus_consistency.js`、`/camera_sequence_playback.js`）と `/camera.js`（classic script）を `legacy.js` で読む。その後 `BAICameraPage.mount(hostRoot,{host:'studio'})` を呼び、`(await import('/camera_3d.js')).mount(hostRoot,{host:'studio'})` を呼ぶ。どれも1回だけ。
      - 包含の検査（`tests/studio-p2-camera-ids.test.mjs`）：
        - `camera.js`・`camera_3d.js` のソースから `$('…')` の ID、`querySelector` のクラス・属性セレクターを抜き出し、`studio/js/camera/legacy-ids.json`（WP-06b で生成。`camera.html` には ID が 122個ある）と、ホストが作る DOM（Playwright で列挙）に全部が含まれることを確かめる。
@@ -1045,12 +1100,16 @@ SCR-12 左の6件、中央の `img:'viewport-character'`、右「ボーン」の
      - **共有モジュール `camera_bundle_core.js`**（2-M6。ルート直下、UMD、`window.BAICameraBundleCore`、DOM を使わない）を作る。中身は、`camera_project_bundle_ui.js` から**動作を変えずに移す**部分と、P2 で必要な定数：
        - `validateRestore(bundle)`（今の `camera_project_bundle_ui.js:7〜14` をそのまま移す）。
        - `buildBundleBody({combination, camera, workspace})`（今の18行の本文作りを関数にしたもの）。
-       - `CAMERA_OWNED_WORKSPACE_FIELDS = []`（§2.2(d)-9）と、`mergeWorkspace(storeWorkspace, hostSnapshot)`（ストアの `asset`・`clip`・`frame` に、ホストのスナップショットのカメラ側フィールドだけを重ねる）。
+       - `CAMERA_OWNED_WORKSPACE_FIELDS = []`（§2.2(d)-9）と、`mergeWorkspace(storeWorkspace, hostSnapshot)`（ストアの `asset`・`clip`・`frame`・`stage` に、ホストのスナップショットのカメラ側フィールドだけを重ねる）。**P2 の時点では一覧が空なので、`mergeWorkspace` は実質ストアの値の複製を返すだけで、何もしない**（3-m9。WP-02d でカメラ側のフィールドが入ったときに意味を持つ。先に形だけ作るのは、旧画面と新UIの規則を最初から同じ場所に置くため）。
+       - **assetRef の持ち主（3-M8）**：Phase E WP-02d の assetRef は、保存のときに**ストアの `asset`** から作る（カメラ側のフィールドではないので、`CAMERA_OWNED_WORKSPACE_FIELDS` には入れない）。Phase E §4.2・§7 に注記した。
        - Phase E WP-02d で足すもの（assetRef の記入、`validateRestore` の緩和、`workspace.frame` の整数化、423 `recovery_pending` の扱い）も、このモジュールに入れる（Phase E §4.2 の WP-02d 行に注記した）。こうすれば、旧画面と新UIの両方に同じ規則が入る。
        - `camera_project_bundle_ui.js` はこのモジュールを呼ぶように変える（動作は変えない。R5 (c)）。`camera.html` に `<script src="/camera_bundle_core.js" defer>` を `camera_project_bundle_ui.js` の前に1行足し、`server.py:166` の配信許可リストに足し、`tests/test_studio_routes.py` に 200 の確認を足す。`test_camera_project_bundle_ui.py`・`test_camera_bundle_preflight.cjs`・`test_bundle_snapshot_consistency.py` のソース文字列の検査を、同じ意味の検査に直す。
-       - 単体テスト `tests/test_camera_bundle_core.cjs`（`node --test`。`validateRestore` の今までの全ての拒否条件、`mergeWorkspace` の所有の規則）。
+       - 単体テスト `tests/test_camera_bundle_core.cjs`（`node --test`。`validateRestore` の今までの全ての拒否条件、`mergeWorkspace` の所有の規則）。読み込み方（3-M8）：`fs.readFileSync('camera_bundle_core.js')` を `vm.runInNewContext(src, ctx)`（`ctx = {window: {}, globalThis: ctx}` の形で、`globalThis.BAICameraBundleCore` と `window.BAICameraBundleCore` の両方を確かめる）で読み、ブラウザーでもテストでも同じファイルを使う。UMD の先頭は `(function(root){ … root.BAICameraBundleCore = api; })(typeof window !== 'undefined' ? window : globalThis);` の形にする。
+       - `tests/test_camera_html_wiring_recovery.py`（`camera.html` のスクリプトの順番と直接の要素を検査している）を確かめ直し、`camera_bundle_core.js` が `camera_project_bundle_ui.js` より前にあることの検査を足す。
+       - 新UIでの読み込み（3-M8）：`features/project.js` は、統合保存を初めて使うときに `legacy.js` の `loadLegacyScript('/camera_bundle_core.js')` で1回だけ読み、`window.BAICameraBundleCore` を使う。型は、import ではなく `window` の UMD なので `paths` は使わず、`studio/js/legacy-globals.d.ts` の `interface Window` に `BAICameraBundleCore` を**関数の形まで**書く（`validateRestore(bundle): void`、`buildBundleBody(x): object`、`mergeWorkspace(store, snapshot): object`、`CAMERA_OWNED_WORKSPACE_FIELDS: readonly string[]`。他の UMD のような `any` にはしない。§1.8）。**読めなかったら**（404・例外）、［保存］を無効にし、状態行に「保存の部品を読み込めませんでした。再読込してください。」を出す（コンビネーションの自動保存は使える。黙って別の本文で保存しない）。
      - `saveProject()` は、ホストが mount 済みなら、`window` イベント `bai-camera-bundle-snapshot`（`camera.js:208`）でカメラの状態を、`bai-camera-workspace-snapshot`（`camera_3d.js:290`）で workspace を集める（`camera_project_bundle_ui.js:5〜6, 18` と同じ方法）。本文は `buildBundleBody({ combination, camera, workspace: mergeWorkspace(store.workspace, snapshot) })` で作る。
-     - **workspace の所有（O-⑥-5、決定済み。2-M4）**：§2.2(d)-9 のとおり。利用者がカメラ画面でモデル・クリップ・再生位置を変えたときは、ホストがストアの `setWorkspaceFields` を呼ぶ。そのため `camera-host.js` は、`bai-camera-workspace-snapshot` を SCR-02 を離れるとき・［保存］の前・1秒ごと（SCR-02 を表示している間だけ）に取り、`asset`・`clip`・`frame` が前回と違えばストアに書く。ストア側の変更（④⑤）は、`bai-camera-workspace-restore` でホストに伝える（§2.2(d)-9）。
+     - **workspace の所有（O-⑥-5、決定済み。2-M4）**：§2.2(d)-9 のとおり。利用者がカメラ画面でモデル・クリップ・再生位置を変えたときは、ホストがストアの `setWorkspaceFields` を呼ぶ。そのため `camera-host.js` は、`bai-camera-workspace-snapshot` を **SCR-02 を離れるときと［保存］の前だけ**に取り（3-M6。1秒ごとには取らない）、`asset`・`clip`・`frame` が前回と違えば `setWorkspaceFields(changed, {source:'host'})` でストアに書く（`frame` だけの違いは dirty にしない）。ストア側の変更（④⑤）は、§2.2(d)-9 の規則（外部からの変更で、`asset` か `clip` が違うときだけ）で `bai-camera-workspace-restore` を送る。
+     - **カメラ単独の保存の後（3-M5）**：`camera.js` の保存が成功したところ（210行の `serverRevision=j._revision||null;dirty=false;status('保存しました')` の直後）に、`window.dispatchEvent(new CustomEvent('bai-camera-saved',{detail:{revision:serverRevision}}))` を1文足す（旧画面では誰も受けないので、動作は変わらない。R5(c)）。`camera-host.js` はこれを受けて `GET /api/project/bundle` を取り、`revision` を取り直す（`camera` は `base` にも入れる。そうしないと次の［保存］が 409 になる）。
      - 再読込のときは、`validateRestore` を通してから、`bai-camera-workspace-restore`・`bai-camera-bundle-restore`（`camera_3d.js:293`、`camera.js:209`）で反映する（`camera_project_bundle_ui.js:19` と同じ順番）。
      - `dirty.camera` は `MountHandle.isDirty()` から取る（O-⑥-1、決定）。SCR-02 を表示している間は1秒ごと、［保存］の前、`beforeunload` の判定のときに読む。
   4. **WP-06d**：Phase E §7 に読み替え表（O-⑥-4 の配置表から作る）を追加し、高性能モデルで1回レビューする（Phase E §0 の条件）。
@@ -1072,6 +1131,9 @@ SCR-12 左の6件、中央の `img:'viewport-character'`、右「ボーン」の
   - `camera host does not mount on an unreadable camera file`（2-B1）：壊れたカメラファイルで SCR-02 を開くと、◇ の説明と退避名が出る。`window.BAICameraPage` が未定義のまま（`/camera.js` が読まれていない）。カメラファイルのバイト列は変わらない。
   - `camera owns only camera fields`：ストアの workspace が `{frame:42, asset:'a.glb', clip:1}` のとき、SCR-12 で別の GLB を選んでから SCR-02 を開くと、ホストにそのモデルが表示される（`bai-camera-workspace-restore` が届く）。統合保存の本文の `asset`・`clip`・`frame` はストアの値。
   - `host flag gates studio-only features`：`camera.html` と新UIの両方を開き、`MountHandle.host` がそれぞれ `'legacy'`・`'studio'` であること。
+  - `camera-only save then bundle save succeeds`（3-M5）：ホストでキーを足して「カメラだけ保存」を押し、続けて②の［保存］を押すと 200（409 にならない）。`bai-camera-saved` が1回届く。
+  - `camera reset from host`（3-M2）：壊れたカメラファイルで SCR-02 を開き、［初期状態から始める…］→［初期状態に戻す］で、ホストが mount され、退避ファイルが残る。
+  - `no workspace restore on frame-only change`（3-M6）：SCR-12 の再生位置だけを変えて SCR-02 に戻っても、`bai-camera-workspace-restore` が届かない（スパイで数える）。`dirty.workspace` は false のまま。
 - Phase E との接続：WP-06d の完了で、Phase E §7 の「UI 部分は読み替え表の追加・レビュー後」の条件が満たされる。
 
 #### (h) ◇ 未実装のまま
@@ -1120,23 +1182,79 @@ SCR-23 の中央のカード「エクスポート」（`screens.js:607` のパ�
 
 ---
 
+### 2.9 主要シナリオの通し確認（E2E。OWNER-1）
+
+所有者決定（2026-10-20）の主要シナリオ「歌ってみた」動画の制作を、新UIの上で最初から最後まで通す自動テストを1本持ち、P2 の段階ごとに伸ばす。目的は「部品ごとには動くが、続けて使うと止まる」を早く見つけることと、所有者に「今どこまで通しで動くか」を1つの数で示すこと。
+
+#### (a) テスト
+
+- ファイル：`tests/studio-p2-e2e-main.test.cjs`（Playwright、ポート **8787**、`P2_E2E_PORT`。§4.1）。`tests/helpers/studio-harness.cjs` で一時データディレクトリを作り、実 `data/` は使わない。
+- 1つのブラウザーのページで、**画面の操作だけで**（API を直接呼ばずに）次の手順を順に行う。手順ごとに `test.step` を分け、どこで止まったかが分かるようにする。
+
+| 手順 | 内容 | 使う機能 | 有効になる WP | 確かめること |
+|---|---|---|---|---|
+| S1 | VRM/PMX の読込 | ③の取り込み（合成 GLB を VRM 相当として登録）、④の表示、［このモデルを制作に使う］ | WP-03、WP-04 | キャンバスにモデルが描画され、`workspace.asset` が入る |
+| S2 | ステージの配置 | ④-11 | WP-04 | 位置・回転・大きさを変えて保存し、読み直しても同じ |
+| S3 | カメラの設定 | ⑥のホスト（キーを2つ足す） | WP-06b・06c | 統合保存の後、カメラのファイルにキーが2つ |
+| S4 | BGM（歌の音声）の配置 | **既存のコードが無い**（音声の登録 API・タイムラインの音声トラックは旧画面に無い。LYRIC-006 は未承認） | — | **「既存機能なし」として記録**し、飛ばす（Q4） |
+| S5 | VMD/FBX の設置 | ⑤-2（PMX＋VMD）、⑤-1（GLB のクリップ）、⑤-4（FBX のコンビネーション） | WP-05 | 再生を始めると、ボーンが動く（`hips` の位置が変わる） |
+| S6 | エフェクト | 承認済みの後段（MMDエフェクトのフェーズ） | — | 飛ばす（「後段のフェーズ」として記録） |
+| S7 | 踊らせる（再生） | ⑤の再生、⑥のカメラと同じ時刻で再生 | WP-05、WP-06c | 再生中に、モデルのボーンとモーフ（⑤-2。最小 PMX があるときだけ）が動き、カメラの位置がキーの間で補間される |
+| S8 | 書き出し | 既存は VMD（⑦-1・⑦-2）とカメラ VMD（⑦-3）だけ。**音声付き 1080p の動画の書き出しは既存のコードが無い**（Phase F の RENDER-001・006、計画・未検証） | WP-07 | VMD とカメラ VMD の書き出しの要求が受け付けられる（Blender が無ければ 503 の表示まで）。動画は「既存機能なし」として記録（Q4） |
+
+- まだ有効になっていない手順（その WP が終わっていない）は `skip` にし、理由に WP の名前を書く。「既存機能なし」「後段のフェーズ」の手順も `skip` にし、理由をそのまま書く。**skip を合格と数えない**。
+
+#### (b) 台帳への記録
+
+- `docs/roadmap/P2_PORT_STATUS.json` に `e2e_main` を持つ：`{ "furthest_step": "S3", "steps": [{"id":"S1","result":"pass|fail|skip","reason":"…"}, …], "commit": "<短いSHA>", "checked_at": "<ISO8601>" }`。
+- `furthest_step` は「S1 から切れ目なく `pass` が続いた最後の手順」。`skip`（既存機能なし・後段）は切れ目と数えずに飛ばして続ける。未着手の WP による `skip` と `fail` は切れ目になる。
+- 結果は `node tools/record_e2e_main.mjs`（WP-00a-2 で作る小さなスクリプト。テストの JSON レポーターの出力を読み、上の形に書く）で書く。手で書かない。
+
+#### (c) WP の完了ゲート
+
+- 各 WP の完了ゲートに「`tests/studio-p2-e2e-main.test.cjs` を**最初から**通して実行し、`furthest_step` が前の値より後退していない」を足す（§3）。後退していたら、その WP は完了にしない。
+- 新しく有効になる手順の WP（上の表）は、その手順を `pass` にすることも完了ゲートに含める。
+
+#### (d) 所有者の確認したい一覧との対応（Phase E へ引き継ぐ）
+
+所有者の挙げた一覧（素材取込、カメラワーク、フォーカス・DOF、シーケンス、カメラレール、カメラ VMD の入出力、マルチカメラ、書き出し）は、次のように割り付ける。P2 の範囲は上の S1〜S8 だけで、残りは Phase E の各 WP の完了時に、同じ E2E のファイルへ手順を足す（Phase E §7 に注記した）。
+
+| 項目 | 担当 |
+|---|---|
+| 素材取込 | P2 ③（S1） |
+| カメラワーク | P2 ⑥（S3）、Phase E WP-05〜09 |
+| フォーカス・DOF | Phase E WP-04 |
+| シーケンス | Phase E WP-12・13 |
+| カメラレール | Phase E WP-07 |
+| カメラ VMD の入出力 | P2 ⑦-3（S8 の一部）、Phase E WP-12・13 |
+| マルチカメラ | Phase E WP-12・16 |
+| 書き出し | P2 ⑦（S8 の VMD）、動画は Phase F |
+
+#### (e) ◇ 既存機能なし（Q4 で所有者に確かめる）
+
+- **BGM の配置**（S4）：音声の素材の登録・タイムラインへの配置・再生の同期のコードは、旧画面にも API にも無い。P2 は既存機能の移植なので入れない。
+- **音声付き動画の書き出し**（S8）：動画のレンダリングは Phase F（RENDER-001・006、計画・未検証）。
+- どちらも、通し確認では「既存機能なし」と記録するだけで、新機能として作らない。前倒しするかどうかは Q4 で所有者が決める。
+
+---
+
 ## 3. 作業パッケージ（P2-WP）と順番
 
 | WP | 内容 | 依存 | 規模 | モデル | 完了ゲート（すべて満たす） |
 |---|---|---|---|---|---|
 | **P2-WP-00a-1** | データの隔離：`bai_paths.py`・ルートの `conftest.py`・`tests/test_data_isolation.py`（Phase E §2.9 の仕様どおり。**Phase E WP-03 の前倒し**）。`server.py` の `DATA` ほか、`diagnostic_logging.py`・`qa_capture.py` の保存先を `data_dir()` から作る | なし | S〜M | Sonnet で実装 → **Opus でレビュー**（全ての保存先を切り替える＝データ破損のリスク） | pytest 全件が合格。`test_data_isolation.py` で実 `data/`・`exports/` のハッシュが前後で一致。§1.14 の「同じプロセス」のテストが一時ディレクトリを使っていることを確認。`PHASE_E_IMPLEMENTATION_STATUS.json` の `planned_in` の該当行の `status` を `done` にし、コミットを書く。 |
-| **P2-WP-00a-2** | ハーネスとテスト用ファイル：`tests/helpers/studio-harness.cjs`・`tests/run-guarded.cjs`（§4）、devDependencies に `"three": "0.160.1"`（`package.json` と `package-lock.json`）、`tools/make_test_glb.py`（Phase E §2.9 の合成モデルの仕様）、`tools/make_test_vmd.py`、`tools/make_test_pmx_zip.py`、`tests/studio-ui.test.cjs`・`tests/legacy-ui-layout.test.cjs` をハーネスへ移す | 00a-1（`legacy-ui-layout` の移行は `5865209` の後） | M | Sonnet | node 全件が `run-guarded.cjs` の下で合格し、実データのハッシュが一致。three が無い環境で 3D のテストが skip になり、理由が出る。 |
-| **P2-WP-00b** | 不具合の修正（§1.15）：B-1（`server.py:316〜320` の削除）、B-2（`index.html` の `externalProjectApply` に1文）、B-3（`read_project` のエラー分岐・`CameraProjectInvalid`・退避・`bad(...,code)`・`send_camera_invalid`・`read_bundle(strict)`・統合バンドルの GET（try と 500 を含む）と POST の書く前の読込・`GET/POST /api/camera/project`・`POST /api/camera/sequence/edit` の 422、`camera.js:226` の読込エラーの文言の1か所）。テストは `tests/test_project_envelope.py`、`tests/test_bundle_camera_invalid.py`、`tests/legacy-project-save.test.cjs`、`tests/legacy-camera-invalid.test.cjs`。`test_legacy_project_client_revision.py` の該当する検査を置き換える | 00a-1, 00a-2 | M | Sonnet で実装 → **Opus でレビュー**（保存経路の変更） | 新しいテストが合格。既存の `test_bai_camera.py`・`test_project_state_bundle.py`・`test_bundle_revision.py`・**`test_bundle_snapshot_consistency.py`**・`test_camera_focus_endpoint.py`・`test_camera_sequence_ui.py` が合格（旧 `read()` の互換、373行の非厳格）。実 `data/` を使うテストは無い。Phase E 台帳の G-06 の行に「一部（エラー分岐、統合バンドルとカメラの GET/POST・sequence/edit）P2-WP-00b で実施」を記録。 |
-| **P2-WP-00c** | 新UIの土台：`api.js`・`store.js`・`bus.js`・`state-box.js`・`legacy.js`・`features/index.js`・`legacy-globals.d.ts`・`studio/types/legacy/*.d.ts`・`tsconfig.json` の `paths`／`include`・`features.css`。`app.js` の `feature` 部品・後始末（毎回の render）・`data-act="real"`・`navigate` のクエリ。`studio/index.html` の importmap・`#keepalive`。`screens.js` の `evidence`／`shell`・`PH.P2` の文言。`tests/test_screen_status_honesty.mjs`、`tools/run_evidence_tests.mjs`、`gen_screen_matrix.mjs` の更新、`STUDIO_DESIGN_SYSTEM_JA.md` の契約の文言、`docs/roadmap/P2_PORT_STATUS.json` の新設。`*.fork.js` の規則（§1.8） | 00a-2 | M | Sonnet で実装 → **Opus でレビュー**（全画面の土台） | 型検査が合格。`studio-ui.test.cjs` が全件合格（見た目・動作の後戻りなし。後始末のテストを含む）。`api.js` の単体テスト（`tests/studio-p2-api.test.mjs`：`fetch` を差し替えて、状態コードと `error_code` の割当、`limitLabel` を確かめる）。honesty テストが合格。 |
-| **P2-WP-01** | ② プロジェクト（§2.2） | 00b, 00c | M | Sonnet で実装 → **Opus でレビュー**（上書き・競合・自動保存） | §2.2(f) の全項目、§2.2(g) の全テストが合格、マトリクスを再生成 |
+| **P2-WP-00a-2** | ハーネスとテスト用ファイル：`tests/helpers/studio-harness.cjs`・`tests/run-guarded.cjs`（§4）、devDependencies に `"three": "0.160.1"`（`package.json` と `package-lock.json`）、`tools/make_test_glb.py`（Phase E §2.9 の合成モデルの仕様）、`tools/make_test_vmd.py`、`tools/make_test_pmx_zip.py`、`tests/studio-ui.test.cjs`・`tests/legacy-ui-layout.test.cjs` をハーネスへ移す。通し確認の土台（§2.9）：`tests/studio-p2-e2e-main.test.cjs`（S1〜S8 がすべて `skip` で理由付きの状態）と `tools/record_e2e_main.mjs` | 00a-1（`legacy-ui-layout` の移行は `5865209` の後） | M | Sonnet | node 全件が `run-guarded.cjs` の下で合格し、実データのハッシュが一致。three が無い環境で 3D のテストが skip になり、理由が出る。 |
+| **P2-WP-00b** | 不具合の修正（§1.15）：B-1（`server.py:316〜320` の削除）、B-2（`index.html` の `externalProjectApply` に1文）、B-3（`read_project` のエラー分岐・`CameraProjectInvalid`・退避・`bad(...,code)`・`send_camera_invalid`・`read_bundle(strict)`・統合バンドルの GET（try と 500 を含む）と POST の書く前の読込・`GET/POST /api/camera/project`・`POST /api/camera/sequence/edit` の 422、`camera.js:226` の読込エラーの文言の1か所）、2b（`POST /api/camera/project/reset` の前倒し。3-M2）。テストは `tests/test_project_envelope.py`、`tests/test_bundle_camera_invalid.py`（reset のテストを含む）、`tests/legacy-project-save.test.cjs`（旧画面のテストはこの1ファイルにまとめる。3-m2）。`test_legacy_project_client_revision.py` の該当する検査を置き換え、`test_bundle_snapshot_consistency.py:18` のソース文字列の検査を振る舞いのテストに置き換える（3-M1、§1.14）。**コミットの分け方（3-サブコミット）**：①B-1・B-2（小さい修正）、②B-3 と 2b（`read_project`・422・reset）。**②のコミットだけ Opus でレビューする**（①は Sonnet の自己確認でよい） | 00a-1, 00a-2 | M | Sonnet で実装 → **Opus でレビュー**（B-3 のコミット。保存経路の変更） | 新しいテストが合格。既存の `test_bai_camera.py`・`test_project_state_bundle.py`・`test_bundle_revision.py`・**`test_bundle_snapshot_consistency.py`**・`test_camera_focus_endpoint.py`・`test_camera_sequence_ui.py` が合格（旧 `read()` の互換、373行の非厳格）。実 `data/` を使うテストは無い。Phase E 台帳の G-06 の行に「一部（エラー分岐、統合バンドルとカメラの GET/POST・sequence/edit）P2-WP-00b で実施」を、`planned_in` の reset の行（WP-02a → P2-WP-00b）の `status` を `done` にして記録。 |
+| **P2-WP-00c** | 新UIの土台：`api.js`・`store.js`・`bus.js`・`state-box.js`・`legacy.js`・`features/index.js`・`legacy-globals.d.ts`・`studio/types/legacy/*.d.ts`・`tsconfig.json` の `paths`／`include`・`features.css`。`app.js` の `feature` 部品・後始末（毎回の render）・`data-act="real"`・`navigate` のクエリ。`studio/index.html` の importmap・`#keepalive`。`screens.js` の `evidence`／`shell`・`PH.P2` の文言。`tests/test_screen_status_honesty.mjs`、`tools/run_evidence_tests.mjs`、`gen_screen_matrix.mjs` の更新、`STUDIO_DESIGN_SYSTEM_JA.md` の契約の文言、`docs/roadmap/P2_PORT_STATUS.json` の新設。`*.fork.js` の規則（§1.8）。**未接続の区画の薄い表示**（OWNER-3、§1.13）。**導線点検 §5 の項目1〜5（表示の修正だけ。機能は増やさない）**：①◇ ダイアログ（`showUnimplemented`）に「今できること」の1行と移動先のボタン（旧画面で行う手順へのリンク、または P2 のどの段階で入るか）を必ず付ける、②旧画面へ移るリンク（素材登録など。08・12・06・23）を押したら確認「新UIから離れます。戻るには左上の『新UI』リンクを使ってください」を出す（［移動する］［キャンセル］）、③SCR-06 の `ステージを読み込む` の予定を「P2 ④」に直す（`screens.js:238` の `un(...)` の phase を `PH.P2` に、説明を「ステージの配置は P2 ④（WP-04）で使えるようになります。大型ステージの分割読込は Phase G（LYRIC-009）です。」に、ids を `['NF-014', 'LYRIC-009']` にする）、④模擬の再生・位置スライダー・シーンツリーのある画面（02・05・06・13）の上部に「サンプル再生（3D未接続）」を常に出す、⑤ホームの仮のプロジェクトのカードに「サンプル」のリボンを付け、その下に「今のサーバーの制作状態は1つです。［プロジェクト保存・復元（18）］で確認できます」の1行を出す | 00a-2 | M | Sonnet で実装 → **Opus でレビュー**（全画面の土台） | 型検査が合格。`studio-ui.test.cjs` が全件合格（見た目・動作の後戻りなし。後始末のテストを含む）。`api.js` の単体テスト（`tests/studio-p2-api.test.mjs`：`fetch` を差し替えて、状態コードと `error_code` の割当、`limitLabel` を確かめる）。honesty テストが合格。`unconnected sections are dimmed and labelled` が合格。導線点検の項目1〜5 のテスト（`tests/studio-ui.test.cjs` に `unimplemented dialog shows next action`・`leaving to legacy page asks first`・`stage load is scheduled for P2`・`mock playback is labelled as sample`・`sample project cards are marked` を足す）が合格。 |
+| **P2-WP-01** | ② プロジェクト（§2.2） | 00b, 00c | M | Sonnet で実装 → **Opus でレビュー**（上書き・競合・自動保存・世代番号） | §2.2(f) の全項目、§2.2(g) の全テスト（`tests/studio-p2-project-logic.test.mjs` の偽の時計のテストを含む）が合格、マトリクスを再生成。`P2_PORT_STATUS.json` の WP-01 の `notes` に「Q1（新規作成）：所有者回答待ち。既定は ◇ のまま」を書く（3-m8。回答が来たら、その内容と日付に書き換える） |
 | **P2-WP-02** | ③ 素材一覧（§2.3 の一覧・分類・詳細・キューの表示枠） | 00c | S〜M | Sonnet | §2.3(f) の 1・5、`studio-p2-import-rules`（分類の部分）と `studio-p2-assets` の一覧の3件が合格 |
 | **P2-WP-03** | ③ 取り込み（§2.3 の取り込み規則・複数選択・ダイアログ・衝突の確認・送信）とホームの「最近の素材」 | 02 | M | Sonnet で実装 → **Opus でレビュー**（置き換え・上書き・再分類の確認） | §2.3(f) の 2〜4・6、取り込みのテストが全件合格 |
-| **P2-WP-04** | ④ 3D 表示（§2.4 の ④-1〜④-8） | 03（素材の登録が必要）、O-④-1〜3 の決定 | L | O-④ を Opus で決める → Sonnet で実装 | §2.4(f)、viewport・照合のテストが合格、GPU 未検証を台帳に記録 |
+| **P2-WP-04** | ④ 3D 表示（§2.4 の ④-1〜④-8）と**ステージ配置の基本（④-11、OWNER-2）**、§1.15 B-4（`stage` の保存先） | 03（素材の登録が必要）、O-④-1〜3・6・7 の決定 | L | O-④ を Opus で決める → Sonnet で実装 → B-4 は **Opus でレビュー**（保存形式の変更） | §2.4(f)、viewport・照合のテスト、`test_project_state_bundle.py` の `stage` の追加分が合格。GPU と単位の換算（O-④-6）の未検証を台帳に記録 |
 | **P2-WP-04b** | ④ リターゲット検証の移植（④-9・④-10） | 04、O-④-5 | M | O-④-5 を Opus で決める → Sonnet | 各 API の応答の表示のテスト（隔離データ、合成 GLB） |
 | **P2-WP-05** | ⑤ モーションの適用・タイムライン（§2.5） | 04、§2.5 を詳しくした版 | L〜XL | **Opus で §2.5 を詳しくする**（批評1回）→ Sonnet で実装 → Opus でレビュー | 詳しくした版の受け入れ条件 |
 | **P2-WP-06a** | ⑥ mount 化（§2.6 の 1。`mount(root,{host})`・`MountHandle`）。**2コミット**（`camera.js`、`camera_3d.js`） | 01、00a-2 | M | Sonnet で実装 → **Opus でレビュー**（旧画面の変更） | §2.6 の 1 の完了条件（各コミットで） |
 | **P2-WP-06b** | ⑥ ホスト・配置表・包含と重複IDのテスト・常駐 | 06a、04、05（workspace の clip・frame）、O-⑥-4 の配置表 | L | **Opus で配置表を決める** → Sonnet で実装 | `studio-p2-camera` のホストの部分が合格 |
-| **P2-WP-06c** | ⑥ ②の保存との統合：`camera_bundle_core.js`（共有モジュール、`camera_project_bundle_ui.js` からの抽出、`camera.html` に1行）、workspace の所有（O-⑥-5）、`dirty.camera`（O-⑥-1） | 06b | M | Sonnet で実装 → **Opus でレビュー** | 統合保存・カメラ単独の保存・`test_camera_bundle_core.cjs`・直したソース文字列のテストが合格 |
+| **P2-WP-06c** | ⑥ ②の保存との統合：`camera_bundle_core.js`（共有モジュール、`camera_project_bundle_ui.js` からの抽出、`camera.html` に1行）、workspace の所有（O-⑥-5）、`dirty.camera`（O-⑥-1）、`camera.js` の `bai-camera-saved`（3-M5） | 06b | M | Sonnet で実装 → **Opus でレビュー** | 統合保存・カメラ単独の保存の後の統合保存（200）・`test_camera_bundle_core.cjs`（`vm` で読む）・`test_camera_html_wiring_recovery.py`・直したソース文字列のテストが合格 |
 | **P2-WP-06d** | ⑥ Phase E §7 の読み替え表 | 06c | S（文書） | **Opus** | 読み替え表のレビュー完了 |
 | **P2-WP-07** | ⑦ 書き出し（§2.7） | 05 | M | O-⑦ を Opus で決める → Sonnet | §2.7 の受け入れ条件（Blender の実行は未検証として記録） |
 | **P2-WP-08** | IK・AI（§2.8） | 07、Q2 | M | Opus で詳しくする → Sonnet | 詳しくした版の受け入れ条件 |
@@ -1150,6 +1268,8 @@ WP-06 全体の規模は **XL**（v1 では L としていたが、旧画面の�
 - `node tools/gen_screen_matrix.mjs` の再生成の差分をコミットに含める。
 - `P2_PORT_STATUS.json` の該当する WP を更新する（`state`・`commits`・`tests`・`unverified`）。
 - 作業報告にモデルの区分を1行で書く（AGENTS.md）。
+- **通し確認（§2.9、OWNER-1）**：`tests/studio-p2-e2e-main.test.cjs` を最初から通して実行し、`node tools/record_e2e_main.mjs` で `P2_PORT_STATUS.json` の `e2e_main` を更新する。`furthest_step` が前の値より後退していないこと。その WP で有効になる手順（§2.9(a) の表）が `pass` であること。
+- **所有者確認手順（§3.1、OWNER-5）**：その WP の手順を作業報告の最後にそのまま載せる。所有者の結果（できた／止まった場所）は `P2_PORT_STATUS.json` の `owner_check` に書く。所有者の確認を待つ間も次の WP へ進んでよい（止まった場所の報告が来たら、その WP の不具合として直す）。
 
 `docs/roadmap/P2_PORT_STATUS.json` の形（WP-00c で作る）：
 ```json
@@ -1159,11 +1279,33 @@ WP-06 全体の規模は **XL**（v1 では L としていたが、旧画面の�
   "baseline_commit": "5865209",
   "precedes": "Phase E（docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json の p2_port を参照）",
   "work_packages": [
-    {"id": "P2-WP-00a-1", "step": "基盤", "state": "not_started", "commits": [], "tests": [], "unverified": [], "notes": ""}
-  ]
+    {"id": "P2-WP-00a-1", "step": "基盤", "state": "not_started", "commits": [], "tests": [], "unverified": [], "notes": "", "owner_check": null}
+  ],
+  "e2e_main": {"furthest_step": null, "steps": [], "commit": null, "checked_at": null}
 }
 ```
-`state` は `not_started`／`in_progress`／`implemented`（コードがあり、テストは一部）／`verified`（本書のテストが全件合格）。`verified` でも、GPU・実データは `unverified` に残す。
+`state` は `not_started`／`in_progress`／`implemented`（コードがあり、テストは一部）／`verified`（本書のテストが全件合格）。`verified` でも、GPU・実データは `unverified` に残す。`owner_check` は `null` か `{"date":"…","result":"ok|stuck","note":"止まった場所"}`。
+
+### 3.1 所有者確認手順（OWNER-5。各 WP の完了時に、5手順以内）
+
+所有者は UI を自分で判定しない。確かめてもらうのは「書いたとおりに操作して、書いたとおりになるか」だけ。前提はどれも同じ：`python server.py` を起動し、ブラウザーで `http://127.0.0.1:8765/workspace/01` を開く。うまくいかなかったら、**止まった手順の番号と、画面に出た文言**だけを報告してもらう。
+
+| WP | これを試してください |
+|---|---|
+| 00a-1・00a-2・00b | ①旧制作画面（`/`）でコンビネーションに1つ足す。②旧画面を再読込して、足したものが残っている。③旧 `camera.html` で［保存］を押し、「保存しました」と出る。（00b の修正で旧画面が今までどおり動くことの確認。新UIの変化は無い） |
+| 00c | ①左のメニューで「シーン・ステージ」を開く。②まだ使えない区画が薄く表示され、「未接続（まだ使えません）」と書かれている。③薄い区画のボタンを押すと、「今できること」と移動先のボタンがある説明が出る。④「素材を取り込む」を押すと、「新UIから離れます」の確認が出る。⑤ホームの仮のカードに「サンプル」の印がある。 |
+| 01 | ①「プロジェクト保存・復元（18）」を開き、今のプロジェクトの名前とカメラの件数が出る。②旧制作画面でコンビネーションに1つ足す。③新UIに戻ると、数秒で件数が変わる。④新UIで［保存］を押し、「保存しました」と出る。⑤ブラウザーを閉じて開き直しても、同じ内容が出る。 |
+| 02 | ①「素材管理（08）」を開く。②旧画面で登録した素材が一覧に出る。③検索欄に素材の名前の一部を入れると絞り込まれる。④素材を1つ選ぶと、右に形式と大きさが出る。 |
+| 03 | ①08 の「素材を取り込む」で、手元の GLB か VRM を1つ選ぶ。②形式が自動で表示され、［取り込む］を押す。③一覧に増える。④サーバーを再起動して 08 を開いても残っている。 |
+| 04 | ①「キャラクター管理（12）」で取り込んだモデルを選ぶ。②中央にモデルが表示され、マウスで回せる。③［このモデルを制作に使う］を押し、［保存］する。④「シーン・ステージ（06）」でステージにするモデルを選び、位置・回転・大きさのスライダーを動かすと、表示が変わる。⑤［保存］して再読込しても、同じ位置にある。 |
+| 04b | ①「モーションVMD編集（13）」の右の「リターゲット」タブを開く。②素材を選び、［ボーン対応の提案］を押す。③表が出る（エラーが出ない）。 |
+| 05 | ①13 で PMX と VMD を選ぶ。②［再生］でモデルが踊る。③口や表情が VMD どおりに動く（VMD に表情が入っているとき）。④［停止］で止まる。⑤タイムラインのクリップの長さを変えて再読込しても残っている。 |
+| 06a | ①旧 `camera.html` を開く。②キーを1つ足し、［保存］する。③再読込してもキーが残っている。（旧画面が今までどおり動くことの確認） |
+| 06b・06c | ①「カメラ（02）」を開く。②キーを2つ足す。③他の画面へ移ってから 02 に戻っても、キーが残っている。④［保存］して再読込しても残っている。⑤旧 `camera.html` を開くと、同じキーが見える。 |
+| 06d | 文書だけなので、所有者の確認は無い。 |
+| 07 | ①「外部連携（23）」の「エクスポート」で、コンビネーションの VMD 変換を押す。②「実行中（経過 N 秒）」か、Blender が無い旨の文言が出る（どちらでも正しい）。 |
+| 08 | WP-08 を詳しくするときに決める。 |
+| 99 | ①ホームから「制作の流れ」の順に画面を開き、薄い区画の数が P2 の前より減っている。②作業報告の「今どこまで通しで動くか」（§2.9 の `furthest_step`）を読む。 |
 
 ---
 
@@ -1198,7 +1340,9 @@ function expectErrors(page, patterns) {}
 | `studio-p2-motion` | 8793 | `P2_MOTION_PORT` |
 | `studio-p2-export` | 8792 | `P2_EXPORT_PORT` |
 | Phase E `camera-ui`（Phase E WP-03） | **8791**（Phase E §2.9 の既定 8798 を変更。Phase E §2.9 に注記した） | `CAMERA_UI_TEST_PORT` |
-| `legacy-project-save`・`legacy-camera-invalid` | 8790（同じファイルにまとめる） | `P2_LEGACY_PORT` |
+| `legacy-project-save`（旧画面のバグ修正のテストは、この1ファイルにまとめる。3-m2） | 8790 | `P2_LEGACY_PORT` |
+| `studio-p2-e2e-main`（§2.9） | 8787 | `P2_E2E_PORT` |
+| WP-06a の前後比較（手で実行。前の版） | 8786 | `P2_BEFORE_PORT` |
 
 - **エラーの監視**：`pageerror` とコンソールの `error` を集め、各テストの最後に、`expectErrors` で許可したもの以外が0件であることを確かめる（既存の `studio-ui.test.cjs:36〜37` と同じ考え方）。意図して 404/400/409/422 を起こすテストは、その URL と文言の正規表現を許可する。
 
@@ -1207,7 +1351,7 @@ function expectErrors(page, patterns) {}
 | ファイル | 生成 | 中身 |
 |---|---|---|
 | `synthetic_test_model.glb` ＋ `.expected.json` | `tools/make_test_glb.py`（標準ライブラリだけ） | Phase E §2.9 の合成モデル（直方体・ボーン10本・アニメ30F）。 |
-| `minimal.vmd` | `tools/make_test_vmd.py` | `Vocaloid Motion Data 0002` のヘッダー＋モデル名20バイト＋ボーンキー1件（`センター` の 0F）＋他の件数は0。 |
+| `minimal.vmd` | `tools/make_test_vmd.py` | `Vocaloid Motion Data 0002` のヘッダー＋モデル名20バイト＋ボーンキー1件（`センター` の 0F）＋モーフのキー2件（`あ` の 0F で 0、30F で 1。OWNER-4）＋他の件数は0。 |
 | `minimal_pmx.zip` | `tools/make_test_pmx_zip.py` | `model/test.pmx`（O-④-2 の最小 PMX。作れるまでは `PMX ` で始まるダミーで、③の登録のテストだけに使う）＋ `model/tex/a.png`（1×1）。 |
 | `bad.fbx` | テストの中で生成 | ランダムな256バイト。 |
 | 壊れたカメラ | テストの中で生成 | `{"broken":`（B-3）。 |
@@ -1216,9 +1360,10 @@ function expectErrors(page, patterns) {}
 
 ```
 "test:p2": "node tests/run-guarded.cjs \"tests/studio-p2-*.test.cjs\" \"tests/studio-p2-*.test.mjs\" tests/legacy-project-save.test.cjs tests/test_screen_status_honesty.mjs tests/test_camera_bundle_core.cjs",
-"test:p2-py": "python -m pytest -q tests/test_project_envelope.py tests/test_bundle_camera_invalid.py tests/test_data_isolation.py"
+"test:p2-py": "python -m pytest -q tests/test_project_envelope.py tests/test_bundle_camera_invalid.py tests/test_data_isolation.py",
+"test:p2-e2e": "node tests/run-guarded.cjs tests/studio-p2-e2e-main.test.cjs && node tools/record_e2e_main.mjs"
 ```
-`npm run test:studio` は今のまま（ハーネスへ移した後も同じ名前）。
+`npm run test:studio` は今のまま（ハーネスへ移した後も同じ名前）。`tests/studio-p2-project-logic.test.mjs` は `tests/studio-p2-*.test.mjs` のグロブに含まれる。`studio-p2-e2e-main` も `test:p2` のグロブに含まれるが、台帳への記録は `test:p2-e2e` で行う。
 
 ---
 
@@ -1236,7 +1381,9 @@ function expectErrors(page, patterns) {}
 | K6 | GLB/VRM の衝突の確認で、大きいファイルのハッシュを計算すると、メモリと時間がかかる | ファイル全体の `ArrayBuffer` を読むのは送信でも同じなので、増えるのは計算の時間だけ。行の状態を「確認中」にする。400MB を超えるファイルは事前に拒否する。 |
 | K7 | 素材の「上書き」系の API は、確認なしで上書き・削除・再分類する | 新UIで事前に確認する（§2.3）。サーバーは変えない（R1）。 |
 | K8 | 共有した `camera.js`・`camera_3d.js` に Phase E が足す UI のコードが、`camera.html` で例外を出したり、新機能を見せたりする | 新機能は `host==='studio'` のときだけ有効にし、要素が無い場合も必ず守る（§2.6）。Phase E の各 WP の完了ゲートに「旧 `camera.html` で pageerror 0件」を足す（Phase E §7 に注記）。 |
-| K9 | 自動保存（450ms）と統合保存、外部の同期が重なる | 保存は同時に1つ（`saving`）。自動保存の待ちは統合保存に含める。外部の変更を検知したら自動保存の待ちを止める。§2.2(g) の競合のテストで確かめる。 |
+| K9 | 自動保存（450ms）と統合保存、外部の同期が重なる | 保存は同時に1つ（`saving`）。自動保存の待ちは統合保存に含める。外部の変更を検知したら自動保存の待ちを止める。世代番号 `saveSeq` を await のたびに確かめ、自動保存は `tick()` の終わりを待つ（3-M3）。§2.2(g) の競合のテストと偽の時計のテストで確かめる。 |
+| K10 | ［初期状態から始める…］（カメラ保存データの初期化、3-M2）で、壊れたファイルの中のカメラの状態が新UIから見えなくなる | 初期化の前に必ず確認ダイアログを出し、壊れたファイルは退避コピーとして残す（消さない。退避に失敗したら初期化しない：§1.15 B-3 の 2b）。422 の文言に退避名と手で直す手順を入れる。退避ファイルのダウンロードと中身の確認は Phase E WP-02a。 |
+| K11 | ステージの保存（`workspace.stage`、§1.15 B-4）を知らない旧 `camera.html` の統合保存が、ステージ配置を消す | サーバーは、本文に `stage` のキーが無ければ既存の値を残す（B-4）。§2.4(g) の `stage is kept when legacy camera bundle save omits it` で確かめる。 |
 
 ### 5.2 未検証事項（実装後もこのままなら台帳の `unverified` に書く）
 
@@ -1247,6 +1394,8 @@ function expectErrors(page, patterns) {}
 - 外部の AI・MCP クライアントからの同時操作（②の外部同期は HTTP で模擬するだけ）。
 - 1180px・820px・390px 以外の画面幅。
 - 旧制作画面の新しい配置（`5865209`）と新UIを同時に開いたときの動作（K2 の範囲で、テストは保存の往復だけ）。
+- VMD の表情・口パクのモーフの再生（⑤-2）。最小 PMX（O-④-2）が作れなければ、コードの経路があるだけで未検証。
+- ステージの単位の換算（O-④-6）。
 
 ### 5.3 判断として決めたこと（確認は不要。異論があれば指摘してください）
 
@@ -1256,12 +1405,25 @@ function expectErrors(page, patterns) {}
 - 「最近の素材」には、このページで取り込んだものだけを出す（API に登録日時が無いので）。
 - 取り込みは複数のファイルを選べる。一括のタグ付け・変換は作らない（NF-004）。
 - workspace は1つの所有者の規則に従ってマージする（§2.2(d)-9）。
+- 再生位置（`frame`）だけの変化では未保存にしない（3-M6）。
+- 同期の失敗では画面を止めず、`syncError` に出すだけにする（3-M4）。
 
 ### 5.4 所有者への確認（既定のまま進める）
 
 - **【最初に確認してほしいこと】Q1 新規プロジェクトの作成**：今のサーバーは制作状態を1つだけ持ち（`data/project_state.json` と `data/camera_project.json`）、旧画面にも「新規作成」は無い。新規作成を「今の制作状態を空に戻す」として作ると、取り消しのできない上書きになる（バックアップの機能が無い）。**既定：P2 では新規作成を ◇ 未実装のまま残し、保存・読込・履歴だけを移植する。** 「空に戻す（確認の入力つき）」を P2 に入れる場合は指示してください（WP-01 への小さな追加で入ります）。
 - **Q2 旧画面の機能の中に、削除してよいものはあるか**：v2 では、旧画面の機能はすべて移植する予定にした（④-9・④-10、⑤-10〜⑤-14、⑧-1・⑧-2）。この中に、新UIへ移さずに旧画面のリンクだけで残してよいもの（または不要なもの）があれば指示してください。**既定：すべて残して移植する。**
 - **Q3 ⑥の後の旧 `camera.html`**：§2.6(h) のとおり。**既定：編集できるまま残し、案内を1行出す（案内は承認の後）。**
+- **Q4 主要シナリオのうち、既存のコードが無いもの**（§2.9(e)）：「BGM（歌の音声）の配置」と「音声付きの 1080p 動画の書き出し」は、旧画面にも API にもコードが無い。P2 は既存機能の移植なので入れられない。**既定：通し確認では「既存機能なし」と記録するだけにし、BGM は未承認（LYRIC-006）、動画の書き出しは Phase F（RENDER-001・006）のまま。** 前倒しする場合は、計画への追加として指示してください。
+- **導線点検（`docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md` §5）の項目6〜14【要所有者OK】**：表示の修正だが、画面の構成・メニュー・文言を変えるので、所有者の承認があるまで入れない（項目1〜5 は WP-00c に入れた）。
+  - 6：共通の上部バーに「保存・復元」の入口と未保存の表示の枠を置く（実際の保存は WP-01）。
+  - 7：左のメニューを作業の流れの順に並べ替え、使う頻度の低いグループを折りたたむ。
+  - 8：重複する画面（04/16、05/13、07/17）のうち初期構想の画面を「統合先へ」と明示し、メニューの初期表示から外す（画面は消さない）。
+  - 9：ヘルプ（25）のウェルカムを「制作の流れ（①〜⑦）」の表にし、文言を利用者向けにする。
+  - 10：右パネル「実装状態」を既定で閉じる（開発者表示に隠す）。
+  - 11：ホームの同じ機能のボタン（新規作成が4〜6個）を2か所に整理する。
+  - 12：1280px の幅でホームの文が重なる・02 の右タブが見切れるのを直す。
+  - 13：18 の内部値（schema・revision）を要約して表示し、詳細は折りたたむ（WP-01 の実データの表示と一緒に）。
+  - 14：取り込みキューの「表示例」を、実際の取り込み（WP-03）まで「例」と明記するか隠す。
 
 ---
 
@@ -1295,10 +1457,10 @@ function expectErrors(page, patterns) {}
 
 | ファイル | P2 で変えるか | WP | 内容 |
 |---|---|---|---|
-| `server.py` | 変える（バグ修正） | 00b、06c | B-1 の重複分岐の削除。B-3 の `bad(code)`・`send_camera_invalid`、統合バンドルとカメラの GET/POST・sequence/edit の 422（00b）。配信許可リストに `camera_bundle_core.js`（06c） |
-| `bai_camera.py`、`project_state_bundle.py` | 変える（バグ修正、Phase E §2.7 の一部の前倒し） | 00b | B-3 |
+| `server.py` | 変える（バグ修正、承認済みの前倒し） | 00b、06c | B-1 の重複分岐の削除と try。B-3 の `bad(code)`・`send_camera_invalid`、統合バンドルとカメラの GET/POST・sequence/edit の 422（00b）。`POST /api/camera/project/reset`（Phase E §2.7 の仕様どおりの前倒し、2b、00b）。配信許可リストに `camera_bundle_core.js`（06c） |
+| `bai_camera.py`、`project_state_bundle.py` | 変える（バグ修正、Phase E §2.7 の一部の前倒し、OWNER-2） | 00b、04 | B-3（`read_project`・`CameraProjectInvalid`・reset）。`project_state_bundle.py` の `validate_workspace`・`save_bundle` に任意のキー `stage`（B-4、04） |
 | `index.html` | 変える（バグ修正の1文） | 00b | B-2 |
-| `camera.js` | 変える（バグ修正の1か所、動作を変えない mount 化） | 00b、06a | 226行の読込エラーの文言（B-3）、§2.6 の 1 |
+| `camera.js` | 変える（バグ修正の1か所、動作を変えない mount 化、無害な通知イベント） | 00b、06a、06c | 226行の読込エラーの文言（B-3）、§2.6 の 1、保存成功の後の `bai-camera-saved` の発火1文（3-M5。旧画面では誰も受けない） |
 | `camera_3d.js` | 変える（動作を変えない mount 化） | 06a | §2.6 の 1 |
 | `camera_project_bundle_ui.js`、`camera.html` | 変える（動作を変えない共有モジュールへの抽出、`<script>` 1行） | 06c | §2.6 の 3 |
 | `camera_bundle_core.js` | 新規（共有、DOM なし） | 06c | §2.6 の 3 |
