@@ -124,6 +124,15 @@ test('conflictOf: VMD with the same name overwrites', () => {
   assert.equal(conflictOf({ name: 'other.vmd', route: 'vmd', kind: '' }, ITEMS), null);
 });
 
+test('conflictOf: VMD that differs only in letter case overwrites on Windows (Opus review)', () => {
+  // VMD は名前のままファイルに保存される。Windows（大文字・小文字を区別しない）では Dance.vmd が dance.vmd を上書きする。
+  const c = conflictOf({ name: 'Dance.VMD', route: 'vmd', kind: '' }, ITEMS);
+  assert.equal(c.kind, 'overwrite');
+  assert.match(c.message, /大文字・小文字だけが違う VMD『dance\.vmd』があります。Windows では同じファイルとして上書きされ、元の内容は戻せません。/);
+  // PMX スロットの同じ名前は VMD とは別のフォルダー
+  assert.equal(conflictOf({ name: 'test.pmx.vmd', route: 'vmd', kind: '' }, ITEMS), null);
+});
+
 test('conflictOf: FBX same name/kind overwrites; modelA/B with another name replaces the old model', () => {
   const same = conflictOf({ name: 'a.fbx', route: 'fbx', kind: 'motions' }, ITEMS, { fbxId: 'd1a20d7b74e42e66e200e389' });
   assert.equal(same.kind, 'overwrite');
@@ -175,6 +184,7 @@ test('batchErrors: the five kinds of contradictions within one import', () => {
   assert.deepEqual(batchErrors([E('a.zip', 'pmxZip', 'A'), E('b.zip', 'pmxZip', 'B')]), []);
   assert.equal(batchErrors([E('x.vmd', 'vmd', ''), E('x.vmd', 'vmd', '')]).length, 2);
   assert.deepEqual(batchErrors([E('x.vmd', 'vmd', ''), E('y.vmd', 'vmd', '')]), []);
+  assert.equal(batchErrors([E('x.vmd', 'vmd', ''), E('X.VMD', 'vmd', '')]).length, 2, 'letter case only: the same file on Windows');
   assert.equal(batchErrors([E('w.fbx', 'fbx', 'motions'), E('w.fbx', 'fbx', 'motions')]).length, 2);
   assert.deepEqual(batchErrors([E('w.fbx', 'fbx', 'motions'), E('v.fbx', 'fbx', 'motions')]), []);
   const rows = batchErrorRows([E('a.fbx', 'fbx', 'modelA'), E('c.vmd', 'vmd', ''), E('b.fbx', 'fbx', 'modelA')]);

@@ -12,9 +12,11 @@ import { loadAssets, selectAsset, hasAsset } from './assets.js';
 /** @typedef {import('./import-rules.js').ImportEntry} ImportEntry */
 /** @typedef {import('./import-rules.js').Classified} Classified */
 /** @typedef {'waiting'|'checking'|'sending'|'processing'|'done'|'failed'|'aborted'|'skipped'} RowStatus */
+/** @typedef {{contentSha20?: string, fbxId?: string}} Hashes */
 /**
+ * ack：確認ダイアログで利用者が了承した衝突の文言（了承していなければ null）。送る直前に衝突を求め直し、了承した文言と違えば送らない。
  * @typedef {{id: number, batch: number, batchSize: number, file: File, name: string, route: import('./import-rules.js').Route, kind: string, label: string, size: number,
- *   status: RowStatus, progress: number|null, error: string, note: string, warnings: string[], assetId: string|null}} ImportRow
+ *   status: RowStatus, progress: number|null, error: string, note: string, warnings: string[], assetId: string|null, ack: string|null, hashes: Hashes}} ImportRow
  */
 
 /** 状態の表示（設計 §2.3(d) のインポートキュー）。 @param {ImportRow} r */
@@ -91,9 +93,24 @@ async function precheck(r) {
   return null;
 }
 
+/**
+ * 送る直前に、最新の一覧で衝突を求め直す（R8）。確認の後に状況が変わった場合（先に送った行・別の画面での登録・
+ * 同じ回の中の同じ中身の GLB/VRM など）に、了承していない上書き・再分類を黙って行わないため。
+ * @param {ImportRow} r @returns {Promise<string|null>} 送らない理由
+ */
+async function recheckConflict(r) {
+  await loadAssets();
+  if (assets.get().status !== 'ready') return '素材一覧を取得できないため、上書きの確認ができません。';
+  const c = conflictOf({ name: r.name, route: r.route, kind: r.kind }, assets.get().items, r.hashes);
+  if (c && c.message !== r.ack) return `確認の後に登録済みの素材が変わったため、送りませんでした：${c.message}（［もう一度］で確認できます）`;
+  return null;
+}
+
 /** @param {ImportRow} r */
 async function processRow(r) {
   patchRow(r.id, { status: 'checking', progress: null, error: '', note: '' });
+  const changed = await recheckConflict(r);
+  if (changed) { patchRow(r.id, { status: 'failed', error: changed }); return; }
   const bad = await precheck(r);
   if (bad) { patchRow(r.id, { status: 'failed', error: bad }); return; }
   patchRow(r.id, { status: 'sending', progress: 0 });
@@ -152,13 +169,13 @@ function summarizeIfDone(batch) {
 
 /**
  * 行をキューに積んで処理を始める。
- * @param {{file: File, entry: ImportEntry, label: string, warnings: string[], skip?: boolean}[]} items
+ * @param {{file: File, entry: ImportEntry, label: string, warnings: string[], ack: string|null, hashes: Hashes, skip?: boolean}[]} items
  */
 function enqueue(items) {
   const batch = ++batchSeq;
   const rows = items.map((it) => /** @type {ImportRow} */ ({
     id: ++rowSeq, batch, batchSize: items.filter((x) => !x.skip).length || items.length, file: it.file, name: it.entry.name, route: it.entry.route, kind: it.entry.kind, label: it.label,
-    size: it.file.size, status: it.skip ? 'skipped' : 'waiting', progress: null, error: '', note: '', warnings: it.warnings, assetId: null,
+    size: it.file.size, status: it.skip ? 'skipped' : 'waiting', progress: null, error: '', note: '', warnings: it.warnings, assetId: null, ack: it.ack, hashes: it.hashes,
   }));
   imports.set({ rows: [...imports.get().rows, ...rows] }, 'enqueue');
   void pump();
@@ -186,17 +203,20 @@ async function ensureItems() {
 
 /**
  * entries の衝突を求める（ファイルの解析〔FBXLoader〕より前。GLB/VRM は内容のハッシュを計算する）。
- * @param {{file: File, entry: ImportEntry}[]} list @returns {Promise<(ReturnType<typeof conflictOf>)[]>}
+ * 1件ずつ順番に計算する（400MB 級の GLB/VRM を複数選んだとき、全部を同時にメモリへ読まないため）。
+ * @param {{file: File, entry: ImportEntry}[]} list @returns {Promise<{conflict: ReturnType<typeof conflictOf>, hashes: Hashes}[]>}
  */
 async function computeConflicts(list) {
   const items = assets.get().items;
-  return Promise.all(list.map(async ({ file, entry }) => {
-    /** @type {{contentSha20?: string, fbxId?: string}} */
+  const out = [];
+  for (const { file, entry } of list) {
+    /** @type {Hashes} */
     const hashes = {};
     if (entry.route === 'integrated') hashes.contentSha20 = (await sha256Hex(await file.arrayBuffer())).slice(0, 20);
     if (entry.route === 'fbx') hashes.fbxId = await fbxIdFor(entry.kind, entry.name);
-    return conflictOf(entry, items, hashes);
-  }));
+    out.push({ conflict: conflictOf(entry, items, hashes), hashes });
+  }
+  return out;
 }
 
 /**
@@ -234,12 +254,12 @@ export async function retryRow(id) {
   try {
     if (!(await ensureItems())) { patchRow(id, { status: 'failed', error: '素材一覧を取得できないため、上書きの確認ができません。' }); return; }
     const entry = { name: r.name, route: r.route, kind: r.kind };
-    const [c] = await computeConflicts([{ file: r.file, entry }]);
+    const [{ conflict: c, hashes }] = await computeConflicts([{ file: r.file, entry }]);
     if (c) {
       const v = await confirmConflicts([{ name: r.name, message: c.message }], false);
       if (v !== 'all') { patchRow(id, { status: 'failed', error: 'やり直しを取りやめました' }); return; }
     }
-    patchRow(id, { status: 'waiting', batch: ++batchSeq, batchSize: 1 });
+    patchRow(id, { status: 'waiting', batch: ++batchSeq, batchSize: 1, ack: c ? c.message : null, hashes });
     void pump();
   } catch (e) { patchRow(id, { status: 'failed', error: e instanceof Error ? e.message : String(e) }); }
 }
@@ -309,7 +329,7 @@ export function openImportDialog() {
     try {
       if (!(await ensureItems())) { message = '素材一覧を取得できないため、上書きの確認ができません。再読込してからやり直してください。'; busy = false; render(); return; }
       const conflicts = await computeConflicts(ok);
-      const hit = ok.map((e, i) => ({ e, c: conflicts[i] })).filter((x) => x.c);
+      const hit = ok.map((e, i) => ({ e, c: conflicts[i].conflict })).filter((x) => x.c);
       /** @type {Set<File>} */
       const skip = new Set();
       if (hit.length) {
@@ -319,9 +339,10 @@ export function openImportDialog() {
       }
       const toSend = ok.filter((e) => !skip.has(e.file));
       closeModal();
+      const extra = (/** @type {{file: File}} */ e) => { const i = ok.findIndex((x) => x.file === e.file); const c = conflicts[i].conflict; return { ack: c ? c.message : null, hashes: conflicts[i].hashes }; };
       enqueue([
-        ...toSend.map((e) => ({ file: e.file, entry: e.entry, label: e.cls.label, warnings: e.cls.warnings })),
-        ...ok.filter((e) => skip.has(e.file)).map((e) => ({ file: e.file, entry: e.entry, label: e.cls.label, warnings: e.cls.warnings, skip: true })),
+        ...toSend.map((e) => ({ file: e.file, entry: e.entry, label: e.cls.label, warnings: e.cls.warnings, ...extra(e) })),
+        ...ok.filter((e) => skip.has(e.file)).map((e) => ({ file: e.file, entry: e.entry, label: e.cls.label, warnings: e.cls.warnings, ...extra(e), skip: true })),
       ]);
     } catch (e) {
       busy = false; message = `確認に失敗しました：${e instanceof Error ? e.message : String(e)}`; render();
