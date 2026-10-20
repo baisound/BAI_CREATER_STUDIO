@@ -6,9 +6,10 @@
     "E": "Phase E カメラ（承認済み・進行中）",
     "F": "Phase F レンダリング（承認済み・Phase E の後）",
     "LIP": "リップシンク・表情モーフ（承認済み・Phase E の後、F の前。所有者決定 2026-10-20）。MMDエフェクトは F の後",
+    "FX": "MMDエフェクト（承認済み・Phase F とリップシンク／表情の後、Phase C の前）",
     "C": "Phase C マルチダンサー（承認済み）",
     "D": "Phase D 音楽同期・表情（承認済み）",
-    "G": "Phase G リリック・MMDエフェクト（承認済み）",
+    "G": "Phase G リリック・ステージ（承認済み）",
     "H": "Phase H 格闘・演出・ステージ（承認済み）",
     "P2": "P2 既存機能の新UI移植（Phase E より前・作業の流れ順。所有者決定 2026-10-20）",
     "P4": "P4 新規機能候補（未承認・承認まで実装しない）",
@@ -129,6 +130,11 @@
       "feature_ids": [
         "LYRIC-009",
         "LYRIC-010",
+        "DANCE-001",
+        "DANCE-002",
+        "DANCE-003",
+        "DANCE-006",
+        "DANCE-012",
         "NF-014"
       ],
       "existing_ui": [],
@@ -184,9 +190,12 @@
       "route": "/workspace/10",
       "classification_proposal": "candidate_late",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
+        "LIP-003",
         "LYRIC-006",
+        "RENDER-006",
         "NF-002"
       ],
       "existing_ui": [],
@@ -215,6 +224,7 @@
         "MOTION-019",
         "MOTION-021",
         "LIP-004",
+        "LIP-011",
         "NF-023"
       ],
       "existing_ui": [
@@ -237,7 +247,21 @@
         "MOTION-008",
         "MOTION-011",
         "DATA-003",
-        "REVIEW-001"
+        "REVIEW-001",
+        "LIP-005",
+        "LIP-006",
+        "LIP-007",
+        "LIP-008",
+        "LIP-009",
+        "LIP-010",
+        "DANCE-004",
+        "DANCE-005",
+        "DANCE-007",
+        "DANCE-008",
+        "DANCE-009",
+        "DANCE-010",
+        "DANCE-011",
+        "LYRIC-011"
       ],
       "existing_ui": [
         {
@@ -315,9 +339,12 @@
         "RENDER-001",
         "RENDER-002",
         "RENDER-003",
+        "RENDER-004",
         "RENDER-005",
         "RENDER-006",
         "RENDER-007",
+        "RENDER-008",
+        "RENDER-009",
         "RENDER-010",
         "NF-016",
         "NF-017",
@@ -477,6 +504,37 @@
         "UX-004",
         "NF-012",
         "NF-015"
+      ],
+      "existing_ui": [],
+      "live_endpoints": []
+    },
+    {
+      "id": "SCR-26",
+      "title": "MMDエフェクト",
+      "route": "/workspace/26",
+      "classification_proposal": "existing_or_partial_to_audit",
+      "feature_ids": [
+        "RENDER-011",
+        "RENDER-012",
+        "RENDER-013",
+        "RENDER-014",
+        "RENDER-015"
+      ],
+      "existing_ui": [],
+      "live_endpoints": []
+    },
+    {
+      "id": "SCR-27",
+      "title": "歌詞・MV構成",
+      "route": "/workspace/27",
+      "classification_proposal": "existing_or_partial_to_audit",
+      "feature_ids": [
+        "LYRIC-001",
+        "LYRIC-002",
+        "LYRIC-003",
+        "LYRIC-004",
+        "LYRIC-005",
+        "LYRIC-007"
       ],
       "existing_ui": [],
       "live_endpoints": []
@@ -979,6 +1037,11 @@
       "feature_ids": [
         "LYRIC-009",
         "LYRIC-010",
+        "DANCE-001",
+        "DANCE-002",
+        "DANCE-003",
+        "DANCE-006",
+        "DANCE-012",
         "NF-014"
       ],
       "new_ui_state": "mock",
@@ -1000,6 +1063,11 @@
       "feature_ids": [
         "LYRIC-009",
         "LYRIC-010",
+        "DANCE-001",
+        "DANCE-002",
+        "DANCE-003",
+        "DANCE-006",
+        "DANCE-012",
         "NF-014"
       ],
       "new_ui_state": "unimpl",
@@ -1021,6 +1089,11 @@
       "feature_ids": [
         "LYRIC-009",
         "LYRIC-010",
+        "DANCE-001",
+        "DANCE-002",
+        "DANCE-003",
+        "DANCE-006",
+        "DANCE-012",
         "NF-014"
       ],
       "new_ui_state": "mock",
@@ -1042,6 +1115,11 @@
       "feature_ids": [
         "LYRIC-009",
         "LYRIC-010",
+        "DANCE-001",
+        "DANCE-002",
+        "DANCE-003",
+        "DANCE-006",
+        "DANCE-012",
         "NF-014"
       ],
       "new_ui_state": "mock",
@@ -1063,6 +1141,11 @@
       "feature_ids": [
         "LYRIC-009",
         "LYRIC-010",
+        "DANCE-001",
+        "DANCE-002",
+        "DANCE-003",
+        "DANCE-006",
+        "DANCE-012",
         "NF-014"
       ],
       "new_ui_state": "unimpl",
@@ -1413,9 +1496,12 @@
       "route": "/workspace/10",
       "panel": "音声ライブラリ",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
+        "LIP-003",
         "LYRIC-006",
+        "RENDER-006",
         "NF-002"
       ],
       "new_ui_state": "mock",
@@ -1435,9 +1521,12 @@
       "route": "/workspace/10",
       "panel": "マルチトラック",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
+        "LIP-003",
         "LYRIC-006",
+        "RENDER-006",
         "NF-002"
       ],
       "new_ui_state": "mock",
@@ -1457,9 +1546,12 @@
       "route": "/workspace/10",
       "panel": "波形",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
+        "LIP-003",
         "LYRIC-006",
+        "RENDER-006",
         "NF-002"
       ],
       "new_ui_state": "mock",
@@ -1473,6 +1565,25 @@
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
       "blockers": null
+    },
+    {
+      "screen_id": "SCR-10",
+      "route": "/workspace/10",
+      "panel": "歌音声の取込・配置",
+      "feature_ids": [
+        "AUDIO-001"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
     },
     {
       "screen_id": "SCR-10",
@@ -1728,7 +1839,8 @@
       "route": "/workspace/12",
       "panel": "モーフ",
       "feature_ids": [
-        "LIP-004"
+        "LIP-004",
+        "LIP-011"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
@@ -3492,6 +3604,197 @@
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "read_only_display_only",
       "blockers": null
+    },
+    {
+      "screen_id": "SCR-26",
+      "route": "/workspace/26",
+      "panel": "効果素材",
+      "feature_ids": [
+        "RENDER-011"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-26",
+      "route": "/workspace/26",
+      "panel": "プレビュー差分",
+      "feature_ids": [
+        "RENDER-012"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-26",
+      "route": "/workspace/26",
+      "panel": "イベント",
+      "feature_ids": [
+        "RENDER-013"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-26",
+      "route": "/workspace/26",
+      "panel": "効果スタック",
+      "feature_ids": [
+        "RENDER-014"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-26",
+      "route": "/workspace/26",
+      "panel": "MMD設定書",
+      "feature_ids": [
+        "RENDER-015"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-27",
+      "route": "/workspace/27",
+      "panel": "歌詞素材",
+      "feature_ids": [
+        "LYRIC-001"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-27",
+      "route": "/workspace/27",
+      "panel": "歌詞キュー",
+      "feature_ids": [
+        "LYRIC-002"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-27",
+      "route": "/workspace/27",
+      "panel": "演出パック",
+      "feature_ids": [
+        "LYRIC-003",
+        "LYRIC-005"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-27",
+      "route": "/workspace/27",
+      "panel": "文字配置",
+      "feature_ids": [
+        "LYRIC-004"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-27",
+      "route": "/workspace/27",
+      "panel": "MV構成",
+      "feature_ids": [
+        "LYRIC-007"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
     }
   ]
 }
