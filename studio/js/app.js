@@ -384,12 +384,13 @@ function statusTab(s) {
 
 /** @param {Screen} s @param {string|null} tab */
 function rightPane(s, tab) {
-  const modeTabs = s.id === '27' && s.right ? s.right.tabs.filter((t) => (tab && tab !== 'quick' && tab !== 'status' ? t.id !== 'quick' : t.id === 'quick')) : s.right?.tabs;
+  const modeTabs = s.id === '27' && s.right ? s.right.tabs.filter((t) => lyricMode(tab) === 'detail' ? t.id !== 'quick' : t.id === 'quick') : s.right?.tabs;
   const defs = scopedTabs([...(modeTabs ? modeTabs.map((t) => ({ id: t.id, label: t.label, render: () => (/** @type {any} */ (t).custom === 'assetDetail' ? assetDetail() : renderSections(t.sections)) })) : []), statusTab(s)]);
   const t = tabs({ tabs: defs, selected: tab || undefined, label: `${s.title}のインスペクター`, onChange: (id) => {
     const url = new URL(location.href);
     if (url.searchParams.get('tab') !== id && location.pathname.startsWith('/workspace')) {
       url.searchParams.set('tab', id);
+      if (s.id === '27') url.searchParams.set('mode', lyricMode(tab));
       history.replaceState(history.state, '', url);
     }
   } });
@@ -790,7 +791,7 @@ function render() {
       dropdown('表示', [
         { label: 'タイムラインを折りたたむ / 展開', onSelect: () => { prefs.bottomCollapsed = !prefs.bottomCollapsed; savePrefs(); render(); } },
         { label: `テーマ：${prefs.theme === 'paper' ? 'ナイトに切替' : 'ペーパーに切替'}`, onSelect: () => { prefs.theme = prefs.theme === 'paper' ? 'night' : 'paper'; savePrefs(); } },
-        { label: '実装状態タブを開く', onSelect: () => navigate(s.id, { replace: true, tab: 'status' }) },
+        { label: '実装状態タブを開く', onSelect: () => navigate(s.id, { replace: true, tab: 'status', query: s.id === '27' ? { mode: lyricMode(tab) } : undefined }) },
       ], 'btn ghost')));
   const ws = h('div', { class: `ws ${s.left ? '' : 'no-left'}` });
   if (s.left) ws.append(leftPane(s));
@@ -811,11 +812,18 @@ function render() {
   lastId = s.id;
 }
 
+/** @param {string|null} tab */
+function lyricMode(tab) {
+  const value = new URLSearchParams(location.search).get('mode');
+  if (value === 'quick' || value === 'detail') return value;
+  return tab && tab !== 'quick' && tab !== 'status' ? 'detail' : 'quick';
+}
+
 /** @param {string[]} modes @param {Screen} s @param {string|null} tab */
 function modeSwitch(modes, s, tab) {
   const box = h('div', { class: 'mode-switch', role: 'group', 'aria-label': 'モード' });
-  modes.forEach((m, i) => box.append(h('button', { type: 'button', 'aria-pressed': String(s.id === '27' ? ((tab && tab !== 'quick' && tab !== 'status') ? i === 1 : i === 0) : i === 0), onclick: (/** @type {Event} */ e) => {
-    if (s.id === '27') { navigate('27', { replace: true, tab: i === 0 ? 'quick' : 'cues' }); return; }
+  modes.forEach((m, i) => box.append(h('button', { type: 'button', 'aria-pressed': String(s.id === '27' ? (lyricMode(tab) === 'detail' ? i === 1 : i === 0) : i === 0), onclick: (/** @type {Event} */ e) => {
+    if (s.id === '27') { navigate('27', { replace: true, tab: i === 0 ? 'quick' : 'cues', query: { mode: i === 0 ? 'quick' : 'detail' } }); return; }
     for (const b of box.children) b.setAttribute('aria-pressed', 'false');
     /** @type {HTMLElement} */ (e.currentTarget).setAttribute('aria-pressed', 'true');
     toast(`サンプル表示：${m}モード（表示の切替のみ）`, 'mock');
