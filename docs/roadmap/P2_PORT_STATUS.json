@@ -191,11 +191,22 @@
     {
       "id": "P2-WP-05b",
       "step": "⑤ clip・frame の記録（O-⑤-7）と外部同期のコマンド（O-⑤-5）",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "設計書 §2.5 05b。②の controller の変更は Opus でレビュー。",
+      "state": "verified",
+      "commits": [
+        "0772bc2"
+      ],
+      "tests": [
+        "tests/studio-p2-motion.test.cjs に6件追加（record clip and frame into workspace、frame is capped to camera duration、frame-only record is not dirty、record is disabled for other models、record is disabled when the camera file is invalid、sync command preview_vmd only on SCR-13）。合計16件合格",
+        "tests/studio-p2-project-logic.test.mjs に1件追加（外部コマンドは id ごとに1回・初回 tick では発行しない・refresh_assets は別イベント）。合計24件",
+        "npm run test:node-all 247件中 242 pass・5 skip・0 fail、npm run test:p2 161件中 156 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass、実データのハッシュ前後一致"
+      ],
+      "unverified": [
+        "Opus レビュー未実施（features/project.js の tick と motion-view.js の外部コマンド・記録）。",
+        "GPU 実機・Windows 実機未検証（SwiftShader のみ）。",
+        "③「カメラ（02）を開くと同じ位置」は WP-06 の後でなければ確認できない。",
+        "play_chain・stop_chain・preview_motion の受け口は 05c・05d。今はどの画面でも無反応でトーストも出ない。"
+      ],
+      "notes": "設計 §2.5(d)05b のとおり。解釈：(1) 明示の ?clip= がある URL で開いたときは復元せず従来どおり再生する（integrated_preview がクリップ 0 を再生するため）。(2) 外部コマンドの受け口は motion-view.js のモジュール先頭の購読 1 つ＋SCR-13 の間だけ有効な cmdTarget。購読は常時で、SCR-13 以外ではトーストを 1 回だけ出す。(3) cameraInvalid のときは workspace が読めないので、モデル違いより先に cameraInvalid の title を出す。(4) 制作状態の読込が終わるまで復元を最大 8 秒待つ。(5) setWorkspaceFields の source は今は未使用（ホスト往復は WP-06）。",
       "owner_check": null
     },
     {

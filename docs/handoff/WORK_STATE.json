@@ -1,22 +1,24 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T20:11:08+00:00",
+  "updated_at": "2026-10-20T20:38:09+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "df75fe3",
+  "head_at_update": "7b3327e",
   "current": {
-    "task": "P2-WP-05a SCR-13 編集モードの1体再生（PMX+VMD・GLB/VRMクリップ・VMDライブラリ）と S5 の有効化",
+    "task": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド studio:sync-command の受け口（O-⑤-5）",
     "status": "done",
     "step": "実装→テスト→台帳更新→コミット",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-05b：clip・frame の記録（O-⑤-7）と外部コマンド preview_vmd（Opus でレビュー）",
-    "WP-06b の前にテストのポートの食い違い（parity 8794・retarget 8791）を直す（§4.1 の注記）"
+    "P2-WP-05c：SCR-05 の一覧・お気に入り・コンビネーション編集と play_chain・stop_chain・preview_motion の受け口",
+    "P2-WP-05b を Opus でレビュー（project.js の tick、motion-view.js）",
+    "WP-06b の前にテストのポートの食い違い（parity 8794・retarget 8791）を直す"
   ],
   "unverified": [
-    "実ファイルの PMX＋VMD のモーフ再生・GPU 実機・Windows 実機は未検証（合成の最小ファイルと SwiftShader のみ）",
-    "Opus レビュー未実施（app.js の modeSwitch）"
+    "GPU 実機・Windows 実機は未検証（SwiftShader のみ）",
+    "Opus レビュー未実施（05b）",
+    "カメラ画面（02）での同位置の再生は WP-06 の後でなければ確認できない"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +36,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T20:38:09+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "7b3327e",
+      "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド preview_vmd・integrated_preview の受け口（O-⑤-5）"
+    },
+    {
+      "at": "2026-10-20T20:26:29+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "b8bd62d",
+      "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド studio:sync-command の受け口（O-⑤-5）: 実装→テスト→台帳更新→コミット"
+    },
     {
       "at": "2026-10-20T20:11:08+00:00",
       "by": "claude-code",
@@ -229,20 +245,6 @@
       "event": "done",
       "head": "187441a",
       "text": "WP-00a-1 Opus レビュー済み。pytest.ini で rootdir を固定（tests/ から起動しても conftest が効く）、conftest でセッション前後の実 data/・exports/ ハッシュ確認を追加"
-    },
-    {
-      "at": "2026-10-20T09:07:19+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "31a93c0",
-      "text": "P2-WP-00a-1 データ隔離を実装（bai_paths.data_dir・conftest.py・test_data_isolation.py、server/diagnostic_logging/qa_capture の保存先切替）。pytest 316 passed、node 12 passed、tsc 通過、実 data/ ハッシュ不変"
-    },
-    {
-      "at": "2026-10-20T09:05:25+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "6bf71a1",
-      "text": "P2-WP-00a-1 データ隔離: bai_paths.py・conftest.py・test_data_isolation.py を実装し server.py ほかの保存先を data_dir() 化"
     }
   ]
 }
