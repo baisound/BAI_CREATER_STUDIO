@@ -1,7 +1,10 @@
 // @ts-check
 // Studio shell: router (/workspace/NN), navigation, layout and generic renderers.
-import { h, badge, toast, openModal, closeModal, showUnimplemented, tabs, slider, selectField, toggle, chips, dropdown, selectList, section, timecode, STATUS_LABEL } from './ui.js';
-import { SCREENS, GROUPS, FORMS, PH } from './screens.js';
+import { h, badge, toast, openModal, closeModal, showUnimplemented, setActionRunner, region, regionTag, tabs, slider, selectField, toggle, chips, dropdown, selectList, section, timecode, STATUS_LABEL } from './ui.js';
+import { SCREENS, GROUPS, FORMS, PH, newProjectUnimpl } from './screens.js';
+import { FEATURES } from './features/index.js';
+import { stateBox } from './state-box.js';
+import { project, assets } from './store.js';
 import { LIVE, summarize } from './live.js';
 import { icon, SCREEN_ICON } from './icons.js';
 import { img, ASSETS, ASSET_CATS, PROJECTS, RENDERS } from './samples.js';
@@ -28,18 +31,21 @@ applyPrefs();
 const BASE = '/workspace/';
 /** @param {string} id */
 const routeOf = (id) => `${BASE}${id}`;
-/** @returns {{id: string, tab: string | null}} */
+/** @returns {{id: string, tab: string | null, params: URLSearchParams}} */
 function parseLocation() {
   const m = location.pathname.match(/^\/workspace\/?(\d{2})?\/?$/);
   const q = new URLSearchParams(location.search);
-  if (m) return { id: m[1] || '01', tab: q.get('tab') };
+  if (m) return { id: m[1] || '01', tab: q.get('tab'), params: q };
   // Opened as /studio/index.html (e.g. static preview) → hash fallback #/workspace/NN
   const hm = location.hash.match(/^#\/workspace\/(\d{2})/);
-  return { id: hm ? hm[1] : '01', tab: q.get('tab') };
+  return { id: hm ? hm[1] : '01', tab: q.get('tab'), params: q };
 }
-/** @param {string} id @param {{replace?: boolean, tab?: string|null}} [o] */
+/** @param {string} id @param {{replace?: boolean, tab?: string|null, query?: Record<string,string>}} [o] */
 export function navigate(id, o = {}) {
-  const url = routeOf(id) + (o.tab ? `?tab=${encodeURIComponent(o.tab)}` : '');
+  const qs = new URLSearchParams();
+  if (o.tab) qs.set('tab', o.tab);
+  for (const [k, v] of Object.entries(o.query || {})) qs.set(k, v);
+  const url = routeOf(id) + (qs.toString() ? `?${qs}` : '');
   if (location.pathname.startsWith('/workspace')) {
     if (o.replace) history.replaceState({ id }, '', url); else history.pushState({ id }, '', url);
   } else {
@@ -136,13 +142,50 @@ document.addEventListener('keydown', (e) => {
  */
 function runAction(c) {
   const act = String(c.act || '');
-  if (act === 'unimpl') return showUnimplemented({ name: c.label, why: c.why, ids: c.ids, phase: c.phase });
-  if (act.startsWith('nav:')) return navigate(act.slice(4));
-  if (act.startsWith('href:')) { location.href = act.slice(5); return; }
+  if (act === 'unimpl') return showUnimplemented({ name: c.label, why: c.why, ids: c.ids, phase: c.phase, next: c.next });
+  if (act.startsWith('nav:')) {
+    // `nav:08?import=1&cat=motion` → 画面ID と query（設計 §1.6-6）
+    const [sid, qstr] = act.slice(4).split('?');
+    return navigate(sid, qstr ? { query: Object.fromEntries(new URLSearchParams(qstr)) } : {});
+  }
+  if (act.startsWith('href:')) return goHref(act.slice(5));
+  if (act === 'real') return; // 実データのボタンは feature 部品が自分で処理する（runAction には渡さない）
   if (act.startsWith('form:')) return openForm(act.slice(5));
   if (act.startsWith('mock:')) return toast(`サンプル表示：${act.slice(5)}`, 'mock');
   toast(`サンプル表示：「${c.label}」は画面内の仮動作です。`, 'mock');
 }
+
+/** 現行（旧）画面。新UIから離れるときは確認を出す（導線点検 §5-2）。 */
+const LEGACY_PAGES = ['/', '/camera.html', '/index.html'];
+/** @param {string} url */
+function isLegacyUrl(url) {
+  try { const u = new URL(url, location.href); return u.origin === location.origin && LEGACY_PAGES.includes(u.pathname); } catch { return false; }
+}
+/** @param {string} url */
+function goHref(url) {
+  if (!isLegacyUrl(url)) { location.href = url; return; }
+  const name = new URL(url, location.href).pathname === '/camera.html' ? '現行のカメラ画面' : '現行の制作画面';
+  openModal({
+    title: '新UIから離れます',
+    body: [
+      h('p', null, `${name}を開きます。新UIから離れます。`),
+      h('p', { class: 'muted small' }, '戻るには、ブラウザーの戻る（Alt+←）か、現行の制作画面の上にある「新UI（操作モック）」リンクを使ってください。'),
+    ],
+    footer: [
+      h('button', { class: 'btn ghost', type: 'button', dataset: { role: 'leave-cancel' }, onclick: closeModal }, 'キャンセル'),
+      h('button', { class: 'btn primary', type: 'button', dataset: { role: 'leave-go' }, onclick: () => { closeModal(); location.href = url; } }, '移動する'),
+    ],
+  });
+}
+setActionRunner((c) => runAction(c));
+// 本文中の現行画面へのリンク（<a>）も同じ確認を通す。診断ZIPなど API のリンクは対象外。
+document.addEventListener('click', (e) => {
+  const a = /** @type {HTMLAnchorElement|null} */ (/** @type {HTMLElement} */ (e.target).closest('#main a[href]'));
+  if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+  if (!isLegacyUrl(a.getAttribute('href') || '')) return;
+  e.preventDefault();
+  goHref(/** @type {string} */ (a.getAttribute('href')));
+});
 
 /** @param {string} id */
 function openForm(id) {
@@ -215,12 +258,25 @@ function control(c) {
     case 'progress': return h('div', null, c.rows.map((/** @type {[string, number, string]} */ [l, p, t]) => h('div', { class: 'status-row' }, h('span', null, l), h('div', { class: 'progress', role: 'img', 'aria-label': `${l} ${t}` }, h('i', { style: { width: `${p}%` } })), h('span', { class: 'mono xs muted' }, t))));
     case 'checks': return h('div', null, c.rows.map((/** @type {string[]} */ [st, l, m]) => h('div', { class: 'check-row' }, h('i', { class: `dot ${st}` }), h('span', null, l), h('span', { class: 'xs muted' }, m))));
     case 'live': return liveBlock(c.key);
+    case 'feature': return featureBlock(c);
     case 'curve': return curve();
     case 'tiles': return tiles(c);
     case 'browserInfo': return h('dl', { class: 'kv' }, h('dt', null, 'UA'), h('dd', null, navigator.userAgent), h('dt', null, '画面'), h('dd', null, `${innerWidth}×${innerHeight} @${devicePixelRatio}x`), h('dt', null, '言語'), h('dd', null, navigator.language));
     case 'prefToggle': return toggle({ label: c.label, checked: /** @type {any} */ (prefs)[c.key], onChange: (v) => { /** @type {any} */ (prefs)[c.key] = v; savePrefs(); toast('表示設定を保存しました（このブラウザのみ）。', 'real'); } });
     case 'prefDensity': return selectField({ label: '表示密度', options: [['compact', '標準（高密度）'], ['comfortable', 'ゆったり']], value: prefs.density, onChange: (v) => { prefs.density = v; savePrefs(); } });
     default: return null;
+  }
+}
+/**
+ * 実データの部品（P2 設計 §1.6-1）。FEATURES[key] を呼ぶ。登録が無いキーは「未接続」と正直に表示する。
+ * @param {Control} c
+ */
+function featureBlock(c) {
+  const fn = FEATURES[c.key];
+  if (!fn) return stateBox({ kind: 'offline', title: '未接続', message: `この部品（${c.key}）はまだ結線されていません。` });
+  try { return fn(makeCtx(), /** @type {any} */ (c)) || h('div'); } catch (e) {
+    console.error(e);
+    return stateBox({ kind: 'error', title: '表示できません', message: e instanceof Error ? e.message : String(e) });
   }
 }
 /** @param {Control} c */
@@ -258,8 +314,12 @@ function sortableTable(cols, rows) {
 function liveBlock(key) {
   const def = /** @type {any} */ (LIVE)[key];
   const box = h('div', { class: 'live', 'data-live': key }, h('p', { class: 'xs muted' }, `${def.path} を読み取り中…`));
+  // 画面の再描画で外されたあとに結果が届いても、外れた要素へは書かない（後始末。設計 §1.6-3）。
+  let alive = true;
+  cleanups.push(() => { alive = false; });
   const load = async () => {
     const r = await def.run();
+    if (!alive) return;
     box.textContent = '';
     if (!r.ok) {
       box.append(h('p', { class: 'small', style: { color: 'var(--danger)' } }, `未接続：${def.label}を取得できませんでした（${r.error}）。`), h('p', { class: 'xs muted' }, 'Python サーバー（npm start / npm run dev）経由で開いているか確認してください。'));
@@ -291,6 +351,23 @@ function svg(tag, attrs, ...kids) {
 const renderSections = (sections) => sections.map((s) => section(s.title, s.status || null, s.note ? h('p', { class: 'section-note' }, s.note) : null, ...s.controls.map(control).flat()));
 
 /* ---------- panes ---------- */
+/**
+ * タブの中身を描き直すとき、前のタブで登録した後始末を先に実行する（タブを切り替えても cleanups が増え続けない。設計 §1.6-8）。
+ * @template {{render: () => any}} T
+ * @param {T[]} defs @returns {T[]}
+ */
+function scopedTabs(defs) {
+  /** @type {(() => void)[]} */
+  let mine = [];
+  return defs.map((d) => ({ ...d, render: () => {
+    for (const f of mine.splice(0)) { const i = cleanups.indexOf(f); if (i >= 0) cleanups.splice(i, 1); try { f(); } catch (e) { console.error(e); } }
+    const before = cleanups.length;
+    const out = d.render();
+    mine = cleanups.slice(before);
+    return out;
+  } }));
+}
+
 /** @param {Screen} s */
 function statusTab(s) {
   return {
@@ -306,7 +383,7 @@ function statusTab(s) {
 
 /** @param {Screen} s @param {string|null} tab */
 function rightPane(s, tab) {
-  const defs = [...(s.right ? s.right.tabs.map((t) => ({ id: t.id, label: t.label, render: () => (/** @type {any} */ (t).custom === 'assetDetail' ? assetDetail() : renderSections(t.sections)) })) : []), statusTab(s)];
+  const defs = scopedTabs([...(s.right ? s.right.tabs.map((t) => ({ id: t.id, label: t.label, render: () => (/** @type {any} */ (t).custom === 'assetDetail' ? assetDetail() : renderSections(t.sections)) })) : []), statusTab(s)]);
   const t = tabs({ tabs: defs, selected: tab || undefined, label: `${s.title}のインスペクター`, onChange: (id) => {
     const url = new URL(location.href);
     if (url.searchParams.get('tab') !== id && location.pathname.startsWith('/workspace')) {
@@ -321,9 +398,9 @@ function rightPane(s, tab) {
 function leftPane(s) {
   const L = /** @type {NonNullable<Screen['left']>} */ (s.left);
   if (/** @type {any} */ (L).custom === 'assetCats') return assetCats();
-  return h('section', { class: 'pane pane-left', 'aria-label': L.title },
-    h('div', { class: 'pane-head' }, h('h2', null, L.title), h('span', { class: 'spacer' }), badge(L.status)),
-    h('div', { class: 'pane-body' }, L.list ? selectList({ items: L.list, search: L.search, tree: L.tree, label: L.title, selected: L.list[0] && L.list[0].id, onSelect: (id) => toast(`サンプル表示：「${(L.list || []).find((x) => x.id === id)?.label}」を選択`, 'mock') }) : null));
+  return region(h('section', { class: 'pane pane-left', 'aria-label': L.title },
+    h('div', { class: 'pane-head' }, h('h2', null, L.title), h('span', { class: 'spacer' }), regionTag(L.status)),
+    h('div', { class: 'pane-body' }, L.list ? selectList({ items: L.list, search: L.search, tree: L.tree, label: L.title, selected: L.list[0] && L.list[0].id, onSelect: (id) => toast(`サンプル表示：「${(L.list || []).find((x) => x.id === id)?.label}」を選択`, 'mock') }) : null)), L.status);
 }
 
 /** @param {Screen} s */
@@ -339,7 +416,8 @@ function centerPane(s) {
       const grid = h('div', { class: 'quad' });
       const draw = () => { grid.textContent = ''; c.labels.forEach((/** @type {string} */ l, /** @type {number} */ i) => grid.append(h('div', { class: 'viewport', role: 'button', tabindex: '0', 'aria-selected': String(i === sel), 'aria-label': `${l}ビューを選択`, onclick: () => { sel = i; draw(); }, onkeydown: (/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sel = i; draw(); } } }, c.imgs ? h('img', { class: 'vp-img', src: img(c.imgs[i]), alt: '' }) : h('div', { class: 'vp-subject' }), h('div', { class: 'vp-hud' }, h('span', null, l)), h('div', { class: 'vp-note' }, i === sel ? h('span', { class: 'vp-active' }, 'アクティブ') : '')))); };
       draw();
-      pane.append(h('div', { class: 'pane-head' }, h('h2', null, 'マルチビュー'), h('span', { class: 'spacer' }), badge('mock'), h('span', { class: 'xs muted' }, c.imgs ? 'サンプル画像・3D描画は未接続' : '3D描画は未接続')), grid);
+      pane.append(h('div', { class: 'pane-head' }, h('h2', null, 'マルチビュー'), h('span', { class: 'spacer' }), regionTag(c.status || 'mock'), h('span', { class: 'xs muted' }, c.imgs ? 'サンプル画像・3D描画は未接続' : '3D描画は未接続')), grid);
+      region(pane, c.status || 'mock');
       break;
     }
     case 'thumbs': {
@@ -349,15 +427,16 @@ function centerPane(s) {
       draw();
       const filter = /** @type {HTMLInputElement} */ (h('input', { class: 'input', type: 'search', placeholder: '名前で絞り込み', 'aria-label': '名前で絞り込み', style: { maxWidth: '220px' } }));
       filter.addEventListener('input', () => { const q = filter.value.trim().toLowerCase(); for (const el of grid.children) /** @type {HTMLElement} */ (el).hidden = !!q && !el.textContent?.toLowerCase().includes(q); });
-      pane.append(h('div', { class: 'pane-head' }, filter, h('span', { class: 'spacer' }), badge('mock')), h('div', { class: 'pane-body flush' }, grid));
+      pane.append(h('div', { class: 'pane-head' }, filter, h('span', { class: 'spacer' }), regionTag('mock')), h('div', { class: 'pane-body flush' }, grid));
+      region(pane, 'mock');
       break;
     }
-    case 'graph': pane.append(h('div', { class: 'pane-head' }, h('h2', null, 'ノードグラフ'), h('span', { class: 'spacer' }), badge('mock')), nodeGraph(c)); break;
-    case 'cards': pane.append(h('div', { class: 'dash' }, c.cards.map((/** @type {any} */ card) => h('section', { class: `card span-${card.span}` },
-      h('div', { class: 'pane-head' }, h('h2', null, card.title), h('span', { class: 'spacer' }), badge(card.status)),
-      h('div', { class: 'pane-body' }, card.title === '最近のプロジェクト' && mockProjects.length ? h('p', { class: 'small' }, `画面内で追加：${mockProjects.join('、')}（未保存）`) : null, card.controls.map(control)))))); break;
+    case 'graph': pane.append(h('div', { class: 'pane-head' }, h('h2', null, 'ノードグラフ'), h('span', { class: 'spacer' }), regionTag('mock')), nodeGraph(c)); region(pane, 'mock'); break;
+    case 'cards': pane.append(h('div', { class: 'dash' }, c.cards.map((/** @type {any} */ card) => region(h('section', { class: `card span-${card.span}` },
+      h('div', { class: 'pane-head' }, h('h2', null, card.title), h('span', { class: 'spacer' }), regionTag(card.status)),
+      h('div', { class: 'pane-body' }, card.title === '最近のプロジェクト' && mockProjects.length ? h('p', { class: 'small' }, `画面内で追加：${mockProjects.join('、')}（未保存）`) : null, card.controls.map(control))), card.status)))); break;
     case 'tabsCenter': {
-      const t = tabs({ tabs: c.tabs.map((/** @type {any} */ x) => ({ id: x.id, label: x.label, render: () => renderSections(x.sections) })), label: s.title });
+      const t = tabs({ tabs: scopedTabs(c.tabs.map((/** @type {any} */ x) => ({ id: x.id, label: x.label, render: () => renderSections(x.sections) }))), label: s.title });
       pane.append(t.list, t.panel);
       break;
     }
@@ -376,14 +455,15 @@ function viewport(c) {
     for (const b of toolsEl.children) b.setAttribute('aria-pressed', 'false');
     /** @type {HTMLElement} */ (e.currentTarget).setAttribute('aria-pressed', 'true');
   } }, icon(TOOL_ICON[t] || 'cursor', 16))));
-  return h('div', { class: `viewport ${c.img ? 'has-img' : ''}`, role: 'img', 'aria-label': `${(c.hud || [])[0] || 'ビュー'}（${c.img ? 'サンプル画像。' : ''}3D描画は未接続）` },
+  const vst = c.status || 'unimpl';
+  return region(h('div', { class: `viewport ${c.img ? 'has-img' : ''}`, role: 'img', 'aria-label': `${(c.hud || [])[0] || 'ビュー'}（${c.img ? 'サンプル画像。' : ''}3D描画は未接続）` },
     c.img ? h('img', { class: 'vp-img', src: img(c.img), alt: '' }) : null,
     c.plain ? null : h('div', { class: 'vp-frame' }), c.plain || c.img ? null : h('div', { class: 'vp-subject' }),
     c.focusPlane ? h('div', { class: 'vp-focus-plane', style: { top: '46%' } }) : null,
     h('div', { class: 'vp-hud' }, (c.hud || []).map((/** @type {string} */ x) => h('span', null, x)), h('span', { class: 'right' }, c.img ? 'サンプル画像' : 'サンプル表示')),
     toolsEl,
     c.pip ? h('figure', { class: 'vp-pip' }, h('img', { src: img(c.pip), alt: '' }), h('figcaption', null, 'カメラプレビュー（サンプル）')) : null,
-    h('div', { class: 'vp-note' }, badge('unimpl', '新UIでの3D描画は未接続です。'), h('span', null, c.foot || '3D描画は未接続です。')));
+    h('div', { class: 'vp-note' }, regionTag(vst, '新UIでの3D描画は未接続です。'), h('span', null, c.foot || '3D描画は未接続です。'))), vst);
 }
 
 /** @param {any} c */
@@ -454,15 +534,15 @@ function bottomPane(s) {
     h('div', { class: 'pane-head' }, collapse, h('h2', null, 'タイムライン'), h('div', { class: 'transport' },
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': '先頭へ', onclick: () => setFrame(0) }, '⏮'), playBtn,
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': '末尾へ', onclick: () => setFrame(b.frames) }, '⏭'), tc, frameNum), scrub,
-      h('span', { class: 'xs muted mono' }, `${b.fps}fps`), badge(b.status),
+      h('span', { class: 'xs muted mono' }, `${b.fps}fps`), regionTag(b.status),
       h('button', { class: 'btn is-unimpl', type: 'button', onclick: () => showUnimplemented({ name: 'キーフレームを追加', why: '新UIのタイムラインは表示とシーク操作のみです。キー編集は現行のカメラ画面・制作画面で行います（共通タイムラインは DATA-001）。', ids: ['DATA-001', 'CAM-003'], phase: PH.P2 }) }, 'キー追加')),
     h('div', { class: 'pane-body flush' }, grid));
-  return pane;
+  return region(pane, b.status);
 }
 
 /* ---------- home (SCR-01) ---------- */
 /** @param {string} title @param {import('./ui.js').Status} st @param {Node | null} more @param {...any} body */
-const block = (title, st, more, ...body) => h('section', { class: 'block' }, h('div', { class: 'block-head' }, h('h2', null, title), badge(st), h('span', { class: 'spacer' }), more), ...body);
+const block = (title, st, more, ...body) => region(h('section', { class: 'block' }, h('div', { class: 'block-head' }, h('h2', null, title), regionTag(st), h('span', { class: 'spacer' }), more), ...body), st);
 /** @param {string} label @param {string} id */
 const navLink = (label, id) => h('button', { type: 'button', class: 'link-btn', dataset: { act: 'nav' }, onclick: () => navigate(id) }, label, ' ›');
 
@@ -475,21 +555,21 @@ function homeView(c) {
       h('h2', null, '創る、撮る、繋ぐ。', h('br'), 'すべてをひとつのスタジオで。'),
       h('p', { class: 'lead' }, '3D・カメラ・アニメーション・VMD・AI をひとつにまとめた制作環境'),
       h('div', { class: 'btn-row' },
-        actionButton({ t: 'btn', label: '新規プロジェクト', act: 'form:newProject', primary: true }),
+        actionButton(newProjectUnimpl('新規プロジェクト', { primary: true })),
         actionButton({ t: 'btn', label: '紹介ムービーを再生', act: 'unimpl', why: '紹介ムービー・動画チュートリアルはまだありません。', ids: ['NF-015'], phase: PH.P4 }))),
     h('ul', { class: 'hero-steps', 'aria-label': 'できること' }, ['キャラクターを動かす', 'シーンで魅せる', 'カメラで語る', 'エフェクトで彩る', 'AIで広げる'].map((x) => h('li', null, x))),
     h('span', { class: 'sample-tag' }, 'サンプル画像'));
 
   const projects = block('最近のプロジェクト', 'mock', navLink('保存・復元へ', '18'),
     h('div', { class: 'card-row cols-4' }, PROJECTS.map((p) => h('button', { type: 'button', class: 'media-card', onclick: () => toast(`サンプル表示：「${p.name}」は仮のプロジェクトです（開けません）。`, 'mock') },
-      h('div', { class: 'media' }, h('img', { src: img(p.img), alt: '', loading: 'lazy' }), h('span', { class: 'pill' }, p.state)),
+      h('div', { class: 'media' }, h('img', { src: img(p.img), alt: '', loading: 'lazy' }), h('span', { class: 'pill' }, p.state), h('span', { class: 'ribbon', dataset: { role: 'sample-ribbon' } }, 'サンプル')),
       h('div', { class: 'media-body' }, h('b', null, p.name), h('span', { class: 'xs muted' }, `更新 ${p.updated}（サンプル）`), h('span', { class: 'small muted clamp' }, p.desc))))),
-    h('p', { class: 'section-note' }, '一覧は仮データです。実在するのは現行サーバーの単一制作状態のみです。'));
+    h('p', { class: 'section-note', dataset: { role: 'sample-project-note' } }, '一覧は仮データです。今のサーバーの制作状態は1つです。', navLink('プロジェクト保存・復元（18）', '18'), 'で確認できます。'));
 
   /** @type {[string, string, string, string][]} */
-  const qa = [['plus', '新規プロジェクト', '作品制作を開始', 'form:newProject'], ['stage', 'シーンを作成', 'ステージ・背景を配置', 'nav:06'], ['user', 'キャラクターを追加', 'モデルを読み込み', 'nav:12'], ['motion', 'モーションを読み込み', 'VMD・モーション', 'nav:13'], ['camera', 'カメラを設定', 'カメラワーク・プリセット', 'nav:02'],
+  const qa = [['plus', '新規プロジェクト', '作品制作を開始', 'unimpl:newProject'], ['stage', 'シーンを作成', 'ステージ・背景を配置', 'nav:06'], ['user', 'キャラクターを追加', 'モデルを読み込み', 'nav:12'], ['motion', 'モーションを読み込み', 'VMD・モーション', 'nav:13'], ['camera', 'カメラを設定', 'カメラワーク・プリセット', 'nav:02'],
     ['sparkle', 'マテリアル・効果', '質感・演出', 'nav:09'], ['render', 'レンダリング', '書き出し・バッチ', 'nav:17'], ['folder', '素材を管理', 'モデル・ステージ・音楽', 'nav:08'], ['focus', 'ピントを診断', 'フォーカス・DOF', 'nav:03'], ['plug', 'MCP連携', 'AI・外部ツール', 'nav:19']];
-  const quick = block('クイックアクション', 'partial', null, h('div', { class: 'qa-grid' }, qa.map(([ic, t, sub, act]) => h('button', { type: 'button', class: 'qa', dataset: { act: act.split(':')[0] }, onclick: () => runAction({ t: 'btn', label: t, act }) },
+  const quick = block('クイックアクション', 'partial', null, h('div', { class: 'qa-grid' }, qa.map(([ic, t, sub, act]) => h('button', { type: 'button', class: 'qa', dataset: { act: act.split(':')[0] }, onclick: () => runAction(act === 'unimpl:newProject' ? newProjectUnimpl(t) : { t: 'btn', label: t, act }) },
     h('span', { class: 'qa-ico' }, icon(ic, 22)), h('span', null, h('b', null, t), h('span', { class: 'xs muted' }, sub))))));
 
   const renders = block('最近のレンダリング', 'mock', navLink('すべて見る', '17'), h('div', { class: 'card-row cols-4 compact' }, RENDERS.map((r) => h('button', { type: 'button', class: 'media-card', onclick: () => toast(`サンプル表示：「${r.name}」は仮の書き出し結果です。`, 'mock') },
@@ -503,9 +583,9 @@ function homeView(c) {
 
   const rest = (c.cards || []).filter((/** @type {any} */ card) => !['最近のプロジェクト', 'クイックアクション'].includes(card.title));
   return h('div', { class: 'home' }, hero, projects, quick, h('div', { class: 'home-split' }, renders, assets),
-    h('div', { class: 'dash flush' }, rest.map((/** @type {any} */ card) => h('section', { class: `card span-${card.span}` },
-      h('div', { class: 'pane-head' }, h('h2', null, card.title), h('span', { class: 'spacer' }), badge(card.status)),
-      h('div', { class: 'pane-body' }, card.title === '新規作成' && mockProjects.length ? h('p', { class: 'small' }, `画面内で追加：${mockProjects.join('、')}（未保存）`) : null, card.controls.map(control))))));
+    h('div', { class: 'dash flush' }, rest.map((/** @type {any} */ card) => region(h('section', { class: `card span-${card.span}` },
+      h('div', { class: 'pane-head' }, h('h2', null, card.title), h('span', { class: 'spacer' }), regionTag(card.status)),
+      h('div', { class: 'pane-body' }, card.title === '新規作成' && mockProjects.length ? h('p', { class: 'small' }, `画面内で追加：${mockProjects.join('、')}（未保存）`) : null, card.controls.map(control))), card.status))));
 }
 
 /* ---------- asset library (SCR-08) ---------- */
@@ -529,14 +609,14 @@ function refreshLibrary() {
 function assetCats() {
   /** @param {string} id @param {string} label @param {string} ic */
   const row = (id, label, ic) => h('li', { role: 'option', 'aria-selected': String(lib.cat === id), tabindex: '-1', onclick: () => { lib.cat = id; refreshLibrary(); } }, icon(ic, 16), h('span', null, label), h('span', { class: 'meta' }, String(inCat(id).length)));
-  return h('section', { class: 'pane pane-left lib-cats', 'aria-label': '素材カテゴリ' },
-    h('div', { class: 'pane-head' }, h('h2', null, '素材管理'), h('span', { class: 'spacer' }), badge('mock')),
+  return region(h('section', { class: 'pane pane-left lib-cats', 'aria-label': '素材カテゴリ' },
+    h('div', { class: 'pane-head' }, h('h2', null, '素材管理'), h('span', { class: 'spacer' }), regionTag('mock')),
     h('div', { class: 'pane-body' },
       h('ul', { class: 'list cat-list', role: 'listbox', 'aria-label': 'カテゴリ' }, row('all', 'すべての素材', 'grid'), ASSET_CATS.map((c) => row(c.id, c.label, c.icon))),
       h('ul', { class: 'list cat-list sep-top', role: 'listbox', 'aria-label': 'お気に入り' }, row('fav', 'お気に入り', 'heart')),
       h('div', { class: 'cat-head' }, h('span', null, 'コレクション'), h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'コレクションを追加', dataset: { act: 'unimpl' }, onclick: () => showUnimplemented({ name: 'コレクションを追加', why: 'コレクション（素材のまとまり）の作成・保存は未実装です。ここではタグで絞り込んだ表示例を出しています。', ids: ['NF-004'], phase: PH.P4 }) }, icon('plus', 16))),
       h('ul', { class: 'list cat-list', role: 'listbox', 'aria-label': 'コレクション' }, COLLECTIONS.map(([l, t]) => row(`tag:${t}`, l, 'folder'))),
-      h('p', { class: 'section-note' }, '件数は画面内のサンプル素材の数です。')));
+      h('p', { class: 'section-note' }, '件数は画面内のサンプル素材の数です。'))), 'mock');
 }
 
 function libraryView() {
@@ -587,11 +667,11 @@ function libraryView() {
         h('p', { class: 'section-note' }, '動きのイメージです。実際の素材登録は現行画面（FBX / GLB / VRM / PMX ZIP / VMD）で行えます。', h('a', { href: '/' }, ' 現行画面で素材を登録 ↗')))
       : h('div', { class: 'empty' }, '◇ 未実装：この一覧はまだありません。'));
 
-  return h('div', { class: 'lib' },
+  return region(h('div', { class: 'lib' },
     h('div', { class: 'lib-bar' }, srcBar, h('span', { class: 'spacer' }), bulk),
     h('div', { class: 'lib-bar' }, h('div', { class: 'search-wrap' }, icon('search', 16), search), fmtSel, sortSel, h('span', { class: 'spacer' }), viewBtns, size),
-    h('div', { class: 'lib-crumb' }, icon('home', 14), ' ライブラリ › ', h('b', null, catLabel(lib.cat)), h('span', { class: 'xs muted' }, `　${list.length}件（サンプル）`)),
-    h('div', { class: 'lib-body' }, body), queue);
+    h('div', { class: 'lib-crumb' }, icon('home', 14), ' ライブラリ › ', h('b', null, catLabel(lib.cat)), h('span', { class: 'xs muted' }, `　${list.length}件（サンプル）`), h('span', { class: 'spacer' }), regionTag('mock')),
+    h('div', { class: 'lib-body' }, body), queue), 'mock');
 }
 
 function assetDetail() {
@@ -646,11 +726,11 @@ function helpPage() {
   ];
   const glossary = [['VMD', 'MMD のモーション／カメラデータ形式'], ['PMX', 'MMD のモデル形式'], ['DOF', '被写界深度（ピントの合う奥行き範囲）'], ['リターゲット', '別の骨格へモーションを移し替えること'], ['WebMCP / 標準MCP', 'AI からアプリを操作するための接続方式（手動UIと同じAPIを使う）']];
   const t = tabs({ label: 'ヘルプ', tabs: [
-    { id: 'welcome', label: 'ウェルカム', render: () => h('div', { class: 'doc' }, h('h2', null, 'BAI Creator Studio 新UI（操作モック）'), h('p', null, '25画面の導線を確認するための新しい画面です。左のメニュー、上部の戻る・進む、Ctrl+K の画面検索で移動できます。'), h('p', null, '凡例：', badge('real'), ' ', badge('partial'), ' ', badge('mock'), ' ', badge('unimpl'))) },
-    { id: 'setup', label: '初回セットアップ', render: () => h('div', { class: 'doc' }, h('h2', null, '初回セットアップ'), badge('mock'), h('p', { class: 'small muted' }, 'チェックは画面内だけで、保存されません。'), steps) },
+    { id: 'welcome', label: 'ウェルカム', render: () => h('div', { class: 'doc' }, h('h2', null, 'BAI Creator Studio 新UI（操作モック）'), h('p', null, '25画面の導線を確認するための新しい画面です。左のメニュー、上部の戻る・進む、Ctrl+K の画面検索で移動できます。'), h('p', { dataset: { legend: '1' } }, '凡例：', badge('real'), ' ', badge('partial'), ' ', badge('mock'), ' ', badge('unimpl'))) },
+    { id: 'setup', label: '初回セットアップ', render: () => region(h('div', { class: 'doc' }, h('h2', null, '初回セットアップ', regionTag('mock')), h('p', { class: 'small muted' }, 'チェックは画面内だけで、保存されません。'), steps), 'mock') },
     { id: 'guides', label: '目的別ガイド', render: () => h('div', { class: 'doc' }, h('h2', null, '目的別ガイド'), h('ul', { class: 'list' }, guides.map(([l, id]) => h('li', { onclick: () => navigate(id) }, h('span', { class: 'nav-num' }, id), l, h('span', { class: 'meta' }, '開く →'))))) },
     { id: 'video', label: '動画', render: () => h('div', { class: 'doc' }, h('h2', null, '動画チュートリアル'), h('div', { class: 'empty' }, '◇ 未実装：動画チュートリアルはまだありません。')) },
-    { id: 'manual', label: 'マニュアル', render: () => h('div', { class: 'doc' }, h('h2', null, 'マニュアル'), badge('partial'), h('p', null, 'リポジトリ内の日本語文書：AI不要_通常利用ガイド.md、DEVELOPER_GUIDE_JA.md、MCP_SETUP_JA.md、docs/roadmap/README_JA.md。')) },
+    { id: 'manual', label: 'マニュアル', render: () => region(h('div', { class: 'doc' }, h('h2', null, 'マニュアル', regionTag('partial')), h('p', null, 'リポジトリ内の日本語文書：AI不要_通常利用ガイド.md、DEVELOPER_GUIDE_JA.md、MCP_SETUP_JA.md、docs/roadmap/README_JA.md。')), 'partial') },
     { id: 'faq', label: 'FAQ', render: () => h('div', { class: 'doc' }, h('h2', null, 'よくある質問'), faq.map(([q, a]) => h('details', { class: 'faq' }, h('summary', null, q), h('p', null, a)))) },
     { id: 'glossary', label: '用語集', render: () => h('div', { class: 'doc' }, h('h2', null, '用語集'), h('dl', { class: 'kv' }, glossary.map(([k, v]) => [h('dt', null, k), h('dd', { style: { fontFamily: 'var(--font)' } }, v)]))) },
   ] });
@@ -658,13 +738,32 @@ function helpPage() {
 }
 
 /* ---------- screen ---------- */
+/** 画面の再描画のたびに実行する後始末（購読の解除・タイマーの停止・three.js の破棄）。設計 §1.6-3。 */
+/** @type {(() => void)[]} */
+let cleanups = [];
+/** @type {URLSearchParams} */
+let currentParams = new URLSearchParams();
+let currentScreenId = '';
+/** @returns {import('./features/index.js').FeatureCtx} */
+function makeCtx() {
+  return { screenId: currentScreenId, params: currentParams, navigate, onCleanup: (fn) => { cleanups.push(fn); } };
+}
+function runCleanups() {
+  for (const f of cleanups.splice(0)) { try { f(); } catch (e) { console.error(e); } }
+}
+
 const main = /** @type {HTMLElement} */ (document.getElementById('main'));
 const crumb = /** @type {HTMLElement} */ (document.getElementById('breadcrumb'));
 let lastId = '';
+/** 模擬の再生・位置スライダー・シーンツリーのある画面（導線点検 §5-4）。 */
+const SAMPLE_PLAYBACK_SCREENS = ['02', '05', '06', '13'];
 
 function render() {
-  const { id, tab } = parseLocation();
+  const { id, tab, params } = parseLocation();
   const s = SCREENS.find((x) => x.id === id);
+  runCleanups(); // 同じ画面の再描画（タブ切替・テーマ変更など）でも毎回行う
+  currentParams = params;
+  currentScreenId = id;
   for (const a of navEl.querySelectorAll('a[data-route]')) {
     if (/** @type {HTMLElement} */ (a).dataset.route === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   }
@@ -696,7 +795,16 @@ function render() {
   ws.append(centerPane(s));
   ws.append(rightPane(s, tab));
   if (s.bottom) ws.append(bottomPane(s));
-  main.append(head, ws);
+  // 模擬の再生・位置スライダー・シーンツリーが実機能に見えないよう常時表示する（導線点検 §5-4）。
+  // 条件は「その画面の 3D ビューの区画の status が real でない」こと。WP-04・05・06 で real にしたら自動で消える。
+  const c3 = s.center;
+  const viewStatus = c3.status || (c3.type === 'viewport' ? 'unimpl' : 'mock');
+  const banner = SAMPLE_PLAYBACK_SCREENS.includes(s.id) && viewStatus !== 'real'
+    ? h('div', { class: 'sample-banner', role: 'status', dataset: { role: 'sample-playback' } }, h('b', null, 'サンプル再生（3D未接続）'), '　この画面の再生・位置・ツリーの操作は画面内の仮動作で、3D表示は動きません。')
+    : null;
+  main.append(head);
+  if (banner) main.append(banner);
+  main.append(ws);
   if (lastId && lastId !== s.id) main.focus({ preventScroll: true });
   lastId = s.id;
 }
@@ -717,4 +825,6 @@ if (location.pathname === '/workspace' || location.pathname === '/workspace/') n
 else render();
 
 // Exposed for browser tests and future WebMCP adapters (read-only view of the mock).
-/** @type {any} */ (window).baiStudio = { screens: SCREENS.map((s) => ({ id: s.id, title: s.title, panels: s.panels.map((p) => ({ name: p.name, status: p.status })) })), navigate, statusLabels: STATUS_LABEL };
+/** @type {any} */ (window).baiStudio = { screens: SCREENS.map((s) => ({ id: s.id, title: s.title, panels: s.panels.map((p) => ({ name: p.name, status: p.status })) })), navigate, statusLabels: STATUS_LABEL,
+  // 読み取り専用（テスト用）。書き込みの関数は公開しない。
+  project: { getState: () => project.get() }, assets: { getState: () => assets.get() }, cleanupCount: () => cleanups.length };

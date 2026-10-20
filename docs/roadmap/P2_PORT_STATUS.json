@@ -1,0 +1,240 @@
+{
+  "schema": "bai.p2_port_status.v1",
+  "design": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md",
+  "baseline_commit": "5865209",
+  "precedes": "Phase E（docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json の p2_port を参照）",
+  "work_packages": [
+    {
+      "id": "P2-WP-00a-1",
+      "step": "データの隔離",
+      "state": "verified",
+      "commits": [
+        "c0dd018",
+        "704e5be"
+      ],
+      "tests": [],
+      "unverified": [
+        "Windows 実機未検証。Opus レビュー済み。"
+      ],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-00a-2",
+      "step": "ハーネスとテスト用ファイル・通し確認の土台",
+      "state": "verified",
+      "commits": [
+        "5fa72eb"
+      ],
+      "tests": [],
+      "unverified": [
+        "Opus レビュー未実施。three は THREE_DIR の手元コピー（npm ci 未実行）。GPU 実機・Windows 実機未検証。"
+      ],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-00b",
+      "step": "旧画面の保存バグ修正（B-1・B-2・B-3・reset）",
+      "state": "verified",
+      "commits": [
+        "b082ad8",
+        "56bffa8",
+        "a3cebf5"
+      ],
+      "tests": [],
+      "unverified": [
+        "Opus レビュー済み（②）。focus・sample・sequence/evaluate の GET は read() のまま（WP-02a）。Windows 実機・GPU 実機未検証。"
+      ],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-00c",
+      "step": "新UIの基盤",
+      "state": "in_progress",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-01",
+      "step": "② プロジェクト新規作成・保存/読込",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "Q1（新規作成）：所有者回答待ち。既定は ◇ のまま",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-02",
+      "step": "③ 素材一覧",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-03",
+      "step": "③ 素材取り込み",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-04",
+      "step": "④ 3D 表示・ステージ配置の基本・B-4",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-04b",
+      "step": "④ リターゲット検証",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05",
+      "step": "⑤ モーションの適用・タイムライン",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-06a",
+      "step": "⑥ mount 化",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-06b",
+      "step": "⑥ ホスト・配置表",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-06c",
+      "step": "⑥ ②の保存との統合",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-06d",
+      "step": "⑥ Phase E §7 の読み替え表",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-07",
+      "step": "⑦ 書き出し",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-08",
+      "step": "IK・AI",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-99",
+      "step": "締め",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "",
+      "owner_check": null
+    }
+  ],
+  "e2e_main": {
+    "furthest_step": null,
+    "steps": [
+      {
+        "id": "S1",
+        "result": "skip",
+        "reason": "WP-03・WP-04 が未着手"
+      },
+      {
+        "id": "S2",
+        "result": "skip",
+        "reason": "WP-04 が未着手"
+      },
+      {
+        "id": "S3",
+        "result": "skip",
+        "reason": "WP-06b・WP-06c が未着手"
+      },
+      {
+        "id": "S4",
+        "result": "skip",
+        "reason": "既存機能なし（音声の登録 API・タイムラインの音声トラックが旧画面に無い。Q4 で所有者が決める）"
+      },
+      {
+        "id": "S5",
+        "result": "skip",
+        "reason": "WP-05 が未着手"
+      },
+      {
+        "id": "S6",
+        "result": "skip",
+        "reason": "後段のフェーズ（MMDエフェクト）"
+      },
+      {
+        "id": "S7",
+        "result": "skip",
+        "reason": "WP-06c が未着手"
+      },
+      {
+        "id": "S8",
+        "result": "skip",
+        "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
+      }
+    ],
+    "commit": "cb5ce01",
+    "checked_at": "2026-10-20T10:02:31.411Z"
+  }
+}

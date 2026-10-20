@@ -232,7 +232,7 @@
   ],
   "p2_port": {
     "precedes_phase_e": true,
-    "status_ledger": "docs/roadmap/P2_PORT_STATUS.json（P2-WP-00c で新設予定。未作成）",
+    "status_ledger": "docs/roadmap/P2_PORT_STATUS.json（P2-WP-00c で新設済み。WP ごとの state・commits・tests・unverified と通し確認 e2e_main を記録）",
     "design": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md（v5、条件付き承認・最終判定 2026-10-20。条件 C1〜C10 は反映済み。WP-00a-1 から実装可）",
     "note": "所有者決定（2026-10-20）により P2（新UIへの移植）を Phase E より先に行う。以下の planned_in は予定であり、実施済みではない。"
   },
@@ -287,6 +287,15 @@
       "commit": "b082ad8",
       "tests": "tests/test_project_envelope.py、tests/legacy-project-save.test.cjs（B-2 の1文を外すと失敗することを確認）、pytest 322 passed、test:node-all 75 passed・8 skipped・0 failed、tsc 合格、実 data/ ハッシュ不変",
       "unverified": "Windows 実機・GPU 実機未検証。three は THREE_DIR の手元コピー（npm ci 未実行）"
+    },
+    {
+      "item": "新UIの基盤（api.js・store.js・bus.js・state-box.js・legacy.js・features/index.js・型宣言・features.css）、未接続の区画の薄い表示（OWNER-3）、導線点検 §5 の項目1〜5（表示の修正だけ）。Phase E の UI（WP-02a 以降）が載る土台",
+      "phase_e_wp": "（P2 の土台。Phase E の機能追加ではない）",
+      "planned_in": "P2-WP-00c",
+      "status": "done",
+      "commit": "（コミット後に追記）",
+      "tests": "",
+      "unverified": ""
     }
   ]
 }

@@ -1,23 +1,18 @@
 // @ts-check
 // Read-only adapters to the existing Python API. The mock never writes through these.
 // Each adapter reports failure honestly; callers show "未接続" instead of sample numbers.
+import { getJson } from './api.js';
 
 /** @typedef {{ok: true, data: any} | {ok: false, error: string}} LiveResult */
 
 /**
+ * 通信は api.js を通す。戻り値の形 {ok,data}|{ok:false,error} は変えない（画面の表示は同じ）。
  * @param {string} path
- * @param {'json'|'head'} [mode]
  * @returns {Promise<LiveResult>}
  */
-async function get(path, mode = 'json') {
-  try {
-    const res = await fetch(path, { method: mode === 'head' ? 'HEAD' : 'GET', headers: { Accept: 'application/json' }, cache: 'no-store' });
-    if (!res.ok) return { ok: false, error: `HTTP ${res.status}` };
-    if (mode === 'head') return { ok: true, data: { status: res.status, type: res.headers.get('content-type') } };
-    return { ok: true, data: await res.json() };
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) };
-  }
+async function get(path) {
+  const r = await getJson(path);
+  return r.ok ? { ok: true, data: r.data } : { ok: false, error: r.message };
 }
 
 /** Existing endpoints this shell may read. Keys are referenced from screen definitions. */

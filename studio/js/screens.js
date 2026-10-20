@@ -6,13 +6,16 @@ import { img, CAM_PRESETS, LENS_PRESETS, SHOT_TEMPLATES, ASSETS } from './sample
 //   partial = code exists in the current UI (/, /camera.html) but is not ported here yet
 //   mock    = local sample state only ("サンプル表示"), nothing is saved
 //   unimpl  = no implementation; clicking explains where it sits on the roadmap
+// `real` の区画は `evidence`（'<テストファイル>::<テスト名>'）が必須。シェル自体が機能を果たす区画（テーマ・ヘルプ）は
+// `shell: true` を付け、evidence は tests/studio-ui.test.cjs を指す（P2 設計 §1.13、tests/test_screen_status_honesty.mjs が検査）。
+// `real` 以外の区画は新UIで薄く表示され「未接続（まだ使えません）」と出る（OWNER-3）。
 
 /** @typedef {import('./ui.js').Status} Status */
 /**
  * @typedef {{t: string, [k: string]: any}} Control
- * @typedef {{title: string, status?: Status, note?: string, controls: Control[]}} Section
+ * @typedef {{title: string, status?: Status, note?: string, evidence?: string, shell?: boolean, controls: Control[]}} Section
  * @typedef {{id: string, label: string, sections: Section[], custom?: string}} Tab
- * @typedef {{name: string, status: Status, note?: string, ids?: string[]}} Panel
+ * @typedef {{name: string, status: Status, note?: string, ids?: string[], evidence?: string, shell?: boolean}} Panel
  * @typedef {{
  *   id: string, title: string, nav: string, group: string, summary: string,
  *   classification: string, ids: string[], panels: Panel[],
@@ -28,12 +31,12 @@ import { img, CAM_PRESETS, LENS_PRESETS, SHOT_TEMPLATES, ASSETS } from './sample
 export const PH = {
   E: 'Phase E カメラ（承認済み・進行中）',
   F: 'Phase F レンダリング（承認済み・Phase E の後）',
-  LIP: 'リップシンク・表情・MMDエフェクト先行（承認済み・Phase F の後）',
+  LIP: 'リップシンク・表情モーフ（承認済み・Phase E の後、F の前。所有者決定 2026-10-20）。MMDエフェクトは F の後',
   C: 'Phase C マルチダンサー（承認済み）',
   D: 'Phase D 音楽同期・表情（承認済み）',
   G: 'Phase G リリック・MMDエフェクト（承認済み）',
   H: 'Phase H 格闘・演出・ステージ（承認済み）',
-  P2: 'P2 既存機能の新UI移植（Phase E の後に実施・所有者決定）',
+  P2: 'P2 既存機能の新UI移植（Phase E より前・作業の流れ順。所有者決定 2026-10-20）',
   P4: 'P4 新規機能候補（未承認・承認まで実装しない）',
   B: 'Phase B 残課題（保持・E/F のブロッカーにしない）',
   OBS: 'Phase 00 ログ基盤（OBS、仕様決定済み）',
@@ -42,8 +45,12 @@ export const PH = {
 /* ---- control shorthands ---- */
 /** @param {string} label @param {string} act @param {Record<string, any>} [x] */
 const btn = (label, act, x = {}) => ({ t: 'btn', label, act, ...x });
-/** @param {string} label @param {string} why @param {string[]} ids @param {string} phase */
-const un = (label, why, ids, phase) => btn(label, 'unimpl', { why, ids, phase });
+/**
+ * 未実装ボタン。`next` は「今できること」の案内（同じ画面の tools に旧画面へのリンクがあり、
+ * 旧画面で実際に行えるものだけに書く。P2 設計 §3 WP-00c / v5 C8）。書かなければ既定の案内と［ホームへ］が出る。
+ * @param {string} label @param {string} why @param {string[]} ids @param {string} phase
+ * @param {{text: string, label: string, act: string}} [next] */
+const un = (label, why, ids, phase, next) => btn(label, 'unimpl', { why, ids, phase, next });
 /** @param {string} label @param {number} min @param {number} max @param {number} value @param {string} [unit] @param {number} [step] */
 const sl = (label, min, max, value, unit = '', step = 1) => ({ t: 'slider', label, min, max, value, unit, step });
 /** @param {string} label @param {string[]} options @param {string} [value] */
@@ -60,6 +67,10 @@ const live = (key) => ({ t: 'live', key });
 const link = (label, href) => ({ t: 'link', label, href });
 /** @param {string} prefix @param {number} n @param {(i: number) => string} [meta] */
 const items = (prefix, n, meta) => Array.from({ length: n }, (_, i) => ({ id: `${prefix}${i + 1}`, label: `${prefix} ${String(i + 1).padStart(2, '0')}`, meta: meta ? meta(i) : undefined }));
+
+/** SCR-01 の［新規プロジェクト］5か所はすべてこれ（P2 設計 §2.2(b) / v5 C7）。作成は取り消しのできない上書きになるため、Q1 の回答まで ◇ 未実装。
+ * @param {string} label @param {Record<string, any>} [x] */
+export const newProjectUnimpl = (label, x = {}) => ({ ...un(label, '現在のサーバーは制作状態を1つだけ保持します。新しい制作状態を作る機能は未実装です（DATA-008 の範囲外、テンプレートからの作成は NF-019）。', ['DATA-008', 'NF-019'], PH.P2), ...x });
 
 const CAMERA = { label: 'カメラ画面（現行）', href: '/camera.html' };
 const MAIN = { label: '制作画面（現行）', href: '/' };
@@ -87,10 +98,10 @@ export const SCREENS = [
       { name: '最近のプロジェクト', status: 'mock', note: '現行サーバーは単一の制作状態のみを保持。複数プロジェクト一覧は未実装。', ids: ['DATA-008'] },
       { name: 'クイックアクション', status: 'partial', note: '現行画面へのリンクのみ実在。' },
       { name: '制作ステータス', status: 'partial', note: 'Phase E 台帳（docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json）の要約。' },
-      { name: '新規作成', status: 'mock', note: '入力検証のみ。保存されない。テンプレート（ダンスMV等）からの作成は NF-019（未承認）。', ids: ['DATA-008', 'NF-019'] },
-      { name: '通知・進捗', status: 'real', note: '/api/diagnostics/recent を読み取り表示。' },
+      { name: '新規作成', status: 'unimpl', note: '現在のサーバーは制作状態を1つだけ保持。新規作成は未実装（Q1 回答待ち）。テンプレート（ダンスMV等）からの作成は NF-019（未承認）。', ids: ['DATA-008', 'NF-019'] },
+      { name: '通知・進捗', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', note: '/api/diagnostics/recent を読み取り表示。' },
     ],
-    tools: [btn('新規プロジェクト', 'form:newProject', { primary: true }), un('プロジェクトを開く', '複数プロジェクトのファイル選択・切替は未実装。現行は単一の制作状態を自動で読み込みます。', ['DATA-008'], PH.P2)],
+    tools: [newProjectUnimpl('新規プロジェクト', { primary: true }), un('プロジェクトを開く', '複数プロジェクトのファイル選択・切替は未実装。現行は単一の制作状態を自動で読み込みます。', ['DATA-008'], PH.P2)],
     center: {
       type: 'home', cards: [
         { title: '最近のプロジェクト', span: 8, status: 'mock', controls: [
@@ -105,11 +116,11 @@ export const SCREENS = [
           { t: 'progress', rows: [['CAM-001〜018 リリース完了', 0, '0 / 18'], ['コード根拠あり（部分実装）', 100, '台帳参照'], ['UI/API/両MCP 実ブラウザー検証', 0, '0 / 18']] },
           note('2026-10-19 時点の台帳。完了判定は実モデル・実ブラウザー検証後に更新されます。'),
         ] },
-        { title: '通知・進捗', span: 6, status: 'real', controls: [live('diagnostics')] },
-        { title: 'サーバー', span: 6, status: 'real', controls: [live('serverVersion')] },
-        { title: '新規作成', span: 6, status: 'mock', controls: [
-          note('テンプレートを選んで作成フォームを開きます（入力検証のみ）。'),
-          { t: 'btns', items: [btn('ダンスMV', 'form:newProject'), btn('カメラ試験', 'form:newProject'), btn('空のプロジェクト', 'form:newProject')] },
+        { title: '通知・進捗', span: 6, status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('diagnostics')] },
+        { title: 'サーバー', span: 6, status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('serverVersion')] },
+        { title: '新規作成', span: 6, status: 'unimpl', controls: [
+          note('新しい制作状態を作る機能は未実装です。押すと理由と予定が表示されます。'),
+          { t: 'btns', items: [newProjectUnimpl('ダンスMV'), newProjectUnimpl('カメラ試験'), newProjectUnimpl('空のプロジェクト')] },
         ] },
       ],
     },
@@ -165,7 +176,7 @@ export const SCREENS = [
     center: { type: 'viewport', img: 'viewport-camera', hud: ['Scene View', '焦点面ガイド'], focusPlane: true, tools: ['選択', '焦点面'], foot: '焦点面の位置はサンプル表示です。' },
     right: { tabs: [
       { id: 'diag', label: '診断', sections: [
-        { title: '既存APIの診断結果（0フレーム）', status: 'real', note: '保存済みカメラ設定とガイド人体から計算。実モデル・全区間ではありません。', controls: [live('cameraFocus')] },
+        { title: '既存APIの診断結果（0フレーム）', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', note: '保存済みカメラ設定とガイド人体から計算。実モデル・全区間ではありません。', controls: [live('cameraFocus')] },
         { title: '判定区分', status: 'mock', controls: [{ t: 'checks', rows: [['ok', '許容範囲内', '—'], ['warn', '手前ボケ / 奥ボケ', '—'], ['', '判定不能（モデル未同期）', '—']] }] },
       ] },
       { id: 'lens', label: 'レンズ', sections: [
@@ -195,7 +206,7 @@ export const SCREENS = [
     center: { type: 'viewport', img: 'hero', hud: ['Sequence Preview'], foot: 'プレビュー描画は現行カメラ画面で利用できます。' },
     right: { tabs: [
       { id: 'shot', label: 'ショット', sections: [
-        { title: '既存APIのシーケンス評価（0フレーム）', status: 'real', controls: [live('sequenceEval')] },
+        { title: '既存APIのシーケンス評価（0フレーム）', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('sequenceEval')] },
         { title: 'トランジション', status: 'unimpl', controls: [sel('種類', ['カット', 'クロスフェード', 'ワイプ']), un('トランジションを適用', 'ショット間トランジションは未実装。', ['CAM-015'], PH.E)] },
       ] },
     ] },
@@ -235,7 +246,7 @@ export const SCREENS = [
       { name: 'アセットブラウザー', status: 'mock', note: '素材管理（08）と同一索引にする方針。' },
       { name: '表示・依存関係', status: 'unimpl' },
     ],
-    tools: [ch('座標系', ['ワールド', 'ローカル']), un('ステージを読み込む', '大型ステージの分割読込は Phase G の範囲です。', ['LYRIC-009'], PH.G)],
+    tools: [ch('座標系', ['ワールド', 'ローカル']), un('ステージを読み込む', 'ステージの配置は P2 ④（WP-04）で使えるようになります。大型ステージの分割読込は Phase G（LYRIC-009）です。', ['NF-014', 'LYRIC-009'], PH.P2)],
     left: { title: 'シーンツリー', status: 'mock', tree: true, list: [{ id: 'r', label: 'Scene', depth: 0 }, { id: 'st', label: 'Stage', depth: 1 }, { id: 'fl', label: 'Floor', depth: 2 }, { id: 'ch', label: 'Characters', depth: 1 }, { id: 'a', label: 'Model A', depth: 2 }, { id: 'b', label: 'Model B', depth: 2 }, { id: 'li', label: 'Lights', depth: 1 }, { id: 'k', label: 'Key Light', depth: 2 }, { id: 'cam', label: 'Camera', depth: 1 }] },
     center: { type: 'viewport', img: 'preview-shrine', hud: ['Scene View', 'Perspective'], tools: ['選択', '移動', '回転', '拡大縮小'], foot: 'ステージ配置ビューは ◇ 未実装。' },
     right: { tabs: [
@@ -387,7 +398,7 @@ export const SCREENS = [
       { name: '足IK', status: 'partial', note: 'foot_contact.py・dual_foot_plan.py（Phase B 残課題を含む）。', ids: ['MOTION-011'] },
       { name: '入出力', status: 'partial', note: 'motion_vmd_bridge.py・vmd_readback.py。', ids: ['MOTION-006'] },
     ],
-    tools: [btn('現行画面で開く', 'href:/'), un('VMDを書き出す', 'この新UIからの書き出しは未接続。現行画面の変換機能を利用してください。', ['MOTION-006'], PH.P2)],
+    tools: [btn('現行画面で開く', 'href:/'), un('VMDを書き出す', 'この新UIからの書き出しは未接続。現行画面の変換機能を利用してください。', ['MOTION-006'], PH.P2, { text: '今は現行画面で行えます。', label: '現行画面で開く', act: 'href:/' })],
     left: { title: 'VMDライブラリ', status: 'mock', search: true, list: items('Dance', 6, (i) => `${(i + 2) * 120}f`) },
     center: { type: 'quad', labels: ['元モーション', '対象モデル', '重ね合わせ', '側面'], imgs: ['motion-dance', 'viewport-character', 'motion-walk', 'char-baisound'] },
     right: { tabs: [
@@ -432,11 +443,11 @@ export const SCREENS = [
       { name: '優先順位診断', status: 'partial', note: 'VMD優先度の描画監査あり（test_camera_vmd_render_priority.py）。', ids: ['CAM-016'] },
       { name: '書き出し', status: 'partial', note: 'encode_camera_track（F値・焦点距離は拡張JSONが必要）。', ids: ['CAM-016'] },
     ],
-    tools: [btn('現行カメラ画面で開く', 'href:/camera.html'), un('VMDを書き出す', '新UIからの書き出しは未接続。現行カメラ画面を利用してください。', ['CAM-016'], PH.P2)],
+    tools: [btn('現行カメラ画面で開く', 'href:/camera.html'), un('VMDを書き出す', '新UIからの書き出しは未接続。現行カメラ画面を利用してください。', ['CAM-016'], PH.P2, { text: '今は現行画面で行えます。', label: '現行カメラ画面で開く', act: 'href:/camera.html' })],
     left: { title: 'カメラVMD', status: 'mock', search: true, list: [{ id: 'c1', label: 'camera_intro.vmd', meta: '450f' }, { id: 'c2', label: 'camera_chorus.vmd', meta: '900f' }] },
     center: { type: 'quad', labels: ['MMD座標', '内部座標', '重ね合わせ', 'カメラ'], imgs: ['viewport-character', 'viewport-character', 'viewport-shrine', 'viewport-camera'] },
     right: { tabs: [
-      { id: 'proj', label: '現在の状態', sections: [{ title: '保存済みカメラプロジェクト', status: 'real', controls: [live('cameraProject')] }] },
+      { id: 'proj', label: '現在の状態', sections: [{ title: '保存済みカメラプロジェクト', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('cameraProject')] }] },
       { id: 'conv', label: '変換', sections: [{ title: '座標変換', status: 'mock', controls: [sel('入力座標', ['MMD (左手系)', '内部 (右手系)']), sl('スケール', 0.01, 1, 0.08, '', 0.01), tg('F値・焦点距離を拡張JSONに保存', true), note('標準VMDはF値・焦点距離を保持できないため拡張JSONが必須です。')] }] },
       { id: 'prio', label: '優先順位', sections: [{ title: '優先順位診断', status: 'mock', controls: [{ t: 'checks', rows: [['', 'VMDカメラ', '最優先'], ['', 'シーケンス', '次点'], ['', '手動カメラ', '既定']] }] }] },
     ] },
@@ -460,7 +471,7 @@ export const SCREENS = [
     center: { type: 'quad', labels: ['Cam A', 'Cam B', 'Cam C', 'Cam D'], imgs: ['viewport-shrine', 'viewport-camera', 'hero', 'viewport-character'] },
     right: { tabs: [
       { id: 'assign', label: '割当', sections: [{ title: 'カメラ割当', status: 'mock', controls: [sel('ショットのカメラ', ['Cam A', 'Cam B', 'Cam C', 'Cam D']), sl('開始', 0, 1350, 360, 'f'), sl('終了', 0, 1350, 600, 'f')] }] },
-      { id: 'eval', label: '評価', sections: [{ title: '既存APIのシーケンス評価', status: 'real', controls: [live('sequenceEval')] }] },
+      { id: 'eval', label: '評価', sections: [{ title: '既存APIのシーケンス評価', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('sequenceEval')] }] },
     ] },
     bottom: { type: 'timeline', status: 'mock', fps: 30, frames: 1350, tracks: [
       { label: 'Cam A', clips: [[0, 150, 'Shot 01'], [600, 840, 'Shot 04']] },
@@ -506,7 +517,7 @@ export const SCREENS = [
     tools: [btn('現行カメラ画面で保存・復元', 'href:/camera.html'), btn('復元…', 'form:confirmRestore'), un('ポータブルZIP', '制作データのポータブルZIPは未実装（DATA-012）。', ['DATA-012'], PH.P2)],
     left: { title: 'プロジェクト', status: 'mock', list: [{ id: 'cur', label: '現在の制作状態', meta: 'サーバー' }] },
     center: { type: 'cards', cards: [
-      { title: '現在の制作状態（読み取り）', span: 8, status: 'real', controls: [live('projectBundle'), note('この画面は読み取りのみです。保存・復元は現行カメラ画面で行えます（リビジョン不一致時は拒否されます）。')] },
+      { title: '現在の制作状態（読み取り）', span: 8, status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('projectBundle'), note('この画面は読み取りのみです。保存・復元は現行カメラ画面で行えます（リビジョン不一致時は拒否されます）。')] },
       { title: 'バージョン', span: 4, status: 'partial', controls: [note('リビジョン値で同時編集を検知します。版の一覧・任意版への復元は未実装です。'), un('版を比較', '差分比較は未実装（DATA-009）。', ['DATA-009'], PH.P2)] },
       { title: 'アーカイブ', span: 12, status: 'unimpl', controls: [{ t: 'empty', text: 'アーカイブはありません。' }] },
     ] },
@@ -528,7 +539,7 @@ export const SCREENS = [
     tools: [un('エージェントを追加', 'AIエージェント統合GUIは未承認の新規候補（NF-007）。', ['NF-007'], PH.P4)],
     left: { title: '接続', status: 'partial', list: [{ id: 'web', label: 'WebMCP（ブラウザ）', meta: 'webmcp.js' }, { id: 'std', label: '標準MCP（stdio）', meta: 'mcp_server.py' }, { id: 'ollama', label: 'Ollama（任意）', meta: '設定依存' }] },
     center: { type: 'cards', cards: [
-      { title: 'AI接続状態（既存API）', span: 6, status: 'real', controls: [live('aiStatus'), note('未接続なら未接続と表示します。サンプルの稼働率やGPU負荷は表示しません。')] },
+      { title: 'AI接続状態（既存API）', span: 6, status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('aiStatus'), note('未接続なら未接続と表示します。サンプルの稼働率やGPU負荷は表示しません。')] },
       { title: '標準MCPの起動', span: 6, status: 'partial', controls: [{ t: 'code', text: 'python mcp_server.py' }, note('設定手順は MCP_SETUP_JA.md を参照。')] },
       { title: '実行ログ', span: 12, status: 'unimpl', controls: [{ t: 'empty', text: 'MCP呼び出し診断（OBS-004）は未実装です。' }] },
     ] },
@@ -540,21 +551,21 @@ export const SCREENS = [
     classification: 'candidate_late', ids: ['CORE-006', 'CORE-013', 'OBS-002', 'OBS-007', 'NF-008', 'NF-021'],
     live: ['serverVersion', 'qaSettings'],
     panels: [
-      { name: 'システム情報', status: 'real', note: '/api/server-version。' },
+      { name: 'システム情報', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', note: '/api/server-version。' },
       { name: '保存パス', status: 'unimpl', note: '現行は data/ 固定。保存先の変更は NF-021（未承認）。', ids: ['CORE-006', 'NF-021'] },
       { name: 'プラグイン', status: 'unimpl', ids: ['NF-008'] },
       { name: '外部アプリ', status: 'unimpl', ids: ['MOTION-007'] },
       { name: 'MCP', status: 'partial', ids: ['CORE-003'] },
       { name: 'ショートカット', status: 'mock', note: 'この新UIのショートカットのみ実在。' },
-      { name: 'ログ', status: 'real', note: '/api/ui-qa/settings（画面テスト記録の設定）を表示。', ids: ['OBS-002'] },
+      { name: 'ログ', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', note: '/api/ui-qa/settings（画面テスト記録の設定）を表示。', ids: ['OBS-002'] },
     ],
     center: { type: 'tabsCenter', tabs: [
-      { id: 'sys', label: 'システム情報', sections: [{ title: 'サーバー', status: 'real', controls: [live('serverVersion')] }, { title: 'ブラウザ', status: 'real', controls: [{ t: 'browserInfo' }] }] },
+      { id: 'sys', label: 'システム情報', sections: [{ title: 'サーバー', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('serverVersion')] }, { title: 'ブラウザ', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [{ t: 'browserInfo' }] }] },
       { id: 'paths', label: '保存パス', sections: [{ title: '保存パス', status: 'unimpl', controls: [{ t: 'kv', rows: [['制作データ', 'data/（固定）'], ['書き出し', 'exports/（固定）']] }, un('保存先を変更', '保存パスの変更は未実装。', ['CORE-006'], PH.P2)] }] },
       { id: 'plugins', label: 'プラグイン', sections: [{ title: 'プラグイン', status: 'unimpl', controls: [{ t: 'empty', text: 'プラグイン機構はありません（NF-008・未承認）。' }] }] },
       { id: 'apps', label: '外部アプリ', sections: [{ title: '外部アプリ', status: 'unimpl', controls: [{ t: 'kv', rows: [['Blender', '未検出（検出機能なし）'], ['FFmpeg', '未検出（検出機能なし）']] }, un('検出する', '外部アプリの自動検出は未実装。', ['MOTION-007', 'RENDER-006'], PH.F)] }] },
-      { id: 'keys', label: 'ショートカット', sections: [{ title: 'この画面で使えるショートカット', status: 'real', controls: [{ t: 'kv', rows: [['Ctrl+K', '画面を検索して移動'], ['Alt+← / Alt+→', '戻る / 進む'], ['Alt+1〜9', 'ナビの1〜9番目へ'], ['Esc', 'ダイアログを閉じる']] }] }] },
-      { id: 'log', label: 'ログ', sections: [{ title: '画面テスト記録・容量', status: 'real', controls: [live('qaSettings')] }, { title: '診断ZIP', status: 'real', controls: [link('診断ZIPを保存（既存API）', '/api/diagnostics/export')] }] },
+      { id: 'keys', label: 'ショートカット', sections: [{ title: 'この画面で使えるショートカット', status: 'real', evidence: 'tests/studio-ui.test.cjs::tabs, dropdown, palette and keyboard work', shell: true, controls: [{ t: 'kv', rows: [['Ctrl+K', '画面を検索して移動'], ['Alt+← / Alt+→', '戻る / 進む'], ['Alt+1〜9', 'ナビの1〜9番目へ'], ['Esc', 'ダイアログを閉じる']] }] }] },
+      { id: 'log', label: 'ログ', sections: [{ title: '画面テスト記録・容量', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('qaSettings')] }, { title: '診断ZIP', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [link('診断ZIPを保存（既存API）', '/api/diagnostics/export')] }] },
     ] },
   },
   {
@@ -562,17 +573,17 @@ export const SCREENS = [
     summary: 'テーマ・文字・レイアウトテンプレート・パネル表示を切り替える。',
     classification: 'candidate_late', ids: ['UX-001', 'UX-002', 'UX-006', 'NF-009', 'NF-022'],
     panels: [
-      { name: 'テーマ', status: 'real', note: 'この新UIのテーマ切替（ブラウザに保存）。製品機能としては NF-022（未承認）。', ids: ['NF-022'] },
-      { name: '色・文字', status: 'real', note: '表示密度の切替。製品機能としては NF-022（未承認）。', ids: ['NF-022'] },
+      { name: 'テーマ', status: 'real', evidence: 'tests/studio-ui.test.cjs::theme preference persists and narrow screens do not scroll sideways', shell: true, note: 'この新UIのテーマ切替（ブラウザに保存）。製品機能としては NF-022（未承認）。', ids: ['NF-022'] },
+      { name: '色・文字', status: 'real', evidence: 'tests/studio-ui.test.cjs::theme preference persists and narrow screens do not scroll sideways', shell: true, note: '表示密度の切替。製品機能としては NF-022（未承認）。', ids: ['NF-022'] },
       { name: 'テンプレート', status: 'mock' },
       { name: 'ドラッグ配置', status: 'unimpl', ids: ['NF-009'] },
-      { name: 'パネル表示', status: 'real', note: '左パネル・下部タイムラインの表示切替。' },
+      { name: 'パネル表示', status: 'real', evidence: 'tests/studio-ui.test.cjs::theme preference persists and narrow screens do not scroll sideways', shell: true, note: '左パネル・下部タイムラインの表示切替。' },
       { name: '複数画面', status: 'unimpl', ids: ['NF-009'] },
       { name: '出力', status: 'unimpl' },
     ],
     center: { type: 'themeStudy' },
     right: { tabs: [{ id: 'layout', label: 'レイアウト', sections: [
-      { title: 'パネル表示', status: 'real', controls: [{ t: 'prefToggle', key: 'bottomCollapsed', label: '下部タイムラインを折りたたむ' }, { t: 'prefDensity' }] },
+      { title: 'パネル表示', status: 'real', evidence: 'tests/studio-ui.test.cjs::theme preference persists and narrow screens do not scroll sideways', shell: true, controls: [{ t: 'prefToggle', key: 'bottomCollapsed', label: '下部タイムラインを折りたたむ' }, { t: 'prefDensity' }] },
       { title: 'テンプレート', status: 'mock', controls: [ch('レイアウト', ['撮影', '編集', 'レビュー'])] },
       { title: 'ドラッグ配置・複数画面', status: 'unimpl', controls: [un('パネルを切り離す', '完全ドッキングUI・複数モニター配置は未承認の新規候補（NF-009）。', ['NF-009'], PH.P4)] },
     ] }] },
@@ -625,13 +636,13 @@ export const SCREENS = [
       { name: 'リソース', status: 'unimpl', note: '実測していない値は表示しない。CPU/メモリ/GPU/FPSの実測は NF-016（未承認）。', ids: ['NF-016'] },
       { name: '品質検査', status: 'partial', note: 'phase_b_release_gate.py・qa/phase_b_gate.py（Phase B ゲート）。', ids: ['REVIEW-003'] },
       { name: '検証項目', status: 'partial', note: 'Phase E 台帳。', ids: ['CAM-001'] },
-      { name: '詳細レポート', status: 'real', note: '/api/diagnostics/recent・診断ZIP。', ids: ['OBS-006'] },
+      { name: '詳細レポート', status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', note: '/api/diagnostics/recent・診断ZIP。', ids: ['OBS-006'] },
       { name: '性能', status: 'unimpl', ids: ['NF-016'] },
       { name: '再診断', status: 'unimpl', ids: ['NF-011'] },
     ],
     tools: [btn('診断ZIPを保存', 'href:/api/diagnostics/export'), un('再診断', '自動品質採点・再診断は未承認の新規候補（NF-011）。', ['NF-011'], PH.P4)],
     center: { type: 'cards', cards: [
-      { title: '最近の診断ログ（既存API）', span: 8, status: 'real', controls: [live('diagnostics')] },
+      { title: '最近の診断ログ（既存API）', span: 8, status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('diagnostics')] },
       { title: 'リソース', span: 4, status: 'unimpl', controls: [{ t: 'kv', rows: [['CPU', '未計測'], ['メモリ', '未計測'], ['GPU', '未計測'], ['FPS', '未計測']] }] },
       { title: '検証項目（Phase E）', span: 12, status: 'partial', controls: [{ t: 'checks', rows: [['', 'CAM-001〜018 リリース完了', '0 / 18'], ['', '実モデル2画面ブラウザー検証', '未実施'], ['', 'UI/API/WebMCP/標準MCP 整合', '未実施'], ['', 'MMD互換性・統合試験', '未実施']] }] },
     ] },
@@ -641,13 +652,13 @@ export const SCREENS = [
     summary: '初回セットアップ、目的別ガイド、マニュアル、FAQ、用語集。',
     classification: 'candidate_late', ids: ['CORE-009', 'UX-004', 'NF-012', 'NF-015'],
     panels: [
-      { name: 'ウェルカム', status: 'real', note: 'この新UIの案内。' },
+      { name: 'ウェルカム', status: 'real', evidence: 'tests/studio-ui.test.cjs::help pages render their content', shell: true, note: 'この新UIの案内。' },
       { name: '初回セットアップ', status: 'mock', note: '手順チェックは画面内のみ。' },
-      { name: '目的別ガイド', status: 'real', note: '各画面へのリンク。' },
+      { name: '目的別ガイド', status: 'real', evidence: 'tests/studio-ui.test.cjs::help pages render their content', shell: true, note: '各画面へのリンク。' },
       { name: '動画', status: 'unimpl', note: '紹介ムービー・動画チュートリアルは NF-015（未承認）。', ids: ['NF-015'] },
       { name: 'マニュアル', status: 'partial', note: 'リポジトリ内の日本語文書（AI不要_通常利用ガイド.md 等）。', ids: ['CORE-009'] },
-      { name: 'FAQ', status: 'real' },
-      { name: '用語集', status: 'real' },
+      { name: 'FAQ', status: 'real', evidence: 'tests/studio-ui.test.cjs::help pages render their content', shell: true },
+      { name: '用語集', status: 'real', evidence: 'tests/studio-ui.test.cjs::help pages render their content', shell: true },
     ],
     center: { type: 'help' },
   },
