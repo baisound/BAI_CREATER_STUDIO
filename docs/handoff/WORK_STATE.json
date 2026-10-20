@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T14:06:04+00:00",
+  "updated_at": "2026-10-20T14:08:37+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "d33496a",
+  "head_at_update": "da43e6b",
   "current": {
-    "task": "P2-WP-01 保存・読込",
-    "status": "done",
+    "task": "P2-WP-02/03 素材",
+    "status": "in_progress",
     "step": "設計書読込・実装着手",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T14:08:37+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "da43e6b",
+      "text": "P2-WP-02/03 素材: 設計書読込・実装着手"
+    },
     {
       "at": "2026-10-20T14:06:04+00:00",
       "by": "claude-code",
