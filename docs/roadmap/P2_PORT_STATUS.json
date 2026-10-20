@@ -214,7 +214,7 @@
       "step": "⑤ SCR-05 の82パターン・お気に入り・コンビネーションの編集",
       "state": "verified",
       "commits": [
-        "(SHA は次のコミットで記入)"
+        "7292f13"
       ],
       "tests": [
         "tests/studio-p2-chain.test.cjs 新規9件（pattern list marks registered fbx with a crown、pattern list says so when the registration cannot be read、add to combination records history and autosaves、unregistered pattern is not added、reorder delete clear follow record rules、speed autosaves without history、favorites keep entries added elsewhere、favorite save failure keeps the dialog、preview_motion selects the row）。ポート 8784（P2_CHAIN_PORT）",
