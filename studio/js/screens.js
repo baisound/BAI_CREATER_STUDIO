@@ -24,7 +24,7 @@ import { img, CAM_PRESETS, LENS_PRESETS, SHOT_TEMPLATES, ASSETS } from './sample
  *   left?: {title: string, status: Status, list?: any[], tree?: boolean, search?: boolean, controls?: Control[], custom?: string},
  *   center: {type: string, [k: string]: any},
  *   right?: {tabs: Tab[]},
- *   bottom?: {type: 'timeline', status: Status, fps: number, frames: number, tracks: any[]} | null,
+ *   bottom?: {type: 'timeline', status: Status, fps: number, frames: number, tracks: any[], demoEditable?: boolean} | null,
  * }} Screen
  */
 
@@ -710,7 +710,7 @@ export const SCREENS = [
     tools: [btn('素材管理（08）へ', 'nav:08'), un('MMD設定書を出す', '互換レベルと未対応項目を記した設定書の出力は未実装です。', ['RENDER-015'], PH.FX)],
     left: { title: '登録済み効果', status: 'unimpl', list: [], controls: [note('FX素材の出典・許諾・依存は素材管理で登録します。')] },
     center: { type: 'cards', cards: [
-      { title: 'プレビューと出力の差分', span: 8, status: 'unimpl', controls: [{ t: 'empty', text: '効果はまだ適用できません。ブラウザーと実レンダーの対応範囲を別々に表示します。' }] },
+      { title: 'プレビューと出力の差分', span: 8, status: 'unimpl', controls: [{ t: 'conceptPreview', kind: 'fx', src: '/studio/assets/mock-previews/mmd-fx-concept.png', alt: '仮想ダンサーの発光とステージ照明を描いたMMD効果の構想図' }, note('画像は効果の構想例です。タイムラインは仮データで、ブラウザー描画・動画出力には反映されません。')] },
       { title: '互換レベル', span: 4, status: 'unimpl', controls: [note('原 .fx の実行、ブラウザー近似、MMD向け設定出力を区別します。')] },
     ] },
     right: { tabs: [
@@ -722,7 +722,11 @@ export const SCREENS = [
       { id: 'builtin', label: '内蔵効果', sections: [{ title: '描画効果と互換性', status: 'unimpl', controls: [note('Bloom・DOF・MotionBlur・発光のブラウザー／動画対応を別々に表示します。'), un('効果を設定', '内蔵描画効果は未実装です。', ['RENDER-012'], PH.FX)] }] },
       { id: 'events', label: '対象・時刻', sections: [{ title: '演出イベント', status: 'unimpl', controls: [note('発光・火花・煙・衝撃波を対象とヒットフレームに結びます。'), un('イベントを追加', '時刻付き演出は未実装です。', ['RENDER-013'], PH.FX)] }] },
     ] },
-    bottom: { type: 'timeline', status: 'unimpl', fps: 30, frames: 900, tracks: [{ label: '強度キー', keys: [] }, { label: 'FXイベント', keys: [] }] },
+    bottom: { type: 'timeline', status: 'unimpl', demoEditable: true, fps: 30, frames: 900, tracks: [
+      { label: '効果区間', clips: [[80, 300, 'Bloom'], [330, 580, '火花'], [600, 820, 'DOF']] },
+      { label: '強度キー', keys: [80, 150, 240, 330, 430, 600, 750] },
+      { label: 'FXイベント', keys: [365, 420, 510] },
+    ] },
   },
   {
     id: '27', title: '歌詞・MV構成', nav: '歌詞・MV構成', group: '制作',
@@ -747,8 +751,8 @@ export const SCREENS = [
       note('行とカット：未作成。各行の開始時刻、カット数、固定、再抽選をここで編集します。'),
     ] },
     center: { type: 'cards', cards: [
-      { title: '文字PV・ステージプレビュー', span: 12, status: 'unimpl', controls: [{ t: 'empty', text: '歌詞と音声を用意すると、文字の動きと3Dキャラクター・ショットを同じ時刻で確認できます。現在は未実装です。' }] },
-      { title: '再生と行／カット', span: 8, status: 'unimpl', controls: [note('再生位置、行の開始、カット境界、音声の拍を下の時間軸に表示します。SRT取込後は発話の開始ごとにブロックを置き、この開始から次の開始までを区間として示します。')] },
+      { title: '文字PV・ステージプレビュー', span: 12, status: 'unimpl', controls: [{ t: 'conceptPreview', kind: 'lyrics', src: '/studio/assets/mock-previews/lyrics-mv-concept.png', alt: '歌い手と夜のステージを描いた歌詞MVの構想図', lyric: '光の向こうへ' }, note('画像と歌詞は構想例です。タイムライン操作はこの画面だけのサンプルで、映像には反映されません。')] },
+      { title: '再生と行／カット', span: 8, status: 'unimpl', controls: [note('再生位置、行・カット、音声、文字モーションを下の時間軸に重ねます。SRTの発話ブロックは各キューの［開始, 終了）を示し、間の無音や重なりも残します。')] },
       { title: '連携先', span: 4, status: 'unimpl', controls: [note('音声の編集は10、ショット本体は16、動画出力は17です。ここでは共通時刻の参照と文字PVの構成を扱います。')] },
     ] },
     right: { tabs: [
@@ -756,7 +760,7 @@ export const SCREENS = [
         { title: '文字PVの案', status: 'unimpl', controls: [note('歌詞・音声・許諾済み演出パックから文字PVの案を作ります。歌詞・音声・手動時刻と固定した行は変えず、構成だけを再提案します。'), un('おまかせで作る', '文字PVの自動構成は未実装です。', ['LYRIC-002', 'LYRIC-003'], PH.G), un('前の案', '案の履歴は未実装です。', ['LYRIC-002'], PH.G), un('次の案', '案の履歴は未実装です。', ['LYRIC-002'], PH.G)] },
         { title: '気になるところを直す', status: 'unimpl', controls: [note('左の行を選択し、その行だけ再抽選・固定できます。位置や動きの詳細は「詳細」に切り替えます。'), un('選択行だけ再抽選', '行ごとの文字演出の再抽選は未実装です。', ['LYRIC-002', 'LYRIC-003'], PH.G), un('選択行を固定', '行の構成を固定する処理は未実装です。', ['LYRIC-002'], PH.G)] },
       ] },
-      { id: 'cues', label: '行・カット', sections: [{ title: '入力と時刻の確認', status: 'unimpl', controls: [note('1行1フレーズ、/でカットを分け、LRC時刻を読みます。SRTはBAI互換入力として共通LyricCueへ変換します。原時刻と編集時刻を分けて保持します。'), un('入力を確認', '歌詞の解析とキューの配置は未実装です。', ['LYRIC-002'], PH.G)] }, { title: 'SRT発話ブロック', status: 'unimpl', controls: [note('下の歌詞トラックに、各発話の開始から次の開始までをブロックとして表示します。ブロックを左右へ動かすと選択した開始だけがずれ、原SRTは保持されます。最後の終端は原SRTの終了時刻か音声長を参照します。'), un('発話の開始を左右に調整', 'SRTブロックの非破壊な時刻補正は未実装です。', ['LYRIC-002'], PH.G)] }, { title: '音声との同期', status: 'unimpl', controls: [note('行頭Space／カット頭Tab、時刻の直接修正、拍への吸着を使います。口形キーへ渡す場合は確定素材IDを明示し、自動上書きしません。'), un('行の時刻を編集', '音声と同じ時刻軸の歌詞編集は未実装です。', ['LYRIC-002'], PH.G)] }] },
+      { id: 'cues', label: '行・カット', sections: [{ title: '入力と時刻の確認', status: 'unimpl', controls: [note('1行1フレーズ、/でカットを分け、LRC時刻を読みます。SRTはBAI互換入力として共通LyricCueへ変換します。原時刻と編集時刻を分けて保持します。'), un('入力を確認', '歌詞の解析とキューの配置は未実装です。', ['LYRIC-002'], PH.G)] }, { title: 'SRT発話ブロック', status: 'unimpl', controls: [note('下の歌詞トラックは各発話の［開始, 終了）を表示します。サンプルではブロック本体を動かすと両時刻が同量ずれ、端を動かすと片方の時刻をトリムできます。原SRTを残す保存処理は未実装です。'), un('SRT時刻を編集して保存', 'SRTブロックの非破壊な時刻補正と保存は未実装です。', ['LYRIC-002'], PH.G)] }, { title: '音声との同期', status: 'unimpl', controls: [note('行頭Space／カット頭Tab、時刻の直接修正、拍への吸着を使います。口形キーへ渡す場合は確定素材IDを明示し、自動上書きしません。'), un('行の時刻を編集', '音声と同じ時刻軸の歌詞編集は未実装です。', ['LYRIC-002'], PH.G)] }] },
       { id: 'placement', label: '文字配置', sections: [{ title: '2D／3D配置', status: 'unimpl', controls: [note('画面固定と空間固定を区別し、遮蔽・見切れ・カメラ切替を検査します。'), un('文字位置を編集', '2D／3D文字配置は未実装です。', ['LYRIC-004'], PH.G)] }] },
       { id: 'textMotion', label: '文字モーション', sections: [
         { title: '選択キューの動き', status: 'unimpl', controls: [note('歌詞キューを選び、現在フレームで位置・大きさ・透明度を設定します。ここに見える値は説明用で、文字や映像には反映・保存されません。'), sl('位置 X', -100, 100, 0, '%', 1), sl('位置 Y', -100, 100, 0, '%', 1), sl('大きさ', 0, 300, 100, '%', 1), sl('不透明度', 0, 100, 100, '%', 1), un('現在フレームに文字キーを追加', '歌詞文字のキーフレーム編集は未実装です。', ['LYRIC-002', 'LYRIC-004'], PH.G)] },
@@ -765,7 +769,12 @@ export const SCREENS = [
       { id: 'structure', label: 'MV構成', sections: [{ title: '絵コンテとショット参照', status: 'unimpl', controls: [note('ショットID・順序・範囲・カメラ割当は 16「ショット」で編集します。ここでは絵コンテと歌詞イベントを既存ショットへ結びます。'), btn('ショット編集（16）へ', 'nav:16'), un('絵コンテ参照を編集', '既存ショットへの絵コンテ・歌詞イベント参照は未実装です。', ['LYRIC-007'], PH.G)] }] },
       { id: 'packs', label: '演出パック', sections: [{ title: '許諾済みスタイル', status: 'unimpl', controls: [un('パックを選ぶ', '許諾と依存を確認した演出パック・スタイルの適用は未実装です。', ['LYRIC-003', 'LYRIC-005'], PH.G)] }] },
     ] },
-    bottom: { type: 'timeline', status: 'unimpl', fps: 30, frames: 900, tracks: [{ label: '音声参照', keys: [] }, { label: '歌詞・SRTブロック', keys: [] }, { label: '文字モーション', keys: [] }, { label: 'ショット参照', keys: [] }] },
+    bottom: { type: 'timeline', status: 'unimpl', demoEditable: true, fps: 30, frames: 900, tracks: [
+      { label: '音声参照', wave: true, clips: [[0, 900, '楽曲サンプル']] },
+      { label: '歌詞・SRTブロック', clips: [[60, 150, '発話 1'], [210, 340, '発話 2'], [330, 480, '発話 3']] },
+      { label: '文字モーション', keys: [60, 90, 150, 210, 270, 340, 390, 480] },
+      { label: 'ショット参照', clips: [[0, 300, 'Shot 01'], [300, 600, 'Shot 02'], [600, 900, 'Shot 03']] },
+    ] },
   },
 ];
 

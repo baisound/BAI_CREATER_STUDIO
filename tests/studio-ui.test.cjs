@@ -116,8 +116,8 @@ test('FX and lyrics pages keep their tabs and explain unavailable actions', asyn
   await page.click('.screen-head .mode-switch button:has-text("詳細")');
   assert.equal(await page.getAttribute('.screen-head .mode-switch button:has-text("詳細")', 'aria-pressed'), 'true');
   assert.equal(await page.getAttribute('.pane-right [role="tab"][aria-selected="true"]', 'data-tab'), 'cues');
-  assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /各発話の開始から次の開始まで/);
-  await page.click('.pane-right button:has-text("発話の開始を左右に調整")');
+  assert.match(await page.textContent('.pane-right [role="tabpanel"]'), /各発話の［開始, 終了）/);
+  await page.click('.pane-right button:has-text("SRT時刻を編集して保存")');
   assert.match(await page.textContent('[role="dialog"]'), /LYRIC-002/);
   await page.keyboard.press('Escape');
   await page.click('.pane-right [role="tab"][data-tab="textMotion"]');
@@ -139,6 +139,48 @@ test('FX and lyrics pages keep their tabs and explain unavailable actions', asyn
   await page.fill('.palette input', 'MMDエフェクト');
   await page.keyboard.press('Enter');
   await atRoute(page, '26');
+  harness.assertNoErrors(page);
+});
+
+test('FX and lyrics concept images and local timeline examples are visible and reset on reload', async () => {
+  const page = await newPage();
+  for (const id of ['26', '27']) {
+    await page.goto(`${BASE}/workspace/${id}`);
+    await page.waitForFunction(() => document.querySelector('.concept-preview img')?.naturalWidth > 0);
+    assert.match(await page.textContent('.concept-preview figcaption'), /実際の描画は未実装/);
+    assert.match(await page.textContent('.timeline-demo-note'), /保存されず/);
+    assert.ok(await page.locator('.tl-demo-clip').count() >= 3);
+    assert.ok(await page.locator('.tl-key').count() >= 3);
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, `concept-${id}.png`) });
+  }
+  const cue = page.locator('.tl-track').nth(1).locator('.tl-demo-clip').first();
+  const before = await cue.getAttribute('aria-label');
+  await cue.focus();
+  await page.keyboard.press('ArrowRight');
+  const shifted = await page.locator('.tl-track').nth(1).locator('.tl-demo-clip').first().getAttribute('aria-label');
+  assert.notEqual(shifted, before);
+  const interval = (label) => label.match(/(\d+)〜(\d+)フレーム/).slice(1).map(Number);
+  const [start1, end1] = interval(shifted);
+  const movedClip = page.locator('.tl-track').nth(1).locator('.tl-demo-clip').first();
+  const box = await movedClip.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 24, box.y + box.height / 2, { steps: 4 });
+  await page.mouse.up();
+  const [start2, end2] = interval(await page.locator('.tl-track').nth(1).locator('.tl-demo-clip').first().getAttribute('aria-label'));
+  assert.ok(start2 > start1);
+  assert.equal(end2 - start2, end1 - start1);
+  const trimClip = page.locator('.tl-track').nth(1).locator('.tl-demo-clip').first();
+  const trimmedBox = await trimClip.boundingBox();
+  await page.mouse.move(trimmedBox.x + 3, trimmedBox.y + trimmedBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(trimmedBox.x + 18, trimmedBox.y + trimmedBox.height / 2, { steps: 4 });
+  await page.mouse.up();
+  const [start3, end3] = interval(await page.locator('.tl-track').nth(1).locator('.tl-demo-clip').first().getAttribute('aria-label'));
+  assert.ok(start3 > start2);
+  assert.equal(end3, end2);
+  await page.reload();
+  assert.equal(await page.locator('.tl-track').nth(1).locator('.tl-demo-clip').first().getAttribute('aria-label'), before);
   harness.assertNoErrors(page);
 });
 

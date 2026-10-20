@@ -248,6 +248,10 @@ function control(c) {
     case 'code': return h('pre', { class: 'log' }, c.text);
     case 'kv': return h('dl', { class: 'kv' }, c.rows.map((/** @type {string[]} */ [k, v]) => [h('dt', null, k), h('dd', null, v)]));
     case 'empty': return h('div', { class: 'empty' }, c.text);
+    case 'conceptPreview': return h('figure', { class: `concept-preview ${c.kind || ''}`, 'aria-label': `${c.alt}。生成したコンセプト画像であり、実際の描画結果ではありません` },
+      h('img', { src: c.src, alt: c.alt }),
+      c.lyric ? h('div', { class: 'concept-lyric' }, c.lyric) : null,
+      h('figcaption', null, '生成コンセプト画像 · 実際の描画は未実装'));
     case 'text': {
       const input = /** @type {HTMLInputElement} */ (h('input', { class: 'input', placeholder: c.placeholder || '' }));
       const add = () => { if (input.value.trim()) { toast(`サンプル表示：「${input.value.trim()}」を追加（保存されません）`, 'mock'); input.value = ''; } };
@@ -490,6 +494,9 @@ function nodeGraph(c) {
 /** @param {Screen} s */
 function bottomPane(s) {
   const b = /** @type {NonNullable<Screen['bottom']>} */ (s.bottom);
+  const demoEditable = !!b.demoEditable;
+  // SCR-26/27 の仮データだけを画面ローカルに複製する。制作状態へ保存しない。
+  const tracks = demoEditable ? b.tracks.map((tr) => ({ ...tr, clips: tr.clips?.map((clip) => [...clip]), keys: tr.keys ? [...tr.keys] : undefined })) : b.tracks;
   const pane = h('section', { class: `pane pane-bottom ${prefs.bottomCollapsed ? 'collapsed' : ''}`, 'aria-label': 'タイムライン' });
   let frame = 0, playing = false, timer = 0;
   /** @type {Set<string>} */
@@ -516,14 +523,63 @@ function bottomPane(s) {
     grid.textContent = '';
     const ticks = 6;
     grid.append(h('div', { class: 'tl-label' }, 'トラック'), h('div', { class: 'tl-ruler' }, Array.from({ length: ticks + 1 }, (_, i) => h('span', { style: { left: `${(i / ticks) * 100}%`, transform: i === 0 ? 'none' : i === ticks ? 'translateX(-100%)' : '' } }, timecode((b.frames * i) / ticks, b.fps).slice(0, 5))), h('i', { class: 'tl-head', style: { left: pct(frame) } })));
-    for (const tr of b.tracks) {
+    for (const [ti, tr] of tracks.entries()) {
       const off = hidden.has(tr.label);
       const cb = /** @type {HTMLInputElement} */ (h('input', { type: 'checkbox', checked: !off, 'aria-label': `${tr.label}を表示` }));
       cb.addEventListener('change', () => { if (cb.checked) hidden.delete(tr.label); else hidden.add(tr.label); draw(); });
       const lane = h('div', { class: `tl-track ${off ? 'tl-off' : ''} ${tr.thumbs ? 'tl-tall' : ''}` });
       if (tr.wave) lane.append(h('i', { class: 'tl-wave' }));
-      for (const [ci, [a, z, l]] of (tr.clips || []).entries()) lane.append(h('button', { type: 'button', class: `tl-clip ${tr.thumbs ? 'has-thumb' : ''}`, style: { left: pct(a), width: `calc(${pct(z - a)} - 2px)`, backgroundImage: tr.thumbs && tr.thumbs[ci] ? `linear-gradient(90deg, rgba(14,16,20,.85) 0 38%, rgba(14,16,20,.15)), url(${img(tr.thumbs[ci])})` : undefined }, title: `${l}（${a}〜${z}f）`, onclick: (/** @type {Event} */ e) => { lane.querySelectorAll('.tl-clip').forEach((x) => x.setAttribute('aria-pressed', 'false')); /** @type {HTMLElement} */ (e.currentTarget).setAttribute('aria-pressed', 'true'); setFrame(a); } }, l));
-      for (const k of tr.keys || []) lane.append(h('button', { type: 'button', class: 'tl-key', style: { left: pct(k) }, title: `${tr.label} キー ${k}f`, 'aria-label': `${tr.label} キー ${k}フレーム`, onclick: () => setFrame(k) }));
+      for (const [ci, [a, z, l]] of (tr.clips || []).entries()) {
+        const clipEl = /** @type {HTMLButtonElement} */ (h('button', { type: 'button', class: `tl-clip ${tr.thumbs ? 'has-thumb' : ''} ${demoEditable ? 'tl-demo-clip' : ''}`, style: { left: pct(a), width: `calc(${pct(z - a)} - 2px)`, backgroundImage: tr.thumbs && tr.thumbs[ci] ? `linear-gradient(90deg, rgba(14,16,20,.85) 0 38%, rgba(14,16,20,.15)), url(${img(tr.thumbs[ci])})` : undefined }, title: `${l}（${a}〜${z}f）${demoEditable ? '。本体で移動、端でトリム。保存されません' : ''}`, 'aria-label': `${tr.label} ${l} ${a}〜${z}フレーム`, onclick: () => { if (!demoEditable) setFrame(a); } }, demoEditable ? h('span', { class: 'tl-resize-start', 'aria-hidden': 'true' }) : null, l, demoEditable ? h('span', { class: 'tl-resize-end', 'aria-hidden': 'true' }) : null));
+        if (demoEditable) {
+          clipEl.addEventListener('pointerdown', (e) => {
+            if (e.button !== 0) return;
+            const mode = /** @type {HTMLElement} */ (e.target).classList.contains('tl-resize-start') ? 'start' : /** @type {HTMLElement} */ (e.target).classList.contains('tl-resize-end') ? 'end' : 'move';
+            const original = [...tr.clips[ci]];
+            const x0 = e.clientX;
+            clipEl.setPointerCapture(e.pointerId);
+            const move = (/** @type {PointerEvent} */ ev) => {
+              const df = Math.round(((ev.clientX - x0) / lane.getBoundingClientRect().width) * b.frames);
+              let start = original[0], end = original[1];
+              if (mode === 'move') { start = Math.max(0, Math.min(b.frames - (end - start), start + df)); end = start + (original[1] - original[0]); }
+              if (mode === 'start') start = Math.max(0, Math.min(end - 1, start + df));
+              if (mode === 'end') end = Math.max(start + 1, Math.min(b.frames, end + df));
+              tr.clips[ci][0] = start; tr.clips[ci][1] = end;
+              clipEl.style.left = pct(start); clipEl.style.width = `calc(${pct(end - start)} - 2px)`;
+              clipEl.setAttribute('aria-label', `${tr.label} ${l} ${start}〜${end}フレーム`);
+            };
+            const done = (/** @type {PointerEvent} */ ev) => { clipEl.removeEventListener('pointermove', move); clipEl.removeEventListener('pointerup', done); clipEl.removeEventListener('pointercancel', done); if (ev.type === 'pointercancel') tr.clips[ci] = original; draw(); setFrame(tr.clips[ci][0]); };
+            clipEl.addEventListener('pointermove', move); clipEl.addEventListener('pointerup', done); clipEl.addEventListener('pointercancel', done);
+          });
+          clipEl.addEventListener('keydown', (e) => {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+            e.preventDefault();
+            const d = e.key === 'ArrowRight' ? 1 : -1;
+            const c = tr.clips[ci];
+            if (e.shiftKey) c[0] = Math.max(0, Math.min(c[1] - 1, c[0] + d));
+            else if (e.altKey) c[1] = Math.max(c[0] + 1, Math.min(b.frames, c[1] + d));
+            else if (c[0] + d >= 0 && c[1] + d <= b.frames) { c[0] += d; c[1] += d; }
+            draw(); setFrame(c[0]);
+            /** @type {HTMLElement | undefined} */ (grid.querySelectorAll('.tl-track')[ti]?.querySelectorAll('.tl-clip')[ci])?.focus();
+          });
+        }
+        lane.append(clipEl);
+      }
+      for (const [ki, k] of (tr.keys || []).entries()) {
+        const keyEl = /** @type {HTMLButtonElement} */ (h('button', { type: 'button', class: 'tl-key', style: { left: pct(k) }, title: `${tr.label} キー ${k}f${demoEditable ? '。ドラッグで仮移動・保存なし' : ''}`, 'aria-label': `${tr.label} キー ${k}フレーム`, onclick: () => { if (!demoEditable) setFrame(k); } }));
+        if (demoEditable) {
+          keyEl.addEventListener('pointerdown', (e) => {
+            if (e.button !== 0) return;
+            const x0 = e.clientX, original = tr.keys[ki];
+            keyEl.setPointerCapture(e.pointerId);
+            const move = (/** @type {PointerEvent} */ ev) => { tr.keys[ki] = Math.max(0, Math.min(b.frames, original + Math.round(((ev.clientX - x0) / lane.getBoundingClientRect().width) * b.frames))); keyEl.style.left = pct(tr.keys[ki]); };
+            const done = (/** @type {PointerEvent} */ ev) => { keyEl.removeEventListener('pointermove', move); keyEl.removeEventListener('pointerup', done); keyEl.removeEventListener('pointercancel', done); if (ev.type === 'pointercancel') tr.keys[ki] = original; draw(); setFrame(tr.keys[ki]); };
+            keyEl.addEventListener('pointermove', move); keyEl.addEventListener('pointerup', done); keyEl.addEventListener('pointercancel', done);
+          });
+          keyEl.addEventListener('keydown', (e) => { if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return; e.preventDefault(); tr.keys[ki] = Math.max(0, Math.min(b.frames, tr.keys[ki] + (e.key === 'ArrowRight' ? 1 : -1))); draw(); setFrame(tr.keys[ki]); /** @type {HTMLElement | undefined} */ (grid.querySelectorAll('.tl-track')[ti]?.querySelectorAll('.tl-key')[ki])?.focus(); });
+        }
+        lane.append(keyEl);
+      }
       if (tr.keys && !tr.keys.length) lane.append(h('span', { class: 'xs muted', style: { position: 'absolute', left: '8px', top: '4px' } }, 'キーなし'));
       lane.append(h('i', { class: 'tl-head', style: { left: pct(frame) } }));
       lane.addEventListener('dblclick', (e) => { const r = lane.getBoundingClientRect(); setFrame(((e.clientX - r.left) / r.width) * b.frames); });
@@ -538,8 +594,8 @@ function bottomPane(s) {
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': '先頭へ', onclick: () => setFrame(0) }, '⏮'), playBtn,
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': '末尾へ', onclick: () => setFrame(b.frames) }, '⏭'), tc, frameNum), scrub,
       h('span', { class: 'xs muted mono' }, `${b.fps}fps`), regionTag(b.status),
-      h('button', { class: 'btn is-unimpl', type: 'button', onclick: () => showUnimplemented({ name: 'キーフレームを追加', why: '新UIのタイムラインは表示とシーク操作のみです。キー編集は現行のカメラ画面・制作画面で行います（共通タイムラインは DATA-001）。', ids: ['DATA-001', 'CAM-003'], phase: PH.P2 }) }, 'キー追加')),
-    h('div', { class: 'pane-body flush' }, grid));
+      demoEditable ? h('span', { class: 'xs muted' }, '仮データ・未保存') : h('button', { class: 'btn is-unimpl', type: 'button', onclick: () => showUnimplemented({ name: 'キーフレームを追加', why: '新UIのタイムラインは表示とシーク操作のみです。キー編集は現行のカメラ画面・制作画面で行います（共通タイムラインは DATA-001）。', ids: ['DATA-001', 'CAM-003'], phase: PH.P2 }) }, 'キー追加')),
+    h('div', { class: 'pane-body flush' }, demoEditable ? h('p', { class: 'timeline-demo-note' }, 'サンプル操作：区間の本体を動かすと長さを維持、端を動かすと開始／終了だけを調整。キーも移動できます。変更は保存されず、再読込で戻ります。') : null, grid));
   return region(pane, b.status);
 }
 
