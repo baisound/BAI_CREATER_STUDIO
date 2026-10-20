@@ -8,6 +8,7 @@ import { project, assets } from './store.js';
 import { LIVE, summarize } from './live.js';
 import { icon, SCREEN_ICON } from './icons.js';
 import { img, RENDERS } from './samples.js';
+import { currentViewport } from './viewport/three-host.js';
 import { loadProject, startExternalSync, installUnloadGuard, describeStatus } from './features/project.js';
 
 /** @typedef {import('./screens.js').Screen} Screen */
@@ -807,4 +808,9 @@ else render();
 // Exposed for browser tests and future WebMCP adapters (read-only view of the mock).
 /** @type {any} */ (window).baiStudio = { screens: SCREENS.map((s) => ({ id: s.id, title: s.title, panels: s.panels.map((p) => ({ name: p.name, status: p.status })) })), navigate, statusLabels: STATUS_LABEL,
   // 読み取り専用（テスト用）。書き込みの関数は公開しない。
-  project: { getState: () => project.get() }, assets: { getState: () => assets.get() }, cleanupCount: () => cleanups.length };
+  project: { getState: () => project.get() }, assets: { getState: () => assets.get() }, cleanupCount: () => cleanups.length,
+  // 今ある3Dビューポートの状態（④。読み取り専用。3D 画面でなければ loaded:false）
+  viewport: {
+    getState: () => { const v = currentViewport(); return v ? v.getState() : { loaded: false, assetId: null, format: null, scale: null, offset: null, renderer: 'unknown', stage: null, character: null }; },
+    countNonBackground: () => { const v = currentViewport(); return v ? v.countNonBackground() : 0; },
+  } };

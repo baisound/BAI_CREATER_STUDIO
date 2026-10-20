@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T15:31:47+00:00",
+  "updated_at": "2026-10-20T16:04:50+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "2e8fd96",
+  "head_at_update": "4ee6b49",
   "current": {
     "task": "P2-WP-04 ④ 3D表示とステージ配置・B-4",
-    "status": "in_progress",
+    "status": "done",
     "step": "実装開始（B-4 → viewport → ステージ配置 → テスト）",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-04 を Sonnet で実装"
+    "WP-04 B-4 の Opus レビュー",
+    "WP-04b リターゲット検証の移植"
   ],
   "unverified": [
     "O-④-6：実在の PMX/GLB/FBX ステージでの単位の換算と見え方",
     "実在の PMX（多材質・IK・剛体・PMX 2.1）の表示、GPU（SwiftShader でのみ確認）",
-    "WP-03：再確認からサーバー書き込みまでの間の別画面の登録は検出できない（R1）。400MB 級 FBX の実測未実施。Windows 実機未検証",
-    "旧画面は自分の保存でも同期の取り込み（「MCPから更新を同期しました」）が走る（既存の挙動、今回は変えていない）"
+    "PMX キャラは workspace.asset が GLB/VRM 限定のため SCR-06 に置けない（⑥ で整理）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T16:04:50+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "4ee6b49",
+      "text": "P2-WP-04 ④ 3D表示とステージ配置を実装（B-4 は 4ee6b49 に分離）。E2E は S2 まで"
+    },
     {
       "at": "2026-10-20T15:31:47+00:00",
       "by": "claude-code",

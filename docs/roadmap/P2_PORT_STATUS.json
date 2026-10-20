@@ -124,11 +124,25 @@
     {
       "id": "P2-WP-04",
       "step": "④ 3D 表示・ステージ配置の基本・B-4",
-      "state": "not_started",
-      "commits": [],
-      "tests": ["tests/studio-p2-pmx-fixture.test.cjs（O-④-2、事前準備）", "tests/test_make_test_pmx.py（O-④-2、事前準備）"],
-      "unverified": [],
-      "notes": "O-④-1・2・3・6・7 を 2026-10-20 に Opus で決定（設計書 §2.4(h)）。O-④-2：最小 PMX 2.0（tools/make_test_pmx.py）を作成し、minimal_pmx.zip を本物の PMX に置き換えた。未検証：実在の PMX/FBX/GLB ステージの単位の換算（O-④-6）、GPU。",
+      "state": "done_pending_review",
+      "commits": [
+        "4ee6b49（B-4：workspace.stage、別コミット）",
+        "本体コミット（git log の「P2-WP-04 ④ 3D表示」）"
+      ],
+      "tests": [
+        "tests/studio-p2-pmx-fixture.test.cjs（O-④-2、事前準備）",
+        "tests/test_make_test_pmx.py（O-④-2、事前準備）",
+        "tests/studio-p2-viewport.test.cjs（19件：GLB/PMX/FBX の描画、ステージ配置、PMX×0.08 m 同一シーン、欠損、dispose）",
+        "tests/studio-p2-normalize-parity.test.cjs（camera.html と 1e-6 で一致）",
+        "tests/studio-p2-e2e-main.test.cjs（S1・S2 を有効化）",
+        "tests/test_project_state_bundle.py WorkspaceStageTest（B-4、12件）"
+      ],
+      "unverified": [
+        "O-④-6：実在の PMX/GLB/FBX ステージの単位の換算と見え方（合成データのみ）",
+        "実在の PMX（多材質・IK・剛体・PMX 2.1）の表示、GPU（SwiftShader でのみ確認）",
+        "PMX キャラは workspace.asset が GLB/VRM 限定のため SCR-06 に置けない（設計書 O-④-6 追記、⑥ WP-06b O-⑥-4 で整理）"
+      ],
+      "notes": "O-④-1・2・3・6・7 を 2026-10-20 に Opus で決定（設計書 §2.4(h)）。O-④-2：最小 PMX 2.0（tools/make_test_pmx.py）を作成し、minimal_pmx.zip を本物の PMX に置き換えた。未検証：実在の PMX/FBX/GLB ステージの単位の換算（O-④-6）、GPU。 2026-10-20 オーナー側決定：SCR-06 はキャラの身長を正規化せずステージと同じ単位換算（PMX 0.08 m/unit、GLB/VRM 1 m/unit、FBX UnitScaleFactor/100）。正規化は単体プレビュー SCR-12 のみ。E2E は S2 まで通る。",
       "owner_check": null
     },
     {
@@ -223,17 +237,17 @@
     }
   ],
   "e2e_main": {
-    "furthest_step": null,
+    "furthest_step": "S2",
     "steps": [
       {
         "id": "S1",
-        "result": "skip",
-        "reason": "WP-04 が未着手（④の表示と［このモデルを制作に使う］）。③の取り込み部分（合成 GLB を VRM として登録し、一覧に出て選ばれる）は確認済み"
+        "result": "pass",
+        "reason": ""
       },
       {
         "id": "S2",
-        "result": "skip",
-        "reason": "WP-04 が未着手"
+        "result": "pass",
+        "reason": ""
       },
       {
         "id": "S3",
@@ -266,7 +280,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "30601de",
-    "checked_at": "2026-10-20T14:45:25.482Z"
+    "commit": "4ee6b49",
+    "checked_at": "2026-10-20T16:03:47.962Z"
   }
 }

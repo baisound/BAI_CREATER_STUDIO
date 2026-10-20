@@ -676,8 +676,6 @@ test('mock-only controls explain themselves', async () => {
     await dialog(/NF-004/);
     await page.click('[data-feature="assetDetail"] button:has-text("シーンで使う")');
     await dialog(/NF-014/);
-    await page.click('[data-feature="assetDetail"] button:has-text("3D で表示")');
-    await dialog(/④ の移植で結線します/);
     await page.click('.screen-head button:has-text("一括インポート")');
     await dialog(/複数ファイルの取り込みは［素材を取り込む…］でできます/);
     // nothing was saved on the server
