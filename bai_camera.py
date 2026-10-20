@@ -85,12 +85,19 @@ BACKUP_PREFIX='camera_project.invalid-'
 def _ensure_backup(path,raw):
     """読んだファイルと同じフォルダに退避コピーを確かめる（同じ内容なら1回だけ）。退避名を返す。書けなければ OSError。"""
     folder=Path(path).parent;sha8=hashlib.sha256(raw).hexdigest()[:8]
-    existing=sorted(folder.glob(f'{BACKUP_PREFIX}{sha8}-*.json'))
-    if existing:return existing[0].name
-    name=f"{BACKUP_PREFIX}{sha8}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
+    # 既存の退避は中身が同じときだけ使う（途中で切れた・手で直された退避を当てにしない）。
+    for found in sorted(folder.glob(f'{BACKUP_PREFIX}{sha8}-*.json')):
+        try:
+            if found.read_bytes()==raw:return found.name
+        except OSError:pass
+    stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ');name=f"{BACKUP_PREFIX}{sha8}-{stamp}.json";n=1
+    while (folder/name).exists():  # 同じ秒・同じ sha8 で中身が違う退避を上書きしない
+        name=f"{BACKUP_PREFIX}{sha8}-{stamp}-{n}.json";n+=1
     temp=folder/(name+'.tmp')
     try:
-        temp.write_bytes(raw);os.replace(temp,folder/name)
+        with open(temp,'wb') as f:
+            f.write(raw);f.flush();os.fsync(f.fileno())  # reset が元のファイルを置き換える前に、退避を確実にディスクへ書く
+        os.replace(temp,folder/name)
     finally:
         if temp.exists():temp.unlink()
     return name
@@ -100,7 +107,7 @@ def read_project(path):
     except FileNotFoundError:return validate(copy.deepcopy(DEFAULT)),[]
     except OSError as exc:raise CameraProjectInvalid('camera project is unreadable: '+type(exc).__name__,None)
     try:return validate(json.loads(raw.decode('utf-8'))),[]
-    except (ValueError,TypeError,KeyError,AttributeError,UnicodeDecodeError) as exc:
+    except (ValueError,TypeError,KeyError,AttributeError,UnicodeDecodeError,RecursionError) as exc:  # RecursionError：深く入れ子の JSON
         reason='camera project is invalid: '+type(exc).__name__+': '+str(exc)
     try:backup=_ensure_backup(path,raw)
     except OSError:raise CameraProjectInvalid(reason,None)

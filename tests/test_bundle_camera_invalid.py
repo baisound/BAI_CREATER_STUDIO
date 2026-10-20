@@ -208,19 +208,51 @@ def test_different_broken_content_makes_second_backup(base, cam):
     assert len(backups(cam)) == 2
 
 
-def test_backup_write_failure_gives_backup_null(base, cam, monkeypatch):
-    cam.write_bytes(BROKEN)
-    real = pathlib.Path.write_bytes
+def fail_backup(monkeypatch, stage):
+    """退避の書き込みを stage（open／fsync／replace）で OSError にする。元のファイルの書き込み（save）は通す。"""
+    import builtins
+    real_open, real_fsync, real_replace = builtins.open, bai_camera.os.fsync, bai_camera.os.replace
 
-    def fake(self, data):
-        if self.name.startswith(bai_camera.BACKUP_PREFIX):
-            raise OSError('disk full')
-        return real(self, data)
-    monkeypatch.setattr(pathlib.Path, 'write_bytes', fake)
+    def is_backup(p):
+        return pathlib.Path(p).name.startswith(bai_camera.BACKUP_PREFIX)
+    if stage == 'open':
+        monkeypatch.setattr(bai_camera, 'open', lambda p, *a, **k: (_ for _ in ()).throw(OSError('disk full')) if is_backup(p) else real_open(p, *a, **k), raising=False)
+    elif stage == 'fsync':
+        monkeypatch.setattr(bai_camera.os, 'fsync', lambda fd: (_ for _ in ()).throw(OSError('io error')))
+    else:
+        monkeypatch.setattr(bai_camera.os, 'replace', lambda a, b: (_ for _ in ()).throw(PermissionError('locked')) if is_backup(b) else real_replace(a, b))
+
+
+FAIL_STAGES = ['open', 'fsync', 'replace']
+
+
+@pytest.mark.parametrize('stage', FAIL_STAGES)
+def test_backup_write_failure_gives_backup_null(base, cam, monkeypatch, stage):
+    cam.write_bytes(BROKEN)
+    fail_backup(monkeypatch, stage)
     status, body = call(base, 'GET', '/api/camera/project')
     monkeypatch.undo()
     assert status == 422 and body['backup'] is None
     assert cam.read_bytes() == BROKEN and backups(cam) == [] and not list(cam.parent.glob('camera_project*.tmp'))
+
+
+def test_existing_backup_with_other_content_is_not_trusted_or_overwritten(base, cam):
+    # 同じ sha8 の名前でも中身が違う退避（途中で切れた・手で直された）は使わず、上書きもしない
+    import hashlib
+    sha8 = hashlib.sha256(BROKEN).hexdigest()[:8]
+    stale = cam.parent / f'camera_project.invalid-{sha8}-20000101T000000Z.json'
+    stale.write_bytes(b'')
+    cam.write_bytes(BROKEN)
+    status, res = call(base, 'POST', '/api/camera/project/reset', {'confirm': 'reset-camera-project'})
+    assert status == 200 and res['backup'] != stale.name
+    assert (cam.parent / res['backup']).read_bytes() == BROKEN and stale.read_bytes() == b''
+
+
+def test_deeply_nested_json_is_invalid_not_a_crash(base, cam):
+    raw = b'[' * 200000
+    cam.write_bytes(raw)
+    status, body = call(base, 'GET', '/api/camera/project')
+    assert_invalid(status, body, cam, raw)
 
 
 # ---- POST /api/camera/project/reset ----
@@ -274,16 +306,11 @@ def test_reset_unreadable_writes_nothing(base, cam, monkeypatch):
     assert cam.read_bytes() == BROKEN and backups(cam) == []
 
 
-def test_reset_backup_failure_writes_nothing(base, cam, monkeypatch):
+@pytest.mark.parametrize('stage', FAIL_STAGES)
+def test_reset_backup_failure_writes_nothing(base, cam, monkeypatch, stage):
     cam.write_bytes(BROKEN)
-    real = pathlib.Path.write_bytes
-
-    def fake(self, data):
-        if self.name.startswith(bai_camera.BACKUP_PREFIX):
-            raise OSError('disk full')
-        return real(self, data)
-    monkeypatch.setattr(pathlib.Path, 'write_bytes', fake)
+    fail_backup(monkeypatch, stage)
     status, res = call(base, 'POST', '/api/camera/project/reset', {'confirm': 'reset-camera-project'})
     monkeypatch.undo()
     assert status == 422 and res['backup'] is None
-    assert cam.read_bytes() == BROKEN and backups(cam) == []
+    assert cam.read_bytes() == BROKEN and backups(cam) == [] and not list(cam.parent.glob('camera_project*.tmp'))
