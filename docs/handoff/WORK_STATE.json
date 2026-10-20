@@ -1,21 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T14:08:37+00:00",
+  "updated_at": "2026-10-20T14:46:08+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "da43e6b",
+  "head_at_update": "30601de",
   "current": {
     "task": "P2-WP-02/03 素材",
-    "status": "in_progress",
+    "status": "done",
     "step": "設計書読込・実装着手",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-02/03 素材の取り込み・素材管理"
+    "WP-02/03 の Opus レビュー（設計で要求されていれば）",
+    "WP-04 3D表示・ステージ配置"
   ],
   "unverified": [
-    "Opus レビュー未実施",
-    "GPU・Windows 実機未検証",
+    "WP-03 の Opus レビュー未実施（置き換え・上書き・再分類の確認）",
+    "GPU・Windows 実機未検証。実 VRM・PMX・FBX での登録は未確認（合成ファイルのみ）",
+    "three 無しの環境では FBX 解析を使う4件が skip",
     "Q1 新規プロジェクト作成は所有者回答待ち（◇のまま）"
   ],
   "blockers": [],
@@ -33,6 +35,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T14:46:08+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "30601de",
+      "text": "P2-WP-02/03 ③ 素材一覧・取り込みを実装（30601de）。pytest 354、node-all 188 pass、tsc・evidence 合格、実 data/ 不変"
+    },
     {
       "at": "2026-10-20T14:08:37+00:00",
       "by": "claude-code",

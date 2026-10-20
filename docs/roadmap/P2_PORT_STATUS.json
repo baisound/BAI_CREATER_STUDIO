@@ -88,21 +88,33 @@
     {
       "id": "P2-WP-02",
       "step": "③ 素材一覧",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "30601de"
+      ],
+      "tests": [
+        "2026-10-20：pytest 354 passed、npm run test:node-all 188 pass・0 fail・13 skip（three 無し）、tsc 合格、node tools/run_evidence_tests.mjs 合格、実 data/ ハッシュ不変。新規：tests/studio-p2-import-rules.test.mjs 16件、tests/studio-p2-assets-logic.test.mjs 3件、tests/studio-p2-assets.test.cjs（THREE_DIR 指定で26件すべて合格。一覧の3件＋表示設定の保存を含む）。通し確認 S1 の③部分は合格、furthest_step=null"
+      ],
+      "unverified": [
+        "Opus レビュー未実施（WP-02 は設計上 Sonnet のみ）。GPU・Windows 実機未検証。実際の素材（実 data/）での表示は未確認（隔離データの種データのみ）。"
+      ],
+      "notes": "WP-02 と WP-03 は1コミット（30601de）にまとめた。サムネイル（MOTION-016）・お気に入り・タグ・依存参照は ◇ のまま。",
       "owner_check": null
     },
     {
       "id": "P2-WP-03",
       "step": "③ 素材取り込み",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "30601de"
+      ],
+      "tests": [
+        "2026-10-20：上と同じ実行。取り込みのテスト（GLB/VRM の再分類、同内容 VRM、複数ファイルの順次送信、FBX 同枠2件の拒否、PMX ZIP のサーバー版確認、VMD 上書き確認、確認で除外して続ける、FBX 同名・モデル置き換えの事前確認、FBX の事前検査、サーバー拒否とやり直し、取り消し、ホームの最近の素材、◇ の説明）が合格。O-③-1：tools/make_test_fbx.py で FBX の正常登録・モデル置き換え・アニメなし拒否も合格（three が必要）"
+      ],
+      "unverified": [
+        "Opus レビュー未実施（置き換え・上書き・再分類の確認。設計上必要）。three が無い環境では FBX の解析を使う4件が skip（FBX の正常登録は three 付きで確認）。400MB 級ファイルのハッシュ計算・送信の実測は未実施。GLB/VRM の名前に % を含む場合のサーバーの二重デコードは警告表示のみ（実際に別名で登録されることの確認は未実施）。実際の VRM・PMX・FBX での登録は未確認（合成ファイルのみ）。GPU・Windows 実機未検証。"
+      ],
+      "notes": "1回の取り込みの矛盾検査は設計の5種類のみ（同じ中身の GLB を別名で同時に2つ選ぶ場合は検査しない）。batchErrors は行ごとの batchErrorRows を足した。",
       "owner_check": null
     },
     {
@@ -212,7 +224,7 @@
       {
         "id": "S1",
         "result": "skip",
-        "reason": "WP-03・WP-04 が未着手"
+        "reason": "WP-04 が未着手（④の表示と［このモデルを制作に使う］）。③の取り込み部分（合成 GLB を VRM として登録し、一覧に出て選ばれる）は確認済み"
       },
       {
         "id": "S2",
@@ -250,7 +262,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "910cc5a",
-    "checked_at": "2026-10-20T13:57:11.406Z"
+    "commit": "30601de",
+    "checked_at": "2026-10-20T14:45:25.482Z"
   }
 }
