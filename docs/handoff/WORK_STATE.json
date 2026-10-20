@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T16:13:56+00:00",
+  "updated_at": "2026-10-20T16:28:34+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "81a0c79",
+  "head_at_update": "e9e14eb",
   "current": {
-    "task": "P2-WP-04 ④ 3D表示とステージ配置・B-4",
-    "status": "done",
-    "step": "実装開始（B-4 → viewport → ステージ配置 → テスト）",
+    "task": "P2-WP-04b ④ リターゲット検証の移植（④-9・④-10）",
+    "status": "in_progress",
+    "step": "実装開始（SCR-13 ボーンマップタブ → three-host 比較 → テスト）",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T16:28:34+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "e9e14eb",
+      "text": "P2-WP-04b ④ リターゲット検証の移植（④-9・④-10）: 実装開始（SCR-13 ボーンマップタブ → three-host 比較 → テスト）"
+    },
     {
       "at": "2026-10-20T16:13:56+00:00",
       "by": "claude-code",
@@ -236,13 +243,6 @@
       "event": "start",
       "head": "37a28a2",
       "text": "P2（新UIへの移植）の詳細設計: 設計書 v4 の残り（批評3回目 M1〜M8・m1〜m10、所有者決定、導線点検 §5 の1〜5）を仕上げる"
-    },
-    {
-      "at": "2026-10-20T04:36:29+00:00",
-      "by": "claude-code",
-      "event": "blocked",
-      "head": "7e68f40",
-      "text": "P2 設計 v4 の作成途中で利用上限に達し中断。途中の差分を WIP としてコミット。"
     }
   ]
 }
