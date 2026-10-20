@@ -340,7 +340,7 @@
       "group": "MOTION",
       "phase": 3,
       "name": "3Dポーズ・ボーン直接操作",
-      "detail": "IKコントローラと任意フレーム補正",
+      "detail": "IKコントローラと任意フレーム補正（詳細：RIG_EDITING_SPEC_20261020_JA.md）",
       "status": "要検証",
       "dependency": "CORE,DATA"
     },
@@ -691,7 +691,7 @@
       "group": "CAM",
       "phase": 6,
       "name": "キーフレーム・カーブ編集",
-      "detail": "位置/回転/距離/FOV",
+      "detail": "位置/回転/距離/FOV（詳細：RIG_EDITING_SPEC_20261020_JA.md）",
       "status": "計画・未検証",
       "dependency": "DATA,MOTION"
     },
@@ -718,7 +718,7 @@
       "group": "CAM",
       "phase": 6,
       "name": "パン・ティルト・ロール・自転",
-      "detail": "固定位置からの向き操作",
+      "detail": "固定位置からの向き操作（詳細：RIG_EDITING_SPEC_20261020_JA.md）",
       "status": "計画・未検証",
       "dependency": "DATA,MOTION"
     },
@@ -727,7 +727,7 @@
       "group": "CAM",
       "phase": 6,
       "name": "ドリー・トラック・スライダー・ズーム",
-      "detail": "移動と画角独立",
+      "detail": "移動と画角独立（詳細：RIG_EDITING_SPEC_20261020_JA.md）",
       "status": "計画・未検証",
       "dependency": "DATA,MOTION"
     },

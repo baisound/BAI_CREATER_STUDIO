@@ -11,19 +11,6 @@ export const img = (name) => `/studio/assets/samples/${name}.webp`;
  *   meta?: [string, string][], tags?: string[], desc?: string, deps?: string[]}} SampleAsset
  */
 
-/** @type {{id: string, label: string, icon: string}[]} */
-export const ASSET_CATS = [
-  { id: 'char', label: 'キャラクター', icon: 'user' },
-  { id: 'stage', label: 'ステージ', icon: 'stage' },
-  { id: 'prop', label: '小物', icon: 'template' },
-  { id: 'mat', label: 'マテリアル', icon: 'sphere' },
-  { id: 'fx', label: 'エフェクト', icon: 'sparkle' },
-  { id: 'audio', label: 'オーディオ', icon: 'music' },
-  { id: 'video', label: '動画', icon: 'render' },
-  { id: 'image', label: '画像', icon: 'image' },
-  { id: 'motion', label: 'モーション（VMD）', icon: 'motion' },
-];
-
 /** @type {SampleAsset[]} */
 export const ASSETS = [
   { id: 'a01', name: '朱華（しゅか）', file: '.vrm', type: 'キャラクター', cat: 'char', img: 'char-shuka', tags: ['和風', 'オリジナル'] },
@@ -56,14 +43,6 @@ export const ASSETS = [
   { id: 'a26', name: 'シルエット素材', file: '.png', type: '画像', cat: 'image', img: 'img-silhouette', tags: [] },
   { id: 'a27', name: '桜パーティクル', file: '.fx', type: 'エフェクト', cat: 'fx', img: 'fx-particles', fav: true, tags: ['桜'] },
   { id: 'a28', name: '空_夜（月）', file: '.hdr', type: '画像', cat: 'image', img: 'hdr-moon', tags: ['HDRI'] },
-];
-
-/** @type {{name: string, img: string, state: string, desc: string, updated: string}[]} */
-export const PROJECTS = [
-  { name: 'City_Night_MV', img: 'proj-city-night', state: '進行中', desc: '夜の街を舞台にしたミュージックビデオ', updated: '10/19 14:28' },
-  { name: 'Blue_Resonance', img: 'proj-blue-resonance', state: '書き出し待ち', desc: '水と光の世界の短編アニメーション', updated: '10/18 22:41' },
-  { name: 'Sakura_Dance', img: 'proj-sakura-dance', state: '編集中', desc: '和風ステージでのダンスアニメーション', updated: '10/17 19:03' },
-  { name: 'Virtual_Stage_Live', img: 'proj-virtual-stage', state: '企画', desc: 'バーチャルライブ向けステージ制作', updated: '10/15 11:20' },
 ];
 
 /** @type {{name: string, img: string, spec: string, dur: string}[]} */

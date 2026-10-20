@@ -42,7 +42,9 @@
         "56bffa8",
         "a3cebf5"
       ],
-      "tests": [],
+      "tests": [
+        "2026-10-20 追記：tests/legacy-project-save.test.cjs の B-1/B-2 は b082ad8（作成時）から three を与えると約25%で失敗していた（テスト側の不具合）。旧画面は自分の保存でも /api/sync の版が進むため、約1.2秒ごとの同期の確認で「保存済み」が数十ミリ秒で「MCPから更新を同期しました」に書き換わり、今の表示を待つと取りこぼしていた。表示の履歴（MutationObserver）と POST の応答で確かめる形に直し、外部同期は中身（external-step）と外部の内容を返した版の取り直しで待つ。直した後 15 回連続で合格。B-2 の1文を外すと失敗することを確認。index.html・server.py は変更なし。"
+      ],
       "unverified": [
         "Opus レビュー済み（②）。focus・sample・sequence/evaluate の GET は read() のまま（WP-02a）。Windows 実機・GPU 実機未検証。"
       ],
@@ -70,31 +72,53 @@
     {
       "id": "P2-WP-01",
       "step": "② プロジェクト新規作成・保存/読込",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
+      "state": "verified",
+      "commits": [
+        "ff51eb0"
+      ],
+      "tests": [
+        "2026-10-20 PR #7 取り込み後（7170100）で再実行：pytest 354 passed（1回、既存の test_bundle_snapshot_consistency の並行20+20件が ConnectionReset で落ちたが、再実行で単独4回・全件2回合格。WP-01 の変更と無関係な既存の不安定さ）、npm run test:node-all 145 pass・10 skip・0 fail、tsc 合格、node tools/run_evidence_tests.mjs 合格。新規：tests/studio-p2-project-logic.test.mjs 22件、tests/studio-p2-project.test.cjs 16件、test_project_envelope.py に壊れた project_state.json への POST の3件。通し確認 S1〜S8 は WP-01 で有効になる手順が設計に無く全 skip（furthest_step=null）。実 data/ ハッシュ不変",
+        "2026-10-20 Opus レビュー後：pytest 354 passed、npm run test:node-all 146 pass・10 skip・0 fail、tsc 合格、実 data/ ハッシュ不変。追加：studio-p2-project-logic.test.mjs「3-M3 save sequencing (4)」（自動保存と統合保存が同じ tick を待つと saving:true のまま止まる不具合の再現と修正）"
+      ],
+      "unverified": [
+        "Opus レビュー実施済み（2026-10-20。上書き・競合・自動保存・世代番号。1件修正、残りの懸念は作業報告）。GPU・Windows 実機未検証。beforeunload は headless Chromium のみ。",
+        "旧画面 legacy-project-save.test.cjs は three.js がローカルに無く skip（WP-00b 以来）。"
+      ],
       "notes": "Q1（新規作成）：所有者回答待ち。既定は ◇ のまま",
       "owner_check": null
     },
     {
       "id": "P2-WP-02",
       "step": "③ 素材一覧",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "30601de"
+      ],
+      "tests": [
+        "2026-10-20：pytest 354 passed、npm run test:node-all 188 pass・0 fail・13 skip（three 無し）、tsc 合格、node tools/run_evidence_tests.mjs 合格、実 data/ ハッシュ不変。新規：tests/studio-p2-import-rules.test.mjs 16件、tests/studio-p2-assets-logic.test.mjs 3件、tests/studio-p2-assets.test.cjs（THREE_DIR 指定で26件すべて合格。一覧の3件＋表示設定の保存を含む）。通し確認 S1 の③部分は合格、furthest_step=null"
+      ],
+      "unverified": [
+        "Opus レビュー未実施（WP-02 は設計上 Sonnet のみ）。GPU・Windows 実機未検証。実際の素材（実 data/）での表示は未確認（隔離データの種データのみ）。"
+      ],
+      "notes": "WP-02 と WP-03 は1コミット（30601de）にまとめた。サムネイル（MOTION-016）・お気に入り・タグ・依存参照は ◇ のまま。",
       "owner_check": null
     },
     {
       "id": "P2-WP-03",
       "step": "③ 素材取り込み",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "30601de",
+        "Opus レビュー修正（fix: P2-WP-03 送る直前の衝突の再確認…）"
+      ],
+      "tests": [
+        "2026-10-20：上と同じ実行。取り込みのテスト（GLB/VRM の再分類、同内容 VRM、複数ファイルの順次送信、FBX 同枠2件の拒否、PMX ZIP のサーバー版確認、VMD 上書き確認、確認で除外して続ける、FBX 同名・モデル置き換えの事前確認、FBX の事前検査、サーバー拒否とやり直し、取り消し、ホームの最近の素材、◇ の説明）が合格。O-③-1：tools/make_test_fbx.py で FBX の正常登録・モデル置き換え・アニメなし拒否も合格（three が必要）",
+        "2026-10-20 Opus レビュー後：pytest 354 passed、THREE_DIR 指定の npm run test:node-all 204 件中 pass 197・fail 0・skip 7（通し確認 S2〜S8 の設計どおりの skip のみ。three 必須のテストは skip なし）、tsc 合格、node tools/run_evidence_tests.mjs 合格、実 data/ ハッシュ不変。追加：studio-p2-assets.test.cjs「same bytes twice in one import…」「a file queued behind the same name is rechecked…」（送る直前の再確認を外すと2件とも失敗することを確認）、studio-p2-import-rules.test.mjs「VMD that differs only in letter case…」と batchErrors の大文字・小文字"
+      ],
+      "unverified": [
+        "Opus レビュー実施済み（2026-10-20。置き換え・上書き・再分類。2件修正：送る直前に最新の一覧で衝突を求め直す〔確認の後に状況が変わった行・同じ回の同じ中身の GLB/VRM・送信待ちの同名〕、VMD の大文字・小文字だけ違う名前〔Windows で同じファイル〕を確認・同じ回の矛盾に追加。GLB/VRM のハッシュ計算を1件ずつに）。残り：再確認からサーバーの書き込みまでの間に別の画面が登録した場合は検出できない（サーバーは変えない R1）。400MB 級の FBX は送る前に全体を読み込みメインスレッドで解析する（旧画面と同じ。実測未実施）。three が無い環境では FBX の解析を使う4件が skip。% を含む GLB/VRM 名は警告のみ（再登録で余分な再分類の確認が出ることがある）。実際の VRM・PMX・FBX での登録は未確認（合成ファイルのみ）。GPU・Windows 実機未検証。"
+      ],
+      "notes": "1回の取り込みの矛盾検査（ダイアログ）は設計の5種類（VMD は大文字・小文字を区別しない）。同じ中身の GLB を別名で同時に2つ選んだ場合は、2件目を送る直前の再確認で止め、［もう一度］で確認する。batchErrors は行ごとの batchErrorRows を足した。Opus レビューで確認の再計算（recheckConflict）と VMD の大文字・小文字を追加。batchErrorRows・最小 FBX の生成（再生成でバイト一致）・S1 の部分実行（skip として記録し pass に数えない）は妥当と判断。",
       "owner_check": null
     },
     {
@@ -204,7 +228,7 @@
       {
         "id": "S1",
         "result": "skip",
-        "reason": "WP-03・WP-04 が未着手"
+        "reason": "WP-04 が未着手（④の表示と［このモデルを制作に使う］）。③の取り込み部分（合成 GLB を VRM として登録し、一覧に出て選ばれる）は確認済み"
       },
       {
         "id": "S2",
@@ -242,7 +266,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "cb5ce01",
-    "checked_at": "2026-10-20T10:02:31.411Z"
+    "commit": "30601de",
+    "checked_at": "2026-10-20T14:45:25.482Z"
   }
 }

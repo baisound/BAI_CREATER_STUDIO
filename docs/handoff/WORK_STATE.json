@@ -1,23 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T10:06:40+00:00",
+  "updated_at": "2026-10-20T15:15:56+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "3a784bb",
+  "head_at_update": "8a01f5f",
   "current": {
-    "task": "P2-WP-01 保存・読込",
-    "status": "in_progress",
+    "task": "P2-WP-02/03 素材",
+    "status": "done",
     "step": "設計書読込・実装着手",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-01 保存・読込"
+    "WP-04 3D表示・ステージ配置"
   ],
   "unverified": [
-    "Opus レビュー未実施",
-    "GPU・Windows 実機未検証（SwiftShader のみ）",
-    "POST /api/project で project_state.json が壊れていて If-Match があると、500 を返さずに接続が切れる（WP-01 で扱うか要判断）",
-    "導線点検 §5 の6〜14 は所有者OK待ちで未着手"
+    "WP-03：再確認からサーバー書き込みまでの間の別画面の登録は検出できない（R1）。400MB 級 FBX の実測未実施。GPU・Windows 実機未検証。実 VRM・PMX・FBX での登録は未確認",
+    "旧画面は自分の保存でも同期の取り込み（「MCPから更新を同期しました」）が走る（既存の挙動、今回は変えていない）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +32,41 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T15:15:56+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "8a01f5f",
+      "text": "P2-WP-03 Opus レビュー完了（送る直前の衝突の再確認・VMD の大文字小文字を修正）、legacy-project-save.test.cjs の時々の失敗（テスト側、b082ad8 から）を修正"
+    },
+    {
+      "at": "2026-10-20T14:46:08+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "30601de",
+      "text": "P2-WP-02/03 ③ 素材一覧・取り込みを実装（30601de）。pytest 354、node-all 188 pass、tsc・evidence 合格、実 data/ 不変"
+    },
+    {
+      "at": "2026-10-20T14:08:37+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "da43e6b",
+      "text": "P2-WP-02/03 素材: 設計書読込・実装着手"
+    },
+    {
+      "at": "2026-10-20T14:06:04+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "d33496a",
+      "text": "WP-01 Opus レビュー：自動保存と統合保存が同じ tick を待つと saving:true のまま止まる不具合を修正（テスト追加）。If-Match・世代番号・C5・server.py の 500 分岐は問題なし"
+    },
+    {
+      "at": "2026-10-20T13:57:32+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "910cc5a",
+      "text": "P2-WP-01 保存・読込を実装・検証（ff51eb0）。POST /api/project の壊れたファイル時の接続切断も500に修正"
+    },
     {
       "at": "2026-10-20T10:06:40+00:00",
       "by": "claude-code",

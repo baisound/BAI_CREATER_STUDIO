@@ -31,3 +31,46 @@
 
 /* ---- 共通：feature 部品の置き場 ---- */
 #keepalive { display: none; }
+
+/* ---- ② プロジェクト（features/project-view.js） ---- */
+.proj-status { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sm); }
+.proj-status .proj-status-text { font-weight: 600; }
+.proj-status[data-tone="ok"] .proj-status-text { color: var(--ok); }
+.proj-status[data-tone="warn"] .proj-status-text { color: var(--warn); }
+.proj-status[data-tone="error"] .proj-status-text { color: var(--danger); }
+.proj-status[data-tone="busy"] .proj-status-text { color: var(--text-2); }
+.proj-status .proj-status-detail { margin: 0; color: var(--text-2); overflow-wrap: anywhere; }
+.proj-status.compact { display: block; }
+.proj-status.compact .proj-status-text { font-weight: 400; font-size: var(--fs-xs); }
+.proj-hist { max-height: 220px; overflow: auto; margin-bottom: 6px; }
+.proj-hist li { justify-content: space-between; }
+.media.tile-plain { display: flex; align-items: center; justify-content: center; background: var(--surface-3); color: var(--text-2); }
+.project-card .media-body { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px 10px; }
+
+/* ---- ③ 素材管理（features/assets-view.js・import.js） ---- */
+.asset-tile-wrap { position: relative; }
+.asset-tile { aspect-ratio: 4/3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: var(--surface-3); color: var(--text-2); }
+.asset-tile .tile-fmt, .tile-large .tile-fmt { font-family: var(--mono); font-size: var(--fs-md); font-weight: 600; color: var(--text); letter-spacing: .06em; }
+.asset-tile-wrap .check { position: absolute; right: 6px; top: 6px; width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.asset.is-missing > .asset-tile-wrap, .asset-table tr.is-missing td { opacity: .55; }
+.pill.warn { border-color: var(--warn); color: var(--warn); }
+.detail-preview.tile-large { aspect-ratio: 16/10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: var(--surface-3); color: var(--text-2); }
+.mono.selectable { user-select: all; overflow-wrap: anywhere; }
+.lib-bar .search-wrap { min-width: 160px; }
+.lib-crumb .btn { padding: 1px 8px; }
+.lib-unimpl { display: block; }
+.imp-table td { vertical-align: middle; }
+.imp-table .btn-row { display: flex; gap: 4px; flex-wrap: wrap; }
+.imp-warn { color: var(--warn); font-size: var(--fs-xs); }
+.imp-err { color: var(--danger); font-size: var(--fs-sm); }
+.progress[data-indeterminate] > i { width: 40%; animation: imp-slide 1.1s ease-in-out infinite alternate; }
+@keyframes imp-slide { from { margin-left: 0; } to { margin-left: 60%; } }
+@media (prefers-reduced-motion: reduce) { .progress[data-indeterminate] > i { animation: none; } }
+.import-dialog .imp-rows { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 40vh; overflow: auto; }
+.imp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); }
+.imp-row.is-bad { border-color: var(--danger); }
+.imp-row .imp-name { font-weight: 600; overflow-wrap: anywhere; }
+.imp-row .imp-hint { flex-basis: 100%; }
+.imp-message { color: var(--danger); min-height: 1.2em; margin: 4px 0 0; }
+.imp-conflicts { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; max-height: 40vh; overflow: auto; }
+.lib-unimpl .section-title { margin: 8px 0 2px; padding: 0 4px; font-size: var(--fs-sm); font-weight: 600; }

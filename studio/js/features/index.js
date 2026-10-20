@@ -7,8 +7,14 @@
  * @typedef {(ctx: FeatureCtx, control: {t: string, key: string, [k: string]: any}) => HTMLElement | HTMLElement[] | null} FeatureFn
  */
 
+import { importButton, assetCategories, assetLibrary, assetDetail, recentImports } from './assets-view.js';
+import { projectToolbar, projectStatus, projectSummary, projectHistory, projectList, projectCard } from './project-view.js';
+
 /** @type {Record<string, FeatureFn>} */
 export const FEATURES = {
-  // WP-01 以降が追加する（projectToolbar・projectStatus・projectSummary・projectHistory・projectList・projectCard、
-  // WP-02 の assetCategories・assetLibrary・assetDetail、…）。
+  // WP-01（②）
+  projectToolbar, projectStatus, projectSummary, projectHistory, projectList, projectCard,
+  // WP-02・WP-03（③）
+  importButton, assetCategories, assetLibrary, assetDetail, recentImports,
+  // WP-04 以降が追加する。
 };

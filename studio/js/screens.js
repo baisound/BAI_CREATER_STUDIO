@@ -21,7 +21,7 @@ import { img, CAM_PRESETS, LENS_PRESETS, SHOT_TEMPLATES, ASSETS } from './sample
  *   classification: string, ids: string[], panels: Panel[],
  *   existing?: {label: string, href: string}[], live?: string[],
  *   modes?: string[], tools?: Control[],
- *   left?: {title: string, status: Status, list?: any[], tree?: boolean, search?: boolean, controls?: Control[], custom?: string},
+ *   left?: {title: string, status: Status, list?: any[], tree?: boolean, search?: boolean, controls?: Control[], custom?: string, evidence?: string},
  *   center: {type: string, [k: string]: any},
  *   right?: {tabs: Tab[]},
  *   bottom?: {type: 'timeline', status: Status, fps: number, frames: number, tracks: any[], demoEditable?: boolean} | null,
@@ -96,7 +96,8 @@ export const SCREENS = [
     classification: 'existing_or_partial_to_audit', ids: ['DATA-008', 'CORE-013', 'NF-015', 'NF-019'],
     existing: [MAIN, CAMERA], live: ['serverVersion', 'diagnostics'],
     panels: [
-      { name: '最近のプロジェクト', status: 'mock', note: '現行サーバーは単一の制作状態のみを保持。複数プロジェクト一覧は未実装。', ids: ['DATA-008'] },
+      { name: '最近のプロジェクト', status: 'real', evidence: 'tests/studio-p2-project.test.cjs::home shows one real project card and no sample projects', note: '現行サーバーは単一の制作状態のみを保持（実データ1枚）。複数プロジェクト一覧・新規作成は未実装（新規作成は ◇）。', ids: ['DATA-008'] },
+      { name: '最近の素材', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::home shows only assets imported in this page', note: 'このページで取り込んだ素材だけ（API に登録日時が無いため）。', ids: ['MOTION-003'] },
       { name: 'クイックアクション', status: 'partial', note: '現行画面へのリンクのみ実在。' },
       { name: '制作ステータス', status: 'partial', note: 'Phase E 台帳（docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json）の要約。' },
       { name: '新規作成', status: 'unimpl', note: '現在のサーバーは制作状態を1つだけ保持。新規作成は未実装（Q1 回答待ち）。テンプレート（ダンスMV等）からの作成は NF-019（未承認）。', ids: ['DATA-008', 'NF-019'] },
@@ -105,9 +106,9 @@ export const SCREENS = [
     tools: [newProjectUnimpl('新規プロジェクト', { primary: true }), un('プロジェクトを開く', '複数プロジェクトのファイル選択・切替は未実装。現行は単一の制作状態を自動で読み込みます。', ['DATA-008'], PH.P2)],
     center: {
       type: 'home', cards: [
-        { title: '最近のプロジェクト', span: 8, status: 'mock', controls: [
-          { t: 'table', cols: ['名前', '種別', '最終更新', '状態'], rows: [['Sample_Project', 'ダンスMV', '—', 'サンプル'], ['Camera_Test', 'カメラ試験', '—', 'サンプル'], ['Motion_Library', 'モーション整理', '—', 'サンプル']] },
-          note('一覧は仮データです。実在するのは現行サーバーの単一制作状態のみ（「プロジェクト保存・復元」画面で読み取り可能）。'),
+        { title: '最近のプロジェクト', span: 8, status: 'real', evidence: 'tests/studio-p2-project.test.cjs::home shows one real project card and no sample projects', controls: [
+          { t: 'feature', key: 'projectCard' },
+          note('複数のプロジェクト管理は未実装です（新規作成は ◇）。実在するのは現行サーバーの単一制作状態のみです。'),
         ] },
         { title: 'クイックアクション', span: 4, status: 'partial', controls: [
           { t: 'btns', items: [btn('カメラワーク', 'nav:02'), btn('モーション編集', 'nav:13'), btn('保存・復元', 'nav:18'), btn('診断', 'nav:24')] },
@@ -295,21 +296,18 @@ export const SCREENS = [
     classification: 'candidate_late', ids: ['MOTION-002', 'DATA-013', 'REVIEW-010', 'NF-004', 'NF-013'],
     existing: [MAIN],
     panels: [
-      { name: '素材カテゴリ', status: 'mock' },
-      { name: '検索・タグ', status: 'partial', note: '現行画面の統合素材ライブラリに検索・カテゴリあり。', ids: ['MOTION-002'] },
+      { name: '素材カテゴリ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::library lists real assets by category', note: '/api/assets の実数で分類・件数を表示。ステージ・オーディオなどは登録手段がなく0件。', ids: ['MOTION-002'] },
+      { name: '検索・タグ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::search and format filter work on real data', note: '名前・形式で検索。タグは未実装。', ids: ['MOTION-002'] },
       { name: 'サムネイル', status: 'unimpl', ids: ['MOTION-016'] },
-      { name: 'メタデータ', status: 'mock' },
+      { name: 'メタデータ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::detail shows registration facts', note: '登録情報のみ。作者・ライセンスは未記録。', ids: ['MOTION-002'] },
       { name: '依存参照', status: 'unimpl', ids: ['REVIEW-010'] },
-      { name: 'インポートキュー', status: 'partial', note: '現行画面の素材登録（FBX/GLB/VRM/PMX ZIP/VMD）。', ids: ['MOTION-003'] },
+      { name: 'インポートキュー', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::multiple files import sequentially', note: 'GLB・VRM・PMX ZIP・VMD・FBX を登録（複数選択可）。上書き・置き換えは事前に確認。', ids: ['MOTION-003'] },
     ],
-    tools: [btn('現行画面で素材を登録', 'href:/'), un('一括インポート', 'インポートキューの一括処理は未実装。', ['NF-004'], PH.P4), sel('並び替え', ['名前', '種別', '追加日'])],
-    left: { title: '素材管理', status: 'mock', custom: 'assetCats' },
-    center: { type: 'library', status: 'mock' },
+    tools: [{ t: 'feature', key: 'importButton' }, un('一括インポート', '一括のタグ付け・変換は未実装です（複数ファイルの取り込みは［素材を取り込む…］でできます）。', ['NF-004'], PH.P4)],
+    left: { title: '素材管理', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::library lists real assets by category', custom: 'assetCategories' },
+    center: { type: 'feature', key: 'assetLibrary', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::library lists real assets by category' },
     right: { tabs: [
-      { id: 'meta', label: '素材の詳細', custom: 'assetDetail', sections: [
-        { title: '選択中の素材', status: 'mock', controls: [{ t: 'kv', rows: [['名前', '選択してください'], ['形式', '—'], ['ライセンス', '—'], ['ハッシュ', '—']] }] },
-        { title: 'タグ', status: 'mock', controls: [{ t: 'text', label: 'タグを追加', placeholder: '例: ダンス', required: false }] },
-      ] },
+      { id: 'meta', label: '素材の詳細', custom: 'assetDetail', sections: [] },
       { id: 'deps', label: '依存参照', sections: [
         { title: '依存参照', status: 'unimpl', controls: [un('参照元を表示', '素材の参照追跡（ライセンス・生成元）は移植候補（REVIEW-010）。', ['REVIEW-010'], PH.P2)] },
       ] },
@@ -539,20 +537,21 @@ export const SCREENS = [
     id: '18', title: 'プロジェクト保存・復元・バージョン管理', nav: '保存・復元', group: 'プロジェクト',
     summary: '制作状態の保存・復元、版の比較、素材参照、アーカイブを扱う。',
     classification: 'existing_or_partial_to_audit', ids: ['DATA-008', 'DATA-009', 'DATA-010', 'DATA-012', 'CORE-012'],
-    existing: [CAMERA], live: ['projectBundle'],
+    existing: [CAMERA],
     panels: [
-      { name: 'プロジェクト一覧', status: 'mock', note: '現行は単一制作状態。', ids: ['DATA-008'] },
-      { name: '保存・復元', status: 'partial', note: 'project_state_bundle.py（リビジョン検査・事前検証付き復元）。現行カメラ画面の保存/復元UI。', ids: ['DATA-008', 'CORE-012'] },
-      { name: 'バージョン', status: 'partial', note: 'camera_project_revision.py（楽観的同時実行リビジョン）。履歴一覧は未。', ids: ['DATA-009'] },
+      { name: 'プロジェクト一覧', status: 'real', evidence: 'tests/studio-p2-project.test.cjs::SCR-18 shows the real production state', note: '単一の制作状態（複数プロジェクトの一覧・切替は未実装）。', ids: ['DATA-008'] },
+      { name: '保存・復元', status: 'real', evidence: 'tests/studio-p2-project.test.cjs::undo autosaves the combination with the envelope revision', note: '自動保存（コンビネーション）と統合保存（コンビネーション＋カメラ＋作業参照）、履歴の戻す・やり直す、外部変更の検知。版（revision）による同時編集の検知付き。', ids: ['DATA-008', 'CORE-012'] },
+      { name: 'バージョン', status: 'real', evidence: 'tests/studio-p2-project.test.cjs::SCR-18 shows the real production state', note: '編集履歴はコンビネーションのみ。任意の版との差分比較は未実装。', ids: ['DATA-009'] },
       { name: '差分比較', status: 'unimpl', ids: ['DATA-009'] },
       { name: '素材参照', status: 'unimpl', ids: ['DATA-015'] },
       { name: 'アーカイブ', status: 'unimpl', ids: ['DATA-012'] },
     ],
-    tools: [btn('現行カメラ画面で保存・復元', 'href:/camera.html'), btn('復元…', 'form:confirmRestore'), un('ポータブルZIP', '制作データのポータブルZIPは未実装（DATA-012）。', ['DATA-012'], PH.P2)],
-    left: { title: 'プロジェクト', status: 'mock', list: [{ id: 'cur', label: '現在の制作状態', meta: 'サーバー' }] },
+    tools: [{ t: 'feature', key: 'projectToolbar' }, un('ポータブルZIP', '制作データのポータブルZIPは未実装（DATA-012）。', ['DATA-012'], PH.P2)],
+    left: { title: 'プロジェクト', status: 'real', custom: 'projectList', evidence: 'tests/studio-p2-project.test.cjs::SCR-18 shows the real production state' },
     center: { type: 'cards', cards: [
-      { title: '現在の制作状態（読み取り）', span: 8, status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('projectBundle'), note('この画面は読み取りのみです。保存・復元は現行カメラ画面で行えます（リビジョン不一致時は拒否されます）。')] },
-      { title: 'バージョン', span: 4, status: 'partial', controls: [note('リビジョン値で同時編集を検知します。版の一覧・任意版への復元は未実装です。'), un('版を比較', '差分比較は未実装（DATA-009）。', ['DATA-009'], PH.P2)] },
+      { title: '状態', span: 12, status: 'real', evidence: 'tests/studio-p2-project.test.cjs::undo autosaves the combination with the envelope revision', controls: [{ t: 'feature', key: 'projectStatus' }] },
+      { title: '現在の制作状態', span: 8, status: 'real', evidence: 'tests/studio-p2-project.test.cjs::SCR-18 shows the real production state', controls: [{ t: 'feature', key: 'projectSummary' }, note('コンビネーション・カメラ・作業中の素材参照を、サーバーに保存されている内容のまま表示します。')] },
+      { title: 'バージョン', span: 4, status: 'real', evidence: 'tests/studio-p2-project.test.cjs::undo autosaves the combination with the envelope revision', controls: [{ t: 'feature', key: 'projectHistory' }, un('版を比較', '差分比較は未実装（DATA-009）。', ['DATA-009'], PH.P2)] },
       { title: 'アーカイブ', span: 12, status: 'unimpl', controls: [{ t: 'empty', text: 'アーカイブはありません。' }] },
     ] },
   },
@@ -648,7 +647,7 @@ export const SCREENS = [
     panels: [
       { name: '外部アプリ', status: 'unimpl', ids: ['MOTION-007'] },
       { name: '接続設定', status: 'unimpl' },
-      { name: 'インポート', status: 'partial', note: '現行画面の素材登録（FBX/GLB/VRM/PMX ZIP/VMD）。', ids: ['MOTION-003'] },
+      { name: 'インポート', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::import dialog opens from nav query and clears it', note: '素材管理（08）の取り込みダイアログで FBX/GLB/VRM/PMX ZIP/VMD を登録。', ids: ['MOTION-003'] },
       { name: 'エクスポート', status: 'partial', note: 'VMD書き出し・カメラVMD書き出しは部分実装。', ids: ['MOTION-006', 'CAM-016'] },
       { name: '変換', status: 'partial', note: 'tools/extract_fbx_motion_blender.py（Blender必須）。', ids: ['MOTION-007'] },
       { name: 'バッチ', status: 'unimpl', ids: ['NF-010'] },
@@ -657,7 +656,7 @@ export const SCREENS = [
     center: { type: 'cards', cards: [
       { title: '対応形式（現行コード）', span: 12, status: 'partial', controls: [{ t: 'table', cols: ['形式', '読込', '書出', '備考'], rows: [['FBX', '可（Blender経由の抽出あり）', '—', 'MOTION-003/007'], ['GLB / VRM', '可（プレビュー）', '—', 'VRMは静的形状確認'], ['PMX ZIP', '可', '—', 'テクスチャ同梱ZIP'], ['VMD（モーション）', '可', '部分', 'MOTION-006'], ['VMD（カメラ）', '可', '部分', 'F値等は拡張JSON'], ['BVH', '部分', '—', 'bvh_skeleton.py']] }] },
       { title: 'バッチ変換', span: 6, status: 'unimpl', controls: [un('バッチを作成', '外部アプリ自動連携・バッチ変換は未承認の新規候補（NF-010）。', ['NF-010'], PH.P4)] },
-      { title: 'インポート', span: 6, status: 'partial', controls: [link('現行画面で素材を登録', '/')] },
+      { title: 'インポート', span: 6, status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::import dialog opens from nav query and clears it', controls: [btn('素材を取り込む', 'nav:08?import=1', { primary: true }), note('素材管理（08）の取り込みダイアログが開きます（複数ファイル可）。')] },
     ] },
   },
   {
@@ -798,11 +797,5 @@ export const FORMS = {
     title: 'カメラプリセットとして保存', submit: '保存（サンプル）',
     fields: [{ id: 'name', label: 'プリセット名', required: true, pattern: '^.{1,48}$', error: '1〜48文字で入力してください。' }, { id: 'tags', label: 'タグ（空白区切り）' }],
     done: 'サンプル表示：保存はされていません。実際の登録は現行カメラ画面の「カスタム撮影構図」で行えます。',
-  },
-  confirmRestore: {
-    title: '制作状態を復元', submit: '復元を実行', danger: true,
-    fields: [{ id: 'confirm', label: '確認のため「復元」と入力', required: true, pattern: '^復元$', error: '「復元」と入力してください。' }],
-    intro: '復元すると現在の制作状態が置き換わります。この新UIからは実行しません（誤操作防止のため未接続）。',
-    done: '◇ 未接続：この新UIからは復元を実行していません。現行カメラ画面の復元はリビジョン検査付きで利用できます。',
   },
 };
