@@ -22,6 +22,8 @@ A3 の所有者決定: [`A3_MMD_EFFECTS_DECISIONS_JA.md`](A3_MMD_EFFECTS_DECISIO
 
 A3文書検査: 台帳JSON/CSVは148件でID集合一致。`RENDER-011`〜`015` の詳細・状態・依存は両形式で一致し、5件とも「計画・未検証」。`git -c core.whitespace=cr-at-eol diff --check` 成功。実装・GPU・外部MME素材の試験は行っていない。
 
+B1判断資料: [`B1_MULTI_DANCER_DECISIONS_JA.md`](B1_MULTI_DANCER_DECISIONS_JA.md) に `O-DANCE-01/02/03` の選択肢、既定案、非破壊・版管理・部分失敗の境界を記録した。所有者回答待ちであり、`DANCE-002/006/007/012` の実装状態とロードマップ順序は変更していない。コード変更・実モデル試験はこの判断資料では行わない。
+
 A3対応コミット: 承認境界と優先効果の仕様・台帳を `757ebb2`、FX画面の説明用パラメータと仮区間を `0435fbb` で記録し、ともに `origin/codex/specs` へプッシュした。後者は `npm run typecheck`、状態表示検査6/6、Chrome対象画面試験（FX・歌詞2/2、追加した霧・桜・影の表示1/1）に成功。画面例は素材登録、GPU描画、保存、動画出力の完成を意味しない。
 
 レビュー: `reviews/CRITIC_01_JA.md` → `CRITIC_02_JA.md` → `CRITIC_03_JA.md` → `reviews/JUDGE_JA.md`。Judge の進捗ID不一致と詳細モード消失は修正した。
