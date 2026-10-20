@@ -233,7 +233,7 @@
   "p2_port": {
     "precedes_phase_e": true,
     "status_ledger": "docs/roadmap/P2_PORT_STATUS.json（P2-WP-00c で新設予定。未作成）",
-    "design": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md（v4、最終判定前）",
+    "design": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md（v5、条件付き承認・最終判定 2026-10-20。条件 C1〜C10 は反映済み。WP-00a-1 から実装可）",
     "note": "所有者決定（2026-10-20）により P2（新UIへの移植）を Phase E より先に行う。以下の planned_in は予定であり、実施済みではない。"
   },
   "planned_in": [

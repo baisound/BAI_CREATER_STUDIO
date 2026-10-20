@@ -1,25 +1,24 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T08:56:42+00:00",
+  "updated_at": "2026-10-20T09:03:56+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "eda0a46",
+  "head_at_update": "2056420",
   "current": {
     "task": "P2 設計の最終判定",
-    "status": "in_progress",
+    "status": "done",
     "step": "設計書 v4 をコードと突き合わせて最終判定し、条件を v5 に反映する",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2 設計 v4 の最終判定を受ける",
+    "WP-00a-1 から実装（データの隔離。Sonnet で実装 → Opus でレビュー）",
+    "OWNER-5（所有者確認手順）を ROADMAP_JA.md の所有者決定に記録するかをコーディネーターが確認",
     "Q1〜Q4 と導線点検§5の項目6〜14（要所有者OK）を所有者に確認"
   ],
   "unverified": [
-    "文書のみの変更。設計内容（モーフ再生・ステージ単位換算）は実ファイル未検証"
+    "文書のみの変更。設計内容（モーフ再生・ステージ単位換算・FBX 正常登録）は実ファイル未検証"
   ],
-  "blockers": [
-    "利用上限（2026-10-20 08:40 UTC＝17:40 JST に解除）。解除後、v4 の残り（批評3回目 M1〜M8、導線点検 §5 の1〜5 の WP-00c 反映）を仕上げる"
-  ],
+  "blockers": [],
   "owner_questions": [
     "Q1 新規プロジェクト作成の扱い（既定：◇ 未実装表示）",
     "Q2 旧機能を削ってよいか（既定：すべて残す）",
@@ -34,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T09:03:56+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "2056420",
+      "text": "P2 設計 v4 を最終判定し、条件付き承認。条件 C1〜C10（exports への書込のスタブ化、所有者確認の試用データ、reset の判定順、B-4 の関数単位、cameraInvalid 中の自動保存、S7 の範囲、新規作成5か所、導線点検の規則、旧画面テストの待ち、node テストのコマンド）を v5 に反映"
+    },
     {
       "at": "2026-10-20T08:56:42+00:00",
       "by": "claude-code",
