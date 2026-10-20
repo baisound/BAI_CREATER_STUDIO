@@ -110,6 +110,8 @@
 - **[DANCE-011](FEATURE_DETAIL_JA.md#dance-011)** 格闘連続技チェイン
 - **[DANCE-012](FEATURE_DETAIL_JA.md#dance-012)** 手指・小道具操作
 
+`DANCE-002/006/007/012` の [B1所有者決定](../specs/B1_MULTI_DANCER_DECISIONS_JA.md) は A/A/A。候補経路を人が補正・確定し、登録済み小道具の骨接続・持ち替えを扱い、VMD一括出力の成功分は保持して一部成功を明示する。機能実装と実モデル検証は未完。
+
 ## Phase 05 / LIP — リップ・表情・音声
 
 - **[AUDIO-001](FEATURE_DETAIL_JA.md#audio-001)** 歌音声の取込・配置・同期（リップシンクと同段階）
