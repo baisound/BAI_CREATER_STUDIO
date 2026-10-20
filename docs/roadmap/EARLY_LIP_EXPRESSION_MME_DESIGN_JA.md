@@ -16,7 +16,7 @@
 ## MMDエフェクト（RENDER-011〜015周辺）
 - **互換を分類**: (a)再現可能なネイティブ効果、(b)見た目を近似する効果、(c)非対応。MMEの.fxをWebGLにそのまま実行できるとは約束しない。
 - FXアセットレジストリ: id, source, license, parameters, supportedEngine, fallbacks, renderParityStatus。効果ごとに画面とレンダーの対応表を維持。
-- 承認済みの初期内蔵対象: Bloom/AutoLuminous風発光、DOF、MotionBlur。後続の所有者指示で、見た目が変わる霧、細かな塵、舞う桜、きらめき、影の強調、ボケ／ブラーを優先して検証する。奥行き霧と粒子は `RENDER-013`、影とDOF等は `RENDER-012`、効果別の対象・強度・順序は `RENDER-014` に紐付ける。トゥーン陰影・リムライトはこの優先指示による採用候補として扱わない。Ray-MMDは異なるシェーダー体系を前提に、登録・MMD向け設定出力から始める。詳細は [`A3_VISUAL_EFFECT_PRIORITY_JA.md`](../specs/A3_VISUAL_EFFECT_PRIORITY_JA.md)。
+- 承認済みの初期FX内蔵対象: Bloom/AutoLuminous風発光、MotionBlur。後続の所有者指示で、見た目が変わる霧、細かな塵、舞う桜、きらめき、影の強調、ボケ／ブラーを優先して検証する。奥行き霧と粒子は `RENDER-013`、影とFXのブラー等は `RENDER-012`、FX効果別の対象・強度・順序は `RENDER-014` に紐付ける。ピントのボケ／DOFはカメラ `CAM-005/E-FOCUS-01/02/F-DOF-01` が所有し、FXは参照・重ね合わせを検証する。トゥーン陰影・リムライトはこの優先指示による採用候補として扱わない。Ray-MMDは異なるシェーダー体系を前提に、登録・MMD向け設定出力から始める。詳細は [`A3_VISUAL_EFFECT_PRIORITY_JA.md`](../specs/A3_VISUAL_EFFECT_PRIORITY_JA.md)。
 - エフェクトはシーン/被写体/素材別に付与し、ON/OFF、強度キー、品質段階、プレビュー・レンダリング差分テストを持つ。
 
 ## 共通API・MCP・受入
