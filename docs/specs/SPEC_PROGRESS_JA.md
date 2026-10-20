@@ -30,6 +30,12 @@ A3文書検査: 台帳JSON/CSVは148件でID集合一致。`RENDER-011`〜`015` 
 
 B1所有者決定: [`B1_MULTI_DANCER_DECISIONS_JA.md`](B1_MULTI_DANCER_DECISIONS_JA.md) の `O-DANCE-01/02/03` を **A/A/A** で承認。候補経路を人が選択・補正・確定して適用後再評価、登録済み小道具の骨接続と持ち替え、VMD一括出力の成功分保持と「一部成功」を台帳JSON/CSV、詳細、概要、Phase C文書、ロードマップ、トレーサビリティへ同期した。`DANCE-002/006/007/012` は「計画・未検証」のままで、実装順は不変。文書検査は148件の台帳ID集合と4件の名前・詳細・状態・依存がJSON/CSVで一致し、`git -c core.whitespace=cr-at-eol diff --check` 成功。コード変更・実モデル/VMD/UI/両MCPの実機試験は行っていない。
 
+B2所有者決定: [`B2_MUSIC_EXPRESSION_DECISIONS_JA.md`](B2_MUSIC_EXPRESSION_DECISIONS_JA.md) の `O-MUSIC-01/02/03` を **A/A/A** で承認。選択VMD集合の傾向、顔映像の既定非保存、音声サンプル位置の時刻付き拍マーカー正本を台帳・詳細・概要・Phase D文書・ロードマップ・トレーサビリティへ同期した（`df3e60b`、基底統合 `0616e73`、PR #10）。`LIP-005/011`、`LYRIC-006` は計画・未検証。文書検査は148件のID集合・対象のJSON/CSV一致とdiff checkが成功し、実音声・顔映像・VMD・MCPの試験は行っていない。
+
+B3所有者決定: [`B3_LYRICS_STAGE_DECISIONS_JA.md`](B3_LYRICS_STAGE_DECISIONS_JA.md) の `O-LYRIC-01/02/03` を **A/A/A** で承認。JIZURA必要部分の段階統合、フォント代替の利用者選択、確認後のPMX部分出力を台帳・詳細・概要・Phase G/H文書・ロードマップ・トレーサビリティへ同期した（`e9e639d`、PR #12）。`LYRIC-001/004/008` は計画・未検証。文書検査は148件のID集合・対象のJSON/CSV一致とdiff checkが成功し、JIZURA・実フォント・PMX・MCPの試験は行っていない。
+
+B4所有者決定: [`B4_COMBAT_STAGE_DECISIONS_JA.md`](B4_COMBAT_STAGE_DECISIONS_JA.md) の `O-COMBAT-01/02/03` を **A/A/A** で承認。接点差と同一フレーム映像の併記、再現性確認後のベイク再利用、登録済み可動ピボットのイベント連動を台帳・詳細・概要・Phase H文書・ロードマップ・トレーサビリティへ同期した（`c115de4`、PR #13）。`MOTION-021` は「要検証」、現行新UI操作は未実装表示、`DANCE-008/009`・`LYRIC-010` は計画・未検証のままで、実装順は不変。文書検査は148件の台帳ID集合と対象4件の名前・詳細・状態・依存がJSON/CSVで一致し、`git -c core.whitespace=cr-at-eol diff --cached --check` 成功。コード変更・実モデル・物理・MCPの試験は行っていない。
+
 A3対応コミット: 承認境界と優先効果の仕様・台帳を `757ebb2`、FX画面の説明用パラメータと仮区間を `0435fbb` で記録し、ともに `origin/codex/specs` へプッシュした。後者は `npm run typecheck`、状態表示検査6/6、Chrome対象画面試験（FX・歌詞2/2、追加した霧・桜・影の表示1/1）に成功。画面例は素材登録、GPU描画、保存、動画出力の完成を意味しない。
 
 レビュー: `reviews/CRITIC_01_JA.md` → `CRITIC_02_JA.md` → `CRITIC_03_JA.md` → `reviews/JUDGE_JA.md`。Judge の進捗ID不一致と詳細モード消失は修正した。
