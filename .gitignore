@@ -28,3 +28,4 @@ __pycache__/
 
 # P2 通し確認の結果（tools/record_e2e_main.mjs が読む）
 /test-results/
+/.claude/worktrees/
