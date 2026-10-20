@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T15:30:25+00:00",
+  "updated_at": "2026-10-20T15:31:47+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "28cd93e",
+  "head_at_update": "2e8fd96",
   "current": {
-    "task": "P2-WP-04 O-④ の決定",
-    "status": "done",
-    "step": "O-④-1〜7 の決定と O-④-2 の最小 PMX",
+    "task": "P2-WP-04 ④ 3D表示とステージ配置・B-4",
+    "status": "in_progress",
+    "step": "実装開始（B-4 → viewport → ステージ配置 → テスト）",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T15:31:47+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "2e8fd96",
+      "text": "P2-WP-04 ④ 3D表示とステージ配置・B-4: 実装開始（B-4 → viewport → ステージ配置 → テスト）"
+    },
     {
       "at": "2026-10-20T15:30:25+00:00",
       "by": "claude-code",
