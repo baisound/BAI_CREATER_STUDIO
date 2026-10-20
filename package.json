@@ -12,6 +12,7 @@
     "typecheck": "tsc -p tsconfig.json",
     "test:studio": "node --test tests/studio-ui.test.cjs",
     "test:studio-routes": "python -m pytest -q tests/test_studio_routes.py",
+    "test:p2": "node tests/run-guarded.cjs \"tests/studio-p2-*.test.cjs\" tests/legacy-project-save.test.cjs",
     "test:p2-e2e": "node tests/run-guarded.cjs tests/studio-p2-e2e-main.test.cjs && node tools/record_e2e_main.mjs",
     "test:node-all": "node tests/run-guarded.cjs \"tests/*.test.cjs\" \"tests/*.test.mjs\" \"test_camera_*.cjs\" \"test_camera_*.mjs\""
   },

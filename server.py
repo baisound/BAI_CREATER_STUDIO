@@ -315,15 +315,15 @@ class Handler(BaseHTTPRequestHandler):
             except FileNotFoundError:payload=b'{}'
             self.send(200,json.dumps({'project':json.loads(payload),'revision':camera_revision(json.loads(payload))},ensure_ascii=False).encode() if 'envelope=1' in urlsplit(self.path).query else payload);return
         if path=='/api/project':
-            with PROJECT_LOCK:
-                try: payload=PROJECT.read_bytes()
-                except FileNotFoundError:payload=b'{}'
+            try:
+                with PROJECT_LOCK:
+                    try: payload=PROJECT.read_bytes()
+                    except FileNotFoundError:payload=b'{}'
+                    if 'envelope=1' in urlsplit(self.path).query:
+                        obj=json.loads(payload)
+                        payload=json.dumps({'project':obj,'revision':camera_revision(obj)},ensure_ascii=False).encode()
+            except Exception:return self.bad(500,'制作状態（project_state.json）を読めませんでした')
             self.send(200,payload);return
-        if path=='/api/project':
-            with PROJECT_LOCK:
-                try: payload=PROJECT.read_bytes()
-                except FileNotFoundError:payload=b'{}'
-            self.send(200,json.dumps({'project':json.loads(payload),'revision':camera_revision(json.loads(payload))},ensure_ascii=False).encode() if 'envelope=1' in urlsplit(self.path).query else payload);return
         if path=='/api/favorites':
             try: payload=FAVORITES.read_bytes()
             except FileNotFoundError:payload=b'[]'
