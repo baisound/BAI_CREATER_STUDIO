@@ -156,7 +156,7 @@ for (const [name, url] of PAGES) {
       row.result = /intercepts pointer|outside of the viewport|not visible|Timeout/.test(m) ? '操作不能' : 'エラー(操作失敗)'; row.detail = m;
     }
     rec.controls.push(row);
-    if (page.url() !== startUrl) { await page.goto(startUrl, { waitUntil: 'load' }).catch(() => {}); await page.waitForTimeout(800); await page.evaluate(ENUM); }
+    if (page.url() !== startUrl) { await page.goto(startUrl, { waitUntil: 'load' }).catch(() => {}); await page.waitForTimeout(3000); await page.evaluate(ENUM); }
   }
   await page.screenshot({ path: path.join(SHOT_DIR, `${name}_after.png`), fullPage: true }).catch(() => {});
   const tally = {}; for (const c of rec.controls) tally[c.result] = (tally[c.result] || 0) + 1;

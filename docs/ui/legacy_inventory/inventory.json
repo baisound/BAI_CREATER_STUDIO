@@ -1,15 +1,12 @@
 {
- "generatedAt": "2026-10-19T23:19:21.728Z",
+ "generatedAt": "2026-10-20T00:09:24.666Z",
  "base": "http://127.0.0.1:8799",
  "viewport": "1600x900",
- "threeDir": "/tmp/claude-0/-home-claude-BAI-CREATER-STUDIO/0f3d7df9-8ed6-586b-bb3f-561ea6970bff/scratchpad/three/node_modules/three",
+ "threeDir": "/tmp/claude-0/-home-claude-BAI-CREATER-STUDIO/0f3d7df9-8ed6-586b-bb3f-561ea6970bff/scratchpad/t/package",
  "pages": {
   "index": {
    "url": "/index.html",
    "consoleErrors": [
-    "Failed to load resource: the server responded with a status of 404 (Not Found)",
-    "Failed to load resource: the server responded with a status of 404 (Not Found)",
-    "Failed to load resource: the server responded with a status of 404 (Not Found)",
     "Failed to load resource: the server responded with a status of 400 (Bad Request)",
     "Failed to load resource: the server responded with a status of 400 (Bad Request)",
     "Failed to load resource: the server responded with a status of 400 (Bad Request)",
@@ -23,23 +20,11 @@
     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
     "Failed to load resource: the server responded with a status of 400 (Bad Request)"
    ],
-   "pageErrors": [
-    "Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node.",
-    "Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node.",
-    "Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node."
-   ],
+   "pageErrors": [],
    "failedRequests": [
-    "GET http://127.0.0.1:8799/v01641_preview_guard.js net::ERR_ABORTED",
-    "POST http://127.0.0.1:8799/api/diagnostics/client net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/api/integrated-v02/catalog net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/v01641_preview_guard.js net::ERR_ABORTED",
-    "POST http://127.0.0.1:8799/api/diagnostics/client net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/v01641_preview_guard.js net::ERR_ABORTED"
+    "GET http://127.0.0.1:8799/api/integrated-v02/catalog net::ERR_ABORTED"
    ],
    "badResponses": [
-    "404 GET http://127.0.0.1:8799/v01641_preview_guard.js",
-    "404 GET http://127.0.0.1:8799/v01641_preview_guard.js",
-    "404 GET http://127.0.0.1:8799/v01641_preview_guard.js",
     "400 GET http://127.0.0.1:8799/api/retarget/compare?source=&target=",
     "400 GET http://127.0.0.1:8799/api/retarget/pose-proposal?source=&target=",
     "400 GET http://127.0.0.1:8799/api/retarget/calibration?source=&target=",
@@ -61,7 +46,7 @@
     ],
     "docSize": [
      1600,
-     900
+     4230
     ],
     "issues": [
      {
@@ -80,86 +65,30 @@
      },
      {
       "kind": "overlapping-panels",
-      "count": 11,
+      "count": 4,
       "examples": [
        {
-        "a": "section#asset-workflow",
+        "a": "canvas#threecanvas",
         "b": "section#timeline-studio",
         "overlap": [
-         919,
-         256
+         917,
+         362
         ]
        },
        {
-        "a": "section#asset-workflow",
+        "a": "canvas#threecanvas",
         "b": "div.tls-toolbar",
         "overlap": [
-         919,
+         917,
          76
         ]
        },
        {
-        "a": "section#asset-workflow",
+        "a": "canvas#threecanvas",
         "b": "div#tls-items",
         "overlap": [
-         919,
-         85
-        ]
-       },
-       {
-        "a": "canvas#threecanvas",
-        "b": "section#timeline-studio",
-        "overlap": [
          917,
-         109
-        ]
-       },
-       {
-        "a": "canvas#threecanvas",
-        "b": "section#motion-layer-editor",
-        "overlap": [
-         917,
-         84
-        ]
-       },
-       {
-        "a": "canvas#threecanvas",
-        "b": "section#skeleton-lab",
-        "overlap": [
-         917,
-         297
-        ]
-       },
-       {
-        "a": "canvas#threecanvas",
-        "b": "div",
-        "overlap": [
-         917,
-         74
-        ]
-       },
-       {
-        "a": "canvas#threecanvas",
-        "b": "details#sk-mapping-panel",
-        "overlap": [
-         917,
-         44
-        ]
-       },
-       {
-        "a": "section.chain-steps-primary",
-        "b": "section#timeline-studio",
-        "overlap": [
-         147,
-         110
-        ]
-       },
-       {
-        "a": "section.chain-steps-primary",
-        "b": "div#tls-items",
-        "overlap": [
-         134,
-         110
+         190
         ]
        },
        {
@@ -175,7 +104,7 @@
     ],
     "stylesheets": [
      "inline(73)",
-     "inline(42)",
+     "inline(43)",
      "inline(8)",
      "inline(28)",
      "inline(12)"
@@ -186,7 +115,7 @@
     "1280x720": {
      "docSize": [
       1280,
-      720
+      4100
      ],
      "issues": [
       {
@@ -205,38 +134,22 @@
       },
       {
        "kind": "overlapping-panels",
-       "count": 12,
+       "count": 4,
        "examples": [
-        {
-         "a": "section#asset-workflow",
-         "b": "section#timeline-studio",
-         "overlap": [
-          599,
-          256
-         ]
-        },
-        {
-         "a": "section#asset-workflow",
-         "b": "div.tls-toolbar",
-         "overlap": [
-          599,
-          76
-         ]
-        },
-        {
-         "a": "section#asset-workflow",
-         "b": "div#tls-items",
-         "overlap": [
-          599,
-          85
-         ]
-        },
         {
          "a": "canvas#threecanvas",
          "b": "section#timeline-studio",
          "overlap": [
           597,
-          87
+          438
+         ]
+        },
+        {
+         "a": "canvas#threecanvas",
+         "b": "div#tls-items",
+         "overlap": [
+          597,
+          230
          ]
         },
         {
@@ -244,55 +157,7 @@
          "b": "section#motion-layer-editor",
          "overlap": [
           597,
-          62
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "section#skeleton-lab",
-         "overlap": [
-          597,
-          319
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "div",
-         "overlap": [
-          597,
-          74
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "details#sk-mapping-panel",
-         "overlap": [
-          597,
-          44
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "details#sk-mapping-preview-panel",
-         "overlap": [
-          597,
-          41
-         ]
-        },
-        {
-         "a": "section.chain-steps-primary",
-         "b": "section#timeline-studio",
-         "overlap": [
-          299,
-          110
-         ]
-        },
-        {
-         "a": "section.chain-steps-primary",
-         "b": "div#tls-items",
-         "overlap": [
-          294,
-          110
+          132
          ]
         },
         {
@@ -310,7 +175,7 @@
     "1600x900": {
      "docSize": [
       1600,
-      900
+      4230
      ],
      "issues": [
       {
@@ -329,86 +194,30 @@
       },
       {
        "kind": "overlapping-panels",
-       "count": 11,
+       "count": 4,
        "examples": [
         {
-         "a": "section#asset-workflow",
+         "a": "canvas#threecanvas",
          "b": "section#timeline-studio",
          "overlap": [
-          919,
-          256
+          917,
+          362
          ]
         },
         {
-         "a": "section#asset-workflow",
+         "a": "canvas#threecanvas",
          "b": "div.tls-toolbar",
          "overlap": [
-          919,
+          917,
           76
          ]
         },
         {
-         "a": "section#asset-workflow",
+         "a": "canvas#threecanvas",
          "b": "div#tls-items",
          "overlap": [
-          919,
-          85
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "section#timeline-studio",
-         "overlap": [
           917,
-          109
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "section#motion-layer-editor",
-         "overlap": [
-          917,
-          84
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "section#skeleton-lab",
-         "overlap": [
-          917,
-          297
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "div",
-         "overlap": [
-          917,
-          74
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "details#sk-mapping-panel",
-         "overlap": [
-          917,
-          44
-         ]
-        },
-        {
-         "a": "section.chain-steps-primary",
-         "b": "section#timeline-studio",
-         "overlap": [
-          147,
-          110
-         ]
-        },
-        {
-         "a": "section.chain-steps-primary",
-         "b": "div#tls-items",
-         "overlap": [
-          134,
-          110
+          190
          ]
         },
         {
@@ -426,7 +235,7 @@
     "1920x1080": {
      "docSize": [
       1920,
-      1080
+      4410
      ],
      "issues": [
       {
@@ -445,70 +254,22 @@
       },
       {
        "kind": "overlapping-panels",
-       "count": 9,
+       "count": 3,
        "examples": [
-        {
-         "a": "section#asset-workflow",
-         "b": "section#timeline-studio",
-         "overlap": [
-          1182,
-          256
-         ]
-        },
-        {
-         "a": "section#asset-workflow",
-         "b": "div.tls-toolbar",
-         "overlap": [
-          1169,
-          76
-         ]
-        },
-        {
-         "a": "section#asset-workflow",
-         "b": "div#tls-items",
-         "overlap": [
-          1169,
-          85
-         ]
-        },
         {
          "a": "canvas#threecanvas",
          "b": "section#timeline-studio",
          "overlap": [
           1181,
-          109
+          182
          ]
         },
         {
          "a": "canvas#threecanvas",
-         "b": "section#motion-layer-editor",
+         "b": "div.tls-toolbar",
          "overlap": [
           1168,
-          84
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "section#skeleton-lab",
-         "overlap": [
-          1237,
-          297
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "div",
-         "overlap": [
-          1237,
-          74
-         ]
-        },
-        {
-         "a": "canvas#threecanvas",
-         "b": "details#sk-mapping-panel",
-         "overlap": [
-          1237,
-          44
+          76
          ]
         },
         {
@@ -524,8 +285,8 @@
      ]
     }
    },
-   "controlCount": 334,
-   "visibleControlCount": 260,
+   "controlCount": 366,
+   "visibleControlCount": 292,
    "controls": [
     {
      "idx": 0,
@@ -543,8 +304,8 @@
       22
      ],
      "href": "/camera.html",
-     "result": "ネットワークエラー",
-     "detail": "POST http://127.0.0.1:8799/api/diagnostics/client net::ERR_ABORTED"
+     "result": "画面遷移",
+     "detail": "http://127.0.0.1:8799/camera.html"
     },
     {
      "idx": 1,
@@ -562,8 +323,8 @@
       22
      ],
      "href": "/workspace/01",
-     "result": "ネットワークエラー",
-     "detail": "POST http://127.0.0.1:8799/api/diagnostics/client net::ERR_ABORTED"
+     "result": "画面遷移",
+     "detail": "http://127.0.0.1:8799/workspace/01?tab=status"
     },
     {
      "idx": 2,
@@ -3667,7 +3428,7 @@
      "tag": "input",
      "type": "range",
      "id": "seek",
-     "label": "96",
+     "label": "243",
      "group": "素材を追加して制作する",
      "visible": true,
      "disabled": false,
@@ -4034,7 +3795,7 @@
      "disabled": false,
      "rect": [
       1263,
-      179,
+      220,
       147,
       35
      ],
@@ -4053,7 +3814,7 @@
      "disabled": false,
      "rect": [
       1415,
-      179,
+      220,
       147,
       35
      ],
@@ -4072,7 +3833,7 @@
      "disabled": true,
      "rect": [
       1263,
-      219,
+      260,
       299,
       35
      ],
@@ -4091,7 +3852,7 @@
      "disabled": false,
      "rect": [
       1263,
-      262,
+      303,
       147,
       35
      ],
@@ -4110,7 +3871,7 @@
      "disabled": false,
      "rect": [
       1415,
-      262,
+      303,
       147,
       35
      ],
@@ -4120,6 +3881,44 @@
     },
     {
      "idx": 189,
+     "tag": "button",
+     "type": "submit",
+     "id": "project-save",
+     "label": "💾 今すぐ保存：編集中の内容をこのPCへ保存します",
+     "group": "コンビネーション",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1263,
+      695,
+      147,
+      62
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 190,
+     "tag": "button",
+     "type": "submit",
+     "id": "project-load",
+     "label": "📂 保存状態を読み込む：前回保存した作業状態へ戻します",
+     "group": "コンビネーション",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1415,
+      695,
+      147,
+      62
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 191,
      "tag": "summary",
      "type": "",
      "id": "",
@@ -4129,7 +3928,7 @@
      "disabled": false,
      "rect": [
       1263,
-      423,
+      765,
       299,
       44
      ],
@@ -4138,7 +3937,7 @@
      "detail": ""
     },
     {
-     "idx": 190,
+     "idx": 192,
      "tag": "button",
      "type": "submit",
      "id": "project-undo",
@@ -4157,7 +3956,7 @@
      "detail": ""
     },
     {
-     "idx": 191,
+     "idx": 193,
      "tag": "button",
      "type": "submit",
      "id": "project-redo",
@@ -4167,7 +3966,7 @@
      "disabled": true,
      "rect": [
       1408,
-      604,
+      946,
       131,
       35
      ],
@@ -4176,7 +3975,7 @@
      "detail": ""
     },
     {
-     "idx": 192,
+     "idx": 194,
      "tag": "select",
      "type": "select-one",
      "id": "project-history",
@@ -4186,7 +3985,7 @@
      "disabled": false,
      "rect": [
       1272,
-      801,
+      1143,
       266,
       42
      ],
@@ -4195,7 +3994,7 @@
      "detail": ""
     },
     {
-     "idx": 193,
+     "idx": 195,
      "tag": "button",
      "type": "submit",
      "id": "project-restore",
@@ -4205,16 +4004,16 @@
      "disabled": false,
      "rect": [
       1272,
-      848,
+      1190,
       133,
       42
      ],
      "href": "",
-     "result": "操作不能",
-     "detail": "locator.click: Timeout 2500ms exceeded."
+     "result": "変化あり",
+     "detail": ""
     },
     {
-     "idx": 194,
+     "idx": 196,
      "tag": "textarea",
      "type": "textarea",
      "id": "vmd-bonemap",
@@ -4224,7 +4023,7 @@
      "disabled": false,
      "rect": [
       1272,
-      1020,
+      1362,
       266,
       96
      ],
@@ -4233,7 +4032,7 @@
      "detail": ""
     },
     {
-     "idx": 195,
+     "idx": 197,
      "tag": "button",
      "type": "submit",
      "id": "vmd-job",
@@ -4243,16 +4042,16 @@
      "disabled": false,
      "rect": [
       1272,
-      1120,
+      1462,
       131,
       52
      ],
      "href": "",
-     "result": "操作不能",
-     "detail": "locator.click: Timeout 2500ms exceeded."
+     "result": "変化あり",
+     "detail": ""
     },
     {
-     "idx": 196,
+     "idx": 198,
      "tag": "button",
      "type": "submit",
      "id": "vmd-run-direct",
@@ -4262,16 +4061,16 @@
      "disabled": false,
      "rect": [
       1408,
-      1120,
+      1462,
       131,
       52
      ],
      "href": "",
-     "result": "操作不能",
-     "detail": "locator.click: Timeout 2500ms exceeded."
+     "result": "変化あり",
+     "detail": ""
     },
     {
-     "idx": 197,
+     "idx": 199,
      "tag": "button",
      "type": "submit",
      "id": "vmd-check-status",
@@ -4281,47 +4080,9 @@
      "disabled": false,
      "rect": [
       1272,
-      1177,
+      1519,
       131,
       35
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.click: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 198,
-     "tag": "button",
-     "type": "submit",
-     "id": "vmd-map-save",
-     "label": "",
-     "group": "詳細設定・編集履歴・VMD変換（開く）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      1408,
-      1177,
-      131,
-      35
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.click: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 199,
-     "tag": "button",
-     "type": "submit",
-     "id": "tls-from-chain",
-     "label": "コンビネーションから取り込む",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      341,
-      128,
-      248,
-      42
      ],
      "href": "",
      "result": "変化あり",
@@ -4331,16 +4092,16 @@
      "idx": 200,
      "tag": "button",
      "type": "submit",
-     "id": "tls-add",
-     "label": "＋ クリップ追加",
-     "group": "timeline-studio",
+     "id": "vmd-map-save",
+     "label": "",
+     "group": "詳細設定・編集履歴・VMD変換（開く）",
      "visible": true,
      "disabled": false,
      "rect": [
-      597,
-      128,
-      138,
-      42
+      1408,
+      1519,
+      131,
+      35
      ],
      "href": "",
      "result": "変化あり",
@@ -4350,15 +4111,15 @@
      "idx": 201,
      "tag": "button",
      "type": "submit",
-     "id": "tls-play",
-     "label": "▶ タイムライン再生",
+     "id": "tls-from-chain",
+     "label": "コンビネーションから取り込む",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      743,
-      128,
-      169,
+      341,
+      878,
+      248,
       42
      ],
      "href": "",
@@ -4369,15 +4130,15 @@
      "idx": 202,
      "tag": "button",
      "type": "submit",
-     "id": "tls-stop",
-     "label": "■ 停止",
+     "id": "tls-add",
+     "label": "＋ クリップ追加",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      921,
-      128,
-      71,
+      597,
+      878,
+      138,
       42
      ],
      "href": "",
@@ -4386,18 +4147,18 @@
     },
     {
      "idx": 203,
-     "tag": "input",
-     "type": "range",
-     "id": "tls-seek",
-     "label": "タイムラインの再生位置",
+     "tag": "button",
+     "type": "submit",
+     "id": "tls-play",
+     "label": "▶ タイムライン再生",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1002,
-      141,
-      202,
-      36
+      743,
+      878,
+      169,
+      42
      ],
      "href": "",
      "result": "変化あり",
@@ -4407,15 +4168,15 @@
      "idx": 204,
      "tag": "button",
      "type": "submit",
-     "id": "tls-save",
-     "label": "保存",
+     "id": "tls-stop",
+     "label": "■ 停止",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1285,
-      128,
-      52,
+      921,
+      878,
+      71,
       42
      ],
      "href": "",
@@ -4424,18 +4185,18 @@
     },
     {
      "idx": 205,
-     "tag": "button",
-     "type": "submit",
-     "id": "tls-reload",
-     "label": "復元",
+     "tag": "input",
+     "type": "range",
+     "id": "tls-seek",
+     "label": "タイムラインの再生位置",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1345,
-      128,
-      52,
-      42
+      1002,
+      891,
+      202,
+      36
      ],
      "href": "",
      "result": "変化あり",
@@ -4445,16 +4206,16 @@
      "idx": 206,
      "tag": "button",
      "type": "submit",
-     "id": "",
-     "label": "1. Knee Jabs To Uppercut",
+     "id": "tls-save",
+     "label": "保存",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      205,
-      236,
-      171,
-      19
+      1285,
+      878,
+      52,
+      42
      ],
      "href": "",
      "result": "変化あり",
@@ -4464,16 +4225,16 @@
      "idx": 207,
      "tag": "button",
      "type": "submit",
-     "id": "",
-     "label": "2. Back Leg Sweep",
+     "id": "tls-reload",
+     "label": "復元",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      373,
-      236,
-      171,
-      19
+      1345,
+      878,
+      52,
+      42
      ],
      "href": "",
      "result": "変化あり",
@@ -4484,14 +4245,14 @@
      "tag": "button",
      "type": "submit",
      "id": "",
-     "label": "3. Punch Combo",
+     "label": "1. Knee Jabs To Uppercut",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      544,
-      236,
-      171,
+      205,
+      986,
+      10,
       19
      ],
      "href": "",
@@ -4503,13 +4264,13 @@
      "tag": "button",
      "type": "submit",
      "id": "",
-     "label": "4. Roundhouse Kick",
+     "label": "2. Back Leg Sweep",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      715,
-      236,
+      373,
+      986,
       171,
       19
      ],
@@ -4522,13 +4283,13 @@
      "tag": "button",
      "type": "submit",
      "id": "",
-     "label": "5. Flying Knee Punch Combo",
+     "label": "3. Punch Combo",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      885,
-      236,
+      544,
+      986,
       171,
       19
      ],
@@ -4541,13 +4302,13 @@
      "tag": "button",
      "type": "submit",
      "id": "",
-     "label": "6. Combo Punch",
+     "label": "4. Roundhouse Kick",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1056,
-      236,
+      715,
+      986,
       171,
       19
      ],
@@ -4560,13 +4321,13 @@
      "tag": "button",
      "type": "submit",
      "id": "",
-     "label": "7. Center Block",
+     "label": "5. Flying Knee Punch Combo",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1227,
-      236,
+      885,
+      986,
       171,
       19
      ],
@@ -4576,18 +4337,18 @@
     },
     {
      "idx": 213,
-     "tag": "input",
-     "type": "number",
+     "tag": "button",
+     "type": "submit",
      "id": "",
-     "label": "1",
+     "label": "6. Combo Punch",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      988,
-      305,
-      75,
-      34
+      1056,
+      986,
+      171,
+      19
      ],
      "href": "",
      "result": "変化あり",
@@ -4595,18 +4356,18 @@
     },
     {
      "idx": 214,
-     "tag": "input",
-     "type": "number",
+     "tag": "button",
+     "type": "submit",
      "id": "",
-     "label": "90",
+     "label": "7. Center Block",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1071,
-      305,
-      75,
-      34
+      1227,
+      986,
+      171,
+      19
      ],
      "href": "",
      "result": "変化あり",
@@ -4622,8 +4383,8 @@
      "visible": true,
      "disabled": false,
      "rect": [
-      1154,
-      305,
+      988,
+      1055,
       75,
       34
      ],
@@ -4636,79 +4397,22 @@
      "tag": "input",
      "type": "number",
      "id": "",
-     "label": "6",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      1237,
-      305,
-      75,
-      34
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 217,
-     "tag": "button",
-     "type": "submit",
-     "id": "",
-     "label": "削除",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      1320,
-      292,
-      52,
-      42
-     ],
-     "href": "",
-     "result": "スキップ(破壊的操作)",
-     "detail": ""
-    },
-    {
-     "idx": 218,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "90",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      988,
-      385,
-      75,
-      34
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 219,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "90",
+     "label": "1",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
       1071,
-      385,
+      1055,
       75,
       34
      ],
      "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
+     "result": "変化あり",
+     "detail": ""
     },
     {
-     "idx": 220,
+     "idx": 217,
      "tag": "input",
      "type": "number",
      "id": "",
@@ -4718,35 +4422,35 @@
      "disabled": false,
      "rect": [
       1154,
-      385,
+      1055,
       75,
       34
      ],
      "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
+     "result": "変化あり",
+     "detail": ""
     },
     {
-     "idx": 221,
+     "idx": 218,
      "tag": "input",
      "type": "number",
      "id": "",
-     "label": "6",
+     "label": "1",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
       1237,
-      385,
+      1055,
       75,
       34
      ],
      "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
+     "result": "変化あり",
+     "detail": ""
     },
     {
-     "idx": 222,
+     "idx": 219,
      "tag": "button",
      "type": "submit",
      "id": "",
@@ -4756,7 +4460,7 @@
      "disabled": false,
      "rect": [
       1320,
-      372,
+      1042,
       52,
       42
      ],
@@ -4765,17 +4469,74 @@
      "detail": ""
     },
     {
-     "idx": 223,
+     "idx": 220,
      "tag": "input",
      "type": "number",
      "id": "",
-     "label": "180",
+     "label": "90",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
       988,
-      465,
+      1135,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 221,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "90",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1071,
+      1135,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 222,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "1",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1154,
+      1135,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 223,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "6",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1237,
+      1135,
       75,
       34
      ],
@@ -4785,35 +4546,35 @@
     },
     {
      "idx": 224,
-     "tag": "input",
-     "type": "number",
+     "tag": "button",
+     "type": "submit",
      "id": "",
-     "label": "90",
+     "label": "削除",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1071,
-      465,
-      75,
-      34
+      1320,
+      1122,
+      52,
+      42
      ],
      "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
+     "result": "スキップ(破壊的操作)",
+     "detail": ""
     },
     {
      "idx": 225,
      "tag": "input",
      "type": "number",
      "id": "",
-     "label": "1",
+     "label": "180",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1154,
-      465,
+      988,
+      1215,
       75,
       34
      ],
@@ -4826,13 +4587,13 @@
      "tag": "input",
      "type": "number",
      "id": "",
-     "label": "6",
+     "label": "90",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1237,
-      465,
+      1071,
+      1215,
       75,
       34
      ],
@@ -4842,63 +4603,6 @@
     },
     {
      "idx": 227,
-     "tag": "button",
-     "type": "submit",
-     "id": "",
-     "label": "削除",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      1320,
-      452,
-      52,
-      42
-     ],
-     "href": "",
-     "result": "スキップ(破壊的操作)",
-     "detail": ""
-    },
-    {
-     "idx": 228,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "270",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      988,
-      545,
-      75,
-      34
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 229,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "90",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      1071,
-      545,
-      75,
-      34
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 230,
      "tag": "input",
      "type": "number",
      "id": "",
@@ -4908,7 +4612,64 @@
      "disabled": false,
      "rect": [
       1154,
-      545,
+      1215,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 228,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "6",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1237,
+      1215,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 229,
+     "tag": "button",
+     "type": "submit",
+     "id": "",
+     "label": "削除",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1320,
+      1202,
+      52,
+      42
+     ],
+     "href": "",
+     "result": "スキップ(破壊的操作)",
+     "detail": ""
+    },
+    {
+     "idx": 230,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "270",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      988,
+      1295,
       75,
       34
      ],
@@ -4921,13 +4682,13 @@
      "tag": "input",
      "type": "number",
      "id": "",
-     "label": "6",
+     "label": "90",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1237,
-      545,
+      1071,
+      1295,
       75,
       34
      ],
@@ -4937,63 +4698,6 @@
     },
     {
      "idx": 232,
-     "tag": "button",
-     "type": "submit",
-     "id": "",
-     "label": "削除",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      1320,
-      532,
-      52,
-      42
-     ],
-     "href": "",
-     "result": "スキップ(破壊的操作)",
-     "detail": ""
-    },
-    {
-     "idx": 233,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "360",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      988,
-      625,
-      75,
-      34
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 234,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "90",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      1071,
-      625,
-      75,
-      34
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 235,
      "tag": "input",
      "type": "number",
      "id": "",
@@ -5003,7 +4707,64 @@
      "disabled": false,
      "rect": [
       1154,
-      625,
+      1295,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 233,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "6",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1237,
+      1295,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 234,
+     "tag": "button",
+     "type": "submit",
+     "id": "",
+     "label": "削除",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1320,
+      1282,
+      52,
+      42
+     ],
+     "href": "",
+     "result": "スキップ(破壊的操作)",
+     "detail": ""
+    },
+    {
+     "idx": 235,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "360",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      988,
+      1375,
       75,
       34
      ],
@@ -5016,13 +4777,13 @@
      "tag": "input",
      "type": "number",
      "id": "",
-     "label": "6",
+     "label": "90",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1237,
-      625,
+      1071,
+      1375,
       75,
       34
      ],
@@ -5032,63 +4793,6 @@
     },
     {
      "idx": 237,
-     "tag": "button",
-     "type": "submit",
-     "id": "",
-     "label": "削除",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      1320,
-      612,
-      52,
-      42
-     ],
-     "href": "",
-     "result": "スキップ(破壊的操作)",
-     "detail": ""
-    },
-    {
-     "idx": 238,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "450",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      988,
-      705,
-      75,
-      34
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 239,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "90",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      1071,
-      705,
-      75,
-      34
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 240,
      "tag": "input",
      "type": "number",
      "id": "",
@@ -5098,7 +4802,64 @@
      "disabled": false,
      "rect": [
       1154,
-      705,
+      1375,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 238,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "6",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1237,
+      1375,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 239,
+     "tag": "button",
+     "type": "submit",
+     "id": "",
+     "label": "削除",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1320,
+      1362,
+      52,
+      42
+     ],
+     "href": "",
+     "result": "スキップ(破壊的操作)",
+     "detail": ""
+    },
+    {
+     "idx": 240,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "450",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      988,
+      1455,
       75,
       34
      ],
@@ -5111,13 +4872,13 @@
      "tag": "input",
      "type": "number",
      "id": "",
-     "label": "6",
+     "label": "90",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1237,
-      705,
+      1071,
+      1455,
       75,
       34
      ],
@@ -5127,63 +4888,6 @@
     },
     {
      "idx": 242,
-     "tag": "button",
-     "type": "submit",
-     "id": "",
-     "label": "削除",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      1320,
-      692,
-      52,
-      42
-     ],
-     "href": "",
-     "result": "スキップ(破壊的操作)",
-     "detail": ""
-    },
-    {
-     "idx": 243,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "540",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      988,
-      785,
-      75,
-      34
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 244,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "90",
-     "group": "timeline-studio",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      1071,
-      785,
-      75,
-      34
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 245,
      "tag": "input",
      "type": "number",
      "id": "",
@@ -5193,7 +4897,64 @@
      "disabled": false,
      "rect": [
       1154,
-      785,
+      1455,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 243,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "6",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1237,
+      1455,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 244,
+     "tag": "button",
+     "type": "submit",
+     "id": "",
+     "label": "削除",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1320,
+      1442,
+      52,
+      42
+     ],
+     "href": "",
+     "result": "スキップ(破壊的操作)",
+     "detail": ""
+    },
+    {
+     "idx": 245,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "540",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      988,
+      1535,
       75,
       34
      ],
@@ -5206,13 +4967,13 @@
      "tag": "input",
      "type": "number",
      "id": "",
-     "label": "6",
+     "label": "90",
      "group": "timeline-studio",
      "visible": true,
      "disabled": false,
      "rect": [
-      1237,
-      785,
+      1071,
+      1535,
       75,
       34
      ],
@@ -5222,6 +4983,44 @@
     },
     {
      "idx": 247,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "1",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1154,
+      1535,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 248,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "6",
+     "group": "timeline-studio",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1237,
+      1535,
+      75,
+      34
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 249,
      "tag": "button",
      "type": "submit",
      "id": "",
@@ -5231,7 +5030,7 @@
      "disabled": false,
      "rect": [
       1320,
-      772,
+      1522,
       52,
       42
      ],
@@ -5240,7 +5039,7 @@
      "detail": ""
     },
     {
-     "idx": 248,
+     "idx": 250,
      "tag": "button",
      "type": "submit",
      "id": "ml-add",
@@ -5250,46 +5049,8 @@
      "disabled": false,
      "rect": [
       449,
-      542,
+      1292,
       102,
-      38
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 249,
-     "tag": "button",
-     "type": "submit",
-     "id": "ml-key",
-     "label": "◆ キー追加",
-     "group": "motion-layer-editor",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      558,
-      542,
-      102,
-      38
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 250,
-     "tag": "button",
-     "type": "submit",
-     "id": "ml-save",
-     "label": "保存",
-     "group": "motion-layer-editor",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      667,
-      542,
-      48,
       38
      ],
      "href": "",
@@ -5300,15 +5061,15 @@
      "idx": 251,
      "tag": "button",
      "type": "submit",
-     "id": "ml-restore",
-     "label": "復元",
+     "id": "ml-key",
+     "label": "◆ キー追加",
      "group": "motion-layer-editor",
      "visible": true,
      "disabled": false,
      "rect": [
-      722,
-      542,
-      48,
+      558,
+      1292,
+      102,
       38
      ],
      "href": "",
@@ -5317,6 +5078,44 @@
     },
     {
      "idx": 252,
+     "tag": "button",
+     "type": "submit",
+     "id": "ml-save",
+     "label": "保存",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      667,
+      1292,
+      48,
+      38
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 253,
+     "tag": "button",
+     "type": "submit",
+     "id": "ml-restore",
+     "label": "復元",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      722,
+      1292,
+      48,
+      38
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 254,
      "tag": "input",
      "type": "radio",
      "id": "",
@@ -5326,7 +5125,7 @@
      "disabled": false,
      "rect": [
       230,
-      643,
+      1393,
       1130,
       13
      ],
@@ -5335,7 +5134,7 @@
      "detail": "locator.click: Timeout 2500ms exceeded."
     },
     {
-     "idx": 253,
+     "idx": 255,
      "tag": "input",
      "type": "checkbox",
      "id": "",
@@ -5345,7 +5144,7 @@
      "disabled": false,
      "rect": [
       229,
-      667,
+      1417,
       1130,
       13
      ],
@@ -5354,7 +5153,7 @@
      "detail": "locator.click: Timeout 2500ms exceeded."
     },
     {
-     "idx": 254,
+     "idx": 256,
      "tag": "input",
      "type": "text",
      "id": "",
@@ -5364,7 +5163,7 @@
      "disabled": false,
      "rect": [
       225,
-      712,
+      1462,
       76,
       31
      ],
@@ -5373,7 +5172,7 @@
      "detail": "locator.fill: Timeout 2500ms exceeded."
     },
     {
-     "idx": 255,
+     "idx": 257,
      "tag": "input",
      "type": "text",
      "id": "",
@@ -5383,45 +5182,7 @@
      "disabled": false,
      "rect": [
       309,
-      712,
-      76,
-      31
-     ],
-     "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
-    },
-    {
-     "idx": 256,
-     "tag": "button",
-     "type": "submit",
-     "id": "",
-     "label": "削除",
-     "group": "motion-layer-editor",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      393,
-      698,
-      48,
-      38
-     ],
-     "href": "",
-     "result": "スキップ(破壊的操作)",
-     "detail": ""
-    },
-    {
-     "idx": 257,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "0",
-     "group": "motion-layer-editor",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      225,
-      764,
+      1462,
       76,
       31
      ],
@@ -5431,22 +5192,22 @@
     },
     {
      "idx": 258,
-     "tag": "input",
-     "type": "number",
+     "tag": "button",
+     "type": "submit",
      "id": "",
-     "label": "0",
+     "label": "削除",
      "group": "motion-layer-editor",
      "visible": true,
      "disabled": false,
      "rect": [
-      309,
-      763,
-      76,
-      31
+      393,
+      1448,
+      48,
+      38
      ],
      "href": "",
-     "result": "操作不能",
-     "detail": "locator.fill: Timeout 2500ms exceeded."
+     "result": "スキップ(破壊的操作)",
+     "detail": ""
     },
     {
      "idx": 259,
@@ -5458,8 +5219,8 @@
      "visible": true,
      "disabled": false,
      "rect": [
-      393,
-      763,
+      225,
+      1514,
       76,
       31
      ],
@@ -5477,8 +5238,8 @@
      "visible": true,
      "disabled": false,
      "rect": [
-      477,
-      763,
+      309,
+      1513,
       76,
       31
      ],
@@ -5488,6 +5249,44 @@
     },
     {
      "idx": 261,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "0",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      393,
+      1513,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 262,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "0",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      477,
+      1513,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 263,
      "tag": "button",
      "type": "submit",
      "id": "",
@@ -5497,7 +5296,7 @@
      "disabled": false,
      "rect": [
       561,
-      751,
+      1501,
       27,
       36
      ],
@@ -5506,7 +5305,387 @@
      "detail": "locator.click: Timeout 2500ms exceeded."
     },
     {
-     "idx": 262,
+     "idx": 264,
+     "tag": "input",
+     "type": "radio",
+     "id": "",
+     "label": "on",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      230,
+      1573,
+      1130,
+      13
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.click: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 265,
+     "tag": "input",
+     "type": "checkbox",
+     "id": "",
+     "label": "on",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      229,
+      1597,
+      1130,
+      13
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.click: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 266,
+     "tag": "input",
+     "type": "text",
+     "id": "",
+     "label": "新規補正",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      225,
+      1642,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 267,
+     "tag": "input",
+     "type": "text",
+     "id": "",
+     "label": "Hips",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      309,
+      1642,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 268,
+     "tag": "button",
+     "type": "submit",
+     "id": "",
+     "label": "削除",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      393,
+      1628,
+      48,
+      38
+     ],
+     "href": "",
+     "result": "スキップ(破壊的操作)",
+     "detail": ""
+    },
+    {
+     "idx": 269,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "0",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      225,
+      1694,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 270,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "0",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      309,
+      1693,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 271,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "0",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      393,
+      1693,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 272,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "0",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      477,
+      1693,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 273,
+     "tag": "button",
+     "type": "submit",
+     "id": "",
+     "label": "×",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      561,
+      1681,
+      27,
+      36
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.click: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 274,
+     "tag": "input",
+     "type": "radio",
+     "id": "",
+     "label": "on",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      230,
+      1753,
+      1130,
+      13
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.click: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 275,
+     "tag": "input",
+     "type": "checkbox",
+     "id": "",
+     "label": "on",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      229,
+      1777,
+      1130,
+      13
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.click: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 276,
+     "tag": "input",
+     "type": "text",
+     "id": "",
+     "label": "新規補正",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      225,
+      1822,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 277,
+     "tag": "input",
+     "type": "text",
+     "id": "",
+     "label": "Hips",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      309,
+      1822,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 278,
+     "tag": "button",
+     "type": "submit",
+     "id": "",
+     "label": "削除",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      393,
+      1808,
+      48,
+      38
+     ],
+     "href": "",
+     "result": "スキップ(破壊的操作)",
+     "detail": ""
+    },
+    {
+     "idx": 279,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "0",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      225,
+      1874,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 280,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "0",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      309,
+      1873,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 281,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "0",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      393,
+      1873,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 282,
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "0",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      477,
+      1873,
+      76,
+      31
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.fill: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 283,
+     "tag": "button",
+     "type": "submit",
+     "id": "",
+     "label": "×",
+     "group": "motion-layer-editor",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      561,
+      1861,
+      27,
+      36
+     ],
+     "href": "",
+     "result": "操作不能",
+     "detail": "locator.click: Timeout 2500ms exceeded."
+    },
+    {
+     "idx": 284,
      "tag": "select",
      "type": "select-one",
      "id": "sk-source",
@@ -5516,7 +5695,7 @@
      "disabled": false,
      "rect": [
       106,
-      1015,
+      1808,
       160,
       38
      ],
@@ -5525,7 +5704,7 @@
      "detail": ""
     },
     {
-     "idx": 263,
+     "idx": 285,
      "tag": "select",
      "type": "select-one",
      "id": "sk-target",
@@ -5535,7 +5714,7 @@
      "disabled": false,
      "rect": [
       349,
-      1015,
+      1808,
       160,
       38
      ],
@@ -5544,7 +5723,7 @@
      "detail": ""
     },
     {
-     "idx": 264,
+     "idx": 286,
      "tag": "button",
      "type": "button",
      "id": "sk-refresh",
@@ -5554,426 +5733,8 @@
      "disabled": false,
      "rect": [
       517,
-      1015,
+      1808,
       118,
-      38
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 265,
-     "tag": "button",
-     "type": "button",
-     "id": "sk-analyze",
-     "label": "骨格を比較",
-     "group": "骨格解析・リターゲティング準備",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      643,
-      1015,
-      90,
-      38
-     ],
-     "href": "",
-     "result": "ネットワークエラー",
-     "detail": "400 GET http://127.0.0.1:8799/api/retarget/compare?source=&target="
-    },
-    {
-     "idx": 266,
-     "tag": "button",
-     "type": "button",
-     "id": "sk-pose",
-     "label": "骨の方向差を解析",
-     "group": "骨格解析・リターゲティング準備",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      742,
-      1015,
-      133,
-      38
-     ],
-     "href": "",
-     "result": "ネットワークエラー",
-     "detail": "400 GET http://127.0.0.1:8799/api/retarget/pose-proposal?source=&target="
-    },
-    {
-     "idx": 267,
-     "tag": "button",
-     "type": "button",
-     "id": "sk-calibrate",
-     "label": "補正候補を表示",
-     "group": "骨格解析・リターゲティング準備",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      882,
-      1015,
-      118,
-      38
-     ],
-     "href": "",
-     "result": "ネットワークエラー",
-     "detail": "400 GET http://127.0.0.1:8799/api/retarget/calibration?source=&target="
-    },
-    {
-     "idx": 268,
-     "tag": "input",
-     "type": "text",
-     "id": "sk-profile-name",
-     "label": "例：モデルA用",
-     "group": "骨格解析・リターゲティング準備",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      17,
-      1081,
-      223,
-      36
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 269,
-     "tag": "input",
-     "type": "number",
-     "id": "sk-profile-scale",
-     "label": "1",
-     "group": "骨格解析・リターゲティング準備",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      268,
-      1081,
-      154,
-      36
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 270,
-     "tag": "input",
-     "type": "number",
-     "id": "sk-profile-yaw",
-     "label": "0",
-     "group": "骨格解析・リターゲティング準備",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      450,
-      1081,
-      164,
-      36
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 271,
-     "tag": "button",
-     "type": "button",
-     "id": "sk-profile-load",
-     "label": "設定を読み込む",
-     "group": "骨格解析・リターゲティング準備",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      642,
-      1079,
-      119,
-      38
-     ],
-     "href": "",
-     "result": "ネットワークエラー",
-     "detail": "400 GET http://127.0.0.1:8799/api/retarget/profile-for-pair?source=&target="
-    },
-    {
-     "idx": 272,
-     "tag": "button",
-     "type": "button",
-     "id": "sk-profile-save",
-     "label": "設定を保存",
-     "group": "骨格解析・リターゲティング準備",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      769,
-      1079,
-      90,
-      38
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 273,
-     "tag": "button",
-     "type": "button",
-     "id": "sk-root-preview",
-     "label": "移動補正を試算",
-     "group": "骨格解析・リターゲティング準備",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      868,
-      1079,
-      118,
-      38
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 274,
-     "tag": "summary",
-     "type": "",
-     "id": "",
-     "label": "ボーン対応表を編集（手動確認）",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1150,
-      1540,
-      18
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 275,
-     "tag": "button",
-     "type": "button",
-     "id": "sk-vrm-role-suggest",
-     "label": "元と対象の両方がVRM Humanoid設定を持つ場合に、同じ役割のボーン名を対応候補として表示します。保存・転写は自動",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1212,
-      260,
-      38
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 276,
-     "tag": "button",
-     "type": "button",
-     "id": "",
-     "label": "",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      290,
-      1212,
-      276,
-      38
-     ],
-     "href": "",
-     "result": "ネットワークエラー",
-     "detail": "400 POST http://127.0.0.1:8799/api/retarget/rest-pose-inspection"
-    },
-    {
-     "idx": 277,
-     "tag": "button",
-     "type": "button",
-     "id": "",
-     "label": "",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1278,
-      288,
-      38
-     ],
-     "href": "",
-     "result": "ネットワークエラー",
-     "detail": "400 POST http://127.0.0.1:8799/api/retarget/rest-hierarchy-inspection"
-    },
-    {
-     "idx": 278,
-     "tag": "input",
-     "type": "checkbox",
-     "id": "",
-     "label": "on",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      34,
-      1347,
-      1520,
-      13
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 279,
-     "tag": "textarea",
-     "type": "textarea",
-     "id": "",
-     "label": "[{\"role\":\"leftUpperArm\",\"frame\":0,\"rotation_xyzw\":[0,0,0,1]}",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1389,
-      1540,
-      62
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 280,
-     "tag": "button",
-     "type": "button",
-     "id": "",
-     "label": "",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1451,
-      332,
-      38
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 281,
-     "tag": "input",
-     "type": "checkbox",
-     "id": "",
-     "label": "on",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      34,
-      1520,
-      1520,
-      13
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 282,
-     "tag": "input",
-     "type": "text",
-     "id": "",
-     "label": "アニメーションクリップ名（複数ある場合は必須）",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1554,
-      1540,
-      36
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 283,
-     "tag": "button",
-     "type": "button",
-     "id": "",
-     "label": "",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1590,
-      375,
-      38
-     ],
-     "href": "",
-     "result": "ネットワークエラー",
-     "detail": "400 POST http://127.0.0.1:8799/api/retarget/glb-clip-rest-preview"
-    },
-    {
-     "idx": 284,
-     "tag": "input",
-     "type": "text",
-     "id": "",
-     "label": "クリップ名（複数ある場合）",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1656,
-      1540,
-      36
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 285,
-     "tag": "button",
-     "type": "button",
-     "id": "",
-     "label": "",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1692,
-      331,
-      38
-     ],
-     "href": "",
-     "result": "ネットワークエラー",
-     "detail": "400 POST http://127.0.0.1:8799/api/retarget/glb-clip-hierarchy-inspection"
-    },
-    {
-     "idx": 286,
-     "tag": "button",
-     "type": "button",
-     "id": "sk-mapping-suggest",
-     "label": "",
-     "group": "ボーン対応表を編集（手動確認）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1758,
-      147,
       38
      ],
      "href": "",
@@ -5984,73 +5745,73 @@
      "idx": 287,
      "tag": "button",
      "type": "button",
-     "id": "sk-mapping-saved",
-     "label": "",
-     "group": "ボーン対応表を編集（手動確認）",
+     "id": "sk-analyze",
+     "label": "骨格を比較",
+     "group": "骨格解析・リターゲティング準備",
      "visible": true,
      "disabled": false,
      "rect": [
-      177,
-      1758,
-      189,
+      643,
+      1808,
+      90,
       38
      ],
      "href": "",
-     "result": "変化あり",
-     "detail": ""
+     "result": "ネットワークエラー",
+     "detail": "400 GET http://127.0.0.1:8799/api/retarget/compare?source=&target="
     },
     {
      "idx": 288,
      "tag": "button",
      "type": "button",
-     "id": "sk-mapping-save",
-     "label": "",
-     "group": "ボーン対応表を編集（手動確認）",
+     "id": "sk-pose",
+     "label": "骨の方向差を解析",
+     "group": "骨格解析・リターゲティング準備",
      "visible": true,
      "disabled": false,
      "rect": [
-      366,
-      1758,
-      104,
+      742,
+      1808,
+      133,
       38
      ],
      "href": "",
-     "result": "変化あり",
-     "detail": ""
+     "result": "ネットワークエラー",
+     "detail": "400 GET http://127.0.0.1:8799/api/retarget/pose-proposal?source=&target="
     },
     {
      "idx": 289,
-     "tag": "summary",
-     "type": "",
-     "id": "",
-     "label": "保存済みボーン対応表の回転プレビュー（試験）",
-     "group": "保存済みボーン対応表の回転プレビュー（試験）",
+     "tag": "button",
+     "type": "button",
+     "id": "sk-calibrate",
+     "label": "補正候補を表示",
+     "group": "骨格解析・リターゲティング準備",
      "visible": true,
      "disabled": false,
      "rect": [
-      30,
-      1204,
-      1540,
-      18
+      882,
+      1808,
+      118,
+      38
      ],
      "href": "",
-     "result": "変化あり",
-     "detail": ""
+     "result": "ネットワークエラー",
+     "detail": "400 GET http://127.0.0.1:8799/api/retarget/calibration?source=&target="
     },
     {
      "idx": 290,
-     "tag": "textarea",
-     "type": "textarea",
-     "id": "sk-mapping-preview-input",
-     "label": "[]",
-     "group": "保存済みボーン対応表の回転プレビュー（試験）",
+     "tag": "input",
+     "type": "text",
+     "id": "sk-profile-name",
+     "label": "例：モデルA用",
+     "group": "骨格解析・リターゲティング準備",
      "visible": true,
      "disabled": false,
      "rect": [
-      30,
-      1284,
-      1478,
-      51
+      17,
+      1874,
+      223,
+      36
      ],
      "href": "",
      "result": "変化あり",
@@ -6058,18 +5819,18 @@
     },
     {
      "idx": 291,
-     "tag": "button",
-     "type": "button",
-     "id": "sk-mapping-preview-run",
-     "label": "",
-     "group": "保存済みボーン対応表の回転プレビュー（試験）",
+     "tag": "input",
+     "type": "number",
+     "id": "sk-profile-scale",
+     "label": "1",
+     "group": "骨格解析・リターゲティング準備",
      "visible": true,
      "disabled": false,
      "rect": [
-      30,
-      1335,
-      204,
-      38
+      268,
+      1874,
+      154,
+      36
      ],
      "href": "",
      "result": "変化あり",
@@ -6077,18 +5838,18 @@
     },
     {
      "idx": 292,
-     "tag": "summary",
-     "type": "",
-     "id": "",
-     "label": "基準姿勢を指定した回転転写（試験）",
-     "group": "基準姿勢を指定した回転転写（試験）",
+     "tag": "input",
+     "type": "number",
+     "id": "sk-profile-yaw",
+     "label": "0",
+     "group": "骨格解析・リターゲティング準備",
      "visible": true,
      "disabled": false,
      "rect": [
-      30,
-      1258,
-      1540,
-      18
+      450,
+      1874,
+      164,
+      36
      ],
      "href": "",
      "result": "変化あり",
@@ -6096,37 +5857,37 @@
     },
     {
      "idx": 293,
-     "tag": "textarea",
-     "type": "textarea",
-     "id": "sk-rest-preview-input",
-     "label": "{\"rest_pairs\":{\"leftUpperArm\":{\"source_rest_xyzw\":[0,0,0,1],",
-     "group": "基準姿勢を指定した回転転写（試験）",
+     "tag": "button",
+     "type": "button",
+     "id": "sk-profile-load",
+     "label": "設定を読み込む",
+     "group": "骨格解析・リターゲティング準備",
      "visible": true,
      "disabled": false,
      "rect": [
-      30,
-      1338,
-      1478,
-      111
+      642,
+      1872,
+      119,
+      38
      ],
      "href": "",
-     "result": "変化あり",
-     "detail": ""
+     "result": "ネットワークエラー",
+     "detail": "400 GET http://127.0.0.1:8799/api/retarget/profile-for-pair?source=&target="
     },
     {
      "idx": 294,
-     "tag": "input",
-     "type": "checkbox",
-     "id": "sk-rest-confirm",
-     "label": "on",
-     "group": "基準姿勢を指定した回転転写（試験）",
+     "tag": "button",
+     "type": "button",
+     "id": "sk-profile-save",
+     "label": "設定を保存",
+     "group": "骨格解析・リターゲティング準備",
      "visible": true,
      "disabled": false,
      "rect": [
-      34,
-      1452,
-      1520,
-      13
+      769,
+      1872,
+      90,
+      38
      ],
      "href": "",
      "result": "変化あり",
@@ -6136,15 +5897,15 @@
      "idx": 295,
      "tag": "button",
      "type": "button",
-     "id": "sk-rest-preview-run",
-     "label": "",
-     "group": "基準姿勢を指定した回転転写（試験）",
+     "id": "sk-root-preview",
+     "label": "移動補正を試算",
+     "group": "骨格解析・リターゲティング準備",
      "visible": true,
      "disabled": false,
      "rect": [
-      384,
-      1468,
-      189,
+      868,
+      1872,
+      118,
       38
      ],
      "href": "",
@@ -6153,35 +5914,16 @@
     },
     {
      "idx": 296,
-     "tag": "button",
-     "type": "button",
-     "id": "sk-motion-inspect",
-     "label": "アニメーションキーを解析",
-     "group": "骨格解析・リターゲティング準備",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      17,
-      1299,
-      191,
-      38
-     ],
-     "href": "",
-     "result": "ネットワークエラー",
-     "detail": "400 GET http://127.0.0.1:8799/api/retarget/motion-channels?id="
-    },
-    {
-     "idx": 297,
      "tag": "summary",
      "type": "",
      "id": "",
-     "label": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
-     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
+     "label": "ボーン対応表を編集（手動確認）",
+     "group": "ボーン対応表を編集（手動確認）",
      "visible": true,
      "disabled": false,
      "rect": [
       30,
-      1453,
+      1943,
       1540,
       18
      ],
@@ -6190,36 +5932,17 @@
      "detail": ""
     },
     {
-     "idx": 298,
-     "tag": "input",
-     "type": "file",
-     "id": "",
-     "label": "比較するGLB/VRMモデル",
-     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1518,
-      1520,
-      42
-     ],
-     "href": "",
-     "result": "スキップ(ファイル選択)",
-     "detail": ""
-    },
-    {
-     "idx": 299,
+     "idx": 297,
      "tag": "button",
      "type": "button",
-     "id": "",
-     "label": "",
-     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
+     "id": "sk-vrm-role-suggest",
+     "label": "元と対象の両方がVRM Humanoid設定を持つ場合に、同じ役割のボーン名を対応候補として表示します。保存・転写は自動",
+     "group": "ボーン対応表を編集（手動確認）",
      "visible": true,
      "disabled": false,
      "rect": [
       30,
-      1560,
+      2005,
       260,
       38
      ],
@@ -6228,19 +5951,57 @@
      "detail": ""
     },
     {
-     "idx": 300,
-     "tag": "textarea",
-     "type": "textarea",
+     "idx": 298,
+     "tag": "button",
+     "type": "button",
      "id": "",
-     "label": "仮転写APIのJSON結果（samples配列含む）",
-     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
+     "label": "",
+     "group": "ボーン対応表を編集（手動確認）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      290,
+      2005,
+      276,
+      38
+     ],
+     "href": "",
+     "result": "ネットワークエラー",
+     "detail": "400 POST http://127.0.0.1:8799/api/retarget/rest-pose-inspection"
+    },
+    {
+     "idx": 299,
+     "tag": "button",
+     "type": "button",
+     "id": "",
+     "label": "",
+     "group": "ボーン対応表を編集（手動確認）",
      "visible": true,
      "disabled": false,
      "rect": [
       30,
-      1598,
-      1525,
-      62
+      2071,
+      288,
+      38
+     ],
+     "href": "",
+     "result": "ネットワークエラー",
+     "detail": "400 POST http://127.0.0.1:8799/api/retarget/rest-hierarchy-inspection"
+    },
+    {
+     "idx": 300,
+     "tag": "input",
+     "type": "checkbox",
+     "id": "",
+     "label": "on",
+     "group": "ボーン対応表を編集（手動確認）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      34,
+      2140,
+      1520,
+      13
      ],
      "href": "",
      "result": "変化あり",
@@ -6248,18 +6009,18 @@
     },
     {
      "idx": 301,
-     "tag": "input",
-     "type": "checkbox",
+     "tag": "textarea",
+     "type": "textarea",
      "id": "",
-     "label": "on",
-     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
+     "label": "[{\"role\":\"leftUpperArm\",\"frame\":0,\"rotation_xyzw\":[0,0,0,1]}",
+     "group": "ボーン対応表を編集（手動確認）",
      "visible": true,
      "disabled": false,
      "rect": [
-      34,
-      1663,
-      1520,
-      13
+      30,
+      2182,
+      1540,
+      62
      ],
      "href": "",
      "result": "変化あり",
@@ -6267,36 +6028,17 @@
     },
     {
      "idx": 302,
-     "tag": "input",
-     "type": "number",
-     "id": "",
-     "label": "比較フレーム",
-     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      434,
-      1679,
-      75,
-      36
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 303,
      "tag": "button",
      "type": "button",
      "id": "",
      "label": "",
-     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
+     "group": "ボーン対応表を編集（手動確認）",
      "visible": true,
      "disabled": false,
      "rect": [
-      509,
-      1679,
-      176,
+      30,
+      2244,
+      332,
       38
      ],
      "href": "",
@@ -6304,36 +6046,17 @@
      "detail": ""
     },
     {
-     "idx": 304,
-     "tag": "summary",
-     "type": "",
-     "id": "",
-     "label": "v0.16.30〜32 転写タイムライン・QA・JSON保存（試験）",
-     "group": "v0.16.30〜32 転写タイムライン・QA・JSON保存（試験）",
-     "visible": true,
-     "disabled": false,
-     "rect": [
-      30,
-      1509,
-      1540,
-      18
-     ],
-     "href": "",
-     "result": "変化あり",
-     "detail": ""
-    },
-    {
-     "idx": 305,
+     "idx": 303,
      "tag": "input",
      "type": "checkbox",
      "id": "",
      "label": "on",
-     "group": "v0.16.30〜32 転写タイムライン・QA・JSON保存（試験）",
+     "group": "ボーン対応表を編集（手動確認）",
      "visible": true,
      "disabled": false,
      "rect": [
       34,
-      1577,
+      2313,
       1520,
       13
      ],
@@ -6342,19 +6065,57 @@
      "detail": ""
     },
     {
-     "idx": 306,
-     "tag": "button",
-     "type": "button",
+     "idx": 304,
+     "tag": "input",
+     "type": "text",
      "id": "",
-     "label": "",
-     "group": "v0.16.30〜32 転写タイムライン・QA・JSON保存（試験）",
+     "label": "アニメーションクリップ名（複数ある場合は必須）",
+     "group": "ボーン対応表を編集（手動確認）",
      "visible": true,
      "disabled": false,
      "rect": [
       30,
-      1611,
-      118,
+      2347,
+      1540,
+      36
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 305,
+     "tag": "button",
+     "type": "button",
+     "id": "",
+     "label": "",
+     "group": "ボーン対応表を編集（手動確認）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      30,
+      2383,
+      375,
       38
+     ],
+     "href": "",
+     "result": "ネットワークエラー",
+     "detail": "400 POST http://127.0.0.1:8799/api/retarget/glb-clip-rest-preview"
+    },
+    {
+     "idx": 306,
+     "tag": "input",
+     "type": "text",
+     "id": "",
+     "label": "クリップ名（複数ある場合）",
+     "group": "ボーン対応表を編集（手動確認）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      30,
+      2449,
+      1540,
+      36
      ],
      "href": "",
      "result": "変化あり",
@@ -6366,33 +6127,33 @@
      "type": "button",
      "id": "",
      "label": "",
-     "group": "v0.16.30〜32 転写タイムライン・QA・JSON保存（試験）",
-     "visible": true,
-     "disabled": true,
-     "rect": [
-      156,
-      1611,
-      128,
-      38
-     ],
-     "href": "",
-     "result": "無効(disabled)",
-     "detail": ""
-    },
-    {
-     "idx": 308,
-     "tag": "input",
-     "type": "number",
-     "id": "foot-ground",
-     "label": "0",
-     "group": "足の接地・滑り診断（試験版）",
+     "group": "ボーン対応表を編集（手動確認）",
      "visible": true,
      "disabled": false,
      "rect": [
-      98,
-      1708,
-      90,
-      40
+      30,
+      2485,
+      331,
+      38
+     ],
+     "href": "",
+     "result": "ネットワークエラー",
+     "detail": "400 POST http://127.0.0.1:8799/api/retarget/glb-clip-hierarchy-inspection"
+    },
+    {
+     "idx": 308,
+     "tag": "button",
+     "type": "button",
+     "id": "sk-mapping-suggest",
+     "label": "",
+     "group": "ボーン対応表を編集（手動確認）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      30,
+      2551,
+      147,
+      38
      ],
      "href": "",
      "result": "変化あり",
@@ -6400,18 +6161,18 @@
     },
     {
      "idx": 309,
-     "tag": "summary",
-     "type": "",
-     "id": "",
-     "label": "サンプルの編集（上級者向け）",
-     "group": "サンプルの編集（上級者向け）",
+     "tag": "button",
+     "type": "button",
+     "id": "sk-mapping-saved",
+     "label": "",
+     "group": "ボーン対応表を編集（手動確認）",
      "visible": true,
      "disabled": false,
      "rect": [
-      13,
-      1766,
-      1574,
-      22
+      177,
+      2551,
+      189,
+      38
      ],
      "href": "",
      "result": "変化あり",
@@ -6419,18 +6180,18 @@
     },
     {
      "idx": 310,
-     "tag": "textarea",
-     "type": "textarea",
-     "id": "foot-samples",
-     "label": "[{\"frame\":0,\"position\":[0,0.01,0]},{\"frame\":1,\"position\":[0.",
-     "group": "サンプルの編集（上級者向け）",
+     "tag": "button",
+     "type": "button",
+     "id": "sk-mapping-save",
+     "label": "",
+     "group": "ボーン対応表を編集（手動確認）",
      "visible": true,
      "disabled": false,
      "rect": [
-      13,
-      1788,
-      1495,
-      81
+      366,
+      2551,
+      104,
+      38
      ],
      "href": "",
      "result": "変化あり",
@@ -6438,37 +6199,37 @@
     },
     {
      "idx": 311,
-     "tag": "input",
-     "type": "file",
-     "id": "foot-bvh-file",
-     "label": "BVHファイル（ローカルで選択）",
-     "group": "足の接地・滑り診断（試験版）",
+     "tag": "summary",
+     "type": "",
+     "id": "",
+     "label": "保存済みボーン対応表の回転プレビュー（試験）",
+     "group": "保存済みボーン対応表の回転プレビュー（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      13,
-      1818,
-      588,
-      44
+      30,
+      1997,
+      1540,
+      18
      ],
      "href": "",
-     "result": "スキップ(ファイル選択)",
+     "result": "変化あり",
      "detail": ""
     },
     {
      "idx": 312,
-     "tag": "input",
-     "type": "text",
-     "id": "foot-bvh-bone",
-     "label": "LeftFoot",
-     "group": "足の接地・滑り診断（試験版）",
+     "tag": "textarea",
+     "type": "textarea",
+     "id": "sk-mapping-preview-input",
+     "label": "[]",
+     "group": "保存済みボーン対応表の回転プレビュー（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      629,
-      1822,
-      333,
-      40
+      30,
+      2077,
+      1478,
+      51
      ],
      "href": "",
      "result": "変化あり",
@@ -6476,18 +6237,18 @@
     },
     {
      "idx": 313,
-     "tag": "input",
-     "type": "number",
-     "id": "foot-bvh-stride",
-     "label": "1",
-     "group": "足の接地・滑り診断（試験版）",
+     "tag": "button",
+     "type": "button",
+     "id": "sk-mapping-preview-run",
+     "label": "",
+     "group": "保存済みボーン対応表の回転プレビュー（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      1093,
-      1822,
-      70,
-      40
+      30,
+      2128,
+      204,
+      38
      ],
      "href": "",
      "result": "変化あり",
@@ -6495,18 +6256,18 @@
     },
     {
      "idx": 314,
-     "tag": "button",
-     "type": "button",
-     "id": "foot-bvh-analyze",
-     "label": "BVHから足位置を解析",
-     "group": "足の接地・滑り診断（試験版）",
+     "tag": "summary",
+     "type": "",
+     "id": "",
+     "label": "基準姿勢を指定した回転転写（試験）",
+     "group": "基準姿勢を指定した回転転写（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      1171,
-      1820,
-      183,
-      42
+      30,
+      2051,
+      1540,
+      18
      ],
      "href": "",
      "result": "変化あり",
@@ -6514,18 +6275,18 @@
     },
     {
      "idx": 315,
-     "tag": "button",
-     "type": "button",
-     "id": "foot-analyze",
-     "label": "診断する",
-     "group": "足の接地・滑り診断（試験版）",
+     "tag": "textarea",
+     "type": "textarea",
+     "id": "sk-rest-preview-input",
+     "label": "{\"rest_pairs\":{\"leftUpperArm\":{\"source_rest_xyzw\":[0,0,0,1],",
+     "group": "基準姿勢を指定した回転転写（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      13,
-      1916,
-      85,
-      42
+      30,
+      2131,
+      1478,
+      111
      ],
      "href": "",
      "result": "変化あり",
@@ -6533,18 +6294,18 @@
     },
     {
      "idx": 316,
-     "tag": "summary",
-     "type": "",
-     "id": "",
-     "label": "両足の接地を同時に診断（v0.16.5・補正プレビューのみ）",
-     "group": "両足の接地を同時に診断（v0.16.5・補正プレビューのみ）",
+     "tag": "input",
+     "type": "checkbox",
+     "id": "sk-rest-confirm",
+     "label": "on",
+     "group": "基準姿勢を指定した回転転写（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      13,
-      1984,
-      1574,
-      22
+      34,
+      2245,
+      1520,
+      13
      ],
      "href": "",
      "result": "変化あり",
@@ -6552,18 +6313,18 @@
     },
     {
      "idx": 317,
-     "tag": "textarea",
-     "type": "textarea",
-     "id": "foot-right-samples",
-     "label": "[{\"frame\":0,\"position\":[1,0.01,0]},{\"frame\":1,\"position\":[1.",
-     "group": "両足の接地を同時に診断（v0.16.5・補正プレビューのみ）",
+     "tag": "button",
+     "type": "button",
+     "id": "sk-rest-preview-run",
+     "label": "",
+     "group": "基準姿勢を指定した回転転写（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      13,
-      2075,
-      1495,
-      66
+      384,
+      2261,
+      189,
+      38
      ],
      "href": "",
      "result": "変化あり",
@@ -6573,35 +6334,35 @@
      "idx": 318,
      "tag": "button",
      "type": "button",
-     "id": "foot-dual-preview",
-     "label": "左右の足が接地している区間を比較し、衝突がある場合は補正を保留します",
-     "group": "両足の接地を同時に診断（v0.16.5・補正プレビューのみ）",
+     "id": "sk-motion-inspect",
+     "label": "アニメーションキーを解析",
+     "group": "骨格解析・リターゲティング準備",
      "visible": true,
      "disabled": false,
      "rect": [
-      13,
-      2141,
-      181,
-      42
+      17,
+      2092,
+      191,
+      38
      ],
      "href": "",
-     "result": "変化あり",
-     "detail": ""
+     "result": "ネットワークエラー",
+     "detail": "400 GET http://127.0.0.1:8799/api/retarget/motion-channels?id="
     },
     {
      "idx": 319,
-     "tag": "input",
-     "type": "checkbox",
-     "id": "bai-ai-enabled",
-     "label": "on",
-     "group": "BAI AI Manager（任意機能）",
+     "tag": "summary",
+     "type": "",
+     "id": "",
+     "label": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
+     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
      "visible": true,
      "disabled": false,
      "rect": [
-      21,
-      2165,
-      646,
-      13
+      30,
+      2246,
+      1540,
+      18
      ],
      "href": "",
      "result": "変化あり",
@@ -6610,36 +6371,36 @@
     {
      "idx": 320,
      "tag": "input",
-     "type": "text",
-     "id": "bai-ai-model",
-     "label": "Ollamaモデル名",
-     "group": "BAI AI Manager（任意機能）",
+     "type": "file",
+     "id": "",
+     "label": "比較するGLB/VRMモデル",
+     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
      "visible": true,
      "disabled": false,
      "rect": [
-      17,
-      2237,
-      646,
-      41
+      30,
+      2311,
+      1520,
+      42
      ],
      "href": "",
-     "result": "エラーなし(目に見える変化なし)",
+     "result": "スキップ(ファイル選択)",
      "detail": ""
     },
     {
      "idx": 321,
      "tag": "button",
      "type": "button",
-     "id": "bai-ai-check",
-     "label": "接続を確認",
-     "group": "BAI AI Manager（任意機能）",
+     "id": "",
+     "label": "",
+     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
      "visible": true,
      "disabled": false,
      "rect": [
-      17,
-      2291,
-      100,
-      42
+      30,
+      2353,
+      260,
+      38
      ],
      "href": "",
      "result": "変化あり",
@@ -6647,18 +6408,18 @@
     },
     {
      "idx": 322,
-     "tag": "button",
-     "type": "button",
-     "id": "bai-ai-save",
-     "label": "設定を保存",
-     "group": "BAI AI Manager（任意機能）",
+     "tag": "textarea",
+     "type": "textarea",
+     "id": "",
+     "label": "仮転写APIのJSON結果（samples配列含む）",
+     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
      "visible": true,
      "disabled": false,
      "rect": [
-      122,
-      2291,
-      100,
-      42
+      30,
+      2391,
+      1525,
+      62
      ],
      "href": "",
      "result": "変化あり",
@@ -6666,18 +6427,18 @@
     },
     {
      "idx": 323,
-     "tag": "textarea",
-     "type": "textarea",
-     "id": "bai-ai-instruction",
-     "label": "例：右手を顔の横に上げて、左足は床に固定",
-     "group": "BAI AI Manager（任意機能）",
+     "tag": "input",
+     "type": "checkbox",
+     "id": "",
+     "label": "on",
+     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
      "visible": true,
      "disabled": false,
      "rect": [
-      17,
-      2373,
-      666,
-      36
+      34,
+      2456,
+      1520,
+      13
      ],
      "href": "",
      "result": "変化あり",
@@ -6685,75 +6446,75 @@
     },
     {
      "idx": 324,
-     "tag": "button",
-     "type": "button",
-     "id": "bai-ai-preview-apply",
-     "label": "IK画面で確認",
-     "group": "BAI AI Manager（任意機能）",
+     "tag": "input",
+     "type": "number",
+     "id": "",
+     "label": "比較フレーム",
+     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
      "visible": true,
-     "disabled": true,
+     "disabled": false,
      "rect": [
-      17,
-      2413,
-      115,
-      42
+      434,
+      2472,
+      75,
+      36
      ],
      "href": "",
-     "result": "無効(disabled)",
+     "result": "変化あり",
      "detail": ""
     },
     {
      "idx": 325,
      "tag": "button",
      "type": "button",
-     "id": "bai-ai-preview",
-     "label": "IKプレビュー生成",
-     "group": "BAI AI Manager（任意機能）",
+     "id": "",
+     "label": "",
+     "group": "v0.16.29 VRMメッシュ 補正前後比較（試験・ローカル）",
      "visible": true,
      "disabled": false,
      "rect": [
-      137,
-      2413,
-      149,
-      42
+      509,
+      2472,
+      176,
+      38
      ],
      "href": "",
-     "result": "ネットワークエラー",
-     "detail": "503 POST http://127.0.0.1:8799/api/ai/ik-preview"
+     "result": "変化あり",
+     "detail": ""
     },
     {
      "idx": 326,
-     "tag": "button",
-     "type": "button",
-     "id": "bai-ai-run",
-     "label": "指示を解析",
-     "group": "BAI AI Manager（任意機能）",
+     "tag": "summary",
+     "type": "",
+     "id": "",
+     "label": "v0.16.30〜32 転写タイムライン・QA・JSON保存（試験）",
+     "group": "v0.16.30〜32 転写タイムライン・QA・JSON保存（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      290,
-      2413,
-      100,
-      42
+      30,
+      2302,
+      1540,
+      18
      ],
      "href": "",
-     "result": "ネットワークエラー",
-     "detail": "503 POST http://127.0.0.1:8799/api/ai/pose-proposal"
+     "result": "変化あり",
+     "detail": ""
     },
     {
      "idx": 327,
-     "tag": "select",
-     "type": "select-one",
-     "id": "pose-ik-bone",
-     "label": "左腕 右腕 左脚 右脚",
-     "group": "BAI Motion｜手動IKポーズ補助（基礎版）",
+     "tag": "input",
+     "type": "checkbox",
+     "id": "",
+     "label": "on",
+     "group": "v0.16.30〜32 転写タイムライン・QA・JSON保存（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      52,
-      2679,
-      72,
-      42
+      34,
+      2370,
+      1520,
+      13
      ],
      "href": "",
      "result": "変化あり",
@@ -6761,18 +6522,18 @@
     },
     {
      "idx": 328,
-     "tag": "input",
-     "type": "number",
-     "id": "pose-ik-frame",
-     "label": "1",
-     "group": "BAI Motion｜手動IKポーズ補助（基礎版）",
+     "tag": "button",
+     "type": "button",
+     "id": "",
+     "label": "",
+     "group": "v0.16.30〜32 転写タイムライン・QA・JSON保存（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      205,
-      2680,
-      110,
-      40
+      30,
+      2404,
+      118,
+      38
      ],
      "href": "",
      "result": "変化あり",
@@ -6782,35 +6543,35 @@
      "idx": 329,
      "tag": "button",
      "type": "button",
-     "id": "pose-ik-reset",
-     "label": "初期姿勢",
-     "group": "BAI Motion｜手動IKポーズ補助（基礎版）",
+     "id": "",
+     "label": "",
+     "group": "v0.16.30〜32 転写タイムライン・QA・JSON保存（試験）",
      "visible": true,
-     "disabled": false,
+     "disabled": true,
      "rect": [
-      327,
-      2679,
-      84,
-      42
+      156,
+      2404,
+      128,
+      38
      ],
      "href": "",
-     "result": "スキップ(破壊的操作)",
+     "result": "無効(disabled)",
      "detail": ""
     },
     {
      "idx": 330,
-     "tag": "button",
-     "type": "button",
-     "id": "pose-ik-save",
-     "label": "設定を保存",
-     "group": "BAI Motion｜手動IKポーズ補助（基礎版）",
+     "tag": "summary",
+     "type": "",
+     "id": "",
+     "label": "v0.16.33〜35 キー候補・フレーム比較（試験）",
+     "group": "v0.16.33〜35 キー候補・フレーム比較（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      423,
-      2679,
-      100,
-      42
+      30,
+      2358,
+      1540,
+      18
      ],
      "href": "",
      "result": "変化あり",
@@ -6819,20 +6580,20 @@
     {
      "idx": 331,
      "tag": "input",
-     "type": "text",
+     "type": "file",
      "id": "",
-     "label": "クリップ名（複数ある場合）",
-     "group": "VRMローカル回転の仮転写・品質検査（読取のみ）",
+     "label": "比較用VRMまたはGLB",
+     "group": "v0.16.33〜35 キー候補・フレーム比較（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      13,
-      3240,
-      1574,
-      40
+      30,
+      2423,
+      1520,
+      42
      ],
      "href": "",
-     "result": "変化あり",
+     "result": "スキップ(ファイル選択)",
      "detail": ""
     },
     {
@@ -6841,13 +6602,13 @@
      "type": "checkbox",
      "id": "",
      "label": "on",
-     "group": "VRMローカル回転の仮転写・品質検査（読取のみ）",
+     "group": "v0.16.33〜35 キー候補・フレーム比較（試験）",
      "visible": true,
      "disabled": false,
      "rect": [
-      17,
-      3283,
-      1554,
+      34,
+      2468,
+      1520,
       13
      ],
      "href": "",
@@ -6859,13 +6620,621 @@
      "tag": "button",
      "type": "button",
      "id": "",
+     "label": "",
+     "group": "v0.16.33〜35 キー候補・フレーム比較（試験）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      604,
+      2484,
+      119,
+      38
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 334,
+     "tag": "button",
+     "type": "button",
+     "id": "",
+     "label": "",
+     "group": "v0.16.33〜35 キー候補・フレーム比較（試験）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      30,
+      2532,
+      133,
+      38
+     ],
+     "href": "",
+     "result": "エラーなし(目に見える変化なし)",
+     "detail": ""
+    },
+    {
+     "idx": 335,
+     "tag": "button",
+     "type": "button",
+     "id": "",
+     "label": "",
+     "group": "v0.16.33〜35 キー候補・フレーム比較（試験）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      171,
+      2532,
+      48,
+      38
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 336,
+     "tag": "button",
+     "type": "button",
+     "id": "",
+     "label": "",
+     "group": "v0.16.33〜35 キー候補・フレーム比較（試験）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      227,
+      2532,
+      105,
+      38
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 337,
+     "tag": "select",
+     "type": "select-one",
+     "id": "",
+     "label": "プレビュー更新速度",
+     "group": "v0.16.33〜35 キー候補・フレーム比較（試験）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      340,
+      2532,
+      87,
+      38
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 338,
+     "tag": "input",
+     "type": "range",
+     "id": "",
+     "label": "比較フレーム",
+     "group": "v0.16.33〜35 キー候補・フレーム比較（試験）",
+     "visible": true,
+     "disabled": true,
+     "rect": [
+      32,
+      2582,
+      1520,
+      36
+     ],
+     "href": "",
+     "result": "無効(disabled)",
+     "detail": ""
+    },
+    {
+     "idx": 339,
+     "tag": "button",
+     "type": "button",
+     "id": "",
+     "label": "",
+     "group": "v0.16.33〜35 キー候補・フレーム比較（試験）",
+     "visible": true,
+     "disabled": true,
+     "rect": [
+      30,
+      2621,
+      170,
+      38
+     ],
+     "href": "",
+     "result": "無効(disabled)",
+     "detail": ""
+    },
+    {
+     "idx": 340,
+     "tag": "input",
+     "type": "number",
+     "id": "foot-ground",
+     "label": "0",
+     "group": "足の接地・滑り診断（試験版）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      98,
+      2557,
+      90,
+      40
+     ],
+     "href": "",
+     "result": "エラーなし(目に見える変化なし)",
+     "detail": ""
+    },
+    {
+     "idx": 341,
+     "tag": "summary",
+     "type": "",
+     "id": "",
+     "label": "サンプルの編集（上級者向け）",
+     "group": "サンプルの編集（上級者向け）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      13,
+      2615,
+      1574,
+      22
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 342,
+     "tag": "textarea",
+     "type": "textarea",
+     "id": "foot-samples",
+     "label": "[{\"frame\":0,\"position\":[0,0.01,0]},{\"frame\":1,\"position\":[0.",
+     "group": "サンプルの編集（上級者向け）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      13,
+      2637,
+      1495,
+      81
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 343,
+     "tag": "input",
+     "type": "file",
+     "id": "foot-bvh-file",
+     "label": "BVHファイル（ローカルで選択）",
+     "group": "足の接地・滑り診断（試験版）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      13,
+      2667,
+      588,
+      44
+     ],
+     "href": "",
+     "result": "スキップ(ファイル選択)",
+     "detail": ""
+    },
+    {
+     "idx": 344,
+     "tag": "input",
+     "type": "text",
+     "id": "foot-bvh-bone",
+     "label": "LeftFoot",
+     "group": "足の接地・滑り診断（試験版）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      629,
+      2671,
+      333,
+      40
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 345,
+     "tag": "input",
+     "type": "number",
+     "id": "foot-bvh-stride",
+     "label": "1",
+     "group": "足の接地・滑り診断（試験版）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1093,
+      2671,
+      70,
+      40
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 346,
+     "tag": "button",
+     "type": "button",
+     "id": "foot-bvh-analyze",
+     "label": "BVHから足位置を解析",
+     "group": "足の接地・滑り診断（試験版）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      1171,
+      2669,
+      183,
+      42
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 347,
+     "tag": "button",
+     "type": "button",
+     "id": "foot-analyze",
+     "label": "診断する",
+     "group": "足の接地・滑り診断（試験版）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      13,
+      2765,
+      85,
+      42
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 348,
+     "tag": "summary",
+     "type": "",
+     "id": "",
+     "label": "両足の接地を同時に診断（v0.16.5・補正プレビューのみ）",
+     "group": "両足の接地を同時に診断（v0.16.5・補正プレビューのみ）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      13,
+      2833,
+      1574,
+      22
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 349,
+     "tag": "textarea",
+     "type": "textarea",
+     "id": "foot-right-samples",
+     "label": "[{\"frame\":0,\"position\":[1,0.01,0]},{\"frame\":1,\"position\":[1.",
+     "group": "両足の接地を同時に診断（v0.16.5・補正プレビューのみ）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      13,
+      2924,
+      1495,
+      66
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 350,
+     "tag": "button",
+     "type": "button",
+     "id": "foot-dual-preview",
+     "label": "左右の足が接地している区間を比較し、衝突がある場合は補正を保留します",
+     "group": "両足の接地を同時に診断（v0.16.5・補正プレビューのみ）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      13,
+      2990,
+      181,
+      42
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 351,
+     "tag": "input",
+     "type": "checkbox",
+     "id": "bai-ai-enabled",
+     "label": "on",
+     "group": "BAI AI Manager（任意機能）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      21,
+      3014,
+      646,
+      13
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 352,
+     "tag": "input",
+     "type": "text",
+     "id": "bai-ai-model",
+     "label": "Ollamaモデル名",
+     "group": "BAI AI Manager（任意機能）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      17,
+      3086,
+      646,
+      41
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 353,
+     "tag": "button",
+     "type": "button",
+     "id": "bai-ai-check",
+     "label": "接続を確認",
+     "group": "BAI AI Manager（任意機能）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      17,
+      3140,
+      100,
+      42
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 354,
+     "tag": "button",
+     "type": "button",
+     "id": "bai-ai-save",
+     "label": "設定を保存",
+     "group": "BAI AI Manager（任意機能）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      122,
+      3140,
+      100,
+      42
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 355,
+     "tag": "textarea",
+     "type": "textarea",
+     "id": "bai-ai-instruction",
+     "label": "例：右手を顔の横に上げて、左足は床に固定",
+     "group": "BAI AI Manager（任意機能）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      17,
+      3222,
+      666,
+      36
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 356,
+     "tag": "button",
+     "type": "button",
+     "id": "bai-ai-preview-apply",
+     "label": "IK画面で確認",
+     "group": "BAI AI Manager（任意機能）",
+     "visible": true,
+     "disabled": true,
+     "rect": [
+      17,
+      3262,
+      115,
+      42
+     ],
+     "href": "",
+     "result": "無効(disabled)",
+     "detail": ""
+    },
+    {
+     "idx": 357,
+     "tag": "button",
+     "type": "button",
+     "id": "bai-ai-preview",
+     "label": "IKプレビュー生成",
+     "group": "BAI AI Manager（任意機能）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      137,
+      3262,
+      149,
+      42
+     ],
+     "href": "",
+     "result": "ネットワークエラー",
+     "detail": "503 POST http://127.0.0.1:8799/api/ai/ik-preview"
+    },
+    {
+     "idx": 358,
+     "tag": "button",
+     "type": "button",
+     "id": "bai-ai-run",
+     "label": "指示を解析",
+     "group": "BAI AI Manager（任意機能）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      290,
+      3262,
+      100,
+      42
+     ],
+     "href": "",
+     "result": "ネットワークエラー",
+     "detail": "503 POST http://127.0.0.1:8799/api/ai/pose-proposal"
+    },
+    {
+     "idx": 359,
+     "tag": "select",
+     "type": "select-one",
+     "id": "pose-ik-bone",
+     "label": "左腕 右腕 左脚 右脚",
+     "group": "BAI Motion｜手動IKポーズ補助（基礎版）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      52,
+      3528,
+      72,
+      42
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 360,
+     "tag": "input",
+     "type": "number",
+     "id": "pose-ik-frame",
+     "label": "1",
+     "group": "BAI Motion｜手動IKポーズ補助（基礎版）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      205,
+      3529,
+      110,
+      40
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 361,
+     "tag": "button",
+     "type": "button",
+     "id": "pose-ik-reset",
+     "label": "初期姿勢",
+     "group": "BAI Motion｜手動IKポーズ補助（基礎版）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      327,
+      3528,
+      84,
+      42
+     ],
+     "href": "",
+     "result": "スキップ(破壊的操作)",
+     "detail": ""
+    },
+    {
+     "idx": 362,
+     "tag": "button",
+     "type": "button",
+     "id": "pose-ik-save",
+     "label": "設定を保存",
+     "group": "BAI Motion｜手動IKポーズ補助（基礎版）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      423,
+      3528,
+      100,
+      42
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 363,
+     "tag": "input",
+     "type": "text",
+     "id": "",
+     "label": "クリップ名（複数ある場合）",
+     "group": "VRMローカル回転の仮転写・品質検査（読取のみ）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      13,
+      4089,
+      1574,
+      40
+     ],
+     "href": "",
+     "result": "エラーなし(目に見える変化なし)",
+     "detail": ""
+    },
+    {
+     "idx": 364,
+     "tag": "input",
+     "type": "checkbox",
+     "id": "",
+     "label": "on",
+     "group": "VRMローカル回転の仮転写・品質検査（読取のみ）",
+     "visible": true,
+     "disabled": false,
+     "rect": [
+      17,
+      4132,
+      1554,
+      13
+     ],
+     "href": "",
+     "result": "変化あり",
+     "detail": ""
+    },
+    {
+     "idx": 365,
+     "tag": "button",
+     "type": "button",
+     "id": "",
      "label": "仮転写と品質チェック",
      "group": "VRMローカル回転の仮転写・品質検査（読取のみ）",
      "visible": true,
      "disabled": false,
      "rect": [
       359,
-      3300,
+      4149,
       182,
       42
      ],
@@ -6875,43 +7244,34 @@
     }
    ],
    "tally": {
-    "ネットワークエラー": 14,
-    "変化あり": 97,
-    "操作不能": 127,
+    "画面遷移": 2,
+    "変化あり": 112,
+    "操作不能": 137,
     "非表示(未操作)": 74,
-    "スキップ(ファイル選択)": 3,
-    "無効(disabled)": 5,
-    "スキップ(破壊的操作)": 10,
+    "スキップ(ファイル選択)": 4,
+    "無効(disabled)": 7,
+    "スキップ(破壊的操作)": 12,
     "変化なし(選択肢1件以下)": 3,
-    "エラーなし(目に見える変化なし)": 1
+    "ネットワークエラー": 12,
+    "エラーなし(目に見える変化なし)": 3
    }
   },
   "camera": {
    "url": "/camera.html",
    "consoleErrors": [
-    "Failed to load resource: the server responded with a status of 404 (Not Found)",
     "Failed to load resource: the server responded with a status of 404 (Not Found)"
    ],
-   "pageErrors": [
-    "Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node."
-   ],
+   "pageErrors": [],
    "failedRequests": [
-    "GET http://127.0.0.1:8799/v01641_preview_guard.js net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/api/ai/settings net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/api/mmd-assets net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/api/ai/status net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/api/manifest net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/api/pose/last net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/api/server-version net::ERR_ABORTED",
     "GET http://127.0.0.1:8799/api/integrated-v02/catalog net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/api/motion-layers net::ERR_ABORTED",
+    "GET http://127.0.0.1:8799/api/server-version net::ERR_ABORTED",
+    "GET http://127.0.0.1:8799/api/ai/settings net::ERR_ABORTED",
     "GET http://127.0.0.1:8799/api/assets net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/api/conversion-map net::ERR_ABORTED",
-    "POST http://127.0.0.1:8799/api/diagnostics/client net::ERR_ABORTED",
-    "GET http://127.0.0.1:8799/api/project?envelope=1 net::ERR_ABORTED"
+    "GET http://127.0.0.1:8799/api/pose/last net::ERR_ABORTED",
+    "GET http://127.0.0.1:8799/api/project?envelope=1 net::ERR_ABORTED",
+    "GET http://127.0.0.1:8799/api/ai/status net::ERR_ABORTED"
    ],
    "badResponses": [
-    "404 GET http://127.0.0.1:8799/v01641_preview_guard.js",
     "404 GET http://127.0.0.1:8799/api/integrated-v02/asset/W02_%E7%99%BD%E5%B3%B0%E3%83%A6%E3%82%AD%E3%83%8A.vrm"
    ],
    "title": "BAI Camera | BAI Creator Studio",
@@ -6934,7 +7294,7 @@
         "b": "canvas.view-3d-canvas",
         "overlap": [
          605,
-         228
+         340
         ]
        },
        {
@@ -6942,7 +7302,7 @@
         "b": "canvas.view-3d-canvas",
         "overlap": [
          605,
-         228
+         340
         ]
        }
       ]
@@ -6999,7 +7359,7 @@
          "b": "canvas.view-3d-canvas",
          "overlap": [
           605,
-          228
+          340
          ]
         },
         {
@@ -7007,7 +7367,7 @@
          "b": "canvas.view-3d-canvas",
          "overlap": [
           605,
-          228
+          340
          ]
         }
        ]
@@ -7029,7 +7389,7 @@
          "b": "canvas.view-3d-canvas",
          "overlap": [
           765,
-          393
+          538
          ]
         },
         {
@@ -7037,7 +7397,7 @@
          "b": "canvas.view-3d-canvas",
          "overlap": [
           765,
-          393
+          538
          ]
         }
        ]
@@ -7064,8 +7424,8 @@
       17
      ],
      "href": "/",
-     "result": "ネットワークエラー",
-     "detail": "404 GET http://127.0.0.1:8799/v01641_preview_guard.js"
+     "result": "画面遷移",
+     "detail": "http://127.0.0.1:8799/"
     },
     {
      "idx": 1,
@@ -7306,7 +7666,7 @@
      "disabled": false,
      "rect": [
       21,
-      414,
+      526,
       85,
       29
      ],
@@ -7325,7 +7685,7 @@
      "disabled": false,
      "rect": [
       112,
-      414,
+      526,
       84,
       29
      ],
@@ -7344,7 +7704,7 @@
      "disabled": false,
      "rect": [
       12,
-      544,
+      584,
       63,
       37
      ],
@@ -7363,7 +7723,7 @@
      "disabled": false,
      "rect": [
       83,
-      544,
+      584,
       97,
       37
      ],
@@ -7382,12 +7742,12 @@
      "disabled": false,
      "rect": [
       190,
-      546,
-      782,
+      585,
+      784,
       34
      ],
      "href": "",
-     "result": "変化あり",
+     "result": "エラーなし(目に見える変化なし)",
      "detail": ""
     },
     {
@@ -7400,8 +7760,8 @@
      "visible": true,
      "disabled": false,
      "rect": [
-      982,
-      544,
+      984,
+      584,
       97,
       37
      ],
@@ -7419,10 +7779,10 @@
      "visible": true,
      "disabled": false,
      "rect": [
-      1088,
-      483,
-      92,
-      180
+      1090,
+      597,
+      90,
+      33
      ],
      "href": "",
      "result": "エラーなし(目に見える変化なし)",
@@ -7439,7 +7799,7 @@
      "disabled": false,
      "rect": [
       27,
-      743,
+      710,
       105,
       33
      ],
@@ -7458,7 +7818,7 @@
      "disabled": false,
      "rect": [
       140,
-      739,
+      706,
       74,
       37
      ],
@@ -7477,7 +7837,7 @@
      "disabled": false,
      "rect": [
       222,
-      743,
+      710,
       105,
       33
      ],
@@ -7496,7 +7856,7 @@
      "disabled": false,
      "rect": [
       335,
-      743,
+      710,
       105,
       33
      ],
@@ -7515,7 +7875,7 @@
      "disabled": false,
      "rect": [
       448,
-      739,
+      706,
       116,
       37
      ],
@@ -7534,7 +7894,7 @@
      "disabled": false,
      "rect": [
       573,
-      739,
+      706,
       91,
       37
      ],
@@ -7553,7 +7913,7 @@
      "disabled": false,
      "rect": [
       671,
-      739,
+      706,
       91,
       37
      ],
@@ -7572,7 +7932,7 @@
      "disabled": false,
      "rect": [
       14,
-      800,
+      767,
       27,
       30
      ],
@@ -7591,7 +7951,7 @@
      "disabled": false,
      "rect": [
       372,
-      800,
+      767,
       27,
       30
      ],
@@ -7610,7 +7970,7 @@
      "disabled": false,
      "rect": [
       27,
-      869,
+      836,
       163,
       37
      ],
@@ -7629,7 +7989,7 @@
      "disabled": false,
      "rect": [
       190,
-      869,
+      836,
       117,
       37
      ],
@@ -8988,9 +9348,10 @@
     }
    ],
    "tally": {
-    "ネットワークエラー": 2,
-    "変化あり": 36,
-    "エラーなし(目に見える変化なし)": 39,
+    "画面遷移": 1,
+    "変化あり": 35,
+    "エラーなし(目に見える変化なし)": 40,
+    "ネットワークエラー": 1,
     "変化なし(選択肢1件以下)": 3,
     "スキップ(破壊的操作)": 12,
     "操作不能": 3,

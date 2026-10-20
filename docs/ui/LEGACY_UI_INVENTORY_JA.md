@@ -131,6 +131,39 @@ three.js は `cdn.jsdelivr.net` が 403 のため、ローカルの three@0.160.
 3. `insertBefore` 例外3件（`index.html:500,510`、`v01636_40_playback.js:22`）。
 4. camera.html の現在フレーム入力の縦伸び（1フレーム▶／◆キーが押せない）。
 
+## 最小修正後（2026-10-20）
+
+オーナー承認の最小修正（移植の見本として旧画面を使えるようにするため。機能追加・再設計なし）。同じ `tools/legacy_ui_inventory.mjs`（1600x900、three はローカル 0.160.1）で修正前後を比較。
+
+| 項目 | 修正前 | 修正後 |
+|---|---|---|
+| index `<main>` の高さ | 20px（3パネル各26px） | 770px（3パネル各750px、全パネルが枠内スクロールで操作可能） |
+| index ページ全体の高さ | 900px（`overflow:hidden` で下部到達不能） | 4,187px（body が縦スクロール、タイムライン等6セクションへ到達可能） |
+| index 重なりパネル検出 | 11 組 | 4 組（`#threecanvas` と `#timeline-studio` 等。3Dキャンバスの絶対配置由来、未対応） |
+| index ページエラー | 3 件（`insertBefore`） | 0 件 |
+| camera ページエラー | 1 件 | 0 件 |
+| 404（`/v01641_preview_guard.js`） | index 3 / camera 1 | 0 / 0（残りは同梱VRM素材の 404 のみ） |
+| camera 「現在フレーム」入力の高さ | 180px（「1フレーム ▶」を覆う） | 33px（`#next` クリック可能を確認） |
+| 画面遷移を除く index 操作要素のうち、④の「モーション82件・再生ボタン」 | main 潰れで枠外 | 枠内に表示（`#filter` 等の個別クリックで確認） |
+
+変更箇所:
+- `index.html:27`（canonical CSS）: `html,body` から `overflow:hidden` を外し、`body{overflow-y:auto;overflow-x:hidden}` と `body>*{flex-shrink:0}` を追加。`main` を `flex:0 0 auto` + `height:max(560px,calc(100dvh - 130px))` に変更（body 直下セクションは移動せず、JSセレクタ・DOM順は不変）。
+- `server.py:226`: 配信許可リストに `/v01641_preview_guard.js` を追加。
+- `index.html:484`: `insertBefore` の基準ノードが `#chain-side` の子でなかった（`#chain-scroll-body` は `details#chain-advanced` の孫）。基準を `#chain-advanced` に修正（保存/読込ツールバーが意図どおり生成される）。`index.html:500/510` と `v01636_40_playback.js:22` は現状エラーなし（修正不要）。
+- `v01633_35_scrub.js:29`: ガード配信で当モジュールが読み込まれるようになり顕在化した `epoch is not defined`（`const epoch` が try 内で catch から参照不能）を、宣言を try の外へ移して解消。
+- `camera.css`（末尾）: `.transport .inline-control` の flex 指定追加（`.transport input{flex:1 1 180px}` が数値入力に効いて縦伸びしていた）。
+- `tools/legacy_ui_inventory.mjs`: 画面遷移後の再列挙待ちを 800ms→3000ms。
+- 回帰テスト: `tests/test_legacy_ui_minimal_fix.py`（ガードJSがJS MIMEで配信される）、`tests/legacy-ui-layout.test.cjs`（1600x900 で main>300px、`insertBefore` エラーなし、camera 入力<60px、`#next` クリック可。chromium 無しならスキップ）。
+
+テスト: `pytest -q` 307 件通過（305+2）。node: `tests/*.cjs`、`test_camera_*.cjs` 全通過。
+
+修正前の診断の訂正: 「ゼロサイズ操作要素 73 件」は、非表示タブ（`[hidden]` 親）内の要素を数えたもので、`main` 潰れの指標ではなかった（修正後も 73 のまま）。
+
+残っている問題・注意:
+- インベントリ自動操作の「操作不能」は修正後も index 137 / camera 3 と出る。実クリックでは `#filter`・`#next` 等は操作できることを確認しており、スクリプトが先に押したタブ切替（お気に入り）や再生開始で状態が変わったまま後続を押す採取方法の限界とみられる。ため ④ の「操作不能」件数は修正の効果指標として使えない（採取順序の見直しが必要）。
+- `#threecanvas` と `#timeline-studio` 等の重なり 4 組、1280幅の「表示モデル」切れ、同梱 VRM の 404 は未対応。
+- `main` の高さは `100dvh-130px`（最低560px）の固定計算で、ヘッダー高変更時は再調整が必要。
+
 ## 未検証事項（NOT verified）
 
 - GPU 描画: ソフトウェアレンダ（swiftshader）のみ。実GPUでの描画品質・性能は未確認。

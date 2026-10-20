@@ -24,11 +24,11 @@
 @media(max-width:750px){#chain-side{height:75dvh!important;min-height:440px!important;width:100%!important}}
 </style><style id="studio-ui-canonical">
 /* v0.14.0 canonical UI; one layout authority */
-*{box-sizing:border-box}html,body{height:100%;margin:0;overflow:hidden}body{display:flex;flex-direction:column}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}body>*{flex-shrink:0}
 header{flex:0 0 auto;padding:9px 16px!important;max-height:62px;overflow:hidden}header h1{font-size:16px}header p{display:none}
 #studio-workspaces{display:flex;gap:7px;padding:8px 14px;background:#111b2c;flex:0 0 auto;flex-wrap:wrap}
 #studio-workspaces button{font-size:12px;min-height:36px;cursor:pointer}
-main{display:grid!important;grid-template-columns:minmax(215px,260px) minmax(0,1fr) minmax(285px,340px)!important;gap:10px!important;padding:10px!important;max-width:none!important;width:100%;margin:0!important;flex:1 1 0;min-height:0;height:auto!important;overflow:hidden;align-items:stretch!important}
+main{display:grid!important;grid-template-columns:minmax(215px,260px) minmax(0,1fr) minmax(285px,340px)!important;gap:10px!important;padding:10px!important;max-width:none!important;width:100%;margin:0!important;flex:0 0 auto;min-height:0;height:max(560px,calc(100dvh - 130px))!important;overflow:hidden;align-items:stretch!important}
 main>.panel{min-width:0;min-height:0;height:100%;max-height:none!important;overflow-y:auto!important;overflow-x:hidden;padding:12px!important;scrollbar-gutter:stable;position:relative!important;top:auto!important}
 #chain-side{display:flex!important;flex-direction:column!important;gap:8px!important;overflow:hidden!important;position:relative!important;top:auto!important;max-height:none!important;height:100%!important;min-height:0!important}
 #chain-side>h3,#chain-side>.chain-foot,#chain-project-toolbar,#chain-feedback{flex:0 0 auto!important;margin:0!important}
@@ -481,7 +481,7 @@ window.addEventListener('DOMContentLoaded',()=>{
  });
  // Relocate save/load controls outside the deeply nested scroll area.
  const currentBar=$('project-save')?.parentElement;
- if(currentBar){let bar=document.createElement('div');bar.id='chain-project-toolbar';for(const id of ['project-save','project-load'])bar.appendChild($(id));$('chain-side').insertBefore(bar,$('chain-scroll-body'));}
+ if(currentBar){let bar=document.createElement('div');bar.id='chain-project-toolbar';for(const id of ['project-save','project-load'])bar.appendChild($(id));$('chain-side').insertBefore(bar,$('chain-advanced')||null);}
  const chainList=$('chain-list');
  const observe=new MutationObserver(()=>{const n=chainList.children.length;$('chain-count').textContent=n+'件';if(n)notice('登録済み '+n+'件。下の一覧で順番を変更できます。');});
  observe.observe(chainList,{childList:true});$('chain-count').textContent=chainList.children.length+'件';
