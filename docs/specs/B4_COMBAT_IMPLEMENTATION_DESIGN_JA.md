@@ -39,18 +39,18 @@
 | `RootCorrection` | `id,instanceId,startFrame,endFrame,positionKeys,rotationKeys,sourceHash`。キーは `{frame,value:[x,y,z],interpolation:"linear"|"step"}` と `{frame,value:[x,y,z,w],interpolation:"slerp"|"step"}`。既存rootレイヤーへ加算する非破壊補正。1フレームの重複キーは拒否、接触プレビューは補正前/後の両方を評価 |
 | `GrabConstraint` | `id,pairId,sourceAnchor,targetAnchor,startFrame,endFrame,weightKeys,releaseMode,offsetMatrix`。実骨/登録道具だけ。`weight` は0..1、開始/終了区間外は0。初期値は区間開始/終了の2フレームで線形に入切する。`releaseMode="restore_source_motion"` に固定。target→sourceの依存有向グラフに循環があれば422 |
 | `ComboSequence` | `id,pairId,segments:[{id,order,startFrame,endFrame,attackClipId,reactionClipId,kind,branchId|null}],selectedBranchId|null`。`kind` は `attack/evade/counter/knockdown/kip_up/recovery`。各分岐は人が選ぶ編集上の代替テイクで、実行時AI/ゲーム分岐ではない。選択した経路で3〜4技を連結できる。区間重複と反応欠落を警告し、黙って補間しない |
-| `StageGimmickEvent` | `id,stageAssetId,stageHash,pivotId,startFrame,endFrame,triggerEventId|null,keys:[{frame,value}],minValue,maxValue,axis,unit,mode`。`mode` は `absolute` または `event_relative`。pivot はB3が登録した実在ID、軸は資産ローカル、角度度/移動mを `unit` で明示。範囲外・参照循環・同pivotの同frameに異なる値は422。衝突物理で扉を自動開閉しない |
-| `PhysicsBakeRef` | `id,modelInstanceId,modelHash,motionHash,rigidBodyHash,affectedBoneIds,startFrame,endFrame,preRollFrames,engineId,engineVersion,engineBinaryHash,environment,seed,tickRate,settingsHash,inputHash,outputHash,manifestRelPath,state,enabled`。本体は管理領域の別ファイル。`state` は `ready/stale/unverified/missing/failed`。失効しても旧版を自動削除しない |
+| `StageGimmickEvent` | 共通: `id,stageAssetId,stageHash,pivotId,mode,keys:[{frame,value}],minValue,maxValue,axis,unit`。`mode="absolute"` なら `startFrame,endFrame,triggerEventId:null`、キーのframeはプロジェクト絶対F。`mode="event_relative"` なら `startOffsetFrames,endOffsetFrames,triggerEventId`、キーのframeは参照接触イベントからの符号付き相対F。実効Fは `contact.frame+offset`、実効区間が `0..1_000_000` を外れたら422。2つの時刻形式を混ぜない。pivotはB3登録ID、軸は資産ローカル、角度度/移動mを `unit` で明示。範囲外・同pivotの同frameに異なる値は422。衝突物理で扉を自動開閉しない |
+| `PhysicsBakeRef` | `id,modelInstanceId,modelHash,motionHash,rigidBodyHash,affectedBoneIds,startFrame,endFrame,preRollFrames,engineId,engineVersion,engineBinaryHash,environment,seed,tickRate,settingsHash,inputHash,outputHash,manifestRelPath,state,enabled`。本体は管理領域の別ファイル。`state` は `ready/stale/unverified/missing`。ジョブ進捗/失敗は別job状態だけに記録し、検証・明示採用前にproductionへ参照を追加しない。失効しても旧版を自動削除しない |
 
 UIで設定する既定値: 接触警告距離 `0.08m`、時刻ずれ警告 `2 project frames`、接地/貫通の可視化用距離 `0.02m`、掴み重み `1`、ギミック最小/最大は **登録ピボットが持つ範囲**、物理プリロール `2秒`、物理tick `120/1 Hz`、seed `0`。警告閾値はプロジェクトに保存し、モデル縮尺の実測前は「参考値」と示す。閾値内でも自動合格とは表示しない。これらは承認機能を実装するための初期値で、物理的安全値ではない。
 
 ## 3. フレーム評価の順序と計算
 
 1. 共通時刻 `f` でP2の素材クリップを評価し、B1の各ダンサーの配置、ミラー、部位ブレンド、隊形/交換、登録小道具の持ち替えを適用する。素材元のVMD/FBXキーは不変。
-2. B4の確定済み `RootCorrection` を人物rootへ適用。`GrabConstraint` は参照側の確定ワールド行列からoffsetを合成し、重みで **対象の評価済み骨/道具行列だけ**を混合する。同一対象への複数拘束の重複は422とし、推測で優先しない。区間終了フレームでは重み0、元のモーションへ戻る。拘束が要求する実骨が欠ければ、プレビューは警告付き元モーションで続け、拘束は適用済みと表示しない。
+2. B4の確定済み `RootCorrection` を人物rootへ適用（位置はworldで加算、回転は正規化quaternionを既存root回転へ右から合成）。`GrabConstraint` は参照側の確定ワールド行列からoffsetを合成し、重みで **対象の評価済み骨/道具行列だけ**を混合する。同一対象への複数拘束の重複は422とし、推測で優先しない。区間 `[startFrame,endFrame)` の最初/最後は最大2Fで線形ランプし、区間が1Fならその1Fだけ指定重みを適用する。区間終了フレームでは重み0、元のモーションへ戻る。拘束が要求する実骨が欠ければ、プレビューは警告付き元モーションで続け、拘束は適用済みと表示しない。
 3. `ContactEvent` の両アンカーへ各人物の評価済みworld行列を掛け、距離 `||A-B|| m`、方向差 `acos(dot(normalize(B-A), expectedNormal))` 度、攻撃/反応クリップの該当マーカーのフレーム差を計算する。長さ0の方向は `directionUnavailable`。同じ `f` のカメラ画像に A/B接点・差ベクトルをオーバーレイする。数値、カメラID、入力hash、frameを一緒に返し、画像取得失敗なら「映像未評価」。**距離閾値だけでは合否を作らない**（O-COMBAT-01）。
 4. `ComboSequence` は選択分岐のsegmentだけを時刻順に評価。`knockdown→kip_up` は別区間で、床接触候補は足/腰のscene-world最低点とB3の床面の差を表示する。足滑りは接地候補フレーム間の足world移動量、身体貫通は実メッシュの粗い交差候補として表示し、どれも精密衝突の保証ではない。床/メッシュ情報がない場合は `not_evaluated`、ゼロ件と表示しない。
-5. `StageGimmickEvent` は登録ピボットの元変換へキー補間を別レイヤーとして適用。`event_relative` は参照する接触イベントのフレームを基準0とし、区間外は元状態。ピボット順は依存グラフのトポロジカル順。評価に失敗したイベントはその可動物を元状態で表示し、警告を出す。
+5. `StageGimmickEvent` は登録ピボットの元変換へキー補間を別レイヤーとして適用。`event_relative` は確定済み `ContactEvent.frame` を基準0とし、保存する相対キー/区間を評価時に絶対Fへ移す。参照イベントのFが変われば同じ相対値で追従し、参照が欠ければ未評価。区間外は元状態。ピボット順はB3の親子階層順、階層循環は登録時に422。同一ピボットの実効区間が重なり値が競合する場合も422。評価に失敗したイベントはその可動物を元状態で表示し、警告を出す。
 6. 物理が有効な対象部位のみ、入力条件が一致する `ready` ベイクを後段で合成する。元VMD/拘束/ピボットを上書きしない。無効・失効・欠損ベイクは元モーションで描画し、画面と出力に未適用警告を残す。出力時には採用レイヤーと未対応箇所をマニフェスト化する。
 
 接触候補の評価は必ず `dryRun` から始め、補正候補を別レイヤーに置く。人が選んだ補正だけ `commit` し、直後に全イベントを再評価する。Undoで補正レイヤーと採用操作を戻し、他人物の元クリップとB1の既存編集は変えない。
@@ -60,7 +60,7 @@ UIで設定する既定値: 接触警告距離 `0.08m`、時刻ずれ警告 `2 p
 2026-10-21 の依存確認では `package.json` に物理エンジンがなく、現行コードはMMD物理ベイクを実行しない。`three@0.160.1` の同梱 `examples/jsm/animation/MMDPhysics.js` は MMDLoader由来のrigid body/constraint情報と **Ammo.js** を要求する（[Threeの該当ソース](https://github.com/mrdoob/three.js/blob/r160/examples/jsm/animation/MMDPhysics.js)、[Ammo.js本体とライセンス](https://github.com/kripken/ammo.js/)）。H-04の初回エンジンを **固定版Three MMDPhysics + hash固定したAmmo.jsビルド**にする。開発時に取得コミット、配布ファイルのSHA256、zlibライセンスと同梱通知を `third_party/` の記録へ固定し、実装・再配布前の検査を必須にする。リモートCDNを実行時に読まない。PMXの剛体/ジョイント/骨がローダーから取得できなければ `capability_unavailable` とし、単なるSpringBoneや擬似揺れで成功扱いしない。VRMのMMD物理ベイクは、明示的に互換剛体データが登録された場合だけ対象にし、VRM SpringBone ON/OFF（`REVIEW-009`）とは別。
 
 - ジョブ開始時にモデル、PMX剛体/ジョイント、ベースVMD、B1/B4の確定レイヤー、対象骨、区間、ソルバー設定、ランタイム版、OS/ブラウザー/CPUアーキテクチャ、WebAssembly版をスナップショット化し `inputHash` を求める。計算はプロジェクトの再生ヘッドと切り離した専用Workerで行う。素材本体をログへ書かない。
-- `f=0` または明示した固定初期状態から120Hzの一定刻みでプリロールと範囲終端まで進める。途中シークは **独立した新規シミュレーションを開始せず**、検証済みの先行チェックポイントから再計算する。非整数FPSの出力フレーム時刻は隣接tickの位置線形/回転slerpでサンプルし、方法と丸めをマニフェストに保存する。Worker失敗、NaN、骨欠損、途中取消は新成果物を `failed/canceled` とし、適用中の旧ベイクは保持。
+- 初期状態は **プロジェクトF=0の実姿勢/剛体配置と速度0** に固定する。`preRollFrames` はその姿勢を保持したままF=0より前に相当するtick数だけウォームアップし、続いてF=0から範囲終端まで120Hz一定刻みで進める。途中シークは **独立した新規シミュレーションを開始せず**、入力hashと状態hashを検証した先行チェックポイントから再計算する。非整数FPSの出力フレーム時刻は隣接tickの位置線形/回転slerpでサンプルし、方法と丸めをマニフェストに保存する。Worker失敗、NaN、骨欠損、途中取消は新成果物を `failed/canceled` とし、適用中の旧ベイクは保持。
 - 本体は `data/bakes/<uuid>/` の `manifest.json` とフレームごとの対象骨位置/quaternionのチャンク（リトルエンディアンfloat32、開始フレーム/件数/骨ID一覧、チャンクSHA256）に保存。一時ディレクトリに全チャンクを書いて検証後に公開する。元PMX/VMDに書き戻さない。上限は1ジョブ `36_000` 出力フレーム、対象骨 `256`、中間データ `2 GiB`。超過は開始前に413で分割案を示す。容量不足は旧版を壊さず失敗。
 - `settingsHash/inputHash/engineBinaryHash/environment` の全一致だけで**再利用候補**にする。環境ごとに代表区間（開始、中央、末尾近傍の各2秒）を同じ初期条件から再計算し、正規化後の骨位置 `1e-5m`、quaternion角 `1e-4rad` 以内で一致したとき `ready`。一致しなければ `unverified` にし再ベイク。異なるOS/GPU/engine版へ `ready` を引き継がない（O-COMBAT-02）。部分再計算は変更点より前の**一致検証済み**チェックポイントから対象部位/範囲だけを更新し、依存剛体/接触が区間外へ跨るなら初期状態から再計算する。判定できなければ全範囲再計算。
 - UIの進捗は `queued/preparing/simulating/verifying/ready/failed/canceled`、検証済みフレーム数、取消可否を返す。表示OFFはベイク本体を消さない。出力時は適用ベイクIDとhash、入力hash、版、未検証警告をレポートする。動画とVMDの再読込で適用された骨キーと非対象骨キーを確認する。
@@ -77,13 +77,14 @@ UIで設定する既定値: 接触警告距離 `0.08m`、時刻ずれ警告 `2 p
 | `combat.commitRootCorrection` | `pairId`, `{correctionId|null,instanceId,startFrame,endFrame,positionKeys,rotationKeys}` | 新レイヤーIDと再評価結果。元VMDは不変 |
 | `combat.setGrabConstraint` | `pairId`, `{constraintId|null,sourceAnchor,targetAnchor,startFrame,endFrame,weightKeys,offsetMatrix}` | 拘束ID。循環/二重対象は422 |
 | `combat.setComboSequence` | `pairId`, `{sequenceId|null,segments,selectedBranchId}` | 欠落反応/重複警告と選択分岐。自動勝敗なし |
-| `combat.setStageGimmickEvent` | `pivotId`, `{eventId|null,stageAssetId,stageHash,startFrame,endFrame,triggerEventId|null,keys,minValue,maxValue,axis,unit,mode}` | イベントID。原ステージ不変。ピボット欠損/循環/範囲外は404/422 |
+| `combat.setStageGimmickEvent` | `pivotId`, `{eventId|null,stageAssetId,stageHash,mode,keys,minValue,maxValue,axis,unit,startFrame,endFrame,triggerEventId:null}` または `mode:event_relative` と `{startOffsetFrames,endOffsetFrames,triggerEventId}` | イベントID。原ステージ不変。ピボット/接触イベント欠損404、時刻形式混在/範囲外/競合422 |
 | `combat.startPhysicsBake` | `modelInstanceId`, `{affectedBoneIds,startFrame,endFrame,preRollFrames,seed,tickRate}` | 202+`jobId`。事前能力/容量/入力hash検査。未対応モデルは422 |
 | `combat.cancelPhysicsBake` | `jobId`, `{}` | `canceled`。旧適用版を保持。ready後の取消は409 |
+| `combat.adoptPhysicsBake` | `jobId`, `{enabled}` | 検証済み成果物を新 `PhysicsBakeRef` として追加。現入力hash差/環境差/未検証は409で拒否し旧版を保持 |
 | `combat.setPhysicsBakeEnabled` | `bakeId`, `{enabled}` | プレビュー/出力の採用状態と警告。stale/unverified版は有効化拒否 |
 | `combat.detectIntersections` | `pairId`, `{startFrame,endFrame,stepFrames}`、常にdryRun | フレーム付き候補、計算対象/未評価理由。精密衝突結果と呼ばない |
 
-`dryRun=false` のコマンドは単一トランザクションで一式revisionを進める。削除は別コマンド `combat.removeRecord` `{kind,id}` とし、参照がある場合は409で参照一覧を返す。強制連鎖削除は作らない。`combat.startPhysicsBake` はスナップショット作成までをトランザクションで確定し、Worker結果は対象jobの同じ `inputHash` にだけ公開する。編集中にrevisionが変われば旧条件の成果物として保存し、現プロジェクトへ自動適用しない。各コマンドはUndo記録（前後のproduction/combat差分、commandId）を付ける。取消やWorker失敗はUndo履歴へ成功記録を追加しない。
+`dryRun=false` で **productionを書き換える**コマンドは単一トランザクションで一式revisionを進める。削除は別コマンド `combat.removeRecord` `{kind,id}` とし、参照がある場合は409で参照一覧を返す。強制連鎖削除は作らない。`combat.startPhysicsBake` は独立jobストアでスナップショット/入力hash/冪等キーを確定し、制作状態revisionは進めない。Worker結果は対象jobの同じ `inputHash` にだけ公開する。編集中にrevisionが変われば旧条件の成果物として保存し、現プロジェクトへ自動適用しない。`combat.adoptPhysicsBake` が現入力hash・環境・代表再計算を再検証してから初めてproduction参照とrevisionを進める。production変更コマンドはUndo記録（前後のproduction/combat差分、commandId）を付ける。取消やWorker失敗はUndo履歴へ成功記録を追加しない。
 
 ## 6. 画面と三経路の作業手順
 
@@ -97,8 +98,8 @@ UIで設定する既定値: 接触警告距離 `0.08m`、時刻ずれ警告 `2 p
 |---|---|---|
 | H-01 `DANCE-008` | 同一Fのworld変換と距離/方向/時刻差の既知行列、異FPS変換、dry-run不変、補正Undo、映像失敗時 `not_evaluated` | 実PMX/VRM×2、VMD攻撃/反応、異なる縮尺・骨欠損、接点を3カメラ角で目視。数値閾値を合否としない |
 | H-02 `DANCE-009/010/011` | 拘束循環/重複拒否、区間終了の解除、分岐選択、反応欠落警告、床なし未評価、元クリップhash不変 | 掴み/解除、ノックダウン→Kip Up、3〜4技+回避/カウンターを実モデルでフレーム比較 |
-| H-03 `LYRIC-010` | ピボット欠損、範囲外、イベント循環、同frame競合を拒否。保存復元で元変換不変 | 実ステージの扉/可動物2件、イベント変更追従、動画再読込、見た目の遮蔽 |
-| H-04 `MOTION-021` | 同入力同環境で代表再計算一致、hash差/環境差で失効、途中取消、容量不足、部分再計算と全再計算の比較、非対象骨不変 | PMX剛体/ジョイント有無、髪/衣装/アクセサリ、Windows/Linux別に結果と差、VMD/動画往復。GPU/OSを跨ぐ一致は自動主張しない |
+| H-03 `LYRIC-010` | ピボット/接触イベント欠損、階層循環、相対区間の範囲外、実効Fの競合を拒否。接触Fの変更に追従し、保存復元で元変換不変 | 実ステージの扉/可動物2件、イベント変更追従、動画再読込、見た目の遮蔽 |
+| H-04 `MOTION-021` | 同入力同環境で代表再計算一致、hash差/環境差で失効、途中取消、容量不足、部分再計算と全再計算の比較、非対象骨不変。job進捗でrevision不変、検証済み採用でだけ進み、編集後の旧jobを自動採用しない | PMX剛体/ジョイント有無、髪/衣装/アクセサリ、Windows/Linux別に結果と差、VMD/動画往復。GPU/OSを跨ぐ一致は自動主張しない |
 | 共通 | schema=1→2、電源断注入、2タブ/MCP競合、Undo/Redo、欠損素材、UI/WebMCP/標準MCP同一結果、狭幅/キーボード、ログに素材本文なし | サーバー再起動後のID/レイヤー/警告一致。未実施の経路は台帳に未検証として残す |
 
 `MOTION-021` の既存台帳状態は「要検証」、現UI表示は `◇ 未実装` のまま。H-01〜04それぞれのゲートが揃った範囲だけ証拠付きで状態を変える。実装とテストが一つも無い現在は、本書を読んで実装着手はできるが完成とは報告しない。

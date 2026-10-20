@@ -24,7 +24,8 @@ ZIP引継ぎの10件は [調査記録](MMD_EFFECTS_HANDOFF_REVIEW_20261020_JA.md
 | 型 | 必須キー・検証 |
 |---|---|
 | `EffectAsset` | `id,sha256,sourceUri,author,licenseId,permissionState,relativePath,dependencyIds,engineHint,format,registeredAt`。未知ライセンスは `local_reference_only`。ZIPは相対パス正規化、重複/絶対/`..`/symlink/zip bomb拒否。原 `.fx` はテキストでもコードとして評価しない |
-| `EffectInstance` | `id,effectId,target:{kind,id|null},enabled,order,params,paramKeys,quality,compatibilityId,sourceAssetId|null`。target kind は `scene/model/material/shot`。参照対象が欠けたら無効警告、他対象へ自動付替えしない。キーは `{frame,value,interpolation:"linear"|"step"}`、各paramで同一F重複不可 |
+| `EffectInstance` | `id,effectId,target:{kind,id|null},enabled,order,params,paramKeys,triggers,quality,compatibilityId,sourceAssetId|null`。target kind は `scene/model/material/shot`。参照対象が欠けたら無効警告、他対象へ自動付替えしない。キーは `{frame,value,interpolation:"linear"|"step"}`、各paramで同一F重複不可。`triggers` は `bai.hitBurst` 以外では空 |
+| `EffectTrigger` | `id,frame,worldPosition:[x,y,z],sourceEventId|null`。手動指定なら `sourceEventId=null`、接触イベント連携ならB4の確定イベントIDを参照し、評価時にイベントのframe/world位置へ追従する。レンダーsnapshotには評価時のイベントhashを固定する。参照が欠けた場合は描画せず警告。手動トリガーはB4なしで作成可能 |
 | `EffectTemplate` | `id,name,instanceDefaults,sourceAssetIds,version`。テンプレート適用は新インスタンスを作り、現在の確定スタックを黙って置換しない |
 | `CompatibilityReport` | `assetId|null,effectId,previewStatus,renderStatus,mmdExportStatus,environment,rendererVersion,sourceHash,representativeFrames,diffArtifactIds,limitations,testedAt`。状態は `unverified/native/approximated/export_only/unsupported`。登録だけで `native` を付けない |
 
@@ -38,15 +39,15 @@ ZIP引継ぎの10件は [調査記録](MMD_EFFECTS_HANDOFF_REVIEW_20261020_JA.md
 |---|---|---|
 | `bai.bloom` / `RENDER-012` | `threshold=1.0;0..2` linear輝度、`strength=0.8;0..3`、`radius=0.35;0..1` | `UnrealBloomPass`相当の後段pass。透明PNGで背景を不透明にしないことを実測 |
 | `bai.autoluminous` / `RENDER-012` | `emissiveGain=1;0..5`、`mask`は登録済み材質ID | 実材質のemissive/マスクを線形空間で上げ、Bloomの入力に渡す。原AutoLuminous `.fx` と同一とは表示しない |
-| `bai.motionBlur` / `RENDER-012` | `shutterFrames=0.5;0..1`、`samples=4;2..8` | 同一snapshotの分数FでP2モーション/カメラを補間して複数サンプル描画・蓄積。分数F evaluatorが未完成なら選択不可。単なる画面ぼかしで代用しない |
+| `bai.motionBlur` / `RENDER-012` | `shutterFrames=0.5;0..1`（保存時は1/1000F単位へ量子化）、`samples=4;2..8` | 同一snapshotの分数FでP2モーション/カメラを補間して複数サンプル描画・蓄積。`i=0..samples-1` の時刻は `F+((2i+1-samples)*shutterTicks)/(2000*samples)` の有理数、プロジェクト時刻範囲外は端でclampする。A2の有理数サブフレーム評価が未完成なら選択不可。単なる画面ぼかしで代用しない |
 | `bai.shadowEmphasis` / `RENDER-012` | `strength=1;0..2`、`bias=0;-0.005..0.005`、`softness=1;0..4` | 既存ライト/実モデル/床のshadow mapにだけ作用。画面全体を暗くする近似で成功扱いしない |
 | `bai.fog` / `RENDER-013/014` | `density=0.02;0..0.2 m^-1`、`color=#8090a0` | scene depthを使う指数霧。局所体積霧とは表示しない |
 | `bai.dust` / `RENDER-013` | `count=300;0..5000`、`size=0.01;0.001..0.1m`、`speed=0.2;0..3m/s`、`seed=0` | `Points`、seed+粒子index+絶対Fから位置算出。再生順に依存しない |
 | `bai.petals` / `RENDER-013` | `count=120;0..2000`、`size=0.06;0.01..0.2m`、`wind=0;−5..5m/s`、`seed=0` | `InstancedMesh`の簡素な花びら形状。開始/終了Fと対象を固定、外部素材なしでも動作 |
 | `bai.sparkles` / `RENDER-013` | `count=80;0..2000`、`size=0.01;0.001..0.1m`、`gain=1;0..5`、`seed=0` | 発光点群。イベントまたは持続区間で同一Fの位置/輝度が一致 |
-| `bai.hitBurst` / `RENDER-013` | `kind=spark/fire/smoke/shockwave`、`durationFrames=12;1..120`、`radius=0.4;0.01..5m`、`seed=0` | B4などの**既存の確定イベントID**とworld位置を参照。火花は発光線、煙は半透明billboard、衝撃波は拡大ring。イベント欠損は描かず警告 |
+| `bai.hitBurst` / `RENDER-013` | `kind=spark/fire/smoke/shockwave`、`durationFrames=12;1..120`、`radius=0.4;0.01..5m`、`seed=0` | `EffectTrigger` の手動F/world位置またはB4の**確定イベントID**を参照。火花は発光線、煙は半透明billboard、衝撃波は拡大ring。参照イベント欠損は描かず警告 |
 
-上記は原MMEの名称を借りた「完全互換」ではなくBAI内蔵効果。AutoLuminous風、Bloom、MotionBlur、影、霧、塵、桜、きらめき、発光/火花/煙/衝撃波という承認済み範囲を実装する最初の具体解。`bai.hitBurst` のB4連携はB4が来る前でも手動時刻イベントで試験し、未実装の格闘判定へ依存させない。DOFの強度/焦点/区間はFXデータに保存しない。
+上記は原MMEの名称を借りた「完全互換」ではなくBAI内蔵効果。AutoLuminous風、Bloom、MotionBlur、影、霧、塵、桜、きらめき、発光/火花/煙/衝撃波という承認済み範囲を実装する最初の具体解。`bai.hitBurst` はFX自身が所有する手動トリガーで先に試験し、B4の接触イベントが完成してから任意に参照できる。DOFの強度/焦点/区間はFXデータに保存しない。
 
 ## 4. 描画能力・互換レベル・測定
 
@@ -65,6 +66,7 @@ ZIP引継ぎの10件は [調査記録](MMD_EFFECTS_HANDOFF_REVIEW_20261020_JA.md
 | `effects.listCompatibility` | assetId/effectId、dryRun | preview/render/MMDの独立状態と根拠 |
 | `effects.attach` | effectId、`{target,order,params,sourceAssetId|null}` | instanceId、能力/依存/循環検証 |
 | `effects.setParamKey` | instanceId、`{param,frame,value,interpolation}` | キーと実効値/単位。DOFキーは拒否 |
+| `effects.setTrigger` | instanceId、`{triggerId|null,frame,worldPosition,sourceEventId|null}` | 手動または確定接触イベントへの参照。参照欠損は404、元イベントは不変 |
 | `effects.reorder` | instanceId、`{order}` | 依存グラフを再検証、循環422 |
 | `effects.applyTemplate` | templateId、`{targets}` | 新instanceの一覧。既存スタックを上書きしない |
 | `effects.compareRender` | instanceId、`{frames,width,height}`、dryRun | OFF/ON・参照画像、測定値、環境・未検証項目 |

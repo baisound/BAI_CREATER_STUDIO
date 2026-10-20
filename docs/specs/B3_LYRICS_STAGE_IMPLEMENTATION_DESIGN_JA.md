@@ -25,7 +25,7 @@ IDの作業位置: `LYRIC-001`上流ソース、`LYRIC-002`歌詞時刻、`LYRIC
 
 | 型 | 必須キー・検証 |
 |---|---|
-| `LyricSource` | `id,sha256,relativePath,format,encoding,licenseState,attribution,rawTiming`。format=`lines/lrc/srt`。原本文/原時刻は不変。原歌詞はログへ出さない |
+| `LyricSource` | `id,sha256,relativePath,format,encoding,licenseState,attribution,rawTiming,srtSourceId|null`。format=`lines/lrc/srt`。SRTはA1と同じ管理素材ID/hash・純粋SRTパーサーを使い、既存 `SrtSource` があればそのIDを参照する。B3側に二つ目の原本バイナリを複製しない。原本文/原時刻は不変。原歌詞はログへ出さない |
 | `LyricCue` | `id,sourceId,lineIndex,cutIndex,srtIndex|null,sourceStartMs|null,sourceEndMs|null,shiftFrames,trimStartFrames,trimEndFrames,startFrame,endFrame,text,language,locked,stylePackId`。半開区間。SRTブロック本体移動はshiftだけ、左右端はそれぞれtrimだけ、元/隣接キュー不変 |
 | `TextLayer` | `id,cueId,mode,anchor,worldTransform|null,screenRect|null,fontAssetId,fontHash,stylePackId,motionKeys,visibilityRange`。mode=`screen2d/world3d`。motionKey=`{frame,position,size,opacity,interpolation}`。2Dはカメラviewport正規化座標、3Dはscene worldメートル。両方の見切れ/遮蔽を別表示 |
 | `LyricProposal` | `id,seed,packId,packVersion,cueAssignments,lockedCueIds,parentProposalId|null`。再抽選は新案IDを作り、確定歌詞/時刻/locked行/手動motionKeyを変更しない。前/次は案履歴の移動で、元案を削除しない |
@@ -40,7 +40,7 @@ IDの作業位置: `LYRIC-001`上流ソース、`LYRIC-002`歌詞時刻、`LYRIC
 ## 3. 歌詞時刻・SRT・提案・文字配置（`LYRIC-002/004/005/007`）
 
 - `SCR-27` は左で1行1フレーズ、LRC/SRT互換取込、行/cut一覧、中央でプレビュー/下部時間軸、右で「かんたん/詳細」。同ページ切替で選択行/F/音声/時刻を保持。簡単は案の生成・前後・行固定、詳細は行時刻/文字配置/動き/パック/絵コンテ参照。音声はSCR-10の`AudioClip` ID、拍はB2の`BeatMap` marker IDを参照する。Spaceで行頭、Tabでcut頭を記録し、直接数値編集・F単位のキーボード補正も可能。自動案なしでも手で完成する。
-- LRCは`[mm:ss.xx]`を整数ミリ秒で解析し、同時刻/逆転/曲外をプレビュー警告。行/cutの開始はタップまたはLRC時刻、終了は次cut/行の開始候補とし、未設定の最後の行は曲末を提案するが、利用者確定まで `unresolved`。SRTは番号・**明示開始と終了**を必須に解析し、`[sourceStartMs,sourceEndMs)`を元値に保持。編集後は共通FPSで `startF=round(sourceStartMs)+shiftF+trimStartF`、`endF=round(sourceEndMs)+shiftF-trimEndF`。本文移動はshiftのみ、端トリムは対応端だけ。`endF<=startF` を拒否、重なり/空白は残して警告。原SRTの時刻/本文は絶対に書換えない。歌詞確定をA1口形へ共有するときも確定source ID/hashを明示し、既存口形を自動更新しない。
+- LRCは`[mm:ss.xx]`を整数ミリ秒で解析し、同時刻/逆転/曲外をプレビュー警告。行/cutの開始はタップまたはLRC時刻、終了は次cut/行の開始候補とし、未設定の最後の行は曲末を提案するが、利用者確定まで `unresolved`。SRTは番号・**明示開始と終了**を必須に解析し、`[sourceStartMs,sourceEndMs)`を元値に保持。編集後は共通FPS `num/den` で `startF=round_even(sourceStartMs*num/(1000*den))+shiftFrames+trimStartFrames`、`endF=round_even(sourceEndMs*num/(1000*den))+shiftFrames-trimEndFrames` と一度だけ整数化する。本文移動はshiftのみ、端トリムは対応端だけ。`startF<0`、`endF<=startF`、プロジェクト範囲外を拒否、重なり/空白は残して警告。原SRTの時刻/本文は絶対に書換えない。歌詞確定をA1口形へ共有するときも確定source ID/hashを明示し、既存口形を自動更新しない。
 - 提案は `seed` と固定 `packVersion` から同じ候補を再生成できるようにし、行/cutごとにstyle/motion/配置を `cueAssignments` に保存。ロック行と手動キーは再提案の入力として保持し変更しない。案の履歴を押し戻しても歌詞・音声/時刻を変えない。パックは許諾と依存をチェックして適用。JIZURA全860部品が使えると表示せず、移植・実描画試験済みのパックだけを検索結果に出す。
 - 2D文字はviewport正規化で配置しA2の動画解像度へ換算。3D文字は独立メッシュとしてscene worldへ置き、同一Fのカメラで遮蔽/見切れを検査。フォントID/hash欠損時は元を警告し、代替候補ごとに行幅/改行/見切れの差分画像を同ショットで表示、利用者が選んだ代替だけ新レイヤーに記録（O-LYRIC-02）。Google Fontsの実行時ネットワークを前提にせず、利用可能なローカル/許諾済みフォントだけ候補とする。
 - `MvStoryboardRef` はSCR-16の `shotId+revision` を参照し、歌詞/拍/演技イベントとショットの交差・空白・重複を導出。ショットの本体編集はSCR-16に遷移。SCR-27が独自のショット順やカメラを複製保存しない。出力はA2に固定snapshotを渡し、文字見切れをF付きで検品する。

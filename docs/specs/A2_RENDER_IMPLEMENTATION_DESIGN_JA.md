@@ -18,18 +18,20 @@ IDの作業位置: `RENDER-001`固定F、`RENDER-002`背景/透明、`RENDER-003
 ## 2. `production.render.schema=1` とファイル配置
 
 ```json
-{"schema":1,"presetVersion":1,"jobs":[],"queue":[],"capabilityCache":[]}
+{"schema":1,"presetVersion":1,"jobRefs":[]}
 ```
 
-`RenderJob`: `id,createdAt,projectRevision,snapshotHash,assetHashes,range:{startFrame,endFrame},fps:{num,den},width,height,background:{kind,color,alphaMode},format,requestedVideoCodec,selectedEncoder,requestedAudioCodec,selectedAudioEncoder,audioClipId|null,audioAssetHash|null,outputHandle,outputName,state,verifiedFrameCount,expectedFrameCount,manifestRelPath,diagnosticId,verification`。`format` は `png-sequence/mp4` が初期受入、EXR/アルファ動画は能力と再読込の独立合格後だけ選択可能。`expectedFrameCount=endFrame-startFrame`、範囲 `[start,end)`。幅・高さは偶数で `16..8192`、FPSは有理数 `1..120`、フレーム数は1ジョブ最大36,000、推定中間容量が選択領域の空き容量を超えるなら投入拒否。720p/1080p/4K・横/縦プリセットはこの範囲で保持する。可変FPS動画は作らない。
+`production.render.jobRefs` は `{id,snapshotHash,outputId|null,adoptedVerificationHash|null}` の一覧で、作成と完成物の採用時だけ編集revisionを進める。`RenderJob` の詳細と進捗は管理下 `data/render_jobs/<jobId>/job.json` に置き、`id,createdAt,projectRevision,snapshotHash,assetHashes,range:{startFrame,endFrame},fps:{num,den},width,height,background:{kind,color,alphaMode},format,requestedVideoCodec,selectedEncoder,requestedAudioCodec,selectedAudioEncoder,audioClipId|null,audioAssetHash|null,outputHandle,outputName,state,verifiedFrameCount,expectedFrameCount,manifestRelPath,diagnosticId,verification` を保持する。`projectRevision` はjob作成**前**の入力一式revisionを監査用に固定する。`snapshotHash` は描画へ影響するcamera/scene/model/motion/effects/audioと評価器版の正規化hashで、renderのjobRefs・ジョブ進捗を含めない。キュー順と能力キャッシュもジョブサービスの派生状態でありproductionに保存しない。`format` は `png-sequence/mp4` が初期受入、EXR/アルファ動画は能力と再読込の独立合格後だけ選択可能。`expectedFrameCount=endFrame-startFrame`、範囲 `[start,end)`。幅・高さは偶数で `16..8192`、FPSは有理数 `1..120`、フレーム数は1ジョブ最大36,000、推定中間容量が選択領域の空き容量を超えるなら投入拒否。720p/1080p/4K・横/縦プリセットはこの範囲で保持する。可変FPS動画は作らない。
 
-`data/render_jobs/<jobId>/snapshot.json` は投入時のproduction/カメラ/素材参照・評価器版とhashを固定、`manifest.json` は各フレームのF/幅/高さ/sha256/状態を保持、`frames/<F>.png.part` から検証後 `<F>.png` へ確定、`output.part` と `verification.json` を持つ。最終成果物は利用者が許可した出力領域へ版名付きで移す。中間ディレクトリは管理下に限定し、任意パスをMCPへ公開しない。制作状態にはジョブID/状態/最終成果物IDと検品要約だけを保存する。ジョブ本体は再起動後も読み取れる管理ファイルで、`snapshotHash` が変わる編集は既存ジョブに混入しない。
+`data/render_jobs/<jobId>/snapshot.json` は投入時のproduction/カメラ/素材参照・評価器版とhashを固定、`manifest.json` は各フレームのF/幅/高さ/sha256/状態を保持、`frames/<F>.png.part` から検証後 `<F>.png` へ確定、`output.part` と `verification.json` を持つ。最終成果物は利用者が許可した出力領域へ版名付きで移す。中間ディレクトリは管理下に限定し、任意パスをMCPへ公開しない。状態/進捗はjob GETで読み、制作状態にミラー保存しない。完成物は実ファイル検証成功後、現在の**描画入力 `snapshotHash`** がjobと一致する場合だけ `jobRefs` へ採用できる。異なれば旧snapshotの成果物として残し、利用者が差分確認してから明示採用する。ジョブ本体は再起動後も読み取れる管理ファイルで、`snapshotHash` が変わる編集は既存ジョブに混入しない。
+
+作成時は job/snapshot を一時領域で完全に書きhash検証し、次に `jobRefs` を統合保存トランザクションへ加える。ref更新が失敗した未参照jobは実行せず診断付きで回収する。起動時にref先のjobが欠けていれば完成扱いせず `missing_reference` を返す。完成物の採用時は現在のsnapshotHashと一式revisionをロック下で再検査し、成果物のhash検証とref更新の間に競合が起きたら409で既存状態を保つ。
 
 状態遷移は `draft→queued→preparing→rendering→encoding→verifying→completed`。レンダータブ不在は `waiting_for_renderer`、利用者取消は `canceled`、失敗は `failed`。`completed` は **実ファイルの再読込検証成功後だけ**。どの状態でも `jobId`、最終成功F、工程、再試行可否、失敗コードをUIへ返す。`failed/canceled` の部分成果物を完成ファイル一覧に混ぜない。ジョブは変更不可、再試行は元jobのsnapshotを参照した新attempt IDを作る。
 
 ## 3. 固定フレーム描画と透過
 
-- `evaluateScene(snapshot, frame)` はP2/Phase Eのカメラ・人物・ステージ・モーション、A1音声参照、導入済みA3効果を **壁時計・再生ヘッド・UI選択に依存せず**評価する。プレビューもレンダーも同じ関数。レンダーはショットのカメラを使い、ガイド/ギズモ/編集ハイライトを描画レイヤーから外す。素材ID/hashと評価器版が不一致ならフレームを描かない。
+- `evaluateScene(snapshot, frame)` はP2/Phase Eのカメラ・人物・ステージ・モーション、A1音声参照、導入済みA3効果を **壁時計・再生ヘッド・UI選択に依存せず**評価する。Phase F の `frame` は整数だけを受ける。A3 MotionBlur導入時に、同じ入力snapshotを有理数のサブフレームで評価する `evaluateSceneAtTime(snapshot,{frameNumerator,frameDenominator})` を追加し、整数Fでは両関数の結果が一致する試験を必須にする。プレビューもレンダーも同じ関数。レンダーはショットのカメラを使い、ガイド/ギズモ/編集ハイライトを描画レイヤーから外す。素材ID/hashと評価器版が不一致ならフレームを描かない。
 - 専用レンダータブはジョブの読み取り専用snapshotを取得し、出力寸法のWebGLRenderTargetへ `startFrame..endFrame-1` を順に描く。`readRenderTargetPixels` のRGBAを行方向/色空間/アルファ方式に従ってPNG化する。`canvas.captureStream()` や実時間MediaRecorderをフレームの正本にしない。GPU context loss、描画例外、ピクセルサイズ差、PNG化失敗は該当Fで停止。1フレーム最大64MiB、送信時に寸法/sha256を付け、サーバーはPNGシグネチャと再読込寸法・hashを確認してからマニフェストを進める。
 - 単色/クロマキーは `alpha=1`、透過は `RGBA PNG + alphaMode=straight` を初期契約とし、ブラウザー内部のpremultiply設定と読み戻し結果を透明エッジのテスト画像で検証する。背景0alphaでも背景色のRGBを残す必要がある組合せは実測で判定し、未対応なら透過ジョブを投入拒否。H.264 MP4では透過を選べない。
 - 長いレンダーを再開するときはsnapshot/評価器版/GPU能力/寸法/既存フレームhashを照合し、検証済みの連続prefix以外を再利用しない。入力が変われば別job。差分レンダー `RENDER-008` はショットごとの `camera/asset/motion/effect/audio` 依存hashとF範囲が一致した場合だけ既存PNGを再利用し、影響範囲が判定不能なら全区間再描画する。別GPUの画素一致を推測しない。
@@ -66,7 +68,7 @@ SCR-17に、入力snapshot、プリセット/能力、範囲/音声、透過可�
 | `RENDER-001/003` | 30/60/30000/1001fps、横/縦/4K、先頭/中間/末尾/ショット境界、プレビューと固定F描画の差、ガイド非混入、GPU喪失 |
 | `RENDER-002/005` | RGB単色・クロマキー・RGBA透明エッジ、PNG欠番/破損、未対応透過codec拒否。EXRは実往復まで候補外 |
 | `RENDER-004/006` | FFmpeg有無/encoder変化、音声先行/遅延/途中終了/頭出し、無音明示、試験音声の3点同期、MP4再読込、終了コード0でも破損の例 |
-| `RENDER-007/008/010` | 2ショットキュー、編集途中のsnapshot不変、同名同時投入、取消・子プロセス停止、ブラウザー終了→再開、hash差で再利用失効 |
+| `RENDER-007/008/010` | 2ショットキュー、編集途中のsnapshot不変、同名同時投入、取消・子プロセス停止、ブラウザー終了→再開、hash差で再利用失効。ジョブ進捗で制作状態revision不変、完成物採用でだけ進むことと、編集後の旧snapshot成果物が自動採用されないこと |
 | `RENDER-009` | 黒/無音/ちらつき/欠番の意図的サンプルと誤検出、候補Fへ遷移、実ファイルの寸法/FPS/尺・音声報告 |
 
 UI/API/WebMCP/標準MCP、Windows/Linux、実GPU、音声付き1080p60の完成ファイルを別々に報告する。データだけのテスト合格をGPU動画の実機合格としない。

@@ -53,3 +53,5 @@ Git 対応: 初期仕様7件 `49557ab`、配置仕様・批評3回 `f6fae2f`、2
 A1の所有者決定 `AUDIO-001`・`LIP-001/009` は `2e9e2f5` で台帳・概要・詳細・トレーサビリティ・画面表示・試験に同期した。実装状態は「計画・未検証」のまま。後続の詳細設計とCritic/Judge、実装・実データ試験は別工程。
 
 2026-10-21 実装引継ぎ設計: [入口](IMPLEMENTATION_HANDOFF_JA.md)から[A1](A1_LIP_IMPLEMENTATION_DESIGN_JA.md)、[A2](A2_RENDER_IMPLEMENTATION_DESIGN_JA.md)、[A3](A3_MMD_EFFECTS_IMPLEMENTATION_DESIGN_JA.md)、[B1](B1_MULTI_DANCER_IMPLEMENTATION_DESIGN_JA.md)、[B2](B2_MUSIC_EXPRESSION_IMPLEMENTATION_DESIGN_JA.md)、[B3](B3_LYRICS_STAGE_IMPLEMENTATION_DESIGN_JA.md)、[B4](B4_COMBAT_IMPLEMENTATION_DESIGN_JA.md)、[共通契約](IMPLEMENTATION_COMMON_CONTRACT_JA.md)へ到達できる。領域ごとのデータスキーマ・計算/時刻・API入出力/エラー・実装順・UI/MCP/保存・試験ゲートを固定した。B3はJIZURA公式ソース `fc16bfe4`（0.10.1）とMIT/第三者通知を確認し、取り込む機能を限定した。設計文書内リンク、JSON例、対象ID参照、差分を検査。コード・外部依存・実素材・GPU・両MCPの実装/動作試験はまだない。各機能台帳の状態は変更しない。B4共通契約/詳細設計は `49f3c51` に記録した。
+
+2026-10-21 横断自己点検: 共通保存の未導入ドメインを省略し初回確定書込みで完全レコードを作ること、ジョブ進捗と編集revisionの分離、故障復旧順序を固定。A2ジョブ参照と独立進捗、A2→A3の整数F/有理数サブフレーム接続、A3手動トリガー→後続B4接触参照、B1のP2床入力と有界探索、B3のSRT有理数丸め/A1原本参照、B4の相対ギミック時刻・物理初期状態・検証後採用を補正した。設計9文書のJSON例9件、ローカルリンク48件、7領域の台帳参照53件（台帳148 ID）を検査して成功。実装・実素材・GPU・MCPの検証は未実施で、台帳状態と開発順序は不変。

@@ -21,6 +21,7 @@
 ## 実装者の判定手順
 
 1. `git status` と現行P2/Eの実装状態を確認する。設計時の `project_state_bundle.py` はschema=1/3キーに厳格で、電源断耐性は未完成。現行成果が進んでいても **既存データを上書きしない**。共通契約のschema=2/ジャーナルをE側の実装と統合し、既存APIと旧schema=1の往復を先にテストする。
+   - 未導入productionドメインは保存JSONから省き、最初の確定書込みで完全なschema=1レコードを作る。ジョブ進捗は編集revisionを進めない。B1の回避候補はP2の床が入力で、B3の大型ステージは先行条件ではない。
 2. 対象WPの純粋データ検証・計算→サービス/API→UI→WebMCP/標準MCP→保存復元→実素材/出力の順で進む。APIを迂回したUI専用計算やMCP専用保存を作らない。実装範囲外のモックは `◇ 未実装` を保つ。
 3. 外部依存は工程で取得版とファイルhash、利用許諾、Windows/Linuxを記録する: A1の日本語アラインメント、A2のFFmpeg+GPU、A3の外部MME素材、B2の顔モデル、B3の固定JIZURA commitとBlender/mmd_tools、B4のAmmo/MMDPhysics。機能が使えない環境は `capability_unavailable` と手動/対応済み経路を表示し、出力成功を偽らない。
 4. 対象IDごとの試験と原素材hash不変、UI・両MCPの同値、プロセス再起動後の保存復元を証拠化する。Windows/LinuxやGPU/実MMDを試していない場合はその範囲を未検証として台帳に残す。Phase E全機能の実装が終わるまで所有者に動作確認を求めない。
