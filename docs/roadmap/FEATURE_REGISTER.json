@@ -610,7 +610,7 @@
       "group": "LIP",
       "phase": 5,
       "name": "作者の手癖分析",
-      "detail": "VMD複数サンプルから制作傾向抽出",
+      "detail": "選択VMD集合のID/hashと分析条件に基づく制作傾向。作者本人性・技量は推定しない",
       "status": "計画・未検証",
       "dependency": "MOTION,DATA"
     },
@@ -664,7 +664,7 @@
       "group": "LIP",
       "phase": 5,
       "name": "フェイシャルキャプチャ",
-      "detail": "カメラ・動画から表情を変換",
+      "detail": "明示許可した顔映像から実在モーフ向け候補を生成。元映像は既定で保存せず明示選択時だけ参照保持",
       "status": "計画・未検証",
       "dependency": "MOTION,DATA"
     },
@@ -1015,7 +1015,7 @@
       "group": "LYRIC",
       "phase": 8,
       "name": "音楽BPM・ビート・イベントマーカー",
-      "detail": "振付・カメラ・発光同期",
+      "detail": "音声サンプル位置の時刻付き拍マーカー列を同期正本にし、振付・カメラ・発光へ共有",
       "status": "計画・未検証",
       "dependency": "DATA,CAM,RENDER"
     },
