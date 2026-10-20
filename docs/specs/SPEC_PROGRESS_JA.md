@@ -18,6 +18,8 @@ A2 の所有者決定: [`A2_RENDER_DECISIONS_JA.md`](A2_RENDER_DECISIONS_JA.md) 
 
 A2決定の文書検査: 台帳JSON/CSVは148件でID集合一致。変更した `RENDER-002/004/005/006` の詳細・状態・依存は両形式で一致し、状態はすべて「計画・未検証」。`git -c core.whitespace=cr-at-eol diff --check` は成功。コード変更がないためブラウザ・FFmpeg・GPUの実機試験は行っていない。
 
+A3 の所有者判断資料: [`A3_MMD_EFFECTS_DECISIONS_JA.md`](A3_MMD_EFFECTS_DECISIONS_JA.md) に、Ray-MMDと内蔵効果の初期範囲、効果別の比較判定、許諾不明素材の扱いを整理した。**未承認**であり、`RENDER-011`〜`015` は計画・未検証のまま。
+
 レビュー: `reviews/CRITIC_01_JA.md` → `CRITIC_02_JA.md` → `CRITIC_03_JA.md` → `reviews/JUDGE_JA.md`。Judge の進捗ID不一致と詳細モード消失は修正した。
 
 検証: `npm run typecheck` 成功、`node tests/test_screen_status_honesty.mjs` 6/6、Chrome 全画面試験 21/21（27画面の導線・レスポンシブ・実装状態、FX／歌詞画像、仮区間の移動・端トリム・再読込リセットを含む）。スクリーンショットで `SCR-26/27` の画像と時間軸を確認した。テスト用 Python サーバーは閲覧用の 8765 と別ポート（既定 8799）で隔離データを使い、占有時は次の空きポートを選ぶ。
