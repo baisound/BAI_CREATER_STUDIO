@@ -170,11 +170,20 @@
     {
       "id": "P2-WP-05a",
       "step": "⑤ SCR-13［編集］の1体の再生（PMX＋VMD・GLB/VRM のクリップ）。S5 を有効にする",
-      "state": "not_started",
+      "state": "verified",
       "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "設計書 §2.5(d)(f) 05a。O-⑤-1〜8 は 2026-10-20 に Opus で決定（§2.5(h)）。テスト用 minimal.vmd に センター 30F を足す。",
+      "tests": [
+        "tests/studio-p2-motion.test.cjs（10件：PMX＋VMD のモーフ・ボーン、VMD ライブラリ、GLB クリップと位置・停止、VRM への VMD は ◇ で取得0回、モデル未選択、404、モード切替の URL 保持、表示解除、画面を離れたときの破棄）",
+        "tests/test_make_test_vmd.py（2件）",
+        "tests/studio-p2-e2e-main.test.cjs の S5 が pass（three@0.160.1、SwiftShader）"
+      ],
+      "unverified": [
+        "Opus レビュー未実施（app.js の modeSwitch。Sonnet 相当の自己確認のみ）。",
+        "実ファイル（実在の PMX＋VMD）でのモーフ再生は未検証（合成の最小 PMX・VMD のみ）。",
+        "GPU 実機・Windows 実機未検証（SwiftShader のみ）。",
+        "位置スライダーを VMD にも使う（設計 §5.3 の決定どおり。旧画面の VMD には位置の操作が無い）。"
+      ],
+      "notes": "設計 §2.5(d)05a のとおり。解釈：baiStudio.motion.getState() が motion（kind・id・clipIndex・duration）を持つ（baiStudio.viewport.getState() には足していない）。末尾（ちょうど duration）の位置は LoopRepeat が 0 に戻るので 1e-7 秒手前で止める。",
       "owner_check": null
     },
     {
@@ -333,8 +342,8 @@
       },
       {
         "id": "S5",
-        "result": "skip",
-        "reason": "WP-05 が未着手"
+        "result": "pass",
+        "reason": ""
       },
       {
         "id": "S6",
@@ -352,7 +361,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "4ee6b49",
-    "checked_at": "2026-10-20T16:03:47.962Z"
+    "commit": "9836e04",
+    "checked_at": "2026-10-20T19:59:10.446Z"
   }
 }

@@ -68,7 +68,48 @@ const STEPS = [
     } },
   { id: 'S3', title: 'カメラの設定', kind: 'pending_wp', reason: 'WP-06b・WP-06c が未着手' },
   { id: 'S4', title: 'BGM（歌の音声）の配置', kind: 'no_existing', reason: '既存機能なし（音声の登録 API・タイムラインの音声トラックが旧画面に無い。Q4 で所有者が決める）' },
-  { id: 'S5', title: 'VMD/FBX の設置', kind: 'pending_wp', reason: 'WP-05 が未着手' },
+  { id: 'S5', title: 'VMD/FBX の設置', kind: 'active', needs3d: true,
+    // ⑤（WP-05a）：③の取り込みで PMX の ZIP と VMD を1回で登録 → SCR-13［編集］で PMX に VMD を当てる（位置 1.0 でモーフ あ=1・センターの y +1.0）
+    //   → S1 の VRM のクリップを位置 0.5 にすると hips の z が 0.5。05b で clip・frame の記録、05d で FBX のコンビネーションの連結再生を足す。
+    run: async ({ server, page }) => {
+      const zip = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal_pmx.zip'));
+      const vmd = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal.vmd'));
+      await page.click('#nav a[data-route="08"]');
+      await page.waitForSelector('[data-feature="assetLibrary"]');
+      await page.click('.screen-head [data-role="open-import"]');
+      await page.setInputFiles('[role="dialog"] [data-role="import-files"]', [
+        { name: 'pack.zip', mimeType: 'application/octet-stream', buffer: zip },
+        { name: 'minimal.vmd', mimeType: 'application/octet-stream', buffer: vmd }]);
+      await page.click('[role="dialog"] [data-role="import-go"]');
+      for (const n of ['pack.zip', 'minimal.vmd']) {
+        await page.waitForFunction((name) => /^完了$/.test(document.querySelector(`[data-feature="importQueue"] tbody tr[data-name="${CSS.escape(name)}"] [data-role="status"]`)?.textContent || ''), n, { timeout: 15000 });
+      }
+      // SCR-13 を開き［編集］
+      await page.click('#nav a[data-route="13"]');
+      await page.waitForSelector('.mode-switch [data-mode="edit"]');
+      await page.click('.mode-switch [data-mode="edit"]');
+      await page.waitForSelector('[data-feature="motionViewport"]');
+      await page.selectOption('[data-role="motion-model"]', 'mmd:A:test.pmx');
+      await page.waitForFunction(() => window.baiStudio.motion.getState().modelId === 'mmd:A:test.pmx' && window.baiStudio.viewport.getState().loaded, null, { timeout: 25000 });
+      await page.click('[data-feature="vmdLibrary"] li[data-asset-id="mmd:vmd:minimal.vmd"]');
+      await page.waitForFunction(() => window.baiStudio.motion.getState().motion?.kind === 'vmd', null, { timeout: 15000 });
+      const pause = async () => { if ((await page.evaluate(() => window.baiStudio.motion.getState())).playing) await page.click('[data-role="motion-play"]'); };
+      const seekTo = async (sec) => { await pause(); await page.fill('[data-role="motion-seek"]', String(sec)); };
+      await seekTo(0);
+      const p0 = await page.evaluate(() => window.baiStudio.motion.probe({ morphs: ['あ'], bones: ['センター'] }));
+      await seekTo(1.0);
+      const p1 = await page.evaluate(() => window.baiStudio.motion.probe({ morphs: ['あ'], bones: ['センター'] }));
+      if (Math.abs(p1.morphs['あ'] - 1) > 1e-6) throw new Error(`位置 1.0 でモーフ あ が 1 ではありません: ${p1.morphs['あ']}`);
+      const dy = p1.bones['センター'][1] - p0.bones['センター'][1];
+      if (Math.abs(dy - 1) > 1e-4) throw new Error(`センターの y が +1.0 動いていません: ${dy}`);
+      // S1 の VRM のクリップ
+      await page.selectOption('[data-role="motion-model"]', ctx.vrmId);
+      await page.waitForFunction((id) => window.baiStudio.motion.getState().modelId === id && window.baiStudio.viewport.getState().loaded, ctx.vrmId, { timeout: 25000 });
+      await page.waitForFunction(() => window.baiStudio.motion.getState().motion?.kind === 'clip', null, { timeout: 10000 });
+      await seekTo(0.5);
+      const hips = (await page.evaluate(() => window.baiStudio.motion.probe({ bones: ['hips'] }))).bones.hips;
+      if (!hips || Math.abs(hips[2] - 0.5) > 1e-6) throw new Error(`VRM のクリップ 0 の位置 0.5 で hips の z が 0.5 ではありません: ${JSON.stringify(hips)}`);
+    } },
   { id: 'S6', title: 'エフェクト', kind: 'later_phase', reason: '後段のフェーズ（MMDエフェクト）' },
   { id: 'S7', title: '踊らせる（再生）', kind: 'pending_wp', reason: 'WP-06c が未着手' },
   { id: 'S8', title: '書き出し', kind: 'pending_wp', reason: 'WP-07 が未着手（動画は既存機能なし：Phase F）' },

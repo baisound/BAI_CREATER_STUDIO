@@ -9,6 +9,7 @@ import { LIVE, summarize } from './live.js';
 import { icon, SCREEN_ICON } from './icons.js';
 import { img, RENDERS } from './samples.js';
 import { currentViewport } from './viewport/three-host.js';
+import { currentMotion } from './features/motion-view.js';
 import { loadProject, startExternalSync, installUnloadGuard, describeStatus } from './features/project.js';
 
 /** @typedef {import('./screens.js').Screen} Screen */
@@ -777,8 +778,15 @@ function lyricMode(tab) {
 /** @param {string[]} modes @param {Screen} s @param {string|null} tab */
 function modeSwitch(modes, s, tab) {
   const box = h('div', { class: 'mode-switch', role: 'group', 'aria-label': 'モード' });
-  modes.forEach((m, i) => box.append(h('button', { type: 'button', 'aria-pressed': String(s.id === '27' ? (lyricMode(tab) === 'detail' ? i === 1 : i === 0) : i === 0), onclick: (/** @type {Event} */ e) => {
+  const editMode13 = new URLSearchParams(location.search).get('mode') === 'edit';
+  modes.forEach((m, i) => box.append(h('button', { type: 'button', dataset: s.id === '13' ? { mode: i === 0 ? 'compare' : 'edit' } : undefined, 'aria-pressed': String(s.id === '27' ? (lyricMode(tab) === 'detail' ? i === 1 : i === 0) : s.id === '13' ? (i === 1) === editMode13 : i === 0), onclick: (/** @type {Event} */ e) => {
     if (s.id === '27') { navigate('27', { replace: true, tab: i === 0 ? 'quick' : 'cues', query: { mode: i === 0 ? 'quick' : 'detail' } }); return; }
+    if (s.id === '13') { // ⑤ WP-05a：［比較］［編集］を URL の ?mode= に結線する（他の画面はトーストのまま）
+      const query = Object.fromEntries(new URLSearchParams(location.search));
+      delete query.tab;
+      navigate('13', { replace: true, tab, query: { ...query, mode: i === 0 ? 'compare' : 'edit' } });
+      return;
+    }
     for (const b of box.children) b.setAttribute('aria-pressed', 'false');
     /** @type {HTMLElement} */ (e.currentTarget).setAttribute('aria-pressed', 'true');
     toast(`サンプル表示：${m}モード（表示の切替のみ）`, 'mock');
@@ -809,6 +817,8 @@ else render();
 /** @type {any} */ (window).baiStudio = { screens: SCREENS.map((s) => ({ id: s.id, title: s.title, panels: s.panels.map((p) => ({ name: p.name, status: p.status })) })), navigate, statusLabels: STATUS_LABEL,
   // 読み取り専用（テスト用）。書き込みの関数は公開しない。
   project: { getState: () => project.get() }, assets: { getState: () => assets.get() }, cleanupCount: () => cleanups.length,
+  // 今ある再生ビューの状態（⑤。読み取り専用。SCR-13［編集］でなければ null）
+  motion: { getState: () => { const m = currentMotion(); return m ? m.getState() : null; }, probe: (/** @type {any} */ q) => { const m = currentMotion(); return m ? m.probe(q) : null; } },
   // 今ある3Dビューポートの状態（④。読み取り専用。3D 画面でなければ loaded:false）
   viewport: {
     getState: () => { const v = currentViewport(); return v ? v.getState() : { loaded: false, assetId: null, format: null, scale: null, offset: null, renderer: 'unknown', stage: null, character: null }; },

@@ -76,6 +76,8 @@ export const newProjectUnimpl = (label, x = {}) => ({ ...un(label, '現在のサ
 /** ④ の実機能の区画の根拠（tests/test_screen_status_honesty.mjs が実在を確かめる）。 */
 const EV_CHAR = 'tests/studio-p2-viewport.test.cjs::glb renders and normalizes like the camera page';
 const EV_RT_PANEL = 'tests/studio-p2-retarget.test.cjs::retarget panel shows every API response and saves the mapping';
+const EV_MOTION_VIEW = 'tests/studio-p2-motion.test.cjs::pmx with vmd plays bones and morphs';
+const EV_MOTION_LIB = 'tests/studio-p2-motion.test.cjs::vmd library lists registered vmd and applies it';
 const EV_RT_VIEW = 'tests/studio-p2-retarget.test.cjs::pose compare places two models at x = -1.15 and +1.15 and applies the rotation to the right one';
 const EV_STAGE = 'tests/studio-p2-viewport.test.cjs::stage placement saves and restores';
 
@@ -403,7 +405,8 @@ export const SCREENS = [
     existing: [MAIN],
     modes: ['比較', '編集'],
     panels: [
-      { name: 'VMDライブラリ', status: 'partial', note: '現行画面の PMX・VMD タブ。', ids: ['MOTION-006', 'DATA-014'] },
+      { name: 'VMDライブラリ', status: 'real', evidence: EV_MOTION_LIB, note: '登録済みの VMD（/api/assets）を一覧し、行を押すと対象の PMX に当てて再生する。', ids: ['MOTION-006', 'DATA-014'] },
+      { name: 'VMD再生（編集モード）', status: 'real', evidence: EV_MOTION_VIEW, note: '［編集］で PMX＋VMD（表情モーフを含む）または GLB/VRM のクリップを1体再生する（再生・停止・位置）。VRM・GLB への VMD は未対応。', ids: ['MOTION-006', 'DATA-014'] },
       { name: '3D比較', status: 'partial', note: '現行画面の3視点比較・同期比較。', ids: ['REVIEW-001'] },
       { name: 'ボーンマップ', status: 'real', evidence: EV_RT_PANEL, note: '骨格解析・プロファイル・ボーン対応表・基準姿勢の検査を /api/retarget/* で行う（読取・試算のみ。モーションやモデルには適用しない）。', ids: ['MOTION-005'] },
       { name: 'ポーズ比較（2体）', status: 'real', evidence: EV_RT_VIEW, note: 'GLB/VRM の元の静止姿勢と補正候補を左右に並べる（試験。モデルは変えない）。', ids: ['MOTION-005'] },
@@ -414,8 +417,8 @@ export const SCREENS = [
       { name: '入出力', status: 'partial', note: 'motion_vmd_bridge.py・vmd_readback.py。', ids: ['MOTION-006'] },
     ],
     tools: [btn('現行画面で開く', 'href:/'), un('VMDを書き出す', 'この新UIからの書き出しは未接続。現行画面の変換機能を利用してください。', ['MOTION-006'], PH.P2, { text: '今は現行画面で行えます。', label: '現行画面で開く', act: 'href:/' })],
-    left: { title: 'VMDライブラリ', status: 'mock', search: true, list: items('Dance', 6, (i) => `${(i + 2) * 120}f`) },
-    center: { type: 'feature', key: 'retargetViewport', status: 'real', evidence: EV_RT_VIEW },
+    left: { title: 'VMDライブラリ', status: 'real', evidence: EV_MOTION_LIB, custom: 'vmdLibrary' },
+    center: { type: 'feature', key: 'motionCenter', status: 'real', evidence: EV_MOTION_VIEW },
     right: { tabs: [
       { id: 'map', label: 'ボーンマップ', custom: 'retargetPanel', sections: [] },
       { id: 'ik', label: '足IK', sections: [{ title: '足IK・接地', status: 'partial', note: '接地計算は既存。新UIからは未接続。', controls: [tg('接地補正'), sl('床の高さ', -0.5, 0.5, 0, 'm', 0.01), un('接地を再計算', '新UIからの再計算は未接続（既存API移植は P2）。', ['MOTION-011'], PH.P2)] }] },
