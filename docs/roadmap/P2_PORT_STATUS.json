@@ -71,13 +71,15 @@
       "id": "P2-WP-01",
       "step": "② プロジェクト新規作成・保存/読込",
       "state": "verified",
-      "commits": [],
+      "commits": [
+        "ff51eb0"
+      ],
       "tests": [
-        "pytest 357 passed（test_project_envelope.py に壊れた project_state.json への POST の3件を追加）、tests/studio-p2-project-logic.test.mjs 22件、tests/studio-p2-project.test.cjs 16件、npm run test:node-all 全件合格、tsc 合格、通し確認は S1〜S8 に WP-01 で有効になる手順なし（furthest_step=null のまま）、実 data/ ハッシュ不変"
+        "2026-10-20 PR #7 取り込み後（7170100）で再実行：pytest 354 passed（1回、既存の test_bundle_snapshot_consistency の並行20+20件が ConnectionReset で落ちたが、再実行で単独4回・全件2回合格。WP-01 の変更と無関係な既存の不安定さ）、npm run test:node-all 145 pass・10 skip・0 fail、tsc 合格、node tools/run_evidence_tests.mjs 合格。新規：tests/studio-p2-project-logic.test.mjs 22件、tests/studio-p2-project.test.cjs 16件、test_project_envelope.py に壊れた project_state.json への POST の3件。通し確認 S1〜S8 は WP-01 で有効になる手順が設計に無く全 skip（furthest_step=null）。実 data/ ハッシュ不変"
       ],
       "unverified": [
-        "Opus レビュー未実施（設計の指定：上書き・競合・自動保存・世代番号）。GPU・Windows 実機未検証。beforeunload の確認は headless Chromium のみ。",
-        "ブラウザーで3D・外部 MCP からの同時保存の組み合わせは自動テストの範囲のみ（所有者の手順 §3.1 は任意）。"
+        "Opus レビュー未実施（設計の指定：上書き・競合・自動保存・世代番号）。GPU・Windows 実機未検証。beforeunload は headless Chromium のみ。",
+        "旧画面 legacy-project-save.test.cjs は three.js がローカルに無く skip（WP-00b 以来）。"
       ],
       "notes": "Q1（新規作成）：所有者回答待ち。既定は ◇ のまま",
       "owner_check": null
@@ -247,7 +249,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "cb5ce01",
-    "checked_at": "2026-10-20T10:02:31.411Z"
+    "commit": "910cc5a",
+    "checked_at": "2026-10-20T13:57:11.406Z"
   }
 }

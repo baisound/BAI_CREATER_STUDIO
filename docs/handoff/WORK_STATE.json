@@ -1,23 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T10:06:40+00:00",
+  "updated_at": "2026-10-20T13:57:32+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "3a784bb",
+  "head_at_update": "910cc5a",
   "current": {
     "task": "P2-WP-01 保存・読込",
-    "status": "in_progress",
+    "status": "done",
     "step": "設計書読込・実装着手",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-01 保存・読込"
+    "WP-02/03 素材の取り込み・素材管理"
   ],
   "unverified": [
     "Opus レビュー未実施",
-    "GPU・Windows 実機未検証（SwiftShader のみ）",
-    "POST /api/project で project_state.json が壊れていて If-Match があると、500 を返さずに接続が切れる（WP-01 で扱うか要判断）",
-    "導線点検 §5 の6〜14 は所有者OK待ちで未着手"
+    "GPU・Windows 実機未検証",
+    "Q1 新規プロジェクト作成は所有者回答待ち（◇のまま）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T13:57:32+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "910cc5a",
+      "text": "P2-WP-01 保存・読込を実装・検証（ff51eb0）。POST /api/project の壊れたファイル時の接続切断も500に修正"
+    },
     {
       "at": "2026-10-20T10:06:40+00:00",
       "by": "claude-code",
