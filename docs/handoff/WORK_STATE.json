@@ -1,22 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T09:05:25+00:00",
+  "updated_at": "2026-10-20T09:07:19+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "6bf71a1",
+  "head_at_update": "31a93c0",
   "current": {
     "task": "P2-WP-00a-1 データ隔離",
-    "status": "in_progress",
+    "status": "done",
     "step": "bai_paths.py・conftest.py・test_data_isolation.py を実装し server.py ほかの保存先を data_dir() 化",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-00a-1 から実装（データの隔離。Sonnet で実装 → Opus でレビュー）",
-    "OWNER-5（所有者確認手順）を ROADMAP_JA.md の所有者決定に記録するかをコーディネーターが確認",
-    "Q1〜Q4 と導線点検§5の項目6〜14（要所有者OK）を所有者に確認"
+    "WP-00a-1 の Opus レビュー",
+    "WP-00a-2 ハーネス"
   ],
   "unverified": [
-    "文書のみの変更。設計内容（モーフ再生・ステージ単位換算・FBX 正常登録）は実ファイル未検証"
+    "Opus レビュー未実施",
+    "Windows 実機未検証",
+    "node のサーバー起動テスト（studio-ui・legacy-ui-layout）は実 data/ を使う設計のまま。WP-00a-2 で隔離"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T09:07:19+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "31a93c0",
+      "text": "P2-WP-00a-1 データ隔離を実装（bai_paths.data_dir・conftest.py・test_data_isolation.py、server/diagnostic_logging/qa_capture の保存先切替）。pytest 316 passed、node 12 passed、tsc 通過、実 data/ ハッシュ不変"
+    },
     {
       "at": "2026-10-20T09:05:25+00:00",
       "by": "claude-code",

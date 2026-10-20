@@ -9,6 +9,7 @@ from camera_vmd_codec import decode_camera_track, encode_camera_track
 from camera_vmd_playback import sample_native_camera
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
+from bai_paths import data_dir
 from diagnostic_logging import event, recent
 from qa_capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
 from operation_diagnostics import record_ui_action, diagnostics_archive
@@ -34,7 +35,7 @@ from foot_contact import diagnose, root_offset_proposal
 from dual_foot_plan import propose_dual_foot
 from bvh_foot_world import sample_bvh_foot_world
 from bai_ai_manager import read_config as ai_read_config, save_config as ai_save_config, status as ai_status, interpret_pose as ai_interpret_pose, AIUnavailable
-RETARGET_FILE=Path(__file__).resolve().parent/'data'/'retarget_profiles.json'
+RETARGET_FILE=data_dir()/'retarget_profiles.json'
 RETARGET_LOCK=threading.RLock()
 def retarget_read():
     try:return json.loads(RETARGET_FILE.read_text(encoding='utf8'))
@@ -51,8 +52,8 @@ def resolve_asset(identifier):
     raise ValueError('unsupported asset source')
 
 BASE=Path(__file__).resolve().parent
-AI_CONFIG=BASE/'data'/'bai_ai_config.json'
-DATA=BASE/'data'; FILES=DATA/'files'; FILES.mkdir(parents=True,exist_ok=True)
+DATA=data_dir(); AI_CONFIG=DATA/'bai_ai_config.json'
+FILES=DATA/'files'; FILES.mkdir(parents=True,exist_ok=True)
 MMD_DIR=DATA/'mmd'; MMD_DIR.mkdir(parents=True,exist_ok=True)
 MMD_META=DATA/'mmd_assets.json'; MMD_LOCK=threading.RLock()
 PMX_ZIP_MAX_FILES=1500; PMX_ZIP_MAX_UNCOMPRESSED=600*1024*1024
