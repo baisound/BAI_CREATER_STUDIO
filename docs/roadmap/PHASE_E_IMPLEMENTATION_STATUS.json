@@ -244,7 +244,7 @@
       "status": "done",
       "commit": "c0dd018",
       "tests": "pytest 316 passed（tests/test_data_isolation.py を含む）、node --test tests/*.test.cjs 12 passed（BAI_DATA_DIR を一時ディレクトリに設定して実行）、tsc 変更前後とも出力なし、実 data/ ハッシュ不変",
-      "unverified": "Opus レビュー未実施。Windows 実機未検証。node のサーバー起動テストの隔離は WP-00a-2"
+      "unverified": "Opus レビュー済み（pytest.ini で rootdir 固定、conftest のセッション終了時ハッシュ確認を追加）。Windows 実機未検証。node のサーバー起動テストの隔離は WP-00a-2"
     },
     {
       "item": "WP-03 three devDependency・SwiftShader 起動・テスト GLB・studio-ui.test.cjs の隔離",

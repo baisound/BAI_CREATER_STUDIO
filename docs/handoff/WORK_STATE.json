@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T09:07:19+00:00",
+  "updated_at": "2026-10-20T09:10:44+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "31a93c0",
+  "head_at_update": "187441a",
   "current": {
     "task": "P2-WP-00a-1 データ隔離",
     "status": "done",
@@ -11,11 +11,9 @@
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-00a-1 の Opus レビュー",
     "WP-00a-2 ハーネス"
   ],
   "unverified": [
-    "Opus レビュー未実施",
     "Windows 実機未検証",
     "node のサーバー起動テスト（studio-ui・legacy-ui-layout）は実 data/ を使う設計のまま。WP-00a-2 で隔離"
   ],
@@ -34,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T09:10:44+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "187441a",
+      "text": "WP-00a-1 Opus レビュー済み。pytest.ini で rootdir を固定（tests/ から起動しても conftest が効く）、conftest でセッション前後の実 data/・exports/ ハッシュ確認を追加"
+    },
     {
       "at": "2026-10-20T09:07:19+00:00",
       "by": "claude-code",
