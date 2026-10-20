@@ -707,7 +707,7 @@ export const SCREENS = [
       { name: '効果スタック', status: 'unimpl', ids: ['RENDER-014'] },
       { name: 'MMD設定書', status: 'unimpl', ids: ['RENDER-015'] },
     ],
-    tools: [btn('素材管理（08）へ', 'nav:08'), un('MMD設定書を出す', '互換レベルと未対応項目を記した設定書の出力は未実装です。', ['RENDER-015'], PH.FX)],
+    tools: [btn('素材管理（08）へ', 'nav:08'), btn('カメラDOF（03）へ', 'nav:03'), un('MMD設定書を出す', '互換レベルと未対応項目を記した設定書の出力は未実装です。', ['RENDER-015'], PH.FX)],
     left: { title: '登録済み効果', status: 'unimpl', list: [], controls: [note('FX素材の出典・許諾・依存は素材管理で登録します。')] },
     center: { type: 'cards', cards: [
       { title: 'プレビューと出力の差分', span: 8, status: 'unimpl', controls: [{ t: 'conceptPreview', kind: 'fx', src: '/studio/assets/mock-previews/mmd-fx-concept.png', alt: '仮想ダンサーの発光とステージ照明を描いたMMD効果の構想図' }, note('画像は効果の構想例です。タイムラインは仮データで、ブラウザー描画・動画出力には反映されません。')] },
@@ -717,14 +717,14 @@ export const SCREENS = [
       { id: 'stack', label: '効果スタック', sections: [{ title: '適用先と順序', status: 'unimpl', controls: [note('左の登録済み効果を選び、シーン／モデル／材質／ショットへ割り当てます。ここに見える設定例は保存されません。'), sel('適用先の種類', ['シーン', 'モデル', '材質', 'ショット']), sel('描画順', ['発光', 'ポスト処理', 'オーバーレイ']), un('効果を追加', '効果スタックの編集は未実装です。', ['RENDER-014'], PH.FX)] }] },
       { id: 'params', label: 'パラメータ', sections: [
         { title: '共通設定', status: 'unimpl', controls: [note('選択中の効果と対象を確認してから、ON/OFF・強度を調整します。下のキー操作は現在フレームに記録する予定です。表示値は操作例で、描画・保存されません。'), tg('効果を有効にする'), sl('強度', 0, 2, 1, '×', 0.05), un('現在フレームにキーを追加', 'パラメータキーの記録は未実装です。', ['RENDER-014'], PH.FX)] },
-        { title: '内蔵効果ごとの項目例', status: 'unimpl', controls: [note('効果選択に応じて該当項目だけを表示する設計です。原 .fx のパラメータとは別管理します。値は描画・保存されません。'), sl('Bloom 閾値', 0, 2, 1, '', 0.05), sl('DOF ピント距離', 0.1, 100, 3, 'm', 0.1), sl('MotionBlur シャッター角', 0, 360, 180, '°', 1), sl('発光 強度', 0, 5, 1, '×', 0.1), sl('影の強さ', 0, 2, 1, '×', 0.05)] },
+        { title: '内蔵効果ごとの項目例', status: 'unimpl', controls: [note('効果選択に応じて該当項目だけを表示する設計です。原 .fx のパラメータとは別管理します。DOFの焦点・区間はカメラ画面で設定し、FXでは参照のみです。値は描画・保存されません。'), sl('Bloom 閾値', 0, 2, 1, '', 0.05), sl('MotionBlur シャッター角', 0, 360, 180, '°', 1), sl('発光 強度', 0, 5, 1, '×', 0.1), sl('影の強さ', 0, 2, 1, '×', 0.05)] },
         { title: '空間演出の項目例', status: 'unimpl', controls: [note('霧はまず奥行き霧として扱い、局所的な体積霧とは区別します。粒子と花びらは同一フレームの再評価・透過・動画出力を検証します。'), sl('霧の濃度', 0, 0.1, 0.02, '', 0.005), sl('塵・花びらの量', 0, 100, 30, '%', 1), sl('きらめき強度', 0, 5, 1, '×', 0.1)] },
       ] },
-      { id: 'builtin', label: '内蔵効果', sections: [{ title: '描画効果と互換性', status: 'unimpl', controls: [note('発光・Bloom・DOF・MotionBlur・影の強調を効果別に扱い、ブラウザーと動画の対応を分けて表示します。'), un('効果を設定', '内蔵描画効果は未実装です。', ['RENDER-012'], PH.FX)] }] },
+      { id: 'builtin', label: '内蔵効果', sections: [{ title: '描画効果と互換性', status: 'unimpl', controls: [note('発光・Bloom・MotionBlur・影の強調をFX効果別に扱います。カメラDOFは同じ撮影設定を参照し、ここでは独立した効果として追加しません。ブラウザーと動画の対応を分けて表示します。'), un('効果を設定', '内蔵描画効果は未実装です。', ['RENDER-012'], PH.FX)] }] },
       { id: 'events', label: '対象・時刻', sections: [{ title: '演出イベントと区間', status: 'unimpl', controls: [note('発光・火花・煙・衝撃波はヒットフレーム、霧・細かな塵・舞う桜・きらめきは持続区間にも結びます。'), un('イベントを追加', '時刻付き演出は未実装です。', ['RENDER-013'], PH.FX)] }] },
     ] },
     bottom: { type: 'timeline', status: 'unimpl', demoEditable: true, fps: 30, frames: 900, tracks: [
-      { label: '効果区間', clips: [[80, 300, '霧'], [330, 580, '桜・塵'], [600, 820, 'DOF・影']] },
+      { label: '効果区間', clips: [[80, 300, '霧'], [330, 580, '桜・塵'], [600, 820, '影']] },
       { label: '強度キー', keys: [80, 150, 240, 330, 430, 600, 750] },
       { label: 'FXイベント', keys: [365, 420, 510] },
     ] },
