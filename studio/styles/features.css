@@ -74,3 +74,20 @@
 .imp-message { color: var(--danger); min-height: 1.2em; margin: 4px 0 0; }
 .imp-conflicts { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; max-height: 40vh; overflow: auto; }
 .lib-unimpl .section-title { margin: 8px 0 2px; padding: 0 4px; font-size: var(--fs-sm); font-weight: 600; }
+
+/* ---- ④ 3D 表示（features/character-view.js・scene-view.js、viewport/three-host.js） ---- */
+.vp3d-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.vp3d { background-image: none; background: var(--viewport); }
+.vp3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.vp3d .vp-hud, .vp3d .vp-tools, .vp3d .vp-note, .vp3d .vp3d-msg { z-index: 2; }
+.vp3d-msg { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: 80%; text-align: center; padding: 8px 14px; border-radius: 8px; background: color-mix(in srgb, var(--surface-0) 82%, transparent); border: 1px solid var(--border-strong); color: var(--text); font-size: var(--fs-sm); pointer-events: none; }
+.vp3d-msg[data-kind="error"] { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 50%, transparent); }
+.vp3d-msg[hidden] { display: none; }
+.vp3d .vp-note[data-kind="error"] { color: var(--danger); }
+.vp3d .vp-tools .icon-btn.is-unimpl { opacity: .6; }
+.char-list li { display: flex; align-items: center; gap: 6px; }
+.char-list li .char-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.char-list li.is-missing { opacity: .65; }
+.bone-table { width: 100%; }
+.use-note { max-width: 260px; line-height: 1.3; }
+.stage-message:empty { display: none; }

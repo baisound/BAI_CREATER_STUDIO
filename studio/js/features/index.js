@@ -8,6 +8,8 @@
  */
 
 import { importButton, assetCategories, assetLibrary, assetDetail, recentImports } from './assets-view.js';
+import { characterList, characterViewport, characterBones, useModelButton } from './character-view.js';
+import { sceneViewport, stageLoadButton, stageTransform } from './scene-view.js';
 import { projectToolbar, projectStatus, projectSummary, projectHistory, projectList, projectCard } from './project-view.js';
 
 /** @type {Record<string, FeatureFn>} */
@@ -16,5 +18,7 @@ export const FEATURES = {
   projectToolbar, projectStatus, projectSummary, projectHistory, projectList, projectCard,
   // WP-02・WP-03（③）
   importButton, assetCategories, assetLibrary, assetDetail, recentImports,
-  // WP-04 以降が追加する。
+  // WP-04（④、ステージ配置④-11）
+  characterList, characterViewport, characterBones, useModelButton, sceneViewport, stageLoadButton, stageTransform,
+  // WP-05 以降が追加する。
 };

@@ -14,10 +14,10 @@ const RESULT = process.env.P2_E2E_RESULT || path.join(harness.root, 'test-result
 // kind: pending_wp（WP が未着手＝切れ目になる）| no_existing（既存機能なし）| later_phase（後段のフェーズ）
 // run: 実装済みの手順だけ (ctx) => Promise。ctx = { server, browser, page }
 const STEPS = [
-  // partial：その手順のうち、すでに有効な WP の部分だけを実行する。全体はまだ pass にしない（skip を合格と数えない）。
-  { id: 'S1', title: 'VRM/PMX の読込', kind: 'pending_wp', reason: 'WP-04 が未着手（④の表示と［このモデルを制作に使う］）。③の取り込み部分（合成 GLB を VRM として登録し、一覧に出て選ばれる）は確認済み',
-    partial: async ({ server, page }) => {
-      const fs = require('node:fs');
+  // needs3d：three.js（THREE_DIR または node_modules/three）が要る手順。無い環境では skip（理由付き）。
+  { id: 'S1', title: 'VRM/PMX の読込', kind: 'active', needs3d: true,
+    // ③の取り込み（合成 GLB を VRM として登録）→ ④の表示（［3D で表示］から SCR-12）→ ［このモデルを制作に使う］→［保存］。
+    run: async ({ server, page }) => {
       const glb = fs.readFileSync(path.join(__dirname, 'fixtures', 'synthetic_test_model.glb'));
       await page.goto(`${server.base}/workspace/08`);
       await page.waitForSelector('[data-feature="assetLibrary"]');
@@ -28,8 +28,44 @@ const STEPS = [
       const selected = await page.locator('[data-feature="assetLibrary"] .asset[aria-selected="true"]').getAttribute('data-asset-id');
       if (!/^integrated:[0-9a-f]{20}\.vrm$/.test(selected || '')) throw new Error(`取り込んだ VRM が選ばれていません: ${selected}`);
       if (!/キャラクター/.test(await page.textContent('[data-feature="assetDetail"] [data-key="category"]'))) throw new Error('VRM が「キャラクター」に分類されていません');
+      ctx.vrmId = selected;
+      // ④：詳細の［3D で表示］から SCR-12 へ。キャンバスにモデルが描画される
+      await page.click('[data-feature="assetDetail"] [data-role="show-3d"]');
+      await page.waitForFunction(() => window.baiStudio.viewport.getState().loaded === true, null, { timeout: 25000 });
+      const st = await page.evaluate(() => window.baiStudio.viewport.getState());
+      if (st.assetId !== selected || st.format !== 'VRM') throw new Error(`表示されたモデルが違います: ${JSON.stringify([st.assetId, st.format])}`);
+      if ((await page.evaluate(() => window.baiStudio.viewport.countNonBackground())) < 50) throw new Error('キャンバスにモデルが描画されていません');
+      // ［このモデルを制作に使う］→［保存］（空のコンビネーションを作る確認が出る）
+      await page.click('[data-role="use-model"]');
+      await page.click('.screen-head [data-role="project-save"]');
+      await page.waitForSelector('[data-role="confirm-ok"]');
+      await page.click('[data-role="confirm-ok"]');
+      await page.waitForFunction(() => { const x = window.baiStudio.project.getState(); return !x.saving && !x.dirty.workspace && !x.dirty.combination; }, null, { timeout: 10000 });
+      const ws = JSON.parse(fs.readFileSync(path.join(server.dataDir, 'project_state.workspace.json'), 'utf8'));
+      if (ws.asset !== selected.slice('integrated:'.length)) throw new Error(`workspace.asset が入っていません: ${JSON.stringify(ws)}`);
     } },
-  { id: 'S2', title: 'ステージの配置', kind: 'pending_wp', reason: 'WP-04 が未着手' },
+  { id: 'S2', title: 'ステージの配置', kind: 'active', needs3d: true,
+    // ④-11：SCR-06 でステージを選び、位置 X=3・回転 Y=90・拡大 2 にして保存。読み直しても同じ。
+    run: async ({ server, page }) => {
+      await page.click('#nav a[data-route="06"]');
+      await page.waitForSelector('[data-feature="sceneViewport"]');
+      await page.waitForFunction(() => window.baiStudio.viewport.getState().character?.assetId, null, { timeout: 25000 });
+      await page.selectOption('[data-role="stage-asset"]', ctx.vrmId);
+      await page.waitForFunction((id) => window.baiStudio.viewport.getState().stage?.assetId === id, ctx.vrmId, { timeout: 25000 });
+      const set = async (n, v) => { const num = page.locator('[data-role="stage-slider"]').nth(n).locator('input.num'); await num.fill(String(v)); await num.dispatchEvent('change'); };
+      await set(0, 3); await set(3, 90); await set(4, 2);
+      await page.click('.screen-head [data-role="project-save"]');
+      await page.waitForFunction(() => { const x = window.baiStudio.project.getState(); return !x.saving && !x.dirty.workspace; }, null, { timeout: 10000 });
+      const ws = JSON.parse(fs.readFileSync(path.join(server.dataDir, 'project_state.workspace.json'), 'utf8'));
+      const want = { asset: ctx.vrmId, position: [3, 0, 0], rotation: [0, 90, 0], scale: 2 };
+      if (JSON.stringify(ws.stage) !== JSON.stringify(want)) throw new Error(`stage が違います: ${JSON.stringify(ws.stage)}`);
+      if (ws.asset !== ctx.vrmId.slice('integrated:'.length) || ws.clip !== null) throw new Error(`asset・clip が変わっています: ${JSON.stringify(ws)}`);
+      await page.reload();
+      await page.waitForFunction(() => window.baiStudio.viewport.getState().stage?.assetId, null, { timeout: 25000 });
+      const s = (await page.evaluate(() => window.baiStudio.viewport.getState())).stage;
+      const ok = Math.abs(s.position[0] - 3) < 1e-9 && Math.abs(s.rotation[1] - 90) < 1e-9 && Math.abs(s.displayScale - 2) < 1e-9;
+      if (!ok) throw new Error(`読み直すと配置が違います: ${JSON.stringify(s)}`);
+    } },
   { id: 'S3', title: 'カメラの設定', kind: 'pending_wp', reason: 'WP-06b・WP-06c が未着手' },
   { id: 'S4', title: 'BGM（歌の音声）の配置', kind: 'no_existing', reason: '既存機能なし（音声の登録 API・タイムラインの音声トラックが旧画面に無い。Q4 で所有者が決める）' },
   { id: 'S5', title: 'VMD/FBX の設置', kind: 'pending_wp', reason: 'WP-05 が未着手' },
@@ -75,7 +111,9 @@ for (const step of STEPS) {
     test(name, { skip: step.reason }, () => {});
     continue;
   }
-  test(name, async () => {
+  const opts = step.needs3d ? harness.skip3d() : {};
+  if (step.needs3d && !harness.haveThree()) results.push({ id: step.id, result: 'skip', reason: harness.THREE_SKIP_REASON, kind: 'pending_wp' });
+  test(name, opts, async () => {
     try {
       if (!ctx.server) {
         ctx.server = await harness.startServer({ port: PORT });

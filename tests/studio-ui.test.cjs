@@ -495,29 +495,26 @@ test('leaving to legacy page asks first', async () => {
 });
 
 test('stage load is scheduled for P2', async () => {
+  // WP-04 で実際のボタンになった：押すと右の「トランスフォーム」タブの「ステージの素材」の選択欄へ移る（◇ の説明は出ない）
   const page = await newPage();
   await page.goto(`${BASE}/workspace/06`);
+  assert.equal(await page.getAttribute('.screen-head button:has-text("ステージを読み込む")', 'data-act'), 'real');
+  await page.waitForSelector('[data-role="stage-asset"]:not([disabled])');
   await page.click('.screen-head button:has-text("ステージを読み込む")');
-  const text = await page.textContent('[role="dialog"]');
-  assert.match(text, /WP-04/);
-  assert.match(text, /LYRIC-009/);
-  assert.match(text, /NF-014/);
-  const phase = await page.locator('[role="dialog"] dt:has-text("予定") + dd').textContent();
-  assert.match(phase, /P2 既存機能の新UI移植/);
-  assert.doesNotMatch(phase, /Phase G/);
-  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('[role="dialog"]').count(), 0);
+  await page.waitForFunction(() => document.activeElement && document.activeElement.getAttribute('data-role') === 'stage-asset');
 });
 
 test('mock playback is labelled as sample', async () => {
   const page = await newPage();
-  for (const id of ['02', '05', '06', '13']) {
+  for (const id of ['02', '05', '13']) {
     await page.goto(`${BASE}/workspace/${id}`);
     const banner = page.locator('#main .sample-banner');
     assert.equal(await banner.count(), 1, `banner on ${id}`);
     assert.match(await banner.textContent(), /サンプル再生（3D未接続）/);
     assert.equal(await banner.getAttribute('role'), 'status');
   }
-  for (const id of ['01', '03', '08', '18', '25']) {
+  for (const id of ['01', '03', '06', '08', '18', '25']) { // 06 は 3D ビューが実機能（WP-04）になったので出ない
     await page.goto(`${BASE}/workspace/${id}`);
     assert.equal(await page.locator('#main .sample-banner').count(), 0, `no banner on ${id}`);
   }

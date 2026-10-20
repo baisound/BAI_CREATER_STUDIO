@@ -73,6 +73,10 @@ const items = (prefix, n, meta) => Array.from({ length: n }, (_, i) => ({ id: `$
  * @param {string} label @param {Record<string, any>} [x] */
 export const newProjectUnimpl = (label, x = {}) => ({ ...un(label, '現在のサーバーは制作状態を1つだけ保持します。新しい制作状態を作る機能は未実装です（DATA-008 の範囲外、テンプレートからの作成は NF-019）。', ['DATA-008', 'NF-019'], PH.P2), ...x });
 
+/** ④ の実機能の区画の根拠（tests/test_screen_status_honesty.mjs が実在を確かめる）。 */
+const EV_CHAR = 'tests/studio-p2-viewport.test.cjs::glb renders and normalizes like the camera page';
+const EV_STAGE = 'tests/studio-p2-viewport.test.cjs::stage placement saves and restores';
+
 const CAMERA = { label: 'カメラ画面（現行）', href: '/camera.html' };
 const MAIN = { label: '制作画面（現行）', href: '/' };
 
@@ -243,19 +247,16 @@ export const SCREENS = [
     classification: 'candidate_late', ids: ['LYRIC-009', 'LYRIC-010', 'DANCE-001', 'DANCE-002', 'DANCE-003', 'DANCE-006', 'DANCE-012', 'NF-014'],
     panels: [
       { name: 'シーンツリー', status: 'mock' },
-      { name: '3Dビュー', status: 'unimpl', note: 'ステージ配置ビューは未実装（モデル表示は現行画面にあり）。' },
-      { name: 'トランスフォーム', status: 'mock' },
-      { name: 'アセットブラウザー', status: 'mock', note: '素材管理（08）と同一索引にする方針。' },
+      { name: '3Dビュー', status: 'real', evidence: EV_STAGE, note: '作業中のキャラクター（GLB/VRM）とステージ1つを表示。素材の単位の換算だけを掛け、高さの正規化・中心合わせはしない。', ids: ['NF-014'] },
+      { name: 'トランスフォーム', status: 'real', evidence: EV_STAGE, note: 'ステージの位置・回転 Y・拡大を workspace.stage に保存（［保存］）。', ids: ['NF-014'] },
+      { name: 'アセットブラウザー', status: 'real', evidence: EV_STAGE, note: '「トランスフォーム」タブの「ステージの素材」の選択欄（素材管理 08 の登録済みモデルから選ぶ）。', ids: ['NF-014'] },
       { name: '表示・依存関係', status: 'unimpl' },
     ],
-    tools: [ch('座標系', ['ワールド', 'ローカル']), un('ステージを読み込む', 'ステージの配置は P2 ④（WP-04）で使えるようになります。大型ステージの分割読込は Phase G（LYRIC-009）です。', ['NF-014', 'LYRIC-009'], PH.P2)],
+    tools: [ch('座標系', ['ワールド', 'ローカル']), { t: 'feature', key: 'stageLoadButton' }, { t: 'feature', key: 'projectToolbar' }],
     left: { title: 'シーンツリー', status: 'mock', tree: true, list: [{ id: 'r', label: 'Scene', depth: 0 }, { id: 'st', label: 'Stage', depth: 1 }, { id: 'fl', label: 'Floor', depth: 2 }, { id: 'ch', label: 'Characters', depth: 1 }, { id: 'a', label: 'Model A', depth: 2 }, { id: 'b', label: 'Model B', depth: 2 }, { id: 'li', label: 'Lights', depth: 1 }, { id: 'k', label: 'Key Light', depth: 2 }, { id: 'cam', label: 'Camera', depth: 1 }] },
-    center: { type: 'viewport', img: 'preview-shrine', hud: ['Scene View', 'Perspective'], tools: ['選択', '移動', '回転', '拡大縮小'], foot: 'ステージ配置ビューは ◇ 未実装。' },
+    center: { type: 'feature', key: 'sceneViewport', status: 'real', evidence: EV_STAGE },
     right: { tabs: [
-      { id: 'xf', label: 'トランスフォーム', sections: [
-        { title: '位置', status: 'mock', controls: [sl('X', -50, 50, 0, 'm', 0.1), sl('Y', -50, 50, 0, 'm', 0.1), sl('Z', -50, 50, 0, 'm', 0.1)] },
-        { title: '回転・拡大', status: 'mock', controls: [sl('回転 Y', -180, 180, 0, '°'), sl('拡大', 0.1, 10, 1, '×', 0.1)] },
-      ] },
+      { id: 'xf', label: 'トランスフォーム', custom: 'stageTransform', sections: [] },
       { id: 'vis', label: '表示', sections: [
         { title: '表示', status: 'mock', controls: [tg('表示', true), tg('影を落とす', true), tg('ロック')] },
         { title: '依存関係', status: 'unimpl', controls: [un('依存素材を表示', '素材の依存参照グラフは未実装。', [], PH.P4)] },
@@ -375,19 +376,19 @@ export const SCREENS = [
     classification: 'existing_or_partial_to_audit', ids: ['MOTION-003', 'MOTION-004', 'MOTION-005', 'MOTION-019', 'MOTION-021', 'LIP-004', 'LIP-011', 'NF-023'],
     existing: [MAIN],
     panels: [
-      { name: 'キャラクター一覧', status: 'partial', note: '現行画面の登録済みVRMモデル・PMXスロット。', ids: ['MOTION-002'] },
-      { name: '3Dプレビュー', status: 'partial', note: '現行画面の3Dプレビュー（GLB/VRM）。', ids: ['MOTION-009'] },
+      { name: 'キャラクター一覧', status: 'real', evidence: EV_CHAR, note: '/api/assets のキャラクター（GLB/VRM・PMX・FBX モデル）。', ids: ['MOTION-002'] },
+      { name: '3Dプレビュー', status: 'real', evidence: EV_CHAR, note: 'GLB/VRM・PMX・FBX を表示（回転・ズーム）。旧画面と同じ高さの正規化（GLB/VRM 2.0・PMX 1.8・FBX 1.95）。', ids: ['MOTION-009'] },
       { name: 'ボーン・ウェイト', status: 'partial', note: 'pmx_bones.py・骨格解析あり。ウェイト編集は NF-023（未承認）。', ids: ['MOTION-005', 'NF-023'] },
       { name: '衣装', status: 'unimpl', ids: ['NF-005'] },
       { name: 'モーフ', status: 'unimpl', ids: ['LIP-004', 'LIP-011'] },
       { name: 'リターゲット', status: 'partial', note: 'retarget_*.py とマッピングUI。', ids: ['MOTION-004'] },
       { name: '物理', status: 'unimpl', ids: ['MOTION-021', 'REVIEW-009'] },
     ],
-    tools: [btn('現行画面でモデルを表示', 'href:/'), un('物理ベイク', 'MMD物理ベイクは未実装（MOTION-021）。', ['MOTION-021'], PH.B)],
-    left: { title: 'キャラクター', status: 'mock', search: true, list: [['baisound', 'バイサウンド', 'VRM'], ['s01', 'サンプル 01', 'VRM'], ['s02', 'サンプル 02', 'PMX'], ['s03', 'サンプル 03', 'PMX'], ['s04', 'サンプル 04', 'VRM'], ['s05', 'サンプル 05', 'GLB']].map(([id, label, meta]) => ({ id, label, meta, thumb: img(id === 'baisound' ? 'char-baisound' : `char-${id}`) })) },
-    center: { type: 'viewport', img: 'viewport-character', hud: ['Model Preview', 'A-Pose'], tools: ['選択', '回転'], foot: '3D表示は現行の制作画面で利用できます。' },
+    tools: [btn('現行画面でモデルを表示', 'href:/'), { t: 'feature', key: 'useModelButton' }, { t: 'feature', key: 'projectToolbar' }, un('物理ベイク', 'MMD物理ベイクは未実装（MOTION-021）。', ['MOTION-021'], PH.B)],
+    left: { title: 'キャラクター', status: 'real', evidence: EV_CHAR, custom: 'characterList' },
+    center: { type: 'feature', key: 'characterViewport', status: 'real', evidence: EV_CHAR },
     right: { tabs: [
-      { id: 'bone', label: 'ボーン', sections: [{ title: 'ボーン', status: 'partial', controls: [{ t: 'list', items: ['センター', '上半身', '首', '頭', '左腕', '右腕', '左足', '右足'].map((n) => ({ id: n, label: n })) }] }] },
+      { id: 'bone', label: 'ボーン', custom: 'characterBones', sections: [] },
       { id: 'morph', label: 'モーフ', sections: [{ title: '口・目モーフ', status: 'unimpl', controls: [note('モデル別の口モーフ対応、PMX頂点変位・複合モーフ・強度、VRM expression の欠落を検査します。'), un('モーフを解析', 'モデル別口モーフ解析は未実装です。', ['LIP-004'], PH.LIP), un('顔動画から候補を取得', '顔動画／カメラの明示許可と候補の手動確定は未実装です。', ['LIP-011'], PH.D)] }] },
       { id: 'retarget', label: 'リターゲット', sections: [{ title: 'リターゲット', status: 'partial', controls: [btn('VMD編集・リターゲット（13）へ', 'nav:13')] }] },
       { id: 'physics', label: '物理', sections: [{ title: '物理', status: 'unimpl', controls: [tg('SpringBone 物理'), un('物理を比較', 'SpringBone ON/OFF 比較は移植候補（REVIEW-009）。', ['REVIEW-009'], PH.P2), note('ベイク対象、seed、時間刻み、入力hashと新規レイヤーを指定します。'), un('物理をベイク', 'MMD物理ベイクと貫通検品は未実装です。', ['MOTION-021'], PH.B)] }] },
