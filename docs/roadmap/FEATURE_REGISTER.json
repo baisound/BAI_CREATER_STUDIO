@@ -970,7 +970,7 @@
       "group": "LYRIC",
       "phase": 8,
       "name": "JIZURAソース取り込み・ライセンス管理",
-      "detail": "上流コミット固定・MIT表示・依存監査",
+      "detail": "上流コミット・権利・依存を監査し、行/LRC変換から必要ソースを段階統合。データ互換だけでは完了にしない",
       "status": "計画・未検証",
       "dependency": "DATA,CAM,RENDER"
     },
@@ -997,7 +997,7 @@
       "group": "LYRIC",
       "phase": 8,
       "name": "2D文字モーションと3D文字配置",
-      "detail": "前景/背景/奥行き遮蔽",
+      "detail": "2D/3D文字の遮蔽・見切れと、元フォント欠損時の候補差分表示・利用者選択",
       "status": "計画・未検証",
       "dependency": "DATA,CAM,RENDER"
     },
@@ -1033,7 +1033,7 @@
       "group": "LYRIC",
       "phase": 8,
       "name": "Blender .blend/.fbx/.glb→PMXステージ",
-      "detail": "バックグラウンド変換",
+      "detail": "事前解析と利用者確認後に対応要素を別名PMXへ部分出力し、欠落レポートとpartial状態を保持",
       "status": "計画・未検証",
       "dependency": "DATA,CAM,RENDER"
     },
