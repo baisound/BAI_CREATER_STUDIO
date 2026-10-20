@@ -233,26 +233,32 @@
   "p2_port": {
     "precedes_phase_e": true,
     "status_ledger": "docs/roadmap/P2_PORT_STATUS.json（P2-WP-00c で新設予定。未作成）",
-    "design": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md（v2、レビュー中）",
+    "design": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md（v3、レビュー中）",
     "note": "所有者決定（2026-10-20）により P2（新UIへの移植）を Phase E より先に行う。以下の planned_in は予定であり、実施済みではない。"
   },
   "planned_in": [
     {
       "item": "WP-03 データ隔離（bai_paths.data_dir・ルート conftest.py・tests/test_data_isolation.py）",
       "phase_e_wp": "WP-03",
-      "planned_in": "P2-WP-00a",
+      "planned_in": "P2-WP-00a-1",
       "status": "planned"
     },
     {
       "item": "WP-03 three devDependency・SwiftShader 起動・テスト GLB・studio-ui.test.cjs の隔離",
       "phase_e_wp": "WP-03",
-      "planned_in": "P2-WP-00a",
+      "planned_in": "P2-WP-00a-2",
       "status": "planned"
     },
     {
-      "item": "G-06 の一部（read_project の読込エラー分岐・CameraProjectInvalid・退避・bad(code)。/api/project/bundle の GET/POST のみ 422）",
+      "item": "G-06 の一部（read_project の読込エラー分岐・CameraProjectInvalid・退避・bad(code)。/api/project/bundle の GET と POST の書込前読込、GET/POST /api/camera/project、POST /api/camera/sequence/edit で 422）",
       "phase_e_wp": "WP-02a",
       "planned_in": "P2-WP-00b",
+      "status": "planned"
+    },
+    {
+      "item": "WP-02d の画面側の規則（assetRef 記入・validateRestore 緩和・frame 整数化・423）の置き場所として共有モジュール camera_bundle_core.js を作る（現行ロジックの抽出のみ）",
+      "phase_e_wp": "WP-02d",
+      "planned_in": "P2-WP-06c",
       "status": "planned"
     }
   ]
