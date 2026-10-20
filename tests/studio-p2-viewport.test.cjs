@@ -468,6 +468,17 @@ test('stage is kept when legacy camera bundle save omits it', harness.skip3d(), 
     const bad = await fetch(`${server.base}/api/project/bundle`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'If-Match': after.revision }, body: JSON.stringify({ schema: 1, combination: after.combination, camera: after.camera, workspace: { frame: 3, asset: STORED, clip: null, stage: { ...stage, scale: 1000 } } }) });
     assert.equal(bad.status, 400);
     assert.deepEqual(fs.readFileSync(path.join(server.dataDir, WS_NAME)), before);
+    // 既存の stage が不正なとき、旧 camera.html の形の保存は 400 で、3つのファイルのどれも変わらない（§1.15 B-4：黙って捨てない）
+    fs.writeFileSync(path.join(server.dataDir, WS_NAME), JSON.stringify({ frame: 3, asset: STORED, clip: null, stage: { asset: 'zzz' } }));
+    const files = fs.readdirSync(server.dataDir).filter((n) => /^(project_state|camera_project)/.test(n)).sort();
+    const snap = () => files.map((n) => fs.readFileSync(path.join(server.dataDir, n)));
+    const beforeAll = snap();
+    const corrupt = await get();
+    const legacy = await fetch(`${server.base}/api/project/bundle`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'If-Match': corrupt.revision }, body: JSON.stringify({ schema: 1, combination: corrupt.combination, camera: corrupt.camera, workspace: { frame: 4, asset: STORED, clip: null } }) });
+    assert.equal(legacy.status, 400);
+    assert.match((await legacy.json()).error || '', /existing workspace stage is unreadable/);
+    assert.deepEqual(fs.readdirSync(server.dataDir).filter((n) => /^(project_state|camera_project)/.test(n)).sort(), files);
+    assert.deepEqual(snap(), beforeAll);
   });
 });
 

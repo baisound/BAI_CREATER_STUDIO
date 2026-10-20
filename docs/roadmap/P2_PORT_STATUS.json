@@ -124,10 +124,12 @@
     {
       "id": "P2-WP-04",
       "step": "④ 3D 表示・ステージ配置の基本・B-4",
-      "state": "done_pending_review",
+      "state": "verified",
       "commits": [
+        "77e56b4（作業位置の記録）",
         "4ee6b49（B-4：workspace.stage、別コミット）",
-        "本体コミット（git log の「P2-WP-04 ④ 3D表示」）"
+        "81a0c79（本体：④ 3D 表示・ステージ配置）",
+        "Opus レビュー（B-4・PMX キャラの件。test: P2-WP-04 B-4 の Opus レビュー）"
       ],
       "tests": [
         "tests/studio-p2-pmx-fixture.test.cjs（O-④-2、事前準備）",
@@ -135,14 +137,14 @@
         "tests/studio-p2-viewport.test.cjs（19件：GLB/PMX/FBX の描画、ステージ配置、PMX×0.08 m 同一シーン、欠損、dispose）",
         "tests/studio-p2-normalize-parity.test.cjs（camera.html と 1e-6 で一致）",
         "tests/studio-p2-e2e-main.test.cjs（S1・S2 を有効化）",
-        "tests/test_project_state_bundle.py WorkspaceStageTest（B-4、12件）"
+        "tests/test_project_state_bundle.py WorkspaceStageTest（B-4、12件）。Opus レビューで studio-p2-viewport の旧 camera.html 形の保存に「既存の stage が不正なら HTTP 400 で3ファイル不変」を追加"
       ],
       "unverified": [
         "O-④-6：実在の PMX/GLB/FBX ステージの単位の換算と見え方（合成データのみ）",
         "実在の PMX（多材質・IK・剛体・PMX 2.1）の表示、GPU（SwiftShader でのみ確認）",
-        "PMX キャラは workspace.asset が GLB/VRM 限定のため SCR-06 に置けない（設計書 O-④-6 追記、⑥ WP-06b O-⑥-4 で整理）"
+        "PMX キャラクターを SCR-06 に置く経路が無い（Opus レビュー 2026-10-20）：workspace.asset は GLB/VRM 限定で、⑥ の camera_3d.js も GLB/VRM しか読まない。設計（v5・Phase E §2.8 を含む）に PMX キャラの保存先・カメラ表示の計画は無く、⑥ O-⑥-4（要素IDの配置表）で整理される事項でもない。直すには保存形式の追加（例：workspace の任意キー character）と camera_3d.js の PMX 表示が要るため、所有者の承認（計画の追加）を待つ。主要シナリオ（PMX → ステージ配置 → カメラ）は PMX では SCR-06 以降を通せない"
       ],
-      "notes": "O-④-1・2・3・6・7 を 2026-10-20 に Opus で決定（設計書 §2.4(h)）。O-④-2：最小 PMX 2.0（tools/make_test_pmx.py）を作成し、minimal_pmx.zip を本物の PMX に置き換えた。未検証：実在の PMX/FBX/GLB ステージの単位の換算（O-④-6）、GPU。 2026-10-20 オーナー側決定：SCR-06 はキャラの身長を正規化せずステージと同じ単位換算（PMX 0.08 m/unit、GLB/VRM 1 m/unit、FBX UnitScaleFactor/100）。正規化は単体プレビュー SCR-12 のみ。E2E は S2 まで通る。",
+      "notes": "O-④-1・2・3・6・7 を 2026-10-20 に Opus で決定（設計書 §2.4(h)）。O-④-2：最小 PMX 2.0（tools/make_test_pmx.py）を作成し、minimal_pmx.zip を本物の PMX に置き換えた。未検証：実在の PMX/FBX/GLB ステージの単位の換算（O-④-6）、GPU。 2026-10-20 の決定（設計書 §2.4(h) O-④-6 の「上書き」。設計書は「開発側の判断」と書き、台帳の旧記載は「オーナー側決定」で食い違う。出所は要確認）：SCR-06 はキャラの身長を正規化せずステージと同じ単位換算（PMX 0.08 m/unit、GLB/VRM 1 m/unit、FBX UnitScaleFactor/100）。正規化は単体プレビュー SCR-12 のみ。E2E は S2 まで通る。 Opus レビュー（2026-10-20）：B-4（validate_stage・save_bundle のマージ・不正な既存値で 400 かつ不変・workspace なしで削除・旧 camera.html の保存で stage が残る・stage の無い既存データの読込）は設計 §1.15 B-4／C4／K11 どおりで修正不要。",
       "owner_check": null
     },
     {
