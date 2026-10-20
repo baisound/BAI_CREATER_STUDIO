@@ -1,23 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T19:27:19+00:00",
+  "updated_at": "2026-10-20T20:11:08+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "7cea229",
+  "head_at_update": "df75fe3",
   "current": {
-    "task": "P2-WP-04b ④ リターゲット検証の移植（④-9・④-10）",
+    "task": "P2-WP-05a SCR-13 編集モードの1体再生（PMX+VMD・GLB/VRMクリップ・VMDライブラリ）と S5 の有効化",
     "status": "done",
-    "step": "実装開始（SCR-13 ボーンマップタブ → three-host 比較 → テスト）",
+    "step": "実装→テスト→台帳更新→コミット",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP-05 モーション（VMD）の適用・タイムライン再生"
+    "P2-WP-05b：clip・frame の記録（O-⑤-7）と外部コマンド preview_vmd（Opus でレビュー）",
+    "WP-06b の前にテストのポートの食い違い（parity 8794・retarget 8791）を直す（§4.1 の注記）"
   ],
   "unverified": [
-    "O-④-6：実在の PMX/GLB/FBX ステージでの単位の換算と見え方",
-    "実在の PMX（多材質・IK・剛体・PMX 2.1）の表示、GPU（SwiftShader でのみ確認）",
-    "PMX キャラクターを SCR-06・カメラ画面に置く経路が無い（計画の空白。所有者の判断待ち Q5）",
-    "WP-04b：実在の VRM（Humanoid あり）での仮転写・ポーズ比較の見え方、GPU"
+    "実ファイルの PMX＋VMD のモーフ再生・GPU 実機・Windows 実機は未検証（合成の最小ファイルと SwiftShader のみ）",
+    "Opus レビュー未実施（app.js の modeSwitch）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -35,6 +34,34 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-20T20:11:08+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "df75fe3",
+      "text": "P2-WP-05a 完了：SCR-13［編集］の PMX＋VMD・GLB/VRM クリップの1体再生、VMD ライブラリ、モード切替の結線、minimal.vmd の センター 30F、S5 pass"
+    },
+    {
+      "at": "2026-10-20T19:52:34+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "f675061",
+      "text": "P2-WP-05a SCR-13 編集モードの1体再生（PMX+VMD・GLB/VRMクリップ・VMDライブラリ）と S5 の有効化: 実装→テスト→台帳更新→コミット"
+    },
+    {
+      "at": "2026-10-20T19:50:21+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "255ad3d",
+      "text": "P2 §2.5（⑤ モーション）を WP-05a〜05g に分けて詳しくした（255ad3d）。O-⑤-1〜8 決定、批評1回反映、台帳更新。コード変更なし"
+    },
+    {
+      "at": "2026-10-20T19:29:19+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "8de3801",
+      "text": "P2 §2.5 ⑤ モーション（VMD）の詳細設計（O-⑤-1〜8 の決定と WP-05 の分割）: 旧コード調査 → §2.5 詳細化 → 自己批評 → コミット"
+    },
     {
       "at": "2026-10-20T19:27:19+00:00",
       "by": "claude-code",
@@ -216,34 +243,6 @@
       "event": "start",
       "head": "6bf71a1",
       "text": "P2-WP-00a-1 データ隔離: bai_paths.py・conftest.py・test_data_isolation.py を実装し server.py ほかの保存先を data_dir() 化"
-    },
-    {
-      "at": "2026-10-20T09:04:33+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "e3fb511",
-      "text": "P2-WP-00a-1 データ隔離: 設計 v5 承認済み。OWNER-5 を ROADMAP に記録し、Sonnet で WP-00a-1 の実装を開始"
-    },
-    {
-      "at": "2026-10-20T09:03:56+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "2056420",
-      "text": "P2 設計 v4 を最終判定し、条件付き承認。条件 C1〜C10（exports への書込のスタブ化、所有者確認の試用データ、reset の判定順、B-4 の関数単位、cameraInvalid 中の自動保存、S7 の範囲、新規作成5か所、導線点検の規則、旧画面テストの待ち、node テストのコマンド）を v5 に反映"
-    },
-    {
-      "at": "2026-10-20T08:56:42+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "eda0a46",
-      "text": "P2 設計の最終判定: 設計書 v4 をコードと突き合わせて最終判定し、条件を v5 に反映する"
-    },
-    {
-      "at": "2026-10-20T08:55:44+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "9056819",
-      "text": "P2 移植の詳細設計 v4 を完成（批評3回目と所有者決定・導線点検§5の1〜5を反映、最終判定前）"
     }
   ]
 }

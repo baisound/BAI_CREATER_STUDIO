@@ -71,7 +71,7 @@ export function collectBones(object) {
 }
 
 /** @param {any} e */
-const isNotFound = (e) => !!e && ((e.response && e.response.status === 404) || /responded with 404/.test(String(e.message || '')));
+export const isNotFound = (e) => !!e && ((e.response && e.response.status === 404) || /responded with 404/.test(String(e.message || '')));
 
 /**
  * 素材を読み込んで three のオブジェクトにする。

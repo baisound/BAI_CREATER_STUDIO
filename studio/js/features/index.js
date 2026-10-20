@@ -10,6 +10,7 @@
 import { importButton, assetCategories, assetLibrary, assetDetail, recentImports } from './assets-view.js';
 import { characterList, characterViewport, characterBones, useModelButton } from './character-view.js';
 import { retargetPanel, retargetViewport } from './retarget-view.js';
+import { motionCenter, vmdLibrary } from './motion-view.js';
 import { sceneViewport, stageLoadButton, stageTransform } from './scene-view.js';
 import { projectToolbar, projectStatus, projectSummary, projectHistory, projectList, projectCard } from './project-view.js';
 
@@ -23,5 +24,7 @@ export const FEATURES = {
   characterList, characterViewport, characterBones, useModelButton, sceneViewport, stageLoadButton, stageTransform,
   // WP-04b（④-9・④-10 リターゲット検証、SCR-13）
   retargetPanel, retargetViewport,
-  // WP-05 以降が追加する。
+  // WP-05a（⑤ SCR-13［編集］の1体再生）
+  motionCenter, vmdLibrary,
+  // WP-05b 以降が追加する。
 };
