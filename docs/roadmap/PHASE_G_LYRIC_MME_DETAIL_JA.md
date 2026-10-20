@@ -5,8 +5,12 @@
 ## JIZURA・ライセンス
 外部素材は `AssetSource {uri, version, license, author, attribution, permitted_uses, imported_at, checksum}` として管理。取り込み時に利用権確認が取れない場合、閲覧と仮プレビューは許しても再配布パックには含めない。外部形式を無理に実行せず安全な中間表現へ変換。
 
+2026-10-20 所有者決定 `O-LYRIC-01=A`: 上流コミット・依存・第三者素材を監査し、行/LRCと演出設定の変換契約を先に検証する。必要な上流ソースの利用は対象モジュールごとに権利とブラウザ適合を確認して段階的に統合する。データ互換だけで `LYRIC-001` 完了としない。詳細は [B3決定記録](../specs/B3_LYRICS_STAGE_DECISIONS_JA.md)。
+
 ## リリック設計
 `LyricCue {text, language, in_frame, out_frame, style_id, anchor, animation_curve, layer_id}`。字幕文字と演出文字を分け、2D画面固定・3Dワールド固定を選択。拍マーカーと音声波形へスナップ、重複/見切れチェックを提供。フォント権利と不足時代替を出力時に検証。
+
+`O-LYRIC-02=A`: 元フォント欠損時は候補ごとの行幅・改行・文字枠・2D/3D見切れを同じショットで比較し、利用者が選んだ代替だけを別レイヤーに保存する。未選択を元と同じ見た目として扱わない。
 
 ## エフェクト互換レベル
 (A) MME素材の登録/管理、(B) 内蔵FX効果としてBloom/MotionBlur/AutoLuminous風発光等を再現、(C) MMD向け設定書/素材参照を出力。ピントのボケ／DOFはカメラ `CAM-005/E-FOCUS-01/02/F-DOF-01` が所有し、FXはその設定を参照して重ね合わせを検証する。MMEの.fxをそのままアプリで動かせるとは約束しない。各効果の対応度をnative / approximated / export-only / unsupportedで表示。描画順は stage → opaque → alpha → emission → postprocessing → overlay の明示的依存グラフで管理。
