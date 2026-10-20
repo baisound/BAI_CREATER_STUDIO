@@ -193,7 +193,7 @@
       "step": "⑤ clip・frame の記録（O-⑤-7）と外部同期のコマンド（O-⑤-5）",
       "state": "verified",
       "commits": [
-        "（コミット後に追記）"
+        "0772bc2"
       ],
       "tests": [
         "tests/studio-p2-motion.test.cjs に6件追加（record clip and frame into workspace、frame is capped to camera duration、frame-only record is not dirty、record is disabled for other models、record is disabled when the camera file is invalid、sync command preview_vmd only on SCR-13）。合計16件合格",
