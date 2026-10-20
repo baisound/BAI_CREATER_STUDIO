@@ -260,7 +260,7 @@
       "phase_e_wp": "WP-02a",
       "planned_in": "P2-WP-00b",
       "status": "done",
-      "commit": "COMMIT2",
+      "commit": "56bffa8",
       "tests": "pytest 全件合格（tests/test_bundle_camera_invalid.py 22件・tests/test_project_envelope.py・test_bundle_snapshot_consistency.py の振る舞いテスト）、tests/legacy-project-save.test.cjs 2件（旧 camera.html は壊れたデータでエラー表示して止まり、バイト列不変）、npm run test:node-all・tsc 合格、実 data/ ハッシュ不変",
       "unverified": "G-06 のうち一部のみ実施（エラー分岐、統合バンドルとカメラの GET/POST・sequence/edit の 422）。focus・sample・sequence/evaluate の GET は read() のまま、未知フィールド・backup・invalid-preview・UI の復旧操作は WP-02a。Opus レビュー未実施（②のコミットはレビュー対象）"
     },
@@ -275,7 +275,7 @@
       "phase_e_wp": "WP-02a",
       "planned_in": "P2-WP-00b",
       "status": "done",
-      "commit": "COMMIT2",
+      "commit": "56bffa8",
       "tests": "tests/test_bundle_camera_invalid.py の reset テスト（確認なし 400、壊れたファイル・正常なファイル・無いファイルの reset、読めない・退避失敗では何も書かない、退避は重複しない）",
       "unverified": "Opus レビュー未実施。UI（確認ダイアログ・ダウンロード・invalid-preview）は WP-02a"
     },
