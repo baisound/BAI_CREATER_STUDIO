@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T14:04:18+09:00",
+  "updated_at": "2026-10-21T14:04:27+09:00",
   "updated_by": "codex",
   "branch": "codex/pmx-vmd-foot-playback",
-  "head_at_update": "4dbe182",
+  "head_at_update": "34b42e8",
   "current": {
     "task": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正",
-    "status": "done",
-    "step": "実素材のVMD骨キーとPMX骨・画面時刻別の姿勢を調査",
-    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
+    "status": "in_progress",
+    "step": "PMXプレビューのIK・grant更新と実素材再検証",
+    "design_doc": "docs/roadmap/MOTION_006_VMD_FOOT_DIAGNOSIS_20261021_JA.md"
   },
   "next_steps": [
     "MOTION-006のPMXプレビューでIK・grantを評価し、実素材の画面と脚姿勢を再確認する"
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T14:04:27+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "34b42e8",
+      "text": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正: PMXプレビューのIK・grant更新と実素材再検証"
+    },
     {
       "at": "2026-10-21T14:04:18+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "4ee6b49",
       "text": "P2-WP-04 ④ 3D表示とステージ配置を実装（B-4 は 4ee6b49 に分離）。E2E は S2 まで"
-    },
-    {
-      "at": "2026-10-20T15:31:47+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "2e8fd96",
-      "text": "P2-WP-04 ④ 3D表示とステージ配置・B-4: 実装開始（B-4 → viewport → ステージ配置 → テスト）"
     }
   ]
 }
