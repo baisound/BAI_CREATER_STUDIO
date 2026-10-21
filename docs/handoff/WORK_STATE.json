@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T03:28:33+09:00",
+  "updated_at": "2026-10-22T03:42:21+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp07",
-  "head_at_update": "0171076",
+  "head_at_update": "ad7b18c",
   "current": {
-    "task": "P2-WP-07 書き出し",
-    "status": "done",
-    "step": "WP07b: SCR23のVMD対応表・ジョブ作成・Blender実行と状態表示を実装",
+    "task": "P2-WP06/07 PR #59: main統合と残ゲート監査",
+    "status": "in_progress",
+    "step": "PR #56/#62マージ後のmainを統合し、差分とゲートを再確認",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T03:42:21+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "ad7b18c",
+      "text": "P2-WP06/07 PR #59: main統合と残ゲート監査: PR #56/#62マージ後のmainを統合し、差分とゲートを再確認"
+    },
     {
       "at": "2026-10-22T03:28:33+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "8451afb",
       "text": "WP05gの実経過時計修正と共通ゲートの結果を記録。対象25件、E2E S1/S2/S5通過、全体ゲート各1件の不安定失敗は単独再実行で通過"
-    },
-    {
-      "at": "2026-10-21T22:55:04+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4ca61f1",
-      "text": "Issue #46のS05/S06発光抑制別名GLB候補2件をハッシュ・GLB長を照合してローカル素材ライブラリへ登録。API一覧でavailable true確認。原本・ライトなし版・制作状態保持"
     }
   ]
 }
