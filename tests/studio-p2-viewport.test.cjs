@@ -116,6 +116,10 @@ const near = (a, b, eps, label) => assert.ok(Math.abs(a - b) <= eps, `${label}: 
 const nearAll = (a, b, eps, label) => { assert.equal(a.length, b.length, label); a.forEach((v, i) => near(v, b[i], eps, `${label}[${i}]`)); };
 
 const vp = (page) => page.evaluate(() => window.baiStudio.viewport.getState());
+const viewCamera = (page) => page.evaluate(async () => {
+  const host = (await import('/studio/js/viewport/three-host.js')).currentViewport();
+  return { position: host.camera.position.toArray(), target: host.controls.target.toArray(), distance: host.camera.position.distanceTo(host.controls.target) };
+});
 /** 3D ビューポートが読み込み済みになるまで待つ。 */
 async function waitLoaded(page, timeout = 20000) {
   await page.waitForFunction(() => window.baiStudio.viewport.getState().loaded === true, null, { timeout });
@@ -124,6 +128,44 @@ async function openChar(page, server, id, { wait = true } = {}) {
   await page.goto(`${server.base}/workspace/12${id ? `?asset=${encodeURIComponent(id)}` : ''}`);
   if (id && wait) await waitLoaded(page);
 }
+
+test('middle drag navigation rotates, pans and moves in depth without editing the model', harness.skip3d(), async () => {
+  await withApp(seed(), async ({ page, server }) => {
+    await openChar(page, server, GLB_ID);
+    const canvas = page.locator('[data-feature="characterViewport"] canvas');
+    const box = await canvas.boundingBox();
+    assert.ok(box && box.width > 100);
+    const x = box.x + box.width / 2, y = box.y + box.height / 2;
+    assert.match(await page.locator('.vp-nav-help').innerText(), /視点操作/);
+    const before = await viewCamera(page);
+    await page.mouse.move(x, y);
+    await page.mouse.down({ button: 'middle' });
+    await page.mouse.move(x + 60, y + 25, { steps: 5 });
+    await page.mouse.up({ button: 'middle' });
+    const rotated = await viewCamera(page);
+    nearAll(rotated.target, before.target, 1e-6, '中ドラッグは注視点を変えない');
+    assert.ok(Math.abs(rotated.position[0] - before.position[0]) > .01, '中ドラッグで回転');
+
+    await page.keyboard.down('Shift');
+    await page.mouse.down({ button: 'middle' });
+    await page.mouse.move(x + 100, y + 65, { steps: 5 });
+    await page.mouse.up({ button: 'middle' });
+    await page.keyboard.up('Shift');
+    const panned = await viewCamera(page);
+    assert.ok(panned.target.some((v, i) => Math.abs(v - rotated.target[i]) > .01), 'Shift＋中ドラッグで平行移動');
+    near(panned.distance, rotated.distance, 1e-6, '平行移動で距離を保つ');
+
+    await page.keyboard.down('Control');
+    await page.mouse.down({ button: 'middle' });
+    await page.mouse.move(x + 100, y + 105, { steps: 5 });
+    await page.mouse.up({ button: 'middle' });
+    await page.keyboard.up('Control');
+    const moved = await viewCamera(page);
+    nearAll(moved.target, panned.target, 1e-6, 'Ctrl＋中ドラッグは注視点を変えない');
+    assert.ok(Math.abs(moved.distance - panned.distance) > .01, 'Ctrl＋中ドラッグで前後移動');
+    assert.equal((await vp(page)).assetId, GLB_ID);
+  });
+});
 async function openScene(page, server) {
   await page.goto(`${server.base}/workspace/06`);
   await page.waitForSelector('[data-feature="sceneViewport"]');
@@ -334,8 +376,8 @@ test('stage placement saves and restores', harness.skip3d(), async () => {
     await page.waitForFunction(() => document.activeElement?.getAttribute('data-role') === 'stage-asset'); // フォーカスは setTimeout 0 で移る
     await pickStage(page, GLB2_ID);
     await setSlider(page, 0, 3);       // X
-    await setSlider(page, 3, 90);      // 回転 Y
-    await setSlider(page, 4, 2);       // 拡大
+      await setSlider(page, 4, 90);      // 回転 Y
+      await setSlider(page, 6, 2);       // 拡大
     const live = await stageState(page);
     near(live.position[0], 3, 1e-9, 'x');
     near(live.rotation[1], 90, 1e-9, 'rotY');
@@ -381,6 +423,43 @@ test('stage with a character placed in the same scene', harness.skip3d(), async 
   });
 });
 
+test('scene wheel can travel through the focus point and below the floor', harness.skip3d(), async () => {
+  await withApp(seed({ workspace: { frame: 0, asset: '', clip: null, stage: { asset: GLB2_ID, position: [0, 0, 0], rotation: [0, 0, 0], scale: 1 } } }), async ({ server, page }) => {
+    await openScene(page, server);
+    await waitLoaded(page);
+    await page.evaluate(async () => {
+      const host = (await import('/studio/js/viewport/three-host.js')).currentViewport();
+      host.camera.position.set(0, 2, 0);
+      host.controls.target.set(0, 0, 0);
+      host.controls.update();
+    });
+    const canvas = page.locator('[data-feature="sceneViewport"] canvas').first();
+    const box = await canvas.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.wheel(0, -400);
+    await page.mouse.wheel(0, -400);
+    const state = await viewCamera(page);
+    assert.ok(state.position[1] < 0, `camera passes below floor: ${state.position[1]}`);
+    assert.ok(state.target[1] < 0, `target follows camera: ${state.target[1]}`);
+    near(state.distance, 2, 1e-5, 'free dolly keeps orbit radius');
+    await page.evaluate(async () => {
+      const host = (await import('/studio/js/viewport/three-host.js')).currentViewport();
+      host.camera.position.set(0, 2, 0);
+      host.controls.target.set(0, 0, 0);
+      host.controls.update();
+    });
+    await page.keyboard.down('Control');
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down({ button: 'middle' });
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 - 120, { steps: 4 });
+    await page.mouse.up({ button: 'middle' });
+    await page.keyboard.up('Control');
+    const dragged = await viewCamera(page);
+    assert.ok(dragged.position[1] < 0, `Ctrl+middle also passes below floor: ${dragged.position[1]}`);
+    near(dragged.distance, 2, 1e-5, 'Ctrl+middle keeps orbit radius');
+  });
+});
+
 test('stage unit conversion for PMX and FBX', harness.skip3d(), async () => {
   await withApp(seed(), async ({ server, page }) => {
     await openScene(page, server);
@@ -391,7 +470,7 @@ test('stage unit conversion for PMX and FBX', harness.skip3d(), async () => {
     near(s.unit, 0.08, 1e-12, 'pmx unit');
     near(s.displayScale, 0.08, 1e-9, 'pmx display scale (scale 1)');
     near(s.height, 0.08, 1e-6, 'pmx stage height = 1.0 × 0.08');
-    await setSlider(page, 4, 3);
+      await setSlider(page, 6, 3);
     s = await stageState(page);
     near(s.displayScale, 0.24, 1e-9, 'pmx display scale (scale 3)');
     near(s.scale, 3, 1e-9, '保存する倍率には換算を含めない');

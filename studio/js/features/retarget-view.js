@@ -495,6 +495,7 @@ export const retargetViewport = (ctx) => {
       if (!id) throw new Error('モデルを選択してください');
       const item = assets.get().items.find((/** @type {any} */ a) => a.id === id);
       if (!item || !item.available || !item.filename) throw new Error(MISSING_FILE_TEXT);
+      if (Number(item.bytes) > MAX_COMPARE_BYTES) throw new Error('比較用モデルは150MB以下にしてください');
       let json;
       try { json = JSON.parse(report.value); } catch { throw new Error('仮転写APIのJSONを読めません'); }
       const samples = json && (json.samples || (json.report && json.report.samples));
@@ -601,6 +602,9 @@ export const retargetViewport = (ctx) => {
     const item = assets.get().items.find((/** @type {any} */ a) => a.id === target);
     if (!item || !item.available || item.source !== 'integrated' || !['GLB', 'VRM'].includes(item.format) || !item.filename) {
       keySay('取得失敗: 登録済みGLB/VRMの転写先モデルを選択してください', true); return;
+    }
+    if (Number(item.bytes) > MAX_COMPARE_BYTES) {
+      keySay('取得失敗: 比較用モデルは150MB以下にしてください', true); return;
     }
     const epoch = ++keyEpoch;
     haltKeys(); keyReport = null; keyNodes.clear(); keyFrame.disabled = true; keySave.disabled = true; keyPlay.disabled = true; keyRun.disabled = true;

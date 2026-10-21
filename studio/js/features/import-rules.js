@@ -1,22 +1,22 @@
 // @ts-check
 // ③ 取り込み規則（純関数。DOM もネットワークも使わない。P2 設計 §2.3(d)）。
-// 拡張子 → 登録先・種類・送信前の名前の検査・既存の素材との衝突。サーバーの規則（server.py）を写したもので、サーバーは変えない（R1）。
-import { MAX_UPLOAD_BYTES } from '../api.js';
+// 拡張子 → 登録先・種類・送信前の名前の検査・既存の素材との衝突。server.py / library_assets.py と一致させる。
+import { MAX_UPLOAD_BYTES, MAX_STAGE_UPLOAD_BYTES } from '../api.js';
 import { fbxLabel } from './assets-model.js';
 
-/** @typedef {'integrated'|'pmxZip'|'vmd'|'fbx'} Route */
+/** @typedef {'integrated'|'pmxZip'|'vmd'|'fbx'|'library'} Route */
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
 /** @typedef {{ok: true, route: Route, label: string, kinds: {value: string, label: string}[], defaultKind: string, warnings: string[]} | {ok: false, error: string}} Classified */
 /** @typedef {{name: string, route: Route, kind: string}} ImportEntry */
 
-export { MAX_UPLOAD_BYTES };
-export const IMPORT_ACCEPT = '.glb,.vrm,.zip,.vmd,.fbx';
+export { MAX_UPLOAD_BYTES, MAX_STAGE_UPLOAD_BYTES };
+export const IMPORT_ACCEPT = '.glb,.vrm,.zip,.vmd,.fbx,.wav,.mp3,.mp4,.webm,.ogv,.png,.jpg,.jpeg,.gif,.webp,.avif,.bmp';
 
 /** コードポイントの数（サーバーの Python len と同じ。UTF-16 の単位ではない）。 @param {string} s */
 const cpLen = (s) => [...s].length;
 const NAME_GLB = /^[^/\\\x00]{1,180}\.glb$/iu;
 const NAME_VRM = /^[^/\\\x00]{1,180}\.vrm$/iu;
-const BAD_UNSUPPORTED = 'この形式には対応していません（GLB・VRM・PMX ZIP・VMD・FBX）。';
+const BAD_UNSUPPORTED = 'この形式には対応していません（GLB・VRM・PMX ZIP・VMD・FBX・WAV・MP3・MP4・WebM・OGV・PNG・JPEG・GIF・WebP・AVIF・BMP）。';
 const BAD_NAME_INTEGRATED = '名前は180文字以内で、/ と \\ を含められません。';
 
 /**
@@ -27,8 +27,8 @@ const BAD_NAME_INTEGRATED = '名前は180文字以内で、/ と \\ を含めら
 export function classifyImport(name, size) {
   const m = /\.([^.]*)$/.exec(name);
   const ext = m ? m[1].toLowerCase() : '';
-  if (!['glb', 'vrm', 'zip', 'vmd', 'fbx'].includes(ext)) return { ok: false, error: BAD_UNSUPPORTED };
-  if (size > MAX_UPLOAD_BYTES) return { ok: false, error: '400MB を超えるファイルは登録できません。' };
+  if (!['glb', 'vrm', 'zip', 'vmd', 'fbx', 'wav', 'mp3', 'mp4', 'webm', 'ogv', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'bmp'].includes(ext)) return { ok: false, error: BAD_UNSUPPORTED };
+  if (size > (ext === 'glb' ? MAX_STAGE_UPLOAD_BYTES : MAX_UPLOAD_BYTES)) return { ok: false, error: ext === 'glb' ? '1GB を超える GLB ステージは登録できません。' : '400MB を超えるファイルは登録できません。' };
   if (size === 0) return { ok: false, error: '空のファイルです。' };
   /** @type {string[]} */
   const warnings = [];
@@ -36,8 +36,12 @@ export function classifyImport(name, size) {
     if (!(ext === 'glb' ? NAME_GLB : NAME_VRM).test(name)) return { ok: false, error: BAD_NAME_INTEGRATED };
     // GLB/VRM はサーバーが名前を二重にデコードする（server.py:764）。% を含むと別の名前で登録されることがある。
     if (name.includes('%')) warnings.push('名前に % が含まれているため、登録される名前が変わることがあります');
+    if (ext === 'glb' && size > MAX_UPLOAD_BYTES) {
+      warnings.push('大型 GLB はステージとしてのみ登録できます。読込時はメモリとGPU容量を多く使います');
+      return { ok: true, route: 'library', label: '大型 GLB ステージ', kinds: [{ value: 'stage', label: 'ステージ' }], defaultKind: 'stage', warnings };
+    }
     return ext === 'glb'
-      ? { ok: true, route: 'integrated', label: 'GLB（モデル／モーション）', kinds: [{ value: 'motion', label: 'モーション' }, { value: 'model', label: 'モデル' }], defaultKind: 'motion', warnings }
+      ? { ok: true, route: 'integrated', label: 'GLB（モデル／モーション／ステージ／小物／エフェクト）', kinds: [{ value: 'motion', label: 'モーション' }, { value: 'model', label: 'モデル' }, { value: 'stage', label: 'ステージ' }, { value: 'prop', label: '小物' }, { value: 'fx', label: 'エフェクト素材' }], defaultKind: 'motion', warnings }
       : { ok: true, route: 'integrated', label: 'VRM モデル', kinds: [], defaultKind: 'model', warnings };
   }
   if (ext === 'zip') {
@@ -49,9 +53,27 @@ export function classifyImport(name, size) {
     }
     return { ok: true, route: 'vmd', label: 'VMD モーション', kinds: [], defaultKind: '', warnings };
   }
+  if (['wav', 'mp3', 'mp4', 'webm', 'ogv', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'bmp'].includes(ext)) {
+    if (cpLen(name) > 180 || name.includes('/') || name.includes('\\') || name.startsWith('.') || [...name].some((c) => c.charCodeAt(0) < 32)) {
+      return { ok: false, error: BAD_NAME_INTEGRATED };
+    }
+    if (['wav', 'mp3'].includes(ext)) return { ok: true, route: 'library', label: 'オーディオ', kinds: [], defaultKind: 'audio', warnings };
+    if (['mp4', 'webm', 'ogv'].includes(ext)) return { ok: true, route: 'library', label: '動画', kinds: [], defaultKind: 'video', warnings };
+    const choices = ['gif'].includes(ext)
+      ? [{ value: 'image', label: '画像' }, { value: 'fx', label: 'エフェクト素材' }]
+      : ['bmp'].includes(ext)
+        ? [{ value: 'image', label: '画像' }, { value: 'material', label: 'マテリアル画像' }]
+        : [{ value: 'image', label: '画像' }, { value: 'material', label: 'マテリアル画像' }, { value: 'fx', label: 'エフェクト素材' }];
+    return { ok: true, route: 'library', label: '画像・マテリアル・エフェクト素材', kinds: choices, defaultKind: 'image', warnings };
+  }
   // fbx
   if (cpLen(name) > 250) return { ok: false, error: '名前は250文字以内にしてください。' };
   return { ok: true, route: 'fbx', label: 'FBX', kinds: [{ value: 'motions', label: 'モーション' }, { value: 'modelA', label: 'モデルA（置き換え）' }, { value: 'modelB', label: 'モデルB（置き換え）' }], defaultKind: 'motions', warnings };
+}
+
+/** GLB のステージ・小物・エフェクト素材だけ新しい保存APIへ送る。 @param {Route} route @param {string} kind @returns {Route} */
+export function effectiveRoute(route, kind) {
+  return route === 'integrated' && ['stage', 'prop', 'fx'].includes(kind) ? 'library' : route;
 }
 
 /** 本文のハッシュ（SHA-256）を16進で。 @param {ArrayBuffer} buf */

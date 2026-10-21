@@ -6,7 +6,7 @@ import { imports, assets } from '../store.js';
 import { emit } from '../bus.js';
 import { h, openModal, closeModal, toast } from '../ui.js';
 import { fbxLabel } from './assets-model.js';
-import { IMPORT_ACCEPT, classifyImport, conflictOf, batchErrorRows, fbxIdFor, sha256Hex } from './import-rules.js';
+import { IMPORT_ACCEPT, classifyImport, effectiveRoute, conflictOf, batchErrorRows, fbxIdFor, sha256Hex } from './import-rules.js';
 import { loadAssets, selectAsset, hasAsset } from './assets.js';
 
 /** @typedef {import('./import-rules.js').ImportEntry} ImportEntry */
@@ -54,6 +54,7 @@ function urlFor(r) {
   const n = encodeURIComponent(r.name);
   switch (r.route) {
     case 'integrated': return `/api/integrated-v02/upload?kind=${encodeURIComponent(r.kind)}&name=${n}`;
+    case 'library': return `/api/library-assets/upload?kind=${encodeURIComponent(r.kind)}&name=${n}`;
     case 'pmxZip': return `/api/pmx-zip-upload?slot=${encodeURIComponent(r.kind)}`;
     case 'vmd': return `/api/mmd-upload?slot=vmd&name=${n}`;
     default: return `/api/upload?kind=${encodeURIComponent(r.kind)}&name=${n}`;
@@ -62,6 +63,7 @@ function urlFor(r) {
 
 /** 登録した素材の /api/assets の id（設計 §2.3(d)-6）。 @param {ImportRow} r @param {any} data */
 function assetIdOf(r, data) {
+  if (r.route === 'library') return String(data.item.id);
   if (r.route === 'integrated') return `integrated:${data.asset}`;
   if (r.route === 'pmxZip') return `mmd:${data.slot}:${data.model_path}`;
   if (r.route === 'vmd') return `mmd:vmd:${r.name}`;
@@ -116,6 +118,7 @@ async function processRow(r) {
   patchRow(r.id, { status: 'sending', progress: 0 });
   const up = uploadFile(urlFor(r), r.file, {
     contentType: r.route === 'pmxZip' ? 'application/zip' : 'application/octet-stream',
+    limitLabel: r.route === 'library' && r.kind === 'stage' ? '1GB' : undefined,
     onProgress: ({ loaded, total }) => {
       const cur = rowOf(r.id);
       if (!cur || cur.status === 'processing' || cur.status === 'done') return;
@@ -281,7 +284,7 @@ export function openImportDialog() {
   const go = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn primary', type: 'button', dataset: { act: 'real', role: 'import-go' } }, '取り込む'));
   const cancel = h('button', { class: 'btn ghost', type: 'button', dataset: { role: 'import-cancel' }, onclick: closeModal }, 'キャンセル');
 
-  const entriesOf = () => picks.filter((p) => p.cls.ok).map((p) => ({ file: p.file, entry: /** @type {ImportEntry} */ ({ name: p.file.name, route: /** @type {any} */ (p.cls).route, kind: p.kind }), cls: /** @type {any} */ (p.cls) }));
+  const entriesOf = () => picks.filter((p) => p.cls.ok).map((p) => ({ file: p.file, entry: /** @type {ImportEntry} */ ({ name: p.file.name, route: effectiveRoute(/** @type {any} */ (p.cls).route, p.kind), kind: p.kind }), cls: /** @type {any} */ (p.cls) }));
 
   const render = () => {
     const ok = entriesOf();
@@ -301,12 +304,13 @@ export function openImportDialog() {
           onchange: () => { p.kind = sel.value; render(); } }, cls.kinds.map((k) => h('option', { value: k.value, selected: k.value === p.kind }, k.label))));
         kids.push(sel);
       } else if (cls.route === 'integrated') kids.push(h('span', { class: 'small muted' }, 'モデル（固定）'));
+      if (cls.route === 'library' || effectiveRoute(cls.route, p.kind) === 'library') kids.push(h('span', { class: 'small muted imp-hint' }, '元ファイルを別名保存し、画像・再生の確認は詳細欄で行います。'));
       if (cls.route === 'fbx') kids.push(h('span', { class: 'small muted imp-hint', dataset: { role: 'fbx-hint' } }, 'モデルA／Bは「置き換え」です：同じ枠の既存モデルの登録が外れ、元のファイルが削除されます。'));
       if (cls.route === 'pmxZip') kids.push(h('span', { class: 'small muted imp-hint' }, '登録先のスロットに、フォルダー構造を保って展開します。'));
       for (const w of cls.warnings) kids.push(h('span', { class: 'imp-warn', role: 'note' }, w));
       if (berr) kids.push(h('span', { class: 'imp-err', role: 'alert', dataset: { role: 'batch-error' } }, berr));
       if (busy) kids.push(h('span', { class: 'small', dataset: { role: 'row-status' } }, '確認中'));
-      return h('li', { class: `imp-row${berr ? ' is-bad' : ''}`, dataset: { name: p.file.name, route: cls.route, state: berr ? 'conflict' : 'ready' } }, kids);
+      return h('li', { class: `imp-row${berr ? ' is-bad' : ''}`, dataset: { name: p.file.name, route: effectiveRoute(cls.route, p.kind), state: berr ? 'conflict' : 'ready' } }, kids);
     }));
     msg.textContent = message;
     go.disabled = busy || !ok.length || rowErr.some(Boolean);
@@ -353,7 +357,7 @@ export function openImportDialog() {
     title: '素材を取り込む',
     className: 'import-dialog',
     body: [
-      h('p', { class: 'small muted' }, 'GLB・VRM・PMX を含む ZIP・VMD・FBX を選べます（複数可）。種類はファイルごとに選びます。'),
+      h('p', { class: 'small muted' }, 'モデル・ステージ・小物・材質・エフェクト素材・音声・動画・画像を取り込めます。GLB／VRM／PMX ZIP／VMD／FBX／WAV／MP3／MP4／WebM／OGV／PNG／JPEG／GIF／WebP／AVIF／BMP。種類はファイルごとに選びます。'),
       h('label', { class: 'field stack' }, h('span', null, 'ファイル'), input),
       list, msg,
       h('p', { class: 'section-note' }, '一括のタグ付け・変換は未実装です（NF-004）。PMX は個別ファイルではなく、テクスチャを含む ZIP で登録します。'),

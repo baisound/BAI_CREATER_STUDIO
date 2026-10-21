@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { classifyImport, conflictOf, batchErrors, batchErrorRows, fbxIdFor, sha256Hex, integratedStoredName, IMPORT_ACCEPT, MAX_UPLOAD_BYTES } from '../studio/js/features/import-rules.js';
+import { classifyImport, effectiveRoute, conflictOf, batchErrors, batchErrorRows, fbxIdFor, sha256Hex, integratedStoredName, IMPORT_ACCEPT, MAX_UPLOAD_BYTES, MAX_STAGE_UPLOAD_BYTES } from '../studio/js/features/import-rules.js';
 import { categoryOf, sourceLabel, filterAssets, countByCategory, formatsOf, ASSET_CATS } from '../studio/js/features/assets-model.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -16,7 +16,7 @@ test('classifyImport: the six rows of the table', () => {
   assert.equal(glb.ok, true);
   assert.equal(glb.route, 'integrated');
   assert.equal(glb.defaultKind, 'motion');
-  assert.deepEqual(glb.kinds.map((k) => k.value), ['motion', 'model']);
+  assert.deepEqual(glb.kinds.map((k) => k.value), ['motion', 'model', 'stage', 'prop', 'fx']);
 
   const vrm = classifyImport('b.VRM', 10);
   assert.equal(vrm.route, 'integrated');
@@ -37,18 +37,31 @@ test('classifyImport: the six rows of the table', () => {
   assert.equal(fbx.defaultKind, 'motions');
   assert.deepEqual(fbx.kinds.map((k) => k.value), ['motions', 'modelA', 'modelB']);
 
-  const other = classifyImport('x.png', 10);
+  const other = classifyImport('x.xyz', 10);
   assert.equal(other.ok, false);
-  assert.match(other.error, /この形式には対応していません（GLB・VRM・PMX ZIP・VMD・FBX）。/);
+  assert.match(other.error, /この形式には対応していません/);
   assert.equal(classifyImport('noext', 10).ok, false);
-  assert.equal(IMPORT_ACCEPT, '.glb,.vrm,.zip,.vmd,.fbx');
+  assert.match(IMPORT_ACCEPT, /\.wav/);
+});
+
+test('new library kinds and routes', () => {
+  assert.equal(effectiveRoute('integrated', 'stage'), 'library');
+  assert.equal(effectiveRoute('integrated', 'model'), 'integrated');
+  assert.equal(classifyImport('scene.wav', 1).defaultKind, 'audio');
+  assert.equal(classifyImport('clip.mp4', 1).defaultKind, 'video');
+  assert.deepEqual(classifyImport('effect.gif', 1).kinds.map((k) => k.value), ['image', 'fx']);
+  assert.deepEqual(classifyImport('texture.png', 1).kinds.map((k) => k.value), ['image', 'material', 'fx']);
+  assert.equal(classifyImport('hidden/.png', 1).ok, false);
 });
 
 test('classifyImport: size limits and empty files', () => {
   assert.equal(classifyImport('a.glb', MAX_UPLOAD_BYTES).ok, true);
   const big = classifyImport('a.glb', MAX_UPLOAD_BYTES + 1);
-  assert.equal(big.ok, false);
-  assert.equal(big.error, '400MB を超えるファイルは登録できません。');
+  assert.equal(big.ok, true);
+  assert.equal(big.route, 'library');
+  assert.deepEqual(big.kinds.map((k) => k.value), ['stage']);
+  assert.equal(classifyImport('a.glb', MAX_STAGE_UPLOAD_BYTES + 1).ok, false);
+  assert.equal(classifyImport('a.vrm', MAX_UPLOAD_BYTES + 1).ok, false);
   const empty = classifyImport('a.vmd', 0);
   assert.equal(empty.ok, false);
   assert.equal(empty.error, '空のファイルです。');
@@ -88,6 +101,7 @@ test('MAX_UPLOAD_BYTES equals the server MAX_SIZE', () => {
   assert.equal(MAX_UPLOAD_BYTES, 400 * 1024 * 1024);
   const src = fs.readFileSync(path.join(root, 'server.py'), 'utf8');
   assert.match(src, /MAX_SIZE=400\*1024\*1024/);
+  assert.equal(MAX_STAGE_UPLOAD_BYTES, 1024 * 1024 * 1024);
 });
 
 /* ---------------------------------------------------------------- fbxIdFor */

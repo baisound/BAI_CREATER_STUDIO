@@ -16,7 +16,9 @@ import { motionTimeline } from './motion-timeline.js';
 import { patternList, chainTimeline, playbackSettings } from './chain-view.js';
 import { chainViewport } from './chain-viewport.js';
 import { sceneViewport, stageLoadButton, stageTransform } from './scene-view.js';
+import { sceneObjects, sceneLightTools, lightEditor, lightTimeline } from './scene-light-ui.js';
 import { projectToolbar, projectStatus, projectSummary, projectHistory, projectList, projectCard } from './project-view.js';
+import { musicDanceStudio } from './music-dance-view.js';
 
 /** @type {Record<string, FeatureFn>} */
 export const FEATURES = {
@@ -26,11 +28,14 @@ export const FEATURES = {
   importButton, assetCategories, assetLibrary, assetDetail, recentImports,
   // WP-04（④、ステージ配置④-11）
   characterList, characterViewport, characterBones, useModelButton, sceneViewport, stageLoadButton, stageTransform,
+  sceneObjects, sceneLightTools, lightEditor, lightTimeline,
   // WP-04b（④-9・④-10 リターゲット検証、SCR-13）
   retargetPanel, retargetViewport, footContactPanel,
   // WP-05a（⑤ SCR-13［編集］の1体再生）
   motionCenter, vmdLibrary, motionTimeline,
   // WP-05c（⑤ SCR-05 の82パターン・お気に入り・コンビネーション・速度）
   patternList, chainTimeline, playbackSettings, chainViewport,
+  // AUDIO-001 / Issue #39: 実音声・GLB ダンス・PMX プレビューの同期
+  musicDanceStudio,
   // WP-05d 以降が追加する。
 };

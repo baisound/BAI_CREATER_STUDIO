@@ -20,6 +20,9 @@ __pycache__/
 /data/integrated_v02/assets/
 
 /data/ui_qa/
+/data/library_assets/
+/data/asset_thumbnails/
+/data/sample_imports_20261021/
 
 # Local frontend developer tooling
 /node_modules/

@@ -223,9 +223,9 @@ export const motionViewport = (ctx) => {
     raf = 0;
     if (!alive || !player) return;
     if (timelinePlayback?.state().playing) {
-      const dt = Math.min(Math.max(0, (now - last) / 1000), .08);
+      const elapsed = Math.max(0, (now - last) / 1000);
       last = now;
-      timelinePlayback.update(dt);
+      timelinePlayback.update(elapsed);
       host?.invalidate();
       if (timelinePlayback.state().playing) raf = requestAnimationFrame(tick);
       return;
@@ -256,7 +256,7 @@ export const motionViewport = (ctx) => {
     libs = await loadLibs();
     if (!alive) return null;
     host = createViewport(stageEl, libs);
-    player = createPlayer(libs.THREE);
+    player = createPlayer(libs.THREE, libs.MMDAnimationHelper);
     return host;
   }
 

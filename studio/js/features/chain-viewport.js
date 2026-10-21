@@ -458,7 +458,7 @@ export const chainViewport = (ctx) => {
       if (!alive) return;
       if (!s.mode || (s.mode === 'pmx' && !s.pmx) || (s.mode === 'fbx' && !s.fbx)) s.mode = s.pmx ? 'pmx' : s.fbx ? 'fbx' : null;
       if (!s.fbx && !s.pmx && !s.dummy) { s.dummy = buildDummy(libs.THREE, /** @type {0|1} */ (i)); host.add(s.dummy.root); }
-      if (!s.player) { s.player = createPlayer(libs.THREE); if (s.pmx) s.player.setModel(s.pmx.object, 'PMX'); }
+      if (!s.player) { s.player = createPlayer(libs.THREE, libs.MMDAnimationHelper); if (s.pmx) s.player.setModel(s.pmx.object, 'PMX'); }
       showSlot(i);
     }
     host.fit();

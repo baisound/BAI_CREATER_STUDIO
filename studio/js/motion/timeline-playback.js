@@ -49,8 +49,9 @@ export async function createTimelinePlayback(libs, model, clips, layers, options
     /** @param {number} dt */
     update(dt) {
       if (!playing) return;
-      const step = Math.min(.08, Math.max(0, dt));
-      const advanced = timelineAdvance(frame, step, clips);
+      const elapsed = Math.max(0, dt);
+      const step = Math.min(.08, elapsed);
+      const advanced = timelineAdvance(frame, elapsed, clips);
       frame = advanced.position;
       removeLayerRotations();
       const selected = timelineSelect(clips, frame);

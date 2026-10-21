@@ -2,6 +2,18 @@
 
 このファイルはローカル開発エージェント向けの最初に読む案内です。Codexなどの `AGENTS.md` を読むエージェントはこれを遵守し、読まないツールには必要箇所を明示して渡すこと。設定ファイルを置くだけで全エージェントに強制適用されるわけではありません。
 
+## バイサンドからの開発依頼はGitHub Issueへ（2026-10-21）
+
+修正・不具合調査・機能やUIの変更など、リポジトリに関わる依頼を受けたら、着手時に既存Issueを探し、日本語のIssueへ記録する。画像がある依頼は画像もIssueに添付し、PRと結果を同じIssueに結ぶ。本文は初めて読む人にも分かる言葉を先に、専門的な補足を後に書く。**この種の依頼を扱うときだけ** [詳しい手順](docs/handoff/OWNER_REQUEST_ISSUES_JA.md)を読む。
+
+## mainへPRをマージした後（2026-10-21）
+
+mainへのマージ後は、ローカルのmainを安全にfast-forwardし、利用中のローカルサーバーが更新後のmainを返すことを確認する。**mainへのマージを行ったときだけ** [同期と確認の手順](docs/handoff/MAIN_SYNC_AFTER_MERGE_JA.md)を読む。追跡外のログや利用者データを削除しない。
+
+## 素材取り込みの先行（2026-10-21）
+
+後続のオーナー直接指示により、素材を取り込む入口の `DATA-016` を最優先に進める。対象形式・見本・詳細・試験は [実装契約](docs/roadmap/ASSET_IMPORT_EXPANSION_20261021_JA.md) と [Issue #37](https://github.com/baisound/BAI_CREATER_STUDIO/issues/37)。完了後は下記の既定順に戻る。
+
 ## 作業位置の記録（2026-10-20、オーナー指示・Claude Code と Codex 共通）
 
 クレジット切れで Claude Code と Codex を行き来するため、作業位置を `docs/handoff/WORK_STATE.json` に必ず記録する。詳細は `docs/handoff/README_JA.md`。
