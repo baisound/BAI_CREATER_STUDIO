@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T23:22:00+09:00",
+  "updated_at": "2026-10-21T23:45:25+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05g",
-  "head_at_update": "8451afb",
+  "head_at_update": "3bddf9a",
   "current": {
-    "task": "P2-WP-05g SCR-05の2D・3D模式再生",
-    "status": "done",
-    "step": "共通Node・Python・Evidence・E2Eゲートと進捗正本の整合",
+    "task": "P2-WP-05g PR52統合",
+    "status": "in_progress",
+    "step": "現行mainへ統合し独立レビューと回帰試験を実施",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T23:45:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3bddf9a",
+      "text": "P2-WP-05g PR52統合: 現行mainへ統合し独立レビューと回帰試験を実施"
+    },
     {
       "at": "2026-10-21T23:22:00+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "d54e551",
       "text": "P2-WP-05dを実装・検証：SCR05のA/B 3D、FBX連結再生、対応表、スロット別PMX+VMD。Chrome15件、S5合格、P2全体197 pass・5 skip・0 fail、typecheck合格、実データハッシュ一致。"
-    },
-    {
-      "at": "2026-10-21T09:34:21+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "be1425f",
-      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: SCR05中央のA/B 3D・PMX/VMD・連結再生UI実装"
     }
   ]
 }
