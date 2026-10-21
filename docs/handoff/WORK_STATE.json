@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T20:16:19+09:00",
+  "updated_at": "2026-10-21T20:23:22+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-visual-previews-v2",
-  "head_at_update": "c6287b1",
+  "head_at_update": "17df04c",
   "current": {
     "task": "ステージGLBの内部を解析して見せ場のサムネイルを自動生成",
-    "status": "in_progress",
+    "status": "done",
     "step": "SkyDomeを除いた構造範囲、室内候補視点、画像評価、版付き保存と既登録S01再生成を実装",
     "design_doc": "docs/roadmap/ASSET_VISUAL_PREVIEWS_20261021_JA.md"
   },
   "next_steps": [
-    "Owner指定のステージ内部を自動解析して見せ場を撮るサムネイルを実装し、既登録S01も更新する。Issue34/35の実PMX/VMD/FBX/VRM確認を続ける"
+    "#34/#35の実PMX/VMD/FBX/VRM品質確認、PR作成・統合判断、承認済みIssue39画像添付、WP05gを続ける"
   ],
   "unverified": [
-    "実GPU/Linux、外部リグ・実PMX/VMDのグレーマン、実FBX/VRM/PMXの正面方向、Owner採用、MCPは未検証"
+    "他の閉鎖型GLBの自動構図、実GPU/Linux、実PMX/VMDのグレーマン、実FBX/VRM/PMXの正面画像、Owner採用、MCPは未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T20:23:22+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "17df04c",
+      "text": "DATA-016のステージ内部自動サムネイルを実装。実S01で8視点解析と室内PNG保存・旧画像保持を確認し、ローカル登録済みS01を更新"
+    },
     {
       "at": "2026-10-21T20:16:19+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "9b9464c",
       "text": "Issue #30 旧BAI Cameraの正面撮影・自由回転・再生途中停止・周回の不具合: 実画面とコードで症状を切り分け、既存仕様内で修正する"
-    },
-    {
-      "at": "2026-10-21T15:07:03+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2b90003",
-      "text": "Issue #28 MOTION-016の素材一覧3姿勢画像と選択素材の再生プレビューを実装。Issue #29 3D操作とともにChrome/SwiftShader実素材確認。素材テスト29/29、ビュー19/19、旧カメラ1/1、証拠テスト120/120、tsc合格。実データハッシュ不変。"
     }
   ]
 }

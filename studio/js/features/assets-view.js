@@ -10,7 +10,7 @@ import { ASSET_CATS, categoryOf, sourceLabel, filterAssets, countByCategory, for
 import { lib, setLib, selectAsset, selectCategory, applyParams, ensureAssets, loadAssets, watchAssets } from './assets.js';
 import { openImportDialog, statusText, cancelRow, removeRow, retryRow } from './import.js';
 import { mountMotionPreview, motionThumbnail, previewModels } from './asset-motion-preview.js';
-import { libraryFileUrl, libraryThumbnail, mountLibraryPreview } from './asset-library-preview.js';
+import { libraryFileUrl, libraryThumbnail, backfillStageThumbnails, mountLibraryPreview } from './asset-library-preview.js';
 import { characterThumbnail, backfillCharacterThumbs } from './asset-character-thumbnail.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
@@ -260,7 +260,13 @@ export const assetLibrary = (ctx) => {
   };
 
   // 変化した部分だけ描き直す（検索欄の入力中の欄は作り直さない）
-  watch(ctx, () => { drawControls(); drawBody(); if (assets.get().status === 'ready') backfillCharacterThumbs(assets.get().items); }, assets, lib);
+  watch(ctx, () => {
+    drawControls(); drawBody();
+    if (assets.get().status === 'ready') {
+      backfillCharacterThumbs(assets.get().items);
+      backfillStageThumbnails(assets.get().items);
+    }
+  }, assets, lib);
   watch(ctx, drawQueue, imports, lib);
   root.append(
     h('div', { class: 'lib-bar' }, srcBar, h('span', { class: 'spacer' }), bulk),
