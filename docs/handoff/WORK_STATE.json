@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T21:38:47+09:00",
+  "updated_at": "2026-10-21T21:39:50+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-visual-previews-v2",
-  "head_at_update": "203f4c4",
+  "head_at_update": "55bbc36",
   "current": {
     "task": "PR43の大型GLB自動読込を安全化",
-    "status": "in_progress",
+    "status": "done",
     "step": "Issue44受領後、大型ステージの自動サムネイルと詳細の自動3D読込を抑止する",
     "design_doc": "docs/roadmap/ASSET_VISUAL_PREVIEWS_20261021_JA.md"
   },
   "next_steps": [
-    "Issue34/35とステージ内部サムネイルのPRを作成し、レビュー・統合判断へ進む",
-    "承認済みIssue39公開安全PNG添付とWP05gを続ける"
+    "PR43とPR45のレビュー・統合判断を待つ。統合時は両PRの素材見本差分を保持する。"
   ],
   "unverified": [
-    "他のPMX/FBXモデル/外部リグの正面・骨命名、IK/grantの個別寄与、実GPU/Linux、Owner採用、MCPは未検証。実PMXのSCR12通常表示が空白になる既存問題は別管理"
+    "最大GLBのシーンUI追加試験は端末負荷により再実施しない。Owner最終外観採用、低性能GPU、Linuxは未検証。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T21:39:50+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "55bbc36",
+      "text": "PR43: 受領大型GLBの自動サムネイル補完・詳細自動3D読込を128MiB超で抑止。明示操作だけに限定し、Node1件とTypeScript検査に合格。"
+    },
     {
       "at": "2026-10-21T21:38:47+09:00",
       "by": "codex",
@@ -235,13 +241,6 @@
       "event": "start",
       "head": "3a24dd4",
       "text": "Issue #37 素材取り込みの入口をステージ・小物・材質・エフェクト・音声・動画・画像へ拡張: 既存API・台帳・入力形式とサンプル素材の権利を調査し、実装順序を決める"
-    },
-    {
-      "at": "2026-10-21T15:58:52+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "340aeeb",
-      "text": "Issue #33: mainへのPRマージ後のローカルmain同期・8765番サーバー確認をAGENTSと詳細手順に追加"
     }
   ]
 }
