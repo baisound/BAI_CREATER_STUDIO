@@ -1,6 +1,6 @@
 // @ts-check
 // 3D ビューポートの生成と破棄（P2 設計 §1.7）。SCR-12 と SCR-06 が使う。同時に存在するのは1つだけ。
-// OrbitControls で回転・ズーム（index.html:139 と同じ）。破棄は画面の後始末（ctx.onCleanup）に必ず登録する。
+// OrbitControls で回転・平行移動・前後移動。破棄は画面の後始末（ctx.onCleanup）に必ず登録する。
 import { disposeObject } from './model-loader.js';
 
 /** @typedef {import('./model-loader.js').Libs} Libs */
@@ -35,6 +35,8 @@ export function createViewport(container, libs, o = {}) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   const canvas = renderer.domElement;
   canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  canvas.tabIndex = 0;
+  canvas.setAttribute('aria-label', '3Dビュー。中ドラッグで回転、Shift＋中ドラッグで平行移動、Ctrl＋中ドラッグまたはホイールで前後移動');
   container.prepend(canvas);
 
   const scene = new THREE.Scene();
@@ -49,6 +51,21 @@ export function createViewport(container, libs, o = {}) {
   const camera = new THREE.PerspectiveCamera(40, 1, 0.03, 500);
   camera.position.set(2, 1.6, 4.5);
   const controls = new OrbitControls(camera, canvas);
+  // Three.js 0.160.1 は ROTATE に修飾キーを付けると PAN に切り替わる。
+  // Ctrl＋中ドラッグだけは pointerdown の前に DOLLY へ割り当てる。
+  controls.mouseButtons.MIDDLE = THREE.MOUSE.ROTATE;
+  const middleDown = (/** @type {PointerEvent} */ e) => {
+    if (e.button !== 1) return;
+    e.preventDefault();
+    controls.mouseButtons.MIDDLE = e.ctrlKey ? THREE.MOUSE.DOLLY : THREE.MOUSE.ROTATE;
+  };
+  const noAuxClick = (/** @type {MouseEvent} */ e) => { if (e.button === 1) e.preventDefault(); };
+  canvas.addEventListener('pointerdown', middleDown, true);
+  canvas.addEventListener('auxclick', noAuxClick);
+  const navHelp = document.createElement('details');
+  navHelp.className = 'vp-nav-help';
+  navHelp.innerHTML = '<summary>視点操作</summary><span>中ドラッグ：回転<br>Shift＋中ドラッグ：左右・上下<br>Ctrl＋中ドラッグ／ホイール：前後</span>';
+  container.append(navHelp);
   controls.target.set(0, 1, 0);
   controls.update();
 
@@ -148,6 +165,8 @@ export function createViewport(container, libs, o = {}) {
       if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
       controls.removeEventListener('change', invalidate);
+      canvas.removeEventListener('pointerdown', middleDown, true);
+      canvas.removeEventListener('auxclick', noAuxClick);
       controls.dispose();
       for (const c of [...content.children]) disposeObject(c);
       content.clear();
@@ -156,6 +175,7 @@ export function createViewport(container, libs, o = {}) {
       renderer.dispose();
       renderer.forceContextLoss();
       canvas.remove();
+      navHelp.remove();
       if (current === api) current = null;
     },
   };

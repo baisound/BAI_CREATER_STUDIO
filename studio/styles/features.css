@@ -80,6 +80,12 @@
 .vp3d { background-image: none; background: var(--viewport); }
 .vp3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .vp3d .vp-hud, .vp3d .vp-tools, .vp3d .vp-note, .vp3d .vp3d-msg { z-index: 2; }
+.vp-nav-help { position: absolute; right: 8px; bottom: 8px; z-index: 3; max-width: min(250px, 80%); border: 1px solid var(--border-strong); border-radius: 6px; background: color-mix(in srgb, var(--surface-0) 88%, transparent); color: var(--text); font-size: var(--fs-xs); }
+.vp-nav-help summary { cursor: pointer; padding: 4px 8px; list-style: none; }
+.vp-nav-help summary::-webkit-details-marker { display: none; }
+.vp-nav-help summary::before { content: '?'; display: inline-grid; place-items: center; width: 15px; height: 15px; margin-right: 5px; border: 1px solid currentColor; border-radius: 50%; }
+.vp-nav-help[open] span { display: block; padding: 0 8px 7px; line-height: 1.55; }
+.vp-nav-help:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .vp3d-msg { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: 80%; text-align: center; padding: 8px 14px; border-radius: 8px; background: color-mix(in srgb, var(--surface-0) 82%, transparent); border: 1px solid var(--border-strong); color: var(--text); font-size: var(--fs-sm); pointer-events: none; }
 .vp3d-msg[data-kind="error"] { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 50%, transparent); }
 .vp3d-msg[hidden] { display: none; }

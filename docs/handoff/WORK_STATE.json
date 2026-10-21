@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T14:22:51+09:00",
+  "updated_at": "2026-10-21T14:39:17+09:00",
   "updated_by": "codex",
   "branch": "codex/motion-assets-navigation",
-  "head_at_update": "56f9ad1",
+  "head_at_update": "02b8023",
   "current": {
     "task": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善",
-    "status": "in_progress",
+    "status": "done",
     "step": "共通3DホストのBlender式中ドラッグと操作案内を実装",
     "design_doc": "docs/roadmap/MOTION_016_ASSET_PREVIEW_NAVIGATION_20261021_JA.md"
   },
   "next_steps": [
-    "共通3Dホストの中ボタン操作を実装・画面検証する"
+    "Issue #28: 素材管理のモーション一覧に見本画像と再生プレビューを実装"
   ],
   "unverified": [
-    "素材形式ごとの視覚プレビューと旧カメラ自由視点は未実装。GPU実機は未検証。"
+    "Issue #29 の物理マウスとGPU実機での操作感は未検証。Issue #28 の素材形式ごとのプレビューは未実装。旧カメラの正面撮影・再生・周回はIssue #30で後続調査。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T14:39:17+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "02b8023",
+      "text": "Issue #29: 共通3Dビューと旧3D画面の中ドラッグ回転・Shift移動・Ctrl前後操作を実装し、Chrome 19件と旧画面1件、tscを確認"
+    },
     {
       "at": "2026-10-21T14:22:51+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "255ad3d",
       "text": "P2 §2.5（⑤ モーション）を WP-05a〜05g に分けて詳しくした（255ad3d）。O-⑤-1〜8 決定、批評1回反映、台帳更新。コード変更なし"
-    },
-    {
-      "at": "2026-10-20T19:29:19+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "8de3801",
-      "text": "P2 §2.5 ⑤ モーション（VMD）の詳細設計（O-⑤-1〜8 の決定と WP-05 の分割）: 旧コード調査 → §2.5 詳細化 → 自己批評 → コミット"
     }
   ]
 }

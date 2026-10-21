@@ -310,10 +310,12 @@ window.addEventListener('bai-camera-workspace-restore',async e=>{
 $('camera-clip').onchange=e=>{const i=Number(e.target.value);setClip(e.target.value===''?null:i)};
 $('camera-load-asset').onclick=()=>{const name=$('camera-asset').value;if(!name){status('素材を選択してください');return}loadAsset(name).catch(err=>status('読み込み失敗: '+err.message))};
 async function catalog(){try{const r=await fetch('/api/integrated-v02/catalog');if(!r.ok)throw Error('HTTP '+r.status);const c=await r.json(),sel=$('camera-asset'),seen=new Set();for(const entry of [...(c.models||[]),...(c.motions||[])]){const name=entry.source_asset?.split('/').pop();if(!name||!/\.(glb|vrm)$/i.test(name)||seen.has(name))continue;seen.add(name);sel.add(new Option((entry.name||name)+' — '+name,name))}status(seen.size+'件のGLB/VRM素材を選択できます')}catch(err){status('カタログ取得失敗: '+err.message)}}
-// Scene view controls: Unreal-style RMB+WASD fly, LMB orbit, Shift+LMB truck/crane.
+// Scene view controls: MMB orbit, Shift+MMB pan, Ctrl+MMB dolly;
+// existing LMB orbit, Shift+LMB pan and RMB+WASD fly remain available.
 // The independent scene camera never writes filming-camera keys.
 let dragButton=null,lastX=0,lastY=0,rightHeld=false;
-const canvas=()=>views[0].renderer?.domElement;
+// 3Dの重ねキャンバスはモデル未選択時にpointer-events:noneなので、両状態で受け取れる親パネルを操作面にする。
+const canvas=()=>views[0].renderer ? views[0].host : null;
 function focusSelectedModel(){
   const bounds=model?new THREE.Box3().setFromObject(model):null;
   if(bounds&&!bounds.isEmpty()){
@@ -328,7 +330,9 @@ function controlInit(){
   el.tabIndex=0;
   el.addEventListener('contextmenu',e=>e.preventDefault());
   el.addEventListener('pointerdown',e=>{
-    if(e.button!==0&&e.button!==2)return;
+    if(e.button!==0&&e.button!==1&&e.button!==2)return;
+    if(!model&&e.button!==1)return;
+    if(e.button===1)e.preventDefault();
     dragButton=e.button;rightHeld=e.button===2;
     lastX=e.clientX;lastY=e.clientY;
     el.focus();el.setPointerCapture(e.pointerId);
@@ -336,7 +340,9 @@ function controlInit(){
   el.addEventListener('pointermove',e=>{
     if(dragButton===null)return;
     const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;
-    if(dragButton===0&&e.shiftKey){
+    if(dragButton===1&&e.ctrlKey){
+      distance=Math.max(.35,Math.min(100,distance*Math.exp(dy*.01)));
+    }else if((dragButton===0||dragButton===1)&&e.shiftKey){
       const forward=new THREE.Vector3();sceneCam.getWorldDirection(forward);
       const right=new THREE.Vector3().crossVectors(forward,new THREE.Vector3(0,1,0)).normalize();
       const scale=distance*.0015;
@@ -349,6 +355,7 @@ function controlInit(){
   });
   const stop=e=>{dragButton=null;rightHeld=false;if(el.hasPointerCapture?.(e.pointerId))el.releasePointerCapture(e.pointerId)};
   el.addEventListener('pointerup',stop);el.addEventListener('pointercancel',stop);
+  el.addEventListener('auxclick',e=>{if(e.button===1)e.preventDefault()});
   el.addEventListener('blur',()=>{dragButton=null;rightHeld=false});
   el.addEventListener('wheel',e=>{
     e.preventDefault();distance=Math.max(.35,Math.min(100,distance*Math.exp(e.deltaY*.001)));scenePosition();

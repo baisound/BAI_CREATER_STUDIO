@@ -116,6 +116,10 @@ const near = (a, b, eps, label) => assert.ok(Math.abs(a - b) <= eps, `${label}: 
 const nearAll = (a, b, eps, label) => { assert.equal(a.length, b.length, label); a.forEach((v, i) => near(v, b[i], eps, `${label}[${i}]`)); };
 
 const vp = (page) => page.evaluate(() => window.baiStudio.viewport.getState());
+const viewCamera = (page) => page.evaluate(async () => {
+  const host = (await import('/studio/js/viewport/three-host.js')).currentViewport();
+  return { position: host.camera.position.toArray(), target: host.controls.target.toArray(), distance: host.camera.position.distanceTo(host.controls.target) };
+});
 /** 3D ビューポートが読み込み済みになるまで待つ。 */
 async function waitLoaded(page, timeout = 20000) {
   await page.waitForFunction(() => window.baiStudio.viewport.getState().loaded === true, null, { timeout });
@@ -124,6 +128,44 @@ async function openChar(page, server, id, { wait = true } = {}) {
   await page.goto(`${server.base}/workspace/12${id ? `?asset=${encodeURIComponent(id)}` : ''}`);
   if (id && wait) await waitLoaded(page);
 }
+
+test('middle drag navigation rotates, pans and moves in depth without editing the model', harness.skip3d(), async () => {
+  await withApp(seed(), async ({ page, server }) => {
+    await openChar(page, server, GLB_ID);
+    const canvas = page.locator('[data-feature="characterViewport"] canvas');
+    const box = await canvas.boundingBox();
+    assert.ok(box && box.width > 100);
+    const x = box.x + box.width / 2, y = box.y + box.height / 2;
+    assert.match(await page.locator('.vp-nav-help').innerText(), /視点操作/);
+    const before = await viewCamera(page);
+    await page.mouse.move(x, y);
+    await page.mouse.down({ button: 'middle' });
+    await page.mouse.move(x + 60, y + 25, { steps: 5 });
+    await page.mouse.up({ button: 'middle' });
+    const rotated = await viewCamera(page);
+    nearAll(rotated.target, before.target, 1e-6, '中ドラッグは注視点を変えない');
+    assert.ok(Math.abs(rotated.position[0] - before.position[0]) > .01, '中ドラッグで回転');
+
+    await page.keyboard.down('Shift');
+    await page.mouse.down({ button: 'middle' });
+    await page.mouse.move(x + 100, y + 65, { steps: 5 });
+    await page.mouse.up({ button: 'middle' });
+    await page.keyboard.up('Shift');
+    const panned = await viewCamera(page);
+    assert.ok(panned.target.some((v, i) => Math.abs(v - rotated.target[i]) > .01), 'Shift＋中ドラッグで平行移動');
+    near(panned.distance, rotated.distance, 1e-6, '平行移動で距離を保つ');
+
+    await page.keyboard.down('Control');
+    await page.mouse.down({ button: 'middle' });
+    await page.mouse.move(x + 100, y + 105, { steps: 5 });
+    await page.mouse.up({ button: 'middle' });
+    await page.keyboard.up('Control');
+    const moved = await viewCamera(page);
+    nearAll(moved.target, panned.target, 1e-6, 'Ctrl＋中ドラッグは注視点を変えない');
+    assert.ok(Math.abs(moved.distance - panned.distance) > .01, 'Ctrl＋中ドラッグで前後移動');
+    assert.equal((await vp(page)).assetId, GLB_ID);
+  });
+});
 async function openScene(page, server) {
   await page.goto(`${server.base}/workspace/06`);
   await page.waitForSelector('[data-feature="sceneViewport"]');

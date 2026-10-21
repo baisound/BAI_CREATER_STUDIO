@@ -1,5 +1,7 @@
 # モーション素材プレビューと3Dビュー操作（2026-10-21）
 
+依頼Issue: [素材プレビュー #28](https://github.com/baisound/BAI_CREATER_STUDIO/issues/28)、[3D操作 #29](https://github.com/baisound/BAI_CREATER_STUDIO/issues/29)。旧UIカメラの正面撮影・再生・周回の調査は[別Issue #30](https://github.com/baisound/BAI_CREATER_STUDIO/issues/30)。
+
 ## オーナー要望
 
 - SCR-08 のモーション素材は形式アイコンだけでは動きが伝わらない。FBXなどの実際の動作が見えるサムネイルと再生プレビューを提供する（MOTION-016、P2-WP-02/05）。
