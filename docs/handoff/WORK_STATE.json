@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T14:40:33+09:00",
+  "updated_at": "2026-10-21T15:07:03+09:00",
   "updated_by": "codex",
   "branch": "codex/motion-assets-navigation",
-  "head_at_update": "34b4605",
+  "head_at_update": "2b90003",
   "current": {
     "task": "Issue #28 MOTION-016 モーション素材の見本画像と再生プレビュー",
-    "status": "in_progress",
+    "status": "done",
     "step": "素材形式別の読み取り専用プレビューと一覧サムネイルを実装",
     "design_doc": "docs/roadmap/MOTION_016_ASSET_PREVIEW_NAVIGATION_20261021_JA.md"
   },
   "next_steps": [
-    "Issue #28: 素材管理のモーション一覧に見本画像と再生プレビューを実装"
+    "Issue #28/#29 のPRを作成・統合し、Issue #30 旧BAI Cameraの撮影方向・自由視点・再生停止・周回不具合を調査修正する"
   ],
   "unverified": [
-    "Issue #29 の物理マウスとGPU実機での操作感は未検証。Issue #28 の素材形式ごとのプレビューは未実装。旧カメラの正面撮影・再生・周回はIssue #30で後続調査。",
-    "Issue #30 の診断画像は公開内容を確認済み。GitHubへの実画像添付は画面操作ツールの起動エラーで未実施。"
+    "Issue #28/#29: 物理マウスとGPU実機での操作感・大量素材の長時間性能・全形式全素材は未検証。Ownerの画面採用はPhase E完了後。Issue #30の不具合は未調査。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T15:07:03+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2b90003",
+      "text": "Issue #28 MOTION-016の素材一覧3姿勢画像と選択素材の再生プレビューを実装。Issue #29 3D操作とともにChrome/SwiftShader実素材確認。素材テスト29/29、ビュー19/19、旧カメラ1/1、証拠テスト120/120、tsc合格。実データハッシュ不変。"
+    },
     {
       "at": "2026-10-21T14:40:33+09:00",
       "by": "codex",
@@ -235,13 +241,6 @@
       "event": "done",
       "head": "7b3327e",
       "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド preview_vmd・integrated_preview の受け口（O-⑤-5）"
-    },
-    {
-      "at": "2026-10-20T20:26:29+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "b8bd62d",
-      "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド studio:sync-command の受け口（O-⑤-5）: 実装→テスト→台帳更新→コミット"
     }
   ]
 }

@@ -308,7 +308,7 @@ export const SCREENS = [
     panels: [
       { name: '素材カテゴリ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::library lists real assets by category', note: '/api/assets の実数で分類・件数を表示。ステージ・オーディオなどは登録手段がなく0件。', ids: ['MOTION-002'] },
       { name: '検索・タグ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::search and format filter work on real data', note: '名前・形式で検索。タグは未実装。', ids: ['MOTION-002'] },
-      { name: 'サムネイル', status: 'unimpl', ids: ['MOTION-016'] },
+      { name: 'サムネイル', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::motion card shows three poses and detail plays, pauses and seeks a real FBX clip', note: 'モーションの開始・中間・終了姿勢。表示中のカードから生成し、詳細で再生。VMDはPMXが必要。', ids: ['MOTION-016'] },
       { name: 'メタデータ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::detail shows registration facts', note: '登録情報のみ。作者・ライセンスは未記録。', ids: ['MOTION-002'] },
       { name: '依存参照', status: 'unimpl', ids: ['REVIEW-010'] },
       { name: 'インポートキュー', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::multiple files import sequentially', note: 'GLB・VRM・PMX ZIP・VMD・FBX を登録（複数選択可）。上書き・置き換えは事前に確認。', ids: ['MOTION-003'] },

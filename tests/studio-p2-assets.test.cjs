@@ -130,6 +130,30 @@ test('library lists real assets by category', async () => {
   });
 });
 
+test('motion card shows three poses and detail plays, pauses and seeks a real FBX clip', harness.skip3d(), async () => {
+  const id = fbxId('motions', 'walk.fbx');
+  await withApp(seedLibrary({ [`files/${id}.fbx`]: FBX_MOTION }), async ({ server, page }) => {
+    await open08(page, server, '?cat=motion');
+    const card = page.locator(`${CARD}[data-asset-id="fbx:${id}"]`);
+    await card.scrollIntoViewIfNeeded();
+    await page.waitForFunction((assetId) => {
+      const el = document.querySelector(`[data-feature="assetLibrary"] .asset[data-asset-id="fbx:${assetId}"] img`);
+      return el?.getAttribute('src')?.startsWith('data:image/png');
+    }, id, { timeout: 20000 });
+    assert.match(await card.locator('img').getAttribute('alt'), /開始・中間・終了/);
+    await card.click();
+    await page.waitForFunction(() => /再生中/.test(document.querySelector('[data-role="preview-status"]')?.textContent || ''), null, { timeout: 20000 });
+    await page.click('[data-role="preview-pause"]');
+    const paused = await page.locator('[data-role="preview-time"]').textContent();
+    await page.waitForTimeout(180);
+    assert.equal(await page.locator('[data-role="preview-time"]').textContent(), paused);
+    await page.locator('[data-role="preview-seek"]').evaluate((el) => { el.value = '0.75'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+    assert.match(await page.locator('[data-role="preview-time"]').textContent(), /0\.7|0\.8/);
+    await page.click('[data-role="preview-play"]');
+    assert.equal(await page.locator('[data-role="preview-play"]').isDisabled(), true);
+  });
+});
+
 test('search and format filter work on real data', async () => {
   await withApp(seedLibrary(), async ({ server, page }) => {
     await open08(page, server);

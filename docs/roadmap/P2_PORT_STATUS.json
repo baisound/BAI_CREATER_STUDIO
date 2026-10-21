@@ -96,12 +96,13 @@
         "30601de"
       ],
       "tests": [
-        "2026-10-20：pytest 354 passed、npm run test:node-all 188 pass・0 fail・13 skip（three 無し）、tsc 合格、node tools/run_evidence_tests.mjs 合格、実 data/ ハッシュ不変。新規：tests/studio-p2-import-rules.test.mjs 16件、tests/studio-p2-assets-logic.test.mjs 3件、tests/studio-p2-assets.test.cjs（THREE_DIR 指定で26件すべて合格。一覧の3件＋表示設定の保存を含む）。通し確認 S1 の③部分は合格、furthest_step=null"
+        "2026-10-20：pytest 354 passed、npm run test:node-all 188 pass・0 fail・13 skip（three 無し）、tsc 合格、node tools/run_evidence_tests.mjs 合格、実 data/ ハッシュ不変。新規：tests/studio-p2-import-rules.test.mjs 16件、tests/studio-p2-assets-logic.test.mjs 3件、tests/studio-p2-assets.test.cjs（THREE_DIR 指定で26件すべて合格。一覧の3件＋表示設定の保存を含む）。通し確認 S1 の③部分は合格、furthest_step=null",
+        "2026-10-21 Issue #28 / MOTION-016：実FBXクリップを使う3姿勢画像・再生/停止/シークのChrome隔離テスト追加。studio-p2-assets.test.cjs 29/29合格、tsc合格。隣接するstudio-p2-motion.test.cjsは15/16合格、1件は画面表示待ち30秒で時間切れ、同じ1件の単独再実行で合格。実素材FBX・統合FBX・複数クリップGLB・VMD＋PMXで画面を確認し、元PMX/VMDハッシュ不変。コードは codex/motion-assets-navigation の素材プレビューコミット。"
       ],
       "unverified": [
-        "Opus レビュー未実施（WP-02 は設計上 Sonnet のみ）。GPU・Windows 実機未検証。実際の素材（実 data/）での表示は未確認（隔離データの種データのみ）。"
+        "Opus レビュー未実施（WP-02 は設計上 Sonnet のみ）。GPU・Windows 実機未検証。実際の素材（実 data/）での一覧・動作プレビューはChrome/SwiftShaderで一部確認。全素材と大量スクロールの性能は未検証。"
       ],
-      "notes": "WP-02 と WP-03 は1コミット（30601de）にまとめた。サムネイル（MOTION-016）・お気に入り・タグ・依存参照は ◇ のまま。",
+      "notes": "WP-02 と WP-03 は1コミット（30601de）にまとめた。2026-10-21にMOTION-016の画面内プレビューを追加し、機能台帳は要検証を維持。お気に入り・タグ・依存参照は ◇ のまま。",
       "owner_check": null
     },
     {

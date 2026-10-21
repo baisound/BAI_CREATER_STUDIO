@@ -394,7 +394,7 @@
       "group": "MOTION",
       "phase": 3,
       "name": "モーションサムネイル生成",
-      "detail": "開始/中間/終了姿勢",
+      "detail": "開始/中間/終了姿勢と選択素材の再生プレビュー（画面実装済み・全要件は要検証）",
       "status": "要検証",
       "dependency": "CORE,DATA"
     },

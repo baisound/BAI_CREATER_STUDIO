@@ -9,6 +9,7 @@ import { PH } from '../screens.js';
 import { ASSET_CATS, EMPTY_CATS, categoryOf, sourceLabel, filterAssets, countByCategory, formatsOf, kindLabel, fbxLabel } from './assets-model.js';
 import { lib, setLib, selectAsset, selectCategory, applyParams, ensureAssets, loadAssets, watchAssets } from './assets.js';
 import { openImportDialog, statusText, cancelRow, removeRow, retryRow } from './import.js';
+import { mountMotionPreview, motionThumbnail, previewModels } from './asset-motion-preview.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
@@ -36,10 +37,26 @@ function watch(ctx, fn, ...stores) {
   fn();
 }
 
-/** 形式の無地タイル（サムネイルは未実装 MOTION-016）。 @param {AssetItem} a */
+/** 画面内で作った見本だけ記憶する。元ファイルや制作状態には保存しない。 @type {Map<string, Promise<string|null>>} */
+const motionImages = new Map();
+let imageQueue = Promise.resolve();
+/** @param {AssetItem} a @param {AssetItem[]} items */
+function imageFor(a, items) {
+  const model = previewModels(a, items)[0] || null;
+  const key = `${a.id}|${model?.id || ''}`;
+  let pending = motionImages.get(key);
+  if (!pending) {
+    pending = imageQueue.then(() => motionThumbnail(a, model)).catch(() => null);
+    imageQueue = pending.then(() => undefined);
+    motionImages.set(key, pending);
+  }
+  return pending;
+}
+
+/** 形式タイル。モーションは見えているカードから3姿勢の見本へ置き換える。 @param {AssetItem} a */
 function tile(a) {
   const cat = categoryOf(a);
-  return h('div', { class: 'asset-img asset-tile', dataset: { cat } }, icon(cat === 'char' ? 'user' : 'motion', 28), h('span', { class: 'tile-fmt' }, a.format));
+  return h('div', { class: 'asset-img asset-tile', dataset: { cat, ...(cat === 'motion' && a.available ? { thumbId: a.id } : {}) } }, icon(cat === 'char' ? 'user' : 'motion', 28), h('span', { class: 'tile-fmt' }, a.format));
 }
 
 /* ------------------------------------------------------------------ ツール */
@@ -87,6 +104,22 @@ export const assetCategories = (ctx) => {
 export const assetLibrary = (ctx) => {
   boot(ctx);
   const root = h('div', { class: 'lib', dataset: { feature: 'assetLibrary' } });
+  const thumbnailObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const el = /** @type {HTMLElement} */ (entry.target);
+      thumbnailObserver.unobserve(el);
+      const item = assets.get().items.find((a) => a.id === el.dataset.thumbId);
+      if (!item || !item.available) continue;
+      void imageFor(item, assets.get().items).then((url) => {
+        if (!el.isConnected) return;
+        if (!url) { el.title = item.format === 'VMD' ? '見本にはPMXモデルが必要です' : 'この素材の見本画像を作れませんでした'; return; }
+        el.replaceChildren(h('img', { src: url, alt: `${item.name}の開始・中間・終了の姿勢`, loading: 'lazy' }));
+        el.classList.add('has-image');
+      });
+    }
+  }, { rootMargin: '80px' });
+  ctx.onCleanup(() => thumbnailObserver.disconnect());
 
   /* 場所タブ：選べるのは「ライブラリ」だけ（設計 §2.3(d) 中央） */
   /** @type {[string, string, string[]][]} */
@@ -172,8 +205,10 @@ export const assetLibrary = (ctx) => {
     } else {
       body.replaceChildren(h('table', { class: 'table asset-table' }, h('thead', null, h('tr', null, ['名前', '分類', '形式', '登録元', 'ファイル', ''].map((x) => h('th', { scope: 'col' }, x)))),
         h('tbody', null, list.map((a) => h('tr', { class: a.available ? '' : 'is-missing', 'aria-selected': String(l.sel === a.id), dataset: { assetId: a.id, available: String(a.available) }, onclick: () => pick(a) },
-          h('td', null, a.name), h('td', null, catLabel(categoryOf(a))), h('td', { class: 'mono' }, a.format), h('td', null, sourceLabel(a)), h('td', null, a.available ? 'あり' : pill(a)), h('td', null, heart(a)))))));
+          h('td', null, h('span', { class: 'asset-list-name' }, tile(a), a.name)), h('td', null, catLabel(categoryOf(a))), h('td', { class: 'mono' }, a.format), h('td', null, sourceLabel(a)), h('td', null, a.available ? 'あり' : pill(a)), h('td', null, heart(a)))))));
     }
+    thumbnailObserver.disconnect();
+    body.querySelectorAll('[data-thumb-id]').forEach((el) => thumbnailObserver.observe(el));
   };
 
   const drawQueue = () => {
@@ -242,7 +277,10 @@ const opened = new WeakSet();
 export const assetDetail = (ctx) => {
   boot(ctx);
   const root = h('div', { class: 'asset-detail', dataset: { feature: 'assetDetail' } });
+  /** @type {{dispose: () => void}|null} */ let motionPreview = null;
+  ctx.onCleanup(() => motionPreview?.dispose());
   watch(ctx, () => {
+    motionPreview?.dispose(); motionPreview = null;
     const st = assets.get();
     const l = lib.get();
     if (st.status !== 'ready') {
@@ -257,8 +295,21 @@ export const assetDetail = (ctx) => {
     const cat = categoryOf(a);
     const catName = (ASSET_CATS.find((c) => c.id === cat) || { label: cat }).label;
     const fileTxt = a.available ? 'あり' : 'なし（再登録してください）';
+    const canPreview = cat === 'motion' && a.available;
+    const stage = h('div', { class: 'asset-motion-stage viewport vp3d', 'aria-label': `${a.name}の動きの見本`, dataset: { role: 'motion-preview' } });
+    const play = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', disabled: true, dataset: { role: 'preview-play' } }, '▶ 再生'));
+    const pause = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', disabled: true, dataset: { role: 'preview-pause' } }, '❚❚ 一時停止'));
+    const fit = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', disabled: true, dataset: { role: 'preview-fit' } }, '全身表示'));
+    const seek = /** @type {HTMLInputElement} */ (h('input', { type: 'range', min: '0', max: '1', step: '0.01', value: '0', disabled: true, 'aria-label': '見本の再生位置', dataset: { role: 'preview-seek' } }));
+    const time = h('span', { class: 'mono xs', dataset: { role: 'preview-time' } }, '0.0 / 0.0 秒');
+    const status = h('p', { class: 'section-note', role: 'status', dataset: { role: 'preview-status' } }, '動きの見本を読み込み中…');
+    const clip = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '再生する動き', dataset: { role: 'preview-clip' }, hidden: true }));
+    const model = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'VMDを再生するPMXモデル', dataset: { role: 'preview-model' }, hidden: true }));
+    const previewNode = canPreview ? h('div', { class: 'asset-motion-preview' }, stage,
+      h('div', { class: 'asset-motion-controls' }, play, pause, fit, seek, time),
+      clip, model, status) : h('div', { class: 'detail-preview tile-large', dataset: { cat } }, icon(cat === 'char' ? 'user' : 'motion', 48), h('span', { class: 'tile-fmt' }, a.format));
     root.replaceChildren(
-      h('div', { class: 'detail-preview tile-large', dataset: { cat } }, icon(cat === 'char' ? 'user' : 'motion', 48), h('span', { class: 'tile-fmt' }, a.format)),
+      previewNode,
       h('div', { class: 'detail-title' }, h('h2', { dataset: { role: 'name' } }, a.name), h('span', { class: 'spacer' }), h('span', { class: 'pill' }, kindLabel(a))),
       section('情報', 'real', h('dl', { class: 'kv', dataset: { role: 'facts' } },
         h('dt', null, '名前'), h('dd', { dataset: { key: 'name' } }, a.name),
@@ -276,12 +327,13 @@ export const assetDetail = (ctx) => {
       section('依存素材', 'unimpl', h('p', { class: 'section-note' }, '依存関係の追跡は未実装です（REVIEW-010）。')),
       h('div', { class: 'detail-actions' },
         h('button', { class: 'btn primary', type: 'button', disabled: cat !== 'char', dataset: { act: 'real', role: 'show-3d' },
-          title: cat === 'char' ? 'キャラクター管理（12）で3D表示します' : '3D 表示できるのはモデルの素材です。モーションの再生は P2 ⑤（WP-05）で入ります',
+          title: cat === 'char' ? 'キャラクター管理（12）で3D表示します' : 'モーションの動きは上の見本で確認できます',
           onclick: () => ctx.navigate('12', { query: { asset: a.id } }) }, '3D で表示'),
         unimplBtn('シーンで使う', '新UIから素材をシーンへ配置する機能は未接続です。現行の制作画面で素材を選んで使えます。', ['NF-014'], PH.P2),
         h('div', { class: 'btn-row' },
           unimplBtn('置換', 'シーン内の素材差し替えは未実装です。', ['REVIEW-010'], PH.P2),
           unimplBtn('エクスポート', '素材単体の書き出しは外部連携（23）の範囲です。', ['NF-010'], PH.P4))));
+    if (canPreview) motionPreview = mountMotionPreview(stage, a, st.items, { play, pause, fit, seek, time, status, clip, model });
   }, assets, lib);
   return root;
 };

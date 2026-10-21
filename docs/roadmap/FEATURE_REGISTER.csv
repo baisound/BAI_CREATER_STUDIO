@@ -42,7 +42,7 @@ MOTION-012,MOTION,3,フットステップ・歩幅編集,足跡指定と接地�
 MOTION-013,MOTION,3,重心・ルート座標累積,前モーション終端→次開始へ継承,要検証,"CORE,DATA"
 MOTION-014,MOTION,3,ボーン軌跡と姿勢差分ゴースト,元FBXとVMDの重ね比較,要検証,"CORE,DATA"
 MOTION-015,MOTION,3,モーション左右ミラー,左右のボーン・軌跡変換,要検証,"CORE,DATA"
-MOTION-016,MOTION,3,モーションサムネイル生成,開始/中間/終了姿勢,要検証,"CORE,DATA"
+MOTION-016,MOTION,3,モーションサムネイル生成,開始/中間/終了姿勢と選択素材の再生プレビュー（画面実装済み・全要件は要検証）,要検証,"CORE,DATA"
 MOTION-017,MOTION,3,モーション分類・類似検索,名称・ポーズ・動作距離で検索,要検証,"CORE,DATA"
 MOTION-018,MOTION,3,モーション継ぎ目検出,姿勢・速度の不連続検出,要検証,"CORE,DATA"
 MOTION-019,MOTION,3,モデル互換性診断・修復案,骨/ウェイト/モーフ/座標系,要検証,"CORE,DATA"
