@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T22:45:32+09:00",
+  "updated_at": "2026-10-21T22:50:03+09:00",
   "updated_by": "codex",
-  "branch": "codex/stage-lighting-zoom",
-  "head_at_update": "8984bbd",
+  "branch": "main",
+  "head_at_update": "3e2e2a1",
   "current": {
     "task": "Issue #46・#47: 公開可能な図をIssueへ添付",
     "status": "done",
@@ -11,10 +11,10 @@
     "design_doc": "docs/roadmap/STAGE_LIGHTLESS_ZOOM_20261021_JA.md"
   },
   "next_steps": [
-    "図をPR #48およびIssue #46・#47へ画像として表示確認する。S05/S06発光候補はOwner判断待ち。PR統合後mainとサーバーを同期"
+    "S05/S06発光抑制の別名候補はOwner採否待ち。Issue46はOwner外観採用まで継続。承認済みロードマップのWP05gへ戻る"
   ],
   "unverified": [
-    "LAST CHASE全景の実操作、実GPU、Linux、Owner外観採用は未検証。S05/S06発光候補は未採用・未登録"
+    "LAST CHASE全景のシーン操作は端末フリーズ歴で再試験しない。実GPU、Linux、Owner外観採用、WebMCP/標準MCPは未検証。S05/S06発光候補は未採用・未登録"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T22:50:03+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "3e2e2a1",
+      "text": "PR #48をmainへマージ。ローカルmainを3e2e2a1へfast-forwardし、8765番のroot/SCR-06/視点JS/API素材4件をHTTP確認。Issue46/47に公開可能な図を画像表示"
+    },
     {
       "at": "2026-10-21T22:45:32+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "9e9f244",
       "text": "Issue #40 ステージGLB配置と3点ライト編集: 実GLBの登録・座標検証とライト保存形式/編集UIの設計"
-    },
-    {
-      "at": "2026-10-21T18:04:36+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "0d7beec",
-      "text": "AUDIO-001: SCR-10でPMXとMVNT GLBの骨対応、MMD物理、WAV/MP3実波形、30fps配置・再生・保存復元を実装し、実素材を隔離ブラウザで検証"
     }
   ]
 }
