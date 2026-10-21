@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T11:43:20+09:00",
+  "updated_at": "2026-10-21T11:45:05+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05f",
-  "head_at_update": "a0e1f3b",
+  "head_at_update": "6e44f19",
   "current": {
     "task": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断",
-    "status": "in_progress",
+    "status": "done",
     "step": "旧実装・既存API・画面受け口・テストの監査",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP05eの積み上げPRを作成し、承認済みP2-WP-05fの監査から進める"
+    "⑤-11 転写タイムラインQAをSCR13ボーンマップへ結線し隔離Chromeで検証する"
   ],
   "unverified": [
-    "実利用者のFBX/GPU実機、WP05b/c/e独立レビュー、設計K12のGET→POST隙は未確認・残存。"
+    "⑤-11/12/14の結線・自動試験は未着手。実モデル/GPUとWP05b/c/e/f独立レビューは未確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T11:45:05+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6e44f19",
+      "text": "WP05f: 既存QA/キー候補/足接地API、旧UI、新UI受け口を監査し実装順を記録"
+    },
     {
       "at": "2026-10-21T11:43:20+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "7cea229",
       "text": "P2-WP-04b 完了：④-9（SCR-13 ボーンマップ）・④-10（three-host で2体を±1.15）を移植。コミット 7cea229"
-    },
-    {
-      "at": "2026-10-20T16:28:34+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "e9e14eb",
-      "text": "P2-WP-04b ④ リターゲット検証の移植（④-9・④-10）: 実装開始（SCR-13 ボーンマップタブ → three-host 比較 → テスト）"
     }
   ]
 }

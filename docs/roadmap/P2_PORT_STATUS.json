@@ -291,11 +291,11 @@
     {
       "id": "P2-WP-05f",
       "step": "⑤ 転写タイムライン・QA、キー候補のフレーム比較、足の接地",
-      "state": "not_started",
-      "commits": [],
+      "state": "in_progress",
+      "commits": ["05f-1（このコミット：既存実装・API・UI受け口の監査）"],
       "tests": [],
-      "unverified": [],
-      "notes": "設計書 §2.5 05f（O-⑤-6）。",
+      "unverified": ["⑤-11・⑤-12・⑤-14の新UI結線と自動テストは未着手。", "実モデル/GPUとWP05b/c/e/f独立レビューは未確認。"],
+      "notes": "設計書 §2.5 05f（O-⑤-6）。docs/roadmap/P2_WP05F_AUDIT_20261021_JA.md に既存UI、3群のAPI、配置、確認ゲートを記録。実装・テスト：標準モデル区分。",
       "owner_check": null
     },
     {
