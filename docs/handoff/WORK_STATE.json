@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T09:34:07+09:00",
+  "updated_at": "2026-10-21T09:34:21+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05d",
-  "head_at_update": "9e71949",
+  "head_at_update": "be1425f",
   "current": {
     "task": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD",
-    "status": "done",
-    "step": "登録FBXクリップ取得と対応表保存の実装",
+    "status": "in_progress",
+    "step": "SCR05中央のA/B 3D・PMX/VMD・連結再生UI実装",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T09:34:21+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "be1425f",
+      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: SCR05中央のA/B 3D・PMX/VMD・連結再生UI実装"
+    },
     {
       "at": "2026-10-21T09:34:07+09:00",
       "by": "codex",
@@ -236,13 +243,6 @@
       "event": "start",
       "head": "a3cebf5",
       "text": "P2-WP-00c 基盤: api/store/bus・薄表示・導線点検§5の1〜5"
-    },
-    {
-      "at": "2026-10-20T09:36:34+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "d674a68",
-      "text": "WP-00b Opus レビュー：①②とも合格。退避コピーを強化（既存退避の中身照合、同名衝突の回避、fsync、深い入れ子の JSON を 422 に）"
     }
   ]
 }
