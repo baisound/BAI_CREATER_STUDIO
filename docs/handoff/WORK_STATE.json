@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T19:13:45+09:00",
+  "updated_at": "2026-10-21T19:22:46+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-light-rig",
-  "head_at_update": "4d67f30",
+  "head_at_update": "ba26f8b",
   "current": {
-    "task": "LIGHT-001 SCR-06多灯照明の編集画面",
-    "status": "done",
-    "step": "シーン一覧・ライトフレームとギズモ・右のRGB/変形編集・下部キータイムライン",
+    "task": "VIEW-001 マルチビューポートのユーザー指摘をPR42へ反映",
+    "status": "in_progress",
+    "step": "メイン透視を右に保ち、選択した上面・側面等を左へ独立表示する二画面レイアウトと操作・検証",
     "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
@@ -35,6 +35,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T19:22:46+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "ba26f8b",
+      "text": "VIEW-001 マルチビューポートのユーザー指摘をPR42へ反映: メイン透視を右に保ち、選択した上面・側面等を左へ独立表示する二画面レイアウトと操作・検証"
+    },
     {
       "at": "2026-10-21T19:13:45+09:00",
       "by": "codex",
@@ -237,13 +244,6 @@
       "event": "done",
       "head": "fe8a5fb",
       "text": "MOTION-016と3D操作改善の対象・操作・受け入れ条件を設計"
-    },
-    {
-      "at": "2026-10-21T14:20:28+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9cc2d4c",
-      "text": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善: 既存素材形式・画面導線・3D操作の調査と受け入れ条件整理"
     }
   ]
 }
