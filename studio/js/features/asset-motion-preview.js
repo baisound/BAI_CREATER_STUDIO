@@ -5,6 +5,7 @@ import { normalizeModel } from '../viewport/normalize.fork.js';
 import { createViewport } from '../viewport/three-host.js';
 import { createPlayer } from '../motion/player.js';
 import { loadVmdClip, vmdUrl } from '../motion/vmd.js';
+import { createGrayman } from './asset-grayman.js';
 
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
 
@@ -138,6 +139,7 @@ export async function motionThumbnail(item, model = null) {
 export function mountMotionPreview(stage, item, items, ui) {
   /** @type {ReturnType<typeof createViewport>|null} */ let host = null;
   /** @type {ReturnType<typeof createPlayer>|null} */ let player = null;
+  /** @type {ReturnType<typeof createGrayman>|null} */ let grayman = null;
   /** @type {import('../viewport/model-loader.js').Libs|null} */ let activeLibs = null;
   let alive = true, seq = 0, raf = 0, last = 0;
   const models = previewModels(item, items);
@@ -161,13 +163,15 @@ export function mountMotionPreview(stage, item, items, ui) {
     raf = 0;
     if (!alive || !player?.state().playing) return;
     player.update(Math.min(0.1, Math.max(0, (now - last) / 1000)));
+    grayman?.update();
     last = now; host?.invalidate(); updateUi();
     raf = requestAnimationFrame(tick);
   }
   function startLoop() { if (raf || !alive) return; last = performance.now(); raf = requestAnimationFrame(tick); }
   const start = async (/** @type {AssetItem|null} */ model = null) => {
     const mine = ++seq;
-    stopLoop(); player?.dispose(); player = null; host?.dispose(); host = null; activeLibs = null;
+    stopLoop(); player?.dispose(); player = null; host?.dispose(); host = null; activeLibs = null; grayman = null;
+    delete stage.dataset.grayman;
     ui.play.disabled = ui.pause.disabled = ui.fit.disabled = ui.seek.disabled = true;
     say('動きの見本を読み込み中…');
     try {
@@ -190,13 +194,21 @@ export function mountMotionPreview(stage, item, items, ui) {
         if (!loaded.clips.length) { say('この素材には再生できる動きがありません。', true); updateUi(); return; }
         if (item.format === 'VMD') player.applyVmd(loaded.clips[0], item.id);
         else player.applyClip(selected);
+        grayman = createGrayman(loaded.object, libs.THREE);
+        if (grayman) {
+          loaded.object.traverse((/** @type {any} */ node) => { if (node.isMesh) node.visible = false; });
+          host.add(grayman.object);
+          grayman.update();
+          stage.dataset.grayman = '1';
+        } else stage.dataset.grayman = '0';
         fitMovingPose(host, libs.THREE);
         ui.fit.disabled = false;
         player.play(); startLoop(); updateUi();
-        say(item.format === 'VMD' ? `${model?.name || 'PMX'} に当てた動きを再生中` : '動きを再生中');
+        say(grayman ? (item.format === 'VMD' ? `${model?.name || 'PMX'} の骨でグレーマンを再生中` : 'グレーマンで動きを再生中')
+          : 'グレーマンに必要な骨がありません。元の形状で再生中');
       } catch (error) {
         const attached = !!host?.content.children.includes(loaded.object);
-        player?.dispose(); player = null; host?.dispose(); host = null; activeLibs = null;
+        player?.dispose(); player = null; host?.dispose(); host = null; activeLibs = null; grayman = null;
         if (!attached) disposeObject(loaded.object);
         throw error;
       }
@@ -205,13 +217,13 @@ export function mountMotionPreview(stage, item, items, ui) {
       say(loadErrorText(error), true);
     }
   };
-  ui.play.onclick = () => { player?.play(); startLoop(); updateUi(); say('動きを再生中'); };
+  ui.play.onclick = () => { player?.play(); startLoop(); updateUi(); say(grayman ? 'グレーマンで動きを再生中' : 'グレーマンに必要な骨がありません。元の形状で再生中'); };
   ui.pause.onclick = () => { player?.pause(); stopLoop(); updateUi(); say('一時停止中'); };
   ui.fit.onclick = () => { if (host && activeLibs) fitMovingPose(host, activeLibs.THREE); };
-  ui.seek.oninput = () => { player?.seek(Number(ui.seek.value)); host?.invalidate(); updateUi(); };
+  ui.seek.oninput = () => { player?.seek(Number(ui.seek.value)); grayman?.update(); host?.invalidate(); updateUi(); };
   ui.clip.onchange = () => {
     if (!player || item.format === 'VMD') return;
-    player.applyClip(Number(ui.clip.value)); if (host && activeLibs) fitMovingPose(host, activeLibs.THREE); player.play(); startLoop(); updateUi();
+    player.applyClip(Number(ui.clip.value)); grayman?.update(); if (host && activeLibs) fitMovingPose(host, activeLibs.THREE); player.play(); startLoop(); updateUi();
   };
   ui.model.replaceChildren(...models.map((model) => new Option(`${model.name}（${model.kind}）`, model.id)));
   ui.model.hidden = item.format !== 'VMD';
@@ -220,7 +232,7 @@ export function mountMotionPreview(stage, item, items, ui) {
   void start(item.format === 'VMD' ? models[0] || null : null);
   return {
     dispose() {
-      alive = false; seq++; stopLoop(); player?.dispose(); player = null; host?.dispose(); host = null; activeLibs = null;
+      alive = false; seq++; stopLoop(); player?.dispose(); player = null; host?.dispose(); host = null; activeLibs = null; grayman = null;
       ui.play.onclick = ui.pause.onclick = ui.fit.onclick = ui.seek.oninput = ui.clip.onchange = ui.model.onchange = null;
     },
   };

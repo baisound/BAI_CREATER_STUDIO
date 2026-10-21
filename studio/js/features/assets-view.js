@@ -11,6 +11,7 @@ import { lib, setLib, selectAsset, selectCategory, applyParams, ensureAssets, lo
 import { openImportDialog, statusText, cancelRow, removeRow, retryRow } from './import.js';
 import { mountMotionPreview, motionThumbnail, previewModels } from './asset-motion-preview.js';
 import { libraryFileUrl, libraryThumbnail, mountLibraryPreview } from './asset-library-preview.js';
+import { characterThumbnail, backfillCharacterThumbs } from './asset-character-thumbnail.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
@@ -59,9 +60,10 @@ function tile(a) {
   const cat = categoryOf(a);
   const pictogram = ({ char: 'user', motion: 'motion', stage: 'stage', prop: 'template', mat: 'sphere', fx: 'sparkle', audio: 'music', video: 'render', image: 'image' })[cat] || 'image';
   const library = a.source === 'library';
-  const src = library && a.available ? (a.thumbnailUrl || (['image', 'material'].includes(a.kind) || (a.kind === 'fx' && a.format !== 'GLB') ? libraryFileUrl(a) : '')) : '';
-  return h('div', { class: `asset-img asset-tile${src ? ' has-image' : ''}`, dataset: { cat, ...((cat === 'motion' || library) && a.available && !src ? { thumbId: a.id } : {}) } },
-    src ? h('img', { src, alt: `${a.name}の見本`, loading: 'lazy' }) : [icon(pictogram, 28), h('span', { class: 'tile-fmt' }, a.format)]);
+  const src = cat === 'char' && a.available ? a.thumbnailUrl || ''
+    : library && a.available ? (a.thumbnailUrl || (['image', 'material'].includes(a.kind) || (a.kind === 'fx' && a.format !== 'GLB') ? libraryFileUrl(a) : '')) : '';
+  return h('div', { class: `asset-img asset-tile${src ? ' has-image' : ''}`, dataset: { cat, ...((cat === 'motion' || cat === 'char' || library) && a.available && !src ? { thumbId: a.id } : {}) } },
+    src ? h('img', { src, alt: cat === 'char' ? `${a.name}の正面` : `${a.name}の見本`, loading: 'lazy' }) : [icon(pictogram, 28), h('span', { class: 'tile-fmt' }, a.format)]);
 }
 
 /* ------------------------------------------------------------------ ツール */
@@ -116,11 +118,12 @@ export const assetLibrary = (ctx) => {
       thumbnailObserver.unobserve(el);
       const item = assets.get().items.find((a) => a.id === el.dataset.thumbId);
       if (!item || !item.available) continue;
-      const image = item.source === 'library' ? libraryThumbnail(item) : imageFor(item, assets.get().items);
+      const image = categoryOf(item) === 'char' ? characterThumbnail(item)
+        : item.source === 'library' ? libraryThumbnail(item) : imageFor(item, assets.get().items);
       void image.then((url) => {
         if (!el.isConnected) return;
         if (!url) { el.title = item.format === 'VMD' ? '見本にはPMXモデルが必要です' : 'この素材の見本画像を作れませんでした'; return; }
-        el.replaceChildren(h('img', { src: url, alt: item.source === 'library' ? `${item.name}の見本` : `${item.name}の開始・中間・終了の姿勢`, loading: 'lazy' }));
+        el.replaceChildren(h('img', { src: url, alt: categoryOf(item) === 'char' ? `${item.name}の正面` : item.source === 'library' ? `${item.name}の見本` : `${item.name}の開始・中間・終了の姿勢`, loading: 'lazy' }));
         el.classList.add('has-image');
       });
     }
@@ -257,7 +260,7 @@ export const assetLibrary = (ctx) => {
   };
 
   // 変化した部分だけ描き直す（検索欄の入力中の欄は作り直さない）
-  watch(ctx, () => { drawControls(); drawBody(); }, assets, lib);
+  watch(ctx, () => { drawControls(); drawBody(); if (assets.get().status === 'ready') backfillCharacterThumbs(assets.get().items); }, assets, lib);
   watch(ctx, drawQueue, imports, lib);
   root.append(
     h('div', { class: 'lib-bar' }, srcBar, h('span', { class: 'spacer' }), bulk),
@@ -317,7 +320,10 @@ export const assetDetail = (ctx) => {
     const libraryPreview = a.source === 'library' && a.available;
     const previewNode = libraryPreview ? h('div', { class: 'asset-library-preview detail-preview', dataset: { role: 'library-preview' } }) : canPreview ? h('div', { class: 'asset-motion-preview' }, stage,
       h('div', { class: 'asset-motion-controls' }, play, pause, fit, seek, time),
-      clip, model, status) : h('div', { class: 'detail-preview tile-large', dataset: { cat } }, icon(cat === 'char' ? 'user' : 'motion', 48), h('span', { class: 'tile-fmt' }, a.format));
+      clip, model, status) : h('div', { class: 'detail-preview tile-large', dataset: { cat } },
+        cat === 'char' && a.thumbnailUrl ? h('img', { src: a.thumbnailUrl, alt: `${a.name}の正面`, dataset: { role: 'character-front' } })
+          : icon(cat === 'char' ? 'user' : 'motion', 48),
+        !a.thumbnailUrl ? h('span', { class: 'tile-fmt' }, a.format) : null);
     root.replaceChildren(
       previewNode,
       h('div', { class: 'detail-title' }, h('h2', { dataset: { role: 'name' } }, a.name), h('span', { class: 'spacer' }), h('span', { class: 'pill' }, kindLabel(a))),

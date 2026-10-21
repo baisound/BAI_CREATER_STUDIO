@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T19:54:28+09:00",
+  "updated_at": "2026-10-21T20:15:07+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-visual-previews-v2",
-  "head_at_update": "1327f69",
+  "head_at_update": "1b0f48a",
   "current": {
     "task": "Issue34・35 モーションのグレーマン再生とキャラクター正面サムネイル",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存の素材詳細プレビュー・カタログ・保存APIを調べ、原本不変の画像生成とモーション適用を設計する",
     "design_doc": "docs/roadmap/ASSET_VISUAL_PREVIEWS_20261021_JA.md"
   },
   "next_steps": [
-    "Owner条件付き承認に基づきPR42を統合し、mainと実行環境へ反映・実ステージを保存再読込する。その後Issue34/35とWP05gを既定順で進める"
+    "Owner指定のステージ内部を自動解析して見せ場を撮るサムネイルを実装し、既登録S01も更新する。Issue34/35の実PMX/VMD/FBX/VRM確認を続ける"
   ],
   "unverified": [
-    "実GPU/Linux、低性能機分割描画、PMX実キャラクターへの照明、MMD/Unreal外観一致、WebMCP/標準MCPライト編集、Owner採用は未検証。元GLBの接地は素材改修待ち"
+    "実GPU/Linux、外部リグ・実PMX/VMDのグレーマン、実FBX/VRM/PMXの正面方向、Owner採用、MCPは未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T20:15:07+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "1b0f48a",
+      "text": "Issue34/35のグレーマン表示とキャラクター正面PNGの初期実装。隔離Chrome2件、HTTP1件、型検査成功。素材画面一式32/33成功、時間切れの1件は単独再実行で成功"
+    },
     {
       "at": "2026-10-21T19:54:28+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "34b4605",
       "text": "Issue #28 MOTION-016 モーション素材の見本画像と再生プレビュー: 素材形式別の読み取り専用プレビューと一覧サムネイルを実装"
-    },
-    {
-      "at": "2026-10-21T14:39:17+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "02b8023",
-      "text": "Issue #29: 共通3Dビューと旧3D画面の中ドラッグ回転・Shift移動・Ctrl前後操作を実装し、Chrome 19件と旧画面1件、tscを確認"
     }
   ]
 }
