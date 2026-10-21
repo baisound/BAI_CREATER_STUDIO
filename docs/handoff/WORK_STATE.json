@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T00:56:02+09:00",
+  "updated_at": "2026-10-22T00:57:31+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp06",
-  "head_at_update": "10e4744",
+  "head_at_update": "9565648",
   "current": {
     "task": "P2-WP-06 カメラ移植とIssue #50全形式の接続",
-    "status": "done",
-    "step": "WP06a: camera.jsとcamera_3d.jsを旧画面互換のmount APIにする",
+    "status": "in_progress",
+    "step": "WP06a後半: camera_3d.jsを旧画面互換のmount APIにする",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T00:57:31+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9565648",
+      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06a後半: camera_3d.jsを旧画面互換のmount APIにする"
+    },
     {
       "at": "2026-10-22T00:56:02+09:00",
       "by": "codex",
@@ -233,27 +240,6 @@
       "event": "start",
       "head": "203f4c4",
       "text": "PR43の大型GLB自動読込を安全化: Issue44受領後、大型ステージの自動サムネイルと詳細の自動3D読込を抑止する"
-    },
-    {
-      "at": "2026-10-21T21:35:55+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "0694246",
-      "text": "Issue #44: 受領7ステージの原本hash照合と非破壊登録、大型GLBの1GiB受付・自動3D読込抑止・近景初期視点・GPU描画表示を実装。単独RTX実測と端末負荷を記録。"
-    },
-    {
-      "at": "2026-10-21T21:15:49+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1327f69",
-      "text": "受領済み7ステージの更新登録と大規模GLBのGPU描画確認: READMEの7件を原本hashと照合し、現行の登録・描画経路と容量上限を整理する"
-    },
-    {
-      "at": "2026-10-21T21:07:09+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "0070974",
-      "text": "Issue34/35実素材QA: 実GLB/VRM/PMX正面PNG、実FBX/VMDグレーマン、S01室内PNGを確認。PMX非同期テクスチャ待機・空白画像防止・移動見本追従・一覧再描画競合を修正"
     }
   ]
 }
