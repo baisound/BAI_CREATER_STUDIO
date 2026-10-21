@@ -27,6 +27,7 @@ DATA-012,DATA,横断,制作データのポータブルZIP,要検証,UI操作か�
 DATA-013,DATA,横断,素材の重複検出,要検証,UI操作から DATA-013 を実行可能にする,共通操作APIで DATA-013 を実行可能にする,WebMCPで同一操作を提供: DATA-013,標準MCPで同一操作を提供: DATA-013,成功・失敗・undo/redo・保存再読込・UI/MCP等価性: DATA-013,未照合,要実機・コード追跡
 DATA-014,DATA,横断,モデル別VMDライブラリ,要検証,UI操作から DATA-014 を実行可能にする,共通操作APIで DATA-014 を実行可能にする,WebMCPで同一操作を提供: DATA-014,標準MCPで同一操作を提供: DATA-014,成功・失敗・undo/redo・保存再読込・UI/MCP等価性: DATA-014,未照合,要実機・コード追跡
 DATA-015,DATA,横断,制作プロジェクト健全性検査,要検証,UI操作から DATA-015 を実行可能にする,共通操作APIで DATA-015 を実行可能にする,WebMCPで同一操作を提供: DATA-015,標準MCPで同一操作を提供: DATA-015,成功・失敗・undo/redo・保存再読込・UI/MCP等価性: DATA-015,未照合,要実機・コード追跡
+DATA-016,DATA,先行,素材の多形式取り込みと詳細確認,要検証,SCR-08で登録・分類・見本・詳細・再生,登録ファイルとタイトル/サムネイルの共通API,WebMCPの登録と閲覧は未実装,標準MCPの登録と閲覧は未実装,再読込・タイトル優先・範囲配信・UI/MCP等価性: DATA-016,library_assets.pyとtest_library_assets.pyの隔離試験,画面とMCPと実データは要検証
 MOTION-001,MOTION,B/H,格闘モーション50→100→82件履歴,要検証,UI操作から MOTION-001 を実行可能にする,共通操作APIで MOTION-001 を実行可能にする,WebMCPで同一操作を提供: MOTION-001,標準MCPで同一操作を提供: MOTION-001,成功・失敗・undo/redo・保存再読込・UI/MCP等価性: MOTION-001,未照合,要実機・コード追跡
 MOTION-002,MOTION,B/H,FBX/PMX/VMDのローカル保存と再利用,要検証,UI操作から MOTION-002 を実行可能にする,共通操作APIで MOTION-002 を実行可能にする,WebMCPで同一操作を提供: MOTION-002,標準MCPで同一操作を提供: MOTION-002,成功・失敗・undo/redo・保存再読込・UI/MCP等価性: MOTION-002,未照合,要実機・コード追跡
 MOTION-003,MOTION,B/H,FBX・GLB・BVH・VRM読込,要検証,UI操作から MOTION-003 を実行可能にする,共通操作APIで MOTION-003 を実行可能にする,WebMCPで同一操作を提供: MOTION-003,標準MCPで同一操作を提供: MOTION-003,成功・失敗・undo/redo・保存再読込・UI/MCP等価性: MOTION-003,未照合,要実機・コード追跡

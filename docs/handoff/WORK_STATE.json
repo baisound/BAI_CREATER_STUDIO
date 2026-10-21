@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T16:08:35+09:00",
+  "updated_at": "2026-10-21T16:16:54+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-import-expansion",
-  "head_at_update": "87db9e3",
+  "head_at_update": "9c1ec97",
   "current": {
     "task": "Issue #37 素材取り込み拡張",
-    "status": "in_progress",
+    "status": "done",
     "step": "安全な保存API・メタデータ抽出・範囲配信・見本画像保存とPython試験",
     "design_doc": "docs/roadmap/ASSET_IMPORT_EXPANSION_20261021_JA.md"
   },
   "next_steps": [
-    "素材保存APIと検証の実装"
+    "SCR-08の取り込みダイアログと一覧分類・詳細を新素材へ接続する"
   ],
   "unverified": [
-    "外部無料サンプルは出典・許諾を調査中で、まだ取り込んでいない。実コード・画面の動作は未検証。"
+    "ブラウザ実表示、全Python回帰、実音声/動画/画像、WebMCP/標準MCP、Windows/Linux両環境は未確認。HTTP試験は初回一時応答遅延で失敗し再実行3件合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T16:16:54+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9c1ec97",
+      "text": "DATA-016の分類別保存API・メタタイトル・Range配信・PNG見本保存を実装。隔離Python3件、構文、149 ID台帳一致。"
+    },
     {
       "at": "2026-10-21T16:08:35+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "be1425f",
       "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: SCR05中央のA/B 3D・PMX/VMD・連結再生UI実装"
-    },
-    {
-      "at": "2026-10-21T09:34:07+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9e71949",
-      "text": "WP05d第2区切り：登録FBXの遅延解析・手順名対応・最新manifestを重ねる対応表保存を追加。Node 3件、typecheck合格。"
     }
   ]
 }

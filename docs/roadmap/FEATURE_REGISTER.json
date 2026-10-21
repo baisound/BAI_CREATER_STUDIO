@@ -255,6 +255,15 @@
       "dependency": "CORE"
     },
     {
+      "id": "DATA-016",
+      "group": "DATA",
+      "phase": 2,
+      "name": "素材の多形式取り込みと詳細確認",
+      "detail": "ステージ・小物・材質・エフェクト・音声・動画・画像の登録、メタタイトル、見本と再生",
+      "status": "要検証",
+      "dependency": "CORE"
+    },
+    {
       "id": "MOTION-001",
       "group": "MOTION",
       "phase": 3,
