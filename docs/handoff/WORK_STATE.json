@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T16:17:14+09:00",
+  "updated_at": "2026-10-21T16:23:03+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-import-expansion",
-  "head_at_update": "5ef1b0a",
+  "head_at_update": "8c4ea44",
   "current": {
     "task": "Issue #37 素材取り込み拡張",
-    "status": "in_progress",
+    "status": "done",
     "step": "SCR-08の分類・取り込みキュー・一覧と詳細を新APIへ接続する",
     "design_doc": "docs/roadmap/ASSET_IMPORT_EXPANSION_20261021_JA.md"
   },
   "next_steps": [
-    "SCR-08の取り込みダイアログと一覧分類・詳細を新素材へ接続する"
+    "新分類の画像・音声・動画・GLB見本と再生操作を実装し実素材で検証"
   ],
   "unverified": [
-    "ブラウザ実表示、全Python回帰、実音声/動画/画像、WebMCP/標準MCP、Windows/Linux両環境は未確認。HTTP試験は初回一時応答遅延で失敗し再実行3件合格。"
+    "ブラウザー試験は隔離サーバー応答遅延で未完了、実素材・見本・MCPは未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T16:23:03+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8c4ea44",
+      "text": "DATA-016 取り込み規則とSCR-08分類一覧を実装し単体18件と型検査合格"
+    },
     {
       "at": "2026-10-21T16:17:14+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "5732a7c",
       "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 共通完了ゲートとE2E結果の台帳記録"
-    },
-    {
-      "at": "2026-10-21T09:53:55+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d54e551",
-      "text": "P2-WP-05dを実装・検証：SCR05のA/B 3D、FBX連結再生、対応表、スロット別PMX+VMD。Chrome15件、S5合格、P2全体197 pass・5 skip・0 fail、typecheck合格、実データハッシュ一致。"
     }
   ]
 }

@@ -6,7 +6,7 @@ import { icon } from '../icons.js';
 import { assets, imports } from '../store.js';
 import { stateBox } from '../state-box.js';
 import { PH } from '../screens.js';
-import { ASSET_CATS, EMPTY_CATS, categoryOf, sourceLabel, filterAssets, countByCategory, formatsOf, kindLabel, fbxLabel } from './assets-model.js';
+import { ASSET_CATS, categoryOf, sourceLabel, filterAssets, countByCategory, formatsOf, kindLabel, fbxLabel } from './assets-model.js';
 import { lib, setLib, selectAsset, selectCategory, applyParams, ensureAssets, loadAssets, watchAssets } from './assets.js';
 import { openImportDialog, statusText, cancelRow, removeRow, retryRow } from './import.js';
 import { mountMotionPreview, motionThumbnail, previewModels } from './asset-motion-preview.js';
@@ -56,7 +56,8 @@ function imageFor(a, items) {
 /** 形式タイル。モーションは見えているカードから3姿勢の見本へ置き換える。 @param {AssetItem} a */
 function tile(a) {
   const cat = categoryOf(a);
-  return h('div', { class: 'asset-img asset-tile', dataset: { cat, ...(cat === 'motion' && a.available ? { thumbId: a.id } : {}) } }, icon(cat === 'char' ? 'user' : 'motion', 28), h('span', { class: 'tile-fmt' }, a.format));
+  const pictogram = ({ char: 'user', motion: 'motion', stage: 'stage', prop: 'template', mat: 'sphere', fx: 'sparkle', audio: 'music', video: 'render', image: 'image' })[cat] || 'image';
+  return h('div', { class: 'asset-img asset-tile', dataset: { cat, ...(cat === 'motion' && a.available ? { thumbId: a.id } : {}) } }, icon(pictogram, 28), h('span', { class: 'tile-fmt' }, a.format));
 }
 
 /* ------------------------------------------------------------------ ツール */
@@ -178,17 +179,11 @@ export const assetLibrary = (ctx) => {
       body.replaceChildren(stateBox({ kind: off ? 'offline' : 'error', title: off ? '未接続' : '読み込めません', message: st.error ? st.error.message : '', retry: () => { void loadAssets(); } }));
       return;
     }
-    if (l.cat !== 'all' && l.cat !== 'char' && l.cat !== 'motion') {
-      const info = /** @type {any} */ (EMPTY_CATS)[l.cat];
-      body.replaceChildren(h('div', { class: 'empty', dataset: { role: 'empty-cat' } }, 'この種類の素材を登録する機能はまだありません。',
-        h('div', null, unimplBtn('この種類の登録について', `${info ? info.name : catLabel(l.cat)}の登録手段は今の API にありません。`, info ? info.ids : ['NF-004'], PH.P4))));
-      return;
-    }
     if (!st.items.length) {
       body.replaceChildren(h('div', { class: 'empty', dataset: { role: 'empty-all' } }, 'まだ素材がありません。', h('div', null, h('button', { class: 'btn primary', type: 'button', dataset: { act: 'real' }, onclick: () => openImportDialog() }, '素材を取り込む…'))));
       return;
     }
-    if (!list.length) { body.replaceChildren(h('div', { class: 'empty' }, '条件に一致する素材はありません。')); return; }
+    if (!list.length) { body.replaceChildren(h('div', { class: 'empty', dataset: { role: 'empty-cat' } }, 'この種類の素材はまだありません。', h('div', null, h('button', { class: 'btn primary', type: 'button', dataset: { role: 'import-empty', act: 'real' }, onclick: () => openImportDialog() }, '素材を取り込む…')))); return; }
     /** @param {AssetItem} a */
     const heart = (a) => h('button', { type: 'button', class: 'fav', dataset: { act: 'unimpl' }, 'aria-label': `${a.name}をお気に入り（未実装）`, title: '◇ 未実装：素材のお気に入り',
       onclick: (/** @type {Event} */ e) => { e.stopPropagation(); showUnimplemented({ name: 'お気に入り', why: '素材のお気に入りは未実装です（旧画面のお気に入りはコンビネーションだけです）。', ids: ['NF-004'], phase: PH.P4 }); } }, icon('heart', 16));
@@ -318,10 +313,17 @@ export const assetDetail = (ctx) => {
         h('dt', null, '登録元'), h('dd', { dataset: { key: 'source' } }, sourceLabel(a)),
         h('dt', null, 'ID'), h('dd', { class: 'mono selectable', dataset: { key: 'id' } }, a.id),
         h('dt', null, 'ファイル'), h('dd', { dataset: { key: 'file' } }, fileTxt),
+        a.originalName ? [h('dt', null, '元ファイル名'), h('dd', { dataset: { key: 'originalName' } }, a.originalName)] : null,
+        a.titleSource ? [h('dt', null, '表示名の出典'), h('dd', { dataset: { key: 'titleSource' } }, a.titleSource === 'metadata' ? 'ファイル内のメタデータ' : 'ファイル名')] : null,
+        Number.isFinite(a.bytes) ? [h('dt', null, '容量'), h('dd', { dataset: { key: 'bytes' } }, `${(Number(a.bytes) / 1024).toFixed(1)} KB`)] : null,
+        a.width && a.height ? [h('dt', null, '大きさ'), h('dd', { dataset: { key: 'dimensions' } }, `${a.width} × ${a.height}`)] : null,
+        Number.isFinite(a.duration) ? [h('dt', null, '長さ'), h('dd', { dataset: { key: 'duration' } }, `${Number(a.duration).toFixed(1)} 秒`)] : null,
+        a.mime ? [h('dt', null, 'メディア形式'), h('dd', { dataset: { key: 'mime' } }, a.mime)] : null,
+        a.sha256 ? [h('dt', null, 'SHA-256'), h('dd', { class: 'mono selectable', dataset: { key: 'sha256' } }, a.sha256)] : null,
         a.source === 'integrated' && a.filename ? [h('dt', null, '保存名'), h('dd', { class: 'mono', title: 'SHA-256 先頭20桁＋拡張子', dataset: { key: 'stored' } }, a.filename)] : null,
         h('dt', null, '作成者'), h('dd', { dataset: { key: 'author' } }, '未記録'),
         h('dt', null, 'ライセンス'), h('dd', { dataset: { key: 'license' } }, '未記録')),
-      h('p', { class: 'section-note' }, '登録情報のみ。作者・ライセンスは未記録です（REVIEW-010 は未実装）。')),
+      h('p', { class: 'section-note' }, '登録済みファイルの情報です。作者・ライセンスはサンプル出典記録以外は未記録です（REVIEW-010 は未実装）。')),
       section('タグ・説明', 'unimpl', h('p', { class: 'section-note' }, 'タグ・説明は未実装です（NF-004）。'),
         unimplBtn('タグを追加', 'タグの保存は未実装です。', ['NF-004'], PH.P4)),
       section('依存素材', 'unimpl', h('p', { class: 'section-note' }, '依存関係の追跡は未実装です（REVIEW-010）。')),

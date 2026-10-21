@@ -61,3 +61,9 @@
 - `library_assets.py` と `server.py` に分類別の署名検査、SHA-256別名保存、壊れた索引で上書きしない処理、登録IDだけの配信、HTTP単一区間Range、PNG見本保存を追加。元の登録経路は維持。
 - ID3v2/ID3v1、WAV INFO、MP4/WebMタイトル、PNG/JPEGの一般的なタイトルを読める範囲で採用し、無い場合はファイル名へ戻す。一般形式のタグ全種類・動画コーデックの再生はまだ保証しない。
 - 隔離データのPython試験 `tests/test_library_assets.py` は3件合格。`py_compile`、台帳JSON/CSV149件一致、差分検査も合格。初回のHTTP試験はWindows側の一時的な20秒応答遅延で失敗し、同一コードの再実行は3件合格。ブラウザ表示・全Python回帰・実素材は次段階で検証する。
+
+## 実装進捗：取り込み・一覧段階
+
+- SCR-08の取り込みダイアログでGLBのステージ・小物・エフェクト、WAV/MP3、MP4/WebM/OGV、PNG/JPEG/GIF/WebP/AVIF/BMPを分類選択できる。新しい種類だけ素材ライブラリ保存APIへ送り、既存のモデル・モーション経路を維持した。
+- /api/assetsの新分類を件数、絞り込み、詳細情報へ反映し、空の分類からも取り込みを開ける。
+- `node --test tests/studio-p2-import-rules.test.mjs` 18件と `npm run typecheck` は合格。ブラウザー試験はChromeを指定して起動できたが、隔離サーバーが12秒以内に応答しなかったため未検証。見本・再生と実素材の試験は次段階。

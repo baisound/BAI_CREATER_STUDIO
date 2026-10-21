@@ -118,11 +118,11 @@ test('library lists real assets by category', async () => {
     await page.click('[data-feature="assetCategories"] li[data-cat="char"]');
     await waitCards(page, 2);
     assert.match(page.url(), /[?&]cat=char/);
-    // 登録手段の無い分類は空表示と ◇ の説明
+    // 空の分類から取り込みを始められる
     await page.click('[data-feature="assetCategories"] li[data-cat="stage"]');
-    assert.match(await page.textContent('[data-role="empty-cat"]'), /この種類の素材を登録する機能はまだありません。/);
-    await page.click('[data-role="empty-cat"] button');
-    assert.match(await page.textContent('[role="dialog"]'), /LYRIC-009/);
+    assert.match(await page.textContent('[data-role="empty-cat"]'), /この種類の素材はまだありません。/);
+    await page.click('[data-role="import-empty"]');
+    assert.match(await page.textContent('[role="dialog"]'), /素材を取り込む/);
     await page.keyboard.press('Escape');
     await page.click('[data-feature="assetCategories"] li[data-cat="all"]');
     await waitCards(page, 5);
