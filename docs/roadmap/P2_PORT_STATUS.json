@@ -419,11 +419,15 @@
     {
       "id": "P2-WP-06d",
       "step": "⑥ Phase E §7 の読み替え表",
-      "state": "not_started",
+      "state": "in_progress",
       "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "tests": [
+        "camera_id_map.py: 現行camera.html 124 IDと配置表の一致。git diff --check pass。Phase E §7の配置・保存・WebMCP接続状態を現行ソースと照合"
+      ],
+      "unverified": [
+        "独立した高性能モデルによる読み替え表レビューは未実施。Phase E UI実装前に必要。実GPU/Linux/Owner実モデルの採用も未確認"
+      ],
+      "notes": "Phase E設計§7.1/7.2に現行124 ID、SCR02、保存とMCPの読み替えを記載。文書は標準モデル（GPT-6）で作成。レビューゲート待ちのためWP06dをverifiedにしない。",
       "owner_check": null
     },
     {

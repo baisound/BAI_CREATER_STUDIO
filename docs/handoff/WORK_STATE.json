@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T02:44:18+09:00",
+  "updated_at": "2026-10-22T02:47:55+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp06",
-  "head_at_update": "3e9a663",
+  "head_at_update": "fdf4429",
   "current": {
     "task": "P2-WP-06 カメラ移植とIssue #50全形式の接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "WP06d: Phase E §7に現行カメラホストと保存の読み替え表を作成",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-06d: Phase E §7の読み替え表・レビュー"
+    "P2-WP-07 書き出しの既存実装・受け入れ条件を監査して着手。WP06d独立レビューはPhase E UI開始前に実施"
   ],
   "unverified": [
-    "独立高性能モデルレビュー、実GPU/Linux/全実モデルとOwner採用。P2 Node全件はWindows ERR_NO_BUFFER_SPACEで完走せず、失敗3件を隔離再実行で確認。"
+    "WP06dの独立高性能モデルレビュー、実GPU/Linux/Owner実モデル採用。P2 Node一括完走はWindows ERR_NO_BUFFER_SPACEで未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T02:47:55+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "fdf4429",
+      "text": "WP06d: Phase E §7に124 ID配置、SCR02保存・復元・MCP読み替えを追記。現行ソースと照合し、独立高性能モデルレビューは未実施として台帳に記録"
+    },
     {
       "at": "2026-10-22T02:44:18+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "e6a7f96",
       "text": "PR #48を作成し、Issue #46・#47へ検証結果と未検証事項を連携。S03/S04/S06/S07のライトなし別名GLB4件は登録済み。S05/S06発光抑制候補は比較画像付きで未登録"
-    },
-    {
-      "at": "2026-10-21T22:40:40+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5cce782",
-      "text": "Issue #46・#47: ライトなしGLBの結果連携と視点修正PR: Issue46・47に検証結果を結び、PRでレビュー可能にする。S05/S06発光候補はOwner判断待ち"
     }
   ]
 }
