@@ -177,10 +177,11 @@
       "tests": [
         "tests/studio-p2-motion.test.cjs（10件：PMX＋VMD のモーフ・ボーン、VMD ライブラリ、GLB クリップと位置・停止、VRM への VMD は ◇ で取得0回、モデル未選択、404、モード切替の URL 保持、表示解除、画面を離れたときの破棄）",
         "tests/test_make_test_vmd.py（2件）",
-        "tests/studio-p2-e2e-main.test.cjs の S5 が pass（three@0.160.1、SwiftShader）"
+        "tests/studio-p2-e2e-main.test.cjs の S5 が pass（three@0.160.1、SwiftShader）",
+        "2026-10-21 独立レビューで modeSwitch・featureBottom の所有と後始末を確認（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）"
       ],
       "unverified": [
-        "Opus レビュー未実施（app.js の modeSwitch。Sonnet 相当の自己確認のみ）。",
+        "modeSwitch・featureBottom は2026-10-21の実装者と別のCodexによる高性能モデルレビューで確認（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）。",
         "実ファイル（実在の PMX＋VMD）でのモーフ再生は未検証（合成の最小 PMX・VMD のみ）。",
         "GPU 実機・Windows 実機未検証（SwiftShader のみ）。",
         "位置スライダーを VMD にも使う（設計 §5.3 の決定どおり。旧画面の VMD には位置の操作が無い）。"
@@ -198,10 +199,11 @@
       "tests": [
         "tests/studio-p2-motion.test.cjs に6件追加（record clip and frame into workspace、frame is capped to camera duration、frame-only record is not dirty、record is disabled for other models、record is disabled when the camera file is invalid、sync command preview_vmd only on SCR-13）。合計16件合格",
         "tests/studio-p2-project-logic.test.mjs に1件追加（外部コマンドは id ごとに1回・初回 tick では発行しない・refresh_assets は別イベント）。合計24件",
-        "npm run test:node-all 247件中 242 pass・5 skip・0 fail、npm run test:p2 161件中 156 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass、実データのハッシュ前後一致"
+        "npm run test:node-all 247件中 242 pass・5 skip・0 fail、npm run test:p2 161件中 156 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass、実データのハッシュ前後一致",
+        "2026-10-21 独立レビューで対象Chrome 6件合格（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）"
       ],
       "unverified": [
-        "Opus レビュー未実施（features/project.js の tick と motion-view.js の外部コマンド・記録）。",
+        "features/project.js の tick と motion-view.js の外部コマンド・記録は2026-10-21の実装者と別のCodexによる高性能モデルレビューで確認（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）。",
         "GPU 実機・Windows 実機未検証（SwiftShader のみ）。",
         "③「カメラ（02）を開くと同じ位置」は WP-06 の後でなければ確認できない。",
         "preview_motion は 05c、play_chain・stop_chain は 05d で実装済み。SCR-05 以外ではトーストを出し、画面の再生状態は変えない。"
@@ -220,10 +222,11 @@
         "tests/studio-p2-chain.test.cjs 新規9件（pattern list marks registered fbx with a crown、pattern list says so when the registration cannot be read、add to combination records history and autosaves、unregistered pattern is not added、reorder delete clear follow record rules、speed autosaves without history、favorites keep entries added elsewhere、favorite save failure keeps the dialog、preview_motion selects the row）。ポート 8784（P2_CHAIN_PORT）",
         "tests/studio-p2-motion-logic.test.mjs 新規14件（editCombination：初期状態・変化なし・履歴と同じ内容・カーソルの後ろを捨てる・100件・name だけ保持・読込前は無視・保存中の編集、setCombinationSpeed、setCombinationSelected、お気に入りの通信と検索）",
         "tests/studio-p2-motion-fork.test.mjs 新規6件（index.html から rows・names・keywords・norm・尺の規則・motionAvailability を取り出して ROWS ほかと照合。登録の組み合わせ60通り×82行）",
-        "npm run test:node-all 276件中 271 pass・5 skip・0 fail、npm run test:p2 190件中 185 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass のまま、実データ data/ のハッシュ前後一致"
+        "npm run test:node-all 276件中 271 pass・5 skip・0 fail、npm run test:p2 190件中 185 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass のまま、実データ data/ のハッシュ前後一致",
+        "2026-10-21 独立レビューでNode 20件と対象Chrome 9件合格（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）"
       ],
       "unverified": [
-        "Opus レビュー未実施（features/project.js の editCombination・setCombinationSpeed・setCombinationSelected、features/chain-view.js、features/favorites.js、app.js の featureBottom）。",
+        "editCombination・選択・速度・chain-view・favorites・featureBottom は2026-10-21の実装者と別のCodexによる高性能モデルレビューで確認（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）。",
         "GPU 実機・Windows 実機未検証（05c は 3D を使わないが、ブラウザーは Chromium のみ）。",
         "旧画面で作った実際の FBX 登録（data/manifest.json）での👑の数は未確認（隔離データの合成 manifest のみ）。",
         "play_chain・stop_chain は 05d で実装済み（SCR-05 表示中のみ再生・停止）。"
@@ -255,7 +258,7 @@
       ],
       "unverified": [
         "本番のFBX/PMX/VMDとGPU実機は未検証（隔離した最小素材、Windowsのheadless Chrome/SwiftShaderで検証）。",
-        "WP05b/cの必須独立レビューは別途未確認。",
+        "WP05a/b/cの独立レビューは P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md に記録。実モデル・GPUとGET→POST競合は引き続き未確認。",
         "対応表のGET→POST間の他画面更新はサーバー版条件が無いため競合の隙が残る（設計 §2.5(h) K12）。"
       ],
       "notes": "設計書 §2.5 05d。SCR-05 に3D表示、A/B独立PMX＋VMD、登録FBXの遅延解析、連結再生、最新manifest再取得による対応表保存、SCR-05限定のplay_chain/stop_chainを実装。PMXの遅い読み込みが後から到着した場合は、古い結果を破棄して選択を守る。原本・weightsを変更しない。実装・テスト：標準モデル区分。",

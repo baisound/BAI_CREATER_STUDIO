@@ -1,6 +1,6 @@
-# 歌詞・MV構成・ステージ 要求仕様（B3・草案）
+# 歌詞・MV構成・ステージ 要求仕様（B3）
 
-状態: 仕様草案。対象 `LYRIC-001`〜`005`、`LYRIC-007`〜`012`。`LYRIC-006` の拍マーカーは B2。`LYRIC-010` のステージギミックのデータと配置は本書、格闘・扉等のイベント駆動動作は B4 に詳述する。`O-LYRIC-01/02/03` は所有者がすべて推奨案Aを承認した。決定と境界は [B3所有者判断資料](B3_LYRICS_STAGE_DECISIONS_JA.md) に記録する。JIZURA や外部素材の取り込みは、対象コミット・依存・ライセンスを固定して確認後に実装する。2026-10-20 に [JIZURA実画面](https://jizura.net/) の v0.10.0、[公式ガイド](https://jizura.net/guide/)、[公式リポジトリ](https://github.com/852wa/JIZURA) を確認した。リポジトリ README は確認時 v0.9.0 の説明であり、実画面との版差を実装前に再確認する。
+状態: 所有者決定済みの要求仕様。実装する際は [B3実装設計](B3_LYRICS_STAGE_IMPLEMENTATION_DESIGN_JA.md) と [共通契約](IMPLEMENTATION_COMMON_CONTRACT_JA.md) を読む。対象 `LYRIC-001`〜`005`、`LYRIC-007`〜`012`。`LYRIC-006` の拍マーカーは B2。`LYRIC-010` のステージギミックのデータと配置は本書、格闘・扉等のイベント駆動動作は B4 に詳述する。`O-LYRIC-01/02/03` は所有者がすべて推奨案Aを承認した。決定と境界は [B3所有者判断資料](B3_LYRICS_STAGE_DECISIONS_JA.md) に記録する。2026-10-20 に [JIZURA実画面](https://jizura.net/) の v0.10.0 と [公式ガイド](https://jizura.net/guide/) を確認し、2026-10-21 に [公式リポジトリ](https://github.com/852wa/JIZURA) の固定コミット `fc16bfe43ea4a6c25a21f1caf04d17326de14f00`（VERSION 0.10.1）のソース配置とライセンスを確認した。リポジトリREADMEの説明と実画面の版差を、移植範囲のfixtureで検査する。機能は未実装・未検証。
 
 ## 目的・依存
 

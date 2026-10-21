@@ -1,6 +1,6 @@
-# 動画・連番書き出し 要求仕様（A2・草案）
+# 動画・連番書き出し 要求仕様（A2）
 
-状態: 所有者のA2判断を反映した仕様。実装・動作確認の証拠ではない。対象 `RENDER-001`〜`010`。`RENDER-011`〜`015` は別仕様。新 UI の AOV 等の未承認候補 `NF-016`〜`018` は対象外。決定理由は [A2所有者決定記録](A2_RENDER_DECISIONS_JA.md) を参照する。
+状態: 所有者決定済みの要求仕様。実装・動作確認の証拠ではない。実装する際は [A2実装設計](A2_RENDER_IMPLEMENTATION_DESIGN_JA.md) と [共通契約](IMPLEMENTATION_COMMON_CONTRACT_JA.md) を読む。対象 `RENDER-001`〜`010`。`RENDER-011`〜`015` は別仕様。新 UI の AOV 等の未承認候補 `NF-016`〜`018` は対象外。決定理由は [A2所有者決定記録](A2_RENDER_DECISIONS_JA.md) を参照する。
 
 ## 目的・依存
 

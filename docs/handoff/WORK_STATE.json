@@ -1,22 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T12:56:05+09:00",
+  "updated_at": "2026-10-21T13:00:04+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05d",
-  "head_at_update": "47cd708",
+  "head_at_update": "cc6d85a",
   "current": {
     "task": "PR #20の同期とWP05b/c独立レビュー",
-    "status": "in_progress",
+    "status": "done",
     "step": "先行保存・編集・外部コマンドの差分監査とrecovery同期",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP05dのPRを作成し、共有ベースとの差分を確認する",
-    "WP05b/cの必須独立レビューを確認し、承認済みP2-WP-05eへ進む"
+    "PR20の同期結果を最終確認し、条件が揃えばrecoveryへマージ。次にWP05eレビュー"
   ],
   "unverified": [
-    "本番FBX/PMX/VMDとGPU実機は未検証（隔離した最小素材・headless Chrome/SwiftShader）。",
-    "WP05b/cの独立レビューは未確認。対応表GET→POST間の競合の隙は設計上残る。"
+    "実利用者FBX/PMX/VMDとGPU実機、GET→POST間の競合、WP05e独立レビューは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T13:00:04+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "cc6d85a",
+      "text": "PR20をPR13統合後のrecoveryへ同期。WP05a/b/cの実装者と別の高性能モデルレビューとNode20件・隔離Chrome15件合格を記録"
+    },
     {
       "at": "2026-10-21T12:56:05+09:00",
       "by": "codex",
@@ -236,13 +241,6 @@
       "event": "start",
       "head": "da43e6b",
       "text": "P2-WP-02/03 素材: 設計書読込・実装着手"
-    },
-    {
-      "at": "2026-10-20T14:06:04+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "d33496a",
-      "text": "WP-01 Opus レビュー：自動保存と統合保存が同じ tick を待つと saving:true のまま止まる不具合を修正（テスト追加）。If-Match・世代番号・C5・server.py の 500 分岐は問題なし"
     }
   ]
 }
