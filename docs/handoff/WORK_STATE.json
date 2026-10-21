@@ -1,23 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T19:22:46+09:00",
+  "updated_at": "2026-10-21T19:32:48+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-light-rig",
-  "head_at_update": "ba26f8b",
+  "head_at_update": "dd35b8d",
   "current": {
     "task": "VIEW-001 マルチビューポートのユーザー指摘をPR42へ反映",
-    "status": "in_progress",
+    "status": "done",
     "step": "メイン透視を右に保ち、選択した上面・側面等を左へ独立表示する二画面レイアウトと操作・検証",
     "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
-    "Issue #40のPRを作成しレビュー・統合判断を受ける",
-    "承認済みIssue #39の合成UI画像を公開Issueへ添付",
-    "Issue #34/#35の既存承認項目へ進む"
+    "PR42を更新してレビュー・統合判断待ち。PR21/22はdraft/積層・競合を整理後に判断。Issue34/35とWP05gは未着手のまま継続"
   ],
   "unverified": [
-    "実GPU/Linux・PMXキャラクターへの赤ライト実照射・MMD/Unreal外観一致・Owner採用は未検証",
-    "WebMCP/標準MCPからのライト編集と影品質は未検証"
+    "実GPU/Linux、分割時の低性能機描画、PMX実キャラクターへの照明、MMD/Unreal外観一致、WebMCP/標準MCPからのライト編集、Owner採用は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -35,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T19:32:48+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "dd35b8d",
+      "text": "VIEW-001を左の独立六方向補助ビュー＋右の常時メイン透視へ修正。実S01で同時描画・独立パン・ライト反映・保存再読込、Chrome19件、Python24件、型検査を確認"
+    },
     {
       "at": "2026-10-21T19:22:46+09:00",
       "by": "codex",
@@ -237,13 +241,6 @@
       "event": "start",
       "head": "56f9ad1",
       "text": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善: 共通3DホストのBlender式中ドラッグと操作案内を実装"
-    },
-    {
-      "at": "2026-10-21T14:22:42+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "fe8a5fb",
-      "text": "MOTION-016と3D操作改善の対象・操作・受け入れ条件を設計"
     }
   ]
 }

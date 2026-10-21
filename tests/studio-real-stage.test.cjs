@@ -37,14 +37,24 @@ test('S01 GLB stage loads at the origin, frames its interior and survives save/r
     const editBeforeViews = await page.evaluate(() => JSON.stringify(window.baiStudio.project.getState().bundle.workspace));
     const perspectivePosition = state.cameraPosition;
     const perspectiveTarget = state.cameraTarget;
+    assert.equal(state.viewportLayout, 'single');
+    assert.equal(await page.locator('[data-role="scene-viewports"] canvas').count(), 1);
     for (const mode of ['front', 'back', 'left', 'right', 'top', 'bottom']) {
-      await page.selectOption('[data-role="scene-view-mode"]', mode);
-      await page.waitForFunction((wanted) => window.baiStudio.viewport.getState().viewMode === wanted, mode);
+      await page.click('[data-role="scene-layout-menu"] > summary');
+      await page.click(`[data-role="scene-layout-option"][data-mode="${mode}"]`);
+      await page.waitForFunction((wanted) => window.baiStudio.viewport.getState().secondaryView?.mode === wanted, mode);
+      await page.waitForFunction(() => window.baiStudio.viewport.getState().secondaryView?.drawings > 0);
       const view = await page.evaluate(() => window.baiStudio.viewport.getState());
-      assert.equal(view.cameraProjection, 'orthographic');
+      assert.equal(view.viewportLayout, 'split');
+      assert.equal(view.viewMode, 'perspective');
+      assert.equal(view.cameraProjection, 'perspective');
+      assert.deepEqual(view.cameraPosition, perspectivePosition, 'main view stays fixed');
+      assert.deepEqual(view.cameraTarget, perspectiveTarget, 'main target stays fixed');
+      assert.equal(await page.locator('[data-role="scene-viewports"] canvas').count(), 2);
+      assert.equal(view.secondaryView.cameraProjection, 'orthographic');
       const axis = mode === 'front' || mode === 'back' ? 2 : mode === 'left' || mode === 'right' ? 0 : 1;
       const sign = ['front', 'right', 'top'].includes(mode) ? 1 : -1;
-      assert.ok((view.cameraPosition[axis] - view.cameraTarget[axis]) * sign > 1, `${mode} camera axis`);
+      assert.ok((view.secondaryView.cameraPosition[axis] - view.secondaryView.cameraTarget[axis]) * sign > 1, `${mode} camera axis`);
       if (mode === 'front' || mode === 'top') {
         const nearSurface = await page.evaluate(async (wanted) => {
           const host = (await import('/studio/js/viewport/three-host.js')).currentViewport();
@@ -52,23 +62,38 @@ test('S01 GLB stage loads at the origin, frames its interior and survives save/r
           host.content.traverse((object) => { if (object.name === (wanted === 'top' ? 'S01_R02_Ceiling' : 'S01_R02_Wall_S')) visible = object.visible; });
           return visible;
         }, mode);
-        assert.equal(nearSurface, false, `${mode} near shell is hidden only in the editor view`);
+        assert.equal(nearSurface, true, `${mode} cutaway must be restored for the main view`);
       }
       if (mode === 'top') {
         await page.click('[data-role="scene-focus-light"]');
         const focused = await page.evaluate(() => window.baiStudio.viewport.getState());
-        assert.ok(focused.cameraTarget.every((value, axis) => Math.abs(value - [-1.5, 2.3, 1][axis]) < 1e-6));
+        assert.ok(focused.secondaryView.cameraTarget.every((value, axis) => Math.abs(value - [-1.5, 2.3, 1][axis]) < 1e-6));
+        assert.deepEqual(focused.cameraTarget, perspectiveTarget, 'auxiliary focus does not move the main view');
         await page.click('[data-role="scene-frame-all"]');
-        assert.notDeepEqual((await page.evaluate(() => window.baiStudio.viewport.getState())).cameraTarget, focused.cameraTarget);
+        assert.notDeepEqual((await page.evaluate(() => window.baiStudio.viewport.getState())).secondaryView.cameraTarget, focused.secondaryView.cameraTarget);
+        const beforePan = await page.evaluate(() => window.baiStudio.viewport.getState());
+        const rect = await page.locator('[data-role="scene-aux-viewport"] canvas').boundingBox();
+        await page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2);
+        await page.mouse.down({ button: 'middle' });
+        await page.mouse.move(rect.x + rect.width / 2 + 35, rect.y + rect.height / 2 + 20, { steps: 5 });
+        await page.mouse.up({ button: 'middle' });
+        await page.waitForFunction((target) => JSON.stringify(window.baiStudio.viewport.getState().secondaryView?.cameraTarget) !== JSON.stringify(target), beforePan.secondaryView.cameraTarget);
+        const afterPan = await page.evaluate(() => window.baiStudio.viewport.getState());
+        assert.deepEqual(afterPan.cameraPosition, perspectivePosition, 'auxiliary navigation does not move the main camera');
+        assert.deepEqual(afterPan.cameraTarget, perspectiveTarget, 'auxiliary navigation does not move the main target');
+        await page.click('[data-role="scene-frame-all"]');
       }
       if (process.env.REAL_STAGE_VIEW_SHOT_DIR) await page.screenshot({ path: require('node:path').join(process.env.REAL_STAGE_VIEW_SHOT_DIR, `view_${mode}.png`), type: 'png' });
     }
-    await page.selectOption('[data-role="scene-view-mode"]', 'perspective');
-    await page.waitForFunction(() => window.baiStudio.viewport.getState().viewMode === 'perspective');
+    await page.click('[data-role="scene-layout-menu"] > summary');
+    await page.click('[data-role="scene-layout-option"][data-mode="perspective"]');
+    await page.waitForFunction(() => window.baiStudio.viewport.getState().viewportLayout === 'single');
     const restored = await page.evaluate(() => window.baiStudio.viewport.getState());
     assert.equal(restored.cameraProjection, 'perspective');
     assert.deepEqual(restored.cameraPosition, perspectivePosition);
     assert.deepEqual(restored.cameraTarget, perspectiveTarget);
+    assert.equal(restored.secondaryView, null);
+    assert.equal(await page.locator('[data-role="scene-viewports"] canvas').count(), 1);
     assert.equal(await page.evaluate(async () => {
       const host = (await import('/studio/js/viewport/three-host.js')).currentViewport();
       let visible = null;
@@ -112,6 +137,14 @@ test('S01 GLB stage loads at the origin, frames its interior and survives save/r
     await page.locator('[data-light-field="rotation-1"]').dispatchEvent('change');
     await page.fill('[data-light-field="intensity"]', '28');
     await page.locator('[data-light-field="intensity"]').dispatchEvent('change');
+    await page.click('[data-role="scene-layout-menu"] > summary');
+    await page.click('[data-role="scene-layout-option"][data-mode="top"]');
+    await page.waitForFunction(() => window.baiStudio.viewport.getState().secondaryView?.drawings > 0);
+    const beforeLightDraw = (await page.evaluate(() => window.baiStudio.viewport.getState())).secondaryView.drawings;
+    await page.fill('[data-light-field="rgb-1"]', '80');
+    await page.locator('[data-light-field="rgb-1"]').dispatchEvent('change');
+    await page.waitForFunction((n) => window.baiStudio.viewport.getState().secondaryView?.drawings > n, beforeLightDraw);
+    assert.equal((await page.evaluate(() => window.baiStudio.viewport.getState())).lights.items[3].rgb, '1250ff');
     const edited = await page.evaluate(() => window.baiStudio.project.getState().bundle.workspace.lights);
     assert.equal(edited.items.length, 4);
     assert.equal(edited.items[3].keys[1].frame, 90);
@@ -119,6 +152,7 @@ test('S01 GLB stage loads at the origin, frames its interior and survives save/r
     assert.equal(edited.items[3].keys[1].position[1], 4.5);
     assert.equal(edited.items[3].keys[1].rotation[1], 45);
     assert.equal(edited.items[3].keys[1].intensity, 28);
+    assert.equal(edited.items[3].keys[1].rgb[1], 80);
     assert.equal(await page.locator('.light-timeline-row').count(), 4);
     const scroll = await page.evaluate(() => {
       const inspector = document.querySelector('.pane-right > .pane-body');
