@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T00:23:06+09:00",
+  "updated_at": "2026-10-22T00:48:49+09:00",
   "updated_by": "codex",
-  "branch": "codex/p2-character-formats",
-  "head_at_update": "678d4e1",
+  "branch": "codex/music-dance-all-formats",
+  "head_at_update": "84410e8",
   "current": {
-    "task": "Issue #50 全キャラクター形式の配置",
+    "task": "Issue #50: SCR-10の踊るモデルにGLB/VRM/FBXを追加",
     "status": "done",
-    "step": "workspace.assetの互換拡張とcharacter位置・回転・倍率を保存・復元する",
+    "step": "モデル候補・プレビュー経路・保存再読込を修正",
     "design_doc": "docs/roadmap/CHARACTER_PLACEMENT_ALL_FORMATS_20261021_JA.md"
   },
   "next_steps": [
-    "Issue #50: WP06新カメラへ4形式と保存済み配置を接続する",
-    "P2-WP-06a/b/c/dを実装・検証した後、P2-WP-07書き出しを実装する"
+    "P2-WP-06aからカメラ移植を続ける"
   ],
   "unverified": [
-    "実利用者モデル・GPU実機・Linux・MCPは未検証。LAST CHASE全量ブラウザー試験は端末停止歴のため行わない"
+    "全実モデルの骨対応・PMX以外の物理・Linux・MCP・Owner外観採用は未検証。SCR-06の一部real表示は証拠不足のためpartialへ訂正"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T00:48:49+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "84410e8",
+      "text": "Issue #50追補: SCR-10の踊るモデルにGLB/VRM/PMX/FBXを追加し、主要人体骨のGLBダンスプレビューを実装。実VRM/GLB/FBXの隔離Chrome動作、VRM保存再読込、原本hash不変、型検査と状態検査を確認"
+    },
+    {
+      "at": "2026-10-22T00:33:29+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "dec1774",
+      "text": "Issue #50: SCR-10の踊るモデルにGLB/VRM/FBXを追加: モデル候補・プレビュー経路・保存再読込を修正"
+    },
     {
       "at": "2026-10-22T00:23:06+09:00",
       "by": "codex",
@@ -227,20 +240,6 @@
       "event": "done",
       "head": "0070974",
       "text": "Issue34/35実素材QA: 実GLB/VRM/PMX正面PNG、実FBX/VMDグレーマン、S01室内PNGを確認。PMX非同期テクスチャ待機・空白画像防止・移動見本追従・一覧再描画競合を修正"
-    },
-    {
-      "at": "2026-10-21T20:24:44+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7eed0d1",
-      "text": "Issue34/35の実素材表示品質確認: 実GLBキャラクターの正面PNGと登録済み実FBXモーションのグレーマンを隔離Chromeで確認し、必要な修正を行う"
-    },
-    {
-      "at": "2026-10-21T20:23:22+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "17df04c",
-      "text": "DATA-016のステージ内部自動サムネイルを実装。実S01で8視点解析と室内PNG保存・旧画像保持を確認し、ローカル登録済みS01を更新"
     }
   ]
 }

@@ -17,7 +17,7 @@
 | 攻防、掴み、接触、ノックダウンと起き上がり | DANCE-008〜011 | 格闘・接触モジュール |
 | 接点差と同一フレーム映像の併記、再現性確認後のベイク再利用、登録済み可動ピボットのイベント連動（2026-10-20 所有者決定） | DANCE-008/009, MOTION-021, LYRIC-010 | `O-COMBAT-01/02/03=A/A/A`。[B4決定記録](../specs/B4_COMBAT_STAGE_DECISIONS_JA.md)。自動合否・物理安全を断定せず、未承認ゲームロジックは加えない。機能の実機検証は未了 |
 | SRT、音声同期、リップVMD、作者手癖、モデル別保存 | LIP-001〜008 | リップ最適化 |
-| 歌音声の読込・実波形・開始位置・頭出し・映像同期（2026-10-20 所有者決定、2026-10-21 後続直接指定） | AUDIO-001 | PMX＋MVNT GLB＋実曲の同期プレビューを先行（[Issue #39](https://github.com/baisound/BAI_CREATER_STUDIO/issues/39)、[実装契約](AUDIO_DANCE_SYNC_20261021_JA.md)）。MP4多重化の RENDER-006、拍解析の LYRIC-006 と分離 |
+| 歌音声の読込・実波形・開始位置・頭出し・映像同期（2026-10-20 所有者決定、2026-10-21/22 後続直接指定） | AUDIO-001 | PMX＋MVNT GLB＋実曲の同期プレビューを先行（[Issue #39](https://github.com/baisound/BAI_CREATER_STUDIO/issues/39)）。踊るモデルのGLB/VRM/PMX/FBX選択を[Issue #50](https://github.com/baisound/BAI_CREATER_STUDIO/issues/50)で追加（[実装契約](AUDIO_DANCE_SYNC_20261021_JA.md)）。MP4多重化の RENDER-006、拍解析の LYRIC-006 と分離 |
 | VMD集合の制作傾向、顔映像の既定非保存、時刻付き拍マーカー同期正本（2026-10-20 所有者決定） | LIP-005/011, LYRIC-006 | `O-MUSIC-01/02/03=A/A/A`。[B2決定記録](../specs/B2_MUSIC_EXPRESSION_DECISIONS_JA.md)。申告作者の本人性は推定せず、顔映像は明示選択時だけ参照保持。拍マーカーは音声サンプル位置で保存。機能は未実装・未検証 |
 | 投稿用MP4の環境別実測、同名完成物の版名・旧版退避、透過の初期RGBA PNG連番（2026-10-20 所有者決定） | RENDER-002/004/005/006 | O-RENDER-01/02/03 を A/A/A で承認。[A2決定記録](../specs/A2_RENDER_DECISIONS_JA.md)。音声付きMP4は AUDIO-001 に依存。実装・実機検証は未了 |
 | 表情/視線/瞬き、フェイシャルキャプチャ | LIP-009〜011 | 顔トラック |

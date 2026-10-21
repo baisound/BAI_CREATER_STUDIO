@@ -135,7 +135,9 @@
         "DANCE-003",
         "DANCE-006",
         "DANCE-012",
-        "NF-014"
+        "NF-014",
+        "LIGHT-001",
+        "VIEW-001"
       ],
       "existing_ui": [],
       "live_endpoints": []
@@ -1054,26 +1056,19 @@
       "route": "/workspace/06",
       "panel": "シーンツリー",
       "feature_ids": [
-        "LYRIC-009",
-        "LYRIC-010",
-        "DANCE-001",
-        "DANCE-002",
-        "DANCE-003",
-        "DANCE-006",
-        "DANCE-012",
-        "NF-014"
+        "LIGHT-001"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
+      "new_ui_state": "partial",
+      "source_evidence": "操作面は存在するが、単独の実動作証拠をまだ登録していません。",
       "evidence": null,
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": null
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-06",
@@ -1083,7 +1078,7 @@
         "NF-014"
       ],
       "new_ui_state": "real",
-      "source_evidence": "作業中のキャラクター（GLB/VRM）とステージ1つを表示。素材の単位の換算だけを掛け、高さの正規化・中心合わせはしない。",
+      "source_evidence": "作業中のキャラクター（GLB/VRM/PMX/FBX）とステージ1つを表示。素材の単位の換算だけを掛け、高さの正規化・中心合わせはしない。",
       "evidence": "tests/studio-p2-viewport.test.cjs::stage placement saves and restores",
       "UI": "implemented_route_operable",
       "API": "existing_api_read_write",
@@ -1102,7 +1097,7 @@
         "NF-014"
       ],
       "new_ui_state": "real",
-      "source_evidence": "ステージの位置・回転 Y・拡大を workspace.stage に保存（［保存］）。",
+      "source_evidence": "ステージの位置・回転 XYZ・拡大を workspace.stage に保存（［保存］）。",
       "evidence": "tests/studio-p2-viewport.test.cjs::stage placement saves and restores",
       "UI": "implemented_route_operable",
       "API": "existing_api_read_write",
@@ -1121,7 +1116,7 @@
         "NF-014"
       ],
       "new_ui_state": "real",
-      "source_evidence": "「トランスフォーム」タブの「ステージの素材」の選択欄（素材管理 08 の登録済みモデルから選ぶ）。",
+      "source_evidence": "「トランスフォーム」タブの「ステージの素材」の選択欄（素材管理 08 の登録済みステージやモデルから選ぶ）。",
       "evidence": "tests/studio-p2-viewport.test.cjs::stage placement saves and restores",
       "UI": "implemented_route_operable",
       "API": "existing_api_read_write",
@@ -1135,6 +1130,44 @@
     {
       "screen_id": "SCR-06",
       "route": "/workspace/06",
+      "panel": "個別ライト・キーフレーム",
+      "feature_ids": [
+        "LIGHT-001"
+      ],
+      "new_ui_state": "partial",
+      "source_evidence": "操作面は存在するが、単独の実動作証拠をまだ登録していません。",
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "existing_code_not_wired_to_new_ui",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+    },
+    {
+      "screen_id": "SCR-06",
+      "route": "/workspace/06",
+      "panel": "透視・六方向平行投影",
+      "feature_ids": [
+        "VIEW-001"
+      ],
+      "new_ui_state": "partial",
+      "source_evidence": "操作面は存在するが、単独の実動作証拠をまだ登録していません。",
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "existing_code_not_wired_to_new_ui",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+    },
+    {
+      "screen_id": "SCR-06",
+      "route": "/workspace/06",
       "panel": "表示・依存関係",
       "feature_ids": [
         "LYRIC-009",
@@ -1144,7 +1177,9 @@
         "DANCE-003",
         "DANCE-006",
         "DANCE-012",
-        "NF-014"
+        "NF-014",
+        "LIGHT-001",
+        "VIEW-001"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
@@ -1298,17 +1333,17 @@
       "feature_ids": [
         "MOTION-016"
       ],
-      "new_ui_state": "unimpl",
-      "source_evidence": null,
-      "evidence": null,
-      "UI": "mock_route_operable",
-      "API": "none",
+      "new_ui_state": "real",
+      "source_evidence": "モーションの開始・中間・終了姿勢。表示中のカードから生成し、詳細で再生。VMDはPMXが必要。",
+      "evidence": "tests/studio-p2-assets.test.cjs::motion card shows three poses and detail plays, pauses and seeks a real FBX clip",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "no implementation"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-08",
@@ -1484,96 +1519,40 @@
     {
       "screen_id": "SCR-10",
       "route": "/workspace/10",
-      "panel": "音声ライブラリ",
-      "feature_ids": [
-        "AUDIO-001",
-        "LIP-001",
-        "LIP-002",
-        "LIP-003",
-        "LYRIC-006",
-        "RENDER-006",
-        "NF-002"
-      ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
-      "evidence": null,
-      "UI": "mock_route_operable",
-      "API": "none",
-      "WebMCP": "unknown",
-      "stdio-MCP": "unknown",
-      "test": "tests/studio-ui.test.cjs",
-      "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": null
-    },
-    {
-      "screen_id": "SCR-10",
-      "route": "/workspace/10",
-      "panel": "マルチトラック",
-      "feature_ids": [
-        "AUDIO-001",
-        "LIP-001",
-        "LIP-002",
-        "LIP-003",
-        "LYRIC-006",
-        "RENDER-006",
-        "NF-002"
-      ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
-      "evidence": null,
-      "UI": "mock_route_operable",
-      "API": "none",
-      "WebMCP": "unknown",
-      "stdio-MCP": "unknown",
-      "test": "tests/studio-ui.test.cjs",
-      "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": null
-    },
-    {
-      "screen_id": "SCR-10",
-      "route": "/workspace/10",
-      "panel": "波形",
-      "feature_ids": [
-        "AUDIO-001",
-        "LIP-001",
-        "LIP-002",
-        "LIP-003",
-        "LYRIC-006",
-        "RENDER-006",
-        "NF-002"
-      ],
-      "new_ui_state": "mock",
-      "source_evidence": "波形は装飾表示。音声デコードは未実装。",
-      "evidence": null,
-      "UI": "mock_route_operable",
-      "API": "none",
-      "WebMCP": "unknown",
-      "stdio-MCP": "unknown",
-      "test": "tests/studio-ui.test.cjs",
-      "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": null
-    },
-    {
-      "screen_id": "SCR-10",
-      "route": "/workspace/10",
-      "panel": "歌音声の取込・配置",
+      "panel": "音声ライブラリ・波形・30fps配置",
       "feature_ids": [
         "AUDIO-001"
       ],
-      "new_ui_state": "unimpl",
+      "new_ui_state": "real",
       "source_evidence": null,
+      "evidence": "tests/studio-music-dance.test.cjs::music and dance placement survives reload",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-10",
+      "route": "/workspace/10",
+      "panel": "4形式のモデル選択とダンスプレビュー",
+      "feature_ids": [
+        "AUDIO-001"
+      ],
+      "new_ui_state": "partial",
+      "source_evidence": "PMXのMMD物理と、GLB/VRM/FBXの主要人体骨プレビューを分ける。骨対応が不足するモデルは理由を表示。登録済みVRM/GLB/FBXの再生、VRMの保存復元を隔離試験済み。全リグ・PMX以外の物理演算は未検証。",
       "evidence": null,
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "no implementation"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-10",

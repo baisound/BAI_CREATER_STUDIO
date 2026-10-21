@@ -115,7 +115,7 @@
 
 ## Phase 05 / LIP — リップ・表情・音声
 
-- **[AUDIO-001](FEATURE_DETAIL_JA.md#audio-001)** 歌音声の取込・配置・同期（2026-10-21 後続指定で PMX＋GLB ダンスの同期プレビューを先行）
+- **[AUDIO-001](FEATURE_DETAIL_JA.md#audio-001)** 歌音声の取込・配置・同期（2026-10-21 PMX＋GLB ダンスを先行、2026-10-22 後続指定で踊るモデル選択をGLB/VRM/PMX/FBXへ拡張）
 - **[LIP-001](FEATURE_DETAIL_JA.md#lip-001)** SRT読込→リップVMD
 - **[LIP-002](FEATURE_DETAIL_JA.md#lip-002)** SRT＋歌声ステム音素同期
 - **[LIP-003](FEATURE_DETAIL_JA.md#lip-003)** 日本語子音・長音・閉口補正
