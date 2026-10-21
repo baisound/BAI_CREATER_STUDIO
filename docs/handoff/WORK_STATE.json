@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T15:07:03+09:00",
+  "updated_at": "2026-10-21T15:40:14+09:00",
   "updated_by": "codex",
-  "branch": "codex/motion-assets-navigation",
-  "head_at_update": "2b90003",
+  "branch": "codex/legacy-camera-fixes",
+  "head_at_update": "9a383fd",
   "current": {
-    "task": "Issue #28 MOTION-016 モーション素材の見本画像と再生プレビュー",
+    "task": "Issue #30 旧BAI Cameraの正面撮影・自由回転・再生途中停止・周回の不具合",
     "status": "done",
-    "step": "素材形式別の読み取り専用プレビューと一覧サムネイルを実装",
-    "design_doc": "docs/roadmap/MOTION_016_ASSET_PREVIEW_NAVIGATION_20261021_JA.md"
+    "step": "実画面とコードで症状を切り分け、既存仕様内で修正する",
+    "design_doc": "docs/roadmap/CAM_ISSUE30_LEGACY_FIX_20261021_JA.md"
   },
   "next_steps": [
-    "Issue #28/#29 のPRを作成・統合し、Issue #30 旧BAI Cameraの撮影方向・自由視点・再生停止・周回不具合を調査修正する"
+    "Issue #30の日本語PRを作成・確認後に統合し、Issueを閉じる。その後P2-WP05gを再開する"
   ],
   "unverified": [
-    "Issue #28/#29: 物理マウスとGPU実機での操作感・大量素材の長時間性能・全形式全素材は未検証。Ownerの画面採用はPhase E完了後。Issue #30の不具合は未調査。"
+    "他の全VRM/GLB、物理マウスと実GPUの長時間操作感、Owner画面採用、CAM機能全体のMCP/保存受け入れは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T15:40:14+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9a383fd",
+      "text": "Issue #30: 旧カメラのVRM正面・顔アップ・撮影画面ドラッグ・再生・一周キーを修正し、実VRMと隔離Chromeで確認"
+    },
+    {
+      "at": "2026-10-21T15:08:57+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9b9464c",
+      "text": "Issue #30 旧BAI Cameraの正面撮影・自由回転・再生途中停止・周回の不具合: 実画面とコードで症状を切り分け、既存仕様内で修正する"
+    },
     {
       "at": "2026-10-21T15:07:03+09:00",
       "by": "codex",
@@ -227,20 +241,6 @@
       "event": "done",
       "head": "5b4711a",
       "text": "P2-WP-05c 完了：SCR-05 の82パターン一覧（検索・分類・👑）・お気に入り・コンビネーション編集（editCombination）・速度"
-    },
-    {
-      "at": "2026-10-20T20:42:01+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "7e701e0",
-      "text": "P2-WP-05c SCR-05 の82パターン一覧・お気に入り・コンビネーション編集・速度（3Dなし）: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T20:38:09+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "7b3327e",
-      "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド preview_vmd・integrated_preview の受け口（O-⑤-5）"
     }
   ]
 }
