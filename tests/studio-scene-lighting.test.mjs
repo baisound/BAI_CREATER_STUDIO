@@ -18,7 +18,7 @@ test('independent light keys interpolate RGB/intensity/position and shortest rot
   const keyed = putLightKey(initial, 'key', 30, { position: [3, 4, 5], rgb: [255, 0, 0], intensity: 4, rotation: [-38, 170, 0] });
   const keyed2 = putLightKey(keyed, 'key', 60, { rotation: [-38, -170, 0], enabled: false });
   const at15 = sampleLight(keyed2.items[0], 15);
-  assert.deepEqual(at15.position, [-0.25, 4.1, 4.25]);
+  assert.deepEqual(at15.position, [0.75, 3.15, 3]);
   assert.deepEqual(at15.rgb, [229, 114, 128]);
   assert.equal(at15.intensity, 3.25);
   assert.equal(sampleLight(keyed2.items[0], 45).rotation[1], 180);

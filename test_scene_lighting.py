@@ -12,7 +12,7 @@ from scene_lighting import validate_lights
 KEY = {'frame': 0, 'position': [-3, 4, 2], 'rotation': [-40, -45, 0],
        'rgb': [200, 230, 255], 'intensity': 2.5, 'distance': 0, 'angle': 45,
        'penumbra': 0.4, 'enabled': True}
-LIGHTS = {'schema': 1, 'items': [{'id': 'key', 'name': '左キー', 'type': 'directional',
+LIGHTS = {'schema': 1, 'duration': 9000, 'items': [{'id': 'key', 'name': '左キー', 'type': 'directional',
                                  'keys': [KEY, {**KEY, 'frame': 30, 'rgb': [255, 80, 80], 'position': [1, 3, 2]}]}]}
 
 
@@ -32,7 +32,7 @@ class SceneLightingTest(TestCase):
             assert read_bundle(cp, cam)['workspace']['lights']['items'][0]['keys'][1]['rgb'] == [255, 80, 80]
             save_bundle(cp, cam, self.ws())
             assert read_bundle(cp, cam)['workspace']['lights']['items'][0]['name'] == '左キー'
-            save_bundle(cp, cam, self.ws(lights={'schema': 1, 'items': []}))
+            save_bundle(cp, cam, self.ws(lights={'schema': 1, 'duration': 9000, 'items': []}))
             assert read_bundle(cp, cam)['workspace']['lights']['items'] == []
             save_bundle(cp, cam, self.ws(lights=None))
             assert 'lights' not in read_bundle(cp, cam)['workspace']
@@ -48,22 +48,24 @@ class SceneLightingTest(TestCase):
             before = [x.read_bytes() for x in (cp, cam, wp)]
             with self.assertRaisesRegex(ValueError, 'lights'):
                 save_bundle(cp, cam, self.ws())
+            with self.assertRaisesRegex(ValueError, 'lights'):
+                save_bundle(cp, cam, self.ws(stage=None))
             self.assertEqual(before, [x.read_bytes() for x in (cp, cam, wp)])
 
     def test_validation_rejects_unsafe_values_and_overlong_timeline(self):
         invalid = [
-            {'schema': 1, 'items': [{**LIGHTS['items'][0], 'id': '../x'}]},
-            {'schema': 1, 'items': LIGHTS['items'] * 129},
-            {'schema': 1, 'items': [{**LIGHTS['items'][0], 'keys': [{**KEY, 'frame': 1}]}]},
-            {'schema': 1, 'items': [{**LIGHTS['items'][0], 'keys': [KEY, KEY]}]},
-            {'schema': 1, 'items': [{**LIGHTS['items'][0], 'keys': [{**KEY, 'rgb': [256, 0, 0]}]}]},
-            {'schema': 1, 'items': [{**LIGHTS['items'][0], 'keys': [{**KEY, 'intensity': float('nan')}]}]},
-            {'schema': 1, 'items': [{**LIGHTS['items'][0], 'type': []}]},
+            {**LIGHTS, 'items': [{**LIGHTS['items'][0], 'id': '../x'}]},
+            {**LIGHTS, 'items': LIGHTS['items'] * 129},
+            {**LIGHTS, 'items': [{**LIGHTS['items'][0], 'keys': [{**KEY, 'frame': 1}]}]},
+            {**LIGHTS, 'items': [{**LIGHTS['items'][0], 'keys': [KEY, KEY]}]},
+            {**LIGHTS, 'items': [{**LIGHTS['items'][0], 'keys': [{**KEY, 'rgb': [256, 0, 0]}]}]},
+            {**LIGHTS, 'items': [{**LIGHTS['items'][0], 'keys': [{**KEY, 'intensity': float('nan')}]}]},
+            {**LIGHTS, 'items': [{**LIGHTS['items'][0], 'type': []}]},
         ]
         for value in invalid:
             with self.subTest(value=str(value)[:50]), self.assertRaises(ValueError):
                 validate_lights(value)
         good = copy.deepcopy(LIGHTS)
-        good['items'][0]['keys'][-1]['frame'] = self.bundle['camera']['duration'] + 1
-        with self.assertRaisesRegex(ValueError, 'duration'):
+        good['items'][0]['keys'][-1]['frame'] = good['duration'] + 1
+        with self.assertRaisesRegex(ValueError, 'frame'):
             validate_bundle(self.ws(lights=good))

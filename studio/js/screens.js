@@ -253,19 +253,22 @@ export const SCREENS = [
   {
     id: '06', title: 'シーン・ステージ・素材配置', nav: 'シーン・ステージ', group: '制作',
     summary: 'ステージ・小道具・ライトを配置し、表示と依存関係を管理する。',
-    classification: 'candidate_late', ids: ['LYRIC-009', 'LYRIC-010', 'DANCE-001', 'DANCE-002', 'DANCE-003', 'DANCE-006', 'DANCE-012', 'NF-014'],
+    classification: 'candidate_late', ids: ['LYRIC-009', 'LYRIC-010', 'DANCE-001', 'DANCE-002', 'DANCE-003', 'DANCE-006', 'DANCE-012', 'NF-014', 'LIGHT-001', 'VIEW-001'],
     panels: [
-      { name: 'シーンツリー', status: 'mock' },
+      { name: 'シーンツリー', status: 'real', ids: ['LIGHT-001'] },
       { name: '3Dビュー', status: 'real', evidence: EV_STAGE, note: '作業中のキャラクター（GLB/VRM）とステージ1つを表示。素材の単位の換算だけを掛け、高さの正規化・中心合わせはしない。', ids: ['NF-014'] },
       { name: 'トランスフォーム', status: 'real', evidence: EV_STAGE, note: 'ステージの位置・回転 XYZ・拡大を workspace.stage に保存（［保存］）。', ids: ['NF-014'] },
       { name: 'アセットブラウザー', status: 'real', evidence: EV_STAGE, note: '「トランスフォーム」タブの「ステージの素材」の選択欄（素材管理 08 の登録済みステージやモデルから選ぶ）。', ids: ['NF-014'] },
+      { name: '個別ライト・キーフレーム', status: 'real', ids: ['LIGHT-001'] },
+      { name: '透視・六方向平行投影', status: 'real', ids: ['VIEW-001'] },
       { name: '表示・依存関係', status: 'unimpl' },
     ],
-    tools: [ch('座標系', ['ワールド', 'ローカル']), { t: 'feature', key: 'stageLoadButton' }, { t: 'feature', key: 'projectToolbar' }],
-    left: { title: 'シーンツリー', status: 'mock', tree: true, list: [{ id: 'r', label: 'Scene', depth: 0 }, { id: 'st', label: 'Stage', depth: 1 }, { id: 'fl', label: 'Floor', depth: 2 }, { id: 'ch', label: 'Characters', depth: 1 }, { id: 'a', label: 'Model A', depth: 2 }, { id: 'b', label: 'Model B', depth: 2 }, { id: 'li', label: 'Lights', depth: 1 }, { id: 'k', label: 'Key Light', depth: 2 }, { id: 'cam', label: 'Camera', depth: 1 }] },
+    tools: [{ t: 'feature', key: 'sceneLightTools' }, { t: 'feature', key: 'stageLoadButton' }, { t: 'feature', key: 'projectToolbar' }],
+    left: { title: 'シーンツリー', status: 'real', custom: 'sceneObjects' },
     center: { type: 'feature', key: 'sceneViewport', status: 'real', evidence: EV_STAGE },
     right: { tabs: [
       { id: 'xf', label: 'トランスフォーム', custom: 'stageTransform', sections: [] },
+      { id: 'light', label: 'ライト', custom: 'lightEditor', sections: [] },
       { id: 'vis', label: '表示', sections: [
         { title: '表示', status: 'mock', controls: [tg('表示', true), tg('影を落とす', true), tg('ロック')] },
         { title: '依存関係', status: 'unimpl', controls: [un('依存素材を表示', '素材の依存参照グラフは未実装。', [], PH.P4)] },
@@ -279,6 +282,7 @@ export const SCREENS = [
         { title: '大型ステージと可動物', status: 'unimpl', controls: [note('床、チャンク／LOD、可動ピボット、依存素材の状態を確認します。'), un('ステージ詳細を編集', '大型ステージと可動物の設定は未実装です。', ['LYRIC-009', 'LYRIC-010'], PH.G)] },
       ] },
     ] },
+    bottom: { type: 'feature', key: 'lightTimeline', status: 'real' },
   },
   {
     id: '07', title: 'レンダリング・出力（初期構想）', nav: 'レンダリング（初期）', group: '出力',

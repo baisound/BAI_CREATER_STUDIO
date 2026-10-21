@@ -34,6 +34,7 @@
 | ステージ・小物・材質・エフェクト・音声・動画・画像を制作の入口から取り込み、メタタイトル・実見本・波形・再生・詳細を確認（2026-10-21 所有者指定） | DATA-016、REVIEW-010 | [Issue #37](https://github.com/baisound/BAI_CREATER_STUDIO/issues/37)を最優先。素材管理・保存API・出典記録。演出への適用は既存の個別要件に残す |
 | 提供S01 GLBを原点で配置し、室内表示・XYZ調整・保存再読込（2026-10-21 所有者指定） | NF-014、DATA-016 | [Issue #40](https://github.com/baisound/BAI_CREATER_STUDIO/issues/40)、[実装・検証記録](STAGE_LIGHT_RIG_20261021_JA.md)。原本GLBは保持 |
 | 3点照明を初期例とし、多灯を個別追加、RGB・強度・変形をライト単位のキーで編集（2026-10-21 後続所有者指定） | LIGHT-001、UX-001〜008 | [Issue #40](https://github.com/baisound/BAI_CREATER_STUDIO/issues/40)、[設計と根拠](STAGE_LIGHT_RIG_20261021_JA.md)。VMDの単一ライト記録へ無断縮約しない |
+| 透視と正面・背面・左・右・上・下の視線を切替え、閉鎖ステージの室内とライト配置を確認（2026-10-21 後続所有者指定） | VIEW-001、LIGHT-001、UX-002 | [Issue #40](https://github.com/baisound/BAI_CREATER_STUDIO/issues/40)、[実測](STAGE_LIGHT_RIG_20261021_JA.md)。正投影の外殻非表示は画面だけ、透視への復帰で元の表示へ戻す |
 
 ## 未実装/実装済みの見分け方
 

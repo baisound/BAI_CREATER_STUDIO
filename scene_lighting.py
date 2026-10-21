@@ -33,8 +33,11 @@ def validate_lights(value):
     """Return a new canonical value, or None to remove the optional field."""
     if value is None:
         return None
-    if not isinstance(value, dict) or set(value) != {'schema', 'items'} or type(value['schema']) is not int or value['schema'] != 1:
+    if not isinstance(value, dict) or set(value) != {'schema', 'duration', 'items'} or type(value['schema']) is not int or value['schema'] != 1:
         raise ValueError('invalid workspace lights schema')
+    duration = value['duration']
+    if type(duration) is not int or not 1 <= duration <= 1000000:
+        raise ValueError('invalid workspace lights duration')
     items = value['items']
     if not isinstance(items, list) or len(items) > MAX_LIGHTS:
         raise ValueError('invalid workspace lights count')
@@ -58,7 +61,7 @@ def validate_lights(value):
             if not isinstance(key, dict) or set(key) != FRAME_KEYS:
                 raise ValueError('invalid workspace lights key')
             frame = key['frame']
-            if type(frame) is not int or not last_frame < frame <= 1000000:
+            if type(frame) is not int or not last_frame < frame <= duration:
                 raise ValueError('invalid workspace lights frame')
             if last_frame == -1 and frame != 0:
                 raise ValueError('workspace lights require frame 0')
@@ -77,4 +80,4 @@ def validate_lights(value):
             })
             last_frame = frame
         out.append({'id': ident, 'name': name.strip(), 'type': kind, 'keys': clean_keys})
-    return {'schema': 1, 'items': out}
+    return {'schema': 1, 'duration': duration, 'items': out}

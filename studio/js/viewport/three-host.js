@@ -18,6 +18,7 @@ export const currentViewport = () => current;
 
 /** 状態の初期値。renderer は WEBGL_debug_renderer_info の文字列（取れなければ 'unknown'）。 */
 const EMPTY = Object.freeze({ loaded: false, assetId: null, format: null, scale: null, offset: null, stage: null, character: null });
+/** @typedef {'perspective'|'front'|'back'|'left'|'right'|'top'|'bottom'} ViewMode */
 
 /**
  * @param {HTMLElement} container 大きさを持つ要素（canvas を中に置く）
@@ -41,7 +42,8 @@ export function createViewport(container, libs, o = {}) {
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(o.background ?? 0x162235);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 2.0));
+  const ambient = new THREE.HemisphereLight(0xffffff, 0x556677, 2.0);
+  scene.add(ambient);
   const lamp = new THREE.DirectionalLight(0xffffff, 2);
   lamp.position.set(2, 6, 4);
   scene.add(lamp);
@@ -50,6 +52,10 @@ export function createViewport(container, libs, o = {}) {
 
   const camera = new THREE.PerspectiveCamera(40, 1, 0.03, 500);
   camera.position.set(2, 1.6, 4.5);
+  const orthographic = new THREE.OrthographicCamera(-5, 5, 5, -5, 0.03, 500);
+  /** @type {ViewMode} */ let viewMode = 'perspective';
+  /** @type {any} */ let activeCamera = camera;
+  let orthoHeight = 10;
   const controls = new OrbitControls(camera, canvas);
   // Three.js 0.160.1 は ROTATE に修飾キーを付けると PAN に切り替わる。
   // Ctrl＋中ドラッグだけは pointerdown の前に DOLLY へ割り当てる。
@@ -57,7 +63,7 @@ export function createViewport(container, libs, o = {}) {
   const middleDown = (/** @type {PointerEvent} */ e) => {
     if (e.button !== 1) return;
     e.preventDefault();
-    controls.mouseButtons.MIDDLE = e.ctrlKey ? THREE.MOUSE.DOLLY : THREE.MOUSE.ROTATE;
+    controls.mouseButtons.MIDDLE = e.ctrlKey ? THREE.MOUSE.DOLLY : viewMode === 'perspective' ? THREE.MOUSE.ROTATE : THREE.MOUSE.PAN;
   };
   const noAuxClick = (/** @type {MouseEvent} */ e) => { if (e.button === 1) e.preventDefault(); };
   canvas.addEventListener('pointerdown', middleDown, true);
@@ -75,7 +81,7 @@ export function createViewport(container, libs, o = {}) {
 
   let disposed = false;
   let raf = 0;
-  const draw = () => { raf = 0; if (disposed) return; controls.update(); renderer.render(scene, camera); };
+  const draw = () => { raf = 0; if (disposed) return; controls.update(); renderer.render(scene, activeCamera); };
   const invalidate = () => { if (!disposed && !raf) raf = requestAnimationFrame(draw); };
   controls.addEventListener('change', invalidate);
 
@@ -85,6 +91,11 @@ export function createViewport(container, libs, o = {}) {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    orthographic.left = -orthoHeight * w / h / 2;
+    orthographic.right = orthoHeight * w / h / 2;
+    orthographic.top = orthoHeight / 2;
+    orthographic.bottom = -orthoHeight / 2;
+    orthographic.updateProjectionMatrix();
     invalidate();
   };
   const ro = new ResizeObserver(resize);
@@ -100,8 +111,72 @@ export function createViewport(container, libs, o = {}) {
     rendererName = String(ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)) || 'unknown';
   } catch { /* 取れなければ unknown */ }
 
+  const perspectiveTarget = controls.target.clone();
   const api = {
-    scene, camera, renderer, controls, content,
+    scene, camera: activeCamera, renderer, controls, content,
+    /** 平行投影6方向と透視を切り替え、透視へ戻る際には直前の視点を復元する。 @param {ViewMode} mode @param {{min:number[],max:number[]}|null} [bounds] */
+    setViewMode(mode, bounds = null) {
+      if (mode === 'perspective') {
+        activeCamera = camera;
+        controls.object = camera;
+        controls.target.copy(perspectiveTarget);
+        controls.enableRotate = true;
+        controls.mouseButtons.MIDDLE = THREE.MOUSE.ROTATE;
+      } else {
+        if (viewMode === 'perspective') perspectiveTarget.copy(controls.target);
+        const min = bounds ? new THREE.Vector3(...bounds.min) : new THREE.Vector3(-2, -1, -2);
+        const max = bounds ? new THREE.Vector3(...bounds.max) : new THREE.Vector3(2, 3, 2);
+        const center = min.clone().add(max).multiplyScalar(0.5);
+        const size = max.clone().sub(min);
+        const aspect = Math.max(0.1, container.clientWidth / Math.max(1, container.clientHeight));
+        const horizontal = mode === 'front' || mode === 'back' ? size.x : mode === 'left' || mode === 'right' ? size.z : size.x;
+        const vertical = mode === 'top' || mode === 'bottom' ? size.z : size.y;
+        orthoHeight = Math.max(4, vertical * 1.12, horizontal / aspect * 1.12);
+        orthographic.zoom = 1;
+        const distance = Math.max(8, Math.max(size.x, size.y, size.z) * 1.7);
+        const direction = {
+          front: [0, 0, 1], back: [0, 0, -1], left: [-1, 0, 0], right: [1, 0, 0], top: [0, 1, 0], bottom: [0, -1, 0],
+        }[mode];
+        orthographic.position.copy(center).add(new THREE.Vector3(...direction).multiplyScalar(distance));
+        orthographic.up.set(0, 1, 0);
+        if (mode === 'top') orthographic.up.set(0, 0, -1);
+        if (mode === 'bottom') orthographic.up.set(0, 0, 1);
+        orthographic.lookAt(center);
+        orthographic.near = 0.03;
+        orthographic.far = Math.max(500, distance * 4);
+        activeCamera = orthographic;
+        controls.object = orthographic;
+        controls.target.copy(center);
+        controls.enableRotate = false;
+        controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN;
+      }
+      viewMode = mode;
+      api.camera = activeCamera;
+      resize();
+      controls.update();
+      const helpText = navHelp.querySelector('span');
+      if (helpText) helpText.innerHTML = mode === 'perspective'
+        ? '中ドラッグ：回転<br>Shift＋中ドラッグ：左右・上下<br>Ctrl＋中ドラッグ／ホイール：前後'
+        : '中ドラッグ：平行移動<br>Ctrl＋中ドラッグ／ホイール：拡大・縮小<br>視点メニューで透視へ戻る';
+      invalidate();
+    },
+    /** 選択物へ視点を寄せる。データの座標は編集しない。 @param {number[]} position */
+    focusAt(position) {
+      const next = new THREE.Vector3(...position);
+      const offset = activeCamera.position.clone().sub(controls.target);
+      activeCamera.position.copy(next).add(offset);
+      controls.target.copy(next);
+      if (viewMode === 'perspective') perspectiveTarget.copy(next);
+      else { orthoHeight = 4; resize(); }
+      controls.update();
+      invalidate();
+    },
+    /** SCR-06 の編集可能な照明に切り替える。ほかの画面の既定値は保つ。 */
+    setBaseLighting(ambientIntensity, directionalIntensity) {
+      ambient.intensity = ambientIntensity;
+      lamp.intensity = directionalIntensity;
+      invalidate();
+    },
     /** 1つだけ置く（前のものは破棄）。SCR-12 の単体表示。 @param {any} object */
     setObject(object) {
       api.clear();
@@ -139,7 +214,8 @@ export function createViewport(container, libs, o = {}) {
     getState() {
       content.updateMatrixWorld(true);
       const box = new THREE.Box3().setFromObject(content);
-      return { ...EMPTY, ...extra, renderer: rendererName, cameraPosition: camera.position.toArray(), cameraTarget: controls.target.toArray(), bounds: box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray() } };
+      return { ...EMPTY, ...extra, renderer: rendererName, viewMode, cameraProjection: activeCamera.isOrthographicCamera ? 'orthographic' : 'perspective',
+        cameraPosition: activeCamera.position.toArray(), cameraTarget: controls.target.toArray(), bounds: box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray() } };
     },
     /**
      * モデルの描画を確かめる（テスト用）。床を隠して描き、背景と違う画素の数を返す。
@@ -147,7 +223,7 @@ export function createViewport(container, libs, o = {}) {
      */
     countNonBackground() {
       grid.visible = false;
-      renderer.render(scene, camera);
+      renderer.render(scene, activeCamera);
       const gl = renderer.getContext();
       const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight;
       const px = new Uint8Array(w * h * 4);

@@ -103,9 +103,6 @@ def validate_bundle(obj):
         result['workspace'] = validate_workspace(obj['workspace'])
         if result['workspace']['frame'] > result['camera']['duration']:
             raise ValueError('workspace frame exceeds camera duration')
-        for lamp in (result['workspace'].get('lights') or {}).get('items', []):
-            if lamp['keys'][-1]['frame'] > result['camera']['duration']:
-                raise ValueError('workspace lights frame exceeds camera duration')
     return result
 
 
@@ -135,20 +132,22 @@ def save_bundle(combination_path, camera_path, obj):
     before_wp = wp.read_bytes() if wp.exists() else None
     # 旧 camera.html が知らない stage/lights を送らなくても残す。不正な既存値は書き込み前に拒否する。
     if 'workspace' in payload and any(k not in payload['workspace'] for k in ('stage', 'lights')) and before_wp is not None:
+        invalid_part = 'workspace'
         try:
             existing = json.loads(before_wp.decode('utf-8'))
             if not isinstance(existing, dict):
                 raise ValueError('not an object')
             for key, validate in (('stage', validate_stage), ('lights', validate_lights)):
                 if key not in payload['workspace'] and key in existing:
+                    invalid_part = key
                     kept = validate(existing[key])
                     if kept is not None:
                         payload['workspace'][key] = kept
         except (ValueError, UnicodeDecodeError, TypeError) as exc:
             # B-4 の既存契約：stage を明示した保存は、壊れた旧 workspace を修復できる。
             # lights を明示しない旧クライアントの通常保存は、読み取れない照明を消さない。
-            if 'stage' not in payload['workspace'] or 'lights' in payload['workspace']:
-                raise ValueError('existing workspace stage or lights is unreadable; nothing was written') from exc
+            if invalid_part == 'lights' or 'stage' not in payload['workspace']:
+                raise ValueError(f'existing workspace {invalid_part} is unreadable; nothing was written') from exc
     cp.parent.mkdir(parents=True, exist_ok=True)
     tmp = cp.with_suffix('.bundle-tmp')
     workspace_tmp = wp.with_suffix('.workspace-tmp')

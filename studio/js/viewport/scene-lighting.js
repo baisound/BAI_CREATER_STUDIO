@@ -2,13 +2,13 @@
 // SCR-06 light actors and their frame animation. Values are metres, degrees and 8-bit RGB.
 /** @typedef {{frame: number, position: [number,number,number], rotation: [number,number,number], rgb: [number,number,number], intensity: number, distance: number, angle: number, penumbra: number, enabled: boolean}} LightKey */
 /** @typedef {{id: string, name: string, type: 'directional'|'spot'|'point', keys: LightKey[]}} LightActor */
-/** @typedef {{schema: 1, items: LightActor[]}} Lighting */
+/** @typedef {{schema: 1, duration: number, items: LightActor[]}} Lighting */
 
 /** @type {Lighting} */
-const INITIAL = { schema: 1, items: [
-  { id: 'key', name: '左キーライト', type: 'directional', keys: [{ frame: 0, position: [-3.5, 4.2, 3.5], rotation: [-38, -40, 0], rgb: [202, 228, 255], intensity: 2.5, distance: 0, angle: 45, penumbra: 0.4, enabled: true }] },
-  { id: 'fill', name: '右フィルライト', type: 'directional', keys: [{ frame: 0, position: [3.5, 3, 3.5], rotation: [-28, 40, 0], rgb: [255, 72, 92], intensity: 1.2, distance: 0, angle: 45, penumbra: 0.4, enabled: true }] },
-  { id: 'rim', name: '背面ライト', type: 'directional', keys: [{ frame: 0, position: [0, 4.5, -3.5], rotation: [-34, 180, 0], rgb: [255, 244, 225], intensity: 2.2, distance: 0, angle: 45, penumbra: 0.4, enabled: true }] },
+const INITIAL = { schema: 1, duration: 9000, items: [
+  { id: 'key', name: '左キーライト', type: 'directional', keys: [{ frame: 0, position: [-1.5, 2.3, 1], rotation: [-26, -55, 0], rgb: [202, 228, 255], intensity: 2.5, distance: 0, angle: 45, penumbra: 0.4, enabled: true }] },
+  { id: 'fill', name: '右フィルライト', type: 'directional', keys: [{ frame: 0, position: [1.5, 2.3, 1], rotation: [-26, 55, 0], rgb: [255, 72, 92], intensity: 1.2, distance: 0, angle: 45, penumbra: 0.4, enabled: true }] },
+  { id: 'rim', name: '背面ライト', type: 'directional', keys: [{ frame: 0, position: [0, 2.5, -2.5], rotation: [-22, 180, 0], rgb: [255, 244, 225], intensity: 2.2, distance: 0, angle: 45, penumbra: 0.4, enabled: true }] },
 ] };
 
 /** @returns {Lighting} */
@@ -16,10 +16,11 @@ export const defaultLighting = () => structuredClone(INITIAL);
 
 /** @param {any} value @returns {value is Lighting} */
 export function isLighting(value) {
-  return !!value && value.schema === 1 && Array.isArray(value.items) && value.items.every((/** @type {any} */ item) =>
+  return !!value && value.schema === 1 && Number.isInteger(value.duration) && value.duration >= 1 && value.duration <= 1000000
+    && Array.isArray(value.items) && value.items.every((/** @type {any} */ item) =>
     !!item && typeof item.id === 'string' && typeof item.name === 'string' && ['directional', 'spot', 'point'].includes(item.type)
     && Array.isArray(item.keys) && item.keys.length > 0 && item.keys[0].frame === 0 && item.keys.every((/** @type {any} */ key) =>
-      Number.isInteger(key.frame) && Array.isArray(key.position) && key.position.length === 3
+      Number.isInteger(key.frame) && key.frame <= value.duration && Array.isArray(key.position) && key.position.length === 3
       && Array.isArray(key.rotation) && key.rotation.length === 3 && Array.isArray(key.rgb) && key.rgb.length === 3
       && typeof key.intensity === 'number' && typeof key.enabled === 'boolean'));
 }
@@ -57,7 +58,7 @@ export function sampleLight(light, frame) {
 export function putLightKey(lighting, id, frame, patch = {}) {
   const next = structuredClone(lighting);
   const light = next.items.find((item) => item.id === id);
-  if (!light || !Number.isInteger(frame) || frame < 0) return next;
+  if (!light || !Number.isInteger(frame) || frame < 0 || frame > lighting.duration) return next;
   const value = { ...sampleLight(light, frame), ...patch, frame };
   const index = light.keys.findIndex((key) => key.frame === frame);
   if (index >= 0) light.keys[index] = value;
@@ -76,7 +77,7 @@ export function removeLightKey(lighting, id, frame) {
 
 /** @param {Lighting} lighting @param {string} id @returns {Lighting} */
 export function removeLight(lighting, id) {
-  return { schema: 1, items: lighting.items.filter((item) => item.id !== id) };
+  return { schema: 1, duration: lighting.duration, items: lighting.items.filter((item) => item.id !== id) };
 }
 
 /** @param {Lighting} lighting @param {'directional'|'spot'|'point'} type @returns {LightActor} */

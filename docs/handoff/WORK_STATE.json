@@ -1,20 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T18:38:53+09:00",
+  "updated_at": "2026-10-21T19:13:45+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-light-rig",
-  "head_at_update": "5856b2d",
+  "head_at_update": "4d67f30",
   "current": {
     "task": "LIGHT-001 SCR-06多灯照明の編集画面",
-    "status": "in_progress",
+    "status": "done",
     "step": "シーン一覧・ライトフレームとギズモ・右のRGB/変形編集・下部キータイムライン",
     "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
-    "LIGHT-001のシーン一覧・ライトフレーム/ギズモ・数値/RGB編集・キーフレーム時間軸をSCR-06へ結線して実S01で検証"
+    "Issue #40のPRを作成しレビュー・統合判断を受ける",
+    "承認済みIssue #39の合成UI画像を公開Issueへ添付",
+    "Issue #34/#35の既存承認項目へ進む"
   ],
   "unverified": [
-    "ライトのブラウザ描画・編集UI・実GPU/Linux・MMD/Unreal外観一致、Owner採用は未検証"
+    "実GPU/Linux・PMXキャラクターへの赤ライト実照射・MMD/Unreal外観一致・Owner採用は未検証",
+    "WebMCP/標準MCPからのライト編集と影品質は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +35,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T19:13:45+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4d67f30",
+      "text": "NF-014/LIGHT-001/VIEW-001: S01ステージ配置、多灯照明とキー編集、透視・六方向平行投影、パネル内スクロールを実装し実S01/Chromeと回帰を確認"
+    },
     {
       "at": "2026-10-21T18:38:53+09:00",
       "by": "codex",
@@ -234,13 +244,6 @@
       "event": "start",
       "head": "9cc2d4c",
       "text": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善: 既存素材形式・画面導線・3D操作の調査と受け入れ条件整理"
-    },
-    {
-      "at": "2026-10-21T14:18:16+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2326456",
-      "text": "MOTION-006 PMX+VMDの足IK・grant再生と往復シークを修正し実素材で確認"
     }
   ]
 }
