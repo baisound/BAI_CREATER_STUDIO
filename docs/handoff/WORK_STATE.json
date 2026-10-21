@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T00:23:06+09:00",
+  "updated_at": "2026-10-22T00:33:29+09:00",
   "updated_by": "codex",
-  "branch": "codex/p2-character-formats",
-  "head_at_update": "678d4e1",
+  "branch": "codex/music-dance-all-formats",
+  "head_at_update": "dec1774",
   "current": {
-    "task": "Issue #50 全キャラクター形式の配置",
-    "status": "done",
-    "step": "workspace.assetの互換拡張とcharacter位置・回転・倍率を保存・復元する",
+    "task": "Issue #50: SCR-10の踊るモデルにGLB/VRM/FBXを追加",
+    "status": "in_progress",
+    "step": "モデル候補・プレビュー経路・保存再読込を修正",
     "design_doc": "docs/roadmap/CHARACTER_PLACEMENT_ALL_FORMATS_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T00:33:29+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "dec1774",
+      "text": "Issue #50: SCR-10の踊るモデルにGLB/VRM/FBXを追加: モデル候補・プレビュー経路・保存再読込を修正"
+    },
     {
       "at": "2026-10-22T00:23:06+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "7eed0d1",
       "text": "Issue34/35の実素材表示品質確認: 実GLBキャラクターの正面PNGと登録済み実FBXモーションのグレーマンを隔離Chromeで確認し、必要な修正を行う"
-    },
-    {
-      "at": "2026-10-21T20:23:22+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "17df04c",
-      "text": "DATA-016のステージ内部自動サムネイルを実装。実S01で8視点解析と室内PNG保存・旧画像保持を確認し、ローカル登録済みS01を更新"
     }
   ]
 }
