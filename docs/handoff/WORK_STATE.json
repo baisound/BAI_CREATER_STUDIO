@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T11:13:45+09:00",
+  "updated_at": "2026-10-21T11:14:25+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05e",
-  "head_at_update": "47d81d4",
+  "head_at_update": "33f5bd8",
   "current": {
     "task": "P2-WP-05e SCR-13のタイムライン編集・再生と補正レイヤー",
-    "status": "done",
-    "step": "登録FBXモデル選択・タイムライン再生・補正レイヤーの姿勢反映を結線",
+    "status": "in_progress",
+    "step": "Studio UI全件・P2共通ゲート・E2Eを再検証して台帳を確定",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T11:14:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "33f5bd8",
+      "text": "P2-WP-05e SCR-13のタイムライン編集・再生と補正レイヤー: Studio UI全件・P2共通ゲート・E2Eを再検証して台帳を確定"
+    },
     {
       "at": "2026-10-21T11:13:45+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "4ee6b49",
       "text": "P2-WP-04 ④ 3D表示とステージ配置を実装（B-4 は 4ee6b49 に分離）。E2E は S2 まで"
-    },
-    {
-      "at": "2026-10-20T15:31:47+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "2e8fd96",
-      "text": "P2-WP-04 ④ 3D表示とステージ配置・B-4: 実装開始（B-4 → viewport → ステージ配置 → テスト）"
     }
   ]
 }
