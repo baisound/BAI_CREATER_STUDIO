@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T12:44:10+09:00",
+  "updated_at": "2026-10-21T12:49:00+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05g",
-  "head_at_update": "2b85da5",
+  "head_at_update": "5add925",
   "current": {
     "task": "P2-WP-05g SCR-05の2D・3D模式再生",
-    "status": "in_progress",
+    "status": "done",
     "step": "旧画面の時計・drawPattern・animateActorと新UIの受け口を監査",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-05gの承認済み⑤-10/15模式再生を監査・実装"
+    "WP05gのパターン時計・2D SVG・3D模式をSCR-05に実装"
   ],
   "unverified": [
-    "実利用者モデル/GPU実機、WP05b/c/e/f独立レビュー、WebMCP/stdio MCP個別整合は未確認"
+    "実利用者FBX/GPU実機、WP05b/c/e/f独立レビューは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T12:49:00+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "5add925",
+      "text": "WP05gの旧画面時計・2D SVG・3D模式と新UI受け口を監査し、境界と試験を文書化"
+    },
     {
       "at": "2026-10-21T12:44:10+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "614e848",
       "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 引き継ぎ設計照合→実装→自動テスト→台帳更新"
-    },
-    {
-      "at": "2026-10-20T21:13:28+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "83dbf9f",
-      "text": "P2-WP-05d SCR-05 の A/B の3D・連結再生・手順名対応表・スロット別PMX+VMD: 実装→テスト→台帳更新→コミット"
     }
   ]
 }
