@@ -7,8 +7,8 @@ def test_camera_asset_ui_and_renderer():
     js=(ROOT/'camera_3d.js').read_text()
     for name in ('camera-asset','camera-load-asset','camera-clip'):
         assert f'id="{name}"' in html
-    assert "'/api/integrated-v02/catalog'" in js
-    assert "'/api/integrated-v02/asset/'" in js
+    assert "fetch('/api/assets')" in js
+    assert 'await loadModel(item,await loadLibs())' in js
     assert "new THREE.WebGLRenderer" in js
     assert 'views[0].renderer?.render(world,sceneCam)' in js
     assert 'views[1].renderer?.render(world,activeFilmingCamera)' in js

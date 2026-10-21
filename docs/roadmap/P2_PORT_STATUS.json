@@ -357,18 +357,24 @@
     {
       "id": "P2-WP-06a",
       "step": "⑥ mount 化",
-      "state": "in_progress",
-      "commits": [],
+      "state": "verified",
+      "commits": [
+        "e1961b8（camera.js mount化）",
+        "codex/p2-wp06のWP06a後半（camera_3d.js mount化・テスト更新）"
+      ],
       "tests": [
-        "camera.js側: node --checkとnpm run typecheckが合格",
-        "旧カメラ隔離Chromeのlegacy-camera-fixes 2/2合格",
-        "旧mainとmount版でキー追加→Undo/Redo→保存→再読込の結果が一致（2D編集。CDN threeの404で3D比較は未実施）"
+        "npm run typecheck: pass。camera.js・camera_3d.jsの構文検査: pass",
+        "旧カメラ隔離Chromeのlegacy-camera-fixes 2/2合格。mountの同一root冪等性・別root拒否・dirtyも確認",
+        "旧mainとmount版でキー追加→Undo/Redo→保存→再読込の結果が一致（2D編集）",
+        "カメラPython全件: 133 pass・5 subtests pass",
+        "カメラNode/旧UIゲート: 50 pass・実data/ 7ファイルのハッシュ不変",
+        "studio-ui: 20 pass。SCR10の古いテスト2件を現行の音楽とダンス導線に合わせて更新"
       ],
       "unverified": [
-        "camera_3d.jsのmount化と旧画面3Dの前後比較は次のサブコミット",
-        "カメラ関係の全テストとstudio-uiはWP06aの両ファイル完了後に実施"
+        "旧mainとmount版の3D描画の画像単位比較は未実施（比較スクリプト側で外部CDN 404）。旧カメラ3Dの隔離ブラウザ回帰は合格。",
+        "新UIのカメラホスト、保存連携、実GPU・Linux・実利用者モデルはWP06b以降または未検証。"
       ],
-      "notes": "1/2サブコミット: camera.jsをroot基準のmount(root,{host})に変換。手動mountフラグと同一root冪等・異なるroot拒否・dirtyハンドルを追加。旧camera.htmlは変更なし。実装・試験は標準モデル区分。",
+      "notes": "2/2サブコミット: camera.jsとcamera_3d.jsをroot基準のmount(root,{host})に変換。手動mountフラグ、同一root冪等・異なるroot拒否、dirtyハンドルを追加。旧camera.htmlは変更なし。文字列照合だけのPythonテストは同じ契約を検査する形に更新。実装・試験は標準モデル区分。",
       "owner_check": null
     },
     {

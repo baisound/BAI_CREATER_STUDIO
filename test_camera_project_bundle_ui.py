@@ -16,6 +16,6 @@ class CameraBundleUiContractTests(TestCase):
         self.assertIn('cancelAnimationFrame(raf)',source)
     def test_workspace_and_external_vmd_limit(self):
         source=(ROOT/'camera_project_bundle_ui.js').read_text()
-        self.assertIn('外部VMDファイル本体は未保存',source)
+        self.assertIn('VMD/FBXモーション本体は含みません',source)
         self.assertIn('bai-camera-workspace-restore',source)
         self.assertIn('window.confirm',source)
