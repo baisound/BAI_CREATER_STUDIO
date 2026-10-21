@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T16:23:03+09:00",
+  "updated_at": "2026-10-21T16:23:54+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-import-expansion",
-  "head_at_update": "8c4ea44",
+  "head_at_update": "8b639c0",
   "current": {
-    "task": "Issue #37 素材取り込み拡張",
-    "status": "done",
-    "step": "SCR-08の分類・取り込みキュー・一覧と詳細を新APIへ接続する",
+    "task": "DATA-016 素材取り込み拡張",
+    "status": "in_progress",
+    "step": "画像・音声・動画・GLBの実見本と再生操作",
     "design_doc": "docs/roadmap/ASSET_IMPORT_EXPANSION_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T16:23:54+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8b639c0",
+      "text": "DATA-016 素材取り込み拡張: 画像・音声・動画・GLBの実見本と再生操作"
+    },
     {
       "at": "2026-10-21T16:23:03+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "2905119",
       "text": "P2-WP-05dの共通完了ゲート：Node 283 pass/5計画skip、pytest 370 pass、Evidence 117 pass、SCR05再検証15 pass。PMX切替競合とWindowsのテスト待機・ZIP fixture差を修正。"
-    },
-    {
-      "at": "2026-10-21T09:54:33+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5732a7c",
-      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 共通完了ゲートとE2E結果の台帳記録"
     }
   ]
 }
