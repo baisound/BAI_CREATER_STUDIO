@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T13:02:26+09:00",
+  "updated_at": "2026-10-21T13:05:21+09:00",
   "updated_by": "codex",
   "branch": "codex/project-history-newest-first",
-  "head_at_update": "a570316",
+  "head_at_update": "bcb29fa",
   "current": {
     "task": "SCR-18 バージョン一覧を新しい順に表示",
-    "status": "in_progress",
+    "status": "done",
     "step": "保存順の履歴と復元インデックスを維持した表示順変更・テスト",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "PR20の同期結果を最終確認し、条件が揃えばrecoveryへマージ。次にWP05eレビュー"
+    "専用PRをrecoveryへ統合し、承認済みP2 WP05g作業へ戻る"
   ],
   "unverified": [
-    "実利用者FBX/PMX/VMDとGPU実機、GET→POST間の競合、WP05e独立レビューは未確認"
+    "実利用者データとGPU実機は未検証。mainへの統合範囲はオーナー回答待ち"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T13:05:21+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "bcb29fa",
+      "text": "SCR-18履歴一覧を新しい順へ変更し、保存順と復元インデックスを維持。Chromium 17/17、tsc、表示状態6/6合格"
+    },
     {
       "at": "2026-10-21T13:02:26+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "8a01f5f",
       "text": "P2-WP-03 Opus レビュー完了（送る直前の衝突の再確認・VMD の大文字小文字を修正）、legacy-project-save.test.cjs の時々の失敗（テスト側、b082ad8 から）を修正"
-    },
-    {
-      "at": "2026-10-20T14:46:08+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "30601de",
-      "text": "P2-WP-02/03 ③ 素材一覧・取り込みを実装（30601de）。pytest 354、node-all 188 pass、tsc・evidence 合格、実 data/ 不変"
     }
   ]
 }
