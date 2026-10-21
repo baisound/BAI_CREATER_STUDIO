@@ -7,16 +7,19 @@ import { categoryOf } from './assets-model.js';
 import { ensureAssets, watchAssets } from './assets.js';
 import { setWorkspaceFields } from './project.js';
 import { loadLibs, loadErrorText, disposeObject, MISSING_FILE_TEXT } from '../viewport/model-loader.js';
-import { createViewport, WebGLError, WEBGL_ERROR_TEXT } from '../viewport/three-host.js';
+import { createViewport, createCompanionViewport, WebGLError, WEBGL_ERROR_TEXT } from '../viewport/three-host.js';
 import { buildPlaced, applyStage, heightOf } from '../viewport/scene-parts.js';
 import { RANGE, clamp, defaultStage, isStage } from '../viewport/placement.js';
+import { defaultLighting, isLighting, putLightKey, sampleLight } from '../viewport/scene-lighting.js';
+import { createSceneLightRig } from '../viewport/scene-light-rig.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @typedef {import('../viewport/placement.js').Stage} Stage */
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
 
 /** 画面に出す読込の結果（ステージとキャラクター）。画面の中だけ。 */
-const sceneUi = createStore({ stageMessage: '', charMessage: '' });
+// viewMode は補助ビューの方向。perspective はメインのみの単一レイアウト。
+export const sceneUi = createStore({ stageMessage: '', charMessage: '', lightMessage: '', selectedLightId: 'key', lightMode: 'translate', showLightFrames: true, lightFrame: 0, viewMode: 'perspective' });
 
 /** @typedef {{tryStage: (item: AssetItem) => Promise<{ok: true}|{ok: false, message: string}>}} SceneCtl */
 /** 中央のビューポートが用意できたら入る（右のタブの選択欄が使う）。 @type {SceneCtl|null} */
@@ -27,6 +30,14 @@ export function stageOf(s) {
   const ws = s.bundle && s.bundle.workspace;
   return ws && isStage(ws.stage) ? ws.stage : null;
 }
+/** @param {ReturnType<typeof project.get>} s */
+export function lightsOf(s) {
+  const ws = s.bundle && s.bundle.workspace;
+  return ws && 'lights' in ws ? (isLighting(ws.lights) ? ws.lights : null) : defaultLighting();
+}
+export const lightFrame = () => Math.max(0, Math.round(Number(sceneUi.get().lightFrame || 0)));
+/** @param {import('../viewport/scene-lighting.js').Lighting} value */
+export const saveLights = (value) => setWorkspaceFields({ lights: value }, { source: 'store' });
 /** @param {ReturnType<typeof project.get>} s */
 const characterFileOf = (s) => (s.bundle && s.bundle.workspace && s.bundle.workspace.asset) || '';
 
@@ -52,20 +63,46 @@ function boot(ctx) {
 export const sceneViewport = (ctx) => {
   boot(ctx);
   const stageEl = h('div', { class: 'viewport vp3d', role: 'img', 'aria-label': 'シーンの3Dビュー', dataset: { role: 'viewport' } });
+  const auxiliary = h('div', { class: 'viewport vp3d scene-aux-viewport', role: 'img', 'aria-label': '選択した方向の補助ビュー', dataset: { role: 'scene-aux-viewport' }, hidden: true },
+    h('span', { class: 'scene-view-caption', dataset: { role: 'scene-aux-caption' } }, '上面'));
+  const viewports = h('div', { class: 'scene-viewports', dataset: { role: 'scene-viewports' } }, auxiliary, stageEl);
   const hud = h('div', { class: 'vp-hud' });
   const msg = h('div', { class: 'vp3d-msg', dataset: { role: 'vp-message' } });
   const note = h('div', { class: 'vp-note vp3d-note', dataset: { role: 'scene-note' } });
   stageEl.append(hud, msg, note);
+  const directions = /** @type {const} */ ([['perspective', '単一表示'], ['top', '上面'], ['bottom', '下面'], ['front', '正面'], ['back', '背面'], ['left', '左面'], ['right', '右面']]);
+  const viewMenu = /** @type {HTMLDetailsElement} */ (h('details', { class: 'scene-layout-menu', dataset: { role: 'scene-layout-menu' } },
+    h('summary', { class: 'btn', title: '補助ビューの方向を選び、左に補助ビュー・右にメインの透視ビューを表示' }, '分割表示'),
+    h('div', { class: 'scene-layout-options' }, ...directions.map(([mode, label]) => h('button', {
+      class: 'btn scene-layout-option', type: 'button', dataset: { role: 'scene-layout-option', mode },
+      onclick: () => { sceneUi.set({ viewMode: mode }, 'view-mode'); viewMenu.open = false; },
+    }, label)))));
+  const viewCaption = h('span', { class: 'scene-view-caption scene-main-caption' }, 'メイン・透視');
+  stageEl.append(viewCaption);
+  const focusButton = h('button', { class: 'btn scene-view-button', type: 'button', title: '選択中のライトへ視点を寄せる', dataset: { role: 'scene-focus-light' },
+    onclick: () => {
+      const lighting = lightsOf(project.get());
+      const selected = lighting?.items.find((item) => item.id === sceneUi.get().selectedLightId);
+      if (selected && host) {
+        const position = sampleLight(selected, lightFrame()).position;
+        if (companion) companion.focusAt(position);
+        else host.focusAt(position);
+      }
+    } }, '選択へ');
+  const allButton = h('button', { class: 'btn scene-view-button', type: 'button', title: '室内またはステージ全体を表示', dataset: { role: 'scene-frame-all' }, onclick: () => fitScene() }, '全体');
   const root = h('div', { class: 'vp3d-wrap', dataset: { feature: 'sceneViewport' } },
-    h('div', { class: 'pane-head' }, h('h2', null, '3Dビュー'), h('span', { class: 'spacer' }), regionTag('real')), stageEl);
+    h('div', { class: 'pane-head' }, h('h2', null, '3Dビュー'), h('span', { class: 'spacer' }), viewMenu,
+      focusButton, allButton, regionTag('real')), viewports);
 
   /** @type {import('../viewport/three-host.js').Viewport|null} */
   let host = null;
+  /** @type {ReturnType<typeof createCompanionViewport>|null} */ let companion = null;
   /** @type {import('../viewport/model-loader.js').Libs|null} */
   let libs = null;
   let alive = true;
   /** @type {any} */ let charRoot = null;
   /** @type {any} */ let stageRoot = null;
+  /** @type {ReturnType<typeof createSceneLightRig>|null} */ let lightRig = null;
   /** 今のシーンに載せている素材（失敗したものも覚え、同じ失敗を繰り返さない） */
   const loaded = { char: '', stage: '' };
   let running = false;
@@ -81,6 +118,19 @@ export const sceneViewport = (ctx) => {
     libs = await loadLibs();
     if (!alive) return null;
     host = createViewport(stageEl, libs);
+    host.setBaseLighting(1.35, 0);
+    try {
+      const spec = 'three/addons/controls/TransformControls.js';
+      const mod = await import(spec);
+      if (!alive || !host) return null;
+      lightRig = createSceneLightRig(host, libs.THREE, mod.TransformControls, (id, pose) => {
+        const lighting = lightsOf(project.get());
+        if (lighting) saveLights(putLightKey(lighting, id, lightFrame(), pose));
+      }, (id) => sceneUi.set({ selectedLightId: id }, 'light-select'));
+    } catch (e) {
+      sceneUi.set({ lightMessage: `ライト操作ギズモを読み込めません：${loadErrorText(e)}` }, 'light-error');
+    }
+    if (sceneUi.get().viewMode !== 'perspective') switchView();
     return host;
   }
 
@@ -88,6 +138,86 @@ export const sceneViewport = (ctx) => {
   const itemOf = (id) => assets.get().items.find((a) => a.id === id);
   /** 載せた素材の識別（id と、ファイルがあるか）。一覧が変わって読めるようになったら読み直す。 @param {string} id */
   const keyOf = (id) => (id ? `${id}|${itemOf(id) ? itemOf(id)?.available : 'x'}` : '');
+
+  /** 正投影ではスカイドームを除いた建築/キャラクターの境界を使う。 */
+  function viewBounds() {
+    if (!libs) return null;
+    const box = new libs.THREE.Box3();
+    let found = false;
+    for (const root of [stageRoot, charRoot]) {
+      root?.updateMatrixWorld(true);
+      root?.traverse((/** @type {any} */ object) => {
+        if (!object.isMesh) return;
+        for (let p = object; p && p !== root.parent; p = p.parent) if (/sky.?dome/i.test(p.name || '')) return;
+        box.expandByObject(object); found = true;
+      });
+    }
+    return found ? { min: box.min.toArray(), max: box.max.toArray() } : null;
+  }
+  /** 補助ビューを描く間だけ室内ステージの手前側を隠し、メインには影響を残さない。 */
+  function beforeAuxRender(/** @type {import('../viewport/three-host.js').OrthographicMode} */ mode) {
+    /** @type {Map<any, boolean>} */ const previous = new Map();
+    if (!stageRoot) return () => {};
+    const side = { front: 'S', back: 'N', left: 'W', right: 'E' }[mode];
+    const face = side ? new RegExp(`(?:^|_)${side}(?:_|$)`) : null;
+    stageRoot.traverse((/** @type {any} */ object) => {
+      if (!object.isMesh) return;
+      const name = String(object.name || '');
+      const hide = /sky.?dome/i.test(name)
+        || (mode === 'top' && /ceiling|cove/i.test(name))
+        || (mode === 'bottom' && /floor|base/i.test(name))
+        || (face?.test(name) && /wall|panel|trim|base|cove|ceilinglight|floorborder/i.test(name));
+      if (hide) { previous.set(object, object.visible); object.visible = false; }
+    });
+    return () => { for (const [object, visible] of previous) object.visible = visible; };
+  }
+  function switchView() {
+    if (!host || !libs) return;
+    const mode = sceneUi.get().viewMode;
+    const split = mode !== 'perspective';
+    viewports.classList.toggle('is-split', split);
+    auxiliary.hidden = !split;
+    viewCaption.hidden = !split;
+    const caption = auxiliary.querySelector('[data-role="scene-aux-caption"]');
+    if (caption) caption.textContent = ({ top: '上面', bottom: '下面', front: '正面', back: '背面', left: '左面', right: '右面' })[mode] || '';
+    for (const button of viewMenu.querySelectorAll('.scene-layout-option')) button.setAttribute('aria-pressed', String(button.getAttribute('data-mode') === mode));
+    if (split) {
+      const orthographicMode = /** @type {import('../viewport/three-host.js').OrthographicMode} */ (mode);
+      try {
+        if (companion) companion.setViewMode(orthographicMode, viewBounds());
+        else companion = createCompanionViewport(auxiliary, host, libs, orthographicMode, viewBounds(), beforeAuxRender);
+      } catch (e) {
+        companion?.dispose(); companion = null;
+        sceneUi.set({ viewMode: 'perspective' }, 'view-mode');
+        say(e instanceof WebGLError ? '補助ビューを開始できません（WebGL が使えません）。' : loadErrorText(e), 'error');
+        return;
+      }
+    } else if (companion) { companion.dispose(); companion = null; }
+    host.resize();
+    host.invalidate();
+    publish();
+  }
+
+  // 全周型スタジオのスカイドームを外から眺めると室内が隠れる。原点のダンス位置から室内を見渡す。
+  function fitScene() {
+    if (!host || !libs) return;
+    let enclosed = false;
+    stageRoot?.traverse((/** @type {any} */ object) => {
+      if (/sky.?dome/i.test(object.name || '')) enclosed = true;
+    });
+    if (!enclosed || !stageRoot) { host.fit(); if (companion) switchView(); return; }
+    stageRoot.updateMatrixWorld(true);
+    const center = stageRoot.localToWorld(new libs.THREE.Vector3(0, 1.5, 0));
+    const eye = stageRoot.localToWorld(new libs.THREE.Vector3(0, 2.1, 6));
+    host.camera.position.copy(eye);
+    host.camera.near = 0.03;
+    host.camera.far = 500;
+    host.camera.updateProjectionMatrix();
+    host.controls.target.copy(center);
+    host.controls.update();
+    host.invalidate();
+    if (companion) switchView();
+  }
 
   function publish() {
     if (!host || !libs) return;
@@ -107,9 +237,12 @@ export const sceneViewport = (ctx) => {
         assetId: charRoot.userData.assetId, format: charRoot.userData.format, unit: charRoot.userData.unit, displayScale: charRoot.scale.x,
         position: charRoot.position.toArray(), height: heightOf(THREE, charRoot),
       } : null,
+      lights: lightRig?.getState() || null,
+      viewportLayout: companion ? 'split' : 'single',
+      secondaryView: companion?.getState() || null,
     });
     const names = [charRoot ? (itemOf(charRoot.userData.assetId)?.name || charRoot.userData.assetId) : 'なし', stageRoot ? (itemOf(stageRoot.userData.assetId)?.name || stageRoot.userData.assetId) : 'なし'];
-    hud.replaceChildren(h('span', { dataset: { role: 'hud-char' } }, `キャラクター：${names[0]}`), h('span', { dataset: { role: 'hud-stage' } }, `ステージ：${names[1]}`), h('span', { class: 'right' }, '3D表示'));
+    hud.replaceChildren(h('span', { dataset: { role: 'hud-char' } }, `キャラクター：${names[0]}`), h('span', { dataset: { role: 'hud-stage' } }, `ステージ：${names[1]}`), h('span', { class: 'right' }, companion ? '' : '3D表示'));
   }
 
   /** @param {string} file 保存された GLB/VRM の保存名（workspace.asset）。空なら外す。 */
@@ -171,7 +304,17 @@ export const sceneViewport = (ctx) => {
     if (!alive) return;
     const cur = stageOf(project.get());
     if (stageRoot && cur && cur.asset === stageRoot.userData.assetId) applyStage(stageRoot, cur);
-    if (changed) host?.fit();
+    const lighting = lightsOf(project.get());
+    if (!lighting && sceneUi.get().lightMessage !== '保存済みライトの形式を読めません。編集せず、保存データを確認してください。')
+      sceneUi.set({ lightMessage: '保存済みライトの形式を読めません。編集せず、保存データを確認してください。' }, 'light-invalid');
+    else if (lighting) {
+      if (sceneUi.get().lightMessage) sceneUi.set({ lightMessage: '' }, 'light-ready');
+      lightRig?.sync(lighting, lightFrame());
+      lightRig?.setMode(/** @type {'translate'|'rotate'} */ (sceneUi.get().lightMode));
+      lightRig?.setVisible(sceneUi.get().showLightFrames);
+      lightRig?.select(sceneUi.get().selectedLightId);
+    }
+    if (changed) fitScene();
     publish();
     host?.invalidate();
   }
@@ -200,7 +343,7 @@ export const sceneViewport = (ctx) => {
       const cur = stageOf(project.get());
       applyStage(stageRoot, cur ? { ...cur, asset: item.id } : defaultStage(item.id));
       host?.add(stageRoot);
-      host?.fit();
+      fitScene();
       sceneUi.set({ stageMessage: '' }, 'stage');
       publish();
       return { ok: true };
@@ -210,13 +353,19 @@ export const sceneViewport = (ctx) => {
   }
 
   ctl = { tryStage };
-  ctx.onCleanup(() => { alive = false; gen.char++; gen.stage++; if (ctl && ctl.tryStage === tryStage) ctl = null; if (host) { host.dispose(); host = null; } });
+  ctx.onCleanup(() => { alive = false; gen.char++; gen.stage++; if (ctl && ctl.tryStage === tryStage) ctl = null; companion?.dispose(); companion = null; lightRig?.dispose(); lightRig = null; if (host) { host.dispose(); host = null; } });
   ctx.onCleanup(project.subscribe(() => { void sync(); }));
   ctx.onCleanup(assets.subscribe(() => { void sync(); }));
-  ctx.onCleanup(sceneUi.subscribe(() => {
+  ctx.onCleanup(sceneUi.subscribe((_state, reason) => {
     const u = sceneUi.get();
-    note.textContent = [u.charMessage, u.stageMessage].filter(Boolean).join(' ／ ');
+    note.textContent = [u.charMessage, u.stageMessage, u.lightMessage].filter(Boolean).join(' ／ ');
     note.dataset.kind = note.textContent ? 'error' : '';
+    lightRig?.setMode(/** @type {'translate'|'rotate'} */ (u.lightMode));
+    lightRig?.setVisible(u.showLightFrames);
+    lightRig?.select(u.selectedLightId);
+    if (reason === 'view-mode') switchView();
+    else if (reason === 'light-frame') void sync();
+    else publish();
   }));
   void sync();
   return root;
@@ -251,7 +400,7 @@ export const stageTransform = (ctx) => {
   const select = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'ステージの素材', dataset: { role: 'stage-asset' } }));
   const remove = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { act: 'real', role: 'stage-remove' } }, 'ステージを外す'));
   const message = h('p', { class: 'section-note stage-message', dataset: { role: 'stage-message' }, role: 'status' });
-  const hint = h('p', { class: 'section-note' }, '登録済みのモデル素材（GLB/VRM・PMX・FBX）を1つ、ステージとして置きます。高さの正規化や中心合わせはせず、素材の単位（PMX は 1 単位 = 0.08 m、GLB/VRM は 1 m、FBX は UnitScaleFactor）だけを換算します。');
+  const hint = h('p', { class: 'section-note' }, '素材ライブラリのステージ GLB、または登録済みモデルを1つ置きます。原点と寸法は素材のまま保持します。位置は m、回転は度で保存します。');
 
   /** @param {Partial<Stage>} patch */
   function patchStage(patch) {
@@ -261,11 +410,11 @@ export const stageTransform = (ctx) => {
   }
   const pos = [0, 1, 2].map((i) => slider({ label: ['X', 'Y', 'Z'][i], min: RANGE.position[0], max: RANGE.position[1], step: 0.1, value: 0, unit: 'm',
     onInput: (v) => { const cur = stageOf(project.get()); if (cur) patchStage({ position: /** @type {[number, number, number]} */ (cur.position.map((p, k) => (k === i ? clamp(v, RANGE.position[0], RANGE.position[1]) : p))) }); } }));
-  const rotY = slider({ label: '回転 Y', min: RANGE.rotationY[0], max: RANGE.rotationY[1], step: 1, value: 0, unit: '°',
-    onInput: (v) => { const cur = stageOf(project.get()); if (cur) patchStage({ rotation: [cur.rotation[0], clamp(v, RANGE.rotationY[0], RANGE.rotationY[1]), cur.rotation[2]] }); } });
+  const rot = [0, 1, 2].map((i) => slider({ label: `回転 ${['X', 'Y', 'Z'][i]}`, min: RANGE.rotationY[0], max: RANGE.rotationY[1], step: 1, value: 0, unit: '°',
+    onInput: (v) => { const cur = stageOf(project.get()); if (cur) patchStage({ rotation: /** @type {[number, number, number]} */ (cur.rotation.map((p, k) => (k === i ? clamp(v, RANGE.rotationY[0], RANGE.rotationY[1]) : p))) }); } }));
   const scale = slider({ label: '拡大', min: RANGE.scale[0], max: RANGE.scale[1], step: 0.1, value: 1, unit: '×',
     onInput: (v) => patchStage({ scale: clamp(v, RANGE.scale[0], RANGE.scale[1]) }) });
-  for (const s of [...pos, rotY, scale]) s.dataset.role = 'stage-slider';
+  for (const s of [...pos, ...rot, scale]) s.dataset.role = 'stage-slider';
 
   select.addEventListener('change', async () => {
     const id = select.value;
@@ -290,14 +439,13 @@ export const stageTransform = (ctx) => {
   const root = h('div', { dataset: { feature: 'stageTransform' } },
     section('ステージの素材', 'real', hint, h('div', { class: 'field stack' }, h('label', null, '素材'), select), h('div', { class: 'btn-row' }, remove), message),
     section('位置', 'real', ...pos),
-    section('回転・拡大', 'real', rotY, scale),
-    h('p', { class: 'section-note' }, '回転 X/Z は画面に部品がありません。読み込んだ値は変えずに残します。'));
+    section('回転・拡大', 'real', ...rot, scale));
 
   function draw() {
     const ps = project.get();
     const as = assets.get();
     const st = stageOf(ps);
-    const models = as.items.filter((a) => categoryOf(a) === 'char');
+    const models = as.items.filter((a) => categoryOf(a) === 'stage' || categoryOf(a) === 'char');
     const want = st ? st.asset : '';
     /** @type {any[]} */
     const opts = [h('option', { value: '' }, as.status === 'ready' ? '（ステージなし）' : '読込中…')];
@@ -310,10 +458,10 @@ export const stageTransform = (ctx) => {
     remove.title = st ? 'ステージを外します（［保存］で保存されます）' : 'ステージはありません';
     const sceneMsg = sceneUi.get().stageMessage;
     if (sceneMsg && !message.textContent) message.textContent = sceneMsg;
-    for (const s of [...pos, rotY, scale]) disableSlider(s, !st);
+    for (const s of [...pos, ...rot, scale]) disableSlider(s, !st);
     if (st) {
       pos.forEach((s, i) => setSliderValue(s, st.position[i]));
-      setSliderValue(rotY, st.rotation[1]);
+      rot.forEach((s, i) => setSliderValue(s, st.rotation[i]));
       setSliderValue(scale, st.scale);
     }
   }

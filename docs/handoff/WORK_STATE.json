@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T18:04:36+09:00",
+  "updated_at": "2026-10-21T19:45:26+09:00",
   "updated_by": "codex",
-  "branch": "codex/audio-dance-sync",
-  "head_at_update": "0d7beec",
+  "branch": "codex/stage-light-rig",
+  "head_at_update": "8891cfa",
   "current": {
-    "task": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー",
+    "task": "Issue40の実モデル床接地とPR42統合判定",
     "status": "done",
-    "step": "SCR-10の3D変形・音声クロック・2トラック編集",
-    "design_doc": "docs/roadmap/AUDIO_DANCE_SYNC_20261021_JA.md"
+    "step": "提供S01と登録済み実GLBキャラクターを隔離SCR-06へ同時配置し、床接地・保存再読込を測定して必要な修正を行う",
+    "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
-    "Issue #39のPRをレビュー・統合し、ローカルmainと現行サーバーを同期する",
-    "Issue #40のステージGLB配置を素材提供後に進める"
+    "Owner条件付き承認に基づきPR42を統合し、mainと実行環境へ反映・実ステージを保存再読込する。その後Issue34/35とWP05gを既定順で進める"
   ],
   "unverified": [
-    "実GPU/Linux、標準MCP、MMD本体との物理一致と衣装貫通、Owner採用は未検証。GLBには表情モーフトラックがない"
+    "実GPU/Linux、低性能機分割描画、PMX実キャラクターへの照明、MMD/Unreal外観一致、WebMCP/標準MCPライト編集、Owner採用は未検証。元GLBの接地は素材改修待ち"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +32,76 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T19:45:26+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8891cfa",
+      "text": "Issue40のS01原点・床とキャラクター元GLB由来の浮きを区別。Owner確認に従いシステム自動補正は行わず、PR42のコード実装と自動・Chrome実測は完了"
+    },
+    {
+      "at": "2026-10-21T19:42:27+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "29f32a7",
+      "text": "Issue40の実モデル床接地とPR42統合判定: 提供S01と登録済み実GLBキャラクターを隔離SCR-06へ同時配置し、床接地・保存再読込を測定して必要な修正を行う"
+    },
+    {
+      "at": "2026-10-21T19:32:48+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "dd35b8d",
+      "text": "VIEW-001を左の独立六方向補助ビュー＋右の常時メイン透視へ修正。実S01で同時描画・独立パン・ライト反映・保存再読込、Chrome19件、Python24件、型検査を確認"
+    },
+    {
+      "at": "2026-10-21T19:22:46+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "ba26f8b",
+      "text": "VIEW-001 マルチビューポートのユーザー指摘をPR42へ反映: メイン透視を右に保ち、選択した上面・側面等を左へ独立表示する二画面レイアウトと操作・検証"
+    },
+    {
+      "at": "2026-10-21T19:13:45+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4d67f30",
+      "text": "NF-014/LIGHT-001/VIEW-001: S01ステージ配置、多灯照明とキー編集、透視・六方向平行投影、パネル内スクロールを実装し実S01/Chromeと回帰を確認"
+    },
+    {
+      "at": "2026-10-21T18:38:53+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5856b2d",
+      "text": "LIGHT-001 SCR-06多灯照明の編集画面: シーン一覧・ライトフレームとギズモ・右のRGB/変形編集・下部キータイムライン"
+    },
+    {
+      "at": "2026-10-21T18:38:34+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "f9cc53d",
+      "text": "LIGHT-001のworkspace.lights保存・旧画面互換・多灯キー検証とRGB/位置/強度/最短回転補間を実装。Python15件、JS2件、型検査を通過"
+    },
+    {
+      "at": "2026-10-21T18:32:08+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "45a4c11",
+      "text": "LIGHT-001 シーン多灯照明とライト別キーフレーム: 保存バリデーションと補間ロジックを実装"
+    },
+    {
+      "at": "2026-10-21T18:31:45+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b7c1393",
+      "text": "Issue #40: S01 GLBステージのライブラリ取込・原点配置・室内表示・XYZ回転を実装。実S01のChrome SwiftShader保存再読込とPython12件・型検査を確認"
+    },
+    {
+      "at": "2026-10-21T18:18:05+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9e9f244",
+      "text": "Issue #40 ステージGLB配置と3点ライト編集: 実GLBの登録・座標検証とライト保存形式/編集UIの設計"
+    },
     {
       "at": "2026-10-21T18:04:36+09:00",
       "by": "codex",
@@ -172,76 +241,6 @@
       "event": "done",
       "head": "d2d1979",
       "text": "Issue #26: バイサンド開発依頼の日本語Issue記録、画像添付、分かりやすい本文、PR連携の常設ルールを整備"
-    },
-    {
-      "at": "2026-10-21T14:30:38+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9cc2d4c",
-      "text": "Issue #26 バイサンドの開発依頼を日本語GitHub Issueで管理する常設ルール: AGENTS短い参照・詳細手順・Issueテンプレートを整備"
-    },
-    {
-      "at": "2026-10-21T14:22:51+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "56f9ad1",
-      "text": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善: 共通3DホストのBlender式中ドラッグと操作案内を実装"
-    },
-    {
-      "at": "2026-10-21T14:22:42+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "fe8a5fb",
-      "text": "MOTION-016と3D操作改善の対象・操作・受け入れ条件を設計"
-    },
-    {
-      "at": "2026-10-21T14:20:28+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9cc2d4c",
-      "text": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善: 既存素材形式・画面導線・3D操作の調査と受け入れ条件整理"
-    },
-    {
-      "at": "2026-10-21T14:18:16+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2326456",
-      "text": "MOTION-006 PMX+VMDの足IK・grant再生と往復シークを修正し実素材で確認"
-    },
-    {
-      "at": "2026-10-21T14:04:27+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "34b42e8",
-      "text": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正: PMXプレビューのIK・grant更新と実素材再検証"
-    },
-    {
-      "at": "2026-10-21T14:04:18+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4dbe182",
-      "text": "実PMXと神っぽいなVMDで足IK目標は12秒以降に動くが脚が静止することをSCR13で再現。MMDAnimationHelper未使用が原因と診断し、確認画像と監査文書を保存。"
-    },
-    {
-      "at": "2026-10-21T13:58:35+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0d1c5ed",
-      "text": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正: 実素材のVMD骨キーとPMX骨・画面時刻別の姿勢を調査"
-    },
-    {
-      "at": "2026-10-21T13:42:06+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4ff3c26",
-      "text": "main統合ブランチでrecoveryとmainの祖先を接続。Node 284/284合格（5計画スキップ）、Python 370+23、Evidence 118、P2 E2E S1/S2/S5合格。実データハッシュ不変。統合PRを作成する。"
-    },
-    {
-      "at": "2026-10-21T13:17:58+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "11eeac8",
-      "text": "適格PRを含むrecoveryをmainへ統合: mainとの差分確認・祖先同期・共通ゲート・統合PR"
     }
   ]
 }

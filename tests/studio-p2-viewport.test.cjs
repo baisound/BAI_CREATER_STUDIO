@@ -376,8 +376,8 @@ test('stage placement saves and restores', harness.skip3d(), async () => {
     await page.waitForFunction(() => document.activeElement?.getAttribute('data-role') === 'stage-asset'); // フォーカスは setTimeout 0 で移る
     await pickStage(page, GLB2_ID);
     await setSlider(page, 0, 3);       // X
-    await setSlider(page, 3, 90);      // 回転 Y
-    await setSlider(page, 4, 2);       // 拡大
+      await setSlider(page, 4, 90);      // 回転 Y
+      await setSlider(page, 6, 2);       // 拡大
     const live = await stageState(page);
     near(live.position[0], 3, 1e-9, 'x');
     near(live.rotation[1], 90, 1e-9, 'rotY');
@@ -433,7 +433,7 @@ test('stage unit conversion for PMX and FBX', harness.skip3d(), async () => {
     near(s.unit, 0.08, 1e-12, 'pmx unit');
     near(s.displayScale, 0.08, 1e-9, 'pmx display scale (scale 1)');
     near(s.height, 0.08, 1e-6, 'pmx stage height = 1.0 × 0.08');
-    await setSlider(page, 4, 3);
+      await setSlider(page, 6, 3);
     s = await stageState(page);
     near(s.displayScale, 0.24, 1e-9, 'pmx display scale (scale 3)');
     near(s.scale, 3, 1e-9, '保存する倍率には換算を含めない');

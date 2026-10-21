@@ -134,6 +134,70 @@
 .rt-row select { flex: 1; min-width: 110px; }
 .rt-compare { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-top: 1px solid var(--border); }
 .vp3d-wrap .vp3d { min-height: 240px; }
+.scene-viewports { display: grid; grid-template-columns: minmax(0, 1fr); flex: 1; min-height: 0; min-width: 0; }
+.scene-viewports.is-split { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+.scene-viewports > .viewport { min-width: 0; min-height: 240px; margin: 8px 4px; }
+.scene-viewports > .viewport:first-child { margin-left: 8px; }
+.scene-viewports > .viewport:last-child { margin-right: 8px; }
+.scene-viewports > .scene-aux-viewport[hidden] { display: none; }
+.scene-view-caption { position: absolute; top: 8px; left: 8px; z-index: 3; padding: 3px 7px; border: 1px solid var(--border-strong); border-radius: 5px; background: color-mix(in srgb, var(--surface-0) 88%, transparent); color: var(--text); font-size: var(--fs-xs); pointer-events: none; }
+.scene-main-caption { left: auto; right: 8px; }
+.scene-view-caption[hidden] { display: none; }
+.scene-layout-menu { position: relative; z-index: 6; flex: none; }
+.scene-layout-menu > summary { cursor: pointer; list-style: none; white-space: nowrap; }
+.scene-layout-menu > summary::-webkit-details-marker { display: none; }
+.scene-layout-menu > summary::after { content: ' ▾'; }
+.scene-layout-options { position: absolute; top: calc(100% + 4px); right: 0; min-width: 116px; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; padding: 5px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-1); box-shadow: 0 8px 20px #0008; }
+.scene-layout-option { width: 100%; text-align: left; }
+.scene-layout-option[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.scene-view-label { display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-xs); color: var(--text-2); }
+.scene-view-select { width: auto; min-width: 82px; padding: 2px 5px; font-size: var(--fs-sm); }
+.scene-view-button { padding: 2px 7px; font-size: var(--fs-xs); white-space: nowrap; }
+
+/* ---- ⑥ シーンのライトとキーフレーム ---- */
+.scene-objects, .light-editor { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.scene-object-list { display: flex; flex-direction: column; gap: 3px; max-height: min(48vh, 440px); overflow-y: auto; scrollbar-gutter: stable; }
+.scene-object-row { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 34px; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-1); color: var(--text); text-align: left; }
+.scene-object-row.static { color: var(--text-2); overflow-wrap: anywhere; }
+.scene-object-row.light-object { cursor: pointer; }
+.scene-object-row.light-object:hover, .scene-object-row.light-object:focus-visible { border-color: var(--border-strong); background: var(--surface-2); }
+.scene-object-row.light-object.selected { border-color: var(--accent); background: var(--accent-soft); }
+.scene-object-row .object-symbol { flex: none; width: 19px; text-align: center; }
+.scene-object-row .object-symbol.light { color: var(--light-color); font-weight: 700; }
+.scene-object-row .object-name { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.scene-object-row .object-kind { flex: none; color: var(--text-2); font-size: var(--fs-xs); }
+.light-add-row, .light-tools, .light-color-row, .light-transport { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.light-add-row select { flex: 1 1 100px; min-width: 90px; }
+.light-tools .btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.light-editor-title { margin: 0; font-size: var(--fs-md); overflow-wrap: anywhere; }
+.light-field-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.light-number { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: var(--fs-xs); color: var(--text-2); }
+.light-number input { width: 100%; min-width: 0; }
+.light-number small { font-size: var(--fs-xs); }
+.light-color-row { align-items: end; }
+.light-color-row input[type="color"] { flex: none; width: 48px; height: 36px; padding: 2px; }
+.light-color-row .rgb { flex: 1 1 170px; }
+.light-check { display: flex; align-items: center; gap: 5px; }
+.light-timeline { display: flex; flex-direction: column; gap: 6px; min-width: 0; height: 100%; padding: 8px 12px; }
+.light-transport input[type="number"] { width: 82px; margin-left: 4px; }
+.light-time { font-variant-numeric: tabular-nums; color: var(--text-2); }
+.light-timeline > input[type="range"] { width: 100%; }
+.light-window-bar { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; font-size: var(--fs-xs); }
+.light-window-bar select { width: auto; min-width: 72px; }
+.light-window-bar .btn { padding: 3px 8px; }
+.light-timeline-rows { min-height: 0; overflow-y: auto; scrollbar-gutter: stable; display: flex; flex-direction: column; gap: 3px; }
+.pane-right:has(.light-editor) > .pane-body { overflow-y: auto; scrollbar-gutter: stable; }
+.scene-object-list, .light-timeline-rows, .pane-right:has(.light-editor) > .pane-body { scrollbar-width: thin; scrollbar-color: var(--accent) var(--surface-2); }
+.scene-object-list::-webkit-scrollbar, .light-timeline-rows::-webkit-scrollbar, .pane-right:has(.light-editor) > .pane-body::-webkit-scrollbar { width: 9px; }
+.scene-object-list::-webkit-scrollbar-track, .light-timeline-rows::-webkit-scrollbar-track, .pane-right:has(.light-editor) > .pane-body::-webkit-scrollbar-track { background: var(--surface-2); }
+.scene-object-list::-webkit-scrollbar-thumb, .light-timeline-rows::-webkit-scrollbar-thumb, .pane-right:has(.light-editor) > .pane-body::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 6px; }
+.light-timeline-row { display: grid; grid-template-columns: minmax(105px, 18%) minmax(0, 1fr); align-items: center; gap: 6px; min-height: 27px; }
+.light-timeline-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; border: 0; background: transparent; color: var(--text); cursor: pointer; }
+.light-timeline-track { position: relative; height: 20px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface-2); }
+.light-playhead { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--accent); z-index: 1; pointer-events: none; }
+.light-key-dot { position: absolute; top: 0; transform: translateX(-50%); height: 18px; min-width: 18px; padding: 0; border: 0; background: transparent; color: var(--text-2); cursor: pointer; z-index: 2; }
+.light-key-dot.active { color: var(--accent); }
+.light-key-dot:hover, .light-key-dot:focus-visible { color: var(--text); outline: 1px solid var(--accent); }
 
 /* ---- ⑤ SCR-05 のモーション検索・コンビネーション（features/chain-view.js、WP-05c） ---- */
 .pattern-list li { display: flex; align-items: center; gap: 6px; }
