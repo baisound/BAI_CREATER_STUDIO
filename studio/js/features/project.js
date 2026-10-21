@@ -702,7 +702,12 @@ function conflictDialog(onReload) {
 const studioCameraHandle = () => window.BAICameraPage?.handle()?.host === 'studio' ? window.BAICameraPage.handle() : null;
 const controller = createProjectController({
   ui: { toast: (m, k) => uiToast(m, /** @type {any} */ (k)), confirm: confirmDialog, conflict: conflictDialog, emit: busEmit },
-  beforeBundleSave: () => { if (studioCameraHandle()) window.dispatchEvent(new Event('bai-studio-camera-before-save')); },
+  beforeBundleSave: () => {
+    if (!studioCameraHandle()) return;
+    const event = new CustomEvent('bai-studio-camera-before-save', { detail: { error: null } });
+    window.dispatchEvent(event);
+    if (event.detail.error) throw event.detail.error;
+  },
   cameraDirty: () => !!studioCameraHandle()?.isDirty(),
   cameraSnapshot: () => {
     if (!studioCameraHandle()) return null;

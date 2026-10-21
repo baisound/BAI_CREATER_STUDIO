@@ -25,6 +25,7 @@ const TAB_NAMES = [
 /** @type {Promise<HTMLElement>|null} */ let building = null;
 /** @type {Promise<void>|null} */ let mounting = null;
 let mounted = false;
+let cameraReady = false;
 let wired = false;
 let needsFullRestore = false;
 let fullRestorePending = 0;
@@ -40,10 +41,14 @@ function workspaceSnapshot() {
   return value;
 }
 
-function captureWorkspace() {
-  // Navigation can dispose SCR-02 before the asynchronous camera mount installs
-  // its snapshot listener. There is no camera state to capture until then.
+function captureWorkspace(allowPending = false) {
+  // Navigation can dispose SCR-02 before its asynchronous mount installs
+  // the snapshot listener. There is no camera state to capture until then.
   if (!mounted || !visible()) return;
+  if (!cameraReady) {
+    if (allowPending) return; // 初回読込中はまだ利用者の素材操作を受け付けない。
+    throw Error('カメラ画面の準備が終わっていません');
+  }
   const value = workspaceSnapshot();
   if (!value) throw Error('カメラの素材状態を取得できません');
   const stored = project.get().bundle?.workspace || { frame: 0, asset: '', clip: null };
@@ -87,16 +92,21 @@ function queueRestore(full = false) {
   const locked = full && !!cameraRoot;
   if (locked && cameraRoot) {
     fullRestorePending++;
+    cameraReady = false;
     cameraRoot.inert = true;
     cameraRoot.setAttribute('aria-busy', 'true');
     const status = cameraRoot.querySelector('#status');
     if (status) status.textContent = '保存されたカメラ状態を反映中…';
   }
-  restoring = restoring.catch(() => {}).then(() => full ? restoreBundle() : restoreWorkspace()).catch((error) => {
+  let succeeded = false;
+  restoring = restoring.catch(() => {}).then(() => full ? restoreBundle() : restoreWorkspace()).then(() => {
+    succeeded = true;
+  }).catch((error) => {
     const status = cameraRoot?.querySelector('#status');
     if (status) status.textContent = `保存されたカメラ・素材を表示できません：${error instanceof Error ? error.message : String(error)}`;
   }).finally(() => {
     if (locked && --fullRestorePending === 0 && cameraRoot) {
+      cameraReady = succeeded;
       cameraRoot.inert = false;
       cameraRoot.removeAttribute('aria-busy');
     }
@@ -107,7 +117,10 @@ function queueRestore(full = false) {
 function wireHost() {
   if (wired) return;
   wired = true;
-  window.addEventListener('bai-studio-camera-before-save', captureWorkspace);
+  window.addEventListener('bai-studio-camera-before-save', (event) => {
+    try { captureWorkspace(); }
+    catch (error) { /** @type {CustomEvent} */ (event).detail.error = error; }
+  });
   window.addEventListener('bai-camera-saved', () => { void cameraOnlySaved(); refreshCameraDirty(); });
   onBus('studio:project-loaded', () => {
     if (!mounted) return;
@@ -243,6 +256,7 @@ async function mount(root) {
     await ready;
     restoring = restoring.catch(() => {}).then(restoreWorkspace);
     await restoring;
+    if (fullRestorePending === 0) cameraReady = true;
     const status = root.querySelector('#status');
     if (status) status.textContent = 'カメラ編集を開始できます（保存された素材と再生位置を反映しました）';
   })().finally(() => { mounting = null; });
@@ -314,7 +328,7 @@ export function cameraHost(ctx) {
   const unsubscribe = project.subscribe(onStore);
   let dirtyPoll = 0;
   dirtyPoll = window.setInterval(() => { if (visible()) refreshCameraDirty(); }, 1000);
-  ctx.onCleanup(() => { try { captureWorkspace(); } catch (error) { console.error(error); } refreshCameraDirty(); window.clearInterval(dirtyPoll); alive = false; generation++; unsubscribe(); keep(); });
+  ctx.onCleanup(() => { try { captureWorkspace(true); } catch (error) { console.error(error); } refreshCameraDirty(); window.clearInterval(dirtyPoll); alive = false; generation++; unsubscribe(); keep(); });
   onStore();
   return outlet;
 }

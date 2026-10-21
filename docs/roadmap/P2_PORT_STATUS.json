@@ -435,11 +435,21 @@
     {
       "id": "P2-WP-07",
       "step": "⑦ 書き出し",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "VMD 変換用のボーン対応表 /api/conversion-map の編集を⑤から移した（設計書 §2.5 批評 5-1、O-⑦-1）。依存は WP-05c。",
+      "state": "implemented",
+      "commits": [
+        "0171076（SCR23の変換UI・テスト・設計/台帳・Issue #58調査）"
+      ],
+      "tests": [
+        "npm run typecheck pass。export-model 2/2、隔離ChromeのSCR23変換操作2/2、SCR02カメラ回帰5/5 pass",
+        "tests/studio-p2-e2e-main.test.cjs: S1/S2/S3/S5/S7/S8 pass、計画通りS4/S6 skip。実データ7ファイルのhash前後一致。変換の書込POSTは両方ともpage.routeで遮断",
+        "tests/studio-ui.test.cjs: 27画面回帰20/20 pass。tests/test_screen_status_honesty.mjs: 6/6 pass。変換失敗の表示と実行中の画面離脱・再訪・完了表示を確認",
+        "PR57更新分の統合後: npm run typecheck pass、npm run test:p2 249 pass・2計画skip・失敗0、Python全体386 pass・50 subtests pass、npm run test:studio 20/20 pass。P2 E2EはS8まで到達し、実data/7ファイルとexports/のhash不変"
+      ],
+      "unverified": [
+        "Blenderの実変換・実VMD品質、MCP経路との一致、実GPU/Linux、独立高性能モデルレビューは未実施",
+        "統合後のnpm run test:node-allは2回とも355件を完走し、各342 pass・11計画skip・2 fail。初回はSCR26/27の遷移直後とSCR21テーマカード待機。遷移後のaria-current待機を追加した再実行ではSCR26への通信がWindows ERR_NO_BUFFER_SPACEとなり、その後の旧画面遷移でも要素待機が時間切れ。失敗箇所の単独再実行2/2とstudio-ui全件20/20はpass。Node一括ゲートの0 failは未確認"
+      ],
+      "notes": "SCR23からVMD対応表・FBX変換ジョブ・Blender実行確認・状態表示を操作可能にした。SCR13の導線を接続し、カメラVMDはSCR02へ案内。VMD変換用の対応表 /api/conversion-map は⑤の手順名対応 /api/mapping と別。テスト中はexports/を変更しない。UI実装・試験は標準モデル（GPT-6）、サブエージェントなし。P2_WP07_EXPORT_AUDIT_20261022_JA.md参照。",
       "owner_check": null
     },
     {
@@ -464,7 +474,7 @@
     }
   ],
   "e2e_main": {
-    "furthest_step": "S7",
+    "furthest_step": "S8",
     "steps": [
       {
         "id": "S1",
@@ -503,11 +513,11 @@
       },
       {
         "id": "S8",
-        "result": "skip",
-        "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
+        "result": "pass",
+        "reason": ""
       }
     ],
-    "commit": "293899e",
-    "checked_at": "2026-10-21T19:09:27.366Z"
+    "commit": "9ed5011",
+    "checked_at": "2026-10-21T20:28:28.169Z"
   }
 }
