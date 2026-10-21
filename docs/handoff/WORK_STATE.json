@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T01:10:38+09:00",
+  "updated_at": "2026-10-22T01:11:11+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp06",
-  "head_at_update": "da53248",
+  "head_at_update": "06371ed",
   "current": {
     "task": "P2-WP-06 カメラ移植とIssue #50全形式の接続",
-    "status": "done",
-    "step": "WP06a後半: camera_3d.jsを旧画面互換のmount APIにする",
+    "status": "in_progress",
+    "step": "WP06b: 要素ID配置表とSCR02常駐カメラホスト",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T01:11:11+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "06371ed",
+      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06b: 要素ID配置表とSCR02常駐カメラホスト"
+    },
     {
       "at": "2026-10-22T01:10:38+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "1de1272",
       "text": "PR45を統合済みPR43のmainへ追従: 共通の大型GLB見本保護を保持し、競合を解消して小型テストを再実行する"
-    },
-    {
-      "at": "2026-10-21T21:39:50+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "55bbc36",
-      "text": "PR43: 受領大型GLBの自動サムネイル補完・詳細自動3D読込を128MiB超で抑止。明示操作だけに限定し、Node1件とTypeScript検査に合格。"
     }
   ]
 }
