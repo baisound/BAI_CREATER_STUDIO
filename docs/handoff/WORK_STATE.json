@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T09:32:22+09:00",
+  "updated_at": "2026-10-21T09:34:07+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05d",
-  "head_at_update": "2e87555",
+  "head_at_update": "9e71949",
   "current": {
     "task": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD",
-    "status": "in_progress",
+    "status": "done",
     "step": "登録FBXクリップ取得と対応表保存の実装",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP05d中央3Dホスト・A/Bモデル・連結再生・対応表・VMDを実装し隔離データのブラウザテストを行う",
-    "WP05b/cの必須独立レビューを再確認する"
+    "SCR05中央のA/B 3Dホスト、PMX/VMD、連結再生UIを実装する",
+    "隔離データのブラウザテストとS5通し確認を行う"
   ],
   "unverified": [
-    "GPU実機・実FBX/PMX/VMD・Windowsブラウザー未検証。WP05d UI未実装",
-    "WP05b/cのOpusレビュー未確認"
+    "3D画面・連結再生・対応表UI・スロット別VMDは未実装。GPU・実FBX/PMX/VMD・Windowsブラウザー未検証。",
+    "WP05b/cの必須独立レビュー未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T09:34:07+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9e71949",
+      "text": "WP05d第2区切り：登録FBXの遅延解析・手順名対応・最新manifestを重ねる対応表保存を追加。Node 3件、typecheck合格。"
+    },
     {
       "at": "2026-10-21T09:32:22+09:00",
       "by": "codex",
@@ -236,13 +243,6 @@
       "event": "done",
       "head": "d674a68",
       "text": "WP-00b Opus レビュー：①②とも合格。退避コピーを強化（既存退避の中身照合、同名衝突の回避、fsync、深い入れ子の JSON を 422 に）"
-    },
-    {
-      "at": "2026-10-20T09:30:42+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "b082ad8",
-      "text": "P2-WP-00b ②完了：B-3・reset（①は b082ad8）"
     }
   ]
 }
