@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T16:16:54+09:00",
+  "updated_at": "2026-10-21T16:17:14+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-import-expansion",
-  "head_at_update": "9c1ec97",
+  "head_at_update": "5ef1b0a",
   "current": {
     "task": "Issue #37 素材取り込み拡張",
-    "status": "done",
-    "step": "安全な保存API・メタデータ抽出・範囲配信・見本画像保存とPython試験",
+    "status": "in_progress",
+    "step": "SCR-08の分類・取り込みキュー・一覧と詳細を新APIへ接続する",
     "design_doc": "docs/roadmap/ASSET_IMPORT_EXPANSION_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T16:17:14+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5ef1b0a",
+      "text": "Issue #37 素材取り込み拡張: SCR-08の分類・取り込みキュー・一覧と詳細を新APIへ接続する"
+    },
     {
       "at": "2026-10-21T16:16:54+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "d54e551",
       "text": "P2-WP-05dを実装・検証：SCR05のA/B 3D、FBX連結再生、対応表、スロット別PMX+VMD。Chrome15件、S5合格、P2全体197 pass・5 skip・0 fail、typecheck合格、実データハッシュ一致。"
-    },
-    {
-      "at": "2026-10-21T09:34:21+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "be1425f",
-      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: SCR05中央のA/B 3D・PMX/VMD・連結再生UI実装"
     }
   ]
 }
