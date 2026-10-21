@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T20:15:07+09:00",
+  "updated_at": "2026-10-21T20:16:19+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-visual-previews-v2",
-  "head_at_update": "1b0f48a",
+  "head_at_update": "c6287b1",
   "current": {
-    "task": "Issue34・35 モーションのグレーマン再生とキャラクター正面サムネイル",
-    "status": "done",
-    "step": "既存の素材詳細プレビュー・カタログ・保存APIを調べ、原本不変の画像生成とモーション適用を設計する",
+    "task": "ステージGLBの内部を解析して見せ場のサムネイルを自動生成",
+    "status": "in_progress",
+    "step": "SkyDomeを除いた構造範囲、室内候補視点、画像評価、版付き保存と既登録S01再生成を実装",
     "design_doc": "docs/roadmap/ASSET_VISUAL_PREVIEWS_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T20:16:19+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "c6287b1",
+      "text": "ステージGLBの内部を解析して見せ場のサムネイルを自動生成: SkyDomeを除いた構造範囲、室内候補視点、画像評価、版付き保存と既登録S01再生成を実装"
+    },
     {
       "at": "2026-10-21T20:15:07+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "2b90003",
       "text": "Issue #28 MOTION-016の素材一覧3姿勢画像と選択素材の再生プレビューを実装。Issue #29 3D操作とともにChrome/SwiftShader実素材確認。素材テスト29/29、ビュー19/19、旧カメラ1/1、証拠テスト120/120、tsc合格。実データハッシュ不変。"
-    },
-    {
-      "at": "2026-10-21T14:40:33+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "34b4605",
-      "text": "Issue #28 MOTION-016 モーション素材の見本画像と再生プレビュー: 素材形式別の読み取り専用プレビューと一覧サムネイルを実装"
     }
   ]
 }
