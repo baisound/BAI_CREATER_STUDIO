@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T12:49:00+09:00",
+  "updated_at": "2026-10-21T12:49:18+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05g",
-  "head_at_update": "5add925",
+  "head_at_update": "ce63f56",
   "current": {
     "task": "P2-WP-05g SCR-05の2D・3D模式再生",
-    "status": "done",
-    "step": "旧画面の時計・drawPattern・animateActorと新UIの受け口を監査",
+    "status": "in_progress",
+    "step": "⑤-10/15のパターン時計・2D SVG・3D模式を実装",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T12:49:18+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "ce63f56",
+      "text": "P2-WP-05g SCR-05の2D・3D模式再生: ⑤-10/15のパターン時計・2D SVG・3D模式を実装"
+    },
     {
       "at": "2026-10-21T12:49:00+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "362c6aa",
       "text": "P2-WP-05d 第1区切り：連結再生の旧式照合関数とFBX/PMXのA/B配置式を追加。Node 3件・型確認合格"
-    },
-    {
-      "at": "2026-10-21T09:28:23+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "614e848",
-      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 引き継ぎ設計照合→実装→自動テスト→台帳更新"
     }
   ]
 }
