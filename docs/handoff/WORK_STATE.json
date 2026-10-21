@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T12:20:07+09:00",
+  "updated_at": "2026-10-21T23:37:13+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05f",
-  "head_at_update": "88b680d",
+  "head_at_update": "2b85da5",
   "current": {
-    "task": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断",
-    "status": "done",
-    "step": "共通完了ゲートとE2E結果の台帳記録",
+    "task": "P2-WP-05f PR22統合",
+    "status": "in_progress",
+    "step": "現行mainへ統合し独立レビューと試験を実施",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -20,8 +20,7 @@
   "owner_questions": [
     "Q1 新規プロジェクト作成の扱い（既定：◇ 未実装表示）",
     "Q2 旧機能を削ってよいか（既定：すべて残す）",
-    "Q3 ⑥ の後に camera.html を読み取り専用にするか（既定：編集可のまま）",
-    "Q5 PMX キャラクターを SCR-06・カメラ画面に置く（workspace の保存形式の追加と camera_3d.js の PMX 表示。計画の追加。既定：P2 では入れず、PMX はステージの素材としてだけ置ける）"
+    "Q3 ⑥ の後に camera.html を読み取り専用にするか（既定：編集可のまま）"
   ],
   "read_first": [
     "AGENTS.md",
@@ -32,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T23:37:13+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "2b85da5",
+      "text": "P2-WP-05f PR22統合: 現行mainへ統合し独立レビューと試験を実施"
+    },
     {
       "at": "2026-10-21T12:20:07+09:00",
       "by": "codex",
@@ -234,13 +240,6 @@
       "event": "start",
       "head": "83dbf9f",
       "text": "P2-WP-05d SCR-05 の A/B の3D・連結再生・手順名対応表・スロット別PMX+VMD: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T21:08:35+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "5b4711a",
-      "text": "P2-WP-05c 完了：SCR-05 の82パターン一覧（検索・分類・👑）・お気に入り・コンビネーション編集（editCombination）・速度"
     }
   ]
 }
