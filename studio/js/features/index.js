@@ -12,6 +12,7 @@ import { characterList, characterViewport, characterBones, useModelButton } from
 import { retargetPanel, retargetViewport } from './retarget-view.js';
 import { motionCenter, vmdLibrary } from './motion-view.js';
 import { patternList, chainTimeline, playbackSettings } from './chain-view.js';
+import { chainViewport } from './chain-viewport.js';
 import { sceneViewport, stageLoadButton, stageTransform } from './scene-view.js';
 import { projectToolbar, projectStatus, projectSummary, projectHistory, projectList, projectCard } from './project-view.js';
 
@@ -28,6 +29,6 @@ export const FEATURES = {
   // WP-05a（⑤ SCR-13［編集］の1体再生）
   motionCenter, vmdLibrary,
   // WP-05c（⑤ SCR-05 の82パターン・お気に入り・コンビネーション・速度）
-  patternList, chainTimeline, playbackSettings,
+  patternList, chainTimeline, playbackSettings, chainViewport,
   // WP-05d 以降が追加する。
 };

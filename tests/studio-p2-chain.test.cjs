@@ -1,14 +1,40 @@
 'use strict';
-// ⑤ SCR-05：82パターンの一覧・お気に入り・コンビネーションの編集・速度（P2 設計 §2.5(g)、WP-05c）。
-// 実サーバー（隔離データ）と Chromium で、画面の操作から確かめる。3D は使わない（05d）。
+// ⑤ SCR-05：82パターンとA/B 3D・連結再生（P2 設計 §2.5(g)、WP-05c/d）。
+// 実サーバー（隔離データ）と Chromium で、画面の操作から確かめる。
 // ポート：P2_CHAIN_PORT（既定 8784）。テストごとに新しいサーバー・種データで始める。
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const zlib = require('node:zlib');
 const harness = require('./helpers/studio-harness.cjs');
 
 const PORT = Number(process.env.P2_CHAIN_PORT || 8784);
+const FIX = path.join(__dirname, 'fixtures');
+const FBX_MODEL = fs.readFileSync(path.join(FIX, 'minimal_model.fbx'));
+const FBX_MOTION = fs.readFileSync(path.join(FIX, 'minimal_motion.fbx'));
+const VMD = fs.readFileSync(path.join(FIX, 'minimal.vmd'));
+/** 最小PMXのテストZIPから指定エントリーだけ取得する（標準ライブラリ）。 */
+function zipEntry(buf, wanted) {
+  let eocd = buf.length - 22;
+  while (eocd >= 0 && buf.readUInt32LE(eocd) !== 0x06054b50) eocd--;
+  let p = buf.readUInt32LE(eocd + 16);
+  for (let i = 0, n = buf.readUInt16LE(eocd + 10); i < n; i++) {
+    const method = buf.readUInt16LE(p + 10), size = buf.readUInt32LE(p + 20);
+    const nl = buf.readUInt16LE(p + 28), el = buf.readUInt16LE(p + 30), cl = buf.readUInt16LE(p + 32);
+    const name = buf.toString('utf8', p + 46, p + 46 + nl), local = buf.readUInt32LE(p + 42);
+    if (name === wanted) {
+      const start = local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28);
+      const raw = buf.subarray(start, start + size);
+      return method === 8 ? zlib.inflateRawSync(raw) : Buffer.from(raw);
+    }
+    p += 46 + nl + el + cl;
+  }
+  throw new Error(`ZIPに ${wanted} がありません`);
+}
+const PMX_ZIP = fs.readFileSync(path.join(FIX, 'minimal_pmx.zip'));
+const PMX = zipEntry(PMX_ZIP, 'model/test.pmx');
+const PMX_PNG = zipEntry(PMX_ZIP, 'model/tex/a.png');
 
 let browser;
 test.before(async () => { browser = await harness.launchBrowser(); });
@@ -27,7 +53,20 @@ const MANIFEST = {
   ],
   mapping: { [COMBO]: 'someotherclip' },
 };
-const seed = (extra = {}) => ({ 'manifest.json': JSON.stringify(MANIFEST), ...extra });
+const seed = (extra = {}) => ({
+  'manifest.json': JSON.stringify(MANIFEST),
+  'files/f-jab.fbx': FBX_MOTION, 'files/f-other.fbx': FBX_MOTION, 'files/f-model.fbx': FBX_MODEL,
+  ...extra,
+});
+const seedPmx = (extra = {}) => seed({
+  'mmd_assets.json': JSON.stringify({ A: [{ name: 'test.pmx', size: PMX.length }, { name: 'tex/a.png', size: PMX_PNG.length }], B: [], vmd: [{ name: 'minimal.vmd', size: VMD.length }] }),
+  'mmd/A/test.pmx': PMX, 'mmd/A/tex/a.png': PMX_PNG, 'mmd/vmd/minimal.vmd': VMD,
+  ...extra,
+});
+const seedPmxBoth = () => seedPmx({
+  'mmd_assets.json': JSON.stringify({ A: [{ name: 'test.pmx', size: PMX.length }, { name: 'tex/a.png', size: PMX_PNG.length }], B: [{ name: 'test.pmx', size: PMX.length }, { name: 'tex/a.png', size: PMX_PNG.length }], vmd: [{ name: 'minimal.vmd', size: VMD.length }] }),
+  'mmd/B/test.pmx': PMX, 'mmd/B/tex/a.png': PMX_PNG,
+});
 
 async function withApp(seedData, fn, { errors = [] } = {}) {
   const server = await harness.startServer({ port: PORT, seed: seedData });
@@ -345,5 +384,96 @@ test('preview_motion selects the row', async () => {
     assert.equal(await send({ action: 'preview_motion', name: 'ジャブ' }), 200); // title===name でも選ぶ
     await page.waitForFunction(() => window.baiStudio.project.getState().bundle.combination.selected === 1);
     assert.equal((await proj(page)).dirty.combination, false, '選ぶだけでは保存しない');
+  });
+});
+
+test('fbx model a is placed like the legacy page', harness.skip3d(), async () => {
+  await withApp(seed(), async ({ page, server }) => {
+    await open05(page, server);
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.actors[0]?.kind === 'fbx', null, { timeout: 15000 });
+    const state = await page.evaluate(() => ({ chain: window.baiStudio.chain.getState(), bounds: window.baiStudio.viewport.getState().bounds }));
+    assert.equal(state.chain.actors[0].id, 'f-model');
+    assert.equal(state.chain.actors[1].kind, null);
+    assert.ok(state.bounds.min[0] < -1 && state.bounds.max[0] < 0, `A は左側: ${JSON.stringify(state.bounds)}`);
+    assert.ok(Math.abs((state.bounds.max[1] - state.bounds.min[1]) - 1.95) < .06, `A の高さは1.95: ${JSON.stringify(state.bounds)}`);
+    assert.ok((await page.evaluate(() => window.baiStudio.viewport.countNonBackground())) > 0);
+  });
+});
+
+test('chain playback follows the clip clock', harness.skip3d(), async () => {
+  await withApp(seed(), async ({ page, server }) => {
+    await open05(page, server);
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.actors[0]?.kind === 'fbx');
+    await selectAndAdd(page, 1);
+    await page.click('[data-role="chain-play"]');
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.playing && window.baiStudio.chain.probe({ bones: ['Tri'] }).bones.Tri?.[0] > .1, null, { timeout: 10000 });
+    const st = await page.evaluate(() => ({ state: window.baiStudio.chain.getState(), tri: window.baiStudio.chain.probe({ bones: ['Tri'] }).bones.Tri }));
+    assert.equal(st.state.steps[0].name, JAB);
+    assert.ok(st.state.clock > 0 && st.state.clock < 1);
+    assert.ok(st.tri[0] > .1, `Tri がFBXクリップで動く: ${st.tri}`);
+    await page.click('[data-role="chain-stop"]');
+    assert.equal((await page.evaluate(() => window.baiStudio.chain.getState())).playing, false);
+    assert.match(await page.textContent('[data-role="chain-status"]'), /再生を停止しました/);
+  });
+});
+
+test('mapping keeps keys added elsewhere', harness.skip3d(), async () => {
+  await withApp(seed(), async ({ page, server }) => {
+    await open05(page, server);
+    await page.click(row(2));
+    const file = path.join(server.dataDir, 'manifest.json');
+    const latest = readJson(server, 'manifest.json');
+    latest.mapping['External Step'] = 'external';
+    fs.writeFileSync(file, JSON.stringify(latest));
+    await page.locator('details.chain-mapping').evaluate((el) => { el.open = true; });
+    await page.selectOption('[data-role="mapping-step"][data-step="Back Hand Cross"]', 'boxingleadinghandjab');
+    await page.waitForFunction(() => document.querySelector('[data-role="chain-status"]')?.textContent.includes('対応を保存しました'));
+    const disk = readJson(server, 'manifest.json');
+    assert.equal(disk.mapping['External Step'], 'external');
+    assert.equal(disk.mapping['Back Hand Cross'], 'boxingleadinghandjab');
+    await page.waitForFunction(() => document.querySelector('[data-feature="patternList"] li[data-pattern-id="2"]')?.dataset.playable === 'true');
+  });
+});
+
+test('pmx slot vmd and chain switch', harness.skip3d(), async () => {
+  await withApp(seedPmx(), async ({ page, server }) => {
+    await open05(page, server);
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.actors[0]?.kind === 'pmx', null, { timeout: 15000 });
+    assert.equal(await page.inputValue('[data-role="actor-a"]'), 'mmd:A:test.pmx');
+    await page.selectOption('[data-role="vmd-select"]', 'mmd:vmd:minimal.vmd');
+    await page.click('[data-role="vmd-play"]');
+    await page.waitForFunction(() => window.baiStudio.chain.probe({ morphs: ['あ'] })?.morphs['あ'] > .2, null, { timeout: 10000 });
+    await selectAndAdd(page, 1);
+    await page.click('[data-role="chain-play"]');
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.playing);
+    assert.equal((await page.evaluate(() => window.baiStudio.chain.getState())).actors[0].kind, 'fbx');
+    assert.match(await toastText(page), /連結再生のため、A を FBX モデルの表示に戻しました/);
+  });
+});
+
+test('slot b plays vmd independently from slot a', harness.skip3d(), async () => {
+  await withApp(seedPmxBoth(), async ({ page, server }) => {
+    await open05(page, server);
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.actors.every((x) => x.kind === 'pmx'), null, { timeout: 15000 });
+    await page.selectOption('[data-role="vmd-target"]', 'B');
+    await page.selectOption('[data-role="vmd-select"]', 'mmd:vmd:minimal.vmd');
+    await page.click('[data-role="vmd-play"]');
+    await page.waitForFunction(() => window.baiStudio.chain.probe({ slot: 'B', morphs: ['あ'] })?.morphs['あ'] > .2, null, { timeout: 10000 });
+    const a = await page.evaluate(() => window.baiStudio.chain.probe({ slot: 'A', morphs: ['あ'] }).morphs['あ']);
+    assert.equal(a, 0, 'AにはVMDを当てていない');
+    assert.match(await page.textContent('[data-role="chain-status"]'), /B : minimal.vmd を再生中/);
+  });
+});
+
+test('play_chain and stop_chain', harness.skip3d(), async () => {
+  await withApp(seed(), async ({ page, server }) => {
+    await open05(page, server);
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.actors[0]?.kind === 'fbx');
+    await selectAndAdd(page, 1);
+    const send = (action) => page.evaluate((cmd) => fetch('/api/sync-command', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: cmd }) }).then((r) => r.status), action);
+    assert.equal(await send('play_chain'), 200);
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.playing, null, { timeout: 8000 });
+    assert.equal(await send('stop_chain'), 200);
+    await page.waitForFunction(() => !window.baiStudio.chain.getState()?.playing, null, { timeout: 8000 });
   });
 });

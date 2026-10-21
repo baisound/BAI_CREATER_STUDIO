@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T09:34:21+09:00",
+  "updated_at": "2026-10-21T09:53:55+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05d",
-  "head_at_update": "be1425f",
+  "head_at_update": "d54e551",
   "current": {
     "task": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD",
-    "status": "in_progress",
+    "status": "done",
     "step": "SCR05中央のA/B 3D・PMX/VMD・連結再生UI実装",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "SCR05中央のA/B 3Dホスト、PMX/VMD、連結再生UIを実装する",
-    "隔離データのブラウザテストとS5通し確認を行う"
+    "WP05b/cの必須独立レビューを確認し、未実施ならレビューを手配する",
+    "承認済みの次工程P2-WP-05eへ進む"
   ],
   "unverified": [
-    "3D画面・連結再生・対応表UI・スロット別VMDは未実装。GPU・実FBX/PMX/VMD・Windowsブラウザー未検証。",
-    "WP05b/cの必須独立レビュー未確認"
+    "実運用素材・GPU実機は未検証（最小素材とheadless Chrome/SwiftShaderで確認）。",
+    "WP05b/cの必須独立レビュー未確認。対応表GET→POSTの競合の隙は設計どおり残る。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T09:53:55+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "d54e551",
+      "text": "P2-WP-05dを実装・検証：SCR05のA/B 3D、FBX連結再生、対応表、スロット別PMX+VMD。Chrome15件、S5合格、P2全体197 pass・5 skip・0 fail、typecheck合格、実データハッシュ一致。"
+    },
     {
       "at": "2026-10-21T09:34:21+09:00",
       "by": "codex",
@@ -236,13 +243,6 @@
       "event": "done",
       "head": "2b271f8",
       "text": "P2-WP-00c 基盤（api/store/bus、薄表示、導線点検§5の1〜5）を実装。コミット efa2b7e・2b271f8"
-    },
-    {
-      "at": "2026-10-20T09:37:56+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "a3cebf5",
-      "text": "P2-WP-00c 基盤: api/store/bus・薄表示・導線点検§5の1〜5"
     }
   ]
 }
