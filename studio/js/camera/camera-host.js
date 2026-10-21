@@ -2,8 +2,9 @@
 // WP-06b: one camera DOM and one mount, shared by SCR-02 and camera.html.
 import { h } from '../ui.js';
 import { project } from '../store.js';
-import { loadLegacyScripts } from '../legacy.js';
-import { loadProject, resetCameraProject } from '../features/project.js';
+import { loadLegacyScript, loadLegacyScripts } from '../legacy.js';
+import { on as onBus } from '../bus.js';
+import { cameraOnlySaved, loadProject, refreshCameraDirty, resetCameraProject, setWorkspaceFields } from '../features/project.js';
 
 const SCRIPTS = [
   '/camera_vmd_local.js', '/camera_rig.js', '/camera_framing.js', '/camera_lens.js',
@@ -24,6 +25,83 @@ const TAB_NAMES = [
 /** @type {Promise<HTMLElement>|null} */ let building = null;
 /** @type {Promise<void>|null} */ let mounting = null;
 let mounted = false;
+let wired = false;
+let needsFullRestore = false;
+/** @type {Promise<void>} */ let restoring = Promise.resolve();
+
+function visible() { return !!cameraRoot?.isConnected && !cameraRoot.closest('#keepalive'); }
+
+/** @returns {{frame: number, asset: string, clip: number|null}|null} */
+function workspaceSnapshot() {
+  if (!mounted) return null;
+  /** @type {any} */ let value = null;
+  window.dispatchEvent(new CustomEvent('bai-camera-workspace-snapshot', { detail: { resolve: (/** @type {any} */ v) => { value = v; } } }));
+  return value;
+}
+
+function captureWorkspace() {
+  if (!visible()) return;
+  const value = workspaceSnapshot();
+  if (!value) throw Error('カメラの素材状態を取得できません');
+  const stored = project.get().bundle?.workspace || { frame: 0, asset: '', clip: null };
+  /** @type {Record<string, any>} */ const changed = {};
+  for (const field of ['asset', 'clip', 'frame']) if (value[field] !== stored[field]) changed[field] = value[field];
+  if (Object.keys(changed).length) setWorkspaceFields(changed, { source: 'host' });
+}
+
+/** ストアが変更された場合にだけ、既存カメラのモデル選択を更新する。 */
+async function restoreWorkspace() {
+  if (!mounted || !visible()) return;
+  const stored = project.get().bundle?.workspace;
+  if (!stored) return;
+  const actual = workspaceSnapshot();
+  if (!actual) throw Error('カメラの素材状態を取得できません');
+  if (actual.asset !== stored.asset || actual.clip !== stored.clip) {
+    await new Promise((resolve, reject) => window.dispatchEvent(new CustomEvent('bai-camera-workspace-restore', {
+      detail: { workspace: stored, resolve, reject },
+    })));
+  }
+  if (actual.frame !== stored.frame) {
+    const frame = /** @type {HTMLInputElement|null} */ (cameraRoot?.querySelector('#frame-number'));
+    if (frame) { frame.value = String(stored.frame); frame.dispatchEvent(new Event('change', { bubbles: true })); }
+  }
+}
+
+async function restoreBundle() {
+  if (!mounted || !visible()) return;
+  const data = project.get().bundle;
+  if (!data?.complete || !data.workspace) return;
+  await loadLegacyScript('/camera_bundle_core.js');
+  window.BAICameraBundleCore?.validateRestore(data);
+  await restoreWorkspace();
+  await new Promise((resolve, reject) => window.dispatchEvent(new CustomEvent('bai-camera-bundle-restore', {
+    detail: { project: data.camera, frame: data.workspace.frame, confirmed: true, resolve, reject },
+  })));
+  refreshCameraDirty();
+}
+
+function queueRestore(full = false) {
+  restoring = restoring.catch(() => {}).then(() => full ? restoreBundle() : restoreWorkspace()).catch((error) => {
+    const status = cameraRoot?.querySelector('#status');
+    if (status) status.textContent = `保存されたカメラ・素材を表示できません：${error instanceof Error ? error.message : String(error)}`;
+  });
+  return restoring;
+}
+
+function wireHost() {
+  if (wired) return;
+  wired = true;
+  window.addEventListener('bai-studio-camera-before-save', captureWorkspace);
+  window.addEventListener('bai-camera-saved', () => { void cameraOnlySaved(); refreshCameraDirty(); });
+  onBus('studio:project-loaded', () => {
+    if (!mounted) return;
+    if (visible()) void queueRestore(true);
+    else needsFullRestore = true;
+  });
+  project.subscribe((_state, reason) => {
+    if (reason === 'workspace' && visible()) void queueRestore(false);
+  });
+}
 
 /** @param {Document|Element} root @param {string} selector */
 function need(root, selector) {
@@ -91,8 +169,8 @@ function populate(root, initialTab, source) {
   }
   const legacyBundle = /** @type {HTMLFieldSetElement} */ (need(panels.camera, '#camera-project-bundle'));
   legacyBundle.disabled = true;
-  legacyBundle.append(h('p', { class: 'camera-host-pending' }, '新UIの統合保存への接続はWP-06cで行います。カメラだけの保存は上部のボタンで行えます。'));
-  panels.status.append(h('p', null, '既存のカメラ編集コードを新UIでも共有しています。統合保存はWP-06cで接続します。実GPU・Linuxでの描画は未検証です。'));
+  legacyBundle.append(h('p', { class: 'camera-host-pending' }, '統合保存は制作状態の［保存］を使用します。カメラだけの保存は上部のボタンで行えます。'));
+  panels.status.append(h('p', null, '既存のカメラ編集コードを新UIでも共有しています。制作状態の［保存］でコンビネーション・カメラ・素材参照を保存します。実GPU・Linuxでの描画は未検証です。'));
 
   const center = h('section', { class: 'camera-host-center', 'aria-label': '撮影ビュー' },
     toolbar, need(view, '.dual-views'));
@@ -129,10 +207,28 @@ async function mount(root) {
     if (!page?.mount) throw Error('カメラ編集コードを読み込めませんでした。');
     const scene = await import('/camera_3d.js');
     if (!root.isConnected || root.closest('#keepalive')) return;
+    const ready = new Promise((resolve, reject) => {
+      const timer = window.setTimeout(() => { cleanup(); reject(Error('カメラ保存データの読み込みが時間内に終わりませんでした')); }, 20000);
+      const cleanup = () => {
+        window.clearTimeout(timer);
+        window.removeEventListener('bai-camera-project-loaded', onLoaded);
+        window.removeEventListener('bai-camera-project-load-error', onError);
+      };
+      const onLoaded = () => { cleanup(); const status = root.querySelector('#status'); if (status) status.textContent = '保存された素材と再生位置を反映中…'; resolve(true); };
+      const onError = (/** @type {Event} */ event) => { cleanup(); reject(/** @type {CustomEvent} */ (event).detail?.error || Error('カメラ保存データを読めません')); };
+      window.addEventListener('bai-camera-project-loaded', onLoaded);
+      window.addEventListener('bai-camera-project-load-error', onError);
+    });
     page.mount(root, { host: 'studio' });
     scene.mount(root, { host: 'studio' });
     mounted = true;
+    wireHost();
     window.dispatchEvent(new Event('resize'));
+    await ready;
+    restoring = restoring.catch(() => {}).then(restoreWorkspace);
+    await restoring;
+    const status = root.querySelector('#status');
+    if (status) status.textContent = 'カメラ編集を開始できます（保存された素材と再生位置を反映しました）';
   })().finally(() => { mounting = null; });
   return mounting;
 }
@@ -177,6 +273,11 @@ export function cameraHost(ctx) {
       const targetTab = root.querySelector(`[role="tab"][data-camera-tab="${TAB_NAMES.some(([id]) => id === tab) ? tab : 'camera'}"]`);
       if (targetTab && targetTab.getAttribute('aria-selected') !== 'true') /** @type {HTMLElement} */ (targetTab).click();
       await mount(root);
+      if (mounted) {
+        const full = needsFullRestore;
+        needsFullRestore = false;
+        void queueRestore(full);
+      }
       if (!alive || mine !== generation || project.get().cameraInvalid) keep();
     } catch (error) {
       if (!alive || mine !== generation) return;
@@ -195,7 +296,9 @@ export function cameraHost(ctx) {
     void refresh();
   };
   const unsubscribe = project.subscribe(onStore);
-  ctx.onCleanup(() => { alive = false; generation++; unsubscribe(); keep(); });
+  let dirtyPoll = 0;
+  dirtyPoll = window.setInterval(() => { if (visible()) refreshCameraDirty(); }, 1000);
+  ctx.onCleanup(() => { try { captureWorkspace(); } catch (error) { console.error(error); } refreshCameraDirty(); window.clearInterval(dirtyPoll); alive = false; generation++; unsubscribe(); keep(); });
   onStore();
   return outlet;
 }

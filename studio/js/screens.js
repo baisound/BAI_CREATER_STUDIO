@@ -154,7 +154,7 @@ export const SCREENS = [
       { name: 'キーフレーム', status: 'real', evidence: 'tests/studio-p2-camera.test.cjs::camera host keeps keys across studio routes', note: 'キー追加・Undo/Redo・補間・カメラ単独保存を旧画面と共有。', ids: ['CAM-003'] },
       { name: 'カット編集', status: 'partial', note: 'ショット区間の編集UIは表示。実データと保存の確認はWP-06bで継続。', ids: ['CAM-015'] },
     ],
-    tools: [btn('旧カメラ画面で開く', 'href:/camera.html'), un('レンダリング', '動画書き出しは Phase F の範囲です。', ['RENDER-001'], PH.F)],
+    tools: [{ t: 'feature', key: 'projectToolbar' }, btn('旧カメラ画面で開く', 'href:/camera.html'), un('レンダリング', '動画書き出しは Phase F の範囲です。', ['RENDER-001'], PH.F)],
     center: { type: 'feature', key: 'cameraHost', status: 'real', evidence: 'tests/studio-p2-camera.test.cjs::camera host keeps keys across studio routes' },
   },
   {

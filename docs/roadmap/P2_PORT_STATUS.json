@@ -399,11 +399,19 @@
     {
       "id": "P2-WP-06c",
       "step": "⑥ ②の保存との統合",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": ["codex/p2-wp06のWP06c実装コミット（次の台帳更新でSHAを記入）"],
+      "tests": [
+        "npm run typecheck: pass。共有core単体2/2、projectロジック27/27、カメラPython経路・一貫性15/15、P2 Python 43/43 pass",
+        "隔離Chrome: SCR02カメラホスト5/5（4形式、壊れた保存の退避復旧、単体保存→統合保存200、フレームのみの移動、保存済み状態の復元）、旧カメラ2/2、旧プロジェクト2/2、project保存17/17 pass",
+        "P2 E2E: S1/S2/S3/S5/S7 pass、S4/S6/S8は計画どおりskip、furthest_step=S7。実data/7ファイルのハッシュ不変",
+        "全P2 NodeゲートはWindows ERR_NO_BUFFER_SPACEとSCR05読込待ち3件で途中停止。失敗した3件を隔離再実行し3/3 pass"
+      ],
+      "unverified": [
+        "独立した高性能モデルのレビュー、実GPU・Linux・全実利用者モデルの外観とOwner採用は未検証",
+        "P2 Nodeゲートの一括完走はWindowsのリソース枯渇で未確認。影響箇所の専用ブラウザ試験と通し確認は合格"
+      ],
+      "notes": "camera_bundle_core.jsを旧画面と新UIで共有。SCR02に②の保存ツールを配置し、カメラ状態・workspaceのストア所有・カメラ単体保存の統合版・dirtyと再読込を接続。初回の素材復元中は操作可能扱いにしない。実装・試験は標準モデル（GPT-6）、サブエージェントなし。",
       "owner_check": null
     },
     {
@@ -448,7 +456,7 @@
     }
   ],
   "e2e_main": {
-    "furthest_step": "S2",
+    "furthest_step": "S7",
     "steps": [
       {
         "id": "S1",
@@ -462,8 +470,8 @@
       },
       {
         "id": "S3",
-        "result": "skip",
-        "reason": "WP-06b・WP-06c が未着手"
+        "result": "pass",
+        "reason": ""
       },
       {
         "id": "S4",
@@ -482,8 +490,8 @@
       },
       {
         "id": "S7",
-        "result": "skip",
-        "reason": "WP-06c が未着手"
+        "result": "pass",
+        "reason": ""
       },
       {
         "id": "S8",
@@ -491,7 +499,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "4ff3c26",
-    "checked_at": "2026-10-21T04:36:07.668Z"
+    "commit": "2097938",
+    "checked_at": "2026-10-21T17:31:02.507Z"
   }
 }

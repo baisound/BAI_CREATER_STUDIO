@@ -23,6 +23,11 @@ class StudioRoutesTest(unittest.TestCase):
         self.assertEqual(resolve('/studio/styles/app.css')[1], 'text/css; charset=utf-8')
         self.assertEqual(resolve('/studio/assets/samples/hero.webp')[1], 'image/webp')
 
+    def test_camera_bundle_core_has_an_explicit_static_route(self):
+        source = (STUDIO_DIR.parent / 'server.py').read_text(encoding='utf8')
+        self.assertIn('"/camera_bundle_core.js"', source)
+        self.assertTrue((STUDIO_DIR.parent / 'camera_bundle_core.js').is_file())
+
     def test_sample_images_referenced_exist(self):
         import re
         samples = STUDIO_DIR / 'assets' / 'samples'

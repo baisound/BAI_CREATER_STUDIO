@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T02:01:27+09:00",
+  "updated_at": "2026-10-22T02:42:01+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp06",
-  "head_at_update": "6d35a94",
+  "head_at_update": "2097938",
   "current": {
     "task": "P2-WP-06 カメラ移植とIssue #50全形式の接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "WP06c: ②の統合保存・workspace所有とSCR02カメラホストの同期",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-06c: ②の統合保存とworkspaceの所有・復元をカメラホストに接続"
+    "P2-WP-06d: Phase E §7読み替え表を現実の124 ID配置とWP06c保存動線で更新しレビュー"
   ],
   "unverified": [
-    "独立した高性能モデルの配置表レビュー、実GPU/Linux/全実モデル・Owner採用は未検証。SCR02と②のworkspace双方向同期・統合保存はWP06c。"
+    "独立高性能モデルレビュー、実GPU/Linux/全実モデルとOwner採用。P2 Node全件はWindows ERR_NO_BUFFER_SPACEで完走せず、失敗3件は隔離再実行で合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T02:42:01+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2097938",
+      "text": "P2-WP-06c: 共有カメラバンドル・SCR02統合保存/復元・4形式の素材参照・dirtyと単体保存版の同期を実装し、隔離ブラウザ/E2EでS7まで確認"
+    },
     {
       "at": "2026-10-22T02:01:27+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "6bb0509",
       "text": "Issue #46・#47: ライトなしGLB複製とシーン視点接近: S03/S04/S06/S07のGLB内蔵ライトを除いた別名コピーを作り、元BIN・材質・構造の保持を検証する。S05はライトなしとして別途記録する"
-    },
-    {
-      "at": "2026-10-21T22:12:02+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "180e9b3",
-      "text": "Issue46・47: 受領ステージの過度な明るさと視点接近限界: S01と小型受領GLBの光源・材質を比較し、OrbitControlsの接近挙動を隔離素材で再現する"
     }
   ]
 }

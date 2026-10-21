@@ -359,7 +359,7 @@ export function on(name, fn) { const h = (e) => fn(e.detail); bus.addEventListen
 | `studio:model-loaded` | `{assetId, format, scale, offset}` | ④ viewport |
 | `studio:sync-command` | `{id, action, name, slot, target}`（`refresh_assets` 以外の外部コマンド。同じ `id` は1回だけ） | project.js の `tick`（WP-05b。§2.5 O-⑤-5） |
 
-旧カメラ画面の `window` イベント（`bai-camera-*`。`camera.js:208〜210`、`camera_3d.js:290〜293`、`camera_project_bundle_ui.js:5〜6・16・19`）は、mount したカメラコードの中でそのまま使う。新UIのバスとの橋渡しは `camera-host.js` だけが行う（§2.6）。
+旧カメラ画面の `window` イベント（`bai-camera-*`。`camera.js`、`camera_3d.js`、`camera_project_bundle_ui.js`）は、mount したカメラコードの中でそのまま使う。WP-06c では保存直前の `bai-studio-camera-before-save`（project.js→camera-host.js）、単体保存成功の `bai-camera-saved`（camera.js→camera-host.js）、統合保存成功の `bai-camera-bundle-saved`（project.js→camera.js）、初回読込失敗の `bai-camera-project-load-error`（camera.js→camera-host.js）を追加した。新UIのバスとの橋渡しは `camera-host.js` が行う（§2.6）。
 
 ### 1.6 画面の結線方式と後始末
 
@@ -1510,7 +1510,8 @@ SCR-13：左 `items('Dance', 6, …)`、下部の `tracks` の固定キー（ク
        - `tests/test_camera_html_wiring_recovery.py`（`camera.html` のスクリプトの順番と直接の要素を検査している）を確かめ直し、`camera_bundle_core.js` が `camera_project_bundle_ui.js` より前にあることの検査を足す。
        - 新UIでの読み込み（3-M8）：`features/project.js` は、統合保存を初めて使うときに `legacy.js` の `loadLegacyScript('/camera_bundle_core.js')` で1回だけ読み、`window.BAICameraBundleCore` を使う。型は、import ではなく `window` の UMD なので `paths` は使わず、`studio/js/legacy-globals.d.ts` の `interface Window` に `BAICameraBundleCore` を**関数の形まで**書く（`validateRestore(bundle): void`、`buildBundleBody(x): object`、`mergeWorkspace(store, snapshot): object`、`CAMERA_OWNED_WORKSPACE_FIELDS: readonly string[]`。他の UMD のような `any` にはしない。§1.8）。**読めなかったら**（404・例外）、［保存］を無効にし、状態行に「保存の部品を読み込めませんでした。再読込してください。」を出す（コンビネーションの自動保存は使える。黙って別の本文で保存しない）。
      - `saveProject()` は、ホストが mount 済みなら、`window` イベント `bai-camera-bundle-snapshot`（`camera.js:208`）でカメラの状態を、`bai-camera-workspace-snapshot`（`camera_3d.js:290`）で workspace を集める（`camera_project_bundle_ui.js:5〜6, 18` と同じ方法）。本文は `buildBundleBody({ combination, camera, workspace: mergeWorkspace(store.workspace, snapshot) })` で作る。
-     - **workspace の所有（O-⑥-5、決定済み。2-M4）**：§2.2(d)-9 のとおり。利用者がカメラ画面でモデル・クリップ・再生位置を変えたときは、ホストがストアの `setWorkspaceFields` を呼ぶ。そのため `camera-host.js` は、`bai-camera-workspace-snapshot` を **SCR-02 を離れるときと［保存］の前だけ**に取り（3-M6。1秒ごとには取らない）、`asset`・`clip`・`frame` が前回と違えば `setWorkspaceFields(changed, {source:'host'})` でストアに書く（`frame` だけの違いは dirty にしない）。ストア側の変更（④⑤）は、§2.2(d)-9 の規則（外部からの変更で、`asset` か `clip` が違うときだけ）で `bai-camera-workspace-restore` を送る。
+     - **workspace の所有（O-⑥-5、決定済み。2-M4）**：§2.2(d)-9 のとおり。利用者がカメラ画面でモデル・クリップ・再生位置を変えたときは、ホストがストアの `setWorkspaceFields` を呼ぶ。そのため `camera-host.js` は、`bai-camera-workspace-snapshot` を **SCR-02 を離れるときと［保存］の前だけ**に取り（3-M6。1秒ごとには取らない）、`asset`・`clip`・`frame` が前回と違えば `setWorkspaceFields(changed, {source:'host'})` でストアに書く（`frame` だけの違いは dirty にしない）。ストア側の変更（④⑤）は、§2.2(d)-9 の規則（外部からの変更で、`asset` か `clip` が違うときだけ）で `bai-camera-workspace-restore` を送る。実装時に、frame だけの外部変更は `#frame-number` の change で再生位置を合わせた。これもモデルを再読込せず、dirty にしない。
+     - SCR-02 の上部にも②と同じ `projectToolbar` を置き、統合保存を直接押せるようにした。ホスト上部の `#save` は引き続き「カメラだけ保存」であり、保存対象を文言で区別する。
      - **カメラ単独の保存の後（3-M5）**：`camera.js` の保存が成功したところ（210行の `serverRevision=j._revision||null;dirty=false;status('保存しました')` の直後）に、`window.dispatchEvent(new CustomEvent('bai-camera-saved',{detail:{revision:serverRevision}}))` を1文足す（旧画面では誰も受けないので、動作は変わらない。R5(c)）。`camera-host.js` はこれを受けて `GET /api/project/bundle` を取り、`revision` を取り直す（`camera` は `base` にも入れる。そうしないと次の［保存］が 409 になる）。
      - 再読込のときは、`validateRestore` を通してから、`bai-camera-workspace-restore`・`bai-camera-bundle-restore`（`camera_3d.js:293`、`camera.js:209`）で反映する（`camera_project_bundle_ui.js:19` と同じ順番）。
      - `dirty.camera` は `MountHandle.isDirty()` から取る（O-⑥-1、決定）。SCR-02 を表示している間は1秒ごと、［保存］の前、`beforeunload` の判定のときに読む。
@@ -1602,7 +1603,7 @@ SCR-23 の中央のカード「エクスポート」（`screens.js:607` のパ�
 | S4 | BGM（歌の音声）の配置 | **既存のコードが無い**（音声の登録 API・タイムラインの音声トラックは旧画面に無い。LYRIC-006 は未承認） | — | **「既存機能なし」として記録**し、飛ばす（Q4） |
 | S5 | VMD/FBX の設置 | ⑤-2（PMX＋VMD）、⑤-1（GLB/VRM のクリップ）、⑤-8（`clip`・`frame` の記録）、⑤-4b（FBX のコンビネーションの連結再生） | WP-05a（05b・05d で手順を足す） | SCR-13［編集］で最小 PMX に `minimal.vmd` を当て、位置 1.0 秒で `センター` の y が +1.0・モーフ `あ` が 1（`baiStudio.motion.probe`）。S1 の VRM のクリップ 0 を位置 0.5 秒にすると `hips` の z が 0.5。05b で［この再生位置を制作に記録］→［保存］で workspace が `clip:0, frame:15`。05d で SCR-05 の連結再生で FBX のメッシュが動く。詳細は §2.5(g) |
 | S6 | エフェクト | 承認済みの後段（MMDエフェクトのフェーズ） | — | 飛ばす（「後段のフェーズ」として記録） |
-| S7 | 踊らせる（再生） | **SCR-02（⑥のホスト）の中の既存の同期だけ**を使う：`camera_3d.js` は workspace の GLB のクリップをカメラの時刻で動かす（`updateTime`、282行）。⑤のビューポートと⑥のカメラを新しく同期させる処理は**作らない**（既存コードに無い。v5 C6） | WP-06c | SCR-02 で workspace の合成 GLB（クリップ0）とカメラのキー2つを再生すると、モデルのボーン（`hips`）が動き、カメラの位置がキーの間で補間される（`#status` のフレームと `bai-camera-pose` の値で確かめる） |
+| S7 | 踊らせる（再生） | **SCR-02（⑥のホスト）の中の既存の同期だけ**を使う：`camera_3d.js` は workspace の GLB/VRM のクリップをカメラの時刻で動かす（`updateTime`）。⑤のビューポートと⑥のカメラを新しく同期させる処理は**作らない**（既存コードに無い。v5 C6） | WP-06c | SCR-02 で workspace の合成VRM（クリップ0）とカメラのキーを再生すると、モデルのボーン（`hips`）が動き、カメラの位置がキーの間で補間される（`#frame-number` と `bai-camera-query-pose` の値で確かめる） |
 | S8 | 書き出し | 既存は VMD（⑦-1・⑦-2）とカメラ VMD（⑦-3）だけ。**音声付き 1080p の動画の書き出しは既存のコードが無い**（Phase F の RENDER-001・006、計画・未検証） | WP-07 | ⑦-1・⑦-2 の要求の本文が正しく作られ、スタブの応答（ジョブ作成の成功・Blender が無い 503）が画面に出る。**この2つは `page.route` で受け止め、サーバーへ送らない**（`exports/` は隔離の外。§2.7 のテストの決まり、v5 C1）。カメラ VMD はサーバーへ送ってよい（書かない）。動画は「既存機能なし」として記録（Q4） |
 
 - まだ有効になっていない手順（その WP が終わっていない）は `skip` にし、理由に WP の名前を書く。「既存機能なし」「後段のフェーズ」の手順も `skip` にし、理由をそのまま書く。**skip を合格と数えない**。

@@ -36,6 +36,7 @@ export function initialProjectState() {
     autosavePending: false,
     saving: false,
     /** 読込の失敗だけ（status は 'error'） @type {ApiErr|null} */ error: null,
+    /** 共通の統合保存部品を読み込めなかった。再読込まで保存を止める。 @type {string|null} */ bundleCoreError: null,
     /** 同期 tick の失敗（status は 'ready' のまま） @type {ApiErr|null} */ syncError: null,
     /** 世代番号。読込・自動保存・統合保存を始めるたびに +1。await の後で値が変わっていたら結果を捨てる */ saveSeq: 0,
     /** B-3 の 422 を受けたとき。status は 'ready' のまま。message はサーバーの文言（退避名と手順を含む） @type {{backup: string|null, message?: string}|null} */ cameraInvalid: null,

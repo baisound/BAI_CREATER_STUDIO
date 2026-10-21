@@ -265,7 +265,7 @@ test('tabs, dropdown, palette and keyboard work', async () => {
   await page.click('.pane-right [role="tab"][data-tab="focus"]');
   assert.match(page.url(), /tab=focus/);
   await page.click('.pane-right [role="tab"][data-tab="status"]');
-  assert.match(await page.textContent('.pane-right [role="tabpanel"]:visible'), /統合保存はWP-06c/);
+  assert.match(await page.textContent('.pane-right [role="tabpanel"]:visible'), /制作状態の［保存］でコンビネーション・カメラ・素材参照を保存/);
   await page.locator('.pane-right [role="tab"][aria-selected="true"]').focus();
   await page.keyboard.press('ArrowRight');
   assert.equal(await page.getAttribute('.pane-right [role="tab"][aria-selected="true"]', 'data-tab'), 'camera');

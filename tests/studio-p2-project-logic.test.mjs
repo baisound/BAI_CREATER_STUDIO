@@ -1,6 +1,7 @@
 // ② プロジェクトの読込・保存の制御（studio/js/features/project.js）の単体テスト（P2 設計 §2.2(g)、WP-01）。
 // ブラウザー不要。偽の時計と偽のサーバーを createProjectController に渡し、世代番号・競合・順序の保証を確かめる（3-M3・3-M4・v5 C5）。
 import test from 'node:test';
+import '../camera_bundle_core.js';
 import assert from 'node:assert/strict';
 import { createStore } from '../studio/js/store.js';
 import { initialProjectState } from '../studio/js/store.js';
@@ -98,13 +99,14 @@ function makeServer({ combination = comb(), camera = CAMERA, workspace = null } 
   return { srv, api };
 }
 
-function setup(seed) {
+function setup(seed, options = {}) {
   const { srv, api } = makeServer(seed);
   const clock = makeClock();
   const store = createStore(initialProjectState());
   const log = { toasts: [], conflicts: 0, confirms: [], emits: [], conflictReload: null, confirmAnswer: true };
   const ctrl = createProjectController({
     api, store, now: clock.now, setTimeout: clock.setTimeout, clearTimeout: clock.clearTimeout, setInterval: () => 0,
+    ...options,
     ui: {
       toast: (m, k) => log.toasts.push([m, k]),
       confirm: async (o) => { log.confirms.push(o); return log.confirmAnswer; },
@@ -114,6 +116,35 @@ function setup(seed) {
   });
   return { srv, clock, store, log, ctrl };
 }
+
+test('shared bundle component failure stops explicit save and keeps autosave available', async () => {
+  const { srv, ctrl, store, clock } = setup(undefined, { loadBundleCore: async () => { throw Error('HTTP 404'); } });
+  await ctrl.loadProject();
+  ctrl.setWorkspaceFields({ stage: { asset: 'stage-a' } });
+  assert.equal(await ctrl.saveProject(), false);
+  assert.equal(store.get().bundleCoreError, 'HTTP 404');
+  assert.equal(canSave(store.get()), false);
+  assert.equal(describeStatus(store.get()).key, 'bundle-core-error');
+  assert.equal(srv.count('POST /api/project/bundle'), 0);
+  ctrl.editCombination([{ name: 'x' }]);
+  await clock.advance(AUTOSAVE_MS);
+  assert.equal(srv.count('POST /api/project'), 1);
+});
+
+test('camera-only save adopts the new bundle revision without losing workspace edits', async () => {
+  const { srv, ctrl, store } = setup();
+  await ctrl.loadProject();
+  ctrl.setWorkspaceFields({ stage: { asset: 'stage-a' } });
+  const oldRevision = store.get().revision;
+  srv.camera = camKeys(4);
+  assert.equal(await ctrl.cameraOnlySaved(), true);
+  assert.notEqual(store.get().revision, oldRevision);
+  assert.deepEqual(store.get().base.camera, srv.camera);
+  assert.equal(store.get().dirty.workspace, true);
+  assert.equal(store.get().externalChange, false);
+  assert.equal(await ctrl.saveProject(), true);
+  assert.equal(srv.count('POST /api/project/bundle'), 1);
+});
 
 test('load: reads bundle and envelope together; state is ready and clean', async () => {
   const { srv, store, ctrl, log } = setup();
