@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T10:56:53+09:00",
+  "updated_at": "2026-10-21T10:57:22+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05e",
-  "head_at_update": "b187f18",
+  "head_at_update": "af7dfad",
   "current": {
     "task": "P2-WP-05e SCR-13のタイムライン編集・再生と補正レイヤー",
-    "status": "done",
-    "step": "タイムライン・補正レイヤーの計算と内容比較保存を実装",
+    "status": "in_progress",
+    "step": "SCR13下部の編集UIと既存APIの保存・競合表示を結線",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T10:57:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "af7dfad",
+      "text": "P2-WP-05e SCR-13のタイムライン編集・再生と補正レイヤー: SCR13下部の編集UIと既存APIの保存・競合表示を結線"
+    },
     {
       "at": "2026-10-21T10:56:53+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "start",
       "head": "f265ded",
       "text": "P2-WP-04 O-④ の決定: O-④-1〜7 の決定と O-④-2 の最小 PMX"
-    },
-    {
-      "at": "2026-10-20T15:15:56+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "8a01f5f",
-      "text": "P2-WP-03 Opus レビュー完了（送る直前の衝突の再確認・VMD の大文字小文字を修正）、legacy-project-save.test.cjs の時々の失敗（テスト側、b082ad8 から）を修正"
     }
   ]
 }
