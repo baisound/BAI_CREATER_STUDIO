@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T02:43:31+09:00",
+  "updated_at": "2026-10-22T02:44:18+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp06",
-  "head_at_update": "b9d7f57",
+  "head_at_update": "3e9a663",
   "current": {
     "task": "P2-WP-06 カメラ移植とIssue #50全形式の接続",
-    "status": "done",
-    "step": "WP06c: ②の統合保存・workspace所有とSCR02カメラホストの同期",
+    "status": "in_progress",
+    "step": "WP06d: Phase E §7に現行カメラホストと保存の読み替え表を作成",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T02:44:18+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3e9a663",
+      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06d: Phase E §7に現行カメラホストと保存の読み替え表を作成"
+    },
     {
       "at": "2026-10-22T02:43:31+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "5cce782",
       "text": "Issue #46・#47: ライトなしGLBの結果連携と視点修正PR: Issue46・47に検証結果を結び、PRでレビュー可能にする。S05/S06発光候補はOwner判断待ち"
-    },
-    {
-      "at": "2026-10-21T22:39:56+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "62f508e",
-      "text": "Issue46: S03/S04/S06/S07のライトなしGLB別名コピー4件を作成・検証・素材登録。Issue47: SCR-06の自由前後移動を実装し小型GLBで床下通過を確認。S05/S06の発光抑制候補は未登録で比較画像あり"
     }
   ]
 }
