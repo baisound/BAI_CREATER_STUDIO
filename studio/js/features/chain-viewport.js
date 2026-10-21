@@ -350,11 +350,12 @@ export const chainViewport = (ctx) => {
   function tick(now) {
     raf = 0;
     if (!alive) return;
-    const dt = Math.min(.08, Math.max(0, (now - lastFrame) / 1000));
+    const elapsed = Math.max(0, (now - lastFrame) / 1000);
+    const dt = Math.min(.08, elapsed);
     lastFrame = now;
     const row = ROWS.find((r) => r.id === patternClock.get().rowId) || ROWS[0];
     const clock = patternClock.get();
-    if (clock.playing) patternClock.set({ now: advancePattern(clock.now, dt, Number(project.get().bundle?.combination?.playbackSpeed) || 1, clock.duration) }, 'tick');
+    if (clock.playing) patternClock.set({ now: advancePattern(clock.now, elapsed, Number(project.get().bundle?.combination?.playbackSpeed) || 1, clock.duration) }, 'tick');
     drawPattern(row);
     advanceChain(dt);
     for (const s of slots) s.player?.update(dt);
