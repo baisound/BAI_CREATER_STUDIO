@@ -2,6 +2,8 @@
 
 対象: `NF-014`（ステージ配置）、`LIGHT-001`（シーン照明）、`VIEW-001`（視点操作）。[Issue #46](https://github.com/baisound/BAI_CREATER_STUDIO/issues/46) は受領ステージの明るさ、[Issue #47](https://github.com/baisound/BAI_CREATER_STUDIO/issues/47) は LAST CHASE を含むシーン視点の接近限界。既存の実制作状態と原本GLBは保持する。
 
+コード・検証・未検証点はGitコミット `5cce782` と [PR #48](https://github.com/baisound/BAI_CREATER_STUDIO/pull/48) に対応する。ローカル素材ファイルはGit管理外で、SHA256と素材IDを下記および `data/stage_lightless_20261021/検証記録.json` に記録する。
+
 ## 明るさの調査と対応
 
 受領GLBのJSONチャンクを読み、内蔵ライトと発光材質を比較した。S01には内蔵ライトがなく、室内表示は既存の3灯で確認済み。S03は内蔵ライト46、S04は1、S06は9、S07は2で、S04の方向光強度は683だった。S05には内蔵ライトが0で、赤い発光材質の `emissiveStrength` が約3.1だった。したがってライトの除去だけでS05の明るさは変わらない。S06もライト除去後の窓が発光材質で明るい。

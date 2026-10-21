@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T22:40:40+09:00",
+  "updated_at": "2026-10-21T22:42:53+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-lighting-zoom",
-  "head_at_update": "5cce782",
+  "head_at_update": "e6a7f96",
   "current": {
     "task": "Issue #46・#47: ライトなしGLBの結果連携と視点修正PR",
-    "status": "in_progress",
+    "status": "done",
     "step": "Issue46・47に検証結果を結び、PRでレビュー可能にする。S05/S06発光候補はOwner判断待ち",
     "design_doc": "docs/roadmap/STAGE_LIGHTLESS_ZOOM_20261021_JA.md"
   },
   "next_steps": [
-    "OwnerのS05/S06発光候補の採否を確認し、採用なら別素材として登録する。Issue46/47のPRを作成し、Issueと紐付ける。PR統合後はmainとローカルサーバーを同期する"
+    "S05/S06の発光候補についてOwnerの採否を受ける。PR #48のレビュー/統合判断を行い、統合後はmainとローカルサーバーを同期する。Issue #46はOwner外観採用まで継続"
   ],
   "unverified": [
-    "LAST CHASE全景のシーン操作は端末フリーズ歴により再試験しない。実GPU、Linux、Owner外観採用、WebMCP/標準MCPは未検証。S05/S06の発光候補は未採用"
+    "LAST CHASE全景は端末フリーズ歴により再試験しない。実GPU、Linux、Owner外観採用、WebMCP/標準MCPは未検証。発光候補2件は未採用・未登録"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T22:42:53+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "e6a7f96",
+      "text": "PR #48を作成し、Issue #46・#47へ検証結果と未検証事項を連携。S03/S04/S06/S07のライトなし別名GLB4件は登録済み。S05/S06発光抑制候補は比較画像付きで未登録"
+    },
     {
       "at": "2026-10-21T22:40:40+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "32ad0d0",
       "text": "AUDIO-001の実データ骨格を調査し、配置保存APIとrevision競合・破損拒否を実装。Python2件合格。"
-    },
-    {
-      "at": "2026-10-21T16:58:59+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4f293ae",
-      "text": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー: 実データ骨格調査・設計・保存契約"
     }
   ]
 }
