@@ -44,6 +44,9 @@ test('camera host keeps keys across studio routes', harness.skip3d(), async () =
     assert.equal(await page.locator('[data-feature="cameraHost"] #scene').count(), 1);
     assert.equal(await page.locator('[data-feature="cameraHost"] #preview').count(), 1);
     assert.equal(await page.locator('[data-feature="cameraHost"] .view-3d-canvas').count(), 2);
+    await page.click('.camera-host-tabs [data-camera-tab="status"]');
+    await page.waitForFunction(() => document.querySelector('[data-role="production-context"]')?.textContent.includes('曲・ダンスの版'));
+    assert.match(await page.locator('[data-role="production-context"]').innerText(), /ステージ・曲・ダンスはまだ撮影ビューに合成していません/);
     const sceneSize = await page.locator('#scene').boundingBox();
     assert.ok(sceneSize && sceneSize.width > 100 && sceneSize.height > 100, 'scene has usable dimensions');
     await page.click('.camera-host-tabs [data-camera-tab="focus"]');

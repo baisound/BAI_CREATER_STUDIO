@@ -5,6 +5,8 @@ import { project } from '../store.js';
 import { loadLegacyScript, loadLegacyScripts } from '../legacy.js';
 import { on as onBus } from '../bus.js';
 import { cameraOnlySaved, loadProject, refreshCameraDirty, resetCameraProject, setWorkspaceFields } from '../features/project.js';
+import { loadAssets } from '../features/assets.js';
+import { productionContext, refreshProductionContext } from '../features/production-context.js';
 
 const SCRIPTS = [
   '/camera_vmd_local.js', '/camera_rig.js', '/camera_framing.js', '/camera_lens.js',
@@ -29,6 +31,7 @@ let cameraReady = false;
 let wired = false;
 let needsFullRestore = false;
 let fullRestorePending = 0;
+let contextWired = false;
 /** @type {Promise<void>} */ let restoring = Promise.resolve();
 
 function visible() { return !!cameraRoot?.isConnected && !cameraRoot.closest('#keepalive'); }
@@ -207,6 +210,17 @@ function populate(root, initialTab, source) {
     ['15', 'カメラVMD状態'], ['16', 'ショット評価'],
   ]) diagnostics.append(h('a', { class: 'btn', href: `/workspace/${id}`, dataset: { route: id } }, label));
   panels.status.append(diagnostics);
+  const contextPanel = h('section', { class: 'camera-production-context', dataset: { role: 'production-context' }, 'aria-label': '保存済みの制作コンテキスト' });
+  panels.status.append(contextPanel);
+  if (!contextWired) {
+    contextWired = true;
+    productionContext.subscribe(() => {
+      if (!cameraRoot) return;
+      const panel = cameraRoot.querySelector('[data-role="production-context"]');
+      if (panel) drawProductionContext(panel);
+    });
+  }
+  drawProductionContext(contextPanel);
 
   const center = h('section', { class: 'camera-host-center', 'aria-label': '撮影ビュー' },
     toolbar, need(view, '.dual-views'));
@@ -216,6 +230,25 @@ function populate(root, initialTab, source) {
     need(view, '.transport'), need(view, '.timeline'));
   root.replaceChildren(top, h('div', { class: 'camera-host-workspace' }, shots, center, right), timeline);
   selectTab(initialTab);
+}
+
+/** @param {Element} panel */
+function drawProductionContext(panel) {
+  const state = productionContext.get();
+  panel.replaceChildren(h('h3', null, '保存済みのシーン・曲・ダンス'),
+    h('button', { type: 'button', class: 'btn', onclick: () => { void loadAssets().then(refreshProductionContext); } }, '参照を再読込'));
+  if (state.status !== 'ready' || !state.value) {
+    panel.append(h('p', { role: 'status' }, state.status === 'error' ? `読込失敗：${state.error}。元データは変更していません。` : '保存済みの配置を読み込み中…'));
+    return;
+  }
+  const value = state.value;
+  panel.append(
+    h('p', null, `シーンのキャラクター：${value.sceneModelId || '未選択'}／ステージ：${value.workspace.stage?.asset || '未配置'}／撮影位置：F${value.workspace.frame}`),
+    h('p', null, `ダンスのモデル：${value.danceModelId || '未選択'}／モーション：${value.music.motion_id || '未配置'}／曲：${value.music.audio_id || '未配置'}／頭出し：F${value.music.head_frame}`),
+    h('p', { class: 'section-note' }, `制作状態の版 ${String(value.bundleRevision || '未保存').slice(0, 12)}／曲・ダンスの版 ${value.musicRevision.slice(0, 12)}。ここでは参照のみです。`),
+  );
+  for (const issue of value.issues) panel.append(h('p', { role: 'status', dataset: { issue: issue.code } }, issue.text));
+  panel.append(h('p', { class: 'camera-host-pending' }, 'ステージ・曲・ダンスはまだ撮影ビューに合成していません。制作状態を確認してから撮影してください。'));
 }
 
 /** @param {string} tab */
@@ -310,6 +343,7 @@ export function cameraHost(ctx) {
       const targetTab = root.querySelector(`[role="tab"][data-camera-tab="${TAB_NAMES.some(([id]) => id === tab) ? tab : 'camera'}"]`);
       if (targetTab && targetTab.getAttribute('aria-selected') !== 'true') /** @type {HTMLElement} */ (targetTab).click();
       await mount(root);
+      void loadAssets().then(refreshProductionContext);
       if (mounted) {
         const full = needsFullRestore;
         needsFullRestore = false;

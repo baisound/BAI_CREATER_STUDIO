@@ -14,6 +14,7 @@ import { loadVmdClip, vmdUrl } from '../motion/vmd.js';
 import { normalizeModel } from '../viewport/normalize.fork.js';
 import { categoryOf } from './assets-model.js';
 import { FPS, clampFrame, mediaAt, audioSchedule, timelineLength, waveformPeaks } from '../motion/music-dance-clock.js';
+import { productionContext, refreshProductionContext } from './production-context.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
@@ -64,6 +65,7 @@ export const musicDanceStudio = (ctx) => {
   const save = /** @type {HTMLButtonElement} */ (h('button', { type: 'button', class: 'btn primary', dataset: { role: 'dance-save' } }, 'この配置を保存'));
   const reload = /** @type {HTMLButtonElement} */ (h('button', { type: 'button', class: 'btn', dataset: { role: 'dance-reload' } }, '保存済みを再読込'));
   const saveStatus = h('span', { class: 'xs muted', role: 'status', dataset: { role: 'dance-save-status' } }, '');
+  const sceneNote = h('p', { class: 'section-note', role: 'status', dataset: { role: 'dance-scene-context' } }, 'シーンの配置を確認中…');
 
   /** @type {any} */ let placement = null;
   let revision = '', dirty = false, alive = true, selected = 'audio';
@@ -80,6 +82,14 @@ export const musicDanceStudio = (ctx) => {
   /** @type {any} */ let followed = null;
 
   function say(text, error = false) { status.textContent = text; status.dataset.kind = error ? 'error' : 'info'; }
+  function drawSceneNote() {
+    const context = productionContext.get();
+    if (context.status === 'error') { sceneNote.textContent = `シーンとの参照確認ができません：${context.error}`; return; }
+    if (!context.value) { sceneNote.textContent = 'シーンの配置を確認中…'; return; }
+    const sceneId = context.value.sceneModelId;
+    const chosen = placement?.model_id || null;
+    sceneNote.textContent = `保存済みシーンのキャラクター：${sceneId || '未選択'}。${chosen && sceneId && chosen !== sceneId ? '現在選択中のダンスモデルと異なります。撮影対象を確認してください。' : '撮影ビューでは現時点で曲・ダンスを描画しません。'}`;
+  }
   function saveNote(text, error = false) { saveStatus.textContent = text; saveStatus.dataset.kind = error ? 'error' : 'info'; }
   function asset(id) { return assets.get().items.find((/** @type {AssetItem} */ x) => x.id === id); }
   function hasAudio() { return !!placement?.audio_id && !!decoded; }
@@ -347,6 +357,7 @@ export const musicDanceStudio = (ctx) => {
       if (id && id !== placement[field]) { placement[field] = id; dirty = true; }
     }
     frame = clampFrame(placement.head_frame);
+    drawSceneNote();
     refreshOptions(); drawTimeline(); drawHead();
     saveNote(dirty ? '選択素材を配置しました。［この配置を保存］で確定します。' : '保存済みの配置を読み込みました。');
     say('モデル・ダンスモーション・曲を選び、ブロックを選択して1フレームずつ調整できます。');
@@ -361,9 +372,10 @@ export const musicDanceStudio = (ctx) => {
     save.disabled = false;
     if (!result.ok) { saveNote(result.message, true); return; }
     revision = result.data.revision; dirty = false; saveNote('配置を保存しました。再読込後も復元します。');
+    void refreshProductionContext();
   }
 
-  modelSel.addEventListener('change', () => { if (!placement) return; placement.model_id = modelSel.value || null; setDirty(); void loadDance(); });
+  modelSel.addEventListener('change', () => { if (!placement) return; placement.model_id = modelSel.value || null; setDirty(); drawSceneNote(); void loadDance(); });
   motionSel.addEventListener('change', () => { if (!placement) return; placement.motion_id = motionSel.value || null; setDirty(); void loadDance(); });
   audioSel.addEventListener('change', () => { if (!placement) return; placement.audio_id = audioSel.value || null; setDirty(); void loadAudio(); });
   play.addEventListener('click', () => { void startPlayback(); });
@@ -381,19 +393,21 @@ export const musicDanceStudio = (ctx) => {
   save.addEventListener('click', () => { void savePlacement(); });
   reload.addEventListener('click', () => { void loadPlacement(); });
   ctx.onCleanup(assets.subscribe(() => refreshOptions()));
+  ctx.onCleanup(productionContext.subscribe(drawSceneNote));
   ctx.onCleanup(() => {
     alive = false; loadGeneration++; audioGeneration++; audioAbort?.abort(); pausePlayback();
     physics?.dispose(); preview?.dispose(); if (motionObject) disposeObject(motionObject); host?.dispose();
     if (audioContext) void audioContext.close();
   });
   void loadPlacement();
+  void refreshProductionContext();
 
   return h('div', { class: 'music-dance-studio', dataset: { feature: 'musicDanceStudio' } },
     h('div', { class: 'music-dance-intro' }, h('h2', null, '音楽とダンスを合わせる'), h('p', null, '登録した曲とGLB/VMD/FBXダンスを、選んだモデルで同じ30fpsのタイムラインに配置します。VMDはPMXで再生できます。人体骨の対応が不足する組み合わせは理由を表示します。元ファイルやウェイトは変更しません。')),
     h('div', { class: 'music-dance-source-row' },
       h('label', null, '踊るモデル（GLB/VRM/PMX/FBX）', modelSel), h('label', null, 'ダンス（GLB/VMD/FBX）', motionSel), h('label', null, '曲（WAV/MP3）', audioSel),
       h('button', { class: 'btn', type: 'button', onclick: () => ctx.navigate('08', { query: { import: '1', cat: 'audio' } }) }, '曲を取り込む…')),
-    status,
+    status, sceneNote,
     h('div', { class: 'music-dance-main' }, viewport,
       h('div', { class: 'music-dance-side' },
         h('h3', null, '3Dプレビュー'), threeStatus,

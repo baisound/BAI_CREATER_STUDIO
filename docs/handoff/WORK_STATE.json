@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T06:11:38+09:00",
+  "updated_at": "2026-10-22T06:28:02+09:00",
   "updated_by": "codex",
   "branch": "codex/issue63-workflow",
-  "head_at_update": "d90c0ca",
+  "head_at_update": "6c45b6a",
   "current": {
     "task": "Issue #63: 同一シーン・時刻の制作フローを整理",
-    "status": "in_progress",
+    "status": "done",
     "step": "B: workspaceと音楽・ダンスの保存データを読み取り合成し不整合を表示",
     "design_doc": "docs/roadmap/ISSUE63_UNIFIED_WORKFLOW_20261022_JA.md"
   },
   "next_steps": [
-    "Issue63-B: workspaceとmusic_dance_projectの読み取り合成と版・不整合表示を実装",
-    "Issue63-C/D: 同一シーンと30fps時計をSCR02へ接続"
+    "Issue63-C: SCR02にSCR06のステージ・キャラクターとSCR10の動作を同じシーンで表示",
+    "Issue63-D: 30fps共有時計・音声を接続"
   ],
   "unverified": [
-    "Chrome組合せ27件中1件はWindows ERR_NO_BUFFER_SPACEで失敗、単独再実行成功。GPU/Linux/Owner実素材未検証",
-    "Issue63-B/C/D/E未実装。PR57/59の独立高性能レビュー、実Blender/MCP未検証"
+    "実素材によるSCR02シーン合成・同一音声時計は未実装。GPU/Linux/Ownerモデル未検証",
+    "カメラ・音楽ダンスChrome10件中8件pass2件skip、Node29件pass。PR57/59独立レビュー・実Blender/MCP未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T06:28:02+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6c45b6a",
+      "text": "Issue63-B: 制作状態と曲・ダンスの版付き参照を合成しSCR02/10へ不整合表示。カメラ単独保存の同期競合を修正"
+    },
     {
       "at": "2026-10-22T06:11:38+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "done",
       "head": "84410e8",
       "text": "Issue #50追補: SCR-10の踊るモデルにGLB/VRM/PMX/FBXを追加し、主要人体骨のGLBダンスプレビューを実装。実VRM/GLB/FBXの隔離Chrome動作、VRM保存再読込、原本hash不変、型検査と状態検査を確認"
-    },
-    {
-      "at": "2026-10-22T00:33:29+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "dec1774",
-      "text": "Issue #50: SCR-10の踊るモデルにGLB/VRM/FBXを追加: モデル候補・プレビュー経路・保存再読込を修正"
     }
   ]
 }

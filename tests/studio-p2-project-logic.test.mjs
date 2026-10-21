@@ -146,6 +146,22 @@ test('camera-only save adopts the new bundle revision without losing workspace e
   assert.equal(srv.count('POST /api/project/bundle'), 1);
 });
 
+test('camera-only save invalidates an older sync tick before it can reload the live workspace', async () => {
+  const { srv, ctrl, store, log } = setup({ workspace: { frame: 0, asset: '', clip: null } });
+  await ctrl.loadProject();
+  const release = srv.hold('GET /api/project/bundle');
+  const pendingTick = ctrl.tick();
+  await settle();
+  srv.camera = camKeys(4);
+  assert.equal(await ctrl.cameraOnlySaved(), true);
+  ctrl.setWorkspaceFields({ frame: 37 }, { source: 'host' });
+  release();
+  await pendingTick;
+  assert.equal(store.get().bundle.workspace.frame, 37);
+  assert.equal(store.get().externalChange, false);
+  assert.equal(log.emits.filter(([name]) => name === 'studio:project-loaded').length, 1);
+});
+
 test('load: reads bundle and envelope together; state is ready and clean', async () => {
   const { srv, store, ctrl, log } = setup();
   assert.equal(await ctrl.loadProject(), true);

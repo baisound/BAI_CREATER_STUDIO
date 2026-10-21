@@ -357,10 +357,13 @@ export function createProjectController(deps = {}) {
   /** カメラ単独保存が更新した bundle revision を取り直す。 */
   function cameraOnlySaved() {
     if (cameraOnlySyncInFlight) return cameraOnlySyncInFlight;
+    // A sync tick that started before the camera POST can see the new bundle
+    // before this local save has fetched its revision. Invalidate that tick so
+    // it cannot reload the old workspace/frame over the live camera editor.
+    const cameraSaveSeq = bump();
     cameraOnlySyncInFlight = (async () => {
-      const seq = get().saveSeq;
       const r = await api.getJson('/api/project/bundle');
-      if (get().saveSeq !== seq) return false;
+      if (get().saveSeq !== cameraSaveSeq) return false;
       if (!r.ok) {
         if (isCameraInvalid(r)) setCameraInvalid(r);
         else store.set({ syncError: r }, 'camera-save-sync-error');
@@ -581,6 +584,7 @@ export function createProjectController(deps = {}) {
   /** 外部変更の確認（設計 §2.2(d)-7）。 @param {{fromVisibility?: boolean}} [o] */
   function tick({ fromVisibility = false } = {}) {
     refreshCameraDirty();
+    if (cameraOnlySyncInFlight) return cameraOnlySyncInFlight.then(() => {});
     if (syncInFlight) return syncInFlight;
     const s0 = get();
     if (!(s0.status === 'ready' && !s0.saving && !s0.autosavePending)) return Promise.resolve();
