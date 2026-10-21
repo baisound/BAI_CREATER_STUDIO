@@ -257,8 +257,8 @@ export const SCREENS = [
     panels: [
       { name: 'シーンツリー', status: 'mock' },
       { name: '3Dビュー', status: 'real', evidence: EV_STAGE, note: '作業中のキャラクター（GLB/VRM）とステージ1つを表示。素材の単位の換算だけを掛け、高さの正規化・中心合わせはしない。', ids: ['NF-014'] },
-      { name: 'トランスフォーム', status: 'real', evidence: EV_STAGE, note: 'ステージの位置・回転 Y・拡大を workspace.stage に保存（［保存］）。', ids: ['NF-014'] },
-      { name: 'アセットブラウザー', status: 'real', evidence: EV_STAGE, note: '「トランスフォーム」タブの「ステージの素材」の選択欄（素材管理 08 の登録済みモデルから選ぶ）。', ids: ['NF-014'] },
+      { name: 'トランスフォーム', status: 'real', evidence: EV_STAGE, note: 'ステージの位置・回転 XYZ・拡大を workspace.stage に保存（［保存］）。', ids: ['NF-014'] },
+      { name: 'アセットブラウザー', status: 'real', evidence: EV_STAGE, note: '「トランスフォーム」タブの「ステージの素材」の選択欄（素材管理 08 の登録済みステージやモデルから選ぶ）。', ids: ['NF-014'] },
       { name: '表示・依存関係', status: 'unimpl' },
     ],
     tools: [ch('座標系', ['ワールド', 'ローカル']), { t: 'feature', key: 'stageLoadButton' }, { t: 'feature', key: 'projectToolbar' }],

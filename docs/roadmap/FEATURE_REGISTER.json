@@ -1342,6 +1342,15 @@
       "detail": "初見タスク・ツールチップ・スクロール・操作履歴・MCP一致を試験",
       "status": "設計確定・実装未検証",
       "dependency": "CORE-001,CORE-004"
+    },
+    {
+      "id": "LIGHT-001",
+      "group": "LIGHT",
+      "phase": 2,
+      "name": "シーン多灯照明とライト別キーフレーム",
+      "detail": "3点ライトを初期例とし任意のライトを追加。位置・回転・RGB・強度等をライト単位で記録し補間・保存する",
+      "status": "設計確定・実装中",
+      "dependency": "NF-014,DATA-016,UX-001"
     }
   ],
   "integration_review": {

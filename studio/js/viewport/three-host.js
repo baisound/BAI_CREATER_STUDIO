@@ -139,7 +139,7 @@ export function createViewport(container, libs, o = {}) {
     getState() {
       content.updateMatrixWorld(true);
       const box = new THREE.Box3().setFromObject(content);
-      return { ...EMPTY, ...extra, renderer: rendererName, bounds: box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray() } };
+      return { ...EMPTY, ...extra, renderer: rendererName, cameraPosition: camera.position.toArray(), cameraTarget: controls.target.toArray(), bounds: box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray() } };
     },
     /**
      * モデルの描画を確かめる（テスト用）。床を隠して描き、背景と違う画素の数を返す。

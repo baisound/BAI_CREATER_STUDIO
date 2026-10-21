@@ -120,7 +120,7 @@ class WorkspaceStageTest(TestCase):
             self.assertEqual({k: got[k] for k in ('frame', 'asset', 'clip')}, {'frame': 0, 'asset': 'a.glb', 'clip': None})
 
     def test_stage_accepts_every_asset_prefix_and_keeps_nonzero_x_z_rotation(self):
-        for asset in ('integrated:a.glb', 'mmd:A:model/test.pmx', 'mmd:B:x.pmx', 'fbx:12'):
+        for asset in ('integrated:a.glb', 'mmd:A:model/test.pmx', 'mmd:B:x.pmx', 'fbx:12', 'library:' + 'a' * 24):
             stage = {**self.STAGE, 'asset': asset, 'rotation': [10, 20, -30]}
             self.assertEqual(validate_bundle(self.ws(stage=stage))['workspace']['stage']['rotation'], [10.0, 20.0, -30.0])
 
@@ -134,6 +134,7 @@ class WorkspaceStageTest(TestCase):
             {k: v for k, v in self.STAGE.items() if k != 'scale'},
             {**self.STAGE, 'asset': ''},
             {**self.STAGE, 'asset': 'other:x'},
+            {**self.STAGE, 'asset': 'library:bad'},
             {**self.STAGE, 'asset': 'integrated:' + 'x' * 250},
             {**self.STAGE, 'position': [1001, 0, 0]},
             {**self.STAGE, 'position': [0, 0]},

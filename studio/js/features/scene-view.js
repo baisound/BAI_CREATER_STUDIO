@@ -89,6 +89,26 @@ export const sceneViewport = (ctx) => {
   /** 載せた素材の識別（id と、ファイルがあるか）。一覧が変わって読めるようになったら読み直す。 @param {string} id */
   const keyOf = (id) => (id ? `${id}|${itemOf(id) ? itemOf(id)?.available : 'x'}` : '');
 
+  // 全周型スタジオのスカイドームを外から眺めると室内が隠れる。原点のダンス位置から室内を見渡す。
+  function fitScene() {
+    if (!host || !libs) return;
+    let enclosed = false;
+    stageRoot?.traverse((/** @type {any} */ object) => {
+      if (/sky.?dome/i.test(object.name || '')) enclosed = true;
+    });
+    if (!enclosed || !stageRoot) { host.fit(); return; }
+    stageRoot.updateMatrixWorld(true);
+    const center = stageRoot.localToWorld(new libs.THREE.Vector3(0, 1.5, 0));
+    const eye = stageRoot.localToWorld(new libs.THREE.Vector3(0, 2.1, 6));
+    host.camera.position.copy(eye);
+    host.camera.near = 0.03;
+    host.camera.far = 500;
+    host.camera.updateProjectionMatrix();
+    host.controls.target.copy(center);
+    host.controls.update();
+    host.invalidate();
+  }
+
   function publish() {
     if (!host || !libs) return;
     const THREE = libs.THREE;
@@ -171,7 +191,7 @@ export const sceneViewport = (ctx) => {
     if (!alive) return;
     const cur = stageOf(project.get());
     if (stageRoot && cur && cur.asset === stageRoot.userData.assetId) applyStage(stageRoot, cur);
-    if (changed) host?.fit();
+    if (changed) fitScene();
     publish();
     host?.invalidate();
   }
@@ -200,7 +220,7 @@ export const sceneViewport = (ctx) => {
       const cur = stageOf(project.get());
       applyStage(stageRoot, cur ? { ...cur, asset: item.id } : defaultStage(item.id));
       host?.add(stageRoot);
-      host?.fit();
+      fitScene();
       sceneUi.set({ stageMessage: '' }, 'stage');
       publish();
       return { ok: true };
@@ -251,7 +271,7 @@ export const stageTransform = (ctx) => {
   const select = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'ステージの素材', dataset: { role: 'stage-asset' } }));
   const remove = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { act: 'real', role: 'stage-remove' } }, 'ステージを外す'));
   const message = h('p', { class: 'section-note stage-message', dataset: { role: 'stage-message' }, role: 'status' });
-  const hint = h('p', { class: 'section-note' }, '登録済みのモデル素材（GLB/VRM・PMX・FBX）を1つ、ステージとして置きます。高さの正規化や中心合わせはせず、素材の単位（PMX は 1 単位 = 0.08 m、GLB/VRM は 1 m、FBX は UnitScaleFactor）だけを換算します。');
+  const hint = h('p', { class: 'section-note' }, '素材ライブラリのステージ GLB、または登録済みモデルを1つ置きます。原点と寸法は素材のまま保持します。位置は m、回転は度で保存します。');
 
   /** @param {Partial<Stage>} patch */
   function patchStage(patch) {
@@ -261,11 +281,11 @@ export const stageTransform = (ctx) => {
   }
   const pos = [0, 1, 2].map((i) => slider({ label: ['X', 'Y', 'Z'][i], min: RANGE.position[0], max: RANGE.position[1], step: 0.1, value: 0, unit: 'm',
     onInput: (v) => { const cur = stageOf(project.get()); if (cur) patchStage({ position: /** @type {[number, number, number]} */ (cur.position.map((p, k) => (k === i ? clamp(v, RANGE.position[0], RANGE.position[1]) : p))) }); } }));
-  const rotY = slider({ label: '回転 Y', min: RANGE.rotationY[0], max: RANGE.rotationY[1], step: 1, value: 0, unit: '°',
-    onInput: (v) => { const cur = stageOf(project.get()); if (cur) patchStage({ rotation: [cur.rotation[0], clamp(v, RANGE.rotationY[0], RANGE.rotationY[1]), cur.rotation[2]] }); } });
+  const rot = [0, 1, 2].map((i) => slider({ label: `回転 ${['X', 'Y', 'Z'][i]}`, min: RANGE.rotationY[0], max: RANGE.rotationY[1], step: 1, value: 0, unit: '°',
+    onInput: (v) => { const cur = stageOf(project.get()); if (cur) patchStage({ rotation: /** @type {[number, number, number]} */ (cur.rotation.map((p, k) => (k === i ? clamp(v, RANGE.rotationY[0], RANGE.rotationY[1]) : p))) }); } }));
   const scale = slider({ label: '拡大', min: RANGE.scale[0], max: RANGE.scale[1], step: 0.1, value: 1, unit: '×',
     onInput: (v) => patchStage({ scale: clamp(v, RANGE.scale[0], RANGE.scale[1]) }) });
-  for (const s of [...pos, rotY, scale]) s.dataset.role = 'stage-slider';
+  for (const s of [...pos, ...rot, scale]) s.dataset.role = 'stage-slider';
 
   select.addEventListener('change', async () => {
     const id = select.value;
@@ -290,14 +310,13 @@ export const stageTransform = (ctx) => {
   const root = h('div', { dataset: { feature: 'stageTransform' } },
     section('ステージの素材', 'real', hint, h('div', { class: 'field stack' }, h('label', null, '素材'), select), h('div', { class: 'btn-row' }, remove), message),
     section('位置', 'real', ...pos),
-    section('回転・拡大', 'real', rotY, scale),
-    h('p', { class: 'section-note' }, '回転 X/Z は画面に部品がありません。読み込んだ値は変えずに残します。'));
+    section('回転・拡大', 'real', ...rot, scale));
 
   function draw() {
     const ps = project.get();
     const as = assets.get();
     const st = stageOf(ps);
-    const models = as.items.filter((a) => categoryOf(a) === 'char');
+    const models = as.items.filter((a) => categoryOf(a) === 'stage' || categoryOf(a) === 'char');
     const want = st ? st.asset : '';
     /** @type {any[]} */
     const opts = [h('option', { value: '' }, as.status === 'ready' ? '（ステージなし）' : '読込中…')];
@@ -310,10 +329,10 @@ export const stageTransform = (ctx) => {
     remove.title = st ? 'ステージを外します（［保存］で保存されます）' : 'ステージはありません';
     const sceneMsg = sceneUi.get().stageMessage;
     if (sceneMsg && !message.textContent) message.textContent = sceneMsg;
-    for (const s of [...pos, rotY, scale]) disableSlider(s, !st);
+    for (const s of [...pos, ...rot, scale]) disableSlider(s, !st);
     if (st) {
       pos.forEach((s, i) => setSliderValue(s, st.position[i]));
-      setSliderValue(rotY, st.rotation[1]);
+      rot.forEach((s, i) => setSliderValue(s, st.rotation[i]));
       setSliderValue(scale, st.scale);
     }
   }

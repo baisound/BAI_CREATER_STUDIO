@@ -33,7 +33,7 @@ def validate_combination(obj):
     return obj
 
 
-STAGE_ASSET_PREFIXES = ('integrated:', 'mmd:A:', 'mmd:B:', 'fbx:')
+STAGE_ASSET_PREFIXES = ('integrated:', 'mmd:A:', 'mmd:B:', 'fbx:', 'library:')
 STAGE_KEYS = {'asset', 'position', 'rotation', 'scale'}
 
 
@@ -57,6 +57,8 @@ def validate_stage(value):
         raise ValueError('invalid workspace stage')
     asset = value['asset']
     if not isinstance(asset, str) or not asset or len(asset) > 250 or not asset.startswith(STAGE_ASSET_PREFIXES):
+        raise ValueError('invalid workspace stage asset')
+    if asset.startswith('library:') and (len(asset) != 32 or any(c not in '0123456789abcdef' for c in asset[8:])):
         raise ValueError('invalid workspace stage asset')
     scale = value['scale']
     if isinstance(scale, bool) or not isinstance(scale, (int, float)) or scale != scale or not 0.01 <= scale <= 100:

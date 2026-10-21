@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T18:18:05+09:00",
+  "updated_at": "2026-10-21T18:31:45+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-light-rig",
-  "head_at_update": "9e9f244",
+  "head_at_update": "b7c1393",
   "current": {
     "task": "Issue #40 ステージGLB配置と3点ライト編集",
-    "status": "in_progress",
+    "status": "done",
     "step": "実GLBの登録・座標検証とライト保存形式/編集UIの設計",
     "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
-    "Issue #39のPRをレビュー・統合し、ローカルmainと現行サーバーを同期する",
-    "Issue #40のステージGLB配置を素材提供後に進める"
+    "LIGHT-001の多灯保存形式・シーン一覧・変形ギズモ・RGB/強度キー・タイムラインを実装し実S01で視覚確認"
   ],
   "unverified": [
-    "実GPU/Linux、標準MCP、MMD本体との物理一致と衣装貫通、Owner採用は未検証。GLBには表情モーフトラックがない"
+    "GPU/Linux、MMD/Unrealとの照明外観一致、Owner採用、WebMCP/標準MCPは未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T18:31:45+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b7c1393",
+      "text": "Issue #40: S01 GLBステージのライブラリ取込・原点配置・室内表示・XYZ回転を実装。実S01のChrome SwiftShader保存再読込とPython12件・型検査を確認"
+    },
     {
       "at": "2026-10-21T18:18:05+09:00",
       "by": "codex",
@@ -235,13 +241,6 @@
       "event": "start",
       "head": "0d1c5ed",
       "text": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正: 実素材のVMD骨キーとPMX骨・画面時刻別の姿勢を調査"
-    },
-    {
-      "at": "2026-10-21T13:42:06+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4ff3c26",
-      "text": "main統合ブランチでrecoveryとmainの祖先を接続。Node 284/284合格（5計画スキップ）、Python 370+23、Evidence 118、P2 E2E S1/S2/S5合格。実データハッシュ不変。統合PRを作成する。"
     }
   ]
 }

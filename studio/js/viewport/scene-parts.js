@@ -36,6 +36,13 @@ export function applyStage(root, stage) {
 /** 世界座標での高さ[m]（テスト・HUD 用）。 @param {any} THREE @param {any} root */
 export function heightOf(THREE, root) {
   root.updateMatrixWorld(true);
-  const box = new THREE.Box3().setFromObject(root);
+  const box = new THREE.Box3();
+  root.traverse((/** @type {any} */ object) => {
+    if (!object.isMesh) return;
+    for (let p = object; p && p !== root; p = p.parent) {
+      if (/sky.?dome/i.test(p.name || '')) return;
+    }
+    box.expandByObject(object);
+  });
   return box.isEmpty() ? 0 : box.max.y - box.min.y;
 }
