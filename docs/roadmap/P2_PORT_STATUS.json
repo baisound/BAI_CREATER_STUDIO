@@ -433,11 +433,18 @@
     {
       "id": "P2-WP-07",
       "step": "⑦ 書き出し",
-      "state": "in_progress",
+      "state": "implemented",
       "commits": [],
-      "tests": [],
-      "unverified": ["Blenderの実変換・実VMD品質、独立高性能モデルレビューは未実施"],
-      "notes": "VMD 変換用のボーン対応表 /api/conversion-map の編集を⑤から移した（設計書 §2.5 批評 5-1、O-⑦-1）。依存は WP-05c。P2_WP07_EXPORT_AUDIT_20261022_JA.mdに現行API・書込先・UI/試験の境界を記録。",
+      "tests": [
+        "npm run typecheck pass。export-model 2/2、隔離ChromeのSCR23変換操作2/2、SCR02カメラ回帰5/5 pass",
+        "tests/studio-p2-e2e-main.test.cjs: S1/S2/S3/S5/S7/S8 pass、計画通りS4/S6 skip。実データ7ファイルのhash前後一致。変換の書込POSTは両方ともpage.routeで遮断",
+        "tests/studio-ui.test.cjs: 27画面回帰20/20 pass。tests/test_screen_status_honesty.mjs: 6/6 pass。変換失敗の表示と実行中の画面離脱・再訪・完了表示を確認"
+      ],
+      "unverified": [
+        "Blenderの実変換・実VMD品質、MCP経路との一致、実GPU/Linux、独立高性能モデルレビューは未実施",
+        "P2 Node一括ゲートはWindows ERR_NO_BUFFER_SPACE再発で中断。失敗した素材詳細試験は単独再実行1/1 pass"
+      ],
+      "notes": "SCR23からVMD対応表・FBX変換ジョブ・Blender実行確認・状態表示を操作可能にした。SCR13の導線を接続し、カメラVMDはSCR02へ案内。VMD変換用の対応表 /api/conversion-map は⑤の手順名対応 /api/mapping と別。テスト中はexports/を変更しない。UI実装・試験は標準モデル（GPT-6）、サブエージェントなし。P2_WP07_EXPORT_AUDIT_20261022_JA.md参照。",
       "owner_check": null
     },
     {
@@ -462,7 +469,7 @@
     }
   ],
   "e2e_main": {
-    "furthest_step": "S7",
+    "furthest_step": "S8",
     "steps": [
       {
         "id": "S1",
@@ -501,11 +508,11 @@
       },
       {
         "id": "S8",
-        "result": "skip",
-        "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
+        "result": "pass",
+        "reason": ""
       }
     ],
-    "commit": "b9d7f57",
-    "checked_at": "2026-10-21T17:37:52.868Z"
+    "commit": "7b024f5",
+    "checked_at": "2026-10-21T18:22:55.447Z"
   }
 }

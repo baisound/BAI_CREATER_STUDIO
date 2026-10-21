@@ -20,6 +20,7 @@ import { sceneObjects, sceneLightTools, lightEditor, lightTimeline } from './sce
 import { projectToolbar, projectStatus, projectSummary, projectHistory, projectList, projectCard } from './project-view.js';
 import { musicDanceStudio } from './music-dance-view.js';
 import { cameraHost } from '../camera/camera-host.js';
+import { exportPanel } from './export-view.js';
 
 /** @type {Record<string, FeatureFn>} */
 export const FEATURES = {
@@ -40,5 +41,7 @@ export const FEATURES = {
   musicDanceStudio,
   // WP-06b: SCR-02 の常駐カメラホスト
   cameraHost,
+  // WP-07: SCR-23 の既存VMD変換・書き出し
+  exportPanel,
   // WP-05d 以降が追加する。
 };

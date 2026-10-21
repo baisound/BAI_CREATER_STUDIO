@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T02:52:56+09:00",
+  "updated_at": "2026-10-22T03:27:42+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp07",
-  "head_at_update": "dd0322e",
+  "head_at_update": "7b024f5",
   "current": {
     "task": "P2-WP-07 書き出し",
-    "status": "in_progress",
+    "status": "done",
     "step": "WP07b: SCR23のVMD対応表・ジョブ作成・Blender実行と状態表示を実装",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP07b: SCR23のVMD対応表、ジョブ作成、Blender実行・状態表示を実装"
+    "WP07c: 差分をPRにまとめ、全P2ゲートのWindowsソケット不足・独立レビュー未実施を明記。承認済みP2後続は台帳に従って続ける"
   ],
   "unverified": [
-    "Blender実変換・実VMD品質、独立高性能モデルレビュー、WP06dレビュー・実GPU/Linux"
+    "P2 Node一括はERR_NO_BUFFER_SPACEで未完走（失敗試験の単独実行は成功）。Blender実変換・VMD品質、MCP一致、実GPU/Linux、WP06dとWP07の独立高性能モデルレビュー"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T03:27:42+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "7b024f5",
+      "text": "WP07b: SCR23でVMD対応表・FBX変換ジョブ・Blender実行確認・状態表示を移植。S8と隔離Chrome/型検査は成功。MMDカメラ補間の公開実装との読取順差をIssue #58とPhase E設計へ記録"
+    },
     {
       "at": "2026-10-22T02:52:56+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "cd565c5",
       "text": "Issue #46: S05/S06発光抑制GLB候補を別名素材登録: Ownerが候補作成を選択。ハッシュ・構造を再照合し候補2件を素材ライブラリに登録、原本と旧版を保持"
-    },
-    {
-      "at": "2026-10-21T22:50:03+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "3e2e2a1",
-      "text": "PR #48をmainへマージ。ローカルmainを3e2e2a1へfast-forwardし、8765番のroot/SCR-06/視点JS/API素材4件をHTTP確認。Issue46/47に公開可能な図を画像表示"
     }
   ]
 }

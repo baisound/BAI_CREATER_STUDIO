@@ -407,7 +407,7 @@ export const SCREENS = [
       { name: '足IK', status: 'real', evidence: EV_FOOT, note: '左足・両足・BVHの接地を既存APIで診断し、JSON結果だけを表示する。IKはモデルへ適用しない。', ids: ['MOTION-011'] },
       { name: '入出力', status: 'partial', note: 'motion_vmd_bridge.py・vmd_readback.py。', ids: ['MOTION-006'] },
     ],
-    tools: [btn('現行画面で開く', 'href:/'), un('VMDを書き出す', 'この新UIからの書き出しは未接続。現行画面の変換機能を利用してください。', ['MOTION-006'], PH.P2, { text: '今は現行画面で行えます。', label: '現行画面で開く', act: 'href:/' })],
+    tools: [btn('現行画面で開く', 'href:/'), btn('VMD変換・書き出しへ', 'nav:23')],
     left: { title: 'VMDライブラリ', status: 'real', evidence: EV_MOTION_LIB, custom: 'vmdLibrary' },
     center: { type: 'feature', key: 'motionCenter', status: 'real', evidence: EV_MOTION_VIEW },
     right: { tabs: [
@@ -647,12 +647,13 @@ export const SCREENS = [
       { name: '外部アプリ', status: 'unimpl', ids: ['MOTION-007'] },
       { name: '接続設定', status: 'unimpl' },
       { name: 'インポート', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::import dialog opens from nav query and clears it', note: '素材管理（08）の取り込みダイアログで FBX/GLB/VRM/PMX ZIP/VMD を登録。', ids: ['MOTION-003'] },
-      { name: 'エクスポート', status: 'partial', note: 'VMD書き出し・カメラVMD書き出しは部分実装。', ids: ['MOTION-006', 'CAM-016'] },
+      { name: 'エクスポート', status: 'real', evidence: 'tests/studio-p2-export.test.cjs::SCR-23 creates a VMD job without writing exports in the test', note: 'コンビネーション→VMD変換ジョブ、Blender実行・状態表示、カメラVMDへの導線。実変換結果の品質は未確認。', ids: ['MOTION-006', 'MOTION-007', 'CAM-016'] },
       { name: '変換', status: 'partial', note: 'tools/extract_fbx_motion_blender.py（Blender必須）。', ids: ['MOTION-007'] },
       { name: 'バッチ', status: 'unimpl', ids: ['NF-010'] },
       { name: '互換性', status: 'partial', note: 'モデル互換性診断の一部。', ids: ['MOTION-019'] },
     ],
     center: { type: 'cards', cards: [
+      { title: 'FBXからVMDへ変換', span: 12, status: 'real', evidence: 'tests/studio-p2-export.test.cjs::SCR-23 creates a VMD job without writing exports in the test', controls: [{ t: 'feature', key: 'exportPanel' }] },
       { title: '対応形式（現行コード）', span: 12, status: 'partial', controls: [{ t: 'table', cols: ['形式', '読込', '書出', '備考'], rows: [['FBX', '可（Blender経由の抽出あり）', '—', 'MOTION-003/007'], ['GLB / VRM', '可（プレビュー）', '—', 'VRMは静的形状確認'], ['PMX ZIP', '可', '—', 'テクスチャ同梱ZIP'], ['VMD（モーション）', '可', '部分', 'MOTION-006'], ['VMD（カメラ）', '可', '部分', 'F値等は拡張JSON'], ['BVH', '部分', '—', 'bvh_skeleton.py']] }] },
       { title: 'バッチ変換', span: 6, status: 'unimpl', controls: [un('バッチを作成', '外部アプリ自動連携・バッチ変換は未承認の新規候補（NF-010）。', ['NF-010'], PH.P4)] },
       { title: 'インポート', span: 6, status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::import dialog opens from nav query and clears it', controls: [btn('素材を取り込む', 'nav:08?import=1', { primary: true }), note('素材管理（08）の取り込みダイアログが開きます（複数ファイル可）。')] },

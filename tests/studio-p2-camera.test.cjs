@@ -176,6 +176,7 @@ test('camera-only save updates the bundle revision before integrated save', harn
     await page.waitForFunction(() => window.baiStudio.project.getState().dirty.camera === false);
     await page.evaluate(() => window.baiStudio.navigate('02'));
     await page.waitForFunction(() => document.querySelector('#frame-number')?.value === '37');
+    await page.waitForFunction((count) => document.querySelectorAll('#track button').length === count, saved.keys.length, { timeout: 10000 });
     assert.equal(await page.locator('#track button').count(), saved.keys.length, 'discard reload removes the unsaved key from the persistent camera host');
     harness.assertNoErrors(page);
   } finally { await page?.context().close(); await browser.close(); await server.stop(); }

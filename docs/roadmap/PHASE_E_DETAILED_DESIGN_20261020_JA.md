@@ -513,6 +513,7 @@ v4 作成時に全件をコードで再確認した（行番号は §冒頭の�
      - IK 節を読み終えても残りバイトがあれば拒否せず、`warnings:[{code:'trailing_bytes', bytes:<数>}]` を返す（UI に表示）。
      - ボーン・モーフは `skip_non_camera=True` のときだけ読み飛ばす（既定は従来どおり拒否）。戻り値に `skipped:{bones, morphs, lights, shadows, ik}`・`warnings`。
   2. **補間バイト順**：`camera_vmd_playback.py` に `VMD_CAMERA_INTERP_ORDER = ('x1','y1','x2','y2')`（現行コードの仮定、チャンネル X,Y,Z,回転,距離,視野角 ごとに4バイト連続）。JS 同値。**未検証**。検証方法：mmd_tools のカメラ補間読取部との照合、またはオーナー提供の実 MMD カメラ VMD。確定まで CAM-001/016 は未完成。
+     - **2026-10-22の調査追記（Issue #58）**：公開実装 [three-mmd-loader のカメラ読取部](https://github.com/hanakla/three-mmd-loader/blob/master/src/MMDLoader.ts#L2598-L2608) は各4バイトを `(x1,x2,y1,y2)` と読む。[mmd_tools の到着側キー適用例](https://github.com/sugiany/blender_mmd_tools/issues/10) も区間の後ろのキーの補間を使う。現行の `camera_vmd_playback.py`・`camera_vmd_local.js`・`camera_vmd_preview.js` は `(x1,y1,x2,y2)` と解釈するため、非対称曲線で緩急が異なる可能性が高い。WP-13では非対称な6曲線を持つ固定VMDで公開実装と比較し、実MMDでも中間フレームを確認してから定数・デコーダ・プレビュー・書出しを一緒に改める。原本バイト列は保持する。実MMDでの一致はまだ未検証。
   3. **原本保存**：`camera_vmd_clip.store_original(raw, name) → {file, sha256, bytes}`、`file='vmd-'+sha256[:16]`、`data_dir()/camera_clips/<file>.vmd`（同一 sha256 は書かない）。
   4. **クリップ参照**（`vmd_clips[]`）：`{id, name, file, sha256, start, end, keyCount, importedAt}`（`start`・`end` は VMD フレーム、両端含む。`id` は1〜64文字 `[A-Za-z0-9_-]`。`importedAt` クライアント付与）。
   5. **分割** `split(track, start, end, *, rebase=True) → {track, changed_keys}`：

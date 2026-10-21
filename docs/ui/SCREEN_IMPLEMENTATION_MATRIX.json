@@ -3276,19 +3276,20 @@
       "panel": "エクスポート",
       "feature_ids": [
         "MOTION-006",
+        "MOTION-007",
         "CAM-016"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "VMD書き出し・カメラVMD書き出しは部分実装。",
-      "evidence": null,
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "コンビネーション→VMD変換ジョブ、Blender実行・状態表示、カメラVMDへの導線。実変換結果の品質は未確認。",
+      "evidence": "tests/studio-p2-export.test.cjs::SCR-23 creates a VMD job without writing exports in the test",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-23",

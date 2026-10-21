@@ -475,14 +475,12 @@ test('unimplemented dialog shows next action', async () => {
   await page.click('.hero button:has-text("紹介ムービーを再生")');
   assert.match(await page.textContent('[role="dialog"] [data-role="next-action"]'), /未承認の候補です。所有者が承認するまで実装しません。/);
   await page.keyboard.press('Escape');
-  // 旧画面で実際に行えるものだけ「今は現行画面で行えます。」（移動は確認を通る）
-  await page.goto(`${BASE}/workspace/13`);
-  await page.click('.screen-head button:has-text("VMDを書き出す")');
-  assert.match(await page.textContent('[role="dialog"]'), /今は現行画面で行えます。/);
-  await page.click('[role="dialog"] footer [data-role="next-action"]');
-  assert.match(await page.textContent('[role="dialog"]'), /新UIから離れます/);
-  await page.click('[role="dialog"] [data-role="leave-cancel"]');
-  assert.match(page.url(), /\/workspace\/13/);
+  // 移植済みのVMD書き出しは説明ダイアログで止めず、SCR-23へ移動する。
+  await showScreen(page, '13');
+  await page.waitForFunction(() => document.querySelector('.screen-head .screen-id')?.textContent === 'SCR-13');
+  await page.click('.screen-head button:has-text("VMD変換・書き出しへ")');
+  await atRoute(page, '23');
+  await page.waitForSelector('[data-feature="exportPanel"]');
   harness.assertNoErrors(page);
 });
 

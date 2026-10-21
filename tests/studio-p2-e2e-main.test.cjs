@@ -194,7 +194,36 @@ const STEPS = [
       await page.waitForFunction(() => Number(document.querySelector('#frame-number')?.value) > 15, null, { timeout: 10000 });
       await page.click('#play');
     } },
-  { id: 'S8', title: '書き出し', kind: 'pending_wp', reason: 'WP-07 が未着手（動画は既存機能なし：Phase F）' },
+  { id: 'S8', title: '書き出し', kind: 'active',
+    // ⑦：既存のFBX→VMDジョブとBlender実行要求。どちらのPOSTもexports/へ書くため先に遮断する。
+    // 音声付き動画の書き出しは既存機能なし（Phase F）。
+    run: async ({ page }) => {
+      const jobs = [], runs = [];
+      await page.route('**/api/export-vmd-job', async (route) => {
+        jobs.push(route.request().postDataJSON());
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true,"job":"exports/vmd_conversion_job.json"}' });
+      });
+      await page.route('**/api/run-vmd-conversion', async (route) => {
+        runs.push(route.request().postDataJSON());
+        await route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Blender executable not found; set MIXAMO_BLENDER"}' });
+      });
+      harness.expectErrors(page, [/Failed to load resource: the server responded with a status of 503/]);
+      await page.click('#nav a[data-route="23"]');
+      await page.waitForSelector('[data-feature="exportPanel"]');
+      await page.waitForFunction(() => document.querySelector('[data-role="vmd-combination"]')?.textContent.includes('1手順'));
+      await page.waitForFunction(() => document.querySelector('[data-role="vmd-map-status"]')?.textContent.includes('対応表'));
+      await page.click('[data-role="vmd-job"]');
+      await page.waitForFunction(() => document.querySelector('[data-role="vmd-job-status"]')?.textContent.includes('作成済み'));
+      if (jobs.length !== 1 || jobs[0].names?.[0] !== 'Boxing Leading Hand Jab.fbx' ||
+        jobs[0].bone_map?.['mixamorig:Hips'] !== 'センター' || jobs[0].scale !== 1) {
+        throw Error(`VMDジョブの要求が旧画面の仕様と違います: ${JSON.stringify(jobs)}`);
+      }
+      await page.click('[data-role="vmd-run"]');
+      if (runs.length) throw Error('利用者の確認前にBlender実行要求を送っています');
+      await page.click('[role="dialog"] [data-role="confirm-ok"]');
+      await page.waitForFunction(() => document.querySelector('[data-role="vmd-run-status"]')?.textContent.includes('Blender executable not found'));
+      if (JSON.stringify(runs) !== JSON.stringify([{ confirm: true, slot: 'A' }])) throw Error(`Blender実行要求が違います: ${JSON.stringify(runs)}`);
+    } },
 ];
 
 const results = [];

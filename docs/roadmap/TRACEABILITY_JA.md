@@ -40,6 +40,8 @@
 | シーン視点を注視点や床の位置を越えて移動（2026-10-21 所有者指定） | VIEW-001、NF-014 | [Issue #47](https://github.com/baisound/BAI_CREATER_STUDIO/issues/47)、[隔離テスト](STAGE_LIGHTLESS_ZOOM_20261021_JA.md)。LAST CHASE全景の再試験は端末フリーズ歴により未実施 |
 | 3点照明を初期例とし、多灯を個別追加、RGB・強度・変形をライト単位のキーで編集（2026-10-21 後続所有者指定） | LIGHT-001、UX-001〜008 | [Issue #40](https://github.com/baisound/BAI_CREATER_STUDIO/issues/40)、[設計と根拠](STAGE_LIGHT_RIG_20261021_JA.md)。VMDの単一ライト記録へ無断縮約しない |
 | メイン透視を右に保ち、選択した正面・背面・左・右・上・下を左の補助ビューに同時表示（2026-10-21 後続所有者訂正） | VIEW-001、LIGHT-001、UX-002 | [Issue #40](https://github.com/baisound/BAI_CREATER_STUDIO/issues/40)、[参照記事](https://mononoco.com/creative/ue/screen-split)、[実測](STAGE_LIGHT_RIG_20261021_JA.md)。補助ビューの外殻非表示は描画中だけ、右メインと原本を保持 |
+| 新UIのFBX連結からVMD変換ジョブを作成し、ローカルBlender実行の状態を表示（P2-WP-07） | MOTION-006/007、DATA-001 | [Issue #49](https://github.com/baisound/BAI_CREATER_STUDIO/issues/49)、[WP-07監査と検証](P2_WP07_EXPORT_AUDIT_20261022_JA.md)。SCR-23で既存APIへ接続。自動テストではexportsへの書込を遮断し、実Blender品質とMCPは未検証 |
+| MMDカメラ補間曲線のVMD読取順を検証し、非対称曲線のプレビューを一致させる | CAM-001/016 | [Issue #58](https://github.com/baisound/BAI_CREATER_STUDIO/issues/58)、[Phase E設計§3](PHASE_E_DETAILED_DESIGN_20261020_JA.md)。公開実装と現行デコーダに差があり、実MMD比較は未検証。WP-13で原本保持のまま検証・修正 |
 
 ## 未実装/実装済みの見分け方
 

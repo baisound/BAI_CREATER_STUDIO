@@ -25,6 +25,7 @@ const TAB_NAMES = [
 /** @type {Promise<HTMLElement>|null} */ let building = null;
 /** @type {Promise<void>|null} */ let mounting = null;
 let mounted = false;
+let cameraReady = false;
 let wired = false;
 let needsFullRestore = false;
 /** @type {Promise<void>} */ let restoring = Promise.resolve();
@@ -39,8 +40,12 @@ function workspaceSnapshot() {
   return value;
 }
 
-function captureWorkspace() {
+function captureWorkspace(allowPending = false) {
   if (!visible()) return;
+  if (!cameraReady) {
+    if (allowPending) return; // 初回読込中はまだ利用者の素材操作を受け付けない。
+    throw Error('カメラ画面の準備が終わっていません');
+  }
   const value = workspaceSnapshot();
   if (!value) throw Error('カメラの素材状態を取得できません');
   const stored = project.get().bundle?.workspace || { frame: 0, asset: '', clip: null };
@@ -91,7 +96,7 @@ function queueRestore(full = false) {
 function wireHost() {
   if (wired) return;
   wired = true;
-  window.addEventListener('bai-studio-camera-before-save', captureWorkspace);
+  window.addEventListener('bai-studio-camera-before-save', () => captureWorkspace());
   window.addEventListener('bai-camera-saved', () => { void cameraOnlySaved(); refreshCameraDirty(); });
   onBus('studio:project-loaded', () => {
     if (!mounted) return;
@@ -227,6 +232,7 @@ async function mount(root) {
     await ready;
     restoring = restoring.catch(() => {}).then(restoreWorkspace);
     await restoring;
+    cameraReady = true;
     const status = root.querySelector('#status');
     if (status) status.textContent = 'カメラ編集を開始できます（保存された素材と再生位置を反映しました）';
   })().finally(() => { mounting = null; });
@@ -298,7 +304,7 @@ export function cameraHost(ctx) {
   const unsubscribe = project.subscribe(onStore);
   let dirtyPoll = 0;
   dirtyPoll = window.setInterval(() => { if (visible()) refreshCameraDirty(); }, 1000);
-  ctx.onCleanup(() => { try { captureWorkspace(); } catch (error) { console.error(error); } refreshCameraDirty(); window.clearInterval(dirtyPoll); alive = false; generation++; unsubscribe(); keep(); });
+  ctx.onCleanup(() => { try { captureWorkspace(true); } catch (error) { console.error(error); } refreshCameraDirty(); window.clearInterval(dirtyPoll); alive = false; generation++; unsubscribe(); keep(); });
   onStore();
   return outlet;
 }
