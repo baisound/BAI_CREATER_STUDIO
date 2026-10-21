@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T06:11:12+09:00",
+  "updated_at": "2026-10-22T06:11:38+09:00",
   "updated_by": "codex",
   "branch": "codex/issue63-workflow",
-  "head_at_update": "e8a560d",
+  "head_at_update": "d90c0ca",
   "current": {
     "task": "Issue #63: 同一シーン・時刻の制作フローを整理",
-    "status": "done",
-    "step": "SCR02/06/10/26の現行状態を照合し、重複カメラ導線と共有データ・時計の実装境界を設計する",
+    "status": "in_progress",
+    "step": "B: workspaceと音楽・ダンスの保存データを読み取り合成し不整合を表示",
     "design_doc": "docs/roadmap/ISSUE63_UNIFIED_WORKFLOW_20261022_JA.md"
   },
   "next_steps": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T06:11:38+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "d90c0ca",
+      "text": "Issue #63: 同一シーン・時刻の制作フローを整理: B: workspaceと音楽・ダンスの保存データを読み取り合成し不整合を表示"
+    },
     {
       "at": "2026-10-22T06:11:12+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "start",
       "head": "dec1774",
       "text": "Issue #50: SCR-10の踊るモデルにGLB/VRM/FBXを追加: モデル候補・プレビュー経路・保存再読込を修正"
-    },
-    {
-      "at": "2026-10-22T00:28:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "dec1774",
-      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06a: camera.jsとcamera_3d.jsを旧画面互換のmount APIにする"
     }
   ]
 }
