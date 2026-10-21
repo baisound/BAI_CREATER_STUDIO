@@ -292,10 +292,10 @@
       "id": "P2-WP-05f",
       "step": "⑤ 転写タイムライン・QA、キー候補のフレーム比較、足の接地",
       "state": "in_progress",
-      "commits": ["a0675a1（既存実装・API・UI受け口の監査）", "9822857（⑤-11の同意つきQAと検証JSON）", "05f-3（このコミット：⑤-12のキー候補比較と試験再生）"],
-      "tests": ["npm run typecheck: pass", "tests/studio-p2-retarget.test.cjs: 8 pass（⑤-11同意・検証JSON、⑤-12同意・API本文・2体配置・フレーム操作・品質ゲートと不正ノードの拒否・対象変更と古い応答の破棄、既存比較回帰）"],
-      "unverified": ["⑤-14の新UI結線と自動テストは未着手。共通完了ゲートは全機能結線後に実行する。", "実利用者のモデル/GPUとWP05b/c/e/f独立レビューは未確認。"],
-      "notes": "設計書 §2.5 05f（O-⑤-6）。docs/roadmap/P2_WP05F_AUDIT_20261021_JA.md に既存UI、3群のAPI、配置、確認ゲートを記録。⑤-11はボーンマップ末尾に同意つきQAと検証JSON保存を追加。⑤-12は中央の比較帯で登録済み転写先GLB/VRMを2体表示し、未校正キー候補をフレーム指定・5/10/15 FPSで試験再生する。品質ゲートとノードを検査し、選択変更・同意解除で候補を破棄する。モデル・VMD・weightsは変更しない。実装・テスト：標準モデル区分。",
+      "commits": ["a0675a1（既存実装・API・UI受け口の監査）", "9822857（⑤-11の同意つきQAと検証JSON）", "0166a83（⑤-12のキー候補比較と試験再生）", "05f-4（このコミット：⑤-14足接地診断と実装機能一覧）"],
+      "tests": ["npm run typecheck: pass", "tests/studio-p2-retarget.test.cjs: 9 pass（⑤-11同意・検証JSON、⑤-12同意・API本文・2体配置・フレーム操作・品質ゲートと不正ノードの拒否・対象変更と古い応答の破棄、⑤-14の3診断API・2MB/stride/JSON入力の拒否、既存比較回帰）", "tests/test_screen_status_honesty.mjs: 6 pass（足IKを実操作の根拠でrealに変更）"],
+      "unverified": ["⑤-11/12/14の結線後の共通完了ゲートは次段階で実行する。", "実利用者のモデル/GPUとWP05b/c/e/f独立レビューは未確認。"],
+      "notes": "設計書 §2.5 05f（O-⑤-6）。docs/roadmap/P2_WP05F_AUDIT_20261021_JA.md に既存UI、3群のAPI、配置、確認ゲートを記録。⑤-11はボーンマップ末尾に同意つきQAと検証JSON保存を追加。⑤-12は中央の比較帯で登録済み転写先GLB/VRMを2体表示し、未校正キー候補をフレーム指定・5/10/15 FPSで試験再生する。品質ゲートとノードを検査し、選択変更・同意解除で候補を破棄する。⑤-14は既存足IKタブで左足・BVH・両足の診断APIを呼びJSONを表示する。docs/roadmap/IMPLEMENTED_FEATURES_NEW_UI_20261021_JA.txt に新UIの実装区画35件と現行UIのみ・部分36件を区別して列挙。モデル・VMD・weightsは変更しない。実装・テスト：標準モデル区分。",
       "owner_check": null
     },
     {

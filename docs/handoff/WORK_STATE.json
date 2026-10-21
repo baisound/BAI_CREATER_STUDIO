@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T11:57:15+09:00",
+  "updated_at": "2026-10-21T12:03:06+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05f",
-  "head_at_update": "0166a83",
+  "head_at_update": "dfedcc1",
   "current": {
     "task": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断",
-    "status": "in_progress",
+    "status": "done",
     "step": "⑤-14 足の接地診断をSCR13右の足IKタブに結線",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "⑤-14 足の接地診断をSCR13右の足IKタブに結線"
+    "WP05f 共通完了ゲートとE2E結果を台帳に記録"
   ],
   "unverified": [
-    "⑤-14と共通完了ゲート、実利用者モデル/GPU、WP05b/c/e/f独立レビューは未確認"
+    "共通完了ゲート、実利用者モデル/GPU、WP05b/c/e/f独立レビューは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T12:03:06+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "dfedcc1",
+      "text": "WP05f ⑤-14足接地診断を既存タブに結線し9件のブラウザー試験・画面根拠検査・型検査を通過。新UI移植を含む実装機能一覧TXTを作成"
+    },
     {
       "at": "2026-10-21T11:57:15+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "7b3327e",
       "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド preview_vmd・integrated_preview の受け口（O-⑤-5）"
-    },
-    {
-      "at": "2026-10-20T20:26:29+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "b8bd62d",
-      "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド studio:sync-command の受け口（O-⑤-5）: 実装→テスト→台帳更新→コミット"
     }
   ]
 }

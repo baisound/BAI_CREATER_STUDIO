@@ -340,6 +340,60 @@ test('keyframe review discards a response after the selected target changes', ha
   });
 });
 
+test('foot contact panel calls the three read-only diagnostic APIs', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await open13(page, server);
+    await page.getByRole('tab', { name: '足IK' }).click();
+    await page.waitForSelector('[data-feature="footContactPanel"]');
+    const calls = new Map();
+    let callCount = 0;
+    page.on('request', (r) => {
+      const u = new URL(r.url());
+      if (r.method() === 'POST' && u.pathname.startsWith('/api/qa/')) { callCount++; calls.set(u.pathname, r.postDataJSON()); }
+    });
+    assert.equal(await page.locator('[data-role="foot-apply"]').isDisabled(), true);
+    assert.match(await page.locator('[data-role="foot-apply"]').locator('..').getAttribute('title'), /旧画面には無い設定/);
+    await page.fill('[data-role="foot-ground"]', '1.25');
+    assert.equal(await page.inputValue('[data-role="foot-ground"]'), '1.25', '数値欄はスライダーの範囲外を保つ');
+    await page.click('[data-role="foot-run"]');
+    await page.waitForFunction(() => /"root_offset_proposal"/.test(document.querySelector('[data-role="foot-result"]')?.textContent || ''));
+    assert.equal(calls.get('/api/qa/foot-contact').ground_y, 1.25);
+    assert.equal(calls.get('/api/qa/foot-contact').propose_root_offsets, true);
+
+    await page.fill('[data-role="foot-ground"]', '0');
+    const bvh = `HIERARCHY\nROOT Hips\n{\n OFFSET 0 0 0\n CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation\n JOINT LeftFoot\n {\n  OFFSET 0 -1 0\n  CHANNELS 3 Zrotation Xrotation Yrotation\n  End Site\n  {\n   OFFSET 0 -0.1 0\n  }\n }\n}\nMOTION\nFrames: 3\nFrame Time: 0.0333333\n0 1 0 0 0 0 0 0 0\n1 1 0 0 0 0 0 0 0\n2 1 0 0 0 0 0 0 0\n`;
+    await page.locator('[data-role="foot-bvh-file"]').setInputFiles({ name: 'sample.bvh', mimeType: 'text/plain', buffer: Buffer.from(bvh) });
+    await page.fill('[data-role="foot-bvh-stride"]', '2');
+    await page.click('[data-role="foot-bvh-run"]');
+    await page.waitForFunction(() => /"diagnosis"/.test(document.querySelector('[data-role="foot-bvh-result"]')?.textContent || ''));
+    assert.equal(calls.get('/api/qa/bvh-foot-world').stride, 2);
+    assert.equal(calls.get('/api/qa/bvh-foot-world').foot_bone, 'LeftFoot');
+    assert.equal(calls.get('/api/qa/bvh-foot-world').diagnose, true);
+
+    await page.locator('summary', { hasText: '両足の接地を同時に診断' }).click();
+    await page.click('[data-role="foot-dual-run"]');
+    await page.waitForFunction(() => /"/.test(document.querySelector('[data-role="foot-dual-result"]')?.textContent || ''));
+    assert.equal(calls.get('/api/qa/dual-foot-preview').left_samples.length, 4);
+    assert.equal(calls.get('/api/qa/dual-foot-preview').right_samples.length, 4);
+
+    const count = callCount;
+    await page.fill('[data-role="foot-bvh-stride"]', '1001');
+    await page.click('[data-role="foot-bvh-run"]');
+    assert.match(await text(page, 'foot-bvh-result'), /サンプル間隔は1〜1000/);
+    assert.equal(callCount, count);
+    await page.locator('[data-role="foot-bvh-file"]').setInputFiles({ name: 'too-large.bvh', mimeType: 'text/plain', buffer: Buffer.alloc(2000001, 65) });
+    await page.click('[data-role="foot-bvh-run"]');
+    assert.match(await text(page, 'foot-bvh-result'), /2MB以内のBVH/);
+    assert.equal(callCount, count);
+    await page.locator('summary', { hasText: 'サンプルの編集' }).click();
+    await page.fill('[data-role="foot-samples"]', '{}');
+    await page.click('[data-role="foot-run"]');
+    await page.waitForFunction(() => /診断失敗: サンプルはJSON配列/.test(document.querySelector('[data-role="foot-result"]')?.textContent || ''));
+    assert.equal(callCount, count);
+    assert.ok(fs.readFileSync(path.join(server.dataDir, 'integrated_v02', 'assets', A)).equals(GLB));
+  });
+});
+
 /** 仮転写の応答の形（samples は target_node と local_rotation_xyzw）。frame 0 に 3 件：適用 1・範囲外 1・不正な四元数 1、frame 1 に 1 件。 */
 const REPORT = {
   samples: [
