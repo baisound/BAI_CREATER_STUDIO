@@ -8,7 +8,7 @@ class RevisionTest(unittest.TestCase):
         self.assertNotEqual(revision({'sequence':[]}),revision({'sequence':[{'start':0,'end':10}]}))
     def test_endpoint_requires_revision_on_conditional_edit(self):
         from pathlib import Path
-        source=Path('server.py').read_text()
+        source=Path('server.py').read_text(encoding='utf-8')
         self.assertIn("self.headers.get('If-Match')", source)
         self.assertIn("self.bad(409,", source)
 if __name__=='__main__':unittest.main()

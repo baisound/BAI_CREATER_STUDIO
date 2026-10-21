@@ -16,7 +16,7 @@ if(inspectPreviewKeys('bad',3).ok)process.exit(5);
     subprocess.run(['node', '--experimental-default-type=module', '--input-type=module', '-e', script], cwd=ROOT, check=True)
 
 def test_scrub_uses_guard_and_requires_confirmation():
-    source = (ROOT / 'v01633_35_scrub.js').read_text()
+    source = (ROOT / 'v01633_35_scrub.js').read_text(encoding='utf-8')
     assert 'inspectPreviewKeys(json.keys,glbNodeCount)' in source
     assert "if(!confirmInput.checked)" in source
     assert 'file.onchange=' in source

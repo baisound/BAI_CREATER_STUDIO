@@ -100,9 +100,11 @@ test('FX and lyrics pages keep their tabs and explain unavailable actions', asyn
   await page.goto(`${BASE}/workspace/01`);
   await page.click('.topbar-shortcuts a[data-route="26"]');
   await atRoute(page, '26');
+  await page.waitForFunction(() => document.querySelector('.topbar-shortcuts a[data-route="26"]')?.getAttribute('aria-current') === 'page');
   assert.equal(await page.getAttribute('.topbar-shortcuts a[data-route="26"]', 'aria-current'), 'page');
   await page.click('.topbar-shortcuts a[data-route="27"]');
   await atRoute(page, '27');
+  await page.waitForFunction(() => document.querySelector('.topbar-shortcuts a[data-route="27"]')?.getAttribute('aria-current') === 'page');
   assert.equal(await page.getAttribute('.topbar-shortcuts a[data-route="27"]', 'aria-current'), 'page');
   for (const [id, tab, title, feature] of [
     ['26', 'stack', 'MMDエフェクト', 'RENDER-014'],

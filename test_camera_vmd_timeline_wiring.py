@@ -6,9 +6,9 @@ BASE=Path(__file__).parent
 class TimelineWiringTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.html=(BASE/'camera.html').read_text()
-        cls.js=(BASE/'camera.js').read_text()
-        cls.render=(BASE/'camera_3d.js').read_text()
+        cls.html=(BASE/'camera.html').read_text(encoding='utf-8')
+        cls.js=(BASE/'camera.js').read_text(encoding='utf-8')
+        cls.render=(BASE/'camera_3d.js').read_text(encoding='utf-8')
     def test_opt_in_disabled_until_track_import(self):
         self.assertIn('id="vmd-follow-timeline" type="checkbox" disabled',self.html)
         self.assertIn('nativeFollow.disabled=false',self.js)

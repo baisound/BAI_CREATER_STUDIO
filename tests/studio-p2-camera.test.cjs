@@ -123,6 +123,57 @@ test('camera host does not mount on an unreadable camera file', async () => {
   } finally { await page?.context().close(); await browser.close(); await server.stop(); }
 });
 
+test('integrated save cannot capture camera while a full restore is pending', harness.skip3d(), async () => {
+  const combination = { schema: 1, title: '復元中の保存', timeline: [], history: [], cursor: -1,
+    selected: 1, playbackSpeed: 1, updatedAt: '2026-10-20T00:00:00Z' };
+  const server = await harness.startServer({ port: 8811, seed: {
+    'project_state.json': JSON.stringify(combination),
+    'project_state.workspace.json': JSON.stringify({ frame: 0, asset: '', clip: null }),
+  } });
+  const browser = await server.launchBrowser();
+  let page;
+  try {
+    page = await server.newPage(browser);
+    await page.goto(`${server.base}/workspace/02`);
+    await page.waitForFunction(() => document.querySelector('#status')?.textContent.includes('カメラ編集を開始'));
+    await page.fill('#frame-number', '37');
+    await page.locator('#frame-number').dispatchEvent('change');
+    await page.click('#add');
+    await page.waitForFunction(() => window.baiStudio.project.getState().dirty.camera === true);
+    const cameraFile = path.join(server.dataDir, 'camera_project.json');
+    const before = fs.existsSync(cameraFile) ? fs.readFileSync(cameraFile) : null;
+    let posts = 0;
+    page.on('request', (request) => { if (request.method() === 'POST' && /\/api\/project\/bundle$/.test(request.url())) posts++; });
+    await page.evaluate(async () => {
+      window.__releaseCameraRestore = null;
+      window.addEventListener('bai-camera-bundle-restore', (event) => {
+        if (window.__releaseCameraRestore) return;
+        event.stopImmediatePropagation();
+        window.__releaseCameraRestore = () => window.dispatchEvent(new CustomEvent('bai-camera-bundle-restore', { detail: event.detail }));
+      }, { capture: true });
+      const { emit } = await import('/studio/js/bus.js');
+      emit('studio:project-loaded');
+    });
+    await page.waitForFunction(() => document.querySelector('.camera-host')?.getAttribute('aria-busy') === 'true' &&
+      typeof window.__releaseCameraRestore === 'function');
+    const saveResult = await page.evaluate(async () => {
+      let captureError = null;
+      window.addEventListener('bai-studio-camera-before-save', (event) => {
+        captureError = event.detail.error?.message || null;
+      }, { once: true });
+      const saved = await (await import('/studio/js/features/project.js')).saveProject();
+      return { saved, captureError };
+    });
+    assert.equal(saveResult.saved, false);
+    assert.match(saveResult.captureError || '', /カメラ画面の準備が終わっていません/);
+    assert.equal(posts, 0, 'no bundle POST can be sent with an incomplete camera snapshot');
+    assert.deepEqual(fs.existsSync(cameraFile) ? fs.readFileSync(cameraFile) : null, before);
+    await page.evaluate(() => window.__releaseCameraRestore());
+    await page.waitForFunction(() => document.querySelector('.camera-host')?.getAttribute('aria-busy') !== 'true');
+    harness.assertNoErrors(page);
+  } finally { await page?.context().close(); await browser.close(); await server.stop(); }
+});
+
 test('camera-only save updates the bundle revision before integrated save', harness.skip3d(), async () => {
   const combination = { schema: 1, title: 'カメラ保存連携', timeline: [], history: [
     { label: '初期', at: '2026-10-20T00:00:00Z', timeline: [], selected: 1, playbackSpeed: 1 },

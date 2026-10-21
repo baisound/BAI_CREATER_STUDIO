@@ -3,13 +3,13 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parent
 
 def test_two_distinct_canvases():
-    html=(ROOT/'camera.html').read_text()
+    html=(ROOT/'camera.html').read_text(encoding='utf-8')
     assert 'id="scene"' in html and 'id="preview"' in html
     assert 'id="auto-key"' in html
     assert 'id="duration"' in html and 'id="frame-number"' in html
 
 def test_scene_not_written_into_camera_keys():
-    js=(ROOT/'camera.js').read_text()
+    js=(ROOT/'camera.js').read_text(encoding='utf-8')
     assert 'function drawScene()' in js
     assert 'sceneYaw' in js and 'scenePitch' in js
     assert "$('scene').addEventListener('pointermove'" in js

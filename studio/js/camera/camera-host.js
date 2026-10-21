@@ -28,6 +28,7 @@ let mounted = false;
 let cameraReady = false;
 let wired = false;
 let needsFullRestore = false;
+let fullRestorePending = 0;
 /** @type {Promise<void>} */ let restoring = Promise.resolve();
 
 function visible() { return !!cameraRoot?.isConnected && !cameraRoot.closest('#keepalive'); }
@@ -41,7 +42,9 @@ function workspaceSnapshot() {
 }
 
 function captureWorkspace(allowPending = false) {
-  if (!visible()) return;
+  // Navigation can dispose SCR-02 before its asynchronous mount installs
+  // the snapshot listener. There is no camera state to capture until then.
+  if (!mounted || !visible()) return;
   if (!cameraReady) {
     if (allowPending) return; // 初回読込中はまだ利用者の素材操作を受け付けない。
     throw Error('カメラ画面の準備が終わっていません');
@@ -86,9 +89,27 @@ async function restoreBundle() {
 }
 
 function queueRestore(full = false) {
-  restoring = restoring.catch(() => {}).then(() => full ? restoreBundle() : restoreWorkspace()).catch((error) => {
+  const locked = full && !!cameraRoot;
+  if (locked && cameraRoot) {
+    fullRestorePending++;
+    cameraReady = false;
+    cameraRoot.inert = true;
+    cameraRoot.setAttribute('aria-busy', 'true');
+    const status = cameraRoot.querySelector('#status');
+    if (status) status.textContent = '保存されたカメラ状態を反映中…';
+  }
+  let succeeded = false;
+  restoring = restoring.catch(() => {}).then(() => full ? restoreBundle() : restoreWorkspace()).then(() => {
+    succeeded = true;
+  }).catch((error) => {
     const status = cameraRoot?.querySelector('#status');
     if (status) status.textContent = `保存されたカメラ・素材を表示できません：${error instanceof Error ? error.message : String(error)}`;
+  }).finally(() => {
+    if (locked && --fullRestorePending === 0 && cameraRoot) {
+      cameraReady = succeeded;
+      cameraRoot.inert = false;
+      cameraRoot.removeAttribute('aria-busy');
+    }
   });
   return restoring;
 }
@@ -96,7 +117,10 @@ function queueRestore(full = false) {
 function wireHost() {
   if (wired) return;
   wired = true;
-  window.addEventListener('bai-studio-camera-before-save', () => captureWorkspace());
+  window.addEventListener('bai-studio-camera-before-save', (event) => {
+    try { captureWorkspace(); }
+    catch (error) { /** @type {CustomEvent} */ (event).detail.error = error; }
+  });
   window.addEventListener('bai-camera-saved', () => { void cameraOnlySaved(); refreshCameraDirty(); });
   onBus('studio:project-loaded', () => {
     if (!mounted) return;
@@ -232,7 +256,7 @@ async function mount(root) {
     await ready;
     restoring = restoring.catch(() => {}).then(restoreWorkspace);
     await restoring;
-    cameraReady = true;
+    if (fullRestorePending === 0) cameraReady = true;
     const status = root.querySelector('#status');
     if (status) status.textContent = 'カメラ編集を開始できます（保存された素材と再生位置を反映しました）';
   })().finally(() => { mounting = null; });
