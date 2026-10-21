@@ -18,9 +18,29 @@ async function atRoute(page, pattern) {
   const src = pattern instanceof RegExp ? pattern.source : `/workspace/${pattern}$`;
   await page.waitForFunction((re) => new RegExp(re).test(location.pathname), src, { timeout: 5000 });
 }
+// 一つのタブで画面を巡る検査はSPAの導線を使う。毎回HTML・画像を取り直すと
+// Windowsでは数百のTIME_WAITが積み上がり、後半のAPI通信が枯渇する。
+async function showScreen(page, id) {
+  if (!page.url().startsWith(BASE)) await page.goto(`${BASE}/workspace/${id}`);
+  else { await page.evaluate((screenId) => window.baiStudio.navigate(screenId), id); await atRoute(page, id); }
+}
 const TAB_SEL = '.pane-right [role="tab"], .pane-center [role="tab"]';
 const pages = [];
 const newPage = async (opts = {}) => { const page = await server.newPage(browser, opts); pages.push(page); return page; };
+// 各テストの終了時に通信エラーを確かめてからタブを閉じる。多数の常駐タブの同期通信で
+// テストサーバーが接続を拒むと、後の画面の結果まで汚れるため。
+let checkedPages = 0;
+test.afterEach(async () => {
+  for (const page of pages) {
+    if (page.__studioChecked) continue;
+    let failure = null;
+    try { harness.assertNoErrors(page); } catch (e) { failure = e; }
+    page.__studioChecked = true;
+    checkedPages++;
+    if (!page.isClosed()) await page.context().close();
+    if (failure) throw failure;
+  }
+});
 
 test.before(async () => {
   // 閲覧中のサーバーに接続せず、テスト専用の隔離データで空きポートを探す。
@@ -155,7 +175,7 @@ test('FX and lyrics pages keep their tabs and explain unavailable actions', asyn
 test('FX and lyrics concept images and local timeline examples are visible and reset on reload', async () => {
   const page = await newPage();
   for (const id of ['26', '27']) {
-    await page.goto(`${BASE}/workspace/${id}`);
+    await showScreen(page, id);
     await page.waitForFunction(() => document.querySelector('.concept-preview img')?.naturalWidth > 0);
     assert.match(await page.textContent('.concept-preview figcaption'), /実際の描画は未実装/);
     assert.match(await page.textContent('.timeline-demo-note'), /保存されず/);
@@ -199,7 +219,7 @@ test('approved feature panes stay reachable at desktop and narrow widths', async
   for (const width of [1280, 390]) {
     const page = await newPage({ viewport: { width, height: 720 } });
     for (const [id, targetTab] of targets) {
-      await page.goto(`${BASE}/workspace/${id}`);
+      await showScreen(page, id);
       if (id === '27') await page.click('.screen-head .mode-switch button:has-text("詳細")');
       assert.equal(await page.locator('.screen-head h1').count(), 1, `${id} heading at ${width}`);
       assert.ok(await page.locator('.screen-head .tools button').count() > 0, `${id} main action at ${width}`);
@@ -314,7 +334,7 @@ test('every action button on every screen responds', async () => {
   const page = await newPage();
   for (let n = 1; n <= 27; n++) {
     const id = pad(n);
-    await page.goto(`${BASE}/workspace/${id}`);
+    await showScreen(page, id);
     const tabsCount = await page.locator('.pane-right [role="tab"]').count();
     for (let t = 0; t < tabsCount; t++) {
       await page.locator('.pane-right [role="tab"]').nth(t).click();
@@ -345,7 +365,7 @@ test('read-only live data comes from the existing API', async () => {
   const seen = new Set();
   for (let n = 1; n <= 27; n++) {
     const id = pad(n);
-    await page.goto(`${BASE}/workspace/${id}`);
+    await showScreen(page, id);
     const tabsCount = await page.locator(TAB_SEL).count();
     for (let t = 0; t < tabsCount; t++) {
       await page.locator(TAB_SEL).nth(t).click();
@@ -375,7 +395,7 @@ test('unconnected sections are dimmed and labelled', async () => {
   let dimmed = 0, normal = 0;
   for (let n = 1; n <= 27; n++) {
     const id = pad(n);
-    await page.goto(`${BASE}/workspace/${id}`);
+    await showScreen(page, id);
     const tabsCount = await page.locator(TAB_SEL).count();
     for (let t = 0; t < tabsCount; t++) {
       await page.locator(TAB_SEL).nth(t).click();
@@ -427,7 +447,7 @@ test('unimplemented dialog shows next action', async () => {
   const page = await newPage();
   for (let n = 1; n <= 27; n++) {
     const id = pad(n);
-    await page.goto(`${BASE}/workspace/${id}`);
+    await showScreen(page, id);
     const tabsCount = await page.locator(TAB_SEL).count();
     for (let t = 0; t < tabsCount; t++) {
       await page.locator(TAB_SEL).nth(t).click();
@@ -507,15 +527,15 @@ test('stage load is scheduled for P2', async () => {
 
 test('mock playback is labelled as sample', async () => {
   const page = await newPage();
-  for (const id of ['02', '05']) { // 13 は 3D 比較が実機能（WP-04b）になったので出ない
-    await page.goto(`${BASE}/workspace/${id}`);
+  for (const id of ['02']) { // 05 は A/B 3D（WP-05d）、13 は 3D 比較（WP-04b）になったので出ない
+    await showScreen(page, id);
     const banner = page.locator('#main .sample-banner');
     assert.equal(await banner.count(), 1, `banner on ${id}`);
     assert.match(await banner.textContent(), /サンプル再生（3D未接続）/);
     assert.equal(await banner.getAttribute('role'), 'status');
   }
-  for (const id of ['01', '03', '06', '08', '13', '18', '25']) { // 06 は 3D ビューが実機能（WP-04）、13 は 3D 比較が実機能（WP-04b）になったので出ない
-    await page.goto(`${BASE}/workspace/${id}`);
+  for (const id of ['01', '03', '05', '06', '08', '13', '18', '25']) { // 05・06・13 は 3D ビューが実機能になったので出ない
+    await showScreen(page, id);
     assert.equal(await page.locator('#main .sample-banner').count(), 0, `no banner on ${id}`);
   }
 });
@@ -573,7 +593,7 @@ test('theme preference persists and narrow screens do not scroll sideways', asyn
 
   const mobile = await newPage({ viewport: { width: 390, height: 844 } });
   for (const id of ['01', '02', '13', '17', '25']) {
-    await mobile.goto(`${BASE}/workspace/${id}`);
+    await showScreen(mobile, id);
     const overflow = await mobile.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     assert.ok(overflow <= 1, `horizontal overflow ${overflow}px on ${id}`);
   }
@@ -584,5 +604,5 @@ test('theme preference persists and narrow screens do not scroll sideways', asyn
 });
 
 test('no unexpected browser errors on any page of this run', () => {
-  for (const page of pages) harness.assertNoErrors(page);
+  assert.equal(checkedPages, pages.length, '各ページの終了時にブラウザーエラーを確認した');
 });

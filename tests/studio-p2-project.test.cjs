@@ -56,7 +56,9 @@ async function open(page, server, screen = '18') {
   await page.goto(`${server.base}/workspace/${screen}`);
 }
 async function loaded(page) {
-  await page.waitForSelector('[data-feature="projectSummary"] dl', { timeout: 8000 });
+  // Evidence の全画面試験と続けて実行すると、Windows Chrome の初回描画が8秒を
+  // 超えることがある。表示を確認する条件は維持し、負荷時の待機上限だけ広げる。
+  await page.waitForSelector('[data-feature="projectSummary"] dl', { timeout: 15000 });
 }
 /** 最初の同期 tick が終わるのを待つ（その前後で外部変更の見え方が変わるため、競合のテストは終わってから始める）。 */
 async function firstTick(page) {

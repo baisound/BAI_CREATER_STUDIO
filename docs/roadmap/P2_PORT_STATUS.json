@@ -235,10 +235,30 @@
       "id": "P2-WP-05d",
       "step": "⑤ SCR-05 の A/B の 3D・連結再生・手順名の対応表・スロット別の PMX＋VMD",
       "state": "verified",
-      "commits": ["2e87555（旧式の連結計算と2体配置）", "be1425f（登録FBXクリップ取得と対応表保存）", "05d-3（このコミット：SCR-05中央3D・A/B FBX/PMX＋VMD・連結再生）"],
-      "tests": ["node --test tests/studio-p2-chain-fork.test.mjs: 3 pass（旧 clipOffset の実コード照合、ループ境界、FBX/PMX配置）", "node --test tests/studio-p2-fbx-clips.test.mjs: 3 pass（名称重複・手動対応・他画面のキー保護・遅延解析）", "tests/studio-p2-chain.test.cjs: 15 pass（05dのFBX配置・連結時計・対応表・A/BのPMX＋VMD・外部コマンドを含む）", "tests/studio-p2-e2e-main.test.cjs: S1・S2・S5 pass、S3・S4・S6・S7・S8 skip（予定どおり）", "npm run test:p2: 202件中197 pass・5 skip・0 fail（初回は素材画面タイムアウトと8794ポート競合。両方単独で通過し、8804指定の全体再実行も合格）。実データのハッシュ前後一致", "npm run typecheck・test_screen_status_honesty: pass"],
-      "unverified": ["本番のFBX/PMX/VMDとGPU実機は未検証（隔離した最小素材、Windowsのheadless Chrome/SwiftShaderで検証）。", "WP05b/cの必須独立レビューは別途未確認。", "対応表のGET→POST間の他画面更新はサーバー版条件が無いため競合の隙が残る（設計 §2.5(h) K12）。"],
-      "notes": "設計書 §2.5 05d。SCR-05 に3D表示、A/B独立PMX＋VMD、登録FBXの遅延解析、連結再生、最新manifest再取得による対応表保存、SCR-05限定のplay_chain/stop_chainを実装。原本・weightsを変更しない。実装・テスト：標準モデル区分。",
+      "commits": [
+        "2e87555（旧式の連結計算と2体配置）",
+        "be1425f（登録FBXクリップ取得と対応表保存）",
+        "5732a7c（SCR-05中央3D・A/B FBX/PMX＋VMD・連結再生）"
+      ],
+      "tests": [
+        "node --test tests/studio-p2-chain-fork.test.mjs: 3 pass（旧 clipOffset の実コード照合、ループ境界、FBX/PMX配置）",
+        "node --test tests/studio-p2-fbx-clips.test.mjs: 3 pass（名称重複・手動対応・他画面のキー保護・遅延解析）",
+        "tests/studio-p2-chain.test.cjs: 15 pass（05dのFBX配置・連結時計・対応表・A/BのPMX＋VMD・外部コマンドを含む）",
+        "tests/studio-p2-e2e-main.test.cjs: S1・S2・S5 pass、S3・S4・S6・S7・S8 skip（予定どおり）",
+        "npm run test:p2: 202件中197 pass・5 skip・0 fail（初回は素材画面タイムアウトと8794ポート競合。両方単独で通過し、8804指定の全体再実行も合格）。実データのハッシュ前後一致",
+        "npm run test:node-all: 288件中283 pass・5 skip・0 fail（WindowsではBAI_TEST_CONCURRENCY=1、既存Chrome指定）。実データのハッシュ前後一致",
+        "PYTHONUTF8=1 python -m pytest -q: 370 pass・23 subtests（Windows/LinuxでZIP fixtureを同一バイトに固定）",
+        "npm run test:studio: 20 pass・0 fail",
+        "node tools/run_evidence_tests.mjs: 117 pass・0 fail（Windows負荷で初回は既存プロジェクト画面の8秒待ち1件失敗。単独再現せず、15秒上限へ調整して全件再実行合格）。実データのハッシュ前後一致",
+        "PMX切替競合修正後の tests/studio-p2-chain.test.cjs: 15 pass・0 fail（実データのハッシュ前後一致）",
+        "npm run typecheck・test_screen_status_honesty: pass"
+      ],
+      "unverified": [
+        "本番のFBX/PMX/VMDとGPU実機は未検証（隔離した最小素材、Windowsのheadless Chrome/SwiftShaderで検証）。",
+        "WP05b/cの必須独立レビューは別途未確認。",
+        "対応表のGET→POST間の他画面更新はサーバー版条件が無いため競合の隙が残る（設計 §2.5(h) K12）。"
+      ],
+      "notes": "設計書 §2.5 05d。SCR-05 に3D表示、A/B独立PMX＋VMD、登録FBXの遅延解析、連結再生、最新manifest再取得による対応表保存、SCR-05限定のplay_chain/stop_chainを実装。PMXの遅い読み込みが後から到着した場合は、古い結果を破棄して選択を守る。原本・weightsを変更しない。実装・テスト：標準モデル区分。",
       "owner_check": null
     },
     {
@@ -386,7 +406,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "9836e04",
-    "checked_at": "2026-10-20T19:59:10.446Z"
+    "commit": "2905119",
+    "checked_at": "2026-10-21T01:28:30.219Z"
   }
 }

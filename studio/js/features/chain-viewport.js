@@ -42,6 +42,7 @@ export const chainViewport = (ctx) => {
   /** @type {import('../viewport/three-host.js').Viewport|null} */ let host = null;
   /** @type {ReturnType<typeof createFbxClipCache>|null} */ let clipCache = null;
   let alive = true, raf = 0, lastFrame = 0, busy = false, pending = false, playGeneration = 0;
+  const pmxRequests = [0, 0];
   /** @type {Slot[]} */
   const slots = [0, 1].map(() => ({
     /** @type {FbxActor|null} */ fbx: null,
@@ -83,18 +84,21 @@ export const chainViewport = (ctx) => {
   /** @param {number} i @param {AssetItem|undefined} item */
   async function loadPmx(i, item) {
     const s = slots[i];
+    const request = ++pmxRequests[i];
     if (s.pmx?.id === item?.id) return;
     s.player?.clearModel();
     if (s.pmx) { host?.clear(s.pmx.object); s.pmx = null; }
     if (!item || !libs || !host) return;
     try {
       const parsed = await loadModel(item, libs);
-      if (!alive) { disposeObject(parsed.object); return; }
+      // 遅い読み込みが後から到着しても、より新しい選択を上書きしない。
+      if (!alive || request !== pmxRequests[i]) { disposeObject(parsed.object); return; }
       const object = placeActorPmx(parsed.object, /** @type {0|1} */ (i), libs.THREE);
+      object.visible = s.mode === 'pmx';
       s.pmx = { id: item.id, object };
       s.player?.setModel(object, 'PMX');
       host.add(object);
-    } catch (e) { say(`スロット${i ? 'B' : 'A'}のPMX: ${loadErrorText(e)}`, true); }
+    } catch (e) { if (alive && request === pmxRequests[i]) say(`スロット${i ? 'B' : 'A'}のPMX: ${loadErrorText(e)}`, true); }
   }
   /** @returns {AssetItem[]} */
   const pmxItems = () => assets.get().items.filter((a) => a.available && a.source === 'mmd' && a.format === 'PMX');
@@ -223,7 +227,7 @@ export const chainViewport = (ctx) => {
   actorSelects.forEach((select, i) => { select.onchange = async () => {
     if (i === 0 && chain.playing) stop();
     const s = slots[i], id = select.value;
-    if (id === 'fbx') { s.mode = s.fbx ? 'fbx' : null; showSlot(i); return; }
+    if (id === 'fbx') { pmxRequests[i]++; s.mode = s.fbx ? 'fbx' : null; showSlot(i); return; }
     s.pmxChoice = id;
     await loadPmx(i, pmxItems().find((a) => a.id === id));
     if (!alive) return;

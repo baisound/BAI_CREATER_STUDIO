@@ -30,6 +30,7 @@ def build_zip(path):
         for name, data in (('model/test.pmx', build_pmx()),
                            ('model/tex/a.png', png_1x1())):
             info = zipfile.ZipInfo(name, FIXED_TIME)
+            info.create_system = 3  # ZIP ヘッダーの作成OSを固定（Linux/Windowsで同じfixtureにする）
             info.compress_type = zipfile.ZIP_DEFLATED
             z.writestr(info, data)
 

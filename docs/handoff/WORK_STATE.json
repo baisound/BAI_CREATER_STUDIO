@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T09:54:33+09:00",
+  "updated_at": "2026-10-21T10:49:07+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05d",
-  "head_at_update": "5732a7c",
+  "head_at_update": "2905119",
   "current": {
     "task": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD",
-    "status": "in_progress",
+    "status": "done",
     "step": "共通完了ゲートとE2E結果の台帳記録",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP05b/cの必須独立レビューを確認し、未実施ならレビューを手配する",
-    "承認済みの次工程P2-WP-05eへ進む"
+    "WP05dのPRを作成し、共有ベースとの差分を確認する",
+    "WP05b/cの必須独立レビューを確認し、承認済みP2-WP-05eへ進む"
   ],
   "unverified": [
-    "実運用素材・GPU実機は未検証（最小素材とheadless Chrome/SwiftShaderで確認）。",
-    "WP05b/cの必須独立レビュー未確認。対応表GET→POSTの競合の隙は設計どおり残る。"
+    "本番FBX/PMX/VMDとGPU実機は未検証（隔離した最小素材・headless Chrome/SwiftShader）。",
+    "WP05b/cの独立レビューは未確認。対応表GET→POST間の競合の隙は設計上残る。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T10:49:07+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2905119",
+      "text": "P2-WP-05dの共通完了ゲート：Node 283 pass/5計画skip、pytest 370 pass、Evidence 117 pass、SCR05再検証15 pass。PMX切替競合とWindowsのテスト待機・ZIP fixture差を修正。"
+    },
     {
       "at": "2026-10-21T09:54:33+09:00",
       "by": "codex",
@@ -236,13 +243,6 @@
       "event": "done",
       "head": "910cc5a",
       "text": "P2-WP-01 保存・読込を実装・検証（ff51eb0）。POST /api/project の壊れたファイル時の接続切断も500に修正"
-    },
-    {
-      "at": "2026-10-20T10:06:40+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "3a784bb",
-      "text": "P2-WP-01 保存・読込: 設計書読込・実装着手"
     }
   ]
 }
