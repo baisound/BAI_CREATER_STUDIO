@@ -52,7 +52,7 @@ function placeOrthographic(THREE, camera, mode, bounds, aspect) {
 /**
  * @param {HTMLElement} container 大きさを持つ要素（canvas を中に置く）
  * @param {Libs} libs
- * @param {{background?: number}} [o]
+ * @param {{background?: number, freeDolly?: boolean}} [o]
  */
 export function createViewport(container, libs, o = {}) {
   const { THREE, OrbitControls } = libs;
@@ -87,19 +87,60 @@ export function createViewport(container, libs, o = {}) {
   let orthoHeight = 10;
   const controls = new OrbitControls(camera, canvas);
   // Three.js 0.160.1 は ROTATE に修飾キーを付けると PAN に切り替わる。
-  // Ctrl＋中ドラッグだけは pointerdown の前に DOLLY へ割り当てる。
+  // Ctrl＋中ドラッグは通常ビューでは DOLLY、SCR-06 では注視点を越える前後移動にする。
   controls.mouseButtons.MIDDLE = THREE.MOUSE.ROTATE;
+  /** @type {{id:number,y:number}|null} */ let freeDrag = null;
+  /** SCR-06 では視点と注視点を一緒に進め、原点・床・現在の注視点を通過できる。 */
+  const walk = (/** @type {number} */ metres) => {
+    if (!o.freeDolly || viewMode !== 'perspective' || !controls.enabled || !Number.isFinite(metres)) return;
+    const forward = new THREE.Vector3();
+    camera.getWorldDirection(forward);
+    camera.position.addScaledVector(forward, metres);
+    controls.target.addScaledVector(forward, metres);
+    controls.update();
+    invalidate();
+  };
+  const onWheel = (/** @type {WheelEvent} */ e) => {
+    if (!o.freeDolly || viewMode !== 'perspective' || !controls.enabled) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const pixels = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? canvas.clientHeight : 1);
+    walk(-Math.max(-200, Math.min(200, pixels)) * 0.012);
+  };
   const middleDown = (/** @type {PointerEvent} */ e) => {
     if (e.button !== 1) return;
     e.preventDefault();
+    if (o.freeDolly && e.ctrlKey && viewMode === 'perspective' && controls.enabled) {
+      freeDrag = { id: e.pointerId, y: e.clientY };
+      canvas.setPointerCapture(e.pointerId);
+      e.stopImmediatePropagation();
+      return;
+    }
     controls.mouseButtons.MIDDLE = e.ctrlKey ? THREE.MOUSE.DOLLY : viewMode === 'perspective' ? THREE.MOUSE.ROTATE : THREE.MOUSE.PAN;
+  };
+  const middleMove = (/** @type {PointerEvent} */ e) => {
+    if (!freeDrag || e.pointerId !== freeDrag.id) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    const delta = e.clientY - freeDrag.y;
+    freeDrag.y = e.clientY;
+    walk(-delta * 0.03);
+  };
+  const middleUp = (/** @type {PointerEvent} */ e) => {
+    if (!freeDrag || e.pointerId !== freeDrag.id) return;
+    freeDrag = null;
+    if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+    e.preventDefault(); e.stopImmediatePropagation();
   };
   const noAuxClick = (/** @type {MouseEvent} */ e) => { if (e.button === 1) e.preventDefault(); };
   canvas.addEventListener('pointerdown', middleDown, true);
+  canvas.addEventListener('pointermove', middleMove, true);
+  canvas.addEventListener('pointerup', middleUp, true);
+  canvas.addEventListener('pointercancel', middleUp, true);
+  canvas.addEventListener('wheel', onWheel, { capture: true, passive: false });
   canvas.addEventListener('auxclick', noAuxClick);
   const navHelp = document.createElement('details');
   navHelp.className = 'vp-nav-help';
-  navHelp.innerHTML = '<summary>視点操作</summary><span>中ドラッグ：回転<br>Shift＋中ドラッグ：左右・上下<br>Ctrl＋中ドラッグ／ホイール：前後</span>';
+  navHelp.innerHTML = `<summary>視点操作</summary><span>中ドラッグ：回転<br>Shift＋中ドラッグ：左右・上下<br>Ctrl＋中ドラッグ／ホイール：前後${o.freeDolly ? '（注視点を越えて移動）' : ''}</span>`;
   container.append(navHelp);
   controls.target.set(0, 1, 0);
   controls.update();
@@ -173,7 +214,7 @@ export function createViewport(container, libs, o = {}) {
       controls.update();
       const helpText = navHelp.querySelector('span');
       if (helpText) helpText.innerHTML = mode === 'perspective'
-        ? '中ドラッグ：回転<br>Shift＋中ドラッグ：左右・上下<br>Ctrl＋中ドラッグ／ホイール：前後'
+        ? `中ドラッグ：回転<br>Shift＋中ドラッグ：左右・上下<br>Ctrl＋中ドラッグ／ホイール：前後${o.freeDolly ? '（注視点を越えて移動）' : ''}`
         : '中ドラッグ：平行移動<br>Ctrl＋中ドラッグ／ホイール：拡大・縮小<br>視点メニューで透視へ戻る';
       invalidate();
     },
@@ -264,6 +305,10 @@ export function createViewport(container, libs, o = {}) {
       invalidateListeners.clear();
       controls.removeEventListener('change', invalidate);
       canvas.removeEventListener('pointerdown', middleDown, true);
+      canvas.removeEventListener('pointermove', middleMove, true);
+      canvas.removeEventListener('pointerup', middleUp, true);
+      canvas.removeEventListener('pointercancel', middleUp, true);
+      canvas.removeEventListener('wheel', onWheel, true);
       canvas.removeEventListener('auxclick', noAuxClick);
       controls.dispose();
       for (const c of [...content.children]) disposeObject(c);

@@ -423,6 +423,43 @@ test('stage with a character placed in the same scene', harness.skip3d(), async 
   });
 });
 
+test('scene wheel can travel through the focus point and below the floor', harness.skip3d(), async () => {
+  await withApp(seed({ workspace: { frame: 0, asset: '', clip: null, stage: { asset: GLB2_ID, position: [0, 0, 0], rotation: [0, 0, 0], scale: 1 } } }), async ({ server, page }) => {
+    await openScene(page, server);
+    await waitLoaded(page);
+    await page.evaluate(async () => {
+      const host = (await import('/studio/js/viewport/three-host.js')).currentViewport();
+      host.camera.position.set(0, 2, 0);
+      host.controls.target.set(0, 0, 0);
+      host.controls.update();
+    });
+    const canvas = page.locator('[data-feature="sceneViewport"] canvas').first();
+    const box = await canvas.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.wheel(0, -400);
+    await page.mouse.wheel(0, -400);
+    const state = await viewCamera(page);
+    assert.ok(state.position[1] < 0, `camera passes below floor: ${state.position[1]}`);
+    assert.ok(state.target[1] < 0, `target follows camera: ${state.target[1]}`);
+    near(state.distance, 2, 1e-5, 'free dolly keeps orbit radius');
+    await page.evaluate(async () => {
+      const host = (await import('/studio/js/viewport/three-host.js')).currentViewport();
+      host.camera.position.set(0, 2, 0);
+      host.controls.target.set(0, 0, 0);
+      host.controls.update();
+    });
+    await page.keyboard.down('Control');
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down({ button: 'middle' });
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 - 120, { steps: 4 });
+    await page.mouse.up({ button: 'middle' });
+    await page.keyboard.up('Control');
+    const dragged = await viewCamera(page);
+    assert.ok(dragged.position[1] < 0, `Ctrl+middle also passes below floor: ${dragged.position[1]}`);
+    near(dragged.distance, 2, 1e-5, 'Ctrl+middle keeps orbit radius');
+  });
+});
+
 test('stage unit conversion for PMX and FBX', harness.skip3d(), async () => {
   await withApp(seed(), async ({ server, page }) => {
     await openScene(page, server);

@@ -117,7 +117,7 @@ export const sceneViewport = (ctx) => {
     if (host && libs) return host;
     libs = await loadLibs();
     if (!alive) return null;
-    host = createViewport(stageEl, libs);
+    host = createViewport(stageEl, libs, { freeDolly: true });
     host.setBaseLighting(1.35, 0);
     try {
       const spec = 'three/addons/controls/TransformControls.js';

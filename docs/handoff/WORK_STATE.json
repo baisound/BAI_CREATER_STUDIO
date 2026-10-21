@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T22:26:32+09:00",
+  "updated_at": "2026-10-21T22:39:56+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-lighting-zoom",
-  "head_at_update": "6bb0509",
+  "head_at_update": "62f508e",
   "current": {
     "task": "Issue #46・#47: ライトなしGLB複製とシーン視点接近",
-    "status": "in_progress",
+    "status": "done",
     "step": "S03/S04/S06/S07のGLB内蔵ライトを除いた別名コピーを作り、元BIN・材質・構造の保持を検証する。S05はライトなしとして別途記録する",
     "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
-    "PR45をGitHub mainへ統合し、ローカルmainと8765番サーバーを同期する。その後WP05gを既定順で進める。"
+    "OwnerのS05/S06発光候補の採否を確認し、採用なら別素材として登録する。Issue46/47のPRを作成し、Issueと紐付ける。PR統合後はmainとローカルサーバーを同期する"
   ],
   "unverified": [
-    "最大GLBのシーンUI実再生は前回端末フリーズのため中断し再試験しない。実FPS、低性能GPU、Linux、MCP、Owner外観採用は未確認。"
+    "LAST CHASE全景のシーン操作は端末フリーズ歴により再試験しない。実GPU、Linux、Owner外観採用、WebMCP/標準MCPは未検証。S05/S06の発光候補は未採用"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T22:39:56+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "62f508e",
+      "text": "Issue46: S03/S04/S06/S07のライトなしGLB別名コピー4件を作成・検証・素材登録。Issue47: SCR-06の自由前後移動を実装し小型GLBで床下通過を確認。S05/S06の発光抑制候補は未登録で比較画像あり"
+    },
     {
       "at": "2026-10-21T22:26:32+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "ba00acf",
       "text": "DATA-016 画像・音声・動画・GLB見本、再生操作、CC0実素材8件と取得記録を実装しChromeで検証"
-    },
-    {
-      "at": "2026-10-21T16:23:54+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "8b639c0",
-      "text": "DATA-016 素材取り込み拡張: 画像・音声・動画・GLBの実見本と再生操作"
     }
   ]
 }
