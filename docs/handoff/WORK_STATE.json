@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T18:04:36+09:00",
+  "updated_at": "2026-10-21T18:18:05+09:00",
   "updated_by": "codex",
-  "branch": "codex/audio-dance-sync",
-  "head_at_update": "0d7beec",
+  "branch": "codex/stage-light-rig",
+  "head_at_update": "9e9f244",
   "current": {
-    "task": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー",
-    "status": "done",
-    "step": "SCR-10の3D変形・音声クロック・2トラック編集",
-    "design_doc": "docs/roadmap/AUDIO_DANCE_SYNC_20261021_JA.md"
+    "task": "Issue #40 ステージGLB配置と3点ライト編集",
+    "status": "in_progress",
+    "step": "実GLBの登録・座標検証とライト保存形式/編集UIの設計",
+    "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
     "Issue #39のPRをレビュー・統合し、ローカルmainと現行サーバーを同期する",
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T18:18:05+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9e9f244",
+      "text": "Issue #40 ステージGLB配置と3点ライト編集: 実GLBの登録・座標検証とライト保存形式/編集UIの設計"
+    },
     {
       "at": "2026-10-21T18:04:36+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "done",
       "head": "4ff3c26",
       "text": "main統合ブランチでrecoveryとmainの祖先を接続。Node 284/284合格（5計画スキップ）、Python 370+23、Evidence 118、P2 E2E S1/S2/S5合格。実データハッシュ不変。統合PRを作成する。"
-    },
-    {
-      "at": "2026-10-21T13:17:58+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "11eeac8",
-      "text": "適格PRを含むrecoveryをmainへ統合: mainとの差分確認・祖先同期・共通ゲート・統合PR"
     }
   ]
 }
