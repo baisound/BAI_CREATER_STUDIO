@@ -357,11 +357,18 @@
     {
       "id": "P2-WP-06a",
       "step": "⑥ mount 化",
-      "state": "not_started",
+      "state": "in_progress",
       "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "tests": [
+        "camera.js側: node --checkとnpm run typecheckが合格",
+        "旧カメラ隔離Chromeのlegacy-camera-fixes 2/2合格",
+        "旧mainとmount版でキー追加→Undo/Redo→保存→再読込の結果が一致（2D編集。CDN threeの404で3D比較は未実施）"
+      ],
+      "unverified": [
+        "camera_3d.jsのmount化と旧画面3Dの前後比較は次のサブコミット",
+        "カメラ関係の全テストとstudio-uiはWP06aの両ファイル完了後に実施"
+      ],
+      "notes": "1/2サブコミット: camera.jsをroot基準のmount(root,{host})に変換。手動mountフラグと同一root冪等・異なるroot拒否・dirtyハンドルを追加。旧camera.htmlは変更なし。実装・試験は標準モデル区分。",
       "owner_check": null
     },
     {

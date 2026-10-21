@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T00:28:22+09:00",
+  "updated_at": "2026-10-22T00:56:02+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp06",
-  "head_at_update": "dec1774",
+  "head_at_update": "10e4744",
   "current": {
     "task": "P2-WP-06 カメラ移植とIssue #50全形式の接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "WP06a: camera.jsとcamera_3d.jsを旧画面互換のmount APIにする",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "Issue #50: WP06新カメラへ4形式と保存済み配置を接続する",
-    "P2-WP-06a/b/c/dを実装・検証した後、P2-WP-07書き出しを実装する"
+    "P2-WP-06aの2/2: camera_3d.jsを同じmount契約へ移し旧画面3Dと全カメラ試験を確認"
   ],
   "unverified": [
-    "実利用者モデル・GPU実機・Linux・MCPは未検証。LAST CHASE全量ブラウザー試験は端末停止歴のため行わない"
+    "比較時に外部CDN threeの404が双方で発生し3D比較は未実施。camera_3d.js、全カメラ試験、studio-uiは次段階"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T00:56:02+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "10e4744",
+      "text": "P2-WP-06aの1/2: camera.jsをroot基準の冪等mount APIへ移し、旧カメラのキー編集・Undo/Redo・保存再読込のmain比較が一致"
+    },
     {
       "at": "2026-10-22T00:28:22+09:00",
       "by": "codex",
@@ -234,13 +240,6 @@
       "event": "done",
       "head": "0070974",
       "text": "Issue34/35実素材QA: 実GLB/VRM/PMX正面PNG、実FBX/VMDグレーマン、S01室内PNGを確認。PMX非同期テクスチャ待機・空白画像防止・移動見本追従・一覧再描画競合を修正"
-    },
-    {
-      "at": "2026-10-21T20:24:44+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7eed0d1",
-      "text": "Issue34/35の実素材表示品質確認: 実GLBキャラクターの正面PNGと登録済み実FBXモーションのグレーマンを隔離Chromeで確認し、必要な修正を行う"
     }
   ]
 }
