@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T11:45:05+09:00",
+  "updated_at": "2026-10-21T11:45:46+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05f",
-  "head_at_update": "6e44f19",
+  "head_at_update": "a0675a1",
   "current": {
     "task": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断",
-    "status": "done",
-    "step": "旧実装・既存API・画面受け口・テストの監査",
+    "status": "in_progress",
+    "step": "⑤-11 転写タイムラインQAをボーンマップへ結線",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T11:45:46+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "a0675a1",
+      "text": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断: ⑤-11 転写タイムラインQAをボーンマップへ結線"
+    },
     {
       "at": "2026-10-21T11:45:05+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "8de3801",
       "text": "P2 §2.5 ⑤ モーション（VMD）の詳細設計（O-⑤-1〜8 の決定と WP-05 の分割）: 旧コード調査 → §2.5 詳細化 → 自己批評 → コミット"
-    },
-    {
-      "at": "2026-10-20T19:27:19+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "7cea229",
-      "text": "P2-WP-04b 完了：④-9（SCR-13 ボーンマップ）・④-10（three-host で2体を±1.15）を移植。コミット 7cea229"
     }
   ]
 }
