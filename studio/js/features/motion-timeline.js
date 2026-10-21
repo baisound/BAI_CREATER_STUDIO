@@ -5,6 +5,7 @@ import { assets, project } from '../store.js';
 import { safeTimelineClip, timelineEnd } from '../motion/chain.fork.js';
 import { safeLayer } from '../motion/layers.fork.js';
 import { createTimelineSync } from '../motion/timeline-sync.js';
+import { currentTimelineTarget } from './motion-view.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @type {{getState:()=>any}|null} */ let current = null;
@@ -21,12 +22,13 @@ export const motionTimeline = (ctx) => {
 
   const timeline = createTimelineSync({ path: '/api/timeline-editor', field: 'clips', delayMs: 550, normalize: safeTimelineClip });
   const layers = createTimelineSync({ path: '/api/motion-layers', field: 'layers', delayMs: 500, normalize: safeLayer });
-  let frame = 0, selectedLayer = 0, notice = '', layerNotice = '';
+  let frame = 0, selectedLayer = 0, notice = '', layerNotice = '', playing = false, starting = false;
+  /** @type {{index:number,name:string}|null} */ let active = null;
   let clipSignature = '', layerSignature = '';
 
   const fromChain = h('button', { class: 'btn', type: 'button', dataset: { role: 'tls-from-chain' }, title: '編集中のコンビネーションからクリップを読み込みます' }, 'コンビネーションから取り込む');
   const add = h('button', { class: 'btn', type: 'button', dataset: { role: 'tls-add' } }, '＋ クリップ追加');
-  const play = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { role: 'tls-play' }, disabled: true, title: 'FBX再生の結線後に利用できます' }, '▶ タイムライン再生'));
+  const play = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { role: 'tls-play' }, disabled: true }, '▶ タイムライン再生'));
   const stop = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { role: 'tls-stop' }, disabled: true }, '■ 停止'));
   const seek = /** @type {HTMLInputElement} */ (h('input', { type: 'range', min: '0', max: '1', step: '1', value: '0', 'aria-label': 'タイムラインの再生位置', dataset: { role: 'tls-seek' } }));
   const frameText = h('span', { class: 'mono xs', dataset: { role: 'tls-frame' } }, '0F / 1F');
@@ -65,9 +67,9 @@ export const motionTimeline = (ctx) => {
       h('div', { class: 'tls-sample-tracks' }, ...['センター', '上半身', '左足IK', '右足IK', '表情・リップ', 'ダンサー別', '接触イベント'].map((label) => h('span', null, label)))));
 
   /** @param {any[]} values */
-  const editClips = (values) => { notice = ''; timeline.edit(values); };
+  const editClips = (values) => { currentTimelineTarget()?.stop(); notice = ''; timeline.edit(values); };
   /** @param {any[]} values */
-  const editLayers = (values) => { layerNotice = ''; layers.edit(values); };
+  const editLayers = (values) => { currentTimelineTarget()?.stop(); layerNotice = ''; layers.edit(values); };
   function drawClips() {
     const clips = timeline.state().items;
     const end = Math.max(90, timelineEnd(clips));
@@ -105,6 +107,10 @@ export const motionTimeline = (ctx) => {
     reload.disabled = !st.loaded || st.saving;
     fromChain.toggleAttribute('disabled', !st.loaded);
     add.toggleAttribute('disabled', !st.loaded);
+    const hasFbx = currentTimelineTarget()?.getFormat() === 'FBX';
+    play.disabled = !st.loaded || !st.items.length || !hasFbx || starting || playing;
+    play.title = hasFbx ? '登録済みFBXモーションをこのモデルで再生します' : 'タイムライン再生には FBX のモデルが必要です（旧画面と同じ。モデルA など）';
+    stop.disabled = !playing && !starting;
     conflictActions.hidden = !st.conflict;
   }
 
@@ -180,7 +186,23 @@ export const motionTimeline = (ctx) => {
       } }, '追加'),
     ] });
   });
-  seek.addEventListener('input', () => { frame = Number(seek.value) || 0; renderTimeline(); });
+  seek.addEventListener('input', () => { frame = Number(seek.value) || 0; currentTimelineTarget()?.setFrame(frame); renderTimeline(); });
+  play.addEventListener('click', async () => {
+    const target = currentTimelineTarget();
+    if (!target || target.getFormat() !== 'FBX' || starting || playing) return;
+    starting = true; notice = 'FBXモーションを読み込み中…'; renderTimeline();
+    try {
+      const started = await target.play(timeline.state().items, layers.state().items, frame, (state) => {
+        frame = state.frame; playing = state.playing; active = state.active;
+        notice = state.message || (playing ? 'タイムライン再生中' : '停止しました');
+        renderTimeline();
+      });
+      if (!started) notice = 'モデルが切り替わったため再生を取り消しました';
+      else { playing = true; notice = 'タイムライン再生中'; }
+    } catch (e) { notice = e instanceof Error ? e.message : String(e); playing = false; active = null; }
+    finally { starting = false; renderTimeline(); }
+  });
+  stop.addEventListener('click', () => { currentTimelineTarget()?.stop(); playing = false; active = null; frame = 0; notice = '停止しました'; renderTimeline(); });
   save.addEventListener('click', () => { void timeline.save(); });
   reload.addEventListener('click', () => {
     if (timeline.state().dirty && !confirm('保存済みの編集状態を読み込みますか？')) return;
@@ -209,10 +231,13 @@ export const motionTimeline = (ctx) => {
   };
   window.addEventListener('beforeunload', beforeUnload);
   const offTimeline = timeline.subscribe(renderTimeline), offLayers = layers.subscribe(renderLayers);
-  const me = { getState: () => ({ clips: timeline.state().items, frame, playing: false, end: timelineEnd(timeline.state().items), dirty: timeline.state().dirty || layers.state().dirty, conflict: timeline.state().conflict || layers.state().conflict, active: null, layers: layers.state().items.length }) };
+  window.addEventListener('studio:motion-model', renderTimeline);
+  const me = { getState: () => ({ clips: timeline.state().items, frame, playing, end: timelineEnd(timeline.state().items), dirty: timeline.state().dirty || layers.state().dirty, conflict: timeline.state().conflict || layers.state().conflict, active, layers: layers.state().items.length }) };
   current = me;
   ctx.onCleanup(() => {
     offTimeline(); offLayers();
+    currentTimelineTarget()?.stop();
+    window.removeEventListener('studio:motion-model', renderTimeline);
     window.removeEventListener('beforeunload', beforeUnload);
     if (current === me) current = null;
     void timeline.flushOnLeave().finally(() => timeline.dispose());

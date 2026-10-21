@@ -47,7 +47,7 @@ export function timelineAdvance(position, dt, clips) {
   return { position: Math.min(next, end), ended: next >= end, end };
 }
 
-/** 開始順のうち、現在フレームを含む最後のクリップ。 @param {any[]} clips @param {number} frame */
+/** 開始順のうち、現在フレームを含む最後のクリップ。 @param {any[]} clips @param {number} frame @returns {{clip:any,index:number,originalIndex:number}|null} */
 export function timelineSelect(clips, frame) {
   const ordered = clips.map((clip, originalIndex) => ({ clip, originalIndex })).sort((a, b) => a.clip.start - b.clip.start);
   /** @type {{clip:any, index:number, originalIndex:number}|null} */ let selected = null;

@@ -71,10 +71,10 @@ export function createPlayer(THREE) {
     update(dt) { if (playing && mixer) mixer.update(dt); },
     /** @returns {PlayerState} */
     state() { return { format, motion, playing, time: action ? action.time : 0 }; },
-    /** テスト用の読み取りだけ。無い名前は null。 @param {{bones?: string[], morphs?: string[]}} q */
+    /** テスト用の読み取りだけ。無い名前は null。 @param {{bones?: string[], rotations?: string[], morphs?: string[]}} q */
     probe(q) {
-      /** @type {{bones: Record<string, number[]|null>, morphs: Record<string, number|null>}} */
-      const out = { bones: {}, morphs: {} };
+      /** @type {{bones: Record<string, number[]|null>, rotations: Record<string, number[]|null>, morphs: Record<string, number|null>}} */
+      const out = { bones: {}, rotations: {}, morphs: {} };
       if (!object) return out;
       for (const name of q.bones || []) {
         let b = object.getObjectByName(name);
@@ -82,6 +82,10 @@ export function createPlayer(THREE) {
           object.traverse((/** @type {any} */ o) => { if (!b && o.isSkinnedMesh && o.skeleton) b = o.skeleton.getBoneByName(name); });
         }
         out.bones[name] = b ? b.position.toArray() : null;
+      }
+      for (const name of q.rotations || []) {
+        const b = object.getObjectByName(name);
+        out.rotations[name] = b ? [b.rotation.x, b.rotation.y, b.rotation.z] : null;
       }
       /** @type {any} */ let mesh = null;
       if ((q.morphs || []).length) object.traverse((/** @type {any} */ o) => { if (!mesh && o.morphTargetDictionary && o.morphTargetInfluences) mesh = o; });

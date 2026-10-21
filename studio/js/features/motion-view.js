@@ -17,6 +17,7 @@ import { loadLibs, loadModel, loadErrorText, disposeObject, MISSING_FILE_TEXT, N
 import { createViewport, WebGLError, WEBGL_ERROR_TEXT } from '../viewport/three-host.js';
 import { normalizeModel } from '../viewport/normalize.fork.js';
 import { createPlayer } from '../motion/player.js';
+import { createTimelinePlayback } from '../motion/timeline-playback.js';
 import { vmdUrl, loadVmdClip, canApplyVmd } from '../motion/vmd.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
@@ -31,6 +32,9 @@ const motionUi = createStore({
 /** 今ある再生ビューの読み取り口（baiStudio.motion）。画面を離れると null。 @type {{getState: () => any, probe: (q: any) => any}|null} */
 let current = null;
 export const currentMotion = () => current;
+/** SCR13下部だけが使う内部の再生操作口。保存機能や外部 API へ公開しない。 @type {any} */
+let timelineTarget = null;
+export const currentTimelineTarget = () => timelineTarget;
 
 /** 編集モードの再生ビューが開いているときの操作口（外部コマンド用）。無ければ null。 @type {{open: (id: string, o: {vmd?: string|null, clip?: number|null}) => void, say: (t: string, bad?: boolean) => void}|null} */
 let editor = null;
@@ -125,11 +129,11 @@ function replaceQuery(changes) {
 }
 
 /** 再生ビューに出せるモデル：PMX（mmd:A/B）と GLB/VRM（integrated）。読めるものだけ。 @param {any} a */
-const isPlayable = (a) => a.available && ((a.source === 'mmd' && a.format === 'PMX') || (a.source === 'integrated' && (a.format === 'GLB' || a.format === 'VRM')));
+const isPlayable = (a) => a.available && ((a.source === 'mmd' && a.format === 'PMX') || (a.source === 'integrated' && (a.format === 'GLB' || a.format === 'VRM')) || (a.source === 'fbx' && a.format === 'FBX' && (a.kind === 'modelA' || a.kind === 'modelB')));
 /** @param {any} a */
 const isVmd = (a) => a.available && String(a.id).startsWith('mmd:vmd:');
 /** @param {any} a */
-const modelLabel = (a) => `${a.format}｜${a.name}${a.source === 'mmd' ? `（${a.kind}）` : ''}`;
+const modelLabel = (a) => `${a.format}｜${a.name}${a.source === 'mmd' || a.source === 'fbx' ? `（${a.kind}）` : ''}`;
 
 /* ------------------------------------------------------------------ 中央 */
 
@@ -170,6 +174,17 @@ export const motionViewport = (ctx) => {
   let loaded = { id: null, name: '', format: null, object: null };
   let raf = 0, last = 0;
   let initialized = false;
+  /** @type {Awaited<ReturnType<typeof createTimelinePlayback>>|null} */ let timelinePlayback = null;
+  let timelineRequest = 0;
+  /** @type {((state:any)=>void)|null} */ let timelineNotify = null;
+
+  function stopTimeline() {
+    timelineRequest++;
+    if (timelinePlayback) { timelinePlayback.dispose(); timelinePlayback = null; host?.invalidate(); }
+    timelineNotify?.({ playing: false, frame: 0, active: null, message: '' });
+    timelineNotify = null;
+    stopLoop();
+  }
 
   const motionNow = () => (player ? player.state().motion : null);
   function refreshUi() {
@@ -207,6 +222,14 @@ export const motionViewport = (ctx) => {
   function tick(now) {
     raf = 0;
     if (!alive || !player) return;
+    if (timelinePlayback?.state().playing) {
+      const dt = Math.min(Math.max(0, (now - last) / 1000), .08);
+      last = now;
+      timelinePlayback.update(dt);
+      host?.invalidate();
+      if (timelinePlayback.state().playing) raf = requestAnimationFrame(tick);
+      return;
+    }
     if (!player.state().playing) { refreshUi(); return; }
     const dt = Math.min(Math.max(0, (now - last) / 1000), 0.1); // index.html:203
     last = now;
@@ -219,8 +242,10 @@ export const motionViewport = (ctx) => {
 
   ctx.onCleanup(() => {
     alive = false; seq++;
+    stopTimeline();
     stopLoop();
     current = null;
+    if (timelineTarget === target) timelineTarget = null;
     if (editor === me) editor = null; // 後から開いた別のビューの受け口は消さない
     player?.dispose(); player = null;
     if (host) { host.dispose(); host = null; }
@@ -246,12 +271,14 @@ export const motionViewport = (ctx) => {
     clipSel.dataset.empty = '1';
     motionUi.set({ active: '' });
     hudOf();
+    window.dispatchEvent(new Event('studio:motion-model'));
   }
   resetLoaded();
 
   /** 対象モデルを読み込む。 @param {string} id @param {{vmd?: string|null, clip?: number|null}} [o] */
   async function loadSelected(id, o = {}) {
     const my = ++seq;
+    stopTimeline();
     stopLoop();
     pendingVmd = o.vmd || null;
     player?.clearModel();
@@ -278,6 +305,7 @@ export const motionViewport = (ctx) => {
       hostNow.setState({ loaded: true, assetId: id, format: r.format, scale: norm.scale, offset: norm.offset });
       player.setModel(r.object, r.format, r.animations);
       loaded = { id, name: item.name, format: r.format, object: r.object };
+      window.dispatchEvent(new Event('studio:motion-model'));
       hudOf();
       hostSay('');
       if (r.format === 'PMX') {
@@ -328,6 +356,7 @@ export const motionViewport = (ctx) => {
 
   /** VMD を対象モデルに当てて再生する。 @param {string} vmdId */
   async function applyVmd(vmdId) {
+    stopTimeline();
     if (loading) { pendingVmd = vmdId; say('モデルの読み込み後に VMD を当てます…'); return; }
     if (!loaded.object || !player || !libs) { say('まずモデルを選んでください', true); return; }
     if (!canApplyVmd(loaded.format)) {
@@ -369,6 +398,7 @@ export const motionViewport = (ctx) => {
   modelSel.addEventListener('change', () => chooseModel(modelSel.value));
   clipSel.addEventListener('change', () => {
     if (!player || clipSel.value === '') return;
+    stopTimeline();
     try {
       player.applyClip(Number(clipSel.value));
       player.play(); startLoop();
@@ -379,6 +409,7 @@ export const motionViewport = (ctx) => {
   });
   playBtn.addEventListener('click', () => {
     if (!player || !motionNow()) return;
+    if (timelinePlayback) { stopTimeline(); player.seek(player.state().time); }
     if (player.state().playing) { player.pause(); stopLoop(); } else { player.play(); startLoop(); }
     refreshUi();
   });
@@ -390,6 +421,7 @@ export const motionViewport = (ctx) => {
   });
   seek.addEventListener('input', () => {
     if (!player) return;
+    if (timelinePlayback) stopTimeline();
     player.seek(Number(seek.value));
     host?.invalidate();
     refreshUi();
@@ -412,6 +444,7 @@ export const motionViewport = (ctx) => {
   });
   clearBtn.addEventListener('click', () => {
     seq++; loading = false; pendingVmd = null;
+    stopTimeline();
     stopLoop();
     player?.clearModel();
     host?.clear();
@@ -465,6 +498,25 @@ export const motionViewport = (ctx) => {
   };
   editor = me;
 
+  const target = {
+    getFormat: () => loaded.format,
+    getModelId: () => loaded.id,
+    async play(clips, layers, startFrame, notify) {
+      if (!alive || loaded.format !== 'FBX' || !loaded.object || !libs || !player) throw new Error('タイムライン再生には FBX のモデルが必要です');
+      stopTimeline();
+      const request = timelineRequest, object = loaded.object;
+      player.pause(); stopLoop();
+      const runtime = await createTimelinePlayback(libs, object, clips, layers, { startFrame, onFrame: notify });
+      if (!alive || request !== timelineRequest || object !== loaded.object) { runtime.dispose(); return false; }
+      timelinePlayback = runtime; timelineNotify = notify;
+      startLoop();
+      return true;
+    },
+    stop: stopTimeline,
+    setFrame(value) { timelinePlayback?.setFrame(value); },
+  };
+  timelineTarget = target;
+
   // ライブラリで押された VMD
   let handled = motionUi.get().vmdReq.seq;
   ctx.onCleanup(motionUi.subscribe((s) => {
@@ -483,7 +535,7 @@ export const motionViewport = (ctx) => {
 
   const bar = h('div', { class: 'rt-compare motion-bar', dataset: { role: 'motion-bar' } },
     h('div', { class: 'rt-fields' },
-      h('label', null, '対象モデル', modelSel), h('label', null, 'クリップ（GLB/VRM）', clipSel), clearBtn),
+      h('label', null, '対象モデル', modelSel), h('label', null, 'モデル内クリップ', clipSel), clearBtn),
     h('div', { class: 'rt-fields' }, playBtn, stopBtn, h('label', null, '位置', seek), timeLabel, recordBtn),
     status);
   refreshUi();

@@ -15,6 +15,8 @@ const FIX = path.join(__dirname, 'fixtures');
 const GLB = fs.readFileSync(path.join(FIX, 'synthetic_test_model.glb'));
 const VMD = fs.readFileSync(path.join(FIX, 'minimal.vmd'));
 const ZIP = fs.readFileSync(path.join(FIX, 'minimal_pmx.zip'));
+const FBX_MODEL = fs.readFileSync(path.join(FIX, 'minimal_model.fbx'));
+const FBX_MOTION = fs.readFileSync(path.join(FIX, 'minimal_motion.fbx'));
 
 /** 標準ライブラリだけの ZIP 読み（中央ディレクトリから。格納と deflate のみ）。 */
 function readZip(buf) {
@@ -61,6 +63,21 @@ function seed({ pmx = true, vmd = true } = {}) {
     }),
     ...(pmx ? { 'mmd/A/test.pmx': PMX, 'mmd/A/tex/a.png': PNG } : {}),
     ...(vmd ? { 'mmd/vmd/minimal.vmd': VMD } : {}),
+  };
+}
+
+const JAB = 'Boxing Leading Hand Jab';
+function seedTimeline() {
+  return {
+    ...seed(),
+    'manifest.json': JSON.stringify({ files: [
+      { id: 'f-model', name: 'Actor A.fbx', kind: 'modelA' },
+      { id: 'f-jab', name: `${JAB}.fbx`, kind: 'motions' },
+    ], mapping: {} }),
+    'files/f-model.fbx': FBX_MODEL,
+    'files/f-jab.fbx': FBX_MOTION,
+    'timeline_editor.json': JSON.stringify({ schema: 1, clips: [{ name: JAB, start: 0, duration: 90, speed: 1, blend: 0 }] }),
+    'motion_layers.json': JSON.stringify({ schema: 1, layers: [{ name: '向き', bone: 'Tri', enabled: true, keys: [{ frame: 0, x: 0, y: 90, z: 0 }] }] }),
   };
 }
 
@@ -145,6 +162,52 @@ test('timeline and motion layers save through the existing APIs and keep local e
     await page.click('[data-role="tls-overwrite"]');
     await page.waitForFunction(() => window.baiStudio.timeline.getState().conflict === false && window.baiStudio.timeline.getState().dirty === false);
     assert.equal(JSON.parse(fs.readFileSync(timelinePath, 'utf8')).clips[0].duration, 120);
+  });
+});
+
+test('registered FBX timeline plays at 30fps with additive layer and stops at its end', harness.skip3d(), async () => {
+  await withApp(seedTimeline(), async ({ page, server }) => {
+    await openEdit(page, server);
+    await page.waitForFunction(() => document.querySelector('[data-role="motion-model"] option[value="fbx:f-model"]'));
+    await page.selectOption(MODEL, 'fbx:f-model');
+    await waitModel(page, 'fbx:f-model');
+    await page.waitForFunction(() => document.querySelector('[data-role="tls-play"]')?.disabled === false);
+    await page.click('[data-role="tls-play"]');
+    await page.waitForFunction(() => window.baiStudio.timeline?.getState()?.playing && window.baiStudio.timeline.getState().frame > 5, null, { timeout: 12000 });
+    const at = await page.evaluate(() => ({ timeline: window.baiStudio.timeline.getState(), probe: window.baiStudio.motion.probe({ bones: ['Tri'], rotations: ['Tri'] }) }));
+    near(at.probe.bones.Tri[0], at.timeline.frame / 30, 2 / 30, 'FBX位置とタイムライン時計');
+    near(at.probe.rotations.Tri[1], Math.PI / 2, 1e-3, '補正レイヤーのY回転');
+    await page.waitForFunction(() => window.baiStudio.timeline.getState().playing === false && /終端に到達/.test(document.querySelector('[data-role="tls-status"]')?.textContent || ''), null, { timeout: 10000 });
+    await page.click('.motion-layers > summary');
+    await page.locator('[data-role="ml-row"] input[type="checkbox"]').uncheck();
+    await page.locator('[data-role="tls-seek"]').fill('0');
+    await page.click('[data-role="tls-play"]');
+    await page.waitForFunction(() => window.baiStudio.timeline.getState().playing && window.baiStudio.timeline.getState().frame > 5, null, { timeout: 12000 });
+    const withoutLayer = await probe(page, { rotations: ['Tri'] });
+    near(withoutLayer.rotations.Tri[1], 0, 1e-3, '無効化した補正レイヤーは姿勢に反映されない');
+    await page.click('[data-role="tls-stop"]');
+    await page.selectOption(MODEL, PMX_ID);
+    await waitModel(page, PMX_ID);
+    assert.equal(await page.locator('[data-role="tls-play"]').isDisabled(), true);
+    assert.match(await page.locator('[data-role="tls-play"]').getAttribute('title'), /FBX のモデル/);
+  });
+});
+
+test('pending timeline edit is saved when leaving SCR13', harness.skip3d(), async () => {
+  await withApp(seedTimeline(), async ({ page, server }) => {
+    await openEdit(page, server);
+    await page.waitForFunction(() => document.querySelector('[data-role="tls-item"] input[data-field="duration"]'));
+    const duration = page.locator('[data-role="tls-item"] input[data-field="duration"]');
+    await duration.fill('121');
+    await duration.press('Tab');
+    await page.evaluate(() => window.baiStudio.navigate('08'));
+    await page.waitForURL(/\/workspace\/08/);
+    const saved = path.join(server.dataDir, 'timeline_editor.json');
+    await page.waitForFunction(async () => {
+      const r = await fetch('/api/timeline-editor');
+      return r.ok && (await r.json()).clips?.[0]?.duration === 121;
+    }, null, { timeout: 12000 });
+    assert.equal(JSON.parse(fs.readFileSync(saved, 'utf8')).clips[0].duration, 121);
   });
 });
 

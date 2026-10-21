@@ -77,6 +77,7 @@ export const newProjectUnimpl = (label, x = {}) => ({ ...un(label, '現在のサ
 const EV_CHAR = 'tests/studio-p2-viewport.test.cjs::glb renders and normalizes like the camera page';
 const EV_RT_PANEL = 'tests/studio-p2-retarget.test.cjs::retarget panel shows every API response and saves the mapping';
 const EV_MOTION_VIEW = 'tests/studio-p2-motion.test.cjs::pmx with vmd plays bones and morphs';
+const EV_MOTION_TIMELINE = 'tests/studio-p2-motion.test.cjs::registered FBX timeline plays at 30fps with additive layer and stops at its end';
 const EV_CHAIN_LIST = 'tests/studio-p2-chain.test.cjs::pattern list marks registered fbx with a crown';
 const EV_CHAIN_EDIT = 'tests/studio-p2-chain.test.cjs::add to combination records history and autosaves';
 const EV_CHAIN_SPEED = 'tests/studio-p2-chain.test.cjs::speed autosaves without history';
@@ -416,7 +417,7 @@ export const SCREENS = [
       { name: 'ボーンマップ', status: 'real', evidence: EV_RT_PANEL, note: '骨格解析・プロファイル・ボーン対応表・基準姿勢の検査を /api/retarget/* で行う（読取・試算のみ。モーションやモデルには適用しない）。', ids: ['MOTION-005'] },
       { name: 'ポーズ比較（2体）', status: 'real', evidence: EV_RT_VIEW, note: 'GLB/VRM の元の静止姿勢と補正候補を左右に並べる（試験。モデルは変えない）。', ids: ['MOTION-005'] },
       { name: '4分割ビュー', status: 'unimpl', note: '元モーション・対象・重ね合わせ・側面の4分割は未実装（中央は1つのビューポート）。', ids: ['REVIEW-001'] },
-      { name: '編集タイムライン', status: 'partial', note: '編集モードでクリップと補正レイヤーを既存APIへ保存。FBXタイムライン再生はWP05eの後続結線中。', ids: ['DATA-001'] },
+      { name: '編集タイムライン', status: 'real', evidence: EV_MOTION_TIMELINE, note: '編集モードでクリップと補正レイヤーを既存APIへ保存し、登録FBXモデルでタイムラインを再生する。サンプルトラックは表示例。', ids: ['DATA-001'] },
       { name: '曲線', status: 'mock', ids: ['DATA-003'] },
       { name: '足IK', status: 'partial', note: 'foot_contact.py・dual_foot_plan.py（Phase B 残課題を含む）。', ids: ['MOTION-011'] },
       { name: '入出力', status: 'partial', note: 'motion_vmd_bridge.py・vmd_readback.py。', ids: ['MOTION-006'] },
@@ -446,7 +447,7 @@ export const SCREENS = [
       ] },
       { id: 'motionExtra', label: '追加動作', sections: [{ title: '歩行・待機・呼吸', status: 'unimpl', controls: [un('動作を補完', '元VMDを保持した追加動作は未実装です。', ['LYRIC-011'], PH.G)] }] },
     ] },
-    bottom: { type: 'feature', key: 'motionTimeline', status: 'partial' },
+    bottom: { type: 'feature', key: 'motionTimeline', status: 'real', evidence: EV_MOTION_TIMELINE },
   },
   {
     id: '14', title: 'カメラレール・パスアニメーション', nav: 'カメラレール', group: 'カメラ',

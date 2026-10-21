@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T11:05:04+09:00",
+  "updated_at": "2026-10-21T11:13:45+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05e",
-  "head_at_update": "edf2806",
+  "head_at_update": "47d81d4",
   "current": {
     "task": "P2-WP-05e SCR-13のタイムライン編集・再生と補正レイヤー",
-    "status": "in_progress",
+    "status": "done",
     "step": "登録FBXモデル選択・タイムライン再生・補正レイヤーの姿勢反映を結線",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "FBXモデル選択とタイムライン再生をSCR13の1体ビューへ結線する",
-    "Studio UI全件とP2共通ゲートを再実行する"
+    "Studio UI全件とP2共通ゲートを実行し、台帳を更新する"
   ],
   "unverified": [
-    "FBX再生は未結線。Studio UI全件は初回19/20・テーマ単独再実行合格で、全件再実行待ち。実FBX/GPUとWP05b/c独立レビュー未確認。"
+    "実FBX/GPU実機、WP05b/c/e独立レビュー、P2共通ゲートは未確認。GET→POST競合の隙はK12。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T11:13:45+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "47d81d4",
+      "text": "WP05e: SCR13の登録FBXタイムライン再生、補正レイヤーの表示反映、19件の隔離Chrome回帰を完了"
+    },
     {
       "at": "2026-10-21T11:05:04+09:00",
       "by": "codex",
@@ -235,13 +241,6 @@
       "event": "start",
       "head": "2e8fd96",
       "text": "P2-WP-04 ④ 3D表示とステージ配置・B-4: 実装開始（B-4 → viewport → ステージ配置 → テスト）"
-    },
-    {
-      "at": "2026-10-20T15:30:25+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "28cd93e",
-      "text": "P2-WP-04 の O-④-1・2・3・5・6・7 を Opus で決定（設計書 §2.4(h)）。最小 PMX 2.0（tools/make_test_pmx.py）を作り minimal_pmx.zip を本物に置き換え、MMDLoader での読込をテストで確認"
     }
   ]
 }

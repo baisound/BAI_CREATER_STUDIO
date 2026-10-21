@@ -2006,17 +2006,17 @@
       "feature_ids": [
         "DATA-001"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "編集モードでクリップと補正レイヤーを既存APIへ保存。FBXタイムライン再生はWP05eの後続結線中。",
-      "evidence": null,
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "編集モードでクリップと補正レイヤーを既存APIへ保存し、登録FBXモデルでタイムラインを再生する。サンプルトラックは表示例。",
+      "evidence": "tests/studio-p2-motion.test.cjs::registered FBX timeline plays at 30fps with additive layer and stops at its end",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-13",
