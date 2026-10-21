@@ -1,5 +1,7 @@
 # P2 既存機能の新UI移植 詳細設計 v5 — 2026-10-20 【v5 承認済み（条件付き・最終判定 2026-10-20）：条件 C1〜C10 は本版に反映済み。WP-00a-1 から実装してよい。④〜⑦は各節の O-xx を決めてから（§3 の完了ゲートどおり）】
 
+> 2026-10-21 オーナー追補：素材管理のモーションに見本画像と再生プレビューを求めるIssue #28、全3D画面の中ボタン操作を求めるIssue #29が追加された。本書内の「MOTION-016サムネイルは◇・無地タイル」の記述は当時の基準として残し、現在の実装・受け入れ条件は[追補設計](MOTION_016_ASSET_PREVIEW_NAVIGATION_20261021_JA.md)を優先する。他の◇項目の実装許可には拡張しない。
+
 - 位置付け：所有者決定（2026-10-20、`docs/roadmap/ROADMAP_JA.md`「25画面UIモック先行」節）の **P2（既存機能を新UI `studio/` へ移植）** を、標準モデル（Sonnet 系）が設計判断なしで実装できる細かさまで決める詳細設計。**新機能の追加ではない。** 各項目は、旧画面（`index.html`・`camera.html` とそれらが読み込む JS）か既存の Python API に実在するコードを根拠にする。根拠のないものは「◇ 未実装のまま」に入れる。
 - 作業の流れ順（所有者決定・固定）：①旧画面の動作記録（完了：`docs/ui/LEGACY_UI_INVENTORY_JA.md`）→ **②プロジェクト新規作成・保存/読込 → ③素材取り込み・素材管理 → ④キャラクター・ステージ読込と3D表示 → ⑤モーション（VMD）適用・タイムライン再生 → ⑥カメラ → ⑦書き出し**。本書は②〜⑦を扱う。②③はそのまま実装できる細かさで書く。④〜⑦も同じ章立てで書き、未決事項は O-xx として明示する。
 - 正本の優先順位：`AGENTS.md`（スコープ凍結・モデル使い分け）＞ `docs/roadmap/ROADMAP_JA.md` の所有者決定 ＞ `docs/roadmap/PHASE_E_DETAILED_DESIGN_20261020_JA.md`（v4、条件付き承認。本書と接するのは §0・§2.7・§2.9・§2.11・§4・§7）＞ 本書。矛盾を見つけたら実装を止め、本書を直す。
@@ -696,7 +698,7 @@ export function summarize(bundle) {}                                   // 表示
 | 統合保存 | `complete` が true なら「保存済み」、false なら「コンビネーション未保存（保存すると作成されます）」 | — |
 | 版 | `revision.slice(0, 12)`（`title` 属性に全体） | 6d1875cf2667 |
 
-   - 編集履歴（`projectHistory`）：`history` を保存順に一覧にする（`(i+1). 日時 ラベル`。旧 `ui()` と同じ書式：`index.html:370`）。`cursor` の行に「現在」と付ける。行を選ぶと［この時点に戻す］（`restoreHistory(i)`）が使える。［戻す］は `cursor <= 0` のとき、［やり直す］は `cursor >= history.length-1` のとき無効（`index.html:370` と同じ条件）。`status!=='ready'` のときは全部無効。履歴が0件なら空表示「履歴はまだありません。コンビネーションを編集すると記録されます（現行の制作画面、または ⑤ の移植後）。」
+   - 編集履歴（`projectHistory`）：`history` は保存順のまま、一覧だけ新しい順にする（`(i+1). 日時 ラベル`）。表示行には元のインデックス `i` を保持する。`cursor` の行に「現在」と付ける。行を選ぶと［この時点に戻す］（`restoreHistory(i)`）が使える。［戻す］は `cursor <= 0` のとき、［やり直す］は `cursor >= history.length-1` のとき無効（`index.html:370` と同じ条件）。`status!=='ready'` のときは全部無効。履歴が0件なら空表示「履歴はまだありません。コンビネーションを編集すると記録されます（現行の制作画面、または ⑤ の移植後）。」
    - ［保存］が無効になる条件：`hasUnsaved()===false`、`saving`、`status !== 'ready'`、`cameraInvalid` のどれか。
 11. **アクセシビリティ**：状態行は `role="status"`。ダイアログは既存の `openModal()`（Esc・フォーカス固定）を使う。
 
@@ -1303,7 +1305,7 @@ export function placeActorPmx(mesh, idx, THREE) {}  // index.html:310〜312（�
    - ［保存］は待たずに同じ手順を実行する。［復元］は未保存があれば確認「保存済みの編集状態を読み込みますか？」（`:813`）。
    - 画面を離れるとき：予約中の保存があれば**すぐに実行する**（取り消さない）。`beforeunload` は、未保存か保存中なら警告する（この画面を開いている間だけ登録する）。
 5. タイムライン再生：対象モデル（05a の選択欄に、05e で FBX モデル `fbx:`（`kind` が `modelA`・`modelB`）を足す）が FBX のときだけ有効。FBX でなければ［▶］を無効にし、title「タイムライン再生には FBX のモデルが必要です（旧画面と同じ。モデルA など）」。05a の1体再生とは同時に動かさない（どちらかを始めたら、もう一方を一時停止する。旧 `tls-play` が `stopCombo` を呼ぶのと同じ考え方）。
-   - 毎フレーム（再生中）：`timelineAdvance(position, dt, clips)`（`dt=min(…,0.08)`。終わりに着いたら停止し「終端に到達しました」）→ `timelineSelect(clips, frame)`。無ければ action を止めて「タイムライン：待機 {F}F」。あれば `getClip`（無ければ「登録されていないモーション：{name}」で一時停止）→ 手順が変わったら新しい action を `reset().play()`、補間 `fade = min(blend/30, clip.duration)` で `crossFadeTo`（`:272〜278`）→ `action.time = max(0, local − dt); mixer.update(dt)`（`:279`）→ `applyLayers(model, layers, frame)`（⑤-13）→ `timelineShift` で位置（`:281〜288`）。状態行「タイムライン {F}F / {name} / 速度 {speed}x」。
+   - 毎フレーム（再生中）：`timelineAdvance(position, elapsed, clips)`（時計は実経過秒で進める。タブやGPUの遅延で1フレームが長くなっても時刻差を蓄積しない。3D姿勢更新だけ `step=min(elapsed,0.08)` に制限する。終わりに着いたら停止し「終端に到達しました」）→ `timelineSelect(clips, frame)`。無ければ action を止めて「タイムライン：待機 {F}F」。あれば登録済みの `getClip`、手順が変わったら新しい action を `reset().play()`、補間 `fade = min(blend/30, clip.duration)` で `crossFadeTo`（`:272〜278`）→ `action.time = max(0, local − step); mixer.update(step)`（`:279`）→ `applyLayers(model, layers, frame)`（⑤-13）→ `timelineShift` で位置（`:281〜288`）。状態行「タイムライン {F}F / {name} / 速度 {speed}x」。
    - 位置の操作は `position` を変えるだけ（旧 `:798` と同じ。一時停止中は姿勢を変えない）。
 6. 補正レイヤー（⑤-13。下部の折りたたみ「非破壊モーション補正レイヤー」）：［＋ レイヤー］［◆ キー追加］（タイムラインの今の F に `{x:0,y:0,z:0}`。同じ F にあれば「{F}F にはキーが既にあります」）［保存］［復元］、レイヤーごとに選択・有効・名前・ボーン名・キーの x/y/z（度）・［削除］（`motion_layers.js:19〜24`）。保存は 500ms の自動保存（`:18`）で、手順は 4 と同じ内容比べ（`GET /api/motion-layers` の `layers.map(safeLayer)` と `base`）。
 7. 外部の MCP（`mixamo_timeline_set`・`mixamo_motion_layers_set`：`mcp_server.py:98・100`）の書き込みは 4 の比べで競合として見つかる（開いている間に自動では読み直さない。`sync_bump` が呼ばれないため）。

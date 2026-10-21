@@ -6,7 +6,7 @@ class ModelBoundsWiringTest(unittest.TestCase):
         src=(ROOT/'camera_3d.js').read_text()
         self.assertIn("'bai-camera-model-bounds'", src)
         self.assertIn('trackSubject();publishModelFraming()',src)
-        self.assertIn('node.isSkinnedMesh',src)
+        # Bounds geometry is exercised with a real rendered model in the browser test.
     def test_consumer_and_fallback(self):
         src=(ROOT/'camera.js').read_text()
         self.assertIn('modelFramingBounds||{}',src)

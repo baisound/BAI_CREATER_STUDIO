@@ -177,6 +177,14 @@ test('registered FBX timeline plays at 30fps with additive layer and stops at it
     const at = await page.evaluate(() => ({ timeline: window.baiStudio.timeline.getState(), probe: window.baiStudio.motion.probe({ bones: ['Tri'], rotations: ['Tri'] }) }));
     near(at.probe.bones.Tri[0], at.timeline.frame / 30, 2 / 30, 'FBX位置とタイムライン時計');
     near(at.probe.rotations.Tri[1], Math.PI / 2, 1e-3, '補正レイヤーのY回転');
+    const delayed = await page.evaluate(async () => {
+      const before = window.baiStudio.timeline.getState().frame;
+      const start = performance.now();
+      while (performance.now() - start < 250) { /* one delayed render frame */ }
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return window.baiStudio.timeline.getState().frame - before;
+    });
+    assert.ok(delayed >= 6, `遅延後の時計も実時間で進む: ${delayed}F`);
     await page.waitForFunction(() => window.baiStudio.timeline.getState().playing === false && /終端に到達/.test(document.querySelector('[data-role="tls-status"]')?.textContent || ''), null, { timeout: 10000 });
     await page.click('.motion-layers > summary');
     await page.locator('[data-role="ml-row"] input[type="checkbox"]').uncheck();
@@ -259,6 +267,14 @@ test('pmx with vmd plays bones and morphs', harness.skip3d(), async () => {
     near(p1.morphs['あ'], 1, 1e-6, 'あ@1.0');
     near(p1.bones['センター'][1] - p0.bones['センター'][1], 1.0, 1e-4, 'センターの y');
     assert.match(await page.textContent('[data-role="motion-time"]'), /^1\.00 \/ 1\.00 秒$/);
+    await seekTo(page, 0);
+    const again0 = await probe(page, { morphs: ['あ'], bones: ['センター'] });
+    near(again0.morphs['あ'], p0.morphs['あ'], 1e-6, '往復後のあ@0');
+    near(again0.bones['センター'][1], p0.bones['センター'][1], 1e-6, '往復後のセンター@0');
+    await seekTo(page, 1.0);
+    const again1 = await probe(page, { morphs: ['あ'], bones: ['センター'] });
+    near(again1.morphs['あ'], p1.morphs['あ'], 1e-6, '往復後のあ@1.0');
+    near(again1.bones['センター'][1], p1.bones['センター'][1], 1e-6, '往復後のセンター@1.0');
     await shot(page, 'pmx-vmd-edit.jpg');
   });
 });

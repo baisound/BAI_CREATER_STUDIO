@@ -1,7 +1,7 @@
 // @ts-check
 // ③ 素材一覧の分類・絞り込み（純関数。DOM なし。Node で単体テストする。P2 設計 §2.3(d)）。
 
-/** @typedef {{id: string, name: string, format: string, kind: string, source: string, available: boolean, previewable?: boolean, filename?: string}} AssetItem */
+/** @typedef {{id: string, name: string, format: string, kind: string, source: string, available: boolean, previewable?: boolean, filename?: string, originalName?: string, titleSource?: string, bytes?: number, sha256?: string, mime?: string, width?: number, height?: number, duration?: number, thumbnailUrl?: string|null, thumbnailKey?: string}} AssetItem */
 
 /** 左の分類。順序・ラベル・アイコンは samples.js から移したもの（motion のラベルだけ「モーション」）。 */
 export const ASSET_CATS = [
@@ -17,22 +17,15 @@ export const ASSET_CATS = [
 ];
 
 /** 今の API に登録手段が無い分類（常に0件）と、その ◇ の説明に使う機能ID。 */
-export const EMPTY_CATS = Object.freeze({
-  stage: { ids: ['LYRIC-009'], name: 'ステージ' },
-  audio: { ids: ['LYRIC-006'], name: 'オーディオ' },
-  prop: { ids: ['NF-004'], name: '小物' },
-  mat: { ids: ['NF-004'], name: 'マテリアル' },
-  fx: { ids: ['NF-004'], name: 'エフェクト' },
-  video: { ids: ['NF-004'], name: '動画' },
-  image: { ids: ['NF-004'], name: '画像' },
-});
+export const EMPTY_CATS = Object.freeze({});
 
 /**
  * 一覧の item を左の分類へ。
  * @param {Pick<AssetItem, 'source'|'kind'|'format'>} item
- * @returns {'char'|'motion'}
+ * @returns {'char'|'motion'|'stage'|'prop'|'mat'|'fx'|'audio'|'video'|'image'}
  */
 export function categoryOf(item) {
+  if (item.source === 'library') return /** @type {any} */ ({ stage: 'stage', prop: 'prop', material: 'mat', fx: 'fx', audio: 'audio', video: 'video', image: 'image' })[item.kind] || 'image';
   if (item.source === 'fbx') return item.kind === 'motions' ? 'motion' : 'char'; // kind: modelA|modelB|motions
   if (item.source === 'integrated') return item.kind === 'model' ? 'char' : 'motion';
   if (item.source === 'mmd') return item.format === 'PMX' ? 'char' : 'motion'; // PMX→char, VMD→motion
@@ -44,6 +37,7 @@ const fbxKindLabel = (kind) => (kind === 'modelA' ? 'モデルA' : kind === 'mod
 
 /** 登録元の表示名。 @param {Pick<AssetItem, 'source'|'kind'>} item */
 export function sourceLabel(item) {
+  if (item.source === 'library') return '素材ライブラリ登録';
   if (item.source === 'fbx') return `FBX登録（${fbxKindLabel(item.kind)}）`;
   if (item.source === 'integrated') return 'GLB / VRM 登録';
   if (item.source === 'mmd') return item.kind === 'A' ? 'MMD スロットA' : item.kind === 'B' ? 'MMD スロットB' : 'MMD VMD';
@@ -55,6 +49,7 @@ export const fbxLabel = fbxKindLabel;
 
 /** @param {Pick<AssetItem, 'source'|'kind'|'format'>} item */
 export function kindLabel(item) {
+  if (item.source === 'library') return ({ stage: 'ステージ', prop: '小物', material: 'マテリアル', fx: 'エフェクト素材', audio: 'オーディオ', video: '動画', image: '画像' })[item.kind] || '素材';
   if (item.source === 'integrated') return item.kind === 'model' ? 'モデル' : 'モーション';
   if (item.source === 'fbx') return fbxKindLabel(item.kind);
   return item.format === 'PMX' ? 'モデル' : 'モーション';
@@ -74,7 +69,7 @@ export function filterAssets(items, { cat = 'all', q = '', fmt = 'all', sort = '
     return true;
   });
   // 'fav'・'tag:' などの分類は今の API に素材が無い
-  if (cat !== 'all' && cat !== 'char' && cat !== 'motion') list = [];
+  if (cat !== 'all' && !ASSET_CATS.some((x) => x.id === cat)) list = [];
   if (sort === 'name') list = [...list].sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja'));
   else if (sort === 'format') list = [...list].sort((a, b) => String(a.format).localeCompare(String(b.format)) || String(a.name).localeCompare(String(b.name), 'ja'));
   return list;

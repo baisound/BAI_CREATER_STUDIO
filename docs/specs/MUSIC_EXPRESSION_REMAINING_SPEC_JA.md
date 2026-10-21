@@ -1,6 +1,6 @@
-# 音楽・リップ・表情の後段 要求仕様（B2・草案）
+# 音楽・リップ・表情の後段 要求仕様（B2）
 
-状態: 仕様草案。A1 以降の後段。対象 `LIP-005`〜`008`、`LIP-010`、`LIP-011`、`LYRIC-006`。`O-MUSIC-01/02/03` は所有者がすべて推奨案Aを承認した。決定と境界は [B2所有者判断資料](B2_MUSIC_EXPRESSION_DECISIONS_JA.md) に記録する。BGM の読込・配置、基本口形・表情キーは A1 の仕様を参照する。音声 EQ／ミキサー等の `NF-002` は未承認で対象外。
+状態: 所有者決定済みの要求仕様。実装する際は [B2実装設計](B2_MUSIC_EXPRESSION_IMPLEMENTATION_DESIGN_JA.md) と [共通契約](IMPLEMENTATION_COMMON_CONTRACT_JA.md) を読む。A1 以降の後段。対象 `LIP-005`〜`008`、`LIP-010`、`LIP-011`、`LYRIC-006`。`O-MUSIC-01/02/03` は所有者がすべて推奨案Aを承認した。決定と境界は [B2所有者判断資料](B2_MUSIC_EXPRESSION_DECISIONS_JA.md) に記録する。BGM の読込・配置、基本口形・表情キーは A1 の仕様を参照する。音声 EQ／ミキサー等の `NF-002` は未承認で対象外。機能は未実装・未検証。
 
 ## 目的・依存
 

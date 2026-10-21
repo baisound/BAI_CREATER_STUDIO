@@ -254,32 +254,55 @@ window.addEventListener('bai-camera-rail-path',event=>{
 });
 window.dispatchEvent(new Event('bai-camera-rail-ready'));
 const loader=new GLTFLoader();
+const assetClipHints=new Map();
+let loadedAssetName='';
 // CAM-004: conservative world-space bounds sampled after animation updates.
 // Only geometry-backed meshes count; helpers/rig handles are excluded.
 function publishModelFraming(){
  if(!model){window.dispatchEvent(new CustomEvent('bai-camera-model-bounds',{detail:null}));return}
- model.updateWorldMatrix(true,true);
- const bounds=new THREE.Box3();let found=false;
- model.traverse(node=>{
-  if(!node.isMesh||!node.geometry)return;
-  if(!node.geometry.boundingBox)node.geometry.computeBoundingBox();
-  if(!node.geometry.boundingBox)return;
-  // Skinned meshes require posed bounds (Three.js r160 computes them).
-  const local=node.isSkinnedMesh&&typeof node.computeBoundingBox==='function'
-   ?(node.computeBoundingBox(),node.boundingBox):node.geometry.boundingBox;
-  if(!local||local.isEmpty())return;
-  bounds.union(local.clone().applyMatrix4(node.matrixWorld));found=true;
- });
- if(!found||bounds.isEmpty())return;
+ model.updateMatrixWorld(true);
+ // Box3 already applies each mesh's world matrix. Applying it once more inflated posed VRMs/GLBs
+ // by several times and gave false framing warnings.
+ const bounds=new THREE.Box3().setFromObject(model,true);
+ if(bounds.isEmpty())return;
  const sphere=bounds.getBoundingSphere(new THREE.Sphere());
  window.dispatchEvent(new CustomEvent('bai-camera-model-bounds',{detail:{center:sphere.center.toArray(),radius:sphere.radius,min:bounds.min.toArray(),max:bounds.max.toArray(),source:'model',frame:lastFrame}}));
 }
-function clean(){if(!model)return;trackEnabled.checked=false;trackingBone=null;trackingOffset=null;world.remove(model);mixer?.stopAllAction();model.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()});model=null;mixer=null;clips=[];activeClip=null;publishModelFraming()}
-async function loadAsset(asset){if(!/^[^/\\]+\.(glb|vrm)$/i.test(asset))throw Error('GLB/VRMのみ対応');status('モデル読み込み中…');const response=await fetch('/api/integrated-v02/asset/'+encodeURIComponent(asset));if(!response.ok)throw Error('モデル取得エラー HTTP '+response.status);const parsed=await loader.parseAsync(await response.arrayBuffer(),'');clean();model=parsed.scene;world.add(model);const bounds=new THREE.Box3().setFromObject(model);const size=bounds.getSize(new THREE.Vector3());const scale=2/Math.max(.001,size.y);model.scale.multiplyScalar(scale);bounds.setFromObject(model);const center=bounds.getCenter(new THREE.Vector3());model.position.x-=center.x;model.position.z-=center.z;model.position.y-=bounds.min.y;
-clips=parsed.animations||[];mixer=clips.length?new THREE.AnimationMixer(model):null;const select=$('camera-clip');select.replaceChildren(new Option('静止モデル',''));clips.forEach((clip,i)=>select.add(new Option(`${clip.name||'Animation '+(i+1)} (${clip.duration.toFixed(1)}s)`,String(i))));if(clips.length){select.value='0';setClip(0)}else select.value='';discoverBones();updateTime();
-$('scene').style.visibility='hidden';$('preview').style.visibility='hidden';views[0].renderer.domElement.style.pointerEvents='auto';status(`${asset} / 3D表示中 / ${clips.length}クリップ。FBX・VMD・VRM物理は未対応`)}
-function setClip(i){mixer?.stopAllAction();activeClip=Number.isInteger(i)&&clips[i]?clips[i]:null;if(activeClip)mixer.clipAction(activeClip).play();updateTime()}
-function updateTime(){if(mixer&&activeClip){const time=lastFrame/Math.max(1,fps);mixer.setTime(time%Math.max(.001,activeClip.duration))}trackSubject();publishModelFraming()}
+function clean(){if(!model)return;trackEnabled.checked=false;trackingBone=null;trackingOffset=null;world.remove(model);mixer?.stopAllAction();model.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()});model=null;mixer=null;clips=[];activeClip=null;loadedAssetName='';window.dispatchEvent(new CustomEvent('bai-camera-face-target',{detail:null}));publishModelFraming()}
+function publishFaceTarget(){
+ if(!model)return;
+ model.updateMatrixWorld(true);
+ const eyes=[];let head=null;
+ model.traverse(node=>{if(!node.isBone)return;if(/faceeye|lefteye|righteye/i.test(node.name))eyes.push(node.getWorldPosition(new THREE.Vector3()));else if(!head&&/head/i.test(node.name))head=node.getWorldPosition(new THREE.Vector3())});
+ const point=eyes.length?eyes.reduce((sum,eye)=>sum.add(eye),new THREE.Vector3()).divideScalar(eyes.length):head;
+ window.dispatchEvent(new CustomEvent('bai-camera-face-target',{detail:point?{point:point.toArray()}:null}));
+}
+function clipIndexFor(asset){
+ const hint=(assetClipHints.get(asset)||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+ if(hint){const match=clips.findIndex(clip=>String(clip.name||'').toLowerCase().replace(/[^a-z0-9]/g,'')===hint);if(match>=0)return match}
+ const moving=clips.findIndex(clip=>!/t.?pose|bind.?pose|reference/i.test(String(clip.name||'')));
+ return moving>=0?moving:0;
+}
+function clipStatus(){
+ if(!model)return;
+ const motion=activeClip?`${activeClip.name||'選択した動き'} ${activeClip.duration.toFixed(1)}秒を繰り返し`:'静止モデル';
+ status(`${loadedAssetName} / 3D表示中 / ${motion}。FBX・VMD・VRM物理は未対応`);
+}
+async function loadAsset(asset){if(!/^[^/\\]+\.(glb|vrm)$/i.test(asset))throw Error('GLB/VRMのみ対応');status('モデル読み込み中…');const response=await fetch('/api/integrated-v02/asset/'+encodeURIComponent(asset));if(!response.ok)throw Error('モデル取得エラー HTTP '+response.status);const parsed=await loader.parseAsync(await response.arrayBuffer(),'');clean();
+// Keep the imported skeleton at its original scale. Some skinned assets have a static geometry box
+// much smaller than the posed body, and scaling their scene root also scales skinning twice.
+const content=parsed.scene,orientation=new THREE.Group();orientation.add(content);model=new THREE.Group();model.add(orientation);world.add(model);
+// VRM humanoids look toward -Z. The filming presets look from +Z, so turn only
+// the preview instance around to show the character's face on initial load.
+if(/\.vrm$/i.test(asset))orientation.rotation.y=Math.PI;
+orientation.updateMatrixWorld(true);
+const bounds=new THREE.Box3().setFromObject(orientation,true),size=bounds.getSize(new THREE.Vector3());
+const center=bounds.getCenter(new THREE.Vector3()),scale=2/Math.max(.001,size.y);
+model.scale.setScalar(scale);model.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);publishFaceTarget();
+loadedAssetName=asset;clips=parsed.animations||[];mixer=clips.length?new THREE.AnimationMixer(content):null;const select=$('camera-clip');select.replaceChildren(new Option('静止モデル',''));clips.forEach((clip,i)=>select.add(new Option(`${clip.name||'Animation '+(i+1)} (${clip.duration.toFixed(1)}s)`,String(i))));if(clips.length){const chosen=clipIndexFor(asset);select.value=String(chosen);setClip(chosen)}else{select.value='';clipStatus()}discoverBones();updateTime();
+$('scene').style.visibility='hidden';$('preview').style.visibility='hidden';views[0].renderer.domElement.style.pointerEvents='auto';clipStatus()}
+function setClip(i){mixer?.stopAllAction();activeClip=Number.isInteger(i)&&clips[i]?clips[i]:null;if(activeClip)mixer.clipAction(activeClip).play();updateTime();clipStatus()}
+function updateTime(){if(mixer&&activeClip){const time=lastFrame/Math.max(1,fps);mixer.setTime(time%Math.max(.001,activeClip.duration))}publishFaceTarget();trackSubject();publishModelFraming()}
 window.addEventListener('bai-camera-frame',e=>{lastFrame=e.detail.frame;fps=e.detail.fps||30;
 // Preserve the separately dispatched native VMD pose while experimental follow is enabled.
 // The ordinary camera-frame event still updates model animation time.
@@ -309,11 +332,13 @@ window.addEventListener('bai-camera-workspace-restore',async e=>{
 });
 $('camera-clip').onchange=e=>{const i=Number(e.target.value);setClip(e.target.value===''?null:i)};
 $('camera-load-asset').onclick=()=>{const name=$('camera-asset').value;if(!name){status('素材を選択してください');return}loadAsset(name).catch(err=>status('読み込み失敗: '+err.message))};
-async function catalog(){try{const r=await fetch('/api/integrated-v02/catalog');if(!r.ok)throw Error('HTTP '+r.status);const c=await r.json(),sel=$('camera-asset'),seen=new Set();for(const entry of [...(c.models||[]),...(c.motions||[])]){const name=entry.source_asset?.split('/').pop();if(!name||!/\.(glb|vrm)$/i.test(name)||seen.has(name))continue;seen.add(name);sel.add(new Option((entry.name||name)+' — '+name,name))}status(seen.size+'件のGLB/VRM素材を選択できます')}catch(err){status('カタログ取得失敗: '+err.message)}}
-// Scene view controls: Unreal-style RMB+WASD fly, LMB orbit, Shift+LMB truck/crane.
+async function catalog(){try{const r=await fetch('/api/integrated-v02/catalog');if(!r.ok)throw Error('HTTP '+r.status);const c=await r.json(),sel=$('camera-asset'),seen=new Set();for(const entry of [...(c.models||[]),...(c.motions||[])]){const name=entry.source_asset?.split('/').pop();if(!name||!/\.(glb|vrm)$/i.test(name)||seen.has(name))continue;seen.add(name);sel.add(new Option((entry.name||name)+' — '+name,name));if(entry.name?.includes('/'))assetClipHints.set(name,entry.name.split('/').at(-1).trim())}status(seen.size+'件のGLB/VRM素材を選択できます')}catch(err){status('カタログ取得失敗: '+err.message)}}
+// Scene view controls: MMB orbit, Shift+MMB pan, Ctrl+MMB dolly;
+// existing LMB orbit, Shift+LMB pan and RMB+WASD fly remain available.
 // The independent scene camera never writes filming-camera keys.
 let dragButton=null,lastX=0,lastY=0,rightHeld=false;
-const canvas=()=>views[0].renderer?.domElement;
+// 3Dの重ねキャンバスはモデル未選択時にpointer-events:noneなので、両状態で受け取れる親パネルを操作面にする。
+const canvas=()=>views[0].renderer ? views[0].host : null;
 function focusSelectedModel(){
   const bounds=model?new THREE.Box3().setFromObject(model):null;
   if(bounds&&!bounds.isEmpty()){
@@ -328,7 +353,9 @@ function controlInit(){
   el.tabIndex=0;
   el.addEventListener('contextmenu',e=>e.preventDefault());
   el.addEventListener('pointerdown',e=>{
-    if(e.button!==0&&e.button!==2)return;
+    if(e.button!==0&&e.button!==1&&e.button!==2)return;
+    if(!model&&e.button!==1)return;
+    if(e.button===1)e.preventDefault();
     dragButton=e.button;rightHeld=e.button===2;
     lastX=e.clientX;lastY=e.clientY;
     el.focus();el.setPointerCapture(e.pointerId);
@@ -336,7 +363,9 @@ function controlInit(){
   el.addEventListener('pointermove',e=>{
     if(dragButton===null)return;
     const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;
-    if(dragButton===0&&e.shiftKey){
+    if(dragButton===1&&e.ctrlKey){
+      distance=Math.max(.35,Math.min(100,distance*Math.exp(dy*.01)));
+    }else if((dragButton===0||dragButton===1)&&e.shiftKey){
       const forward=new THREE.Vector3();sceneCam.getWorldDirection(forward);
       const right=new THREE.Vector3().crossVectors(forward,new THREE.Vector3(0,1,0)).normalize();
       const scale=distance*.0015;
@@ -349,6 +378,7 @@ function controlInit(){
   });
   const stop=e=>{dragButton=null;rightHeld=false;if(el.hasPointerCapture?.(e.pointerId))el.releasePointerCapture(e.pointerId)};
   el.addEventListener('pointerup',stop);el.addEventListener('pointercancel',stop);
+  el.addEventListener('auxclick',e=>{if(e.button===1)e.preventDefault()});
   el.addEventListener('blur',()=>{dragButton=null;rightHeld=false});
   el.addEventListener('wheel',e=>{
     e.preventDefault();distance=Math.max(.35,Math.min(100,distance*Math.exp(e.deltaY*.001)));scenePosition();

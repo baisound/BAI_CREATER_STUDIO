@@ -303,7 +303,7 @@ export function createProjectController(deps = {}) {
 
   /**
    * workspace を書く唯一の経路（設計 §2.2(d)-9）。frame だけの変化は dirty にしない。
-   * @param {{asset?: string, clip?: number|null, frame?: number, stage?: any}} fields
+   * @param {{asset?: string, clip?: number|null, frame?: number, stage?: any, lights?: any}} fields
    * @param {{source?: 'store'|'host'}} [_o]
    */
   function setWorkspaceFields(fields, _o = {}) {
@@ -318,7 +318,7 @@ export function createProjectController(deps = {}) {
     const next = { ...cur, ...fields };
     if ('asset' in fields && fields.asset !== cur.asset && !('clip' in fields)) next.clip = null;
     if (same(next, cur) && s.bundle.workspace) return;
-    const meaningful = ['asset', 'clip', 'stage'].some((k) => !same(next[k], cur[k]));
+    const meaningful = ['asset', 'clip', 'stage', 'lights'].some((k) => !same(next[k], cur[k]));
     if (meaningful) wsVersion++;
     store.set({
       bundle: { ...s.bundle, workspace: next },

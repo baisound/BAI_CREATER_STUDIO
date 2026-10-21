@@ -8,8 +8,11 @@ from camera_vmd_inspect import inspect_camera_vmd
 from camera_vmd_codec import decode_camera_track, encode_camera_track
 from camera_vmd_playback import sample_native_camera
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlsplit, parse_qs
+from urllib.parse import urlsplit, parse_qs, quote, unquote as path_unquote
 from bai_paths import data_dir
+import library_assets
+import asset_thumbnails
+import music_dance_project
 from diagnostic_logging import event, recent
 from qa_capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
 from operation_diagnostics import record_ui_action, diagnostics_archive
@@ -46,6 +49,7 @@ def resolve_asset(identifier):
     if not entry:raise ValueError('registered asset not found')
     if entry['source']=='fbx':return FILES/(identifier.split(':',1)[1]+'.fbx')
     if entry['source']=='integrated':return DATA/'integrated_v02'/'assets'/entry['filename']
+    if entry['source']=='library':return LIBRARY_ROOT/'files'/entry['filename']
     if entry['source']=='mmd':
         _,slot,name=identifier.split(':',2)
         return MMD_DIR/slot/name
@@ -61,6 +65,11 @@ META=DATA/'manifest.json'; FAVORITES=DATA/'favorites.json'; PROJECT=DATA/'projec
 CUSTOM_ASSETS=DATA/'integrated_v02'/'assets'; CUSTOM_ASSETS.mkdir(parents=True,exist_ok=True)
 CUSTOM_INDEX=DATA/'integrated_v02'/'user_assets.json'
 CUSTOM_LOCK=threading.RLock()
+LIBRARY_ROOT=DATA/'library_assets'
+LIBRARY_LOCK=threading.RLock()
+CHAR_THUMB_ROOT=DATA/'asset_thumbnails'
+CHAR_THUMB_LOCK=threading.RLock()
+MUSIC_DANCE_FILE=DATA/'music_dance_project.json'; MUSIC_DANCE_LOCK=threading.RLock()
 EDITOR_FILE=DATA/'timeline_editor.json'; EDITOR_LOCK=threading.RLock()
 LAYER_FILE=DATA/'motion_layers.json'; LAYER_LOCK=threading.RLock()
 def layer_read():
@@ -81,6 +90,27 @@ def catalog_combined():
         else:c['motions'].append({'id':x['id'],'name':x['name'],'category':'ユーザー登録','provider':'ローカル','source_asset':'assets/'+x['filename']})
     c['asset_count']=len({x.get('source_asset') for x in c['motions']+c['models'] if x.get('source_asset')})
     return c
+
+
+def character_source(entry):
+    """Resolve only a registered character's source; reject escaped metadata paths."""
+    if not entry.get('available') or entry.get('format') not in ('GLB','VRM','PMX','FBX'):
+        return None
+    if entry.get('source')=='integrated' and entry.get('kind')=='model':
+        root=DATA/'integrated_v02'/'assets'; parts=(entry.get('filename',''),)
+    elif entry.get('source')=='mmd' and entry.get('format')=='PMX' and entry.get('kind') in ('A','B'):
+        root=MMD_DIR/entry['kind']; parts=(entry.get('name',''),)
+    elif entry.get('source')=='fbx' and entry.get('kind') in ('modelA','modelB'):
+        root=FILES; parts=(entry.get('id','').removeprefix('fbx:')+'.fbx',)
+    else:
+        return None
+    base=root.resolve(); candidate=root.joinpath(*parts).resolve()
+    return candidate if candidate.is_relative_to(base) and candidate.is_file() else None
+
+
+def character_entry(asset_id):
+    return next(((entry, source) for entry in unified_assets() if entry['id']==asset_id
+                 if (source:=character_source(entry)) is not None),None)
 
 
 def unified_assets():
@@ -106,6 +136,13 @@ def unified_assets():
             fmt=Path(name).suffix.lower().lstrip('.').upper()
             if fmt not in ('PMX','VMD'):continue
             result.append({'id':'mmd:'+slot+':'+name,'name':name,'format':fmt,'kind':slot,'source':'mmd','available':(MMD_DIR/slot/name).is_file(),'previewable':True})
+    with LIBRARY_LOCK:result.extend(library_assets.public_items(LIBRARY_ROOT))
+    for entry in result:
+        source=character_source(entry)
+        if source is None:continue
+        entry['thumbnailKey']=asset_thumbnails.cache_key(entry['id'],source)
+        cached=asset_thumbnails.thumbnail_for(CHAR_THUMB_ROOT,entry['id'],source)
+        if cached:entry['thumbnailUrl']='/api/assets/thumbnail/'+quote(entry['id'],safe='')+'?v='+cached[1]
     return result
 
 def readmeta():
@@ -161,6 +198,30 @@ class Handler(BaseHTTPRequestHandler):
 
     def send(self,status,data,ctype='application/json'):
         self.send_response(status);self.send_header('Content-Type',ctype);self.send_header('Content-Length',str(len(data)));self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff');self.end_headers();self.wfile.write(data)
+    def send_library_file(self,file,ctype):
+        size=file.stat().st_size
+        start,end=0,size-1
+        range_header=self.headers.get('Range','')
+        if range_header:
+            match=re.fullmatch(r'bytes=(\d+)-(\d*)',range_header.strip())
+            if not match:return self.bad(400,'single byte range required')
+            start=int(match.group(1));end=min(size-1,int(match.group(2))) if match.group(2) else size-1
+            if start>=size or end<start:
+                self.send_response(416);self.send_header('Content-Range',f'bytes */{size}');self.send_header('Content-Length','0');self.end_headers();return
+        self.send_response(206 if range_header else 200)
+        self.send_header('Content-Type',ctype)
+        self.send_header('Content-Length',str(end-start+1))
+        self.send_header('Accept-Ranges','bytes')
+        if range_header:self.send_header('Content-Range',f'bytes {start}-{end}/{size}')
+        self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff');self.end_headers()
+        with file.open('rb') as source:
+            source.seek(start);remaining=end-start+1
+            while remaining:
+                chunk=source.read(min(1024*1024,remaining))
+                if not chunk:break
+                try:self.wfile.write(chunk)
+                except (BrokenPipeError,ConnectionResetError):break
+                remaining-=len(chunk)
     def bad(self,status,msg,code=None):
         body={'error':msg}
         if code:body['error_code']=code
@@ -253,7 +314,7 @@ class Handler(BaseHTTPRequestHandler):
             if found:
                 self.send(200,found[0].read_bytes(),found[1]);return
         if path=='/api/server-version':
-            self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload']}).encode());return
+            self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload','library_assets','music_dance']}).encode());return
         if path=='/api/retarget/profile-for-pair':
             params=parse_qs(urlsplit(self.path).query);source=params.get('source',[''])[0];target=params.get('target',[''])[0]
             if not source or not target:return self.bad(400,'source and target required')
@@ -301,7 +362,45 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/api/timeline-editor':
             with EDITOR_LOCK: self.send(200,json.dumps(editor_read(),ensure_ascii=False).encode());return
         if path=='/api/assets':
-            self.send(200,json.dumps({'items':unified_assets()},ensure_ascii=False).encode());return
+            try:self.send(200,json.dumps({'items':unified_assets()},ensure_ascii=False).encode())
+            except (ValueError,OSError):self.bad(500,'素材索引を読めません。原本は保持されています。')
+            return
+        if path.startswith('/api/assets/thumbnail/'):
+            asset_id=path_unquote(path[len('/api/assets/thumbnail/'):])
+            try:
+                found=character_entry(asset_id)
+                if not found:return self.bad(404,'character asset not found')
+                with CHAR_THUMB_LOCK:cached=asset_thumbnails.thumbnail_for(CHAR_THUMB_ROOT,asset_id,found[1])
+                if not cached:return self.bad(404,'thumbnail not found')
+                self.send(200,cached[0].read_bytes(),'image/png')
+            except (ValueError,OSError):self.bad(500,'正面画像を読めません。')
+            return
+        if path=='/api/music-dance/project':
+            try:
+                with MUSIC_DANCE_LOCK: payload=music_dance_project.read(MUSIC_DANCE_FILE)
+                self.send(200,json.dumps(payload,ensure_ascii=False).encode())
+            except music_dance_project.InvalidMusicDanceProject:
+                event('music_dance.project_invalid',level='error')
+                self.bad(422,'音楽・ダンスの保存データを読めません。元ファイルを保持しています。')
+            return
+        if path.startswith('/api/library-assets/file/'):
+            from urllib.parse import unquote
+            asset_id=unquote(path[len('/api/library-assets/file/'):])
+            try:
+                with LIBRARY_LOCK:found=library_assets.file_for(LIBRARY_ROOT,asset_id)
+                if not found:return self.bad(404,'registered asset not found')
+                self.send_library_file(*found)
+            except (ValueError,OSError):self.bad(500,'素材を読めません。原本は保持されています。')
+            return
+        if path.startswith('/api/library-assets/thumbnail/'):
+            from urllib.parse import unquote
+            asset_id=unquote(path[len('/api/library-assets/thumbnail/'):])
+            try:
+                with LIBRARY_LOCK:found=library_assets.thumbnail_for(LIBRARY_ROOT,asset_id)
+                if not found:return self.bad(404,'thumbnail not found')
+                self.send(200,found.read_bytes(),'image/png')
+            except (ValueError,OSError):self.bad(500,'見本画像を読めません。')
+            return
         if path=='/api/mmd-assets':
             self.send(200,json.dumps(read_mmd(),ensure_ascii=False).encode());return
         if path.startswith('/api/mmd-file/'):
@@ -370,6 +469,27 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/music-dance/project':
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=65536:return self.bad(413,'music/dance project too large')
+                expected=self.headers.get('If-Match')
+                if not expected:return self.bad(428,'music/dance revision required')
+                payload=music_dance_project.validate(json.loads(self.rfile.read(length)))
+                with MUSIC_DANCE_LOCK:
+                    current=music_dance_project.read(MUSIC_DANCE_FILE)
+                    if expected!=current['revision']:
+                        return self.bad(409,'music/dance project changed: reload before saving')
+                    result=music_dance_project.save(MUSIC_DANCE_FILE,payload)
+                event('music_dance.project_saved',model=payload['model_id'],motion=payload['motion_id'],audio=payload['audio_id'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except music_dance_project.InvalidMusicDanceProject:
+                event('music_dance.project_invalid',level='error')
+                return self.bad(422,'音楽・ダンスの保存データを読めません。元ファイルを保持しています。')
+            except (ValueError,TypeError,KeyError,UnicodeError) as exc:
+                return self.bad(400,str(exc))
+            except OSError:
+                return self.bad(500,'音楽・ダンスの保存に失敗しました。元データを確認してください。')
         if urlsplit(self.path).path=='/api/project/bundle':
             try:
                 length=int(self.headers.get('Content-Length','0'))
@@ -749,7 +869,43 @@ class Handler(BaseHTTPRequestHandler):
         u=urlsplit(self.path);qs=parse_qs(u.query)
         try:n=int(self.headers.get('Content-Length','-1'))
         except ValueError:n=-1
-        if n<0 or n>MAX_SIZE:return self.bad(413,'file too large or missing length')
+        library_stage = u.path=='/api/library-assets/upload' and qs.get('kind',[''])[0]=='stage'
+        limit = library_assets.MAX_STAGE_UPLOAD if library_stage else MAX_SIZE
+        if n<0 or n>limit:return self.bad(413,'file too large or missing length')
+        if u.path=='/api/library-assets/upload':
+            name=qs.get('name',[''])[0];kind=qs.get('kind',[''])[0]
+            try:
+                with LIBRARY_LOCK:item=library_assets.register_stream(LIBRARY_ROOT,self.rfile,n,kind,name)
+                event('library.asset.import',kind=kind,bytes=n)
+                self.send(200,json.dumps({'ok':True,'item':item},ensure_ascii=False).encode())
+            except ValueError as exc:self.bad(400,str(exc)[:180])
+            except (OSError,TypeError):self.bad(500,'素材を保存できませんでした。原本は保持されています。')
+            return
+        if u.path=='/api/library-assets/thumbnail':
+            asset_id=qs.get('id',[''])[0]
+            if n>library_assets.MAX_THUMBNAIL:return self.bad(413,'thumbnail too large')
+            try:
+                payload=self.rfile.read(n)
+                if len(payload)!=n:return self.bad(400,'incomplete thumbnail')
+                with LIBRARY_LOCK:library_assets.save_thumbnail(LIBRARY_ROOT,asset_id,payload)
+                self.send(200,b'{"ok":true}')
+            except ValueError as exc:self.bad(400,str(exc)[:180])
+            except OSError:self.bad(500,'見本画像を保存できませんでした。')
+            return
+        if u.path=='/api/assets/thumbnail':
+            asset_id=qs.get('id',[''])[0]
+            if n>asset_thumbnails.MAX_PNG:return self.bad(413,'thumbnail too large')
+            try:
+                found=character_entry(asset_id)
+                if not found:return self.bad(404,'character asset not found')
+                payload=self.rfile.read(n)
+                if len(payload)!=n:return self.bad(400,'incomplete thumbnail')
+                with CHAR_THUMB_LOCK:cached=asset_thumbnails.save_thumbnail(CHAR_THUMB_ROOT,asset_id,found[1],payload)
+                url='/api/assets/thumbnail/'+quote(asset_id,safe='')+'?v='+cached[1]
+                self.send(200,json.dumps({'ok':True,'url':url}).encode())
+            except ValueError as exc:self.bad(400,str(exc)[:180])
+            except OSError:self.bad(500,'正面画像を保存できませんでした。')
+            return
         if u.path=='/api/run-vmd-conversion':
             if n>2048:return self.bad(413,'request too large')
             try:
