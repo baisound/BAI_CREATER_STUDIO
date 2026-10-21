@@ -3,7 +3,7 @@
 // 取得は api.js の getBinary（GLB/VRM/FBX）。PMX は MMDLoader が自分で取得する（テクスチャを相対パスで読むため）。
 import { getBinary } from '../api.js';
 
-/** @typedef {{THREE: any, OrbitControls: any, GLTFLoader: any, FBXLoader: any, MMDLoader: any}} Libs */
+/** @typedef {{THREE: any, OrbitControls: any, GLTFLoader: any, FBXLoader: any, MMDLoader: any, MMDAnimationHelper: any}} Libs */
 /** @typedef {{id: string, name: string, format: string, kind: string, source: string, available: boolean, filename?: string}} ModelItem */
 
 /** 元ファイルが無い（HTTP 404）。画面は「元ファイルが見つかりません。素材を再登録してください。」を出す。 */
@@ -24,11 +24,11 @@ let libsPromise = null;
 export function loadLibs() {
   if (!libsPromise) {
     // 変数経由にして tsc に解決させない（three の型は入れない。旧画面と同じ importmap の three@0.160.1 を使う）
-    const spec = { three: 'three', orbit: 'three/addons/controls/OrbitControls.js', gltf: 'three/addons/loaders/GLTFLoader.js', fbx: 'three/addons/loaders/FBXLoader.js', mmd: 'three/addons/loaders/MMDLoader.js' };
+    const spec = { three: 'three', orbit: 'three/addons/controls/OrbitControls.js', gltf: 'three/addons/loaders/GLTFLoader.js', fbx: 'three/addons/loaders/FBXLoader.js', mmd: 'three/addons/loaders/MMDLoader.js', mmdAnimation: 'three/addons/animation/MMDAnimationHelper.js' };
     libsPromise = (async () => {
       try {
-        const [THREE, orbit, gltf, fbx, mmd] = await Promise.all([import(spec.three), import(spec.orbit), import(spec.gltf), import(spec.fbx), import(spec.mmd)]);
-        return { THREE, OrbitControls: orbit.OrbitControls, GLTFLoader: gltf.GLTFLoader, FBXLoader: fbx.FBXLoader, MMDLoader: mmd.MMDLoader };
+        const [THREE, orbit, gltf, fbx, mmd, mmdAnimation] = await Promise.all([import(spec.three), import(spec.orbit), import(spec.gltf), import(spec.fbx), import(spec.mmd), import(spec.mmdAnimation)]);
+        return { THREE, OrbitControls: orbit.OrbitControls, GLTFLoader: gltf.GLTFLoader, FBXLoader: fbx.FBXLoader, MMDLoader: mmd.MMDLoader, MMDAnimationHelper: mmdAnimation.MMDAnimationHelper };
       } catch {
         libsPromise = null;
         throw new LibsError();

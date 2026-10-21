@@ -281,7 +281,7 @@ export const chainViewport = (ctx) => {
       await loadPmx(i, choices.find((a) => a.id === s.pmxChoice));
       if (!alive) return;
       if (!s.mode || (s.mode === 'pmx' && !s.pmx) || (s.mode === 'fbx' && !s.fbx)) s.mode = s.pmx ? 'pmx' : s.fbx ? 'fbx' : null;
-      if (!s.player) { s.player = createPlayer(libs.THREE); if (s.pmx) s.player.setModel(s.pmx.object, 'PMX'); }
+      if (!s.player) { s.player = createPlayer(libs.THREE, libs.MMDAnimationHelper); if (s.pmx) s.player.setModel(s.pmx.object, 'PMX'); }
       showSlot(i);
     }
     host.fit();

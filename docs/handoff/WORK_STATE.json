@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T13:42:06+09:00",
+  "updated_at": "2026-10-21T14:18:16+09:00",
   "updated_by": "codex",
-  "branch": "codex/main-integration-20261021",
-  "head_at_update": "4ff3c26",
+  "branch": "codex/pmx-vmd-foot-playback",
+  "head_at_update": "2326456",
   "current": {
-    "task": "適格PRを含むrecoveryをmainへ統合",
+    "task": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正",
     "status": "done",
-    "step": "mainとの差分確認・祖先同期・共通ゲート・統合PR",
-    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
+    "step": "PMXプレビューのIK・grant更新と実素材再検証",
+    "design_doc": "docs/roadmap/MOTION_006_VMD_FOOT_DIAGNOSIS_20261021_JA.md"
   },
   "next_steps": [
-    "main統合PRを作成・確認・マージし、WP05gの共通ゲートへ戻る"
+    "PMX脚修正のPR作成・統合、続いて素材一覧の動作プレビューと全3D画面のマウス操作を実装"
   ],
   "unverified": [
-    "GPU実機・実利用者モデルは未検証。WP05e/f/gは今回のmain統合に含めない。"
+    "GPU実機の描画速度、物理挙動、全PMX/VMD組み合わせは未検証。元PMX/VMD/weightsは不変。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,34 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T14:18:16+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2326456",
+      "text": "MOTION-006 PMX+VMDの足IK・grant再生と往復シークを修正し実素材で確認"
+    },
+    {
+      "at": "2026-10-21T14:04:27+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "34b42e8",
+      "text": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正: PMXプレビューのIK・grant更新と実素材再検証"
+    },
+    {
+      "at": "2026-10-21T14:04:18+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4dbe182",
+      "text": "実PMXと神っぽいなVMDで足IK目標は12秒以降に動くが脚が静止することをSCR13で再現。MMDAnimationHelper未使用が原因と診断し、確認画像と監査文書を保存。"
+    },
+    {
+      "at": "2026-10-21T13:58:35+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0d1c5ed",
+      "text": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正: 実素材のVMD骨キーとPMX骨・画面時刻別の姿勢を調査"
+    },
     {
       "at": "2026-10-21T13:42:06+09:00",
       "by": "codex",
@@ -213,34 +241,6 @@
       "event": "done",
       "head": "81a0c79",
       "text": "P2-WP-04 B-4 の Opus レビュー：B-4 は設計どおり（HTTP 400 で不変のテストを追加）。PMX キャラを SCR-06 に置く件は計画の空白として所有者判断（Q5）"
-    },
-    {
-      "at": "2026-10-20T16:04:50+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "4ee6b49",
-      "text": "P2-WP-04 ④ 3D表示とステージ配置を実装（B-4 は 4ee6b49 に分離）。E2E は S2 まで"
-    },
-    {
-      "at": "2026-10-20T15:31:47+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "2e8fd96",
-      "text": "P2-WP-04 ④ 3D表示とステージ配置・B-4: 実装開始（B-4 → viewport → ステージ配置 → テスト）"
-    },
-    {
-      "at": "2026-10-20T15:30:25+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "28cd93e",
-      "text": "P2-WP-04 の O-④-1・2・3・5・6・7 を Opus で決定（設計書 §2.4(h)）。最小 PMX 2.0（tools/make_test_pmx.py）を作り minimal_pmx.zip を本物に置き換え、MMDLoader での読込をテストで確認"
-    },
-    {
-      "at": "2026-10-20T15:30:09+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "28cd93e",
-      "text": "P2-WP-04 の O-④-1・2・3・5・6・7 を Opus で決定（設計書 §2.4(h)）。最小 PMX 2.0（tools/make_test_pmx.py）を作り minimal_pmx.zip を本物に置き換え、MMDLoader での読込をテストで確認"
     }
   ]
 }

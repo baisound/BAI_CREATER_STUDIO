@@ -179,7 +179,8 @@
         "tests/studio-p2-motion.test.cjs（10件：PMX＋VMD のモーフ・ボーン、VMD ライブラリ、GLB クリップと位置・停止、VRM への VMD は ◇ で取得0回、モデル未選択、404、モード切替の URL 保持、表示解除、画面を離れたときの破棄）",
         "tests/test_make_test_vmd.py（2件）",
         "tests/studio-p2-e2e-main.test.cjs の S5 が pass（three@0.160.1、SwiftShader）",
-        "2026-10-21 独立レビューで modeSwitch・featureBottom の所有と後始末を確認（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）"
+        "2026-10-21 独立レビューで modeSwitch・featureBottom の所有と後始末を確認（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）",
+        "2026-10-21 MOTION-006：実在PMX＋神っぽいな.vmdをSCR-13で0→15→30→15→0→30秒へシークし、足IK・足・ひざ・足Dの再訪姿勢一致を確認。修正前後の画面は MOTION_006_VMD_FOOT_DIAGNOSIS_20261021_JA.md。tests/studio-p2-motion.test.cjs 16/16、studio-p2-chain.test.cjs 15/15、tsc 合格。原本SHA-256不変。"
       ],
       "unverified": [
         "modeSwitch・featureBottom は2026-10-21の実装者と別のCodexによる高性能モデルレビューで確認（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）。",

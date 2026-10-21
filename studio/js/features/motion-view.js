@@ -231,7 +231,7 @@ export const motionViewport = (ctx) => {
     libs = await loadLibs();
     if (!alive) return null;
     host = createViewport(stageEl, libs);
-    player = createPlayer(libs.THREE);
+    player = createPlayer(libs.THREE, libs.MMDAnimationHelper);
     return host;
   }
 
