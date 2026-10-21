@@ -10,8 +10,10 @@
 
 /** server.py:59 の MAX_SIZE と同じ値（テストで一致を確かめる）。 */
 export const MAX_UPLOAD_BYTES = 400 * 1024 * 1024;
+/** GLBステージだけは大型受領素材を扱う。ほかのアップロード上限は維持する。 */
+export const MAX_STAGE_UPLOAD_BYTES = 1024 * 1024 * 1024;
 /** 現在の上限（server.py:59 / 362 / 896）。Phase E WP-02b で変わったら、ここだけを直す。 */
-export const LIMITS = Object.freeze({ upload: '400MB', bundle: '4MB', project: '3MB' });
+export const LIMITS = Object.freeze({ upload: '400MB', stageUpload: '1GB', bundle: '4MB', project: '3MB' });
 
 /** @param {number} status @returns {ApiErrorCode} */
 function codeForStatus(status) {

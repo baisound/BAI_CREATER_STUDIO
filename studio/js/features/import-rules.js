@@ -1,7 +1,7 @@
 // @ts-check
 // ③ 取り込み規則（純関数。DOM もネットワークも使わない。P2 設計 §2.3(d)）。
 // 拡張子 → 登録先・種類・送信前の名前の検査・既存の素材との衝突。server.py / library_assets.py と一致させる。
-import { MAX_UPLOAD_BYTES } from '../api.js';
+import { MAX_UPLOAD_BYTES, MAX_STAGE_UPLOAD_BYTES } from '../api.js';
 import { fbxLabel } from './assets-model.js';
 
 /** @typedef {'integrated'|'pmxZip'|'vmd'|'fbx'|'library'} Route */
@@ -9,7 +9,7 @@ import { fbxLabel } from './assets-model.js';
 /** @typedef {{ok: true, route: Route, label: string, kinds: {value: string, label: string}[], defaultKind: string, warnings: string[]} | {ok: false, error: string}} Classified */
 /** @typedef {{name: string, route: Route, kind: string}} ImportEntry */
 
-export { MAX_UPLOAD_BYTES };
+export { MAX_UPLOAD_BYTES, MAX_STAGE_UPLOAD_BYTES };
 export const IMPORT_ACCEPT = '.glb,.vrm,.zip,.vmd,.fbx,.wav,.mp3,.mp4,.webm,.ogv,.png,.jpg,.jpeg,.gif,.webp,.avif,.bmp';
 
 /** コードポイントの数（サーバーの Python len と同じ。UTF-16 の単位ではない）。 @param {string} s */
@@ -28,7 +28,7 @@ export function classifyImport(name, size) {
   const m = /\.([^.]*)$/.exec(name);
   const ext = m ? m[1].toLowerCase() : '';
   if (!['glb', 'vrm', 'zip', 'vmd', 'fbx', 'wav', 'mp3', 'mp4', 'webm', 'ogv', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'bmp'].includes(ext)) return { ok: false, error: BAD_UNSUPPORTED };
-  if (size > MAX_UPLOAD_BYTES) return { ok: false, error: '400MB を超えるファイルは登録できません。' };
+  if (size > (ext === 'glb' ? MAX_STAGE_UPLOAD_BYTES : MAX_UPLOAD_BYTES)) return { ok: false, error: ext === 'glb' ? '1GB を超える GLB ステージは登録できません。' : '400MB を超えるファイルは登録できません。' };
   if (size === 0) return { ok: false, error: '空のファイルです。' };
   /** @type {string[]} */
   const warnings = [];
@@ -36,6 +36,10 @@ export function classifyImport(name, size) {
     if (!(ext === 'glb' ? NAME_GLB : NAME_VRM).test(name)) return { ok: false, error: BAD_NAME_INTEGRATED };
     // GLB/VRM はサーバーが名前を二重にデコードする（server.py:764）。% を含むと別の名前で登録されることがある。
     if (name.includes('%')) warnings.push('名前に % が含まれているため、登録される名前が変わることがあります');
+    if (ext === 'glb' && size > MAX_UPLOAD_BYTES) {
+      warnings.push('大型 GLB はステージとしてのみ登録できます。読込時はメモリとGPU容量を多く使います');
+      return { ok: true, route: 'library', label: '大型 GLB ステージ', kinds: [{ value: 'stage', label: 'ステージ' }], defaultKind: 'stage', warnings };
+    }
     return ext === 'glb'
       ? { ok: true, route: 'integrated', label: 'GLB（モデル／モーション／ステージ／小物／エフェクト）', kinds: [{ value: 'motion', label: 'モーション' }, { value: 'model', label: 'モデル' }, { value: 'stage', label: 'ステージ' }, { value: 'prop', label: '小物' }, { value: 'fx', label: 'エフェクト素材' }], defaultKind: 'motion', warnings }
       : { ok: true, route: 'integrated', label: 'VRM モデル', kinds: [], defaultKind: 'model', warnings };

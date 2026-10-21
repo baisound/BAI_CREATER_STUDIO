@@ -4,6 +4,8 @@
 
 > **2026-10-21 さらに後の直接指定:** `DATA-016` の取り込み後は、登録 WAV と通常 Baisound PMX に MVNT の GLB ダンスを適用し、1フレーム単位で音楽と同期するプレビューを最優先にする（`AUDIO-001`、[Issue #39](https://github.com/baisound/BAI_CREATER_STUDIO/issues/39)、[実装契約](AUDIO_DANCE_SYNC_20261021_JA.md)）。下記の「歌音声配置はリップシンクと一緒に」は今回の限定したプレビューと配置には適用しない。Blender 製 GLB ステージの XYZ 配置・回転は [Issue #40](https://github.com/baisound/BAI_CREATER_STUDIO/issues/40) としてその次に扱う。
 
+> **受領ステージ更新（2026-10-21）:** 7件の新受領GLBを非破壊で登録し、大型ステージの容量・自動読込・初期視点の負荷対策を [Issue #44](https://github.com/baisound/BAI_CREATER_STUDIO/issues/44) と [実測記録](STAGE_PACK_GPU_20261021_JA.md)で扱う。Owner端末で追加ブラウザ試験中に重大な負荷が出たため、同素材の全量再試験は行わない。
+
 # 推奨開発順序と依存関係
 
 ## あなたの用途からみた優先度

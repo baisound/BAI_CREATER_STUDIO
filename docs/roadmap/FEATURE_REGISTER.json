@@ -259,7 +259,7 @@
       "group": "DATA",
       "phase": 2,
       "name": "素材の多形式取り込みと詳細確認",
-      "detail": "ステージ・小物・材質・エフェクト・音声・動画・画像の登録、メタタイトル、見本と再生。キャラクター正面PNGは実GLB/VRM/PMX各1件、ステージ内部PNGは実S01で隔離Chrome確認済み。実FBXモデル、他モデル、GPU/Linux、MCPは未検証",
+        "detail": "ステージ・小物・材質・エフェクト・音声・動画・画像の登録、メタタイトル、見本と再生。GLBステージのみ1 GiBまで、大型GLBの自動3D読込を抑止。キャラクター正面PNGは実GLB/VRM/PMX各1件、ステージ内部PNGは実S01で隔離Chrome確認済み。実FBXモデル、他モデル、低性能GPU/Linux、MCPは未検証",
       "status": "要検証",
       "dependency": "CORE"
     },
