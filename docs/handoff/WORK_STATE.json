@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T14:20:28+09:00",
+  "updated_at": "2026-10-21T14:22:42+09:00",
   "updated_by": "codex",
   "branch": "codex/motion-assets-navigation",
-  "head_at_update": "9cc2d4c",
+  "head_at_update": "fe8a5fb",
   "current": {
     "task": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存素材形式・画面導線・3D操作の調査と受け入れ条件整理",
     "design_doc": "docs/roadmap/MOTION_006_VMD_FOOT_DIAGNOSIS_20261021_JA.md"
   },
   "next_steps": [
-    "PMX脚修正のPR作成・統合、続いて素材一覧の動作プレビューと全3D画面のマウス操作を実装"
+    "共通3Dホストの中ボタン操作を実装・画面検証する"
   ],
   "unverified": [
-    "GPU実機の描画速度、物理挙動、全PMX/VMD組み合わせは未検証。元PMX/VMD/weightsは不変。"
+    "素材形式ごとの視覚プレビューと旧カメラ自由視点は未実装。GPU実機は未検証。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T14:22:42+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "fe8a5fb",
+      "text": "MOTION-016と3D操作改善の対象・操作・受け入れ条件を設計"
+    },
     {
       "at": "2026-10-21T14:20:28+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "7cea229",
       "text": "P2-WP-04b 完了：④-9（SCR-13 ボーンマップ）・④-10（three-host で2体を±1.15）を移植。コミット 7cea229"
-    },
-    {
-      "at": "2026-10-20T16:28:34+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "e9e14eb",
-      "text": "P2-WP-04b ④ リターゲット検証の移植（④-9・④-10）: 実装開始（SCR-13 ボーンマップタブ → three-host 比較 → テスト）"
     }
   ]
 }
