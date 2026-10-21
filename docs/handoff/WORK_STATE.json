@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T23:49:01+09:00",
+  "updated_at": "2026-10-21T23:51:28+09:00",
   "updated_by": "codex",
-  "branch": "codex/p2-wp05g",
-  "head_at_update": "43835dc",
+  "branch": "codex/p2-character-formats",
+  "head_at_update": "d564529",
   "current": {
-    "task": "P2-WP-05g PR52統合",
-    "status": "done",
-    "step": "現行mainへ統合し独立レビューと回帰試験を実施",
+    "task": "Issue #50 全キャラクター配置でGLB/VRM/PMX/FBXを選択",
+    "status": "in_progress",
+    "step": "配置画面・保存形式・ローダーと形式別制限を監査し実装契約を確定",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T23:51:28+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "d564529",
+      "text": "Issue #50 全キャラクター配置でGLB/VRM/PMX/FBXを選択: 配置画面・保存形式・ローダーと形式別制限を監査し実装契約を確定"
+    },
     {
       "at": "2026-10-21T23:49:01+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "1327f69",
       "text": "Issue34・35 モーションのグレーマン再生とキャラクター正面サムネイル: 既存の素材詳細プレビュー・カタログ・保存APIを調べ、原本不変の画像生成とモーション適用を設計する"
-    },
-    {
-      "at": "2026-10-21T19:45:26+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8891cfa",
-      "text": "Issue40のS01原点・床とキャラクター元GLB由来の浮きを区別。Owner確認に従いシステム自動補正は行わず、PR42のコード実装と自動・Chrome実測は完了"
     }
   ]
 }
