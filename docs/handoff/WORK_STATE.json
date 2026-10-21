@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T16:44:29+09:00",
+  "updated_at": "2026-10-21T16:58:59+09:00",
   "updated_by": "codex",
-  "branch": "codex/asset-import-expansion",
-  "head_at_update": "ba00acf",
+  "branch": "codex/audio-dance-sync",
+  "head_at_update": "4f293ae",
   "current": {
-    "task": "DATA-016 素材取り込み拡張",
-    "status": "done",
-    "step": "画像・音声・動画・GLBの実見本と再生操作",
-    "design_doc": "docs/roadmap/ASSET_IMPORT_EXPANSION_20261021_JA.md"
+    "task": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー",
+    "status": "in_progress",
+    "step": "実データ骨格調査・設計・保存契約",
+    "design_doc": "docs/roadmap/AUDIO_DANCE_SYNC_20261021_JA.md"
   },
   "next_steps": [
     "PRを作成しレビュー・統合後、Ownerの本番ライブラリへ実素材を登録する。続いてIssue34/35を進める"
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T16:58:59+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4f293ae",
+      "text": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー: 実データ骨格調査・設計・保存契約"
+    },
     {
       "at": "2026-10-21T16:44:29+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "cc6d85a",
       "text": "PR20をPR13統合後のrecoveryへ同期。WP05a/b/cの実装者と別の高性能モデルレビューとNode20件・隔離Chrome15件合格を記録"
-    },
-    {
-      "at": "2026-10-21T12:56:05+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "47cd708",
-      "text": "PR #20の同期とWP05b/c独立レビュー: 先行保存・編集・外部コマンドの差分監査とrecovery同期"
     }
   ]
 }
