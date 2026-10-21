@@ -2044,17 +2044,17 @@
       "feature_ids": [
         "MOTION-011"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "foot_contact.py・dual_foot_plan.py（Phase B 残課題を含む）。",
-      "evidence": null,
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "左足・両足・BVHの接地を既存APIで診断し、JSON結果だけを表示する。IKはモデルへ適用しない。",
+      "evidence": "tests/studio-p2-retarget.test.cjs::foot contact panel calls the three read-only diagnostic APIs",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-13",

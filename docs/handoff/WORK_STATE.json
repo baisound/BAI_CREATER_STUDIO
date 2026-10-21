@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T23:33:05+09:00",
+  "updated_at": "2026-10-21T23:43:31+09:00",
   "updated_by": "codex",
-  "branch": "codex/p2-wp05e",
-  "head_at_update": "03bdb59",
+  "branch": "codex/p2-wp05f",
+  "head_at_update": "7b33d70",
   "current": {
-    "task": "P2-WP-05e PR21統合",
+    "task": "P2-WP-05f PR22統合",
     "status": "done",
-    "step": "mainとの差分を統合して競合を解消し独立検証する",
+    "step": "現行mainへ統合し独立レビューと試験を実施",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "PR21をmainに統合し、WP05fの独立レビューとPR22統合へ進む"
+    "PR22をmainへ統合し、WP05gの独立レビューとPR52統合へ進む"
   ],
   "unverified": [
-    "実利用者FBX/GPU実機、GET→POST競合の隙は未確認・残存。Owner手動確認はPhase E後"
+    "実利用者モデル/GPU実機、WebMCP/stdio MCP個別整合は未確認。Owner手動確認はPhase E後"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T23:43:31+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "7b33d70",
+      "text": "PR22 WP05fを現行mainへ統合。独立レビューで150MB超の比較モデルを取得前に拒否。型検査・隔離Chrome10・Python HTTP1通過"
+    },
+    {
+      "at": "2026-10-21T23:37:13+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "2b85da5",
+      "text": "P2-WP-05f PR22統合: 現行mainへ統合し独立レビューと試験を実施"
+    },
     {
       "at": "2026-10-21T23:33:05+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "ba26f8b",
       "text": "VIEW-001 マルチビューポートのユーザー指摘をPR42へ反映: メイン透視を右に保ち、選択した上面・側面等を左へ独立表示する二画面レイアウトと操作・検証"
-    },
-    {
-      "at": "2026-10-21T19:13:45+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4d67f30",
-      "text": "NF-014/LIGHT-001/VIEW-001: S01ステージ配置、多灯照明とキー編集、透視・六方向平行投影、パネル内スクロールを実装し実S01/Chromeと回帰を確認"
-    },
-    {
-      "at": "2026-10-21T18:38:53+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5856b2d",
-      "text": "LIGHT-001 SCR-06多灯照明の編集画面: シーン一覧・ライトフレームとギズモ・右のRGB/変形編集・下部キータイムライン"
     }
   ]
 }

@@ -211,6 +211,214 @@ test('retarget panel reports errors in Japanese and lists only available assets'
   });
 });
 
+test('review bundle requires coordinate confirmation and downloads only verification JSON', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await open13(page, server);
+    await page.selectOption('[data-role="rt-source"]', IDA);
+    await page.selectOption('[data-role="rt-target"]', IDB);
+    await page.locator('summary', { hasText: '転写タイムライン・QA・JSON保存' }).click();
+    let calls = 0;
+    page.on('request', (r) => { if (r.method() === 'POST' && new URL(r.url()).pathname === '/api/retarget/review-bundle') calls++; });
+    await page.click('[data-role="rt-review-run"]');
+    assert.match(await text(page, 'rt-review-result'), /^解析失敗: 座標系の確認が必要です/);
+    assert.equal(calls, 0, '確認なしではAPIを呼ばない');
+    assert.equal(await page.locator('[data-role="rt-review-save"]').isDisabled(), true);
+    await page.check('[data-role="rt-review-agree"]');
+    await page.click('[data-role="rt-review-run"]');
+    await page.waitForFunction(() => /品質: .*\n対象フレーム:/.test(document.querySelector('[data-role="rt-review-result"]')?.textContent || ''), null, { timeout: 12000 });
+    const output = await text(page, 'rt-review-result');
+    assert.match(output, /対象ボーン: \d+/);
+    assert.match(output, /回転キー候補: \d+/);
+    assert.match(output, /診断警告: \d+/);
+    assert.match(output, /VMD出力: 禁止（未校正）/);
+    assert.equal(calls, 1);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('[data-role="rt-review-save"]')]);
+    assert.equal(download.suggestedFilename(), 'BAI_retarget_review_unverified.json');
+    const saved = JSON.parse(fs.readFileSync(await download.path(), 'utf8'));
+    assert.equal(saved.suitable_for_vmd_export, false);
+    assert.equal(saved.animation_applied, false);
+    await page.selectOption('[data-role="rt-target"]', IDA);
+    assert.equal(await page.locator('[data-role="rt-review-save"]').isDisabled(), true);
+    assert.equal(await page.locator('[data-role="rt-review-agree"]').isChecked(), false);
+    assert.match(await text(page, 'rt-review-result'), /候補を再取得してください/);
+    assert.ok(fs.readFileSync(path.join(server.dataDir, 'integrated_v02', 'assets', A)).equals(GLB));
+  });
+});
+
+test('keyframe review rejects an oversized model before API or file retrieval', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await page.route('**/api/assets', async (route) => {
+      const response = await route.fetch();
+      const body = await response.json();
+      const target = body.items.find((item) => item.id === IDB);
+      assert.equal(target.bytes, GLB.length, '素材一覧には実ファイル長が含まれる');
+      target.bytes = 151 * 1024 * 1024;
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
+    });
+    const requests = [];
+    page.on('request', (request) => {
+      if (/\/api\/retarget\/keyframe-review|\/api\/integrated-v02\/asset\//.test(request.url())) requests.push(request.url());
+    });
+    await open13(page, server);
+    await page.selectOption('[data-role="rt-source"]', IDA);
+    await page.selectOption('[data-role="rt-target"]', IDB);
+    await page.locator('summary', { hasText: 'キー候補・フレーム比較' }).click();
+    await page.check('[data-role="rt-key-agree"]');
+    await page.click('[data-role="rt-key-run"]');
+    assert.match(await text(page, 'rt-key-status'), /150MB以下/);
+    assert.equal(requests.length, 0);
+  });
+});
+
+test('keyframe review places two models, scrubs unverified keys, and invalidates on target change', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await open13(page, server);
+    await page.selectOption('[data-role="rt-source"]', IDA);
+    await page.selectOption('[data-role="rt-target"]', IDB);
+    await page.locator('summary', { hasText: 'キー候補・フレーム比較' }).click();
+    const bodies = [];
+    await page.route('**/api/retarget/keyframe-review', async (route) => {
+      bodies.push(route.request().postDataJSON());
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
+        quality_gate: 'blocked_for_production', vmd_export_allowed: false,
+        keys: [{ frame: 0, target_node: 1, rotation_xyzw: [0, Math.SQRT1_2, 0, Math.SQRT1_2] },
+          { frame: 1, target_node: 1, rotation_xyzw: [0, 0, 0, 1] }],
+      }) });
+    });
+    await page.click('[data-role="rt-key-run"]');
+    assert.match(await text(page, 'rt-key-status'), /確認してください/);
+    assert.equal(bodies.length, 0);
+    await page.check('[data-role="rt-key-agree"]');
+    await page.click('[data-role="rt-key-run"]');
+    await page.waitForFunction(() => window.baiStudio.viewport.getState().keyReview?.applied === 1, null, { timeout: 15000 });
+    assert.deepEqual(bodies[0], { source: IDA, target: IDB, fps: 30, coordinate_convention_confirmed: true });
+    const state = await page.evaluate(() => window.baiStudio.viewport.getState().keyReview);
+    assert.equal(state.objects, 2); assert.equal(state.frame, 0);
+    near(state.centers[0].x, -1.1, 1e-6, '左 x'); near(state.centers[1].x, 1.1, 1e-6, '右 x');
+    for (const c of state.centers) { near(c.minY, 0, 1e-6, '足 y'); near(c.height, 1.9, 1e-6, '高さ'); }
+    assert.match(await text(page, 'rt-key-status'), /フレーム 0：候補 1 ボーン。未校正・プレビューのみ。VMD出力は禁止/);
+    await page.click('[data-role="rt-key-step"]');
+    assert.equal(await page.evaluate(() => window.baiStudio.viewport.getState().keyReview.frame), 1);
+    await page.click('[data-role="rt-key-play"]');
+    assert.equal(await page.locator('[data-role="rt-key-play"]').isDisabled(), true);
+    await page.click('[data-role="rt-key-stop"]');
+    assert.equal(await page.locator('[data-role="rt-key-play"]').isDisabled(), false);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('[data-role="rt-key-save"]')]);
+    assert.equal(download.suggestedFilename(), 'BAI_UNVERIFIED_keyframes.json');
+    const saved = JSON.parse(fs.readFileSync(await download.path(), 'utf8'));
+    assert.equal(saved.vmd_export_allowed, false);
+    await page.selectOption('[data-role="rt-target"]', IDA);
+    assert.equal(await page.locator('[data-role="rt-key-frame"]').isDisabled(), true);
+    assert.equal(await page.locator('[data-role="rt-key-save"]').isDisabled(), true);
+    assert.equal(await page.locator('[data-role="rt-key-agree"]').isChecked(), false);
+    assert.equal(await page.evaluate(() => window.baiStudio.viewport.getState().keyReview), null);
+    assert.ok(fs.readFileSync(path.join(server.dataDir, 'integrated_v02', 'assets', B)).equals(GLB));
+  });
+});
+
+test('keyframe review rejects a production gate and an out-of-range node', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await open13(page, server);
+    await page.selectOption('[data-role="rt-source"]', IDA);
+    await page.selectOption('[data-role="rt-target"]', IDB);
+    await page.locator('summary', { hasText: 'キー候補・フレーム比較' }).click();
+    await page.check('[data-role="rt-key-agree"]');
+    let data = { quality_gate: 'ready', vmd_export_allowed: true, keys: [] };
+    await page.route('**/api/retarget/keyframe-review', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(data) }));
+    await page.click('[data-role="rt-key-run"]');
+    await page.waitForFunction(() => /未校正品質ゲートが不正です/.test(document.querySelector('[data-role="rt-key-status"]')?.textContent || ''));
+    assert.equal(await page.evaluate(() => window.baiStudio.viewport.getState().keyReview), undefined);
+    data = { quality_gate: 'blocked_for_production', vmd_export_allowed: false,
+      keys: [{ frame: 0, target_node: 9999, rotation_xyzw: [0, 0, 0, 1] }] };
+    await page.click('[data-role="rt-key-run"]');
+    await page.waitForFunction(() => /転写先ノードが存在しません/.test(document.querySelector('[data-role="rt-key-status"]')?.textContent || ''), null, { timeout: 15000 });
+    assert.equal(await page.locator('[data-role="rt-key-frame"]').isDisabled(), true);
+    assert.equal(await page.evaluate(() => window.baiStudio.viewport.getState().keyReview), undefined);
+  });
+});
+
+test('keyframe review discards a response after the selected target changes', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await open13(page, server);
+    await page.selectOption('[data-role="rt-source"]', IDA);
+    await page.selectOption('[data-role="rt-target"]', IDB);
+    await page.locator('summary', { hasText: 'キー候補・フレーム比較' }).click();
+    await page.check('[data-role="rt-key-agree"]');
+    let release, signal;
+    const requested = new Promise((resolve) => { signal = resolve; });
+    await page.route('**/api/retarget/keyframe-review', async (route) => {
+        signal();
+        await new Promise((done) => { release = done; });
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
+          quality_gate: 'blocked_for_production', vmd_export_allowed: false,
+          keys: [{ frame: 0, target_node: 1, rotation_xyzw: [0, 0, 0, 1] }],
+        }) });
+    });
+    await page.click('[data-role="rt-key-run"]');
+    await requested;
+    await page.selectOption('[data-role="rt-target"]', IDA);
+    release();
+    await page.waitForTimeout(300);
+    assert.match(await text(page, 'rt-key-status'), /素材が変更されました/);
+    assert.equal(await page.evaluate(() => window.baiStudio.viewport.getState().keyReview), undefined);
+    assert.equal(await page.locator('[data-role="rt-key-frame"]').isDisabled(), true);
+  });
+});
+
+test('foot contact panel calls the three read-only diagnostic APIs', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await open13(page, server);
+    await page.getByRole('tab', { name: '足IK' }).click();
+    await page.waitForSelector('[data-feature="footContactPanel"]');
+    const calls = new Map();
+    let callCount = 0;
+    page.on('request', (r) => {
+      const u = new URL(r.url());
+      if (r.method() === 'POST' && u.pathname.startsWith('/api/qa/')) { callCount++; calls.set(u.pathname, r.postDataJSON()); }
+    });
+    assert.equal(await page.locator('[data-role="foot-apply"]').isDisabled(), true);
+    assert.match(await page.locator('[data-role="foot-apply"]').locator('..').getAttribute('title'), /旧画面には無い設定/);
+    await page.fill('[data-role="foot-ground"]', '1.25');
+    assert.equal(await page.inputValue('[data-role="foot-ground"]'), '1.25', '数値欄はスライダーの範囲外を保つ');
+    await page.click('[data-role="foot-run"]');
+    await page.waitForFunction(() => /"root_offset_proposal"/.test(document.querySelector('[data-role="foot-result"]')?.textContent || ''));
+    assert.equal(calls.get('/api/qa/foot-contact').ground_y, 1.25);
+    assert.equal(calls.get('/api/qa/foot-contact').propose_root_offsets, true);
+
+    await page.fill('[data-role="foot-ground"]', '0');
+    const bvh = `HIERARCHY\nROOT Hips\n{\n OFFSET 0 0 0\n CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation\n JOINT LeftFoot\n {\n  OFFSET 0 -1 0\n  CHANNELS 3 Zrotation Xrotation Yrotation\n  End Site\n  {\n   OFFSET 0 -0.1 0\n  }\n }\n}\nMOTION\nFrames: 3\nFrame Time: 0.0333333\n0 1 0 0 0 0 0 0 0\n1 1 0 0 0 0 0 0 0\n2 1 0 0 0 0 0 0 0\n`;
+    await page.locator('[data-role="foot-bvh-file"]').setInputFiles({ name: 'sample.bvh', mimeType: 'text/plain', buffer: Buffer.from(bvh) });
+    await page.fill('[data-role="foot-bvh-stride"]', '2');
+    await page.click('[data-role="foot-bvh-run"]');
+    await page.waitForFunction(() => /"diagnosis"/.test(document.querySelector('[data-role="foot-bvh-result"]')?.textContent || ''));
+    assert.equal(calls.get('/api/qa/bvh-foot-world').stride, 2);
+    assert.equal(calls.get('/api/qa/bvh-foot-world').foot_bone, 'LeftFoot');
+    assert.equal(calls.get('/api/qa/bvh-foot-world').diagnose, true);
+
+    await page.locator('summary', { hasText: '両足の接地を同時に診断' }).click();
+    await page.click('[data-role="foot-dual-run"]');
+    await page.waitForFunction(() => /"/.test(document.querySelector('[data-role="foot-dual-result"]')?.textContent || ''));
+    assert.equal(calls.get('/api/qa/dual-foot-preview').left_samples.length, 4);
+    assert.equal(calls.get('/api/qa/dual-foot-preview').right_samples.length, 4);
+
+    const count = callCount;
+    await page.fill('[data-role="foot-bvh-stride"]', '1001');
+    await page.click('[data-role="foot-bvh-run"]');
+    assert.match(await text(page, 'foot-bvh-result'), /サンプル間隔は1〜1000/);
+    assert.equal(callCount, count);
+    await page.locator('[data-role="foot-bvh-file"]').setInputFiles({ name: 'too-large.bvh', mimeType: 'text/plain', buffer: Buffer.alloc(2000001, 65) });
+    await page.click('[data-role="foot-bvh-run"]');
+    assert.match(await text(page, 'foot-bvh-result'), /2MB以内のBVH/);
+    assert.equal(callCount, count);
+    await page.locator('summary', { hasText: 'サンプルの編集' }).click();
+    await page.fill('[data-role="foot-samples"]', '{}');
+    await page.click('[data-role="foot-run"]');
+    await page.waitForFunction(() => /診断失敗: サンプルはJSON配列/.test(document.querySelector('[data-role="foot-result"]')?.textContent || ''));
+    assert.equal(callCount, count);
+    assert.ok(fs.readFileSync(path.join(server.dataDir, 'integrated_v02', 'assets', A)).equals(GLB));
+  });
+});
+
 /** 仮転写の応答の形（samples は target_node と local_rotation_xyzw）。frame 0 に 3 件：適用 1・範囲外 1・不正な四元数 1、frame 1 に 1 件。 */
 const REPORT = {
   samples: [

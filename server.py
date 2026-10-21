@@ -128,7 +128,10 @@ def unified_assets():
         used.add(source)
         filename=source.split('/')[-1]
         fmt=Path(filename).suffix.lower().lstrip('.').upper()
-        result.append({'id':'integrated:'+filename,'name':e.get('name',filename),'format':fmt,'kind':'model' if e in c.get('models',[]) else 'motion','source':'integrated','filename':filename,'available':(DATA/'integrated_v02'/source).is_file(),'previewable':fmt in ('GLB','VRM')})
+        source_path=DATA/'integrated_v02'/source
+        available=source_path.is_file()
+        size=source_path.stat().st_size if available else None
+        result.append({'id':'integrated:'+filename,'name':e.get('name',filename),'format':fmt,'kind':'model' if e in c.get('models',[]) else 'motion','source':'integrated','filename':filename,'available':available,'bytes':size,'previewable':fmt in ('GLB','VRM')})
     for slot,entries in read_mmd().items():
         for e in entries:
             name=e.get('name','')

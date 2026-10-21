@@ -85,6 +85,7 @@ const EV_CHAIN_3D = 'tests/studio-p2-chain.test.cjs::fbx model a is placed like 
 const EV_CHAIN_VMD = 'tests/studio-p2-chain.test.cjs::pmx slot vmd and chain switch';
 const EV_MOTION_LIB = 'tests/studio-p2-motion.test.cjs::vmd library lists registered vmd and applies it';
 const EV_RT_VIEW = 'tests/studio-p2-retarget.test.cjs::pose compare places two models at x = -1.15 and +1.15 and applies the rotation to the right one';
+const EV_FOOT = 'tests/studio-p2-retarget.test.cjs::foot contact panel calls the three read-only diagnostic APIs';
 const EV_STAGE = 'tests/studio-p2-viewport.test.cjs::stage placement saves and restores';
 
 const CAMERA = { label: 'カメラ画面（現行）', href: '/camera.html' };
@@ -422,7 +423,7 @@ export const SCREENS = [
       { name: '4分割ビュー', status: 'unimpl', note: '元モーション・対象・重ね合わせ・側面の4分割は未実装（中央は1つのビューポート）。', ids: ['REVIEW-001'] },
       { name: '編集タイムライン', status: 'real', evidence: EV_MOTION_TIMELINE, note: '編集モードでクリップと補正レイヤーを既存APIへ保存し、登録FBXモデルでタイムラインを再生する。サンプルトラックは表示例。', ids: ['DATA-001'] },
       { name: '曲線', status: 'mock', ids: ['DATA-003'] },
-      { name: '足IK', status: 'partial', note: 'foot_contact.py・dual_foot_plan.py（Phase B 残課題を含む）。', ids: ['MOTION-011'] },
+      { name: '足IK', status: 'real', evidence: EV_FOOT, note: '左足・両足・BVHの接地を既存APIで診断し、JSON結果だけを表示する。IKはモデルへ適用しない。', ids: ['MOTION-011'] },
       { name: '入出力', status: 'partial', note: 'motion_vmd_bridge.py・vmd_readback.py。', ids: ['MOTION-006'] },
     ],
     tools: [btn('現行画面で開く', 'href:/'), un('VMDを書き出す', 'この新UIからの書き出しは未接続。現行画面の変換機能を利用してください。', ['MOTION-006'], PH.P2, { text: '今は現行画面で行えます。', label: '現行画面で開く', act: 'href:/' })],
@@ -430,7 +431,7 @@ export const SCREENS = [
     center: { type: 'feature', key: 'motionCenter', status: 'real', evidence: EV_MOTION_VIEW },
     right: { tabs: [
       { id: 'map', label: 'ボーンマップ', custom: 'retargetPanel', sections: [] },
-      { id: 'ik', label: '足IK', sections: [{ title: '足IK・接地', status: 'partial', note: '接地計算は既存。新UIからは未接続。', controls: [tg('接地補正'), sl('床の高さ', -0.5, 0.5, 0, 'm', 0.01), un('接地を再計算', '新UIからの再計算は未接続（既存API移植は P2）。', ['MOTION-011'], PH.P2)] }] },
+      { id: 'ik', label: '足IK', custom: 'footContactPanel', sections: [] },
       { id: 'curve', label: '曲線', sections: [{ title: '補間曲線', status: 'mock', controls: [{ t: 'curve' }, sel('チャンネル', ['回転 X', '回転 Y', '回転 Z', '位置'])] }] },
       { id: 'expression', label: '表情・リップ', sections: [
         { title: '表情キー', status: 'unimpl', controls: [note('眉・目・瞬き・視線・感情・口形と身体キーの競合を同じ時刻で確認します。'), un('表情キーを編集', '表情・リップの重ね合わせは未実装です。', ['LIP-009'], PH.LIP)] },

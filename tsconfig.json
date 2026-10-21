@@ -15,6 +15,9 @@
     "noImplicitAny": false,
     "skipLibCheck": true,
     "paths": {
+      "/v01641_preview_guard.js": [
+        "./studio/types/legacy/v01641_preview_guard.d.ts"
+      ],
       "/camera_follow_config.js": [
         "./studio/types/legacy/camera_follow_config.d.ts"
       ],

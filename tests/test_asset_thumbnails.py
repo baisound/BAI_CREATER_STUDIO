@@ -38,6 +38,7 @@ def test_character_thumbnail_http_and_source_change(tmp_path, monkeypatch):
         monkeypatch.setattr(server, key, value)
     asset_id = 'integrated:12345678901234567890.glb'
     assert server.unified_assets()[0].get('thumbnailUrl') is None
+    assert server.unified_assets()[0]['bytes'] == 4
     assert server.character_source(server.unified_assets()[0]) == source.resolve()
     httpd = ThreadingHTTPServer(('127.0.0.1', 0), server.Handler)
     thread = threading.Thread(target=httpd.serve_forever, daemon=True); thread.start()
@@ -60,10 +61,13 @@ def test_character_thumbnail_http_and_source_change(tmp_path, monkeypatch):
         assert request(url)[1] == png()
         listed = json.loads(request('/api/assets')[1])['items'][0]
         assert listed['thumbnailUrl'] == url
+        assert listed['bytes'] == 4
         assert asset_thumbnails.thumbnail_for(data / 'asset_thumbnails', asset_id, source)
         source.write_bytes(b'glTF changed')
         assert request('/api/assets/thumbnail/' + encoded)[0] == 404
-        assert json.loads(request('/api/assets')[1])['items'][0].get('thumbnailUrl') is None
+        updated = json.loads(request('/api/assets')[1])['items'][0]
+        assert updated.get('thumbnailUrl') is None
+        assert updated['bytes'] == len(b'glTF changed')
         assert source.read_bytes() == b'glTF changed'
     finally:
         httpd.shutdown(); httpd.server_close(); thread.join(timeout=3)
