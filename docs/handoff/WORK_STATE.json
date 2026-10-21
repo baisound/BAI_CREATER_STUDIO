@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T17:08:23+09:00",
+  "updated_at": "2026-10-21T17:08:35+09:00",
   "updated_by": "codex",
   "branch": "codex/audio-dance-sync",
-  "head_at_update": "32ad0d0",
+  "head_at_update": "e577325",
   "current": {
     "task": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー",
-    "status": "done",
-    "step": "実データ骨格調査・設計・保存契約",
+    "status": "in_progress",
+    "step": "SCR-10の3D変形・音声クロック・2トラック編集",
     "design_doc": "docs/roadmap/AUDIO_DANCE_SYNC_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T17:08:35+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e577325",
+      "text": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー: SCR-10の3D変形・音声クロック・2トラック編集"
+    },
     {
       "at": "2026-10-21T17:08:23+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "bcb29fa",
       "text": "SCR-18履歴一覧を新しい順へ変更し、保存順と復元インデックスを維持。Chromium 17/17、tsc、表示状態6/6合格"
-    },
-    {
-      "at": "2026-10-21T13:02:26+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "a570316",
-      "text": "SCR-18 バージョン一覧を新しい順に表示: 保存順の履歴と復元インデックスを維持した表示順変更・テスト"
     }
   ]
 }
