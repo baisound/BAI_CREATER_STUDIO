@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROWS, NAMES, KEYWORDS, norm, patternDuration, motionKeys, isAvailable } from '../studio/js/motion/patterns.fork.js';
+import { advancePattern, dummyPose, pattern2dState, pattern3dState, patternDescription, patternStep, pose } from '../studio/js/motion/pattern-preview.fork.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const HTML = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
@@ -48,6 +49,50 @@ test('patternDuration follows the legacy duration rule (index.html:92)', () => {
   assert.equal(patternDuration({ seq: 'jab' }), 2.6);
   assert.equal(patternDuration({ seq: 'a,b,c,d' }), 4 * 1.05 + 0.8);
   assert.equal(patternDuration({ seq: 'a,b|c,d,e,f,g,h', duration: 7 }), 7);
+});
+
+test('2D pose and draw state match the legacy page (index.html:95–113)', () => {
+  const oldPose = evalJs(grab(/(function pose\(act,p,isOpponent\)\{[\s\S]*?return a\})\r?\nfunction fighter/g, '2D pose'));
+  const drawSource = grab(/^(function draw\(\)\{[^\n]*\})\r?$/gm, '2D draw');
+  const oldDraw = new Function('rows', 'names', 'fighter', '$', 'now', 'duration', `const current=0; ${drawSource}; draw();`);
+  const acts = ['jab', 'cross', 'body', 'hook', 'upper', 'knee', 'frontkick', 'roundkick', 'sweep', 'head', 'tackle', 'dodge', 'block', 'hit', 'fall', 'kip', 'corkscrew', 'idle'];
+  for (const action of acts) for (const fraction of [0, .18, .5, .8, 1]) {
+    assert.deepEqual(pose(action, fraction, false), oldPose(action, fraction, false), `${action} ${fraction}`);
+  }
+  for (const row of [ROWS[0], ROWS[30], ROWS[37], ROWS[45], ROWS[50]]) {
+    const duration = patternDuration(row);
+    for (const time of [0, duration * .2, duration * .5, duration * .58, duration * .94]) {
+      const fighters = [], els = { phase: {}, hits: {}, seek: {}, status: {} };
+      oldDraw([row], NAMES, (...args) => fighters.push(args), (id) => els[id], time, duration);
+      const got = pattern2dState(row, time, duration);
+      assert.equal(got.action, fighters[0][3], `A row ${row.id} t=${time}`);
+      assert.equal(got.bAction, fighters[1][3], `B row ${row.id} t=${time}`);
+      assert.equal(got.part, fighters[0][4], `part row ${row.id} t=${time}`);
+      assert.equal(got.phase, els.phase.textContent);
+      assert.equal(got.hit, els.hits.textContent);
+      assert.equal(Math.round(time / duration * 1000), els.seek.value);
+    }
+  }
+});
+
+test('3D pattern clock and actor selection follow the legacy page', () => {
+  const oldMotionState = evalJs(grab(/^(function motionState\(state\)\{[^\n]*\})\r?$/gm, '3D motionState'));
+  for (const row of [ROWS[0], ROWS[30], ROWS[45], ROWS[50]]) {
+    const duration = patternDuration(row);
+    for (const time of [0, duration * .21, duration * .51, duration * .92]) {
+      const old = oldMotionState({ row, time, duration });
+      const actual = pattern3dState(row, time, duration);
+      const recovery = row.category === '起き上がり';
+      assert.deepEqual(actual, { index: old.index, action: recovery && old.index > 0 ? 'idle' : old.action,
+        bAction: recovery ? old.index === 0 ? 'hit' : old.action : old.bAction, fraction: old.fraction });
+    }
+  }
+  assert.equal(advancePattern(2.5, .2, 1, 2.6), (2.5 + .2) % 2.6);
+  assert.equal(advancePattern(2.5, .1, 1, 2.6), 2.6);
+  assert.match(patternDescription(ROWS[0]), /連続動作/);
+  assert.equal(patternStep(ROWS[0], 1, 0, 'idle', KEYWORDS), 'Ready Idle');
+  assert.equal(patternStep(ROWS[45], 1, 2, 'kip', KEYWORDS), 'Kip Up');
+  assert.ok(dummyPose('jab', .5).joints.rightarm[0] < -1.9);
 });
 
 test('isAvailable equals the legacy motionAvailability (index.html:233) for many registrations', () => {

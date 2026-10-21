@@ -330,11 +330,27 @@
     {
       "id": "P2-WP-05g",
       "step": "⑤ 2D・3D の模式再生",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "設計書 §2.5 05g。Q2 の追加（外してよいか）は所有者確認待ち。既定は移植する。",
+      "state": "verified",
+      "commits": [
+        "ce63f56（旧UI・新UI受け口の監査）",
+        "e23ff31（時計・2D SVG・A/B模式と実FBXプレビュー）",
+        "3bddf9a（パターン時計を実経過秒で進め、3D更新は安全な時間刻みを維持）",
+        "PR52統合（現行mainのPMX物理プレーヤーとA/B模式を両立）"
+      ],
+      "tests": [
+        "node --test tests/studio-p2-motion-fork.test.mjs: 8 pass（旧画面のpose/draw/motionStateと照合）",
+        "tests/studio-p2-chain.test.cjs: 17 pass（⑤gの模式・実FBX・連結排他・離脱を含む）",
+        "npm run typecheck: pass、tests/test_screen_status_honesty.mjs: 6 pass",
+        "npm run test:p2: 216 pass・5 planned skip・1 fail（port 8794 の一時衝突。同試験を port 8894 で単独再実行し 1 pass）",
+        "npm run test:evidence: 127 pass・1 fail（FBX置換の待機タイムアウト。同試験を単独再実行し 1 pass）",
+        "npm run test:p2-e2e: S1/S2/S5 pass、5 planned skip。実 data/ ハッシュ不変",
+        "既存Python共通ゲート: 370 pass・23 subtests pass（JSのみの最終修正より前）",
+        "現行main統合後: npm run typecheck pass、旧関数照合8 pass、隔離ChromeのSCR05試験17 pass（PMX/VMDとA/B模式の共存を含む）"
+      ],
+      "unverified": [
+        "実利用者FBX/GPU実機は未確認。先行WP05b/c/e/fは独立レビュー済み。共通Node/Evidenceの全体連続実行には各1件の不安定失敗があり、単独再実行では通過。Python共通ゲートはJS最終修正後の再実行なし。"
+      ],
+      "notes": "設計書 §2.5 05g。監査文書 P2_WP05G_AUDIT_20261021_JA.md。選択パターンの画面内時計を持ち、旧drawとposeに沿う2D SVGを安全なDOMノードで表示。モデル未登録スロットはウェイト無しの3D模式人形、実FBXがあるスロットは登録済みクリップを再生。連結とVMD再生中は3D模式を止める。実装・テスト：標準モデル区分。",
       "owner_check": null
     },
     {

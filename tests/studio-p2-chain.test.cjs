@@ -139,6 +139,41 @@ test('pattern list marks registered fbx with a crown', async () => {
   });
 });
 
+test('pattern preview draws 2D fighters and animates A/B dummies without an FBX model', async () => {
+  const noModels = seed({ 'manifest.json': JSON.stringify({ ...MANIFEST, files: MANIFEST.files.filter((f) => f.kind !== 'modelA') }) });
+  await withApp(noModels, async ({ page, server }) => {
+    await open05(page, server);
+    await page.click(row(1));
+    await page.waitForFunction(() => /A: 3D模式 \/ B: 3D模式/.test(document.querySelector('[data-role="pattern-status"]')?.textContent || ''));
+    assert.match(await page.textContent('[data-role="pattern-description"]'), /連続動作を確認します/);
+    assert.match(await page.textContent('[data-role="pattern-steps"]'), /Boxing Leading Hand Jab/);
+    assert.ok(await page.locator('[data-role="pattern-svg"] #fighterA line').count() >= 7);
+    assert.ok(await page.locator('[data-role="pattern-svg"] #fighterB line').count() >= 7);
+    assert.equal((await page.evaluate(() => window.baiStudio.chain.getState())).actors[0].kind, null);
+    await page.click('[data-role="pattern-play"]');
+    await page.evaluate(() => { const el = document.querySelector('[data-role="pattern-seek"]'); el.value = '500'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+    await page.waitForFunction(() => (window.baiStudio.chain.probe({ rotations: ['rightarm'] })?.rotations.rightarm?.[0] ?? 0) < -1.5);
+    const a = await page.evaluate(() => window.baiStudio.chain.probe({ rotations: ['rightarm'] }).rotations.rightarm[0]);
+    const b = await page.evaluate(() => window.baiStudio.chain.probe({ slot: 'B', rotations: ['rightarm'] }).rotations.rightarm[0]);
+    assert.ok(a < -1.5 && Number.isFinite(b));
+    await page.click(row(2));
+    assert.match(await page.textContent('[data-role="pattern-time"]'), /^0\.0 \/ /, 'pattern selection resets its clock');
+    await page.goto(`${server.base}/workspace/04`);
+    await page.waitForFunction(() => window.baiStudio.chain.getState() === null);
+    assert.equal((await page.evaluate(() => window.baiStudio.viewport.getState())).loaded, false);
+  });
+});
+
+test('registered FBX takes priority in the pattern preview', async () => {
+  await withApp(seed(), async ({ page, server }) => {
+    await open05(page, server);
+    await page.click(row(1));
+    await page.waitForFunction(() => /A: 実FBX \/ B: 3D模式/.test(document.querySelector('[data-role="pattern-status"]')?.textContent || ''), null, { timeout: 15000 });
+    await page.waitForFunction(() => (window.baiStudio.chain.probe({ bones: ['Tri'] })?.bones.Tri?.[0] ?? 0) > .1, null, { timeout: 10000 });
+    assert.match(await page.textContent('[data-role="pattern-status"]'), /A: 実FBX/);
+  });
+});
+
 test('pattern list says so when the registration cannot be read', async () => {
   await withApp(seed(), async ({ page, server }) => {
     await page.route('**/api/manifest', (route) => route.fulfill({ status: 500, contentType: 'application/json', body: '{"error":"boom"}' }));
@@ -394,8 +429,10 @@ test('fbx model a is placed like the legacy page', harness.skip3d(), async () =>
     const state = await page.evaluate(() => ({ chain: window.baiStudio.chain.getState(), bounds: window.baiStudio.viewport.getState().bounds }));
     assert.equal(state.chain.actors[0].id, 'f-model');
     assert.equal(state.chain.actors[1].kind, null);
-    assert.ok(state.bounds.min[0] < -1 && state.bounds.max[0] < 0, `A は左側: ${JSON.stringify(state.bounds)}`);
-    assert.ok(Math.abs((state.bounds.max[1] - state.bounds.min[1]) - 1.95) < .06, `A の高さは1.95: ${JSON.stringify(state.bounds)}`);
+    const a = state.chain.actors[0].bounds, b = state.chain.actors[1].bounds;
+    assert.ok(a.min[0] < -1 && a.max[0] < 0, `実FBXのAは左側: ${JSON.stringify(a)}`);
+    assert.ok(Math.abs((a.max[1] - a.min[1]) - 1.95) < .06, `A の高さは1.95: ${JSON.stringify(a)}`);
+    assert.ok(b.min[0] > 0 && state.bounds.max[0] > 0, `模式のBは右側: ${JSON.stringify(b)}`);
     assert.ok((await page.evaluate(() => window.baiStudio.viewport.countNonBackground())) > 0);
   });
 });
@@ -411,6 +448,7 @@ test('chain playback follows the clip clock', harness.skip3d(), async () => {
     assert.equal(st.state.steps[0].name, JAB);
     assert.ok(st.state.clock > 0 && st.state.clock < 1);
     assert.ok(st.tri[0] > .1, `Tri がFBXクリップで動く: ${st.tri}`);
+    assert.match(await page.textContent('[data-role="pattern-status"]'), /チェイン再生中 — 模式3Dを一時停止/);
     await page.click('[data-role="chain-stop"]');
     assert.equal((await page.evaluate(() => window.baiStudio.chain.getState())).playing, false);
     assert.match(await page.textContent('[data-role="chain-status"]'), /再生を停止しました/);

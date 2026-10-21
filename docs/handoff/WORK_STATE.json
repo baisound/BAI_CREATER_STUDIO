@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T23:43:31+09:00",
+  "updated_at": "2026-10-21T23:49:01+09:00",
   "updated_by": "codex",
-  "branch": "codex/p2-wp05f",
-  "head_at_update": "7b33d70",
+  "branch": "codex/p2-wp05g",
+  "head_at_update": "43835dc",
   "current": {
-    "task": "P2-WP-05f PR22統合",
+    "task": "P2-WP-05g PR52統合",
     "status": "done",
-    "step": "現行mainへ統合し独立レビューと試験を実施",
+    "step": "現行mainへ統合し独立レビューと回帰試験を実施",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "PR22をmainへ統合し、WP05gの独立レビューとPR52統合へ進む"
+    "PR52をmainへ統合し、Owner承認の全キャラ形式配置とWP06/07を順に実装する"
   ],
   "unverified": [
-    "実利用者モデル/GPU実機、WebMCP/stdio MCP個別整合は未確認。Owner手動確認はPhase E後"
+    "実利用者FBX/GPU実機、WP05gのOwner外観採用、共通ゲート全体連続成功は未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T23:49:01+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "43835dc",
+      "text": "PR52 WP05gを現行mainへ統合。A/B模式とPMX物理プレーヤーを両立し、型・旧関数8・隔離Chrome17通過"
+    },
+    {
+      "at": "2026-10-21T23:45:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3bddf9a",
+      "text": "P2-WP-05g PR52統合: 現行mainへ統合し独立レビューと回帰試験を実施"
+    },
     {
       "at": "2026-10-21T23:43:31+09:00",
       "by": "codex",
@@ -58,6 +72,13 @@
       "event": "start",
       "head": "a0e1f3b",
       "text": "P2-WP-05e PR21統合: mainとの差分を統合して競合を解消し独立検証する"
+    },
+    {
+      "at": "2026-10-21T23:22:00+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8451afb",
+      "text": "WP05gの実経過時計修正と共通ゲートの結果を記録。対象25件、E2E S1/S2/S5通過、全体ゲート各1件の不安定失敗は単独再実行で通過"
     },
     {
       "at": "2026-10-21T22:55:04+09:00",
@@ -219,27 +240,6 @@
       "event": "done",
       "head": "8891cfa",
       "text": "Issue40のS01原点・床とキャラクター元GLB由来の浮きを区別。Owner確認に従いシステム自動補正は行わず、PR42のコード実装と自動・Chrome実測は完了"
-    },
-    {
-      "at": "2026-10-21T19:42:27+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "29f32a7",
-      "text": "Issue40の実モデル床接地とPR42統合判定: 提供S01と登録済み実GLBキャラクターを隔離SCR-06へ同時配置し、床接地・保存再読込を測定して必要な修正を行う"
-    },
-    {
-      "at": "2026-10-21T19:32:48+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "dd35b8d",
-      "text": "VIEW-001を左の独立六方向補助ビュー＋右の常時メイン透視へ修正。実S01で同時描画・独立パン・ライト反映・保存再読込、Chrome19件、Python24件、型検査を確認"
-    },
-    {
-      "at": "2026-10-21T19:22:46+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "ba26f8b",
-      "text": "VIEW-001 マルチビューポートのユーザー指摘をPR42へ反映: メイン透視を右に保ち、選択した上面・側面等を左へ独立表示する二画面レイアウトと操作・検証"
     }
   ]
 }
