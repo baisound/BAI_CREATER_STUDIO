@@ -259,7 +259,7 @@
       "group": "DATA",
       "phase": 2,
       "name": "素材の多形式取り込みと詳細確認",
-      "detail": "ステージ・小物・材質・エフェクト・音声・動画・画像の登録、メタタイトル、見本と再生。キャラクター正面PNGとステージ内部自動構図PNGの別保存・再利用は隔離Chromeで確認済み。実PMX/FBX/VRM各種とMCPは未検証",
+      "detail": "ステージ・小物・材質・エフェクト・音声・動画・画像の登録、メタタイトル、見本と再生。キャラクター正面PNGは実GLB/VRM/PMX各1件、ステージ内部PNGは実S01で隔離Chrome確認済み。実FBXモデル、他モデル、GPU/Linux、MCPは未検証",
       "status": "要検証",
       "dependency": "CORE"
     },
@@ -403,7 +403,7 @@
       "group": "MOTION",
       "phase": 3,
       "name": "モーションサムネイル生成",
-      "detail": "開始/中間/終了姿勢と選択素材の再生プレビュー。リグ付きGLBの中立グレーマン追従は隔離Chromeで確認済み。VMD/実PMX等は未検証",
+      "detail": "開始/中間/終了姿勢と選択素材の再生プレビュー。中立グレーマンはリグ付きGLB、実FBX、実PMX骨＋実VMDのシーク差を隔離Chromeで確認済み。外部骨名、IK・grant個別寄与、GPU/Linuxは未検証",
       "status": "要検証",
       "dependency": "CORE,DATA"
     },

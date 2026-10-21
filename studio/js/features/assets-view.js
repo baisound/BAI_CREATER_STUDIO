@@ -33,7 +33,7 @@ function unimplBtn(label, why, ids, phase, cls = '') {
     onclick: () => showUnimplemented({ name: label, why, ids, phase }) }, label);
 }
 
-/** 他の保存先が無い画面（一覧）で、購読を画面の後始末へ登録する。 @param {FeatureCtx} ctx @param {() => void} fn @param {...{subscribe: (f: () => void) => () => void}} stores */
+/** 他の保存先が無い画面（一覧）で、購読を画面の後始末へ登録する。 @param {FeatureCtx} ctx @param {(state?: any, reason?: string) => void} fn @param {...{subscribe: (f: (state: any, reason: string) => void) => () => void}} stores */
 function watch(ctx, fn, ...stores) {
   for (const s of stores) ctx.onCleanup(s.subscribe(fn));
   fn();
@@ -260,7 +260,10 @@ export const assetLibrary = (ctx) => {
   };
 
   // 変化した部分だけ描き直す（検索欄の入力中の欄は作り直さない）
-  watch(ctx, () => {
+  watch(ctx, (_state, reason) => {
+    // The visible tile's thumbnail promise updates its img in place. Replacing
+    // the whole list here detaches cards while the user scrolls or clicks.
+    if (reason === 'thumbnail') return;
     drawControls(); drawBody();
     if (assets.get().status === 'ready') {
       backfillCharacterThumbs(assets.get().items);

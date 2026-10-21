@@ -42,10 +42,10 @@ async function loadMotion(item, model, libs) {
   }
 }
 
-/** アニメーションで変形した後の頂点を含め、見本カメラへ全身を収める。 @param {any} host @param {any} THREE */
-function fitMovingPose(host, THREE) {
-  host.content.updateMatrixWorld(true);
-  const box = new THREE.Box3().setFromObject(host.content, true);
+/** 現在表示しているグレーマンまたは元形状を見本カメラへ収める。 @param {any} host @param {any} THREE @param {any} object */
+function fitMovingPose(host, THREE, object) {
+  object.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(object, true);
   if (box.isEmpty()) return;
   const center = box.getCenter(new THREE.Vector3());
   const radius = Math.max(0.5, box.getSize(new THREE.Vector3()).length() / 2);
@@ -58,6 +58,18 @@ function fitMovingPose(host, THREE) {
   host.camera.updateProjectionMatrix();
   host.controls.target.copy(center);
   host.controls.update(); host.invalidate();
+}
+
+/** 平行移動する動きでも見本の中心を保つ。ズームと視点角度は変えない。 @param {any} host @param {any} THREE @param {any} object */
+function followMovingPose(host, THREE, object) {
+  object.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(object, true);
+  if (box.isEmpty()) return;
+  const center = box.getCenter(new THREE.Vector3());
+  const shift = center.sub(host.controls.target);
+  host.camera.position.add(shift);
+  host.controls.target.add(shift);
+  host.controls.update();
 }
 
 /**
@@ -164,6 +176,7 @@ export function mountMotionPreview(stage, item, items, ui) {
     if (!alive || !player?.state().playing) return;
     player.update(Math.min(0.1, Math.max(0, (now - last) / 1000)));
     grayman?.update();
+    if (grayman && host && activeLibs) followMovingPose(host, activeLibs.THREE, grayman.object);
     last = now; host?.invalidate(); updateUi();
     raf = requestAnimationFrame(tick);
   }
@@ -201,7 +214,7 @@ export function mountMotionPreview(stage, item, items, ui) {
           grayman.update();
           stage.dataset.grayman = '1';
         } else stage.dataset.grayman = '0';
-        fitMovingPose(host, libs.THREE);
+        fitMovingPose(host, libs.THREE, grayman?.object || loaded.object);
         ui.fit.disabled = false;
         player.play(); startLoop(); updateUi();
         say(grayman ? (item.format === 'VMD' ? `${model?.name || 'PMX'} の骨でグレーマンを再生中` : 'グレーマンで動きを再生中')
@@ -219,11 +232,11 @@ export function mountMotionPreview(stage, item, items, ui) {
   };
   ui.play.onclick = () => { player?.play(); startLoop(); updateUi(); say(grayman ? 'グレーマンで動きを再生中' : 'グレーマンに必要な骨がありません。元の形状で再生中'); };
   ui.pause.onclick = () => { player?.pause(); stopLoop(); updateUi(); say('一時停止中'); };
-  ui.fit.onclick = () => { if (host && activeLibs) fitMovingPose(host, activeLibs.THREE); };
-  ui.seek.oninput = () => { player?.seek(Number(ui.seek.value)); grayman?.update(); host?.invalidate(); updateUi(); };
+  ui.fit.onclick = () => { if (host && activeLibs) fitMovingPose(host, activeLibs.THREE, grayman?.object || host.content); };
+  ui.seek.oninput = () => { player?.seek(Number(ui.seek.value)); grayman?.update(); if (grayman && host && activeLibs) followMovingPose(host, activeLibs.THREE, grayman.object); host?.invalidate(); updateUi(); };
   ui.clip.onchange = () => {
     if (!player || item.format === 'VMD') return;
-    player.applyClip(Number(ui.clip.value)); grayman?.update(); if (host && activeLibs) fitMovingPose(host, activeLibs.THREE); player.play(); startLoop(); updateUi();
+    player.applyClip(Number(ui.clip.value)); grayman?.update(); if (host && activeLibs) fitMovingPose(host, activeLibs.THREE, grayman?.object || host.content); player.play(); startLoop(); updateUi();
   };
   ui.model.replaceChildren(...models.map((model) => new Option(`${model.name}（${model.kind}）`, model.id)));
   ui.model.hidden = item.format !== 'VMD';

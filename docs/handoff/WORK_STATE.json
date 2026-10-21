@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T20:24:44+09:00",
+  "updated_at": "2026-10-21T21:07:09+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-visual-previews-v2",
-  "head_at_update": "7eed0d1",
+  "head_at_update": "0070974",
   "current": {
     "task": "Issue34/35の実素材表示品質確認",
-    "status": "in_progress",
+    "status": "done",
     "step": "実GLBキャラクターの正面PNGと登録済み実FBXモーションのグレーマンを隔離Chromeで確認し、必要な修正を行う",
     "design_doc": "docs/roadmap/ASSET_VISUAL_PREVIEWS_20261021_JA.md"
   },
   "next_steps": [
-    "#34/#35の実PMX/VMD/FBX/VRM品質確認、PR作成・統合判断、承認済みIssue39画像添付、WP05gを続ける"
+    "Issue34/35とステージ内部サムネイルのPRを作成し、レビュー・統合判断へ進む",
+    "承認済みIssue39公開安全PNG添付とWP05gを続ける"
   ],
   "unverified": [
-    "他の閉鎖型GLBの自動構図、実GPU/Linux、実PMX/VMDのグレーマン、実FBX/VRM/PMXの正面画像、Owner採用、MCPは未検証"
+    "他のPMX/FBXモデル/外部リグの正面・骨命名、IK/grantの個別寄与、実GPU/Linux、Owner採用、MCPは未検証。実PMXのSCR12通常表示が空白になる既存問題は別管理"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T21:07:09+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "0070974",
+      "text": "Issue34/35実素材QA: 実GLB/VRM/PMX正面PNG、実FBX/VMDグレーマン、S01室内PNGを確認。PMX非同期テクスチャ待機・空白画像防止・移動見本追従・一覧再描画競合を修正"
+    },
     {
       "at": "2026-10-21T20:24:44+09:00",
       "by": "codex",
@@ -234,13 +242,6 @@
       "event": "start",
       "head": "1897a21",
       "text": "Issue #33 main統合後のローカル同期とサーバー確認手順: AGENTSの短い導線と詳細手順を追加する"
-    },
-    {
-      "at": "2026-10-21T15:40:14+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9a383fd",
-      "text": "Issue #30: 旧カメラのVRM正面・顔アップ・撮影画面ドラッグ・再生・一周キーを修正し、実VRMと隔離Chromeで確認"
     }
   ]
 }
