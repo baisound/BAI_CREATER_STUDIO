@@ -49,6 +49,9 @@ def png(width=64, height=64):
 
 def test_validation_and_metadata(tmp_path):
     root = tmp_path / 'library'
+    assert lib.validate('stage', 'large.glb', 692_894_092) == 'glb'
+    with __import__('pytest').raises(ValueError): lib.validate('prop', 'large.glb', 692_894_092)
+    with __import__('pytest').raises(ValueError): lib.validate('stage', 'too-large.glb', lib.MAX_STAGE_UPLOAD + 1)
     with __import__('pytest').raises(ValueError): lib.register_stream(root, io.BytesIO(b'x'), 1, 'audio', '../bad.mp3')
     with __import__('pytest').raises(ValueError): lib.register_stream(root, io.BytesIO(b'not mp3'), 7, 'audio', 'bad.mp3')
     assert not lib.read_index(root)

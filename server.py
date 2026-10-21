@@ -829,7 +829,9 @@ class Handler(BaseHTTPRequestHandler):
         u=urlsplit(self.path);qs=parse_qs(u.query)
         try:n=int(self.headers.get('Content-Length','-1'))
         except ValueError:n=-1
-        if n<0 or n>MAX_SIZE:return self.bad(413,'file too large or missing length')
+        library_stage = u.path=='/api/library-assets/upload' and qs.get('kind',[''])[0]=='stage'
+        limit = library_assets.MAX_STAGE_UPLOAD if library_stage else MAX_SIZE
+        if n<0 or n>limit:return self.bad(413,'file too large or missing length')
         if u.path=='/api/library-assets/upload':
             name=qs.get('name',[''])[0];kind=qs.get('kind',[''])[0]
             try:

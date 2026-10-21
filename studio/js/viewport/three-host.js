@@ -147,7 +147,7 @@ export function createViewport(container, libs, o = {}) {
 
   const perspectiveTarget = controls.target.clone();
   const api = {
-    scene, camera: activeCamera, renderer, controls, content,
+    scene, camera: activeCamera, renderer, rendererName, controls, content,
     /** 平行投影6方向と透視を切り替え、透視へ戻る際には直前の視点を復元する。 @param {ViewMode} mode @param {{min:number[],max:number[]}|null} [bounds] */
     setViewMode(mode, bounds = null) {
       if (mode === 'perspective') {

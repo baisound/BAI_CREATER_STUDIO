@@ -201,6 +201,23 @@ export const sceneViewport = (ctx) => {
   // 全周型スタジオのスカイドームを外から眺めると室内が隠れる。原点のダンス位置から室内を見渡す。
   function fitScene() {
     if (!host || !libs) return;
+    const stageBytes = Number(stageRoot ? itemOf(stageRoot.userData.assetId)?.bytes || 0 : 0);
+    // 大型の屋外ステージを全景に合わせると数百m先から描き、視認性と描画速度が落ちる。
+    // 受領GLBの原点支持面を使い、ダンス位置からの実用的な初期視点にする。
+    if (stageRoot && stageBytes >= 128 * 1024 * 1024) {
+      stageRoot.updateMatrixWorld(true);
+      const center = stageRoot.localToWorld(new libs.THREE.Vector3(0, 1.5, 0));
+      const eye = stageRoot.localToWorld(new libs.THREE.Vector3(0, 2.1, 8));
+      host.camera.position.copy(eye);
+      host.camera.near = 0.03;
+      host.camera.far = 500;
+      host.camera.updateProjectionMatrix();
+      host.controls.target.copy(center);
+      host.controls.update();
+      host.invalidate();
+      if (companion) switchView();
+      return;
+    }
     let enclosed = false;
     stageRoot?.traverse((/** @type {any} */ object) => {
       if (/sky.?dome/i.test(object.name || '')) enclosed = true;
@@ -242,7 +259,14 @@ export const sceneViewport = (ctx) => {
       secondaryView: companion?.getState() || null,
     });
     const names = [charRoot ? (itemOf(charRoot.userData.assetId)?.name || charRoot.userData.assetId) : 'なし', stageRoot ? (itemOf(stageRoot.userData.assetId)?.name || stageRoot.userData.assetId) : 'なし'];
-    hud.replaceChildren(h('span', { dataset: { role: 'hud-char' } }, `キャラクター：${names[0]}`), h('span', { dataset: { role: 'hud-stage' } }, `ステージ：${names[1]}`), h('span', { class: 'right' }, companion ? '' : '3D表示'));
+    const stageBytes = Number(stageRoot ? itemOf(stageRoot.userData.assetId)?.bytes || 0 : 0);
+    const renderer = String(host.rendererName || 'unknown');
+    const software = /swiftshader|llvmpipe|software/i.test(renderer);
+    const rendererLabel = renderer === 'unknown' ? '描画方式未確認' : software ? 'ソフトウェア描画' : 'GPU描画';
+    hud.replaceChildren(h('span', { dataset: { role: 'hud-char' } }, `キャラクター：${names[0]}`), h('span', { dataset: { role: 'hud-stage' } }, `ステージ：${names[1]}`),
+      stageBytes >= 128 * 1024 * 1024
+        ? h('span', { class: 'right', dataset: { role: 'hud-renderer' }, title: renderer }, rendererLabel)
+        : h('span', { class: 'right' }, companion ? '' : '3D表示'));
   }
 
   /** @param {string} file 保存された GLB/VRM の保存名（workspace.asset）。空なら外す。 */

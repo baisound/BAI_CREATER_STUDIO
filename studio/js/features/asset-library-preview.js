@@ -6,6 +6,8 @@ import { createViewport } from '../viewport/three-host.js';
 
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
 const MAX_WAVEFORM_BYTES = 32 * 1024 * 1024;
+// 巨大GLBを一覧や詳細表示だけで自動解析すると、複数のWebGL読み込みが重なる。
+const MAX_AUTO_GLB_BYTES = 128 * 1024 * 1024;
 /** @type {Map<string, Promise<string|null>>} */
 const pending = new Map();
 let renderQueue = Promise.resolve();
@@ -107,6 +109,7 @@ async function glbFrame(item) {
 export function libraryThumbnail(item) {
   if (item.thumbnailUrl) return Promise.resolve(item.thumbnailUrl);
   if (!item.available) return Promise.resolve(null);
+  if (item.format === 'GLB' && Number(item.bytes || 0) > MAX_AUTO_GLB_BYTES) return Promise.resolve(null);
   if (['image', 'material'].includes(item.kind) || (item.kind === 'fx' && item.format !== 'GLB')) return Promise.resolve(libraryFileUrl(item));
   let promise = pending.get(item.id);
   if (!promise) {
@@ -147,7 +150,10 @@ export function mountLibraryPreview(root, item) {
   if (item.format === 'GLB') {
     const stage = h('div', { class: 'asset-motion-stage viewport vp3d', dataset: { role: 'library-3d' } });
     root.append(stage, status);
-    void (async () => {
+    const heavy = Number(item.bytes || 0) > MAX_AUTO_GLB_BYTES;
+    const open = async () => {
+      stage.hidden = false;
+      status.textContent = '3Dを読み込み中…';
       const libs = await loadLibs();
       const loaded = await loadModel(item, libs);
       if (!alive) { disposeObject(loaded.object); return; }
@@ -155,8 +161,18 @@ export function mountLibraryPreview(root, item) {
       host.setObject(loaded.object); host.fit();
       cleanup = () => host.dispose();
       status.textContent = 'ドラッグで回転、ホイールで拡大できます。';
-      void libraryThumbnail(item);
-    })().catch(showError);
+      if (!heavy) void libraryThumbnail(item);
+    };
+    if (heavy) {
+      stage.hidden = true;
+      status.textContent = '大型GLBです。3D表示には多くのメモリを使います。';
+      root.append(h('button', { class: 'btn', type: 'button', dataset: { role: 'large-glb-open' },
+        onclick: (/** @type {MouseEvent} */ event) => {
+          const button = /** @type {HTMLButtonElement} */ (event.currentTarget);
+          button.disabled = true;
+          void open().catch((error) => { showError(error); button.disabled = false; });
+        } }, '3D見本を開く'));
+    } else void open().catch(showError);
   } else if (item.kind === 'audio') {
     const img = /** @type {HTMLImageElement} */ (h('img', { alt: `${item.name}の波形`, dataset: { role: 'audio-waveform' } }));
     const media = /** @type {HTMLAudioElement} */ (h('audio', { preload: 'metadata', src: url, dataset: { role: 'audio-media' } }));

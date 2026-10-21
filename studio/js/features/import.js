@@ -118,6 +118,7 @@ async function processRow(r) {
   patchRow(r.id, { status: 'sending', progress: 0 });
   const up = uploadFile(urlFor(r), r.file, {
     contentType: r.route === 'pmxZip' ? 'application/zip' : 'application/octet-stream',
+    limitLabel: r.route === 'library' && r.kind === 'stage' ? '1GB' : undefined,
     onProgress: ({ loaded, total }) => {
       const cur = rowOf(r.id);
       if (!cur || cur.status === 'processing' || cur.status === 'done') return;

@@ -15,6 +15,7 @@ from pathlib import Path
 
 
 MAX_UPLOAD = 400 * 1024 * 1024
+MAX_STAGE_UPLOAD = 1024 * 1024 * 1024
 MAX_THUMBNAIL = 2 * 1024 * 1024
 FORMATS = {
     'glb': {'stage', 'prop', 'fx'},
@@ -45,7 +46,8 @@ def validate(kind: str, name: str, size: int) -> str:
     ext = Path(name).suffix.lower().lstrip('.')
     if kind not in FORMATS.get(ext, set()):
         raise ValueError('this file format cannot be registered for the selected category')
-    if not 0 < size <= MAX_UPLOAD:
+    limit = MAX_STAGE_UPLOAD if kind == 'stage' and ext == 'glb' else MAX_UPLOAD
+    if not 0 < size <= limit:
         raise ValueError('asset size is outside the allowed range')
     return ext
 
