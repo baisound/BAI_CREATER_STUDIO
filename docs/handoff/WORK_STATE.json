@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T02:47:55+09:00",
+  "updated_at": "2026-10-22T02:50:05+09:00",
   "updated_by": "codex",
-  "branch": "codex/p2-wp06",
-  "head_at_update": "fdf4429",
+  "branch": "codex/p2-wp07",
+  "head_at_update": "87338f8",
   "current": {
-    "task": "P2-WP-06 カメラ移植とIssue #50全形式の接続",
-    "status": "done",
-    "step": "WP06d: Phase E §7に現行カメラホストと保存の読み替え表を作成",
+    "task": "P2-WP-07 書き出し",
+    "status": "in_progress",
+    "step": "WP07a: 既存出力・変換マップ・UI受け口と受け入れ条件を監査",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T02:50:05+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "87338f8",
+      "text": "P2-WP-07 書き出し: WP07a: 既存出力・変換マップ・UI受け口と受け入れ条件を監査"
+    },
     {
       "at": "2026-10-22T02:47:55+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "19f818e",
       "text": "Issue #46・#47: 公開可能な図をIssueへ添付: 素材画像を公開せず、メタデータ図と視点概念図をPR・Issueに直接表示する"
-    },
-    {
-      "at": "2026-10-21T22:42:53+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "e6a7f96",
-      "text": "PR #48を作成し、Issue #46・#47へ検証結果と未検証事項を連携。S03/S04/S06/S07のライトなし別名GLB4件は登録済み。S05/S06発光抑制候補は比較画像付きで未登録"
     }
   ]
 }
