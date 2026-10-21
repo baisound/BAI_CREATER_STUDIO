@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T10:49:07+09:00",
+  "updated_at": "2026-10-21T12:56:05+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05d",
-  "head_at_update": "2905119",
+  "head_at_update": "47cd708",
   "current": {
-    "task": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD",
-    "status": "done",
-    "step": "共通完了ゲートとE2E結果の台帳記録",
+    "task": "PR #20の同期とWP05b/c独立レビュー",
+    "status": "in_progress",
+    "step": "先行保存・編集・外部コマンドの差分監査とrecovery同期",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T12:56:05+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "47cd708",
+      "text": "PR #20の同期とWP05b/c独立レビュー: 先行保存・編集・外部コマンドの差分監査とrecovery同期"
+    },
     {
       "at": "2026-10-21T10:49:07+09:00",
       "by": "codex",
@@ -236,13 +243,6 @@
       "event": "done",
       "head": "d33496a",
       "text": "WP-01 Opus レビュー：自動保存と統合保存が同じ tick を待つと saving:true のまま止まる不具合を修正（テスト追加）。If-Match・世代番号・C5・server.py の 500 分岐は問題なし"
-    },
-    {
-      "at": "2026-10-20T13:57:32+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "910cc5a",
-      "text": "P2-WP-01 保存・読込を実装・検証（ff51eb0）。POST /api/project の壊れたファイル時の接続切断も500に修正"
     }
   ]
 }
