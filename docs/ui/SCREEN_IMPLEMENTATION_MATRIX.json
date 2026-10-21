@@ -2006,17 +2006,17 @@
       "feature_ids": [
         "DATA-001"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
+      "new_ui_state": "partial",
+      "source_evidence": "編集モードでクリップと補正レイヤーを既存APIへ保存。FBXタイムライン再生はWP05eの後続結線中。",
       "evidence": null,
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": null
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-13",

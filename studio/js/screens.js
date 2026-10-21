@@ -416,7 +416,7 @@ export const SCREENS = [
       { name: 'ボーンマップ', status: 'real', evidence: EV_RT_PANEL, note: '骨格解析・プロファイル・ボーン対応表・基準姿勢の検査を /api/retarget/* で行う（読取・試算のみ。モーションやモデルには適用しない）。', ids: ['MOTION-005'] },
       { name: 'ポーズ比較（2体）', status: 'real', evidence: EV_RT_VIEW, note: 'GLB/VRM の元の静止姿勢と補正候補を左右に並べる（試験。モデルは変えない）。', ids: ['MOTION-005'] },
       { name: '4分割ビュー', status: 'unimpl', note: '元モーション・対象・重ね合わせ・側面の4分割は未実装（中央は1つのビューポート）。', ids: ['REVIEW-001'] },
-      { name: '編集タイムライン', status: 'mock', ids: ['DATA-001'] },
+      { name: '編集タイムライン', status: 'partial', note: '編集モードでクリップと補正レイヤーを既存APIへ保存。FBXタイムライン再生はWP05eの後続結線中。', ids: ['DATA-001'] },
       { name: '曲線', status: 'mock', ids: ['DATA-003'] },
       { name: '足IK', status: 'partial', note: 'foot_contact.py・dual_foot_plan.py（Phase B 残課題を含む）。', ids: ['MOTION-011'] },
       { name: '入出力', status: 'partial', note: 'motion_vmd_bridge.py・vmd_readback.py。', ids: ['MOTION-006'] },
@@ -446,7 +446,7 @@ export const SCREENS = [
       ] },
       { id: 'motionExtra', label: '追加動作', sections: [{ title: '歩行・待機・呼吸', status: 'unimpl', controls: [un('動作を補完', '元VMDを保持した追加動作は未実装です。', ['LYRIC-011'], PH.G)] }] },
     ] },
-    bottom: { type: 'timeline', status: 'mock', fps: 30, frames: 900, tracks: [{ label: 'センター', keys: [0, 60, 180, 300, 420, 600] }, { label: '上半身', keys: [0, 90, 240, 480, 720] }, { label: '左足IK', keys: [0, 30, 120, 210, 330] }, { label: '右足IK', keys: [15, 105, 195, 315] }, { label: '表情・リップ', keys: [] }, { label: 'ダンサー別', keys: [] }, { label: '接触イベント', keys: [] }] },
+    bottom: { type: 'feature', key: 'motionTimeline', status: 'partial' },
   },
   {
     id: '14', title: 'カメラレール・パスアニメーション', nav: 'カメラレール', group: 'カメラ',

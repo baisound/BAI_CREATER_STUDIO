@@ -587,6 +587,8 @@ test('theme preference persists and narrow screens do not scroll sideways', asyn
   const page = await newPage();
   await page.goto(`${BASE}/workspace/21`);
   await page.click('.swatch-card:has-text("B: ペーパー")');
+  await page.waitForFunction(() => document.documentElement.dataset.theme === 'paper' &&
+    JSON.parse(localStorage.getItem('bai.studio.prefs.v1') || '{}').theme === 'paper');
   await page.reload();
   assert.equal(await page.getAttribute('html', 'data-theme'), 'paper');
   if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'scr-21-paper.png') });

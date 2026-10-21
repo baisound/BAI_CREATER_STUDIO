@@ -265,10 +265,10 @@
       "id": "P2-WP-05e",
       "step": "⑤ SCR-13 下部のタイムライン編集・再生と補正レイヤー",
       "state": "in_progress",
-      "commits": ["05e-1（このコミット：計算フォークと内容比較保存）"],
-      "tests": ["node --test tests/studio-p2-timeline-logic.test.mjs: 7 pass（30fps終端・重複クリップ選択・移動差分・レイヤー補間・550/500ms・競合と明示上書き・保存中の追加入力）", "npm run typecheck: pass"],
-      "unverified": ["SCR-13 UI・FBX再生との結線、隔離サーバーを使う保存/競合のブラウザテスト、全体ゲートは未実施。", "実FBX/GPU実機は未検証。GET→POST間の競合の隙は設計K12として残る。", "WP05b/cの必須独立レビューは未確認。"],
-      "notes": "設計書 §2.5 05e。旧 timelineFrame・motion_layers.js の計算をフォークし、版を持たない既存APIへ保存する前に正規化済み内容を比べる共通コントローラーを追加。競合ではローカル編集を保持し、明示確認を経る上書きだけを許す。実装・単体テスト：標準モデル区分。",
+      "commits": ["af7dfad（計算フォークと内容比較保存）", "05e-2（このコミット：SCR-13下部の編集UIと既存API結線）"],
+      "tests": ["node --test tests/studio-p2-timeline-logic.test.mjs: 7 pass（30fps終端・重複クリップ選択・移動差分・レイヤー補間・550/500ms・競合と明示上書き・保存中の追加入力）", "tests/studio-p2-motion.test.cjs の timeline and motion layers save: 1 pass（隔離サーバーで両保存と外部更新時の停止・確認後上書き）", "node tests/test_screen_status_honesty.mjs: 6 pass、npm run typecheck: pass", "npm run test:studio: 初回19 pass・1 fail（テーマ保存の一時的な観測差）。テーマ単独再実行1 pass、保存完了待ちをテストへ追加。全件再実行は次の結線後に行う"],
+      "unverified": ["FBXタイムライン再生は未結線。SCR-13の編集タイムラインは部分実装と表示し、再生ボタンを無効化。", "Studio UI全件の再実行と全体ゲートは次段階で行う。", "実FBX/GPU実機は未検証。GET→POST間の競合の隙は設計K12として残る。", "WP05b/cの必須独立レビューは未確認。"],
+      "notes": "設計書 §2.5 05e。旧 timelineFrame・motion_layers.js の計算をフォークし、版を持たない既存APIへ保存する前に正規化済み内容を比べる共通コントローラーを追加。SCR-13［編集］下部でクリップ・補正レイヤーを編集し、競合ではローカル編集を保持、明示確認を経る上書きだけを許す。サンプルトラックは別の折りたたみに残す。実装・テスト：標準モデル区分。",
       "owner_check": null
     },
     {

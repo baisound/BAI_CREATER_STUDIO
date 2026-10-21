@@ -110,6 +110,44 @@ async function seekTo(page, sec) {
   await seekBox.fill(String(sec));
 }
 
+test('timeline and motion layers save through the existing APIs and keep local edits on conflict', harness.skip3d(), async () => {
+  await withApp(seed(), async ({ page, server }) => {
+    await openEdit(page, server);
+    await page.waitForFunction(() => document.querySelector('[data-role="tls-add"]')?.disabled === false);
+    await page.click('[data-role="tls-add"]');
+    await page.fill('[aria-label="追加するモーション名"]', 'Boxing Leading Hand Jab');
+    await page.locator('.modal footer button').last().click();
+    await page.waitForFunction(() => /保存済み/.test(document.querySelector('[data-role="tls-status"]')?.textContent || ''), null, { timeout: 12000 });
+    const timelinePath = path.join(server.dataDir, 'timeline_editor.json');
+    assert.equal(JSON.parse(fs.readFileSync(timelinePath, 'utf8')).clips[0].name, 'Boxing Leading Hand Jab');
+
+    await page.click('.motion-layers > summary');
+    await page.waitForFunction(() => document.querySelector('[data-role="ml-add"]')?.disabled === false);
+    await page.click('[data-role="ml-add"]');
+    await page.click('[data-role="ml-key"]');
+    await page.waitForFunction(() => /保存済み/.test(document.querySelector('[data-role="ml-status"]')?.textContent || ''), null, { timeout: 12000 });
+    const layersPath = path.join(server.dataDir, 'motion_layers.json');
+    const savedLayers = JSON.parse(fs.readFileSync(layersPath, 'utf8')).layers;
+    assert.equal(savedLayers.length, 1);
+    assert.deepEqual(savedLayers[0].keys, [{ frame: 0, x: 0, y: 0, z: 0 }]);
+
+    const external = { schema: 1, clips: [{ name: 'External', start: 0, duration: 90, speed: 1, blend: 6 }] };
+    const response = await fetch(`${server.base}/api/timeline-editor`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(external) });
+    assert.equal(response.status, 200);
+    const duration = page.locator('[data-role="tls-item"] input[data-field="duration"]');
+    await duration.fill('120');
+    await duration.press('Tab');
+    await page.click('[data-role="tls-save"]');
+    await page.waitForFunction(() => window.baiStudio.timeline?.getState()?.conflict === true, null, { timeout: 10000 });
+    assert.equal(JSON.parse(fs.readFileSync(timelinePath, 'utf8')).clips[0].name, 'External', '競合時は保存しない');
+    assert.equal((await page.evaluate(() => window.baiStudio.timeline.getState())).clips[0].duration, 120, 'ローカル編集は保持する');
+    page.once('dialog', (dialog) => void dialog.accept());
+    await page.click('[data-role="tls-overwrite"]');
+    await page.waitForFunction(() => window.baiStudio.timeline.getState().conflict === false && window.baiStudio.timeline.getState().dirty === false);
+    assert.equal(JSON.parse(fs.readFileSync(timelinePath, 'utf8')).clips[0].duration, 120);
+  });
+});
+
 test('pmx with vmd plays bones and morphs', harness.skip3d(), async () => {
   await withApp(seed(), async ({ page, server }) => {
     await openEdit(page, server); // ?asset= なし → A の最初の PMX（index.html:353）
