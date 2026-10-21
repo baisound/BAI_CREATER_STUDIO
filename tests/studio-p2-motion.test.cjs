@@ -67,14 +67,14 @@ function seed({ pmx = true, vmd = true } = {}) {
 }
 
 const JAB = 'Boxing Leading Hand Jab';
-function seedTimeline() {
+function seedTimeline({ animatedModel = false } = {}) {
   return {
     ...seed(),
     'manifest.json': JSON.stringify({ files: [
       { id: 'f-model', name: 'Actor A.fbx', kind: 'modelA' },
       { id: 'f-jab', name: `${JAB}.fbx`, kind: 'motions' },
     ], mapping: {} }),
-    'files/f-model.fbx': FBX_MODEL,
+    'files/f-model.fbx': animatedModel ? FBX_MOTION : FBX_MODEL,
     'files/f-jab.fbx': FBX_MOTION,
     'timeline_editor.json': JSON.stringify({ schema: 1, clips: [{ name: JAB, start: 0, duration: 90, speed: 1, blend: 0 }] }),
     'motion_layers.json': JSON.stringify({ schema: 1, layers: [{ name: '向き', bone: 'Tri', enabled: true, keys: [{ frame: 0, x: 0, y: 90, z: 0 }] }] }),
@@ -208,6 +208,24 @@ test('pending timeline edit is saved when leaving SCR13', harness.skip3d(), asyn
       return r.ok && (await r.json()).clips?.[0]?.duration === 121;
     }, null, { timeout: 12000 });
     assert.equal(JSON.parse(fs.readFileSync(saved, 'utf8')).clips[0].duration, 121);
+  });
+});
+
+test('single clip and timeline playback take turns on one FBX model', harness.skip3d(), async () => {
+  await withApp(seedTimeline({ animatedModel: true }), async ({ page, server }) => {
+    await openEdit(page, server);
+    await page.waitForFunction(() => document.querySelector('[data-role="motion-model"] option[value="fbx:f-model"]'));
+    await page.selectOption(MODEL, 'fbx:f-model');
+    await waitModel(page, 'fbx:f-model');
+    await page.waitForFunction(() => window.baiStudio.motion.getState().playing === true);
+    await page.waitForFunction(() => document.querySelector('[data-role="tls-play"]')?.disabled === false);
+    await page.click('[data-role="tls-play"]');
+    await page.waitForFunction(() => window.baiStudio.timeline.getState().playing === true);
+    assert.equal((await mo(page)).playing, false, 'タイムライン中は単体クリップを止める');
+    await page.click('[data-role="motion-play"]');
+    await page.waitForFunction(() => window.baiStudio.timeline.getState().playing === false && window.baiStudio.motion.getState().playing === true);
+    await page.click('[data-role="motion-stop"]');
+    assert.equal((await mo(page)).playing, false);
   });
 });
 
