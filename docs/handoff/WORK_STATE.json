@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T16:04:09+09:00",
+  "updated_at": "2026-10-21T16:08:20+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-import-expansion",
-  "head_at_update": "3a24dd4",
+  "head_at_update": "6effa64",
   "current": {
     "task": "Issue #37 素材取り込みの入口をステージ・小物・材質・エフェクト・音声・動画・画像へ拡張",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存API・台帳・入力形式とサンプル素材の権利を調査し、実装順序を決める",
     "design_doc": "docs/roadmap/ASSET_IMPORT_EXPANSION_20261021_JA.md"
   },
   "next_steps": [
-    "PRを作成・マージし、手順に従ってローカルmainと8765番を検証する",
-    "Issue #34のグレーマン再生、Issue #35のキャラクター正面画像を実装する"
+    "素材保存APIと検証の実装"
   ],
   "unverified": [
-    "運用手順の文書変更のみ。PRマージ後の実操作で確認する。"
+    "外部無料サンプルは出典・許諾を調査中で、まだ取り込んでいない。実コード・画面の動作は未検証。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T16:08:20+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6effa64",
+      "text": "Issue #37の既存登録4経路と素材分類、保存API、メタ情報、見本生成の実装境界を設計"
+    },
     {
       "at": "2026-10-21T16:04:09+09:00",
       "by": "codex",
@@ -235,13 +241,6 @@
       "event": "start",
       "head": "2e87555",
       "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 登録FBXクリップ取得と対応表保存の実装"
-    },
-    {
-      "at": "2026-10-21T09:31:06+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "362c6aa",
-      "text": "P2-WP-05d 第1区切り：連結再生の旧式照合関数とFBX/PMXのA/B配置式を追加。Node 3件・型確認合格"
     }
   ]
 }
