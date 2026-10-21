@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T22:03:10+09:00",
+  "updated_at": "2026-10-21T22:45:32+09:00",
   "updated_by": "codex",
-  "branch": "codex/stage-pack-gpu-main",
-  "head_at_update": "d5f2c98",
+  "branch": "codex/stage-lighting-zoom",
+  "head_at_update": "8984bbd",
   "current": {
-    "task": "PR45を統合済みPR43のmainへ追従",
+    "task": "Issue #46・#47: 公開可能な図をIssueへ添付",
     "status": "done",
-    "step": "共通の大型GLB見本保護を保持し、競合を解消して小型テストを再実行する",
-    "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
+    "step": "素材画像を公開せず、メタデータ図と視点概念図をPR・Issueに直接表示する",
+    "design_doc": "docs/roadmap/STAGE_LIGHTLESS_ZOOM_20261021_JA.md"
   },
   "next_steps": [
-    "PR45をGitHub mainへ統合し、ローカルmainと8765番サーバーを同期する。その後WP05gを既定順で進める。"
+    "図をPR #48およびIssue #46・#47へ画像として表示確認する。S05/S06発光候補はOwner判断待ち。PR統合後mainとサーバーを同期"
   ],
   "unverified": [
-    "最大GLBのシーンUI実再生は前回端末フリーズのため中断し再試験しない。実FPS、低性能GPU、Linux、MCP、Owner外観採用は未確認。"
+    "LAST CHASE全景の実操作、実GPU、Linux、Owner外観採用は未検証。S05/S06発光候補は未採用・未登録"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,55 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T22:45:32+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8984bbd",
+      "text": "Issue #46・#47の結果を示すメタデータ図と視点概念図を作成。受領GLBの実画像は公開せず、Owner指定のローカル確認領域に保持"
+    },
+    {
+      "at": "2026-10-21T22:45:08+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "19f818e",
+      "text": "Issue #46・#47: 公開可能な図をIssueへ添付: 素材画像を公開せず、メタデータ図と視点概念図をPR・Issueに直接表示する"
+    },
+    {
+      "at": "2026-10-21T22:42:53+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "e6a7f96",
+      "text": "PR #48を作成し、Issue #46・#47へ検証結果と未検証事項を連携。S03/S04/S06/S07のライトなし別名GLB4件は登録済み。S05/S06発光抑制候補は比較画像付きで未登録"
+    },
+    {
+      "at": "2026-10-21T22:40:40+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5cce782",
+      "text": "Issue #46・#47: ライトなしGLBの結果連携と視点修正PR: Issue46・47に検証結果を結び、PRでレビュー可能にする。S05/S06発光候補はOwner判断待ち"
+    },
+    {
+      "at": "2026-10-21T22:39:56+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "62f508e",
+      "text": "Issue46: S03/S04/S06/S07のライトなしGLB別名コピー4件を作成・検証・素材登録。Issue47: SCR-06の自由前後移動を実装し小型GLBで床下通過を確認。S05/S06の発光抑制候補は未登録で比較画像あり"
+    },
+    {
+      "at": "2026-10-21T22:26:32+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "6bb0509",
+      "text": "Issue #46・#47: ライトなしGLB複製とシーン視点接近: S03/S04/S06/S07のGLB内蔵ライトを除いた別名コピーを作り、元BIN・材質・構造の保持を検証する。S05はライトなしとして別途記録する"
+    },
+    {
+      "at": "2026-10-21T22:12:02+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "180e9b3",
+      "text": "Issue46・47: 受領ステージの過度な明るさと視点接近限界: S01と小型受領GLBの光源・材質を比較し、OrbitControlsの接近挙動を隔離素材で再現する"
+    },
     {
       "at": "2026-10-21T22:03:10+09:00",
       "by": "codex",
@@ -192,55 +241,6 @@
       "event": "done",
       "head": "0d7beec",
       "text": "AUDIO-001: SCR-10でPMXとMVNT GLBの骨対応、MMD物理、WAV/MP3実波形、30fps配置・再生・保存復元を実装し、実素材を隔離ブラウザで検証"
-    },
-    {
-      "at": "2026-10-21T17:08:35+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e577325",
-      "text": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー: SCR-10の3D変形・音声クロック・2トラック編集"
-    },
-    {
-      "at": "2026-10-21T17:08:23+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "32ad0d0",
-      "text": "AUDIO-001の実データ骨格を調査し、配置保存APIとrevision競合・破損拒否を実装。Python2件合格。"
-    },
-    {
-      "at": "2026-10-21T16:58:59+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4f293ae",
-      "text": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー: 実データ骨格調査・設計・保存契約"
-    },
-    {
-      "at": "2026-10-21T16:44:29+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ba00acf",
-      "text": "DATA-016 画像・音声・動画・GLB見本、再生操作、CC0実素材8件と取得記録を実装しChromeで検証"
-    },
-    {
-      "at": "2026-10-21T16:23:54+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "8b639c0",
-      "text": "DATA-016 素材取り込み拡張: 画像・音声・動画・GLBの実見本と再生操作"
-    },
-    {
-      "at": "2026-10-21T16:23:03+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8c4ea44",
-      "text": "DATA-016 取り込み規則とSCR-08分類一覧を実装し単体18件と型検査合格"
-    },
-    {
-      "at": "2026-10-21T16:17:14+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5ef1b0a",
-      "text": "Issue #37 素材取り込み拡張: SCR-08の分類・取り込みキュー・一覧と詳細を新APIへ接続する"
     }
   ]
 }
