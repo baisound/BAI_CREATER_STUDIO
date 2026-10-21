@@ -1,5 +1,5 @@
 // @ts-check
-// AUDIO-001 / Issue #39: one frame clock for decoded audio and a runtime-only PMX+GLB dance preview.
+// AUDIO-001 / Issues #39, #50: one frame clock for decoded audio and a runtime-only humanoid dance preview.
 import { h } from '../ui.js';
 import { getJson, postJson, getBinary } from '../api.js';
 import { assets } from '../store.js';
@@ -7,13 +7,16 @@ import { loadAssets } from './assets.js';
 import { loadLibs, loadModel, disposeObject, loadErrorText } from '../viewport/model-loader.js';
 import { createViewport, WebGLError, WEBGL_ERROR_TEXT } from '../viewport/three-host.js';
 import { createPmxGlbPreview } from '../motion/pmx-glb-preview.js';
+import { createGenericGlbPreview } from '../motion/generic-glb-preview.js';
 import { createPmxPhysicsPreview } from '../motion/pmx-physics-preview.js';
+import { normalizeModel } from '../viewport/normalize.fork.js';
+import { categoryOf } from './assets-model.js';
 import { FPS, clampFrame, mediaAt, audioSchedule, timelineLength, waveformPeaks } from '../motion/music-dance-clock.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
 const ENDPOINT = '/api/music-dance/project';
-const MODEL_HINT = 'PMXを選択';
+const MODEL_HINT = '踊るモデルを選択';
 const MOTION_HINT = 'ダンスGLBを選択';
 const AUDIO_HINT = 'WAV/MP3を選択';
 
@@ -26,20 +29,20 @@ function audioItem(a) { return a.source === 'library' && a.kind === 'audio' && [
 /** @param {AssetItem} a */
 function motionItem(a) { return a.kind === 'motion' && a.format === 'GLB'; }
 /** @param {AssetItem} a */
-function modelItem(a) { return a.source === 'mmd' && a.format === 'PMX'; }
+function modelItem(a) { return categoryOf(a) === 'char' && ['GLB', 'VRM', 'PMX', 'FBX'].includes(a.format); }
 
 /** @param {FeatureCtx} ctx */
 export const musicDanceStudio = (ctx) => {
   void loadAssets();
-  const modelSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '踊るPMXモデル', dataset: { role: 'dance-model' } }));
+  const modelSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '踊るモデル', dataset: { role: 'dance-model' } }));
   const motionSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'GLBダンス', dataset: { role: 'dance-motion' } }));
   const audioSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '音楽WAVまたはMP3', dataset: { role: 'dance-audio' } }));
   const status = h('p', { class: 'section-note music-dance-status', role: 'status', dataset: { role: 'dance-status' } }, '保存済みの配置を読み込み中…');
-  const viewport = h('div', { class: 'viewport vp3d music-dance-viewport', role: 'img', 'aria-label': 'Baisound PMXのダンスプレビュー', dataset: { role: 'dance-viewport' } });
-  const threeStatus = h('p', { class: 'section-note', role: 'status', dataset: { role: 'dance-pose-status' } }, 'PMXとGLBを選んでください。');
+  const viewport = h('div', { class: 'viewport vp3d music-dance-viewport', role: 'img', 'aria-label': '選択したモデルのダンスプレビュー', dataset: { role: 'dance-viewport' } });
+  const threeStatus = h('p', { class: 'section-note', role: 'status', dataset: { role: 'dance-pose-status' } }, 'モデルとダンスGLBを選んでください。');
   const follow = /** @type {HTMLInputElement} */ (h('input', { type: 'checkbox', checked: true, dataset: { role: 'dance-follow' } }));
   const physicsOn = /** @type {HTMLInputElement} */ (h('input', { type: 'checkbox', checked: true, dataset: { role: 'dance-physics' } }));
-  const physicsStatus = h('p', { class: 'section-note', role: 'status', dataset: { role: 'dance-physics-status' } }, 'PMXの物理情報を読み込み中…');
+  const physicsStatus = h('p', { class: 'section-note', role: 'status', dataset: { role: 'dance-physics-status' } }, 'PMXを選ぶとMMD物理を確認できます。');
   const play = /** @type {HTMLButtonElement} */ (h('button', { type: 'button', class: 'btn primary', dataset: { role: 'dance-play' } }, '▶ 再生'));
   const pause = /** @type {HTMLButtonElement} */ (h('button', { type: 'button', class: 'btn', dataset: { role: 'dance-pause' } }, '❚❚ 一時停止'));
   const headBack = /** @type {HTMLButtonElement} */ (h('button', { type: 'button', class: 'btn', dataset: { role: 'dance-head-back' } }, '再生位置 −1F'));
@@ -66,7 +69,7 @@ export const musicDanceStudio = (ctx) => {
   let loadGeneration = 0, audioGeneration = 0;
   /** @type {import('../viewport/model-loader.js').Libs|null} */ let libs = null;
   /** @type {import('../viewport/three-host.js').Viewport|null} */ let host = null;
-  /** @type {any} */ let pmx = null, glb = null, preview = null, physics = null;
+  /** @type {any} */ let actor = null, glb = null, preview = null, physics = null;
   /** @type {AudioContext|null} */ let audioContext = null;
   /** @type {AudioBuffer|null} */ let decoded = null;
   /** @type {AudioBufferSourceNode|null} */ let sound = null;
@@ -106,7 +109,8 @@ export const musicDanceStudio = (ctx) => {
   }
   function followActor() {
     if (!follow.checked || !preview || !host || !libs) { followed = null; return; }
-    const center = preview.probe(['センター'])['センター'];
+    const followBone = preview.followBone || 'センター';
+    const center = preview.probe([followBone])[followBone];
     if (!center) return;
     const desired = new libs.THREE.Vector3(...center.position).add(new libs.THREE.Vector3(0, .35, 0));
     if (followed) {
@@ -235,44 +239,57 @@ export const musicDanceStudio = (ctx) => {
     preview?.dispose(); preview = null;
     if (glb) { disposeObject(glb); glb = null; }
     if (host) { host.clear(); host.dispose(); host = null; }
-    pmx = null; followed = null;
+    actor = null; followed = null; physicsOn.disabled = true;
+    physicsStatus.textContent = 'PMXを選ぶとMMD物理を確認できます。';
+    physicsStatus.dataset.kind = 'info';
     rebuildLength(); drawTimeline(); drawHead();
-    if (!placement?.model_id || !placement?.motion_id) { threeStatus.textContent = 'PMXとダンスGLBを選んでください。'; return; }
-    const model = asset(placement.model_id), motion = asset(placement.motion_id);
-    if (!model || !motion || !usable(model) || !usable(motion)) { threeStatus.textContent = 'PMXまたはGLBの元ファイルがありません。選択と登録を確認してください。'; return; }
-    threeStatus.textContent = 'PMXとGLBを読み込み中…';
+    if (!placement?.model_id) { threeStatus.textContent = '踊るモデルを選んでください。'; return; }
+    const model = asset(placement.model_id), motion = placement.motion_id ? asset(placement.motion_id) : null;
+    if (!model || !usable(model) || !modelItem(model)) { threeStatus.textContent = '選択したモデルの元ファイルがありません。登録を確認してください。'; return; }
+    threeStatus.textContent = `${model.format}モデルを読み込み中…`;
     try {
       const lb = await loadLibs();
       if (!alive || my !== loadGeneration) return;
       libs = lb;
       const target = await loadModel(model, lb);
       if (!alive || my !== loadGeneration) { disposeObject(target.object); return; }
-      const source = await loadModel(motion, lb);
-      if (!alive || my !== loadGeneration) { disposeObject(target.object); disposeObject(source.object); return; }
-      if (!source.animations.length) throw new Error('GLBにアニメーションがありません。');
-      pmx = target.object; glb = source.object;
-      pmx.scale.setScalar(.08);
-      pmx.updateMatrixWorld(true);
-      const box = new lb.THREE.Box3().setFromObject(pmx, true);
-      pmx.position.y -= box.min.y;
+      actor = target.object;
+      if (target.format === 'PMX') {
+        actor.scale.setScalar(.08);
+        actor.updateMatrixWorld(true);
+        const box = new lb.THREE.Box3().setFromObject(actor, true);
+        actor.position.y -= box.min.y;
+      } else normalizeModel(actor, target.format, lb.THREE);
       host = createViewport(viewport, lb);
-      host.setObject(pmx);
-      preview = createPmxGlbPreview(lb.THREE, pmx, glb, source.animations[0]);
-      preview.seek(0); host.fit();
-      physicsStatus.textContent = 'PMXの剛体とジョイントを初期化中…';
-      try {
-        const prepared = await createPmxPhysicsPreview(pmx, preview);
-        if (!alive || my !== loadGeneration) { prepared.dispose(); return; }
-        physics = prepared;
-        physicsStatus.textContent = `MMD物理を適用中：動的剛体 ${physics.dynamicBodies}、ジョイント ${physics.constraints}。`;
-        physicsStatus.dataset.kind = 'info'; physicsOn.disabled = false;
-      } catch (e) {
-        if (!alive || my !== loadGeneration) return;
-        physicsStatus.textContent = `物理演算を開始できません：${e instanceof Error ? e.message : String(e)}`;
-        physicsStatus.dataset.kind = 'error'; physicsOn.disabled = true;
+      host.setObject(actor); host.fit();
+      if (!motion) { threeStatus.textContent = `${model.format}モデルを表示中。ダンスGLBを選ぶと動作を確認できます。`; return; }
+      if (!usable(motion) || !motionItem(motion)) throw Error('選択したダンスGLBの元ファイルがありません。登録を確認してください。');
+      const source = await loadModel(motion, lb);
+      if (!alive || my !== loadGeneration) { disposeObject(source.object); return; }
+      glb = source.object;
+      if (!source.animations.length) throw new Error('GLBにアニメーションがありません。');
+      preview = target.format === 'PMX'
+        ? createPmxGlbPreview(lb.THREE, actor, glb, source.animations[0])
+        : createGenericGlbPreview(lb.THREE, actor, glb, source.animations[0]);
+      preview.seek(0);
+      if (target.format === 'PMX') {
+        physicsStatus.textContent = 'PMXの剛体とジョイントを初期化中…';
+        try {
+          const prepared = await createPmxPhysicsPreview(actor, preview);
+          if (!alive || my !== loadGeneration) { prepared.dispose(); return; }
+          physics = prepared;
+          physicsStatus.textContent = `MMD物理を適用中：動的剛体 ${physics.dynamicBodies}、ジョイント ${physics.constraints}。`;
+          physicsStatus.dataset.kind = 'info'; physicsOn.disabled = false;
+        } catch (e) {
+          if (!alive || my !== loadGeneration) return;
+          physicsStatus.textContent = `物理演算を開始できません：${e instanceof Error ? e.message : String(e)}`;
+          physicsStatus.dataset.kind = 'error'; physicsOn.disabled = true;
+        }
+      } else {
+        physicsStatus.textContent = `${target.format}の物理演算はこの画面では未対応です。骨の動作のみ確認できます。`;
       }
       followed = null; followActor();
-      threeStatus.textContent = `${preview.mappedBones}本の骨で ${source.animations[0].name || 'GLBクリップ'} をプレビュー中。未対応 ${preview.missingBones.length}本。元データは変更しません。`;
+      threeStatus.textContent = `${target.format}の${preview.mappedBones}本の骨で ${source.animations[0].name || 'GLBクリップ'} をプレビュー中。未対応 ${preview.missingBones.length}本。元データは変更しません。`;
       threeStatus.dataset.kind = 'info';
       rebuildLength(); poseAt(frame); drawTimeline(); drawHead();
     } catch (e) {
@@ -359,9 +376,9 @@ export const musicDanceStudio = (ctx) => {
   void loadPlacement();
 
   return h('div', { class: 'music-dance-studio', dataset: { feature: 'musicDanceStudio' } },
-    h('div', { class: 'music-dance-intro' }, h('h2', null, '音楽とダンスを合わせる'), h('p', null, '登録した曲とGLBダンスを、PMXモデルで同じ30fpsのタイムラインに配置します。元ファイルやウェイトは変更しません。')),
+    h('div', { class: 'music-dance-intro' }, h('h2', null, '音楽とダンスを合わせる'), h('p', null, '登録した曲とGLBダンスを、選んだGLB/VRM/PMX/FBXモデルで同じ30fpsのタイムラインに配置します。人体骨の対応が不足するモデルは動作できない理由を表示します。元ファイルやウェイトは変更しません。')),
     h('div', { class: 'music-dance-source-row' },
-      h('label', null, '踊るモデル（PMX）', modelSel), h('label', null, 'ダンス（GLB）', motionSel), h('label', null, '曲（WAV/MP3）', audioSel),
+      h('label', null, '踊るモデル（GLB/VRM/PMX/FBX）', modelSel), h('label', null, 'ダンス（GLB）', motionSel), h('label', null, '曲（WAV/MP3）', audioSel),
       h('button', { class: 'btn', type: 'button', onclick: () => ctx.navigate('08', { query: { import: '1', cat: 'audio' } }) }, '曲を取り込む…')),
     status,
     h('div', { class: 'music-dance-main' }, viewport,
@@ -369,7 +386,7 @@ export const musicDanceStudio = (ctx) => {
         h('h3', null, '3Dプレビュー'), threeStatus,
         h('label', { class: 'music-dance-follow' }, follow, '踊るモデルを画面中央で追う'),
         h('label', { class: 'music-dance-follow' }, physicsOn, '衣装・耳・アクセサリーのMMD物理を再生'), physicsStatus,
-        h('p', { class: 'section-note' }, 'マウスで回転・ズームできます。GLBの主要骨をPMXへプレビュー中だけ対応付けます。'))),
+        h('p', { class: 'section-note' }, 'マウスで回転・ズームできます。GLBダンスの主要骨を選択モデルへプレビュー中だけ対応付けます。MMD物理はPMXのみです。'))),
     h('section', { class: 'music-dance-editor', 'aria-label': '音楽とダンスのタイムライン' },
       h('div', { class: 'music-dance-transport' }, play, pause, headBack, headNext, headLabel, sourceLabel),
       head,

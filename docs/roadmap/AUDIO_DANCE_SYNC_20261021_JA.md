@@ -4,6 +4,8 @@
 
 Issue [#39](https://github.com/baisound/BAI_CREATER_STUDIO/issues/39)。素材一覧の WAV/MP3 を音楽トラックへ置き、Baisound 通常 PMX に MVNT 出力の GLB モーションを当て、同じ時刻でプレビューする。先の FBX 指定は GLB に訂正された。手動の最終調整は、選択した音楽/モーションブロックを前後へ **1 フレーム**ずつ動かせること。従来の「AUDIO-001 はリップシンク段階まで待つ」順序より、この直接指定を優先する。リップシンク、EQ、書き出しはこの依頼に含めない。
 
+**後続Owner指定（2026-10-22）:** Issue [#50](https://github.com/baisound/BAI_CREATER_STUDIO/issues/50) の「全キャラクター配置面で4形式」に SCR-10「踊るモデル」も含む。#39の最初のPMX実証を保持しつつ、GLB/VRM/PMX/FBXの登録済みキャラクター選択と、対応する人体骨へのダンスGLBプレビューを追加する。骨格が一致しないモデルの動作、VRM/FBX物理は対応済みと表示しない。詳細は [全形式配置契約](CHARACTER_PLACEMENT_ALL_FORMATS_20261021_JA.md)。
+
 ## 実データの確認
 
 Owner が実証対象として確定した登録素材:
