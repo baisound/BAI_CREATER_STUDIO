@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T06:28:02+09:00",
+  "updated_at": "2026-10-22T06:30:06+09:00",
   "updated_by": "codex",
   "branch": "codex/issue63-workflow",
-  "head_at_update": "6c45b6a",
+  "head_at_update": "59b6997",
   "current": {
     "task": "Issue #63: 同一シーン・時刻の制作フローを整理",
-    "status": "done",
-    "step": "B: workspaceと音楽・ダンスの保存データを読み取り合成し不整合を表示",
+    "status": "in_progress",
+    "step": "C: SCR02の撮影世界へSCR06のステージ・配置とSCR10の動作を合成",
     "design_doc": "docs/roadmap/ISSUE63_UNIFIED_WORKFLOW_20261022_JA.md"
   },
   "next_steps": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T06:30:06+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "59b6997",
+      "text": "Issue #63: 同一シーン・時刻の制作フローを整理: C: SCR02の撮影世界へSCR06のステージ・配置とSCR10の動作を合成"
+    },
     {
       "at": "2026-10-22T06:28:02+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "done",
       "head": "10e4744",
       "text": "P2-WP-06aの1/2: camera.jsをroot基準の冪等mount APIへ移し、旧カメラのキー編集・Undo/Redo・保存再読込のmain比較が一致"
-    },
-    {
-      "at": "2026-10-22T00:48:49+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "84410e8",
-      "text": "Issue #50追補: SCR-10の踊るモデルにGLB/VRM/PMX/FBXを追加し、主要人体骨のGLBダンスプレビューを実装。実VRM/GLB/FBXの隔離Chrome動作、VRM保存再読込、原本hash不変、型検査と状態検査を確認"
     }
   ]
 }
