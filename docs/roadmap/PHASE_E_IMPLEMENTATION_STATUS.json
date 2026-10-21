@@ -269,7 +269,7 @@
       "phase_e_wp": "WP-02d",
       "planned_in": "P2-WP-06c",
       "status": "done",
-      "commit": "codex/p2-wp06 WP06c（台帳更新後にSHAを確定）",
+      "commit": "b9d7f57",
       "tests": "camera_bundle_core.jsの単体2件、旧camera.htmlの読込と新UIの統合保存・復元の隔離Chrome試験、P2 E2E S3/S7合格",
       "unverified": "Phase E WP-02d本体のassetRef記入・緩和・frame整数化・423処理は未着手。共有モジュールの置き場所のみ完成"
     },

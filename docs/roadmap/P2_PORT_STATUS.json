@@ -400,7 +400,9 @@
       "id": "P2-WP-06c",
       "step": "⑥ ②の保存との統合",
       "state": "verified",
-      "commits": ["codex/p2-wp06のWP06c実装コミット（次の台帳更新でSHAを記入）"],
+      "commits": [
+        "b9d7f57（共有bundle core・SCR02保存同期・S3/S7通し確認）"
+      ],
       "tests": [
         "npm run typecheck: pass。共有core単体2/2、projectロジック27/27、カメラPython経路・一貫性15/15、P2 Python 43/43 pass",
         "隔離Chrome: SCR02カメラホスト5/5（4形式、壊れた保存の退避復旧、単体保存→統合保存200、フレームのみの移動、保存済み状態の復元）、旧カメラ2/2、旧プロジェクト2/2、project保存17/17 pass",
@@ -499,7 +501,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "2097938",
-    "checked_at": "2026-10-21T17:31:02.507Z"
+    "commit": "b9d7f57",
+    "checked_at": "2026-10-21T17:37:52.868Z"
   }
 }

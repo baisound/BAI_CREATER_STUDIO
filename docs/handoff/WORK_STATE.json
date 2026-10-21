@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T02:42:01+09:00",
+  "updated_at": "2026-10-22T02:43:31+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp06",
-  "head_at_update": "2097938",
+  "head_at_update": "b9d7f57",
   "current": {
     "task": "P2-WP-06 カメラ移植とIssue #50全形式の接続",
     "status": "done",
@@ -11,10 +11,10 @@
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-06d: Phase E §7読み替え表を現実の124 ID配置とWP06c保存動線で更新しレビュー"
+    "P2-WP-06d: Phase E §7の読み替え表・レビュー"
   ],
   "unverified": [
-    "独立高性能モデルレビュー、実GPU/Linux/全実モデルとOwner採用。P2 Node全件はWindows ERR_NO_BUFFER_SPACEで完走せず、失敗3件は隔離再実行で合格。"
+    "独立高性能モデルレビュー、実GPU/Linux/全実モデルとOwner採用。P2 Node全件はWindows ERR_NO_BUFFER_SPACEで完走せず、失敗3件を隔離再実行で確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T02:43:31+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b9d7f57",
+      "text": "P2-WP-06c実装をb9d7f57でpush済み。台帳に同SHAとE2E S7を確定記録"
+    },
     {
       "at": "2026-10-22T02:42:01+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "62f508e",
       "text": "Issue46: S03/S04/S06/S07のライトなしGLB別名コピー4件を作成・検証・素材登録。Issue47: SCR-06の自由前後移動を実装し小型GLBで床下通過を確認。S05/S06の発光抑制候補は未登録で比較画像あり"
-    },
-    {
-      "at": "2026-10-21T22:26:32+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "6bb0509",
-      "text": "Issue #46・#47: ライトなしGLB複製とシーン視点接近: S03/S04/S06/S07のGLB内蔵ライトを除いた別名コピーを作り、元BIN・材質・構造の保持を検証する。S05はライトなしとして別途記録する"
     }
   ]
 }
