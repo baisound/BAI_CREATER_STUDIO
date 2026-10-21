@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T19:45:26+09:00",
+  "updated_at": "2026-10-21T19:54:28+09:00",
   "updated_by": "codex",
-  "branch": "codex/stage-light-rig",
-  "head_at_update": "8891cfa",
+  "branch": "codex/asset-visual-previews-v2",
+  "head_at_update": "1327f69",
   "current": {
-    "task": "Issue40の実モデル床接地とPR42統合判定",
-    "status": "done",
-    "step": "提供S01と登録済み実GLBキャラクターを隔離SCR-06へ同時配置し、床接地・保存再読込を測定して必要な修正を行う",
-    "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
+    "task": "Issue34・35 モーションのグレーマン再生とキャラクター正面サムネイル",
+    "status": "in_progress",
+    "step": "既存の素材詳細プレビュー・カタログ・保存APIを調べ、原本不変の画像生成とモーション適用を設計する",
+    "design_doc": "docs/roadmap/ASSET_VISUAL_PREVIEWS_20261021_JA.md"
   },
   "next_steps": [
     "Owner条件付き承認に基づきPR42を統合し、mainと実行環境へ反映・実ステージを保存再読込する。その後Issue34/35とWP05gを既定順で進める"
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T19:54:28+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1327f69",
+      "text": "Issue34・35 モーションのグレーマン再生とキャラクター正面サムネイル: 既存の素材詳細プレビュー・カタログ・保存APIを調べ、原本不変の画像生成とモーション適用を設計する"
+    },
     {
       "at": "2026-10-21T19:45:26+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "02b8023",
       "text": "Issue #29: 共通3Dビューと旧3D画面の中ドラッグ回転・Shift移動・Ctrl前後操作を実装し、Chrome 19件と旧画面1件、tscを確認"
-    },
-    {
-      "at": "2026-10-21T14:32:45+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d2d1979",
-      "text": "Issue #26: バイサンド開発依頼の日本語Issue記録、画像添付、分かりやすい本文、PR連携の常設ルールを整備"
     }
   ]
 }
