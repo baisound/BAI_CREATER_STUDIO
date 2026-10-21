@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T15:40:14+09:00",
+  "updated_at": "2026-10-21T15:57:59+09:00",
   "updated_by": "codex",
-  "branch": "codex/legacy-camera-fixes",
-  "head_at_update": "9a383fd",
+  "branch": "codex/main-sync-post-merge",
+  "head_at_update": "1897a21",
   "current": {
-    "task": "Issue #30 旧BAI Cameraの正面撮影・自由回転・再生途中停止・周回の不具合",
-    "status": "done",
-    "step": "実画面とコードで症状を切り分け、既存仕様内で修正する",
-    "design_doc": "docs/roadmap/CAM_ISSUE30_LEGACY_FIX_20261021_JA.md"
+    "task": "Issue #33 main統合後のローカル同期とサーバー確認手順",
+    "status": "in_progress",
+    "step": "AGENTSの短い導線と詳細手順を追加する",
+    "design_doc": "docs/handoff/MAIN_SYNC_AFTER_MERGE_JA.md"
   },
   "next_steps": [
     "Issue #30の日本語PRを作成・確認後に統合し、Issueを閉じる。その後P2-WP05gを再開する"
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T15:57:59+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1897a21",
+      "text": "Issue #33 main統合後のローカル同期とサーバー確認手順: AGENTSの短い導線と詳細手順を追加する"
+    },
     {
       "at": "2026-10-21T15:40:14+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "83dbf9f",
       "text": "P2-WP-05d SCR-05 の A/B の3D・連結再生・手順名対応表・スロット別PMX+VMD: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T21:08:35+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "5b4711a",
-      "text": "P2-WP-05c 完了：SCR-05 の82パターン一覧（検索・分類・👑）・お気に入り・コンビネーション編集（editCombination）・速度"
     }
   ]
 }
