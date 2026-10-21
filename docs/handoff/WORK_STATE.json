@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T14:18:16+09:00",
+  "updated_at": "2026-10-21T14:30:38+09:00",
   "updated_by": "codex",
-  "branch": "codex/pmx-vmd-foot-playback",
-  "head_at_update": "2326456",
+  "branch": "codex/owner-issue-policy-20261021",
+  "head_at_update": "9cc2d4c",
   "current": {
-    "task": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正",
-    "status": "done",
-    "step": "PMXプレビューのIK・grant更新と実素材再検証",
+    "task": "Issue #26 バイサンドの開発依頼を日本語GitHub Issueで管理する常設ルール",
+    "status": "in_progress",
+    "step": "AGENTS短い参照・詳細手順・Issueテンプレートを整備",
     "design_doc": "docs/roadmap/MOTION_006_VMD_FOOT_DIAGNOSIS_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T14:30:38+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9cc2d4c",
+      "text": "Issue #26 バイサンドの開発依頼を日本語GitHub Issueで管理する常設ルール: AGENTS短い参照・詳細手順・Issueテンプレートを整備"
+    },
     {
       "at": "2026-10-21T14:18:16+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "e9e14eb",
       "text": "P2-WP-04b ④ リターゲット検証の移植（④-9・④-10）: 実装開始（SCR-13 ボーンマップタブ → three-host 比較 → テスト）"
-    },
-    {
-      "at": "2026-10-20T16:13:56+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "81a0c79",
-      "text": "P2-WP-04 B-4 の Opus レビュー：B-4 は設計どおり（HTTP 400 で不変のテストを追加）。PMX キャラを SCR-06 に置く件は計画の空白として所有者判断（Q5）"
     }
   ]
 }
