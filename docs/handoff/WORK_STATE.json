@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T21:35:55+09:00",
+  "updated_at": "2026-10-21T22:01:13+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-pack-gpu-main",
-  "head_at_update": "0694246",
+  "head_at_update": "1de1272",
   "current": {
-    "task": "受領済み7ステージの更新登録と大規模GLBのGPU描画確認",
-    "status": "done",
-    "step": "READMEの7件を原本hashと照合し、現行の登録・描画経路と容量上限を整理する",
+    "task": "PR45を統合済みPR43のmainへ追従",
+    "status": "in_progress",
+    "step": "共通の大型GLB見本保護を保持し、競合を解消して小型テストを再実行する",
     "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T22:01:13+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1de1272",
+      "text": "PR45を統合済みPR43のmainへ追従: 共通の大型GLB見本保護を保持し、競合を解消して小型テストを再実行する"
+    },
     {
       "at": "2026-10-21T21:35:55+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "2b90003",
       "text": "Issue #28 MOTION-016の素材一覧3姿勢画像と選択素材の再生プレビューを実装。Issue #29 3D操作とともにChrome/SwiftShader実素材確認。素材テスト29/29、ビュー19/19、旧カメラ1/1、証拠テスト120/120、tsc合格。実データハッシュ不変。"
-    },
-    {
-      "at": "2026-10-21T14:40:33+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "34b4605",
-      "text": "Issue #28 MOTION-016 モーション素材の見本画像と再生プレビュー: 素材形式別の読み取り専用プレビューと一覧サムネイルを実装"
     }
   ]
 }
