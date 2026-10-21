@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T15:58:52+09:00",
+  "updated_at": "2026-10-21T16:04:09+09:00",
   "updated_by": "codex",
-  "branch": "codex/main-sync-post-merge",
-  "head_at_update": "340aeeb",
+  "branch": "codex/asset-import-expansion",
+  "head_at_update": "3a24dd4",
   "current": {
-    "task": "Issue #33 main統合後のローカル同期とサーバー確認手順",
-    "status": "done",
-    "step": "AGENTSの短い導線と詳細手順を追加する",
-    "design_doc": "docs/handoff/MAIN_SYNC_AFTER_MERGE_JA.md"
+    "task": "Issue #37 素材取り込みの入口をステージ・小物・材質・エフェクト・音声・動画・画像へ拡張",
+    "status": "in_progress",
+    "step": "既存API・台帳・入力形式とサンプル素材の権利を調査し、実装順序を決める",
+    "design_doc": "docs/roadmap/ASSET_IMPORT_EXPANSION_20261021_JA.md"
   },
   "next_steps": [
     "PRを作成・マージし、手順に従ってローカルmainと8765番を検証する",
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T16:04:09+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3a24dd4",
+      "text": "Issue #37 素材取り込みの入口をステージ・小物・材質・エフェクト・音声・動画・画像へ拡張: 既存API・台帳・入力形式とサンプル素材の権利を調査し、実装順序を決める"
+    },
     {
       "at": "2026-10-21T15:58:52+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "done",
       "head": "362c6aa",
       "text": "P2-WP-05d 第1区切り：連結再生の旧式照合関数とFBX/PMXのA/B配置式を追加。Node 3件・型確認合格"
-    },
-    {
-      "at": "2026-10-21T09:28:23+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "614e848",
-      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 引き継ぎ設計照合→実装→自動テスト→台帳更新"
     }
   ]
 }
