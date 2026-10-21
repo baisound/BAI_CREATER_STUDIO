@@ -2006,16 +2006,16 @@
       "feature_ids": [
         "DATA-001"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
-      "evidence": null,
-      "UI": "mock_route_operable",
-      "API": "none",
+      "new_ui_state": "real",
+      "source_evidence": "編集モードでクリップと補正レイヤーを既存APIへ保存し、登録FBXモデルでタイムラインを再生する。サンプルトラックは表示例。",
+      "evidence": "tests/studio-p2-motion.test.cjs::registered FBX timeline plays at 30fps with additive layer and stops at its end",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {

@@ -1,27 +1,26 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T22:55:04+09:00",
+  "updated_at": "2026-10-21T23:33:05+09:00",
   "updated_by": "codex",
-  "branch": "main",
-  "head_at_update": "4ca61f1",
+  "branch": "codex/p2-wp05e",
+  "head_at_update": "03bdb59",
   "current": {
-    "task": "Issue #46: S05/S06発光抑制GLB候補を別名素材登録",
+    "task": "P2-WP-05e PR21統合",
     "status": "done",
-    "step": "Ownerが候補作成を選択。ハッシュ・構造を再照合し候補2件を素材ライブラリに登録、原本と旧版を保持",
-    "design_doc": "docs/roadmap/STAGE_LIGHTLESS_ZOOM_20261021_JA.md"
+    "step": "mainとの差分を統合して競合を解消し独立検証する",
+    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "S05/S06発光候補のOwner外観採用を待つ。Issue #46は開いたまま。承認済みロードマップのWP05gへ戻る"
+    "PR21をmainに統合し、WP05fの独立レビューとPR22統合へ進む"
   ],
   "unverified": [
-    "候補のOwner採用、実GPU、Linux、WebMCP/標準MCPは未検証。LAST CHASE全景は端末フリーズ歴のため再試験しない"
+    "実利用者FBX/GPU実機、GET→POST競合の隙は未確認・残存。Owner手動確認はPhase E後"
   ],
   "blockers": [],
   "owner_questions": [
     "Q1 新規プロジェクト作成の扱い（既定：◇ 未実装表示）",
     "Q2 旧機能を削ってよいか（既定：すべて残す）",
-    "Q3 ⑥ の後に camera.html を読み取り専用にするか（既定：編集可のまま）",
-    "Q5 PMX キャラクターを SCR-06・カメラ画面に置く（workspace の保存形式の追加と camera_3d.js の PMX 表示。計画の追加。既定：P2 では入れず、PMX はステージの素材としてだけ置ける）"
+    "Q3 ⑥ の後に camera.html を読み取り専用にするか（既定：編集可のまま）"
   ],
   "read_first": [
     "AGENTS.md",
@@ -32,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T23:33:05+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "03bdb59",
+      "text": "PR21 WP05eを現行mainに統合。4競合を解消し、独立レビューで実経過時計の遅延を修正。型検査・計算15・Chrome20通過"
+    },
+    {
+      "at": "2026-10-21T23:24:40+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "a0e1f3b",
+      "text": "P2-WP-05e PR21統合: mainとの差分を統合して競合を解消し独立検証する"
+    },
     {
       "at": "2026-10-21T22:55:04+09:00",
       "by": "codex",
@@ -227,20 +240,6 @@
       "event": "start",
       "head": "5856b2d",
       "text": "LIGHT-001 SCR-06多灯照明の編集画面: シーン一覧・ライトフレームとギズモ・右のRGB/変形編集・下部キータイムライン"
-    },
-    {
-      "at": "2026-10-21T18:38:34+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "f9cc53d",
-      "text": "LIGHT-001のworkspace.lights保存・旧画面互換・多灯キー検証とRGB/位置/強度/最短回転補間を実装。Python15件、JS2件、型検査を通過"
-    },
-    {
-      "at": "2026-10-21T18:32:08+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "45a4c11",
-      "text": "LIGHT-001 シーン多灯照明とライト別キーフレーム: 保存バリデーションと補間ロジックを実装"
     }
   ]
 }

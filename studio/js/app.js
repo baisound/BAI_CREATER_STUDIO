@@ -10,6 +10,7 @@ import { icon, SCREEN_ICON } from './icons.js';
 import { img, RENDERS } from './samples.js';
 import { currentViewport } from './viewport/three-host.js';
 import { currentMotion } from './features/motion-view.js';
+import { currentTimeline } from './features/motion-timeline.js';
 import { currentChainControl } from './motion/chain-runtime.js';
 import { loadProject, startExternalSync, installUnloadGuard, describeStatus } from './features/project.js';
 
@@ -837,6 +838,7 @@ else render();
   // 今ある再生ビューの状態（⑤。読み取り専用。SCR-13［編集］でなければ null）
   motion: { getState: () => { const m = currentMotion(); return m ? m.getState() : null; }, probe: (/** @type {any} */ q) => { const m = currentMotion(); return m ? m.probe(q) : null; } },
   chain: { getState: () => currentChainControl()?.getState() || null, probe: (/** @type {any} */ q) => currentChainControl()?.probe(q) || null },
+  timeline: { getState: () => currentTimeline()?.getState() || null },
   // 今ある3Dビューポートの状態（④。読み取り専用。3D 画面でなければ loaded:false）
   viewport: {
     getState: () => { const v = currentViewport(); return v ? v.getState() : { loaded: false, assetId: null, format: null, scale: null, offset: null, renderer: 'unknown', stage: null, character: null }; },

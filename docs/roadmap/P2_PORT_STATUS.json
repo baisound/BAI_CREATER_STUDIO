@@ -272,11 +272,30 @@
     {
       "id": "P2-WP-05e",
       "step": "⑤ SCR-13 下部のタイムライン編集・再生と補正レイヤー",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "設計書 §2.5 05e。競合は内容の比べ（O-⑤-4）。GET と POST の間の隙は残る（リスク K12）。",
+      "state": "verified",
+      "commits": [
+        "af7dfad（計算フォークと内容比較保存）",
+        "edf2806（SCR-13下部の編集UIと既存API結線）",
+        "33f5bd8（FBXタイムライン再生と補正表示）",
+        "a0e1f3b（共通ゲートとE2E結果）",
+        "PR21統合修正（実経過時計、現行mainとの競合解消）"
+      ],
+      "tests": [
+        "node --test tests/studio-p2-timeline-logic.test.mjs: 7 pass（30fps終端・重複クリップ選択・移動差分・レイヤー補間・550/500ms・競合と明示上書き・保存中の追加入力）",
+        "tests/studio-p2-motion.test.cjs: 19 pass（隔離Chrome。FBX 30fps再生、補正有効/無効、終端停止、PMX時無効化、画面離脱時保存、既存PMX/VMD/GLBを含む）",
+        "追加の単独Chromeテスト: 単体FBXクリップとタイムラインの排他再生 1 pass",
+        "node tests/test_screen_status_honesty.mjs: 6 pass、npm run typecheck: pass、npm run test:studio: 20 pass",
+        "npm run test:node-all: 293 pass・5 planned skip・0 fail、実データハッシュ一致（追加の排他再生テストを加える前の全件実行）",
+        "PYTHONUTF8=1 python -m pytest -q: 370 pass・23 subtests pass。サンドボックス内のローカルソケット拒否による初回37失敗は、接続可能な隔離実行で全件合格。",
+        "node tools/run_evidence_tests.mjs: 再実行120 pass・0 fail、実データハッシュ一致。初回は素材画面の起動待ち1件がタイムアウトしたが、単独再実行と全件再実行で合格。",
+        "npm run test:p2-e2e: S1/S2/S5 pass、S3/S4/S6/S7/S8 planned skip、furthest_step=S2（S3未着手のため）。実データハッシュ一致。",
+        "現行mainとの統合後: npm run typecheck pass、計算試験15 pass、隔離Chromeのmotion試験20 pass。遅延フレームでも実経過秒で時計が進む追加試験1 pass。"
+      ],
+      "unverified": [
+        "実利用者のFBX/GPU実機は未検証（隔離ChromeはSwiftShader）。GET→POST間の競合の隙は設計K12として残る。",
+        "WP05b/cは独立レビュー済み。WP05eは元実装者と別のCodexがmain統合時にコード・設計・試験を点検し、時計遅延を修正。実GPUによる外観採用は未確認。"
+      ],
+      "notes": "設計書 §2.5 05e。旧 timelineFrame・motion_layers.js の計算をフォークし、版を持たない既存APIへ保存する前に正規化済み内容を比べる共通コントローラーを追加。SCR-13［編集］下部でクリップ・補正レイヤーを編集し、競合ではローカル編集を保持、明示確認を経る上書きだけを許す。FBXモデルで登録済みモーションを事前解析して再生し、補正は表示姿勢にのみ加算する。サンプルトラックは別の折りたたみに残す。実装・テスト：標準モデル区分。",
       "owner_check": null
     },
     {

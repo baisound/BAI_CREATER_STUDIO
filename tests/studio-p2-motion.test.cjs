@@ -15,6 +15,8 @@ const FIX = path.join(__dirname, 'fixtures');
 const GLB = fs.readFileSync(path.join(FIX, 'synthetic_test_model.glb'));
 const VMD = fs.readFileSync(path.join(FIX, 'minimal.vmd'));
 const ZIP = fs.readFileSync(path.join(FIX, 'minimal_pmx.zip'));
+const FBX_MODEL = fs.readFileSync(path.join(FIX, 'minimal_model.fbx'));
+const FBX_MOTION = fs.readFileSync(path.join(FIX, 'minimal_motion.fbx'));
 
 /** 標準ライブラリだけの ZIP 読み（中央ディレクトリから。格納と deflate のみ）。 */
 function readZip(buf) {
@@ -64,6 +66,21 @@ function seed({ pmx = true, vmd = true } = {}) {
   };
 }
 
+const JAB = 'Boxing Leading Hand Jab';
+function seedTimeline({ animatedModel = false } = {}) {
+  return {
+    ...seed(),
+    'manifest.json': JSON.stringify({ files: [
+      { id: 'f-model', name: 'Actor A.fbx', kind: 'modelA' },
+      { id: 'f-jab', name: `${JAB}.fbx`, kind: 'motions' },
+    ], mapping: {} }),
+    'files/f-model.fbx': animatedModel ? FBX_MOTION : FBX_MODEL,
+    'files/f-jab.fbx': FBX_MOTION,
+    'timeline_editor.json': JSON.stringify({ schema: 1, clips: [{ name: JAB, start: 0, duration: 90, speed: 1, blend: 0 }] }),
+    'motion_layers.json': JSON.stringify({ schema: 1, layers: [{ name: '向き', bone: 'Tri', enabled: true, keys: [{ frame: 0, x: 0, y: 90, z: 0 }] }] }),
+  };
+}
+
 let browser;
 test.before(async () => { if (harness.haveThree()) browser = await harness.launchBrowser(); });
 test.after(async () => { await browser?.close(); });
@@ -109,6 +126,116 @@ async function seekTo(page, sec) {
   const seekBox = page.locator('[data-role="motion-seek"]');
   await seekBox.fill(String(sec));
 }
+
+test('timeline and motion layers save through the existing APIs and keep local edits on conflict', harness.skip3d(), async () => {
+  await withApp(seed(), async ({ page, server }) => {
+    await openEdit(page, server);
+    await page.waitForFunction(() => document.querySelector('[data-role="tls-add"]')?.disabled === false);
+    await page.click('[data-role="tls-add"]');
+    await page.fill('[aria-label="追加するモーション名"]', 'Boxing Leading Hand Jab');
+    await page.locator('.modal footer button').last().click();
+    await page.waitForFunction(() => /保存済み/.test(document.querySelector('[data-role="tls-status"]')?.textContent || ''), null, { timeout: 12000 });
+    const timelinePath = path.join(server.dataDir, 'timeline_editor.json');
+    assert.equal(JSON.parse(fs.readFileSync(timelinePath, 'utf8')).clips[0].name, 'Boxing Leading Hand Jab');
+
+    await page.click('.motion-layers > summary');
+    await page.waitForFunction(() => document.querySelector('[data-role="ml-add"]')?.disabled === false);
+    await page.click('[data-role="ml-add"]');
+    await page.click('[data-role="ml-key"]');
+    await page.waitForFunction(() => /保存済み/.test(document.querySelector('[data-role="ml-status"]')?.textContent || ''), null, { timeout: 12000 });
+    const layersPath = path.join(server.dataDir, 'motion_layers.json');
+    const savedLayers = JSON.parse(fs.readFileSync(layersPath, 'utf8')).layers;
+    assert.equal(savedLayers.length, 1);
+    assert.deepEqual(savedLayers[0].keys, [{ frame: 0, x: 0, y: 0, z: 0 }]);
+
+    const external = { schema: 1, clips: [{ name: 'External', start: 0, duration: 90, speed: 1, blend: 6 }] };
+    const response = await fetch(`${server.base}/api/timeline-editor`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(external) });
+    assert.equal(response.status, 200);
+    const duration = page.locator('[data-role="tls-item"] input[data-field="duration"]');
+    await duration.fill('120');
+    await duration.press('Tab');
+    await page.click('[data-role="tls-save"]');
+    await page.waitForFunction(() => window.baiStudio.timeline?.getState()?.conflict === true, null, { timeout: 10000 });
+    assert.equal(JSON.parse(fs.readFileSync(timelinePath, 'utf8')).clips[0].name, 'External', '競合時は保存しない');
+    assert.equal((await page.evaluate(() => window.baiStudio.timeline.getState())).clips[0].duration, 120, 'ローカル編集は保持する');
+    page.once('dialog', (dialog) => void dialog.accept());
+    await page.click('[data-role="tls-overwrite"]');
+    await page.waitForFunction(() => window.baiStudio.timeline.getState().conflict === false && window.baiStudio.timeline.getState().dirty === false);
+    assert.equal(JSON.parse(fs.readFileSync(timelinePath, 'utf8')).clips[0].duration, 120);
+  });
+});
+
+test('registered FBX timeline plays at 30fps with additive layer and stops at its end', harness.skip3d(), async () => {
+  await withApp(seedTimeline(), async ({ page, server }) => {
+    await openEdit(page, server);
+    await page.waitForFunction(() => document.querySelector('[data-role="motion-model"] option[value="fbx:f-model"]'));
+    await page.selectOption(MODEL, 'fbx:f-model');
+    await waitModel(page, 'fbx:f-model');
+    await page.waitForFunction(() => document.querySelector('[data-role="tls-play"]')?.disabled === false);
+    await page.click('[data-role="tls-play"]');
+    await page.waitForFunction(() => window.baiStudio.timeline?.getState()?.playing && window.baiStudio.timeline.getState().frame > 5, null, { timeout: 12000 });
+    const at = await page.evaluate(() => ({ timeline: window.baiStudio.timeline.getState(), probe: window.baiStudio.motion.probe({ bones: ['Tri'], rotations: ['Tri'] }) }));
+    near(at.probe.bones.Tri[0], at.timeline.frame / 30, 2 / 30, 'FBX位置とタイムライン時計');
+    near(at.probe.rotations.Tri[1], Math.PI / 2, 1e-3, '補正レイヤーのY回転');
+    const delayed = await page.evaluate(async () => {
+      const before = window.baiStudio.timeline.getState().frame;
+      const start = performance.now();
+      while (performance.now() - start < 250) { /* one delayed render frame */ }
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return window.baiStudio.timeline.getState().frame - before;
+    });
+    assert.ok(delayed >= 6, `遅延後の時計も実時間で進む: ${delayed}F`);
+    await page.waitForFunction(() => window.baiStudio.timeline.getState().playing === false && /終端に到達/.test(document.querySelector('[data-role="tls-status"]')?.textContent || ''), null, { timeout: 10000 });
+    await page.click('.motion-layers > summary');
+    await page.locator('[data-role="ml-row"] input[type="checkbox"]').uncheck();
+    await page.locator('[data-role="tls-seek"]').fill('0');
+    await page.click('[data-role="tls-play"]');
+    await page.waitForFunction(() => window.baiStudio.timeline.getState().playing && window.baiStudio.timeline.getState().frame > 5, null, { timeout: 12000 });
+    const withoutLayer = await probe(page, { rotations: ['Tri'] });
+    near(withoutLayer.rotations.Tri[1], 0, 1e-3, '無効化した補正レイヤーは姿勢に反映されない');
+    await page.click('[data-role="tls-stop"]');
+    await page.selectOption(MODEL, PMX_ID);
+    await waitModel(page, PMX_ID);
+    assert.equal(await page.locator('[data-role="tls-play"]').isDisabled(), true);
+    assert.match(await page.locator('[data-role="tls-play"]').getAttribute('title'), /FBX のモデル/);
+  });
+});
+
+test('pending timeline edit is saved when leaving SCR13', harness.skip3d(), async () => {
+  await withApp(seedTimeline(), async ({ page, server }) => {
+    await openEdit(page, server);
+    await page.waitForFunction(() => document.querySelector('[data-role="tls-item"] input[data-field="duration"]'));
+    const duration = page.locator('[data-role="tls-item"] input[data-field="duration"]');
+    await duration.fill('121');
+    await duration.press('Tab');
+    await page.evaluate(() => window.baiStudio.navigate('08'));
+    await page.waitForURL(/\/workspace\/08/);
+    const saved = path.join(server.dataDir, 'timeline_editor.json');
+    await page.waitForFunction(async () => {
+      const r = await fetch('/api/timeline-editor');
+      return r.ok && (await r.json()).clips?.[0]?.duration === 121;
+    }, null, { timeout: 12000 });
+    assert.equal(JSON.parse(fs.readFileSync(saved, 'utf8')).clips[0].duration, 121);
+  });
+});
+
+test('single clip and timeline playback take turns on one FBX model', harness.skip3d(), async () => {
+  await withApp(seedTimeline({ animatedModel: true }), async ({ page, server }) => {
+    await openEdit(page, server);
+    await page.waitForFunction(() => document.querySelector('[data-role="motion-model"] option[value="fbx:f-model"]'));
+    await page.selectOption(MODEL, 'fbx:f-model');
+    await waitModel(page, 'fbx:f-model');
+    await page.waitForFunction(() => window.baiStudio.motion.getState().playing === true);
+    await page.waitForFunction(() => document.querySelector('[data-role="tls-play"]')?.disabled === false);
+    await page.click('[data-role="tls-play"]');
+    await page.waitForFunction(() => window.baiStudio.timeline.getState().playing === true);
+    assert.equal((await mo(page)).playing, false, 'タイムライン中は単体クリップを止める');
+    await page.click('[data-role="motion-play"]');
+    await page.waitForFunction(() => window.baiStudio.timeline.getState().playing === false && window.baiStudio.motion.getState().playing === true);
+    await page.click('[data-role="motion-stop"]');
+    assert.equal((await mo(page)).playing, false);
+  });
+});
 
 test('pmx with vmd plays bones and morphs', harness.skip3d(), async () => {
   await withApp(seed(), async ({ page, server }) => {
