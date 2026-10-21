@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T10:06:40+00:00",
-  "updated_by": "claude-code",
-  "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "3a784bb",
+  "updated_at": "2026-10-21T12:53:37+09:00",
+  "updated_by": "codex",
+  "branch": "codex/b4-combat-decisions",
+  "head_at_update": "5266f10",
   "current": {
-    "task": "P2-WP-01 保存・読込",
+    "task": "PR #13承認済み詳細設計の同期確認",
     "status": "in_progress",
-    "step": "設計書読込・実装着手",
-    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
+    "step": "recovery最新との整合と古い引継ぎ記述の修正",
+    "design_doc": "docs/specs/IMPLEMENTATION_HANDOFF_JA.md"
   },
   "next_steps": [
     "WP-01 保存・読込"
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T12:53:37+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5266f10",
+      "text": "PR #13承認済み詳細設計の同期確認: recovery最新との整合と古い引継ぎ記述の修正"
+    },
     {
       "at": "2026-10-20T10:06:40+00:00",
       "by": "claude-code",
