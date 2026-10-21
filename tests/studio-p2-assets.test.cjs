@@ -17,6 +17,18 @@ const VMD = fs.readFileSync(path.join(FIX, 'minimal.vmd'));
 const ZIP = fs.readFileSync(path.join(FIX, 'minimal_pmx.zip'));
 const FBX_MODEL = fs.readFileSync(path.join(FIX, 'minimal_model.fbx'));   // tools/make_test_fbx.py（O-③-1）
 const FBX_MOTION = fs.readFileSync(path.join(FIX, 'minimal_motion.fbx'));
+const VIDEO = fs.readFileSync(path.join(FIX, 'media_preview.mp4'));
+const IMAGE = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==', 'base64');
+function toneWav() {
+  const pcm = Buffer.alloc(16000);
+  for (let i = 0; i < 8000; i++) pcm.writeInt16LE(Math.round(Math.sin(i * Math.PI * 2 * 440 / 8000) * 8000), i * 2);
+  const out = Buffer.alloc(44 + pcm.length);
+  out.write('RIFF'); out.writeUInt32LE(out.length - 8, 4); out.write('WAVEfmt ', 8);
+  out.writeUInt32LE(16, 16); out.writeUInt16LE(1, 20); out.writeUInt16LE(1, 22);
+  out.writeUInt32LE(8000, 24); out.writeUInt32LE(16000, 28); out.writeUInt16LE(2, 32); out.writeUInt16LE(16, 34);
+  out.write('data', 36); out.writeUInt32LE(pcm.length, 40); pcm.copy(out, 44);
+  return out;
+}
 const sha20 = (buf) => crypto.createHash('sha256').update(buf).digest('hex').slice(0, 20);
 const fbxId = (kind, name) => crypto.createHash('sha256').update(`${kind}\0${name}`).digest('hex').slice(0, 24);
 const rand = (n, seed = 7) => { const b = Buffer.alloc(n); let x = seed; for (let i = 0; i < n; i++) { x = (x * 1103515245 + 12345) & 0x7fffffff; b[i] = x & 255; } return b; };
@@ -118,15 +130,71 @@ test('library lists real assets by category', async () => {
     await page.click('[data-feature="assetCategories"] li[data-cat="char"]');
     await waitCards(page, 2);
     assert.match(page.url(), /[?&]cat=char/);
-    // 登録手段の無い分類は空表示と ◇ の説明
+    // 空の分類から取り込みを始められる
     await page.click('[data-feature="assetCategories"] li[data-cat="stage"]');
-    assert.match(await page.textContent('[data-role="empty-cat"]'), /この種類の素材を登録する機能はまだありません。/);
-    await page.click('[data-role="empty-cat"] button');
-    assert.match(await page.textContent('[role="dialog"]'), /LYRIC-009/);
+    assert.match(await page.textContent('[data-role="empty-cat"]'), /この種類の素材はまだありません。/);
+    await page.click('[data-role="import-empty"]');
+    assert.match(await page.textContent('[role="dialog"]'), /素材を取り込む/);
     await page.keyboard.press('Escape');
     await page.click('[data-feature="assetCategories"] li[data-cat="all"]');
     await waitCards(page, 5);
     await shot(page, 'scr08-library.jpg');
+  });
+});
+
+test('new image, audio and stage GLB upload into their categories and open real previews', async () => {
+  await withApp({}, async ({ server, page }) => {
+    await open08(page, server);
+    await pickFiles(page, [{ name: 'color.png', buffer: IMAGE }, { name: 'tone.wav', buffer: toneWav() }, { name: 'stage.glb', buffer: GLB }]);
+    await setKind(page, 'stage.glb', 'stage');
+    await page.click('[role="dialog"] [data-role="import-go"]');
+    for (const name of ['color.png', 'tone.wav', 'stage.glb']) await waitRow(page, name, /^完了$/);
+    await waitCards(page, 3);
+    const items = readJson(server, 'library_assets/index.json').items;
+    assert.deepEqual(items.map((x) => x.kind), ['image', 'audio', 'stage']);
+    await page.click('[data-feature="assetCategories"] li[data-cat="audio"]');
+    await waitCards(page, 1);
+    await page.click(CARD);
+    await page.waitForSelector('[data-role="audio-media"]', { state: 'attached' });
+    await page.waitForSelector('[data-role="audio-waveform"][src*="thumbnail"]', { timeout: 10000 });
+    assert.equal(await page.locator('[data-role="media-back"]').count(), 1);
+    assert.equal(await page.locator('[data-role="media-forward"]').count(), 1);
+    await page.click('[data-role="media-play"]');
+    await page.waitForFunction(() => document.querySelector('[data-role="audio-media"]')?.currentTime > 0);
+    await page.click('[data-role="media-stop"]');
+    assert.equal(await page.evaluate(() => document.querySelector('[data-role="audio-media"]').currentTime), 0);
+    await page.click('[data-feature="assetCategories"] li[data-cat="image"]');
+    await page.click(CARD);
+    await page.waitForSelector('[data-role="image-media"]');
+    assert.equal(await page.evaluate(() => document.querySelector('[data-role="image-media"]').naturalWidth), 1);
+    await page.click('[data-feature="assetCategories"] li[data-cat="stage"]');
+    await page.click(CARD);
+    await page.waitForSelector('[data-role="library-3d"] canvas', { timeout: 15000 });
+    assert.equal(await page.locator('[data-feature="assetDetail"] [data-key="category"]').textContent(), 'ステージ');
+  });
+});
+
+test('video import saves a poster and exposes playback controls', async () => {
+  await withApp({}, async ({ server, page }) => {
+    await open08(page, server);
+    await pickFiles(page, [{ name: 'clip.mp4', buffer: VIDEO }]);
+    await page.click('[role="dialog"] [data-role="import-go"]');
+    await waitRow(page, 'clip.mp4', /^完了$/);
+    await waitCards(page, 1);
+    await page.click(CARD);
+    await page.waitForSelector('[data-role="video-media"]');
+    await page.waitForFunction(() => document.querySelector('[data-role="video-media"]')?.poster.includes('/api/library-assets/thumbnail/'), null, { timeout: 15000 });
+    assert.equal(await page.locator('[data-role="media-stop"]').count(), 1);
+    assert.equal(await page.locator('[data-role="media-seek"]').count(), 1);
+    await page.click('[data-role="media-play"]');
+    await page.waitForFunction(() => document.querySelector('[data-role="video-media"]')?.currentTime > 0);
+    await page.click('[data-role="media-stop"]');
+    assert.equal(await page.evaluate(() => document.querySelector('[data-role="video-media"]').currentTime), 0);
+    const item = readJson(server, 'library_assets/index.json').items[0];
+    assert.ok(exists(server, `library_assets/thumbnails/${item.id.slice(8)}.png`));
+    await page.reload();
+    await waitCards(page, 1);
+    assert.equal(await page.locator(`${CARD} .asset-tile img[src*="thumbnail"]`).count(), 1);
   });
 });
 

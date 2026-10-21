@@ -2,7 +2,7 @@
 
 **対象:** v0.11.0-standalone を起点に、2026-10-20 の追加決定を反映
 
-最初の v0.11.0-standalone では118個の機能IDを整理した。その後の OBS・UX・REVIEW などと、2026-10-20に所有者が独立管理を承認した歌音声配置 `AUDIO-001` を含め、現行台帳は **148個**。件数と状態の正本は `FEATURE_REGISTER.json`。
+最初の v0.11.0-standalone では118個の機能IDを整理した。その後の OBS・UX・REVIEW などと、2026-10-20に所有者が独立管理を承認した歌音声配置 `AUDIO-001`、2026-10-21に最優先とした素材取り込み `DATA-016` を含め、現行台帳は **149個**。件数と状態の正本は `FEATURE_REGISTER.json`。
 
 ## 読み方
 
@@ -69,6 +69,7 @@
 - **[DATA-013](FEATURE_DETAIL_JA.md#data-013)** 素材の重複検出
 - **[DATA-014](FEATURE_DETAIL_JA.md#data-014)** モデル別VMDライブラリ
 - **[DATA-015](FEATURE_DETAIL_JA.md#data-015)** 制作プロジェクト健全性検査
+- **[DATA-016](FEATURE_DETAIL_JA.md#data-016)** 素材の多形式取り込みと詳細確認
 
 ## Phase 03 / MOTION — モーション素材・変換・品質
 

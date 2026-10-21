@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T15:58:52+09:00",
+  "updated_at": "2026-10-21T16:44:29+09:00",
   "updated_by": "codex",
-  "branch": "codex/main-sync-post-merge",
-  "head_at_update": "340aeeb",
+  "branch": "codex/asset-import-expansion",
+  "head_at_update": "ba00acf",
   "current": {
-    "task": "Issue #33 main統合後のローカル同期とサーバー確認手順",
+    "task": "DATA-016 素材取り込み拡張",
     "status": "done",
-    "step": "AGENTSの短い導線と詳細手順を追加する",
-    "design_doc": "docs/handoff/MAIN_SYNC_AFTER_MERGE_JA.md"
+    "step": "画像・音声・動画・GLBの実見本と再生操作",
+    "design_doc": "docs/roadmap/ASSET_IMPORT_EXPANSION_20261021_JA.md"
   },
   "next_steps": [
-    "PRを作成・マージし、手順に従ってローカルmainと8765番を検証する",
-    "Issue #34のグレーマン再生、Issue #35のキャラクター正面画像を実装する"
+    "PRを作成しレビュー・統合後、Ownerの本番ライブラリへ実素材を登録する。続いてIssue34/35を進める"
   ],
   "unverified": [
-    "運用手順の文書変更のみ。PRマージ後の実操作で確認する。"
+    "実GPU、Windows以外、WebM/OGV/AVIF実ファイル、標準MCP経路は未検証。サンプルファイルはOwnerに渡し本番ライブラリ登録は未実施"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +32,62 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T16:44:29+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ba00acf",
+      "text": "DATA-016 画像・音声・動画・GLB見本、再生操作、CC0実素材8件と取得記録を実装しChromeで検証"
+    },
+    {
+      "at": "2026-10-21T16:23:54+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8b639c0",
+      "text": "DATA-016 素材取り込み拡張: 画像・音声・動画・GLBの実見本と再生操作"
+    },
+    {
+      "at": "2026-10-21T16:23:03+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8c4ea44",
+      "text": "DATA-016 取り込み規則とSCR-08分類一覧を実装し単体18件と型検査合格"
+    },
+    {
+      "at": "2026-10-21T16:17:14+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5ef1b0a",
+      "text": "Issue #37 素材取り込み拡張: SCR-08の分類・取り込みキュー・一覧と詳細を新APIへ接続する"
+    },
+    {
+      "at": "2026-10-21T16:16:54+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9c1ec97",
+      "text": "DATA-016の分類別保存API・メタタイトル・Range配信・PNG見本保存を実装。隔離Python3件、構文、149 ID台帳一致。"
+    },
+    {
+      "at": "2026-10-21T16:08:35+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "87db9e3",
+      "text": "Issue #37 素材取り込み拡張: 安全な保存API・メタデータ抽出・範囲配信・見本画像保存とPython試験"
+    },
+    {
+      "at": "2026-10-21T16:08:20+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6effa64",
+      "text": "Issue #37の既存登録4経路と素材分類、保存API、メタ情報、見本生成の実装境界を設計"
+    },
+    {
+      "at": "2026-10-21T16:04:09+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3a24dd4",
+      "text": "Issue #37 素材取り込みの入口をステージ・小物・材質・エフェクト・音声・動画・画像へ拡張: 既存API・台帳・入力形式とサンプル素材の権利を調査し、実装順序を決める"
+    },
     {
       "at": "2026-10-21T15:58:52+09:00",
       "by": "codex",
@@ -186,62 +241,6 @@
       "event": "start",
       "head": "47cd708",
       "text": "PR #20の同期とWP05b/c独立レビュー: 先行保存・編集・外部コマンドの差分監査とrecovery同期"
-    },
-    {
-      "at": "2026-10-21T10:49:07+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2905119",
-      "text": "P2-WP-05dの共通完了ゲート：Node 283 pass/5計画skip、pytest 370 pass、Evidence 117 pass、SCR05再検証15 pass。PMX切替競合とWindowsのテスト待機・ZIP fixture差を修正。"
-    },
-    {
-      "at": "2026-10-21T09:54:33+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5732a7c",
-      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 共通完了ゲートとE2E結果の台帳記録"
-    },
-    {
-      "at": "2026-10-21T09:53:55+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d54e551",
-      "text": "P2-WP-05dを実装・検証：SCR05のA/B 3D、FBX連結再生、対応表、スロット別PMX+VMD。Chrome15件、S5合格、P2全体197 pass・5 skip・0 fail、typecheck合格、実データハッシュ一致。"
-    },
-    {
-      "at": "2026-10-21T09:34:21+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "be1425f",
-      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: SCR05中央のA/B 3D・PMX/VMD・連結再生UI実装"
-    },
-    {
-      "at": "2026-10-21T09:34:07+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9e71949",
-      "text": "WP05d第2区切り：登録FBXの遅延解析・手順名対応・最新manifestを重ねる対応表保存を追加。Node 3件、typecheck合格。"
-    },
-    {
-      "at": "2026-10-21T09:32:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2e87555",
-      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 登録FBXクリップ取得と対応表保存の実装"
-    },
-    {
-      "at": "2026-10-21T09:31:06+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "362c6aa",
-      "text": "P2-WP-05d 第1区切り：連結再生の旧式照合関数とFBX/PMXのA/B配置式を追加。Node 3件・型確認合格"
-    },
-    {
-      "at": "2026-10-21T09:28:23+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "614e848",
-      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 引き継ぎ設計照合→実装→自動テスト→台帳更新"
     }
   ]
 }

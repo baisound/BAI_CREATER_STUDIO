@@ -10,6 +10,7 @@ from camera_vmd_playback import sample_native_camera
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
 from bai_paths import data_dir
+import library_assets
 from diagnostic_logging import event, recent
 from qa_capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
 from operation_diagnostics import record_ui_action, diagnostics_archive
@@ -46,6 +47,7 @@ def resolve_asset(identifier):
     if not entry:raise ValueError('registered asset not found')
     if entry['source']=='fbx':return FILES/(identifier.split(':',1)[1]+'.fbx')
     if entry['source']=='integrated':return DATA/'integrated_v02'/'assets'/entry['filename']
+    if entry['source']=='library':return LIBRARY_ROOT/'files'/entry['filename']
     if entry['source']=='mmd':
         _,slot,name=identifier.split(':',2)
         return MMD_DIR/slot/name
@@ -61,6 +63,8 @@ META=DATA/'manifest.json'; FAVORITES=DATA/'favorites.json'; PROJECT=DATA/'projec
 CUSTOM_ASSETS=DATA/'integrated_v02'/'assets'; CUSTOM_ASSETS.mkdir(parents=True,exist_ok=True)
 CUSTOM_INDEX=DATA/'integrated_v02'/'user_assets.json'
 CUSTOM_LOCK=threading.RLock()
+LIBRARY_ROOT=DATA/'library_assets'
+LIBRARY_LOCK=threading.RLock()
 EDITOR_FILE=DATA/'timeline_editor.json'; EDITOR_LOCK=threading.RLock()
 LAYER_FILE=DATA/'motion_layers.json'; LAYER_LOCK=threading.RLock()
 def layer_read():
@@ -106,6 +110,7 @@ def unified_assets():
             fmt=Path(name).suffix.lower().lstrip('.').upper()
             if fmt not in ('PMX','VMD'):continue
             result.append({'id':'mmd:'+slot+':'+name,'name':name,'format':fmt,'kind':slot,'source':'mmd','available':(MMD_DIR/slot/name).is_file(),'previewable':True})
+    with LIBRARY_LOCK:result.extend(library_assets.public_items(LIBRARY_ROOT))
     return result
 
 def readmeta():
@@ -161,6 +166,30 @@ class Handler(BaseHTTPRequestHandler):
 
     def send(self,status,data,ctype='application/json'):
         self.send_response(status);self.send_header('Content-Type',ctype);self.send_header('Content-Length',str(len(data)));self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff');self.end_headers();self.wfile.write(data)
+    def send_library_file(self,file,ctype):
+        size=file.stat().st_size
+        start,end=0,size-1
+        range_header=self.headers.get('Range','')
+        if range_header:
+            match=re.fullmatch(r'bytes=(\d+)-(\d*)',range_header.strip())
+            if not match:return self.bad(400,'single byte range required')
+            start=int(match.group(1));end=min(size-1,int(match.group(2))) if match.group(2) else size-1
+            if start>=size or end<start:
+                self.send_response(416);self.send_header('Content-Range',f'bytes */{size}');self.send_header('Content-Length','0');self.end_headers();return
+        self.send_response(206 if range_header else 200)
+        self.send_header('Content-Type',ctype)
+        self.send_header('Content-Length',str(end-start+1))
+        self.send_header('Accept-Ranges','bytes')
+        if range_header:self.send_header('Content-Range',f'bytes {start}-{end}/{size}')
+        self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff');self.end_headers()
+        with file.open('rb') as source:
+            source.seek(start);remaining=end-start+1
+            while remaining:
+                chunk=source.read(min(1024*1024,remaining))
+                if not chunk:break
+                try:self.wfile.write(chunk)
+                except (BrokenPipeError,ConnectionResetError):break
+                remaining-=len(chunk)
     def bad(self,status,msg,code=None):
         body={'error':msg}
         if code:body['error_code']=code
@@ -253,7 +282,7 @@ class Handler(BaseHTTPRequestHandler):
             if found:
                 self.send(200,found[0].read_bytes(),found[1]);return
         if path=='/api/server-version':
-            self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload']}).encode());return
+            self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload','library_assets']}).encode());return
         if path=='/api/retarget/profile-for-pair':
             params=parse_qs(urlsplit(self.path).query);source=params.get('source',[''])[0];target=params.get('target',[''])[0]
             if not source or not target:return self.bad(400,'source and target required')
@@ -301,7 +330,27 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/api/timeline-editor':
             with EDITOR_LOCK: self.send(200,json.dumps(editor_read(),ensure_ascii=False).encode());return
         if path=='/api/assets':
-            self.send(200,json.dumps({'items':unified_assets()},ensure_ascii=False).encode());return
+            try:self.send(200,json.dumps({'items':unified_assets()},ensure_ascii=False).encode())
+            except (ValueError,OSError):self.bad(500,'素材索引を読めません。原本は保持されています。')
+            return
+        if path.startswith('/api/library-assets/file/'):
+            from urllib.parse import unquote
+            asset_id=unquote(path[len('/api/library-assets/file/'):])
+            try:
+                with LIBRARY_LOCK:found=library_assets.file_for(LIBRARY_ROOT,asset_id)
+                if not found:return self.bad(404,'registered asset not found')
+                self.send_library_file(*found)
+            except (ValueError,OSError):self.bad(500,'素材を読めません。原本は保持されています。')
+            return
+        if path.startswith('/api/library-assets/thumbnail/'):
+            from urllib.parse import unquote
+            asset_id=unquote(path[len('/api/library-assets/thumbnail/'):])
+            try:
+                with LIBRARY_LOCK:found=library_assets.thumbnail_for(LIBRARY_ROOT,asset_id)
+                if not found:return self.bad(404,'thumbnail not found')
+                self.send(200,found.read_bytes(),'image/png')
+            except (ValueError,OSError):self.bad(500,'見本画像を読めません。')
+            return
         if path=='/api/mmd-assets':
             self.send(200,json.dumps(read_mmd(),ensure_ascii=False).encode());return
         if path.startswith('/api/mmd-file/'):
@@ -750,6 +799,26 @@ class Handler(BaseHTTPRequestHandler):
         try:n=int(self.headers.get('Content-Length','-1'))
         except ValueError:n=-1
         if n<0 or n>MAX_SIZE:return self.bad(413,'file too large or missing length')
+        if u.path=='/api/library-assets/upload':
+            name=qs.get('name',[''])[0];kind=qs.get('kind',[''])[0]
+            try:
+                with LIBRARY_LOCK:item=library_assets.register_stream(LIBRARY_ROOT,self.rfile,n,kind,name)
+                event('library.asset.import',kind=kind,bytes=n)
+                self.send(200,json.dumps({'ok':True,'item':item},ensure_ascii=False).encode())
+            except ValueError as exc:self.bad(400,str(exc)[:180])
+            except (OSError,TypeError):self.bad(500,'素材を保存できませんでした。原本は保持されています。')
+            return
+        if u.path=='/api/library-assets/thumbnail':
+            asset_id=qs.get('id',[''])[0]
+            if n>library_assets.MAX_THUMBNAIL:return self.bad(413,'thumbnail too large')
+            try:
+                payload=self.rfile.read(n)
+                if len(payload)!=n:return self.bad(400,'incomplete thumbnail')
+                with LIBRARY_LOCK:library_assets.save_thumbnail(LIBRARY_ROOT,asset_id,payload)
+                self.send(200,b'{"ok":true}')
+            except ValueError as exc:self.bad(400,str(exc)[:180])
+            except OSError:self.bad(500,'見本画像を保存できませんでした。')
+            return
         if u.path=='/api/run-vmd-conversion':
             if n>2048:return self.bad(413,'request too large')
             try:

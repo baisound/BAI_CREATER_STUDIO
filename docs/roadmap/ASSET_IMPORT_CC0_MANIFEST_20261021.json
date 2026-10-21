@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-21",
+  "sources": {
+    "platformer": {
+      "archive": "kenney_platformer-kit.zip",
+      "sha256": "899605d237367688c6b42e41fff2206c0fb8d626163158294556353f7baa7c1b",
+      "page": "https://kenney.nl/assets/platformer-kit",
+      "downloadUrl": "https://kenney.nl/media/pages/assets/platformer-kit/1585cf62b4-1775122253/kenney_platformer-kit.zip",
+      "license": "CC0 1.0 (source page and License.txt)"
+    },
+    "factory": {
+      "archive": "kenney_factory-kit_3.0.zip",
+      "sha256": "7e31fb2308e90304672bd15cd18fa9d9f02c03731a8cbc57a8e3e1c181dfb0a7",
+      "page": "https://kenney.nl/assets/factory-kit",
+      "downloadUrl": "https://kenney.nl/media/pages/assets/factory-kit/edaac9d4f6-1777639602/kenney_factory-kit_3.0.zip",
+      "license": "CC0 1.0 (source page and License.txt)"
+    },
+    "particles": {
+      "archive": "kenney_particle-pack.zip",
+      "sha256": "b631d4b07f7002549fdcf155f01141ad482f79f3440e4e301eed49ce5f1d8958",
+      "page": "https://kenney.nl/assets/particle-pack",
+      "downloadUrl": "https://kenney.nl/media/pages/assets/particle-pack/f8fe0f8cb8-1677578741/kenney_particle-pack.zip",
+      "license": "CC0 1.0 (source page and License.txt)"
+    },
+    "audio": {
+      "archive": "kenney_ui-audio.zip",
+      "sha256": "946fc23a63d535d693eb31b2eabb80c8c28d6351e2186b344ceb71b2cb1d5eb6",
+      "page": "https://kenney.nl/assets/ui-audio",
+      "downloadUrl": "https://kenney.nl/media/pages/assets/ui-audio/490d233f68-1677590494/kenney_ui-audio.zip",
+      "license": "CC0 1.0 (source page and License.txt)"
+    }
+  },
+  "outputs": [
+    {
+      "file": "kenney_grass_stage.glb",
+      "kind": "stage",
+      "pack": "platformer",
+      "member": "Models/GLB format/block-grass-large.glb",
+      "sourceSha256": "606f077c30f6943ef4caa45e440578992cb99f0b7fb8762850303a422ed9cafa",
+      "sha256": "77a887b8abd88477ded195cfbbb81cafa3091057df78bf8ea2832378897acd34",
+      "bytes": 21384,
+      "transform": "embed colormap PNG in GLB"
+    },
+    {
+      "file": "kenney_machine_prop.glb",
+      "kind": "prop",
+      "pack": "factory",
+      "member": "Models/GLB format/machine.glb",
+      "sourceSha256": "a39e3042bcb7789274428357383317d70e1c31906e5301c99e7d9e90ac584863",
+      "sha256": "eca797dd4294fbc6d816c37ec9e9977a4bec6ebe6fa316c72b10ccee64629589",
+      "bytes": 37488,
+      "transform": "embed colormap PNG in GLB"
+    },
+    {
+      "file": "kenney_factory_colormap.png",
+      "kind": "material",
+      "pack": "factory",
+      "member": "Models/GLB format/Textures/colormap.png",
+      "sourceSha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
+      "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
+      "bytes": 11813,
+      "transform": "none"
+    },
+    {
+      "file": "kenney_magic_effect.png",
+      "kind": "fx",
+      "pack": "particles",
+      "member": "PNG (Transparent)/magic_01.png",
+      "sourceSha256": "398479ea280c8161d0b6d509ca97eefb27e989c7832b404abcb65faae3e922ff",
+      "sha256": "398479ea280c8161d0b6d509ca97eefb27e989c7832b404abcb65faae3e922ff",
+      "bytes": 81687,
+      "transform": "none"
+    },
+    {
+      "file": "kenney_platformer_image.png",
+      "kind": "image",
+      "pack": "platformer",
+      "member": "Preview.png",
+      "sourceSha256": "8b9865779f60d78dd0d96fd5cb28ea2abf0d5b39c36fab84c559a365deb16056",
+      "sha256": "8b9865779f60d78dd0d96fd5cb28ea2abf0d5b39c36fab84c559a365deb16056",
+      "bytes": 143646,
+      "transform": "none"
+    },
+    {
+      "file": "kenney_click1_source.ogg",
+      "kind": "source",
+      "pack": "audio",
+      "member": "Audio/click1.ogg",
+      "sourceSha256": "59175ac17cd49a68dd736285738441287636112a84a6f7ce0d89921bda5a5360",
+      "sha256": "59175ac17cd49a68dd736285738441287636112a84a6f7ce0d89921bda5a5360",
+      "bytes": 4983,
+      "transform": "none"
+    },
+    {
+      "file": "kenney_audio_preview_source.ogg",
+      "kind": "source",
+      "pack": "audio",
+      "member": "Preview.ogg",
+      "sourceSha256": "0430586fc3e1045c44c1f9173d288545aa87aca210d497e7626d6187bc0eefe7",
+      "sha256": "0430586fc3e1045c44c1f9173d288545aa87aca210d497e7626d6187bc0eefe7",
+      "bytes": 171143,
+      "transform": "none"
+    },
+    {
+      "file": "kenney_click1.wav",
+      "kind": "audio",
+      "pack": "audio",
+      "member": "kenney_click1_source.ogg",
+      "sourceSha256": "59175ac17cd49a68dd736285738441287636112a84a6f7ce0d89921bda5a5360",
+      "sha256": "c98deb222c06ae5a9e25d66fceef38324e07ec22d81c0453e21042ed0d3c20b2",
+      "bytes": 4088,
+      "transform": "ffmpeg WAV conversion"
+    },
+    {
+      "file": "kenney_ui_audio_preview.mp3",
+      "kind": "audio",
+      "pack": "audio",
+      "member": "kenney_audio_preview_source.ogg",
+      "sourceSha256": "0430586fc3e1045c44c1f9173d288545aa87aca210d497e7626d6187bc0eefe7",
+      "sha256": "ddfabb6bbb635f62ee4606d754da12cb49c4f51545cee945f15a5379dd259ac7",
+      "bytes": 197143,
+      "transform": "ffmpeg conversion with title metadata"
+    },
+    {
+      "file": "kenney_platformer_demo.mp4",
+      "kind": "video",
+      "pack": "platformer",
+      "member": "kenney_platformer_image.png",
+      "sourceSha256": "8b9865779f60d78dd0d96fd5cb28ea2abf0d5b39c36fab84c559a365deb16056",
+      "sha256": "c974470c51c5148dea84f5f961f2b4135d496ac5f214e5e67c70b311f502ef77",
+      "bytes": 52042,
+      "transform": "ffmpeg conversion with title metadata"
+    }
+  ]
+}
