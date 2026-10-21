@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T16:58:59+09:00",
+  "updated_at": "2026-10-21T17:08:23+09:00",
   "updated_by": "codex",
   "branch": "codex/audio-dance-sync",
-  "head_at_update": "4f293ae",
+  "head_at_update": "32ad0d0",
   "current": {
     "task": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー",
-    "status": "in_progress",
+    "status": "done",
     "step": "実データ骨格調査・設計・保存契約",
     "design_doc": "docs/roadmap/AUDIO_DANCE_SYNC_20261021_JA.md"
   },
   "next_steps": [
-    "PRを作成しレビュー・統合後、Ownerの本番ライブラリへ実素材を登録する。続いてIssue34/35を進める"
+    "SCR-10にPMX＋GLBリターゲット、波形、音声同期タイムライン、1フレーム調整を実装する"
   ],
   "unverified": [
-    "実GPU、Windows以外、WebM/OGV/AVIF実ファイル、標準MCP経路は未検証。サンプルファイルはOwnerに渡し本番ライブラリ登録は未実施"
+    "実3D変形・音楽再生・保存再読込のブラウザ検証、GPU/Linux、標準MCPは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T17:08:23+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "32ad0d0",
+      "text": "AUDIO-001の実データ骨格を調査し、配置保存APIとrevision競合・破損拒否を実装。Python2件合格。"
+    },
     {
       "at": "2026-10-21T16:58:59+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "a570316",
       "text": "SCR-18 バージョン一覧を新しい順に表示: 保存順の履歴と復元インデックスを維持した表示順変更・テスト"
-    },
-    {
-      "at": "2026-10-21T13:00:04+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "cc6d85a",
-      "text": "PR20をPR13統合後のrecoveryへ同期。WP05a/b/cの実装者と別の高性能モデルレビューとNode20件・隔離Chrome15件合格を記録"
     }
   ]
 }
