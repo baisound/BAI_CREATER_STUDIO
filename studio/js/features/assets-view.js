@@ -301,6 +301,9 @@ export const assetDetail = (ctx) => {
     const cat = categoryOf(a);
     const catName = (ASSET_CATS.find((c) => c.id === cat) || { label: cat }).label;
     const fileTxt = a.available ? 'あり' : 'なし（再登録してください）';
+    const danceParam = a.available && a.format === 'PMX' && a.source === 'mmd' ? 'model'
+      : a.available && a.format === 'GLB' && a.kind === 'motion' ? 'motion'
+        : a.available && a.source === 'library' && a.kind === 'audio' ? 'audio' : '';
     const canPreview = cat === 'motion' && a.available;
     const stage = h('div', { class: 'asset-motion-stage viewport vp3d', 'aria-label': `${a.name}の動きの見本`, dataset: { role: 'motion-preview' } });
     const play = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', disabled: true, dataset: { role: 'preview-play' } }, '▶ 再生'));
@@ -343,6 +346,8 @@ export const assetDetail = (ctx) => {
         h('button', { class: 'btn primary', type: 'button', disabled: cat !== 'char' && !(libraryPreview && a.format === 'GLB'), dataset: { act: 'real', role: 'show-3d' },
           title: cat === 'char' ? 'キャラクター管理（12）で3D表示します' : libraryPreview && a.format === 'GLB' ? '上の3D見本を操作します' : '見本は上で確認できます',
           onclick: () => { if (libraryPreview) { previewNode.scrollIntoView({ block: 'nearest' }); previewNode.querySelector('canvas')?.focus(); } else ctx.navigate('12', { query: { asset: a.id } }); } }, '3D で表示'),
+        danceParam ? h('button', { class: 'btn', type: 'button', dataset: { act: 'real', role: 'use-in-dance' },
+          onclick: () => ctx.navigate('10', { query: { [danceParam]: a.id } }) }, '音楽とダンスで使う') : null,
         unimplBtn('シーンで使う', '新UIから素材をシーンへ配置する機能は未接続です。現行の制作画面で素材を選んで使えます。', ['NF-014'], PH.P2),
         h('div', { class: 'btn-row' },
           unimplBtn('置換', 'シーン内の素材差し替えは未実装です。', ['REVIEW-010'], PH.P2),

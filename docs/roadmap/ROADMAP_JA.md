@@ -2,6 +2,8 @@
 
 > **2026-10-21 後続オーナー指定:** 素材を取り込む入口 `DATA-016` を最優先にする。ステージ・小物・材質・エフェクト・音声・動画・画像の登録と確認を先に完成させ、その後に下記の既定順へ戻る。[詳細](ASSET_IMPORT_EXPANSION_20261021_JA.md)。
 
+> **2026-10-21 さらに後の直接指定:** `DATA-016` の取り込み後は、登録 WAV と通常 Baisound PMX に MVNT の GLB ダンスを適用し、1フレーム単位で音楽と同期するプレビューを最優先にする（`AUDIO-001`、[Issue #39](https://github.com/baisound/BAI_CREATER_STUDIO/issues/39)、[実装契約](AUDIO_DANCE_SYNC_20261021_JA.md)）。下記の「歌音声配置はリップシンクと一緒に」は今回の限定したプレビューと配置には適用しない。Blender 製 GLB ステージの XYZ 配置・回転は [Issue #40](https://github.com/baisound/BAI_CREATER_STUDIO/issues/40) としてその次に扱う。
+
 # 推奨開発順序と依存関係
 
 ## あなたの用途からみた優先度

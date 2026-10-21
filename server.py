@@ -11,6 +11,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs
 from bai_paths import data_dir
 import library_assets
+import music_dance_project
 from diagnostic_logging import event, recent
 from qa_capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
 from operation_diagnostics import record_ui_action, diagnostics_archive
@@ -65,6 +66,7 @@ CUSTOM_INDEX=DATA/'integrated_v02'/'user_assets.json'
 CUSTOM_LOCK=threading.RLock()
 LIBRARY_ROOT=DATA/'library_assets'
 LIBRARY_LOCK=threading.RLock()
+MUSIC_DANCE_FILE=DATA/'music_dance_project.json'; MUSIC_DANCE_LOCK=threading.RLock()
 EDITOR_FILE=DATA/'timeline_editor.json'; EDITOR_LOCK=threading.RLock()
 LAYER_FILE=DATA/'motion_layers.json'; LAYER_LOCK=threading.RLock()
 def layer_read():
@@ -282,7 +284,7 @@ class Handler(BaseHTTPRequestHandler):
             if found:
                 self.send(200,found[0].read_bytes(),found[1]);return
         if path=='/api/server-version':
-            self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload','library_assets']}).encode());return
+            self.send(200,json.dumps({'version':'0.12.9','features':['pmx_zip_upload','mmd_assets','integrated_v02','integrated_upload','library_assets','music_dance']}).encode());return
         if path=='/api/retarget/profile-for-pair':
             params=parse_qs(urlsplit(self.path).query);source=params.get('source',[''])[0];target=params.get('target',[''])[0]
             if not source or not target:return self.bad(400,'source and target required')
@@ -332,6 +334,14 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/api/assets':
             try:self.send(200,json.dumps({'items':unified_assets()},ensure_ascii=False).encode())
             except (ValueError,OSError):self.bad(500,'素材索引を読めません。原本は保持されています。')
+            return
+        if path=='/api/music-dance/project':
+            try:
+                with MUSIC_DANCE_LOCK: payload=music_dance_project.read(MUSIC_DANCE_FILE)
+                self.send(200,json.dumps(payload,ensure_ascii=False).encode())
+            except music_dance_project.InvalidMusicDanceProject:
+                event('music_dance.project_invalid',level='error')
+                self.bad(422,'音楽・ダンスの保存データを読めません。元ファイルを保持しています。')
             return
         if path.startswith('/api/library-assets/file/'):
             from urllib.parse import unquote
@@ -419,6 +429,27 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/music-dance/project':
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=65536:return self.bad(413,'music/dance project too large')
+                expected=self.headers.get('If-Match')
+                if not expected:return self.bad(428,'music/dance revision required')
+                payload=music_dance_project.validate(json.loads(self.rfile.read(length)))
+                with MUSIC_DANCE_LOCK:
+                    current=music_dance_project.read(MUSIC_DANCE_FILE)
+                    if expected!=current['revision']:
+                        return self.bad(409,'music/dance project changed: reload before saving')
+                    result=music_dance_project.save(MUSIC_DANCE_FILE,payload)
+                event('music_dance.project_saved',model=payload['model_id'],motion=payload['motion_id'],audio=payload['audio_id'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode());return
+            except music_dance_project.InvalidMusicDanceProject:
+                event('music_dance.project_invalid',level='error')
+                return self.bad(422,'音楽・ダンスの保存データを読めません。元ファイルを保持しています。')
+            except (ValueError,TypeError,KeyError,UnicodeError) as exc:
+                return self.bad(400,str(exc))
+            except OSError:
+                return self.bad(500,'音楽・ダンスの保存に失敗しました。元データを確認してください。')
         if urlsplit(self.path).path=='/api/project/bundle':
             try:
                 length=int(self.headers.get('Content-Length','0'))
