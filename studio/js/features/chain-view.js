@@ -11,7 +11,7 @@ import { on } from '../bus.js';
 import { getJson } from '../api.js';
 import { stateBox } from '../state-box.js';
 import { PH } from '../screens.js';
-import { ROWS, motionKeys, isAvailable } from '../motion/patterns.fork.js';
+import { ROWS, motionKeys, isAvailable, patternDuration } from '../motion/patterns.fork.js';
 import { editCombination, setCombinationSelected, setCombinationSpeed } from './project.js';
 import { favoritesClient, filterFavorites, parseTags } from './favorites.js';
 import { currentChainControl } from '../motion/chain-runtime.js';
@@ -37,6 +37,14 @@ export const chainUi = createStore({
   /** 下部で選んでいる手順の番号（無ければ -1） */ stepSel: -1,
   /** 帯の案内（保存の結果など）。空ならコンビネーションの件数から決める */ notice: '',
 });
+
+/** ⑤-10: 選択パターンの画面内時計。制作状態・サーバーへは保存しない。 */
+export const patternClock = createStore({ rowId: ROWS[0].id, now: 0, duration: patternDuration(ROWS[0]), playing: true });
+
+/** @param {typeof ROWS[number]} row */
+export function selectPatternClock(row) {
+  if (patternClock.get().rowId !== row.id) patternClock.set({ rowId: row.id, now: 0, duration: patternDuration(row) }, 'select');
+}
 
 const isScreen05 = () => /^\/workspace\/05\/?$/.test(location.pathname);
 

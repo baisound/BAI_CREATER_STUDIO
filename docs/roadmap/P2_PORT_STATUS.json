@@ -318,11 +318,15 @@
     {
       "id": "P2-WP-05g",
       "step": "⑤ 2D・3D の模式再生",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "設計書 §2.5 05g。Q2 の追加（外してよいか）は所有者確認待ち。既定は移植する。",
+      "state": "in_progress",
+      "commits": ["ce63f56（旧UI・新UI受け口の監査）", "05g-2（このコミット：時計・2D SVG・A/B模式と実FBXプレビュー）"],
+      "tests": [
+        "node --test tests/studio-p2-motion-fork.test.mjs: 8 pass（旧画面のpose/draw/motionStateと照合）",
+        "tests/studio-p2-chain.test.cjs: 17 pass（⑤gの模式・実FBX・連結排他・離脱を含む）",
+        "npm run typecheck: pass、tests/test_screen_status_honesty.mjs: 6 pass"
+      ],
+      "unverified": ["共通Node/Python/Evidence/E2Eゲートと実利用者FBX/GPU実機は未検証。先行WP05b/c/e/fの独立レビューも未確認。"],
+      "notes": "設計書 §2.5 05g。監査文書 P2_WP05G_AUDIT_20261021_JA.md。選択パターンの画面内時計を持ち、旧drawとposeに沿う2D SVGを安全なDOMノードで表示。モデル未登録スロットはウェイト無しの3D模式人形、実FBXがあるスロットは登録済みクリップを再生。連結とVMD再生中は3D模式を止める。実装・テスト：標準モデル区分。",
       "owner_check": null
     },
     {
