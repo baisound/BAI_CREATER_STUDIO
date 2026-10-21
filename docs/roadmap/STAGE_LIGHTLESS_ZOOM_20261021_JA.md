@@ -23,7 +23,14 @@ Owner指定に従い、アプリ側に素材名や `KHR_lights_punctual` に応�
 
 比較画像はOwner指定のローカル確認領域 `D:/BAI/BAI_CREATER_STUDIO/_Claude確認画像/2026-10-21_stage_lightless_46/` に保存した。S03/S04/S06/S07はライトなし版、S05は原本を示す。画像はGitへ追加しない。
 
-発光材質の別名候補も、元とライトなし版を保持したまま `data/stage_lightless_20261021/` に用意した。S05は赤い発光材質1件の表示上限を0.35相当に、S06は発光材質65件の最大値を0.8相当に、GLBの `emissiveFactor` のみ縮小した。非JSONチャンクは元とSHA256一致し、変更材質とハッシュは `検証記録_発光候補.json` にある。**素材ライブラリには未登録の比較候補**で、採用判断前に既存ステージと入れ替えない。隔離Chromeの同位置画像では、S05の強い赤（R>200, G/B<50）画素が7,099→96、S06の高輝度（RGBいずれか>240）画素が47,142→3,689になった。画像は同じ確認領域の `S05-emission-candidate.png`、`S06-lightless-emission-candidate.png`。これは候補の比較値であり、Owner外観採用ではない。
+Ownerが別名候補の作成を選択したため、発光材質の候補も元とライトなし版を保持したまま `data/stage_lightless_20261021/` に用意し、素材ライブラリへ別名で登録した。S05は赤い発光材質1件の表示上限を0.35相当に、S06は発光材質65件の最大値を0.8相当に、GLBの `emissiveFactor` のみ縮小した。非JSONチャンクは元とSHA256一致し、変更材質とハッシュは `検証記録_発光候補.json` にある。登録後に素材一覧APIから2件とも `available: true` と確認した。採用判断前に既存ステージと入れ替えない。
+
+| 比較候補 | 素材ID | SHA256 |
+|---|---|---|
+| S05 深紅の境界回廊・発光抑制 | `library:3fdecc86a73d929ab7a94f5c` | `c1ae409fec455f06d7358b3894d7c169ba071d861fbd7d548c77acb158e68612` |
+| S06 夜景屋上・ライトなし＋発光抑制 | `library:dc7a589fbe6d9c3dc3d50a69` | `47ad93fc2f90247c9ddbc3c7334dabfec03e19f9274f20c44adc5513fffd5486` |
+
+隔離Chromeの同位置画像では、S05の強い赤（R>200, G/B<50）画素が7,099→96、S06の高輝度（RGBいずれか>240）画素が47,142→3,689になった。画像は同じ確認領域の `S05-emission-candidate.png`、`S06-lightless-emission-candidate.png`。これは候補の比較値であり、Owner外観採用ではない。Issue #46は採用外観の確認まで継続する。
 
 ## 視点接近
 
