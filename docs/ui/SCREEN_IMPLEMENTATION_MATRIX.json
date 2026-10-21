@@ -54,7 +54,8 @@
         "CAM-006",
         "CAM-007",
         "CAM-013",
-        "CAM-014"
+        "CAM-014",
+        "CAM-016"
       ],
       "existing_ui": [
         {
@@ -1538,12 +1539,12 @@
     {
       "screen_id": "SCR-10",
       "route": "/workspace/10",
-      "panel": "4形式のモデル選択とダンスプレビュー",
+      "panel": "4形式のモデル選択と3形式のダンスプレビュー",
       "feature_ids": [
         "AUDIO-001"
       ],
       "new_ui_state": "partial",
-      "source_evidence": "PMXのMMD物理と、GLB/VRM/FBXの主要人体骨プレビューを分ける。骨対応が不足するモデルは理由を表示。登録済みVRM/GLB/FBXの再生、VRMの保存復元を隔離試験済み。全リグ・PMX以外の物理演算は未検証。",
+      "source_evidence": "GLB/FBXダンスの主要人体骨を対応付け、VMDはPMXで評価する。骨対応が不足する組み合わせは理由を表示。実PMX＋FBX/VMDの再生・保存復元を隔離Chromeで確認。全リグ・PMX以外の物理演算は未検証。",
       "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",

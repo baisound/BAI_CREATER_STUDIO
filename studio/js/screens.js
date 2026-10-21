@@ -145,7 +145,7 @@ export const SCREENS = [
   {
     id: '02', title: 'カメラワーク・撮影設定', nav: 'カメラワーク', group: 'カメラ',
     summary: '撮影ビュー、レンズ・F値、キーフレーム、カット編集をまとめた撮影ワークスペース。',
-    classification: 'existing_or_partial_to_audit', ids: ['CAM-003', 'CAM-005', 'CAM-006', 'CAM-007', 'CAM-013', 'CAM-014'],
+    classification: 'existing_or_partial_to_audit', ids: ['CAM-003', 'CAM-005', 'CAM-006', 'CAM-007', 'CAM-013', 'CAM-014', 'CAM-016'],
     existing: [CAMERA], live: ['cameraProject'],
     panels: [
       { name: '3D撮影ビュー', status: 'real', evidence: 'tests/studio-p2-camera.test.cjs::camera host keeps keys across studio routes', note: '旧カメラ画面と同じ3Dコードを新UIにマウント。実GPU/Linuxは未検証。', ids: ['CAM-004'] },

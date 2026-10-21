@@ -200,6 +200,13 @@ function populate(root, initialTab, source) {
   legacyBundle.disabled = true;
   legacyBundle.append(h('p', { class: 'camera-host-pending' }, '統合保存は制作状態の［保存］を使用します。カメラだけの保存は上部のボタンで行えます。'));
   panels.status.append(h('p', null, '既存のカメラ編集コードを新UIでも共有しています。制作状態の［保存］でコンビネーション・カメラ・素材参照を保存します。実GPU・Linuxでの描画は未検証です。'));
+  panels.status.append(h('p', null, '補助診断の旧URLは保持しています。右側の既存API結果を確認できますが、撮影編集はこの画面で行います。'));
+  const diagnostics = h('div', { class: 'btn-row', 'aria-label': '補助診断' });
+  for (const [id, label] of [
+    ['03', 'フォーカス診断'], ['04', 'シーケンス評価'], ['14', 'レールの補助情報'],
+    ['15', 'カメラVMD状態'], ['16', 'ショット評価'],
+  ]) diagnostics.append(h('a', { class: 'btn', href: `/workspace/${id}`, dataset: { route: id } }, label));
+  panels.status.append(diagnostics);
 
   const center = h('section', { class: 'camera-host-center', 'aria-label': '撮影ビュー' },
     toolbar, need(view, '.dual-views'));

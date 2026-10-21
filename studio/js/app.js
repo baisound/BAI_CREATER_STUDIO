@@ -34,6 +34,8 @@ applyPrefs();
 
 /* ---------- routing ---------- */
 const BASE = '/workspace/';
+// 補助診断のURLは維持するが、撮影編集のサイドバー入口はSCR-02に集約する。
+const CAMERA_AUX = new Map([['03', 'focus'], ['04', 'camera'], ['14', 'rail'], ['15', 'camera'], ['16', 'camera']]);
 /** @param {string} id */
 const routeOf = (id) => `${BASE}${id}`;
 /** @returns {{id: string, tab: string | null, params: URLSearchParams}} */
@@ -73,7 +75,7 @@ function screenDot(s) {
 function buildNav() {
   navEl.textContent = '';
   for (const g of GROUPS) {
-    const list = SCREENS.filter((s) => s.group === g);
+    const list = SCREENS.filter((s) => s.group === g && !CAMERA_AUX.has(s.id));
     if (!list.length) continue;
     navEl.append(h('div', { class: 'nav-group' }, h('h2', null, g),
       list.map((s) => h('a', { class: 'nav-item', href: routeOf(s.id), dataset: { route: s.id }, title: s.summary },
@@ -109,7 +111,7 @@ function openPalette() {
   let hits = [];
   const draw = () => {
     const q = input.value.trim().toLowerCase();
-    hits = SCREENS.filter((s) => !q || [s.id, s.title, s.nav, s.group, ...s.ids, ...s.panels.map((p) => p.name)].join(' ').toLowerCase().includes(q));
+    hits = SCREENS.filter((s) => !CAMERA_AUX.has(s.id) && (!q || [s.id, s.title, s.nav, s.group, ...s.ids, ...s.panels.map((p) => p.name)].join(' ').toLowerCase().includes(q)));
     idx = Math.min(idx, Math.max(0, hits.length - 1));
     ul.textContent = '';
     if (!hits.length) ul.append(h('li', { class: 'empty' }, '該当する画面はありません'));
@@ -652,7 +654,7 @@ function homeView(c) {
 
   /** @type {[string, string, string, string][]} */
   const qa = [['plus', '新規プロジェクト', '作品制作を開始', 'unimpl:newProject'], ['stage', 'シーンを作成', 'ステージ・背景を配置', 'nav:06'], ['user', 'キャラクターを追加', 'モデルを読み込み', 'nav:12'], ['motion', 'モーションを読み込み', 'VMD・モーション', 'nav:13'], ['camera', 'カメラを設定', 'カメラワーク・プリセット', 'nav:02'],
-    ['sparkle', 'マテリアル・効果', '質感・演出', 'nav:09'], ['render', 'レンダリング', '書き出し・バッチ', 'nav:17'], ['folder', '素材を管理', 'モデル・ステージ・音楽', 'nav:08'], ['focus', 'ピントを診断', 'フォーカス・DOF', 'nav:03'], ['plug', 'MCP連携', 'AI・外部ツール', 'nav:19']];
+    ['sparkle', 'マテリアル・効果', '質感・演出', 'nav:09'], ['render', 'レンダリング', '書き出し・バッチ', 'nav:17'], ['folder', '素材を管理', 'モデル・ステージ・音楽', 'nav:08'], ['focus', 'ピントを設定', 'フォーカス・DOF', 'nav:02?tab=focus'], ['plug', 'MCP連携', 'AI・外部ツール', 'nav:19']];
   const quick = block('クイックアクション', 'partial', null, h('div', { class: 'qa-grid' }, qa.map(([ic, t, sub, act]) => h('button', { type: 'button', class: 'qa', dataset: { act: act.split(':')[0] }, onclick: () => runAction(act === 'unimpl:newProject' ? newProjectUnimpl(t) : { t: 'btn', label: t, act }) },
     h('span', { class: 'qa-ico' }, icon(ic, 22)), h('span', null, h('b', null, t), h('span', { class: 'xs muted' }, sub))))));
 
@@ -703,7 +705,7 @@ function helpPage() {
   ];
   const glossary = [['VMD', 'MMD のモーション／カメラデータ形式'], ['PMX', 'MMD のモデル形式'], ['DOF', '被写界深度（ピントの合う奥行き範囲）'], ['リターゲット', '別の骨格へモーションを移し替えること'], ['WebMCP / 標準MCP', 'AI からアプリを操作するための接続方式（手動UIと同じAPIを使う）']];
   const t = tabs({ label: 'ヘルプ', tabs: [
-    { id: 'welcome', label: 'ウェルカム', render: () => h('div', { class: 'doc' }, h('h2', null, 'BAI Creator Studio 新UI（操作モック）'), h('p', null, '27画面の導線を確認するための新しい画面です。左のメニュー、上部の戻る・進む、Ctrl+K の画面検索で移動できます。'), h('p', { dataset: { legend: '1' } }, '凡例：', badge('real'), ' ', badge('partial'), ' ', badge('mock'), ' ', badge('unimpl'))) },
+    { id: 'welcome', label: 'ウェルカム', render: () => h('div', { class: 'doc' }, h('h2', null, 'BAI Creator Studio 新UI'), h('p', null, '撮影編集は左の「カメラ」にまとめました。補助診断の旧URLは残しています。左のメニュー、上部の戻る・進む、Ctrl+K の検索で移動できます。'), h('p', { dataset: { legend: '1' } }, '凡例：', badge('real'), ' ', badge('partial'), ' ', badge('mock'), ' ', badge('unimpl'))) },
     { id: 'setup', label: '初回セットアップ', render: () => region(h('div', { class: 'doc' }, h('h2', null, '初回セットアップ', regionTag('mock')), h('p', { class: 'small muted' }, 'チェックは画面内だけで、保存されません。'), steps), 'mock') },
     { id: 'guides', label: '目的別ガイド', render: () => h('div', { class: 'doc' }, h('h2', null, '目的別ガイド'), h('ul', { class: 'list' }, guides.map(([l, id]) => h('li', { onclick: () => navigate(id) }, h('span', { class: 'nav-num' }, id), l, h('span', { class: 'meta' }, '開く →'))))) },
     { id: 'video', label: '動画', render: () => h('div', { class: 'doc' }, h('h2', null, '動画チュートリアル'), h('div', { class: 'empty' }, '◇ 未実装：動画チュートリアルはまだありません。')) },
@@ -757,6 +759,7 @@ function render() {
   main.dataset.screen = s.id;
 
   const cameraFull = s.id === '02' && s.center.type === 'feature' && s.center.key === 'cameraHost';
+  const cameraAuxTab = CAMERA_AUX.get(s.id);
 
   const head = h('div', { class: 'screen-head' }, h('span', { class: 'screen-id' }, `SCR-${s.id}`), h('h1', null, s.title),
     s.modes ? modeSwitch(s.modes, s, tab) : null,
@@ -769,11 +772,15 @@ function render() {
         { label: `テーマ：${prefs.theme === 'paper' ? 'ナイトに切替' : 'ペーパーに切替'}`, onSelect: () => { prefs.theme = prefs.theme === 'paper' ? 'night' : 'paper'; savePrefs(); } },
         { label: '実装状態タブを開く', onSelect: () => navigate(s.id, { replace: true, tab: 'status', query: s.id === '27' ? { mode: lyricMode(tab) } : undefined }) },
       ], 'btn ghost')));
-  const ws = h('div', { class: `ws ${cameraFull ? 'camera-full' : s.left ? '' : 'no-left'}` });
-  if (s.left && !cameraFull) ws.append(leftPane(s));
-  ws.append(centerPane(s));
+  const ws = h('div', { class: `ws ${cameraFull ? 'camera-full' : s.left && !cameraAuxTab ? '' : 'no-left'}` });
+  if (s.left && !cameraFull && !cameraAuxTab) ws.append(leftPane(s));
+  ws.append(cameraAuxTab ? h('section', { class: 'pane-center', 'aria-label': '撮影画面への案内' },
+    h('div', { class: 'doc' },
+      h('h2', null, '撮影編集はSCR-02に集約しました'),
+      h('p', null, 'ここは旧URLの補助情報です。右側に残した既存APIの診断は確認できます。サンプルのプレビューと時間軸は制作状態ではないため表示していません。'),
+      h('button', { type: 'button', class: 'btn primary', onclick: () => navigate('02', { tab: cameraAuxTab }) }, '同じカメラの撮影画面へ'))) : centerPane(s));
   if (!cameraFull) ws.append(rightPane(s, tab));
-  if (s.bottom && !cameraFull) ws.append(bottomPane(s));
+  if (s.bottom && !cameraFull && !cameraAuxTab) ws.append(bottomPane(s));
   // 模擬の再生・位置スライダー・シーンツリーが実機能に見えないよう常時表示する（導線点検 §5-4）。
   // 条件は「その画面の 3D ビューの区画の status が real でない」こと。WP-04・05・06 で real にしたら自動で消える。
   const c3 = s.center;

@@ -59,11 +59,18 @@ test.before(async () => {
 // ブラウザーを閉じてからサーバーを止める（逆だと閉じる途中の通信がエラーとして残る）
 test.after(async () => { await browser?.close(); await server?.stop(); });
 
-test('all 27 screens open from the sidebar with their own route and title', async () => {
+test('sidebar has one camera editor and the 22 primary routes open', async () => {
   const page = await newPage();
   await page.goto(`${BASE}/workspace/01`);
+  const auxiliary = new Set(['03', '04', '14', '15', '16']);
+  assert.equal(await page.locator('#nav .nav-item').count(), 22);
+  assert.deepEqual(await page.locator('#nav .nav-group:has(h2:text-is("カメラ")) a[data-route]').evaluateAll((links) => links.map((a) => a.dataset.route)), ['02']);
   for (let n = 1; n <= 27; n++) {
     const id = pad(n);
+    if (auxiliary.has(id)) {
+      assert.equal(await page.locator(`#nav a[data-route="${id}"]`).count(), 0);
+      continue;
+    }
     await page.click(`#nav a[data-route="${id}"]`);
     await page.waitForFunction((x) => location.pathname === `/workspace/${x}`, id);
     assert.equal(await page.getAttribute(`#nav a[data-route="${id}"]`, 'aria-current'), 'page');
@@ -76,6 +83,22 @@ test('all 27 screens open from the sidebar with their own route and title', asyn
   harness.assertNoErrors(page);
 });
 
+test('camera auxiliary URLs preserve live diagnostics without duplicate sample previews', async () => {
+  const page = await newPage();
+  let first = true;
+  for (const [id, tab] of [['03', 'focus'], ['04', 'camera'], ['14', 'rail'], ['15', 'camera'], ['16', 'camera']]) {
+    if (first) { await page.goto(`${BASE}/workspace/${id}`); first = false; }
+    else await page.evaluate((target) => window.baiStudio.navigate(target), id);
+    await page.waitForFunction((target) => document.querySelector('.screen-head .screen-id')?.textContent === `SCR-${target}`, id);
+    assert.match(await page.textContent('.pane-center'), /撮影編集はSCR-02に集約しました/);
+    assert.equal(await page.locator('.pane-center img, .pane-bottom').count(), 0);
+    assert.ok(await page.locator('.pane-right [role="tab"]').count() >= 1);
+    await page.click('.pane-center button:has-text("同じカメラの撮影画面へ")');
+    await page.waitForFunction((expected) => location.pathname === '/workspace/02' && new URLSearchParams(location.search).get('tab') === expected, tab);
+  }
+  harness.assertNoErrors(page);
+});
+
 test('direct URL, reload, back and forward keep the right screen', async () => {
   const page = await newPage();
   await page.goto(`${BASE}/workspace/13?tab=ik`);
@@ -84,7 +107,7 @@ test('direct URL, reload, back and forward keep the right screen', async () => {
   await page.reload();
   assert.equal(await page.getAttribute('.pane-right [role="tab"][aria-selected="true"]', 'data-tab'), 'ik');
   await page.click('#nav a[data-route="02"]');
-  await page.click('#nav a[data-route="15"]');
+  await page.evaluate(() => window.baiStudio.navigate('15'));
   await page.click('#nav-back');
   await atRoute(page, '02');
   await page.click('#nav-forward');
@@ -277,7 +300,7 @@ test('tabs, dropdown, palette and keyboard work', async () => {
   await page.keyboard.press('Control+k');
   await page.fill('.palette input', 'CAM-016');
   await page.keyboard.press('Enter');
-  await atRoute(page, /workspace\/(07|15|23)$/);
+  await page.waitForFunction(() => !document.querySelector('.palette') && location.pathname === '/workspace/02' && !location.search);
   // timeline: play then scrub
   await page.goto(`${BASE}/workspace/02`);
   await page.waitForFunction(() => document.querySelector('#status')?.textContent.includes('カメラ編集を開始'));
@@ -596,7 +619,10 @@ test('theme preference persists and narrow screens do not scroll sideways', asyn
     assert.ok(overflow <= 1, `horizontal overflow ${overflow}px on ${id}`);
   }
   await mobile.click('#nav-toggle');
-  await mobile.click('#nav a[data-route="14"]');
+  await mobile.click('#nav a[data-route="02"]');
+  await atRoute(mobile, '02');
+  await mobile.click('[data-camera-tab="status"]');
+  await mobile.click('.camera-host-tab-panel[data-camera-tab="status"] a[data-route="14"]');
   await atRoute(mobile, '14');
   if (SHOTS) await mobile.screenshot({ path: path.join(SHOTS, 'mobile-14.png') });
 });

@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T05:58:36+09:00",
+  "updated_at": "2026-10-22T06:11:12+09:00",
   "updated_by": "codex",
   "branch": "codex/issue63-workflow",
-  "head_at_update": "457d843",
+  "head_at_update": "e8a560d",
   "current": {
     "task": "Issue #63: 同一シーン・時刻の制作フローを整理",
-    "status": "in_progress",
+    "status": "done",
     "step": "SCR02/06/10/26の現行状態を照合し、重複カメラ導線と共有データ・時計の実装境界を設計する",
     "design_doc": "docs/roadmap/ISSUE63_UNIFIED_WORKFLOW_20261022_JA.md"
   },
   "next_steps": [
-    "PR57/59のレビュー結果を反映し、P2-WP06d独立レビューとWP07残ゲートを確認する",
-    "Issue63で同一シーン・時計・エフェクトの制作フローを設計し、承認済み順序で実装する"
+    "Issue63-B: workspaceとmusic_dance_projectの読み取り合成と版・不整合表示を実装",
+    "Issue63-C/D: 同一シーンと30fps時計をSCR02へ接続"
   ],
   "unverified": [
-    "Node全件ゲート失敗0件、WP06d/07独立高性能モデルレビュー、実Blender変換とVMD品質、MCP経路、実GPU/Linux/Ownerモデル外観は未確認",
-    "SCR02とSCR06/10の同一シーン・再生時計、SCR26エフェクト配置はIssue63で未実装"
+    "Chrome組合せ27件中1件はWindows ERR_NO_BUFFER_SPACEで失敗、単独再実行成功。GPU/Linux/Owner実素材未検証",
+    "Issue63-B/C/D/E未実装。PR57/59の独立高性能レビュー、実Blender/MCP未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T06:11:12+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "e8a560d",
+      "text": "Issue63-A: 撮影編集入口をSCR02に集約し旧URL診断を保持。typecheck、Chrome導線・連携試験を確認"
+    },
     {
       "at": "2026-10-22T05:58:36+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "start",
       "head": "dec1774",
       "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06a: camera.jsとcamera_3d.jsを旧画面互換のmount APIにする"
-    },
-    {
-      "at": "2026-10-22T00:23:06+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "678d4e1",
-      "text": "Issue #50: GLB/VRM/PMX/FBXをSCR12/06/13/05と旧カメラに接続し、workspace.character配置値の保存・復元を実装。隔離ChromeとAPIで検証"
     }
   ]
 }
