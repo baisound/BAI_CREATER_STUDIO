@@ -5,8 +5,8 @@ from pathlib import Path
 class SequenceUIContract(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.html=Path('camera.html').read_text()
-        cls.js=Path('camera.js').read_text()
+        cls.html=Path('camera.html').read_text(encoding='utf-8')
+        cls.js=Path('camera.js').read_text(encoding='utf-8')
     def test_controls_present(self):
         for id in ('sequence-preset','sequence-start','sequence-end','sequence-add','sequence-delete','sequence-list','sequence-jump','sequence-status'):
             self.assertIn(f'id="{id}"',self.html)

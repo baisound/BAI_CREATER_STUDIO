@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T03:50:55+09:00",
+  "updated_at": "2026-10-22T04:42:43+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp06",
-  "head_at_update": "87338f8",
+  "head_at_update": "293899e",
   "current": {
     "task": "PR #57: 最新main統合とカメラ移植ゲートの解消",
-    "status": "in_progress",
+    "status": "done",
     "step": "PR #56/#62を含むmainへの競合解消とカメラ経路の再検証",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-07 書き出しの既存実装・受け入れ条件を監査して着手。WP06d独立レビューはPhase E UI開始前に実施"
+    "PR59へPR57の統合差分を取り込み、WP07と共通ゲートを再確認する",
+    "Issue63の同一シーン・時刻・エフェクトを通す制作フローを承認済み工程に沿って設計する"
   ],
   "unverified": [
-    "WP06dの独立高性能モデルレビュー、実GPU/Linux/Owner実モデル採用。P2 Node一括完走はWindows ERR_NO_BUFFER_SPACEで未確認"
+    "WP06d独立高性能モデルレビュー、実GPU/Linux、実利用者モデル外観。Node一括ゲートのホーム表示1件が一時的に30秒時間切れ、隔離再実行合格。SCR02とSCR06/10の撮影連動およびエフェクト配置はIssue63で未実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,11 +33,32 @@
   ],
   "history": [
     {
+      "at": "2026-10-22T04:42:43+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "293899e",
+      "text": "PR57: 最新mainを統合し、WindowsのUTF-8試験読込とカメラ再訪時の非同期復元を修正。pytest386件、Evidence146件、重点Chrome25件、P2通しS7到達。Node全350件は1件表示待ち時間切れ、単独再実行は合格。Issue63へ画面連携とエフェクト未実装を記録"
+    },
+    {
       "at": "2026-10-22T03:50:55+09:00",
       "by": "codex",
       "event": "start",
       "head": "87338f8",
       "text": "PR #57: 最新main統合とカメラ移植ゲートの解消: PR #56/#62を含むmainへの競合解消とカメラ経路の再検証"
+    },
+    {
+      "at": "2026-10-22T03:39:55+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4d48a51",
+      "text": "Issue #61: AGENTS.mdに共通テスト手順への参照を追加し、TESTING_GUIDE_JA.mdに試験選択・保護・コマンド・失敗と未検証の記録を整備。参照先とpackage scripts一致、work_state検査とpytest 4件成功"
+    },
+    {
+      "at": "2026-10-22T03:37:44+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e3c0df1",
+      "text": "Issue #61: 共通テスト手順を独立MD化しAGENTS.mdから参照: 既存の試験契約・コマンドを照合して共通手順を作成"
     },
     {
       "at": "2026-10-22T02:47:55+09:00",
@@ -79,6 +101,20 @@
       "event": "done",
       "head": "21597c7",
       "text": "P2-WP-06b: 現行camera.htmlの124 ID配置表・SCR02カメラホスト・常駐・隔離Chrome4件・27画面共通20件を完了。カメラ単独保存と旧画面の再読込互換を確認。"
+    },
+    {
+      "at": "2026-10-22T01:30:47+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ffd1f12",
+      "text": "AUDIO-001/SCR10: 登録済みGLB/VMD/FBXダンス候補、PMX+VMD評価、FBX人体骨プレビュー、SCR08導線、保存復元を実装。typecheck、隔離Chrome 2件、実PMX+実FBX/VMDの描画・保存再読込・原本hash検証に成功。Issue #39に追跡。"
+    },
+    {
+      "at": "2026-10-22T01:17:10+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3a1d40e",
+      "text": "Issue #39: SCR10で登録済みVMD/FBXダンスを選択・再生する: GLB/VMD/FBXの候補・読込・互換条件・保存復元を実装"
     },
     {
       "at": "2026-10-22T01:11:11+09:00",
@@ -205,41 +241,6 @@
       "event": "done",
       "head": "8451afb",
       "text": "WP05gの実経過時計修正と共通ゲートの結果を記録。対象25件、E2E S1/S2/S5通過、全体ゲート各1件の不安定失敗は単独再実行で通過"
-    },
-    {
-      "at": "2026-10-21T22:55:04+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4ca61f1",
-      "text": "Issue #46のS05/S06発光抑制別名GLB候補2件をハッシュ・GLB長を照合してローカル素材ライブラリへ登録。API一覧でavailable true確認。原本・ライトなし版・制作状態保持"
-    },
-    {
-      "at": "2026-10-21T22:51:47+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cd565c5",
-      "text": "Issue #46: S05/S06発光抑制GLB候補を別名素材登録: Ownerが候補作成を選択。ハッシュ・構造を再照合し候補2件を素材ライブラリに登録、原本と旧版を保持"
-    },
-    {
-      "at": "2026-10-21T22:50:03+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "3e2e2a1",
-      "text": "PR #48をmainへマージ。ローカルmainを3e2e2a1へfast-forwardし、8765番のroot/SCR-06/視点JS/API素材4件をHTTP確認。Issue46/47に公開可能な図を画像表示"
-    },
-    {
-      "at": "2026-10-21T22:45:32+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8984bbd",
-      "text": "Issue #46・#47の結果を示すメタデータ図と視点概念図を作成。受領GLBの実画像は公開せず、Owner指定のローカル確認領域に保持"
-    },
-    {
-      "at": "2026-10-21T22:45:08+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "19f818e",
-      "text": "Issue #46・#47: 公開可能な図をIssueへ添付: 素材画像を公開せず、メタデータ図と視点概念図をPR・Issueに直接表示する"
     }
   ]
 }

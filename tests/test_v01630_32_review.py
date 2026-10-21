@@ -13,8 +13,8 @@ class ReviewTests(unittest.TestCase):
   self.assertEqual(r['quality']['quality_gate'],'blocked_for_production')
  def test_ui_and_routes(self):
   root=Path(__file__).resolve().parents[1]
-  self.assertIn('v01630_32_review.js',(root/'index.html').read_text())
-  self.assertIn('/api/retarget/review-bundle',(root/'server.py').read_text())
-  self.assertIn('bai_retarget_review_bundle',(root/'mcp_server.py').read_text())
-  self.assertIn('bai_retarget_review_bundle',(root/'webmcp.js').read_text())
+  self.assertIn('v01630_32_review.js',(root/'index.html').read_text(encoding='utf-8'))
+  self.assertIn('/api/retarget/review-bundle',(root/'server.py').read_text(encoding='utf-8'))
+  self.assertIn('bai_retarget_review_bundle',(root/'mcp_server.py').read_text(encoding='utf-8'))
+  self.assertIn('bai_retarget_review_bundle',(root/'webmcp.js').read_text(encoding='utf-8'))
 if __name__=='__main__':unittest.main()

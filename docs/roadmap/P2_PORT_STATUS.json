@@ -407,11 +407,13 @@
         "npm run typecheck: pass。共有core単体2/2、projectロジック27/27、カメラPython経路・一貫性15/15、P2 Python 43/43 pass",
         "隔離Chrome: SCR02カメラホスト5/5（4形式、壊れた保存の退避復旧、単体保存→統合保存200、フレームのみの移動、保存済み状態の復元）、旧カメラ2/2、旧プロジェクト2/2、project保存17/17 pass",
         "P2 E2E: S1/S2/S3/S5/S7 pass、S4/S6/S8は計画どおりskip、furthest_step=S7。実data/7ファイルのハッシュ不変",
-        "全P2 NodeゲートはWindows ERR_NO_BUFFER_SPACEとSCR05読込待ち3件で途中停止。失敗した3件を隔離再実行し3/3 pass"
+        "全P2 NodeゲートはWindows ERR_NO_BUFFER_SPACEとSCR05読込待ち3件で途中停止。失敗した3件を隔離再実行し3/3 pass",
+        "2026-10-22 最新main統合後: pytest全件386 pass・50 subtests pass、npm run test:evidence 146 pass・2 planned skip・0 fail（初回は2件失敗、再実行で再現せず）、実data/5ファイルのhash不変。npm run test:node-all 337 pass・12 planned skip・1 fail（ホームのカード表示待ち30秒）。当該1件は隔離再実行でpass。カメラ＋27画面の重点Chrome25/25 pass、P2 E2E S1/S2/S3/S5/S7 pass・3 planned skip、typecheck pass"
       ],
       "unverified": [
         "独立した高性能モデルのレビュー、実GPU・Linux・全実利用者モデルの外観とOwner採用は未検証",
-        "P2 Nodeゲートの一括完走はWindowsのリソース枯渇で未確認。影響箇所の専用ブラウザ試験と通し確認は合格"
+        "P2 Nodeゲートは全350件を完走したがホーム表示の1件が30秒で時間切れ。単独再実行は約3秒でpass。共通一括実行の不安定さは残る。影響箇所の専用ブラウザ試験と通し確認は合格",
+        "SCR-02の撮影プレビューはSCR-06のステージとSCR-10の曲・ダンス配置をまだ共有しない。オーナーの指摘をIssue #63で追跡"
       ],
       "notes": "camera_bundle_core.jsを旧画面と新UIで共有。SCR02に②の保存ツールを配置し、カメラ状態・workspaceのストア所有・カメラ単体保存の統合版・dirtyと再読込を接続。初回の素材復元中は操作可能扱いにしない。実装・試験は標準モデル（GPT-6）、サブエージェントなし。",
       "owner_check": null
@@ -505,7 +507,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "b9d7f57",
-    "checked_at": "2026-10-21T17:37:52.868Z"
+    "commit": "293899e",
+    "checked_at": "2026-10-21T19:09:27.366Z"
   }
 }

@@ -27,6 +27,7 @@ const TAB_NAMES = [
 let mounted = false;
 let wired = false;
 let needsFullRestore = false;
+let fullRestorePending = 0;
 /** @type {Promise<void>} */ let restoring = Promise.resolve();
 
 function visible() { return !!cameraRoot?.isConnected && !cameraRoot.closest('#keepalive'); }
@@ -40,7 +41,9 @@ function workspaceSnapshot() {
 }
 
 function captureWorkspace() {
-  if (!visible()) return;
+  // Navigation can dispose SCR-02 before the asynchronous camera mount installs
+  // its snapshot listener. There is no camera state to capture until then.
+  if (!mounted || !visible()) return;
   const value = workspaceSnapshot();
   if (!value) throw Error('カメラの素材状態を取得できません');
   const stored = project.get().bundle?.workspace || { frame: 0, asset: '', clip: null };
@@ -81,9 +84,22 @@ async function restoreBundle() {
 }
 
 function queueRestore(full = false) {
+  const locked = full && !!cameraRoot;
+  if (locked && cameraRoot) {
+    fullRestorePending++;
+    cameraRoot.inert = true;
+    cameraRoot.setAttribute('aria-busy', 'true');
+    const status = cameraRoot.querySelector('#status');
+    if (status) status.textContent = '保存されたカメラ状態を反映中…';
+  }
   restoring = restoring.catch(() => {}).then(() => full ? restoreBundle() : restoreWorkspace()).catch((error) => {
     const status = cameraRoot?.querySelector('#status');
     if (status) status.textContent = `保存されたカメラ・素材を表示できません：${error instanceof Error ? error.message : String(error)}`;
+  }).finally(() => {
+    if (locked && --fullRestorePending === 0 && cameraRoot) {
+      cameraRoot.inert = false;
+      cameraRoot.removeAttribute('aria-busy');
+    }
   });
   return restoring;
 }

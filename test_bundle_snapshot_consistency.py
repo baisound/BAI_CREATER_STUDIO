@@ -14,7 +14,7 @@ class SnapshotConsistencyTest(unittest.TestCase):
             self.assertEqual(bundle_revision(before), bundle_revision(read_bundle(p,Path(d)/'camera.json')))
 
     def test_bundle_post_returns_committed_revision_inside_lock(self):
-        source=Path(__file__).with_name('server.py').read_text()
+        source=Path(__file__).with_name('server.py').read_text(encoding='utf-8')
         self.assertIn("result['revision']=bundle_revision(read_bundle(PROJECT,DATA/'camera_project.json'))",source)
 
     def test_camera_get_reads_inside_lock_while_posts_run(self):

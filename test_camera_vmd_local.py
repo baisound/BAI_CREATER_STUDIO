@@ -20,7 +20,7 @@ class VMDLocalTests(unittest.TestCase):
                 for actual,want in zip(p[field],expected[field]):self.assertAlmostEqual(actual,want,places=9)
             self.assertAlmostEqual(p['fov'],expected['fov'],places=9)
     def test_wiring_and_no_per_frame_fetch(self):
-        js=(BASE/'camera.js').read_text();html=(BASE/'camera.html').read_text()
+        js=(BASE/'camera.js').read_text(encoding='utf-8');html=(BASE/'camera.html').read_text(encoding='utf-8')
         self.assertIn('nativeLocalSampler.preview(',js)
         self.assertIn('BAIVmdLocal.createSampler(data)',js)
         self.assertIn('/camera_vmd_local.js',html)
