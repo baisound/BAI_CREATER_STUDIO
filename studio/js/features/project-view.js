@@ -122,7 +122,8 @@ export const projectHistory = (/** @type {import('./index.js').FeatureCtx} */ ct
     lastCursor = cursor;
     const m = summarize({ ...s.bundle, combinationMissing: s.combinationMissing });
     const list = h('ul', { class: 'list proj-hist', role: 'listbox', 'aria-label': '編集履歴' });
-    hist.forEach((/** @type {any} */ e, /** @type {number} */ i) => {
+    // 表示だけ逆順にし、復元に使う保存順のインデックスは維持する。
+    hist.map((/** @type {any} */ e, /** @type {number} */ i) => ({ e, i })).reverse().forEach(({ e, i }) => {
       const at = e.at ? new Date(e.at).toLocaleString('ja-JP') : '—';
       list.append(h('li', { role: 'option', 'aria-selected': String(i === selected), dataset: { index: String(i), current: String(i === cursor) },
         onclick: () => { selected = i; draw(project.get()); } },

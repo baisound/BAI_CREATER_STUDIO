@@ -78,7 +78,8 @@
       ],
       "tests": [
         "2026-10-20 PR #7 取り込み後（7170100）で再実行：pytest 354 passed（1回、既存の test_bundle_snapshot_consistency の並行20+20件が ConnectionReset で落ちたが、再実行で単独4回・全件2回合格。WP-01 の変更と無関係な既存の不安定さ）、npm run test:node-all 145 pass・10 skip・0 fail、tsc 合格、node tools/run_evidence_tests.mjs 合格。新規：tests/studio-p2-project-logic.test.mjs 22件、tests/studio-p2-project.test.cjs 16件、test_project_envelope.py に壊れた project_state.json への POST の3件。通し確認 S1〜S8 は WP-01 で有効になる手順が設計に無く全 skip（furthest_step=null）。実 data/ ハッシュ不変",
-        "2026-10-20 Opus レビュー後：pytest 354 passed、npm run test:node-all 146 pass・10 skip・0 fail、tsc 合格、実 data/ ハッシュ不変。追加：studio-p2-project-logic.test.mjs「3-M3 save sequencing (4)」（自動保存と統合保存が同じ tick を待つと saving:true のまま止まる不具合の再現と修正）"
+        "2026-10-20 Opus レビュー後：pytest 354 passed、npm run test:node-all 146 pass・10 skip・0 fail、tsc 合格、実 data/ ハッシュ不変。追加：studio-p2-project-logic.test.mjs「3-M3 save sequencing (4)」（自動保存と統合保存が同じ tick を待つと saving:true のまま止まる不具合の再現と修正）",
+        "2026-10-21 オーナー追加指定：SCR-18 の履歴一覧を新しい順へ変更。保存順と復元インデックスは維持。studio-p2-project.test.cjs 17/17（表示順と最古版への復元を含む）、tsc 合格。"
       ],
       "unverified": [
         "Opus レビュー実施済み（2026-10-20。上書き・競合・自動保存・世代番号。1件修正、残りの懸念は作業報告）。GPU・Windows 実機未検証。beforeunload は headless Chromium のみ。",
@@ -95,12 +96,13 @@
         "30601de"
       ],
       "tests": [
-        "2026-10-20：pytest 354 passed、npm run test:node-all 188 pass・0 fail・13 skip（three 無し）、tsc 合格、node tools/run_evidence_tests.mjs 合格、実 data/ ハッシュ不変。新規：tests/studio-p2-import-rules.test.mjs 16件、tests/studio-p2-assets-logic.test.mjs 3件、tests/studio-p2-assets.test.cjs（THREE_DIR 指定で26件すべて合格。一覧の3件＋表示設定の保存を含む）。通し確認 S1 の③部分は合格、furthest_step=null"
+        "2026-10-20：pytest 354 passed、npm run test:node-all 188 pass・0 fail・13 skip（three 無し）、tsc 合格、node tools/run_evidence_tests.mjs 合格、実 data/ ハッシュ不変。新規：tests/studio-p2-import-rules.test.mjs 16件、tests/studio-p2-assets-logic.test.mjs 3件、tests/studio-p2-assets.test.cjs（THREE_DIR 指定で26件すべて合格。一覧の3件＋表示設定の保存を含む）。通し確認 S1 の③部分は合格、furthest_step=null",
+        "2026-10-21 Issue #28 / MOTION-016：実FBXクリップを使う3姿勢画像・再生/停止/シークのChrome隔離テスト追加。studio-p2-assets.test.cjs 29/29合格、tsc合格。隣接するstudio-p2-motion.test.cjsは15/16合格、1件は画面表示待ち30秒で時間切れ、同じ1件の単独再実行で合格。実素材FBX・統合FBX・複数クリップGLB・VMD＋PMXで画面を確認し、元PMX/VMDハッシュ不変。コードは codex/motion-assets-navigation の素材プレビューコミット。"
       ],
       "unverified": [
-        "Opus レビュー未実施（WP-02 は設計上 Sonnet のみ）。GPU・Windows 実機未検証。実際の素材（実 data/）での表示は未確認（隔離データの種データのみ）。"
+        "Opus レビュー未実施（WP-02 は設計上 Sonnet のみ）。GPU・Windows 実機未検証。実際の素材（実 data/）での一覧・動作プレビューはChrome/SwiftShaderで一部確認。全素材と大量スクロールの性能は未検証。"
       ],
-      "notes": "WP-02 と WP-03 は1コミット（30601de）にまとめた。サムネイル（MOTION-016）・お気に入り・タグ・依存参照は ◇ のまま。",
+      "notes": "WP-02 と WP-03 は1コミット（30601de）にまとめた。2026-10-21にMOTION-016の画面内プレビューを追加し、機能台帳は要検証を維持。お気に入り・タグ・依存参照は ◇ のまま。",
       "owner_check": null
     },
     {
@@ -137,11 +139,13 @@
         "tests/studio-p2-viewport.test.cjs（19件：GLB/PMX/FBX の描画、ステージ配置、PMX×0.08 m 同一シーン、欠損、dispose）",
         "tests/studio-p2-normalize-parity.test.cjs（camera.html と 1e-6 で一致）",
         "tests/studio-p2-e2e-main.test.cjs（S1・S2 を有効化）",
+        "2026-10-21 Issue #29：共通3Dビューの中ドラッグ回転・Shift＋中ドラッグ移動・Ctrl＋中ドラッグ前後をChrome/SwiftShaderで確認。tests/studio-p2-viewport.test.cjs 19/19、tests/legacy-ui-layout.test.cjs 1/1、npm run typecheck 合格。コードは codex/motion-assets-navigation の3D操作コミット。",
         "tests/test_project_state_bundle.py WorkspaceStageTest（B-4、12件）。Opus レビューで studio-p2-viewport の旧 camera.html 形の保存に「既存の stage が不正なら HTTP 400 で3ファイル不変」を追加"
       ],
       "unverified": [
         "O-④-6：実在の PMX/GLB/FBX ステージの単位の換算と見え方（合成データのみ）",
         "実在の PMX（多材質・IK・剛体・PMX 2.1）の表示、GPU（SwiftShader でのみ確認）",
+        "Issue #29 の中ボタン操作は自動化したChrome/SwiftShaderで確認。一般的な物理マウスとGPU実機での操作感は未検証。",
         "PMX キャラクターを SCR-06 に置く経路が無い（Opus レビュー 2026-10-20）：workspace.asset は GLB/VRM 限定で、⑥ の camera_3d.js も GLB/VRM しか読まない。設計（v5・Phase E §2.8 を含む）に PMX キャラの保存先・カメラ表示の計画は無く、⑥ O-⑥-4（要素IDの配置表）で整理される事項でもない。直すには保存形式の追加（例：workspace の任意キー character）と camera_3d.js の PMX 表示が要るため、所有者の承認（計画の追加）を待つ。主要シナリオ（PMX → ステージ配置 → カメラ）は PMX では SCR-06 以降を通せない"
       ],
       "notes": "O-④-1・2・3・6・7 を 2026-10-20 に Opus で決定（設計書 §2.4(h)）。O-④-2：最小 PMX 2.0（tools/make_test_pmx.py）を作成し、minimal_pmx.zip を本物の PMX に置き換えた。未検証：実在の PMX/FBX/GLB ステージの単位の換算（O-④-6）、GPU。 2026-10-20 の決定（設計書 §2.4(h) O-④-6 の「上書き」。出所は開発側の判断：所有者が UI・技術判断を開発側に委ねているため、主要シナリオ（MMD の PMX キャラ＋MMD ステージ）に合わせて Claude が決定）：SCR-06 はキャラの身長を正規化せずステージと同じ単位換算（PMX 0.08 m/unit、GLB/VRM 1 m/unit、FBX UnitScaleFactor/100）。正規化は単体プレビュー SCR-12 のみ。E2E は S2 まで通る。 Opus レビュー（2026-10-20）：B-4（validate_stage・save_bundle のマージ・不正な既存値で 400 かつ不変・workspace なしで削除・旧 camera.html の保存で stage が残る・stage の無い既存データの読込）は設計 §1.15 B-4／C4／K11 どおりで修正不要。",
@@ -177,10 +181,12 @@
       "tests": [
         "tests/studio-p2-motion.test.cjs（10件：PMX＋VMD のモーフ・ボーン、VMD ライブラリ、GLB クリップと位置・停止、VRM への VMD は ◇ で取得0回、モデル未選択、404、モード切替の URL 保持、表示解除、画面を離れたときの破棄）",
         "tests/test_make_test_vmd.py（2件）",
-        "tests/studio-p2-e2e-main.test.cjs の S5 が pass（three@0.160.1、SwiftShader）"
+        "tests/studio-p2-e2e-main.test.cjs の S5 が pass（three@0.160.1、SwiftShader）",
+        "2026-10-21 独立レビューで modeSwitch・featureBottom の所有と後始末を確認（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）",
+        "2026-10-21 MOTION-006：実在PMX＋神っぽいな.vmdをSCR-13で0→15→30→15→0→30秒へシークし、足IK・足・ひざ・足Dの再訪姿勢一致を確認。修正前後の画面は MOTION_006_VMD_FOOT_DIAGNOSIS_20261021_JA.md。tests/studio-p2-motion.test.cjs 16/16、studio-p2-chain.test.cjs 15/15、tsc 合格。原本SHA-256不変。"
       ],
       "unverified": [
-        "Opus レビュー未実施（app.js の modeSwitch。Sonnet 相当の自己確認のみ）。",
+        "modeSwitch・featureBottom は2026-10-21の実装者と別のCodexによる高性能モデルレビューで確認（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）。",
         "実ファイル（実在の PMX＋VMD）でのモーフ再生は未検証（合成の最小 PMX・VMD のみ）。",
         "GPU 実機・Windows 実機未検証（SwiftShader のみ）。",
         "位置スライダーを VMD にも使う（設計 §5.3 の決定どおり。旧画面の VMD には位置の操作が無い）。"
@@ -198,10 +204,11 @@
       "tests": [
         "tests/studio-p2-motion.test.cjs に6件追加（record clip and frame into workspace、frame is capped to camera duration、frame-only record is not dirty、record is disabled for other models、record is disabled when the camera file is invalid、sync command preview_vmd only on SCR-13）。合計16件合格",
         "tests/studio-p2-project-logic.test.mjs に1件追加（外部コマンドは id ごとに1回・初回 tick では発行しない・refresh_assets は別イベント）。合計24件",
-        "npm run test:node-all 247件中 242 pass・5 skip・0 fail、npm run test:p2 161件中 156 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass、実データのハッシュ前後一致"
+        "npm run test:node-all 247件中 242 pass・5 skip・0 fail、npm run test:p2 161件中 156 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass、実データのハッシュ前後一致",
+        "2026-10-21 独立レビューで対象Chrome 6件合格（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）"
       ],
       "unverified": [
-        "Opus レビュー未実施（features/project.js の tick と motion-view.js の外部コマンド・記録）。",
+        "features/project.js の tick と motion-view.js の外部コマンド・記録は2026-10-21の実装者と別のCodexによる高性能モデルレビューで確認（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）。",
         "GPU 実機・Windows 実機未検証（SwiftShader のみ）。",
         "③「カメラ（02）を開くと同じ位置」は WP-06 の後でなければ確認できない。",
         "preview_motion は 05c、play_chain・stop_chain は 05d で実装済み。SCR-05 以外ではトーストを出し、画面の再生状態は変えない。"
@@ -220,10 +227,11 @@
         "tests/studio-p2-chain.test.cjs 新規9件（pattern list marks registered fbx with a crown、pattern list says so when the registration cannot be read、add to combination records history and autosaves、unregistered pattern is not added、reorder delete clear follow record rules、speed autosaves without history、favorites keep entries added elsewhere、favorite save failure keeps the dialog、preview_motion selects the row）。ポート 8784（P2_CHAIN_PORT）",
         "tests/studio-p2-motion-logic.test.mjs 新規14件（editCombination：初期状態・変化なし・履歴と同じ内容・カーソルの後ろを捨てる・100件・name だけ保持・読込前は無視・保存中の編集、setCombinationSpeed、setCombinationSelected、お気に入りの通信と検索）",
         "tests/studio-p2-motion-fork.test.mjs 新規6件（index.html から rows・names・keywords・norm・尺の規則・motionAvailability を取り出して ROWS ほかと照合。登録の組み合わせ60通り×82行）",
-        "npm run test:node-all 276件中 271 pass・5 skip・0 fail、npm run test:p2 190件中 185 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass のまま、実データ data/ のハッシュ前後一致"
+        "npm run test:node-all 276件中 271 pass・5 skip・0 fail、npm run test:p2 190件中 185 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass のまま、実データ data/ のハッシュ前後一致",
+        "2026-10-21 独立レビューでNode 20件と対象Chrome 9件合格（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）"
       ],
       "unverified": [
-        "Opus レビュー未実施（features/project.js の editCombination・setCombinationSpeed・setCombinationSelected、features/chain-view.js、features/favorites.js、app.js の featureBottom）。",
+        "editCombination・選択・速度・chain-view・favorites・featureBottom は2026-10-21の実装者と別のCodexによる高性能モデルレビューで確認（P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md）。",
         "GPU 実機・Windows 実機未検証（05c は 3D を使わないが、ブラウザーは Chromium のみ）。",
         "旧画面で作った実際の FBX 登録（data/manifest.json）での👑の数は未確認（隔離データの合成 manifest のみ）。",
         "play_chain・stop_chain は 05d で実装済み（SCR-05 表示中のみ再生・停止）。"
@@ -255,7 +263,7 @@
       ],
       "unverified": [
         "本番のFBX/PMX/VMDとGPU実機は未検証（隔離した最小素材、Windowsのheadless Chrome/SwiftShaderで検証）。",
-        "WP05b/cの必須独立レビューは別途未確認。",
+        "WP05a/b/cの独立レビューは P2_WP05ABC_INDEPENDENT_REVIEW_20261021_JA.md に記録。実モデル・GPUとGET→POST競合は引き続き未確認。",
         "対応表のGET→POST間の他画面更新はサーバー版条件が無いため競合の隙が残る（設計 §2.5(h) K12）。"
       ],
       "notes": "設計書 §2.5 05d。SCR-05 に3D表示、A/B独立PMX＋VMD、登録FBXの遅延解析、連結再生、最新manifest再取得による対応表保存、SCR-05限定のplay_chain/stop_chainを実装。PMXの遅い読み込みが後から到着した場合は、古い結果を破棄して選択を守る。原本・weightsを変更しない。実装・テスト：標準モデル区分。",
@@ -269,7 +277,8 @@
         "af7dfad（計算フォークと内容比較保存）",
         "edf2806（SCR-13下部の編集UIと既存API結線）",
         "33f5bd8（FBXタイムライン再生と補正表示）",
-        "05e-4（このコミット：共通ゲートとE2E結果）"
+        "a0e1f3b（共通ゲートとE2E結果）",
+        "PR21統合修正（実経過時計、現行mainとの競合解消）"
       ],
       "tests": [
         "node --test tests/studio-p2-timeline-logic.test.mjs: 7 pass（30fps終端・重複クリップ選択・移動差分・レイヤー補間・550/500ms・競合と明示上書き・保存中の追加入力）",
@@ -279,11 +288,12 @@
         "npm run test:node-all: 293 pass・5 planned skip・0 fail、実データハッシュ一致（追加の排他再生テストを加える前の全件実行）",
         "PYTHONUTF8=1 python -m pytest -q: 370 pass・23 subtests pass。サンドボックス内のローカルソケット拒否による初回37失敗は、接続可能な隔離実行で全件合格。",
         "node tools/run_evidence_tests.mjs: 再実行120 pass・0 fail、実データハッシュ一致。初回は素材画面の起動待ち1件がタイムアウトしたが、単独再実行と全件再実行で合格。",
-        "npm run test:p2-e2e: S1/S2/S5 pass、S3/S4/S6/S7/S8 planned skip、furthest_step=S2（S3未着手のため）。実データハッシュ一致。"
+        "npm run test:p2-e2e: S1/S2/S5 pass、S3/S4/S6/S7/S8 planned skip、furthest_step=S2（S3未着手のため）。実データハッシュ一致。",
+        "現行mainとの統合後: npm run typecheck pass、計算試験15 pass、隔離Chromeのmotion試験20 pass。遅延フレームでも実経過秒で時計が進む追加試験1 pass。"
       ],
       "unverified": [
         "実利用者のFBX/GPU実機は未検証（隔離ChromeはSwiftShader）。GET→POST間の競合の隙は設計K12として残る。",
-        "WP05b/c/eの必須独立レビューは未確認。"
+        "WP05b/cは独立レビュー済み。WP05eは元実装者と別のCodexがmain統合時にコード・設計・試験を点検し、時計遅延を修正。実GPUによる外観採用は未確認。"
       ],
       "notes": "設計書 §2.5 05e。旧 timelineFrame・motion_layers.js の計算をフォークし、版を持たない既存APIへ保存する前に正規化済み内容を比べる共通コントローラーを追加。SCR-13［編集］下部でクリップ・補正レイヤーを編集し、競合ではローカル編集を保持、明示確認を経る上書きだけを許す。FBXモデルで登録済みモーションを事前解析して再生し、補正は表示姿勢にのみ加算する。サンプルトラックは別の折りたたみに残す。実装・テスト：標準モデル区分。",
       "owner_check": null
@@ -297,7 +307,8 @@
         "9822857（⑤-11の同意つきQAと検証JSON）",
         "0166a83（⑤-12のキー候補比較と試験再生）",
         "b050e33（⑤-14足接地診断と実装機能一覧）",
-        "05f-5（このコミット：共通ゲートとE2E記録）"
+        "2b85da5（共通ゲートとE2E記録）",
+        "PR22統合修正（実ファイル長のAPI公開と150MB超の事前拒否）"
       ],
       "tests": [
         "npm run typecheck: pass",
@@ -306,10 +317,11 @@
         "npm run test:node-all: 299 pass・5 planned skip・0 fail（BAI_TEST_CONCURRENCY=1、実data/ 7ファイルのハッシュ不変・exportsなし）",
         "PYTHONUTF8=1 python -m pytest -q: 370 pass・23 subtests pass",
         "node tools/run_evidence_tests.mjs: 126 pass・0 fail（実data/ ハッシュ不変）",
-        "E2E: S1/S2/S5 pass、S3/S4/S6/S7/S8 は設計どおり skip、furthest_step=S2（test-results/e2e_main.json から自動記録）"
+        "E2E: S1/S2/S5 pass、S3/S4/S6/S7/S8 は設計どおり skip、furthest_step=S2（test-results/e2e_main.json から自動記録）",
+        "現行main統合後: npm run typecheck pass、隔離Chromeの転写試験10 pass（150MB超のAPI/ファイル取得前拒否を含む）、Python素材API HTTP試験1 pass"
       ],
       "unverified": [
-        "実利用者のモデル/GPU実機とWP05b/c/e/f独立レビューは未確認。",
+        "実利用者のモデル/GPU実機は未確認。WP05b/c/eは独立レビュー済み。WP05fは元実装者と別のCodexがコード・設計・試験を点検し、大型ファイルの事前拒否を追加。",
         "WebMCP・stdio MCPの個別機能整合は未検証。P2全体の完成判定ではない。"
       ],
       "notes": "設計書 §2.5 05f（O-⑤-6）。docs/roadmap/P2_WP05F_AUDIT_20261021_JA.md に既存UI、3群のAPI、配置、確認ゲートを記録。⑤-11はボーンマップ末尾に同意つきQAと検証JSON保存を追加。⑤-12は中央の比較帯で登録済み転写先GLB/VRMを2体表示し、未校正キー候補をフレーム指定・5/10/15 FPSで試験再生する。品質ゲートとノードを検査し、選択変更・同意解除で候補を破棄する。⑤-14は既存足IKタブで左足・BVH・両足の診断APIを呼びJSONを表示する。docs/roadmap/IMPLEMENTED_FEATURES_NEW_UI_20261021_JA.txt に新UIの実装区画35件と現行UIのみ・部分36件を区別して列挙。モデル・VMD・weightsは変更しない。実装・テスト：標準モデル区分。",
@@ -440,7 +452,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "88b680d",
-    "checked_at": "2026-10-21T03:07:02.656Z"
+    "commit": "4ff3c26",
+    "checked_at": "2026-10-21T04:36:07.668Z"
   }
 }

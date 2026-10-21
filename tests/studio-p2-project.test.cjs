@@ -96,14 +96,33 @@ test('SCR-18 shows the real production state', async () => {
     assert.equal(await page.locator('.card:has([data-feature="projectSummary"])[data-dim]').count(), 0);
     assert.match(await page.textContent('[data-feature="projectList"]'), /現在の制作状態/);
     assert.match(await statusText(page), /保存済み/);
-    // 履歴：保存順の一覧と現在の印
+    // 履歴：新しい順の一覧と現在の印
     const rows = page.locator('[data-feature="projectHistory"] li[role="option"]');
     assert.equal(await rows.count(), 3);
-    assert.match(await rows.nth(2).textContent(), /3\. .* 2件.*現在/);
+    assert.match(await rows.nth(0).textContent(), /3\. .* 2件.*現在/);
+    assert.match(await rows.nth(1).textContent(), /2\. .* 1件/);
+    assert.match(await rows.nth(2).textContent(), /1\. .* 初期/);
     assert.equal(await page.locator('[data-feature="projectHistory"] ' + UNDO).isDisabled(), false);
     assert.equal(await page.locator('[data-feature="projectHistory"] [data-role="redo"]').isDisabled(), true);
     assert.equal(await page.locator(SAVE).isDisabled(), true, 'nothing to save yet');
     if (SHOTS) { fs.mkdirSync(SHOTS, { recursive: true }); await page.setViewportSize({ width: 1600, height: 900 }); await page.screenshot({ path: path.join(SHOTS, 'scr18-loaded.jpg'), type: 'jpeg', quality: 70 }); }
+  });
+});
+
+test('history displays newest first and restores the original oldest entry', async () => {
+  await withApp(seedAll(), async ({ server, page }) => {
+    await freezeSync(page);
+    await open(page, server);
+    await loaded(page);
+    const rows = page.locator('[data-feature="projectHistory"] li[role="option"]');
+    await rows.nth(2).click();
+    assert.equal(await rows.nth(2).getAttribute('aria-selected'), 'true');
+    await page.click('[data-feature="projectHistory"] [data-role="restore-selected"]');
+    await page.waitForFunction(() => window.baiStudio.project.getState().bundle?.combination?.cursor === 0);
+    const state = await page.evaluate(() => window.baiStudio.project.getState().bundle.combination);
+    assert.deepEqual(state.timeline, []);
+    assert.equal(state.selected, 2, 'restoring a version keeps the pattern selection');
+    assert.match(await rows.nth(2).textContent(), /1\. .* 初期.*現在/);
   });
 });
 

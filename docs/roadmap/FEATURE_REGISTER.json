@@ -255,6 +255,15 @@
       "dependency": "CORE"
     },
     {
+      "id": "DATA-016",
+      "group": "DATA",
+      "phase": 2,
+      "name": "素材の多形式取り込みと詳細確認",
+        "detail": "ステージ・小物・材質・エフェクト・音声・動画・画像の登録、メタタイトル、見本と再生。GLBステージのみ1 GiBまで、大型GLBの自動3D読込を抑止。キャラクター正面PNGは実GLB/VRM/PMX各1件、ステージ内部PNGは実S01で隔離Chrome確認済み。実FBXモデル、他モデル、低性能GPU/Linux、MCPは未検証",
+      "status": "要検証",
+      "dependency": "CORE"
+    },
+    {
       "id": "MOTION-001",
       "group": "MOTION",
       "phase": 3,
@@ -394,7 +403,7 @@
       "group": "MOTION",
       "phase": 3,
       "name": "モーションサムネイル生成",
-      "detail": "開始/中間/終了姿勢",
+      "detail": "開始/中間/終了姿勢と選択素材の再生プレビュー。中立グレーマンはリグ付きGLB、実FBX、実PMX骨＋実VMDのシーク差を隔離Chromeで確認済み。外部骨名、IK・grant個別寄与、GPU/Linuxは未検証",
       "status": "要検証",
       "dependency": "CORE,DATA"
     },
@@ -439,7 +448,7 @@
       "group": "MOTION",
       "phase": 3,
       "name": "MMD物理ベイクと部分再計算",
-      "detail": "髪・衣装・アクセサリ",
+      "detail": "髪・衣装・アクセサリの非破壊ベイク。入力・計算条件と対象環境の再現性を確認した場合だけ再利用",
       "status": "要検証",
       "dependency": "CORE,DATA"
     },
@@ -520,7 +529,7 @@
       "group": "DANCE",
       "phase": 4,
       "name": "2キャラ格闘攻防同期",
-      "detail": "命中フレーム・被弾反応・ダウン",
+      "detail": "命中・反応時刻と同一フレームの接点差・映像を併記。物理・安全の自動合否は断定しない",
       "status": "計画・未検証",
       "dependency": "MOTION,DATA"
     },
@@ -529,7 +538,7 @@
       "group": "DANCE",
       "phase": 4,
       "name": "掴み・接触コンストレイント",
-      "detail": "腕/肩/手/小道具の接点固定",
+      "detail": "実在骨・小道具の接点拘束と解除。接点差を同一フレーム映像と併記し元キー不変",
       "status": "計画・未検証",
       "dependency": "MOTION,DATA"
     },
@@ -566,7 +575,7 @@
       "phase": 5,
       "name": "歌音声の取込・配置・同期",
       "detail": "実波形・開始フレーム・サンプル頭出し・映像との試聴同期・保存復元",
-      "status": "計画・未検証",
+      "status": "一部実装・未検証",
       "dependency": "CORE,DATA"
     },
     {
@@ -1051,7 +1060,7 @@
       "group": "LYRIC",
       "phase": 8,
       "name": "可動ドア・ギミック・マップ物理",
-      "detail": "将来段階のステージ拡張",
+      "detail": "登録済み可動ピボットと時刻付きイベントの連動。扉等を対象にし未承認ゲームロジックは含めない",
       "status": "計画・未検証",
       "dependency": "DATA,CAM,RENDER"
     },
@@ -1333,6 +1342,24 @@
       "detail": "初見タスク・ツールチップ・スクロール・操作履歴・MCP一致を試験",
       "status": "設計確定・実装未検証",
       "dependency": "CORE-001,CORE-004"
+    },
+    {
+      "id": "LIGHT-001",
+      "group": "LIGHT",
+      "phase": 2,
+      "name": "シーン多灯照明とライト別キーフレーム",
+      "detail": "3点ライトを初期例とし任意のライトを追加。位置・回転・RGB・強度等をライト単位で記録し補間・保存する",
+      "status": "要検証",
+      "dependency": "NF-014,DATA-016,UX-001"
+    },
+    {
+      "id": "VIEW-001",
+      "group": "VIEW",
+      "phase": 2,
+      "name": "シーン編集の分割ビューポート",
+      "detail": "右にメイン透視を保ち、左に選択した六方向の平行投影を同時表示。補助ビューの描画中だけ閉鎖型ステージの手前外殻を隠し、ライトと素材を確認する",
+      "status": "要検証",
+      "dependency": "NF-014,LIGHT-001,UX-001"
     }
   ],
   "integration_review": {

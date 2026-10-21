@@ -245,6 +245,31 @@ test('review bundle requires coordinate confirmation and downloads only verifica
   });
 });
 
+test('keyframe review rejects an oversized model before API or file retrieval', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await page.route('**/api/assets', async (route) => {
+      const response = await route.fetch();
+      const body = await response.json();
+      const target = body.items.find((item) => item.id === IDB);
+      assert.equal(target.bytes, GLB.length, '素材一覧には実ファイル長が含まれる');
+      target.bytes = 151 * 1024 * 1024;
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
+    });
+    const requests = [];
+    page.on('request', (request) => {
+      if (/\/api\/retarget\/keyframe-review|\/api\/integrated-v02\/asset\//.test(request.url())) requests.push(request.url());
+    });
+    await open13(page, server);
+    await page.selectOption('[data-role="rt-source"]', IDA);
+    await page.selectOption('[data-role="rt-target"]', IDB);
+    await page.locator('summary', { hasText: 'キー候補・フレーム比較' }).click();
+    await page.check('[data-role="rt-key-agree"]');
+    await page.click('[data-role="rt-key-run"]');
+    assert.match(await text(page, 'rt-key-status'), /150MB以下/);
+    assert.equal(requests.length, 0);
+  });
+});
+
 test('keyframe review places two models, scrubs unverified keys, and invalidates on target change', harness.skip3d(), async () => {
   await withApp(async ({ server, page }) => {
     await open13(page, server);
