@@ -14,6 +14,7 @@ import { PH } from '../screens.js';
 import { ROWS, motionKeys, isAvailable } from '../motion/patterns.fork.js';
 import { editCombination, setCombinationSelected, setCombinationSpeed } from './project.js';
 import { favoritesClient, filterFavorites, parseTags } from './favorites.js';
+import { currentChainControl } from '../motion/chain-runtime.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @typedef {import('./favorites.js').Favorite} Favorite */
@@ -83,12 +84,17 @@ function previewMotion(name) {
 }
 
 on('studio:sync-command', (/** @type {any} */ cmd) => {
-  if (!cmd || cmd.action !== 'preview_motion') return;
+  if (!cmd || !['preview_motion', 'play_chain', 'stop_chain'].includes(cmd.action)) return;
   const key = `chain:${cmd.id}`;
   if (seenCommands.has(key)) return;
   seenCommands.add(key);
   if (seenCommands.size > 200) seenCommands.delete(/** @type {string} */ (seenCommands.values().next().value));
-  if (cmdTarget && isScreen05()) { previewMotion(String(cmd.name || '')); return; }
+  if (cmdTarget && isScreen05()) {
+    if (cmd.action === 'preview_motion') previewMotion(String(cmd.name || ''));
+    else if (cmd.action === 'play_chain') void currentChainControl()?.play();
+    else currentChainControl()?.stop();
+    return;
+  }
   uiToast(`外部から再生の指示（${cmd.action}）がありました。モーション（初期）の画面（05）を開いているときだけ反応します。`, 'real');
 });
 
@@ -372,6 +378,8 @@ export const chainTimeline = (ctx) => {
 
     const bar = h('div', { class: 'btn-row chain-bar' },
       h('b', { dataset: { role: 'chain-count' } }, `${n}件`),
+      h('button', { class: 'btn primary', type: 'button', disabled: dis(n === 0), dataset: { act: 'real', role: 'chain-play' }, onclick: () => { void currentChainControl()?.play(); } }, '▶ 連結再生'),
+      h('button', { class: 'btn', type: 'button', dataset: { act: 'real', role: 'chain-stop' }, onclick: () => currentChainControl()?.stop() }, '■ 停止'),
       h('button', { class: 'btn', type: 'button', disabled: dis(sel <= 0), title: '選んだ手順を前へ', 'aria-label': '選んだ手順を前へ', dataset: { act: 'real', role: 'step-up' }, onclick: () => move(sel, -1) }, '↑'),
       h('button', { class: 'btn', type: 'button', disabled: dis(sel < 0 || sel >= n - 1), title: '選んだ手順を後ろへ', 'aria-label': '選んだ手順を後ろへ', dataset: { act: 'real', role: 'step-down' }, onclick: () => move(sel, 1) }, '↓'),
       h('button', { class: 'btn', type: 'button', disabled: dis(sel < 0), dataset: { act: 'real', role: 'step-delete' }, onclick: () => del(sel) }, '削除'),

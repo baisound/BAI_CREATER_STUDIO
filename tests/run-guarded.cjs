@@ -92,8 +92,15 @@ async function main() {
     console.warn('[run-guarded] 警告: 開発用サーバー（127.0.0.1:8765）が動いています。実データに書き込むとハッシュの確認が失敗します');
   }
   const before = { data: snapshot('data'), exports: snapshot('exports') };
+  // Windows の長いブラウザ総当たりでソケット不足になる環境だけ、明示的に1へ下げられる。
+  // 既定2は P2 設計 §4.3 のまま。
+  const concurrency = Number(process.env.BAI_TEST_CONCURRENCY || 2);
+  if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 8) {
+    console.error('[run-guarded] BAI_TEST_CONCURRENCY は 1〜8 の整数にしてください');
+    return 2;
+  }
   const code = await new Promise((resolve) => {
-    const child = spawn(process.execPath, ['--test', '--test-concurrency=2', ...files], { cwd: root, stdio: 'inherit' });
+    const child = spawn(process.execPath, ['--test', `--test-concurrency=${concurrency}`, ...files], { cwd: root, stdio: 'inherit' });
     child.on('exit', (c, sig) => resolve(c === null ? 1 : c));
     child.on('error', (e) => { console.error(e); resolve(1); });
   });

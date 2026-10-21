@@ -13,13 +13,13 @@ const rows = SCREENS.flatMap((s) => s.panels.map((p) => ({
   source_evidence: p.note || null,
   evidence: p.evidence || null,
   shell: p.shell === true ? true : undefined,
-  UI: 'mock_route_operable',
+  UI: p.status === 'real' ? 'implemented_route_operable' : 'mock_route_operable',
   API: API[p.status],
   WebMCP: 'unknown',
   'stdio-MCP': 'unknown',
   test: 'tests/studio-ui.test.cjs',
   browser_test: 'headless_chromium_navigation_and_controls',
-  verdict: p.status === 'real' ? 'read_only_display_only' : 'not_implemented_in_new_ui',
+  verdict: p.status === 'real' ? 'implemented_in_new_ui' : 'not_implemented_in_new_ui',
   blockers: p.status === 'unimpl' ? 'no implementation' : p.status === 'partial' ? 'port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)' : null,
 })));
 const doc = {

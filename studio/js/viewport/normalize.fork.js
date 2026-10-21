@@ -25,6 +25,32 @@ export function normalizeModel(object, format, THREE) {
 }
 
 /**
+ * 旧 index.html:231 の2体表示。単体表示の normalizeModel と違い XZ の中心は動かさない。
+ * @param {any} object @param {0|1} idx @param {any} THREE
+ */
+export function fitActorFbx(object, idx, THREE) {
+  const bounds = new THREE.Box3().setFromObject(object);
+  const size = bounds.getSize(new THREE.Vector3());
+  const height = Math.max(size.y, .01);
+  object.scale.multiplyScalar(1.95 / height);
+  const fitted = new THREE.Box3().setFromObject(object);
+  object.position.y -= fitted.min.y;
+  object.position.x = idx === 0 ? -1.4 : 1.4;
+  object.rotation.y = idx === 0 ? Math.PI / 2 : -Math.PI / 2;
+  return object;
+}
+
+/** 旧 index.html:310〜312 の PMX 2体表示。@param {any} mesh @param {0|1} idx @param {any} THREE */
+export function placeActorPmx(mesh, idx, THREE) {
+  const box = new THREE.Box3().setFromObject(mesh);
+  const size = box.getSize(new THREE.Vector3());
+  mesh.scale.setScalar(1.8 / Math.max(.001, size.y));
+  mesh.position.x = idx === 0 ? -1.4 : 1.4;
+  mesh.rotation.y = idx === 0 ? Math.PI / 2 : -Math.PI / 2;
+  return mesh;
+}
+
+/**
  * ステージ・SCR-06 のキャラクターの 1 単位あたりのメートル（O-④-6 決定、2026-10-20 の上書きでキャラクターにも使う）。
  * PMX 0.08、GLB/VRM 1、FBX は UnitScaleFactor（1 単位あたりの cm）÷ 100（無ければ 0.01）。
  * three@0.160.1 の FBXLoader は UnitScaleFactor を userData.unitScaleFactor に入れるだけで大きさには掛けない。

@@ -70,7 +70,7 @@ const STEPS = [
   { id: 'S4', title: 'BGM（歌の音声）の配置', kind: 'no_existing', reason: '既存機能なし（音声の登録 API・タイムラインの音声トラックが旧画面に無い。Q4 で所有者が決める）' },
   { id: 'S5', title: 'VMD/FBX の設置', kind: 'active', needs3d: true,
     // ⑤（WP-05a）：③の取り込みで PMX の ZIP と VMD を1回で登録 → SCR-13［編集］で PMX に VMD を当てる（位置 1.0 でモーフ あ=1・センターの y +1.0）
-    //   → S1 の VRM のクリップを位置 0.5 にすると hips の z が 0.5。05b で clip・frame の記録、05d で FBX のコンビネーションの連結再生を足す。
+    //   → S1 の VRM のクリップを位置 0.5 にすると hips の z が 0.5。05d で SCR-05 の FBX コンビネーションを連結再生する。
     run: async ({ server, page }) => {
       const zip = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal_pmx.zip'));
       const vmd = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal.vmd'));
@@ -109,6 +109,27 @@ const STEPS = [
       await seekTo(0.5);
       const hips = (await page.evaluate(() => window.baiStudio.motion.probe({ bones: ['hips'] }))).bones.hips;
       if (!hips || Math.abs(hips[2] - 0.5) > 1e-6) throw new Error(`VRM のクリップ 0 の位置 0.5 で hips の z が 0.5 ではありません: ${JSON.stringify(hips)}`);
+      // 05d：③の取り込みから FBX モデルA・モーションを登録し、05 の連結再生で Tri が動く。
+      const model = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal_model.fbx'));
+      const motion = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal_motion.fbx'));
+      await page.click('#nav a[data-route="08"]');
+      await page.waitForSelector('[data-feature="assetLibrary"]');
+      await page.click('.screen-head [data-role="open-import"]');
+      await page.setInputFiles('[role="dialog"] [data-role="import-files"]', [
+        { name: 'model.fbx', mimeType: 'application/octet-stream', buffer: model },
+        { name: 'Boxing Leading Hand Jab.fbx', mimeType: 'application/octet-stream', buffer: motion },
+      ]);
+      await page.selectOption('[role="dialog"] li[data-name="model.fbx"] select[data-role="kind"]', 'modelA');
+      await page.click('[role="dialog"] [data-role="import-go"]');
+      for (const name of ['model.fbx', 'Boxing Leading Hand Jab.fbx']) {
+        await page.waitForFunction((n) => /^完了$/.test(document.querySelector(`[data-feature="importQueue"] tbody tr[data-name="${CSS.escape(n)}"] [data-role="status"]`)?.textContent || ''), name, { timeout: 15000 });
+      }
+      await page.click('#nav a[data-route="05"]');
+      await page.waitForFunction(() => document.querySelector('[data-role="actor-a"] option[value="fbx"]')?.textContent === 'FBX モデル', null, { timeout: 25000 });
+      await page.click('[data-feature="patternList"] li[data-pattern-id="1"]');
+      await page.click('[data-role="chain-add"]');
+      await page.click('[data-role="chain-play"]');
+      await page.waitForFunction(() => window.baiStudio.chain.getState()?.playing && window.baiStudio.chain.probe({ bones: ['Tri'] }).bones.Tri?.[0] > .1, null, { timeout: 10000 });
     } },
   { id: 'S6', title: 'エフェクト', kind: 'later_phase', reason: '後段のフェーズ（MMDエフェクト）' },
   { id: 'S7', title: '踊らせる（再生）', kind: 'pending_wp', reason: 'WP-06c が未着手' },
