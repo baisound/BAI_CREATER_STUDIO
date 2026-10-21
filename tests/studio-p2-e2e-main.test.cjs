@@ -53,7 +53,7 @@ const STEPS = [
       await page.selectOption('[data-role="stage-asset"]', ctx.vrmId);
       await page.waitForFunction((id) => window.baiStudio.viewport.getState().stage?.assetId === id, ctx.vrmId, { timeout: 25000 });
       const set = async (n, v) => { const num = page.locator('[data-role="stage-slider"]').nth(n).locator('input.num'); await num.fill(String(v)); await num.dispatchEvent('change'); };
-      await set(0, 3); await set(3, 90); await set(4, 2);
+      await set(0, 3); await set(4, 90); await set(6, 2);
       await page.click('.screen-head [data-role="project-save"]');
       await page.waitForFunction(() => { const x = window.baiStudio.project.getState(); return !x.saving && !x.dirty.workspace; }, null, { timeout: 10000 });
       const ws = JSON.parse(fs.readFileSync(path.join(server.dataDir, 'project_state.workspace.json'), 'utf8'));
@@ -66,7 +66,32 @@ const STEPS = [
       const ok = Math.abs(s.position[0] - 3) < 1e-9 && Math.abs(s.rotation[1] - 90) < 1e-9 && Math.abs(s.displayScale - 2) < 1e-9;
       if (!ok) throw new Error(`読み直すと配置が違います: ${JSON.stringify(s)}`);
     } },
-  { id: 'S3', title: 'カメラの設定', kind: 'pending_wp', reason: 'WP-06b・WP-06c が未着手' },
+  { id: 'S3', title: 'カメラの設定', kind: 'active', needs3d: true,
+    run: async ({ server, page }) => {
+      await page.click('#nav a[data-route="02"]');
+      await page.waitForFunction(() => window.BAICameraPage?.handle()?.host === 'studio' &&
+        document.querySelector('#status')?.textContent.includes('カメラ編集を開始'), null, { timeout: 30000 });
+      const before = await page.evaluate(() => window.baiStudio.project.getState().bundle.camera.keys.length);
+      for (const [frame, x] of [[60, 2], [120, -2]]) {
+        await page.fill('#frame-number', String(frame));
+        await page.locator('#frame-number').dispatchEvent('change');
+        await page.fill('#position0', String(x));
+        await page.click('#key-save');
+      }
+      await page.waitForFunction(() => window.baiStudio.project.getState().dirty.camera === true);
+      const saved = page.waitForResponse((r) => r.request().method() === 'POST' && /\/api\/project\/bundle$/.test(r.url()));
+      await page.click('.screen-head [data-role="project-save"]');
+      if ((await saved).status() !== 200) throw Error('カメラの統合保存に失敗しました');
+      const camera = JSON.parse(fs.readFileSync(path.join(server.dataDir, 'camera_project.json'), 'utf8'));
+      if (camera.keys.length !== before + 2 || !camera.keys.some((key) => key.frame === 60 && key.position[0] === 2) ||
+        !camera.keys.some((key) => key.frame === 120 && key.position[0] === -2)) throw Error('2つのカメラキーが保存されていません');
+      const ws = JSON.parse(fs.readFileSync(path.join(server.dataDir, 'project_state.workspace.json'), 'utf8'));
+      if (ws.stage?.position?.[0] !== 3 || ws.stage?.rotation?.[1] !== 90) throw Error('統合保存でステージ配置が失われました');
+      await page.reload();
+      await page.waitForFunction(() => window.BAICameraPage?.handle()?.host === 'studio' &&
+        document.querySelector('#status')?.textContent.includes('カメラ編集を開始'), null, { timeout: 30000 });
+      if ((await page.locator('#track button').count()) !== camera.keys.length) throw Error('再読込でカメラキーが一致しません');
+    } },
   { id: 'S4', title: 'BGM（歌の音声）の配置', kind: 'no_existing', reason: '既存機能なし（音声の登録 API・タイムラインの音声トラックが旧画面に無い。Q4 で所有者が決める）' },
   { id: 'S5', title: 'VMD/FBX の設置', kind: 'active', needs3d: true,
     // ⑤（WP-05a）：③の取り込みで PMX の ZIP と VMD を1回で登録 → SCR-13［編集］で PMX に VMD を当てる（位置 1.0 でモーフ あ=1・センターの y +1.0）
@@ -109,6 +134,12 @@ const STEPS = [
       await seekTo(0.5);
       const hips = (await page.evaluate(() => window.baiStudio.motion.probe({ bones: ['hips'] }))).bones.hips;
       if (!hips || Math.abs(hips[2] - 0.5) > 1e-6) throw new Error(`VRM のクリップ 0 の位置 0.5 で hips の z が 0.5 ではありません: ${JSON.stringify(hips)}`);
+      await page.click('[data-role="motion-record"]');
+      await page.click('#nav a[data-route="18"]');
+      await page.click('.screen-head [data-role="project-save"]');
+      await page.waitForFunction(() => { const s = window.baiStudio.project.getState(); return !s.saving && !s.dirty.workspace; }, null, { timeout: 10000 });
+      const recorded = JSON.parse(fs.readFileSync(path.join(server.dataDir, 'project_state.workspace.json'), 'utf8'));
+      if (recorded.clip !== 0 || recorded.frame !== 15) throw Error(`VRMのクリップと再生位置を記録できませんでした: ${JSON.stringify(recorded)}`);
       // 05d：③の取り込みから FBX モデルA・モーションを登録し、05 の連結再生で Tri が動く。
       const model = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal_model.fbx'));
       const motion = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal_motion.fbx'));
@@ -132,7 +163,37 @@ const STEPS = [
       await page.waitForFunction(() => window.baiStudio.chain.getState()?.playing && window.baiStudio.chain.probe({ bones: ['Tri'] }).bones.Tri?.[0] > .1, null, { timeout: 10000 });
     } },
   { id: 'S6', title: 'エフェクト', kind: 'later_phase', reason: '後段のフェーズ（MMDエフェクト）' },
-  { id: 'S7', title: '踊らせる（再生）', kind: 'pending_wp', reason: 'WP-06c が未着手' },
+  { id: 'S7', title: '踊らせる（再生）', kind: 'active', needs3d: true,
+    run: async ({ page }) => {
+      await page.click('#nav a[data-route="02"]');
+      await page.waitForFunction(() => window.BAICameraPage?.handle()?.host === 'studio' &&
+        document.querySelector('#camera-asset-status')?.textContent.includes('3D表示中'), null, { timeout: 30000 });
+      const ws = await page.evaluate(() => window.baiStudio.project.getState().bundle.workspace);
+      if (ws.clip !== 0 || ws.frame !== 15 || (await page.locator('#frame-number').inputValue()) !== '15') throw Error('記録したVRMのクリップ・再生位置がカメラに反映されていません');
+      const hipsIndex = await page.locator('#camera-follow-bone option').evaluateAll((options) => options.find((option) => /hips/i.test(option.textContent))?.value ?? null);
+      if (hipsIndex === null) throw Error('カメラの3Dモデルにhipsボーンがありません');
+      await page.click('.camera-host-tabs [data-camera-tab="focus"]');
+      await page.selectOption('#camera-follow-bone', hipsIndex);
+      const boneAt = (frame) => page.evaluate((at) => {
+        let result = null;
+        window.dispatchEvent(new CustomEvent('bai-camera-query-focus-target', { detail: { frame: at, resolve: (value) => { result = value; } } }));
+        return result?.point;
+      }, frame);
+      const a = await boneAt(0), b = await boneAt(15);
+      if (!a || !b || Math.abs(b[2] - a[2]) < 0.1) throw Error(`再生位置でhipsボーンが動いていません: ${JSON.stringify([a, b])}`);
+      const poseAt = (frame) => page.evaluate((at) => {
+        let result = null;
+        window.dispatchEvent(new CustomEvent('bai-camera-query-pose', { detail: { frame: at, resolve: (value) => { result = value; } } }));
+        return result;
+      }, frame);
+      const start = await poseAt(60), middle = await poseAt(75), end = await poseAt(90), last = await poseAt(120);
+      if (!start || !middle || !end || !last || Math.abs(start.position[0] - 2) > 1e-6 || Math.abs(last.position[0] + 2) > 1e-6 ||
+        !(middle.position[0] > Math.min(start.position[0], end.position[0]) && middle.position[0] < Math.max(start.position[0], end.position[0])))
+        throw Error(`カメラキーの間で位置が補間されていません: ${JSON.stringify([start, middle, end, last])}`);
+      await page.click('#play');
+      await page.waitForFunction(() => Number(document.querySelector('#frame-number')?.value) > 15, null, { timeout: 10000 });
+      await page.click('#play');
+    } },
   { id: 'S8', title: '書き出し', kind: 'pending_wp', reason: 'WP-07 が未着手（動画は既存機能なし：Phase F）' },
 ];
 

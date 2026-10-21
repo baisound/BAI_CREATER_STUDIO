@@ -268,7 +268,10 @@
       "item": "WP-02d の画面側の規則（assetRef 記入・validateRestore 緩和・frame 整数化・423）の置き場所として共有モジュール camera_bundle_core.js を作る（現行ロジックの抽出のみ）",
       "phase_e_wp": "WP-02d",
       "planned_in": "P2-WP-06c",
-      "status": "planned"
+      "status": "done",
+      "commit": "b9d7f57",
+      "tests": "camera_bundle_core.jsの単体2件、旧camera.htmlの読込と新UIの統合保存・復元の隔離Chrome試験、P2 E2E S3/S7合格",
+      "unverified": "Phase E WP-02d本体のassetRef記入・緩和・frame整数化・423処理は未着手。共有モジュールの置き場所のみ完成"
     },
     {
       "item": "WP-02a POST /api/camera/project/reset（Phase E §2.7 の仕様どおり。UI のダウンロード・invalid-preview は WP-02a のまま）",

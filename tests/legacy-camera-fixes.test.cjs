@@ -40,7 +40,25 @@ test('旧カメラは人物を収め、既存キーの後に一周を作り、�
     await page.addInitScript(() => { window.cameraBoundsForTest = null; window.addEventListener('bai-camera-model-bounds', e => { window.cameraBoundsForTest = e.detail; }); });
     await page.goto(`${server.base}/camera.html`);
     await page.waitForFunction(() => /最後のカメラキー: 90/.test(document.querySelector('#camera-playback-info')?.textContent || ''));
+    const mountContract = await page.evaluate(async () => {
+      const twoD = window.BAICameraPage.handle();
+      const threeD = await import('/camera_3d.js');
+      const threeDHandle = threeD.mount(document, { host: 'studio' });
+      let rejectedOtherRoot = 0;
+      for (const mount of [window.BAICameraPage.mount, threeD.mount]) {
+        try { mount(document.createElement('div')); } catch (error) {
+          if (error.message === 'camera page is already mounted') rejectedOtherRoot++;
+        }
+      }
+      return {
+        twoD: twoD.host === 'legacy' && window.BAICameraPage.mount(document) === twoD,
+        threeD: threeDHandle.host === 'legacy' && threeD.mount(document) === threeDHandle && !threeDHandle.isDirty(),
+        rejectedOtherRoot,
+      };
+    });
+    assert.deepEqual(mountContract, { twoD: true, threeD: true, rejectedOtherRoot: 2 });
     await page.click('#rig-orbit-full');
+    assert.equal(await page.evaluate(() => window.BAICameraPage.handle().isDirty()), true);
     assert.match(await page.locator('#rig-bake-status').textContent(), /91～300フレームに一周/);
     const poseAt = async (frame) => {
       await page.locator('#frame-number').fill(String(frame));

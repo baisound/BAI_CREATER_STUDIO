@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T03:39:55+09:00",
+  "updated_at": "2026-10-22T04:42:43+09:00",
   "updated_by": "codex",
-  "branch": "codex/test-guide",
-  "head_at_update": "4d48a51",
+  "branch": "codex/p2-wp06",
+  "head_at_update": "293899e",
   "current": {
-    "task": "Issue #61: 共通テスト手順を独立MD化しAGENTS.mdから参照",
+    "task": "PR #57: 最新main統合とカメラ移植ゲートの解消",
     "status": "done",
-    "step": "既存の試験契約・コマンドを照合して共通手順を作成",
-    "design_doc": "docs/handoff/TESTING_GUIDE_JA.md"
+    "step": "PR #56/#62を含むmainへの競合解消とカメラ経路の再検証",
+    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP06/07のDraft PR #59の残ゲートとIssue #60のPhase Eテンプレート実装を既定順で進める"
+    "PR59へPR57の統合差分を取り込み、WP07と共通ゲートを再確認する",
+    "Issue63の同一シーン・時刻・エフェクトを通す制作フローを承認済み工程に沿って設計する"
   ],
   "unverified": [
-    "文書変更のため全ブラウザ/GPU/Linux/MCPゲートは実行していない"
+    "WP06d独立高性能モデルレビュー、実GPU/Linux、実利用者モデル外観。Node一括ゲートのホーム表示1件が一時的に30秒時間切れ、隔離再実行合格。SCR02とSCR06/10の撮影連動およびエフェクト配置はIssue63で未実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +33,20 @@
   ],
   "history": [
     {
+      "at": "2026-10-22T04:42:43+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "293899e",
+      "text": "PR57: 最新mainを統合し、WindowsのUTF-8試験読込とカメラ再訪時の非同期復元を修正。pytest386件、Evidence146件、重点Chrome25件、P2通しS7到達。Node全350件は1件表示待ち時間切れ、単独再実行は合格。Issue63へ画面連携とエフェクト未実装を記録"
+    },
+    {
+      "at": "2026-10-22T03:50:55+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "87338f8",
+      "text": "PR #57: 最新main統合とカメラ移植ゲートの解消: PR #56/#62を含むmainへの競合解消とカメラ経路の再検証"
+    },
+    {
       "at": "2026-10-22T03:39:55+09:00",
       "by": "codex",
       "event": "done",
@@ -44,6 +59,48 @@
       "event": "start",
       "head": "e3c0df1",
       "text": "Issue #61: 共通テスト手順を独立MD化しAGENTS.mdから参照: 既存の試験契約・コマンドを照合して共通手順を作成"
+    },
+    {
+      "at": "2026-10-22T02:47:55+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "fdf4429",
+      "text": "WP06d: Phase E §7に124 ID配置、SCR02保存・復元・MCP読み替えを追記。現行ソースと照合し、独立高性能モデルレビューは未実施として台帳に記録"
+    },
+    {
+      "at": "2026-10-22T02:44:18+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3e9a663",
+      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06d: Phase E §7に現行カメラホストと保存の読み替え表を作成"
+    },
+    {
+      "at": "2026-10-22T02:43:31+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b9d7f57",
+      "text": "P2-WP-06c実装をb9d7f57でpush済み。台帳に同SHAとE2E S7を確定記録"
+    },
+    {
+      "at": "2026-10-22T02:42:01+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2097938",
+      "text": "P2-WP-06c: 共有カメラバンドル・SCR02統合保存/復元・4形式の素材参照・dirtyと単体保存版の同期を実装し、隔離ブラウザ/E2EでS7まで確認"
+    },
+    {
+      "at": "2026-10-22T02:01:27+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "6d35a94",
+      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06c: ②の統合保存・workspace所有とSCR02カメラホストの同期"
+    },
+    {
+      "at": "2026-10-22T02:00:40+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "21597c7",
+      "text": "P2-WP-06b: 現行camera.htmlの124 ID配置表・SCR02カメラホスト・常駐・隔離Chrome4件・27画面共通20件を完了。カメラ単独保存と旧画面の再読込互換を確認。"
     },
     {
       "at": "2026-10-22T01:30:47+09:00",
@@ -60,6 +117,34 @@
       "text": "Issue #39: SCR10で登録済みVMD/FBXダンスを選択・再生する: GLB/VMD/FBXの候補・読込・互換条件・保存復元を実装"
     },
     {
+      "at": "2026-10-22T01:11:11+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "06371ed",
+      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06b: 要素ID配置表とSCR02常駐カメラホスト"
+    },
+    {
+      "at": "2026-10-22T01:10:38+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "da53248",
+      "text": "P2-WP-06a後半: camera_3d.jsのmount化、旧カメラ契約・全画面テスト通過"
+    },
+    {
+      "at": "2026-10-22T00:57:31+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9565648",
+      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06a後半: camera_3d.jsを旧画面互換のmount APIにする"
+    },
+    {
+      "at": "2026-10-22T00:56:02+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "10e4744",
+      "text": "P2-WP-06aの1/2: camera.jsをroot基準の冪等mount APIへ移し、旧カメラのキー編集・Undo/Redo・保存再読込のmain比較が一致"
+    },
+    {
       "at": "2026-10-22T00:48:49+09:00",
       "by": "codex",
       "event": "done",
@@ -72,6 +157,13 @@
       "event": "start",
       "head": "dec1774",
       "text": "Issue #50: SCR-10の踊るモデルにGLB/VRM/FBXを追加: モデル候補・プレビュー経路・保存再読込を修正"
+    },
+    {
+      "at": "2026-10-22T00:28:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "dec1774",
+      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06a: camera.jsとcamera_3d.jsを旧画面互換のmount APIにする"
     },
     {
       "at": "2026-10-22T00:23:06+09:00",
@@ -149,97 +241,6 @@
       "event": "done",
       "head": "8451afb",
       "text": "WP05gの実経過時計修正と共通ゲートの結果を記録。対象25件、E2E S1/S2/S5通過、全体ゲート各1件の不安定失敗は単独再実行で通過"
-    },
-    {
-      "at": "2026-10-21T22:55:04+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4ca61f1",
-      "text": "Issue #46のS05/S06発光抑制別名GLB候補2件をハッシュ・GLB長を照合してローカル素材ライブラリへ登録。API一覧でavailable true確認。原本・ライトなし版・制作状態保持"
-    },
-    {
-      "at": "2026-10-21T22:51:47+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cd565c5",
-      "text": "Issue #46: S05/S06発光抑制GLB候補を別名素材登録: Ownerが候補作成を選択。ハッシュ・構造を再照合し候補2件を素材ライブラリに登録、原本と旧版を保持"
-    },
-    {
-      "at": "2026-10-21T22:50:03+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "3e2e2a1",
-      "text": "PR #48をmainへマージ。ローカルmainを3e2e2a1へfast-forwardし、8765番のroot/SCR-06/視点JS/API素材4件をHTTP確認。Issue46/47に公開可能な図を画像表示"
-    },
-    {
-      "at": "2026-10-21T22:45:32+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8984bbd",
-      "text": "Issue #46・#47の結果を示すメタデータ図と視点概念図を作成。受領GLBの実画像は公開せず、Owner指定のローカル確認領域に保持"
-    },
-    {
-      "at": "2026-10-21T22:45:08+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "19f818e",
-      "text": "Issue #46・#47: 公開可能な図をIssueへ添付: 素材画像を公開せず、メタデータ図と視点概念図をPR・Issueに直接表示する"
-    },
-    {
-      "at": "2026-10-21T22:42:53+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "e6a7f96",
-      "text": "PR #48を作成し、Issue #46・#47へ検証結果と未検証事項を連携。S03/S04/S06/S07のライトなし別名GLB4件は登録済み。S05/S06発光抑制候補は比較画像付きで未登録"
-    },
-    {
-      "at": "2026-10-21T22:40:40+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5cce782",
-      "text": "Issue #46・#47: ライトなしGLBの結果連携と視点修正PR: Issue46・47に検証結果を結び、PRでレビュー可能にする。S05/S06発光候補はOwner判断待ち"
-    },
-    {
-      "at": "2026-10-21T22:39:56+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "62f508e",
-      "text": "Issue46: S03/S04/S06/S07のライトなしGLB別名コピー4件を作成・検証・素材登録。Issue47: SCR-06の自由前後移動を実装し小型GLBで床下通過を確認。S05/S06の発光抑制候補は未登録で比較画像あり"
-    },
-    {
-      "at": "2026-10-21T22:26:32+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "6bb0509",
-      "text": "Issue #46・#47: ライトなしGLB複製とシーン視点接近: S03/S04/S06/S07のGLB内蔵ライトを除いた別名コピーを作り、元BIN・材質・構造の保持を検証する。S05はライトなしとして別途記録する"
-    },
-    {
-      "at": "2026-10-21T22:12:02+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "180e9b3",
-      "text": "Issue46・47: 受領ステージの過度な明るさと視点接近限界: S01と小型受領GLBの光源・材質を比較し、OrbitControlsの接近挙動を隔離素材で再現する"
-    },
-    {
-      "at": "2026-10-21T22:03:10+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d5f2c98",
-      "text": "PR45に統合済みPR43/mainを取り込み、作業位置・DATA-016台帳・大型GLB見本保護の競合を解消。Node19件、Python5件、TypeScript検査に合格。"
-    },
-    {
-      "at": "2026-10-21T22:01:13+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1de1272",
-      "text": "PR45を統合済みPR43のmainへ追従: 共通の大型GLB見本保護を保持し、競合を解消して小型テストを再実行する"
-    },
-    {
-      "at": "2026-10-21T21:39:50+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "55bbc36",
-      "text": "PR43: 受領大型GLBの自動サムネイル補完・詳細自動3D読込を128MiB超で抑止。明示操作だけに限定し、Node1件とTypeScript検査に合格。"
     }
   ]
 }

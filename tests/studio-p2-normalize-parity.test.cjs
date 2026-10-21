@@ -1,14 +1,14 @@
 'use strict';
 // 照合（P2 設計 §2.4(g)）：新UIの単体表示の正規化（viewport/normalize.fork.js）が、旧カメラ画面（camera_3d.js:278）と同じ結果になる。
 // 同じ合成 GLB を /camera.html の［3Dモデルを表示］で読み、publishModelFraming の bai-camera-model-bounds の min/max と、
-// SCR-12 の3Dビューの包囲箱を比べる（誤差 1e-6）。three が無い環境では skip（理由付き）。ポート：P2_PARITY_PORT（既定 8794）。
+// SCR-12 の3Dビューの包囲箱を比べる（誤差 1e-6）。three が無い環境では skip（理由付き）。ポート：P2_PARITY_PORT（既定 8793）。
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const harness = require('./helpers/studio-harness.cjs');
 
-const PORT = Number(process.env.P2_PARITY_PORT || 8794);
+const PORT = Number(process.env.P2_PARITY_PORT || 8793);
 const GLB = fs.readFileSync(path.join(__dirname, 'fixtures', 'synthetic_test_model.glb'));
 const STORED = 'aaaaaaaaaaaaaaaaaaaa.glb';
 

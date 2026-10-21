@@ -16,8 +16,8 @@ class RoleUITests(unittest.TestCase):
   with self.assertRaises(ValueError):suggest_humanoid_mapping(b'broken',glb(['hips']))
  def test_all_interfaces_declared(self):
   base=Path(__file__).resolve().parents[1]
-  self.assertIn('sk-vrm-role-suggest',(base/'index.html').read_text())
-  self.assertIn('sk-vrm-role-suggest',(base/'retarget_ui.js').read_text())
-  self.assertIn('bai_vrm_humanoid_mapping_suggest',(base/'mcp_server.py').read_text())
-  self.assertIn('bai_vrm_humanoid_mapping_suggest',(base/'webmcp.js').read_text())
+  self.assertIn('sk-vrm-role-suggest',(base/'index.html').read_text(encoding='utf-8'))
+  self.assertIn('sk-vrm-role-suggest',(base/'retarget_ui.js').read_text(encoding='utf-8'))
+  self.assertIn('bai_vrm_humanoid_mapping_suggest',(base/'mcp_server.py').read_text(encoding='utf-8'))
+  self.assertIn('bai_vrm_humanoid_mapping_suggest',(base/'webmcp.js').read_text(encoding='utf-8'))
 if __name__=='__main__':unittest.main()

@@ -13,11 +13,11 @@ class BundleRevisionTest(unittest.TestCase):
         base={'combination': None,'camera': {},'workspace': None}
         self.assertEqual(bundle_revision(base),bundle_revision({**base,'complete': True,'revision':'old'}))
     def test_api_requires_revision_and_detects_stale_save(self):
-        text=Path('server.py').read_text()
+        text=Path('server.py').read_text(encoding='utf-8')
         self.assertIn("return self.bad(428,'bundle revision required",text)
         self.assertIn("expected!=bundle_revision(current)",text)
         self.assertIn("return self.bad(409,'bundle changed",text)
     def test_ui_sends_revision(self):
-        text=Path('camera_project_bundle_ui.js').read_text()
+        text=Path('camera_project_bundle_ui.js').read_text(encoding='utf-8')
         self.assertIn("'If-Match':revision||''",text)
         self.assertIn('existing.revision)',text)

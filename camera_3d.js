@@ -5,7 +5,11 @@ import {workspaceRefFor,isCharacterPlacement,applyCharacterPlacement} from './st
 import {stageUnitScale} from './studio/js/viewport/normalize.fork.js';
 import {advanceFollow,validateSmoothing} from './camera_follow_smoothing.js';
 import {classifyBone,parseOffset,validFollowConfig,pickBone,FOLLOW_STORAGE_KEY} from './camera_follow_config.js';
-const $=id=>document.getElementById(id), status=s=>$('camera-asset-status').textContent=s;
+let mountedHandle=null;
+export function mount(root,{host='legacy'}={}){
+if(mountedHandle){if(mountedHandle.root===root)return mountedHandle;throw Error('camera page is already mounted')}
+if(!root||typeof root.querySelector!=='function')throw TypeError('camera root is required');
+const $=id=>root.querySelector('#'+CSS.escape(id)), status=s=>$('camera-asset-status').textContent=s;
 const world=new THREE.Scene();world.background=new THREE.Color('#101b2c');
 world.add(new THREE.HemisphereLight(0xffffff,0x46546a,2.4));
 const sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(4,8,7);world.add(sun);
@@ -66,7 +70,7 @@ $('camera-follow-bake').onclick=()=>{
  try{
   if(!model||!trackingBone)throw Error('先にモデルと追従ボーンを選択してください');
   if(!activeClip||!mixer)throw Error('ボーンの動作をキー化するにはGLBアニメーションクリップが必要です');
-  if(document.getElementById('vmd-follow-timeline')?.checked)throw Error('VMDカメラ追従をOFFにしてください');
+  if($('vmd-follow-timeline')?.checked)throw Error('VMDカメラ追従をOFFにしてください');
   const from=Number($('rig-bake-from').value),to=Number($('rig-bake-to').value),step=Number($('rig-bake-step').value);
   let fromPose=null;
   window.dispatchEvent(new CustomEvent('bai-camera-query-pose',{detail:{frame:from,resolve:pose=>{fromPose=pose}}}));
@@ -136,7 +140,7 @@ function updateTrackedFocus(){
 }
 function trackSubject(){
  if(!trackEnabled.checked||!trackingBone||!shootingPose||!model){updateTrackedFocus();return;}
- if(document.getElementById('vmd-follow-timeline')?.checked){trackStatus.textContent='VMDカメラ優先のためボーン追従停止中';updateTrackedFocus();return;}
+ if($('vmd-follow-timeline')?.checked){trackStatus.textContent='VMDカメラ優先のためボーン追従停止中';updateTrackedFocus();return;}
  model.updateMatrixWorld(true);
  const subject=trackingBone.getWorldPosition(new THREE.Vector3());
  if(![subject.x,subject.y,subject.z].every(Number.isFinite))return;
@@ -314,7 +318,7 @@ function updateTime(){if(mixer&&activeClip){const time=lastFrame/Math.max(1,fps)
 window.addEventListener('bai-camera-frame',e=>{lastFrame=e.detail.frame;fps=e.detail.fps||30;
 // Preserve the separately dispatched native VMD pose while experimental follow is enabled.
 // The ordinary camera-frame event still updates model animation time.
-if(!document.getElementById('vmd-follow-timeline')?.checked){untrackedPose=e.detail.pose;applyPose(e.detail.pose)}
+if(!$('vmd-follow-timeline')?.checked){untrackedPose=e.detail.pose;applyPose(e.detail.pose)}
 updateTime()});
 window.addEventListener('bai-camera-pose',e=>{trackingOffset=null;untrackedPose=e.detail.pose;applyPose(e.detail.pose);trackSubject()});
 window.addEventListener('bai-camera-vmd-preview',e=>{applyPose(e.detail.pose);updateTrackedFocus()});
@@ -413,3 +417,6 @@ function controlInit(){
   });
 }
 initRender();if(!rendererFailed){controlInit();installRailDrag(canvas());render();catalog()}
+mountedHandle={host,root,isDirty:()=>false};return mountedHandle;
+}
+if(!window.BAI_CAMERA_MANUAL_MOUNT)mount(document,{host:'legacy'});

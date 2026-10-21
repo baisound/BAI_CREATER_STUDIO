@@ -24,7 +24,7 @@ async function showScreen(page, id) {
   if (!page.url().startsWith(BASE)) await page.goto(`${BASE}/workspace/${id}`);
   else { await page.evaluate((screenId) => window.baiStudio.navigate(screenId), id); await atRoute(page, id); }
 }
-const TAB_SEL = '.pane-right [role="tab"], .pane-center [role="tab"]';
+const TAB_SEL = '#main .pane-right [role="tab"], #main .pane-center [role="tab"]';
 const pages = [];
 const newPage = async (opts = {}) => { const page = await server.newPage(browser, opts); pages.push(page); return page; };
 // 各テストの終了時に通信エラーを確かめてからタブを閉じる。多数の常駐タブの同期通信で
@@ -69,7 +69,8 @@ test('all 27 screens open from the sidebar with their own route and title', asyn
     assert.equal(await page.getAttribute(`#nav a[data-route="${id}"]`, 'aria-current'), 'page');
     assert.equal(await page.textContent('.screen-head .screen-id'), `SCR-${id}`);
     assert.ok((await page.textContent('.screen-head h1')).length > 2);
-    assert.ok(await page.locator('.pane-right [role="tab"]').count() >= 1, `inspector tabs on ${id}`);
+    if (id === '02') await page.waitForSelector('.camera-host-right [role="tab"]');
+    assert.ok(await page.locator('#main .pane-right [role="tab"]').count() >= 1, `inspector tabs on ${id}`);
     if (SHOTS) await page.screenshot({ path: path.join(SHOTS, `scr-${id}.png`) });
   }
   harness.assertNoErrors(page);
@@ -236,7 +237,7 @@ test('approved feature panes stay reachable at desktop and narrow widths', async
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       assert.ok(overflow <= 1, `${id} horizontal overflow ${overflow}px at ${width}`);
       if (['10', '13', '26', '27'].includes(id)) {
-        const timeline = page.locator('.pane-bottom');
+        const timeline = page.locator(id === '10' ? '.music-dance-editor' : '.pane-bottom');
         assert.equal(await timeline.count(), 1, `${id} timeline at ${width}`);
         await timeline.scrollIntoViewIfNeeded();
         assert.ok(await timeline.isVisible(), `${id} timeline reachable at ${width}`);
@@ -246,14 +247,14 @@ test('approved feature panes stay reachable at desktop and narrow widths', async
   }
 });
 
-test('audio import shows its approved independent ID and phase', async () => {
+test('music and dance import opens the audio asset flow', async () => {
   const page = await newPage();
   await page.goto(`${BASE}/workspace/10`);
-  await page.click('.screen-head button:has-text("音声を読み込む")');
-  const body = await page.textContent('[role="dialog"]');
-  assert.match(body, /AUDIO-001/);
-  assert.match(body, /リップシンク/);
-  assert.doesNotMatch(body, /Phase D/);
+  await page.click('.music-dance-studio button:has-text("曲を取り込む…")');
+  await atRoute(page, /workspace\/08/);
+  assert.match(page.url(), /cat=audio/);
+  await page.waitForSelector('[role="dialog"]');
+  assert.match(await page.textContent('[role="dialog"]'), /音声|オーディオ/);
   await page.keyboard.press('Escape');
   harness.assertNoErrors(page);
 });
@@ -264,7 +265,7 @@ test('tabs, dropdown, palette and keyboard work', async () => {
   await page.click('.pane-right [role="tab"][data-tab="focus"]');
   assert.match(page.url(), /tab=focus/);
   await page.click('.pane-right [role="tab"][data-tab="status"]');
-  assert.ok(await page.locator('.pane-right .badge-partial').count() > 0);
+  assert.match(await page.textContent('.pane-right [role="tabpanel"]:visible'), /制作状態の［保存］でコンビネーション・カメラ・素材参照を保存/);
   await page.locator('.pane-right [role="tab"][aria-selected="true"]').focus();
   await page.keyboard.press('ArrowRight');
   assert.equal(await page.getAttribute('.pane-right [role="tab"][aria-selected="true"]', 'data-tab'), 'camera');
@@ -277,8 +278,10 @@ test('tabs, dropdown, palette and keyboard work', async () => {
   await atRoute(page, /workspace\/(07|15|23)$/);
   // timeline: play then scrub
   await page.goto(`${BASE}/workspace/02`);
-  await page.locator('.pane-bottom input.scrub').fill('300');
-  assert.equal(await page.textContent('.pane-bottom .timecode'), '00:10:00');
+  await page.waitForFunction(() => document.querySelector('#status')?.textContent.includes('カメラ編集を開始'));
+  await page.fill('#frame-number', '300');
+  await page.locator('#frame-number').dispatchEvent('change');
+  assert.match(await page.textContent('#frame-label'), /^300 \/ 300$/);
 });
 
 test('unimplemented actions explain themselves; forms validate; nothing claims success', async () => {
@@ -335,9 +338,9 @@ test('every action button on every screen responds', async () => {
   for (let n = 1; n <= 27; n++) {
     const id = pad(n);
     await showScreen(page, id);
-    const tabsCount = await page.locator('.pane-right [role="tab"]').count();
+    const tabsCount = await page.locator('#main .pane-right [role="tab"]').count();
     for (let t = 0; t < tabsCount; t++) {
-      await page.locator('.pane-right [role="tab"]').nth(t).click();
+      await page.locator('#main .pane-right [role="tab"]').nth(t).click();
       const btns = page.locator('#main button[data-act]:not([data-act="href"]):not([data-act="nav"]):not([data-act="real"])');
       const count = await btns.count();
       for (let i = 0; i < count; i++) {
@@ -527,14 +530,7 @@ test('stage load is scheduled for P2', async () => {
 
 test('mock playback is labelled as sample', async () => {
   const page = await newPage();
-  for (const id of ['02']) { // 05 は A/B 3D（WP-05d）、13 は 3D 比較（WP-04b）になったので出ない
-    await showScreen(page, id);
-    const banner = page.locator('#main .sample-banner');
-    assert.equal(await banner.count(), 1, `banner on ${id}`);
-    assert.match(await banner.textContent(), /サンプル再生（3D未接続）/);
-    assert.equal(await banner.getAttribute('role'), 'status');
-  }
-  for (const id of ['01', '03', '05', '06', '08', '13', '18', '25']) { // 05・06・13 は 3D ビューが実機能になったので出ない
+  for (const id of ['01', '02', '03', '05', '06', '08', '13', '18', '25']) {
     await showScreen(page, id);
     assert.equal(await page.locator('#main .sample-banner').count(), 0, `no banner on ${id}`);
   }

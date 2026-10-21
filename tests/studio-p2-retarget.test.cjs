@@ -7,7 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const harness = require('./helpers/studio-harness.cjs');
 
-const PORT = Number(process.env.P2_RETARGET_PORT || 8791);
+const PORT = Number(process.env.P2_RETARGET_PORT || 8784);
 const SHOTS = process.env.P2_RETARGET_SHOTS || '';
 const GLB = fs.readFileSync(path.join(__dirname, 'fixtures', 'synthetic_test_model.glb'));
 const A = 'aaaaaaaaaaaaaaaaaaaa.glb';

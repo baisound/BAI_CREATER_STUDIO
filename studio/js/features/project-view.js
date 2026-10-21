@@ -31,6 +31,7 @@ function bind(ctx, render, pick) {
 const statusSlice = (s) => ({
   st: s.status, e: s.error && s.error.code, em: s.error && s.error.message, ci: s.cameraInvalid, cr: s.cameraRecovered, ex: s.externalChange,
   sv: s.saving, ap: s.autosavePending, d: s.dirty, se: s.syncError && [s.syncError.code, s.syncError.message], cm: s.combinationMissing,
+  be: s.bundleCoreError,
 });
 
 /** 状態行（role=status）。compact なら1行の文言だけ（SCR-01 のカード用）。 */
@@ -70,9 +71,9 @@ export const projectToolbar = (/** @type {import('./index.js').FeatureCtx} */ ct
     const can = canSave(s);
     save.disabled = !can;
     save.title = can ? 'コンビネーション・カメラ・作業中の素材参照をまとめて保存します'
-      : s.cameraInvalid ? 'カメラ保存データを読めないため保存できません' : s.status !== 'ready' ? '読み込み後に使えます' : s.saving ? '保存中です' : '保存していない変更はありません';
+      : s.cameraInvalid ? 'カメラ保存データを読めないため保存できません' : s.bundleCoreError ? '保存の部品を読み込めませんでした。再読込してください。' : s.status !== 'ready' ? '読み込み後に使えます' : s.saving ? '保存中です' : '保存していない変更はありません';
     reload.disabled = s.status === 'loading';
-  }, (s) => ({ ok: canSave(s), st: s.status, ci: !!s.cameraInvalid, sv: s.saving }));
+  }, (s) => ({ ok: canSave(s), st: s.status, ci: !!s.cameraInvalid, be: s.bundleCoreError, sv: s.saving }));
   return root;
 };
 

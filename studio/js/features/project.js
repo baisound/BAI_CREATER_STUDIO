@@ -7,6 +7,7 @@ import { getJson, postJson, messageFor, LIMITS } from '../api.js';
 import { project as defaultStore, hasUnsavedOf, initialProjectState } from '../store.js';
 import { emit as busEmit } from '../bus.js';
 import { h, toast as uiToast, openModal, closeModal } from '../ui.js';
+import { loadLegacyScript } from '../legacy.js';
 
 /** @typedef {import('../api.js').ApiErr} ApiErr */
 /** @typedef {ReturnType<typeof import('../store.js').createStore>} _S */
@@ -74,6 +75,7 @@ export function describeStatus(s) {
   }
   if (s.cameraRecovered) return { key: 'camera-recovered', text: 'カメラ保存データが読めるようになりました。［再読込して変更を破棄］で読み込めます。', detail: null, tone: 'warn' };
   if (s.cameraInvalid) return { key: 'camera-invalid', text: 'カメラ保存データを読めません', detail: s.cameraInvalid.message || null, tone: 'error' };
+  if (s.bundleCoreError) return { key: 'bundle-core-error', text: '保存の部品を読み込めませんでした。再読込してください。', detail: s.bundleCoreError, tone: 'error' };
   if (s.externalChange) return { key: 'external', text: 'サーバー側が更新されました。保存されていない変更があるため、自動では読み込みません。［再読込して変更を破棄］', detail: null, tone: 'warn' };
   if (s.saving) return { key: 'saving', text: '保存中…', detail: null, tone: 'busy' };
   if (s.autosavePending) return { key: 'autosave-pending', text: '自動保存待ち…', detail: null, tone: 'busy' };
@@ -88,7 +90,7 @@ export function describeStatus(s) {
 
 /** ［保存］を使えるか（設計 §2.2(d)-10）。 @param {ReturnType<typeof initialProjectState>} s */
 export function canSave(s) {
-  return s.status === 'ready' && !s.saving && !s.cameraInvalid && hasUnsavedOf(s);
+  return s.status === 'ready' && !s.saving && !s.cameraInvalid && !s.bundleCoreError && hasUnsavedOf(s);
 }
 
 /**
@@ -106,6 +108,11 @@ export function canSave(s) {
  *   clearTimeout?: (id: any) => void,
  *   setInterval?: (fn: () => void, ms: number) => any,
  *   ui?: Partial<ProjectUi>,
+ *   beforeBundleSave?: () => void,
+ *   cameraSnapshot?: () => any,
+ *   cameraDirty?: () => boolean,
+ *   afterBundleSave?: (camera: any) => Promise<void>,
+ *   loadBundleCore?: () => Promise<any>,
  * }} ControllerDeps
  */
 
@@ -124,6 +131,16 @@ export function createProjectController(deps = {}) {
     toast: () => {}, confirm: async () => true, conflict: () => {}, emit: () => {},
     ...(deps.ui || {}),
   };
+  const beforeBundleSave = deps.beforeBundleSave || (() => {});
+  const cameraSnapshot = deps.cameraSnapshot || (() => null);
+  const cameraDirty = deps.cameraDirty || (() => false);
+  const afterBundleSave = deps.afterBundleSave || (async () => {});
+  const loadBundleCore = deps.loadBundleCore || (async () => {
+    if (typeof window !== 'undefined') await loadLegacyScript('/camera_bundle_core.js');
+    const core = /** @type {any} */ (globalThis).BAICameraBundleCore;
+    if (!core?.buildBundleBody || !core?.mergeWorkspace || !core?.validateRestore) throw Error('共通部品がありません');
+    return core;
+  });
 
   /** @type {any} */ let timer = null;
   /** @type {Promise<void>|null} */ let syncInFlight = null;
@@ -131,6 +148,7 @@ export function createProjectController(deps = {}) {
   let retryAutosave = false;
   let combVersion = 0;
   let wsVersion = 0;
+  /** @type {Promise<boolean>|null} */ let cameraOnlySyncInFlight = null;
 
   const get = () => store.get();
   const stale = (/** @type {number} */ my) => get().saveSeq !== my;
@@ -166,6 +184,7 @@ export function createProjectController(deps = {}) {
    * @returns {Promise<boolean>} 読み込めたら true
    */
   async function loadProject({ discardLocal = false } = {}) {
+    if (!discardLocal) refreshCameraDirty();
     if (!discardLocal && hasUnsavedOf(get())) return false;
     clearTimer();
     const my = bump();
@@ -323,9 +342,53 @@ export function createProjectController(deps = {}) {
     store.set({
       bundle: { ...s.bundle, workspace: next },
       dirty: meaningful ? { ...s.dirty, workspace: true } : s.dirty,
-    }, 'workspace');
+    }, _o.source === 'host' ? 'workspace-host' : 'workspace');
   }
   const setWorkspaceAsset = (/** @type {string} */ filename) => setWorkspaceFields({ asset: filename });
+
+  /** カメラの編集状態を保存ボタンと離脱警告へ反映する。 */
+  function refreshCameraDirty() {
+    const s = get();
+    if (s.status !== 'ready' || !s.bundle || s.cameraInvalid) return;
+    const dirty = cameraDirty();
+    if (s.dirty.camera !== dirty) store.set({ dirty: { ...s.dirty, camera: dirty } }, 'camera-dirty');
+  }
+
+  /** カメラ単独保存が更新した bundle revision を取り直す。 */
+  function cameraOnlySaved() {
+    if (cameraOnlySyncInFlight) return cameraOnlySyncInFlight;
+    cameraOnlySyncInFlight = (async () => {
+      const seq = get().saveSeq;
+      const r = await api.getJson('/api/project/bundle');
+      if (get().saveSeq !== seq) return false;
+      if (!r.ok) {
+        if (isCameraInvalid(r)) setCameraInvalid(r);
+        else store.set({ syncError: r }, 'camera-save-sync-error');
+        return false;
+      }
+      const data = /** @type {any} */ (r.data);
+      const s = get();
+      if (!s.bundle || !s.base || !same(data.combination, s.base.combination) || !same(data.workspace, s.base.workspace)) {
+        onExternalDetected();
+        return false;
+      }
+      const localCamera = cameraSnapshot()?.camera;
+      const cameraHasNewEdits = cameraDirty() || (localCamera && !same(localCamera, data.camera));
+      store.set({
+        revision: data.revision,
+        bundle: { ...s.bundle, camera: cameraHasNewEdits ? localCamera : data.camera },
+        base: { ...s.base, camera: clone(data.camera) },
+        dirty: { ...s.dirty, camera: !!cameraHasNewEdits },
+        syncError: null,
+      }, 'camera-only-saved');
+      return true;
+    })().catch((error) => {
+      const message = error instanceof Error ? error.message : String(error);
+      store.set({ syncError: { ok: false, status: 0, code: 'client', message: `カメラ保存後の版を取得できません：${message}`, serverMessage: null, serverCode: null, body: null } }, 'camera-save-sync-error');
+      return false;
+    }).finally(() => { cameraOnlySyncInFlight = null; });
+    return cameraOnlySyncInFlight;
+  }
 
   /** 保存の後の GET で、自分の保存以外の変更が見つかったときの処理（設計 §2.2(d)-7 と同じ）。 */
   function onExternalDetected() {
@@ -407,8 +470,16 @@ export function createProjectController(deps = {}) {
    * @returns {Promise<boolean>} 保存できたら true
    */
   async function saveProject() {
+    if (cameraOnlySyncInFlight && !(await cameraOnlySyncInFlight)) {
+      ui.toast('カメラ保存後の版を取得できません。再読込してから保存してください。', 'err');
+      return false;
+    }
+    try { beforeBundleSave(); } catch (error) {
+      ui.toast(`カメラ状態を確認できませんでした：${error instanceof Error ? error.message : String(error)}`, 'err');
+      return false;
+    }
     let s = get();
-    if (s.status !== 'ready' || !s.bundle || s.cameraInvalid) return false;
+    if (s.status !== 'ready' || !s.bundle || s.cameraInvalid || s.bundleCoreError) return false;
     if (!hasUnsavedOf(s)) { ui.toast('変更はありません', 'real'); return false; }
     if (s.saving) return false;
     if (s.combinationMissing) {
@@ -420,6 +491,14 @@ export function createProjectController(deps = {}) {
       if (!ok) return false;
       s = get();
       if (s.status !== 'ready' || !s.bundle || s.saving) return false;
+    }
+    /** @type {any} */ let core;
+    try { core = await loadBundleCore(); }
+    catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      store.set({ bundleCoreError: message }, 'bundle-core-error');
+      ui.toast('保存の部品を読み込めませんでした。再読込してください。', 'err');
+      return false;
     }
     clearTimer();
     const seq0 = get().saveSeq;
@@ -434,9 +513,10 @@ export function createProjectController(deps = {}) {
       const cur = get();
       if (!cur.bundle) return false;
       const combination = { ...cur.bundle.combination, updatedAt: new Date(now()).toISOString() };
-      /** @type {Record<string, any>} */
-      const body = { schema: 1, combination, camera: cur.bundle.camera };
-      if (cur.bundle.workspace !== null && cur.bundle.workspace !== undefined) body.workspace = cur.bundle.workspace;
+      const snapshot = cameraSnapshot();
+      const camera = snapshot?.camera || cur.bundle.camera;
+      const workspace = core.mergeWorkspace(cur.bundle.workspace, snapshot?.workspace || null);
+      const body = core.buildBundleBody({ combination, camera, workspace });
       const r = await api.postJson('/api/project/bundle', body, { ifMatch: cur.revision || undefined, limitLabel: LIMITS.bundle });
       if (stale(my)) return false;
       if (!r.ok) {
@@ -447,15 +527,19 @@ export function createProjectController(deps = {}) {
         else ui.toast(r.message, 'err');
         return false;
       }
+      try { await afterBundleSave(camera); }
+      catch (error) { ui.toast(`保存しましたが、カメラ画面との同期に失敗しました：${error instanceof Error ? error.message : String(error)}`, 'err'); }
       const newerComb = combVersion !== sentComb;
       const newerWs = wsVersion !== sentWs;
       const after = get();
+      const newerCamera = cameraDirty();
       store.set({
         revision: /** @type {any} */ (r.data).revision,
-        bundle: { ...after.bundle, combination: newerComb ? after.bundle.combination : combination, complete: true },
-        base: clone({ combination, camera: cur.bundle.camera, workspace: cur.bundle.workspace ?? null }),
+        bundle: { ...after.bundle, combination: newerComb ? after.bundle.combination : combination,
+          camera: newerCamera ? (cameraSnapshot()?.camera || camera) : camera, complete: true },
+        base: clone({ combination, camera, workspace }),
         combinationMissing: false,
-        dirty: { combination: newerComb, workspace: newerWs, camera: false },
+        dirty: { combination: newerComb, workspace: newerWs, camera: newerCamera },
         syncError: null,
       }, 'saved');
       const g = await api.getJson('/api/project?envelope=1');
@@ -469,6 +553,9 @@ export function createProjectController(deps = {}) {
       ui.emit('studio:project-saved', { revision: get().revision, kind: 'bundle' });
       if (combVersion !== sentComb) scheduleAutosave();
       return true;
+    } catch (error) {
+      ui.toast(`保存できませんでした：${error instanceof Error ? error.message : String(error)}`, 'err');
+      return false;
     } finally {
       if (my !== null && !stale(my)) store.set({ saving: false }, 'save-end');
     }
@@ -479,6 +566,7 @@ export function createProjectController(deps = {}) {
    * @returns {Promise<boolean>}
    */
   async function reloadWithConfirm() {
+    refreshCameraDirty();
     if (hasUnsavedOf(get())) {
       const ok = await ui.confirm({
         title: '再読込',
@@ -492,6 +580,7 @@ export function createProjectController(deps = {}) {
 
   /** 外部変更の確認（設計 §2.2(d)-7）。 @param {{fromVisibility?: boolean}} [o] */
   function tick({ fromVisibility = false } = {}) {
+    refreshCameraDirty();
     if (syncInFlight) return syncInFlight;
     const s0 = get();
     if (!(s0.status === 'ready' && !s0.saving && !s0.autosavePending)) return Promise.resolve();
@@ -574,7 +663,7 @@ export function createProjectController(deps = {}) {
   }
 
   return {
-    loadProject, restoreHistory, undo, redo, editCombination, setCombinationSpeed, setCombinationSelected, setWorkspaceFields, setWorkspaceAsset, saveProject, reloadWithConfirm,
+    loadProject, restoreHistory, undo, redo, editCombination, setCombinationSpeed, setCombinationSelected, setWorkspaceFields, setWorkspaceAsset, refreshCameraDirty, cameraOnlySaved, saveProject, reloadWithConfirm,
     startExternalSync, tick, autosave, scheduleAutosave, hasUnsaved: () => hasUnsavedOf(get()),
     store,
   };
@@ -610,8 +699,24 @@ function conflictDialog(onReload) {
   });
 }
 
+const studioCameraHandle = () => window.BAICameraPage?.handle()?.host === 'studio' ? window.BAICameraPage.handle() : null;
 const controller = createProjectController({
   ui: { toast: (m, k) => uiToast(m, /** @type {any} */ (k)), confirm: confirmDialog, conflict: conflictDialog, emit: busEmit },
+  beforeBundleSave: () => { if (studioCameraHandle()) window.dispatchEvent(new Event('bai-studio-camera-before-save')); },
+  cameraDirty: () => !!studioCameraHandle()?.isDirty(),
+  cameraSnapshot: () => {
+    if (!studioCameraHandle()) return null;
+    /** @type {any} */ let camera = null;
+    /** @type {any} */ let workspace = null;
+    window.dispatchEvent(new CustomEvent('bai-camera-bundle-snapshot', { detail: { resolve: (/** @type {any} */ value) => { camera = value; } } }));
+    window.dispatchEvent(new CustomEvent('bai-camera-workspace-snapshot', { detail: { resolve: (/** @type {any} */ value) => { workspace = value; } } }));
+    if (!camera || !workspace) throw Error('カメラと素材の状態を取得できません');
+    return { camera, workspace };
+  },
+  afterBundleSave: async (camera) => {
+    if (!studioCameraHandle()) return;
+    await new Promise((resolve, reject) => window.dispatchEvent(new CustomEvent('bai-camera-bundle-saved', { detail: { camera, resolve, reject } })));
+  },
 });
 
 export const loadProject = controller.loadProject;
@@ -623,6 +728,8 @@ export const setCombinationSpeed = controller.setCombinationSpeed;
 export const setCombinationSelected = controller.setCombinationSelected;
 export const setWorkspaceFields = controller.setWorkspaceFields;
 export const setWorkspaceAsset = controller.setWorkspaceAsset;
+export const refreshCameraDirty = controller.refreshCameraDirty;
+export const cameraOnlySaved = controller.cameraOnlySaved;
 export const saveProject = controller.saveProject;
 export const reloadWithConfirm = controller.reloadWithConfirm;
 export const startExternalSync = controller.startExternalSync;
@@ -630,7 +737,7 @@ export const hasUnsaved = controller.hasUnsaved;
 
 /** 離脱の警告（設計 §2.2(d)-8）。画面内の移動（SPA）では警告しない。 */
 export function installUnloadGuard() {
-  window.addEventListener('beforeunload', (e) => { if (controller.hasUnsaved()) { e.preventDefault(); e.returnValue = ''; } });
+  window.addEventListener('beforeunload', (e) => { controller.refreshCameraDirty(); if (controller.hasUnsaved()) { e.preventDefault(); e.returnValue = ''; } });
 }
 
 /** カメラ保存データを初期状態に戻す（設計 §2.2(d)-2、B-3 の 2b）。確認の後に呼ぶ。 */

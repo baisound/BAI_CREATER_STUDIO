@@ -1,5 +1,5 @@
 // @ts-check
-import { img, CAM_PRESETS, LENS_PRESETS, SHOT_TEMPLATES, ASSETS } from './samples.js';
+import { img, SHOT_TEMPLATES, ASSETS } from './samples.js';
 // 27 screen definitions. SCR-01..25: handoff inventory; SCR-26/27: owner-approved FX/lyrics placement.
 // Status of every panel is from the repository audit in docs/ui/STUDIO_UI_AUDIT_JA.md:
 //   real    = reads an existing Python API (read-only from this shell)
@@ -147,34 +147,15 @@ export const SCREENS = [
     summary: '撮影ビュー、レンズ・F値、キーフレーム、カット編集をまとめた撮影ワークスペース。',
     classification: 'existing_or_partial_to_audit', ids: ['CAM-003', 'CAM-005', 'CAM-006', 'CAM-007', 'CAM-013', 'CAM-014'],
     existing: [CAMERA], live: ['cameraProject'],
-    modes: ['撮影', '編集', 'プレビュー'],
     panels: [
-      { name: '3D撮影ビュー', status: 'partial', note: '現行カメラ画面に Three.js 撮影ビューあり。新UIへ未移植。', ids: ['CAM-004'] },
-      { name: 'カメラプリセット', status: 'partial', note: '現行画面にカスタム構図の登録・適用あり。', ids: ['CAM-013', 'CAM-014'] },
+      { name: '3D撮影ビュー', status: 'real', evidence: 'tests/studio-p2-camera.test.cjs::camera host keeps keys across studio routes', note: '旧カメラ画面と同じ3Dコードを新UIにマウント。実GPU/Linuxは未検証。', ids: ['CAM-004'] },
+      { name: 'カメラプリセット', status: 'real', evidence: 'tests/studio-p2-camera.test.cjs::camera host keeps keys across studio routes', note: '既存のカスタム構図の登録・適用を同じコードで表示。', ids: ['CAM-013', 'CAM-014'] },
       { name: 'レンズ・F値', status: 'partial', note: '35/50/80/135mm＋F値プリセットとFOV反映を実装済み。実DOF描画は未。', ids: ['CAM-005'] },
-      { name: 'キーフレーム', status: 'partial', note: '現行画面にキー追加・Undo/Redo・補間あり。', ids: ['CAM-003'] },
-      { name: 'カット編集', status: 'partial', note: 'シーケンス評価APIあり。編集UIは部分。', ids: ['CAM-015'] },
+      { name: 'キーフレーム', status: 'real', evidence: 'tests/studio-p2-camera.test.cjs::camera host keeps keys across studio routes', note: 'キー追加・Undo/Redo・補間・カメラ単独保存を旧画面と共有。', ids: ['CAM-003'] },
+      { name: 'カット編集', status: 'partial', note: 'ショット区間の編集UIは表示。実データと保存の確認はWP-06bで継続。', ids: ['CAM-015'] },
     ],
-    tools: [ch('縦横比', ['16:9', '9:16', '2.39:1', '1:1']), btn('現行カメラ画面で開く', 'href:/camera.html'), un('レンダリング', '動画書き出しは Phase F の範囲です。', ['RENDER-001'], PH.F)],
-    left: { title: 'カメラ・ショット', status: 'mock', search: true, list: items('Shot', 6, (i) => `${i * 8}s`).map((x, i) => ({ ...x, thumb: img(`camshot-0${(i % 5) + 1}`) })) },
-    center: { type: 'viewport', img: 'viewport-shrine', pip: 'camshot-03', hud: ['Camera View', 'Shot 03', '1920×1080', '30fps'], tools: ['選択', '移動', '回転', 'ドリー', 'オービット'], foot: 'Focal 50mm · F2.8 · Focus 3.2m（サンプル値）' },
-    right: { tabs: [
-      { id: 'camera', label: 'カメラ', sections: [
-        { title: 'カメラプリセット', status: 'mock', controls: [{ t: 'tiles', label: 'カメラプリセット', items: CAM_PRESETS }, btn('現在の設定をプリセットに保存', 'form:savePreset')] },
-        { title: 'レンズ', status: 'mock', note: '現行カメラ画面では実装済み。ここでは表示のみ。', controls: [{ t: 'tiles', label: 'レンズプリセット', items: LENS_PRESETS, cols: 2 }, sl('焦点距離', 14, 200, 50, 'mm'), ch('レンズ', ['24mm', '35mm', '50mm', '85mm', '135mm'], '50mm'), sl('絞り', 1.4, 16, 2.8, 'F', 0.1), sl('ピント距離', 0.3, 30, 3.2, 'm', 0.1)] },
-        { title: '姿勢', status: 'mock', controls: [sl('高さ Y', -2, 10, 1.5, 'm', 0.05), sl('チルト', -90, 90, -5, '°'), sl('パン', -180, 180, 12, '°'), sl('ロール', -45, 45, 0, '°')] },
-      ] },
-      { id: 'focus', label: 'フォーカス', sections: [
-        { title: 'フォーカス対象', status: 'partial', note: '現行画面でボーン追従・合焦計算あり。', controls: [sel('対象部位', ['顔', '胸', '腰', '手（右）', '手（左）']), btn('フォーカス・DOF診断を開く', 'nav:03')] },
-      ] },
-      { id: 'rail', label: 'レール', sections: [
-        { title: 'レール・パス', status: 'partial', controls: [btn('カメラレール画面を開く', 'nav:14')] },
-      ] },
-      { id: 'easing', label: '補間', sections: [
-        { title: '補間・イージング', status: 'mock', controls: [sel('補間', ['スムーズイン・アウト', 'リニア', 'イーズイン', 'イーズアウト', 'ステップ']), { t: 'curve' }] },
-      ] },
-    ] },
-    bottom: camTimeline,
+    tools: [{ t: 'feature', key: 'projectToolbar' }, btn('旧カメラ画面で開く', 'href:/camera.html'), un('レンダリング', '動画書き出しは Phase F の範囲です。', ['RENDER-001'], PH.F)],
+    center: { type: 'feature', key: 'cameraHost', status: 'real', evidence: 'tests/studio-p2-camera.test.cjs::camera host keeps keys across studio routes' },
   },
   {
     id: '03', title: 'フォーカス・DOF診断', nav: 'フォーカス・DOF', group: 'カメラ',
@@ -188,7 +169,7 @@ export const SCREENS = [
       { name: '失敗区間', status: 'partial', note: '/api/camera/focus の区間診断（start/end）あり。タイムライン警告UIは未。', ids: ['E-FOCUS-02'] },
       { name: '距離グラフ', status: 'unimpl', ids: ['E-FOCUS-02'] },
     ],
-    tools: [btn('現行カメラ画面で開く', 'href:/camera.html'), un('CSV/JSON出力', 'フォーカス逸脱診断の書き出しUIは未実装（E-FOCUS-02）。', ['E-FOCUS-02'], PH.E)],
+    tools: [btn('撮影画面のフォーカスタブへ', 'nav:02?tab=focus'), un('CSV/JSON出力', 'フォーカス逸脱診断の書き出しUIは未実装（E-FOCUS-02）。', ['E-FOCUS-02'], PH.E)],
     left: { title: '診断区間', status: 'mock', list: [{ id: 'a', label: '全フレーム', meta: '0–1350' }, { id: 'b', label: 'Shot 02', meta: '150–360' }, { id: 'c', label: 'Shot 03', meta: '360–600' }] },
     center: { type: 'viewport', img: 'viewport-camera', hud: ['Scene View', '焦点面ガイド'], focusPlane: true, tools: ['選択', '焦点面'], foot: '焦点面の位置はサンプル表示です。' },
     right: { tabs: [
@@ -218,7 +199,7 @@ export const SCREENS = [
       { name: 'プレビュー', status: 'partial', note: 'camera_sequence_playback.js（現行画面）。', ids: ['CAM-015'] },
       { name: 'トランジション', status: 'unimpl', ids: ['CAM-015'] },
     ],
-    tools: [btn('マルチカメラ画面（16）へ', 'nav:16')],
+    tools: [btn('撮影画面のショットへ', 'nav:02?tab=camera'), btn('マルチカメラ画面（16）へ', 'nav:16')],
     left: { title: 'シーケンス', status: 'mock', list: [{ id: 's1', label: 'Main Sequence', meta: '5 shots' }, { id: 's2', label: 'Alt Sequence', meta: '3 shots' }] },
     center: { type: 'viewport', img: 'hero', hud: ['Sequence Preview'], foot: 'プレビュー描画は現行カメラ画面で利用できます。' },
     right: { tabs: [
@@ -466,7 +447,7 @@ export const SCREENS = [
       { name: 'カーブ', status: 'mock', ids: ['CAM-003'] },
       { name: 'マルチビュー', status: 'mock' },
     ],
-    tools: [btn('現行カメラ画面で開く', 'href:/camera.html'), ch('ビュー', ['上面', '側面', 'カメラ'], 'カメラ')],
+    tools: [btn('撮影画面のレールタブへ', 'nav:02?tab=rail'), ch('ビュー', ['上面', '側面', 'カメラ'], 'カメラ')],
     left: { title: '移動プリセット', status: 'partial', list: ['ドリーイン', 'トラック', 'クレーンアップ', 'ジブ', 'オービット', 'スパイラル', 'ドローン'].map((n) => ({ id: n, label: n })) },
     center: { type: 'quad', labels: ['上面', '側面', '正面', 'カメラ'], imgs: ['stage-sakura-path', 'stage-shrine', 'viewport-shrine', 'viewport-camera'] },
     right: { tabs: [
@@ -488,7 +469,7 @@ export const SCREENS = [
       { name: '優先順位診断', status: 'partial', note: 'VMD優先度の描画監査あり（test_camera_vmd_render_priority.py）。', ids: ['CAM-016'] },
       { name: '書き出し', status: 'partial', note: 'encode_camera_track（F値・焦点距離は拡張JSONが必要）。', ids: ['CAM-016'] },
     ],
-    tools: [btn('現行カメラ画面で開く', 'href:/camera.html'), un('VMDを書き出す', '新UIからの書き出しは未接続。現行カメラ画面を利用してください。', ['CAM-016'], PH.P2, { text: '今は現行画面で行えます。', label: '現行カメラ画面で開く', act: 'href:/camera.html' })],
+    tools: [btn('撮影画面のVMD操作へ', 'nav:02?tab=camera')],
     left: { title: 'カメラVMD', status: 'mock', search: true, list: [{ id: 'c1', label: 'camera_intro.vmd', meta: '450f' }, { id: 'c2', label: 'camera_chorus.vmd', meta: '900f' }] },
     center: { type: 'quad', labels: ['MMD座標', '内部座標', '重ね合わせ', 'カメラ'], imgs: ['viewport-character', 'viewport-character', 'viewport-shrine', 'viewport-camera'] },
     right: { tabs: [
@@ -511,7 +492,7 @@ export const SCREENS = [
       { name: 'トランジション', status: 'unimpl', ids: ['CAM-015'] },
       { name: '曲線', status: 'mock' },
     ],
-    tools: [un('自動ディレクター', '自動ショット選択は CAM-018（Phase E 後半）。', ['CAM-018'], PH.E), btn('カット（ショット分割）', 'mock:ショット分割（サンプル表示：画面内のみ）')],
+    tools: [btn('撮影画面のショットへ', 'nav:02?tab=camera'), un('自動ディレクター', '自動ショット選択は CAM-018（Phase E 後半）。', ['CAM-018'], PH.E), btn('カット（ショット分割）', 'mock:ショット分割（サンプル表示：画面内のみ）')],
     left: { title: 'ショット', status: 'mock', list: items('Shot', 6, (i) => `Cam ${'ABCD'[i % 4]}`) },
     center: { type: 'quad', labels: ['Cam A', 'Cam B', 'Cam C', 'Cam D'], imgs: ['viewport-shrine', 'viewport-camera', 'hero', 'viewport-character'] },
     right: { tabs: [

@@ -357,41 +357,79 @@
     {
       "id": "P2-WP-06a",
       "step": "⑥ mount 化",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "e1961b8（camera.js mount化）",
+        "06371ed（camera_3d.js mount化・テスト更新）"
+      ],
+      "tests": [
+        "npm run typecheck: pass。camera.js・camera_3d.jsの構文検査: pass",
+        "旧カメラ隔離Chromeのlegacy-camera-fixes 2/2合格。mountの同一root冪等性・別root拒否・dirtyも確認",
+        "旧mainとmount版でキー追加→Undo/Redo→保存→再読込の結果が一致（2D編集）",
+        "カメラPython全件: 133 pass・5 subtests pass",
+        "カメラNode/旧UIゲート: 50 pass・実data/ 7ファイルのハッシュ不変",
+        "studio-ui: 20 pass。SCR10の古いテスト2件を現行の音楽とダンス導線に合わせて更新"
+      ],
+      "unverified": [
+        "旧mainとmount版の3D描画の画像単位比較は未実施（比較スクリプト側で外部CDN 404）。旧カメラ3Dの隔離ブラウザ回帰は合格。",
+        "新UIのカメラホスト、保存連携、実GPU・Linux・実利用者モデルはWP06b以降または未検証。"
+      ],
+      "notes": "2/2サブコミット: camera.jsとcamera_3d.jsをroot基準のmount(root,{host})に変換。手動mountフラグ、同一root冪等・異なるroot拒否、dirtyハンドルを追加。旧camera.htmlは変更なし。文字列照合だけのPythonテストは同じ契約を検査する形に更新。実装・試験は標準モデル区分。",
       "owner_check": null
     },
     {
       "id": "P2-WP-06b",
       "step": "⑥ ホスト・配置表",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "テストのポートの食い違い（設計書 §4.1 の注記）：studio-p2-normalize-parity の実装が 8794（studio-p2-camera の予約）を使っているので、studio-p2-camera を作る前に parity を 8789 に直す。studio-p2-retarget の 8791 は Phase E camera-ui の予約と衝突する（Phase E WP-03 の前に直す）。依存は WP-05b（workspace の clip・frame）。",
+      "state": "verified",
+      "commits": [
+        "codex/p2-wp06のWP06b（124 ID配置表・SCR02カメラホスト・常駐・導線）"
+      ],
+      "tests": [
+        "npm run typecheck: pass。tests/test_screen_status_honesty.mjs: 6 pass",
+        "tests/studio-p2-camera-ids.test.mjs と tests/studio-p2-camera.test.cjs: 直列4 pass。HTMLの全124 ID、JSが追加するXYZ6 ID、ページ全体重複0。SCR02の3Dキャンバス2面・右タブ、キー追加→離脱→復帰→Undo/Redo→保存→再読込、旧camera.htmlで同じキーを確認。破損カメラJSONではmountせず原本バイト列不変",
+        "tests/studio-ui.test.cjs: 27画面の共通回帰20 pass。SCR02の旧モック期待を実ホストに更新。ブラウザーはChrome SwiftShader"
+      ],
+      "unverified": [
+        "独立した高性能モデルの配置表レビューは未実施。実GPU・Linux・全実モデルの外観・Owner採用は未検証",
+        "SCR02ホストと②のworkspace/統合保存の双方向同期はWP06c。カメラ単独保存は利用可"
+      ],
+      "notes": "現行camera.htmlは設計の旧記述122ではなく124 ID。tools/camera_id_map.py、legacy-ids.json、P2_WP06_CAMERA_ID_PLACEMENT_JA.mdに全IDの配置先を記録。カメラJSは旧画面と共有し、SCR02離脱時は#keepaliveへ退避。実装・試験は標準モデル（GPT-6）、サブエージェントなし。",
       "owner_check": null
     },
     {
       "id": "P2-WP-06c",
       "step": "⑥ ②の保存との統合",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "b9d7f57（共有bundle core・SCR02保存同期・S3/S7通し確認）"
+      ],
+      "tests": [
+        "npm run typecheck: pass。共有core単体2/2、projectロジック27/27、カメラPython経路・一貫性15/15、P2 Python 43/43 pass",
+        "隔離Chrome: SCR02カメラホスト5/5（4形式、壊れた保存の退避復旧、単体保存→統合保存200、フレームのみの移動、保存済み状態の復元）、旧カメラ2/2、旧プロジェクト2/2、project保存17/17 pass",
+        "P2 E2E: S1/S2/S3/S5/S7 pass、S4/S6/S8は計画どおりskip、furthest_step=S7。実data/7ファイルのハッシュ不変",
+        "全P2 NodeゲートはWindows ERR_NO_BUFFER_SPACEとSCR05読込待ち3件で途中停止。失敗した3件を隔離再実行し3/3 pass",
+        "2026-10-22 最新main統合後: pytest全件386 pass・50 subtests pass、npm run test:evidence 146 pass・2 planned skip・0 fail（初回は2件失敗、再実行で再現せず）、実data/5ファイルのhash不変。npm run test:node-all 337 pass・12 planned skip・1 fail（ホームのカード表示待ち30秒）。当該1件は隔離再実行でpass。カメラ＋27画面の重点Chrome25/25 pass、P2 E2E S1/S2/S3/S5/S7 pass・3 planned skip、typecheck pass"
+      ],
+      "unverified": [
+        "独立した高性能モデルのレビュー、実GPU・Linux・全実利用者モデルの外観とOwner採用は未検証",
+        "P2 Nodeゲートは全350件を完走したがホーム表示の1件が30秒で時間切れ。単独再実行は約3秒でpass。共通一括実行の不安定さは残る。影響箇所の専用ブラウザ試験と通し確認は合格",
+        "SCR-02の撮影プレビューはSCR-06のステージとSCR-10の曲・ダンス配置をまだ共有しない。オーナーの指摘をIssue #63で追跡"
+      ],
+      "notes": "camera_bundle_core.jsを旧画面と新UIで共有。SCR02に②の保存ツールを配置し、カメラ状態・workspaceのストア所有・カメラ単体保存の統合版・dirtyと再読込を接続。初回の素材復元中は操作可能扱いにしない。実装・試験は標準モデル（GPT-6）、サブエージェントなし。",
       "owner_check": null
     },
     {
       "id": "P2-WP-06d",
       "step": "⑥ Phase E §7 の読み替え表",
-      "state": "not_started",
+      "state": "in_progress",
       "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "tests": [
+        "camera_id_map.py: 現行camera.html 124 IDと配置表の一致。git diff --check pass。Phase E §7の配置・保存・WebMCP接続状態を現行ソースと照合"
+      ],
+      "unverified": [
+        "独立した高性能モデルによる読み替え表レビューは未実施。Phase E UI実装前に必要。実GPU/Linux/Owner実モデルの採用も未確認"
+      ],
+      "notes": "Phase E設計§7.1/7.2に現行124 ID、SCR02、保存とMCPの読み替えを記載。文書は標準モデル（GPT-6）で作成。レビューゲート待ちのためWP06dをverifiedにしない。",
       "owner_check": null
     },
     {
@@ -426,7 +464,7 @@
     }
   ],
   "e2e_main": {
-    "furthest_step": "S2",
+    "furthest_step": "S7",
     "steps": [
       {
         "id": "S1",
@@ -440,8 +478,8 @@
       },
       {
         "id": "S3",
-        "result": "skip",
-        "reason": "WP-06b・WP-06c が未着手"
+        "result": "pass",
+        "reason": ""
       },
       {
         "id": "S4",
@@ -460,8 +498,8 @@
       },
       {
         "id": "S7",
-        "result": "skip",
-        "reason": "WP-06c が未着手"
+        "result": "pass",
+        "reason": ""
       },
       {
         "id": "S8",
@@ -469,7 +507,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "4ff3c26",
-    "checked_at": "2026-10-21T04:36:07.668Z"
+    "commit": "293899e",
+    "checked_at": "2026-10-21T19:09:27.366Z"
   }
 }

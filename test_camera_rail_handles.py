@@ -1,8 +1,8 @@
 from pathlib import Path
 
 def test_gizmo_connection():
-    scene=Path('camera_3d.js').read_text()
-    editor=Path('camera.js').read_text()
+    scene=Path('camera_3d.js').read_text(encoding='utf-8')
+    editor=Path('camera.js').read_text(encoding='utf-8')
     for key in ('bai-camera-rail-handle-preview','bai-camera-rail-handle-end'):
         assert key in scene and key in editor
     assert 'installRailDrag(canvas())' in scene

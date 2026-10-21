@@ -9,6 +9,12 @@ interface Window {
   BAICameraSequencePlayback?: any;
   BAIVmdLocal?: any;
   BAICameraPage?: any;
-  BAICameraBundleCore?: any;
+  BAI_CAMERA_MANUAL_MOUNT?: boolean;
+  BAICameraBundleCore?: {
+    validateRestore(bundle: any): void;
+    buildBundleBody(x: { combination: any; camera: any; workspace: any }): Record<string, any>;
+    mergeWorkspace(storeWorkspace: any, hostSnapshot: any): any;
+    CAMERA_OWNED_WORKSPACE_FIELDS: readonly string[];
+  };
   baiStudio?: any;
 }

@@ -2,7 +2,7 @@
 import pathlib
 import unittest
 
-SOURCE = pathlib.Path(__file__).with_name('camera_3d.js').read_text()
+SOURCE = pathlib.Path(__file__).with_name('camera_3d.js').read_text(encoding='utf-8')
 
 class ProjectionWiringTest(unittest.TestCase):
     def test_vmd_flag_selects_orthographic(self):

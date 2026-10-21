@@ -1,0 +1,502 @@
+{
+  "source": "camera.html",
+  "count": 124,
+  "elements": [
+    {
+      "id": "save",
+      "slot": "toolbar"
+    },
+    {
+      "id": "undo",
+      "slot": "toolbar"
+    },
+    {
+      "id": "redo",
+      "slot": "toolbar"
+    },
+    {
+      "id": "camera-asset",
+      "slot": "center"
+    },
+    {
+      "id": "camera-load-asset",
+      "slot": "center"
+    },
+    {
+      "id": "camera-clip",
+      "slot": "center"
+    },
+    {
+      "id": "camera-follow-bone",
+      "slot": "focus"
+    },
+    {
+      "id": "camera-follow-enabled",
+      "slot": "focus"
+    },
+    {
+      "id": "camera-follow-offset",
+      "slot": "focus"
+    },
+    {
+      "id": "camera-follow-smoothing",
+      "slot": "focus"
+    },
+    {
+      "id": "camera-follow-save",
+      "slot": "focus"
+    },
+    {
+      "id": "camera-follow-bake",
+      "slot": "focus"
+    },
+    {
+      "id": "camera-follow-bake-status",
+      "slot": "focus"
+    },
+    {
+      "id": "camera-follow-priority",
+      "slot": "focus"
+    },
+    {
+      "id": "camera-follow-status",
+      "slot": "focus"
+    },
+    {
+      "id": "camera-asset-status",
+      "slot": "center"
+    },
+    {
+      "id": "scene",
+      "slot": "center"
+    },
+    {
+      "id": "scene-reset",
+      "slot": "center"
+    },
+    {
+      "id": "scene-focus",
+      "slot": "center"
+    },
+    {
+      "id": "preview",
+      "slot": "center"
+    },
+    {
+      "id": "play",
+      "slot": "timeline"
+    },
+    {
+      "id": "prev",
+      "slot": "timeline"
+    },
+    {
+      "id": "frame",
+      "slot": "timeline"
+    },
+    {
+      "id": "next",
+      "slot": "timeline"
+    },
+    {
+      "id": "frame-number",
+      "slot": "timeline"
+    },
+    {
+      "id": "frame-label",
+      "slot": "timeline"
+    },
+    {
+      "id": "camera-playback-info",
+      "slot": "timeline"
+    },
+    {
+      "id": "duration",
+      "slot": "timeline"
+    },
+    {
+      "id": "duration-apply",
+      "slot": "timeline"
+    },
+    {
+      "id": "range-start",
+      "slot": "timeline"
+    },
+    {
+      "id": "range-size",
+      "slot": "timeline"
+    },
+    {
+      "id": "range-apply",
+      "slot": "timeline"
+    },
+    {
+      "id": "range-prev",
+      "slot": "timeline"
+    },
+    {
+      "id": "range-next",
+      "slot": "timeline"
+    },
+    {
+      "id": "track",
+      "slot": "timeline"
+    },
+    {
+      "id": "range-label",
+      "slot": "timeline"
+    },
+    {
+      "id": "add",
+      "slot": "timeline"
+    },
+    {
+      "id": "remove",
+      "slot": "timeline"
+    },
+    {
+      "id": "camera-custom-presets",
+      "slot": "shots"
+    },
+    {
+      "id": "custom-preset-name",
+      "slot": "shots"
+    },
+    {
+      "id": "custom-preset-save",
+      "slot": "shots"
+    },
+    {
+      "id": "custom-preset-list",
+      "slot": "shots"
+    },
+    {
+      "id": "custom-preset-apply",
+      "slot": "shots"
+    },
+    {
+      "id": "custom-preset-delete",
+      "slot": "shots"
+    },
+    {
+      "id": "custom-preset-status",
+      "slot": "shots"
+    },
+    {
+      "id": "camera-sequence-editor",
+      "slot": "shots"
+    },
+    {
+      "id": "sequence-preset",
+      "slot": "shots"
+    },
+    {
+      "id": "sequence-start",
+      "slot": "shots"
+    },
+    {
+      "id": "sequence-end",
+      "slot": "shots"
+    },
+    {
+      "id": "sequence-add",
+      "slot": "shots"
+    },
+    {
+      "id": "sequence-list",
+      "slot": "shots"
+    },
+    {
+      "id": "sequence-jump",
+      "slot": "shots"
+    },
+    {
+      "id": "sequence-delete",
+      "slot": "shots"
+    },
+    {
+      "id": "sequence-refresh",
+      "slot": "shots"
+    },
+    {
+      "id": "sequence-status",
+      "slot": "shots"
+    },
+    {
+      "id": "camera-project-bundle",
+      "slot": "camera"
+    },
+    {
+      "id": "bundle-save",
+      "slot": "camera"
+    },
+    {
+      "id": "bundle-load",
+      "slot": "camera"
+    },
+    {
+      "id": "bundle-status",
+      "slot": "camera"
+    },
+    {
+      "id": "auto-key",
+      "slot": "camera"
+    },
+    {
+      "id": "preset",
+      "slot": "camera"
+    },
+    {
+      "id": "preset-apply",
+      "slot": "camera"
+    },
+    {
+      "id": "move-amount",
+      "slot": "camera"
+    },
+    {
+      "id": "camera-rig-panel",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-type",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-amount",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-start",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-control",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-end",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-constant-speed",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-show-path",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-apply",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-bake-from",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-bake-to",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-crane-from",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-bake-step",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-bake-ease",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-bake",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-orbit-full",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-bake-status",
+      "slot": "rail"
+    },
+    {
+      "id": "rig-status",
+      "slot": "rail"
+    },
+    {
+      "id": "vmd-inspect-input",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-inspect-button",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-inspect-result",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-native-input",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-native-import",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-follow-timeline",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-timeline-status",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-native-export",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-native-status",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-native-frame",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-native-sample",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-preview-pose",
+      "slot": "camera"
+    },
+    {
+      "id": "vmd-native-sample-result",
+      "slot": "camera"
+    },
+    {
+      "id": "framing-enabled",
+      "slot": "focus"
+    },
+    {
+      "id": "framing-mode",
+      "slot": "focus"
+    },
+    {
+      "id": "framing-aspect",
+      "slot": "focus"
+    },
+    {
+      "id": "framing-margin",
+      "slot": "focus"
+    },
+    {
+      "id": "framing-result",
+      "slot": "focus"
+    },
+    {
+      "id": "camera-lens-panel",
+      "slot": "camera"
+    },
+    {
+      "id": "lens-preset",
+      "slot": "camera"
+    },
+    {
+      "id": "lens-apply",
+      "slot": "camera"
+    },
+    {
+      "id": "lens-result",
+      "slot": "camera"
+    },
+    {
+      "id": "focus-lens",
+      "slot": "focus"
+    },
+    {
+      "id": "focus-aperture",
+      "slot": "focus"
+    },
+    {
+      "id": "focus-distance",
+      "slot": "focus"
+    },
+    {
+      "id": "focus-subject",
+      "slot": "focus"
+    },
+    {
+      "id": "focus-enabled",
+      "slot": "focus"
+    },
+    {
+      "id": "focus-follow-bone",
+      "slot": "focus"
+    },
+    {
+      "id": "focus-follow-status",
+      "slot": "focus"
+    },
+    {
+      "id": "dof-preview-enabled",
+      "slot": "focus"
+    },
+    {
+      "id": "dof-preview-status",
+      "slot": "focus"
+    },
+    {
+      "id": "focus-result",
+      "slot": "focus"
+    },
+    {
+      "id": "focus-color-status",
+      "slot": "focus"
+    },
+    {
+      "id": "focus-range-check",
+      "slot": "focus"
+    },
+    {
+      "id": "focus-range-result",
+      "slot": "focus"
+    },
+    {
+      "id": "position-fields",
+      "slot": "camera"
+    },
+    {
+      "id": "target-fields",
+      "slot": "camera"
+    },
+    {
+      "id": "interpolation",
+      "slot": "interpolation"
+    },
+    {
+      "id": "fov",
+      "slot": "camera"
+    },
+    {
+      "id": "key-save",
+      "slot": "camera"
+    },
+    {
+      "id": "copy",
+      "slot": "camera"
+    },
+    {
+      "id": "status",
+      "slot": "camera"
+    },
+    {
+      "id": "sample",
+      "slot": "camera"
+    }
+  ]
+}

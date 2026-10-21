@@ -967,17 +967,45 @@ v4 作成時に全件をコードで再確認した（行番号は §冒頭の�
 
 ## 7. 新UI（/workspace）との関係
 - **決定済み（§0 冒頭）**：UIの実装先（所有者決定 2026-10-20、ROADMAP_JA.md 4183c5f）：P2（新UI `studio/` への移植）を Phase E より先に作業の流れ順で行い、Phase E の UI は新UIのカメラ画面上に実装する。旧画面（camera.html 等）には新機能を足さない。§2・§3 の API・計算・データ・MCP・samples の仕様は変わらない。§3 の UI 項目と各 WP の UI 部分（要素ID、camera.js の関数名、Playwright セレクター、`BAICameraDebug` と WebMCP scope `camera_page` を置く画面、静的配信）は操作と表示の仕様として読み、P2 ⑥（カメラ画面の移植）完了後に §7 へ読み替え表を追加し、その表を高性能モデルで1回レビューするまで UI 部分を実装しない。G-02/03/04/13/14/15/16 のうち camera.js・camera_3d.js・camera.html にある修正は、移植後の新UI側の同等コードに適用する。見た目は新UIモックに従い、WP-17 は新UIモックのカメラ画面レイアウト内で操作設計 §2（片側最大化・幅変更）を満たす。
-- どちらに決まっても、§2（API・保存・MCP・計算・samples）と §3 の計算・API・テストの仕様は変わらない。§3 の UI 項目（ボタン・入力欄・表示・操作の割当）は**操作と表示の仕様**として読み、新UIに決まった場合は `camera.html` の要素ID（`#focus-lens`・`#key-save`・`#preview` 等）を新UIの対応部品に読み替える。読み替え表は決定後に本節へ追加する（本書の他の節は書き換えない）。
+- §2（API・保存・MCP・計算・samples）と §3 の計算・API・テストの仕様は変わらない。§3 の UI 項目（ボタン・入力欄・表示・操作の割当）は**操作と表示の仕様**として読み、下の読み替え表に従ってSCR-02で実装する。
 - 新UIに決まった場合に変わるのは主に：Playwright のセレクター、静的配信リスト（§2.11）、WebMCP の scope `camera_page` を付ける画面、`BAICameraDebug` を置く画面。WP の順番と完了条件は変えない。
-- **注記（P2 設計 v2、2026-10-20。読み替え表はまだ追加しない）**：`docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md` で次を決めた（レビュー中）。
+- **注記（P2 設計 v2、2026-10-20）**：`docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md` で次を決めた。独立した高性能モデルによるレビューは未実施。
   - 「移植後の新UI側の同等コード」は、**動作を変えずに `mount(root)` 化した共有の `camera.js`・`camera_3d.js`**（P2-WP-06a）を指す。`camera.html` と新UIが同じファイルを読むので、G-02/03/04/13/14/15/16 の修正と Phase E の改修は1か所に入る。共有ファイルは `mount(root,{host:'legacy'|'studio'})` で動き（`camera.html` は `'legacy'`、新UIは `'studio'`）、**Phase E が足す新機能は `host==='studio'` のときだけ有効にする**（G-xx のバグ修正は両方に入れる）。新機能のコードは `camera.html` に無い要素について必ず null を確かめて何もしないようにし（P2 K8）、各 WP の完了ゲートに「旧 `camera.html` で pageerror 0件」を加える。§2.9 の `BAICameraDebug.getState().dirty` は、mount の戻り値 `MountHandle.isDirty()` と同じ内部変数（`camera.js` の `dirty`）を読む（P2 設計 v3、2-M5）。
   - **workspace の所有者（フィールド単位、P2 設計 v3 で決定、2-M4）**：`asset`・`clip`・`frame` は新UIのストア（`features/project.js`）が持ち、書く経路は `setWorkspaceFields` だけ（カメラ画面で利用者が変えたときも、ホストがこの関数を呼ぶ）。ストアの変更は `bai-camera-workspace-restore` でカメラ画面に伝える。WP-02d で足すカメラ側のフィールドはカメラ画面が持ち、`camera_bundle_core.js` の `CAMERA_OWNED_WORKSPACE_FIELDS` に列挙する（統合保存ではスナップショットからこの一覧のものだけを取る）。WP-02d ではこの一覧に足すこと。
   - **カメラ単独の保存**（`#save` → `POST /api/camera/project`）は、WP-02d まで新UIのカメラ画面にも残す（P2 O-⑥-2）。統合保存への一本化は WP-02d の後に読み替え表で決める。
-- **注記（P2 設計 v4、2026-10-20。読み替え表はまだ追加しない）**：
+- **注記（P2 設計 v4、2026-10-20）**：
   - **通し確認（所有者決定 2026-10-20、P2 設計 §2.9）**：P2 は主要シナリオ（歌ってみた動画の制作）の E2E テスト `tests/studio-p2-e2e-main.test.cjs` を持つ。Phase E の各 WP の完了ゲートに「この E2E を最初から通し、`P2_PORT_STATUS.json` の `e2e_main.furthest_step` が後退しない」を足し、その WP の機能の確認手順を同じファイルに足す（WP-04 フォーカス・DOF、WP-05〜09 カメラワーク、WP-07 カメラレール、WP-12・13 シーケンスとカメラ VMD の入出力、WP-12・16 マルチカメラ）。各 WP の完了時には、所有者向けの5手順以内の確認手順も書く（P2 設計 §3.1）。
   - **`assetRef`**（§2.8）は保存のときに新UIのストアの `asset` から作る。カメラ画面が持つフィールドではない（`CAMERA_OWNED_WORKSPACE_FIELDS` に入れない。P2 設計 3-M8）。
   - **カメラ単独の保存の後**、`camera.js` は無害な通知 `bai-camera-saved` を発火する（P2-WP-06c）。新UIのホストはこれで統合バンドルの版を取り直す。WP-02d で保存を一本化するときも、この通知を残すかどうかを読み替え表で決める。
   - workspace の受け渡しは、**外部からの変更で `asset`・`clip` が違うときだけ** `bai-camera-workspace-restore` を送る。`frame` だけの変化は未保存にしない（P2 設計 3-M6）。WP-02d で足すカメラ側のフィールドも同じ規則に従う。
+
+### 7.1 P2-WP-06d 読み替え表（2026-10-22、現行実装）
+
+`camera.html` の現物124 IDを `tools/camera_id_map.py` で列挙した [`legacy-ids.json`](../../studio/js/camera/legacy-ids.json) が**IDごとの完全な配置表**である。`camera-host.js` はHTMLを読み取り、同じ要素をSCR-02へ一度だけ移す。IDを付け替えないため、§3以降の既存ID指定は下表の配置先にある同名IDを指す。124個の内訳、直接参照するクラス・属性、実ブラウザーでの包含・重複ID検査は [WP-06b要素配置表](P2_WP06_CAMERA_ID_PLACEMENT_JA.md) に記録した。
+
+| Phase Eの記述・旧画面 | SCR-02での対応 | 実装・検証時の読み方 |
+|---|---|---|
+| `#save`・`#undo`・`#redo` | 上部のカメラ操作（3 ID） | `#save` は当面「カメラだけ保存」。制作状態の［保存］は別の `projectToolbar` から統合保存する。WP-02dの一本化はその段階で再判定する。 |
+| ショット・カスタム構図 | 左パネル（17 ID） | `#camera-custom-presets` と `#camera-sequence-editor` を含む既存要素を移す。 |
+| `#scene`・`#preview`、素材・クリップ選択 | 中央の撮影ビュー（8 ID） | 2面とも旧 `camera_3d.js` を共有。モデル選択はGLB・VRM・PMX・FBXを扱う。新機能の表示確認は実モデルとGPU環境を区別して記録する。 |
+| レンズ、XYZ、FOV、`#key-save`、カメラVMD、状態 | 右の「カメラ」タブ（32 ID） | 旧 `#camera-project-bundle` ボタン群は無効表示し、統合保存は制作状態へ送る。 |
+| `#focus-lens`、ボーン追従、合焦・DOF診断 | 右の「フォーカス」タブ（27 ID） | SCR-03はこのタブへのリンク。計算上の診断と実描画DOFを混同しない。 |
+| リグ・レール | 右の「レール」タブ（18 ID） | SCR-04/14/15/16は該当タブへのリンク。単一のカメラホストを使う。 |
+| `#interpolation` | 右の「補間」タブ（1 ID） | カメラと補間のコードは旧画面と同じ要素IDを使う。 |
+| `#track`、再生・コマ送り、範囲、キー操作 | 下部タイムライン（18 ID） | 画面を離れる際はホストを`#keepalive`へ移す。再訪時も同一DOM・同一マウントを使う。 |
+| 新しい Phase E 専用UI | SCR-02の対応パネル・タブに追加 | `host==='studio'` でのみ有効にし、旧画面に要素が無いときは安全に何もしない。ID追加時は配置表を再生成し、包含・重複ID検査を更新する。 |
+
+### 7.2 保存・API・自動操作の置き場所
+
+| 旧記述 | 新UIでの対応・境界 |
+|---|---|
+| `camera.js`・`camera_3d.js`、`BAICameraDebug` | 共有スクリプトを `mount(root,{host:'studio'})` でSCR-02へ一度だけ接続する。`BAICameraDebug` を使うWPはSCR-02で公開し、`dirty` は `MountHandle.isDirty()` と同じ状態を見る。旧 `camera.html` の `host:'legacy'` では新機能を有効にしない。 |
+| カメラだけ保存、統合保存 | カメラだけ保存後は `bai-camera-saved` を受け、バンドル版を再取得する。統合保存前はカメラのスナップショットを取り、ストアのworkspaceと `camera_bundle_core.js` で本文を作る。カメラ破損時はマウント・保存を止め、原本と退避を保持する。 |
+| workspace の `asset`・`clip`・`frame` | 新UIストアが正本。ホストでの変更は退出時・保存前にストアへ書き、外部の素材変更をホストへ復元する。`frame` だけの変更は未保存にしない。`stage` と `character` も統合保存で保持する。WP-02dでカメラ側のフィールドを追加するときは `CAMERA_OWNED_WORKSPACE_FIELDS` を更新する。 |
+| Playwright セレクター、静的配信 | 既存IDはSCR-02内の同名IDへ置き換える。ルートは `/workspace/02`。共有ファイルは従来の静的URLを使い、`camera_bundle_core.js` は旧画面と新UIの両方から読む。 |
+| WebMCP `camera_page` | 画面上の操作先はSCR-02。現時点で `webmcp.js` は旧 `camera.html` にもSCR-02にも読み込まれていない。SCR-02への登録と標準MCPとの同等性はPhase Eの各WPで実装・試験する。登録前に新UIで利用可能と表示しない。 |
+
+**ゲート**：124 IDの配置とSCR-02の基本操作はソース・隔離Chrome（SwiftShader）で照合済み。独立した高性能モデルによる本表のレビュー、実GPU/Linux、全実モデルの外観、Owner採用は未検証。Phase EのUI部分は所定のレビューを記録するまで着手しない。各WPでは旧 `camera.html` の `pageerror` 0件とP2 E2Eの到達点非後退を確認する。
 
 ## 8. 完了ゲート（Phase E 全体）
 1. 18機能と E-FOCUS-01/02 の本書のテストがすべて自動で合格。

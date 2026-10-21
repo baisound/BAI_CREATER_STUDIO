@@ -16,7 +16,7 @@ class KeyframeReviewTests(unittest.TestCase):
  def test_source_must_be_review(self):
   f=fixture();f['kind']='vmd';self.assertRaises(ValueError,build_keyframe_review,f)
  def test_integration(self):
-  self.assertIn('/api/retarget/keyframe-review',(ROOT/'server.py').read_text())
-  self.assertIn('bai_retarget_keyframe_review',(ROOT/'mcp_server.py').read_text())
-  self.assertIn('bai_retarget_keyframe_review',(ROOT/'webmcp.js').read_text())
-  self.assertIn('v01633_35_scrub.js',(ROOT/'index.html').read_text())
+  self.assertIn('/api/retarget/keyframe-review',(ROOT/'server.py').read_text(encoding='utf-8'))
+  self.assertIn('bai_retarget_keyframe_review',(ROOT/'mcp_server.py').read_text(encoding='utf-8'))
+  self.assertIn('bai_retarget_keyframe_review',(ROOT/'webmcp.js').read_text(encoding='utf-8'))
+  self.assertIn('v01633_35_scrub.js',(ROOT/'index.html').read_text(encoding='utf-8'))

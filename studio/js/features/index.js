@@ -19,6 +19,7 @@ import { sceneViewport, stageLoadButton, stageTransform } from './scene-view.js'
 import { sceneObjects, sceneLightTools, lightEditor, lightTimeline } from './scene-light-ui.js';
 import { projectToolbar, projectStatus, projectSummary, projectHistory, projectList, projectCard } from './project-view.js';
 import { musicDanceStudio } from './music-dance-view.js';
+import { cameraHost } from '../camera/camera-host.js';
 
 /** @type {Record<string, FeatureFn>} */
 export const FEATURES = {
@@ -37,5 +38,7 @@ export const FEATURES = {
   patternList, chainTimeline, playbackSettings, chainViewport,
   // AUDIO-001 / Issue #39: 実音声・GLB ダンス・PMX プレビューの同期
   musicDanceStudio,
+  // WP-06b: SCR-02 の常駐カメラホスト
+  cameraHost,
   // WP-05d 以降が追加する。
 };
