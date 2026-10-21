@@ -674,17 +674,17 @@
       "feature_ids": [
         "CAM-004"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行カメラ画面に Three.js 撮影ビューあり。新UIへ未移植。",
-      "evidence": null,
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "旧カメラ画面と同じ3Dコードを新UIにマウント。実GPU/Linuxは未検証。",
+      "evidence": "tests/studio-p2-camera.test.cjs::camera host keeps keys across studio routes",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-02",
@@ -694,17 +694,17 @@
         "CAM-013",
         "CAM-014"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面にカスタム構図の登録・適用あり。",
-      "evidence": null,
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "既存のカスタム構図の登録・適用を同じコードで表示。",
+      "evidence": "tests/studio-p2-camera.test.cjs::camera host keeps keys across studio routes",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-02",
@@ -732,17 +732,17 @@
       "feature_ids": [
         "CAM-003"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面にキー追加・Undo/Redo・補間あり。",
-      "evidence": null,
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "キー追加・Undo/Redo・補間・カメラ単独保存を旧画面と共有。",
+      "evidence": "tests/studio-p2-camera.test.cjs::camera host keeps keys across studio routes",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-02",
@@ -752,7 +752,7 @@
         "CAM-015"
       ],
       "new_ui_state": "partial",
-      "source_evidence": "シーケンス評価APIあり。編集UIは部分。",
+      "source_evidence": "ショット区間の編集UIは表示。実データと保存の確認はWP-06bで継続。",
       "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",

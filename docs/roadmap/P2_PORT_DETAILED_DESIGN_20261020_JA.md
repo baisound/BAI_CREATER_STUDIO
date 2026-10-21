@@ -1495,7 +1495,7 @@ SCR-13：左 `items('Dance', 6, …)`、下部の `tracks` の固定キー（ク
      - workspace としてホストに送るのは `{frame, asset, clip}` だけ（3-m7。WP-02d より前。`stage` などストアだけが持つキーは送らない）。
      - DOM を作った後で、`window.BAI_CAMERA_MANUAL_MOUNT=true` を立てる。次に `camera.html` と**同じ順番**で共有 UMD（`/camera_vmd_local.js`、`/camera_rig.js`、`/camera_framing.js`、`/camera_lens.js`、`/camera_dof.js`、`/camera_focus_tracking.js`、`/camera_focus_consistency.js`、`/camera_sequence_playback.js`）と `/camera.js`（classic script）を `legacy.js` で読む。その後 `BAICameraPage.mount(hostRoot,{host:'studio'})` を呼び、`(await import('/camera_3d.js')).mount(hostRoot,{host:'studio'})` を呼ぶ。どれも1回だけ。
      - 包含の検査（`tests/studio-p2-camera-ids.test.mjs`）：
-       - `camera.js`・`camera_3d.js` のソースから `$('…')` の ID、`querySelector` のクラス・属性セレクターを抜き出し、`studio/js/camera/legacy-ids.json`（WP-06b で生成。`camera.html` には ID が 122個ある）と、ホストが作る DOM（Playwright で列挙）に全部が含まれることを確かめる。
+       - `camera.js`・`camera_3d.js` のソースから `$('…')` の ID、`querySelector` のクラス・属性セレクターを抜き出し、`studio/js/camera/legacy-ids.json`（WP-06b で生成。2026-10-22 の現物 `camera.html` には ID が **124個**ある）と、ホストが作る DOM（Playwright で列挙）に全部が含まれることを確かめる。配置先と差分は [WP-06b 要素配置表](P2_WP06_CAMERA_ID_PLACEMENT_JA.md)。
        - **重複IDの検査**：新UIのページ全体で `[id]` が一意であること。`root` 基準で取るので、重複してもカメラのコードは壊れないが、`label for` や `document.getElementById` を使う他のコードが壊れるのを防ぐ。
      - **常駐**：mount したコードは作り直せないので、ホストの根要素はページの中で1つだけ作る。SCR-02 を離れるときは `#main` から外し、非表示の `#keepalive`（`studio/index.html` の `<body>` の直下に足す）へ移す。戻ったら `#main` に戻して、`window.dispatchEvent(new Event('resize'))` を送る。§1.6 の後始末では破棄しない。SCR-03/04/14/15/16 は、⑥の時点では SCR-02 の該当タブ（`?tab=focus` など）へのリンクにし、同じホストを2つ作らない。
   3. **WP-06c：②との統合**（統合保存の窓口は②の［保存］。カメラ単独の保存は O-⑥-2 のとおり残す）。
@@ -1523,7 +1523,7 @@ SCR-13：左 `items('Dance', 6, …)`、下部の `tracks` の固定キー（ク
 - **O-⑥-1（決定）**：`camera.js` の未保存の状態は、`MountHandle.isDirty()`（内部の変数 `dirty`。Phase E の `BAICameraDebug.getState().dirty` と同じ変数）で読む。mount 化の①のコミットで足す。旧画面からは呼ばれないので、動作は変わらない。
 - **O-⑥-5（決定、2-M4）**：workspace のフィールド単位の所有（§2.2(d)-9、上の 3）。
 - **O-⑥-2**（既定を変えた：1-M10）：カメラ画面単独の［保存］（`#save` → `POST /api/camera/project`、`camera.js:210`）は、**Phase E WP-02d まで残す**。新UIのホストにも `#save` を見える形で置き、モックの SCR-02 のツールの位置に「カメラだけ保存」として出す。WP-02d で統合保存が完成したら、Phase E §7 の読み替え表に従って一本化する。
-- **O-⑥-4**：要素IDの配置表（どの ID をモックのどのパネル・タブに置くか）。WP-06b の最初の成果物として作り、Opus で1回レビューしてから実装する。これが Phase E §7 の読み替え表の元になる。
+- **O-⑥-4**：要素IDの配置表（どの ID をモックのどのパネル・タブに置くか）。[WP-06b 要素配置表](P2_WP06_CAMERA_ID_PLACEMENT_JA.md)と `legacy-ids.json` に現物124 IDを記録した。独立した高性能モデルのレビューは未実施として台帳に残す。これが Phase E §7 の読み替え表の元になる。
 - 削除：v1 の O-⑥-3（正規化の置き換え）は、mount 方式にしたので不要になった（§1.7）。
 - テスト：`tests/studio-p2-camera.test.cjs`（ポート 8794）。
   - 旧 `camera.html` に対する既存の Playwright 相当の操作（キー追加→Undo→保存→再読込で復元、合成 GLB を両方のビューに描画）が、新UIのホストでも同じ結果になる。

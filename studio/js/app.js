@@ -756,10 +756,12 @@ function render() {
   crumb.append('Studio › ', s.group, ' › ', h('b', null, `${s.id} ${s.title}`));
   main.dataset.screen = s.id;
 
+  const cameraFull = s.id === '02' && s.center.type === 'feature' && s.center.key === 'cameraHost';
+
   const head = h('div', { class: 'screen-head' }, h('span', { class: 'screen-id' }, `SCR-${s.id}`), h('h1', null, s.title),
     s.modes ? modeSwitch(s.modes, s, tab) : null,
     h('div', { class: 'tools', role: 'toolbar', 'aria-label': '画面の操作' },
-      s.left ? h('button', { class: 'btn ghost only-mid', type: 'button', title: '左パネルの表示切替', onclick: () => ws.classList.toggle('show-left') }, '☰ ' + s.left.title) : null,
+      s.left && !cameraFull ? h('button', { class: 'btn ghost only-mid', type: 'button', title: '左パネルの表示切替', onclick: () => ws.classList.toggle('show-left') }, '☰ ' + s.left.title) : null,
       (s.tools || []).map((c) => { const el = control(c); return el; }),
       h('span', { class: 'sep' }),
       dropdown('表示', [
@@ -767,11 +769,11 @@ function render() {
         { label: `テーマ：${prefs.theme === 'paper' ? 'ナイトに切替' : 'ペーパーに切替'}`, onSelect: () => { prefs.theme = prefs.theme === 'paper' ? 'night' : 'paper'; savePrefs(); } },
         { label: '実装状態タブを開く', onSelect: () => navigate(s.id, { replace: true, tab: 'status', query: s.id === '27' ? { mode: lyricMode(tab) } : undefined }) },
       ], 'btn ghost')));
-  const ws = h('div', { class: `ws ${s.left ? '' : 'no-left'}` });
-  if (s.left) ws.append(leftPane(s));
+  const ws = h('div', { class: `ws ${cameraFull ? 'camera-full' : s.left ? '' : 'no-left'}` });
+  if (s.left && !cameraFull) ws.append(leftPane(s));
   ws.append(centerPane(s));
-  ws.append(rightPane(s, tab));
-  if (s.bottom) ws.append(bottomPane(s));
+  if (!cameraFull) ws.append(rightPane(s, tab));
+  if (s.bottom && !cameraFull) ws.append(bottomPane(s));
   // 模擬の再生・位置スライダー・シーンツリーが実機能に見えないよう常時表示する（導線点検 §5-4）。
   // 条件は「その画面の 3D ビューの区画の status が real でない」こと。WP-04・05・06 で real にしたら自動で消える。
   const c3 = s.center;

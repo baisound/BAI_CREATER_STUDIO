@@ -9,6 +9,7 @@ interface Window {
   BAICameraSequencePlayback?: any;
   BAIVmdLocal?: any;
   BAICameraPage?: any;
+  BAI_CAMERA_MANUAL_MOUNT?: boolean;
   BAICameraBundleCore?: any;
   baiStudio?: any;
 }

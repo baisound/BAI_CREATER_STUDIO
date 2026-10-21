@@ -360,7 +360,7 @@
       "state": "verified",
       "commits": [
         "e1961b8（camera.js mount化）",
-        "codex/p2-wp06のWP06a後半（camera_3d.js mount化・テスト更新）"
+        "06371ed（camera_3d.js mount化・テスト更新）"
       ],
       "tests": [
         "npm run typecheck: pass。camera.js・camera_3d.jsの構文検査: pass",
@@ -380,11 +380,20 @@
     {
       "id": "P2-WP-06b",
       "step": "⑥ ホスト・配置表",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "テストのポートの食い違い（設計書 §4.1 の注記）：studio-p2-normalize-parity の実装が 8794（studio-p2-camera の予約）を使っているので、studio-p2-camera を作る前に parity を 8789 に直す。studio-p2-retarget の 8791 は Phase E camera-ui の予約と衝突する（Phase E WP-03 の前に直す）。依存は WP-05b（workspace の clip・frame）。",
+      "state": "verified",
+      "commits": [
+        "codex/p2-wp06のWP06b（124 ID配置表・SCR02カメラホスト・常駐・導線）"
+      ],
+      "tests": [
+        "npm run typecheck: pass。tests/test_screen_status_honesty.mjs: 6 pass",
+        "tests/studio-p2-camera-ids.test.mjs と tests/studio-p2-camera.test.cjs: 直列4 pass。HTMLの全124 ID、JSが追加するXYZ6 ID、ページ全体重複0。SCR02の3Dキャンバス2面・右タブ、キー追加→離脱→復帰→Undo/Redo→保存→再読込、旧camera.htmlで同じキーを確認。破損カメラJSONではmountせず原本バイト列不変",
+        "tests/studio-ui.test.cjs: 27画面の共通回帰20 pass。SCR02の旧モック期待を実ホストに更新。ブラウザーはChrome SwiftShader"
+      ],
+      "unverified": [
+        "独立した高性能モデルの配置表レビューは未実施。実GPU・Linux・全実モデルの外観・Owner採用は未検証",
+        "SCR02ホストと②のworkspace/統合保存の双方向同期はWP06c。カメラ単独保存は利用可"
+      ],
+      "notes": "現行camera.htmlは設計の旧記述122ではなく124 ID。tools/camera_id_map.py、legacy-ids.json、P2_WP06_CAMERA_ID_PLACEMENT_JA.mdに全IDの配置先を記録。カメラJSは旧画面と共有し、SCR02離脱時は#keepaliveへ退避。実装・試験は標準モデル（GPT-6）、サブエージェントなし。",
       "owner_check": null
     },
     {

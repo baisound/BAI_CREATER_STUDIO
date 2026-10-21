@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T01:11:11+09:00",
+  "updated_at": "2026-10-22T02:00:40+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp06",
-  "head_at_update": "06371ed",
+  "head_at_update": "21597c7",
   "current": {
     "task": "P2-WP-06 カメラ移植とIssue #50全形式の接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "WP06b: 要素ID配置表とSCR02常駐カメラホスト",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-06b: 要素ID配置表、SCR02ホスト、keep-alive、カメラ隔離E2E"
+    "P2-WP-06c: ②の統合保存とworkspaceの所有・復元をカメラホストに接続"
   ],
   "unverified": [
-    "旧mainとの3Dピクセル比較はCDN 404で未実施。新UIホスト・保存接続、実利用者モデル/GPU/Linuxは未検証"
+    "独立した高性能モデルの配置表レビュー、実GPU/Linux/全実モデル・Owner採用は未検証。SCR02と②のworkspace双方向同期・統合保存はWP06c。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T02:00:40+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "21597c7",
+      "text": "P2-WP-06b: 現行camera.htmlの124 ID配置表・SCR02カメラホスト・常駐・隔離Chrome4件・27画面共通20件を完了。カメラ単独保存と旧画面の再読込互換を確認。"
+    },
     {
       "at": "2026-10-22T01:11:11+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "d5f2c98",
       "text": "PR45に統合済みPR43/mainを取り込み、作業位置・DATA-016台帳・大型GLB見本保護の競合を解消。Node19件、Python5件、TypeScript検査に合格。"
-    },
-    {
-      "at": "2026-10-21T22:01:13+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1de1272",
-      "text": "PR45を統合済みPR43のmainへ追従: 共通の大型GLB見本保護を保持し、競合を解消して小型テストを再実行する"
     }
   ]
 }
