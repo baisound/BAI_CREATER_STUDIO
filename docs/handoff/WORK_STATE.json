@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T23:55:18+09:00",
+  "updated_at": "2026-10-21T23:55:39+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-character-formats",
-  "head_at_update": "98b6118",
+  "head_at_update": "938804f",
   "current": {
-    "task": "Issue #50 全キャラクター配置でGLB/VRM/PMX/FBXを選択",
-    "status": "done",
-    "step": "配置画面・保存形式・ローダーと形式別制限を監査し実装契約を確定",
-    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
+    "task": "Issue #50 全キャラクター形式の配置",
+    "status": "in_progress",
+    "step": "workspace.assetの互換拡張とcharacter位置・回転・倍率を保存・復元する",
+    "design_doc": "docs/roadmap/CHARACTER_PLACEMENT_ALL_FORMATS_20261021_JA.md"
   },
   "next_steps": [
     "保存形式とSCR12/06/13を実装し、SCR05・WP06へ展開する"
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T23:55:39+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "938804f",
+      "text": "Issue #50 全キャラクター形式の配置: workspace.assetの互換拡張とcharacter位置・回転・倍率を保存・復元する"
+    },
     {
       "at": "2026-10-21T23:55:18+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "c6287b1",
       "text": "ステージGLBの内部を解析して見せ場のサムネイルを自動生成: SkyDomeを除いた構造範囲、室内候補視点、画像評価、版付き保存と既登録S01再生成を実装"
-    },
-    {
-      "at": "2026-10-21T20:15:07+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "1b0f48a",
-      "text": "Issue34/35のグレーマン表示とキャラクター正面PNGの初期実装。隔離Chrome2件、HTTP1件、型検査成功。素材画面一式32/33成功、時間切れの1件は単独再実行で成功"
     }
   ]
 }
