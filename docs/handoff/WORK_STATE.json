@@ -1,22 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T10:51:52+09:00",
+  "updated_at": "2026-10-21T10:53:03+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05e",
-  "head_at_update": "47cd708",
+  "head_at_update": "aba9601",
   "current": {
     "task": "P2-WP-05e SCR-13のタイムライン編集・再生と補正レイヤー",
-    "status": "in_progress",
+    "status": "done",
     "step": "旧実装・保存API・受け入れ条件の照合",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP05dのPRを作成し、共有ベースとの差分を確認する",
-    "WP05b/cの必須独立レビューを確認し、承認済みP2-WP-05eへ進む"
+    "WP05eの純粋計算・自動保存コントローラーを実装して単体テストする",
+    "SCR13のタイムラインUIとFBX再生・補正レイヤーを結線する"
   ],
   "unverified": [
-    "本番FBX/PMX/VMDとGPU実機は未検証（隔離した最小素材・headless Chrome/SwiftShader）。",
-    "WP05b/cの独立レビューは未確認。対応表GET→POST間の競合の隙は設計上残る。"
+    "実FBX/GPU実機とWP05b/cの必須独立レビューは未確認。GET→POST間の競合の隙は設計K12として残る。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T10:53:03+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "aba9601",
+      "text": "WP05eの旧画面・保存API・SCR13の現行再生ビューを照合し、実装境界と競合検知の基準を文書化した。"
+    },
     {
       "at": "2026-10-21T10:51:52+09:00",
       "by": "codex",
@@ -236,13 +242,6 @@
       "event": "start",
       "head": "da43e6b",
       "text": "P2-WP-02/03 素材: 設計書読込・実装着手"
-    },
-    {
-      "at": "2026-10-20T14:06:04+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "d33496a",
-      "text": "WP-01 Opus レビュー：自動保存と統合保存が同じ tick を待つと saving:true のまま止まる不具合を修正（テスト追加）。If-Match・世代番号・C5・server.py の 500 分岐は問題なし"
     }
   ]
 }
