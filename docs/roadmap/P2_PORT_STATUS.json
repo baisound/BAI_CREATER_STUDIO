@@ -291,10 +291,27 @@
     {
       "id": "P2-WP-05f",
       "step": "⑤ 転写タイムライン・QA、キー候補のフレーム比較、足の接地",
-      "state": "in_progress",
-      "commits": ["a0675a1（既存実装・API・UI受け口の監査）", "9822857（⑤-11の同意つきQAと検証JSON）", "0166a83（⑤-12のキー候補比較と試験再生）", "05f-4（このコミット：⑤-14足接地診断と実装機能一覧）"],
-      "tests": ["npm run typecheck: pass", "tests/studio-p2-retarget.test.cjs: 9 pass（⑤-11同意・検証JSON、⑤-12同意・API本文・2体配置・フレーム操作・品質ゲートと不正ノードの拒否・対象変更と古い応答の破棄、⑤-14の3診断API・2MB/stride/JSON入力の拒否、既存比較回帰）", "tests/test_screen_status_honesty.mjs: 6 pass（足IKを実操作の根拠でrealに変更）"],
-      "unverified": ["⑤-11/12/14の結線後の共通完了ゲートは次段階で実行する。", "実利用者のモデル/GPUとWP05b/c/e/f独立レビューは未確認。"],
+      "state": "verified",
+      "commits": [
+        "a0675a1（既存実装・API・UI受け口の監査）",
+        "9822857（⑤-11の同意つきQAと検証JSON）",
+        "0166a83（⑤-12のキー候補比較と試験再生）",
+        "b050e33（⑤-14足接地診断と実装機能一覧）",
+        "05f-5（このコミット：共通ゲートとE2E記録）"
+      ],
+      "tests": [
+        "npm run typecheck: pass",
+        "tests/studio-p2-retarget.test.cjs: 9 pass（⑤-11同意・検証JSON、⑤-12同意・API本文・2体配置・フレーム操作・品質ゲートと不正ノードの拒否・対象変更と古い応答の破棄、⑤-14の3診断API・2MB/stride/JSON入力の拒否、既存比較回帰）",
+        "tests/test_screen_status_honesty.mjs: 6 pass（足IKを実操作の根拠でrealに変更）",
+        "npm run test:node-all: 299 pass・5 planned skip・0 fail（BAI_TEST_CONCURRENCY=1、実data/ 7ファイルのハッシュ不変・exportsなし）",
+        "PYTHONUTF8=1 python -m pytest -q: 370 pass・23 subtests pass",
+        "node tools/run_evidence_tests.mjs: 126 pass・0 fail（実data/ ハッシュ不変）",
+        "E2E: S1/S2/S5 pass、S3/S4/S6/S7/S8 は設計どおり skip、furthest_step=S2（test-results/e2e_main.json から自動記録）"
+      ],
+      "unverified": [
+        "実利用者のモデル/GPU実機とWP05b/c/e/f独立レビューは未確認。",
+        "WebMCP・stdio MCPの個別機能整合は未検証。P2全体の完成判定ではない。"
+      ],
       "notes": "設計書 §2.5 05f（O-⑤-6）。docs/roadmap/P2_WP05F_AUDIT_20261021_JA.md に既存UI、3群のAPI、配置、確認ゲートを記録。⑤-11はボーンマップ末尾に同意つきQAと検証JSON保存を追加。⑤-12は中央の比較帯で登録済み転写先GLB/VRMを2体表示し、未校正キー候補をフレーム指定・5/10/15 FPSで試験再生する。品質ゲートとノードを検査し、選択変更・同意解除で候補を破棄する。⑤-14は既存足IKタブで左足・BVH・両足の診断APIを呼びJSONを表示する。docs/roadmap/IMPLEMENTED_FEATURES_NEW_UI_20261021_JA.txt に新UIの実装区画35件と現行UIのみ・部分36件を区別して列挙。モデル・VMD・weightsは変更しない。実装・テスト：標準モデル区分。",
       "owner_check": null
     },
@@ -423,7 +440,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "3576194",
-    "checked_at": "2026-10-21T02:39:32.924Z"
+    "commit": "88b680d",
+    "checked_at": "2026-10-21T03:07:02.656Z"
   }
 }

@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T12:03:44+09:00",
+  "updated_at": "2026-10-21T12:20:07+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05f",
-  "head_at_update": "b050e33",
+  "head_at_update": "88b680d",
   "current": {
     "task": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断",
-    "status": "in_progress",
+    "status": "done",
     "step": "共通完了ゲートとE2E結果の台帳記録",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP05f 共通完了ゲートとE2E結果を台帳に記録"
+    "P2-WP-05gの承認済み⑤-10/15模式再生を監査・実装"
   ],
   "unverified": [
-    "共通完了ゲート、実利用者モデル/GPU、WP05b/c/e/f独立レビューは未確認"
+    "実利用者モデル/GPU実機、WP05b/c/e/f独立レビュー、WebMCP/stdio MCP個別整合は未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T12:20:07+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "88b680d",
+      "text": "WP05f ⑤-11/12/14の実装と共通ゲートを完了。Node 299 pass/5 planned skip、Python 370+23、Evidence 126、E2E最遠S2、実dataハッシュ不変。実装機能一覧TXTを納品"
+    },
     {
       "at": "2026-10-21T12:03:44+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "5b4711a",
       "text": "P2-WP-05c 完了：SCR-05 の82パターン一覧（検索・分類・👑）・お気に入り・コンビネーション編集（editCombination）・速度"
-    },
-    {
-      "at": "2026-10-20T20:42:01+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "7e701e0",
-      "text": "P2-WP-05c SCR-05 の82パターン一覧・お気に入り・コンビネーション編集・速度（3Dなし）: 実装→テスト→台帳更新→コミット"
     }
   ]
 }
