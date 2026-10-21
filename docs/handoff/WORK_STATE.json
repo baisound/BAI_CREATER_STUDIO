@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T11:48:18+09:00",
+  "updated_at": "2026-10-21T11:48:50+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05f",
-  "head_at_update": "d87e5f2",
+  "head_at_update": "9822857",
   "current": {
     "task": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断",
-    "status": "done",
-    "step": "⑤-11 転写タイムラインQAをボーンマップへ結線",
+    "status": "in_progress",
+    "step": "⑤-12 未校正キー候補・フレーム比較をSCR13中央へ結線",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T11:48:50+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9822857",
+      "text": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断: ⑤-12 未校正キー候補・フレーム比較をSCR13中央へ結線"
+    },
     {
       "at": "2026-10-21T11:48:18+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "f675061",
       "text": "P2-WP-05a SCR-13 編集モードの1体再生（PMX+VMD・GLB/VRMクリップ・VMDライブラリ）と S5 の有効化: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T19:50:21+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "255ad3d",
-      "text": "P2 §2.5（⑤ モーション）を WP-05a〜05g に分けて詳しくした（255ad3d）。O-⑤-1〜8 決定、批評1回反映、台帳更新。コード変更なし"
     }
   ]
 }
