@@ -211,6 +211,40 @@ test('retarget panel reports errors in Japanese and lists only available assets'
   });
 });
 
+test('review bundle requires coordinate confirmation and downloads only verification JSON', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await open13(page, server);
+    await page.selectOption('[data-role="rt-source"]', IDA);
+    await page.selectOption('[data-role="rt-target"]', IDB);
+    await page.locator('summary', { hasText: '転写タイムライン・QA・JSON保存' }).click();
+    let calls = 0;
+    page.on('request', (r) => { if (r.method() === 'POST' && new URL(r.url()).pathname === '/api/retarget/review-bundle') calls++; });
+    await page.click('[data-role="rt-review-run"]');
+    assert.match(await text(page, 'rt-review-result'), /^解析失敗: 座標系の確認が必要です/);
+    assert.equal(calls, 0, '確認なしではAPIを呼ばない');
+    assert.equal(await page.locator('[data-role="rt-review-save"]').isDisabled(), true);
+    await page.check('[data-role="rt-review-agree"]');
+    await page.click('[data-role="rt-review-run"]');
+    await page.waitForFunction(() => /品質: .*\n対象フレーム:/.test(document.querySelector('[data-role="rt-review-result"]')?.textContent || ''), null, { timeout: 12000 });
+    const output = await text(page, 'rt-review-result');
+    assert.match(output, /対象ボーン: \d+/);
+    assert.match(output, /回転キー候補: \d+/);
+    assert.match(output, /診断警告: \d+/);
+    assert.match(output, /VMD出力: 禁止（未校正）/);
+    assert.equal(calls, 1);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('[data-role="rt-review-save"]')]);
+    assert.equal(download.suggestedFilename(), 'BAI_retarget_review_unverified.json');
+    const saved = JSON.parse(fs.readFileSync(await download.path(), 'utf8'));
+    assert.equal(saved.suitable_for_vmd_export, false);
+    assert.equal(saved.animation_applied, false);
+    await page.selectOption('[data-role="rt-target"]', IDA);
+    assert.equal(await page.locator('[data-role="rt-review-save"]').isDisabled(), true);
+    assert.equal(await page.locator('[data-role="rt-review-agree"]').isChecked(), false);
+    assert.match(await text(page, 'rt-review-result'), /候補を再取得してください/);
+    assert.ok(fs.readFileSync(path.join(server.dataDir, 'integrated_v02', 'assets', A)).equals(GLB));
+  });
+});
+
 /** 仮転写の応答の形（samples は target_node と local_rotation_xyzw）。frame 0 に 3 件：適用 1・範囲外 1・不正な四元数 1、frame 1 に 1 件。 */
 const REPORT = {
   samples: [

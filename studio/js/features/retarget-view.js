@@ -355,12 +355,59 @@ export const retargetPanel = (ctx) => {
         undefined, (d) => `品質ゲート: ${d && d.quality ? d.quality.quality_gate : '不明'}（VMD出力不可）`);
     }), tOut.el);
 
+  /* ---- ⑤-11 転写タイムライン・QA（検証JSONだけ） ---- */
+  const reviewAgree = checkbox('共通座標系であることを確認（VRM正規化・ひねりは未校正）', 'rt-review-agree');
+  const reviewStatus = h('pre', { class: 'rt-pre', role: 'status', 'aria-live': 'polite', dataset: { role: 'rt-review-result' } }, '実行待ち');
+  /** @type {any} */ let reviewReport = null;
+  let reviewEpoch = 0, reviewAlive = true;
+  const reviewSave = /** @type {HTMLButtonElement} */ (actionBtn('検証JSONを保存', 'rt-review-save', '検証用JSONをダウンロード。VMDやモデルは変更しません', () => {
+    if (!reviewReport || !reviewAgree.box.checked) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(reviewReport, null, 2)], { type: 'application/json' }));
+    const a = document.createElement('a'); a.href = url; a.download = 'BAI_retarget_review_unverified.json';
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }));
+  reviewSave.disabled = true;
+  function clearReview(message = '選択が変わりました。候補を再取得してください。') {
+    reviewEpoch++; reviewReport = null; reviewSave.disabled = true; reviewRun.disabled = false; reviewAgree.box.checked = false;
+    reviewStatus.textContent = message; delete reviewStatus.dataset.kind;
+  }
+  const reviewRun = /** @type {HTMLButtonElement} */ (actionBtn('解析・品質診断', 'rt-review-run', '未校正の回転候補を検証します。モデル・VMD・ウェイトには書き込みません', async () => {
+    if (!reviewAgree.box.checked) { reviewStatus.textContent = '解析失敗: 座標系の確認が必要です'; reviewStatus.dataset.kind = 'error'; return; }
+    const p = pair();
+    if (!p.source || !p.target) { reviewStatus.textContent = '解析失敗: 元モデル・転写先モデルを選択してください'; reviewStatus.dataset.kind = 'error'; return; }
+    const epoch = ++reviewEpoch;
+    reviewReport = null; reviewSave.disabled = true; reviewRun.disabled = true;
+    reviewStatus.textContent = '解析中…'; delete reviewStatus.dataset.kind;
+    try {
+      const r = await postJson('/api/retarget/review-bundle', { ...p, fps: 30, coordinate_convention_confirmed: true });
+      if (!reviewAlive || epoch !== reviewEpoch) return;
+      if (!r.ok) throw new Error(r.message);
+      const d = r.data;
+      if (!d || !d.quality || !Array.isArray(d.timeline) || !Array.isArray(d.roles) || !Array.isArray(d.samples) || !Array.isArray(d.warnings)) throw new Error('検証結果が不正です');
+      reviewReport = d; reviewSave.disabled = false;
+      reviewStatus.textContent = `品質: ${d.quality.quality_gate}\n対象フレーム: ${d.timeline.length}\n対象ボーン: ${d.roles.length}\n回転キー候補: ${d.samples.length}\n診断警告: ${d.warnings.length}\nVMD出力: 禁止（未校正）\n\n${JSON.stringify(d.warnings.slice(0, 15), null, 2)}`;
+    } catch (e) {
+      if (reviewAlive && epoch === reviewEpoch) { reviewStatus.textContent = `解析失敗: ${e instanceof Error ? e.message : String(e)}`; reviewStatus.dataset.kind = 'error'; }
+    } finally { if (reviewAlive && epoch === reviewEpoch) reviewRun.disabled = false; }
+  }));
+  const review = group('転写タイムライン・QA・JSON保存（試験）', false,
+    h('p', { class: 'section-note' }, '選択したGLB/VRMのキーフレームを診断します。出力は検証用JSONで、動画・VMDではありません。'),
+    reviewAgree.el, h('div', { class: 'btn-row' }, reviewRun, reviewSave), reviewStatus);
+  let reviewSelection = pair();
+  ctx.onCleanup(rt.subscribe(() => {
+    const next = pair();
+    if (next.source !== reviewSelection.source || next.target !== reviewSelection.target) { reviewSelection = next; clearReview(); }
+  }));
+  reviewAgree.box.addEventListener('change', () => { if (!reviewAgree.box.checked) clearReview('確認が解除されました。候補を再取得してください。'); });
+  ctx.onCleanup(() => { reviewAlive = false; reviewEpoch++; reviewReport = null; });
+
   return h('div', { class: 'rt-panel', dataset: { feature: 'retargetPanel' } },
     h('p', { class: 'section-note' }, '登録済み素材を選択して骨格情報を比較します。自動マッピングは名称ベースの候補で、まだVMDには変換されません。'),
     h('div', { class: 'rt-fields' },
       h('label', null, '元モーション', sourceSel), h('label', null, '対象モデル', targetSel),
       actionBtn('素材一覧を更新', 'rt-refresh', undefined, () => { void loadAssets(); })),
-    list, analysis, profile, mapping, rest, transfer);
+    list, analysis, profile, mapping, rest, transfer, review);
 };
 
 /* ------------------------------------------------------------------ 中央：ポーズ比較（④-10） */

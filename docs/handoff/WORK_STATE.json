@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T11:45:46+09:00",
+  "updated_at": "2026-10-21T11:48:18+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05f",
-  "head_at_update": "a0675a1",
+  "head_at_update": "d87e5f2",
   "current": {
     "task": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断",
-    "status": "in_progress",
+    "status": "done",
     "step": "⑤-11 転写タイムラインQAをボーンマップへ結線",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "⑤-11 転写タイムラインQAをSCR13ボーンマップへ結線し隔離Chromeで検証する"
+    "⑤-12 未校正キー候補・フレーム比較をSCR13中央へ結線する"
   ],
   "unverified": [
-    "⑤-11/12/14の結線・自動試験は未着手。実モデル/GPUとWP05b/c/e/f独立レビューは未確認。"
+    "⑤-12/14と共通ゲート、実利用者モデル/GPU、WP05b/c/e/f独立レビューは未確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T11:48:18+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "d87e5f2",
+      "text": "WP05f⑤-11: 同意つき転写QAと検証JSON保存をSCR13ボーンマップへ結線しChrome5件合格"
+    },
     {
       "at": "2026-10-21T11:45:46+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "255ad3d",
       "text": "P2 §2.5（⑤ モーション）を WP-05a〜05g に分けて詳しくした（255ad3d）。O-⑤-1〜8 決定、批評1回反映、台帳更新。コード変更なし"
-    },
-    {
-      "at": "2026-10-20T19:29:19+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "8de3801",
-      "text": "P2 §2.5 ⑤ モーション（VMD）の詳細設計（O-⑤-1〜8 の決定と WP-05 の分割）: 旧コード調査 → §2.5 詳細化 → 自己批評 → コミット"
     }
   ]
 }

@@ -292,10 +292,10 @@
       "id": "P2-WP-05f",
       "step": "⑤ 転写タイムライン・QA、キー候補のフレーム比較、足の接地",
       "state": "in_progress",
-      "commits": ["05f-1（このコミット：既存実装・API・UI受け口の監査）"],
-      "tests": [],
-      "unverified": ["⑤-11・⑤-12・⑤-14の新UI結線と自動テストは未着手。", "実モデル/GPUとWP05b/c/e/f独立レビューは未確認。"],
-      "notes": "設計書 §2.5 05f（O-⑤-6）。docs/roadmap/P2_WP05F_AUDIT_20261021_JA.md に既存UI、3群のAPI、配置、確認ゲートを記録。実装・テスト：標準モデル区分。",
+      "commits": ["a0675a1（既存実装・API・UI受け口の監査）", "05f-2（このコミット：⑤-11の同意つきQAと検証JSON）"],
+      "tests": ["npm run typecheck: pass", "tests/studio-p2-retarget.test.cjs: 5 pass（⑤-11同意なしHTTP 0回・診断結果・検証JSONダウンロード・素材変更時の破棄、既存比較回帰）"],
+      "unverified": ["⑤-12・⑤-14の新UI結線と自動テストは未着手。共通完了ゲートは全機能結線後に実行する。", "実利用者のモデル/GPUとWP05b/c/e/f独立レビューは未確認。"],
+      "notes": "設計書 §2.5 05f（O-⑤-6）。docs/roadmap/P2_WP05F_AUDIT_20261021_JA.md に既存UI、3群のAPI、配置、確認ゲートを記録。⑤-11はボーンマップ末尾に同意つきQAを追加し、検証JSONをブラウザー内で保存。モデル・VMD・weightsは変更しない。実装・テスト：標準モデル区分。",
       "owner_check": null
     },
     {
