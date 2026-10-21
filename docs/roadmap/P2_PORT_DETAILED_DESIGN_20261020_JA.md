@@ -696,7 +696,7 @@ export function summarize(bundle) {}                                   // 表示
 | 統合保存 | `complete` が true なら「保存済み」、false なら「コンビネーション未保存（保存すると作成されます）」 | — |
 | 版 | `revision.slice(0, 12)`（`title` 属性に全体） | 6d1875cf2667 |
 
-   - 編集履歴（`projectHistory`）：`history` を保存順に一覧にする（`(i+1). 日時 ラベル`。旧 `ui()` と同じ書式：`index.html:370`）。`cursor` の行に「現在」と付ける。行を選ぶと［この時点に戻す］（`restoreHistory(i)`）が使える。［戻す］は `cursor <= 0` のとき、［やり直す］は `cursor >= history.length-1` のとき無効（`index.html:370` と同じ条件）。`status!=='ready'` のときは全部無効。履歴が0件なら空表示「履歴はまだありません。コンビネーションを編集すると記録されます（現行の制作画面、または ⑤ の移植後）。」
+   - 編集履歴（`projectHistory`）：`history` は保存順のまま、一覧だけ新しい順にする（`(i+1). 日時 ラベル`）。表示行には元のインデックス `i` を保持する。`cursor` の行に「現在」と付ける。行を選ぶと［この時点に戻す］（`restoreHistory(i)`）が使える。［戻す］は `cursor <= 0` のとき、［やり直す］は `cursor >= history.length-1` のとき無効（`index.html:370` と同じ条件）。`status!=='ready'` のときは全部無効。履歴が0件なら空表示「履歴はまだありません。コンビネーションを編集すると記録されます（現行の制作画面、または ⑤ の移植後）。」
    - ［保存］が無効になる条件：`hasUnsaved()===false`、`saving`、`status !== 'ready'`、`cameraInvalid` のどれか。
 11. **アクセシビリティ**：状態行は `role="status"`。ダイアログは既存の `openModal()`（Esc・フォーカス固定）を使う。
 
