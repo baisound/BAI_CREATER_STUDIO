@@ -21,10 +21,10 @@ import { img, CAM_PRESETS, LENS_PRESETS, SHOT_TEMPLATES, ASSETS } from './sample
  *   classification: string, ids: string[], panels: Panel[],
  *   existing?: {label: string, href: string}[], live?: string[],
  *   modes?: string[], tools?: Control[],
- *   left?: {title: string, status: Status, list?: any[], tree?: boolean, search?: boolean, controls?: Control[], custom?: string},
+ *   left?: {title: string, status: Status, list?: any[], tree?: boolean, search?: boolean, controls?: Control[], custom?: string, evidence?: string},
  *   center: {type: string, [k: string]: any},
  *   right?: {tabs: Tab[]},
- *   bottom?: {type: 'timeline', status: Status, fps: number, frames: number, tracks: any[], demoEditable?: boolean} | null,
+ *   bottom?: {type: 'timeline', status: Status, fps: number, frames: number, tracks: any[], demoEditable?: boolean} | {type: 'feature', key: string, status: Status, evidence?: string} | null,
  * }} Screen
  */
 
@@ -73,6 +73,17 @@ const items = (prefix, n, meta) => Array.from({ length: n }, (_, i) => ({ id: `$
  * @param {string} label @param {Record<string, any>} [x] */
 export const newProjectUnimpl = (label, x = {}) => ({ ...un(label, '現在のサーバーは制作状態を1つだけ保持します。新しい制作状態を作る機能は未実装です（DATA-008 の範囲外、テンプレートからの作成は NF-019）。', ['DATA-008', 'NF-019'], PH.P2), ...x });
 
+/** ④ の実機能の区画の根拠（tests/test_screen_status_honesty.mjs が実在を確かめる）。 */
+const EV_CHAR = 'tests/studio-p2-viewport.test.cjs::glb renders and normalizes like the camera page';
+const EV_RT_PANEL = 'tests/studio-p2-retarget.test.cjs::retarget panel shows every API response and saves the mapping';
+const EV_MOTION_VIEW = 'tests/studio-p2-motion.test.cjs::pmx with vmd plays bones and morphs';
+const EV_CHAIN_LIST = 'tests/studio-p2-chain.test.cjs::pattern list marks registered fbx with a crown';
+const EV_CHAIN_EDIT = 'tests/studio-p2-chain.test.cjs::add to combination records history and autosaves';
+const EV_CHAIN_SPEED = 'tests/studio-p2-chain.test.cjs::speed autosaves without history';
+const EV_MOTION_LIB = 'tests/studio-p2-motion.test.cjs::vmd library lists registered vmd and applies it';
+const EV_RT_VIEW = 'tests/studio-p2-retarget.test.cjs::pose compare places two models at x = -1.15 and +1.15 and applies the rotation to the right one';
+const EV_STAGE = 'tests/studio-p2-viewport.test.cjs::stage placement saves and restores';
+
 const CAMERA = { label: 'カメラ画面（現行）', href: '/camera.html' };
 const MAIN = { label: '制作画面（現行）', href: '/' };
 
@@ -96,7 +107,8 @@ export const SCREENS = [
     classification: 'existing_or_partial_to_audit', ids: ['DATA-008', 'CORE-013', 'NF-015', 'NF-019'],
     existing: [MAIN, CAMERA], live: ['serverVersion', 'diagnostics'],
     panels: [
-      { name: '最近のプロジェクト', status: 'mock', note: '現行サーバーは単一の制作状態のみを保持。複数プロジェクト一覧は未実装。', ids: ['DATA-008'] },
+      { name: '最近のプロジェクト', status: 'real', evidence: 'tests/studio-p2-project.test.cjs::home shows one real project card and no sample projects', note: '現行サーバーは単一の制作状態のみを保持（実データ1枚）。複数プロジェクト一覧・新規作成は未実装（新規作成は ◇）。', ids: ['DATA-008'] },
+      { name: '最近の素材', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::home shows only assets imported in this page', note: 'このページで取り込んだ素材だけ（API に登録日時が無いため）。', ids: ['MOTION-003'] },
       { name: 'クイックアクション', status: 'partial', note: '現行画面へのリンクのみ実在。' },
       { name: '制作ステータス', status: 'partial', note: 'Phase E 台帳（docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json）の要約。' },
       { name: '新規作成', status: 'unimpl', note: '現在のサーバーは制作状態を1つだけ保持。新規作成は未実装（Q1 回答待ち）。テンプレート（ダンスMV等）からの作成は NF-019（未承認）。', ids: ['DATA-008', 'NF-019'] },
@@ -105,9 +117,9 @@ export const SCREENS = [
     tools: [newProjectUnimpl('新規プロジェクト', { primary: true }), un('プロジェクトを開く', '複数プロジェクトのファイル選択・切替は未実装。現行は単一の制作状態を自動で読み込みます。', ['DATA-008'], PH.P2)],
     center: {
       type: 'home', cards: [
-        { title: '最近のプロジェクト', span: 8, status: 'mock', controls: [
-          { t: 'table', cols: ['名前', '種別', '最終更新', '状態'], rows: [['Sample_Project', 'ダンスMV', '—', 'サンプル'], ['Camera_Test', 'カメラ試験', '—', 'サンプル'], ['Motion_Library', 'モーション整理', '—', 'サンプル']] },
-          note('一覧は仮データです。実在するのは現行サーバーの単一制作状態のみ（「プロジェクト保存・復元」画面で読み取り可能）。'),
+        { title: '最近のプロジェクト', span: 8, status: 'real', evidence: 'tests/studio-p2-project.test.cjs::home shows one real project card and no sample projects', controls: [
+          { t: 'feature', key: 'projectCard' },
+          note('複数のプロジェクト管理は未実装です（新規作成は ◇）。実在するのは現行サーバーの単一制作状態のみです。'),
         ] },
         { title: 'クイックアクション', span: 4, status: 'partial', controls: [
           { t: 'btns', items: [btn('カメラワーク', 'nav:02'), btn('モーション編集', 'nav:13'), btn('保存・復元', 'nav:18'), btn('診断', 'nav:24')] },
@@ -219,22 +231,22 @@ export const SCREENS = [
     classification: 'existing_or_partial_to_audit', ids: ['MOTION-006', 'LIP-009'],
     existing: [MAIN],
     panels: [
-      { name: 'モーション検索', status: 'partial', note: '現行画面に82パターンの検索・分類・お気に入りあり。', ids: ['MOTION-001', 'MOTION-017'] },
-      { name: 'VMD再生', status: 'partial', note: '現行画面の PMX・VMD タブ。', ids: ['MOTION-006', 'MOTION-009'] },
+      { name: 'モーション検索', status: 'real', evidence: EV_CHAIN_LIST, note: '82パターンの検索・分類・👑（全手順に実FBXがある）と、お気に入りの読み込み・保存・削除。', ids: ['MOTION-001', 'MOTION-017'] },
+      { name: 'VMD再生', status: 'partial', note: 'VMD の再生は 13（編集モード）。A/B の2体の3D表示・連結再生はこれから（05d）。', ids: ['MOTION-006', 'MOTION-009'] },
       { name: 'ボーン設定', status: 'partial', note: 'retarget_ui.js のボーンマッピング。', ids: ['MOTION-005'] },
       { name: '表情レイヤー', status: 'unimpl', ids: ['LIP-009'] },
-      { name: 'タイムライン', status: 'mock', ids: ['DATA-001'] },
+      { name: 'タイムライン', status: 'real', evidence: EV_CHAIN_EDIT, note: 'コンビネーション（トラック「体」）の追加・並べ替え・削除・全消去・お気に入りへの保存。編集履歴は保存・復元（18）に積まれ、自動保存されます。', ids: ['DATA-001'] },
     ],
     tools: [btn('VMD編集画面（13）へ', 'nav:13'), btn('現行の制作画面で開く', 'href:/')],
-    left: { title: 'モーション検索', status: 'mock', search: true, list: items('Motion', 8, (i) => ['ダンス', '格闘', '歩行', '待機'][i % 4]) },
+    left: { title: 'モーション検索', status: 'real', evidence: EV_CHAIN_LIST, custom: 'patternList' },
     center: { type: 'viewport', img: 'viewport-character', hud: ['Motion Preview'], foot: '3D再生は現行の制作画面で利用できます。' },
     right: { tabs: [
       { id: 'layer', label: 'レイヤー', sections: [
         { title: '表情レイヤー', status: 'unimpl', controls: [note('表情キーの編集と版比較は 13「VMD編集」に統合します。'), btn('表情・リップ編集（13）へ', 'nav:13')] },
-        { title: '再生', status: 'mock', controls: [sel('速度', ['0.5×', '1×', '1.5×', '2×'], '1×'), tg('ループ再生', true)] },
+        { title: '再生', status: 'real', evidence: EV_CHAIN_SPEED, controls: [{ t: 'feature', key: 'playbackSettings' }] },
       ] },
     ] },
-    bottom: { type: 'timeline', status: 'mock', fps: 30, frames: 900, tracks: [{ label: '体', keys: [0, 120, 300, 450, 600, 840] }, { label: '表情', keys: [] }] },
+    bottom: { type: 'feature', key: 'chainTimeline', status: 'real', evidence: EV_CHAIN_EDIT },
   },
   {
     id: '06', title: 'シーン・ステージ・素材配置', nav: 'シーン・ステージ', group: '制作',
@@ -242,19 +254,16 @@ export const SCREENS = [
     classification: 'candidate_late', ids: ['LYRIC-009', 'LYRIC-010', 'DANCE-001', 'DANCE-002', 'DANCE-003', 'DANCE-006', 'DANCE-012', 'NF-014'],
     panels: [
       { name: 'シーンツリー', status: 'mock' },
-      { name: '3Dビュー', status: 'unimpl', note: 'ステージ配置ビューは未実装（モデル表示は現行画面にあり）。' },
-      { name: 'トランスフォーム', status: 'mock' },
-      { name: 'アセットブラウザー', status: 'mock', note: '素材管理（08）と同一索引にする方針。' },
+      { name: '3Dビュー', status: 'real', evidence: EV_STAGE, note: '作業中のキャラクター（GLB/VRM）とステージ1つを表示。素材の単位の換算だけを掛け、高さの正規化・中心合わせはしない。', ids: ['NF-014'] },
+      { name: 'トランスフォーム', status: 'real', evidence: EV_STAGE, note: 'ステージの位置・回転 Y・拡大を workspace.stage に保存（［保存］）。', ids: ['NF-014'] },
+      { name: 'アセットブラウザー', status: 'real', evidence: EV_STAGE, note: '「トランスフォーム」タブの「ステージの素材」の選択欄（素材管理 08 の登録済みモデルから選ぶ）。', ids: ['NF-014'] },
       { name: '表示・依存関係', status: 'unimpl' },
     ],
-    tools: [ch('座標系', ['ワールド', 'ローカル']), un('ステージを読み込む', 'ステージの配置は P2 ④（WP-04）で使えるようになります。大型ステージの分割読込は Phase G（LYRIC-009）です。', ['NF-014', 'LYRIC-009'], PH.P2)],
+    tools: [ch('座標系', ['ワールド', 'ローカル']), { t: 'feature', key: 'stageLoadButton' }, { t: 'feature', key: 'projectToolbar' }],
     left: { title: 'シーンツリー', status: 'mock', tree: true, list: [{ id: 'r', label: 'Scene', depth: 0 }, { id: 'st', label: 'Stage', depth: 1 }, { id: 'fl', label: 'Floor', depth: 2 }, { id: 'ch', label: 'Characters', depth: 1 }, { id: 'a', label: 'Model A', depth: 2 }, { id: 'b', label: 'Model B', depth: 2 }, { id: 'li', label: 'Lights', depth: 1 }, { id: 'k', label: 'Key Light', depth: 2 }, { id: 'cam', label: 'Camera', depth: 1 }] },
-    center: { type: 'viewport', img: 'preview-shrine', hud: ['Scene View', 'Perspective'], tools: ['選択', '移動', '回転', '拡大縮小'], foot: 'ステージ配置ビューは ◇ 未実装。' },
+    center: { type: 'feature', key: 'sceneViewport', status: 'real', evidence: EV_STAGE },
     right: { tabs: [
-      { id: 'xf', label: 'トランスフォーム', sections: [
-        { title: '位置', status: 'mock', controls: [sl('X', -50, 50, 0, 'm', 0.1), sl('Y', -50, 50, 0, 'm', 0.1), sl('Z', -50, 50, 0, 'm', 0.1)] },
-        { title: '回転・拡大', status: 'mock', controls: [sl('回転 Y', -180, 180, 0, '°'), sl('拡大', 0.1, 10, 1, '×', 0.1)] },
-      ] },
+      { id: 'xf', label: 'トランスフォーム', custom: 'stageTransform', sections: [] },
       { id: 'vis', label: '表示', sections: [
         { title: '表示', status: 'mock', controls: [tg('表示', true), tg('影を落とす', true), tg('ロック')] },
         { title: '依存関係', status: 'unimpl', controls: [un('依存素材を表示', '素材の依存参照グラフは未実装。', [], PH.P4)] },
@@ -295,21 +304,18 @@ export const SCREENS = [
     classification: 'candidate_late', ids: ['MOTION-002', 'DATA-013', 'REVIEW-010', 'NF-004', 'NF-013'],
     existing: [MAIN],
     panels: [
-      { name: '素材カテゴリ', status: 'mock' },
-      { name: '検索・タグ', status: 'partial', note: '現行画面の統合素材ライブラリに検索・カテゴリあり。', ids: ['MOTION-002'] },
+      { name: '素材カテゴリ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::library lists real assets by category', note: '/api/assets の実数で分類・件数を表示。ステージ・オーディオなどは登録手段がなく0件。', ids: ['MOTION-002'] },
+      { name: '検索・タグ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::search and format filter work on real data', note: '名前・形式で検索。タグは未実装。', ids: ['MOTION-002'] },
       { name: 'サムネイル', status: 'unimpl', ids: ['MOTION-016'] },
-      { name: 'メタデータ', status: 'mock' },
+      { name: 'メタデータ', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::detail shows registration facts', note: '登録情報のみ。作者・ライセンスは未記録。', ids: ['MOTION-002'] },
       { name: '依存参照', status: 'unimpl', ids: ['REVIEW-010'] },
-      { name: 'インポートキュー', status: 'partial', note: '現行画面の素材登録（FBX/GLB/VRM/PMX ZIP/VMD）。', ids: ['MOTION-003'] },
+      { name: 'インポートキュー', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::multiple files import sequentially', note: 'GLB・VRM・PMX ZIP・VMD・FBX を登録（複数選択可）。上書き・置き換えは事前に確認。', ids: ['MOTION-003'] },
     ],
-    tools: [btn('現行画面で素材を登録', 'href:/'), un('一括インポート', 'インポートキューの一括処理は未実装。', ['NF-004'], PH.P4), sel('並び替え', ['名前', '種別', '追加日'])],
-    left: { title: '素材管理', status: 'mock', custom: 'assetCats' },
-    center: { type: 'library', status: 'mock' },
+    tools: [{ t: 'feature', key: 'importButton' }, un('一括インポート', '一括のタグ付け・変換は未実装です（複数ファイルの取り込みは［素材を取り込む…］でできます）。', ['NF-004'], PH.P4)],
+    left: { title: '素材管理', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::library lists real assets by category', custom: 'assetCategories' },
+    center: { type: 'feature', key: 'assetLibrary', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::library lists real assets by category' },
     right: { tabs: [
-      { id: 'meta', label: '素材の詳細', custom: 'assetDetail', sections: [
-        { title: '選択中の素材', status: 'mock', controls: [{ t: 'kv', rows: [['名前', '選択してください'], ['形式', '—'], ['ライセンス', '—'], ['ハッシュ', '—']] }] },
-        { title: 'タグ', status: 'mock', controls: [{ t: 'text', label: 'タグを追加', placeholder: '例: ダンス', required: false }] },
-      ] },
+      { id: 'meta', label: '素材の詳細', custom: 'assetDetail', sections: [] },
       { id: 'deps', label: '依存参照', sections: [
         { title: '依存参照', status: 'unimpl', controls: [un('参照元を表示', '素材の参照追跡（ライセンス・生成元）は移植候補（REVIEW-010）。', ['REVIEW-010'], PH.P2)] },
       ] },
@@ -377,19 +383,19 @@ export const SCREENS = [
     classification: 'existing_or_partial_to_audit', ids: ['MOTION-003', 'MOTION-004', 'MOTION-005', 'MOTION-019', 'MOTION-021', 'LIP-004', 'LIP-011', 'NF-023'],
     existing: [MAIN],
     panels: [
-      { name: 'キャラクター一覧', status: 'partial', note: '現行画面の登録済みVRMモデル・PMXスロット。', ids: ['MOTION-002'] },
-      { name: '3Dプレビュー', status: 'partial', note: '現行画面の3Dプレビュー（GLB/VRM）。', ids: ['MOTION-009'] },
+      { name: 'キャラクター一覧', status: 'real', evidence: EV_CHAR, note: '/api/assets のキャラクター（GLB/VRM・PMX・FBX モデル）。', ids: ['MOTION-002'] },
+      { name: '3Dプレビュー', status: 'real', evidence: EV_CHAR, note: 'GLB/VRM・PMX・FBX を表示（回転・ズーム）。旧画面と同じ高さの正規化（GLB/VRM 2.0・PMX 1.8・FBX 1.95）。', ids: ['MOTION-009'] },
       { name: 'ボーン・ウェイト', status: 'partial', note: 'pmx_bones.py・骨格解析あり。ウェイト編集は NF-023（未承認）。', ids: ['MOTION-005', 'NF-023'] },
       { name: '衣装', status: 'unimpl', ids: ['NF-005'] },
       { name: 'モーフ', status: 'unimpl', ids: ['LIP-004', 'LIP-011'] },
       { name: 'リターゲット', status: 'partial', note: 'retarget_*.py とマッピングUI。', ids: ['MOTION-004'] },
       { name: '物理', status: 'unimpl', ids: ['MOTION-021', 'REVIEW-009'] },
     ],
-    tools: [btn('現行画面でモデルを表示', 'href:/'), un('物理ベイク', 'MMD物理ベイクは未実装（MOTION-021）。', ['MOTION-021'], PH.B)],
-    left: { title: 'キャラクター', status: 'mock', search: true, list: [['baisound', 'バイサウンド', 'VRM'], ['s01', 'サンプル 01', 'VRM'], ['s02', 'サンプル 02', 'PMX'], ['s03', 'サンプル 03', 'PMX'], ['s04', 'サンプル 04', 'VRM'], ['s05', 'サンプル 05', 'GLB']].map(([id, label, meta]) => ({ id, label, meta, thumb: img(id === 'baisound' ? 'char-baisound' : `char-${id}`) })) },
-    center: { type: 'viewport', img: 'viewport-character', hud: ['Model Preview', 'A-Pose'], tools: ['選択', '回転'], foot: '3D表示は現行の制作画面で利用できます。' },
+    tools: [btn('現行画面でモデルを表示', 'href:/'), { t: 'feature', key: 'useModelButton' }, { t: 'feature', key: 'projectToolbar' }, un('物理ベイク', 'MMD物理ベイクは未実装（MOTION-021）。', ['MOTION-021'], PH.B)],
+    left: { title: 'キャラクター', status: 'real', evidence: EV_CHAR, custom: 'characterList' },
+    center: { type: 'feature', key: 'characterViewport', status: 'real', evidence: EV_CHAR },
     right: { tabs: [
-      { id: 'bone', label: 'ボーン', sections: [{ title: 'ボーン', status: 'partial', controls: [{ t: 'list', items: ['センター', '上半身', '首', '頭', '左腕', '右腕', '左足', '右足'].map((n) => ({ id: n, label: n })) }] }] },
+      { id: 'bone', label: 'ボーン', custom: 'characterBones', sections: [] },
       { id: 'morph', label: 'モーフ', sections: [{ title: '口・目モーフ', status: 'unimpl', controls: [note('モデル別の口モーフ対応、PMX頂点変位・複合モーフ・強度、VRM expression の欠落を検査します。'), un('モーフを解析', 'モデル別口モーフ解析は未実装です。', ['LIP-004'], PH.LIP), un('顔動画から候補を取得', '顔動画／カメラの明示許可と候補の手動確定は未実装です。', ['LIP-011'], PH.D)] }] },
       { id: 'retarget', label: 'リターゲット', sections: [{ title: 'リターゲット', status: 'partial', controls: [btn('VMD編集・リターゲット（13）へ', 'nav:13')] }] },
       { id: 'physics', label: '物理', sections: [{ title: '物理', status: 'unimpl', controls: [tg('SpringBone 物理'), un('物理を比較', 'SpringBone ON/OFF 比較は移植候補（REVIEW-009）。', ['REVIEW-009'], PH.P2), note('ベイク対象、seed、時間刻み、入力hashと新規レイヤーを指定します。'), un('物理をベイク', 'MMD物理ベイクと貫通検品は未実装です。', ['MOTION-021'], PH.B)] }] },
@@ -402,19 +408,22 @@ export const SCREENS = [
     existing: [MAIN],
     modes: ['比較', '編集'],
     panels: [
-      { name: 'VMDライブラリ', status: 'partial', note: '現行画面の PMX・VMD タブ。', ids: ['MOTION-006', 'DATA-014'] },
+      { name: 'VMDライブラリ', status: 'real', evidence: EV_MOTION_LIB, note: '登録済みの VMD（/api/assets）を一覧し、行を押すと対象の PMX に当てて再生する。', ids: ['MOTION-006', 'DATA-014'] },
+      { name: 'VMD再生（編集モード）', status: 'real', evidence: EV_MOTION_VIEW, note: '［編集］で PMX＋VMD（表情モーフを含む）または GLB/VRM のクリップを1体再生する（再生・停止・位置）。VRM・GLB への VMD は未対応。', ids: ['MOTION-006', 'DATA-014'] },
       { name: '3D比較', status: 'partial', note: '現行画面の3視点比較・同期比較。', ids: ['REVIEW-001'] },
-      { name: 'ボーンマップ', status: 'partial', note: 'retarget_ui.js / retarget_mapping_preview.py。', ids: ['MOTION-005'] },
+      { name: 'ボーンマップ', status: 'real', evidence: EV_RT_PANEL, note: '骨格解析・プロファイル・ボーン対応表・基準姿勢の検査を /api/retarget/* で行う（読取・試算のみ。モーションやモデルには適用しない）。', ids: ['MOTION-005'] },
+      { name: 'ポーズ比較（2体）', status: 'real', evidence: EV_RT_VIEW, note: 'GLB/VRM の元の静止姿勢と補正候補を左右に並べる（試験。モデルは変えない）。', ids: ['MOTION-005'] },
+      { name: '4分割ビュー', status: 'unimpl', note: '元モーション・対象・重ね合わせ・側面の4分割は未実装（中央は1つのビューポート）。', ids: ['REVIEW-001'] },
       { name: '編集タイムライン', status: 'mock', ids: ['DATA-001'] },
       { name: '曲線', status: 'mock', ids: ['DATA-003'] },
       { name: '足IK', status: 'partial', note: 'foot_contact.py・dual_foot_plan.py（Phase B 残課題を含む）。', ids: ['MOTION-011'] },
       { name: '入出力', status: 'partial', note: 'motion_vmd_bridge.py・vmd_readback.py。', ids: ['MOTION-006'] },
     ],
     tools: [btn('現行画面で開く', 'href:/'), un('VMDを書き出す', 'この新UIからの書き出しは未接続。現行画面の変換機能を利用してください。', ['MOTION-006'], PH.P2, { text: '今は現行画面で行えます。', label: '現行画面で開く', act: 'href:/' })],
-    left: { title: 'VMDライブラリ', status: 'mock', search: true, list: items('Dance', 6, (i) => `${(i + 2) * 120}f`) },
-    center: { type: 'quad', labels: ['元モーション', '対象モデル', '重ね合わせ', '側面'], imgs: ['motion-dance', 'viewport-character', 'motion-walk', 'char-baisound'] },
+    left: { title: 'VMDライブラリ', status: 'real', evidence: EV_MOTION_LIB, custom: 'vmdLibrary' },
+    center: { type: 'feature', key: 'motionCenter', status: 'real', evidence: EV_MOTION_VIEW },
     right: { tabs: [
-      { id: 'map', label: 'ボーンマップ', sections: [{ title: 'ボーン対応', status: 'mock', controls: [{ t: 'table', cols: ['元', '対象', '状態'], rows: [['Hips', 'センター', '対応'], ['Spine', '上半身', '対応'], ['LeftUpLeg', '左足', '対応'], ['LeftFoot', '左足ＩＫ', '要確認']] }] }] },
+      { id: 'map', label: 'ボーンマップ', custom: 'retargetPanel', sections: [] },
       { id: 'ik', label: '足IK', sections: [{ title: '足IK・接地', status: 'partial', note: '接地計算は既存。新UIからは未接続。', controls: [tg('接地補正'), sl('床の高さ', -0.5, 0.5, 0, 'm', 0.01), un('接地を再計算', '新UIからの再計算は未接続（既存API移植は P2）。', ['MOTION-011'], PH.P2)] }] },
       { id: 'curve', label: '曲線', sections: [{ title: '補間曲線', status: 'mock', controls: [{ t: 'curve' }, sel('チャンネル', ['回転 X', '回転 Y', '回転 Z', '位置'])] }] },
       { id: 'expression', label: '表情・リップ', sections: [
@@ -539,20 +548,21 @@ export const SCREENS = [
     id: '18', title: 'プロジェクト保存・復元・バージョン管理', nav: '保存・復元', group: 'プロジェクト',
     summary: '制作状態の保存・復元、版の比較、素材参照、アーカイブを扱う。',
     classification: 'existing_or_partial_to_audit', ids: ['DATA-008', 'DATA-009', 'DATA-010', 'DATA-012', 'CORE-012'],
-    existing: [CAMERA], live: ['projectBundle'],
+    existing: [CAMERA],
     panels: [
-      { name: 'プロジェクト一覧', status: 'mock', note: '現行は単一制作状態。', ids: ['DATA-008'] },
-      { name: '保存・復元', status: 'partial', note: 'project_state_bundle.py（リビジョン検査・事前検証付き復元）。現行カメラ画面の保存/復元UI。', ids: ['DATA-008', 'CORE-012'] },
-      { name: 'バージョン', status: 'partial', note: 'camera_project_revision.py（楽観的同時実行リビジョン）。履歴一覧は未。', ids: ['DATA-009'] },
+      { name: 'プロジェクト一覧', status: 'real', evidence: 'tests/studio-p2-project.test.cjs::SCR-18 shows the real production state', note: '単一の制作状態（複数プロジェクトの一覧・切替は未実装）。', ids: ['DATA-008'] },
+      { name: '保存・復元', status: 'real', evidence: 'tests/studio-p2-project.test.cjs::undo autosaves the combination with the envelope revision', note: '自動保存（コンビネーション）と統合保存（コンビネーション＋カメラ＋作業参照）、履歴の戻す・やり直す、外部変更の検知。版（revision）による同時編集の検知付き。', ids: ['DATA-008', 'CORE-012'] },
+      { name: 'バージョン', status: 'real', evidence: 'tests/studio-p2-project.test.cjs::SCR-18 shows the real production state', note: '編集履歴はコンビネーションのみ。任意の版との差分比較は未実装。', ids: ['DATA-009'] },
       { name: '差分比較', status: 'unimpl', ids: ['DATA-009'] },
       { name: '素材参照', status: 'unimpl', ids: ['DATA-015'] },
       { name: 'アーカイブ', status: 'unimpl', ids: ['DATA-012'] },
     ],
-    tools: [btn('現行カメラ画面で保存・復元', 'href:/camera.html'), btn('復元…', 'form:confirmRestore'), un('ポータブルZIP', '制作データのポータブルZIPは未実装（DATA-012）。', ['DATA-012'], PH.P2)],
-    left: { title: 'プロジェクト', status: 'mock', list: [{ id: 'cur', label: '現在の制作状態', meta: 'サーバー' }] },
+    tools: [{ t: 'feature', key: 'projectToolbar' }, un('ポータブルZIP', '制作データのポータブルZIPは未実装（DATA-012）。', ['DATA-012'], PH.P2)],
+    left: { title: 'プロジェクト', status: 'real', custom: 'projectList', evidence: 'tests/studio-p2-project.test.cjs::SCR-18 shows the real production state' },
     center: { type: 'cards', cards: [
-      { title: '現在の制作状態（読み取り）', span: 8, status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('projectBundle'), note('この画面は読み取りのみです。保存・復元は現行カメラ画面で行えます（リビジョン不一致時は拒否されます）。')] },
-      { title: 'バージョン', span: 4, status: 'partial', controls: [note('リビジョン値で同時編集を検知します。版の一覧・任意版への復元は未実装です。'), un('版を比較', '差分比較は未実装（DATA-009）。', ['DATA-009'], PH.P2)] },
+      { title: '状態', span: 12, status: 'real', evidence: 'tests/studio-p2-project.test.cjs::undo autosaves the combination with the envelope revision', controls: [{ t: 'feature', key: 'projectStatus' }] },
+      { title: '現在の制作状態', span: 8, status: 'real', evidence: 'tests/studio-p2-project.test.cjs::SCR-18 shows the real production state', controls: [{ t: 'feature', key: 'projectSummary' }, note('コンビネーション・カメラ・作業中の素材参照を、サーバーに保存されている内容のまま表示します。')] },
+      { title: 'バージョン', span: 4, status: 'real', evidence: 'tests/studio-p2-project.test.cjs::undo autosaves the combination with the envelope revision', controls: [{ t: 'feature', key: 'projectHistory' }, un('版を比較', '差分比較は未実装（DATA-009）。', ['DATA-009'], PH.P2)] },
       { title: 'アーカイブ', span: 12, status: 'unimpl', controls: [{ t: 'empty', text: 'アーカイブはありません。' }] },
     ] },
   },
@@ -648,7 +658,7 @@ export const SCREENS = [
     panels: [
       { name: '外部アプリ', status: 'unimpl', ids: ['MOTION-007'] },
       { name: '接続設定', status: 'unimpl' },
-      { name: 'インポート', status: 'partial', note: '現行画面の素材登録（FBX/GLB/VRM/PMX ZIP/VMD）。', ids: ['MOTION-003'] },
+      { name: 'インポート', status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::import dialog opens from nav query and clears it', note: '素材管理（08）の取り込みダイアログで FBX/GLB/VRM/PMX ZIP/VMD を登録。', ids: ['MOTION-003'] },
       { name: 'エクスポート', status: 'partial', note: 'VMD書き出し・カメラVMD書き出しは部分実装。', ids: ['MOTION-006', 'CAM-016'] },
       { name: '変換', status: 'partial', note: 'tools/extract_fbx_motion_blender.py（Blender必須）。', ids: ['MOTION-007'] },
       { name: 'バッチ', status: 'unimpl', ids: ['NF-010'] },
@@ -657,7 +667,7 @@ export const SCREENS = [
     center: { type: 'cards', cards: [
       { title: '対応形式（現行コード）', span: 12, status: 'partial', controls: [{ t: 'table', cols: ['形式', '読込', '書出', '備考'], rows: [['FBX', '可（Blender経由の抽出あり）', '—', 'MOTION-003/007'], ['GLB / VRM', '可（プレビュー）', '—', 'VRMは静的形状確認'], ['PMX ZIP', '可', '—', 'テクスチャ同梱ZIP'], ['VMD（モーション）', '可', '部分', 'MOTION-006'], ['VMD（カメラ）', '可', '部分', 'F値等は拡張JSON'], ['BVH', '部分', '—', 'bvh_skeleton.py']] }] },
       { title: 'バッチ変換', span: 6, status: 'unimpl', controls: [un('バッチを作成', '外部アプリ自動連携・バッチ変換は未承認の新規候補（NF-010）。', ['NF-010'], PH.P4)] },
-      { title: 'インポート', span: 6, status: 'partial', controls: [link('現行画面で素材を登録', '/')] },
+      { title: 'インポート', span: 6, status: 'real', evidence: 'tests/studio-p2-assets.test.cjs::import dialog opens from nav query and clears it', controls: [btn('素材を取り込む', 'nav:08?import=1', { primary: true }), note('素材管理（08）の取り込みダイアログが開きます（複数ファイル可）。')] },
     ] },
   },
   {
@@ -798,11 +808,5 @@ export const FORMS = {
     title: 'カメラプリセットとして保存', submit: '保存（サンプル）',
     fields: [{ id: 'name', label: 'プリセット名', required: true, pattern: '^.{1,48}$', error: '1〜48文字で入力してください。' }, { id: 'tags', label: 'タグ（空白区切り）' }],
     done: 'サンプル表示：保存はされていません。実際の登録は現行カメラ画面の「カスタム撮影構図」で行えます。',
-  },
-  confirmRestore: {
-    title: '制作状態を復元', submit: '復元を実行', danger: true,
-    fields: [{ id: 'confirm', label: '確認のため「復元」と入力', required: true, pattern: '^復元$', error: '「復元」と入力してください。' }],
-    intro: '復元すると現在の制作状態が置き換わります。この新UIからは実行しません（誤操作防止のため未接続）。',
-    done: '◇ 未接続：この新UIからは復元を実行していません。現行カメラ画面の復元はリビジョン検査付きで利用できます。',
   },
 };

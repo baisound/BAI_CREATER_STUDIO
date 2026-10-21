@@ -1,23 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T12:53:37+09:00",
+  "updated_at": "2026-10-21T12:54:45+09:00",
   "updated_by": "codex",
   "branch": "codex/b4-combat-decisions",
-  "head_at_update": "5266f10",
+  "head_at_update": "a29fe7e",
   "current": {
     "task": "PR #13承認済み詳細設計の同期確認",
-    "status": "in_progress",
+    "status": "done",
     "step": "recovery最新との整合と古い引継ぎ記述の修正",
     "design_doc": "docs/specs/IMPLEMENTATION_HANDOFF_JA.md"
   },
   "next_steps": [
-    "WP-01 保存・読込"
+    "PR13統合後にWP05d・05e・05fのレビューと順次取り込みを評価"
   ],
   "unverified": [
-    "Opus レビュー未実施",
-    "GPU・Windows 実機未検証（SwiftShader のみ）",
-    "POST /api/project で project_state.json が壊れていて If-Match があると、500 を返さずに接続が切れる（WP-01 で扱うか要判断）",
-    "導線点検 §5 の6〜14 は所有者OK待ちで未着手"
+    "PR13は文書のみ。A1〜B4の機能・実素材・GPU・MCPは未実装または未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T12:54:45+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a29fe7e",
+      "text": "PR13を最新recoveryへ同期し、WORK_STATE競合を解消。古いWP位置の断定を正本参照へ修正。148 IDと差分を確認"
+    },
     {
       "at": "2026-10-21T12:53:37+09:00",
       "by": "codex",

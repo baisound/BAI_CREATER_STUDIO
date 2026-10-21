@@ -42,7 +42,9 @@
         "56bffa8",
         "a3cebf5"
       ],
-      "tests": [],
+      "tests": [
+        "2026-10-20 追記：tests/legacy-project-save.test.cjs の B-1/B-2 は b082ad8（作成時）から three を与えると約25%で失敗していた（テスト側の不具合）。旧画面は自分の保存でも /api/sync の版が進むため、約1.2秒ごとの同期の確認で「保存済み」が数十ミリ秒で「MCPから更新を同期しました」に書き換わり、今の表示を待つと取りこぼしていた。表示の履歴（MutationObserver）と POST の応答で確かめる形に直し、外部同期は中身（external-step）と外部の内容を返した版の取り直しで待つ。直した後 15 回連続で合格。B-2 の1文を外すと失敗することを確認。index.html・server.py は変更なし。"
+      ],
       "unverified": [
         "Opus レビュー済み（②）。focus・sample・sequence/evaluate の GET は read() のまま（WP-02a）。Windows 実機・GPU 実機未検証。"
       ],
@@ -70,61 +72,203 @@
     {
       "id": "P2-WP-01",
       "step": "② プロジェクト新規作成・保存/読込",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
+      "state": "verified",
+      "commits": [
+        "ff51eb0"
+      ],
+      "tests": [
+        "2026-10-20 PR #7 取り込み後（7170100）で再実行：pytest 354 passed（1回、既存の test_bundle_snapshot_consistency の並行20+20件が ConnectionReset で落ちたが、再実行で単独4回・全件2回合格。WP-01 の変更と無関係な既存の不安定さ）、npm run test:node-all 145 pass・10 skip・0 fail、tsc 合格、node tools/run_evidence_tests.mjs 合格。新規：tests/studio-p2-project-logic.test.mjs 22件、tests/studio-p2-project.test.cjs 16件、test_project_envelope.py に壊れた project_state.json への POST の3件。通し確認 S1〜S8 は WP-01 で有効になる手順が設計に無く全 skip（furthest_step=null）。実 data/ ハッシュ不変",
+        "2026-10-20 Opus レビュー後：pytest 354 passed、npm run test:node-all 146 pass・10 skip・0 fail、tsc 合格、実 data/ ハッシュ不変。追加：studio-p2-project-logic.test.mjs「3-M3 save sequencing (4)」（自動保存と統合保存が同じ tick を待つと saving:true のまま止まる不具合の再現と修正）"
+      ],
+      "unverified": [
+        "Opus レビュー実施済み（2026-10-20。上書き・競合・自動保存・世代番号。1件修正、残りの懸念は作業報告）。GPU・Windows 実機未検証。beforeunload は headless Chromium のみ。",
+        "旧画面 legacy-project-save.test.cjs は three.js がローカルに無く skip（WP-00b 以来）。"
+      ],
       "notes": "Q1（新規作成）：所有者回答待ち。既定は ◇ のまま",
       "owner_check": null
     },
     {
       "id": "P2-WP-02",
       "step": "③ 素材一覧",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "30601de"
+      ],
+      "tests": [
+        "2026-10-20：pytest 354 passed、npm run test:node-all 188 pass・0 fail・13 skip（three 無し）、tsc 合格、node tools/run_evidence_tests.mjs 合格、実 data/ ハッシュ不変。新規：tests/studio-p2-import-rules.test.mjs 16件、tests/studio-p2-assets-logic.test.mjs 3件、tests/studio-p2-assets.test.cjs（THREE_DIR 指定で26件すべて合格。一覧の3件＋表示設定の保存を含む）。通し確認 S1 の③部分は合格、furthest_step=null"
+      ],
+      "unverified": [
+        "Opus レビュー未実施（WP-02 は設計上 Sonnet のみ）。GPU・Windows 実機未検証。実際の素材（実 data/）での表示は未確認（隔離データの種データのみ）。"
+      ],
+      "notes": "WP-02 と WP-03 は1コミット（30601de）にまとめた。サムネイル（MOTION-016）・お気に入り・タグ・依存参照は ◇ のまま。",
       "owner_check": null
     },
     {
       "id": "P2-WP-03",
       "step": "③ 素材取り込み",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "30601de",
+        "Opus レビュー修正（fix: P2-WP-03 送る直前の衝突の再確認…）"
+      ],
+      "tests": [
+        "2026-10-20：上と同じ実行。取り込みのテスト（GLB/VRM の再分類、同内容 VRM、複数ファイルの順次送信、FBX 同枠2件の拒否、PMX ZIP のサーバー版確認、VMD 上書き確認、確認で除外して続ける、FBX 同名・モデル置き換えの事前確認、FBX の事前検査、サーバー拒否とやり直し、取り消し、ホームの最近の素材、◇ の説明）が合格。O-③-1：tools/make_test_fbx.py で FBX の正常登録・モデル置き換え・アニメなし拒否も合格（three が必要）",
+        "2026-10-20 Opus レビュー後：pytest 354 passed、THREE_DIR 指定の npm run test:node-all 204 件中 pass 197・fail 0・skip 7（通し確認 S2〜S8 の設計どおりの skip のみ。three 必須のテストは skip なし）、tsc 合格、node tools/run_evidence_tests.mjs 合格、実 data/ ハッシュ不変。追加：studio-p2-assets.test.cjs「same bytes twice in one import…」「a file queued behind the same name is rechecked…」（送る直前の再確認を外すと2件とも失敗することを確認）、studio-p2-import-rules.test.mjs「VMD that differs only in letter case…」と batchErrors の大文字・小文字"
+      ],
+      "unverified": [
+        "Opus レビュー実施済み（2026-10-20。置き換え・上書き・再分類。2件修正：送る直前に最新の一覧で衝突を求め直す〔確認の後に状況が変わった行・同じ回の同じ中身の GLB/VRM・送信待ちの同名〕、VMD の大文字・小文字だけ違う名前〔Windows で同じファイル〕を確認・同じ回の矛盾に追加。GLB/VRM のハッシュ計算を1件ずつに）。残り：再確認からサーバーの書き込みまでの間に別の画面が登録した場合は検出できない（サーバーは変えない R1）。400MB 級の FBX は送る前に全体を読み込みメインスレッドで解析する（旧画面と同じ。実測未実施）。three が無い環境では FBX の解析を使う4件が skip。% を含む GLB/VRM 名は警告のみ（再登録で余分な再分類の確認が出ることがある）。実際の VRM・PMX・FBX での登録は未確認（合成ファイルのみ）。GPU・Windows 実機未検証。"
+      ],
+      "notes": "1回の取り込みの矛盾検査（ダイアログ）は設計の5種類（VMD は大文字・小文字を区別しない）。同じ中身の GLB を別名で同時に2つ選んだ場合は、2件目を送る直前の再確認で止め、［もう一度］で確認する。batchErrors は行ごとの batchErrorRows を足した。Opus レビューで確認の再計算（recheckConflict）と VMD の大文字・小文字を追加。batchErrorRows・最小 FBX の生成（再生成でバイト一致）・S1 の部分実行（skip として記録し pass に数えない）は妥当と判断。",
       "owner_check": null
     },
     {
       "id": "P2-WP-04",
       "step": "④ 3D 表示・ステージ配置の基本・B-4",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "77e56b4（作業位置の記録）",
+        "4ee6b49（B-4：workspace.stage、別コミット）",
+        "81a0c79（本体：④ 3D 表示・ステージ配置）",
+        "Opus レビュー（B-4・PMX キャラの件。test: P2-WP-04 B-4 の Opus レビュー）"
+      ],
+      "tests": [
+        "tests/studio-p2-pmx-fixture.test.cjs（O-④-2、事前準備）",
+        "tests/test_make_test_pmx.py（O-④-2、事前準備）",
+        "tests/studio-p2-viewport.test.cjs（19件：GLB/PMX/FBX の描画、ステージ配置、PMX×0.08 m 同一シーン、欠損、dispose）",
+        "tests/studio-p2-normalize-parity.test.cjs（camera.html と 1e-6 で一致）",
+        "tests/studio-p2-e2e-main.test.cjs（S1・S2 を有効化）",
+        "tests/test_project_state_bundle.py WorkspaceStageTest（B-4、12件）。Opus レビューで studio-p2-viewport の旧 camera.html 形の保存に「既存の stage が不正なら HTTP 400 で3ファイル不変」を追加"
+      ],
+      "unverified": [
+        "O-④-6：実在の PMX/GLB/FBX ステージの単位の換算と見え方（合成データのみ）",
+        "実在の PMX（多材質・IK・剛体・PMX 2.1）の表示、GPU（SwiftShader でのみ確認）",
+        "PMX キャラクターを SCR-06 に置く経路が無い（Opus レビュー 2026-10-20）：workspace.asset は GLB/VRM 限定で、⑥ の camera_3d.js も GLB/VRM しか読まない。設計（v5・Phase E §2.8 を含む）に PMX キャラの保存先・カメラ表示の計画は無く、⑥ O-⑥-4（要素IDの配置表）で整理される事項でもない。直すには保存形式の追加（例：workspace の任意キー character）と camera_3d.js の PMX 表示が要るため、所有者の承認（計画の追加）を待つ。主要シナリオ（PMX → ステージ配置 → カメラ）は PMX では SCR-06 以降を通せない"
+      ],
+      "notes": "O-④-1・2・3・6・7 を 2026-10-20 に Opus で決定（設計書 §2.4(h)）。O-④-2：最小 PMX 2.0（tools/make_test_pmx.py）を作成し、minimal_pmx.zip を本物の PMX に置き換えた。未検証：実在の PMX/FBX/GLB ステージの単位の換算（O-④-6）、GPU。 2026-10-20 の決定（設計書 §2.4(h) O-④-6 の「上書き」。出所は開発側の判断：所有者が UI・技術判断を開発側に委ねているため、主要シナリオ（MMD の PMX キャラ＋MMD ステージ）に合わせて Claude が決定）：SCR-06 はキャラの身長を正規化せずステージと同じ単位換算（PMX 0.08 m/unit、GLB/VRM 1 m/unit、FBX UnitScaleFactor/100）。正規化は単体プレビュー SCR-12 のみ。E2E は S2 まで通る。 Opus レビュー（2026-10-20）：B-4（validate_stage・save_bundle のマージ・不正な既存値で 400 かつ不変・workspace なしで削除・旧 camera.html の保存で stage が残る・stage の無い既存データの読込）は設計 §1.15 B-4／C4／K11 どおりで修正不要。",
       "owner_check": null
     },
     {
       "id": "P2-WP-04b",
       "step": "④ リターゲット検証",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "0b57f83（作業位置の記録）",
+        "7cea229（本体：④-9 SCR-13「ボーンマップ」タブ、④-10 three-host で2体を ±1.15 に配置）"
+      ],
+      "tests": [
+        "tests/studio-p2-retarget.test.cjs（4件：/api/retarget/* の16本をすべて画面から呼ぶ・表と JSON・プロファイルと対応表の保存（隔離データ）・同意なしは呼ばない・2体の配置 x=∓1.15 と回転の適用（右のみ）・欠損ファイルの文言・画面を離れると dispose）",
+        "tests/studio-ui.test.cjs（13 のサンプル再生バナーを出さない）"
+      ],
+      "unverified": [
+        "実在の VRM（Humanoid あり）での仮転写・基準姿勢・ポーズ比較の見え方（合成 GLB は Humanoid が無く、vrm-humanoid-preview は 400、仮転写の samples は空。比較の回転は手で入れた samples で確認）",
+        "GPU（SwiftShader でのみ確認）",
+        "中央の4分割ビュー（◇ のまま。REVIEW-001）"
+      ],
+      "notes": "O-④-5 を 2026-10-20 に Opus で決定（SCR-13 にまとめる。設計書 §2.4(h)）。決定どおりに実装：④-9 は SCR-13 右の既存タブ「ボーンマップ」（新タブなし）、④-10 は中央を three-host にして比較の間だけ2体を x=-1.15/+1.15 に並べる（setObject は拡張せず content に add、clear で一緒に消す）。SCR-12 の「リターゲット」タブは [VMD編集・リターゲット（13）へ] のまま。旧画面の retarget_ui.js・v01629_mesh_compare.js は変更せず配信を続ける。副修正：studio-p2-viewport の focus の競合（基準でも間欠失敗）と、13 のサンプル再生バナー（3D 比較が実機能になったため、06 と同じ扱い）。",
       "owner_check": null
     },
     {
-      "id": "P2-WP-05",
-      "step": "⑤ モーションの適用・タイムライン",
+      "id": "P2-WP-05a",
+      "step": "⑤ SCR-13［編集］の1体の再生（PMX＋VMD・GLB/VRM のクリップ）。S5 を有効にする",
+      "state": "verified",
+      "commits": [
+        "df75fe3"
+      ],
+      "tests": [
+        "tests/studio-p2-motion.test.cjs（10件：PMX＋VMD のモーフ・ボーン、VMD ライブラリ、GLB クリップと位置・停止、VRM への VMD は ◇ で取得0回、モデル未選択、404、モード切替の URL 保持、表示解除、画面を離れたときの破棄）",
+        "tests/test_make_test_vmd.py（2件）",
+        "tests/studio-p2-e2e-main.test.cjs の S5 が pass（three@0.160.1、SwiftShader）"
+      ],
+      "unverified": [
+        "Opus レビュー未実施（app.js の modeSwitch。Sonnet 相当の自己確認のみ）。",
+        "実ファイル（実在の PMX＋VMD）でのモーフ再生は未検証（合成の最小 PMX・VMD のみ）。",
+        "GPU 実機・Windows 実機未検証（SwiftShader のみ）。",
+        "位置スライダーを VMD にも使う（設計 §5.3 の決定どおり。旧画面の VMD には位置の操作が無い）。"
+      ],
+      "notes": "設計 §2.5(d)05a のとおり。解釈：baiStudio.motion.getState() が motion（kind・id・clipIndex・duration）を持つ（baiStudio.viewport.getState() には足していない）。末尾（ちょうど duration）の位置は LoopRepeat が 0 に戻るので 1e-7 秒手前で止める。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05b",
+      "step": "⑤ clip・frame の記録（O-⑤-7）と外部同期のコマンド（O-⑤-5）",
+      "state": "verified",
+      "commits": [
+        "0772bc2"
+      ],
+      "tests": [
+        "tests/studio-p2-motion.test.cjs に6件追加（record clip and frame into workspace、frame is capped to camera duration、frame-only record is not dirty、record is disabled for other models、record is disabled when the camera file is invalid、sync command preview_vmd only on SCR-13）。合計16件合格",
+        "tests/studio-p2-project-logic.test.mjs に1件追加（外部コマンドは id ごとに1回・初回 tick では発行しない・refresh_assets は別イベント）。合計24件",
+        "npm run test:node-all 247件中 242 pass・5 skip・0 fail、npm run test:p2 161件中 156 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass、実データのハッシュ前後一致"
+      ],
+      "unverified": [
+        "Opus レビュー未実施（features/project.js の tick と motion-view.js の外部コマンド・記録）。",
+        "GPU 実機・Windows 実機未検証（SwiftShader のみ）。",
+        "③「カメラ（02）を開くと同じ位置」は WP-06 の後でなければ確認できない。",
+        "play_chain・stop_chain・preview_motion の受け口は 05c・05d。今はどの画面でも無反応でトーストも出ない。"
+      ],
+      "notes": "設計 §2.5(d)05b のとおり。解釈：(1) 明示の ?clip= がある URL で開いたときは復元せず従来どおり再生する（integrated_preview がクリップ 0 を再生するため）。(2) 外部コマンドの受け口は motion-view.js のモジュール先頭の購読 1 つ＋SCR-13 の間だけ有効な cmdTarget。購読は常時で、SCR-13 以外ではトーストを 1 回だけ出す。(3) cameraInvalid のときは workspace が読めないので、モデル違いより先に cameraInvalid の title を出す。(4) 制作状態の読込が終わるまで復元を最大 8 秒待つ。(5) setWorkspaceFields の source は今は未使用（ホスト往復は WP-06）。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05c",
+      "step": "⑤ SCR-05 の82パターン・お気に入り・コンビネーションの編集",
+      "state": "verified",
+      "commits": [
+        "7292f13"
+      ],
+      "tests": [
+        "tests/studio-p2-chain.test.cjs 新規9件（pattern list marks registered fbx with a crown、pattern list says so when the registration cannot be read、add to combination records history and autosaves、unregistered pattern is not added、reorder delete clear follow record rules、speed autosaves without history、favorites keep entries added elsewhere、favorite save failure keeps the dialog、preview_motion selects the row）。ポート 8784（P2_CHAIN_PORT）",
+        "tests/studio-p2-motion-logic.test.mjs 新規14件（editCombination：初期状態・変化なし・履歴と同じ内容・カーソルの後ろを捨てる・100件・name だけ保持・読込前は無視・保存中の編集、setCombinationSpeed、setCombinationSelected、お気に入りの通信と検索）",
+        "tests/studio-p2-motion-fork.test.mjs 新規6件（index.html から rows・names・keywords・norm・尺の規則・motionAvailability を取り出して ROWS ほかと照合。登録の組み合わせ60通り×82行）",
+        "npm run test:node-all 276件中 271 pass・5 skip・0 fail、npm run test:p2 190件中 185 pass・5 skip・0 fail（skip は S3・S4・S6・S7・S8 の計画済み skip。THREE_DIR 指定で3Dは実行）、test:p2-py 43 passed、pytest 370 passed、tsc 合格、run_evidence_tests 合格、S5 pass のまま、実データ data/ のハッシュ前後一致"
+      ],
+      "unverified": [
+        "Opus レビュー未実施（features/project.js の editCombination・setCombinationSpeed・setCombinationSelected、features/chain-view.js、features/favorites.js、app.js の featureBottom）。",
+        "GPU 実機・Windows 実機未検証（05c は 3D を使わないが、ブラウザーは Chromium のみ）。",
+        "旧画面で作った実際の FBX 登録（data/manifest.json）での👑の数は未確認（隔離データの合成 manifest のみ）。",
+        "play_chain・stop_chain の受け口は 05d（今はどの画面でも無反応でトーストも出ない）。"
+      ],
+      "notes": "設計 §2.5(d)05c のとおり。新しいタブは作らない（O-⑤-3）。最小の解釈：(1) 下部の feature 化は app.js に featureBottom を足した（bottom に {type:'feature', key, status, evidence}）。(2) editCombination：履歴が空で並びも同じなら「初期状態」も作らず false を返す。履歴の最新と同じ内容でも表示中の並びが違うときは、履歴を増やさず並びだけ直して dirty＋自動保存にする（保存されない変更を残さないため）。(3) 履歴の label は操作別（追加：NN タイトル、並べ替え、削除、全消去、お気に入り「x」を読み込み）。旧画面は常に『コンビネーション変更』。(4) 選択は combination.selected（setCombinationSelected。dirty にしない）。未選択(0)のとき履歴の selected は 1。選ばずに［＋追加］すると『追加するパターンを選んでください。』。(5) 👑 は /api/manifest が読めた後だけ表示（読込中・失敗は凡例に出す）。追加は manifest 未読込のとき止める。(6) 手順の選択は下部のブロックを押し、帯の［↑］［↓］［削除］で操作（旧画面の行ごとのボタンの代わり）。選択は並べ替え後も同じ手順に追従する。(7) お気に入りの保存・削除は GET→変更→POST を1つずつ順に行い、他が足した項目は手を加えずに書き戻す。保存失敗はダイアログを閉じずに『保存失敗: …』と出す。(8) preview_motion は SCR-05 のときだけ行を選び、分類・検索を空に戻す。他の画面ではトーストを1回だけ。(9) 『ループ再生』は操作できない（常にオン）表示。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05d",
+      "step": "⑤ SCR-05 の A/B の 3D・連結再生・手順名の対応表・スロット別の PMX＋VMD",
       "state": "not_started",
       "commits": [],
       "tests": [],
       "unverified": [],
-      "notes": "",
+      "notes": "設計書 §2.5 05d。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05e",
+      "step": "⑤ SCR-13 下部のタイムライン編集・再生と補正レイヤー",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "設計書 §2.5 05e。競合は内容の比べ（O-⑤-4）。GET と POST の間の隙は残る（リスク K12）。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05f",
+      "step": "⑤ 転写タイムライン・QA、キー候補のフレーム比較、足の接地",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "設計書 §2.5 05f（O-⑤-6）。",
+      "owner_check": null
+    },
+    {
+      "id": "P2-WP-05g",
+      "step": "⑤ 2D・3D の模式再生",
+      "state": "not_started",
+      "commits": [],
+      "tests": [],
+      "unverified": [],
+      "notes": "設計書 §2.5 05g。Q2 の追加（外してよいか）は所有者確認待ち。既定は移植する。",
       "owner_check": null
     },
     {
@@ -144,7 +288,7 @@
       "commits": [],
       "tests": [],
       "unverified": [],
-      "notes": "",
+      "notes": "テストのポートの食い違い（設計書 §4.1 の注記）：studio-p2-normalize-parity の実装が 8794（studio-p2-camera の予約）を使っているので、studio-p2-camera を作る前に parity を 8789 に直す。studio-p2-retarget の 8791 は Phase E camera-ui の予約と衝突する（Phase E WP-03 の前に直す）。依存は WP-05b（workspace の clip・frame）。",
       "owner_check": null
     },
     {
@@ -174,7 +318,7 @@
       "commits": [],
       "tests": [],
       "unverified": [],
-      "notes": "",
+      "notes": "VMD 変換用のボーン対応表 /api/conversion-map の編集を⑤から移した（設計書 §2.5 批評 5-1、O-⑦-1）。依存は WP-05c。",
       "owner_check": null
     },
     {
@@ -199,17 +343,17 @@
     }
   ],
   "e2e_main": {
-    "furthest_step": null,
+    "furthest_step": "S2",
     "steps": [
       {
         "id": "S1",
-        "result": "skip",
-        "reason": "WP-03・WP-04 が未着手"
+        "result": "pass",
+        "reason": ""
       },
       {
         "id": "S2",
-        "result": "skip",
-        "reason": "WP-04 が未着手"
+        "result": "pass",
+        "reason": ""
       },
       {
         "id": "S3",
@@ -223,8 +367,8 @@
       },
       {
         "id": "S5",
-        "result": "skip",
-        "reason": "WP-05 が未着手"
+        "result": "pass",
+        "reason": ""
       },
       {
         "id": "S6",
@@ -242,7 +386,7 @@
         "reason": "WP-07 が未着手（動画は既存機能なし：Phase F）"
       }
     ],
-    "commit": "cb5ce01",
-    "checked_at": "2026-10-20T10:02:31.411Z"
+    "commit": "9836e04",
+    "checked_at": "2026-10-20T19:59:10.446Z"
   }
 }

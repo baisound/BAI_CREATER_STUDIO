@@ -371,9 +371,7 @@
           "href": "/camera.html"
         }
       ],
-      "live_endpoints": [
-        "projectBundle"
-      ]
+      "live_endpoints": []
     },
     {
       "id": "SCR-19",
@@ -550,16 +548,35 @@
       "feature_ids": [
         "DATA-008"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": "現行サーバーは単一の制作状態のみを保持。複数プロジェクト一覧は未実装。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "現行サーバーは単一の制作状態のみを保持（実データ1枚）。複数プロジェクト一覧・新規作成は未実装（新規作成は ◇）。",
+      "evidence": "tests/studio-p2-project.test.cjs::home shows one real project card and no sample projects",
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "read_only_display_only",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-01",
+      "route": "/workspace/01",
+      "panel": "最近の素材",
+      "feature_ids": [
+        "MOTION-003"
+      ],
+      "new_ui_state": "real",
+      "source_evidence": "このページで取り込んだ素材だけ（API に登録日時が無いため）。",
+      "evidence": "tests/studio-p2-assets.test.cjs::home shows only assets imported in this page",
+      "UI": "mock_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "read_only_display_only",
       "blockers": null
     },
     {
@@ -1063,51 +1080,37 @@
       "route": "/workspace/06",
       "panel": "3Dビュー",
       "feature_ids": [
-        "LYRIC-009",
-        "LYRIC-010",
-        "DANCE-001",
-        "DANCE-002",
-        "DANCE-003",
-        "DANCE-006",
-        "DANCE-012",
         "NF-014"
       ],
-      "new_ui_state": "unimpl",
-      "source_evidence": "ステージ配置ビューは未実装（モデル表示は現行画面にあり）。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "作業中のキャラクター（GLB/VRM）とステージ1つを表示。素材の単位の換算だけを掛け、高さの正規化・中心合わせはしない。",
+      "evidence": "tests/studio-p2-viewport.test.cjs::stage placement saves and restores",
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "no implementation"
+      "verdict": "read_only_display_only",
+      "blockers": null
     },
     {
       "screen_id": "SCR-06",
       "route": "/workspace/06",
       "panel": "トランスフォーム",
       "feature_ids": [
-        "LYRIC-009",
-        "LYRIC-010",
-        "DANCE-001",
-        "DANCE-002",
-        "DANCE-003",
-        "DANCE-006",
-        "DANCE-012",
         "NF-014"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "ステージの位置・回転 Y・拡大を workspace.stage に保存（［保存］）。",
+      "evidence": "tests/studio-p2-viewport.test.cjs::stage placement saves and restores",
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "read_only_display_only",
       "blockers": null
     },
     {
@@ -1115,25 +1118,18 @@
       "route": "/workspace/06",
       "panel": "アセットブラウザー",
       "feature_ids": [
-        "LYRIC-009",
-        "LYRIC-010",
-        "DANCE-001",
-        "DANCE-002",
-        "DANCE-003",
-        "DANCE-006",
-        "DANCE-012",
         "NF-014"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": "素材管理（08）と同一索引にする方針。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "「トランスフォーム」タブの「ステージの素材」の選択欄（素材管理 08 の登録済みモデルから選ぶ）。",
+      "evidence": "tests/studio-p2-viewport.test.cjs::stage placement saves and restores",
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "read_only_display_only",
       "blockers": null
     },
     {
@@ -1262,22 +1258,18 @@
       "route": "/workspace/08",
       "panel": "素材カテゴリ",
       "feature_ids": [
-        "MOTION-002",
-        "DATA-013",
-        "REVIEW-010",
-        "NF-004",
-        "NF-013"
+        "MOTION-002"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "/api/assets の実数で分類・件数を表示。ステージ・オーディオなどは登録手段がなく0件。",
+      "evidence": "tests/studio-p2-assets.test.cjs::library lists real assets by category",
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "read_only_display_only",
       "blockers": null
     },
     {
@@ -1287,17 +1279,17 @@
       "feature_ids": [
         "MOTION-002"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の統合素材ライブラリに検索・カテゴリあり。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "名前・形式で検索。タグは未実装。",
+      "evidence": "tests/studio-p2-assets.test.cjs::search and format filter work on real data",
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "read_only_display_only",
+      "blockers": null
     },
     {
       "screen_id": "SCR-08",
@@ -1323,22 +1315,18 @@
       "route": "/workspace/08",
       "panel": "メタデータ",
       "feature_ids": [
-        "MOTION-002",
-        "DATA-013",
-        "REVIEW-010",
-        "NF-004",
-        "NF-013"
+        "MOTION-002"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "登録情報のみ。作者・ライセンスは未記録。",
+      "evidence": "tests/studio-p2-assets.test.cjs::detail shows registration facts",
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "read_only_display_only",
       "blockers": null
     },
     {
@@ -1367,17 +1355,17 @@
       "feature_ids": [
         "MOTION-003"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の素材登録（FBX/GLB/VRM/PMX ZIP/VMD）。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "GLB・VRM・PMX ZIP・VMD・FBX を登録（複数選択可）。上書き・置き換えは事前に確認。",
+      "evidence": "tests/studio-p2-assets.test.cjs::multiple files import sequentially",
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "read_only_display_only",
+      "blockers": null
     },
     {
       "screen_id": "SCR-09",
@@ -1766,17 +1754,17 @@
       "feature_ids": [
         "MOTION-002"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の登録済みVRMモデル・PMXスロット。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "/api/assets のキャラクター（GLB/VRM・PMX・FBX モデル）。",
+      "evidence": "tests/studio-p2-viewport.test.cjs::glb renders and normalizes like the camera page",
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "read_only_display_only",
+      "blockers": null
     },
     {
       "screen_id": "SCR-12",
@@ -1785,17 +1773,17 @@
       "feature_ids": [
         "MOTION-009"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の3Dプレビュー（GLB/VRM）。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "GLB/VRM・PMX・FBX を表示（回転・ズーム）。旧画面と同じ高さの正規化（GLB/VRM 2.0・PMX 1.8・FBX 1.95）。",
+      "evidence": "tests/studio-p2-viewport.test.cjs::glb renders and normalizes like the camera page",
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "read_only_display_only",
+      "blockers": null
     },
     {
       "screen_id": "SCR-12",
@@ -1941,17 +1929,55 @@
       "feature_ids": [
         "MOTION-005"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "retarget_ui.js / retarget_mapping_preview.py。",
+      "new_ui_state": "real",
+      "source_evidence": "骨格解析・プロファイル・ボーン対応表・基準姿勢の検査を /api/retarget/* で行う（読取・試算のみ。モーションやモデルには適用しない）。",
+      "evidence": "tests/studio-p2-retarget.test.cjs::retarget panel shows every API response and saves the mapping",
+      "UI": "mock_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "read_only_display_only",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-13",
+      "route": "/workspace/13",
+      "panel": "ポーズ比較（2体）",
+      "feature_ids": [
+        "MOTION-005"
+      ],
+      "new_ui_state": "real",
+      "source_evidence": "GLB/VRM の元の静止姿勢と補正候補を左右に並べる（試験。モデルは変えない）。",
+      "evidence": "tests/studio-p2-retarget.test.cjs::pose compare places two models at x = -1.15 and +1.15 and applies the rotation to the right one",
+      "UI": "mock_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "read_only_display_only",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-13",
+      "route": "/workspace/13",
+      "panel": "4分割ビュー",
+      "feature_ids": [
+        "REVIEW-001"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": "元モーション・対象・重ね合わせ・側面の4分割は未実装（中央は1つのビューポート）。",
       "evidence": null,
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "none",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "blockers": "no implementation"
     },
     {
       "screen_id": "SCR-13",
@@ -2525,16 +2551,16 @@
       "feature_ids": [
         "DATA-008"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": "現行は単一制作状態。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "単一の制作状態（複数プロジェクトの一覧・切替は未実装）。",
+      "evidence": "tests/studio-p2-project.test.cjs::SCR-18 shows the real production state",
       "UI": "mock_route_operable",
-      "API": "none",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "read_only_display_only",
       "blockers": null
     },
     {
@@ -2545,17 +2571,17 @@
         "DATA-008",
         "CORE-012"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "project_state_bundle.py（リビジョン検査・事前検証付き復元）。現行カメラ画面の保存/復元UI。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "自動保存（コンビネーション）と統合保存（コンビネーション＋カメラ＋作業参照）、履歴の戻す・やり直す、外部変更の検知。版（revision）による同時編集の検知付き。",
+      "evidence": "tests/studio-p2-project.test.cjs::undo autosaves the combination with the envelope revision",
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "read_only_display_only",
+      "blockers": null
     },
     {
       "screen_id": "SCR-18",
@@ -2564,17 +2590,17 @@
       "feature_ids": [
         "DATA-009"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "camera_project_revision.py（楽観的同時実行リビジョン）。履歴一覧は未。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "編集履歴はコンビネーションのみ。任意の版との差分比較は未実装。",
+      "evidence": "tests/studio-p2-project.test.cjs::SCR-18 shows the real production state",
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "read_only_display_only",
+      "blockers": null
     },
     {
       "screen_id": "SCR-18",
@@ -3233,17 +3259,17 @@
       "feature_ids": [
         "MOTION-003"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の素材登録（FBX/GLB/VRM/PMX ZIP/VMD）。",
-      "evidence": null,
+      "new_ui_state": "real",
+      "source_evidence": "素材管理（08）の取り込みダイアログで FBX/GLB/VRM/PMX ZIP/VMD を登録。",
+      "evidence": "tests/studio-p2-assets.test.cjs::import dialog opens from nav query and clears it",
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
+      "verdict": "read_only_display_only",
+      "blockers": null
     },
     {
       "screen_id": "SCR-23",

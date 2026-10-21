@@ -940,6 +940,7 @@ class Handler(BaseHTTPRequestHandler):
                 if expected:
                     try: current=json.loads(PROJECT.read_text(encoding='utf-8'))
                     except FileNotFoundError: current={}
+                    except (ValueError,OSError):return self.bad(500,'制作状態（project_state.json）を読めませんでした')  # P2-WP-01 / DATA-008：壊れたファイルで接続が切れていた不具合の修正
                     if expected!=camera_revision(current):
                         return self.bad(409,'project changed on server: refresh before saving')
                 tmp=PROJECT.with_suffix('.tmp');tmp.write_text(json.dumps(obj,ensure_ascii=False,indent=2),encoding='utf-8');os.replace(tmp,PROJECT)
