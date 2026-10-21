@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T21:13:28+00:00",
-  "updated_by": "claude-code",
-  "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "83dbf9f",
+  "updated_at": "2026-10-21T09:28:23+09:00",
+  "updated_by": "codex",
+  "branch": "codex/p2-wp05d",
+  "head_at_update": "614e848",
   "current": {
-    "task": "P2-WP-05d SCR-05 の A/B の3D・連結再生・手順名対応表・スロット別PMX+VMD",
+    "task": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD",
     "status": "in_progress",
-    "step": "実装→テスト→台帳更新→コミット",
+    "step": "引き継ぎ設計照合→実装→自動テスト→台帳更新",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -36,6 +36,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T09:28:23+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "614e848",
+      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 引き継ぎ設計照合→実装→自動テスト→台帳更新"
+    },
     {
       "at": "2026-10-20T21:13:28+00:00",
       "by": "claude-code",
@@ -238,13 +245,6 @@
       "event": "done",
       "head": "c0d963d",
       "text": "P2-WP-00b ①完了：B-1・B-2"
-    },
-    {
-      "at": "2026-10-20T09:23:20+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "e003e35",
-      "text": "P2-WP-00b 旧画面の保存バグ修正: コミット①（B-1・B-2）"
     }
   ]
 }
