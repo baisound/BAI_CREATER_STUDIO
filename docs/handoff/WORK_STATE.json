@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T22:50:03+09:00",
+  "updated_at": "2026-10-21T22:51:47+09:00",
   "updated_by": "codex",
   "branch": "main",
-  "head_at_update": "3e2e2a1",
+  "head_at_update": "cd565c5",
   "current": {
-    "task": "Issue #46・#47: 公開可能な図をIssueへ添付",
-    "status": "done",
-    "step": "素材画像を公開せず、メタデータ図と視点概念図をPR・Issueに直接表示する",
+    "task": "Issue #46: S05/S06発光抑制GLB候補を別名素材登録",
+    "status": "in_progress",
+    "step": "Ownerが候補作成を選択。ハッシュ・構造を再照合し候補2件を素材ライブラリに登録、原本と旧版を保持",
     "design_doc": "docs/roadmap/STAGE_LIGHTLESS_ZOOM_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T22:51:47+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cd565c5",
+      "text": "Issue #46: S05/S06発光抑制GLB候補を別名素材登録: Ownerが候補作成を選択。ハッシュ・構造を再照合し候補2件を素材ライブラリに登録、原本と旧版を保持"
+    },
     {
       "at": "2026-10-21T22:50:03+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "b7c1393",
       "text": "Issue #40: S01 GLBステージのライブラリ取込・原点配置・室内表示・XYZ回転を実装。実S01のChrome SwiftShader保存再読込とPython12件・型検査を確認"
-    },
-    {
-      "at": "2026-10-21T18:18:05+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9e9f244",
-      "text": "Issue #40 ステージGLB配置と3点ライト編集: 実GLBの登録・座標検証とライト保存形式/編集UIの設計"
     }
   ]
 }
