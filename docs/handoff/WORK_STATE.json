@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T15:40:14+09:00",
+  "updated_at": "2026-10-21T15:58:52+09:00",
   "updated_by": "codex",
-  "branch": "codex/legacy-camera-fixes",
-  "head_at_update": "9a383fd",
+  "branch": "codex/main-sync-post-merge",
+  "head_at_update": "340aeeb",
   "current": {
-    "task": "Issue #30 旧BAI Cameraの正面撮影・自由回転・再生途中停止・周回の不具合",
+    "task": "Issue #33 main統合後のローカル同期とサーバー確認手順",
     "status": "done",
-    "step": "実画面とコードで症状を切り分け、既存仕様内で修正する",
-    "design_doc": "docs/roadmap/CAM_ISSUE30_LEGACY_FIX_20261021_JA.md"
+    "step": "AGENTSの短い導線と詳細手順を追加する",
+    "design_doc": "docs/handoff/MAIN_SYNC_AFTER_MERGE_JA.md"
   },
   "next_steps": [
-    "Issue #30の日本語PRを作成・確認後に統合し、Issueを閉じる。その後P2-WP05gを再開する"
+    "PRを作成・マージし、手順に従ってローカルmainと8765番を検証する",
+    "Issue #34のグレーマン再生、Issue #35のキャラクター正面画像を実装する"
   ],
   "unverified": [
-    "他の全VRM/GLB、物理マウスと実GPUの長時間操作感、Owner画面採用、CAM機能全体のMCP/保存受け入れは未確認"
+    "運用手順の文書変更のみ。PRマージ後の実操作で確認する。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +33,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T15:58:52+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "340aeeb",
+      "text": "Issue #33: mainへのPRマージ後のローカルmain同期・8765番サーバー確認をAGENTSと詳細手順に追加"
+    },
+    {
+      "at": "2026-10-21T15:57:59+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1897a21",
+      "text": "Issue #33 main統合後のローカル同期とサーバー確認手順: AGENTSの短い導線と詳細手順を追加する"
+    },
     {
       "at": "2026-10-21T15:40:14+09:00",
       "by": "codex",
@@ -227,20 +242,6 @@
       "event": "start",
       "head": "614e848",
       "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 引き継ぎ設計照合→実装→自動テスト→台帳更新"
-    },
-    {
-      "at": "2026-10-20T21:13:28+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "83dbf9f",
-      "text": "P2-WP-05d SCR-05 の A/B の3D・連結再生・手順名対応表・スロット別PMX+VMD: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T21:08:35+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "5b4711a",
-      "text": "P2-WP-05c 完了：SCR-05 の82パターン一覧（検索・分類・👑）・お気に入り・コンビネーション編集（editCombination）・速度"
     }
   ]
 }
