@@ -314,7 +314,7 @@ export const assetDetail = (ctx) => {
     const catName = (ASSET_CATS.find((c) => c.id === cat) || { label: cat }).label;
     const fileTxt = a.available ? 'あり' : 'なし（再登録してください）';
     const danceParam = a.available && a.format === 'PMX' && a.source === 'mmd' ? 'model'
-      : a.available && a.format === 'GLB' && a.kind === 'motion' ? 'motion'
+      : a.available && cat === 'motion' && ['GLB', 'VMD', 'FBX'].includes(a.format) ? 'motion'
         : a.available && a.source === 'library' && a.kind === 'audio' ? 'audio' : '';
     const canPreview = cat === 'motion' && a.available;
     const stage = h('div', { class: 'asset-motion-stage viewport vp3d', 'aria-label': `${a.name}の動きの見本`, dataset: { role: 'motion-preview' } });

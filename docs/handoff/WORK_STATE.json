@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T03:42:21+09:00",
+  "updated_at": "2026-10-22T03:45:39+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp07",
-  "head_at_update": "ad7b18c",
+  "head_at_update": "70e24e0",
   "current": {
     "task": "P2-WP06/07 PR #59: main統合と残ゲート監査",
-    "status": "in_progress",
+    "status": "done",
     "step": "PR #56/#62マージ後のmainを統合し、差分とゲートを再確認",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2の残ゲートとPRレビューを整理し、承認済み後続へ進む。Issue #58のMMD実測はPhase E WP-13で確認"
+    "P2-WP06d/07の独立レビューと残ゲートを確認し、Phase Eへ進む。Issue #60はCAM-013/WP-11で実装"
   ],
   "unverified": [
-    "一括P2 NodeゲートはWindows ERR_NO_BUFFER_SPACEで未完走、WP06d/07独立高性能モデルレビュー、Blender実変換・VMD品質、MCP、GPU/Linux"
+    "P2 Node一括ゲート未完走、独立高性能モデルレビュー、Blender実変換/VMD品質、実GPU/Linux/MCPは未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,11 +32,32 @@
   ],
   "history": [
     {
+      "at": "2026-10-22T03:45:39+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "70e24e0",
+      "text": "PR #59をPR #56/#62マージ後のmainに統合。WORK_STATEの両履歴を保持。typecheck成功、SCR10/カメラ/SCR23の隔離Chrome9件成功・実素材任意2件スキップ、data7ファイルSHA-256不変"
+    },
+    {
       "at": "2026-10-22T03:42:21+09:00",
       "by": "codex",
       "event": "start",
       "head": "ad7b18c",
       "text": "P2-WP06/07 PR #59: main統合と残ゲート監査: PR #56/#62マージ後のmainを統合し、差分とゲートを再確認"
+    },
+    {
+      "at": "2026-10-22T03:39:55+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4d48a51",
+      "text": "Issue #61: AGENTS.mdに共通テスト手順への参照を追加し、TESTING_GUIDE_JA.mdに試験選択・保護・コマンド・失敗と未検証の記録を整備。参照先とpackage scripts一致、work_state検査とpytest 4件成功"
+    },
+    {
+      "at": "2026-10-22T03:37:44+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e3c0df1",
+      "text": "Issue #61: 共通テスト手順を独立MD化しAGENTS.mdから参照: 既存の試験契約・コマンドを照合して共通手順を作成"
     },
     {
       "at": "2026-10-22T03:28:33+09:00",
@@ -114,6 +135,20 @@
       "event": "done",
       "head": "21597c7",
       "text": "P2-WP-06b: 現行camera.htmlの124 ID配置表・SCR02カメラホスト・常駐・隔離Chrome4件・27画面共通20件を完了。カメラ単独保存と旧画面の再読込互換を確認。"
+    },
+    {
+      "at": "2026-10-22T01:30:47+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ffd1f12",
+      "text": "AUDIO-001/SCR10: 登録済みGLB/VMD/FBXダンス候補、PMX+VMD評価、FBX人体骨プレビュー、SCR08導線、保存復元を実装。typecheck、隔離Chrome 2件、実PMX+実FBX/VMDの描画・保存再読込・原本hash検証に成功。Issue #39に追跡。"
+    },
+    {
+      "at": "2026-10-22T01:17:10+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3a1d40e",
+      "text": "Issue #39: SCR10で登録済みVMD/FBXダンスを選択・再生する: GLB/VMD/FBXの候補・読込・互換条件・保存復元を実装"
     },
     {
       "at": "2026-10-22T01:11:11+09:00",
@@ -205,41 +240,6 @@
       "event": "start",
       "head": "3bddf9a",
       "text": "P2-WP-05g PR52統合: 現行mainへ統合し独立レビューと回帰試験を実施"
-    },
-    {
-      "at": "2026-10-21T23:43:31+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "7b33d70",
-      "text": "PR22 WP05fを現行mainへ統合。独立レビューで150MB超の比較モデルを取得前に拒否。型検査・隔離Chrome10・Python HTTP1通過"
-    },
-    {
-      "at": "2026-10-21T23:37:13+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2b85da5",
-      "text": "P2-WP-05f PR22統合: 現行mainへ統合し独立レビューと試験を実施"
-    },
-    {
-      "at": "2026-10-21T23:33:05+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "03bdb59",
-      "text": "PR21 WP05eを現行mainに統合。4競合を解消し、独立レビューで実経過時計の遅延を修正。型検査・計算15・Chrome20通過"
-    },
-    {
-      "at": "2026-10-21T23:24:40+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "a0e1f3b",
-      "text": "P2-WP-05e PR21統合: mainとの差分を統合して競合を解消し独立検証する"
-    },
-    {
-      "at": "2026-10-21T23:22:00+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8451afb",
-      "text": "WP05gの実経過時計修正と共通ゲートの結果を記録。対象25件、E2E S1/S2/S5通過、全体ゲート各1件の不安定失敗は単独再実行で通過"
     }
   ]
 }
