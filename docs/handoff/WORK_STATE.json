@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T22:45:08+09:00",
+  "updated_at": "2026-10-21T22:45:32+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-lighting-zoom",
-  "head_at_update": "19f818e",
+  "head_at_update": "8984bbd",
   "current": {
     "task": "Issue #46・#47: 公開可能な図をIssueへ添付",
-    "status": "in_progress",
+    "status": "done",
     "step": "素材画像を公開せず、メタデータ図と視点概念図をPR・Issueに直接表示する",
     "design_doc": "docs/roadmap/STAGE_LIGHTLESS_ZOOM_20261021_JA.md"
   },
   "next_steps": [
-    "S05/S06の発光候補についてOwnerの採否を受ける。PR #48のレビュー/統合判断を行い、統合後はmainとローカルサーバーを同期する。Issue #46はOwner外観採用まで継続"
+    "図をPR #48およびIssue #46・#47へ画像として表示確認する。S05/S06発光候補はOwner判断待ち。PR統合後mainとサーバーを同期"
   ],
   "unverified": [
-    "LAST CHASE全景は端末フリーズ歴により再試験しない。実GPU、Linux、Owner外観採用、WebMCP/標準MCPは未検証。発光候補2件は未採用・未登録"
+    "LAST CHASE全景の実操作、実GPU、Linux、Owner外観採用は未検証。S05/S06発光候補は未採用・未登録"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T22:45:32+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8984bbd",
+      "text": "Issue #46・#47の結果を示すメタデータ図と視点概念図を作成。受領GLBの実画像は公開せず、Owner指定のローカル確認領域に保持"
+    },
     {
       "at": "2026-10-21T22:45:08+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "0d7beec",
       "text": "AUDIO-001: SCR-10でPMXとMVNT GLBの骨対応、MMD物理、WAV/MP3実波形、30fps配置・再生・保存復元を実装し、実素材を隔離ブラウザで検証"
-    },
-    {
-      "at": "2026-10-21T17:08:35+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e577325",
-      "text": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー: SCR-10の3D変形・音声クロック・2トラック編集"
     }
   ]
 }
