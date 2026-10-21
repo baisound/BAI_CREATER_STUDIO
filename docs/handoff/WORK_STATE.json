@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T18:38:34+09:00",
+  "updated_at": "2026-10-21T18:38:53+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-light-rig",
-  "head_at_update": "f9cc53d",
+  "head_at_update": "5856b2d",
   "current": {
-    "task": "LIGHT-001 シーン多灯照明とライト別キーフレーム",
-    "status": "done",
-    "step": "保存バリデーションと補間ロジックを実装",
+    "task": "LIGHT-001 SCR-06多灯照明の編集画面",
+    "status": "in_progress",
+    "step": "シーン一覧・ライトフレームとギズモ・右のRGB/変形編集・下部キータイムライン",
     "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T18:38:53+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5856b2d",
+      "text": "LIGHT-001 SCR-06多灯照明の編集画面: シーン一覧・ライトフレームとギズモ・右のRGB/変形編集・下部キータイムライン"
+    },
     {
       "at": "2026-10-21T18:38:34+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "2326456",
       "text": "MOTION-006 PMX+VMDの足IK・grant再生と往復シークを修正し実素材で確認"
-    },
-    {
-      "at": "2026-10-21T14:04:27+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "34b42e8",
-      "text": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正: PMXプレビューのIK・grant更新と実素材再検証"
     }
   ]
 }
