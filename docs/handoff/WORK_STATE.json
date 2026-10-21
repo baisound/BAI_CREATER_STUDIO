@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T13:05:21+09:00",
+  "updated_at": "2026-10-21T13:17:58+09:00",
   "updated_by": "codex",
-  "branch": "codex/project-history-newest-first",
-  "head_at_update": "bcb29fa",
+  "branch": "codex/main-integration-20261021",
+  "head_at_update": "11eeac8",
   "current": {
-    "task": "SCR-18 バージョン一覧を新しい順に表示",
-    "status": "done",
-    "step": "保存順の履歴と復元インデックスを維持した表示順変更・テスト",
+    "task": "適格PRを含むrecoveryをmainへ統合",
+    "status": "in_progress",
+    "step": "mainとの差分確認・祖先同期・共通ゲート・統合PR",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T13:17:58+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "11eeac8",
+      "text": "適格PRを含むrecoveryをmainへ統合: mainとの差分確認・祖先同期・共通ゲート・統合PR"
+    },
     {
       "at": "2026-10-21T13:05:21+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "f265ded",
       "text": "P2-WP-04 O-④ の決定: O-④-1〜7 の決定と O-④-2 の最小 PMX"
-    },
-    {
-      "at": "2026-10-20T15:15:56+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "8a01f5f",
-      "text": "P2-WP-03 Opus レビュー完了（送る直前の衝突の再確認・VMD の大文字小文字を修正）、legacy-project-save.test.cjs の時々の失敗（テスト側、b082ad8 から）を修正"
     }
   ]
 }
