@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T12:03:06+09:00",
+  "updated_at": "2026-10-21T12:03:44+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05f",
-  "head_at_update": "dfedcc1",
+  "head_at_update": "b050e33",
   "current": {
     "task": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断",
-    "status": "done",
-    "step": "⑤-14 足の接地診断をSCR13右の足IKタブに結線",
+    "status": "in_progress",
+    "step": "共通完了ゲートとE2E結果の台帳記録",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T12:03:44+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "b050e33",
+      "text": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断: 共通完了ゲートとE2E結果の台帳記録"
+    },
     {
       "at": "2026-10-21T12:03:06+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "7e701e0",
       "text": "P2-WP-05c SCR-05 の82パターン一覧・お気に入り・コンビネーション編集・速度（3Dなし）: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T20:38:09+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "7b3327e",
-      "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド preview_vmd・integrated_preview の受け口（O-⑤-5）"
     }
   ]
 }
