@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T14:04:27+09:00",
+  "updated_at": "2026-10-21T14:18:16+09:00",
   "updated_by": "codex",
   "branch": "codex/pmx-vmd-foot-playback",
-  "head_at_update": "34b42e8",
+  "head_at_update": "2326456",
   "current": {
     "task": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正",
-    "status": "in_progress",
+    "status": "done",
     "step": "PMXプレビューのIK・grant更新と実素材再検証",
     "design_doc": "docs/roadmap/MOTION_006_VMD_FOOT_DIAGNOSIS_20261021_JA.md"
   },
   "next_steps": [
-    "MOTION-006のPMXプレビューでIK・grantを評価し、実素材の画面と脚姿勢を再確認する"
+    "PMX脚修正のPR作成・統合、続いて素材一覧の動作プレビューと全3D画面のマウス操作を実装"
   ],
   "unverified": [
-    "GPU実機・物理挙動は未検証。元PMX/VMD/weightsは変更しない。"
+    "GPU実機の描画速度、物理挙動、全PMX/VMD組み合わせは未検証。元PMX/VMD/weightsは不変。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T14:18:16+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2326456",
+      "text": "MOTION-006 PMX+VMDの足IK・grant再生と往復シークを修正し実素材で確認"
+    },
     {
       "at": "2026-10-21T14:04:27+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "81a0c79",
       "text": "P2-WP-04 B-4 の Opus レビュー：B-4 は設計どおり（HTTP 400 で不変のテストを追加）。PMX キャラを SCR-06 に置く件は計画の空白として所有者判断（Q5）"
-    },
-    {
-      "at": "2026-10-20T16:04:50+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "4ee6b49",
-      "text": "P2-WP-04 ④ 3D表示とステージ配置を実装（B-4 は 4ee6b49 に分離）。E2E は S2 まで"
     }
   ]
 }

@@ -140,6 +140,14 @@ test('pmx with vmd plays bones and morphs', harness.skip3d(), async () => {
     near(p1.morphs['あ'], 1, 1e-6, 'あ@1.0');
     near(p1.bones['センター'][1] - p0.bones['センター'][1], 1.0, 1e-4, 'センターの y');
     assert.match(await page.textContent('[data-role="motion-time"]'), /^1\.00 \/ 1\.00 秒$/);
+    await seekTo(page, 0);
+    const again0 = await probe(page, { morphs: ['あ'], bones: ['センター'] });
+    near(again0.morphs['あ'], p0.morphs['あ'], 1e-6, '往復後のあ@0');
+    near(again0.bones['センター'][1], p0.bones['センター'][1], 1e-6, '往復後のセンター@0');
+    await seekTo(page, 1.0);
+    const again1 = await probe(page, { morphs: ['あ'], bones: ['センター'] });
+    near(again1.morphs['あ'], p1.morphs['あ'], 1e-6, '往復後のあ@1.0');
+    near(again1.bones['センター'][1], p1.bones['センター'][1], 1e-6, '往復後のセンター@1.0');
     await shot(page, 'pmx-vmd-edit.jpg');
   });
 });
