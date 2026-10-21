@@ -39,6 +39,20 @@
       "text": "P2-WP-06aの1/2: camera.jsをroot基準の冪等mount APIへ移し、旧カメラのキー編集・Undo/Redo・保存再読込のmain比較が一致"
     },
     {
+      "at": "2026-10-22T00:48:49+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "84410e8",
+      "text": "Issue #50追補: SCR-10の踊るモデルにGLB/VRM/PMX/FBXを追加し、主要人体骨のGLBダンスプレビューを実装。実VRM/GLB/FBXの隔離Chrome動作、VRM保存再読込、原本hash不変、型検査と状態検査を確認"
+    },
+    {
+      "at": "2026-10-22T00:33:29+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "dec1774",
+      "text": "Issue #50: SCR-10の踊るモデルにGLB/VRM/FBXを追加: モデル候補・プレビュー経路・保存再読込を修正"
+    },
+    {
       "at": "2026-10-22T00:28:22+09:00",
       "by": "codex",
       "event": "start",
