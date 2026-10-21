@@ -10,6 +10,7 @@ import { ASSET_CATS, categoryOf, sourceLabel, filterAssets, countByCategory, for
 import { lib, setLib, selectAsset, selectCategory, applyParams, ensureAssets, loadAssets, watchAssets } from './assets.js';
 import { openImportDialog, statusText, cancelRow, removeRow, retryRow } from './import.js';
 import { mountMotionPreview, motionThumbnail, previewModels } from './asset-motion-preview.js';
+import { libraryFileUrl, libraryThumbnail, mountLibraryPreview } from './asset-library-preview.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
@@ -57,7 +58,10 @@ function imageFor(a, items) {
 function tile(a) {
   const cat = categoryOf(a);
   const pictogram = ({ char: 'user', motion: 'motion', stage: 'stage', prop: 'template', mat: 'sphere', fx: 'sparkle', audio: 'music', video: 'render', image: 'image' })[cat] || 'image';
-  return h('div', { class: 'asset-img asset-tile', dataset: { cat, ...(cat === 'motion' && a.available ? { thumbId: a.id } : {}) } }, icon(pictogram, 28), h('span', { class: 'tile-fmt' }, a.format));
+  const library = a.source === 'library';
+  const src = library && a.available ? (a.thumbnailUrl || (['image', 'material'].includes(a.kind) || (a.kind === 'fx' && a.format !== 'GLB') ? libraryFileUrl(a) : '')) : '';
+  return h('div', { class: `asset-img asset-tile${src ? ' has-image' : ''}`, dataset: { cat, ...((cat === 'motion' || library) && a.available && !src ? { thumbId: a.id } : {}) } },
+    src ? h('img', { src, alt: `${a.name}の見本`, loading: 'lazy' }) : [icon(pictogram, 28), h('span', { class: 'tile-fmt' }, a.format)]);
 }
 
 /* ------------------------------------------------------------------ ツール */
@@ -112,10 +116,11 @@ export const assetLibrary = (ctx) => {
       thumbnailObserver.unobserve(el);
       const item = assets.get().items.find((a) => a.id === el.dataset.thumbId);
       if (!item || !item.available) continue;
-      void imageFor(item, assets.get().items).then((url) => {
+      const image = item.source === 'library' ? libraryThumbnail(item) : imageFor(item, assets.get().items);
+      void image.then((url) => {
         if (!el.isConnected) return;
         if (!url) { el.title = item.format === 'VMD' ? '見本にはPMXモデルが必要です' : 'この素材の見本画像を作れませんでした'; return; }
-        el.replaceChildren(h('img', { src: url, alt: `${item.name}の開始・中間・終了の姿勢`, loading: 'lazy' }));
+        el.replaceChildren(h('img', { src: url, alt: item.source === 'library' ? `${item.name}の見本` : `${item.name}の開始・中間・終了の姿勢`, loading: 'lazy' }));
         el.classList.add('has-image');
       });
     }
@@ -183,7 +188,13 @@ export const assetLibrary = (ctx) => {
       body.replaceChildren(h('div', { class: 'empty', dataset: { role: 'empty-all' } }, 'まだ素材がありません。', h('div', null, h('button', { class: 'btn primary', type: 'button', dataset: { act: 'real' }, onclick: () => openImportDialog() }, '素材を取り込む…'))));
       return;
     }
-    if (!list.length) { body.replaceChildren(h('div', { class: 'empty', dataset: { role: 'empty-cat' } }, 'この種類の素材はまだありません。', h('div', null, h('button', { class: 'btn primary', type: 'button', dataset: { role: 'import-empty', act: 'real' }, onclick: () => openImportDialog() }, '素材を取り込む…')))); return; }
+    if (!list.length) {
+      const filtered = !!l.q.trim() || fmt !== 'all';
+      body.replaceChildren(filtered
+        ? h('div', { class: 'empty' }, '条件に一致する素材はありません。')
+        : h('div', { class: 'empty', dataset: { role: 'empty-cat' } }, 'この種類の素材はまだありません。', h('div', null, h('button', { class: 'btn primary', type: 'button', dataset: { role: 'import-empty', act: 'real' }, onclick: () => openImportDialog() }, '素材を取り込む…'))));
+      return;
+    }
     /** @param {AssetItem} a */
     const heart = (a) => h('button', { type: 'button', class: 'fav', dataset: { act: 'unimpl' }, 'aria-label': `${a.name}をお気に入り（未実装）`, title: '◇ 未実装：素材のお気に入り',
       onclick: (/** @type {Event} */ e) => { e.stopPropagation(); showUnimplemented({ name: 'お気に入り', why: '素材のお気に入りは未実装です（旧画面のお気に入りはコンビネーションだけです）。', ids: ['NF-004'], phase: PH.P4 }); } }, icon('heart', 16));
@@ -272,10 +283,10 @@ const opened = new WeakSet();
 export const assetDetail = (ctx) => {
   boot(ctx);
   const root = h('div', { class: 'asset-detail', dataset: { feature: 'assetDetail' } });
-  /** @type {{dispose: () => void}|null} */ let motionPreview = null;
-  ctx.onCleanup(() => motionPreview?.dispose());
+  /** @type {{dispose: () => void}|null} */ let currentPreview = null;
+  ctx.onCleanup(() => currentPreview?.dispose());
   watch(ctx, () => {
-    motionPreview?.dispose(); motionPreview = null;
+    currentPreview?.dispose(); currentPreview = null;
     const st = assets.get();
     const l = lib.get();
     if (st.status !== 'ready') {
@@ -300,7 +311,8 @@ export const assetDetail = (ctx) => {
     const status = h('p', { class: 'section-note', role: 'status', dataset: { role: 'preview-status' } }, '動きの見本を読み込み中…');
     const clip = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '再生する動き', dataset: { role: 'preview-clip' }, hidden: true }));
     const model = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'VMDを再生するPMXモデル', dataset: { role: 'preview-model' }, hidden: true }));
-    const previewNode = canPreview ? h('div', { class: 'asset-motion-preview' }, stage,
+    const libraryPreview = a.source === 'library' && a.available;
+    const previewNode = libraryPreview ? h('div', { class: 'asset-library-preview detail-preview', dataset: { role: 'library-preview' } }) : canPreview ? h('div', { class: 'asset-motion-preview' }, stage,
       h('div', { class: 'asset-motion-controls' }, play, pause, fit, seek, time),
       clip, model, status) : h('div', { class: 'detail-preview tile-large', dataset: { cat } }, icon(cat === 'char' ? 'user' : 'motion', 48), h('span', { class: 'tile-fmt' }, a.format));
     root.replaceChildren(
@@ -328,14 +340,15 @@ export const assetDetail = (ctx) => {
         unimplBtn('タグを追加', 'タグの保存は未実装です。', ['NF-004'], PH.P4)),
       section('依存素材', 'unimpl', h('p', { class: 'section-note' }, '依存関係の追跡は未実装です（REVIEW-010）。')),
       h('div', { class: 'detail-actions' },
-        h('button', { class: 'btn primary', type: 'button', disabled: cat !== 'char', dataset: { act: 'real', role: 'show-3d' },
-          title: cat === 'char' ? 'キャラクター管理（12）で3D表示します' : 'モーションの動きは上の見本で確認できます',
-          onclick: () => ctx.navigate('12', { query: { asset: a.id } }) }, '3D で表示'),
+        h('button', { class: 'btn primary', type: 'button', disabled: cat !== 'char' && !(libraryPreview && a.format === 'GLB'), dataset: { act: 'real', role: 'show-3d' },
+          title: cat === 'char' ? 'キャラクター管理（12）で3D表示します' : libraryPreview && a.format === 'GLB' ? '上の3D見本を操作します' : '見本は上で確認できます',
+          onclick: () => { if (libraryPreview) { previewNode.scrollIntoView({ block: 'nearest' }); previewNode.querySelector('canvas')?.focus(); } else ctx.navigate('12', { query: { asset: a.id } }); } }, '3D で表示'),
         unimplBtn('シーンで使う', '新UIから素材をシーンへ配置する機能は未接続です。現行の制作画面で素材を選んで使えます。', ['NF-014'], PH.P2),
         h('div', { class: 'btn-row' },
           unimplBtn('置換', 'シーン内の素材差し替えは未実装です。', ['REVIEW-010'], PH.P2),
           unimplBtn('エクスポート', '素材単体の書き出しは外部連携（23）の範囲です。', ['NF-010'], PH.P4))));
-    if (canPreview) motionPreview = mountMotionPreview(stage, a, st.items, { play, pause, fit, seek, time, status, clip, model });
+    if (canPreview) currentPreview = mountMotionPreview(stage, a, st.items, { play, pause, fit, seek, time, status, clip, model });
+    else if (libraryPreview) currentPreview = mountLibraryPreview(previewNode, a);
   }, assets, lib);
   return root;
 };

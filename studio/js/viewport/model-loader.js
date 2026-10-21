@@ -41,6 +41,9 @@ export function loadLibs() {
 /** 素材の id から読み込み先を決める。 @param {ModelItem} item @returns {{url: string, format: 'GLB'|'VRM'|'PMX'|'FBX'}} */
 export function modelSource(item) {
   const format = /** @type {'GLB'|'VRM'|'PMX'|'FBX'} */ (String(item.format || '').toUpperCase());
+  if (item.source === 'library' && format === 'GLB' && /^library:[0-9a-f]{24}$/.test(item.id)) {
+    return { url: `/api/library-assets/file/${encodeURIComponent(item.id)}`, format };
+  }
   if (item.source === 'integrated' && (format === 'GLB' || format === 'VRM' || format === 'FBX') && item.filename) {
     return { url: `/api/integrated-v02/asset/${encodeURIComponent(item.filename)}`, format };
   }

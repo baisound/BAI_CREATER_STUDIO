@@ -67,3 +67,22 @@
 - SCR-08の取り込みダイアログでGLBのステージ・小物・エフェクト、WAV/MP3、MP4/WebM/OGV、PNG/JPEG/GIF/WebP/AVIF/BMPを分類選択できる。新しい種類だけ素材ライブラリ保存APIへ送り、既存のモデル・モーション経路を維持した。
 - /api/assetsの新分類を件数、絞り込み、詳細情報へ反映し、空の分類からも取り込みを開ける。
 - `node --test tests/studio-p2-import-rules.test.mjs` 18件と `npm run typecheck` は合格。ブラウザー試験はChromeを指定して起動できたが、隔離サーバーが12秒以内に応答しなかったため未検証。見本・再生と実素材の試験は次段階。
+
+## 実装進捗：実ファイル見本・再生段階
+
+- 画像・材質画像・画像エフェクトは元ファイルをそのまま表示する。音声は32MiB以下でブラウザーがデコードできる場合に実波形を描き、PNG見本を別名保存する。動画はフレームを取り込んでPNGポスターを別名保存し、GLBは3D見本とPNGサムネイルを生成する。多数の見本生成は順番に処理する。
+- 音声・動画には再生、一時停止、停止、5秒戻し・送り、シーク、現在時刻/全長を置いた。ブラウザーが対応しないコーデックは見本・再生を保証しない。大きい音声も再生できるが波形の自動作成は行わない。
+- 既存の動画ファイルやサーバーの原本には描画・再生で書き込まない。生成したPNG見本だけ登録IDの下に保存する。
+- Chromeの隔離サーバー試験でPNG/WAV/GLBの分類と実見本、WAV/MP4の実再生・停止、MP4ポスターの保存再読込を確認。先の起動遅延はサンドボックス外での実行では再現しなかった。
+
+## CC0実素材
+
+- 2026-10-21にKenney公式の [Platformer Kit](https://kenney.nl/assets/platformer-kit)、[Factory Kit](https://kenney.nl/assets/factory-kit)、[Particle Pack](https://kenney.nl/assets/particle-pack)、[UI Audio](https://kenney.nl/assets/ui-audio) を取得した。各ページと同梱 `License.txt` にCC0の記載を確認。取得URL、ZIPと各選択ファイルのSHA-256、変換内容、用途は [ASSET_IMPORT_CC0_MANIFEST_20261021.json](ASSET_IMPORT_CC0_MANIFEST_20261021.json) に記録した。
+- ZIPと変換後の見本はGit管理外の `data/sample_imports_20261021/` にある。`python tools/prepare_sample_import_assets.py` で選択した素材を再生成できる。KenneyのGLBが外部PNGを参照していたため、サンプルのステージと小物はそのPNGをGLBへ埋め込んだ。UI AudioのOGGはWAV/MP3へ、Platformerの画像はMP4へ変換し、MP3/MP4にはタイトルタグを付けた。原本ZIPは保持する。
+- `tests/studio-real-import-samples.test.cjs` は取得した素材がローカルにある場合に隔離サーバーへ8ファイルを登録し、分類、音声タイトル/波形、動画ポスター、GLB表示、見本保存を確認する。実行済みで合格。8ファイルをOwnerが開ける `D:/BAI/BAI_CREATER_STUDIO/BAI_Creator_Studio/data/sample_imports_20261021/ready/` に複写し、SHA-256の一致を確認した。同フォルダーにREADME、manifest、同梱ライセンスを置いた。見本はまだOwnerの本番ライブラリには登録していない。
+
+## 検証の記録
+
+- `npm run typecheck`、取り込み規則・一覧ロジック21件、Python保存API3件、CC0実素材のブラウザー1件は合格。
+- 素材管理ブラウザー回帰31件中30件が初回合格。1件は検索結果0件の文言を旧表示のままにする修正で解消し、該当する検索と空分類の2件を再実行して合格。全31件を修正後に再通しする必要はないと判断した。
+- Chrome/SwiftShaderでの確認。実GPU、Windows以外、全形式のデコーダー、WebM/OGV/AVIFの実ファイル、WebMメタタイトルは未検証。

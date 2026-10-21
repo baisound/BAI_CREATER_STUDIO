@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T16:23:54+09:00",
+  "updated_at": "2026-10-21T16:44:29+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-import-expansion",
-  "head_at_update": "8b639c0",
+  "head_at_update": "ba00acf",
   "current": {
     "task": "DATA-016 素材取り込み拡張",
-    "status": "in_progress",
+    "status": "done",
     "step": "画像・音声・動画・GLBの実見本と再生操作",
     "design_doc": "docs/roadmap/ASSET_IMPORT_EXPANSION_20261021_JA.md"
   },
   "next_steps": [
-    "新分類の画像・音声・動画・GLB見本と再生操作を実装し実素材で検証"
+    "PRを作成しレビュー・統合後、Ownerの本番ライブラリへ実素材を登録する。続いてIssue34/35を進める"
   ],
   "unverified": [
-    "ブラウザー試験は隔離サーバー応答遅延で未完了、実素材・見本・MCPは未検証"
+    "実GPU、Windows以外、WebM/OGV/AVIF実ファイル、標準MCP経路は未検証。サンプルファイルはOwnerに渡し本番ライブラリ登録は未実施"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T16:44:29+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ba00acf",
+      "text": "DATA-016 画像・音声・動画・GLB見本、再生操作、CC0実素材8件と取得記録を実装しChromeで検証"
+    },
     {
       "at": "2026-10-21T16:23:54+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "47cd708",
       "text": "PR #20の同期とWP05b/c独立レビュー: 先行保存・編集・外部コマンドの差分監査とrecovery同期"
-    },
-    {
-      "at": "2026-10-21T10:49:07+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2905119",
-      "text": "P2-WP-05dの共通完了ゲート：Node 283 pass/5計画skip、pytest 370 pass、Evidence 117 pass、SCR05再検証15 pass。PMX切替競合とWindowsのテスト待機・ZIP fixture差を修正。"
     }
   ]
 }
