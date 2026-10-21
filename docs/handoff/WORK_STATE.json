@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T14:22:42+09:00",
+  "updated_at": "2026-10-21T14:22:51+09:00",
   "updated_by": "codex",
   "branch": "codex/motion-assets-navigation",
-  "head_at_update": "fe8a5fb",
+  "head_at_update": "56f9ad1",
   "current": {
     "task": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善",
-    "status": "done",
-    "step": "既存素材形式・画面導線・3D操作の調査と受け入れ条件整理",
-    "design_doc": "docs/roadmap/MOTION_006_VMD_FOOT_DIAGNOSIS_20261021_JA.md"
+    "status": "in_progress",
+    "step": "共通3DホストのBlender式中ドラッグと操作案内を実装",
+    "design_doc": "docs/roadmap/MOTION_016_ASSET_PREVIEW_NAVIGATION_20261021_JA.md"
   },
   "next_steps": [
     "共通3Dホストの中ボタン操作を実装・画面検証する"
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T14:22:51+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "56f9ad1",
+      "text": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善: 共通3DホストのBlender式中ドラッグと操作案内を実装"
+    },
     {
       "at": "2026-10-21T14:22:42+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "8de3801",
       "text": "P2 §2.5 ⑤ モーション（VMD）の詳細設計（O-⑤-1〜8 の決定と WP-05 の分割）: 旧コード調査 → §2.5 詳細化 → 自己批評 → コミット"
-    },
-    {
-      "at": "2026-10-20T19:27:19+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "7cea229",
-      "text": "P2-WP-04b 完了：④-9（SCR-13 ボーンマップ）・④-10（three-host で2体を±1.15）を移植。コミット 7cea229"
     }
   ]
 }
