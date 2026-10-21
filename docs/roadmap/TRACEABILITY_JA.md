@@ -9,6 +9,7 @@
 | 登録済みモーションから右サイドで編集、タブ、お気に入り・タグ | DATA-002, DATA-011 | 編集＋テンプレートライブラリ |
 | 素材一覧で動くグレーマン、キャラクター正面画像、ステージ内部の自動撮影（2026-10-21 Owner指定） | MOTION-016, DATA-016 | 原本を保持し、再生見本と版付きPNGを既存素材管理へ統合。実装・未検証は[素材見本の記録](ASSET_VISUAL_PREVIEWS_20261021_JA.md) |
 | 制作状態保存/読み込み、履歴・復元、ローカルGit/タグ | DATA-008〜010, CORE-008 | プロジェクト保存とコード管理は別 |
+| 全キャラクター配置面でGLB/VRM/PMX/FBXを選ぶ（2026-10-21 Owner直接指定、Issue #50） | DATA-008、P2-WP-04/05/06/07 | 既存の`workspace.asset`と任意の`workspace.character`へ統合し、形式別に保存できないモーションは明示。[実装・検証](CHARACTER_PLACEMENT_ALL_FORMATS_20261021_JA.md) |
 | WebMCP/標準MCP/双方向同期、AI無し動作 | CORE-001〜005, CORE-011〜012 | 共通操作APIを正本に |
 | FBX→PMX→VMD、GLB/BVH/VRM、一括・比較 | MOTION-003〜009, MOTION-014 | ユニバーサルコンバーター |
 | 動画と音楽でダンサーA/B入替、各人振付 | DANCE-001〜007 | マルチダンサー管理 |

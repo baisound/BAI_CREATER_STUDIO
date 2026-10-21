@@ -9,10 +9,11 @@ import { emit } from '../bus.js';
 import { classifyBone } from '/camera_follow_config.js';
 import { categoryOf, sourceLabel } from './assets-model.js';
 import { ensureAssets, loadAssets, watchAssets } from './assets.js';
-import { setWorkspaceAsset } from './project.js';
+import { setWorkspaceFields } from './project.js';
 import { loadLibs, loadModel, collectBones, loadErrorText, disposeObject, MISSING_FILE_TEXT } from '../viewport/model-loader.js';
 import { createViewport, WebGLError, WEBGL_ERROR_TEXT } from '../viewport/three-host.js';
 import { normalizeModel } from '../viewport/normalize.fork.js';
+import { defaultCharacterPlacement, workspaceRefFor } from '../viewport/character-placement.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
@@ -253,20 +254,22 @@ export const useModelButton = (ctx) => {
   const sync = () => {
     const s = character.get();
     const it = s.item;
-    const ok = s.status === 'loaded' && !!it && it.source === 'integrated' && (it.format === 'GLB' || it.format === 'VRM') && !!it.filename;
+    const ok = s.status === 'loaded' && !!it && it.available && categoryOf(it) === 'char' && ['GLB', 'VRM', 'PMX', 'FBX'].includes(it.format);
     btn.disabled = !ok;
     btn.title = ok ? '作業中の素材（workspace.asset）をこのモデルにします。［保存］で保存されます'
-      : s.status === 'loaded' && it ? '統合保存に記録できるのは GLB/VRM だけです（project_state_bundle.py の制限）' : '先に左の一覧からモデルを選んでください';
+      : s.status === 'loaded' && it ? '読み込めるキャラクター（GLB/VRM/PMX/FBX）を選んでください' : '先に左の一覧からモデルを選んでください';
     note.hidden = !project.get().combinationMissing;
   };
   btn.addEventListener('click', () => {
     const it = character.get().item;
-    if (!it || !it.filename) return;
+    if (!it || !it.available || categoryOf(it) !== 'char') return;
     const ps = project.get();
     if (ps.status !== 'ready') { uiToast('制作状態を読み込み中です。少し待ってからもう一度押してください。', 'err'); return; }
-    setWorkspaceAsset(it.filename);
     const ws = project.get().bundle && project.get().bundle.workspace;
-    if (ws && ws.asset === it.filename) toastWithLink(`作業中の素材を ${it.name} にしました。［保存］で保存されます。`, ctx);
+    const ref = workspaceRefFor(it);
+    setWorkspaceFields({ asset: ref, clip: ws?.asset === ref && (it.format === 'GLB' || it.format === 'VRM') ? ws.clip : null,
+      character: ws?.character || defaultCharacterPlacement() }, { source: 'store' });
+    if (project.get().bundle?.workspace?.asset === ref) toastWithLink(`作業中の素材を ${it.name} にしました。［保存］で保存されます。`, ctx);
   });
   watch(ctx, sync, character, project);
   return root;

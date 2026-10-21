@@ -96,6 +96,50 @@ class ProjectStateBundleTest(TestCase):
             self.assertFalse(cp.with_suffix('.workspace-tmp').exists())
 
 
+class WorkspaceCharacterTest(TestCase):
+    """Issue #50: the old asset filename and new four-format IDs share one workspace field."""
+
+    def setUp(self):
+        self.base = {'schema': 1, 'combination': {'schema': 1, 'timeline': [], 'history': [], 'cursor': -1}, 'camera': DEFAULT}
+        self.placement = {'position': [1, 2, -3], 'rotation': [10, -20, 30], 'scale': 1.5}
+
+    def bundle(self, asset, clip=None, **extra):
+        return {**self.base, 'workspace': {'frame': 0, 'asset': asset, 'clip': clip, **extra}}
+
+    def test_four_formats_and_legacy_filenames_roundtrip(self):
+        for asset, clip in [('legacy.glb', 0), ('legacy.vrm', None), ('integrated:x.glb', 2),
+                            ('integrated:x.vrm', None), ('integrated:x.fbx', None),
+                            ('mmd:A:model/test.pmx', None), ('mmd:B:test.pmx', None), ('fbx:12', None)]:
+            with self.subTest(asset=asset), TemporaryDirectory() as tmp:
+                cp, cam = Path(tmp)/'comb.json', Path(tmp)/'camera.json'
+                save_bundle(cp, cam, self.bundle(asset, clip, character=self.placement))
+                got = read_bundle(cp, cam)['workspace']
+                self.assertEqual((got['asset'], got['clip']), (asset, clip))
+                self.assertEqual(got['character'], {'position': [1.0, 2.0, -3.0], 'rotation': [10.0, -20.0, 30.0], 'scale': 1.5})
+
+    def test_invalid_id_clip_and_transform_are_rejected(self):
+        bad_assets = ('../x.glb', 'integrated:../x.glb', 'mmd:C:x.pmx', 'mmd:A:../x.pmx',
+                      'fbx:../x', 'unregistered.obj', 'integrated:x.pmx')
+        for asset in bad_assets:
+            with self.subTest(asset=asset), self.assertRaises(ValueError):
+                validate_bundle(self.bundle(asset))
+        with self.assertRaisesRegex(ValueError, 'clip requires a GLB/VRM'):
+            validate_bundle(self.bundle('mmd:A:test.pmx', 0))
+        for placement in ({**self.placement, 'scale': 0}, {**self.placement, 'position': [float('nan'), 0, 0]},
+                          {**self.placement, 'rotation': [0, 361, 0]}, {**self.placement, 'extra': 1}):
+            with self.subTest(placement=placement), self.assertRaises(ValueError):
+                validate_bundle(self.bundle('fbx:12', character=placement))
+
+    def test_old_camera_save_keeps_character_transform(self):
+        with TemporaryDirectory() as tmp:
+            cp, cam = Path(tmp)/'comb.json', Path(tmp)/'camera.json'
+            save_bundle(cp, cam, self.bundle('legacy.glb', 0, character=self.placement))
+            save_bundle(cp, cam, self.bundle('legacy.glb', 0))
+            self.assertEqual(read_bundle(cp, cam)['workspace']['character']['position'], [1.0, 2.0, -3.0])
+            save_bundle(cp, cam, self.bundle('legacy.glb', 0, character=None))
+            self.assertNotIn('character', read_bundle(cp, cam)['workspace'])
+
+
 class WorkspaceStageTest(TestCase):
     """B-4（P2 設計 §1.15）：workspace.stage の保存先。"""
     STAGE = {'asset': 'integrated:stage.glb', 'position': [3, 0, -1.5], 'rotation': [0, 90, 0], 'scale': 2}

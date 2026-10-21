@@ -10,6 +10,7 @@ import { loadLibs, loadErrorText, disposeObject, MISSING_FILE_TEXT } from '../vi
 import { createViewport, createCompanionViewport, WebGLError, WEBGL_ERROR_TEXT } from '../viewport/three-host.js';
 import { buildPlaced, applyStage, heightOf } from '../viewport/scene-parts.js';
 import { RANGE, clamp, defaultStage, isStage } from '../viewport/placement.js';
+import { assetIdFromWorkspace, workspaceRefFor, defaultCharacterPlacement, isCharacterPlacement, applyCharacterPlacement } from '../viewport/character-placement.js';
 import { defaultLighting, isLighting, putLightKey, sampleLight } from '../viewport/scene-lighting.js';
 import { createSceneLightRig } from '../viewport/scene-light-rig.js';
 
@@ -21,7 +22,7 @@ import { createSceneLightRig } from '../viewport/scene-light-rig.js';
 // viewMode は補助ビューの方向。perspective はメインのみの単一レイアウト。
 export const sceneUi = createStore({ stageMessage: '', charMessage: '', lightMessage: '', selectedLightId: 'key', lightMode: 'translate', showLightFrames: true, lightFrame: 0, viewMode: 'perspective' });
 
-/** @typedef {{tryStage: (item: AssetItem) => Promise<{ok: true}|{ok: false, message: string}>}} SceneCtl */
+/** @typedef {{tryStage: (item: AssetItem) => Promise<{ok: true}|{ok: false, message: string}>, tryCharacter: (item: AssetItem) => Promise<{ok: true}|{ok: false, message: string}>}} SceneCtl */
 /** 中央のビューポートが用意できたら入る（右のタブの選択欄が使う）。 @type {SceneCtl|null} */
 let ctl = null;
 
@@ -39,7 +40,12 @@ export const lightFrame = () => Math.max(0, Math.round(Number(sceneUi.get().ligh
 /** @param {import('../viewport/scene-lighting.js').Lighting} value */
 export const saveLights = (value) => setWorkspaceFields({ lights: value }, { source: 'store' });
 /** @param {ReturnType<typeof project.get>} s */
-const characterFileOf = (s) => (s.bundle && s.bundle.workspace && s.bundle.workspace.asset) || '';
+const characterRefOf = (s) => (s.bundle && s.bundle.workspace && s.bundle.workspace.asset) || '';
+/** @param {ReturnType<typeof project.get>} s */
+export const characterPlacementOf = (s) => {
+  const value = s.bundle?.workspace?.character;
+  return isCharacterPlacement(value) ? value : defaultCharacterPlacement();
+};
 
 /** @param {FeatureCtx} ctx @param {() => void} fn @param {...{subscribe: (f: () => void) => () => void}} stores */
 function watch(ctx, fn, ...stores) {
@@ -252,7 +258,8 @@ export const sceneViewport = (ctx) => {
       } : null,
       character: charRoot ? {
         assetId: charRoot.userData.assetId, format: charRoot.userData.format, unit: charRoot.userData.unit, displayScale: charRoot.scale.x,
-        position: charRoot.position.toArray(), height: heightOf(THREE, charRoot),
+        position: charRoot.position.toArray(), rotation: [deg(charRoot.rotation.x), deg(charRoot.rotation.y), deg(charRoot.rotation.z)],
+        scale: characterPlacementOf(project.get()).scale, height: heightOf(THREE, charRoot),
       } : null,
       lights: lightRig?.getState() || null,
       viewportLayout: companion ? 'split' : 'single',
@@ -269,21 +276,22 @@ export const sceneViewport = (ctx) => {
         : h('span', { class: 'right' }, companion ? '' : '3D表示'));
   }
 
-  /** @param {string} file 保存された GLB/VRM の保存名（workspace.asset）。空なら外す。 */
-  async function setCharacter(file) {
+  /** @param {string} ref 保存された旧GLB/VRM名または素材ID（workspace.asset）。空なら外す。 */
+  async function setCharacter(ref) {
     const my = ++gen.char;
     if (charRoot) { host?.clear(charRoot); charRoot = null; }
-    const id = file ? `integrated:${file}` : '';
+    const id = assetIdFromWorkspace(ref);
     loaded.char = keyOf(id);
     sceneUi.set({ charMessage: '' }, 'char');
-    if (!file) return;
+    if (!ref) return;
     const item = itemOf(id);
-    if (!item) { sceneUi.set({ charMessage: `作業中のキャラクターの素材が見つかりません：${file}` }, 'char'); return; }
+    if (!item) { sceneUi.set({ charMessage: `作業中のキャラクターの素材が見つかりません：${ref}` }, 'char'); return; }
     if (!item.available) { sceneUi.set({ charMessage: `作業中のキャラクター：${MISSING_FILE_TEXT}` }, 'char'); return; }
     try {
       const built = await buildPlaced(item, /** @type {any} */ (libs));
       if (!alive || my !== gen.char) { disposeObject(built.root); return; }
       charRoot = built.root;
+      applyCharacterPlacement(charRoot, characterPlacementOf(project.get()));
       host?.add(charRoot);
     } catch (e) {
       if (my === gen.char) sceneUi.set({ charMessage: `作業中のキャラクター：${loadErrorText(e)}` }, 'char');
@@ -319,15 +327,16 @@ export const sceneViewport = (ctx) => {
     if (!(await ensureHost())) return;
     say('');
     const st = stageOf(ps);
-    const charFile = characterFileOf(ps);
+    const charRef = characterRefOf(ps);
     const stageId = st ? st.asset : '';
     let changed = false;
-    if (keyOf(charFile ? `integrated:${charFile}` : '') !== loaded.char) { await setCharacter(charFile); changed = true; }
+    if (keyOf(assetIdFromWorkspace(charRef)) !== loaded.char) { await setCharacter(charRef); changed = true; }
     if (!alive) return;
     if (keyOf(stageId) !== loaded.stage) { await setStageObject(stageId); changed = true; }
     if (!alive) return;
     const cur = stageOf(project.get());
     if (stageRoot && cur && cur.asset === stageRoot.userData.assetId) applyStage(stageRoot, cur);
+    if (charRoot) applyCharacterPlacement(charRoot, characterPlacementOf(project.get()));
     const lighting = lightsOf(project.get());
     if (!lighting && sceneUi.get().lightMessage !== '保存済みライトの形式を読めません。編集せず、保存データを確認してください。')
       sceneUi.set({ lightMessage: '保存済みライトの形式を読めません。編集せず、保存データを確認してください。' }, 'light-invalid');
@@ -376,7 +385,31 @@ export const sceneViewport = (ctx) => {
     }
   }
 
-  ctl = { tryStage };
+  /** @param {AssetItem} item @returns {Promise<{ok: true}|{ok: false, message: string}>} */
+  async function tryCharacter(item) {
+    if (!item.available) return { ok: false, message: MISSING_FILE_TEXT };
+    if (categoryOf(item) !== 'char' || !['GLB', 'VRM', 'PMX', 'FBX'].includes(item.format))
+      return { ok: false, message: 'キャラクターのGLB/VRM/PMX/FBXを選んでください。' };
+    const my = ++gen.char;
+    try {
+      if (!(await ensureHost()) || !libs) return { ok: false, message: '3D ビューを準備できていません。' };
+      const built = await buildPlaced(item, libs);
+      if (!alive || my !== gen.char) { disposeObject(built.root); return { ok: false, message: '選択が変わったため、読み込みを取り消しました。' }; }
+      if (charRoot) host?.clear(charRoot);
+      charRoot = built.root;
+      loaded.char = keyOf(item.id);
+      applyCharacterPlacement(charRoot, characterPlacementOf(project.get()));
+      host?.add(charRoot);
+      fitScene();
+      sceneUi.set({ charMessage: '' }, 'char');
+      publish();
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, message: e instanceof WebGLError ? WEBGL_ERROR_TEXT : loadErrorText(e) };
+    }
+  }
+
+  ctl = { tryStage, tryCharacter };
   ctx.onCleanup(() => { alive = false; gen.char++; gen.stage++; if (ctl && ctl.tryStage === tryStage) ctl = null; companion?.dispose(); companion = null; lightRig?.dispose(); lightRig = null; if (host) { host.dispose(); host = null; } });
   ctx.onCleanup(project.subscribe(() => { void sync(); }));
   ctx.onCleanup(assets.subscribe(() => { void sync(); }));
@@ -421,6 +454,46 @@ function disableSlider(sliderEl, disabled) {
 /** @param {FeatureCtx} ctx */
 export const stageTransform = (ctx) => {
   boot(ctx);
+  const characterSelect = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'キャラクターの素材', dataset: { role: 'character-asset' } }));
+  const characterRemove = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { act: 'real', role: 'character-remove' } }, 'キャラクターを外す'));
+  const characterMessage = h('p', { class: 'section-note stage-message', dataset: { role: 'character-message' }, role: 'status' });
+  const characterHint = h('p', { class: 'section-note' }, '登録済みのGLB/VRM/PMX/FBXを1体置きます。モデルの原点と骨は変えず、位置・回転・倍率を制作状態に保存します。');
+  /** @param {Partial<import('../viewport/character-placement.js').CharacterPlacement>} patch */
+  function patchCharacter(patch) {
+    if (!characterRefOf(project.get())) return;
+    setWorkspaceFields({ character: { ...characterPlacementOf(project.get()), ...patch } }, { source: 'store' });
+  }
+  const charPos = [0, 1, 2].map((i) => slider({ label: `位置 ${['X', 'Y', 'Z'][i]}`, min: RANGE.position[0], max: RANGE.position[1], step: 0.1, value: 0, unit: 'm',
+    onInput: (v) => { const cur = characterPlacementOf(project.get()); patchCharacter({ position: /** @type {[number,number,number]} */ (cur.position.map((p, k) => k === i ? clamp(v, RANGE.position[0], RANGE.position[1]) : p)) }); } }));
+  const charRot = [0, 1, 2].map((i) => slider({ label: `回転 ${['X', 'Y', 'Z'][i]}`, min: RANGE.rotationY[0], max: RANGE.rotationY[1], step: 1, value: 0, unit: '°',
+    onInput: (v) => { const cur = characterPlacementOf(project.get()); patchCharacter({ rotation: /** @type {[number,number,number]} */ (cur.rotation.map((p, k) => k === i ? clamp(v, RANGE.rotationY[0], RANGE.rotationY[1]) : p)) }); } }));
+  const charScale = slider({ label: '拡大', min: RANGE.scale[0], max: RANGE.scale[1], step: 0.1, value: 1, unit: '×',
+    onInput: (v) => patchCharacter({ scale: clamp(v, RANGE.scale[0], RANGE.scale[1]) }) });
+  for (const s of [...charPos, ...charRot, charScale]) s.dataset.role = 'character-slider';
+
+  characterSelect.addEventListener('change', async () => {
+    const id = characterSelect.value;
+    const old = characterRefOf(project.get());
+    const back = () => { characterSelect.value = assetIdFromWorkspace(old); };
+    if (!id) { back(); return; }
+    const ps = project.get();
+    if (ps.status !== 'ready' || ps.cameraInvalid) { characterMessage.textContent = ps.cameraInvalid ? 'カメラ保存データを読めないため、キャラクターは変えられません。' : '制作状態を読み込み中です。'; back(); return; }
+    const item = assets.get().items.find((a) => a.id === id);
+    if (!item) { characterMessage.textContent = `キャラクターの素材が見つかりません：${id}`; back(); return; }
+    characterSelect.disabled = true;
+    characterMessage.textContent = '読込中…';
+    try {
+      const result = ctl ? await ctl.tryCharacter(item) : { ok: false, message: '3D ビューを準備できていません。' };
+      if (!result.ok) { characterMessage.textContent = /** @type {{message:string}} */ (result).message; back(); return; }
+      characterMessage.textContent = '';
+      setWorkspaceFields({ asset: workspaceRefFor(item), clip: null,
+        character: characterPlacementOf(project.get()) }, { source: 'store' });
+    } finally { characterSelect.disabled = false; }
+  });
+  characterRemove.addEventListener('click', () => {
+    if (characterRefOf(project.get())) setWorkspaceFields({ asset: '', clip: null, character: null }, { source: 'store' });
+  });
+
   const select = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'ステージの素材', dataset: { role: 'stage-asset' } }));
   const remove = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { act: 'real', role: 'stage-remove' } }, 'ステージを外す'));
   const message = h('p', { class: 'section-note stage-message', dataset: { role: 'stage-message' }, role: 'status' });
@@ -461,6 +534,9 @@ export const stageTransform = (ctx) => {
   remove.addEventListener('click', () => { if (stageOf(project.get())) setWorkspaceFields({ stage: null }, { source: 'store' }); });
 
   const root = h('div', { dataset: { feature: 'stageTransform' } },
+    section('キャラクターの素材', 'real', characterHint, h('div', { class: 'field stack' }, h('label', null, '素材'), characterSelect), h('div', { class: 'btn-row' }, characterRemove), characterMessage),
+    section('キャラクター位置', 'real', ...charPos),
+    section('キャラクター回転・拡大', 'real', ...charRot, charScale),
     section('ステージの素材', 'real', hint, h('div', { class: 'field stack' }, h('label', null, '素材'), select), h('div', { class: 'btn-row' }, remove), message),
     section('位置', 'real', ...pos),
     section('回転・拡大', 'real', ...rot, scale));
@@ -469,6 +545,23 @@ export const stageTransform = (ctx) => {
     const ps = project.get();
     const as = assets.get();
     const st = stageOf(ps);
+    const characterRef = characterRefOf(ps);
+    const characterId = assetIdFromWorkspace(characterRef);
+    const characters = as.items.filter((a) => categoryOf(a) === 'char' && ['GLB', 'VRM', 'PMX', 'FBX'].includes(a.format));
+    const characterOptions = [h('option', { value: '' }, as.status === 'ready' ? '（キャラクターなし）' : '読込中…')];
+    for (const a of characters) characterOptions.push(h('option', { value: a.id }, `${a.name}（${a.format}）${a.available ? '' : ' ・ファイルなし'}`));
+    if (characterId && !characters.some((a) => a.id === characterId)) characterOptions.push(h('option', { value: characterId }, `（見つかりません）${characterRef}`));
+    characterSelect.replaceChildren(...characterOptions);
+    characterSelect.value = characterId;
+    characterSelect.disabled = ps.status !== 'ready' || as.status !== 'ready';
+    characterRemove.disabled = !characterRef;
+    for (const s of [...charPos, ...charRot, charScale]) disableSlider(s, !characterRef);
+    if (characterRef) {
+      const placement = characterPlacementOf(ps);
+      charPos.forEach((s, i) => setSliderValue(s, placement.position[i]));
+      charRot.forEach((s, i) => setSliderValue(s, placement.rotation[i]));
+      setSliderValue(charScale, placement.scale);
+    }
     const models = as.items.filter((a) => categoryOf(a) === 'stage' || categoryOf(a) === 'char');
     const want = st ? st.asset : '';
     /** @type {any[]} */
@@ -480,6 +573,8 @@ export const stageTransform = (ctx) => {
     select.disabled = ps.status !== 'ready' || as.status !== 'ready';
     remove.disabled = !st;
     remove.title = st ? 'ステージを外します（［保存］で保存されます）' : 'ステージはありません';
+    const charMsg = sceneUi.get().charMessage;
+    if (charMsg && !characterMessage.textContent) characterMessage.textContent = charMsg;
     const sceneMsg = sceneUi.get().stageMessage;
     if (sceneMsg && !message.textContent) message.textContent = sceneMsg;
     for (const s of [...pos, ...rot, scale]) disableSlider(s, !st);
@@ -494,14 +589,18 @@ export const stageTransform = (ctx) => {
   const run = () => {
     const ps = project.get();
     const st = stageOf(ps);
-    const next = JSON.stringify([ps.status, ps.cameraInvalid ? 1 : 0, st, assets.get().status, assets.get().items.map((a) => a.id + a.available), sceneUi.get().stageMessage]);
+    const next = JSON.stringify([ps.status, ps.cameraInvalid ? 1 : 0, st, characterRefOf(ps), ps.bundle?.workspace?.character,
+      assets.get().status, assets.get().items.map((a) => a.id + a.available), sceneUi.get().stageMessage, sceneUi.get().charMessage]);
     if (next === sig) return;
     sig = next;
     draw();
   };
   ctx.onCleanup(project.subscribe(run));
   ctx.onCleanup(assets.subscribe(run));
-  ctx.onCleanup(sceneUi.subscribe(() => { message.textContent = sceneUi.get().stageMessage; }));
+  ctx.onCleanup(sceneUi.subscribe(() => {
+    message.textContent = sceneUi.get().stageMessage;
+    characterMessage.textContent = sceneUi.get().charMessage;
+  }));
   run();
   return root;
 };

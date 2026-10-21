@@ -3,10 +3,30 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const zlib = require('node:zlib');
 const harness = require('./helpers/studio-harness.cjs');
 
 const PORT = Number(process.env.LEGACY_CAMERA_TEST_PORT || 8862);
 const GLB = fs.readFileSync(path.join(__dirname, 'fixtures', 'synthetic_test_model.glb'));
+const FBX = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal_model.fbx'));
+const PMX_ZIP = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal_pmx.zip'));
+function zipEntry(wanted) {
+  let eocd = PMX_ZIP.length - 22;
+  while (eocd >= 0 && PMX_ZIP.readUInt32LE(eocd) !== 0x06054b50) eocd--;
+  let p = PMX_ZIP.readUInt32LE(eocd + 16);
+  for (let i = 0, n = PMX_ZIP.readUInt16LE(eocd + 10); i < n; i++) {
+    const method = PMX_ZIP.readUInt16LE(p + 10), size = PMX_ZIP.readUInt32LE(p + 20);
+    const nl = PMX_ZIP.readUInt16LE(p + 28), el = PMX_ZIP.readUInt16LE(p + 30), cl = PMX_ZIP.readUInt16LE(p + 32);
+    const name = PMX_ZIP.toString('utf8', p + 46, p + 46 + nl), local = PMX_ZIP.readUInt32LE(p + 42);
+    if (name === wanted) {
+      const start = local + 30 + PMX_ZIP.readUInt16LE(local + 26) + PMX_ZIP.readUInt16LE(local + 28);
+      const raw = PMX_ZIP.subarray(start, start + size);
+      return method === 8 ? zlib.inflateRawSync(raw) : Buffer.from(raw);
+    }
+    p += 46 + nl + el + cl;
+  }
+  throw Error(`ZIP entry missing: ${wanted}`);
+}
 
 test('旧カメラは人物を収め、既存キーの後に一周を作り、終点から再生し直せる', harness.skip3d(), async () => {
   const server = await harness.startServer({ port: PORT, seed: {
@@ -66,6 +86,54 @@ test('旧カメラは人物を収め、既存キーの後に一周を作り、�
     assert.ok(Math.abs(Number(during)) > 0.1, `モデル表示中もドラッグ中に撮影カメラが回る: ${during}`);
     await page.mouse.up();
     assert.equal(fs.existsSync(path.join(server.dataDir, 'camera_project.json')), false, '画面の試操作は保存されない');
+    harness.assertNoErrors(page);
+    await page.close();
+  } finally { if (browser) await browser.close(); await server.stop(); }
+});
+
+test('旧カメラの素材選択はGLB/VRM/PMX/FBXを表示し、PMX/FBXのクリップを保存しない', harness.skip3d(), async () => {
+  const pmx = zipEntry('model/test.pmx'), texture = zipEntry('model/tex/a.png');
+  const server = await harness.startServer({ port: PORT, seed: {
+    'integrated_v02/assets/aaaaaaaaaaaaaaaaaaaa.glb': GLB,
+    'integrated_v02/assets/bbbbbbbbbbbbbbbbbbbb.vrm': GLB,
+    'integrated_v02/user_assets.json': JSON.stringify([
+      { id: 'user-aaaaaaaaaaaaaaaaaaaa', name: 'small.glb', filename: 'aaaaaaaaaaaaaaaaaaaa.glb', kind: 'model', bytes: GLB.length },
+      { id: 'user-bbbbbbbbbbbbbbbbbbbb', name: 'small.vrm', filename: 'bbbbbbbbbbbbbbbbbbbb.vrm', kind: 'model', bytes: GLB.length },
+    ]),
+    'mmd_assets.json': JSON.stringify({ A: [{ name: 'test.pmx', size: pmx.length }, { name: 'tex/a.png', size: texture.length }], B: [], vmd: [] }),
+    'mmd/A/test.pmx': pmx, 'mmd/A/tex/a.png': texture,
+    'manifest.json': JSON.stringify({ files: [{ id: 'f-model', name: 'model.fbx', kind: 'modelA', size: FBX.length }], mapping: {} }),
+    'files/f-model.fbx': FBX,
+  } });
+  let browser;
+  try {
+    browser = await server.launchBrowser();
+    const page = await server.newPage(browser);
+    await page.addInitScript(() => { window.cameraBoundsForTest = null; window.addEventListener('bai-camera-model-bounds', e => { window.cameraBoundsForTest = e.detail; }); });
+    await page.goto(`${server.base}/camera.html`);
+    await page.waitForFunction(() => document.querySelector('#camera-asset')?.options.length === 5, null, { timeout: 15000 });
+    const snapshot = () => page.evaluate(() => {
+      let value;
+      window.dispatchEvent(new CustomEvent('bai-camera-workspace-snapshot', { detail: { resolve: x => { value = x; } } }));
+      return value;
+    });
+    for (const [ref, format] of [
+      ['aaaaaaaaaaaaaaaaaaaa.glb', 'GLB'], ['bbbbbbbbbbbbbbbbbbbb.vrm', 'VRM'],
+      ['mmd:A:test.pmx', 'PMX'], ['fbx:f-model', 'FBX'],
+    ]) {
+      await page.selectOption('#camera-asset', ref);
+      await page.click('#camera-load-asset');
+      await page.waitForFunction((name) => document.querySelector('#camera-asset-status')?.textContent.includes(name) && document.querySelector('#camera-asset-status')?.textContent.includes('3D表示中'), format === 'GLB' ? 'small.glb' : format === 'VRM' ? 'small.vrm' : format === 'PMX' ? 'test.pmx' : 'model.fbx', { timeout: 15000 });
+      const ws = await snapshot();
+      assert.equal(ws.asset, ref);
+      if (format === 'PMX' || format === 'FBX') assert.equal(ws.clip, null);
+    }
+    await page.evaluate(() => new Promise((resolve, reject) => window.dispatchEvent(new CustomEvent('bai-camera-workspace-restore', {
+      detail: { workspace: { frame: 0, asset: 'mmd:A:test.pmx', clip: null,
+        character: { position: [4, 0, 0], rotation: [0, 45, 0], scale: 2 } }, resolve, reject },
+    }))));
+    const placed = await page.evaluate(() => window.cameraBoundsForTest);
+    assert.ok(placed && placed.min[0] > 3 && placed.max[0] < 5, `saved PMX position is visible in camera: ${JSON.stringify(placed)}`);
     harness.assertNoErrors(page);
     await page.close();
   } finally { if (browser) await browser.close(); await server.stop(); }

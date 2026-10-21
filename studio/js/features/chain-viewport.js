@@ -15,12 +15,13 @@ import { currentChainControl, setChainControl } from '../motion/chain-runtime.js
 import { ROWS, KEYWORDS } from '../motion/patterns.fork.js';
 import { advancePattern, dummyPose, pattern2dState, pattern3dState, patternDescription, patternStep, pose } from '../motion/pattern-preview.fork.js';
 import { setCombinationSelected } from './project.js';
+import { categoryOf } from './assets-model.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
 /** @typedef {{id:string, object:any, mixer:any}} FbxActor */
 /** @typedef {{id:string, object:any}} PmxActor */
-/** @typedef {{fbx:FbxActor|null, pmx:PmxActor|null, dummy:{root:any,joints:Record<string,any>}|null, mode:'fbx'|'pmx'|null, pmxChoice:string, player:ReturnType<typeof createPlayer>|null, baseline:{x:number,y:number,z:number}|null}} Slot */
+/** @typedef {{fbx:FbxActor|null, pmx:PmxActor|null, generic:{id:string,object:any,format:string}|null, dummy:{root:any,joints:Record<string,any>}|null, mode:'fbx'|'pmx'|'generic'|null, pmxChoice:string, genericChoice:string, player:ReturnType<typeof createPlayer>|null, baseline:{x:number,y:number,z:number}|null}} Slot */
 
 /** 旧画面の buildDummy と同じ関節構成。ウェイトやスキニングは作らない。 @param {any} THREE @param {0|1} i */
 function buildDummy(THREE, i) {
@@ -86,14 +87,16 @@ export const chainViewport = (ctx) => {
   /** @type {import('../viewport/three-host.js').Viewport|null} */ let host = null;
   /** @type {ReturnType<typeof createFbxClipCache>|null} */ let clipCache = null;
   let alive = true, raf = 0, lastFrame = 0, busy = false, pending = false, playGeneration = 0;
-  const pmxRequests = [0, 0];
+  const pmxRequests = [0, 0], genericRequests = [0, 0];
   /** @type {Slot[]} */
   const slots = [0, 1].map(() => ({
     /** @type {FbxActor|null} */ fbx: null,
     /** @type {PmxActor|null} */ pmx: null,
+    /** @type {{id:string,object:any,format:string}|null} */ generic: null,
     /** @type {{root:any,joints:Record<string,any>}|null} */ dummy: null,
-    /** @type {'fbx'|'pmx'|null} */ mode: null,
+    /** @type {'fbx'|'pmx'|'generic'|null} */ mode: null,
     /** @type {string} */ pmxChoice: '',
+    /** @type {string} */ genericChoice: '',
     /** @type {ReturnType<typeof createPlayer>|null} */ player: null,
     /** @type {{x:number,y:number,z:number}|null} */ baseline: null,
   }));
@@ -149,14 +152,16 @@ export const chainViewport = (ctx) => {
 
   /** @param {string} text @param {boolean} [bad] */
   function say(text, bad = false) { status.textContent = text; if (bad) status.dataset.kind = 'error'; else delete status.dataset.kind; }
-  function selectedRoot(i) { const s = slots[i]; return s.mode === 'pmx' ? s.pmx?.object : s.mode === 'fbx' ? s.fbx?.object : s.dummy?.root; }
+  function selectedRoot(i) { const s = slots[i]; return s.mode === 'pmx' ? s.pmx?.object : s.mode === 'fbx' ? s.fbx?.object : s.mode === 'generic' ? s.generic?.object : s.dummy?.root; }
   function showSlot(i) {
     const s = slots[i];
     if (s.fbx) s.fbx.object.visible = s.mode === 'fbx';
     if (s.pmx) s.pmx.object.visible = s.mode === 'pmx';
+    if (s.generic) s.generic.object.visible = s.mode === 'generic';
     if (s.dummy) s.dummy.root.visible = !s.mode;
-    actorSelects[i].value = s.mode === 'pmx' ? s.pmxChoice : 'fbx';
-    hud.textContent = `A: ${slots[0].mode === 'pmx' ? 'PMX' : slots[0].fbx ? 'FBX' : '未割当'} / B: ${slots[1].mode === 'pmx' ? 'PMX' : slots[1].fbx ? 'FBX' : '未割当'}`;
+    actorSelects[i].value = s.mode === 'pmx' ? s.pmxChoice : s.mode === 'generic' ? s.genericChoice : 'fbx';
+    const label = (/** @type {Slot} */ slot) => slot.mode === 'pmx' ? 'PMX' : slot.mode === 'generic' ? slot.generic?.format || '未割当' : slot.mode === 'fbx' ? 'FBX' : '未割当';
+    hud.textContent = `A: ${label(slots[0])} / B: ${label(slots[1])}`;
     host?.invalidate();
   }
   /** @param {number} i @param {any} file */
@@ -194,18 +199,35 @@ export const chainViewport = (ctx) => {
       host.add(object);
     } catch (e) { if (alive && request === pmxRequests[i]) say(`スロット${i ? 'B' : 'A'}のPMX: ${loadErrorText(e)}`, true); }
   }
+  /** GLB/VRM と、チェイン専用モデル以外の FBX を静止表示する。モーションの互換性は別途確認する。 @param {number} i @param {AssetItem|undefined} item */
+  async function loadGeneric(i, item) {
+    const s = slots[i], request = ++genericRequests[i];
+    if (s.generic?.id === item?.id) return;
+    if (s.generic) { host?.clear(s.generic.object); s.generic = null; }
+    if (!item || !libs || !host) return;
+    try {
+      const parsed = await loadModel(item, libs);
+      if (!alive || request !== genericRequests[i]) { disposeObject(parsed.object); return; }
+      const object = fitActorFbx(parsed.object, /** @type {0|1} */ (i), libs.THREE);
+      object.visible = s.mode === 'generic';
+      s.generic = { id: item.id, object, format: parsed.format };
+      host.add(object);
+    } catch (e) { if (alive && request === genericRequests[i]) say(`スロット${i ? 'B' : 'A'}のモデル: ${loadErrorText(e)}`, true); }
+  }
   /** @returns {AssetItem[]} */
   const pmxItems = () => assets.get().items.filter((a) => a.available && a.source === 'mmd' && a.format === 'PMX');
+  /** @returns {AssetItem[]} */
+  const genericItems = () => assets.get().items.filter((a) => a.available && categoryOf(a) === 'char' && ['GLB', 'VRM', 'FBX'].includes(a.format));
   function refreshSelectors() {
     for (const i of [0, 1]) {
-      const s = slots[i], slot = i ? 'B' : 'A';
-      const pmx = pmxItems().filter((a) => a.kind === slot);
-      const selected = actorSelects[i].value;
+      const s = slots[i];
+      const pmx = pmxItems(), generic = genericItems().filter((a) => a.id !== `fbx:${s.fbx?.id || ''}`);
       actorSelects[i].replaceChildren(
         h('option', { value: 'fbx' }, s.fbx ? 'FBX モデル' : 'FBX モデル（未登録）'),
-        ...pmx.map((a) => h('option', { value: a.id }, `PMX：${a.name}`)));
-      actorSelects[i].value = selected === 'fbx' || pmx.some((a) => a.id === selected) ? selected : s.mode === 'pmx' ? s.pmxChoice : 'fbx';
-      actorSelects[i].disabled = !s.fbx && !pmx.length;
+        ...pmx.map((a) => h('option', { value: a.id }, `PMX：${a.name}`)),
+        ...generic.map((a) => h('option', { value: a.id }, `${a.format}：${a.name}（静止表示）`)));
+      actorSelects[i].value = s.mode === 'pmx' ? s.pmxChoice : s.mode === 'generic' ? s.genericChoice : 'fbx';
+      actorSelects[i].disabled = !s.fbx && !pmx.length && !generic.length;
     }
     const vmd = assets.get().items.filter((a) => a.available && String(a.id).startsWith('mmd:vmd:'));
     const keep = vmdSel.value;
@@ -272,6 +294,7 @@ export const chainViewport = (ctx) => {
     const keys = [state.action, state.bAction];
     const labels = slots.map((s, i) => {
       if (!s.mode && s.dummy) { animateDummy(s, keys[i], state.fraction); return '3D模式'; }
+      if (s.mode === 'generic') return '静止表示';
       if (s.mode !== 'fbx' || !s.fbx) return '未割当';
       const step = patternStep(row, i, state.index, keys[i], KEYWORDS);
       const clip = previewClips.get(step);
@@ -307,7 +330,7 @@ export const chainViewport = (ctx) => {
     if (!steps.length) { uiToast('チェインにモーションを追加してください', 'err'); return; }
     const a = slots[0];
     if (!a.fbx) { say('チェイン再生には実FBXモデルAと登録済みモーションが必要です', true); return; }
-    if (a.mode === 'pmx') { a.mode = 'fbx'; showSlot(0); uiToast('連結再生のため、A を FBX モデルの表示に戻しました', 'real'); }
+    if (a.mode !== 'fbx') { a.mode = 'fbx'; showSlot(0); uiToast('連結再生のため、A を FBX モデルの表示に戻しました', 'real'); }
     stop(false);
     const generation = playGeneration;
     const m = chainUi.get().manifest, files = motionFileMap(m);
@@ -397,10 +420,21 @@ export const chainViewport = (ctx) => {
     if (i === 0 && chain.playing) stop();
     const s = slots[i], id = select.value;
     if (id === 'fbx') { pmxRequests[i]++; s.mode = s.fbx ? 'fbx' : null; showSlot(i); startLoop(); return; }
-    s.pmxChoice = id;
-    await loadPmx(i, pmxItems().find((a) => a.id === id));
-    if (!alive) return;
-    s.mode = s.pmx ? 'pmx' : s.fbx ? 'fbx' : null;
+    const pmx = pmxItems().find((a) => a.id === id);
+    if (pmx) {
+      genericRequests[i]++;
+      s.pmxChoice = id;
+      await loadPmx(i, pmx);
+      if (!alive) return;
+      s.mode = s.pmx?.id === id ? 'pmx' : s.fbx ? 'fbx' : null;
+    } else {
+      pmxRequests[i]++;
+      s.genericChoice = id;
+      await loadGeneric(i, genericItems().find((a) => a.id === id));
+      if (!alive) return;
+      s.mode = s.generic?.id === id ? 'generic' : s.fbx ? 'fbx' : null;
+      if (s.mode === 'generic') say(`${i ? 'B' : 'A'} に ${s.generic?.format} を表示しました。FBXチェイン/VMDは対応モデルだけで再生します。`);
+    }
     showSlot(i);
     startLoop();
   }; });
@@ -409,7 +443,7 @@ export const chainViewport = (ctx) => {
   const slotState = (i) => {
     const s = slots[i], object = selectedRoot(i);
     const box = libs && object ? new libs.THREE.Box3().setFromObject(object) : null;
-    return { kind: s.mode, id: s.mode === 'pmx' ? s.pmx?.id || null : s.mode === 'fbx' ? s.fbx?.id || null : null,
+    return { kind: s.mode, id: s.mode === 'pmx' ? s.pmx?.id || null : s.mode === 'fbx' ? s.fbx?.id || null : s.mode === 'generic' ? s.generic?.id || null : null,
       bounds: box && !box.isEmpty() ? { min: box.min.toArray(), max: box.max.toArray() } : null };
   };
   const ctl = {
@@ -453,17 +487,19 @@ export const chainViewport = (ctx) => {
       await loadFbx(i, file);
       if (!alive) return;
       const choices = pmxItems().filter((a) => a.kind === (i ? 'B' : 'A'));
-      if (!choices.some((a) => a.id === s.pmxChoice)) s.pmxChoice = choices[0]?.id || '';
-      await loadPmx(i, choices.find((a) => a.id === s.pmxChoice));
+      if (!pmxItems().some((a) => a.id === s.pmxChoice)) s.pmxChoice = choices[0]?.id || '';
+      await loadPmx(i, pmxItems().find((a) => a.id === s.pmxChoice));
       if (!alive) return;
-      if (!s.mode || (s.mode === 'pmx' && !s.pmx) || (s.mode === 'fbx' && !s.fbx)) s.mode = s.pmx ? 'pmx' : s.fbx ? 'fbx' : null;
-      if (!s.fbx && !s.pmx && !s.dummy) { s.dummy = buildDummy(libs.THREE, /** @type {0|1} */ (i)); host.add(s.dummy.root); }
+      if (s.genericChoice) await loadGeneric(i, genericItems().find((a) => a.id === s.genericChoice));
+      if (!alive) return;
+      if (!s.mode || (s.mode === 'pmx' && !s.pmx) || (s.mode === 'fbx' && !s.fbx) || (s.mode === 'generic' && !s.generic)) s.mode = s.pmx ? 'pmx' : s.fbx ? 'fbx' : s.generic ? 'generic' : null;
+      if (!s.fbx && !s.pmx && !s.generic && !s.dummy) { s.dummy = buildDummy(libs.THREE, /** @type {0|1} */ (i)); host.add(s.dummy.root); }
       if (!s.player) { s.player = createPlayer(libs.THREE, libs.MMDAnimationHelper); if (s.pmx) s.player.setModel(s.pmx.object, 'PMX'); }
       showSlot(i);
     }
     host.fit();
     refreshSelectors();
-    if (!slots[0].fbx && !slots[1].fbx && !slots[0].pmx && !slots[1].pmx) say('実モデルがありません。A/B の3D模式人形を表示しています。素材管理（08）で登録できます。');
+    if (slots.every((s) => !s.fbx && !s.pmx && !s.generic)) say('実モデルがありません。A/B の3D模式人形を表示しています。素材管理（08）で登録できます。');
     else if (status.textContent?.includes('読み込んでいます')) say('A/B のモデルを表示しました。');
     const row = ROWS.find((r) => r.id === patternClock.get().rowId) || ROWS[0];
     void preparePreview(row);
@@ -478,7 +514,7 @@ export const chainViewport = (ctx) => {
   let modelSig = '', mapSig = '', selected = -1;
   function update() {
     const m = chainUi.get().manifest, a = assets.get();
-    const sig = JSON.stringify([m.status, m.files, a.status, a.items.filter((/** @type {any} */ x) => x.source === 'mmd')]);
+    const sig = JSON.stringify([m.status, m.files, a.status, a.items.filter((/** @type {any} */ x) => categoryOf(x) === 'char').map((/** @type {any} */ x) => [x.id, x.available])]);
     if (sig !== modelSig) { modelSig = sig; clipCache?.clear(); schedule(); }
     const sel = project.get().bundle?.combination?.selected ?? -1;
     const mapping = JSON.stringify(m.mapping);
