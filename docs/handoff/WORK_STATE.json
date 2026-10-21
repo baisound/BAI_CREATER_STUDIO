@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T01:30:47+09:00",
+  "updated_at": "2026-10-22T03:39:55+09:00",
   "updated_by": "codex",
-  "branch": "codex/music-dance-motion-formats",
-  "head_at_update": "ffd1f12",
+  "branch": "codex/test-guide",
+  "head_at_update": "4d48a51",
   "current": {
-    "task": "Issue #39: SCR10で登録済みVMD/FBXダンスを選択・再生する",
+    "task": "Issue #61: 共通テスト手順を独立MD化しAGENTS.mdから参照",
     "status": "done",
-    "step": "GLB/VMD/FBXの候補・読込・互換条件・保存復元を実装",
-    "design_doc": "docs/roadmap/CHARACTER_PLACEMENT_ALL_FORMATS_20261021_JA.md"
+    "step": "既存の試験契約・コマンドを照合して共通手順を作成",
+    "design_doc": "docs/handoff/TESTING_GUIDE_JA.md"
   },
   "next_steps": [
-    "P2-WP-06bからカメラ移植を再開し、WP06c/d・WP07を続ける"
+    "P2-WP06/07のDraft PR #59の残ゲートとIssue #60のPhase Eテンプレート実装を既定順で進める"
   ],
   "unverified": [
-    "全実モデルの骨対応・PMX以外の物理・実GPU・Linux・MCP・Owner外観採用は未検証。SCR06の一部real表示は証拠不足のためpartialへ訂正済み。"
+    "文書変更のため全ブラウザ/GPU/Linux/MCPゲートは実行していない"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T03:39:55+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4d48a51",
+      "text": "Issue #61: AGENTS.mdに共通テスト手順への参照を追加し、TESTING_GUIDE_JA.mdに試験選択・保護・コマンド・失敗と未検証の記録を整備。参照先とpackage scripts一致、work_state検査とpytest 4件成功"
+    },
+    {
+      "at": "2026-10-22T03:37:44+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e3c0df1",
+      "text": "Issue #61: 共通テスト手順を独立MD化しAGENTS.mdから参照: 既存の試験契約・コマンドを照合して共通手順を作成"
+    },
     {
       "at": "2026-10-22T01:30:47+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "done",
       "head": "55bbc36",
       "text": "PR43: 受領大型GLBの自動サムネイル補完・詳細自動3D読込を128MiB超で抑止。明示操作だけに限定し、Node1件とTypeScript検査に合格。"
-    },
-    {
-      "at": "2026-10-21T21:38:47+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "203f4c4",
-      "text": "PR43の大型GLB自動読込を安全化: Issue44受領後、大型ステージの自動サムネイルと詳細の自動3D読込を抑止する"
-    },
-    {
-      "at": "2026-10-21T21:35:55+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "0694246",
-      "text": "Issue #44: 受領7ステージの原本hash照合と非破壊登録、大型GLBの1GiB受付・自動3D読込抑止・近景初期視点・GPU描画表示を実装。単独RTX実測と端末負荷を記録。"
     }
   ]
 }
