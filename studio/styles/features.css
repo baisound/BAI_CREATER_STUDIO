@@ -52,6 +52,8 @@
 .asset-tile { aspect-ratio: 4/3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: var(--surface-3); color: var(--text-2); }
 .asset-tile.has-image { display: block; overflow: hidden; }
 .asset-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.asset-tile[data-cat="char"] img { object-fit: contain; background: #172638; }
+.detail-preview.tile-large[data-cat="char"] img { width: 100%; height: 100%; aspect-ratio: 16/10; object-fit: contain; background: #172638; }
 .asset-list-name { display: flex; align-items: center; gap: 8px; min-width: 180px; }
 .asset-list-name .asset-tile { width: 84px; min-width: 84px; aspect-ratio: 4/3; font-size: var(--fs-xs); }
 .asset-list-name .asset-tile svg { width: 20px; height: 20px; }

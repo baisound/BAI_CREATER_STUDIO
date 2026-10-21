@@ -222,6 +222,63 @@ test('motion card shows three poses and detail plays, pauses and seeks a real FB
   });
 });
 
+test('existing character gets a saved front image and reload reuses it', harness.skip3d(), async () => {
+  await withApp(seedLibrary(), async ({ server, page }) => {
+    const original = crypto.createHash('sha256').update(GLB).digest('hex');
+    await open08(page, server, '?cat=char');
+    const card = page.locator(`${CARD}[data-asset-id="integrated:${SEED_STORED_MODEL}"]`);
+    await card.scrollIntoViewIfNeeded();
+    await page.waitForFunction((id) => {
+      const image = document.querySelector(`[data-feature="assetLibrary"] .asset[data-asset-id="integrated:${id}"] img`);
+      return image?.getAttribute('src')?.includes('/api/assets/thumbnail/');
+    }, SEED_STORED_MODEL, { timeout: 30000 });
+    assert.match(await card.locator('img').getAttribute('alt'), /正面/);
+    const url = await card.locator('img').getAttribute('src');
+    const catalog = await (await fetch(`${server.base}/api/assets`)).json();
+    const item = catalog.items.find((x) => x.id === `integrated:${SEED_STORED_MODEL}`);
+    assert.equal(item.thumbnailUrl, url);
+    assert.ok(exists(server, `asset_thumbnails/${item.thumbnailKey}.png`));
+    await card.click();
+    assert.equal(await page.locator('[data-role="character-front"]').count(), 1);
+    let posts = 0;
+    page.on('request', (request) => { if (request.method() === 'POST' && request.url().includes('/api/assets/thumbnail')) posts++; });
+    await page.reload();
+    await card.scrollIntoViewIfNeeded();
+    assert.equal(await card.locator('img').getAttribute('src'), url);
+    assert.equal(posts, 0, 'saved image should not be generated again');
+    assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(server.dataDir, `integrated_v02/assets/${SEED_STORED_MODEL}`))).digest('hex'), original);
+  });
+});
+
+test('rigged GLB motion drives a neutral grayman and seek changes its pose', harness.skip3d(), async () => {
+  const motionFile = 'cccccccccccccccccccc.glb';
+  const seed = seedLibrary({
+    [`integrated_v02/assets/${motionFile}`]: GLB,
+    'integrated_v02/user_assets.json': JSON.stringify([
+      { id: 'user-aaaaaaaaaaaaaaaaaaaa', name: 'seed-model.glb', filename: SEED_STORED_MODEL, kind: 'model', bytes: GLB.length },
+      { id: 'user-cccccccccccccccccccc', name: 'rigged-motion.glb', filename: motionFile, kind: 'motion', bytes: GLB.length },
+    ]),
+  });
+  await withApp(seed, async ({ server, page }) => {
+    await open08(page, server, '?cat=motion');
+    await page.click(`${CARD}[data-asset-id="integrated:${motionFile}"]`);
+    await page.waitForTimeout(2500);
+    assert.equal(await page.getAttribute('[data-role="motion-preview"]', 'data-grayman'), '1', await page.textContent('[data-role="preview-status"]'));
+    assert.match(await page.textContent('[data-role="preview-status"]'), /グレーマンで動きを再生中/);
+    await page.click('[data-role="preview-pause"]');
+    const headZ = () => page.evaluate(async () => {
+      const { currentViewport } = await import('/studio/js/viewport/three-host.js');
+      return currentViewport().content.getObjectByName('grayman-head').position.z;
+    });
+    await page.locator('[data-role="preview-seek"]').evaluate((el) => { el.value = '0'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+    const start = await headZ();
+    await page.locator('[data-role="preview-seek"]').evaluate((el) => { el.value = '0.75'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+    const later = await headZ();
+    assert.notEqual(later, start, 'grayman must follow the source hips track');
+    assert.equal(await page.locator('[data-role="motion-preview"] canvas').count(), 1);
+  });
+});
+
 test('search and format filter work on real data', async () => {
   await withApp(seedLibrary(), async ({ server, page }) => {
     await open08(page, server);

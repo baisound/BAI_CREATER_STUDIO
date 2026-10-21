@@ -1,14 +1,20 @@
 // @ts-check
 // SCR-08 の登録済み素材見本。元ファイル・制作状態は変更しない。
 import { h } from '../ui.js';
+import { assets } from '../store.js';
 import { loadLibs, loadModel, loadErrorText, disposeObject } from '../viewport/model-loader.js';
 import { createViewport } from '../viewport/three-host.js';
+import { captureStageView } from './stage-thumbnail.js';
 
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
 const MAX_WAVEFORM_BYTES = 32 * 1024 * 1024;
+// 大型GLBの自動解析はPCを高負荷にするため、明示操作に限る。
+const MAX_AUTO_GLB_BYTES = 128 * 1024 * 1024;
 /** @type {Map<string, Promise<string|null>>} */
 const pending = new Map();
 let renderQueue = Promise.resolve();
+/** @type {Set<string>} */
+const stageBackfill = new Set();
 
 /** @param {AssetItem} item */
 export const libraryFileUrl = (item) => `/api/library-assets/file/${encodeURIComponent(item.id)}`;
@@ -19,7 +25,7 @@ async function saveThumbnail(item, canvas) {
   if (!blob || blob.size > 2 * 1024 * 1024) return null;
   const response = await fetch(`/api/library-assets/thumbnail?id=${encodeURIComponent(item.id)}`, { method: 'POST', headers: { 'Content-Type': 'image/png' }, body: blob });
   if (!response.ok) return null;
-  return `/api/library-assets/thumbnail/${encodeURIComponent(item.id)}`;
+  return `/api/library-assets/thumbnail/${encodeURIComponent(item.id)}${item.kind === 'stage' ? '?v=2' : ''}`;
 }
 
 /** @param {AssetItem} item */
@@ -83,11 +89,16 @@ async function glbFrame(item) {
     object = loaded.object;
     const { THREE } = libs;
     renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(1);
     renderer.setSize(640, 480);
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0x162235);
     scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 2));
     const light = new THREE.DirectionalLight(0xffffff, 2); light.position.set(2, 6, 4); scene.add(light);
     scene.add(object);
+    if (item.kind === 'stage') {
+      const captured = captureStageView(object, THREE, renderer, scene);
+      return captured ? await saveThumbnail(item, captured.canvas) : null;
+    }
     const box = new THREE.Box3().setFromObject(object);
     if (box.isEmpty()) return null;
     const center = box.getCenter(new THREE.Vector3());
@@ -107,14 +118,34 @@ async function glbFrame(item) {
 export function libraryThumbnail(item) {
   if (item.thumbnailUrl) return Promise.resolve(item.thumbnailUrl);
   if (!item.available) return Promise.resolve(null);
+  if (item.format === 'GLB' && Number(item.bytes || 0) > MAX_AUTO_GLB_BYTES) return Promise.resolve(null);
   if (['image', 'material'].includes(item.kind) || (item.kind === 'fx' && item.format !== 'GLB')) return Promise.resolve(libraryFileUrl(item));
   let promise = pending.get(item.id);
   if (!promise) {
-    promise = renderQueue.then(() => item.format === 'GLB' ? glbFrame(item) : item.kind === 'audio' ? waveform(item) : item.kind === 'video' ? videoFrame(item) : null).catch(() => null);
+    promise = renderQueue.then(() => item.format === 'GLB' ? glbFrame(item) : item.kind === 'audio' ? waveform(item) : item.kind === 'video' ? videoFrame(item) : null)
+      .then((url) => {
+        if (url) {
+          const state = assets.get();
+          if (state.items.some((a) => a.id === item.id && !a.thumbnailUrl)) {
+            assets.set({ items: state.items.map((a) => a.id === item.id ? { ...a, thumbnailUrl: url } : a) }, 'thumbnail');
+          }
+        }
+        return url;
+      }).catch(() => null);
     renderQueue = promise.then(() => undefined);
     pending.set(item.id, promise);
   }
   return promise;
+}
+
+/** Generate missing stage images sequentially, including stages imported before this version. @param {AssetItem[]} items */
+export function backfillStageThumbnails(items) {
+  for (const item of items) {
+    if (item.kind !== 'stage' || item.source !== 'library' || !item.available || item.thumbnailUrl || stageBackfill.has(item.id)
+      || Number(item.bytes || 0) > MAX_AUTO_GLB_BYTES) continue;
+    stageBackfill.add(item.id);
+    void libraryThumbnail(item);
+  }
 }
 
 /** @param {HTMLMediaElement} media @param {HTMLElement} root */
@@ -147,7 +178,10 @@ export function mountLibraryPreview(root, item) {
   if (item.format === 'GLB') {
     const stage = h('div', { class: 'asset-motion-stage viewport vp3d', dataset: { role: 'library-3d' } });
     root.append(stage, status);
-    void (async () => {
+    const heavy = Number(item.bytes || 0) > MAX_AUTO_GLB_BYTES;
+    const open = async () => {
+      stage.hidden = false;
+      status.textContent = '3Dを読み込み中…';
       const libs = await loadLibs();
       const loaded = await loadModel(item, libs);
       if (!alive) { disposeObject(loaded.object); return; }
@@ -155,8 +189,18 @@ export function mountLibraryPreview(root, item) {
       host.setObject(loaded.object); host.fit();
       cleanup = () => host.dispose();
       status.textContent = 'ドラッグで回転、ホイールで拡大できます。';
-      void libraryThumbnail(item);
-    })().catch(showError);
+      if (!heavy) void libraryThumbnail(item);
+    };
+    if (heavy) {
+      stage.hidden = true;
+      status.textContent = '大型GLBです。3D表示には多くのメモリを使います。';
+      root.append(h('button', { class: 'btn', type: 'button', dataset: { role: 'large-glb-open' },
+        onclick: (/** @type {MouseEvent} */ event) => {
+          const button = /** @type {HTMLButtonElement} */ (event.currentTarget);
+          button.disabled = true;
+          void open().catch((error) => { showError(error); button.disabled = false; });
+        } }, '3D見本を開く'));
+    } else void open().catch(showError);
   } else if (item.kind === 'audio') {
     const img = /** @type {HTMLImageElement} */ (h('img', { alt: `${item.name}の波形`, dataset: { role: 'audio-waveform' } }));
     const media = /** @type {HTMLAudioElement} */ (h('audio', { preload: 'metadata', src: url, dataset: { role: 'audio-media' } }));
