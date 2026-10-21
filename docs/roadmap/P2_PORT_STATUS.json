@@ -96,12 +96,13 @@
         "30601de"
       ],
       "tests": [
-        "2026-10-20：pytest 354 passed、npm run test:node-all 188 pass・0 fail・13 skip（three 無し）、tsc 合格、node tools/run_evidence_tests.mjs 合格、実 data/ ハッシュ不変。新規：tests/studio-p2-import-rules.test.mjs 16件、tests/studio-p2-assets-logic.test.mjs 3件、tests/studio-p2-assets.test.cjs（THREE_DIR 指定で26件すべて合格。一覧の3件＋表示設定の保存を含む）。通し確認 S1 の③部分は合格、furthest_step=null"
+        "2026-10-20：pytest 354 passed、npm run test:node-all 188 pass・0 fail・13 skip（three 無し）、tsc 合格、node tools/run_evidence_tests.mjs 合格、実 data/ ハッシュ不変。新規：tests/studio-p2-import-rules.test.mjs 16件、tests/studio-p2-assets-logic.test.mjs 3件、tests/studio-p2-assets.test.cjs（THREE_DIR 指定で26件すべて合格。一覧の3件＋表示設定の保存を含む）。通し確認 S1 の③部分は合格、furthest_step=null",
+        "2026-10-21 Issue #28 / MOTION-016：実FBXクリップを使う3姿勢画像・再生/停止/シークのChrome隔離テスト追加。studio-p2-assets.test.cjs 29/29合格、tsc合格。隣接するstudio-p2-motion.test.cjsは15/16合格、1件は画面表示待ち30秒で時間切れ、同じ1件の単独再実行で合格。実素材FBX・統合FBX・複数クリップGLB・VMD＋PMXで画面を確認し、元PMX/VMDハッシュ不変。コードは codex/motion-assets-navigation の素材プレビューコミット。"
       ],
       "unverified": [
-        "Opus レビュー未実施（WP-02 は設計上 Sonnet のみ）。GPU・Windows 実機未検証。実際の素材（実 data/）での表示は未確認（隔離データの種データのみ）。"
+        "Opus レビュー未実施（WP-02 は設計上 Sonnet のみ）。GPU・Windows 実機未検証。実際の素材（実 data/）での一覧・動作プレビューはChrome/SwiftShaderで一部確認。全素材と大量スクロールの性能は未検証。"
       ],
-      "notes": "WP-02 と WP-03 は1コミット（30601de）にまとめた。サムネイル（MOTION-016）・お気に入り・タグ・依存参照は ◇ のまま。",
+      "notes": "WP-02 と WP-03 は1コミット（30601de）にまとめた。2026-10-21にMOTION-016の画面内プレビューを追加し、機能台帳は要検証を維持。お気に入り・タグ・依存参照は ◇ のまま。",
       "owner_check": null
     },
     {
@@ -138,11 +139,13 @@
         "tests/studio-p2-viewport.test.cjs（19件：GLB/PMX/FBX の描画、ステージ配置、PMX×0.08 m 同一シーン、欠損、dispose）",
         "tests/studio-p2-normalize-parity.test.cjs（camera.html と 1e-6 で一致）",
         "tests/studio-p2-e2e-main.test.cjs（S1・S2 を有効化）",
+        "2026-10-21 Issue #29：共通3Dビューの中ドラッグ回転・Shift＋中ドラッグ移動・Ctrl＋中ドラッグ前後をChrome/SwiftShaderで確認。tests/studio-p2-viewport.test.cjs 19/19、tests/legacy-ui-layout.test.cjs 1/1、npm run typecheck 合格。コードは codex/motion-assets-navigation の3D操作コミット。",
         "tests/test_project_state_bundle.py WorkspaceStageTest（B-4、12件）。Opus レビューで studio-p2-viewport の旧 camera.html 形の保存に「既存の stage が不正なら HTTP 400 で3ファイル不変」を追加"
       ],
       "unverified": [
         "O-④-6：実在の PMX/GLB/FBX ステージの単位の換算と見え方（合成データのみ）",
         "実在の PMX（多材質・IK・剛体・PMX 2.1）の表示、GPU（SwiftShader でのみ確認）",
+        "Issue #29 の中ボタン操作は自動化したChrome/SwiftShaderで確認。一般的な物理マウスとGPU実機での操作感は未検証。",
         "PMX キャラクターを SCR-06 に置く経路が無い（Opus レビュー 2026-10-20）：workspace.asset は GLB/VRM 限定で、⑥ の camera_3d.js も GLB/VRM しか読まない。設計（v5・Phase E §2.8 を含む）に PMX キャラの保存先・カメラ表示の計画は無く、⑥ O-⑥-4（要素IDの配置表）で整理される事項でもない。直すには保存形式の追加（例：workspace の任意キー character）と camera_3d.js の PMX 表示が要るため、所有者の承認（計画の追加）を待つ。主要シナリオ（PMX → ステージ配置 → カメラ）は PMX では SCR-06 以降を通せない"
       ],
       "notes": "O-④-1・2・3・6・7 を 2026-10-20 に Opus で決定（設計書 §2.4(h)）。O-④-2：最小 PMX 2.0（tools/make_test_pmx.py）を作成し、minimal_pmx.zip を本物の PMX に置き換えた。未検証：実在の PMX/FBX/GLB ステージの単位の換算（O-④-6）、GPU。 2026-10-20 の決定（設計書 §2.4(h) O-④-6 の「上書き」。出所は開発側の判断：所有者が UI・技術判断を開発側に委ねているため、主要シナリオ（MMD の PMX キャラ＋MMD ステージ）に合わせて Claude が決定）：SCR-06 はキャラの身長を正規化せずステージと同じ単位換算（PMX 0.08 m/unit、GLB/VRM 1 m/unit、FBX UnitScaleFactor/100）。正規化は単体プレビュー SCR-12 のみ。E2E は S2 まで通る。 Opus レビュー（2026-10-20）：B-4（validate_stage・save_bundle のマージ・不正な既存値で 400 かつ不変・workspace なしで削除・旧 camera.html の保存で stage が残る・stage の無い既存データの読込）は設計 §1.15 B-4／C4／K11 どおりで修正不要。",

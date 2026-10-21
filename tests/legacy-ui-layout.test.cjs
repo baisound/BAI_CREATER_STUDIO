@@ -5,6 +5,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const fs = require('node:fs');
+const crypto = require('node:crypto');
 const harness = require('./helpers/studio-harness.cjs');
 
 const PORT = Number(process.env.LEGACY_UI_TEST_PORT || 8798);
@@ -53,9 +54,35 @@ test('legacy UI layout', { skip: exe && !fs.existsSync(exe) && 'chromium not ava
     assert.ok(nr.sh > nr.ih && nr.v, `narrow stacked ${JSON.stringify(nr)}`);
     await narrow.close();
     const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+    if (haveThree) await harness.routeThree(page);
     await page.goto(`${BASE}/camera.html`); await page.waitForTimeout(1000);
     const fh = await page.evaluate(() => document.getElementById('frame-number').getBoundingClientRect().height);
     assert.ok(fh < 60, `frame-number height ${fh}`);
     await page.click('#next', { timeout: 3000 });
+    if (haveThree) {
+      const sceneCanvas = page.locator('.scene-panel canvas.view-3d-canvas');
+      await sceneCanvas.waitFor({ timeout: 15000 });
+      const b = await sceneCanvas.boundingBox();
+      assert.ok(b && b.width > 100);
+      const x = b.x + b.width / 2, y = b.y + b.height / 2;
+      const pixels = async () => crypto.createHash('sha256').update(await sceneCanvas.screenshot()).digest('hex');
+      const first = await pixels();
+      if (shotDir) { fs.mkdirSync(shotDir, { recursive: true }); await page.screenshot({ path: path.join(shotDir, 'camera_before.png') }); }
+      await page.mouse.move(x, y);
+      await page.mouse.down({ button: 'middle' });
+      await page.mouse.move(x + 60, y + 25, { steps: 5 });
+      await page.mouse.up({ button: 'middle' });
+      await page.waitForTimeout(100);
+      const rotated = await pixels();
+      if (shotDir) await page.screenshot({ path: path.join(shotDir, 'camera_rotated.png') });
+      assert.notEqual(rotated, first, '旧カメラの中ドラッグで自由視点が回転する');
+      await page.keyboard.down('Shift');
+      await page.mouse.down({ button: 'middle' });
+      await page.mouse.move(x + 100, y + 65, { steps: 5 });
+      await page.mouse.up({ button: 'middle' });
+      await page.keyboard.up('Shift');
+      await page.waitForTimeout(100);
+      assert.notEqual(await pixels(), rotated, '旧カメラのShift＋中ドラッグで自由視点が移動する');
+    }
   } finally { if (browser) await browser.close(); await server.stop(); }
 });

@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T14:32:45+09:00",
+  "updated_at": "2026-10-21T15:07:03+09:00",
   "updated_by": "codex",
-  "branch": "codex/owner-issue-policy-20261021",
-  "head_at_update": "d2d1979",
+  "branch": "codex/motion-assets-navigation",
+  "head_at_update": "2b90003",
   "current": {
-    "task": "Issue #26 バイサンドの開発依頼を日本語GitHub Issueで管理する常設ルール",
+    "task": "Issue #28 MOTION-016 モーション素材の見本画像と再生プレビュー",
     "status": "done",
-    "step": "AGENTS短い参照・詳細手順・Issueテンプレートを整備",
-    "design_doc": "docs/roadmap/MOTION_006_VMD_FOOT_DIAGNOSIS_20261021_JA.md"
+    "step": "素材形式別の読み取り専用プレビューと一覧サムネイルを実装",
+    "design_doc": "docs/roadmap/MOTION_016_ASSET_PREVIEW_NAVIGATION_20261021_JA.md"
   },
   "next_steps": [
-    "進行中の素材プレビュー・3D操作・旧カメラ依頼をIssue化して実装を再開"
+    "Issue #28/#29 のPRを作成・統合し、Issue #30 旧BAI Cameraの撮影方向・自由視点・再生停止・周回不具合を調査修正する"
   ],
   "unverified": [
-    "GitHub Issue画像の実際の投稿操作は、画像付きの次の依頼で確認する"
+    "Issue #28/#29: 物理マウスとGPU実機での操作感・大量素材の長時間性能・全形式全素材は未検証。Ownerの画面採用はPhase E完了後。Issue #30の不具合は未調査。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +33,27 @@
   ],
   "history": [
     {
+      "at": "2026-10-21T15:07:03+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2b90003",
+      "text": "Issue #28 MOTION-016の素材一覧3姿勢画像と選択素材の再生プレビューを実装。Issue #29 3D操作とともにChrome/SwiftShader実素材確認。素材テスト29/29、ビュー19/19、旧カメラ1/1、証拠テスト120/120、tsc合格。実データハッシュ不変。"
+    },
+    {
+      "at": "2026-10-21T14:40:33+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "34b4605",
+      "text": "Issue #28 MOTION-016 モーション素材の見本画像と再生プレビュー: 素材形式別の読み取り専用プレビューと一覧サムネイルを実装"
+    },
+    {
+      "at": "2026-10-21T14:39:17+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "02b8023",
+      "text": "Issue #29: 共通3Dビューと旧3D画面の中ドラッグ回転・Shift移動・Ctrl前後操作を実装し、Chrome 19件と旧画面1件、tscを確認"
+    },
+    {
       "at": "2026-10-21T14:32:45+09:00",
       "by": "codex",
       "event": "done",
@@ -45,6 +66,27 @@
       "event": "start",
       "head": "9cc2d4c",
       "text": "Issue #26 バイサンドの開発依頼を日本語GitHub Issueで管理する常設ルール: AGENTS短い参照・詳細手順・Issueテンプレートを整備"
+    },
+    {
+      "at": "2026-10-21T14:22:51+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "56f9ad1",
+      "text": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善: 共通3DホストのBlender式中ドラッグと操作案内を実装"
+    },
+    {
+      "at": "2026-10-21T14:22:42+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "fe8a5fb",
+      "text": "MOTION-016と3D操作改善の対象・操作・受け入れ条件を設計"
+    },
+    {
+      "at": "2026-10-21T14:20:28+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9cc2d4c",
+      "text": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善: 既存素材形式・画面導線・3D操作の調査と受け入れ条件整理"
     },
     {
       "at": "2026-10-21T14:18:16+09:00",
@@ -199,48 +241,6 @@
       "event": "done",
       "head": "7b3327e",
       "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド preview_vmd・integrated_preview の受け口（O-⑤-5）"
-    },
-    {
-      "at": "2026-10-20T20:26:29+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "b8bd62d",
-      "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド studio:sync-command の受け口（O-⑤-5）: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T20:11:08+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "df75fe3",
-      "text": "P2-WP-05a 完了：SCR-13［編集］の PMX＋VMD・GLB/VRM クリップの1体再生、VMD ライブラリ、モード切替の結線、minimal.vmd の センター 30F、S5 pass"
-    },
-    {
-      "at": "2026-10-20T19:52:34+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "f675061",
-      "text": "P2-WP-05a SCR-13 編集モードの1体再生（PMX+VMD・GLB/VRMクリップ・VMDライブラリ）と S5 の有効化: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T19:50:21+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "255ad3d",
-      "text": "P2 §2.5（⑤ モーション）を WP-05a〜05g に分けて詳しくした（255ad3d）。O-⑤-1〜8 決定、批評1回反映、台帳更新。コード変更なし"
-    },
-    {
-      "at": "2026-10-20T19:29:19+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "8de3801",
-      "text": "P2 §2.5 ⑤ モーション（VMD）の詳細設計（O-⑤-1〜8 の決定と WP-05 の分割）: 旧コード調査 → §2.5 詳細化 → 自己批評 → コミット"
-    },
-    {
-      "at": "2026-10-20T19:27:19+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "7cea229",
-      "text": "P2-WP-04b 完了：④-9（SCR-13 ボーンマップ）・④-10（three-host で2体を±1.15）を移植。コミット 7cea229"
     }
   ]
 }
