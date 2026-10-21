@@ -2,7 +2,8 @@
 import json,logging,os,re,threading,time,traceback
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
-LOG_DIR=Path(__file__).resolve().parent/'data'/'logs'
+from bai_paths import data_dir
+LOG_DIR=data_dir()/'logs'
 LOG_DIR.mkdir(parents=True,exist_ok=True)
 _LOGGER=logging.getLogger('mixamo');_LOGGER.setLevel(logging.INFO);_LOGGER.propagate=False
 _handler=RotatingFileHandler(LOG_DIR/'server.jsonl',maxBytes=int(os.environ.get('MIXAMO_LOG_MAX_BYTES','2097152')),backupCount=5,encoding='utf-8')

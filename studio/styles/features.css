@@ -1,0 +1,137 @@
+/* 新しい部品の見た目（P2 設計 §1.2）。トークン（tokens.css）だけを使い、色を直書きしない。app.css の後に読む。 */
+
+/* ---- 未接続の区画の薄い表示（OWNER-3、設計 §1.13） ----
+   data-dim="1" は screens.js の status が real 以外の区画（partial / mock / unimpl）。
+   見出し・バッジ・ラベルは薄くしない。操作は消さず、押せるまま・フォーカスも通常どおり。
+   入れ子の薄い区画は二重に薄くしない（--dim を入れ子で 1 に戻す）。 */
+[data-dim="1"] { --dim: .58; }
+[data-dim="1"] [data-dim="1"] { --dim: 1; }
+[data-dim="1"] > :not(.pane-head):not(.block-head):not(.section-title):not(.vp-note):not(.lib-crumb):not(h2):not(.state-box) { opacity: var(--dim); }
+/* 狭い見出し（左パネル・右タブの節）でも題名を縦に潰さない：ラベルが入らなければ次の行へ回す */
+.pane-left .pane-head, .card .pane-head, .block-head, .section-title { flex-wrap: wrap; row-gap: 2px; }
+.pane-left .pane-head, .card .pane-head { padding-top: 4px; padding-bottom: 4px; }
+.pane-left .pane-head h2, .card .pane-head h2, .block-head h2 { white-space: nowrap; }
+.unconn-label { font-size: var(--fs-xs); color: var(--text-2); white-space: nowrap; margin-left: auto; }
+.unconn-label + .badge { margin-left: 0; }
+.section-title .unconn-label { margin-left: auto; }
+.section-title .unconn-label + .badge { margin-left: 6px; }
+.doc h2 .unconn-label { margin-left: 10px; font-weight: 400; }
+.doc h2 .badge { margin-left: 6px; vertical-align: middle; }
+
+/* ---- 導線点検 §5 ---- */
+.modal .unimpl-next { margin: 10px 0 0; padding: 8px 10px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+.sample-banner { flex: none; margin: 0 8px 6px; padding: 5px 12px; font-size: var(--fs-sm); color: var(--text-2); background: var(--surface-1); border: 1px dashed var(--border-strong); border-radius: 8px; }
+.sample-banner b { color: var(--text); }
+.media .ribbon { position: absolute; right: -26px; top: 12px; transform: rotate(35deg); width: 96px; text-align: center; font-size: 10px; letter-spacing: .08em; padding: 1px 0; color: var(--text); background: var(--surface-0); border: 1px dashed var(--border-strong); opacity: .92; pointer-events: none; }
+
+/* ---- 読込中・空・失敗・未接続（state-box.js） ---- */
+.state-box[data-kind="error"], .state-box[data-kind="offline"] { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 50%, transparent); }
+.state-box b { display: block; margin-bottom: 4px; }
+.state-box .btn { margin-top: 8px; }
+
+/* ---- 共通：feature 部品の置き場 ---- */
+#keepalive { display: none; }
+
+/* ---- ② プロジェクト（features/project-view.js） ---- */
+.proj-status { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sm); }
+.proj-status .proj-status-text { font-weight: 600; }
+.proj-status[data-tone="ok"] .proj-status-text { color: var(--ok); }
+.proj-status[data-tone="warn"] .proj-status-text { color: var(--warn); }
+.proj-status[data-tone="error"] .proj-status-text { color: var(--danger); }
+.proj-status[data-tone="busy"] .proj-status-text { color: var(--text-2); }
+.proj-status .proj-status-detail { margin: 0; color: var(--text-2); overflow-wrap: anywhere; }
+.proj-status.compact { display: block; }
+.proj-status.compact .proj-status-text { font-weight: 400; font-size: var(--fs-xs); }
+.proj-hist { max-height: 220px; overflow: auto; margin-bottom: 6px; }
+.proj-hist li { justify-content: space-between; }
+.media.tile-plain { display: flex; align-items: center; justify-content: center; background: var(--surface-3); color: var(--text-2); }
+.project-card .media-body { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px 10px; }
+
+/* ---- ③ 素材管理（features/assets-view.js・import.js） ---- */
+.asset-tile-wrap { position: relative; }
+.asset-tile { aspect-ratio: 4/3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: var(--surface-3); color: var(--text-2); }
+.asset-tile .tile-fmt, .tile-large .tile-fmt { font-family: var(--mono); font-size: var(--fs-md); font-weight: 600; color: var(--text); letter-spacing: .06em; }
+.asset-tile-wrap .check { position: absolute; right: 6px; top: 6px; width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.asset.is-missing > .asset-tile-wrap, .asset-table tr.is-missing td { opacity: .55; }
+.pill.warn { border-color: var(--warn); color: var(--warn); }
+.detail-preview.tile-large { aspect-ratio: 16/10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: var(--surface-3); color: var(--text-2); }
+.mono.selectable { user-select: all; overflow-wrap: anywhere; }
+.lib-bar .search-wrap { min-width: 160px; }
+.lib-crumb .btn { padding: 1px 8px; }
+.lib-unimpl { display: block; }
+.imp-table td { vertical-align: middle; }
+.imp-table .btn-row { display: flex; gap: 4px; flex-wrap: wrap; }
+.imp-warn { color: var(--warn); font-size: var(--fs-xs); }
+.imp-err { color: var(--danger); font-size: var(--fs-sm); }
+.progress[data-indeterminate] > i { width: 40%; animation: imp-slide 1.1s ease-in-out infinite alternate; }
+@keyframes imp-slide { from { margin-left: 0; } to { margin-left: 60%; } }
+@media (prefers-reduced-motion: reduce) { .progress[data-indeterminate] > i { animation: none; } }
+.import-dialog .imp-rows { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 40vh; overflow: auto; }
+.imp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); }
+.imp-row.is-bad { border-color: var(--danger); }
+.imp-row .imp-name { font-weight: 600; overflow-wrap: anywhere; }
+.imp-row .imp-hint { flex-basis: 100%; }
+.imp-message { color: var(--danger); min-height: 1.2em; margin: 4px 0 0; }
+.imp-conflicts { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; max-height: 40vh; overflow: auto; }
+.lib-unimpl .section-title { margin: 8px 0 2px; padding: 0 4px; font-size: var(--fs-sm); font-weight: 600; }
+
+/* ---- ④ 3D 表示（features/character-view.js・scene-view.js、viewport/three-host.js） ---- */
+.vp3d-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.vp3d { background-image: none; background: var(--viewport); }
+.vp3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.vp3d .vp-hud, .vp3d .vp-tools, .vp3d .vp-note, .vp3d .vp3d-msg { z-index: 2; }
+.vp3d-msg { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: 80%; text-align: center; padding: 8px 14px; border-radius: 8px; background: color-mix(in srgb, var(--surface-0) 82%, transparent); border: 1px solid var(--border-strong); color: var(--text); font-size: var(--fs-sm); pointer-events: none; }
+.vp3d-msg[data-kind="error"] { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 50%, transparent); }
+.vp3d-msg[hidden] { display: none; }
+.vp3d .vp-note[data-kind="error"] { color: var(--danger); }
+.vp3d .vp-tools .icon-btn.is-unimpl { opacity: .6; }
+.char-list li { display: flex; align-items: center; gap: 6px; }
+.char-list li .char-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.char-list li.is-missing { opacity: .65; }
+.bone-table { width: 100%; }
+.use-note { max-width: 260px; line-height: 1.3; }
+.stage-message:empty { display: none; }
+
+/* ---- ④-9・④-10 リターゲット検証（features/retarget-view.js、SCR-13） ---- */
+.rt-panel { display: flex; flex-direction: column; gap: 8px; }
+.rt-fields { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: flex-end; }
+.rt-fields label { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-xs); color: var(--text-3); min-width: 0; }
+.rt-fields select, .rt-fields input.input { max-width: 100%; }
+.rt-group { border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
+.rt-group > summary { cursor: pointer; font-weight: 600; font-size: var(--fs-sm); }
+.rt-body { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.rt-pre { margin: 0; max-height: 220px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; padding: 8px; border-radius: 6px; background: var(--viewport); font-size: var(--fs-xs); }
+.rt-pre[data-kind="error"], .rt-compare [data-kind="error"] { color: var(--danger); }
+.rt-sum { width: 100%; margin-bottom: 4px; }
+.rt-sum th { text-align: left; font-weight: 500; }
+.rt-area { width: 100%; box-sizing: border-box; resize: vertical; }
+.rt-check { display: flex; gap: 4px; align-items: flex-start; font-size: var(--fs-xs); }
+.rt-rows { max-height: 280px; overflow: auto; }
+.rt-row { display: flex; gap: 8px; align-items: center; padding: 3px 0; border-bottom: 1px solid var(--border); }
+.rt-row label { flex: 1; min-width: 100px; overflow-wrap: anywhere; font-size: var(--fs-xs); }
+.rt-row select { flex: 1; min-width: 110px; }
+.rt-compare { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-top: 1px solid var(--border); }
+.vp3d-wrap .vp3d { min-height: 240px; }
+
+/* ---- ⑤ SCR-05 のモーション検索・コンビネーション（features/chain-view.js、WP-05c） ---- */
+.pattern-list li { display: flex; align-items: center; gap: 6px; }
+.pattern-list li.available .char-name { font-weight: 600; }
+.pattern-list li.pattern-detail { display: block; padding: 4px 8px 6px 28px; font-size: var(--fs-xs); color: var(--text-3); cursor: default; }
+.pattern-list li.pattern-detail ol { margin: 2px 0 0; padding-left: 18px; }
+.favorite-card .imp-name { flex: 1; min-width: 0; }
+.chain-timeline { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+.chain-bar { align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+.chain-tracks { display: flex; flex-direction: column; gap: 6px; }
+.chain-track-row { display: flex; align-items: stretch; gap: 8px; }
+.chain-track-row .tl-label { flex: 0 0 9em; align-self: center; font-size: var(--fs-xs); color: var(--text-3); }
+.chain-track { display: flex; flex: 1; gap: 3px; min-width: 0; overflow-x: auto; padding-bottom: 2px; }
+.chain-step.tl-clip { position: static; flex: 1 1 0; min-width: 7em; height: 26px; line-height: 24px; text-overflow: ellipsis; text-align: left; }
+.chain-actor-bar, .chain-vmd-bar { flex-wrap: wrap; align-items: center; padding: 4px 8px; gap: 5px 10px; }
+.chain-actor-bar label, .chain-vmd-bar label { display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-xs); }
+.chain-actor-bar select, .chain-vmd-bar select, .chain-mapping select { min-width: 9em; max-width: 18em; }
+.chain-mapping { margin: 2px 8px; max-height: 180px; overflow: auto; font-size: var(--fs-xs); }
+.chain-mapping summary { cursor: pointer; }
+.chain-mapping [data-role="chain-mapping-rows"] { padding: 6px 0; }
+.chain-mapping .field { display: flex; align-items: center; gap: 8px; }
+.chain-mapping .field select { margin-left: auto; }
+[data-feature="chainViewport"] > [data-role="chain-status"] { padding: 0 8px 6px; margin: 0; }

@@ -226,6 +226,76 @@
   ],
   "recovery_notes": [
     "9724a16後: レールギズモ可視性バグ修正とVMD優先順位のソース回帰検査を実施。Python 275 pass / Node 37 pass。実GPU・ブラウザー未検証につき完成認定なし。詳細 docs/recovery/20261019_CAMERA_RENDER_PRIORITY_AUDIT_JA.md",
-    "2026-10-20 必須修正（CAM-005 / E-FOCUS-01・02）: GET /api/camera/focus が do_GET 内の局所 import により UnboundLocalError で常に応答なし（接続切断）だった不具合を修正。回帰テスト tests/test_camera_focus_endpoint.py を追加。API応答の回復のみで、実モデル・実ブラウザー・MCP検証は未実施。完成認定なし。"
+    "2026-10-20 必須修正（CAM-005 / E-FOCUS-01・02）: GET /api/camera/focus が do_GET 内の局所 import により UnboundLocalError で常に応答なし（接続切断）だった不具合を修正。回帰テスト tests/test_camera_focus_endpoint.py を追加。API応答の回復のみで、実モデル・実ブラウザー・MCP検証は未実施。完成認定なし。",
+    "2026-10-20 CAM-003 / CAM-005: 保存時の検証（bai_camera.validate）が15種のイージング・カスタム曲線（customCurve）・イージングプリセット（easingPresets）・F値（fStop、0.7〜64、省略時は保存しない）を受け付けるよう修正し、sample() でイージングとF値（片側未設定は既定F4）を補間。8b9d9d2 から失敗していた test_camera_easing / test_camera_lens_fstop の3件が成功し、pytest 304件すべて成功。camera.js 側のUI・実ブラウザー・MCPは未検証。完成認定なし。",
+    "2026-10-20: 残り作業の詳細設計 docs/roadmap/PHASE_E_DETAILED_DESIGN_20261020_JA.md v4 を批評3回＋最終判定（条件付き承認、条件C1〜C7反映済み）で確定。API・計算・保存・MCP は実装可、UI部分は新UIへの移植（P2⑥）後に読み替え表を作りレビューしてから。所有者決定により P2 移植を Phase E より先に行う。機能の完成判定は変更なし。"
+  ],
+  "p2_port": {
+    "precedes_phase_e": true,
+    "status_ledger": "docs/roadmap/P2_PORT_STATUS.json（P2-WP-00c で新設済み。WP ごとの state・commits・tests・unverified と通し確認 e2e_main を記録）",
+    "design": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md（v5、条件付き承認・最終判定 2026-10-20。条件 C1〜C10 は反映済み。WP-00a-1 から実装可）",
+    "note": "所有者決定（2026-10-20）により P2（新UIへの移植）を Phase E より先に行う。以下の planned_in は予定であり、実施済みではない。"
+  },
+  "planned_in": [
+    {
+      "item": "WP-03 データ隔離（bai_paths.data_dir・ルート conftest.py・tests/test_data_isolation.py）",
+      "phase_e_wp": "WP-03",
+      "planned_in": "P2-WP-00a-1",
+      "status": "done",
+      "commit": "c0dd018",
+      "tests": "pytest 316 passed（tests/test_data_isolation.py を含む）、node --test tests/*.test.cjs 12 passed（BAI_DATA_DIR を一時ディレクトリに設定して実行）、tsc 変更前後とも出力なし、実 data/ ハッシュ不変",
+      "unverified": "Opus レビュー済み（pytest.ini で rootdir 固定、conftest のセッション終了時ハッシュ確認を追加）。Windows 実機未検証。node のサーバー起動テストの隔離は WP-00a-2"
+    },
+    {
+      "item": "WP-03 three devDependency・SwiftShader 起動・テスト GLB・studio-ui.test.cjs の隔離",
+      "phase_e_wp": "WP-03",
+      "planned_in": "P2-WP-00a-2",
+      "status": "done",
+      "commit": "5fa72eb",
+      "tests": "pytest 318 passed（conftest の後始末のテスト2件を含む）、npm run test:node-all（tests/run-guarded.cjs 経由）74 passed・8 skipped（通し確認 S1〜S8 の理由付き skip）・0 failed、tsc 出力なし、実 data/ ハッシュ不変（run-guarded と独立計算の両方）、一時ディレクトリ（bai-p2-*・bai_test_data_*）は残らない",
+      "unverified": "Opus レビュー未実施。three は node_modules に無く（npm ci 未実行）、THREE_DIR の手元コピー（0.160.1）で検証。GPU 実機未検証（SwiftShader）。Windows 実機未検証（ハンドラーを閉じてから削除する処理は Linux では効果を確かめられない。ハンドラーが閉じられ外れることまでをテスト）。test:p2・test:p2-py は対象のファイルがまだ無いため未定義（作る WP で足す）。test:p2-e2e の台帳記録は P2_PORT_STATUS.json（WP-00c で新設）が出来るまで実行できない"
+    },
+    {
+      "item": "G-06 の一部（read_project の読込エラー分岐・CameraProjectInvalid・退避・bad(code)。/api/project/bundle の GET と POST の書込前読込、GET/POST /api/camera/project、POST /api/camera/sequence/edit で 422）",
+      "phase_e_wp": "WP-02a",
+      "planned_in": "P2-WP-00b",
+      "status": "done",
+      "commit": "56bffa8",
+      "tests": "pytest 全件合格（tests/test_bundle_camera_invalid.py 22件・tests/test_project_envelope.py・test_bundle_snapshot_consistency.py の振る舞いテスト）、tests/legacy-project-save.test.cjs 2件（旧 camera.html は壊れたデータでエラー表示して止まり、バイト列不変）、npm run test:node-all・tsc 合格、実 data/ ハッシュ不変",
+      "unverified": "G-06 のうち一部のみ実施（エラー分岐、統合バンドルとカメラの GET/POST・sequence/edit の 422）。focus・sample・sequence/evaluate の GET は read() のまま、未知フィールド・backup・invalid-preview・UI の復旧操作は WP-02a。Opus レビュー未実施（②のコミットはレビュー対象）"
+    },
+    {
+      "item": "WP-02d の画面側の規則（assetRef 記入・validateRestore 緩和・frame 整数化・423）の置き場所として共有モジュール camera_bundle_core.js を作る（現行ロジックの抽出のみ）",
+      "phase_e_wp": "WP-02d",
+      "planned_in": "P2-WP-06c",
+      "status": "planned"
+    },
+    {
+      "item": "WP-02a POST /api/camera/project/reset（Phase E §2.7 の仕様どおり。UI のダウンロード・invalid-preview は WP-02a のまま）",
+      "phase_e_wp": "WP-02a",
+      "planned_in": "P2-WP-00b",
+      "status": "done",
+      "commit": "56bffa8",
+      "tests": "tests/test_bundle_camera_invalid.py の reset テスト（確認なし 400、壊れたファイル・正常なファイル・無いファイルの reset、読めない・退避失敗では何も書かない、退避は重複しない）",
+      "unverified": "Opus レビュー未実施。UI（確認ダイアログ・ダウンロード・invalid-preview）は WP-02a"
+    },
+    {
+      "item": "B-1（DATA-008）GET /api/project?envelope=1 の重複分岐の削除と try、B-2 index.html externalProjectApply の版の取り直し1文（旧制作画面のコンビネーション保存の修正）",
+      "phase_e_wp": "（P2 前提の既存不具合修正）",
+      "planned_in": "P2-WP-00b",
+      "status": "done",
+      "commit": "b082ad8",
+      "tests": "tests/test_project_envelope.py、tests/legacy-project-save.test.cjs（B-2 の1文を外すと失敗することを確認）、pytest 322 passed、test:node-all 75 passed・8 skipped・0 failed、tsc 合格、実 data/ ハッシュ不変",
+      "unverified": "Windows 実機・GPU 実機未検証。three は THREE_DIR の手元コピー（npm ci 未実行）"
+    },
+    {
+      "item": "新UIの基盤（api.js・store.js・bus.js・state-box.js・legacy.js・features/index.js・型宣言・features.css）、未接続の区画の薄い表示（OWNER-3）、導線点検 §5 の項目1〜5（表示の修正だけ）。Phase E の UI（WP-02a 以降）が載る土台",
+      "phase_e_wp": "（P2 の土台。Phase E の機能追加ではない）",
+      "planned_in": "P2-WP-00c",
+      "status": "done",
+      "commit": "efa2b7e, 2b271f8",
+      "tests": "pytest 351 passed、npm run test:node-all 103 pass・10 skip・0 fail、tsc 合格、通し確認 furthest_step=null、実 data/ ハッシュ不変",
+      "unverified": "Opus レビュー未実施。GPU・Windows 実機未検証。薄表示の見え方は SwiftShader のスクリーンショットのみ。導線点検 §5 の6〜14 は所有者OK待ちで未着手"
+    }
   ]
 }

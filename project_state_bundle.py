@@ -33,9 +33,45 @@ def validate_combination(obj):
     return obj
 
 
+STAGE_ASSET_PREFIXES = ('integrated:', 'mmd:A:', 'mmd:B:', 'fbx:')
+STAGE_KEYS = {'asset', 'position', 'rotation', 'scale'}
+
+
+def _stage_numbers(value, limit, label):
+    if not isinstance(value, (list, tuple)) or len(value) != 3:
+        raise ValueError('invalid workspace stage ' + label)
+    out = []
+    for n in value:
+        # bool は int の一種なので数として受け付けない。nan/inf も拒否する。
+        if isinstance(n, bool) or not isinstance(n, (int, float)) or n != n or not -limit <= n <= limit:
+            raise ValueError('invalid workspace stage ' + label)
+        out.append(float(n))
+    return out
+
+
+def validate_stage(value):
+    """B-4：ステージ配置。None（ステージなし）か {asset, position[m], rotation[度], scale} だけを受け付ける。"""
+    if value is None:
+        return None
+    if not isinstance(value, dict) or set(value) != STAGE_KEYS:
+        raise ValueError('invalid workspace stage')
+    asset = value['asset']
+    if not isinstance(asset, str) or not asset or len(asset) > 250 or not asset.startswith(STAGE_ASSET_PREFIXES):
+        raise ValueError('invalid workspace stage asset')
+    scale = value['scale']
+    if isinstance(scale, bool) or not isinstance(scale, (int, float)) or scale != scale or not 0.01 <= scale <= 100:
+        raise ValueError('invalid workspace stage scale')
+    return {'asset': asset, 'position': _stage_numbers(value['position'], 1000, 'position'),
+            'rotation': _stage_numbers(value['rotation'], 360, 'rotation'), 'scale': float(scale)}
+
+
 def validate_workspace(value):
-    """Portable editor references, not a claim to embed external assets."""
-    if not isinstance(value, dict) or set(value) != {'frame', 'asset', 'clip'}:
+    """Portable editor references, not a claim to embed external assets.
+
+    キーは frame・asset・clip を全部含み、任意で stage（B-4）だけを足せる。
+    返す dict には、本文に stage のキーがあるときだけ stage を入れる（「無い」と null を区別するため）。
+    """
+    if not isinstance(value, dict) or not {'frame', 'asset', 'clip'} <= set(value) or set(value) - {'frame', 'asset', 'clip', 'stage'}:
         raise ValueError('invalid workspace fields')
     frame, asset, clip = value['frame'], value['asset'], value['clip']
     if type(frame) is not int or not 0 <= frame <= 1000000:
@@ -46,7 +82,10 @@ def validate_workspace(value):
         raise ValueError('invalid workspace clip')
     if not asset and clip is not None:
         raise ValueError('clip requires a model')
-    return {'frame': frame, 'asset': asset, 'clip': clip}
+    result = {'frame': frame, 'asset': asset, 'clip': clip}
+    if 'stage' in value:
+        result['stage'] = validate_stage(value['stage'])
+    return result
 
 
 def validate_bundle(obj):
@@ -62,13 +101,14 @@ def validate_bundle(obj):
     return result
 
 
-def read_bundle(combination_path, camera_path):
-    from bai_camera import read as camera_read
+def read_bundle(combination_path, camera_path, strict=False):
+    """strict=True のときだけカメラを read_project で読み、壊れていれば CameraProjectInvalid を投げる（B-3）。"""
+    from bai_camera import read as camera_read, read_project
     cp = Path(combination_path)
     combination = json.loads(cp.read_text(encoding='utf-8')) if cp.exists() else None
     workspace_path = cp.with_suffix('.workspace.json')
     workspace = json.loads(workspace_path.read_text(encoding='utf-8')) if workspace_path.exists() else None
-    return {'schema': 1, 'combination': combination, 'camera': camera_read(camera_path),
+    return {'schema': 1, 'combination': combination, 'camera': read_project(camera_path)[0] if strict else camera_read(camera_path),
             'workspace': workspace, 'complete': combination is not None}
 
 
@@ -85,6 +125,18 @@ def save_bundle(combination_path, camera_path, obj):
     before_comb = cp.read_bytes() if cp.exists() else None
     before_cam = cam.read_bytes() if cam.exists() else None
     before_wp = wp.read_bytes() if wp.exists() else None
+    # B-4：本文の workspace に stage のキーが無ければ、既存の stage を残す（stage を知らない旧 camera.html が消さないため）。
+    # 既存のファイルを読めない・既存の stage が不正なときは、何も書かずに ValueError（黙って捨てない）。
+    if 'workspace' in payload and 'stage' not in payload['workspace'] and before_wp is not None:
+        try:
+            existing = json.loads(before_wp.decode('utf-8'))
+            if not isinstance(existing, dict):
+                raise ValueError('not an object')
+            kept = validate_stage(existing['stage']) if 'stage' in existing else None
+        except (ValueError, UnicodeDecodeError, TypeError) as exc:
+            raise ValueError('existing workspace stage is unreadable; nothing was written') from exc
+        if kept is not None:
+            payload['workspace']['stage'] = kept
     cp.parent.mkdir(parents=True, exist_ok=True)
     tmp = cp.with_suffix('.bundle-tmp')
     workspace_tmp = wp.with_suffix('.workspace-tmp')
@@ -93,7 +145,10 @@ def save_bundle(combination_path, camera_path, obj):
         # Camera validation and serialization happen before combination switch.
         camera_save(cam, payload['camera'])
         if 'workspace' in payload:
-            workspace_tmp.write_text(json.dumps(payload['workspace'], ensure_ascii=False, indent=2), encoding='utf-8')
+            to_write = dict(payload['workspace'])
+            if to_write.get('stage', 0) is None:
+                del to_write['stage']  # "stage": null をファイルに残さない
+            workspace_tmp.write_text(json.dumps(to_write, ensure_ascii=False, indent=2), encoding='utf-8')
             workspace_tmp.replace(wp)
         else:
             wp.unlink(missing_ok=True)

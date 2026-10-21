@@ -8,6 +8,7 @@
 - [`ROADMAP_JA.md`](ROADMAP_JA.md) — 推奨開発順序・依存性
 - [`TRACEABILITY_JA.md`](TRACEABILITY_JA.md) — 会話要求とIDの対応表
 - [`IMPLEMENTATION_AUDIT_JA.md`](IMPLEMENTATION_AUDIT_JA.md) — 検証・実装状態の基準
+- [`../specs/SPEC_PROGRESS_JA.md`](../specs/SPEC_PROGRESS_JA.md) — 承認済みバックログの仕様・UIモック進捗と未検証点
 
 ## 変更時の規則
 

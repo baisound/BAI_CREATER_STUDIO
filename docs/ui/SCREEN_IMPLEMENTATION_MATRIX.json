@@ -1,16 +1,17 @@
 {
   "schema": "bai.screen_implementation_matrix.v1",
   "generated_from": "studio/js/screens.js",
-  "rule": "mock != implemented. new_ui_state: real=reads existing API read-only, partial=code exists in current UI (/ or /camera.html) but not ported, mock=local sample only, unimpl=none. No row is a feature completion.",
+  "rule": "mock != implemented. new_ui_state: real=reads/writes an existing Python API (or the shell itself, shell=true) and the evidence test passes, partial=code exists in current UI (/ or /camera.html) but not ported, mock=local sample only, unimpl=none. No row is a feature completion.",
   "phases": {
     "E": "Phase E カメラ（承認済み・進行中）",
     "F": "Phase F レンダリング（承認済み・Phase E の後）",
-    "LIP": "リップシンク・表情・MMDエフェクト先行（承認済み・Phase F の後）",
+    "LIP": "リップシンク・表情モーフ（承認済み・Phase E の後、F の前。所有者決定 2026-10-20）。MMDエフェクトは F の後",
+    "FX": "MMDエフェクト（承認済み・Phase F とリップシンク／表情の後、Phase C の前）",
     "C": "Phase C マルチダンサー（承認済み）",
     "D": "Phase D 音楽同期・表情（承認済み）",
-    "G": "Phase G リリック・MMDエフェクト（承認済み）",
+    "G": "Phase G リリック・ステージ（承認済み）",
     "H": "Phase H 格闘・演出・ステージ（承認済み）",
-    "P2": "P2 既存機能の新UI移植（Phase E の後に実施・所有者決定）",
+    "P2": "P2 既存機能の新UI移植（Phase E より前・作業の流れ順。所有者決定 2026-10-20）",
     "P4": "P4 新規機能候補（未承認・承認まで実装しない）",
     "B": "Phase B 残課題（保持・E/F のブロッカーにしない）",
     "OBS": "Phase 00 ログ基盤（OBS、仕様決定済み）"
@@ -23,7 +24,9 @@
       "classification_proposal": "existing_or_partial_to_audit",
       "feature_ids": [
         "DATA-008",
-        "CORE-013"
+        "CORE-013",
+        "NF-015",
+        "NF-019"
       ],
       "existing_ui": [
         {
@@ -126,7 +129,13 @@
       "classification_proposal": "candidate_late",
       "feature_ids": [
         "LYRIC-009",
-        "LYRIC-010"
+        "LYRIC-010",
+        "DANCE-001",
+        "DANCE-002",
+        "DANCE-003",
+        "DANCE-006",
+        "DANCE-012",
+        "NF-014"
       ],
       "existing_ui": [],
       "live_endpoints": []
@@ -153,7 +162,8 @@
         "MOTION-002",
         "DATA-013",
         "REVIEW-010",
-        "NF-004"
+        "NF-004",
+        "NF-013"
       ],
       "existing_ui": [
         {
@@ -180,9 +190,12 @@
       "route": "/workspace/10",
       "classification_proposal": "candidate_late",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
+        "LIP-003",
         "LYRIC-006",
+        "RENDER-006",
         "NF-002"
       ],
       "existing_ui": [],
@@ -210,7 +223,9 @@
         "MOTION-005",
         "MOTION-019",
         "MOTION-021",
-        "LIP-004"
+        "LIP-004",
+        "LIP-011",
+        "NF-023"
       ],
       "existing_ui": [
         {
@@ -232,7 +247,21 @@
         "MOTION-008",
         "MOTION-011",
         "DATA-003",
-        "REVIEW-001"
+        "REVIEW-001",
+        "LIP-005",
+        "LIP-006",
+        "LIP-007",
+        "LIP-008",
+        "LIP-009",
+        "LIP-010",
+        "DANCE-004",
+        "DANCE-005",
+        "DANCE-007",
+        "DANCE-008",
+        "DANCE-009",
+        "DANCE-010",
+        "DANCE-011",
+        "LYRIC-011"
       ],
       "existing_ui": [
         {
@@ -310,10 +339,16 @@
         "RENDER-001",
         "RENDER-002",
         "RENDER-003",
+        "RENDER-004",
         "RENDER-005",
         "RENDER-006",
         "RENDER-007",
-        "RENDER-010"
+        "RENDER-008",
+        "RENDER-009",
+        "RENDER-010",
+        "NF-016",
+        "NF-017",
+        "NF-018"
       ],
       "existing_ui": [],
       "live_endpoints": []
@@ -336,9 +371,7 @@
           "href": "/camera.html"
         }
       ],
-      "live_endpoints": [
-        "projectBundle"
-      ]
+      "live_endpoints": []
     },
     {
       "id": "SCR-19",
@@ -351,7 +384,8 @@
         "CORE-004",
         "CORE-011",
         "OBS-004",
-        "NF-007"
+        "NF-007",
+        "NF-016"
       ],
       "existing_ui": [],
       "live_endpoints": [
@@ -368,7 +402,8 @@
         "CORE-013",
         "OBS-002",
         "OBS-007",
-        "NF-008"
+        "NF-008",
+        "NF-021"
       ],
       "existing_ui": [],
       "live_endpoints": [
@@ -385,7 +420,8 @@
         "UX-001",
         "UX-002",
         "UX-006",
-        "NF-009"
+        "NF-009",
+        "NF-022"
       ],
       "existing_ui": [],
       "live_endpoints": []
@@ -399,7 +435,9 @@
         "CAM-013",
         "CAM-014",
         "DATA-011",
-        "NF-006"
+        "NF-006",
+        "NF-019",
+        "NF-020"
       ],
       "existing_ui": [
         {
@@ -443,7 +481,8 @@
         "OBS-001",
         "OBS-006",
         "REVIEW-003",
-        "NF-011"
+        "NF-011",
+        "NF-016"
       ],
       "existing_ui": [
         {
@@ -463,7 +502,39 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
+      ],
+      "existing_ui": [],
+      "live_endpoints": []
+    },
+    {
+      "id": "SCR-26",
+      "title": "MMDエフェクト",
+      "route": "/workspace/26",
+      "classification_proposal": "existing_or_partial_to_audit",
+      "feature_ids": [
+        "RENDER-011",
+        "RENDER-012",
+        "RENDER-013",
+        "RENDER-014",
+        "RENDER-015"
+      ],
+      "existing_ui": [],
+      "live_endpoints": []
+    },
+    {
+      "id": "SCR-27",
+      "title": "歌詞・MV構成",
+      "route": "/workspace/27",
+      "classification_proposal": "existing_or_partial_to_audit",
+      "feature_ids": [
+        "LYRIC-001",
+        "LYRIC-002",
+        "LYRIC-003",
+        "LYRIC-004",
+        "LYRIC-005",
+        "LYRIC-007"
       ],
       "existing_ui": [],
       "live_endpoints": []
@@ -477,15 +548,35 @@
       "feature_ids": [
         "DATA-008"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": "現行サーバーは単一の制作状態のみを保持。複数プロジェクト一覧は未実装。",
-      "UI": "mock_route_operable",
-      "API": "none",
+      "new_ui_state": "real",
+      "source_evidence": "現行サーバーは単一の制作状態のみを保持（実データ1枚）。複数プロジェクト一覧・新規作成は未実装（新規作成は ◇）。",
+      "evidence": "tests/studio-p2-project.test.cjs::home shows one real project card and no sample projects",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-01",
+      "route": "/workspace/01",
+      "panel": "最近の素材",
+      "feature_ids": [
+        "MOTION-003"
+      ],
+      "new_ui_state": "real",
+      "source_evidence": "このページで取り込んだ素材だけ（API に登録日時が無いため）。",
+      "evidence": "tests/studio-p2-assets.test.cjs::home shows only assets imported in this page",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -494,10 +585,13 @@
       "panel": "クイックアクション",
       "feature_ids": [
         "DATA-008",
-        "CORE-013"
+        "CORE-013",
+        "NF-015",
+        "NF-019"
       ],
       "new_ui_state": "partial",
       "source_evidence": "現行画面へのリンクのみ実在。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -505,7 +599,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-01",
@@ -513,10 +607,13 @@
       "panel": "制作ステータス",
       "feature_ids": [
         "DATA-008",
-        "CORE-013"
+        "CORE-013",
+        "NF-015",
+        "NF-019"
       ],
       "new_ui_state": "partial",
       "source_evidence": "Phase E 台帳（docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json）の要約。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -524,17 +621,19 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-01",
       "route": "/workspace/01",
       "panel": "新規作成",
       "feature_ids": [
-        "DATA-008"
+        "DATA-008",
+        "NF-019"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": "入力検証のみ。保存されない。",
+      "new_ui_state": "unimpl",
+      "source_evidence": "現在のサーバーは制作状態を1つだけ保持。新規作成は未実装（Q1 回答待ち）。テンプレート（ダンスMV等）からの作成は NF-019（未承認）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -542,7 +641,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": null
+      "blockers": "no implementation"
     },
     {
       "screen_id": "SCR-01",
@@ -550,17 +649,20 @@
       "panel": "通知・進捗",
       "feature_ids": [
         "DATA-008",
-        "CORE-013"
+        "CORE-013",
+        "NF-015",
+        "NF-019"
       ],
       "new_ui_state": "real",
       "source_evidence": "/api/diagnostics/recent を読み取り表示。",
-      "UI": "mock_route_operable",
-      "API": "read_only_get",
+      "evidence": "tests/studio-ui.test.cjs::read-only live data comes from the existing API",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "read_only_display_only",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -572,6 +674,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "現行カメラ画面に Three.js 撮影ビューあり。新UIへ未移植。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -579,7 +682,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-02",
@@ -591,6 +694,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "現行画面にカスタム構図の登録・適用あり。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -598,7 +702,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-02",
@@ -609,6 +713,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "35/50/80/135mm＋F値プリセットとFOV反映を実装済み。実DOF描画は未。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -616,7 +721,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-02",
@@ -627,6 +732,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "現行画面にキー追加・Undo/Redo・補間あり。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -634,7 +740,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-02",
@@ -645,6 +751,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "シーケンス評価APIあり。編集UIは部分。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -652,7 +759,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-03",
@@ -664,6 +771,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "camera_focus_tracking.js にボーン追従計算あり。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -671,7 +779,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-03",
@@ -682,6 +790,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -700,6 +809,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": "実描画DOFは Phase F（F-DOF-01）。計算上のDOFと区別する。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -718,6 +828,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "/api/camera/focus の区間診断（start/end）あり。タイムライン警告UIは未。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -725,7 +836,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-03",
@@ -736,6 +847,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -754,6 +866,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -772,6 +885,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "camera_sequence.py にショット連結データあり。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -779,7 +893,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-04",
@@ -790,6 +904,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -808,6 +923,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "camera_sequence_playback.js（現行画面）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -815,7 +931,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-04",
@@ -826,6 +942,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -843,16 +960,17 @@
         "MOTION-001",
         "MOTION-017"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面に82パターンの検索・分類・お気に入りあり。",
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "82パターンの検索・分類・👑（全手順に実FBXがある）と、お気に入りの読み込み・保存・削除。",
+      "evidence": "tests/studio-p2-chain.test.cjs::pattern list marks registered fbx with a crown",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-05",
@@ -862,16 +980,17 @@
         "MOTION-006",
         "MOTION-009"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の PMX・VMD タブ。",
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "A/B のスロットごとに PMX と VMD を選び、3Dで再生。FBXの連結再生はAに適用。",
+      "evidence": "tests/studio-p2-chain.test.cjs::pmx slot vmd and chain switch",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-05",
@@ -882,6 +1001,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "retarget_ui.js のボーンマッピング。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -889,7 +1009,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-05",
@@ -900,6 +1020,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -916,15 +1037,16 @@
       "feature_ids": [
         "DATA-001"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
-      "UI": "mock_route_operable",
-      "API": "none",
+      "new_ui_state": "real",
+      "source_evidence": "コンビネーション（トラック「体」）の追加・並べ替え・削除・全消去・お気に入りへの保存。編集履歴は保存・復元（18）に積まれ、自動保存されます。",
+      "evidence": "tests/studio-p2-chain.test.cjs::add to combination records history and autosaves",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -933,10 +1055,17 @@
       "panel": "シーンツリー",
       "feature_ids": [
         "LYRIC-009",
-        "LYRIC-010"
+        "LYRIC-010",
+        "DANCE-001",
+        "DANCE-002",
+        "DANCE-003",
+        "DANCE-006",
+        "DANCE-012",
+        "NF-014"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -951,37 +1080,37 @@
       "route": "/workspace/06",
       "panel": "3Dビュー",
       "feature_ids": [
-        "LYRIC-009",
-        "LYRIC-010"
+        "NF-014"
       ],
-      "new_ui_state": "unimpl",
-      "source_evidence": "ステージ配置ビューは未実装（モデル表示は現行画面にあり）。",
-      "UI": "mock_route_operable",
-      "API": "none",
+      "new_ui_state": "real",
+      "source_evidence": "作業中のキャラクター（GLB/VRM）とステージ1つを表示。素材の単位の換算だけを掛け、高さの正規化・中心合わせはしない。",
+      "evidence": "tests/studio-p2-viewport.test.cjs::stage placement saves and restores",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "no implementation"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-06",
       "route": "/workspace/06",
       "panel": "トランスフォーム",
       "feature_ids": [
-        "LYRIC-009",
-        "LYRIC-010"
+        "NF-014"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
-      "UI": "mock_route_operable",
-      "API": "none",
+      "new_ui_state": "real",
+      "source_evidence": "ステージの位置・回転 Y・拡大を workspace.stage に保存（［保存］）。",
+      "evidence": "tests/studio-p2-viewport.test.cjs::stage placement saves and restores",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -989,18 +1118,18 @@
       "route": "/workspace/06",
       "panel": "アセットブラウザー",
       "feature_ids": [
-        "LYRIC-009",
-        "LYRIC-010"
+        "NF-014"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": "素材管理（08）と同一索引にする方針。",
-      "UI": "mock_route_operable",
-      "API": "none",
+      "new_ui_state": "real",
+      "source_evidence": "「トランスフォーム」タブの「ステージの素材」の選択欄（素材管理 08 の登録済みモデルから選ぶ）。",
+      "evidence": "tests/studio-p2-viewport.test.cjs::stage placement saves and restores",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -1009,10 +1138,17 @@
       "panel": "表示・依存関係",
       "feature_ids": [
         "LYRIC-009",
-        "LYRIC-010"
+        "LYRIC-010",
+        "DANCE-001",
+        "DANCE-002",
+        "DANCE-003",
+        "DANCE-006",
+        "DANCE-012",
+        "NF-014"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1031,6 +1167,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1049,6 +1186,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1067,6 +1205,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1085,6 +1224,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1103,6 +1243,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "カメラVMD書き出し（CAM-016）は部分実装。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1110,27 +1251,25 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-08",
       "route": "/workspace/08",
       "panel": "素材カテゴリ",
       "feature_ids": [
-        "MOTION-002",
-        "DATA-013",
-        "REVIEW-010",
-        "NF-004"
+        "MOTION-002"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
-      "UI": "mock_route_operable",
-      "API": "none",
+      "new_ui_state": "real",
+      "source_evidence": "/api/assets の実数で分類・件数を表示。ステージ・オーディオなどは登録手段がなく0件。",
+      "evidence": "tests/studio-p2-assets.test.cjs::library lists real assets by category",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -1140,16 +1279,17 @@
       "feature_ids": [
         "MOTION-002"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の統合素材ライブラリに検索・カテゴリあり。",
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "名前・形式で検索。タグは未実装。",
+      "evidence": "tests/studio-p2-assets.test.cjs::search and format filter work on real data",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-08",
@@ -1160,6 +1300,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1174,20 +1315,18 @@
       "route": "/workspace/08",
       "panel": "メタデータ",
       "feature_ids": [
-        "MOTION-002",
-        "DATA-013",
-        "REVIEW-010",
-        "NF-004"
+        "MOTION-002"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": null,
-      "UI": "mock_route_operable",
-      "API": "none",
+      "new_ui_state": "real",
+      "source_evidence": "登録情報のみ。作者・ライセンスは未記録。",
+      "evidence": "tests/studio-p2-assets.test.cjs::detail shows registration facts",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -1199,6 +1338,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1215,16 +1355,17 @@
       "feature_ids": [
         "MOTION-003"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の素材登録（FBX/GLB/VRM/PMX ZIP/VMD）。",
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "GLB・VRM・PMX ZIP・VMD・FBX を登録（複数選択可）。上書き・置き換えは事前に確認。",
+      "evidence": "tests/studio-p2-assets.test.cjs::multiple files import sequentially",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-09",
@@ -1235,6 +1376,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1253,6 +1395,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1271,6 +1414,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1289,6 +1433,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1307,6 +1452,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": "表示のみ。シェーダー生成は NF-001（未承認）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1325,6 +1471,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1339,13 +1486,17 @@
       "route": "/workspace/10",
       "panel": "音声ライブラリ",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
+        "LIP-003",
         "LYRIC-006",
+        "RENDER-006",
         "NF-002"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1360,13 +1511,17 @@
       "route": "/workspace/10",
       "panel": "マルチトラック",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
+        "LIP-003",
         "LYRIC-006",
+        "RENDER-006",
         "NF-002"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1381,13 +1536,17 @@
       "route": "/workspace/10",
       "panel": "波形",
       "feature_ids": [
+        "AUDIO-001",
         "LIP-001",
         "LIP-002",
+        "LIP-003",
         "LYRIC-006",
+        "RENDER-006",
         "NF-002"
       ],
       "new_ui_state": "mock",
       "source_evidence": "波形は装飾表示。音声デコードは未実装。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1400,12 +1559,32 @@
     {
       "screen_id": "SCR-10",
       "route": "/workspace/10",
+      "panel": "歌音声の取込・配置",
+      "feature_ids": [
+        "AUDIO-001"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-10",
+      "route": "/workspace/10",
       "panel": "EQ・ミキサー",
       "feature_ids": [
         "NF-002"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1425,6 +1604,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1443,6 +1623,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1461,6 +1642,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1479,6 +1661,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1497,6 +1680,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1515,6 +1699,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1533,6 +1718,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1551,6 +1737,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1567,16 +1754,17 @@
       "feature_ids": [
         "MOTION-002"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の登録済みVRMモデル・PMXスロット。",
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "/api/assets のキャラクター（GLB/VRM・PMX・FBX モデル）。",
+      "evidence": "tests/studio-p2-viewport.test.cjs::glb renders and normalizes like the camera page",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-12",
@@ -1585,26 +1773,29 @@
       "feature_ids": [
         "MOTION-009"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の3Dプレビュー（GLB/VRM）。",
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "GLB/VRM・PMX・FBX を表示（回転・ズーム）。旧画面と同じ高さの正規化（GLB/VRM 2.0・PMX 1.8・FBX 1.95）。",
+      "evidence": "tests/studio-p2-viewport.test.cjs::glb renders and normalizes like the camera page",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-12",
       "route": "/workspace/12",
       "panel": "ボーン・ウェイト",
       "feature_ids": [
-        "MOTION-005"
+        "MOTION-005",
+        "NF-023"
       ],
       "new_ui_state": "partial",
-      "source_evidence": "pmx_bones.py・骨格解析あり。ウェイト編集は未。",
+      "source_evidence": "pmx_bones.py・骨格解析あり。ウェイト編集は NF-023（未承認）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1612,7 +1803,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-12",
@@ -1623,6 +1814,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1637,10 +1829,12 @@
       "route": "/workspace/12",
       "panel": "モーフ",
       "feature_ids": [
-        "LIP-004"
+        "LIP-004",
+        "LIP-011"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1659,6 +1853,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "retarget_*.py とマッピングUI。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1666,7 +1861,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-12",
@@ -1678,6 +1873,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1695,16 +1891,37 @@
         "MOTION-006",
         "DATA-014"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の PMX・VMD タブ。",
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "登録済みの VMD（/api/assets）を一覧し、行を押すと対象の PMX に当てて再生する。",
+      "evidence": "tests/studio-p2-motion.test.cjs::vmd library lists registered vmd and applies it",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-13",
+      "route": "/workspace/13",
+      "panel": "VMD再生（編集モード）",
+      "feature_ids": [
+        "MOTION-006",
+        "DATA-014"
+      ],
+      "new_ui_state": "real",
+      "source_evidence": "［編集］で PMX＋VMD（表情モーフを含む）または GLB/VRM のクリップを1体再生する（再生・停止・位置）。VRM・GLB への VMD は未対応。",
+      "evidence": "tests/studio-p2-motion.test.cjs::pmx with vmd plays bones and morphs",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-13",
@@ -1715,6 +1932,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "現行画面の3視点比較・同期比較。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1722,7 +1940,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-13",
@@ -1731,16 +1949,55 @@
       "feature_ids": [
         "MOTION-005"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "retarget_ui.js / retarget_mapping_preview.py。",
+      "new_ui_state": "real",
+      "source_evidence": "骨格解析・プロファイル・ボーン対応表・基準姿勢の検査を /api/retarget/* で行う（読取・試算のみ。モーションやモデルには適用しない）。",
+      "evidence": "tests/studio-p2-retarget.test.cjs::retarget panel shows every API response and saves the mapping",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-13",
+      "route": "/workspace/13",
+      "panel": "ポーズ比較（2体）",
+      "feature_ids": [
+        "MOTION-005"
+      ],
+      "new_ui_state": "real",
+      "source_evidence": "GLB/VRM の元の静止姿勢と補正候補を左右に並べる（試験。モデルは変えない）。",
+      "evidence": "tests/studio-p2-retarget.test.cjs::pose compare places two models at x = -1.15 and +1.15 and applies the rotation to the right one",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-13",
+      "route": "/workspace/13",
+      "panel": "4分割ビュー",
+      "feature_ids": [
+        "REVIEW-001"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": "元モーション・対象・重ね合わせ・側面の4分割は未実装（中央は1つのビューポート）。",
+      "evidence": null,
       "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "API": "none",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "no implementation"
     },
     {
       "screen_id": "SCR-13",
@@ -1751,6 +2008,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1769,6 +2027,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1787,6 +2046,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "foot_contact.py・dual_foot_plan.py（Phase B 残課題を含む）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1794,7 +2054,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-13",
@@ -1805,6 +2065,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "motion_vmd_bridge.py・vmd_readback.py。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1812,7 +2073,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-14",
@@ -1825,6 +2086,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "ドリー・クレーン・オービット等のベイク処理あり。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1832,7 +2094,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-14",
@@ -1843,6 +2105,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "現行画面にレールのギズモ表示あり。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1850,7 +2113,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-14",
@@ -1861,6 +2124,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1868,7 +2132,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-14",
@@ -1879,6 +2143,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1886,7 +2151,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-14",
@@ -1897,6 +2162,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1919,6 +2185,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1937,6 +2204,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "camera_vmd_local.js・camera_vmd_inspect.py。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1944,7 +2212,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-15",
@@ -1955,6 +2223,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "camera_vmd_codec.py（MMD↔内部座標）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -1962,7 +2231,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-15",
@@ -1975,6 +2244,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -1993,6 +2263,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "現行画面にVMDタイムライン表示あり。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -2000,7 +2271,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-15",
@@ -2011,6 +2282,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "VMD優先度の描画監査あり（test_camera_vmd_render_priority.py）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -2018,7 +2290,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-15",
@@ -2029,6 +2301,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "encode_camera_track（F値・焦点距離は拡張JSONが必要）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -2036,7 +2309,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-16",
@@ -2047,6 +2320,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -2054,7 +2328,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-16",
@@ -2066,6 +2340,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2084,6 +2359,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2102,6 +2378,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2120,6 +2397,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2139,6 +2417,7 @@
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2157,6 +2436,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2175,6 +2455,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2193,6 +2474,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2211,6 +2493,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2225,10 +2508,12 @@
       "route": "/workspace/17",
       "panel": "AOV",
       "feature_ids": [
-        "RENDER-005"
+        "RENDER-005",
+        "NF-018"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": "ブラウザ描画エンジンの対応状況を先に確認する。",
+      "source_evidence": "ブラウザ描画エンジンの対応状況を先に確認する。深度・法線・オブジェクトIDは NF-018（未承認）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2243,16 +2528,13 @@
       "route": "/workspace/17",
       "panel": "統計",
       "feature_ids": [
-        "RENDER-001",
-        "RENDER-002",
-        "RENDER-003",
-        "RENDER-005",
-        "RENDER-006",
-        "RENDER-007",
-        "RENDER-010"
+        "RENDER-010",
+        "NF-016",
+        "NF-017"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2267,16 +2549,12 @@
       "route": "/workspace/17",
       "panel": "履歴",
       "feature_ids": [
-        "RENDER-001",
-        "RENDER-002",
-        "RENDER-003",
-        "RENDER-005",
-        "RENDER-006",
-        "RENDER-007",
-        "RENDER-010"
+        "RENDER-010",
+        "NF-017"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2293,15 +2571,16 @@
       "feature_ids": [
         "DATA-008"
       ],
-      "new_ui_state": "mock",
-      "source_evidence": "現行は単一制作状態。",
-      "UI": "mock_route_operable",
-      "API": "none",
+      "new_ui_state": "real",
+      "source_evidence": "単一の制作状態（複数プロジェクトの一覧・切替は未実装）。",
+      "evidence": "tests/studio-p2-project.test.cjs::SCR-18 shows the real production state",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -2312,16 +2591,17 @@
         "DATA-008",
         "CORE-012"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "project_state_bundle.py（リビジョン検査・事前検証付き復元）。現行カメラ画面の保存/復元UI。",
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "自動保存（コンビネーション）と統合保存（コンビネーション＋カメラ＋作業参照）、履歴の戻す・やり直す、外部変更の検知。版（revision）による同時編集の検知付き。",
+      "evidence": "tests/studio-p2-project.test.cjs::undo autosaves the combination with the envelope revision",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-18",
@@ -2330,16 +2610,17 @@
       "feature_ids": [
         "DATA-009"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "camera_project_revision.py（楽観的同時実行リビジョン）。履歴一覧は未。",
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "編集履歴はコンビネーションのみ。任意の版との差分比較は未実装。",
+      "evidence": "tests/studio-p2-project.test.cjs::SCR-18 shows the real production state",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-18",
@@ -2350,6 +2631,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2368,6 +2650,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2386,6 +2669,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2404,6 +2688,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2423,6 +2708,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "webmcp.js と mcp_server.py（stdio）が存在。接続状態の一覧UIは未。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -2430,7 +2716,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-19",
@@ -2441,6 +2727,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2459,6 +2746,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2477,6 +2765,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2491,15 +2780,11 @@
       "route": "/workspace/19",
       "panel": "リソース",
       "feature_ids": [
-        "CORE-002",
-        "CORE-003",
-        "CORE-004",
-        "CORE-011",
-        "OBS-004",
-        "NF-007"
+        "NF-016"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": null,
+      "source_evidence": "稼働率・GPU負荷の実測は NF-016（未承認）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2518,6 +2803,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2536,17 +2822,19 @@
         "CORE-013",
         "OBS-002",
         "OBS-007",
-        "NF-008"
+        "NF-008",
+        "NF-021"
       ],
       "new_ui_state": "real",
       "source_evidence": "/api/server-version。",
-      "UI": "mock_route_operable",
-      "API": "read_only_get",
+      "evidence": "tests/studio-ui.test.cjs::read-only live data comes from the existing API",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "read_only_display_only",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -2555,13 +2843,11 @@
       "panel": "保存パス",
       "feature_ids": [
         "CORE-006",
-        "CORE-013",
-        "OBS-002",
-        "OBS-007",
-        "NF-008"
+        "NF-021"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": "現行は data/ 固定。",
+      "source_evidence": "現行は data/ 固定。保存先の変更は NF-021（未承認）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2580,6 +2866,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2598,6 +2885,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2616,6 +2904,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -2623,7 +2912,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-20",
@@ -2634,10 +2923,12 @@
         "CORE-013",
         "OBS-002",
         "OBS-007",
-        "NF-008"
+        "NF-008",
+        "NF-021"
       ],
       "new_ui_state": "mock",
       "source_evidence": "この新UIのショートカットのみ実在。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2656,13 +2947,14 @@
       ],
       "new_ui_state": "real",
       "source_evidence": "/api/ui-qa/settings（画面テスト記録の設定）を表示。",
-      "UI": "mock_route_operable",
-      "API": "read_only_get",
+      "evidence": "tests/studio-ui.test.cjs::read-only live data comes from the existing API",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "read_only_display_only",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -2670,20 +2962,19 @@
       "route": "/workspace/21",
       "panel": "テーマ",
       "feature_ids": [
-        "UX-001",
-        "UX-002",
-        "UX-006",
-        "NF-009"
+        "NF-022"
       ],
       "new_ui_state": "real",
-      "source_evidence": "この新UIのテーマ切替（ブラウザに保存）。",
-      "UI": "mock_route_operable",
-      "API": "read_only_get",
+      "source_evidence": "この新UIのテーマ切替（ブラウザに保存）。製品機能としては NF-022（未承認）。",
+      "evidence": "tests/studio-ui.test.cjs::theme preference persists and narrow screens do not scroll sideways",
+      "shell": true,
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "read_only_display_only",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -2691,20 +2982,19 @@
       "route": "/workspace/21",
       "panel": "色・文字",
       "feature_ids": [
-        "UX-001",
-        "UX-002",
-        "UX-006",
-        "NF-009"
+        "NF-022"
       ],
       "new_ui_state": "real",
-      "source_evidence": "表示密度の切替。",
-      "UI": "mock_route_operable",
-      "API": "read_only_get",
+      "source_evidence": "表示密度の切替。製品機能としては NF-022（未承認）。",
+      "evidence": "tests/studio-ui.test.cjs::theme preference persists and narrow screens do not scroll sideways",
+      "shell": true,
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "read_only_display_only",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -2715,10 +3005,12 @@
         "UX-001",
         "UX-002",
         "UX-006",
-        "NF-009"
+        "NF-009",
+        "NF-022"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2737,6 +3029,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2754,17 +3047,20 @@
         "UX-001",
         "UX-002",
         "UX-006",
-        "NF-009"
+        "NF-009",
+        "NF-022"
       ],
       "new_ui_state": "real",
       "source_evidence": "左パネル・下部タイムラインの表示切替。",
-      "UI": "mock_route_operable",
-      "API": "read_only_get",
+      "evidence": "tests/studio-ui.test.cjs::theme preference persists and narrow screens do not scroll sideways",
+      "shell": true,
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "read_only_display_only",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -2776,6 +3072,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2793,10 +3090,12 @@
         "UX-001",
         "UX-002",
         "UX-006",
-        "NF-009"
+        "NF-009",
+        "NF-022"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2814,10 +3113,13 @@
         "CAM-013",
         "CAM-014",
         "DATA-011",
-        "NF-006"
+        "NF-006",
+        "NF-019",
+        "NF-020"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2835,10 +3137,13 @@
         "CAM-013",
         "CAM-014",
         "DATA-011",
-        "NF-006"
+        "NF-006",
+        "NF-019",
+        "NF-020"
       ],
       "new_ui_state": "mock",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2857,6 +3162,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2875,6 +3181,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": "自動操作フローは承認済みロードマップに混入させない。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2894,6 +3201,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "カメラのカスタム構図・モーションのお気に入りが現行画面にあり。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -2901,20 +3209,18 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-22",
       "route": "/workspace/22",
       "panel": "共有",
       "feature_ids": [
-        "CAM-013",
-        "CAM-014",
-        "DATA-011",
-        "NF-006"
+        "NF-020"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": null,
+      "source_evidence": "テンプレートの書き出し・取り込みによる共有は NF-020（未承認）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2933,6 +3239,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2955,6 +3262,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -2971,16 +3279,17 @@
       "feature_ids": [
         "MOTION-003"
       ],
-      "new_ui_state": "partial",
-      "source_evidence": "現行画面の素材登録（FBX/GLB/VRM/PMX ZIP/VMD）。",
-      "UI": "mock_route_operable",
-      "API": "existing_code_not_wired_to_new_ui",
+      "new_ui_state": "real",
+      "source_evidence": "素材管理（08）の取り込みダイアログで FBX/GLB/VRM/PMX ZIP/VMD を登録。",
+      "evidence": "tests/studio-p2-assets.test.cjs::import dialog opens from nav query and clears it",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-23",
@@ -2992,6 +3301,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "VMD書き出し・カメラVMD書き出しは部分実装。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -2999,7 +3309,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-23",
@@ -3010,6 +3320,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "tools/extract_fbx_motion_blender.py（Blender必須）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -3017,7 +3328,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-23",
@@ -3028,6 +3339,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -3046,6 +3358,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "モデル互換性診断の一部。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -3053,7 +3366,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-24",
@@ -3064,6 +3377,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -3078,14 +3392,11 @@
       "route": "/workspace/24",
       "panel": "リソース",
       "feature_ids": [
-        "CORE-013",
-        "OBS-001",
-        "OBS-006",
-        "REVIEW-003",
-        "NF-011"
+        "NF-016"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": "実測していない値は表示しない。",
+      "source_evidence": "実測していない値は表示しない。CPU/メモリ/GPU/FPSの実測は NF-016（未承認）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -3104,6 +3415,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "phase_b_release_gate.py・qa/phase_b_gate.py（Phase B ゲート）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -3111,7 +3423,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-24",
@@ -3122,6 +3434,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "Phase E 台帳。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -3129,7 +3442,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-24",
@@ -3140,13 +3453,14 @@
       ],
       "new_ui_state": "real",
       "source_evidence": "/api/diagnostics/recent・診断ZIP。",
-      "UI": "mock_route_operable",
-      "API": "read_only_get",
+      "evidence": "tests/studio-ui.test.cjs::read-only live data comes from the existing API",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "read_only_display_only",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -3154,14 +3468,11 @@
       "route": "/workspace/24",
       "panel": "性能",
       "feature_ids": [
-        "CORE-013",
-        "OBS-001",
-        "OBS-006",
-        "REVIEW-003",
-        "NF-011"
+        "NF-016"
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -3180,6 +3491,7 @@
       ],
       "new_ui_state": "unimpl",
       "source_evidence": null,
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -3196,17 +3508,20 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
       ],
       "new_ui_state": "real",
       "source_evidence": "この新UIの案内。",
-      "UI": "mock_route_operable",
-      "API": "read_only_get",
+      "evidence": "tests/studio-ui.test.cjs::help pages render their content",
+      "shell": true,
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "read_only_display_only",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -3216,10 +3531,12 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
       ],
       "new_ui_state": "mock",
       "source_evidence": "手順チェックは画面内のみ。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -3236,17 +3553,20 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
       ],
       "new_ui_state": "real",
       "source_evidence": "各画面へのリンク。",
-      "UI": "mock_route_operable",
-      "API": "read_only_get",
+      "evidence": "tests/studio-ui.test.cjs::help pages render their content",
+      "shell": true,
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "read_only_display_only",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -3254,12 +3574,11 @@
       "route": "/workspace/25",
       "panel": "動画",
       "feature_ids": [
-        "CORE-009",
-        "UX-004",
-        "NF-012"
+        "NF-015"
       ],
       "new_ui_state": "unimpl",
-      "source_evidence": null,
+      "source_evidence": "紹介ムービー・動画チュートリアルは NF-015（未承認）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "none",
       "WebMCP": "unknown",
@@ -3278,6 +3597,7 @@
       ],
       "new_ui_state": "partial",
       "source_evidence": "リポジトリ内の日本語文書（AI不要_通常利用ガイド.md 等）。",
+      "evidence": null,
       "UI": "mock_route_operable",
       "API": "existing_code_not_wired_to_new_ui",
       "WebMCP": "unknown",
@@ -3285,7 +3605,7 @@
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
-      "blockers": "port to new UI via common API (P2, after Phase E per owner decision)"
+      "blockers": "port to new UI via common API (P2, before Phase E, owner decision 2026-10-20)"
     },
     {
       "screen_id": "SCR-25",
@@ -3294,17 +3614,20 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
       ],
       "new_ui_state": "real",
       "source_evidence": null,
-      "UI": "mock_route_operable",
-      "API": "read_only_get",
+      "evidence": "tests/studio-ui.test.cjs::help pages render their content",
+      "shell": true,
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "read_only_display_only",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
     },
     {
@@ -3314,18 +3637,212 @@
       "feature_ids": [
         "CORE-009",
         "UX-004",
-        "NF-012"
+        "NF-012",
+        "NF-015"
       ],
       "new_ui_state": "real",
       "source_evidence": null,
-      "UI": "mock_route_operable",
-      "API": "read_only_get",
+      "evidence": "tests/studio-ui.test.cjs::help pages render their content",
+      "shell": true,
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
       "WebMCP": "unknown",
       "stdio-MCP": "unknown",
       "test": "tests/studio-ui.test.cjs",
       "browser_test": "headless_chromium_navigation_and_controls",
-      "verdict": "read_only_display_only",
+      "verdict": "implemented_in_new_ui",
       "blockers": null
+    },
+    {
+      "screen_id": "SCR-26",
+      "route": "/workspace/26",
+      "panel": "効果素材",
+      "feature_ids": [
+        "RENDER-011"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-26",
+      "route": "/workspace/26",
+      "panel": "プレビュー差分",
+      "feature_ids": [
+        "RENDER-012"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-26",
+      "route": "/workspace/26",
+      "panel": "イベント",
+      "feature_ids": [
+        "RENDER-013"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-26",
+      "route": "/workspace/26",
+      "panel": "効果スタック",
+      "feature_ids": [
+        "RENDER-014"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-26",
+      "route": "/workspace/26",
+      "panel": "MMD設定書",
+      "feature_ids": [
+        "RENDER-015"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-27",
+      "route": "/workspace/27",
+      "panel": "歌詞素材",
+      "feature_ids": [
+        "LYRIC-001"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-27",
+      "route": "/workspace/27",
+      "panel": "歌詞キュー",
+      "feature_ids": [
+        "LYRIC-002"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-27",
+      "route": "/workspace/27",
+      "panel": "演出パック",
+      "feature_ids": [
+        "LYRIC-003",
+        "LYRIC-005"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-27",
+      "route": "/workspace/27",
+      "panel": "文字配置",
+      "feature_ids": [
+        "LYRIC-004"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-27",
+      "route": "/workspace/27",
+      "panel": "MV構成",
+      "feature_ids": [
+        "LYRIC-007"
+      ],
+      "new_ui_state": "unimpl",
+      "source_evidence": null,
+      "evidence": null,
+      "UI": "mock_route_operable",
+      "API": "none",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "not_implemented_in_new_ui",
+      "blockers": "no implementation"
     }
   ]
 }

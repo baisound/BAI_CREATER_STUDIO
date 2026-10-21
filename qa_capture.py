@@ -2,7 +2,8 @@
 import json, os, time, shutil
 from pathlib import Path
 from threading import RLock
-ROOT=Path(__file__).resolve().parent/'data'/'ui_qa'
+from bai_paths import data_dir
+ROOT=data_dir()/'ui_qa'
 CONFIG=ROOT/'settings.json'
 LOCK=RLock()
 DEFAULT={'enabled':False,'max_total_mb':100,'max_runs':10,'max_age_days':7}

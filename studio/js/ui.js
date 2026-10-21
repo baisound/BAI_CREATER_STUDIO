@@ -41,6 +41,23 @@ export const nextId = (prefix) => `${prefix}-${++uid}`;
 export const STATUS_LABEL = { real: '実機能', partial: '既存・部分', mock: 'サンプル表示', unimpl: '◇ 未実装' };
 /** @param {Status} s @param {string} [title] */
 export const badge = (s, title) => h('span', { class: `badge badge-${s}`, title: title || STATUS_TITLE[s] }, STATUS_LABEL[s]);
+/** 区画の状態から「未接続」の印を作る。`real` 以外の区画の見出しに badge と一緒に置く（OWNER-3、設計 §1.13）。 */
+export const UNCONNECTED_LABEL = '未接続（まだ使えません）';
+/**
+ * 区画の見出しに置く部品：real 以外は [ラベル, バッジ]、real はバッジだけ。
+ * @param {Status} st @param {string} [title]
+ */
+export const regionTag = (st, title) => (st === 'real' ? [badge(st, title)] : [h('span', { class: 'unconn-label' }, UNCONNECTED_LABEL), badge(st, title)]);
+/**
+ * 区画の根要素に状態を印す。real 以外は data-dim="1"（CSS で薄く表示。操作は消さない）。
+ * 区画の状態は screens.js の status だけから決める（別の印は作らない）。
+ * @template {HTMLElement} T @param {T} el @param {Status} st @returns {T}
+ */
+export function region(el, st) {
+  el.dataset.status = st;
+  if (st === 'real') delete el.dataset.dim; else el.dataset.dim = '1';
+  return el;
+}
 const STATUS_TITLE = {
   real: '既存のPython APIに接続しています（読み取り専用）。',
   partial: '既存画面に部分実装があります。この新UIへは未移植です。',
@@ -102,11 +119,22 @@ function trapTab(box, e) {
   else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
 }
 
+/** @type {(c: {t: string, label: string, act: string}) => void} */
+let actionRunner = () => {};
+/** 案内ボタン（nav:・href:）を app.js の runAction へつなぐ。 @param {(c: {t: string, label: string, act: string}) => void} fn */
+export function setActionRunner(fn) { actionRunner = fn; }
+
 /**
  * Explain an unimplemented feature instead of pretending it worked.
- * @param {{name: string, why?: string, ids?: string[], phase?: string}} f
+ * 行き止まりにしない：「今できること」の1行と、移動先のボタンを必ず付ける（導線点検 §5-1）。
+ * `next` が無ければ既定（予定のフェーズ＋［ホームへ］）。新しい行き先は作らない。
+ * @param {{name: string, why?: string, ids?: string[], phase?: string, next?: {text: string, label: string, act: string}}} f
  */
 export function showUnimplemented(f) {
+  const phase = f.phase || '未承認の候補（P4）。所有者の承認後に計画へ登録します。';
+  // 既定の案内：承認済みの予定なら短い名前で「入る予定」、未承認の候補なら「承認まで実装しない」と正直に書く。
+  const planned = !f.phase || /未承認/.test(f.phase) ? '' : f.phase.split('（')[0];
+  const next = f.next || { text: planned ? `この機能は「${planned}」で入る予定です。今はこの画面では使えません。` : 'この機能は未承認の候補です。所有者が承認するまで実装しません。今はこの画面では使えません。', label: 'ホームへ', act: 'nav:01' };
   openModal({
     title: '◇ 未実装',
     body: [
@@ -114,9 +142,13 @@ export function showUnimplemented(f) {
       h('p', { class: 'muted' }, f.why || 'この操作に対応する処理はまだありません。押しても何も保存・実行されません。'),
       h('dl', { class: 'kv' },
         h('dt', null, '関連ID'), h('dd', null, (f.ids && f.ids.length) ? f.ids.join(', ') : '未割当'),
-        h('dt', null, '予定'), h('dd', null, f.phase || '未承認の候補（P4）。所有者の承認後に計画へ登録します。')),
+        h('dt', null, '予定'), h('dd', null, phase)),
+      h('p', { class: 'unimpl-next', dataset: { role: 'next-action' } }, h('b', null, '今できること：'), next.text),
     ],
-    footer: [h('button', { class: 'btn', type: 'button', onclick: closeModal }, '閉じる')],
+    footer: [
+      h('button', { class: 'btn', type: 'button', onclick: closeModal }, '閉じる'),
+      h('button', { class: 'btn primary', type: 'button', dataset: { role: 'next-action' }, onclick: () => { closeModal(); actionRunner({ t: 'btn', label: next.label, act: next.act }); } }, next.label),
+    ],
   });
 }
 
@@ -262,7 +294,7 @@ export function selectList(o) {
     for (const it of rows) {
       ul.append(h('li', { role: 'option', 'aria-selected': String(it.id === selected), style: { '--depth': it.depth || 0 }, dataset: { id: it.id },
         onclick: () => { selected = it.id; render(); o.onSelect && o.onSelect(it.id); } },
-        it.thumb ? h('span', { class: 'thumb' }) : null, h('span', null, it.label), it.meta ? h('span', { class: 'meta' }, it.meta) : null));
+        it.thumb ? (typeof it.thumb === 'string' ? h('img', { class: 'thumb', src: it.thumb, alt: '' }) : h('span', { class: 'thumb' })) : null, h('span', null, it.label), it.meta ? h('span', { class: 'meta' }, it.meta) : null));
     }
   };
   ul.addEventListener('keydown', (e) => {
@@ -283,7 +315,8 @@ export function selectList(o) {
 
 /** @param {string} title @param {Status | null} status @param {...Child} body */
 export function section(title, status, ...body) {
-  return h('section', { class: 'section' }, h('h3', { class: 'section-title' }, title, status ? badge(status) : null), ...body);
+  const el = h('section', { class: 'section' }, h('h3', { class: 'section-title' }, title, status ? regionTag(status) : null), ...body);
+  return status ? region(el, status) : el;
 }
 
 /** @param {number} frame @param {number} fps */

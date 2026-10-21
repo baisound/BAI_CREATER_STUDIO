@@ -2,6 +2,8 @@
 
 **位置づけ:** Phase Bの全完了を待たず、Phase Eの描画シーン・共通タイムラインを利用してFを優先する。これは仕様設計であり実装完了を示さない。
 
+2026-10-20の後続所有者決定により、現在の実装順は P2 → Phase E → リップシンク・表情・歌音声配置 → Phase F。A2の `O-RENDER-01/02/03` は **A/A/A** で確定した。MP4は環境別の短い試験エンコード・再読込を通った映像・音声encoderの組合せだけ提示する。同名完成物は版名を提案し、明示置換時だけ旧版を退避する。透過の初期受入はRGBA PNG連番で、EXR・アルファ動画は実書出し・再読込後に提示する。詳細は [A2決定記録](../specs/A2_RENDER_DECISIONS_JA.md)。
+
 ## データと編集契約
 - `RenderJob`: id, projectRevision, sceneSnapshotHash, rangeStartFrame, rangeEndExclusive, fpsNum, fpsDen, width, height, outputKind, codecPresetId, alphaMode, background, colorSpace, audioAssetId?, outputDir, status, progress, diagnosticLogId, manifestPath。
 - 範囲は`[start,end)`、フレーム数は`end-start`。時間は整数フレームと有理数FPSで扱い、非整数FPSによる尺の丸め誤差を避ける。
@@ -21,6 +23,7 @@
 ## v0.16.58 高品質・FFmpeg・キュー
 - 出力: PNG連番、サポートする場合にEXR連番、MP4等のコーデック別プリセット。利用環境のFFmpeg機能を起動時に照会し、存在しないencoderを提示しない。
 - FFmpeg呼出しはshell文字列連結禁止・引数配列実行、明示入力の検証、実行ログ・終了コード・タイムアウト・ディスク容量監視。テンポラリに生成し完成後アトミック確定。
+- 投稿用MP4は `AUDIO-001` の確定配置を参照する。音声encoder欠如時に映像だけへ黙って切り替えない。ジョブ完成は実ファイル再読込・検品後とし、同名衝突では版名を提案する。明示置換時は旧版の復元可能な退避と安全な確定ができる場合だけ置換する。
 - ジョブは優先度/依存関係/リトライ（失敗理由つき）と再開可能な連番チェックポイントを保持。完成物と中間物を区別。
 
 ## v0.16.59 BAI VIDEO PRODUCTION連携

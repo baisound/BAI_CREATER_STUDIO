@@ -94,3 +94,123 @@ class ProjectStateBundleTest(TestCase):
             self.assertEqual(original,[p.read_bytes() for p in paths])
             self.assertFalse(cp.with_suffix('.bundle-tmp').exists())
             self.assertFalse(cp.with_suffix('.workspace-tmp').exists())
+
+
+class WorkspaceStageTest(TestCase):
+    """B-4（P2 設計 §1.15）：workspace.stage の保存先。"""
+    STAGE = {'asset': 'integrated:stage.glb', 'position': [3, 0, -1.5], 'rotation': [0, 90, 0], 'scale': 2}
+
+    def setUp(self):
+        self.combination = {'schema': 1, 'timeline': [{'name': 'walk'}], 'history': [], 'cursor': -1}
+        self.bundle = {'schema': 1, 'combination': self.combination, 'camera': DEFAULT}
+
+    def ws(self, **extra):
+        return {**self.bundle, 'workspace': {'asset': 'a.glb', 'clip': None, 'frame': 0, **extra}}
+
+    def files(self, tmp):
+        cp, cam = Path(tmp) / 'comb.json', Path(tmp) / 'camera.json'
+        return cp, cam, cp.with_suffix('.workspace.json')
+
+    def test_stage_roundtrip(self):
+        with TemporaryDirectory() as tmp:
+            cp, cam, wp = self.files(tmp)
+            save_bundle(cp, cam, self.ws(stage=self.STAGE))
+            got = read_bundle(cp, cam)['workspace']
+            self.assertEqual(got['stage'], {'asset': 'integrated:stage.glb', 'position': [3.0, 0.0, -1.5], 'rotation': [0.0, 90.0, 0.0], 'scale': 2.0})
+            self.assertEqual({k: got[k] for k in ('frame', 'asset', 'clip')}, {'frame': 0, 'asset': 'a.glb', 'clip': None})
+
+    def test_stage_accepts_every_asset_prefix_and_keeps_nonzero_x_z_rotation(self):
+        for asset in ('integrated:a.glb', 'mmd:A:model/test.pmx', 'mmd:B:x.pmx', 'fbx:12'):
+            stage = {**self.STAGE, 'asset': asset, 'rotation': [10, 20, -30]}
+            self.assertEqual(validate_bundle(self.ws(stage=stage))['workspace']['stage']['rotation'], [10.0, 20.0, -30.0])
+
+    def test_stage_without_character_is_valid(self):
+        b = {**self.bundle, 'workspace': {'asset': '', 'clip': None, 'frame': 0, 'stage': self.STAGE}}
+        self.assertEqual(validate_bundle(b)['workspace']['asset'], '')
+
+    def test_invalid_stage_rejected(self):
+        bad = [
+            {**self.STAGE, 'extra': 1},
+            {k: v for k, v in self.STAGE.items() if k != 'scale'},
+            {**self.STAGE, 'asset': ''},
+            {**self.STAGE, 'asset': 'other:x'},
+            {**self.STAGE, 'asset': 'integrated:' + 'x' * 250},
+            {**self.STAGE, 'position': [1001, 0, 0]},
+            {**self.STAGE, 'position': [0, 0]},
+            {**self.STAGE, 'position': [True, 0, 0]},
+            {**self.STAGE, 'position': [float('nan'), 0, 0]},
+            {**self.STAGE, 'rotation': [0, 361, 0]},
+            {**self.STAGE, 'scale': 0.009},
+            {**self.STAGE, 'scale': 100.1},
+            {**self.STAGE, 'scale': True},
+            {**self.STAGE, 'scale': '2'},
+            'text',
+        ]
+        for stage in bad:
+            with self.subTest(stage=stage), self.assertRaises(ValueError):
+                validate_bundle(self.ws(stage=stage))
+
+    def test_stage_range_edges_are_accepted(self):
+        stage = {**self.STAGE, 'position': [-1000, 1000, 0], 'rotation': [-360, 360, 0], 'scale': 0.01}
+        validate_bundle(self.ws(stage=stage))
+        validate_bundle(self.ws(stage={**stage, 'scale': 100}))
+
+    def test_unknown_workspace_key_still_rejected(self):
+        with self.assertRaises(ValueError):
+            validate_bundle(self.ws(model='x'))
+        with self.assertRaises(ValueError):
+            validate_bundle({**self.bundle, 'workspace': {'asset': '', 'frame': 0}})  # clip が無い
+
+    def test_save_without_stage_key_keeps_existing_stage(self):
+        with TemporaryDirectory() as tmp:
+            cp, cam, wp = self.files(tmp)
+            save_bundle(cp, cam, self.ws(stage=self.STAGE))
+            kept = read_bundle(cp, cam)['workspace']['stage']
+            # 旧 camera.html の形（frame・asset・clip だけ）
+            save_bundle(cp, cam, {**self.bundle, 'workspace': {'asset': 'b.vrm', 'clip': None, 'frame': 5}})
+            got = read_bundle(cp, cam)['workspace']
+            self.assertEqual(got['stage'], kept)
+            self.assertEqual((got['asset'], got['frame']), ('b.vrm', 5))
+
+    def test_stage_null_removes_key_from_file(self):
+        with TemporaryDirectory() as tmp:
+            cp, cam, wp = self.files(tmp)
+            save_bundle(cp, cam, self.ws(stage=self.STAGE))
+            save_bundle(cp, cam, self.ws(stage=None))
+            self.assertNotIn('stage', json.loads(wp.read_text(encoding='utf-8')))
+            # その後 stage なしで保存しても現れない
+            save_bundle(cp, cam, self.ws())
+            self.assertNotIn('stage', json.loads(wp.read_text(encoding='utf-8')))
+
+    def test_stage_new_value_replaces_old(self):
+        with TemporaryDirectory() as tmp:
+            cp, cam, wp = self.files(tmp)
+            save_bundle(cp, cam, self.ws(stage=self.STAGE))
+            save_bundle(cp, cam, self.ws(stage={**self.STAGE, 'scale': 3}))
+            self.assertEqual(read_bundle(cp, cam)['workspace']['stage']['scale'], 3.0)
+
+    def test_corrupt_existing_stage_blocks_save_and_writes_nothing(self):
+        for broken in ('{"frame":0,"asset":"a.glb","clip":null,"stage":{"asset":"zzz"}}', '{not json', '[]'):
+            with self.subTest(broken=broken), TemporaryDirectory() as tmp:
+                cp, cam, wp = self.files(tmp)
+                save_bundle(cp, cam, self.ws())
+                wp.write_text(broken, encoding='utf-8')
+                before = (cp.read_bytes(), cam.read_bytes(), wp.read_bytes())
+                with self.assertRaises(ValueError):
+                    save_bundle(cp, cam, {**self.bundle, 'workspace': {'asset': 'b.vrm', 'clip': None, 'frame': 1}})
+                self.assertEqual(before, (cp.read_bytes(), cam.read_bytes(), wp.read_bytes()))
+
+    def test_corrupt_existing_stage_does_not_block_explicit_stage(self):
+        with TemporaryDirectory() as tmp:
+            cp, cam, wp = self.files(tmp)
+            save_bundle(cp, cam, self.ws())
+            wp.write_text('{not json', encoding='utf-8')
+            save_bundle(cp, cam, self.ws(stage=None))  # 利用者が stage を明示したときは既存を見ない
+            self.assertEqual(read_bundle(cp, cam)['workspace'], {'frame': 0, 'asset': 'a.glb', 'clip': None})
+
+    def test_bundle_without_workspace_deletes_workspace_file(self):
+        with TemporaryDirectory() as tmp:
+            cp, cam, wp = self.files(tmp)
+            save_bundle(cp, cam, self.ws(stage=self.STAGE))
+            save_bundle(cp, cam, self.bundle)
+            self.assertFalse(wp.exists())

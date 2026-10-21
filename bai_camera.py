@@ -1,7 +1,10 @@
 """BAI Camera: standalone, offline camera keyframe store and deterministic interpolation."""
-import json, math, os, threading
+import copy, hashlib, json, math, os, threading
+from datetime import datetime, timezone
 from pathlib import Path
+from camera_easing import MODES as EASING_MODES, handles as easing_handles, ease
 LOCK=threading.RLock()
+FSTOP_MIN,FSTOP_MAX,FSTOP_DEFAULT=0.7,64.0,4.0
 DEFAULT={'schema':1,'fps':30,'duration':300,'keys':[{'frame':0,'position':[0,1.6,5],'target':[0,1,0],'fov':40},{'frame':90,'position':[4,2,3],'target':[0,1,0],'fov':35}]}
 def number(value,lo,hi):
     if isinstance(value,bool) or not isinstance(value,(float,int)) or not math.isfinite(value) or not lo<=value<=hi:raise ValueError('camera number out of range')
@@ -19,8 +22,11 @@ def validate(payload):
         if int(frame)!=frame or frame in seen:raise ValueError('duplicate or invalid frame')
         seen.add(frame)
         mode=key.get('interpolation','linear')
-        if mode not in ('linear','smooth','hold'):raise ValueError('invalid camera interpolation')
+        if mode not in EASING_MODES:raise ValueError('invalid camera interpolation')
         record={'frame':int(frame),'fov':number(key.get('fov'),5,150),'interpolation':mode}
+        if mode=='custom':record['customCurve']=easing_handles(key.get('customCurve'))
+        # F-number is optional: legacy projects without it stay unchanged (CAM-005).
+        if 'fStop' in key:record['fStop']=number(key.get('fStop'),FSTOP_MIN,FSTOP_MAX)
         for attr in ('position','target'):
             arr=key.get(attr)
             if not isinstance(arr,list) or len(arr)!=3:raise ValueError('invalid camera vector')
@@ -28,6 +34,12 @@ def validate(payload):
         if sum((a-b)**2 for a,b in zip(record['position'],record['target']))<1e-8:raise ValueError('camera position and target must differ')
         out.append(record)
     result={'schema':1,'fps':int(fps),'duration':int(duration),'keys':sorted(out,key=lambda k:k['frame'])}
+    if 'easingPresets' in payload:
+        presets=payload['easingPresets']
+        if not isinstance(presets,dict) or len(presets)>64:raise ValueError('invalid easing presets')
+        for name in presets:
+            if not isinstance(name,str) or not 1<=len(name.strip())<=48:raise ValueError('invalid easing preset name')
+        result['easingPresets']={name:easing_handles(curve) for name,curve in presets.items()}
     if 'custom_presets' in payload:
         from camera_custom_presets import validate_presets
         result['custom_presets']=validate_presets(payload['custom_presets'])
@@ -54,13 +66,62 @@ def sample(project,frame):
         if left['frame']<=f<=right['frame']:
             t=(f-left['frame'])/(right['frame']-left['frame'])
             mode=left.get('interpolation','linear')
-            if mode=='hold':t=0.0
-            elif mode=='smooth':t=t*t*(3-2*t)
-            return {'frame':f,'position':[a+(b-a)*t for a,b in zip(left['position'],right['position'])],'target':[a+(b-a)*t for a,b in zip(left['target'],right['target'])],'fov':left['fov']+(right['fov']-left['fov'])*t}
+            # hold keeps the left key even at the right key's frame, matching camera.js sample().
+            t=0.0 if mode=='hold' else ease(mode,t,left.get('customCurve'))
+            pose={'frame':f,'position':[a+(b-a)*t for a,b in zip(left['position'],right['position'])],'target':[a+(b-a)*t for a,b in zip(left['target'],right['target'])],'fov':left['fov']+(right['fov']-left['fov'])*t}
+            if 'fStop' in left or 'fStop' in right:
+                a,b=left.get('fStop',FSTOP_DEFAULT),right.get('fStop',FSTOP_DEFAULT)
+                pose['fStop']=a+(b-a)*t
+            return pose
     raise ValueError('frame not found')
 def read(path):
     try:return validate(json.loads(Path(path).read_text(encoding='utf8')))
     except (OSError,ValueError,TypeError):return validate(DEFAULT)
+class CameraProjectInvalid(Exception):
+    """camera_project.json を読めない（P2-WP-00b B-3）。ValueError を継承しない：既存の except (ValueError,...) に捕まって 400 になるのを避ける。"""
+    def __init__(self,message,backup_name=None):
+        super().__init__(message);self.message=message;self.backup_name=backup_name
+BACKUP_PREFIX='camera_project.invalid-'
+def _ensure_backup(path,raw):
+    """読んだファイルと同じフォルダに退避コピーを確かめる（同じ内容なら1回だけ）。退避名を返す。書けなければ OSError。"""
+    folder=Path(path).parent;sha8=hashlib.sha256(raw).hexdigest()[:8]
+    # 既存の退避は中身が同じときだけ使う（途中で切れた・手で直された退避を当てにしない）。
+    for found in sorted(folder.glob(f'{BACKUP_PREFIX}{sha8}-*.json')):
+        try:
+            if found.read_bytes()==raw:return found.name
+        except OSError:pass
+    stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ');name=f"{BACKUP_PREFIX}{sha8}-{stamp}.json";n=1
+    while (folder/name).exists():  # 同じ秒・同じ sha8 で中身が違う退避を上書きしない
+        name=f"{BACKUP_PREFIX}{sha8}-{stamp}-{n}.json";n+=1
+    temp=folder/(name+'.tmp')
+    try:
+        with open(temp,'wb') as f:
+            f.write(raw);f.flush();os.fsync(f.fileno())  # reset が元のファイルを置き換える前に、退避を確実にディスクへ書く
+        os.replace(temp,folder/name)
+    finally:
+        if temp.exists():temp.unlink()
+    return name
+def read_project(path):
+    """厳格な読込。(project, dropped_fields) を返す。ファイルが無ければ DEFAULT の複製（書かない）。読めなければ CameraProjectInvalid。"""
+    try:raw=Path(path).read_bytes()
+    except FileNotFoundError:return validate(copy.deepcopy(DEFAULT)),[]
+    except OSError as exc:raise CameraProjectInvalid('camera project is unreadable: '+type(exc).__name__,None)
+    try:return validate(json.loads(raw.decode('utf-8'))),[]
+    except (ValueError,TypeError,KeyError,AttributeError,UnicodeDecodeError,RecursionError) as exc:  # RecursionError：深く入れ子の JSON
+        reason='camera project is invalid: '+type(exc).__name__+': '+str(exc)
+    try:backup=_ensure_backup(path,raw)
+    except OSError:raise CameraProjectInvalid(reason,None)
+    raise CameraProjectInvalid(reason,backup)
+def reset_project(path):
+    """カメラ保存データを DEFAULT に戻す。先に退避を確かめ、退避できなければ何も書かない。退避名（無ければ None）を返す。"""
+    with LOCK:
+        try:raw=Path(path).read_bytes()
+        except FileNotFoundError:
+            save(path,copy.deepcopy(DEFAULT));return None
+        except OSError as exc:raise CameraProjectInvalid('camera project is unreadable: '+type(exc).__name__,None)
+        try:backup=_ensure_backup(path,raw)
+        except OSError as exc:raise CameraProjectInvalid('camera project backup failed: '+type(exc).__name__,None)
+        save(path,copy.deepcopy(DEFAULT));return backup
 def save(path,payload):
     value=validate(payload);p=Path(path);p.parent.mkdir(parents=True,exist_ok=True)
     with LOCK:
