@@ -19,6 +19,8 @@ import { normalizeModel } from '../viewport/normalize.fork.js';
 import { createPlayer } from '../motion/player.js';
 import { createTimelinePlayback } from '../motion/timeline-playback.js';
 import { vmdUrl, loadVmdClip, canApplyVmd } from '../motion/vmd.js';
+import { categoryOf } from './assets-model.js';
+import { assetIdFromWorkspace, workspaceRefFor, defaultCharacterPlacement, isCharacterPlacement } from '../viewport/character-placement.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
@@ -129,7 +131,7 @@ function replaceQuery(changes) {
 }
 
 /** 再生ビューに出せるモデル：PMX（mmd:A/B）と GLB/VRM（integrated）。読めるものだけ。 @param {any} a */
-const isPlayable = (a) => a.available && ((a.source === 'mmd' && a.format === 'PMX') || (a.source === 'integrated' && (a.format === 'GLB' || a.format === 'VRM')) || (a.source === 'fbx' && a.format === 'FBX' && (a.kind === 'modelA' || a.kind === 'modelB')));
+const isPlayable = (a) => a.available && categoryOf(a) === 'char' && ['PMX', 'GLB', 'VRM', 'FBX'].includes(a.format);
 /** @param {any} a */
 const isVmd = (a) => a.available && String(a.id).startsWith('mmd:vmd:');
 /** @param {any} a */
@@ -150,10 +152,10 @@ export const motionViewport = (ctx) => {
   stageEl.append(hud, msg);
 
   const modelSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '再生する対象モデル', dataset: { role: 'motion-model' } }));
-  const clipSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'GLB/VRM のクリップ', dataset: { role: 'motion-clip' } }));
+  const clipSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'モデル内クリップ', dataset: { role: 'motion-clip' } }));
   const playBtn = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { role: 'motion-play' } }, '▶ 再生'));
   const stopBtn = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', title: '一時停止して、現在位置を保ちます', dataset: { role: 'motion-stop' } }, '■ 停止'));
-  const recordBtn = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { role: 'motion-record', act: 'real' } }, 'この再生位置を制作に記録'));
+  const recordBtn = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', dataset: { role: 'motion-record', act: 'real' } }, 'このモデルと再生位置を制作に記録'));
   const clearBtn = /** @type {HTMLButtonElement} */ (h('button', { class: 'btn', type: 'button', title: 'モデルとモーションを外します', dataset: { role: 'motion-clear' } }, '表示解除'));
   const seek = /** @type {HTMLInputElement} */ (h('input', { type: 'range', min: '0', max: '1', step: '0.01', value: '0', 'aria-label': '再生位置（秒）', dataset: { role: 'motion-seek' } }));
   const timeLabel = h('span', { class: 'mono xs', dataset: { role: 'motion-time' } }, '0.00 / 0.00 秒');
@@ -206,16 +208,16 @@ export const motionViewport = (ctx) => {
   /** ［この再生位置を制作に記録］の有効・無効と理由（O-⑤-7）。 */
   function refreshRecord() {
     const ps = project.get();
-    const ws = ps.bundle && ps.bundle.workspace;
     const item = loaded.id ? assets.get().items.find((/** @type {any} */ a) => a.id === loaded.id) : null;
     /** @type {string|null} */ let why = null;
     if (!loaded.object || !item) why = '先にモデルを選んでください。';
-    else if (!(item.source === 'integrated' && (loaded.format === 'GLB' || loaded.format === 'VRM'))) why = '制作状態に記録できるのは GLB/VRM のクリップだけです（project_state_bundle.py の制限）';
+    else if (!isPlayable(item)) why = '登録済みのキャラクター（GLB/VRM/PMX/FBX）を選んでください。';
     else if (ps.cameraInvalid) why = 'カメラ保存データを読めないため、記録できません。プロジェクト（18）で状況を確認してください。';
-    else if (!item.filename || item.filename !== (ws && ws.asset)) why = `作業中の素材（${(ws && ws.asset) || 'なし'}）と違うモデルです。キャラクター管理（12）の［このモデルを制作に使う］で選んでから記録してください。`;
     else if (ps.status !== 'ready') why = '制作状態を読み込み中です。';
     recordBtn.disabled = why !== null;
-    recordBtn.title = why || '作業中のクリップ・再生位置を制作状態に書きます。［保存］で保存されます';
+    recordBtn.title = why || (loaded.format === 'PMX' || loaded.format === 'FBX'
+      ? 'モデルとフレームを記録します。PMX/FBX のモーションは制作状態に保存されません。'
+      : 'モデル・クリップ・再生位置を制作状態に書きます。［保存］で保存されます');
   }
   function stopLoop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
   /** @param {number} now */
@@ -323,7 +325,7 @@ export const motionViewport = (ctx) => {
             await whenProject();
             if (!alive || my !== seq || !player) { return; }
             const ws = project.get().bundle && project.get().bundle.workspace;
-            if (ws && ws.asset && ws.asset === item.filename) resume = ws;
+            if (ws && assetIdFromWorkspace(ws.asset) === item.id && (r.format === 'GLB' || r.format === 'VRM')) resume = ws;
           }
         }
         const want = resume ? (okClip(resume.clip) ? resume.clip : 0) : (okClip(o.clip) ? /** @type {number} */ (o.clip) : 0);
@@ -428,6 +430,8 @@ export const motionViewport = (ctx) => {
   });
   recordBtn.addEventListener('click', () => {
     if (!player || recordBtn.disabled) return;
+    const item = loaded.id ? assets.get().items.find((a) => a.id === loaded.id) : null;
+    if (!item || !isPlayable(item)) return;
     const b = project.get().bundle;
     const cam = b && b.camera;
     const fps = cam && Number(cam.fps) > 0 ? Number(cam.fps) : 30;
@@ -435,12 +439,19 @@ export const motionViewport = (ctx) => {
     let frame = Math.max(0, Math.round(st.time * fps));
     let capped = false;
     if (cam && Number.isFinite(Number(cam.duration)) && frame > Number(cam.duration)) { frame = Number(cam.duration); capped = true; }
-    const clip = st.motion && st.motion.kind === 'clip' ? st.motion.clipIndex : null;
-    setWorkspaceFields({ clip, frame }, { source: 'store' });
+    const clip = (loaded.format === 'GLB' || loaded.format === 'VRM') && st.motion && st.motion.kind === 'clip' ? st.motion.clipIndex : null;
+    const ref = workspaceRefFor(item);
+    const currentWs = project.get().bundle?.workspace;
+    const prev = currentWs?.character;
+    const fields = { asset: ref, clip, frame, ...((isCharacterPlacement(prev) || currentWs?.asset !== ref)
+      ? { character: isCharacterPlacement(prev) ? prev : defaultCharacterPlacement() } : {}) };
+    setWorkspaceFields(fields, { source: 'store' });
     const ws = project.get().bundle && project.get().bundle.workspace;
-    if (!ws || ws.frame !== frame || ws.clip !== clip) return; // 書けなかった（setWorkspaceFields が理由を知らせた）
-    say(capped ? `再生位置をカメラの長さ（${cam.duration} フレーム）までに丸めて記録しました` : `クリップ ${clip === null ? 'なし' : clip}・F ${frame} を記録しました`);
-    uiToast(`作業中のクリップ ${clip === null ? 'なし' : clip}・再生位置 F ${frame} を記録しました。［保存］で保存されます。`, 'real');
+    if (!ws || ws.asset !== ref || ws.frame !== frame || ws.clip !== clip) return;
+    const motionNote = loaded.format === 'PMX' || loaded.format === 'FBX' ? '（モーションは保存されません）' : `・クリップ ${clip === null ? 'なし' : clip}`;
+    const message = `${item.name}・F ${frame}${motionNote} を記録しました${capped ? `（カメラの長さ ${cam.duration} フレームに調整）` : ''}。［保存］で保存されます。`;
+    say(message);
+    uiToast(message, 'real');
   });
   clearBtn.addEventListener('click', () => {
     seq++; loading = false; pendingVmd = null;

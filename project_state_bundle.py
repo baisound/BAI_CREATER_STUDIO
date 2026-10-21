@@ -36,6 +36,7 @@ def validate_combination(obj):
 
 STAGE_ASSET_PREFIXES = ('integrated:', 'mmd:A:', 'mmd:B:', 'fbx:', 'library:')
 STAGE_KEYS = {'asset', 'position', 'rotation', 'scale'}
+CHARACTER_KEYS = {'position', 'rotation', 'scale'}
 
 
 def _stage_numbers(value, limit, label):
@@ -68,28 +69,67 @@ def validate_stage(value):
             'rotation': _stage_numbers(value['rotation'], 360, 'rotation'), 'scale': float(scale)}
 
 
+def valid_character_asset(asset):
+    """既存のGLB/VRM保存名と、登録済み4形式の素材IDを許す。"""
+    if not isinstance(asset, str) or len(asset) > 250 or '\0' in asset or '\\' in asset:
+        return False
+    if not asset:
+        return True
+    if asset.startswith('integrated:'):
+        name = asset[len('integrated:'):]
+        return bool(name) and '/' not in name and name.lower().endswith(('.glb', '.vrm', '.fbx'))
+    if asset.startswith(('mmd:A:', 'mmd:B:')):
+        name = asset[len('mmd:A:'):]
+        return name.lower().endswith('.pmx') and all(part not in ('', '.', '..') for part in name.split('/'))
+    if asset.startswith('fbx:'):
+        name = asset[len('fbx:'):]
+        return bool(name) and '/' not in name and name not in ('.', '..')
+    return '/' not in asset and asset.lower().endswith(('.glb', '.vrm'))
+
+
+def validate_character(value):
+    """キャラクターの表示位置。素材IDは既存workspace.assetに保存する。"""
+    if value is None:
+        return None
+    if not isinstance(value, dict) or set(value) != CHARACTER_KEYS:
+        raise ValueError('invalid workspace character')
+    scale = value['scale']
+    if isinstance(scale, bool) or not isinstance(scale, (int, float)) or scale != scale or not 0.01 <= scale <= 100:
+        raise ValueError('invalid workspace character scale')
+    try:
+        position = _stage_numbers(value['position'], 1000, 'character position')
+        rotation = _stage_numbers(value['rotation'], 360, 'character rotation')
+    except ValueError as exc:
+        raise ValueError('invalid workspace character transform') from exc
+    return {'position': position, 'rotation': rotation, 'scale': float(scale)}
+
+
 def validate_workspace(value):
     """Portable editor references, not a claim to embed external assets.
 
-    キーは frame・asset・clip を全部含み、任意で stage（B-4）だけを足せる。
+    キーは frame・asset・clip を全部含み、任意で stage/lights/character を足せる。
     返す dict には、本文に stage のキーがあるときだけ stage を入れる（「無い」と null を区別するため）。
     """
-    if not isinstance(value, dict) or not {'frame', 'asset', 'clip'} <= set(value) or set(value) - {'frame', 'asset', 'clip', 'stage', 'lights'}:
+    if not isinstance(value, dict) or not {'frame', 'asset', 'clip'} <= set(value) or set(value) - {'frame', 'asset', 'clip', 'stage', 'lights', 'character'}:
         raise ValueError('invalid workspace fields')
     frame, asset, clip = value['frame'], value['asset'], value['clip']
     if type(frame) is not int or not 0 <= frame <= 1000000:
         raise ValueError('invalid workspace frame')
-    if not isinstance(asset, str) or len(asset) > 250 or (asset and (not asset.lower().endswith(('.glb','.vrm')) or '/' in asset or chr(92) in asset)):
+    if not valid_character_asset(asset):
         raise ValueError('invalid workspace asset')
     if clip is not None and (type(clip) is not int or not 0 <= clip <= 1000):
         raise ValueError('invalid workspace clip')
     if not asset and clip is not None:
         raise ValueError('clip requires a model')
+    if clip is not None and (asset.startswith(('mmd:', 'fbx:')) or asset.lower().endswith('.fbx')):
+        raise ValueError('clip requires a GLB/VRM model')
     result = {'frame': frame, 'asset': asset, 'clip': clip}
     if 'stage' in value:
         result['stage'] = validate_stage(value['stage'])
     if 'lights' in value:
         result['lights'] = validate_lights(value['lights'])
+    if 'character' in value:
+        result['character'] = validate_character(value['character'])
     return result
 
 
@@ -130,14 +170,14 @@ def save_bundle(combination_path, camera_path, obj):
     before_comb = cp.read_bytes() if cp.exists() else None
     before_cam = cam.read_bytes() if cam.exists() else None
     before_wp = wp.read_bytes() if wp.exists() else None
-    # 旧 camera.html が知らない stage/lights を送らなくても残す。不正な既存値は書き込み前に拒否する。
-    if 'workspace' in payload and any(k not in payload['workspace'] for k in ('stage', 'lights')) and before_wp is not None:
+    # 旧 camera.html が知らない stage/lights/character を送らなくても残す。
+    if 'workspace' in payload and any(k not in payload['workspace'] for k in ('stage', 'lights', 'character')) and before_wp is not None:
         invalid_part = 'workspace'
         try:
             existing = json.loads(before_wp.decode('utf-8'))
             if not isinstance(existing, dict):
                 raise ValueError('not an object')
-            for key, validate in (('stage', validate_stage), ('lights', validate_lights)):
+            for key, validate in (('stage', validate_stage), ('lights', validate_lights), ('character', validate_character)):
                 if key not in payload['workspace'] and key in existing:
                     invalid_part = key
                     kept = validate(existing[key])
@@ -146,7 +186,7 @@ def save_bundle(combination_path, camera_path, obj):
         except (ValueError, UnicodeDecodeError, TypeError) as exc:
             # B-4 の既存契約：stage を明示した保存は、壊れた旧 workspace を修復できる。
             # lights を明示しない旧クライアントの通常保存は、読み取れない照明を消さない。
-            if invalid_part == 'lights' or 'stage' not in payload['workspace']:
+            if invalid_part in ('lights', 'character') or 'stage' not in payload['workspace']:
                 raise ValueError(f'existing workspace {invalid_part} is unreadable; nothing was written') from exc
     cp.parent.mkdir(parents=True, exist_ok=True)
     tmp = cp.with_suffix('.bundle-tmp')
@@ -161,6 +201,8 @@ def save_bundle(combination_path, camera_path, obj):
                 del to_write['stage']  # "stage": null をファイルに残さない
             if to_write.get('lights', 0) is None:
                 del to_write['lights']
+            if to_write.get('character', 0) is None:
+                del to_write['character']
             workspace_tmp.write_text(json.dumps(to_write, ensure_ascii=False, indent=2), encoding='utf-8')
             workspace_tmp.replace(wp)
         else:

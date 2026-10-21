@@ -1,6 +1,8 @@
 /** Phase E GLB/VRM beta: shared pose and animation time across scene and shooting camera. */
 import * as THREE from 'three';
-import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {loadLibs,loadModel} from './studio/js/viewport/model-loader.js';
+import {workspaceRefFor,isCharacterPlacement,applyCharacterPlacement} from './studio/js/viewport/character-placement.js';
+import {stageUnitScale} from './studio/js/viewport/normalize.fork.js';
 import {advanceFollow,validateSmoothing} from './camera_follow_smoothing.js';
 import {classifyBone,parseOffset,validFollowConfig,pickBone,FOLLOW_STORAGE_KEY} from './camera_follow_config.js';
 const $=id=>document.getElementById(id), status=s=>$('camera-asset-status').textContent=s;
@@ -253,9 +255,9 @@ window.addEventListener('bai-camera-rail-path',event=>{
  railHandles.visible=true;
 });
 window.dispatchEvent(new Event('bai-camera-rail-ready'));
-const loader=new GLTFLoader();
 const assetClipHints=new Map();
-let loadedAssetName='';
+const assetItems=new Map();
+let loadedAssetName='',loadedFormat='';
 // CAM-004: conservative world-space bounds sampled after animation updates.
 // Only geometry-backed meshes count; helpers/rig handles are excluded.
 function publishModelFraming(){
@@ -268,7 +270,7 @@ function publishModelFraming(){
  const sphere=bounds.getBoundingSphere(new THREE.Sphere());
  window.dispatchEvent(new CustomEvent('bai-camera-model-bounds',{detail:{center:sphere.center.toArray(),radius:sphere.radius,min:bounds.min.toArray(),max:bounds.max.toArray(),source:'model',frame:lastFrame}}));
 }
-function clean(){if(!model)return;trackEnabled.checked=false;trackingBone=null;trackingOffset=null;world.remove(model);mixer?.stopAllAction();model.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()});model=null;mixer=null;clips=[];activeClip=null;loadedAssetName='';window.dispatchEvent(new CustomEvent('bai-camera-face-target',{detail:null}));publishModelFraming()}
+function clean(){if(!model)return;trackEnabled.checked=false;trackingBone=null;trackingOffset=null;world.remove(model);mixer?.stopAllAction();model.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()});model=null;mixer=null;clips=[];activeClip=null;loadedAssetName='';loadedFormat='';window.dispatchEvent(new CustomEvent('bai-camera-face-target',{detail:null}));publishModelFraming()}
 function publishFaceTarget(){
  if(!model)return;
  model.updateMatrixWorld(true);
@@ -286,20 +288,26 @@ function clipIndexFor(asset){
 function clipStatus(){
  if(!model)return;
  const motion=activeClip?`${activeClip.name||'選択した動き'} ${activeClip.duration.toFixed(1)}秒を繰り返し`:'静止モデル';
- status(`${loadedAssetName} / 3D表示中 / ${motion}。FBX・VMD・VRM物理は未対応`);
+ status(`${loadedAssetName} / 3D表示中 / ${motion}。PMXのVMD再生・VRM物理は未対応${loadedFormat==='FBX'?'。FBXクリップは制作状態に保存されません':''}`);
 }
-async function loadAsset(asset){if(!/^[^/\\]+\.(glb|vrm)$/i.test(asset))throw Error('GLB/VRMのみ対応');status('モデル読み込み中…');const response=await fetch('/api/integrated-v02/asset/'+encodeURIComponent(asset));if(!response.ok)throw Error('モデル取得エラー HTTP '+response.status);const parsed=await loader.parseAsync(await response.arrayBuffer(),'');clean();
+async function loadAsset(asset,placement=null){const item=assetItems.get(asset);if(!item)throw Error('登録されたキャラクター素材が見つかりません: '+asset);status('モデル読み込み中…');const parsed=await loadModel(item,await loadLibs());clean();
 // Keep the imported skeleton at its original scale. Some skinned assets have a static geometry box
 // much smaller than the posed body, and scaling their scene root also scales skinning twice.
-const content=parsed.scene,orientation=new THREE.Group();orientation.add(content);model=new THREE.Group();model.add(orientation);world.add(model);
+const content=parsed.object,orientation=new THREE.Group();orientation.add(content);model=new THREE.Group();model.add(orientation);world.add(model);
 // VRM humanoids look toward -Z. The filming presets look from +Z, so turn only
 // the preview instance around to show the character's face on initial load.
-if(/\.vrm$/i.test(asset))orientation.rotation.y=Math.PI;
-orientation.updateMatrixWorld(true);
-const bounds=new THREE.Box3().setFromObject(orientation,true),size=bounds.getSize(new THREE.Vector3());
-const center=bounds.getCenter(new THREE.Vector3()),scale=2/Math.max(.001,size.y);
-model.scale.setScalar(scale);model.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);publishFaceTarget();
-loadedAssetName=asset;clips=parsed.animations||[];mixer=clips.length?new THREE.AnimationMixer(content):null;const select=$('camera-clip');select.replaceChildren(new Option('静止モデル',''));clips.forEach((clip,i)=>select.add(new Option(`${clip.name||'Animation '+(i+1)} (${clip.duration.toFixed(1)}s)`,String(i))));if(clips.length){const chosen=clipIndexFor(asset);select.value=String(chosen);setClip(chosen)}else{select.value='';clipStatus()}discoverBones();updateTime();
+if(isCharacterPlacement(placement)){
+ model.userData.unit=stageUnitScale(content,parsed.format);
+ applyCharacterPlacement(model,placement);
+}else{
+ if(parsed.format==='VRM')orientation.rotation.y=Math.PI;
+ orientation.updateMatrixWorld(true);
+ const bounds=new THREE.Box3().setFromObject(orientation,true),size=bounds.getSize(new THREE.Vector3());
+ const center=bounds.getCenter(new THREE.Vector3()),targetHeight=parsed.format==='PMX'?1.8:parsed.format==='FBX'?1.95:2,scale=targetHeight/Math.max(.001,size.y);
+ model.scale.setScalar(scale);model.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);
+}
+publishFaceTarget();
+loadedAssetName=item.name;loadedFormat=parsed.format;clips=parsed.animations||[];mixer=clips.length?new THREE.AnimationMixer(content):null;const select=$('camera-clip');select.replaceChildren(new Option('静止モデル',''));clips.forEach((clip,i)=>select.add(new Option(`${clip.name||'Animation '+(i+1)} (${clip.duration.toFixed(1)}s)`,String(i))));if(clips.length){const chosen=clipIndexFor(asset);select.value=String(chosen);setClip(chosen)}else{select.value='';clipStatus()}discoverBones();updateTime();
 $('scene').style.visibility='hidden';$('preview').style.visibility='hidden';views[0].renderer.domElement.style.pointerEvents='auto';clipStatus()}
 function setClip(i){mixer?.stopAllAction();activeClip=Number.isInteger(i)&&clips[i]?clips[i]:null;if(activeClip)mixer.clipAction(activeClip).play();updateTime();clipStatus()}
 function updateTime(){if(mixer&&activeClip){const time=lastFrame/Math.max(1,fps);mixer.setTime(time%Math.max(.001,activeClip.duration))}publishFaceTarget();trackSubject();publishModelFraming()}
@@ -311,7 +319,7 @@ updateTime()});
 window.addEventListener('bai-camera-pose',e=>{trackingOffset=null;untrackedPose=e.detail.pose;applyPose(e.detail.pose);trackSubject()});
 window.addEventListener('bai-camera-vmd-preview',e=>{applyPose(e.detail.pose);updateTrackedFocus()});
 window.addEventListener('bai-camera-workspace-snapshot',e=>{
-  e.detail?.resolve?.({frame:lastFrame,asset:$('camera-asset').value||'',clip:$('camera-clip').value===''?null:Number($('camera-clip').value)});
+  e.detail?.resolve?.({frame:lastFrame,asset:$('camera-asset').value||'',clip:(loadedFormat==='GLB'||loadedFormat==='VRM')&&$('camera-clip').value!==''?Number($('camera-clip').value):null});
 });
 window.addEventListener('bai-camera-workspace-restore',async e=>{
   const {workspace,resolve,reject}=e.detail||{};
@@ -319,9 +327,11 @@ window.addEventListener('bai-camera-workspace-restore',async e=>{
     if(!workspace||!Number.isInteger(workspace.frame))throw Error('再生位置が不正です');
     if(workspace.asset){
       await catalog();
-      if(!Array.from($('camera-asset').options).some(o=>o.value===workspace.asset))throw Error('保存されたモデル素材が見つかりません: '+workspace.asset);
-      $('camera-asset').value=workspace.asset;
-      await loadAsset(workspace.asset);
+      const item=assetItems.get(workspace.asset);
+      if(!item)throw Error('保存されたモデル素材が見つかりません: '+workspace.asset);
+      const ref=workspaceRefFor(item);
+      $('camera-asset').value=ref;
+      await loadAsset(ref,workspace.character);
       if(workspace.clip!==null){
         if(!clips[workspace.clip])throw Error('保存されたアニメーションクリップが存在しません');
         $('camera-clip').value=String(workspace.clip);setClip(workspace.clip);
@@ -332,7 +342,7 @@ window.addEventListener('bai-camera-workspace-restore',async e=>{
 });
 $('camera-clip').onchange=e=>{const i=Number(e.target.value);setClip(e.target.value===''?null:i)};
 $('camera-load-asset').onclick=()=>{const name=$('camera-asset').value;if(!name){status('素材を選択してください');return}loadAsset(name).catch(err=>status('読み込み失敗: '+err.message))};
-async function catalog(){try{const r=await fetch('/api/integrated-v02/catalog');if(!r.ok)throw Error('HTTP '+r.status);const c=await r.json(),sel=$('camera-asset'),seen=new Set();for(const entry of [...(c.models||[]),...(c.motions||[])]){const name=entry.source_asset?.split('/').pop();if(!name||!/\.(glb|vrm)$/i.test(name)||seen.has(name))continue;seen.add(name);sel.add(new Option((entry.name||name)+' — '+name,name));if(entry.name?.includes('/'))assetClipHints.set(name,entry.name.split('/').at(-1).trim())}status(seen.size+'件のGLB/VRM素材を選択できます')}catch(err){status('カタログ取得失敗: '+err.message)}}
+async function catalog(){try{const r=await fetch('/api/assets');if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json(),sel=$('camera-asset'),chosen=sel.value;assetItems.clear();sel.replaceChildren(new Option('ガイド表示（未選択）',''));for(const item of data.items||[]){if(!item.available)continue;const format=String(item.format||'').toUpperCase();const integratedModel=item.source==='integrated'&&(format==='GLB'||format==='VRM');const character=(item.source==='mmd'&&format==='PMX')||(item.source==='fbx'&&format==='FBX');if(!integratedModel&&!character)continue;const ref=workspaceRefFor(item);if(assetItems.has(ref))continue;assetItems.set(ref,item);assetItems.set(item.id,item);sel.add(new Option(`${item.name} — ${format}`,ref));if(item.name?.includes('/'))assetClipHints.set(ref,item.name.split('/').at(-1).trim())}if(assetItems.has(chosen))sel.value=workspaceRefFor(assetItems.get(chosen));status((sel.options.length-1)+'件のGLB/VRM/PMX/FBX素材を選択できます')}catch(err){status('カタログ取得失敗: '+err.message)}}
 // Scene view controls: MMB orbit, Shift+MMB pan, Ctrl+MMB dolly;
 // existing LMB orbit, Shift+LMB pan and RMB+WASD fly remain available.
 // The independent scene camera never writes filming-camera keys.

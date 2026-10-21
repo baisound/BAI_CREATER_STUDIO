@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T23:49:01+09:00",
+  "updated_at": "2026-10-22T00:23:06+09:00",
   "updated_by": "codex",
-  "branch": "codex/p2-wp05g",
-  "head_at_update": "43835dc",
+  "branch": "codex/p2-character-formats",
+  "head_at_update": "678d4e1",
   "current": {
-    "task": "P2-WP-05g PR52統合",
+    "task": "Issue #50 全キャラクター形式の配置",
     "status": "done",
-    "step": "現行mainへ統合し独立レビューと回帰試験を実施",
-    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
+    "step": "workspace.assetの互換拡張とcharacter位置・回転・倍率を保存・復元する",
+    "design_doc": "docs/roadmap/CHARACTER_PLACEMENT_ALL_FORMATS_20261021_JA.md"
   },
   "next_steps": [
-    "PR52をmainへ統合し、Owner承認の全キャラ形式配置とWP06/07を順に実装する"
+    "Issue #50: WP06新カメラへ4形式と保存済み配置を接続する",
+    "P2-WP-06a/b/c/dを実装・検証した後、P2-WP-07書き出しを実装する"
   ],
   "unverified": [
-    "実利用者FBX/GPU実機、WP05gのOwner外観採用、共通ゲート全体連続成功は未確認"
+    "実利用者モデル・GPU実機・Linux・MCPは未検証。LAST CHASE全量ブラウザー試験は端末停止歴のため行わない"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +32,34 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T00:23:06+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "678d4e1",
+      "text": "Issue #50: GLB/VRM/PMX/FBXをSCR12/06/13/05と旧カメラに接続し、workspace.character配置値の保存・復元を実装。隔離ChromeとAPIで検証"
+    },
+    {
+      "at": "2026-10-21T23:55:39+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "938804f",
+      "text": "Issue #50 全キャラクター形式の配置: workspace.assetの互換拡張とcharacter位置・回転・倍率を保存・復元する"
+    },
+    {
+      "at": "2026-10-21T23:55:18+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "98b6118",
+      "text": "Issue50の配置面と保存制限を監査。GLB/VRM/PMX/FBXの共通選択、旧workspace互換、character変換の契約を文書化"
+    },
+    {
+      "at": "2026-10-21T23:51:28+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "d564529",
+      "text": "Issue #50 全キャラクター配置でGLB/VRM/PMX/FBXを選択: 配置画面・保存形式・ローダーと形式別制限を監査し実装契約を確定"
+    },
     {
       "at": "2026-10-21T23:49:01+09:00",
       "by": "codex",
@@ -212,34 +241,6 @@
       "event": "done",
       "head": "17df04c",
       "text": "DATA-016のステージ内部自動サムネイルを実装。実S01で8視点解析と室内PNG保存・旧画像保持を確認し、ローカル登録済みS01を更新"
-    },
-    {
-      "at": "2026-10-21T20:16:19+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "c6287b1",
-      "text": "ステージGLBの内部を解析して見せ場のサムネイルを自動生成: SkyDomeを除いた構造範囲、室内候補視点、画像評価、版付き保存と既登録S01再生成を実装"
-    },
-    {
-      "at": "2026-10-21T20:15:07+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "1b0f48a",
-      "text": "Issue34/35のグレーマン表示とキャラクター正面PNGの初期実装。隔離Chrome2件、HTTP1件、型検査成功。素材画面一式32/33成功、時間切れの1件は単独再実行で成功"
-    },
-    {
-      "at": "2026-10-21T19:54:28+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1327f69",
-      "text": "Issue34・35 モーションのグレーマン再生とキャラクター正面サムネイル: 既存の素材詳細プレビュー・カタログ・保存APIを調べ、原本不変の画像生成とモーション適用を設計する"
-    },
-    {
-      "at": "2026-10-21T19:45:26+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8891cfa",
-      "text": "Issue40のS01原点・床とキャラクター元GLB由来の浮きを区別。Owner確認に従いシステム自動補正は行わず、PR42のコード実装と自動・Chrome実測は完了"
     }
   ]
 }

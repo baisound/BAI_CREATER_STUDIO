@@ -492,7 +492,7 @@ test('record clip and frame into workspace', harness.skip3d(), async () => {
     const st = await proj(page);
     assert.deepEqual({ frame: st.bundle.workspace.frame, clip: st.bundle.workspace.clip }, { frame: 15, clip: 0 });
     assert.equal(st.dirty.workspace, true, 'clip が変わったので未保存');
-    assert.match(await page.textContent('#toasts'), /作業中のクリップ 0・再生位置 F 15 を記録しました。［保存］で保存されます。/);
+    assert.match(await page.textContent('#toasts'), /seed-model\.glb・F 15・クリップ 0 を記録しました。［保存］で保存されます。/);
     await saveProject(page);
     assert.deepEqual(readWs(server), { frame: 15, clip: 0, asset: STORED_GLB });
     // 開き直すと、同じクリップ・同じ位置で一時停止している（自動再生しない）
@@ -514,7 +514,7 @@ test('frame is capped to camera duration', harness.skip3d(), async () => {
     await seekTo(page, 0.5);
     await page.click(REC);
     assert.equal((await proj(page)).bundle.workspace.frame, 10);
-    assert.match(await page.textContent('[data-role="motion-status"]'), /再生位置をカメラの長さ（10 フレーム）までに丸めて記録しました/);
+    assert.match(await page.textContent('[data-role="motion-status"]'), /カメラの長さ 10 フレームに調整/);
     await saveProject(page);
     assert.equal(readWs(server).frame, 10);
   });
@@ -534,17 +534,32 @@ test('frame-only record is not dirty', harness.skip3d(), async () => {
   });
 });
 
-test('record is disabled for other models', harness.skip3d(), async () => {
-  await withApp(seedWs({ frame: 0, asset: STORED_GLB, clip: null }), async ({ page, server }) => {
+test('record switches the working character across VRM, PMX and FBX', harness.skip3d(), async () => {
+  await withApp({ ...seedTimeline(),
+    'project_state.json': JSON.stringify(COMB), 'camera_project.json': JSON.stringify(camera(300)),
+    'project_state.workspace.json': JSON.stringify({ frame: 0, asset: STORED_GLB, clip: null }) }, async ({ page, server }) => {
     await openEdit(page, server, `&asset=${encodeURIComponent(VRM_ID)}`);
     await waitModel(page, VRM_ID);
-    assert.equal(await page.isDisabled(REC), true);
-    assert.match(await page.getAttribute(REC, 'title'), new RegExp(`作業中の素材（${STORED_GLB}）と違うモデルです。キャラクター管理（12）の［このモデルを制作に使う］で選んでから記録してください。`));
+    await projectReady(page);
+    assert.equal(await page.isDisabled(REC), false);
+    await page.click(REC);
+    assert.equal((await proj(page)).bundle.workspace.asset, STORED_VRM);
     await page.selectOption(MODEL, PMX_ID);
     await waitModel(page, PMX_ID);
-    assert.equal(await page.isDisabled(REC), true);
-    assert.match(await page.getAttribute(REC, 'title'), /GLB\/VRM のクリップだけ/);
-    assert.deepEqual(readWs(server), { frame: 0, asset: STORED_GLB, clip: null });
+    assert.equal(await page.isDisabled(REC), false);
+    assert.match(await page.getAttribute(REC, 'title'), /モーションは制作状態に保存されません/);
+    await page.click(REC);
+    assert.equal((await proj(page)).bundle.workspace.asset, PMX_ID);
+    assert.equal((await proj(page)).bundle.workspace.clip, null);
+    await page.selectOption(MODEL, 'fbx:f-model');
+    await waitModel(page, 'fbx:f-model');
+    assert.equal(await page.isDisabled(REC), false);
+    await page.click(REC);
+    await saveProject(page);
+    const ws = readWs(server);
+    assert.equal(ws.asset, 'fbx:f-model');
+    assert.equal(ws.clip, null);
+    assert.deepEqual(ws.character, { position: [0, 0, 0], rotation: [0, 0, 0], scale: 1 });
   });
 });
 

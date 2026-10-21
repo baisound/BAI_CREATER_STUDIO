@@ -13,6 +13,7 @@ const PORT = Number(process.env.P2_CHAIN_PORT || 8784);
 const FIX = path.join(__dirname, 'fixtures');
 const FBX_MODEL = fs.readFileSync(path.join(FIX, 'minimal_model.fbx'));
 const FBX_MOTION = fs.readFileSync(path.join(FIX, 'minimal_motion.fbx'));
+const GLB_MODEL = fs.readFileSync(path.join(FIX, 'synthetic_test_model.glb'));
 const VMD = fs.readFileSync(path.join(FIX, 'minimal.vmd'));
 /** 最小PMXのテストZIPから指定エントリーだけ取得する（標準ライブラリ）。 */
 function zipEntry(buf, wanted) {
@@ -66,6 +67,14 @@ const seedPmx = (extra = {}) => seed({
 const seedPmxBoth = () => seedPmx({
   'mmd_assets.json': JSON.stringify({ A: [{ name: 'test.pmx', size: PMX.length }, { name: 'tex/a.png', size: PMX_PNG.length }], B: [{ name: 'test.pmx', size: PMX.length }, { name: 'tex/a.png', size: PMX_PNG.length }], vmd: [{ name: 'minimal.vmd', size: VMD.length }] }),
   'mmd/B/test.pmx': PMX, 'mmd/B/tex/a.png': PMX_PNG,
+});
+const seedAllCharacters = () => seedPmx({
+  'integrated_v02/assets/aaaaaaaaaaaaaaaaaaaa.glb': GLB_MODEL,
+  'integrated_v02/assets/bbbbbbbbbbbbbbbbbbbb.vrm': GLB_MODEL,
+  'integrated_v02/user_assets.json': JSON.stringify([
+    { id: 'user-aaaaaaaaaaaaaaaaaaaa', name: 'test.glb', filename: 'aaaaaaaaaaaaaaaaaaaa.glb', kind: 'model', bytes: GLB_MODEL.length },
+    { id: 'user-bbbbbbbbbbbbbbbbbbbb', name: 'test.vrm', filename: 'bbbbbbbbbbbbbbbbbbbb.vrm', kind: 'model', bytes: GLB_MODEL.length },
+  ]),
 });
 
 async function withApp(seedData, fn, { errors = [] } = {}) {
@@ -419,6 +428,25 @@ test('preview_motion selects the row', async () => {
     assert.equal(await send({ action: 'preview_motion', name: 'ジャブ' }), 200); // title===name でも選ぶ
     await page.waitForFunction(() => window.baiStudio.project.getState().bundle.combination.selected === 1);
     assert.equal((await proj(page)).dirty.combination, false, '選ぶだけでは保存しない');
+  });
+});
+
+test('A/B slots display all four character formats without applying incompatible motion', harness.skip3d(), async () => {
+  await withApp(seedAllCharacters(), async ({ page, server }) => {
+    await open05(page, server);
+    const state = () => page.evaluate(() => window.baiStudio.chain.getState());
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.actors[0]?.kind === 'pmx', null, { timeout: 15000 });
+    await page.selectOption('[data-role="actor-a"]', 'integrated:aaaaaaaaaaaaaaaaaaaa.glb');
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.actors[0]?.id === 'integrated:aaaaaaaaaaaaaaaaaaaa.glb', null, { timeout: 15000 });
+    assert.equal((await state()).actors[0].kind, 'generic');
+    await page.selectOption('[data-role="actor-b"]', 'integrated:bbbbbbbbbbbbbbbbbbbb.vrm');
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.actors[1]?.id === 'integrated:bbbbbbbbbbbbbbbbbbbb.vrm', null, { timeout: 15000 });
+    assert.match(await page.textContent('[data-feature="chainViewport"] .vp-hud'), /A: GLB \/ B: VRM/);
+    await page.selectOption('[data-role="actor-b"]', 'fbx:f-model');
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.actors[1]?.id === 'fbx:f-model', null, { timeout: 15000 });
+    await page.selectOption('[data-role="actor-b"]', 'mmd:A:test.pmx');
+    await page.waitForFunction(() => window.baiStudio.chain.getState()?.actors[1]?.id === 'mmd:A:test.pmx', null, { timeout: 15000 });
+    assert.equal((await state()).actors[1].kind, 'pmx');
   });
 });
 

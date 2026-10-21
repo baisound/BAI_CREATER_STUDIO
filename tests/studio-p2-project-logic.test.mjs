@@ -246,6 +246,17 @@ test('workspace fields: asset change clears clip, frame alone is not dirty, stag
   assert.equal(store.get().bundle.workspace.asset, 'c.glb', 'other fields are kept');
 });
 
+test('character placement is a meaningful workspace edit and preserves other fields', async () => {
+  const { store, ctrl } = setup({ workspace: { frame: 5, asset: 'a.glb', clip: 2 } });
+  await ctrl.loadProject();
+  ctrl.setWorkspaceFields({ character: { position: [1, 2, 3], rotation: [0, 90, 0], scale: 1.5 } });
+  const s = store.get();
+  assert.equal(s.dirty.workspace, true);
+  assert.deepEqual(s.bundle.workspace.character, { position: [1, 2, 3], rotation: [0, 90, 0], scale: 1.5 });
+  assert.deepEqual({ asset: s.bundle.workspace.asset, clip: s.bundle.workspace.clip, frame: s.bundle.workspace.frame },
+    { asset: 'a.glb', clip: 2, frame: 5 });
+});
+
 test('3-M3 save sequencing (1): an autosave response that arrives after a reload is discarded', async () => {
   const { srv, clock, store, ctrl, log } = setup();
   await ctrl.loadProject();

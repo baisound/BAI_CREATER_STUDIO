@@ -312,21 +312,24 @@ test('workspace asset merge keeps frame and other fields', harness.skip3d(), asy
     assert.equal(await page.locator('#toasts [data-role="use-toast"] button').count(), 1);
     // frame は種データの値のまま。asset が変わったので clip は null
     const ws = await page.evaluate(() => window.baiStudio.project.getState().bundle.workspace);
-    assert.deepEqual(ws, { frame: 42, asset: STORED, clip: null });
+    assert.deepEqual(ws, { frame: 42, asset: STORED, clip: null, character: { position: [0, 0, 0], rotation: [0, 0, 0], scale: 1 } });
     await save(page);
-    assert.deepEqual(readJson(server, WS_NAME), { frame: 42, asset: STORED, clip: null });
+    assert.deepEqual(readJson(server, WS_NAME), ws);
     // 同じ素材をもう一度選んでも clip は変わらない（asset が変わったときだけ null）
   });
 });
 
-test('workspace asset is set only for GLB/VRM', harness.skip3d(), async () => {
+test('character manager saves PMX and FBX as working models', harness.skip3d(), async () => {
   await withApp(seed(), async ({ server, page }) => {
     for (const id of [PMX_ID, FBX_ID]) {
       await openChar(page, server, id);
-      assert.equal(await page.isDisabled('[data-role="use-model"]'), true, id);
-      assert.match(await page.getAttribute('[data-role="use-model"]', 'title'), /統合保存に記録できるのは GLB\/VRM だけです/);
+      assert.equal(await page.isEnabled('[data-role="use-model"]'), true, id);
+      await page.click('[data-role="use-model"]');
+      assert.equal(await page.evaluate(() => window.baiStudio.project.getState().bundle.workspace.asset), id);
+      await save(page);
+      assert.equal(readJson(server, WS_NAME).asset, id);
+      assert.equal(readJson(server, WS_NAME).clip, null);
     }
-    assert.equal(exists(server, WS_NAME), false);
     await openChar(page, server, GLB_ID);
     assert.equal(await page.isEnabled('[data-role="use-model"]'), true);
   });
@@ -407,6 +410,50 @@ test('stage placement saves and restores', harness.skip3d(), async () => {
     await save(page);
     assert.equal('stage' in readJson(server, WS_NAME), false);
     assert.deepEqual(readJson(server, WS_NAME), { frame: 42, asset: STORED, clip: 0 });
+  });
+});
+
+test('character placement switches PMX and FBX without changing the stage', harness.skip3d(), async () => {
+  const originalStage = { asset: GLB2_ID, position: [2, 0, 0], rotation: [0, 0, 0], scale: 1 };
+  await withApp(seed({ workspace: { frame: 7, asset: STORED, clip: 0, stage: originalStage } }), async ({ server, page }) => {
+    await openScene(page, server);
+    await page.waitForFunction(() => window.baiStudio.viewport.getState().character?.assetId === 'integrated:aaaaaaaaaaaaaaaaaaaa.glb', null, { timeout: 20000 });
+    await page.selectOption('[data-role="character-asset"]', PMX_ID);
+    await page.waitForFunction((id) => window.baiStudio.viewport.getState().character?.assetId === id, PMX_ID, { timeout: 20000 });
+    await page.locator('[data-role="character-slider"]').nth(0).locator('input.num').fill('4');
+    await page.locator('[data-role="character-slider"]').nth(0).locator('input.num').dispatchEvent('change');
+    await page.locator('[data-role="character-slider"]').nth(4).locator('input.num').fill('45');
+    await page.locator('[data-role="character-slider"]').nth(4).locator('input.num').dispatchEvent('change');
+    await page.locator('[data-role="character-slider"]').nth(6).locator('input.num').fill('2');
+    await page.locator('[data-role="character-slider"]').nth(6).locator('input.num').dispatchEvent('change');
+    let state = (await vp(page)).character;
+    nearAll(state.position, [4, 0, 0], 1e-9, 'PMX position');
+    near(state.rotation[1], 45, 1e-9, 'PMX rotation');
+    near(state.displayScale, 0.16, 1e-9, 'PMX unit × scale');
+    await save(page);
+    let ws = readJson(server, WS_NAME);
+    assert.equal(ws.asset, PMX_ID);
+    assert.equal(ws.clip, null);
+    assert.deepEqual(ws.character, { position: [4, 0, 0], rotation: [0, 45, 0], scale: 2 });
+    assert.deepEqual(ws.stage, originalStage);
+    await page.reload();
+    await page.waitForFunction((id) => window.baiStudio.viewport.getState().character?.assetId === id, PMX_ID, { timeout: 20000 });
+    state = (await vp(page)).character;
+    nearAll(state.position, [4, 0, 0], 1e-9, 'reloaded position');
+    near(state.rotation[1], 45, 1e-9, 'reloaded rotation');
+    await page.selectOption('[data-role="character-asset"]', FBX_ID);
+    await page.waitForFunction((id) => window.baiStudio.viewport.getState().character?.assetId === id, FBX_ID, { timeout: 20000 });
+    await save(page);
+    ws = readJson(server, WS_NAME);
+    assert.equal(ws.asset, FBX_ID);
+    assert.deepEqual(ws.character, { position: [4, 0, 0], rotation: [0, 45, 0], scale: 2 });
+    assert.deepEqual(ws.stage, originalStage);
+    await page.click('[data-role="character-remove"]');
+    await save(page);
+    ws = readJson(server, WS_NAME);
+    assert.equal(ws.asset, '');
+    assert.equal('character' in ws, false);
+    assert.deepEqual(ws.stage, originalStage);
   });
 });
 
@@ -497,7 +544,7 @@ test('stage unit conversion for PMX and FBX', harness.skip3d(), async () => {
 
 test('pmx character and glb stage share the scene in mmd units', harness.skip3d(), async () => {
   // 2026-10-20 の上書き：SCR-06 ではキャラクターも高さを正規化せず、ステージと同じ単位の換算（PMX 0.08）を使う。
-  // workspace.asset は GLB/VRM だけなので、PMX のキャラクターは画面からは置けない。ここでは SCR-06 と同じ部品（scene-parts）で、
+  // 旧形式のworkspace.assetを使った同一シーンの比較。PMXの画面操作は上の保存・再読込テストで確認する。
   // 最小 PMX と GLB のステージを同じシーンに置いて確かめる。
   await withApp(seed({ workspace: { frame: 0, asset: STORED, clip: null, stage: { asset: GLB2_ID, position: [0, 0, 0], rotation: [0, 0, 0], scale: 1 } } }), async ({ server, page }) => {
     await openScene(page, server);
