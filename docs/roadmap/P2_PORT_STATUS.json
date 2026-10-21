@@ -234,11 +234,11 @@
     {
       "id": "P2-WP-05d",
       "step": "⑤ SCR-05 の A/B の 3D・連結再生・手順名の対応表・スロット別の PMX＋VMD",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "設計書 §2.5 05d。",
+      "state": "in_progress",
+      "commits": ["05d-1（このコミット：旧式の連結計算と2体配置の純粋関数）"],
+      "tests": ["node --test tests/studio-p2-chain-fork.test.mjs: 3 pass（旧 clipOffset の実コード照合、ループ境界、FBX/PMX配置）", "npm run typecheck: pass"],
+      "unverified": ["05d の3D画面・連結再生・対応表・スロット別VMDは未実装。GPU・実FBX/PMX/VMD・Windowsブラウザー未検証。"],
+      "notes": "設計書 §2.5 05d。実装の第1区切り。旧画面 index.html:257・291〜299／231・310〜312 の計算と配置をフォークし、原本・weightsは変更していない。",
       "owner_check": null
     },
     {
