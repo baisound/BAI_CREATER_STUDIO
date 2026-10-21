@@ -434,7 +434,9 @@
       "id": "P2-WP-07",
       "step": "⑦ 書き出し",
       "state": "implemented",
-      "commits": [],
+      "commits": [
+        "0171076（SCR23の変換UI・テスト・設計/台帳・Issue #58調査）"
+      ],
       "tests": [
         "npm run typecheck pass。export-model 2/2、隔離ChromeのSCR23変換操作2/2、SCR02カメラ回帰5/5 pass",
         "tests/studio-p2-e2e-main.test.cjs: S1/S2/S3/S5/S7/S8 pass、計画通りS4/S6 skip。実データ7ファイルのhash前後一致。変換の書込POSTは両方ともpage.routeで遮断",

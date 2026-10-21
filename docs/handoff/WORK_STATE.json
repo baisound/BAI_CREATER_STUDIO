@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T03:27:42+09:00",
+  "updated_at": "2026-10-22T03:28:33+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp07",
-  "head_at_update": "7b024f5",
+  "head_at_update": "0171076",
   "current": {
     "task": "P2-WP-07 書き出し",
     "status": "done",
@@ -11,10 +11,10 @@
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP07c: 差分をPRにまとめ、全P2ゲートのWindowsソケット不足・独立レビュー未実施を明記。承認済みP2後続は台帳に従って続ける"
+    "P2の残ゲートとPRレビューを整理し、承認済み後続へ進む。Issue #58のMMD実測はPhase E WP-13で確認"
   ],
   "unverified": [
-    "P2 Node一括はERR_NO_BUFFER_SPACEで未完走（失敗試験の単独実行は成功）。Blender実変換・VMD品質、MCP一致、実GPU/Linux、WP06dとWP07の独立高性能モデルレビュー"
+    "一括P2 NodeゲートはWindows ERR_NO_BUFFER_SPACEで未完走、WP06d/07独立高性能モデルレビュー、Blender実変換・VMD品質、MCP、GPU/Linux"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T03:28:33+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "0171076",
+      "text": "P2-WP-07のSCR23変換UIとS8通し確認を0171076でpush済み。台帳にSHAと一括Nodeゲートの環境未検証を確定記録"
+    },
     {
       "at": "2026-10-22T03:27:42+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "4ca61f1",
       "text": "Issue #46のS05/S06発光抑制別名GLB候補2件をハッシュ・GLB長を照合してローカル素材ライブラリへ登録。API一覧でavailable true確認。原本・ライトなし版・制作状態保持"
-    },
-    {
-      "at": "2026-10-21T22:51:47+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cd565c5",
-      "text": "Issue #46: S05/S06発光抑制GLB候補を別名素材登録: Ownerが候補作成を選択。ハッシュ・構造を再照合し候補2件を素材ライブラリに登録、原本と旧版を保持"
     }
   ]
 }
