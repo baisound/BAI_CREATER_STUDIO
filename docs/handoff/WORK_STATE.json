@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T11:56:05+09:00",
+  "updated_at": "2026-10-21T11:57:15+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05f",
-  "head_at_update": "836c6af",
+  "head_at_update": "0166a83",
   "current": {
     "task": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断",
-    "status": "done",
-    "step": "⑤-12 未校正キー候補・フレーム比較をSCR13中央へ結線",
+    "status": "in_progress",
+    "step": "⑤-14 足の接地診断をSCR13右の足IKタブに結線",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T11:57:15+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0166a83",
+      "text": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断: ⑤-14 足の接地診断をSCR13右の足IKタブに結線"
+    },
     {
       "at": "2026-10-21T11:56:05+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "b8bd62d",
       "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド studio:sync-command の受け口（O-⑤-5）: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T20:11:08+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "df75fe3",
-      "text": "P2-WP-05a 完了：SCR-13［編集］の PMX＋VMD・GLB/VRM クリップの1体再生、VMD ライブラリ、モード切替の結線、minimal.vmd の センター 30F、S5 pass"
     }
   ]
 }
