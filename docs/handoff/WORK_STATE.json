@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T13:15:23+09:00",
+  "updated_at": "2026-10-21T13:15:36+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05g",
-  "head_at_update": "81300c4",
+  "head_at_update": "e23ff31",
   "current": {
     "task": "P2-WP-05g SCR-05の2D・3D模式再生",
-    "status": "done",
-    "step": "⑤-10/15のパターン時計・2D SVG・3D模式を実装",
+    "status": "in_progress",
+    "step": "共通Node・Python・Evidence・E2Eゲートと進捗正本の整合",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T13:15:36+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e23ff31",
+      "text": "P2-WP-05g SCR-05の2D・3D模式再生: 共通Node・Python・Evidence・E2Eゲートと進捗正本の整合"
+    },
     {
       "at": "2026-10-21T13:15:23+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "9e71949",
       "text": "WP05d第2区切り：登録FBXの遅延解析・手順名対応・最新manifestを重ねる対応表保存を追加。Node 3件、typecheck合格。"
-    },
-    {
-      "at": "2026-10-21T09:32:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2e87555",
-      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 登録FBXクリップ取得と対応表保存の実装"
     }
   ]
 }
