@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T22:42:53+09:00",
+  "updated_at": "2026-10-21T22:45:08+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-lighting-zoom",
-  "head_at_update": "e6a7f96",
+  "head_at_update": "19f818e",
   "current": {
-    "task": "Issue #46・#47: ライトなしGLBの結果連携と視点修正PR",
-    "status": "done",
-    "step": "Issue46・47に検証結果を結び、PRでレビュー可能にする。S05/S06発光候補はOwner判断待ち",
+    "task": "Issue #46・#47: 公開可能な図をIssueへ添付",
+    "status": "in_progress",
+    "step": "素材画像を公開せず、メタデータ図と視点概念図をPR・Issueに直接表示する",
     "design_doc": "docs/roadmap/STAGE_LIGHTLESS_ZOOM_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T22:45:08+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "19f818e",
+      "text": "Issue #46・#47: 公開可能な図をIssueへ添付: 素材画像を公開せず、メタデータ図と視点概念図をPR・Issueに直接表示する"
+    },
     {
       "at": "2026-10-21T22:42:53+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "e577325",
       "text": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー: SCR-10の3D変形・音声クロック・2トラック編集"
-    },
-    {
-      "at": "2026-10-21T17:08:23+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "32ad0d0",
-      "text": "AUDIO-001の実データ骨格を調査し、配置保存APIとrevision競合・破損拒否を実装。Python2件合格。"
     }
   ]
 }
