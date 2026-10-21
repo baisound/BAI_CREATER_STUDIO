@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T16:08:20+09:00",
+  "updated_at": "2026-10-21T16:08:35+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-import-expansion",
-  "head_at_update": "6effa64",
+  "head_at_update": "87db9e3",
   "current": {
-    "task": "Issue #37 素材取り込みの入口をステージ・小物・材質・エフェクト・音声・動画・画像へ拡張",
-    "status": "done",
-    "step": "既存API・台帳・入力形式とサンプル素材の権利を調査し、実装順序を決める",
+    "task": "Issue #37 素材取り込み拡張",
+    "status": "in_progress",
+    "step": "安全な保存API・メタデータ抽出・範囲配信・見本画像保存とPython試験",
     "design_doc": "docs/roadmap/ASSET_IMPORT_EXPANSION_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T16:08:35+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "87db9e3",
+      "text": "Issue #37 素材取り込み拡張: 安全な保存API・メタデータ抽出・範囲配信・見本画像保存とPython試験"
+    },
     {
       "at": "2026-10-21T16:08:20+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "9e71949",
       "text": "WP05d第2区切り：登録FBXの遅延解析・手順名対応・最新manifestを重ねる対応表保存を追加。Node 3件、typecheck合格。"
-    },
-    {
-      "at": "2026-10-21T09:32:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2e87555",
-      "text": "P2-WP-05d SCR-05のA/B 3D・連結再生・手順名対応表・スロット別PMX+VMD: 登録FBXクリップ取得と対応表保存の実装"
     }
   ]
 }
