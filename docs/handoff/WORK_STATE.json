@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T18:32:08+09:00",
+  "updated_at": "2026-10-21T18:38:34+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-light-rig",
-  "head_at_update": "45a4c11",
+  "head_at_update": "f9cc53d",
   "current": {
     "task": "LIGHT-001 シーン多灯照明とライト別キーフレーム",
-    "status": "in_progress",
+    "status": "done",
     "step": "保存バリデーションと補間ロジックを実装",
     "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
-    "LIGHT-001の多灯保存形式・シーン一覧・変形ギズモ・RGB/強度キー・タイムラインを実装し実S01で視覚確認"
+    "LIGHT-001のシーン一覧・ライトフレーム/ギズモ・数値/RGB編集・キーフレーム時間軸をSCR-06へ結線して実S01で検証"
   ],
   "unverified": [
-    "GPU/Linux、MMD/Unrealとの照明外観一致、Owner採用、WebMCP/標準MCPは未検証"
+    "ライトのブラウザ描画・編集UI・実GPU/Linux・MMD/Unreal外観一致、Owner採用は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T18:38:34+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "f9cc53d",
+      "text": "LIGHT-001のworkspace.lights保存・旧画面互換・多灯キー検証とRGB/位置/強度/最短回転補間を実装。Python15件、JS2件、型検査を通過"
+    },
     {
       "at": "2026-10-21T18:32:08+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "34b42e8",
       "text": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正: PMXプレビューのIK・grant更新と実素材再検証"
-    },
-    {
-      "at": "2026-10-21T14:04:18+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4dbe182",
-      "text": "実PMXと神っぽいなVMDで足IK目標は12秒以降に動くが脚が静止することをSCR13で再現。MMDAnimationHelper未使用が原因と診断し、確認画像と監査文書を保存。"
     }
   ]
 }

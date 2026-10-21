@@ -7,6 +7,7 @@ import json
 from camera_project_revision import revision
 from pathlib import Path
 from bai_camera import validate as validate_camera
+from scene_lighting import validate_lights
 
 MAX_TIMELINE = 300
 MAX_HISTORY = 120
@@ -73,7 +74,7 @@ def validate_workspace(value):
     キーは frame・asset・clip を全部含み、任意で stage（B-4）だけを足せる。
     返す dict には、本文に stage のキーがあるときだけ stage を入れる（「無い」と null を区別するため）。
     """
-    if not isinstance(value, dict) or not {'frame', 'asset', 'clip'} <= set(value) or set(value) - {'frame', 'asset', 'clip', 'stage'}:
+    if not isinstance(value, dict) or not {'frame', 'asset', 'clip'} <= set(value) or set(value) - {'frame', 'asset', 'clip', 'stage', 'lights'}:
         raise ValueError('invalid workspace fields')
     frame, asset, clip = value['frame'], value['asset'], value['clip']
     if type(frame) is not int or not 0 <= frame <= 1000000:
@@ -87,6 +88,8 @@ def validate_workspace(value):
     result = {'frame': frame, 'asset': asset, 'clip': clip}
     if 'stage' in value:
         result['stage'] = validate_stage(value['stage'])
+    if 'lights' in value:
+        result['lights'] = validate_lights(value['lights'])
     return result
 
 
@@ -100,6 +103,9 @@ def validate_bundle(obj):
         result['workspace'] = validate_workspace(obj['workspace'])
         if result['workspace']['frame'] > result['camera']['duration']:
             raise ValueError('workspace frame exceeds camera duration')
+        for lamp in (result['workspace'].get('lights') or {}).get('items', []):
+            if lamp['keys'][-1]['frame'] > result['camera']['duration']:
+                raise ValueError('workspace lights frame exceeds camera duration')
     return result
 
 
@@ -127,18 +133,22 @@ def save_bundle(combination_path, camera_path, obj):
     before_comb = cp.read_bytes() if cp.exists() else None
     before_cam = cam.read_bytes() if cam.exists() else None
     before_wp = wp.read_bytes() if wp.exists() else None
-    # B-4：本文の workspace に stage のキーが無ければ、既存の stage を残す（stage を知らない旧 camera.html が消さないため）。
-    # 既存のファイルを読めない・既存の stage が不正なときは、何も書かずに ValueError（黙って捨てない）。
-    if 'workspace' in payload and 'stage' not in payload['workspace'] and before_wp is not None:
+    # 旧 camera.html が知らない stage/lights を送らなくても残す。不正な既存値は書き込み前に拒否する。
+    if 'workspace' in payload and any(k not in payload['workspace'] for k in ('stage', 'lights')) and before_wp is not None:
         try:
             existing = json.loads(before_wp.decode('utf-8'))
             if not isinstance(existing, dict):
                 raise ValueError('not an object')
-            kept = validate_stage(existing['stage']) if 'stage' in existing else None
+            for key, validate in (('stage', validate_stage), ('lights', validate_lights)):
+                if key not in payload['workspace'] and key in existing:
+                    kept = validate(existing[key])
+                    if kept is not None:
+                        payload['workspace'][key] = kept
         except (ValueError, UnicodeDecodeError, TypeError) as exc:
-            raise ValueError('existing workspace stage is unreadable; nothing was written') from exc
-        if kept is not None:
-            payload['workspace']['stage'] = kept
+            # B-4 の既存契約：stage を明示した保存は、壊れた旧 workspace を修復できる。
+            # lights を明示しない旧クライアントの通常保存は、読み取れない照明を消さない。
+            if 'stage' not in payload['workspace'] or 'lights' in payload['workspace']:
+                raise ValueError('existing workspace stage or lights is unreadable; nothing was written') from exc
     cp.parent.mkdir(parents=True, exist_ok=True)
     tmp = cp.with_suffix('.bundle-tmp')
     workspace_tmp = wp.with_suffix('.workspace-tmp')
@@ -150,6 +160,8 @@ def save_bundle(combination_path, camera_path, obj):
             to_write = dict(payload['workspace'])
             if to_write.get('stage', 0) is None:
                 del to_write['stage']  # "stage": null をファイルに残さない
+            if to_write.get('lights', 0) is None:
+                del to_write['lights']
             workspace_tmp.write_text(json.dumps(to_write, ensure_ascii=False, indent=2), encoding='utf-8')
             workspace_tmp.replace(wp)
         else:

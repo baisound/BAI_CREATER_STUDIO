@@ -21,3 +21,8 @@
 
 - `test_project_state_bundle.WorkspaceStageTest` 12件、`tests/studio-p2-viewport.test.cjs` のステージ保存再読込、`tests/studio-real-stage.test.cjs` の実 S01 GLB 読込/原点/室内カメラ/保存再読込を通過。Chrome SwiftShader で室内を視覚確認。
 - ライト編集のコード・実視覚・保存テストは続く段階で記録する。GPU/Linux、影品質、MMD/Unreal との見た目の一致、Owner 採用は未検証。
+
+### 保存・補間の段階（実装中）
+
+- `scene_lighting.py` が最大128ライト/合計5000キー、各キーの座標・角度・RGB・強度等を検証。`project_state_bundle.py` は `workspace.lights` を保存し、旧画面がこの項目を送らない場合は既存値を残す。既存値が壊れている通常保存は書き込み前に拒否する。
+- `studio/js/viewport/scene-lighting.js` が初期3灯の独立キーと、RGB・位置・強度の補間、最短角度の回転補間、キーの追加/削除を扱う。`test_scene_lighting.py` 3件と `tests/studio-scene-lighting.test.mjs` 2件を実施。ビューのギズモ/UI 結線は次段階。
