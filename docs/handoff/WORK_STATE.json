@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T19:32:48+09:00",
+  "updated_at": "2026-10-21T19:42:27+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-light-rig",
-  "head_at_update": "dd35b8d",
+  "head_at_update": "29f32a7",
   "current": {
-    "task": "VIEW-001 マルチビューポートのユーザー指摘をPR42へ反映",
-    "status": "done",
-    "step": "メイン透視を右に保ち、選択した上面・側面等を左へ独立表示する二画面レイアウトと操作・検証",
+    "task": "Issue40の実モデル床接地とPR42統合判定",
+    "status": "in_progress",
+    "step": "提供S01と登録済み実GLBキャラクターを隔離SCR-06へ同時配置し、床接地・保存再読込を測定して必要な修正を行う",
     "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T19:42:27+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "29f32a7",
+      "text": "Issue40の実モデル床接地とPR42統合判定: 提供S01と登録済み実GLBキャラクターを隔離SCR-06へ同時配置し、床接地・保存再読込を測定して必要な修正を行う"
+    },
     {
       "at": "2026-10-21T19:32:48+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "9cc2d4c",
       "text": "Issue #26 バイサンドの開発依頼を日本語GitHub Issueで管理する常設ルール: AGENTS短い参照・詳細手順・Issueテンプレートを整備"
-    },
-    {
-      "at": "2026-10-21T14:22:51+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "56f9ad1",
-      "text": "MOTION-016 モーション素材の視覚プレビューと3Dビュー共通ナビゲーション改善: 共通3DホストのBlender式中ドラッグと操作案内を実装"
     }
   ]
 }
