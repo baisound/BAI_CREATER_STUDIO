@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T02:00:40+09:00",
+  "updated_at": "2026-10-22T02:01:27+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp06",
-  "head_at_update": "21597c7",
+  "head_at_update": "6d35a94",
   "current": {
     "task": "P2-WP-06 カメラ移植とIssue #50全形式の接続",
-    "status": "done",
-    "step": "WP06b: 要素ID配置表とSCR02常駐カメラホスト",
+    "status": "in_progress",
+    "step": "WP06c: ②の統合保存・workspace所有とSCR02カメラホストの同期",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T02:01:27+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "6d35a94",
+      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06c: ②の統合保存・workspace所有とSCR02カメラホストの同期"
+    },
     {
       "at": "2026-10-22T02:00:40+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "180e9b3",
       "text": "Issue46・47: 受領ステージの過度な明るさと視点接近限界: S01と小型受領GLBの光源・材質を比較し、OrbitControlsの接近挙動を隔離素材で再現する"
-    },
-    {
-      "at": "2026-10-21T22:03:10+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d5f2c98",
-      "text": "PR45に統合済みPR43/mainを取り込み、作業位置・DATA-016台帳・大型GLB見本保護の競合を解消。Node19件、Python5件、TypeScript検査に合格。"
     }
   ]
 }
