@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T00:48:49+09:00",
+  "updated_at": "2026-10-22T01:30:47+09:00",
   "updated_by": "codex",
-  "branch": "codex/music-dance-all-formats",
-  "head_at_update": "84410e8",
+  "branch": "codex/music-dance-motion-formats",
+  "head_at_update": "ffd1f12",
   "current": {
-    "task": "Issue #50: SCR-10の踊るモデルにGLB/VRM/FBXを追加",
+    "task": "Issue #39: SCR10で登録済みVMD/FBXダンスを選択・再生する",
     "status": "done",
-    "step": "モデル候補・プレビュー経路・保存再読込を修正",
+    "step": "GLB/VMD/FBXの候補・読込・互換条件・保存復元を実装",
     "design_doc": "docs/roadmap/CHARACTER_PLACEMENT_ALL_FORMATS_20261021_JA.md"
   },
   "next_steps": [
-    "P2-WP-06aからカメラ移植を続ける"
+    "P2-WP-06bからカメラ移植を再開し、WP06c/d・WP07を続ける"
   ],
   "unverified": [
-    "全実モデルの骨対応・PMX以外の物理・Linux・MCP・Owner外観採用は未検証。SCR-06の一部real表示は証拠不足のためpartialへ訂正"
+    "全実モデルの骨対応・PMX以外の物理・実GPU・Linux・MCP・Owner外観採用は未検証。SCR06の一部real表示は証拠不足のためpartialへ訂正済み。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T01:30:47+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ffd1f12",
+      "text": "AUDIO-001/SCR10: 登録済みGLB/VMD/FBXダンス候補、PMX+VMD評価、FBX人体骨プレビュー、SCR08導線、保存復元を実装。typecheck、隔離Chrome 2件、実PMX+実FBX/VMDの描画・保存再読込・原本hash検証に成功。Issue #39に追跡。"
+    },
+    {
+      "at": "2026-10-22T01:17:10+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3a1d40e",
+      "text": "Issue #39: SCR10で登録済みVMD/FBXダンスを選択・再生する: GLB/VMD/FBXの候補・読込・互換条件・保存復元を実装"
+    },
     {
       "at": "2026-10-22T00:48:49+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "done",
       "head": "0694246",
       "text": "Issue #44: 受領7ステージの原本hash照合と非破壊登録、大型GLBの1GiB受付・自動3D読込抑止・近景初期視点・GPU描画表示を実装。単独RTX実測と端末負荷を記録。"
-    },
-    {
-      "at": "2026-10-21T21:15:49+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1327f69",
-      "text": "受領済み7ステージの更新登録と大規模GLBのGPU描画確認: READMEの7件を原本hashと照合し、現行の登録・描画経路と容量上限を整理する"
-    },
-    {
-      "at": "2026-10-21T21:07:09+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "0070974",
-      "text": "Issue34/35実素材QA: 実GLB/VRM/PMX正面PNG、実FBX/VMDグレーマン、S01室内PNGを確認。PMX非同期テクスチャ待機・空白画像防止・移動見本追従・一覧再描画競合を修正"
     }
   ]
 }

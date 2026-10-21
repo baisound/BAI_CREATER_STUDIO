@@ -8,7 +8,9 @@ import { loadLibs, loadModel, disposeObject, loadErrorText } from '../viewport/m
 import { createViewport, WebGLError, WEBGL_ERROR_TEXT } from '../viewport/three-host.js';
 import { createPmxGlbPreview } from '../motion/pmx-glb-preview.js';
 import { createGenericGlbPreview } from '../motion/generic-glb-preview.js';
+import { createPmxVmdPreview } from '../motion/pmx-vmd-preview.js';
 import { createPmxPhysicsPreview } from '../motion/pmx-physics-preview.js';
+import { loadVmdClip, vmdUrl } from '../motion/vmd.js';
 import { normalizeModel } from '../viewport/normalize.fork.js';
 import { categoryOf } from './assets-model.js';
 import { FPS, clampFrame, mediaAt, audioSchedule, timelineLength, waveformPeaks } from '../motion/music-dance-clock.js';
@@ -17,7 +19,7 @@ import { FPS, clampFrame, mediaAt, audioSchedule, timelineLength, waveformPeaks 
 /** @typedef {import('./assets-model.js').AssetItem} AssetItem */
 const ENDPOINT = '/api/music-dance/project';
 const MODEL_HINT = '踊るモデルを選択';
-const MOTION_HINT = 'ダンスGLBを選択';
+const MOTION_HINT = 'ダンスモーションを選択';
 const AUDIO_HINT = 'WAV/MP3を選択';
 
 /** @param {number} n */
@@ -27,7 +29,7 @@ function usable(a) { return a && a.available; }
 /** @param {AssetItem} a */
 function audioItem(a) { return a.source === 'library' && a.kind === 'audio' && ['WAV', 'MP3'].includes(a.format); }
 /** @param {AssetItem} a */
-function motionItem(a) { return a.kind === 'motion' && a.format === 'GLB'; }
+function motionItem(a) { return categoryOf(a) === 'motion' && ['GLB', 'FBX', 'VMD'].includes(a.format); }
 /** @param {AssetItem} a */
 function modelItem(a) { return categoryOf(a) === 'char' && ['GLB', 'VRM', 'PMX', 'FBX'].includes(a.format); }
 
@@ -35,11 +37,11 @@ function modelItem(a) { return categoryOf(a) === 'char' && ['GLB', 'VRM', 'PMX',
 export const musicDanceStudio = (ctx) => {
   void loadAssets();
   const modelSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '踊るモデル', dataset: { role: 'dance-model' } }));
-  const motionSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'GLBダンス', dataset: { role: 'dance-motion' } }));
+  const motionSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'ダンスモーション GLB・VMD・FBX', dataset: { role: 'dance-motion' } }));
   const audioSel = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': '音楽WAVまたはMP3', dataset: { role: 'dance-audio' } }));
   const status = h('p', { class: 'section-note music-dance-status', role: 'status', dataset: { role: 'dance-status' } }, '保存済みの配置を読み込み中…');
   const viewport = h('div', { class: 'viewport vp3d music-dance-viewport', role: 'img', 'aria-label': '選択したモデルのダンスプレビュー', dataset: { role: 'dance-viewport' } });
-  const threeStatus = h('p', { class: 'section-note', role: 'status', dataset: { role: 'dance-pose-status' } }, 'モデルとダンスGLBを選んでください。');
+  const threeStatus = h('p', { class: 'section-note', role: 'status', dataset: { role: 'dance-pose-status' } }, 'モデルとダンスモーションを選んでください。');
   const follow = /** @type {HTMLInputElement} */ (h('input', { type: 'checkbox', checked: true, dataset: { role: 'dance-follow' } }));
   const physicsOn = /** @type {HTMLInputElement} */ (h('input', { type: 'checkbox', checked: true, dataset: { role: 'dance-physics' } }));
   const physicsStatus = h('p', { class: 'section-note', role: 'status', dataset: { role: 'dance-physics-status' } }, 'PMXを選ぶとMMD物理を確認できます。');
@@ -69,7 +71,7 @@ export const musicDanceStudio = (ctx) => {
   let loadGeneration = 0, audioGeneration = 0;
   /** @type {import('../viewport/model-loader.js').Libs|null} */ let libs = null;
   /** @type {import('../viewport/three-host.js').Viewport|null} */ let host = null;
-  /** @type {any} */ let actor = null, glb = null, preview = null, physics = null;
+  /** @type {any} */ let actor = null, motionObject = null, preview = null, physics = null;
   /** @type {AudioContext|null} */ let audioContext = null;
   /** @type {AudioBuffer|null} */ let decoded = null;
   /** @type {AudioBufferSourceNode|null} */ let sound = null;
@@ -237,7 +239,7 @@ export const musicDanceStudio = (ctx) => {
     pausePlayback();
     physics?.dispose(); physics = null;
     preview?.dispose(); preview = null;
-    if (glb) { disposeObject(glb); glb = null; }
+    if (motionObject) { disposeObject(motionObject); motionObject = null; }
     if (host) { host.clear(); host.dispose(); host = null; }
     actor = null; followed = null; physicsOn.disabled = true;
     physicsStatus.textContent = 'PMXを選ぶとMMD物理を確認できます。';
@@ -262,15 +264,24 @@ export const musicDanceStudio = (ctx) => {
       } else normalizeModel(actor, target.format, lb.THREE);
       host = createViewport(viewport, lb);
       host.setObject(actor); host.fit();
-      if (!motion) { threeStatus.textContent = `${model.format}モデルを表示中。ダンスGLBを選ぶと動作を確認できます。`; return; }
-      if (!usable(motion) || !motionItem(motion)) throw Error('選択したダンスGLBの元ファイルがありません。登録を確認してください。');
-      const source = await loadModel(motion, lb);
-      if (!alive || my !== loadGeneration) { disposeObject(source.object); return; }
-      glb = source.object;
-      if (!source.animations.length) throw new Error('GLBにアニメーションがありません。');
-      preview = target.format === 'PMX'
-        ? createPmxGlbPreview(lb.THREE, actor, glb, source.animations[0])
-        : createGenericGlbPreview(lb.THREE, actor, glb, source.animations[0]);
+      if (!motion) { threeStatus.textContent = `${model.format}モデルを表示中。ダンスモーションを選ぶと動作を確認できます。`; return; }
+      if (!usable(motion) || !motionItem(motion)) throw Error('選択したダンスモーションの元ファイルがありません。登録を確認してください。');
+      let motionLabel = motion.name;
+      if (motion.format === 'VMD') {
+        if (target.format !== 'PMX') throw Error('VMDはPMXモデルで再生できます。GLB・VRM・FBXモデルへのVMD骨対応はこの画面では未対応です。');
+        const clip = await loadVmdClip(lb, vmdUrl(motion), actor);
+        if (!alive || my !== loadGeneration) return;
+        preview = createPmxVmdPreview(lb.THREE, lb.MMDAnimationHelper, actor, clip, motion.id);
+      } else {
+        const source = await loadModel(motion, lb);
+        if (!alive || my !== loadGeneration) { disposeObject(source.object); return; }
+        motionObject = source.object;
+        if (!source.animations.length) throw new Error(`${motion.format}にアニメーションがありません。`);
+        preview = target.format === 'PMX'
+          ? createPmxGlbPreview(lb.THREE, actor, motionObject, source.animations[0])
+          : createGenericGlbPreview(lb.THREE, actor, motionObject, source.animations[0]);
+        motionLabel = source.animations[0].name || motion.name;
+      }
       preview.seek(0);
       if (target.format === 'PMX') {
         physicsStatus.textContent = 'PMXの剛体とジョイントを初期化中…';
@@ -289,7 +300,9 @@ export const musicDanceStudio = (ctx) => {
         physicsStatus.textContent = `${target.format}の物理演算はこの画面では未対応です。骨の動作のみ確認できます。`;
       }
       followed = null; followActor();
-      threeStatus.textContent = `${target.format}の${preview.mappedBones}本の骨で ${source.animations[0].name || 'GLBクリップ'} をプレビュー中。未対応 ${preview.missingBones.length}本。元データは変更しません。`;
+      threeStatus.textContent = motion.format === 'VMD'
+        ? `PMXで ${motionLabel} をVMDプレビュー中。IK・付与骨を評価します。元データは変更しません。`
+        : `${target.format}の${preview.mappedBones}本の骨で ${motionLabel} をプレビュー中。未対応 ${preview.missingBones.length}本。元データは変更しません。`;
       threeStatus.dataset.kind = 'info';
       rebuildLength(); poseAt(frame); drawTimeline(); drawHead();
     } catch (e) {
@@ -336,7 +349,7 @@ export const musicDanceStudio = (ctx) => {
     frame = clampFrame(placement.head_frame);
     refreshOptions(); drawTimeline(); drawHead();
     saveNote(dirty ? '選択素材を配置しました。［この配置を保存］で確定します。' : '保存済みの配置を読み込みました。');
-    say('モデル・ダンスGLB・曲を選び、ブロックを選択して1フレームずつ調整できます。');
+    say('モデル・ダンスモーション・曲を選び、ブロックを選択して1フレームずつ調整できます。');
     void loadDance(); void loadAudio();
   }
   async function savePlacement() {
@@ -370,15 +383,15 @@ export const musicDanceStudio = (ctx) => {
   ctx.onCleanup(assets.subscribe(() => refreshOptions()));
   ctx.onCleanup(() => {
     alive = false; loadGeneration++; audioGeneration++; audioAbort?.abort(); pausePlayback();
-    physics?.dispose(); preview?.dispose(); if (glb) disposeObject(glb); host?.dispose();
+    physics?.dispose(); preview?.dispose(); if (motionObject) disposeObject(motionObject); host?.dispose();
     if (audioContext) void audioContext.close();
   });
   void loadPlacement();
 
   return h('div', { class: 'music-dance-studio', dataset: { feature: 'musicDanceStudio' } },
-    h('div', { class: 'music-dance-intro' }, h('h2', null, '音楽とダンスを合わせる'), h('p', null, '登録した曲とGLBダンスを、選んだGLB/VRM/PMX/FBXモデルで同じ30fpsのタイムラインに配置します。人体骨の対応が不足するモデルは動作できない理由を表示します。元ファイルやウェイトは変更しません。')),
+    h('div', { class: 'music-dance-intro' }, h('h2', null, '音楽とダンスを合わせる'), h('p', null, '登録した曲とGLB/VMD/FBXダンスを、選んだモデルで同じ30fpsのタイムラインに配置します。VMDはPMXで再生できます。人体骨の対応が不足する組み合わせは理由を表示します。元ファイルやウェイトは変更しません。')),
     h('div', { class: 'music-dance-source-row' },
-      h('label', null, '踊るモデル（GLB/VRM/PMX/FBX）', modelSel), h('label', null, 'ダンス（GLB）', motionSel), h('label', null, '曲（WAV/MP3）', audioSel),
+      h('label', null, '踊るモデル（GLB/VRM/PMX/FBX）', modelSel), h('label', null, 'ダンス（GLB/VMD/FBX）', motionSel), h('label', null, '曲（WAV/MP3）', audioSel),
       h('button', { class: 'btn', type: 'button', onclick: () => ctx.navigate('08', { query: { import: '1', cat: 'audio' } }) }, '曲を取り込む…')),
     status,
     h('div', { class: 'music-dance-main' }, viewport,
@@ -386,7 +399,7 @@ export const musicDanceStudio = (ctx) => {
         h('h3', null, '3Dプレビュー'), threeStatus,
         h('label', { class: 'music-dance-follow' }, follow, '踊るモデルを画面中央で追う'),
         h('label', { class: 'music-dance-follow' }, physicsOn, '衣装・耳・アクセサリーのMMD物理を再生'), physicsStatus,
-        h('p', { class: 'section-note' }, 'マウスで回転・ズームできます。GLBダンスの主要骨を選択モデルへプレビュー中だけ対応付けます。MMD物理はPMXのみです。'))),
+        h('p', { class: 'section-note' }, 'マウスで回転・ズームできます。GLB/FBXダンスの主要骨を選択モデルへプレビュー中だけ対応付けます。VMDはPMXに適用します。MMD物理はPMXのみです。'))),
     h('section', { class: 'music-dance-editor', 'aria-label': '音楽とダンスのタイムライン' },
       h('div', { class: 'music-dance-transport' }, play, pause, headBack, headNext, headLabel, sourceLabel),
       head,

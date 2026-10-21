@@ -1,6 +1,6 @@
 // @ts-check
-// Issue #39: runtime-only GLB → PMX preview. This changes loaded objects in memory,
-// never the PMX/GLB files, rig, vertex groups, or weights.
+// Issue #39: runtime-only GLB/FBX → PMX preview. This changes loaded objects in memory,
+// never the source files, rig, vertex groups, or weights.
 
 const BODY = [
   ['Hips', '腰'], ['Spine', '上半身'], ['Spine1', '上半身2'],
@@ -28,18 +28,20 @@ function findBone(obj, name) {
   obj.traverse((/** @type {any} */ x) => { if (!found && x.isBone && x.name === name) found = x; });
   return found;
 }
+/** FBXLoader commonly keeps the Mixamo namespace on bone names. @param {string} name */
+const sourceBoneKey = (name) => name.replace(/^mixamorig[:_]?/i, '');
 /** @param {any} bone */
 function depth(bone) { let n = 0, p = bone.parent; while (p && p.isBone) { n++; p = p.parent; } return n; }
 
 /**
- * Create a deterministic, rest-relative retarget preview for an already loaded PMX and GLB.
+ * Create a deterministic, rest-relative retarget preview for an already loaded PMX and GLB/FBX.
  * @param {any} THREE @param {any} pmx SkinnedMesh from MMDLoader
- * @param {any} sourceScene GLTF scene @param {any} clip GLTF AnimationClip
+ * @param {any} sourceScene GLTF/FBX scene @param {any} clip AnimationClip
  */
 export function createPmxGlbPreview(THREE, pmx, sourceScene, clip) {
-  if (!pmx?.isSkinnedMesh || !pmx.skeleton || !clip?.tracks?.length) throw new Error('PMXの骨格またはGLBのアニメーションがありません。');
+  if (!pmx?.isSkinnedMesh || !pmx.skeleton || !clip?.tracks?.length) throw new Error('PMXの骨格またはダンスのアニメーションがありません。');
   const sourceBones = new Map();
-  sourceScene.traverse((/** @type {any} */ o) => { if (o.isBone) sourceBones.set(o.name, o); });
+  sourceScene.traverse((/** @type {any} */ o) => { if (o.isBone && !sourceBones.has(sourceBoneKey(o.name))) sourceBones.set(sourceBoneKey(o.name), o); });
   const targetBones = new Map(pmx.skeleton.bones.map((/** @type {any} */ b) => [b.name, b]));
   for (const [src, dst] of [['Hips', '腰'], ['LeftUpLeg', '左足'], ['RightUpLeg', '右足']]) {
     if (!sourceBones.has(src) || !targetBones.has(dst)) throw new Error(`対応に必要な骨がありません：${src} → ${dst}`);
