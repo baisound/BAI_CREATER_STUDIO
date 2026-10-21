@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T10:53:26+09:00",
+  "updated_at": "2026-10-21T10:56:53+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05e",
-  "head_at_update": "3ea863f",
+  "head_at_update": "b187f18",
   "current": {
     "task": "P2-WP-05e SCR-13のタイムライン編集・再生と補正レイヤー",
-    "status": "in_progress",
+    "status": "done",
     "step": "タイムライン・補正レイヤーの計算と内容比較保存を実装",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "WP05eの純粋計算・自動保存コントローラーを実装して単体テストする",
-    "SCR13のタイムラインUIとFBX再生・補正レイヤーを結線する"
+    "SCR13のタイムラインUI・FBXモデル選択と再生・補正レイヤーを結線する",
+    "隔離サーバーのブラウザ試験と共通ゲートを実行する"
   ],
   "unverified": [
-    "実FBX/GPU実機とWP05b/cの必須独立レビューは未確認。GET→POST間の競合の隙は設計K12として残る。"
+    "SCR13 UIとFBX再生は未結線。実FBX/GPU未検証。WP05b/c独立レビュー未確認。GET→POSTの競合の隙は設計K12。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T10:56:53+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b187f18",
+      "text": "WP05eの旧式タイムライン計算・補正レイヤー計算と550/500ms内容比較保存を実装。偽時計・偽APIの7件と型チェックが合格。"
+    },
     {
       "at": "2026-10-21T10:53:26+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "done",
       "head": "8a01f5f",
       "text": "P2-WP-03 Opus レビュー完了（送る直前の衝突の再確認・VMD の大文字小文字を修正）、legacy-project-save.test.cjs の時々の失敗（テスト側、b082ad8 から）を修正"
-    },
-    {
-      "at": "2026-10-20T14:46:08+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "30601de",
-      "text": "P2-WP-02/03 ③ 素材一覧・取り込みを実装（30601de）。pytest 354、node-all 188 pass、tsc・evidence 合格、実 data/ 不変"
     }
   ]
 }

@@ -264,11 +264,11 @@
     {
       "id": "P2-WP-05e",
       "step": "⑤ SCR-13 下部のタイムライン編集・再生と補正レイヤー",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "設計書 §2.5 05e。競合は内容の比べ（O-⑤-4）。GET と POST の間の隙は残る（リスク K12）。",
+      "state": "in_progress",
+      "commits": ["05e-1（このコミット：計算フォークと内容比較保存）"],
+      "tests": ["node --test tests/studio-p2-timeline-logic.test.mjs: 7 pass（30fps終端・重複クリップ選択・移動差分・レイヤー補間・550/500ms・競合と明示上書き・保存中の追加入力）", "npm run typecheck: pass"],
+      "unverified": ["SCR-13 UI・FBX再生との結線、隔離サーバーを使う保存/競合のブラウザテスト、全体ゲートは未実施。", "実FBX/GPU実機は未検証。GET→POST間の競合の隙は設計K12として残る。", "WP05b/cの必須独立レビューは未確認。"],
+      "notes": "設計書 §2.5 05e。旧 timelineFrame・motion_layers.js の計算をフォークし、版を持たない既存APIへ保存する前に正規化済み内容を比べる共通コントローラーを追加。競合ではローカル編集を保持し、明示確認を経る上書きだけを許す。実装・単体テスト：標準モデル区分。",
       "owner_check": null
     },
     {
