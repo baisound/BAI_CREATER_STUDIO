@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T17:08:35+09:00",
+  "updated_at": "2026-10-21T18:04:36+09:00",
   "updated_by": "codex",
   "branch": "codex/audio-dance-sync",
-  "head_at_update": "e577325",
+  "head_at_update": "0d7beec",
   "current": {
     "task": "AUDIO-001 PMXとGLBダンスの音楽同期プレビュー",
-    "status": "in_progress",
+    "status": "done",
     "step": "SCR-10の3D変形・音声クロック・2トラック編集",
     "design_doc": "docs/roadmap/AUDIO_DANCE_SYNC_20261021_JA.md"
   },
   "next_steps": [
-    "SCR-10にPMX＋GLBリターゲット、波形、音声同期タイムライン、1フレーム調整を実装する"
+    "Issue #39のPRをレビュー・統合し、ローカルmainと現行サーバーを同期する",
+    "Issue #40のステージGLB配置を素材提供後に進める"
   ],
   "unverified": [
-    "実3D変形・音楽再生・保存再読込のブラウザ検証、GPU/Linux、標準MCPは未確認"
+    "実GPU/Linux、標準MCP、MMD本体との物理一致と衣装貫通、Owner採用は未検証。GLBには表情モーフトラックがない"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T18:04:36+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "0d7beec",
+      "text": "AUDIO-001: SCR-10でPMXとMVNT GLBの骨対応、MMD物理、WAV/MP3実波形、30fps配置・再生・保存復元を実装し、実素材を隔離ブラウザで検証"
+    },
     {
       "at": "2026-10-21T17:08:35+09:00",
       "by": "codex",
@@ -234,13 +242,6 @@
       "event": "start",
       "head": "11eeac8",
       "text": "適格PRを含むrecoveryをmainへ統合: mainとの差分確認・祖先同期・共通ゲート・統合PR"
-    },
-    {
-      "at": "2026-10-21T13:05:21+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "bcb29fa",
-      "text": "SCR-18履歴一覧を新しい順へ変更し、保存順と復元インデックスを維持。Chromium 17/17、tsc、表示状態6/6合格"
     }
   ]
 }

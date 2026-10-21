@@ -15,6 +15,7 @@ import { patternList, chainTimeline, playbackSettings } from './chain-view.js';
 import { chainViewport } from './chain-viewport.js';
 import { sceneViewport, stageLoadButton, stageTransform } from './scene-view.js';
 import { projectToolbar, projectStatus, projectSummary, projectHistory, projectList, projectCard } from './project-view.js';
+import { musicDanceStudio } from './music-dance-view.js';
 
 /** @type {Record<string, FeatureFn>} */
 export const FEATURES = {
@@ -30,5 +31,7 @@ export const FEATURES = {
   motionCenter, vmdLibrary,
   // WP-05c（⑤ SCR-05 の82パターン・お気に入り・コンビネーション・速度）
   patternList, chainTimeline, playbackSettings, chainViewport,
+  // AUDIO-001 / Issue #39: 実音声・GLB ダンス・PMX プレビューの同期
+  musicDanceStudio,
   // WP-05d 以降が追加する。
 };

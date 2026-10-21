@@ -27,7 +27,11 @@ PMX の骨名は「センター・腰・上半身・左足…」、GLB は `Hips
 
 ## 段階別の現状
 
-- 保存契約・API: `music_dance_project.py` と `GET/POST /api/music-dance/project`。整数フレームの検証、revision/If-Match、前版バックアップ、破損時の拒否。`tests/test_music_dance_project.py` の2件が成功。画面・同期再生は次段階で実装する。
+- 保存契約・API: `music_dance_project.py` と `GET/POST /api/music-dance/project`。整数フレームの検証、revision/If-Match、前版バックアップ、破損時の拒否。`tests/test_music_dance_project.py` の2件が成功。
+- SCR-10: PMX、アニメーション入り GLB、登録 WAV/MP3 を選び、実波形と2トラックを表示。同じ `AudioContext` 時刻から音声と3D姿勢を評価し、再生位置・各ブロック開始・素材頭出しを1F単位で調整する。SCR-08 の素材詳細から該当素材を渡せる。配置は保存・再読込で復元する。`tests/studio-music-dance-clock.test.mjs` 2件、`tests/studio-music-dance.test.cjs` 2件が成功。
+- 実素材: 上記 PMX/GLB/WAV を隔離サーバーに読み込ませ、波形生成・骨59本の対応・剛体63個とジョイント99個の起動・10秒位置の実描画・切替時の解放を確認。実曲の先頭・約133秒・約273秒の音声位置表示と配置の保存再読込も確認した。元ファイル3点の SHA-256 は前後で一致。実曲は一時データ側へ登録し、制作データの配置は書き換えていない。WebGL は Chrome SwiftShader で、実 GPU/Linux は未検証。
+- GLB にある頭・首・両手指・両足・つま先の回転トラックを対応するPMX骨へ写す。PMXの脚頂点を駆動する D/EX 骨も同期し、膝と靴が元の動きに追従する。GLBの非ルート位置トラックは全て定位置で、腰だけが移動する。骨長と形状が違うため、手先・足先の絶対位置は完全には一致しない。GLB に表情モーフのトラックが無く、顔の表情再生はこの素材からはできない。
+- PMXに既存の衣装裾・髪・耳・尾・狐面紐/鈴の剛体があることを確認し、three.js r160 の `MMDPhysics`/Ammo でプレビュー時だけ計算する。縮小表示中の各ステップ後に世界行列を更新しないと衣装骨が約12.5倍の位置へ飛ぶ不良を実画像で発見・修正した。10秒位置の物理あり/なしを並べ、衣装が元の形を保ちながら変位することを確認。物理の動きがMMD本体と完全一致するか、貫通がないかは未検証。
 
 ## 受け入れの観測
 
