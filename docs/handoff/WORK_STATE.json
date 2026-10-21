@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T22:01:13+09:00",
+  "updated_at": "2026-10-21T22:03:10+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-pack-gpu-main",
-  "head_at_update": "1de1272",
+  "head_at_update": "d5f2c98",
   "current": {
     "task": "PR45を統合済みPR43のmainへ追従",
-    "status": "in_progress",
+    "status": "done",
     "step": "共通の大型GLB見本保護を保持し、競合を解消して小型テストを再実行する",
     "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
-    "PR43に大型GLB自動サムネイル抑止を反映し、Issue #44のPRを作成して確認する。OwnerのPR統合判断を待つ。"
+    "PR45をGitHub mainへ統合し、ローカルmainと8765番サーバーを同期する。その後WP05gを既定順で進める。"
   ],
   "unverified": [
-    "最大GLBのシーンUI実再生は端末フリーズのため中断。実FPS、低性能GPU、Linux、WebMCP/標準MCP、Owner外観採用は未確認。"
+    "最大GLBのシーンUI実再生は前回端末フリーズのため中断し再試験しない。実FPS、低性能GPU、Linux、MCP、Owner外観採用は未確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,11 +33,32 @@
   ],
   "history": [
     {
+      "at": "2026-10-21T22:03:10+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "d5f2c98",
+      "text": "PR45に統合済みPR43/mainを取り込み、作業位置・DATA-016台帳・大型GLB見本保護の競合を解消。Node19件、Python5件、TypeScript検査に合格。"
+    },
+    {
       "at": "2026-10-21T22:01:13+09:00",
       "by": "codex",
       "event": "start",
       "head": "1de1272",
       "text": "PR45を統合済みPR43のmainへ追従: 共通の大型GLB見本保護を保持し、競合を解消して小型テストを再実行する"
+    },
+    {
+      "at": "2026-10-21T21:39:50+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "55bbc36",
+      "text": "PR43: 受領大型GLBの自動サムネイル補完・詳細自動3D読込を128MiB超で抑止。明示操作だけに限定し、Node1件とTypeScript検査に合格。"
+    },
+    {
+      "at": "2026-10-21T21:38:47+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "203f4c4",
+      "text": "PR43の大型GLB自動読込を安全化: Issue44受領後、大型ステージの自動サムネイルと詳細の自動3D読込を抑止する"
     },
     {
       "at": "2026-10-21T21:35:55+09:00",
@@ -52,6 +73,48 @@
       "event": "start",
       "head": "1327f69",
       "text": "受領済み7ステージの更新登録と大規模GLBのGPU描画確認: READMEの7件を原本hashと照合し、現行の登録・描画経路と容量上限を整理する"
+    },
+    {
+      "at": "2026-10-21T21:07:09+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "0070974",
+      "text": "Issue34/35実素材QA: 実GLB/VRM/PMX正面PNG、実FBX/VMDグレーマン、S01室内PNGを確認。PMX非同期テクスチャ待機・空白画像防止・移動見本追従・一覧再描画競合を修正"
+    },
+    {
+      "at": "2026-10-21T20:24:44+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "7eed0d1",
+      "text": "Issue34/35の実素材表示品質確認: 実GLBキャラクターの正面PNGと登録済み実FBXモーションのグレーマンを隔離Chromeで確認し、必要な修正を行う"
+    },
+    {
+      "at": "2026-10-21T20:23:22+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "17df04c",
+      "text": "DATA-016のステージ内部自動サムネイルを実装。実S01で8視点解析と室内PNG保存・旧画像保持を確認し、ローカル登録済みS01を更新"
+    },
+    {
+      "at": "2026-10-21T20:16:19+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "c6287b1",
+      "text": "ステージGLBの内部を解析して見せ場のサムネイルを自動生成: SkyDomeを除いた構造範囲、室内候補視点、画像評価、版付き保存と既登録S01再生成を実装"
+    },
+    {
+      "at": "2026-10-21T20:15:07+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "1b0f48a",
+      "text": "Issue34/35のグレーマン表示とキャラクター正面PNGの初期実装。隔離Chrome2件、HTTP1件、型検査成功。素材画面一式32/33成功、時間切れの1件は単独再実行で成功"
+    },
+    {
+      "at": "2026-10-21T19:54:28+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1327f69",
+      "text": "Issue34・35 モーションのグレーマン再生とキャラクター正面サムネイル: 既存の素材詳細プレビュー・カタログ・保存APIを調べ、原本不変の画像生成とモーション適用を設計する"
     },
     {
       "at": "2026-10-21T19:45:26+09:00",
@@ -178,69 +241,6 @@
       "event": "start",
       "head": "5ef1b0a",
       "text": "Issue #37 素材取り込み拡張: SCR-08の分類・取り込みキュー・一覧と詳細を新APIへ接続する"
-    },
-    {
-      "at": "2026-10-21T16:16:54+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9c1ec97",
-      "text": "DATA-016の分類別保存API・メタタイトル・Range配信・PNG見本保存を実装。隔離Python3件、構文、149 ID台帳一致。"
-    },
-    {
-      "at": "2026-10-21T16:08:35+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "87db9e3",
-      "text": "Issue #37 素材取り込み拡張: 安全な保存API・メタデータ抽出・範囲配信・見本画像保存とPython試験"
-    },
-    {
-      "at": "2026-10-21T16:08:20+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "6effa64",
-      "text": "Issue #37の既存登録4経路と素材分類、保存API、メタ情報、見本生成の実装境界を設計"
-    },
-    {
-      "at": "2026-10-21T16:04:09+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3a24dd4",
-      "text": "Issue #37 素材取り込みの入口をステージ・小物・材質・エフェクト・音声・動画・画像へ拡張: 既存API・台帳・入力形式とサンプル素材の権利を調査し、実装順序を決める"
-    },
-    {
-      "at": "2026-10-21T15:58:52+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "340aeeb",
-      "text": "Issue #33: mainへのPRマージ後のローカルmain同期・8765番サーバー確認をAGENTSと詳細手順に追加"
-    },
-    {
-      "at": "2026-10-21T15:57:59+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1897a21",
-      "text": "Issue #33 main統合後のローカル同期とサーバー確認手順: AGENTSの短い導線と詳細手順を追加する"
-    },
-    {
-      "at": "2026-10-21T15:40:14+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9a383fd",
-      "text": "Issue #30: 旧カメラのVRM正面・顔アップ・撮影画面ドラッグ・再生・一周キーを修正し、実VRMと隔離Chromeで確認"
-    },
-    {
-      "at": "2026-10-21T15:08:57+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9b9464c",
-      "text": "Issue #30 旧BAI Cameraの正面撮影・自由回転・再生途中停止・周回の不具合: 実画面とコードで症状を切り分け、既存仕様内で修正する"
-    },
-    {
-      "at": "2026-10-21T15:07:03+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2b90003",
-      "text": "Issue #28 MOTION-016の素材一覧3姿勢画像と選択素材の再生プレビューを実装。Issue #29 3D操作とともにChrome/SwiftShader実素材確認。素材テスト29/29、ビュー19/19、旧カメラ1/1、証拠テスト120/120、tsc合格。実データハッシュ不変。"
     }
   ]
 }

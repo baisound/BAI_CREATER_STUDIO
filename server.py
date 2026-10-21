@@ -8,9 +8,10 @@ from camera_vmd_inspect import inspect_camera_vmd
 from camera_vmd_codec import decode_camera_track, encode_camera_track
 from camera_vmd_playback import sample_native_camera
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlsplit, parse_qs
+from urllib.parse import urlsplit, parse_qs, quote, unquote as path_unquote
 from bai_paths import data_dir
 import library_assets
+import asset_thumbnails
 import music_dance_project
 from diagnostic_logging import event, recent
 from qa_capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
@@ -66,6 +67,8 @@ CUSTOM_INDEX=DATA/'integrated_v02'/'user_assets.json'
 CUSTOM_LOCK=threading.RLock()
 LIBRARY_ROOT=DATA/'library_assets'
 LIBRARY_LOCK=threading.RLock()
+CHAR_THUMB_ROOT=DATA/'asset_thumbnails'
+CHAR_THUMB_LOCK=threading.RLock()
 MUSIC_DANCE_FILE=DATA/'music_dance_project.json'; MUSIC_DANCE_LOCK=threading.RLock()
 EDITOR_FILE=DATA/'timeline_editor.json'; EDITOR_LOCK=threading.RLock()
 LAYER_FILE=DATA/'motion_layers.json'; LAYER_LOCK=threading.RLock()
@@ -87,6 +90,27 @@ def catalog_combined():
         else:c['motions'].append({'id':x['id'],'name':x['name'],'category':'ユーザー登録','provider':'ローカル','source_asset':'assets/'+x['filename']})
     c['asset_count']=len({x.get('source_asset') for x in c['motions']+c['models'] if x.get('source_asset')})
     return c
+
+
+def character_source(entry):
+    """Resolve only a registered character's source; reject escaped metadata paths."""
+    if not entry.get('available') or entry.get('format') not in ('GLB','VRM','PMX','FBX'):
+        return None
+    if entry.get('source')=='integrated' and entry.get('kind')=='model':
+        root=DATA/'integrated_v02'/'assets'; parts=(entry.get('filename',''),)
+    elif entry.get('source')=='mmd' and entry.get('format')=='PMX' and entry.get('kind') in ('A','B'):
+        root=MMD_DIR/entry['kind']; parts=(entry.get('name',''),)
+    elif entry.get('source')=='fbx' and entry.get('kind') in ('modelA','modelB'):
+        root=FILES; parts=(entry.get('id','').removeprefix('fbx:')+'.fbx',)
+    else:
+        return None
+    base=root.resolve(); candidate=root.joinpath(*parts).resolve()
+    return candidate if candidate.is_relative_to(base) and candidate.is_file() else None
+
+
+def character_entry(asset_id):
+    return next(((entry, source) for entry in unified_assets() if entry['id']==asset_id
+                 if (source:=character_source(entry)) is not None),None)
 
 
 def unified_assets():
@@ -113,6 +137,12 @@ def unified_assets():
             if fmt not in ('PMX','VMD'):continue
             result.append({'id':'mmd:'+slot+':'+name,'name':name,'format':fmt,'kind':slot,'source':'mmd','available':(MMD_DIR/slot/name).is_file(),'previewable':True})
     with LIBRARY_LOCK:result.extend(library_assets.public_items(LIBRARY_ROOT))
+    for entry in result:
+        source=character_source(entry)
+        if source is None:continue
+        entry['thumbnailKey']=asset_thumbnails.cache_key(entry['id'],source)
+        cached=asset_thumbnails.thumbnail_for(CHAR_THUMB_ROOT,entry['id'],source)
+        if cached:entry['thumbnailUrl']='/api/assets/thumbnail/'+quote(entry['id'],safe='')+'?v='+cached[1]
     return result
 
 def readmeta():
@@ -334,6 +364,16 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/api/assets':
             try:self.send(200,json.dumps({'items':unified_assets()},ensure_ascii=False).encode())
             except (ValueError,OSError):self.bad(500,'素材索引を読めません。原本は保持されています。')
+            return
+        if path.startswith('/api/assets/thumbnail/'):
+            asset_id=path_unquote(path[len('/api/assets/thumbnail/'):])
+            try:
+                found=character_entry(asset_id)
+                if not found:return self.bad(404,'character asset not found')
+                with CHAR_THUMB_LOCK:cached=asset_thumbnails.thumbnail_for(CHAR_THUMB_ROOT,asset_id,found[1])
+                if not cached:return self.bad(404,'thumbnail not found')
+                self.send(200,cached[0].read_bytes(),'image/png')
+            except (ValueError,OSError):self.bad(500,'正面画像を読めません。')
             return
         if path=='/api/music-dance/project':
             try:
@@ -851,6 +891,20 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(200,b'{"ok":true}')
             except ValueError as exc:self.bad(400,str(exc)[:180])
             except OSError:self.bad(500,'見本画像を保存できませんでした。')
+            return
+        if u.path=='/api/assets/thumbnail':
+            asset_id=qs.get('id',[''])[0]
+            if n>asset_thumbnails.MAX_PNG:return self.bad(413,'thumbnail too large')
+            try:
+                found=character_entry(asset_id)
+                if not found:return self.bad(404,'character asset not found')
+                payload=self.rfile.read(n)
+                if len(payload)!=n:return self.bad(400,'incomplete thumbnail')
+                with CHAR_THUMB_LOCK:cached=asset_thumbnails.save_thumbnail(CHAR_THUMB_ROOT,asset_id,found[1],payload)
+                url='/api/assets/thumbnail/'+quote(asset_id,safe='')+'?v='+cached[1]
+                self.send(200,json.dumps({'ok':True,'url':url}).encode())
+            except ValueError as exc:self.bad(400,str(exc)[:180])
+            except OSError:self.bad(500,'正面画像を保存できませんでした。')
             return
         if u.path=='/api/run-vmd-conversion':
             if n>2048:return self.bad(413,'request too large')

@@ -1,7 +1,7 @@
 // @ts-check
 // ③ 素材一覧の分類・絞り込み（純関数。DOM なし。Node で単体テストする。P2 設計 §2.3(d)）。
 
-/** @typedef {{id: string, name: string, format: string, kind: string, source: string, available: boolean, previewable?: boolean, filename?: string, originalName?: string, titleSource?: string, bytes?: number, sha256?: string, mime?: string, width?: number, height?: number, duration?: number, thumbnailUrl?: string|null}} AssetItem */
+/** @typedef {{id: string, name: string, format: string, kind: string, source: string, available: boolean, previewable?: boolean, filename?: string, originalName?: string, titleSource?: string, bytes?: number, sha256?: string, mime?: string, width?: number, height?: number, duration?: number, thumbnailUrl?: string|null, thumbnailKey?: string}} AssetItem */
 
 /** 左の分類。順序・ラベル・アイコンは samples.js から移したもの（motion のラベルだけ「モーション」）。 */
 export const ASSET_CATS = [

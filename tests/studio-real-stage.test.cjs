@@ -181,6 +181,41 @@ test('S01 GLB stage loads at the origin, frames its interior and survives save/r
     assert.deepEqual((await page.evaluate(() => window.baiStudio.viewport.getState().stage)).position, [0, 0, 0]);
     await page.waitForFunction(() => window.baiStudio.viewport.getState().lights?.count === 4);
     assert.equal((await page.evaluate(() => window.baiStudio.project.getState().bundle.workspace.lights.items[3].keys[1].rgb[0])), 18);
+    const plan = await page.evaluate(async (stageId) => {
+      const { currentViewport } = await import('/studio/js/viewport/three-host.js');
+      const { planStageViews } = await import('/studio/js/features/stage-thumbnail.js');
+      const THREE = await import('three');
+      const host = currentViewport();
+      const root = host.content.children.find((child) => child.userData.assetId === stageId);
+      const result = planStageViews(root, THREE);
+      return { enclosed: result.enclosed, size: result.bounds.getSize(new THREE.Vector3()).toArray(), views: result.views.length };
+    }, item.id);
+    assert.equal(plan.enclosed, true);
+    assert.equal(plan.views, 8);
+    assert.ok(plan.size[0] < 25 && plan.size[2] < 25, `SkyDome must not frame the image: ${JSON.stringify(plan)}`);
+    const thumbRoot = require('node:path').join(server.dataDir, 'library_assets', 'thumbnails');
+    fs.mkdirSync(thumbRoot, { recursive: true });
+    const legacyPath = require('node:path').join(thumbRoot, `${item.id.slice(8)}.png`);
+    const legacy = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==', 'base64');
+    fs.writeFileSync(legacyPath, legacy);
+    await page.goto(`${server.base}/workspace/08?cat=stage`);
+    await page.waitForFunction((id) => !!document.querySelector(`[data-asset-id="${id}"] img[src*="thumbnail"]`), item.id, { timeout: 30000 });
+    const catalog = await (await fetch(`${server.base}/api/assets`)).json();
+    assert.match(catalog.items.find((asset) => asset.id === item.id).thumbnailUrl, /\?v=2$/);
+    const thumbPath = require('node:path').join(server.dataDir, 'library_assets', 'thumbnails', `${item.id.slice(8)}-stage-v2.png`);
+    assert.ok(fs.existsSync(thumbPath));
+    assert.deepEqual(fs.readFileSync(legacyPath), legacy, 'previous stage thumbnail stays available as a backup');
+    const lowerCorners = await page.evaluate(async (url) => {
+      const bitmap = await createImageBitmap(await (await fetch(url)).blob());
+      const canvas = document.createElement('canvas'); canvas.width = bitmap.width; canvas.height = bitmap.height;
+      const context = canvas.getContext('2d'); context.drawImage(bitmap, 0, 0);
+      return [0.08, 0.92].map((x) => {
+        const [r, g, b] = context.getImageData(Math.round(bitmap.width * x), Math.round(bitmap.height * 0.92), 1, 1).data;
+        return (r + g + b) / 3;
+      });
+    }, catalog.items.find((asset) => asset.id === item.id).thumbnailUrl);
+    assert.ok(lowerCorners.every((value) => value > 60), `S01 thumbnail should show the floor rather than the outer sphere: ${lowerCorners}`);
+    if (process.env.STAGE_THUMB_SHOT) fs.copyFileSync(thumbPath, process.env.STAGE_THUMB_SHOT);
     harness.assertNoErrors(page);
   } finally {
     await page?.context().close();

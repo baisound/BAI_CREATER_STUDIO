@@ -329,10 +329,17 @@ def public_items(root: Path) -> list[dict]:
         if not isinstance(asset_id, str) or not re.fullmatch(r'library:[0-9a-f]{24}', asset_id): continue
         filename = item.get('filename', '')
         if not isinstance(filename, str) or not re.fullmatch(r'[0-9a-f]{64}\.[a-z0-9]{3,5}', filename): continue
+        thumb = root / 'thumbnails' / _thumbnail_name(item)
         out.append({**item, 'available': (root / 'files' / filename).is_file(),
                     'previewable': item.get('kind') in ('stage', 'prop', 'fx', 'audio', 'video', 'image', 'material'),
-                    'thumbnailUrl': f'/api/library-assets/thumbnail/{asset_id}' if (root / 'thumbnails' / (asset_id[8:] + '.png')).is_file() else None})
+                    'thumbnailUrl': f'/api/library-assets/thumbnail/{asset_id}' + ('?v=2' if item.get('kind') == 'stage' else '') if thumb.is_file() else None})
     return out
+
+
+def _thumbnail_name(item: dict) -> str:
+    """Stage v2 stores the interior view separately from the old sphere framing."""
+    suffix = '-stage-v2' if item.get('kind') == 'stage' else ''
+    return item['id'][8:] + suffix + '.png'
 
 
 def entry_for(root: Path, asset_id: str) -> dict | None:
@@ -347,13 +354,14 @@ def file_for(root: Path, asset_id: str) -> tuple[Path, str] | None:
 
 
 def save_thumbnail(root: Path, asset_id: str, payload: bytes) -> Path:
-    if not entry_for(root, asset_id): raise ValueError('asset is not registered')
+    entry = entry_for(root, asset_id)
+    if not entry: raise ValueError('asset is not registered')
     if not 33 <= len(payload) <= MAX_THUMBNAIL or not payload.startswith(b'\x89PNG\r\n\x1a\n') or payload[12:16] != b'IHDR':
         raise ValueError('thumbnail must be a PNG image')
     width, height = struct.unpack('>II', payload[16:24])
     if not (32 <= width <= 2048 and 32 <= height <= 2048): raise ValueError('thumbnail dimensions are invalid')
     folder = root / 'thumbnails'; folder.mkdir(parents=True, exist_ok=True)
-    target = folder / (asset_id[8:] + '.png')
+    target = folder / _thumbnail_name(entry)
     if target.is_file(): return target
     fd, name = tempfile.mkstemp(prefix='thumbnail-', suffix='.tmp', dir=folder)
     try:
@@ -366,6 +374,7 @@ def save_thumbnail(root: Path, asset_id: str, payload: bytes) -> Path:
 
 
 def thumbnail_for(root: Path, asset_id: str) -> Path | None:
-    if not entry_for(root, asset_id): return None
-    path = root / 'thumbnails' / (asset_id[8:] + '.png')
+    entry = entry_for(root, asset_id)
+    if not entry: return None
+    path = root / 'thumbnails' / _thumbnail_name(entry)
     return path if path.is_file() else None

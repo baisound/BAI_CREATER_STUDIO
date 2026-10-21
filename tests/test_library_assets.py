@@ -87,6 +87,22 @@ def test_thumbnail_and_corrupt_index_keep_originals(tmp_path):
     assert before.exists() and before.read_bytes() == payload
 
 
+def test_stage_thumbnail_v2_replaces_sphere_view_without_deleting_legacy(tmp_path):
+    root = tmp_path / 'library'
+    model = (Path(__file__).parent / 'fixtures' / 'synthetic_test_model.glb').read_bytes()
+    item = lib.register_stream(root, io.BytesIO(model), len(model), 'stage', 'room.glb')
+    legacy = root / 'thumbnails' / (item['id'][8:] + '.png')
+    legacy.parent.mkdir(parents=True)
+    legacy.write_bytes(png())
+    assert lib.public_items(root)[0]['thumbnailUrl'] is None
+    assert lib.thumbnail_for(root, item['id']) is None
+    saved = lib.save_thumbnail(root, item['id'], png())
+    assert saved.name.endswith('-stage-v2.png')
+    assert lib.public_items(root)[0]['thumbnailUrl']
+    assert lib.thumbnail_for(root, item['id']) == saved
+    assert legacy.read_bytes() == png()
+
+
 def test_http_upload_catalog_range_and_thumbnail(tmp_path, monkeypatch):
     monkeypatch.setattr(server, 'LIBRARY_ROOT', tmp_path / 'library')
     httpd = ThreadingHTTPServer(('127.0.0.1', 0), server.Handler)
