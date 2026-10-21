@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T11:48:50+09:00",
+  "updated_at": "2026-10-21T11:56:05+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05f",
-  "head_at_update": "9822857",
+  "head_at_update": "836c6af",
   "current": {
     "task": "P2-WP-05f SCR-13の転写レビュー・キー候補比較・足接地診断",
-    "status": "in_progress",
+    "status": "done",
     "step": "⑤-12 未校正キー候補・フレーム比較をSCR13中央へ結線",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "⑤-12 未校正キー候補・フレーム比較をSCR13中央へ結線する"
+    "⑤-14 足の接地診断をSCR13右の足IKタブに結線"
   ],
   "unverified": [
-    "⑤-12/14と共通ゲート、実利用者モデル/GPU、WP05b/c/e/f独立レビューは未確認。"
+    "⑤-14と共通完了ゲート、実利用者モデル/GPU、WP05b/c/e/f独立レビューは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T11:56:05+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "836c6af",
+      "text": "WP05f ⑤-12の未校正キー候補比較・試験再生をSCR13中央に追加し、8件のブラウザー試験と型検査を通過"
+    },
     {
       "at": "2026-10-21T11:48:50+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "df75fe3",
       "text": "P2-WP-05a 完了：SCR-13［編集］の PMX＋VMD・GLB/VRM クリップの1体再生、VMD ライブラリ、モード切替の結線、minimal.vmd の センター 30F、S5 pass"
-    },
-    {
-      "at": "2026-10-20T19:52:34+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "f675061",
-      "text": "P2-WP-05a SCR-13 編集モードの1体再生（PMX+VMD・GLB/VRMクリップ・VMDライブラリ）と S5 の有効化: 実装→テスト→台帳更新→コミット"
     }
   ]
 }

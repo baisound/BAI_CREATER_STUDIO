@@ -245,6 +245,101 @@ test('review bundle requires coordinate confirmation and downloads only verifica
   });
 });
 
+test('keyframe review places two models, scrubs unverified keys, and invalidates on target change', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await open13(page, server);
+    await page.selectOption('[data-role="rt-source"]', IDA);
+    await page.selectOption('[data-role="rt-target"]', IDB);
+    await page.locator('summary', { hasText: 'キー候補・フレーム比較' }).click();
+    const bodies = [];
+    await page.route('**/api/retarget/keyframe-review', async (route) => {
+      bodies.push(route.request().postDataJSON());
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
+        quality_gate: 'blocked_for_production', vmd_export_allowed: false,
+        keys: [{ frame: 0, target_node: 1, rotation_xyzw: [0, Math.SQRT1_2, 0, Math.SQRT1_2] },
+          { frame: 1, target_node: 1, rotation_xyzw: [0, 0, 0, 1] }],
+      }) });
+    });
+    await page.click('[data-role="rt-key-run"]');
+    assert.match(await text(page, 'rt-key-status'), /確認してください/);
+    assert.equal(bodies.length, 0);
+    await page.check('[data-role="rt-key-agree"]');
+    await page.click('[data-role="rt-key-run"]');
+    await page.waitForFunction(() => window.baiStudio.viewport.getState().keyReview?.applied === 1, null, { timeout: 15000 });
+    assert.deepEqual(bodies[0], { source: IDA, target: IDB, fps: 30, coordinate_convention_confirmed: true });
+    const state = await page.evaluate(() => window.baiStudio.viewport.getState().keyReview);
+    assert.equal(state.objects, 2); assert.equal(state.frame, 0);
+    near(state.centers[0].x, -1.1, 1e-6, '左 x'); near(state.centers[1].x, 1.1, 1e-6, '右 x');
+    for (const c of state.centers) { near(c.minY, 0, 1e-6, '足 y'); near(c.height, 1.9, 1e-6, '高さ'); }
+    assert.match(await text(page, 'rt-key-status'), /フレーム 0：候補 1 ボーン。未校正・プレビューのみ。VMD出力は禁止/);
+    await page.click('[data-role="rt-key-step"]');
+    assert.equal(await page.evaluate(() => window.baiStudio.viewport.getState().keyReview.frame), 1);
+    await page.click('[data-role="rt-key-play"]');
+    assert.equal(await page.locator('[data-role="rt-key-play"]').isDisabled(), true);
+    await page.click('[data-role="rt-key-stop"]');
+    assert.equal(await page.locator('[data-role="rt-key-play"]').isDisabled(), false);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('[data-role="rt-key-save"]')]);
+    assert.equal(download.suggestedFilename(), 'BAI_UNVERIFIED_keyframes.json');
+    const saved = JSON.parse(fs.readFileSync(await download.path(), 'utf8'));
+    assert.equal(saved.vmd_export_allowed, false);
+    await page.selectOption('[data-role="rt-target"]', IDA);
+    assert.equal(await page.locator('[data-role="rt-key-frame"]').isDisabled(), true);
+    assert.equal(await page.locator('[data-role="rt-key-save"]').isDisabled(), true);
+    assert.equal(await page.locator('[data-role="rt-key-agree"]').isChecked(), false);
+    assert.equal(await page.evaluate(() => window.baiStudio.viewport.getState().keyReview), null);
+    assert.ok(fs.readFileSync(path.join(server.dataDir, 'integrated_v02', 'assets', B)).equals(GLB));
+  });
+});
+
+test('keyframe review rejects a production gate and an out-of-range node', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await open13(page, server);
+    await page.selectOption('[data-role="rt-source"]', IDA);
+    await page.selectOption('[data-role="rt-target"]', IDB);
+    await page.locator('summary', { hasText: 'キー候補・フレーム比較' }).click();
+    await page.check('[data-role="rt-key-agree"]');
+    let data = { quality_gate: 'ready', vmd_export_allowed: true, keys: [] };
+    await page.route('**/api/retarget/keyframe-review', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(data) }));
+    await page.click('[data-role="rt-key-run"]');
+    await page.waitForFunction(() => /未校正品質ゲートが不正です/.test(document.querySelector('[data-role="rt-key-status"]')?.textContent || ''));
+    assert.equal(await page.evaluate(() => window.baiStudio.viewport.getState().keyReview), undefined);
+    data = { quality_gate: 'blocked_for_production', vmd_export_allowed: false,
+      keys: [{ frame: 0, target_node: 9999, rotation_xyzw: [0, 0, 0, 1] }] };
+    await page.click('[data-role="rt-key-run"]');
+    await page.waitForFunction(() => /転写先ノードが存在しません/.test(document.querySelector('[data-role="rt-key-status"]')?.textContent || ''), null, { timeout: 15000 });
+    assert.equal(await page.locator('[data-role="rt-key-frame"]').isDisabled(), true);
+    assert.equal(await page.evaluate(() => window.baiStudio.viewport.getState().keyReview), undefined);
+  });
+});
+
+test('keyframe review discards a response after the selected target changes', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await open13(page, server);
+    await page.selectOption('[data-role="rt-source"]', IDA);
+    await page.selectOption('[data-role="rt-target"]', IDB);
+    await page.locator('summary', { hasText: 'キー候補・フレーム比較' }).click();
+    await page.check('[data-role="rt-key-agree"]');
+    let release, signal;
+    const requested = new Promise((resolve) => { signal = resolve; });
+    await page.route('**/api/retarget/keyframe-review', async (route) => {
+        signal();
+        await new Promise((done) => { release = done; });
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
+          quality_gate: 'blocked_for_production', vmd_export_allowed: false,
+          keys: [{ frame: 0, target_node: 1, rotation_xyzw: [0, 0, 0, 1] }],
+        }) });
+    });
+    await page.click('[data-role="rt-key-run"]');
+    await requested;
+    await page.selectOption('[data-role="rt-target"]', IDA);
+    release();
+    await page.waitForTimeout(300);
+    assert.match(await text(page, 'rt-key-status'), /素材が変更されました/);
+    assert.equal(await page.evaluate(() => window.baiStudio.viewport.getState().keyReview), undefined);
+    assert.equal(await page.locator('[data-role="rt-key-frame"]').isDisabled(), true);
+  });
+});
+
 /** 仮転写の応答の形（samples は target_node と local_rotation_xyzw）。frame 0 に 3 件：適用 1・範囲外 1・不正な四元数 1、frame 1 に 1 件。 */
 const REPORT = {
   samples: [

@@ -10,6 +10,7 @@ import { getJson, postJson, getBinary } from '../api.js';
 import { ensureAssets, loadAssets, watchAssets } from './assets.js';
 import { loadLibs, loadErrorText, MISSING_FILE_TEXT } from '../viewport/model-loader.js';
 import { createViewport, WebGLError, WEBGL_ERROR_TEXT } from '../viewport/three-host.js';
+import { inspectPreviewKeys } from '/v01641_preview_guard.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 
@@ -472,20 +473,21 @@ export const retargetViewport = (ctx) => {
     say('数値候補を取得しました。確認用のモデルを選んでください。');
   });
 
-  /** @param {any} THREE @param {any} root @param {number} i */
-  function place(THREE, root, i) {
+  /** @param {any} THREE @param {any} root @param {number} i @param {number} [heightGoal] @param {number} [xGoal] */
+  function place(THREE, root, i, heightGoal = COMPARE_HEIGHT, xGoal = COMPARE_X) {
     const b = new THREE.Box3().setFromObject(root);
     const height = Math.max(0.001, b.getSize(new THREE.Vector3()).y);
-    root.scale.multiplyScalar(COMPARE_HEIGHT / height);
+    root.scale.multiplyScalar(heightGoal / height);
     root.updateWorldMatrix(true, true);
     const after = new THREE.Box3().setFromObject(root);
     const c = after.getCenter(new THREE.Vector3());
-    root.position.set((i === 0 ? -1 : 1) * COMPARE_X - c.x, -after.min.y, -c.z);
+    root.position.set((i === 0 ? -1 : 1) * xGoal - c.x, -after.min.y, -c.z);
   }
 
   let busy = false;
   const runBtn = ready('このフレームを左右比較', 'rt-compare-run', undefined, async () => {
     if (busy) return;
+    if (keyShowing) clearKeys('ポーズ比較へ切り替えました。キー候補は再取得してください。');
     busy = true;
     try {
       if (!agree.box.checked) throw new Error('確認チェックを入れてください');
@@ -535,12 +537,146 @@ export const retargetViewport = (ctx) => {
     } finally { busy = false; }
   });
 
+  /* ---- ⑤-12 未校正キー候補の左右比較。既存の three-host を共有する。 ---- */
+  const keyAgree = checkbox('転写先モデルと同じモデルで、未校正の比較であることを確認した', 'rt-key-agree');
+  const keyFrame = /** @type {HTMLInputElement} */ (h('input', { type: 'range', min: '0', max: '0', value: '0', disabled: true, 'aria-label': 'キー候補の比較フレーム', dataset: { role: 'rt-key-frame' } }));
+  const keyNumber = h('output', { dataset: { role: 'rt-key-number' } }, '0');
+  const keyFps = /** @type {HTMLSelectElement} */ (h('select', { 'aria-label': 'プレビュー更新速度', dataset: { role: 'rt-key-fps' } },
+    ...[5, 10, 15].map((n) => h('option', { value: String(n), selected: n === 10 || null }, `${n} FPS`))));
+  const keyStatus = h('p', { class: 'section-note', role: 'status', 'aria-live': 'polite', dataset: { role: 'rt-key-status' } }, '元・転写先モデルを選び、確認してください。');
+  /** @type {any} */ let keyReport = null;
+  /** @type {Map<number, {object:any, rotation:any}>} */ let keyNodes = new Map();
+  let keyEpoch = 0, keyShowing = false, keyPlaying = false;
+  /** @type {ReturnType<typeof setTimeout>|null} */ let keyTimer = null;
+  const keySay = (t, bad = false) => { keyStatus.textContent = t; if (bad) keyStatus.dataset.kind = 'error'; else delete keyStatus.dataset.kind; };
+  const haltKeys = () => { keyPlaying = false; if (keyTimer !== null) clearTimeout(keyTimer); keyTimer = null; keyPlay.disabled = !keyReport; };
+  const clearKeys = (message) => {
+    keyEpoch++; haltKeys(); keyReport = null; keyNodes.clear(); keyFrame.disabled = true; keySave.disabled = true; keyPlay.disabled = true; keyRun.disabled = false;
+    keyAgree.box.checked = false;
+    if (keyShowing && host) { host.clear(); host.setState({ loaded: false, compare: null, keyReview: null }); }
+    keyShowing = false; keySay(message);
+  };
+  /** @param {number} n */
+  function showKeyFrame(n) {
+    if (!keyReport || !host) return;
+    for (const { object, rotation } of keyNodes.values()) object.quaternion.copy(rotation);
+    const used = new Set();
+    for (const key of keyReport.keys) {
+      if (key.frame !== n || used.has(key.target_node)) continue;
+      const node = keyNodes.get(key.target_node);
+      if (!node) continue;
+      node.object.quaternion.fromArray(key.rotation_xyzw).normalize();
+      used.add(key.target_node);
+    }
+    keyFrame.value = String(n); keyNumber.textContent = String(n);
+    host.invalidate();
+    const old = host.getState().keyReview || {};
+    host.setState({ keyReview: { ...old, frame: n, applied: used.size } });
+    keySay(`フレーム ${n}：候補 ${used.size} ボーン。未校正・プレビューのみ。VMD出力は禁止。`);
+  }
+  const keySave = /** @type {HTMLButtonElement} */ (ready('検証用キーJSONを保存', 'rt-key-save', '未校正の検証データだけをダウンロードします', () => {
+    if (!keyReport || !keyAgree.box.checked) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(keyReport, null, 2)], { type: 'application/json' }));
+    const a = document.createElement('a'); a.href = url; a.download = 'BAI_UNVERIFIED_keyframes.json';
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }));
+  keySave.disabled = true;
+  const keyPlay = /** @type {HTMLButtonElement} */ (ready('試験フレーム再生', 'rt-key-play', undefined, () => {
+    if (!keyReport || keyFrame.disabled) return;
+    haltKeys(); keyPlaying = true; keyPlay.disabled = true;
+    const tick = () => {
+      if (!keyPlaying || !keyReport || document.hidden) { haltKeys(); return; }
+      const next = Number(keyFrame.value) + 1;
+      showKeyFrame(next > Number(keyFrame.max) ? 0 : next);
+      keyTimer = setTimeout(tick, 1000 / Number(keyFps.value));
+    };
+    tick();
+  }));
+  keyPlay.disabled = true;
+  const keyRun = /** @type {HTMLButtonElement} */ (ready('キー候補を取得', 'rt-key-run', undefined, async () => {
+    if (!keyAgree.box.checked) { keySay('取得失敗: 比較モデルの一致と未校正状態を確認してください', true); return; }
+    const { source, target } = rt.get();
+    if (!source || !target) { keySay('取得失敗: 元・転写先モデルを選択してください', true); return; }
+    const item = assets.get().items.find((/** @type {any} */ a) => a.id === target);
+    if (!item || !item.available || item.source !== 'integrated' || !['GLB', 'VRM'].includes(item.format) || !item.filename) {
+      keySay('取得失敗: 登録済みGLB/VRMの転写先モデルを選択してください', true); return;
+    }
+    const epoch = ++keyEpoch;
+    haltKeys(); keyReport = null; keyNodes.clear(); keyFrame.disabled = true; keySave.disabled = true; keyPlay.disabled = true; keyRun.disabled = true;
+    if (keyShowing && host) { host.clear(); host.setState({ loaded: false, compare: null, keyReview: null }); }
+    keyShowing = false;
+    try {
+      keySay('キー候補を計算中…');
+      const response = await postJson('/api/retarget/keyframe-review', { source, target, fps: 30, coordinate_convention_confirmed: true });
+      if (!alive || epoch !== keyEpoch) return;
+      if (!response.ok) throw new Error(response.message);
+      const report = response.data;
+      if (!report || report.quality_gate !== 'blocked_for_production' || report.vmd_export_allowed !== false) throw new Error('未校正品質ゲートが不正です');
+      const bin = await getBinary(`/api/integrated-v02/asset/${encodeURIComponent(item.filename)}`);
+      if (!alive || epoch !== keyEpoch) return;
+      if (!bin.ok) throw new Error(bin.status === 404 ? MISSING_FILE_TEXT : bin.message);
+      if (bin.data.byteLength > MAX_COMPARE_BYTES) throw new Error('比較用モデルは150MB以下にしてください');
+      const libs = await loadLibs();
+      if (!alive || epoch !== keyEpoch) return;
+      if (!host) throw new Error(msg.textContent || '3D表示を開始できません');
+      const parse = () => new libs.GLTFLoader().parseAsync(bin.data.slice(0), '');
+      const [left, right] = await Promise.all([parse(), parse()]);
+      if (!alive || epoch !== keyEpoch || !host) return;
+      const count = Array.isArray(right.parser.json.nodes) ? right.parser.json.nodes.length : 0;
+      const inspection = inspectPreviewKeys(report.keys, count);
+      if (!inspection.ok) throw new Error(inspection.errors.join('; '));
+      const nodes = new Map();
+      for (let i = 0; i < count; i++) {
+        const object = await right.parser.getDependency('node', i);
+        if (!alive || epoch !== keyEpoch) return;
+        if (object) nodes.set(i, { object, rotation: object.quaternion.clone() });
+      }
+      host.clear();
+      [left.scene, right.scene].forEach((root, i) => { place(libs.THREE, root, i, 1.9, 1.1); host && host.add(root); });
+      host.fit(); keyShowing = true; keyNodes = nodes; keyReport = report;
+      let lastFrame = 0;
+      for (const key of report.keys) lastFrame = Math.max(lastFrame, key.frame);
+      keyFrame.max = String(lastFrame);
+      keyFrame.disabled = false; keySave.disabled = false; keyPlay.disabled = false;
+      const centers = [left.scene, right.scene].map((root) => {
+        const box = new libs.THREE.Box3().setFromObject(root);
+        const c = box.getCenter(new libs.THREE.Vector3());
+        return { x: c.x, z: c.z, minY: box.min.y, height: box.getSize(new libs.THREE.Vector3()).y };
+      });
+      host.setState({ loaded: true, assetId: target, format: item.format, compare: null, keyReview: { objects: 2, applied: 0, centers } });
+      hostSay(''); showKeyFrame(report.keys[0]?.frame ?? 0);
+    } catch (e) {
+      if (alive && epoch === keyEpoch) { keySay(`取得失敗: ${e instanceof Error ? e.message : String(e)}`, true); keyFrame.disabled = true; keySave.disabled = true; keyPlay.disabled = true; }
+    } finally { if (alive && epoch === keyEpoch) keyRun.disabled = false; }
+  }));
+  keyFrame.addEventListener('input', () => { haltKeys(); showKeyFrame(Number(keyFrame.value)); });
+  const stepKey = () => { haltKeys(); if (!keyReport || keyFrame.disabled) return; const n = Number(keyFrame.value) + 1; showKeyFrame(n > Number(keyFrame.max) ? 0 : n); };
+  const onVisibility = () => { if (document.hidden) haltKeys(); };
+  document.addEventListener('visibilitychange', onVisibility);
+  ctx.onCleanup(() => { keyEpoch++; haltKeys(); document.removeEventListener('visibilitychange', onVisibility); });
+  let keySelection = rt.get();
+  ctx.onCleanup(rt.subscribe(() => {
+    const next = rt.get();
+    if (next.source !== keySelection.source || next.target !== keySelection.target) {
+      keySelection = next; clearKeys('素材が変更されました。候補を再取得してください。');
+    }
+  }));
+  keyAgree.box.addEventListener('change', () => { if (!keyAgree.box.checked) clearKeys('確認が解除されました。候補を再取得してください。'); });
+
   const bar = h('div', { class: 'rt-compare', dataset: { role: 'rt-compare' } },
     h('p', { class: 'section-note' }, '左は元の静止姿勢、右は選択フレームの補正候補です。未校正の候補は試験的で、正確なポーズを保証しません。モデルは変更されません。'),
     h('div', { class: 'rt-fields' }, h('label', null, '比較するモデル', modelSel), getReport),
     report,
     h('div', { class: 'rt-fields' }, agree.el, h('label', null, 'フレーム', frame), runBtn),
-    status);
+    status,
+    group('キー候補・フレーム比較（試験）', false,
+      h('p', { class: 'section-note' }, '転写先として選んだ登録済みGLB/VRMを左右に表示します。キー候補は未校正で、VMD出力はできません。'),
+      keyAgree.el, h('div', { class: 'btn-row' }, keyRun, keySave),
+      h('div', { class: 'rt-fields' }, h('label', null, 'フレーム', keyFrame), keyNumber),
+      h('div', { class: 'btn-row' }, keyPlay, ready('停止', 'rt-key-stop', undefined, haltKeys), ready('次のフレーム', 'rt-key-step', undefined, stepKey), keyFps,
+        h('span', { class: 'section-note' }, '未検証プレビュー・モデル保存なし')),
+      keyStatus));
   return h('div', { class: 'vp3d-wrap', dataset: { feature: 'retargetViewport' } },
     h('div', { class: 'pane-head' }, h('h2', null, '3D比較'), h('span', { class: 'spacer' }), regionTag('real')), stageEl, bar);
 };
