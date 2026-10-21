@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T11:41:27+09:00",
+  "updated_at": "2026-10-21T23:24:40+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05e",
-  "head_at_update": "3576194",
+  "head_at_update": "a0e1f3b",
   "current": {
-    "task": "P2-WP-05e SCR-13のタイムライン編集・再生と補正レイヤー",
-    "status": "done",
-    "step": "Studio UI全件・P2共通ゲート・E2Eを再検証して台帳を確定",
+    "task": "P2-WP-05e PR21統合",
+    "status": "in_progress",
+    "step": "mainとの差分を統合して競合を解消し独立検証する",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -20,8 +20,7 @@
   "owner_questions": [
     "Q1 新規プロジェクト作成の扱い（既定：◇ 未実装表示）",
     "Q2 旧機能を削ってよいか（既定：すべて残す）",
-    "Q3 ⑥ の後に camera.html を読み取り専用にするか（既定：編集可のまま）",
-    "Q5 PMX キャラクターを SCR-06・カメラ画面に置く（workspace の保存形式の追加と camera_3d.js の PMX 表示。計画の追加。既定：P2 では入れず、PMX はステージの素材としてだけ置ける）"
+    "Q3 ⑥ の後に camera.html を読み取り専用にするか（既定：編集可のまま）"
   ],
   "read_first": [
     "AGENTS.md",
@@ -32,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T23:24:40+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "a0e1f3b",
+      "text": "P2-WP-05e PR21統合: mainとの差分を統合して競合を解消し独立検証する"
+    },
     {
       "at": "2026-10-21T11:41:27+09:00",
       "by": "codex",
@@ -234,13 +240,6 @@
       "event": "start",
       "head": "e9e14eb",
       "text": "P2-WP-04b ④ リターゲット検証の移植（④-9・④-10）: 実装開始（SCR-13 ボーンマップタブ → three-host 比較 → テスト）"
-    },
-    {
-      "at": "2026-10-20T16:13:56+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "81a0c79",
-      "text": "P2-WP-04 B-4 の Opus レビュー：B-4 は設計どおり（HTTP 400 で不変のテストを追加）。PMX キャラを SCR-06 に置く件は計画の空白として所有者判断（Q5）"
     }
   ]
 }
