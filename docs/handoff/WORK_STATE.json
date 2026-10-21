@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T13:42:06+09:00",
+  "updated_at": "2026-10-21T13:58:35+09:00",
   "updated_by": "codex",
-  "branch": "codex/main-integration-20261021",
-  "head_at_update": "4ff3c26",
+  "branch": "codex/pmx-vmd-foot-playback",
+  "head_at_update": "0d1c5ed",
   "current": {
-    "task": "適格PRを含むrecoveryをmainへ統合",
-    "status": "done",
-    "step": "mainとの差分確認・祖先同期・共通ゲート・統合PR",
+    "task": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正",
+    "status": "in_progress",
+    "step": "実素材のVMD骨キーとPMX骨・画面時刻別の姿勢を調査",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T13:58:35+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0d1c5ed",
+      "text": "MOTION-006 神っぽいなVMDとPMXの脚再生不具合を実機調査・修正: 実素材のVMD骨キーとPMX骨・画面時刻別の姿勢を調査"
+    },
     {
       "at": "2026-10-21T13:42:06+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
     },
     {
       "at": "2026-10-20T15:30:25+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "28cd93e",
-      "text": "P2-WP-04 の O-④-1・2・3・5・6・7 を Opus で決定（設計書 §2.4(h)）。最小 PMX 2.0（tools/make_test_pmx.py）を作り minimal_pmx.zip を本物に置き換え、MMDLoader での読込をテストで確認"
-    },
-    {
-      "at": "2026-10-20T15:30:09+00:00",
       "by": "claude-code",
       "event": "done",
       "head": "28cd93e",
