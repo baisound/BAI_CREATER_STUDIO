@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T19:42:27+09:00",
+  "updated_at": "2026-10-21T19:45:26+09:00",
   "updated_by": "codex",
   "branch": "codex/stage-light-rig",
-  "head_at_update": "29f32a7",
+  "head_at_update": "8891cfa",
   "current": {
     "task": "Issue40の実モデル床接地とPR42統合判定",
-    "status": "in_progress",
+    "status": "done",
     "step": "提供S01と登録済み実GLBキャラクターを隔離SCR-06へ同時配置し、床接地・保存再読込を測定して必要な修正を行う",
     "design_doc": "docs/roadmap/STAGE_LIGHT_RIG_20261021_JA.md"
   },
   "next_steps": [
-    "PR42を更新してレビュー・統合判断待ち。PR21/22はdraft/積層・競合を整理後に判断。Issue34/35とWP05gは未着手のまま継続"
+    "Owner条件付き承認に基づきPR42を統合し、mainと実行環境へ反映・実ステージを保存再読込する。その後Issue34/35とWP05gを既定順で進める"
   ],
   "unverified": [
-    "実GPU/Linux、分割時の低性能機描画、PMX実キャラクターへの照明、MMD/Unreal外観一致、WebMCP/標準MCPからのライト編集、Owner採用は未検証"
+    "実GPU/Linux、低性能機分割描画、PMX実キャラクターへの照明、MMD/Unreal外観一致、WebMCP/標準MCPライト編集、Owner採用は未検証。元GLBの接地は素材改修待ち"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T19:45:26+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8891cfa",
+      "text": "Issue40のS01原点・床とキャラクター元GLB由来の浮きを区別。Owner確認に従いシステム自動補正は行わず、PR42のコード実装と自動・Chrome実測は完了"
+    },
     {
       "at": "2026-10-21T19:42:27+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "d2d1979",
       "text": "Issue #26: バイサンド開発依頼の日本語Issue記録、画像添付、分かりやすい本文、PR連携の常設ルールを整備"
-    },
-    {
-      "at": "2026-10-21T14:30:38+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9cc2d4c",
-      "text": "Issue #26 バイサンドの開発依頼を日本語GitHub Issueで管理する常設ルール: AGENTS短い参照・詳細手順・Issueテンプレートを整備"
     }
   ]
 }
