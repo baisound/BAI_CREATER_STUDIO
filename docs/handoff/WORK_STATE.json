@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T03:45:39+09:00",
+  "updated_at": "2026-10-22T04:44:37+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp07",
-  "head_at_update": "70e24e0",
+  "head_at_update": "24c99ea",
   "current": {
-    "task": "P2-WP06/07 PR #59: main統合と残ゲート監査",
-    "status": "done",
-    "step": "PR #56/#62マージ後のmainを統合し、差分とゲートを再確認",
+    "task": "PR #59: PR #57更新分の統合とWP07ゲート再確認",
+    "status": "in_progress",
+    "step": "PR57のWindows/カメラ修正を取り込み、P2書き出しのテストと競合を確認",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T04:44:37+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "24c99ea",
+      "text": "PR #59: PR #57更新分の統合とWP07ゲート再確認: PR57のWindows/カメラ修正を取り込み、P2書き出しのテストと競合を確認"
+    },
     {
       "at": "2026-10-22T03:45:39+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "43835dc",
       "text": "PR52 WP05gを現行mainへ統合。A/B模式とPMX物理プレーヤーを両立し、型・旧関数8・隔離Chrome17通過"
-    },
-    {
-      "at": "2026-10-21T23:45:25+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3bddf9a",
-      "text": "P2-WP-05g PR52統合: 現行mainへ統合し独立レビューと回帰試験を実施"
     }
   ]
 }
