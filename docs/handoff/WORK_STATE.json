@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T13:00:04+09:00",
+  "updated_at": "2026-10-21T13:02:26+09:00",
   "updated_by": "codex",
-  "branch": "codex/p2-wp05d",
-  "head_at_update": "cc6d85a",
+  "branch": "codex/project-history-newest-first",
+  "head_at_update": "a570316",
   "current": {
-    "task": "PR #20の同期とWP05b/c独立レビュー",
-    "status": "done",
-    "step": "先行保存・編集・外部コマンドの差分監査とrecovery同期",
+    "task": "SCR-18 バージョン一覧を新しい順に表示",
+    "status": "in_progress",
+    "step": "保存順の履歴と復元インデックスを維持した表示順変更・テスト",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T13:02:26+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "a570316",
+      "text": "SCR-18 バージョン一覧を新しい順に表示: 保存順の履歴と復元インデックスを維持した表示順変更・テスト"
+    },
     {
       "at": "2026-10-21T13:00:04+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "30601de",
       "text": "P2-WP-02/03 ③ 素材一覧・取り込みを実装（30601de）。pytest 354、node-all 188 pass、tsc・evidence 合格、実 data/ 不変"
-    },
-    {
-      "at": "2026-10-20T14:08:37+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "da43e6b",
-      "text": "P2-WP-02/03 素材: 設計書読込・実装着手"
     }
   ]
 }
