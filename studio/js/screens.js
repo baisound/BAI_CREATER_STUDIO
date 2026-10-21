@@ -354,11 +354,11 @@ export const SCREENS = [
   },
   {
     id: '10', title: '音声・BGM・効果音編集', nav: '音声・BGM', group: '制作',
-    summary: 'WAV/MP3の曲とGLBダンスを30fpsで配置し、GLB/VRM/PMX/FBXモデルで同期を確認する。',
+    summary: 'WAV/MP3の曲とGLB/VMD/FBXダンスを30fpsで配置し、対応するモデルで同期を確認する。',
     classification: 'candidate_late', ids: ['AUDIO-001', 'LIP-001', 'LIP-002', 'LIP-003', 'LYRIC-006', 'RENDER-006', 'NF-002'],
     panels: [
       { name: '音声ライブラリ・波形・30fps配置', status: 'real', evidence: 'tests/studio-music-dance.test.cjs::music and dance placement survives reload', ids: ['AUDIO-001'] },
-      { name: '4形式のモデル選択とダンスプレビュー', status: 'partial', note: 'PMXのMMD物理と、GLB/VRM/FBXの主要人体骨プレビューを分ける。骨対応が不足するモデルは理由を表示。登録済みVRM/GLB/FBXの再生、VRMの保存復元を隔離試験済み。全リグ・PMX以外の物理演算は未検証。', ids: ['AUDIO-001'] },
+      { name: '4形式のモデル選択と3形式のダンスプレビュー', status: 'partial', note: 'GLB/FBXダンスの主要人体骨を対応付け、VMDはPMXで評価する。骨対応が不足する組み合わせは理由を表示。実PMX＋FBX/VMDの再生・保存復元を隔離Chromeで確認。全リグ・PMX以外の物理演算は未検証。', ids: ['AUDIO-001'] },
       { name: 'EQ・ミキサー', status: 'unimpl', ids: ['NF-002'] }, { name: 'リップ同期', status: 'unimpl', ids: ['LIP-001', 'LIP-002'] }, { name: '音声書き出し', status: 'unimpl', ids: ['RENDER-006'] },
     ],
     tools: [btn('素材を管理（08）', 'nav:08'), un('リップVMDを生成', 'SRT/音素同期によるリップVMDはリップシンクフェーズの範囲です。', ['LIP-001', 'LIP-002'], PH.LIP)],
@@ -366,7 +366,7 @@ export const SCREENS = [
     right: { tabs: [
       { id: 'mix', label: 'ミキサー', sections: [{ title: 'EQ・ミキサー', status: 'unimpl', controls: [un('EQを開く', 'DAW型の音声編集は未承認の新規候補（NF-002）です。', ['NF-002'], PH.P4)] }] },
       { id: 'lip', label: 'リップ同期', sections: [{ title: 'リップ同期', status: 'unimpl', controls: [sel('入力', ['SRT字幕', '歌声ステム']), un('解析を開始', 'リップ同期は承認済みのリップシンクフェーズで実装予定です。', ['LIP-001', 'LIP-002'], PH.LIP)] }] },
-      { id: 'sync', label: '配置・同期', sections: [{ title: '音楽とダンス', status: 'real', evidence: 'tests/studio-music-dance.test.cjs::music and dance placement survives reload', controls: [note('中央で登録曲とGLBダンスを選び、1フレーム単位で配置・頭出し・保存できます。')] }] },
+      { id: 'sync', label: '配置・同期', sections: [{ title: '音楽とダンス', status: 'real', evidence: 'tests/studio-music-dance.test.cjs::music and dance placement survives reload', controls: [note('中央で登録曲とGLB/VMD/FBXダンスを選び、1フレーム単位で配置・頭出し・保存できます。VMDはPMXモデルで再生します。')] }] },
       { id: 'phoneme', label: '口形補正', sections: [{ title: '歌声と口形キー', status: 'unimpl', controls: [note('SRTの読み修正、歌声境界の手修正、子音先行・長音・促音・閉口のキーを扱います。歌詞画面と同じ確定SRT素材IDを参照しても口形キーは別トラックに保存します。'), un('口形キーを編集', '口形の解析と補正は未実装です。', ['LIP-001', 'LIP-002', 'LIP-003'], PH.LIP)] }] },
       { id: 'beat', label: '拍・イベント', sections: [{ title: '拍の解析と手動修正', status: 'unimpl', controls: [un('拍を設定', '音声からの拍解析と時刻付きマーカーは未実装です。', ['LYRIC-006'], PH.D)] }] },
     ] },

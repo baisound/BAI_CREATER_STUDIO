@@ -4,7 +4,26 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const zlib = require('node:zlib');
 const harness = require('./helpers/studio-harness.cjs');
+
+function zipEntry(buf, wanted) {
+  let eocd = buf.length - 22;
+  while (eocd >= 0 && buf.readUInt32LE(eocd) !== 0x06054b50) eocd--;
+  let p = buf.readUInt32LE(eocd + 16);
+  for (let i = 0, n = buf.readUInt16LE(eocd + 10); i < n; i++) {
+    const method = buf.readUInt16LE(p + 10), size = buf.readUInt32LE(p + 20);
+    const nl = buf.readUInt16LE(p + 28), el = buf.readUInt16LE(p + 30), cl = buf.readUInt16LE(p + 32);
+    const name = buf.toString('utf8', p + 46, p + 46 + nl), local = buf.readUInt32LE(p + 42);
+    if (name === wanted) {
+      const start = local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28);
+      const raw = buf.subarray(start, start + size);
+      return method === 8 ? zlib.inflateRawSync(raw) : Buffer.from(raw);
+    }
+    p += 46 + nl + el + cl;
+  }
+  throw Error(`missing ZIP entry: ${wanted}`);
+}
 
 function testWav() {
   const samples = 8000, data = Buffer.alloc(samples * 2), head = Buffer.alloc(44);
@@ -57,6 +76,124 @@ test('music and dance placement survives reload', async () => {
     assert.equal(await page.inputValue('[data-role="dance-audio"]'), id);
     harness.assertNoErrors(page);
   } finally { await page?.context().close(); await server.stop(); await browser.close(); }
+});
+
+test('registered VMD and FBX dance choices preserve placement and explain model compatibility', async () => {
+  const zip = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal_pmx.zip'));
+  const pmx = zipEntry(zip, 'model/test.pmx'), texture = zipEntry(zip, 'model/tex/a.png');
+  const vmd = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal.vmd'));
+  const fbx = fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal_motion.fbx'));
+  const glb = fs.readFileSync(path.join(__dirname, 'fixtures', 'synthetic_test_model.glb'));
+  const server = await harness.startServer({ port: 8804, seed: {
+    'mmd_assets.json': JSON.stringify({ A: [{ name: 'test.pmx', size: pmx.length }, { name: 'tex/a.png', size: texture.length }], B: [], vmd: [{ name: 'minimal.vmd', size: vmd.length }] }),
+    'mmd/A/test.pmx': pmx, 'mmd/A/tex/a.png': texture, 'mmd/vmd/minimal.vmd': vmd,
+    'manifest.json': JSON.stringify({ files: [{ id: 'f-dance', name: 'minimal_motion.fbx', kind: 'motions', size: fbx.length }], mapping: {} }),
+    'files/f-dance.fbx': fbx,
+    'integrated_v02/assets/test-model.glb': glb,
+    'integrated_v02/user_assets.json': JSON.stringify([{ id: 'test-model', name: 'test-model.glb', filename: 'test-model.glb', kind: 'model', bytes: glb.length }]),
+  } });
+  const browser = await harness.launchBrowser();
+  let page;
+  try {
+    page = await server.newPage(browser);
+    await page.goto(`${server.base}/workspace/10`);
+    await page.waitForFunction(() => document.querySelector('[data-role="dance-motion"]')?.options.length === 3);
+    const values = await page.locator('[data-role="dance-motion"] option').evaluateAll((els) => els.map((el) => el.value));
+    assert.deepEqual(values.sort(), ['', 'fbx:f-dance', 'mmd:vmd:minimal.vmd']);
+    await page.selectOption('[data-role="dance-model"]', 'mmd:A:test.pmx');
+    await page.selectOption('[data-role="dance-motion"]', 'mmd:vmd:minimal.vmd');
+    await page.waitForFunction(() => document.querySelector('[data-role="dance-pose-status"]')?.textContent.includes('VMDプレビュー中'));
+    await page.fill('[data-role="dance-head"]', '15');
+    await page.locator('[data-role="dance-head"]').dispatchEvent('input');
+    await page.click('[data-role="dance-save"]');
+    await page.waitForFunction(() => document.querySelector('[data-role="dance-save-status"]')?.textContent.includes('保存しました'));
+    await page.reload();
+    await page.waitForFunction(() => document.querySelector('[data-role="dance-pose-status"]')?.textContent.includes('VMDプレビュー中'));
+    assert.equal(await page.inputValue('[data-role="dance-motion"]'), 'mmd:vmd:minimal.vmd');
+    assert.equal(await page.inputValue('[data-role="dance-head"]'), '15');
+    await page.selectOption('[data-role="dance-model"]', 'integrated:test-model.glb');
+    await page.waitForFunction(() => document.querySelector('[data-role="dance-pose-status"]')?.textContent.includes('VMDはPMXモデルで再生できます'));
+    await page.selectOption('[data-role="dance-motion"]', 'fbx:f-dance');
+    await page.waitForFunction(() => document.querySelector('[data-role="dance-pose-status"]')?.textContent.includes('人体骨対応は不足'));
+    assert.equal(await page.inputValue('[data-role="dance-motion"]'), 'fbx:f-dance');
+    await page.goto(`${server.base}/workspace/08?asset=${encodeURIComponent('mmd:vmd:minimal.vmd')}`);
+    await page.waitForSelector('[data-role="use-in-dance"]');
+    await page.click('[data-role="use-in-dance"]');
+    await page.waitForFunction(() => location.pathname.endsWith('/10') && document.querySelector('[data-role="dance-motion"]')?.value === 'mmd:vmd:minimal.vmd');
+    harness.assertNoErrors(page);
+  } finally { await page?.context().close(); await server.stop(); await browser.close(); }
+});
+
+const realFbx = process.env.BAI_REAL_DANCE_FBX;
+const realFbxTargetPmx = process.env.BAI_REAL_DANCE_FBX_TARGET_PMX;
+const realVmd = process.env.BAI_REAL_DANCE_VMD;
+test('registered humanoid FBX animates a PMX model at two dance frames', { skip: realFbx && realFbxTargetPmx ? false : 'set BAI_REAL_DANCE_FBX and BAI_REAL_DANCE_FBX_TARGET_PMX' }, async () => {
+  const motionBytes = fs.readFileSync(realFbx);
+  const originalHash = crypto.createHash('sha256').update(motionBytes).digest('hex');
+  const pmxHash = crypto.createHash('sha256').update(fs.readFileSync(realFbxTargetPmx)).digest('hex');
+  const vmdHash = realVmd ? crypto.createHash('sha256').update(fs.readFileSync(realVmd)).digest('hex') : null;
+  const pmxRoot = path.dirname(realFbxTargetPmx), pmxName = path.basename(realFbxTargetPmx);
+  const entries = [];
+  const seed = {
+    'manifest.json': JSON.stringify({ files: [{ id: 'real-fbx-dance', name: 'registered-dance.fbx', kind: 'motions', size: motionBytes.length }], mapping: {} }),
+    'files/real-fbx-dance.fbx': motionBytes,
+  };
+  const visit = (dir) => { for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const file = path.join(dir, entry.name);
+    if (entry.isDirectory()) visit(file);
+    else { const name = path.relative(pmxRoot, file).replaceAll('\\', '/'); seed[`mmd/A/${name}`] = fs.readFileSync(file); entries.push({ name, size: fs.statSync(file).size }); }
+  } };
+  visit(pmxRoot);
+  if (realVmd) seed['mmd/vmd/registered.vmd'] = fs.readFileSync(realVmd);
+  seed['mmd_assets.json'] = JSON.stringify({ A: entries, B: [], vmd: realVmd ? [{ name: 'registered.vmd', size: fs.statSync(realVmd).size }] : [] });
+  const server = await harness.startServer({ port: 8805, seed });
+  const browser = await harness.launchBrowser();
+  let page;
+  try {
+    page = await server.newPage(browser);
+    await page.goto(`${server.base}/workspace/10`);
+    await page.waitForFunction(() => !!document.querySelector('[data-role="dance-motion"] option[value="fbx:real-fbx-dance"]'));
+    await page.selectOption('[data-role="dance-model"]', `mmd:A:${pmxName}`);
+    await page.selectOption('[data-role="dance-motion"]', 'fbx:real-fbx-dance');
+    await page.waitForFunction(() => {
+      const status = document.querySelector('[data-role="dance-pose-status"]');
+      return status?.textContent.includes('プレビュー中') || status?.dataset.kind === 'error';
+    }, null, { timeout: 30000 });
+    assert.match(await page.textContent('[data-role="dance-pose-status"]'), /\d+本の骨で .*プレビュー中/);
+    assert.equal(await page.inputValue('[data-role="dance-motion"]'), 'fbx:real-fbx-dance');
+    const canvas = page.locator('[data-role="dance-viewport"] canvas').first();
+    await page.fill('[data-role="dance-head"]', '0'); await page.locator('[data-role="dance-head"]').dispatchEvent('input');
+    await page.waitForTimeout(150);
+    const first = crypto.createHash('sha256').update(await canvas.screenshot()).digest('hex');
+    await page.fill('[data-role="dance-head"]', '15'); await page.locator('[data-role="dance-head"]').dispatchEvent('input');
+    await page.waitForTimeout(150);
+    const second = crypto.createHash('sha256').update(await canvas.screenshot()).digest('hex');
+    assert.notEqual(second, first, 'FBX pose changes the loaded PMX preview between frames');
+    await page.click('[data-role="dance-save"]');
+    await page.waitForFunction(() => document.querySelector('[data-role="dance-save-status"]')?.textContent.includes('保存しました'));
+    await page.reload();
+    await page.waitForFunction(() => document.querySelector('[data-role="dance-motion"]')?.value === 'fbx:real-fbx-dance');
+    await page.waitForFunction(() => document.querySelector('[data-role="dance-pose-status"]')?.textContent.includes('プレビュー中'));
+    if (realVmd) {
+      await page.selectOption('[data-role="dance-motion"]', 'mmd:vmd:registered.vmd');
+      await page.waitForFunction(() => {
+        const status = document.querySelector('[data-role="dance-pose-status"]');
+        return status?.textContent.includes('VMDプレビュー中') || status?.dataset.kind === 'error';
+      }, null, { timeout: 60000 });
+      assert.match(await page.textContent('[data-role="dance-pose-status"]'), /VMDプレビュー中/);
+      await page.fill('[data-role="dance-head"]', '30'); await page.locator('[data-role="dance-head"]').dispatchEvent('input');
+      assert.match(await page.textContent('[data-role="dance-source-times"]'), /ダンス [0-9.]+ 秒/);
+      await page.click('[data-role="dance-save"]');
+      await page.waitForFunction(() => document.querySelector('[data-role="dance-save-status"]')?.textContent.includes('保存しました'));
+      await page.reload();
+      await page.waitForFunction(() => document.querySelector('[data-role="dance-motion"]')?.value === 'mmd:vmd:registered.vmd');
+      await page.waitForFunction(() => document.querySelector('[data-role="dance-pose-status"]')?.textContent.includes('VMDプレビュー中'), null, { timeout: 60000 });
+    }
+    harness.assertNoErrors(page);
+  } finally { await page?.context().close(); await server.stop(); await browser.close(); }
+  assert.equal(crypto.createHash('sha256').update(fs.readFileSync(realFbx)).digest('hex'), originalHash);
+  assert.equal(crypto.createHash('sha256').update(fs.readFileSync(realFbxTargetPmx)).digest('hex'), pmxHash);
+  if (realVmd) assert.equal(crypto.createHash('sha256').update(fs.readFileSync(realVmd)).digest('hex'), vmdHash);
 });
 
 // Optional local proof with owner-provided files. Only temporary copies are served;

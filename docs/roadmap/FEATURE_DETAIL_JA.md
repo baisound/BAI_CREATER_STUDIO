@@ -785,11 +785,13 @@ Issue #50（2026-10-22 Owner直接指定）：全キャラクター配置面でG
 - **機能:** 歌音声の取込・配置・同期
 - **優先:** 2026-10-21 の後続直接指定により、素材取り込み後の PMX＋GLB ダンス同期プレビューを先行。リップシンクは後段。
 - **依存:** CORE,DATA
-- **確認状態:** 一部実装・未検証（WAV/MP3登録・実波形・配置保存・同期再生UIと4形式のモデル選択を実装。登録済みVRM/GLB/FBX＋実GLBダンスの隔離Chrome動作、VRMの保存復元を確認。全モデル・GPU環境・Linux・MCPは未検証）
+- **確認状態:** 一部実装・未検証（WAV/MP3登録・実波形・配置保存・同期再生UI、4形式のモデル選択、GLB/VMD/FBXダンス選択を実装。実PMX＋FBX/VMDの隔離Chrome動作と保存復元を確認。全モデル・GPU環境・Linux・MCPは未検証）
 
 今回の PMX＋MVNT GLB＋実曲プレビューと1フレーム移動の範囲、実データ、試験は[実装契約](AUDIO_DANCE_SYNC_20261021_JA.md)・[Issue #39](https://github.com/baisound/BAI_CREATER_STUDIO/issues/39)を参照。
 
 後続Owner指定により、SCR-10の踊るモデルもGLB/VRM/PMX/FBXから選べる。主要人体骨へダンスGLBを非破壊で試験適用し、足りない骨格は理由を表示する。PMX以外の物理は未対応。[Issue #50](https://github.com/baisound/BAI_CREATER_STUDIO/issues/50)・[4形式の配置契約](CHARACTER_PLACEMENT_ALL_FORMATS_20261021_JA.md)。
+
+2026-10-22の直接指定でダンス素材はGLBに加えてVMD/FBXを選べる。VMDはPMXに適用し、FBXは対応する人体骨へプレビュー中だけ写す。BVHは[Issue #55](https://github.com/baisound/BAI_CREATER_STUDIO/issues/55)に延期。[Issue #39](https://github.com/baisound/BAI_CREATER_STUDIO/issues/39)・[追加形式の検証](AUDIO_DANCE_SYNC_20261021_JA.md)。
 
 **目的・要求:** 歌音声を素材として非破壊で取り込み、実波形を表示し、開始フレームと原音声のサンプル頭出しを別々に調整する。映像・口形・VMDと同じ時刻で試聴し、保存・再起動後に位置と参照を復元する。音声欠損・デコード失敗は明示する。EQ・ミキサー・効果音編集はこのIDに含めない。
 
