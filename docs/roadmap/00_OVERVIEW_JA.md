@@ -92,7 +92,7 @@
 - **[MOTION-018](FEATURE_DETAIL_JA.md#motion-018)** モーション継ぎ目検出
 - **[MOTION-019](FEATURE_DETAIL_JA.md#motion-019)** モデル互換性診断・修復案
 - **[MOTION-020](FEATURE_DETAIL_JA.md#motion-020)** 危険姿勢・異常関節チェック
-- **[MOTION-021](FEATURE_DETAIL_JA.md#motion-021)** MMD物理ベイクと部分再計算
+- **[MOTION-021](FEATURE_DETAIL_JA.md#motion-021)** MMD物理ベイクと部分再計算（条件一致と再現性を確認した場合だけ再利用）
 - **[MOTION-022](FEATURE_DETAIL_JA.md#motion-022)** 衣装・髪・身体の貫通検出
 
 ## Phase 04 / DANCE — マルチダンサー・接触
@@ -104,8 +104,8 @@
 - **[DANCE-005](FEATURE_DETAIL_JA.md#dance-005)** 振付アレンジ・個別部位合成
 - **[DANCE-006](FEATURE_DETAIL_JA.md#dance-006)** 複数ダンサー衝突回避
 - **[DANCE-007](FEATURE_DETAIL_JA.md#dance-007)** ダンサー別VMD一括出力
-- **[DANCE-008](FEATURE_DETAIL_JA.md#dance-008)** 2キャラ格闘攻防同期
-- **[DANCE-009](FEATURE_DETAIL_JA.md#dance-009)** 掴み・接触コンストレイント
+- **[DANCE-008](FEATURE_DETAIL_JA.md#dance-008)** 2キャラ格闘攻防同期（接点差の数値と同一フレーム映像を併記）
+- **[DANCE-009](FEATURE_DETAIL_JA.md#dance-009)** 掴み・接触コンストレイント（実在骨と小道具接点を参照）
 - **[DANCE-010](FEATURE_DETAIL_JA.md#dance-010)** ノックダウン→Kip Up
 - **[DANCE-011](FEATURE_DETAIL_JA.md#dance-011)** 格闘連続技チェイン
 - **[DANCE-012](FEATURE_DETAIL_JA.md#dance-012)** 手指・小道具操作
@@ -181,7 +181,7 @@
 - **[LYRIC-007](FEATURE_DETAIL_JA.md#lyric-007)** シーン・ショット・絵コンテ管理
 - **[LYRIC-008](FEATURE_DETAIL_JA.md#lyric-008)** Blender .blend/.fbx/.glb→PMXステージ（確認後に欠落レポート付き部分出力）
 - **[LYRIC-009](FEATURE_DETAIL_JA.md#lyric-009)** 大型ステージ分割・テクスチャ・床データ
-- **[LYRIC-010](FEATURE_DETAIL_JA.md#lyric-010)** 可動ドア・ギミック・マップ物理
+- **[LYRIC-010](FEATURE_DETAIL_JA.md#lyric-010)** 可動ドア・ギミック・マップ物理（登録済み可動ピボットと時刻付きイベント）
 - **[LYRIC-011](FEATURE_DETAIL_JA.md#lyric-011)** プロシージャル歩行/待機/呼吸
 - **[LYRIC-012](FEATURE_DETAIL_JA.md#lyric-012)** 高度検索・振付ライブラリ管理
 

@@ -1,31 +1,26 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20T21:08:35+00:00",
-  "updated_by": "claude-code",
-  "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "5b4711a",
+  "updated_at": "2026-10-21T12:54:45+09:00",
+  "updated_by": "codex",
+  "branch": "codex/b4-combat-decisions",
+  "head_at_update": "a29fe7e",
   "current": {
-    "task": "P2-WP-05c SCR-05 の82パターン一覧・お気に入り・コンビネーション編集・速度（3Dなし）",
+    "task": "PR #13承認済み詳細設計の同期確認",
     "status": "done",
-    "step": "実装→テスト→台帳更新→コミット",
-    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
+    "step": "recovery最新との整合と古い引継ぎ記述の修正",
+    "design_doc": "docs/specs/IMPLEMENTATION_HANDOFF_JA.md"
   },
   "next_steps": [
-    "P2-WP-05d：SCR-05 の A/B の3D・連結再生・play_chain・stop_chain の受け口",
-    "P2-WP-05b・05c を Opus でレビュー（project.js の tick・editCombination、motion-view.js、chain-view.js）",
-    "WP-06b の前にテストのポートの食い違い（parity 8794・retarget 8791）を直す"
+    "PR13統合後にWP05d・05e・05fのレビューと順次取り込みを評価"
   ],
   "unverified": [
-    "GPU 実機・Windows 実機は未検証（SwiftShader のみ）",
-    "Opus レビュー未実施（05b・05c）",
-    "実際の FBX 登録（data/manifest.json）での👑の数は未確認（隔離データのみ）"
+    "PR13は文書のみ。A1〜B4の機能・実素材・GPU・MCPは未実装または未検証"
   ],
   "blockers": [],
   "owner_questions": [
     "Q1 新規プロジェクト作成の扱い（既定：◇ 未実装表示）",
     "Q2 旧機能を削ってよいか（既定：すべて残す）",
-    "Q3 ⑥ の後に camera.html を読み取り専用にするか（既定：編集可のまま）",
-    "Q5 PMX キャラクターを SCR-06・カメラ画面に置く（workspace の保存形式の追加と camera_3d.js の PMX 表示。計画の追加。既定：P2 では入れず、PMX はステージの素材としてだけ置ける）"
+    "Q3 ⑥ の後に camera.html を読み取り専用にするか（既定：編集可のまま）"
   ],
   "read_first": [
     "AGENTS.md",
@@ -37,151 +32,18 @@
   ],
   "history": [
     {
-      "at": "2026-10-20T21:08:35+00:00",
-      "by": "claude-code",
+      "at": "2026-10-21T12:54:45+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "5b4711a",
-      "text": "P2-WP-05c 完了：SCR-05 の82パターン一覧（検索・分類・👑）・お気に入り・コンビネーション編集（editCombination）・速度"
+      "head": "a29fe7e",
+      "text": "PR13を最新recoveryへ同期し、WORK_STATE競合を解消。古いWP位置の断定を正本参照へ修正。148 IDと差分を確認"
     },
     {
-      "at": "2026-10-20T20:42:01+00:00",
-      "by": "claude-code",
+      "at": "2026-10-21T12:53:37+09:00",
+      "by": "codex",
       "event": "start",
-      "head": "7e701e0",
-      "text": "P2-WP-05c SCR-05 の82パターン一覧・お気に入り・コンビネーション編集・速度（3Dなし）: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T20:38:09+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "7b3327e",
-      "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド preview_vmd・integrated_preview の受け口（O-⑤-5）"
-    },
-    {
-      "at": "2026-10-20T20:26:29+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "b8bd62d",
-      "text": "P2-WP-05b clip・frame の記録（O-⑤-7）と外部コマンド studio:sync-command の受け口（O-⑤-5）: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T20:11:08+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "df75fe3",
-      "text": "P2-WP-05a 完了：SCR-13［編集］の PMX＋VMD・GLB/VRM クリップの1体再生、VMD ライブラリ、モード切替の結線、minimal.vmd の センター 30F、S5 pass"
-    },
-    {
-      "at": "2026-10-20T19:52:34+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "f675061",
-      "text": "P2-WP-05a SCR-13 編集モードの1体再生（PMX+VMD・GLB/VRMクリップ・VMDライブラリ）と S5 の有効化: 実装→テスト→台帳更新→コミット"
-    },
-    {
-      "at": "2026-10-20T19:50:21+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "255ad3d",
-      "text": "P2 §2.5（⑤ モーション）を WP-05a〜05g に分けて詳しくした（255ad3d）。O-⑤-1〜8 決定、批評1回反映、台帳更新。コード変更なし"
-    },
-    {
-      "at": "2026-10-20T19:29:19+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "8de3801",
-      "text": "P2 §2.5 ⑤ モーション（VMD）の詳細設計（O-⑤-1〜8 の決定と WP-05 の分割）: 旧コード調査 → §2.5 詳細化 → 自己批評 → コミット"
-    },
-    {
-      "at": "2026-10-20T19:27:19+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "7cea229",
-      "text": "P2-WP-04b 完了：④-9（SCR-13 ボーンマップ）・④-10（three-host で2体を±1.15）を移植。コミット 7cea229"
-    },
-    {
-      "at": "2026-10-20T16:28:34+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "e9e14eb",
-      "text": "P2-WP-04b ④ リターゲット検証の移植（④-9・④-10）: 実装開始（SCR-13 ボーンマップタブ → three-host 比較 → テスト）"
-    },
-    {
-      "at": "2026-10-20T16:13:56+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "81a0c79",
-      "text": "P2-WP-04 B-4 の Opus レビュー：B-4 は設計どおり（HTTP 400 で不変のテストを追加）。PMX キャラを SCR-06 に置く件は計画の空白として所有者判断（Q5）"
-    },
-    {
-      "at": "2026-10-20T16:04:50+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "4ee6b49",
-      "text": "P2-WP-04 ④ 3D表示とステージ配置を実装（B-4 は 4ee6b49 に分離）。E2E は S2 まで"
-    },
-    {
-      "at": "2026-10-20T15:31:47+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "2e8fd96",
-      "text": "P2-WP-04 ④ 3D表示とステージ配置・B-4: 実装開始（B-4 → viewport → ステージ配置 → テスト）"
-    },
-    {
-      "at": "2026-10-20T15:30:25+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "28cd93e",
-      "text": "P2-WP-04 の O-④-1・2・3・5・6・7 を Opus で決定（設計書 §2.4(h)）。最小 PMX 2.0（tools/make_test_pmx.py）を作り minimal_pmx.zip を本物に置き換え、MMDLoader での読込をテストで確認"
-    },
-    {
-      "at": "2026-10-20T15:30:09+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "28cd93e",
-      "text": "P2-WP-04 の O-④-1・2・3・5・6・7 を Opus で決定（設計書 §2.4(h)）。最小 PMX 2.0（tools/make_test_pmx.py）を作り minimal_pmx.zip を本物に置き換え、MMDLoader での読込をテストで確認"
-    },
-    {
-      "at": "2026-10-20T15:26:06+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "f265ded",
-      "text": "P2-WP-04 O-④ の決定: O-④-1〜7 の決定と O-④-2 の最小 PMX"
-    },
-    {
-      "at": "2026-10-20T15:15:56+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "8a01f5f",
-      "text": "P2-WP-03 Opus レビュー完了（送る直前の衝突の再確認・VMD の大文字小文字を修正）、legacy-project-save.test.cjs の時々の失敗（テスト側、b082ad8 から）を修正"
-    },
-    {
-      "at": "2026-10-20T14:46:08+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "30601de",
-      "text": "P2-WP-02/03 ③ 素材一覧・取り込みを実装（30601de）。pytest 354、node-all 188 pass、tsc・evidence 合格、実 data/ 不変"
-    },
-    {
-      "at": "2026-10-20T14:08:37+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "da43e6b",
-      "text": "P2-WP-02/03 素材: 設計書読込・実装着手"
-    },
-    {
-      "at": "2026-10-20T14:06:04+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "d33496a",
-      "text": "WP-01 Opus レビュー：自動保存と統合保存が同じ tick を待つと saving:true のまま止まる不具合を修正（テスト追加）。If-Match・世代番号・C5・server.py の 500 分岐は問題なし"
-    },
-    {
-      "at": "2026-10-20T13:57:32+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "910cc5a",
-      "text": "P2-WP-01 保存・読込を実装・検証（ff51eb0）。POST /api/project の壊れたファイル時の接続切断も500に修正"
+      "head": "5266f10",
+      "text": "PR #13承認済み詳細設計の同期確認: recovery最新との整合と古い引継ぎ記述の修正"
     },
     {
       "at": "2026-10-20T10:06:40+00:00",
@@ -245,6 +107,83 @@
       "event": "done",
       "head": "3e8a79d",
       "text": "P2-WP-00a-2 完了：studio-harness.cjs・run-guarded.cjs・テスト用ファイル生成3種・studio-ui/legacy-ui-layout のハーネス移行・通し確認の土台・conftest と Node ハーネスの後始末"
+    },
+    {
+      "at": "2026-10-20T09:12:14+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "704e5be",
+      "text": "P2-WP-00a-2 ハーネス: studio-harness.cjs・run-guarded.cjs・テスト用ファイル生成・既存node試験の移行・conftest後始末"
+    },
+    {
+      "at": "2026-10-20T09:10:44+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "187441a",
+      "text": "WP-00a-1 Opus レビュー済み。pytest.ini で rootdir を固定（tests/ から起動しても conftest が効く）、conftest でセッション前後の実 data/・exports/ ハッシュ確認を追加"
+    },
+    {
+      "at": "2026-10-20T09:07:19+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "31a93c0",
+      "text": "P2-WP-00a-1 データ隔離を実装（bai_paths.data_dir・conftest.py・test_data_isolation.py、server/diagnostic_logging/qa_capture の保存先切替）。pytest 316 passed、node 12 passed、tsc 通過、実 data/ ハッシュ不変"
+    },
+    {
+      "at": "2026-10-20T09:05:25+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "6bf71a1",
+      "text": "P2-WP-00a-1 データ隔離: bai_paths.py・conftest.py・test_data_isolation.py を実装し server.py ほかの保存先を data_dir() 化"
+    },
+    {
+      "at": "2026-10-20T09:04:33+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "e3fb511",
+      "text": "P2-WP-00a-1 データ隔離: 設計 v5 承認済み。OWNER-5 を ROADMAP に記録し、Sonnet で WP-00a-1 の実装を開始"
+    },
+    {
+      "at": "2026-10-20T09:03:56+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "2056420",
+      "text": "P2 設計 v4 を最終判定し、条件付き承認。条件 C1〜C10（exports への書込のスタブ化、所有者確認の試用データ、reset の判定順、B-4 の関数単位、cameraInvalid 中の自動保存、S7 の範囲、新規作成5か所、導線点検の規則、旧画面テストの待ち、node テストのコマンド）を v5 に反映"
+    },
+    {
+      "at": "2026-10-20T08:56:42+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "eda0a46",
+      "text": "P2 設計の最終判定: 設計書 v4 をコードと突き合わせて最終判定し、条件を v5 に反映する"
+    },
+    {
+      "at": "2026-10-20T08:55:44+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "9056819",
+      "text": "P2 移植の詳細設計 v4 を完成（批評3回目と所有者決定・導線点検§5の1〜5を反映、最終判定前）"
+    },
+    {
+      "at": "2026-10-20T08:46:41+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "37a28a2",
+      "text": "P2（新UIへの移植）の詳細設計: 設計書 v4 の残り（批評3回目 M1〜M8・m1〜m10、所有者決定、導線点検 §5 の1〜5）を仕上げる"
+    },
+    {
+      "at": "2026-10-20T04:36:29+00:00",
+      "by": "claude-code",
+      "event": "blocked",
+      "head": "7e68f40",
+      "text": "P2 設計 v4 の作成途中で利用上限に達し中断。途中の差分を WIP としてコミット。"
+    },
+    {
+      "at": "2026-10-20T13:40:00+09:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "0620206",
+      "text": "作業位置の記録の仕組み（docs/handoff/）を新設。現時点の状態を記入。"
     }
   ]
 }

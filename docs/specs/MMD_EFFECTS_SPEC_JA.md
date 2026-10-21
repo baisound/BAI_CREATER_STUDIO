@@ -1,6 +1,6 @@
-# MMD エフェクト互換・適用・出力 要求仕様（A3・草案）
+# MMD エフェクト互換・適用・出力 要求仕様（A3）
 
-状態: 所有者のA3判断と後続の優先効果指示を反映した仕様。実装・GPU実測の証拠ではない。対象 `RENDER-011`〜`015`。Phase F の後、Phase C の前に扱う。Ray-MMD/MME の `.fx` をブラウザーでそのまま実行できるという意味ではない。`SCR-09` のノード編集 `NF-001` は未承認で対象外。決定理由は [A3所有者決定記録](A3_MMD_EFFECTS_DECISIONS_JA.md)、優先効果は [効果別候補](A3_VISUAL_EFFECT_PRIORITY_JA.md) を参照する。
+状態: 所有者決定済みの要求仕様。実装・GPU実測の証拠ではない。実装する際は [A3実装設計](A3_MMD_EFFECTS_IMPLEMENTATION_DESIGN_JA.md) と [共通契約](IMPLEMENTATION_COMMON_CONTRACT_JA.md) を読む。対象 `RENDER-011`〜`015`。Phase F の後、Phase C の前に扱う。Ray-MMD/MME の `.fx` をブラウザーでそのまま実行できるという意味ではない。`SCR-09` のノード編集 `NF-001` は未承認で対象外。決定理由は [A3所有者決定記録](A3_MMD_EFFECTS_DECISIONS_JA.md)、優先効果は [効果別候補](A3_VISUAL_EFFECT_PRIORITY_JA.md) を参照する。
 
 ## 目的・依存
 

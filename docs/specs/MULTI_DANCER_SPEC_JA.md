@@ -1,6 +1,6 @@
-# 複数ダンサー・フォーメーション 要求仕様（B1・草案）
+# 複数ダンサー・フォーメーション 要求仕様（B1）
 
-状態: 仕様草案。A1〜A3 の後に扱う。対象 `DANCE-001`〜`007`、`DANCE-012`。`O-DANCE-01/02/03` は [B1所有者判断資料](B1_MULTI_DANCER_DECISIONS_JA.md) の推奨案Aをすべて承認済み。格闘・掴み・Kip Up・連続技（`DANCE-008`〜`011`）は別仕様。P2 ④の単体モデル／ステージ配置と P2 ⑤の VMD 再生を前提にし、開発中の P2 移植へ割り込まない。
+状態: 所有者決定済みの要求仕様。実装する際は [B1実装設計](B1_MULTI_DANCER_IMPLEMENTATION_DESIGN_JA.md) と [共通契約](IMPLEMENTATION_COMMON_CONTRACT_JA.md) を読む。A1〜A3 の後に扱う。対象 `DANCE-001`〜`007`、`DANCE-012`。`O-DANCE-01/02/03` は [B1所有者判断資料](B1_MULTI_DANCER_DECISIONS_JA.md) の推奨案Aをすべて承認済み。格闘・掴み・Kip Up・連続技（`DANCE-008`〜`011`）は別仕様。P2 ④の単体モデル／ステージ配置と P2 ⑤の VMD 再生を前提にし、開発中の P2 移植へ割り込まない。機能は未実装・未検証。
 
 ## 目的・依存
 
