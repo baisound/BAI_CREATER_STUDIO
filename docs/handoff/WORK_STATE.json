@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T10:53:03+09:00",
+  "updated_at": "2026-10-21T10:53:26+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp05e",
-  "head_at_update": "aba9601",
+  "head_at_update": "3ea863f",
   "current": {
     "task": "P2-WP-05e SCR-13のタイムライン編集・再生と補正レイヤー",
-    "status": "done",
-    "step": "旧実装・保存API・受け入れ条件の照合",
+    "status": "in_progress",
+    "step": "タイムライン・補正レイヤーの計算と内容比較保存を実装",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T10:53:26+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3ea863f",
+      "text": "P2-WP-05e SCR-13のタイムライン編集・再生と補正レイヤー: タイムライン・補正レイヤーの計算と内容比較保存を実装"
+    },
     {
       "at": "2026-10-21T10:53:03+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "done",
       "head": "30601de",
       "text": "P2-WP-02/03 ③ 素材一覧・取り込みを実装（30601de）。pytest 354、node-all 188 pass、tsc・evidence 合格、実 data/ 不変"
-    },
-    {
-      "at": "2026-10-20T14:08:37+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "da43e6b",
-      "text": "P2-WP-02/03 素材: 設計書読込・実装着手"
     }
   ]
 }
