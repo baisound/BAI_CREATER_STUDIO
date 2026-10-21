@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-21T21:07:09+09:00",
+  "updated_at": "2026-10-21T21:38:47+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-visual-previews-v2",
-  "head_at_update": "0070974",
+  "head_at_update": "203f4c4",
   "current": {
-    "task": "Issue34/35の実素材表示品質確認",
-    "status": "done",
-    "step": "実GLBキャラクターの正面PNGと登録済み実FBXモーションのグレーマンを隔離Chromeで確認し、必要な修正を行う",
+    "task": "PR43の大型GLB自動読込を安全化",
+    "status": "in_progress",
+    "step": "Issue44受領後、大型ステージの自動サムネイルと詳細の自動3D読込を抑止する",
     "design_doc": "docs/roadmap/ASSET_VISUAL_PREVIEWS_20261021_JA.md"
   },
   "next_steps": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-21T21:38:47+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "203f4c4",
+      "text": "PR43の大型GLB自動読込を安全化: Issue44受領後、大型ステージの自動サムネイルと詳細の自動3D読込を抑止する"
+    },
     {
       "at": "2026-10-21T21:07:09+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "done",
       "head": "340aeeb",
       "text": "Issue #33: mainへのPRマージ後のローカルmain同期・8765番サーバー確認をAGENTSと詳細手順に追加"
-    },
-    {
-      "at": "2026-10-21T15:57:59+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1897a21",
-      "text": "Issue #33 main統合後のローカル同期とサーバー確認手順: AGENTSの短い導線と詳細手順を追加する"
     }
   ]
 }
