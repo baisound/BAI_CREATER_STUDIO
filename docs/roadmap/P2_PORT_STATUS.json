@@ -433,11 +433,11 @@
     {
       "id": "P2-WP-07",
       "step": "⑦ 書き出し",
-      "state": "not_started",
+      "state": "in_progress",
       "commits": [],
       "tests": [],
-      "unverified": [],
-      "notes": "VMD 変換用のボーン対応表 /api/conversion-map の編集を⑤から移した（設計書 §2.5 批評 5-1、O-⑦-1）。依存は WP-05c。",
+      "unverified": ["Blenderの実変換・実VMD品質、独立高性能モデルレビューは未実施"],
+      "notes": "VMD 変換用のボーン対応表 /api/conversion-map の編集を⑤から移した（設計書 §2.5 批評 5-1、O-⑦-1）。依存は WP-05c。P2_WP07_EXPORT_AUDIT_20261022_JA.mdに現行API・書込先・UI/試験の境界を記録。",
       "owner_check": null
     },
     {

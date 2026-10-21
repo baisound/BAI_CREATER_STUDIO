@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-22T02:50:05+09:00",
+  "updated_at": "2026-10-22T02:52:45+09:00",
   "updated_by": "codex",
   "branch": "codex/p2-wp07",
-  "head_at_update": "87338f8",
+  "head_at_update": "fa75389",
   "current": {
     "task": "P2-WP-07 書き出し",
-    "status": "in_progress",
+    "status": "done",
     "step": "WP07a: 既存出力・変換マップ・UI受け口と受け入れ条件を監査",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-07 書き出しの既存実装・受け入れ条件を監査して着手。WP06d独立レビューはPhase E UI開始前に実施"
+    "WP07b: SCR23のVMD対応表、ジョブ作成、Blender実行・状態表示を実装"
   ],
   "unverified": [
-    "WP06dの独立高性能モデルレビュー、実GPU/Linux/Owner実モデル採用。P2 Node一括完走はWindows ERR_NO_BUFFER_SPACEで未確認"
+    "Blender実変換・実VMD品質、独立高性能モデルレビュー、WP06dレビュー・実GPU/Linux"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-22T02:52:45+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "fa75389",
+      "text": "WP07a: 旧UI/APIとexports書込先を監査し、SCR23の操作・安全な隔離試験方針を記録"
+    },
     {
       "at": "2026-10-22T02:50:05+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "8984bbd",
       "text": "Issue #46・#47の結果を示すメタデータ図と視点概念図を作成。受領GLBの実画像は公開せず、Owner指定のローカル確認領域に保持"
-    },
-    {
-      "at": "2026-10-21T22:45:08+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "19f818e",
-      "text": "Issue #46・#47: 公開可能な図をIssueへ添付: 素材画像を公開せず、メタデータ図と視点概念図をPR・Issueに直接表示する"
     }
   ]
 }
