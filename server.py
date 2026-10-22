@@ -579,6 +579,19 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid track layout')
             except OSError:self.bad(500,'Track layout write failed')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/target':
+            from studio_v05_arrangement import set_clip_target, ArrangementError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','clip_id','revision','target_model_id'}:return self.bad(400,'Invalid target request')
+                result=set_clip_target(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['clip_id'],body['revision'],body['target_model_id'],unified_assets(),layout_root=DATA/'studio_v05_track_layouts')
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid target binding')
+            except OSError:self.bad(500,'Target binding write failed')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/edit':
             from studio_v05_arrangement import edit_clip, ArrangementError
             try:

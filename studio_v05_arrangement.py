@@ -138,3 +138,28 @@ def undo_batch(root,catalog,project_id,revision):
         data['clips']=undo['clips'];data['revision']+=1;data.pop('undo',None)
         _atomic(Path(root)/(project_id+'.json'),data)
         return {'revision':data['revision'],'undone':True,'legacy_engine_unchanged':True}
+
+
+def set_clip_target(root,catalog,project_id,clip_id,revision,target_model_id,items,*,layout_root=None):
+    """Revision-guarded target binding. Never silently assign an unrelated model."""
+    if type(revision) is not int or revision<0: raise ArrangementError('Revision required')
+    if not isinstance(clip_id,str) or not clip_id or len(clip_id)>100: raise ArrangementError('Invalid clip ID')
+    if target_model_id is not None and (not isinstance(target_model_id,str) or not target_model_id or len(target_model_id)>300):raise ArrangementError('Invalid target model ID')
+    with LOCK:
+        data=read(root,catalog,project_id)
+        if data['revision']!=revision: raise ArrangementError('Revision conflict')
+        clip=next((c for c in data['clips'] if c.get('id')==clip_id),None)
+        if clip is None:raise ArrangementError('Clip not found')
+        if clip.get('category')!='motion':raise ArrangementError('Only motion clips support a target model')
+        if layout_root is not None:
+            from studio_v05_track_layout import get as get_layout
+            if clip.get('track') in get_layout(layout_root,catalog,project_id).get('locked',[]):raise ArrangementError('Track locked')
+        if target_model_id is not None:
+            target=next((a for a in inventory(items)['items'] if a['id']==target_model_id),None)
+            if target is None or target['category']!='model' or not target['available']:raise ArrangementError('Target model missing or unavailable')
+            clip['target_model_id']=target_model_id
+        else:clip.pop('target_model_id',None)
+        data['revision']+=1
+        data.pop('undo',None)
+        _atomic(Path(root)/(project_id+'.json'),data)
+        return {'clip_id':clip_id,'target_model_id':target_model_id,'revision':data['revision'],'legacy_engine_unchanged':True}
