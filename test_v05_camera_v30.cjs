@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const ctx={};ctx.globalThis=ctx;vm.runInNewContext(fs.readFileSync('studio/v05/js/camera-project-settings-v30.js','utf8'),ctx);
+const lib=ctx.BAIStudioCameraProjectV30;assert.equal(lib.resolveFps({fps:24}).fps,24);
+assert.equal(lib.resolveFps({settings:{fps:30}}).fps,30);
+assert.equal(lib.resolveFps({fps:0}).source,'fallback');
+const emitted=[],logs=[];const c=lib.create({emit:(...v)=>emitted.push(v),log:v=>logs.push(v)});
+c.applyProject({id:'p',settings:{frameRate:25}});assert.equal(emitted[0][1].fps,25);
+assert.equal(c.applyFocus({frame:12,lens:{fStop:2.8,focusDistance:4}}).reason,'renderer_not_connected');
+let last;const off=c.registerFocusRenderer(v=>{last=v;return {applied:true}});
+assert.equal(c.applyFocus({seconds:.5,frame:12,lens:{fStop:2.8,focusDistance:4,focalLengthMm:50}}).applied,true);
+assert.equal(last.focusDistance,4);off();assert.equal(c.status().focusRendererConnected,false);
+assert.equal(c.applyFocus({lens:{fStop:-1,focusDistance:5}}).reason,'invalid_focus');
+assert.ok(logs.some(x=>x.code==='dof_renderer_not_connected'));
+console.log('PASS v30 camera FPS resolution, focus handoff, diagnostic');
