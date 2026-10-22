@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {analyzeFocusFrame,analyzeFocusInterval} from './studio/v05/js/focus-visual-audit-v40.js';
+const s={seconds:1,frame:60,fps:60,projectId:'a',pose:{position:[0,0,0]},lens:{focalLengthMm:50,fStop:2.8,focusDistance:5}};
+const t={seconds:1,frame:60,projectId:'a',worldPosition:[0,0,5],targetId:'head'};
+assert.equal(analyzeFocusFrame(s,t).color,'green');
+assert.equal(analyzeFocusFrame({...s,lens:{...s.lens,focusDistance:2}},t).color,'red');
+assert.equal(analyzeFocusFrame(s,{...t,frame:61}).reason,'time_mismatch');
+assert.equal(analyzeFocusFrame(s,{...t,projectId:'other'}).reason,'wrong_project');
+assert.equal(analyzeFocusFrame({...s,lens:{...s.lens,fStop:-2}},t).reason,'invalid_pose_or_lens');
+const summary=analyzeFocusInterval([{snapshot:s,target:t},{snapshot:{...s,lens:{...s.lens,focusDistance:3}},target:t},{snapshot:s,target:{...t,frame:62}}]);
+assert.deepEqual([summary.valid,summary.passed,summary.failed,summary.invalid],[2,1,1,1]);
+assert.equal(summary.gpuVerified,false);
+console.log('focus v40: 7 assertions passed');
