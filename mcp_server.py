@@ -54,6 +54,8 @@ def update_chain(action, name=None, from_index=None,to_index=None):
     return {'timeline':seq,'history_count':len(history)}
 
 def run(name,a):
+    if name=='bai_studio_project_activation_preview':return api('/api/studio/v05/project/activation-preview?id='+urllib.parse.quote(a['id']))
+    if name=='bai_studio_project_activate':return api('/api/studio/v05/project/activate',a)
     if name=='bai_studio_project_snapshot_get':return api('/api/studio/v05/project/snapshot?id='+urllib.parse.quote(a['id']))
     if name=='bai_studio_project_snapshot_save':return api('/api/studio/v05/project/snapshot',{'id':a['id']})
     if name=='bai_studio_projects_list':return api('/api/studio/v05/projects')
@@ -151,6 +153,8 @@ def run(name,a):
 S=lambda props=None,req=None:{'type':'object','properties':props or {},'required':req or [],'additionalProperties':False}
 STR={'type':'string'};INT={'type':'integer'}
 TOOLS=[
+('bai_studio_project_activation_preview','Preview differences and get current revision before activating stored project.',S({'id':STR},['id'])),
+('bai_studio_project_activate','Explicitly activate saved project; requires confirm=true and preview revision; automatically backs up existing state.',S({'id':STR,'expected_revision':STR,'confirm':{'type':'boolean'}},['id','expected_revision','confirm'])),
 ('bai_studio_project_snapshot_get','Read a per-project saved snapshot without activating it.',S({'id':STR},['id'])),
 ('bai_studio_project_snapshot_save','Capture legacy active combination/camera bundle into per-project snapshot without switching projects.',S({'id':STR},['id'])),
 ('bai_studio_projects_list','List v0.5 project catalog metadata. Does not read engine project payload.',S()),

@@ -240,6 +240,16 @@ class Handler(BaseHTTPRequestHandler):
             try:self.send(200,json.dumps(list_projects(DATA/'studio_v05_catalog.json'),ensure_ascii=False).encode())
             except (ValueError,OSError):self.bad(422,'プロジェクト一覧を読めません。元ファイルは保護されます。')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/project/activation-preview':
+            from studio_project_activation import preview, ActivationConflict
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                with PROJECT_LOCK: result=preview(DATA/'studio_v05_snapshots',DATA/'studio_v05_catalog.json',project_id,PROJECT,DATA/'camera_project.json')
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except FileNotFoundError:return self.bad(404,'保存済み作品がありません')
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
+            except (ValueError,TypeError,KeyError,OSError):return self.bad(422,'復元プレビューを作成できません')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/project/snapshot':
             from studio_project_snapshots import read
             from studio_project_catalog import CatalogError
@@ -487,6 +497,23 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/studio/v05/project/activate':
+            from studio_project_activation import activate, ActivationConflict
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                request=json.loads(self.rfile.read(length))
+                if not isinstance(request,dict) or set(request)!={'id','expected_revision','confirm'} or request['confirm'] is not True:
+                    return self.bad(400,'Explicit confirmation and revision required')
+                with PROJECT_LOCK:
+                    result=activate(DATA/'studio_v05_snapshots',DATA/'studio_v05_catalog.json',request['id'],PROJECT,DATA/'camera_project.json',DATA/'studio_v05_activation_backups',request['expected_revision'])
+                sync_bump();self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ActivationConflict:return self.bad(409,'現在の作品が変更されました。再確認してください')
+            except FileNotFoundError:return self.bad(404,'保存済み作品がありません')
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
+            except (ValueError,TypeError,KeyError):return self.bad(400,'復元要求が不正です')
+            except OSError:return self.bad(500,'復元中にファイル操作が失敗しました。バックアップを確認してください')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/project/snapshot':
             from studio_project_snapshots import save
             from studio_project_catalog import CatalogError
