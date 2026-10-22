@@ -1,3 +1,4 @@
+import {createFocusPlot} from './focus-visualization-v45.js';
 /* Saved focus report history: real API data only, no fabricated GPU results. */
 export function normalizeFocusHistory(payload) {
   if (!payload || !Array.isArray(payload.reports)) throw new TypeError('invalid_focus_history');
@@ -50,6 +51,23 @@ export function installFocusHistory(win=window){
               }catch(err){list.textContent='フレーム移動失敗: '+String(err.message||err);}
             });details.append(button);
           }
+          const jump=async frame=>{
+            if(project()!==requested){list.textContent='作品が切り替わりました。履歴を更新してください';return;}
+            try{await jumpToFocusFrame({frame,fps:report.fps,seek:seconds=>win.BAIStudioPersistedSeek.evaluate(seconds,'focus-plot-v45')});}
+            catch(err){list.textContent='フレーム移動失敗: '+String(err.message||err);}
+          };
+          details.append(createFocusPlot(win.document,report,{onJump:jump}));
+          const rerun=win.document.createElement('button');rerun.type='button';rerun.textContent='この区間を再診断';
+          rerun.addEventListener('click',async()=>{
+            if(project()!==requested)return;
+            const scanner=win.BAIStudioFocusIntervalV41;
+            if(!scanner?.run){list.textContent='区間診断エンジンが接続されていません';return;}
+            rerun.disabled=true;
+            try{await scanner.run({projectId:requested,startFrame:report.startFrame,endFrame:report.endFrame,fps:report.fps});
+              const status=panel.querySelector('#v42-status');if(status)status.textContent='再診断が完了しました。保存は別途実行してください';}
+            catch(err){const status=panel.querySelector('#v42-status');if(status)status.textContent='再診断失敗: '+String(err.message||err);}
+            finally{rerun.disabled=false;}
+          });details.append(rerun);
           list.append(details);
         }
       }catch(err){list.textContent='診断履歴を取得できません: '+String(err.message||err);}
