@@ -524,6 +524,29 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path in ('/api/studio/v05/arrangement/batch-move','/api/studio/v05/arrangement/undo','/api/studio/v05/timeline/flags'):
+            path=urlsplit(self.path).path
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=32768:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict):return self.bad(400,'Invalid payload')
+                if path.endswith('/batch-move'):
+                    from studio_v05_arrangement import batch_move
+                    if set(body)!={'project_id','revision','edits'}:return self.bad(400,'Invalid fields')
+                    result=batch_move(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',**body)
+                elif path.endswith('/undo'):
+                    from studio_v05_arrangement import undo_batch
+                    if set(body)!={'project_id','revision'}:return self.bad(400,'Invalid fields')
+                    result=undo_batch(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',**body)
+                else:
+                    from studio_v05_track_layout import set_flags
+                    if set(body)!={'project_id','revision','locked','muted'}:return self.bad(400,'Invalid fields')
+                    result=set_flags(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',**body)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (ValueError,KeyError,TypeError) as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except OSError:self.bad(500,'Write failed')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/layout':
             from studio_v05_track_layout import update, ArrangementError
             try:

@@ -90,3 +90,40 @@ def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,durat
         data['revision']+=1
         _atomic(Path(root)/(project_id+'.json'),data)
         return {'action':action,'clip_id':clip_id,'before':before,'clip':None if action=='delete' else dict(clip),'revision':data['revision'],'legacy_engine_unchanged':True}
+
+
+def batch_move(root,catalog,project_id,revision,edits):
+    """Atomically move multiple clips with a single revision and one-step undo snapshot."""
+    if type(revision) is not int or revision<0:raise ArrangementError('Invalid revision')
+    if not isinstance(edits,list) or not 1<=len(edits)<=100:raise ArrangementError('Invalid edit batch')
+    ids=[]
+    for e in edits:
+        if not isinstance(e,dict) or set(e)!={'clip_id','start','duration','track'}:raise ArrangementError('Invalid edit fields')
+        if not isinstance(e['clip_id'],str) or not e['clip_id'] or len(e['clip_id'])>100:raise ArrangementError('Invalid clip ID')
+        if e['track'] not in TRACKS:raise ArrangementError('Unsupported track')
+        start,duration=e['start'],e['duration']
+        if any(type(v) not in (int,float) or not math.isfinite(v) for v in (start,duration)) or start<0 or duration<=0 or start+duration>86400:raise ArrangementError('Invalid time range')
+        ids.append(e['clip_id'])
+    if len(ids)!=len(set(ids)):raise ArrangementError('Duplicate clip IDs')
+    with LOCK:
+        data=read(root,catalog,project_id)
+        if data['revision']!=revision:raise ArrangementError('Revision conflict')
+        mapping={c['id']:c for c in data['clips']}
+        if any(i not in mapping for i in ids):raise ArrangementError('Clip not found')
+        before=[dict(c) for c in data['clips']]
+        for e in edits:mapping[e['clip_id']].update(start=round(e['start'],4),duration=round(e['duration'],4),track=e['track'])
+        data['revision']+=1
+        data['undo']={'from_revision':data['revision'],'clips':before}
+        _atomic(Path(root)/(project_id+'.json'),data)
+        return {'revision':data['revision'],'updated':len(edits),'legacy_engine_unchanged':True}
+
+def undo_batch(root,catalog,project_id,revision):
+    if type(revision) is not int or revision<0:raise ArrangementError('Invalid revision')
+    with LOCK:
+        data=read(root,catalog,project_id)
+        if data['revision']!=revision:raise ArrangementError('Revision conflict')
+        undo=data.get('undo')
+        if not isinstance(undo,dict) or undo.get('from_revision')!=revision or not isinstance(undo.get('clips'),list):raise ArrangementError('No undo available')
+        data['clips']=undo['clips'];data['revision']+=1;data.pop('undo',None)
+        _atomic(Path(root)/(project_id+'.json'),data)
+        return {'revision':data['revision'],'undone':True,'legacy_engine_unchanged':True}

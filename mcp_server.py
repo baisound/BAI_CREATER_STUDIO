@@ -63,6 +63,9 @@ def run(name,a):
     if name=='bai_studio_track_layout_set':return api('/api/studio/v05/timeline/layout',a)
     if name=='bai_studio_timeline_view':return api('/api/studio/v05/timeline/view?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_arrangement_get':return api('/api/studio/v05/arrangement?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_batch_move':return api('/api/studio/v05/arrangement/batch-move',a)
+    if name=='bai_studio_batch_undo':return api('/api/studio/v05/arrangement/undo',a)
+    if name=='bai_studio_track_flags_set':return api('/api/studio/v05/timeline/flags',a)
     if name=='bai_studio_clip_edit':return api('/api/studio/v05/arrangement/clip/edit',a)
     if name=='bai_studio_clip_place':return api('/api/studio/v05/arrangement/place',a)
     if name=='bai_studio_projects_list':return api('/api/studio/v05/projects')
@@ -169,6 +172,9 @@ TOOLS=[
 ('bai_studio_track_layout_set','Update track order and heights with revision guard.',S({'project_id':STR,'revision':{'type':'integer'},'order':{'type':'array','items':STR},'heights':{'type':'object','additionalProperties':{'type':'integer'}}},['project_id','revision','order','heights'])),
 ('bai_studio_timeline_view','Read deterministic track-grouped per-project timeline projection; read-only.',S({'project_id':STR},['project_id'])),
 ('bai_studio_arrangement_get','Read v0.5 per-project clip arrangement; does not change legacy engine.',S({'project_id':STR},['project_id'])),
+('bai_studio_batch_move','Atomically move multiple saved clips.',S({'project_id':STR,'revision':INT,'edits':{'type':'array','items':{'type':'object'}}},['project_id','revision','edits'])),
+('bai_studio_batch_undo','Undo previous atomic batch move.',S({'project_id':STR,'revision':INT},['project_id','revision'])),
+('bai_studio_track_flags_set','Set track locks and mutes.',S({'project_id':STR,'revision':INT,'locked':{'type':'array','items':STR},'muted':{'type':'array','items':STR}},['project_id','revision','locked','muted'])),
 ('bai_studio_clip_edit','Update or delete saved v0.5 clip metadata by ID with revision check; legacy engine unchanged.',S({'project_id':STR,'clip_id':STR,'revision':INT,'action':{'type':'string','enum':['update','delete']},'start':{'type':'number'},'duration':{'type':'number'},'track':STR},['project_id','clip_id','revision','action'])),
 ('bai_studio_clip_place','Place registered asset into v0.5 clip arrangement with optimistic revision.',S({'project_id':STR,'asset_id':STR,'track':STR,'start':{'type':'number'},'duration':{'type':'number'},'revision':INT},['project_id','asset_id','track','start','duration','revision'])),
 ('bai_studio_projects_list','List v0.5 project catalog metadata. Does not read engine project payload.',S()),
