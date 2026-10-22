@@ -30,8 +30,17 @@ def _validate(report):
         if not isinstance(item,dict) or type(item.get('frame')) is not int or not a<=item['frame']<=b or not isinstance(item.get('reason'),str) or len(item['reason'])>160:raise FocusReportError('invalid_problem_frame')
         err=item.get('error')
         if err is not None and (type(err) not in (int,float) or not math.isfinite(err) or err<0):raise FocusReportError('invalid_frame_error')
+    samples=report.get('samples')
+    if samples is not None:
+        if not isinstance(samples,list) or len(samples)!=report['count']:raise FocusReportError('invalid_samples_count')
+        for i,sample in enumerate(samples):
+            if not isinstance(sample,dict) or type(sample.get('frame')) is not int or sample['frame']!=a+i or type(sample.get('ok')) is not bool:raise FocusReportError('invalid_sample_frame')
+            error=sample.get('error')
+            if sample['ok']:
+                if type(error) not in (int,float) or not math.isfinite(error) or error<0 or type(sample.get('withinTolerance')) is not bool:raise FocusReportError('invalid_sample_error')
+            elif error is not None or not isinstance(sample.get('reason'),str) or not sample['reason'] or len(sample['reason'])>160:raise FocusReportError('invalid_sample_failure')
     if report.get('evaluatedAgainstGPU') is not False:raise FocusReportError('gpu_claim_not_verified')
-    return {k:report[k] for k in ('startFrame','endFrame','fps','count','maximumError','problemFrames','evaluatedAgainstGPU')}
+    return {**{k:report[k] for k in ('startFrame','endFrame','fps','count','maximumError','problemFrames','evaluatedAgainstGPU')}, **({'samples':samples} if samples is not None else {})}
 def save(root,catalog,project_id,revision,report):
     if type(revision) is not int or revision<0:raise FocusReportError('invalid_revision')
     cleaned=_validate(report)

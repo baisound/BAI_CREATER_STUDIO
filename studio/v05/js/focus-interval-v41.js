@@ -26,6 +26,7 @@ export function createFocusIntervalRunner({evaluateFrame,onProgress=()=>{},onCom
       latest=Object.freeze({...summary,projectId,startFrame,endFrame,fps,tolerance,
         maximumError:Math.max(0,...summary.results.filter(x=>x.ok).map(x=>x.error)),
         problemFrames:summary.results.flatMap((r,i)=>!r.ok||!r.withinTolerance?[{frame:startFrame+i,reason:r.ok?'out_of_focus':entries[i].reason||r.reason,error:r.ok?r.error:null}]:[]),
+        samples:summary.results.map((r,i)=>({frame:startFrame+i,ok:Boolean(r.ok),error:r.ok?r.error:null,withinTolerance:r.ok?Boolean(r.withinTolerance):null,reason:r.ok?null:(entries[i].reason||r.reason||"evaluation_failed")})),
         evaluatedAgainstGPU:false});
       onComplete(latest);return latest;
     } finally {if(token===generation)running=false;}

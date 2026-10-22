@@ -6,7 +6,7 @@ export function normalizeFocusHistory(payload) {
     id:String(report.id), startFrame:report.startFrame,endFrame:report.endFrame,
     fps:Number(report.fps),maximumError:Number(report.maximumError),
     problems:Array.isArray(report.problemFrames)?report.problemFrames:[],
-    gpuVerified:report.evaluatedAgainstGPU===true
+    samples:Array.isArray(report.samples)?report.samples:null, gpuVerified:report.evaluatedAgainstGPU===true
   }));
 }
 export function jumpToFocusFrame({frame,fps,seek}) {
@@ -56,7 +56,11 @@ export function installFocusHistory(win=window){
             try{await jumpToFocusFrame({frame,fps:report.fps,seek:seconds=>win.BAIStudioPersistedSeek.evaluate(seconds,'focus-plot-v45')});}
             catch(err){list.textContent='フレーム移動失敗: '+String(err.message||err);}
           };
-          details.append(createFocusPlot(win.document,report,{onJump:jump}));
+          details.append(createFocusPlot(win.document,report,{onJump:jump,onRange:(a,b)=>{
+            const start=panel.querySelector('#v42-start'),end=panel.querySelector('#v42-end');
+            if(start)start.value=String(a);if(end)end.value=String(b);
+            const status=panel.querySelector('#v42-status');if(status)status.textContent=`選択区間 ${a}–${b}f（区間診断ボタンで実行）`;
+          }}));
           const rerun=win.document.createElement('button');rerun.type='button';rerun.textContent='この区間を再診断';
           rerun.addEventListener('click',async()=>{
             if(project()!==requested)return;

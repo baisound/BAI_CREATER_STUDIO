@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {buildFocusPlot} from './studio/v05/js/focus-visualization-v45.js';
+import {createFocusIntervalRunner} from './studio/v05/js/focus-interval-v41.js';
+const r=createFocusIntervalRunner({evaluateFrame:async ({projectId,frame,seconds})=>({snapshot:{projectId,frame,seconds,cameraPosition:{x:0,y:0,z:0},focusDistance:1},target:{seconds,position:{x:0,y:0,z:1}}})});
+const result=await r.run({projectId:'p1',startFrame:0,endFrame:2,fps:30});
+assert.equal(result.samples.length,3);
+assert.deepEqual(result.samples.map(s=>s.frame),[0,1,2]);
+const plot=buildFocusPlot({startFrame:0,endFrame:2,samples:[{frame:0,ok:true,error:.2},{frame:1,ok:false,error:null},{frame:2,ok:true,error:.4}],problems:[]});
+assert.equal(plot.measured.length,2);assert.equal(plot.hasFullSamples,true);assert.equal(plot.measured[1].frame,2);
+const old=buildFocusPlot({startFrame:0,endFrame:2,problems:[{frame:1,error:.3,reason:'out_of_focus'}]});
+assert.equal(old.hasFullSamples,false);assert.equal(old.unobserved,2);
+console.log('v46 focus sample tests PASS');
