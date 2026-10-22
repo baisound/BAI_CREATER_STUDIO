@@ -7,7 +7,7 @@
  host.append(box);
  const $=id=>box.querySelector('#'+id);let assets=[],selected=null,revision=0;
  const linkCheck=document.createElement('button');
- linkCheck.type='button';linkCheck.textContent='実モーション接続を確認';
+ linkCheck.type='button';linkCheck.id='v18linkCheck';linkCheck.textContent='実モーション接続を確認';
  linkCheck.title='素材とクリップの対応を検査します。読込処理が未登録の場合は再生しません。';
  box.insertBefore(linkCheck,$('v07timeline'));
  linkCheck.addEventListener('click',async()=>{
