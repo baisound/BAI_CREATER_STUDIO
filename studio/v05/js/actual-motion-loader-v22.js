@@ -9,6 +9,7 @@ import { createPmxGlbPreview } from '../../js/motion/pmx-glb-preview.js';
 import { createPmxVmdPreview } from '../../js/motion/pmx-vmd-preview.js';
 import { loadVmdClip, vmdUrl } from '../../js/motion/vmd.js';
 import { createShootingPreview } from './shooting-preview-v27.js';
+import { installModelBoneFocus } from './model-bone-focus-v36.js';
 
 export function compatibleMotion(modelFormat, motionFormat) {
   const model = String(modelFormat || '').toUpperCase();
@@ -21,6 +22,7 @@ export function createActualMotionLoaders(container, report = () => {}) {
   if (!container || typeof container.appendChild !== 'function') throw new TypeError('Preview container required');
   let libsPromise = null;
   const models = new Map();
+  let focusRuntime = null;
   let disposed = false;
   function getLibs() { return libsPromise ||= loadLibs(); }
   function ensureActive() { if (disposed) throw new Error('Preview was closed'); }
@@ -46,11 +48,14 @@ export function createActualMotionLoaders(container, report = () => {}) {
           shootingPreview=createShootingPreview({THREE:libs.THREE,host,parent:shootingParent,cameraRuntime:window.BAIStudioShootingCamera});
         } catch (err) { report('撮影カメラを接続できません：'+String(err.message||err)); }
       }
+      if(!focusRuntime)focusRuntime=installModelBoneFocus({THREE:libs.THREE});
+      const releaseFocus=focusRuntime.bindModel(modelId,object,window.BAIStudioCurrentProjectId);
+      focusRuntime.setTarget(modelId); // Defaults to the model origin; caller may select a bone.
       const target = {
         format:loaded.format, object, libs, host,
         seek(seconds) { if (!Number.isFinite(seconds) || seconds < 0) throw new RangeError('Invalid time'); host.invalidate?.(); },
         invalidate() {host.invalidate?.();shootingPreview?.invalidate();},
-        dispose() {if(models.get(modelId)===target) models.delete(modelId);shootingPreview?.dispose();host.dispose();disposeObject(object);}
+        dispose() {if(models.get(modelId)===target) models.delete(modelId);releaseFocus();shootingPreview?.dispose();host.dispose();disposeObject(object);}
       };
       models.set(modelId,target);report(`モデル読込完了：${asset.name || modelId}`);
       return target;
@@ -77,7 +82,9 @@ export function createActualMotionLoaders(container, report = () => {}) {
       let closed=false;
       return {
         duration:preview.duration,
-        seek(seconds) {if(closed)return;preview.seek(seconds);host.invalidate?.();targetPreview.invalidate?.();},
+        seek(seconds) {if(closed)return;preview.seek(seconds);
+          window.dispatchEvent(new CustomEvent('bai:model-pose-evaluated',{detail:{seconds:window.BAIStudioCameraFocusRuntime?.current?.()?.seconds,projectId:window.BAIStudioCameraFocusRuntime?.current?.()?.projectId}}));
+          host.invalidate?.();targetPreview.invalidate?.();},
         invalidate(){host.invalidate?.();targetPreview.invalidate?.();},
         dispose(){if(closed)return;closed=true;preview.dispose();if(sourceObject)disposeObject(sourceObject);}
       };
@@ -85,6 +92,6 @@ export function createActualMotionLoaders(container, report = () => {}) {
   }
   return {
     loadTarget, loadMotion,
-    dispose() {disposed=true;for(const target of [...models.values()]) target.dispose();models.clear();},
+    dispose() {disposed=true;for(const target of [...models.values()]) target.dispose();models.clear();focusRuntime?.dispose();focusRuntime=null;},
   };
 }
