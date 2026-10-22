@@ -7,7 +7,7 @@ let catalogConnected=false;
 async function fetchCatalog(){
  try{const r=await fetch(catalogApi,{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);
  const body=await r.json();if(!Array.isArray(body.projects))throw Error('Invalid response');
- catalogConnected=true;projects=body.projects.map(p=>({...p,image:'proj-virtual-stage.webp'}));selectedProject=0;renderProjects();
+ catalogConnected=true;projects=body.projects.map(p=>({...p,image:'proj-virtual-stage.webp'}));selectedProject=0;renderProjects();window.dispatchEvent(new CustomEvent('bai:project-selected',{detail:{project:projects[selectedProject]||null}}));
  }catch(error){catalogConnected=false;console.warn('[v0.5] catalog API unavailable; project cards are demo-only',error);notify('プロジェクト一覧はデモ表示です（API未接続）')}}
 async function createCatalogProject(name,kind){
  if(!catalogConnected)throw Error('サーバー未接続。作品の作成は保存されません');
@@ -16,7 +16,7 @@ async function createCatalogProject(name,kind){
 }
 const types={all:'すべて',model:'3Dモデル',motion:'ダンス・動き',face:'表情',lip:'口の動き',camera:'カメラ',light:'照明',effect:'エフェクト',audio:'楽曲・音声',video:'動画',image:'画像・背景'};
 function notify(s){let el=$('toast');if(el){el.textContent=s;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400)} }
-function page(which){const legacy=['edit','motion','camera','assets'];$('baiPages').classList.toggle('visible',!legacy.includes(which));document.querySelectorAll('.baiPage').forEach(e=>e.classList.toggle('active',e.id==='bai-'+which));document.querySelectorAll('#nav .tab').forEach(e=>e.classList.toggle('on',e.dataset.page===which||e.dataset.workspace===which)); if(which==='output')drawOverlay();}
+function page(which){if(which==='edit'&&projects[selectedProject]?.id)window.dispatchEvent(new CustomEvent('bai:project-selected',{detail:{project:projects[selectedProject]}}));const legacy=['edit','motion','camera','assets'];$('baiPages').classList.toggle('visible',!legacy.includes(which));document.querySelectorAll('.baiPage').forEach(e=>e.classList.toggle('active',e.id==='bai-'+which));document.querySelectorAll('#nav .tab').forEach(e=>e.classList.toggle('on',e.dataset.page===which||e.dataset.workspace===which)); if(which==='output')drawOverlay();}
 window.baiGo=page;
 document.querySelectorAll('#nav [data-page]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();page(b.dataset.page)},true));document.querySelectorAll('#nav [data-workspace]').forEach(b=>b.addEventListener('click',()=>page(b.dataset.workspace)));document.addEventListener('click',e=>{const go=e.target.closest('[data-go]');if(go){e.stopPropagation();page(go.dataset.go)}const act=e.target.closest('[data-action]');if(act){e.stopPropagation();action(act.dataset.action)}});
 const card=(p,i)=>`<div class="baiCard clickable" tabindex="0" data-project="${i}"><img src="assets/${esc(p.image)}" alt="作品サムネイル"><h3>${esc(p.name)}</h3><p class="baiTiny">${p.status==='draft'?'制作中':'完成済み'}　｜　${esc(p.modified)}</p><button data-openproject="${i}">編集する ↗</button>${p.id?`<div class="baiRow"><button class="small" data-v05-snapshot="${i}" data-snapshot-action="save">現行編集を保存</button><button class="small" data-v05-snapshot="${i}" data-snapshot-action="read">保存状態を確認</button></div>`:''}</div>`;

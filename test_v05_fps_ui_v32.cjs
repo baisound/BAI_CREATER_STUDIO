@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const src=fs.readFileSync('studio/v05/js/project-fps-ui-v32.js','utf8');const root={};root.globalThis=root;vm.runInNewContext(src,root);const make=root.BAIStudioFPSV32.controller;
+(async()=>{const values=new Map([['a',30],['b',60]]),applied=[];
+ const api=make({load:async id=>({project_id:id,fps:values.get(id),configured:true}),save:async(id,fps)=>{values.set(id,fps);return {project:{id,fps}}},apply:p=>applied.push(p)});
+ assert.equal((await api.select({id:'a'})).fps,30);await api.set(24);assert.equal(values.get('a'),24);assert.equal(applied.at(-1).settings.fps,24);
+ await api.select({id:'b'});assert.equal((await api.set(59.94)).fps,59.94);
+ for(const v of [0,241,NaN])await assert.rejects(()=>api.set(v));
+ let resolve;const slow=make({load:()=>new Promise(r=>resolve=r),save:async()=>{throw Error('no')}});const first=slow.select({id:'a'});slow.select(null);resolve({project_id:'a',fps:30,configured:true});assert.equal(await first,null);
+ console.log('v32 FPS controller PASS (selection/save/validation/stale response)');
+})().catch(e=>{console.error(e);process.exitCode=1});
