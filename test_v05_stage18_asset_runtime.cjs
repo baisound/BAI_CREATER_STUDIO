@@ -1,0 +1,24 @@
+const assert=require('node:assert/strict');
+const fs=require('fs');const vm=require('vm');
+const calls=[];const root={BAIStudioLiveMotion:{attach:({clipId,preview})=>{calls.push(['attach',clipId]);return ()=>calls.push(['detach',clipId]);}}};
+vm.runInNewContext(fs.readFileSync('studio/v05/js/asset-runtime-v18.js','utf8'),{window:root,globalThis:root});
+const api=root.BAIStudioAssetRuntime;
+const asset={id:'a',category:'motion',available:true};
+const clip={id:'c',asset_id:'a',track:'motion',start:2,duration:4};
+(async()=>{
+assert.equal(api.validate([clip],[asset]).playable.length,1);
+assert.equal(api.validate([clip],[]).issues[0].reason,'missing_asset');
+assert.equal(api.validate([clip],[{...asset,available:false}]).issues[0].reason,'unavailable_asset');
+assert.equal(api.validate([clip],[{...asset,category:'audio'}]).issues[0].reason,'incompatible_category');
+assert.equal((await api.reconcile({project_id:'one',clips:[clip],assets:[asset]})).pending,1);
+let disposed=0,seeks=0;
+api.setLoader(async()=>({seek:()=>seeks++,dispose:()=>disposed++}));
+assert.equal((await api.reconcile({project_id:'one',clips:[clip],assets:[asset]})).connected,1);
+assert.equal((await api.reconcile({project_id:'one',clips:[clip],assets:[asset]})).connected,1);
+assert.equal(calls.filter(a=>a[0]==='attach').length,1);
+assert.equal((await api.reconcile({project_id:'two',clips:[],assets:[]})).connected,0);
+assert.equal(disposed,1);assert.ok(calls.some(a=>a[0]==='detach'));
+api.setLoader(async()=>{throw Error('loader failed')});
+assert.equal((await api.reconcile({project_id:'two',clips:[clip],assets:[asset]})).issues[0].reason,'load_failed');
+api.detachAll();console.log('stage18 asset runtime: 10 assertions PASS');
+})().catch(e=>{console.error(e);process.exitCode=1});

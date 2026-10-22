@@ -6,6 +6,26 @@
  box.innerHTML='<h3>実素材 → タイムライン（枝番06）</h3><label>作品 <select id="v06project" style="width:100%"></select></label><label>種類 <select id="v06cat" style="width:100%"><option value="all">すべて</option><option value="model">3Dモデル</option><option value="motion">モーション</option><option value="camera">カメラ</option><option value="audio">音声</option><option value="video">動画</option><option value="image">画像</option><option value="other">その他</option></select></label><input id="v06query" placeholder="素材名を検索" style="width:100%"><div id="v06results" style="max-height:150px;overflow:auto"></div><label>配置先 <select id="v06track"><option value="motion">ダンス・動き</option><option value="model">3Dモデル</option><option value="camera">カメラ</option><option value="audio">音声</option><option value="video">映像</option><option value="image">画像</option><option value="effect">効果</option></select></label><label>開始（秒）<input id="v06start" type="number" min="0" step="0.1" value="0"></label><label>長さ（秒）<input id="v06duration" type="number" min="0.1" step="0.1" value="5"></label><button id="v06place" type="button">選択素材を配置・保存</button><p id="v06status" role="status" style="white-space:normal;color:#c7d8ed">既存エンジンとは未接続の配置データです。</p><div id="v06clips"></div><dialog id="v08dialog" style="background:#1d2d40;color:#fff;border:1px solid #7689a1;border-radius:8px;padding:18px"><form method="dialog" id="v08form"><h3>クリップ編集</h3><p id="v08name"></p><label>配置先<select id="v08track"><option value="motion">ダンス・動き</option><option value="model">3Dモデル</option><option value="camera">カメラ</option><option value="audio">音声</option><option value="video">映像</option><option value="image">画像</option><option value="effect">効果</option><option value="expression">表情</option><option value="lip">口</option><option value="music">楽曲</option><option value="light">照明</option></select></label><label>開始（秒）<input id="v08start" type="number" min="0" step="0.1" required></label><label>長さ（秒）<input id="v08duration" type="number" min="0.1" step="0.1" required></label><div style="display:flex;gap:6px;margin-top:8px"><button type="button" id="v08save">変更を保存</button><button type="button" id="v08delete">削除</button><button value="cancel">キャンセル</button></div></form></dialog><div id="v07timeline" aria-label="保存済み素材の時間軸" style="overflow:auto;max-width:100%;border-top:1px solid #536377;margin-top:8px"></div>';
  host.append(box);
  const $=id=>box.querySelector('#'+id);let assets=[],selected=null,revision=0;
+ const linkCheck=document.createElement('button');
+ linkCheck.type='button';linkCheck.textContent='実モーション接続を確認';
+ linkCheck.title='素材とクリップの対応を検査します。読込処理が未登録の場合は再生しません。';
+ box.insertBefore(linkCheck,$('v07timeline'));
+ linkCheck.addEventListener('click',async()=>{
+   try {
+     const project_id=$('v06project').value;
+     if(!project_id) throw Error('作品を選択してください');
+     const [arr,inventory]=await Promise.all([
+       request('/api/studio/v05/arrangement?id='+encodeURIComponent(project_id)),
+       request('/api/studio/v05/assets?category=all&query=')
+     ]);
+     const runtime=window.BAIStudioAssetRuntime;
+     if(!runtime) throw Error('再生接続モジュールを読めません');
+     const result=await runtime.reconcile({project_id,clips:arr.clips,assets:inventory.items});
+     const reasons=result.issues.map(issue=>issue.reason).join(', ');
+     status('モーション接続 '+result.connected+'件 / 待機 '+(result.pending||0)+'件'+(reasons?' / '+reasons:''));
+   } catch(err) {status('接続検査失敗: '+err.message)}
+ });
+
  async function request(url,opt){const res=await fetch(url,opt);const data=await res.json();if(!res.ok)throw Error(data.error||'HTTP '+res.status);return data}
  function status(s){$('v06status').textContent=s}
  async function projects(){try{const d=await request('/api/studio/v05/projects');$('v06project').innerHTML=d.projects.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('');await arrangement()}catch(e){status('作品取得不可: '+e.message)}}
