@@ -269,6 +269,13 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(200,json.dumps(read(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
             except (ArrangementError,ValueError,KeyError,OSError):self.bad(422,'Cannot read project arrangement')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/focus-target':
+            from studio_v05_focus_target import read, FocusTargetError
+            try:
+                pid=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                self.send(200,json.dumps(read(DATA/'studio_v05_focus_targets',DATA/'studio_v05_catalog.json',pid),ensure_ascii=False).encode())
+            except (FocusTargetError,ValueError,KeyError,OSError) as exc:self.bad(422,str(exc))
+            return
         if urlsplit(self.path).path=='/api/studio/v05/project/fps':
             from studio_project_catalog import list_projects, CatalogError
             try:
@@ -677,6 +684,19 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(200,b'{"logged":true}')
             except (ValueError,TypeError):self.bad(400,'Invalid camera diagnostic')
             except OSError:self.bad(500,'Diagnostic log write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/focus-target':
+            from studio_v05_focus_target import save, FocusTargetError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                data=json.loads(self.rfile.read(length))
+                if not isinstance(data,dict):raise FocusTargetError('Expected object')
+                result=save(DATA/'studio_v05_focus_targets',DATA/'studio_v05_catalog.json',data.get('project_id'),data.get('revision'),data.get('model_id'),data.get('bone_name'),data.get('enabled',False))
+                event('v05_focus_target_saved',project_id=result['project_id'],enabled=result['enabled'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (FocusTargetError,ValueError,TypeError,KeyError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'Focus target save failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/project/fps':
             from studio_project_catalog import set_fps, CatalogError
