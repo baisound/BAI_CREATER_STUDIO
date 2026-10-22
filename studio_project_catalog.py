@@ -35,6 +35,19 @@ def rename(path,project_id,name):
         if any(x['id']!=project_id and x['name'].casefold()==name.casefold() for x in data['projects']):raise CatalogError('Project name already exists')
         item['name']=name;item['modified']=datetime.now(timezone.utc).isoformat();_atomic(path,data)
         return item
+def set_fps(path,project_id,fps):
+    """Persist a finite per-project frame rate; never change the legacy engine project."""
+    if isinstance(fps,bool) or not isinstance(fps,(int,float)) or not (1<=fps<=240) or not __import__('math').isfinite(fps):
+        raise CatalogError('FPS must be a finite number between 1 and 240')
+    with LOCK:
+        data=load(path)
+        item=next((x for x in data['projects'] if x['id']==project_id),None)
+        if item is None:raise CatalogError('Project not found')
+        item['fps']=fps
+        item['modified']=datetime.now(timezone.utc).isoformat()
+        _atomic(path,data)
+        return item
+
 def _atomic(path,data):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
     temp=path.with_name(path.name+'.tmp-'+uuid.uuid4().hex)

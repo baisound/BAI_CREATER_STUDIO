@@ -269,6 +269,16 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(200,json.dumps(read(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
             except (ArrangementError,ValueError,KeyError,OSError):self.bad(422,'Cannot read project arrangement')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/project/fps':
+            from studio_project_catalog import list_projects, CatalogError
+            try:
+                pid=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                catalog=list_projects(DATA/'studio_v05_catalog.json')
+                item=next((v for v in catalog['projects'] if v['id']==pid),None)
+                if item is None:raise CatalogError('Project not found')
+                self.send(200,json.dumps({'project_id':pid,'fps':item.get('fps'),'configured':'fps' in item}).encode())
+            except (CatalogError,ValueError,OSError) as exc:self.bad(422,str(exc))
+            return
         if urlsplit(self.path).path=='/api/studio/v05/projects':
             from studio_project_catalog import list_projects, CatalogError
             try:self.send(200,json.dumps(list_projects(DATA/'studio_v05_catalog.json'),ensure_ascii=False).encode())
@@ -656,6 +666,30 @@ class Handler(BaseHTTPRequestHandler):
             except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
             except (CatalogError,ValueError,TypeError,KeyError):return self.bad(400,'Invalid project snapshot request')
             except OSError:return self.bad(500,'Snapshot save failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/diagnostic':
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=4096:return self.bad(413,'Diagnostic payload too large')
+                payload=json.loads(self.rfile.read(length))
+                if not isinstance(payload,dict) or payload.get('category')!='camera' or not isinstance(payload.get('code'),str) or not re.fullmatch(r'[a-z][a-z0-9_]{0,63}',payload['code']):raise ValueError('Invalid diagnostic')
+                event('v05_camera_diagnostic',level=payload.get('level') if payload.get('level') in ('info','warning','error') else 'info',code=payload['code'],project_id=payload.get('projectId'),frame=payload.get('frame'))
+                self.send(200,b'{"logged":true}')
+            except (ValueError,TypeError):self.bad(400,'Invalid camera diagnostic')
+            except OSError:self.bad(500,'Diagnostic log write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/project/fps':
+            from studio_project_catalog import set_fps, CatalogError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                payload=json.loads(self.rfile.read(length))
+                if not isinstance(payload,dict):raise CatalogError('Expected JSON object')
+                item=set_fps(DATA/'studio_v05_catalog.json',payload.get('project_id'),payload.get('fps'))
+                event('v05_project_fps_set',project_id=item['id'],fps=item['fps'])
+                self.send(200,json.dumps({'project':item},ensure_ascii=False).encode())
+            except (CatalogError,TypeError,ValueError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'Failed to save project FPS')
             return
         if urlsplit(self.path).path in ('/api/studio/v05/projects','/api/studio/v05/projects/rename'):
             from studio_project_catalog import create, rename, CatalogError
