@@ -235,6 +235,11 @@ class Handler(BaseHTTPRequestHandler):
         msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
         self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
     def do_GET(self):
+        if urlsplit(self.path).path=='/api/studio/v05/projects':
+            from studio_project_catalog import list_projects, CatalogError
+            try:self.send(200,json.dumps(list_projects(DATA/'studio_v05_catalog.json'),ensure_ascii=False).encode())
+            except (ValueError,OSError):self.bad(422,'プロジェクト一覧を読めません。元ファイルは保護されます。')
+            return
         path=urlsplit(self.path).path
         if path in ("/camera.html", "/camera.css", "/camera.js", "/camera_3d.js", "/camera_vmd_local.js", "/camera_rig.js", "/camera_follow_config.js", "/camera_follow_smoothing.js", "/camera_framing.js", "/camera_lens.js", "/camera_dof.js", "/camera_focus_tracking.js", "/camera_focus_consistency.js", "/camera_bundle_core.js", "/camera_project_bundle_ui.js", "/camera_sequence_playback.js"):
             file=BASE/path[1:];self.send(200,file.read_bytes(),"text/css" if path.endswith(".css") else "text/javascript" if path.endswith(".js") else "text/html; charset=utf-8");return
@@ -472,6 +477,21 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path in ('/api/studio/v05/projects','/api/studio/v05/projects/rename'):
+            from studio_project_catalog import create, rename, CatalogError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                data=json.loads(self.rfile.read(length))
+                if not isinstance(data,dict):raise CatalogError('Expected JSON object')
+                catalog=DATA/'studio_v05_catalog.json'
+                if urlsplit(self.path).path.endswith('/rename'):
+                    item=rename(catalog,data.get('id'),data.get('name'))
+                else:item=create(catalog,data.get('name'),data.get('kind','empty'))
+                self.send(200,json.dumps({'project':item},ensure_ascii=False).encode())
+            except (CatalogError,ValueError,TypeError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'Failed to save project catalog')
+            return
         if urlsplit(self.path).path=='/api/music-dance/project':
             try:
                 length=int(self.headers.get('Content-Length','0'))

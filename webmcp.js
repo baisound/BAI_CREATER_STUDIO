@@ -7,6 +7,9 @@
  const validIndex=n=>Number.isInteger(n)&&n>=1&&n<=rows.length;
  const toolSpecs=[];
  function def(name,description,inputSchema,handler,readOnly=false){toolSpecs.push({name,description,inputSchema,handler,readOnly});}
+ def('bai_studio_projects_list','Read v0.5 saved project catalog metadata; legacy active project is unchanged.',schema(),async()=>await request('/api/studio/v05/projects'),true);
+ def('bai_studio_project_create','Create a v0.5 project catalog record, not a separate engine project.',schema({name:str,kind:{type:'string',enum:['empty','dance','mv','video']}},['name']),async a=>await request('/api/studio/v05/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}));
+ def('bai_studio_project_rename','Rename a v0.5 project catalog entry.',schema({id:str,name:str},['id','name']),async a=>await request('/api/studio/v05/projects/rename',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}));
  def('bai_camera_get','Read non-destructive BAI Camera timeline.',schema(),async()=>await request('/api/camera/project'),true);
  def('bai_camera_set','Save BAI Camera keyframes.',schema({schema:integer,fps:integer,duration:integer,keys:{type:'array',items:{type:'object'}}},['schema','fps','duration','keys']),async args=>await request('/api/camera/project',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(args)}));
  def('bai_camera_sample','Read camera keyframe interpolation.',schema({frame:integer},['frame']),async({frame})=>await request('/api/camera/sample?frame='+frame),true);
