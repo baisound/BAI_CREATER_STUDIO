@@ -69,3 +69,24 @@ def timeline_view(root,catalog,project_id):
         if clips:rows.append({'track':track,'clips':clips})
     end=max((c['start']+c['duration'] for c in data['clips']),default=0)
     return {'schema':1,'project_id':project_id,'revision':data['revision'],'tracks':rows,'duration':round(end,4),'clip_count':len(data['clips']),'engine_connected':False}
+
+
+def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,duration=None,track=None):
+    """Atomic revision-guarded metadata edit, isolated from legacy playback."""
+    if not isinstance(clip_id,str) or not clip_id or len(clip_id)>100:raise ArrangementError('Invalid clip ID')
+    if type(revision) is not int or revision<0:raise ArrangementError('Revision required')
+    if action not in ('update','delete'):raise ArrangementError('Invalid action')
+    if action=='update':
+        if track not in TRACKS:raise ArrangementError('Unsupported track')
+        if any(type(v) not in (int,float) or not math.isfinite(v) for v in (start,duration)) or start<0 or duration<=0 or start+duration>86400:raise ArrangementError('Invalid time range')
+    with LOCK:
+        data=read(root,catalog,project_id)
+        if revision!=data['revision']:raise ArrangementError('Revision conflict')
+        clip=next((x for x in data['clips'] if x.get('id')==clip_id),None)
+        if clip is None:raise ArrangementError('Clip not found')
+        before=dict(clip)
+        if action=='delete':data['clips'].remove(clip)
+        else:clip.update(start=round(start,4),duration=round(duration,4),track=track)
+        data['revision']+=1
+        _atomic(Path(root)/(project_id+'.json'),data)
+        return {'action':action,'clip_id':clip_id,'before':before,'clip':None if action=='delete' else dict(clip),'revision':data['revision'],'legacy_engine_unchanged':True}

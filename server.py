@@ -517,6 +517,23 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/edit':
+            from studio_v05_arrangement import edit_clip, ArrangementError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict):return self.bad(400,'Invalid clip edit')
+                base={'project_id','clip_id','revision','action'}
+                expected=base|({'start','duration','track'} if body.get('action')=='update' else set())
+                if set(body)!=expected:return self.bad(400,'Invalid clip edit fields')
+                args={k:body[k] for k in ('start','duration','track') if k in body}
+                result=edit_clip(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['clip_id'],body['revision'],body['action'],**args)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid clip edit')
+            except OSError:self.bad(500,'Clip update failed')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement/place':
             from studio_v05_arrangement import place, ArrangementError
             try:

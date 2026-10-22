@@ -61,6 +61,7 @@ def run(name,a):
     if name=='bai_studio_assets_search':return api('/api/studio/v05/assets?category='+urllib.parse.quote(a.get('category','all'))+'&query='+urllib.parse.quote(a.get('query','')))
     if name=='bai_studio_timeline_view':return api('/api/studio/v05/timeline/view?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_arrangement_get':return api('/api/studio/v05/arrangement?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_clip_edit':return api('/api/studio/v05/arrangement/clip/edit',a)
     if name=='bai_studio_clip_place':return api('/api/studio/v05/arrangement/place',a)
     if name=='bai_studio_projects_list':return api('/api/studio/v05/projects')
     if name=='bai_studio_project_create':return api('/api/studio/v05/projects',a)
@@ -164,6 +165,7 @@ TOOLS=[
 ('bai_studio_assets_search','Search registered local assets by category and text.',S({'category':STR,'query':STR})),
 ('bai_studio_timeline_view','Read deterministic track-grouped per-project timeline projection; read-only.',S({'project_id':STR},['project_id'])),
 ('bai_studio_arrangement_get','Read v0.5 per-project clip arrangement; does not change legacy engine.',S({'project_id':STR},['project_id'])),
+('bai_studio_clip_edit','Update or delete saved v0.5 clip metadata by ID with revision check; legacy engine unchanged.',S({'project_id':STR,'clip_id':STR,'revision':INT,'action':{'type':'string','enum':['update','delete']},'start':{'type':'number'},'duration':{'type':'number'},'track':STR},['project_id','clip_id','revision','action'])),
 ('bai_studio_clip_place','Place registered asset into v0.5 clip arrangement with optimistic revision.',S({'project_id':STR,'asset_id':STR,'track':STR,'start':{'type':'number'},'duration':{'type':'number'},'revision':INT},['project_id','asset_id','track','start','duration','revision'])),
 ('bai_studio_projects_list','List v0.5 project catalog metadata. Does not read engine project payload.',S()),
 ('bai_studio_project_create','Create v0.5 catalog record only, not a new 3D engine project.',S({'name':STR,'kind':{'type':'string','enum':['empty','dance','mv','video']}},['name'])),
