@@ -14,6 +14,7 @@
     if(!Number.isFinite(seconds)||seconds<0)throw new RangeError('Invalid seconds');
     current.seconds=seconds;
     const detail={seconds,source,projectId:current.projectId,tracks:activeAt(current.clips,seconds)};
+    if(root.BAIStudioCameraRuntime?.seek) void root.BAIStudioCameraRuntime.seek(seconds,{projectId:current.projectId,source});
     if(root.BAIStudioEngineBridge?.seek) return root.BAIStudioEngineBridge.seek(detail);
     return Promise.resolve();
   }
