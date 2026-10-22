@@ -61,6 +61,8 @@ def run(name,a):
     if name=='bai_studio_assets_search':return api('/api/studio/v05/assets?category='+urllib.parse.quote(a.get('category','all'))+'&query='+urllib.parse.quote(a.get('query','')))
     if name=='bai_studio_track_layout_get':return api('/api/studio/v05/timeline/layout?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_track_layout_set':return api('/api/studio/v05/timeline/layout',a)
+    if name=='bai_studio_playhead_get':return api('/api/studio/v05/playhead?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_playhead_set':return api('/api/studio/v05/playhead',a)
     if name=='bai_studio_timeline_view':return api('/api/studio/v05/timeline/view?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_arrangement_get':return api('/api/studio/v05/arrangement?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_batch_move':return api('/api/studio/v05/arrangement/batch-move',a)
@@ -170,6 +172,8 @@ TOOLS=[
 ('bai_studio_assets_search','Search registered local assets by category and text.',S({'category':STR,'query':STR})),
 ('bai_studio_track_layout_get','Read project track order and heights.',S({'project_id':STR},['project_id'])),
 ('bai_studio_track_layout_set','Update track order and heights with revision guard.',S({'project_id':STR,'revision':{'type':'integer'},'order':{'type':'array','items':STR},'heights':{'type':'object','additionalProperties':{'type':'integer'}}},['project_id','revision','order','heights'])),
+('bai_studio_playhead_get','Read saved edit cursor; not engine playback.',S({'project_id':STR},['project_id'])),
+('bai_studio_playhead_set','Set saved edit cursor, revision guarded; no engine seek.',S({'project_id':STR,'seconds':{'type':'number'},'revision':{'type':'integer'}},['project_id','seconds','revision'])),
 ('bai_studio_timeline_view','Read deterministic track-grouped per-project timeline projection; read-only.',S({'project_id':STR},['project_id'])),
 ('bai_studio_arrangement_get','Read v0.5 per-project clip arrangement; does not change legacy engine.',S({'project_id':STR},['project_id'])),
 ('bai_studio_batch_move','Atomically move multiple saved clips.',S({'project_id':STR,'revision':INT,'edits':{'type':'array','items':{'type':'object'}}},['project_id','revision','edits'])),
