@@ -50,7 +50,7 @@ export function createActualMotionLoaders(container, report = () => {}) {
       }
       if(!focusRuntime)focusRuntime=installModelBoneFocus({THREE:libs.THREE});
       const releaseFocus=focusRuntime.bindModel(modelId,object,window.BAIStudioCurrentProjectId);
-      window.BAIStudioFocusFollowRuntime=focusRuntime;
+      window.BAIStudioModelBoneFocusRuntime=focusRuntime;
       window.dispatchEvent(new CustomEvent('bai:focus-model-available',{detail:{modelId,object}})); // The saved focus choice is applied by settings UI.
       const target = {
         format:loaded.format, object, libs, host,

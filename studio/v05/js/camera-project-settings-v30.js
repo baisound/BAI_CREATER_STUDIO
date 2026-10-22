@@ -31,6 +31,8 @@ function create({emit=()=>{},log=()=>{}}={}){
 function install(){const runtime=create({emit:(type,detail)=>root.dispatchEvent(new CustomEvent(type,{detail})),log:data=>root.dispatchEvent(new CustomEvent('bai:diagnostic',{detail:data}))});
  root.addEventListener('bai:project-selected',e=>runtime.applyProject(e.detail?.project));
  root.addEventListener('bai:camera-v29-state',e=>runtime.applyFocus(e.detail));
+ // Evaluated focus-follow state overrides the basic focal distance for the same timestamp.
+ root.addEventListener('bai:camera-focus-follow-resolved',e=>runtime.applyFocus(e.detail));
  return runtime;
 }
 root.BAIStudioCameraProjectV30=Object.freeze({create,resolveFps,install});

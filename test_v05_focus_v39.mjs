@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {diagnoseFocus,createFocusDiagnostic} from './studio/v05/js/focus-diagnostic-v39.js';
+const snap={seconds:2,frame:120,fps:60,projectId:'p',pose:{position:{x:0,y:0,z:0}},lens:{focalLengthMm:50,fStop:2.8,focusDistance:3}};
+const target={seconds:2,frame:120,projectId:'p',worldPosition:[0,3,4],targetId:'m:head'};
+assert.equal(diagnoseFocus(snap,target).focusDistance,5);
+assert.equal(diagnoseFocus(snap,{...target,frame:121}).reason,'time_mismatch');
+assert.equal(diagnoseFocus(snap,{...target,projectId:'other'}).reason,'wrong_project');
+assert.equal(diagnoseFocus({...snap,lens:{fStop:0,focalLengthMm:50}},target).ok,false);
+let emitted=[];let r=createFocusDiagnostic({emit:x=>emitted.push(x)});
+r.setTarget(target);r.setSnapshot(snap);assert.equal(emitted.length,1);assert.equal(r.current().rendererVerified,false);
+console.log('v39 tests PASS (6 checks)');
