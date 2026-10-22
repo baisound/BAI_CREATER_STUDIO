@@ -15,10 +15,12 @@ export function createShootingPreview({THREE,host,parent,cameraRuntime,win=windo
   let disposed=false,frame=0,linked=false;
   const dof=createShootingDOF({THREE,renderer,camera,scene:host.scene});
   const unregisterDof=win.BAIStudioCameraProjectRuntime?.registerFocusRenderer?.(settings=>{const result=dof?.setFocus(settings)||{applied:false};invalidate();return result;})||(()=>{});
+  const onDiagnostic=e=>{const opts=e?.detail||{};dof?.setDiagnosticMode(Boolean(opts.enabled),{tolerance:opts.tolerance??0.1});invalidate();};
+  win.addEventListener('bai:shooting-focus-color-mode',onDiagnostic);
   const unregister=cameraRuntime.registerShootingCamera(camera,{navigationCamera:navigation});
   const unregisterLens=win.BAIStudioCameraLensRuntime?.register(camera,{navigationCamera:navigation}) || (()=>{});
   const measure=()=>{const w=Math.max(1,parent.clientWidth),h=Math.max(1,parent.clientHeight);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
-  const draw=()=>{frame=0;if(disposed)return;measure();if(dof?.status().enabled)dof.render(Math.round(parent.clientWidth*renderer.getPixelRatio()),Math.round(parent.clientHeight*renderer.getPixelRatio()));else renderer.render(host.scene,camera);};
+  const draw=()=>{frame=0;if(disposed)return;measure();if(dof && (dof.status().enabled||dof.status().diagnostic))dof.render(Math.round(parent.clientWidth*renderer.getPixelRatio()),Math.round(parent.clientHeight*renderer.getPixelRatio()));else renderer.render(host.scene,camera);};
   function invalidate(){if(disposed||frame)return;frame=win.requestAnimationFrame(draw);}
   const offInvalidate=host.onInvalidate?.(invalidate);
   const onPose=()=>{linked=true;invalidate();};
@@ -28,5 +30,5 @@ export function createShootingPreview({THREE,host,parent,cameraRuntime,win=windo
   const previous=cameraRuntime.status?.().last;
   if(previous?.pose){cameraRuntime.apply(previous.pose,previous.meta);linked=true;}
   invalidate();
-  return Object.freeze({camera,invalidate,status:()=>({linked,disposed}),dispose(){if(disposed)return;disposed=true;win.removeEventListener('bai:camera-pose-evaluated',onPose);observer?.disconnect();offInvalidate?.();unregisterDof();dof?.dispose();unregisterLens();unregister();if(frame)win.cancelAnimationFrame(frame);renderer.dispose();renderer.domElement.remove();}});
+  return Object.freeze({camera,invalidate,status:()=>({linked,disposed}),dispose(){if(disposed)return;disposed=true;win.removeEventListener('bai:camera-pose-evaluated',onPose);win.removeEventListener('bai:shooting-focus-color-mode',onDiagnostic);observer?.disconnect();offInvalidate?.();unregisterDof();dof?.dispose();unregisterLens();unregister();if(frame)win.cancelAnimationFrame(frame);renderer.dispose();renderer.domElement.remove();}});
 }
