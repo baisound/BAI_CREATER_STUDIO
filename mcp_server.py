@@ -59,6 +59,8 @@ def run(name,a):
     if name=='bai_studio_project_snapshot_get':return api('/api/studio/v05/project/snapshot?id='+urllib.parse.quote(a['id']))
     if name=='bai_studio_project_snapshot_save':return api('/api/studio/v05/project/snapshot',{'id':a['id']})
     if name=='bai_studio_assets_search':return api('/api/studio/v05/assets?category='+urllib.parse.quote(a.get('category','all'))+'&query='+urllib.parse.quote(a.get('query','')))
+    if name=='bai_studio_track_layout_get':return api('/api/studio/v05/timeline/layout?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_track_layout_set':return api('/api/studio/v05/timeline/layout',a)
     if name=='bai_studio_timeline_view':return api('/api/studio/v05/timeline/view?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_arrangement_get':return api('/api/studio/v05/arrangement?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_clip_edit':return api('/api/studio/v05/arrangement/clip/edit',a)
@@ -163,6 +165,8 @@ TOOLS=[
 ('bai_studio_project_snapshot_get','Read a per-project saved snapshot without activating it.',S({'id':STR},['id'])),
 ('bai_studio_project_snapshot_save','Capture legacy active combination/camera bundle into per-project snapshot without switching projects.',S({'id':STR},['id'])),
 ('bai_studio_assets_search','Search registered local assets by category and text.',S({'category':STR,'query':STR})),
+('bai_studio_track_layout_get','Read project track order and heights.',S({'project_id':STR},['project_id'])),
+('bai_studio_track_layout_set','Update track order and heights with revision guard.',S({'project_id':STR,'revision':{'type':'integer'},'order':{'type':'array','items':STR},'heights':{'type':'object','additionalProperties':{'type':'integer'}}},['project_id','revision','order','heights'])),
 ('bai_studio_timeline_view','Read deterministic track-grouped per-project timeline projection; read-only.',S({'project_id':STR},['project_id'])),
 ('bai_studio_arrangement_get','Read v0.5 per-project clip arrangement; does not change legacy engine.',S({'project_id':STR},['project_id'])),
 ('bai_studio_clip_edit','Update or delete saved v0.5 clip metadata by ID with revision check; legacy engine unchanged.',S({'project_id':STR,'clip_id':STR,'revision':INT,'action':{'type':'string','enum':['update','delete']},'start':{'type':'number'},'duration':{'type':'number'},'track':STR},['project_id','clip_id','revision','action'])),
