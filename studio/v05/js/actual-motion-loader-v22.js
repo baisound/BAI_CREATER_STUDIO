@@ -77,8 +77,8 @@ export function createActualMotionLoaders(container, report = () => {}) {
       let closed=false;
       return {
         duration:preview.duration,
-        seek(seconds) {if(closed)return;preview.seek(seconds);host.invalidate?.();},
-        invalidate(){host.invalidate?.();shootingPreview?.invalidate();},
+        seek(seconds) {if(closed)return;preview.seek(seconds);host.invalidate?.();targetPreview.invalidate?.();},
+        invalidate(){host.invalidate?.();targetPreview.invalidate?.();},
         dispose(){if(closed)return;closed=true;preview.dispose();if(sourceObject)disposeObject(sourceObject);}
       };
     } catch(error){preview?.dispose();if(sourceObject)disposeObject(sourceObject);throw error;}
