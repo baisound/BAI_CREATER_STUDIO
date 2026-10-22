@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');const vm=require('node:vm');
+const source=fs.readFileSync('studio/v05/js/focus-target-ui-v37.js','utf8');
+const ctx={};ctx.globalThis=ctx;vm.runInNewContext(source,ctx);
+const registry=ctx.BAIStudioFocusTargetV37.createSelectionRegistry();
+const model={traverse(fn){fn({name:'Head',isBone:true});fn({name:'Hand.L',type:'Bone'});fn({name:'Mesh',type:'Mesh'});fn({name:'Head',isBone:true});}};
+registry.add('model-1',model);
+assert.deepEqual(Array.from(registry.bones('model-1')),['Hand.L','Head']);
+assert.deepEqual(Array.from(registry.list(),x=>x.id),['model-1']);
+registry.remove('model-1');assert.equal(registry.list().length,0);
+assert.throws(()=>registry.add('',model));
+console.log('v38 focus selector registry tests PASS');

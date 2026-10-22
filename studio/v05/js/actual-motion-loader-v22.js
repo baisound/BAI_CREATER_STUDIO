@@ -50,12 +50,13 @@ export function createActualMotionLoaders(container, report = () => {}) {
       }
       if(!focusRuntime)focusRuntime=installModelBoneFocus({THREE:libs.THREE});
       const releaseFocus=focusRuntime.bindModel(modelId,object,window.BAIStudioCurrentProjectId);
-      focusRuntime.setTarget(modelId); // Defaults to the model origin; caller may select a bone.
+      window.BAIStudioFocusFollowRuntime=focusRuntime;
+      window.dispatchEvent(new CustomEvent('bai:focus-model-available',{detail:{modelId,object}})); // The saved focus choice is applied by settings UI.
       const target = {
         format:loaded.format, object, libs, host,
         seek(seconds) { if (!Number.isFinite(seconds) || seconds < 0) throw new RangeError('Invalid time'); host.invalidate?.(); },
         invalidate() {host.invalidate?.();shootingPreview?.invalidate();},
-        dispose() {if(models.get(modelId)===target) models.delete(modelId);releaseFocus();shootingPreview?.dispose();host.dispose();disposeObject(object);}
+        dispose() {if(models.get(modelId)===target) models.delete(modelId);releaseFocus();window.dispatchEvent(new CustomEvent('bai:focus-model-removed',{detail:{modelId}}));shootingPreview?.dispose();host.dispose();disposeObject(object);}
       };
       models.set(modelId,target);report(`モデル読込完了：${asset.name || modelId}`);
       return target;
