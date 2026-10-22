@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');
+const source=fs.readFileSync('studio/v05/js/camera-focus-consistency-v33.js','utf8');
+const env={};env.globalThis=env;vm.runInNewContext(source,env);
+const api=env.BAIStudioCameraFocusV33;assert.ok(api);
+const state={seconds:1.5,frame:90,fps:60,pose:{x:2},lens:{focalLengthMm:50,fStop:2.8,focusDistance:3}};
+const a=api.normalize(state);assert.equal(a.focusValid,true);assert.equal(a.frame,90);assert.equal(a.dofRendered,false);
+assert.equal(api.normalize({...state,lens:{fStop:0}}).focusValid,false);
+assert.throws(()=>api.normalize({...state,seconds:-1}),e=>e.name==='RangeError');
+let emitted=[],logs=[];const runtime=api.create({emit:x=>emitted.push(x),diagnostic:x=>logs.push(x)});
+const b=runtime.accept(state);assert.equal(runtime.current(),b);assert.equal(emitted.length,1);
+runtime.accept({...state,lens:{}});assert.equal(logs[0].code,'focus_snapshot_incomplete');
+const html=fs.readFileSync('studio/v05/index.html','utf8');assert.ok(html.includes('camera-focus-consistency-v33.js'));
+console.log('v33 focus consistency: 8 assertions passed');
