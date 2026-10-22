@@ -50,6 +50,17 @@ export function installLiveFocusScanControls(win=window){
       try{const result=await runner.run({projectId,startFrame:Number(panel.querySelector('#v42-start').value),endFrame:Number(panel.querySelector('#v42-end').value),fps});status.textContent=`確認 ${result.valid}/${result.count}、要確認 ${result.problemFrames.length}（GPU未検証）`;}
       catch(e){status.textContent='診断失敗: '+String(e?.message||e);}
     };
+    const saveButton=win.document.createElement('button');saveButton.textContent='診断結果を保存';saveButton.type='button';panel.append(saveButton);
+    saveButton.onclick=async()=>{
+      const result=runner.current();if(!result){status.textContent='保存する診断結果がありません';return;}
+      try{
+        const url='/api/studio/v05/focus-reports';const id=encodeURIComponent(result.projectId);
+        const previous=await fetch(url+'?id='+id).then(r=>{if(!r.ok)throw Error('report_read_failed');return r.json();});
+        const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:result.projectId,revision:previous.revision,report:result})});
+        if(!response.ok)throw Error('report_save_failed_'+response.status);
+        status.textContent='診断結果を保存しました（GPU描画の一致は未検証）';
+      }catch(e){status.textContent='保存できません: '+String(e.message||e);}
+    };
     panel.querySelector('#v42-cancel').onclick=()=>{runner.cancel();status.textContent='停止しました';};
     win.addEventListener('pagehide',()=>{detach();panel.remove();},{once:true});return true;
   };

@@ -71,6 +71,8 @@ def run(name,a):
     if name=='bai_studio_clip_target_set':return api('/api/studio/v05/arrangement/clip/target',a)
     if name=='bai_studio_clip_edit':return api('/api/studio/v05/arrangement/clip/edit',a)
     if name=='bai_studio_clip_place':return api('/api/studio/v05/arrangement/place',a)
+    if name=='bai_studio_focus_reports_get':return api('/api/studio/v05/focus-reports?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_focus_reports_save':return api('/api/studio/v05/focus-reports',a)
     if name=='bai_studio_focus_target_get':return api('/api/studio/v05/focus-target?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_focus_target_set':return api('/api/studio/v05/focus-target',a)
     if name=='bai_studio_project_fps_get':return api('/api/studio/v05/project/fps?id='+urllib.parse.quote(a['project_id']))
@@ -187,6 +189,8 @@ TOOLS=[
 ('bai_studio_clip_target_set','Set or clear a motion clip target model with revision check.',S({'project_id':STR,'clip_id':STR,'revision':INT,'target_model_id':{'type':['string','null']}},['project_id','clip_id','revision','target_model_id'])),
 ('bai_studio_clip_edit','Update or delete saved v0.5 clip metadata by ID with revision check; legacy engine unchanged.',S({'project_id':STR,'clip_id':STR,'revision':INT,'action':{'type':'string','enum':['update','delete']},'start':{'type':'number'},'duration':{'type':'number'},'track':STR},['project_id','clip_id','revision','action'])),
 ('bai_studio_clip_place','Place registered asset into v0.5 clip arrangement with optimistic revision.',S({'project_id':STR,'asset_id':STR,'track':STR,'start':{'type':'number'},'duration':{'type':'number'},'revision':INT},['project_id','asset_id','track','start','duration','revision'])),
+('bai_studio_focus_reports_get','Read saved project focus interval reports.',S({'project_id':STR},['project_id'])),
+('bai_studio_focus_reports_save','Save completed focus interval report.',S({'project_id':STR,'revision':INT,'report':{'type':'object'}},['project_id','revision','report'])),
 ('bai_studio_focus_target_get','Read saved focus target selection.',S({'project_id':STR},['project_id'])),
 ('bai_studio_focus_target_set','Persist selected focus model and bone.',S({'project_id':STR,'revision':INT,'model_id':{'type':['string','null']},'bone_name':{'type':['string','null']},'enabled':{'type':'boolean'}},['project_id','revision','model_id','bone_name','enabled'])),
 ('bai_studio_project_fps_get','Read project FPS; nullable when not configured.',S({'project_id':STR},['project_id'])),

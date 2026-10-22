@@ -269,6 +269,13 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(200,json.dumps(read(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
             except (ArrangementError,ValueError,KeyError,OSError):self.bad(422,'Cannot read project arrangement')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/focus-reports':
+            from studio_v05_focus_reports import read, FocusReportError
+            try:
+                pid=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                self.send(200,json.dumps(read(DATA/'studio_v05_focus_reports',DATA/'studio_v05_catalog.json',pid),ensure_ascii=False).encode())
+            except (FocusReportError,ValueError,KeyError,OSError) as exc:self.bad(422,str(exc))
+            return
         if urlsplit(self.path).path=='/api/studio/v05/focus-target':
             from studio_v05_focus_target import read, FocusTargetError
             try:
@@ -684,6 +691,18 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(200,b'{"logged":true}')
             except (ValueError,TypeError):self.bad(400,'Invalid camera diagnostic')
             except OSError:self.bad(500,'Diagnostic log write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/focus-reports':
+            from studio_v05_focus_reports import save, FocusReportError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=262144:return self.bad(413,'Request too large')
+                data=json.loads(self.rfile.read(length))
+                result=save(DATA/'studio_v05_focus_reports',DATA/'studio_v05_catalog.json',data.get('project_id'),data.get('revision'),data.get('report'))
+                event('v05_focus_report_saved',project_id=result['project_id'],revision=result['revision'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (FocusReportError,ValueError,TypeError,KeyError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'Focus report write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/focus-target':
             from studio_v05_focus_target import save, FocusTargetError
