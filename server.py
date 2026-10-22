@@ -240,6 +240,16 @@ class Handler(BaseHTTPRequestHandler):
             try:self.send(200,json.dumps(list_projects(DATA/'studio_v05_catalog.json'),ensure_ascii=False).encode())
             except (ValueError,OSError):self.bad(422,'プロジェクト一覧を読めません。元ファイルは保護されます。')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/project/snapshot':
+            from studio_project_snapshots import read
+            from studio_project_catalog import CatalogError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                payload=read(DATA/'studio_v05_snapshots',DATA/'studio_v05_catalog.json',project_id)
+                self.send(200,json.dumps(payload,ensure_ascii=False).encode())
+            except FileNotFoundError:return self.bad(404,'保存済みスナップショットがありません')
+            except (CatalogError,ValueError,KeyError,OSError):return self.bad(422,'スナップショットの読み込みに失敗しました')
+            return
         path=urlsplit(self.path).path
         if path in ("/camera.html", "/camera.css", "/camera.js", "/camera_3d.js", "/camera_vmd_local.js", "/camera_rig.js", "/camera_follow_config.js", "/camera_follow_smoothing.js", "/camera_framing.js", "/camera_lens.js", "/camera_dof.js", "/camera_focus_tracking.js", "/camera_focus_consistency.js", "/camera_bundle_core.js", "/camera_project_bundle_ui.js", "/camera_sequence_playback.js"):
             file=BASE/path[1:];self.send(200,file.read_bytes(),"text/css" if path.endswith(".css") else "text/javascript" if path.endswith(".js") else "text/html; charset=utf-8");return
@@ -477,6 +487,24 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/studio/v05/project/snapshot':
+            from studio_project_snapshots import save
+            from studio_project_catalog import CatalogError
+            from project_state_bundle import read_bundle
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                request=json.loads(self.rfile.read(length))
+                if not isinstance(request,dict) or set(request)!={'id'}:return self.bad(400,'Expected project ID')
+                with PROJECT_LOCK:
+                    bundle=read_bundle(PROJECT,DATA/'camera_project.json',strict=True)
+                    bundle={k:v for k,v in bundle.items() if k in ('schema','combination','camera','workspace') and (k!='workspace' or v is not None)}
+                    result=save(DATA/'studio_v05_snapshots',DATA/'studio_v05_catalog.json',request['id'],bundle)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
+            except (CatalogError,ValueError,TypeError,KeyError):return self.bad(400,'Invalid project snapshot request')
+            except OSError:return self.bad(500,'Snapshot save failed')
+            return
         if urlsplit(self.path).path in ('/api/studio/v05/projects','/api/studio/v05/projects/rename'):
             from studio_project_catalog import create, rename, CatalogError
             try:
