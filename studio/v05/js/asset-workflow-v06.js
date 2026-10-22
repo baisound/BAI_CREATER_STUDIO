@@ -42,13 +42,14 @@
      let drag=null;
      clip.addEventListener('pointerdown',e=>{if(e.button!==0||dragBusy)return;const r=clip.getBoundingClientRect();const edge=7;const mode=e.clientX-r.left<edge?'trim-left':r.right-e.clientX<edge?'trim-right':'move';drag={mode,x:e.clientX,y:e.clientY,start:c.start,duration:c.duration,track:c.track,moved:false};clip.setPointerCapture(e.pointerId)});
      clip.addEventListener('pointermove',e=>{if(!drag)return;const delta=(e.clientX-drag.x)/scale;if(Math.abs(e.clientX-drag.x)>3||Math.abs(e.clientY-drag.y)>3)drag.moved=true;if(!drag.moved)return;
-      if(drag.mode==='move'){drag.start=roundSnap(c.start+delta);const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-track]');if(target&&tracks.some(t=>t.track===target.dataset.track))drag.track=target.dataset.track}
+      if(drag.mode==='move'){drag.start=roundSnap(c.start+delta);const target=[...el.querySelectorAll('[data-track]')].find(n=>{const b=n.getBoundingClientRect();return e.clientY>=b.top&&e.clientY<=b.bottom});if(target&&tracks.some(t=>t.track===target.dataset.track))drag.track=target.dataset.track}
       if(drag.mode==='trim-left'){const end=c.start+c.duration;drag.start=Math.min(end-0.1,roundSnap(c.start+delta));drag.duration=Math.round((end-drag.start)*100)/100}
       if(drag.mode==='trim-right')drag.duration=Math.max(0.1,roundSnap(c.duration+delta));
       clip.style.left=drag.start*scale+'px';clip.style.width=Math.max(8,drag.duration*scale-2)+'px';clip.style.opacity='.72';clip.title='仮配置: '+drag.track+' / '+drag.start+'秒 / '+drag.duration+'秒';
      });
      clip.addEventListener('pointerup',e=>{if(!drag)return;const v=drag;drag=null;clip.style.opacity='1';if(v.moved){e.preventDefault();dragCommit(c,v.track,v.start,v.duration)}else status('選択: '+c.name+' / '+c.start+'秒 / '+c.duration+'秒')});
      clip.addEventListener('pointercancel',()=>{drag=null;drawTimeline()});
+     clip.addEventListener('keydown',e=>{if(e.key==='Escape'&&drag){drag=null;drawTimeline();e.preventDefault()}});
      clip.addEventListener('lostpointercapture',()=>{if(drag){drag=null;drawTimeline()}});
      clip.addEventListener('dblclick',()=>{if(!dragBusy)openClip(c)});lane.append(clip)});wrap.append(lane);el.append(wrap)});
   }catch(e){el.textContent='タイムライン取得失敗: '+e.message}
