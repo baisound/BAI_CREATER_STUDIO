@@ -8,6 +8,7 @@ import { createGenericGlbPreview } from '../../js/motion/generic-glb-preview.js'
 import { createPmxGlbPreview } from '../../js/motion/pmx-glb-preview.js';
 import { createPmxVmdPreview } from '../../js/motion/pmx-vmd-preview.js';
 import { loadVmdClip, vmdUrl } from '../../js/motion/vmd.js';
+import { createShootingPreview } from './shooting-preview-v27.js';
 
 export function compatibleMotion(modelFormat, motionFormat) {
   const model = String(modelFormat || '').toUpperCase();
@@ -30,7 +31,7 @@ export function createActualMotionLoaders(container, report = () => {}) {
     const loaded = await loadModel(asset, libs);
     if (disposed) { disposeObject(loaded.object); throw new Error('Preview was closed'); }
     const object = loaded.object;
-    let host;
+    let host, shootingPreview;
     try {
       if (loaded.format === 'PMX') {
         object.scale.setScalar(.08);object.updateMatrixWorld(true);
@@ -39,15 +40,21 @@ export function createActualMotionLoaders(container, report = () => {}) {
       } else normalizeModel(object, loaded.format, libs.THREE);
       host = createViewport(container, libs);
       host.setObject(object);host.fit();
+      const shootingParent = container.querySelector('[data-shooting-preview]');
+      if (shootingParent && window.BAIStudioShootingCamera) {
+        try {
+          shootingPreview=createShootingPreview({THREE:libs.THREE,host,parent:shootingParent,cameraRuntime:window.BAIStudioShootingCamera});
+        } catch (err) { report('撮影カメラを接続できません：'+String(err.message||err)); }
+      }
       const target = {
         format:loaded.format, object, libs, host,
         seek(seconds) { if (!Number.isFinite(seconds) || seconds < 0) throw new RangeError('Invalid time'); host.invalidate?.(); },
-        invalidate() {host.invalidate?.();},
-        dispose() {if(models.get(modelId)===target) models.delete(modelId);host.dispose();disposeObject(object);}
+        invalidate() {host.invalidate?.();shootingPreview?.invalidate();},
+        dispose() {if(models.get(modelId)===target) models.delete(modelId);shootingPreview?.dispose();host.dispose();disposeObject(object);}
       };
       models.set(modelId,target);report(`モデル読込完了：${asset.name || modelId}`);
       return target;
-    } catch (error) {host?.dispose();disposeObject(object);throw error;}
+    } catch (error) {shootingPreview?.dispose();host?.dispose();disposeObject(object);throw error;}
   }
   async function loadMotion({asset,clip,targetModelId,targetPreview}) {
     ensureActive();
@@ -71,7 +78,7 @@ export function createActualMotionLoaders(container, report = () => {}) {
       return {
         duration:preview.duration,
         seek(seconds) {if(closed)return;preview.seek(seconds);host.invalidate?.();},
-        invalidate(){host.invalidate?.();},
+        invalidate(){host.invalidate?.();shootingPreview?.invalidate();},
         dispose(){if(closed)return;closed=true;preview.dispose();if(sourceObject)disposeObject(sourceObject);}
       };
     } catch(error){preview?.dispose();if(sourceObject)disposeObject(sourceObject);throw error;}
