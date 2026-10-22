@@ -21,7 +21,26 @@ window.baiGo=page;
 document.querySelectorAll('#nav [data-page]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();page(b.dataset.page)},true));document.querySelectorAll('#nav [data-workspace]').forEach(b=>b.addEventListener('click',()=>page(b.dataset.workspace)));document.addEventListener('click',e=>{const go=e.target.closest('[data-go]');if(go){e.stopPropagation();page(go.dataset.go)}const act=e.target.closest('[data-action]');if(act){e.stopPropagation();action(act.dataset.action)}});
 const card=(p,i)=>`<div class="baiCard clickable" tabindex="0" data-project="${i}"><img src="assets/${esc(p.image)}" alt="作品サムネイル"><h3>${esc(p.name)}</h3><p class="baiTiny">${p.status==='draft'?'制作中':'完成済み'}　｜　${esc(p.modified)}</p><button data-openproject="${i}">編集する ↗</button></div>`;
 function renderProjects(){let q=($('baiProjectSearch')?.value||'').toLowerCase(), f=$('baiProjectFilter')?.value||'all';let rows=projects.map((p,i)=>({p,i})).filter(x=>x.p.name.toLowerCase().includes(q)&&(f==='all'||x.p.status===f));if(!sortAsc)rows.reverse();$('baiProjectList').innerHTML=rows.map(x=>card(x.p,x.i)).join('')||'<p>該当する作品はありません。</p>';$('baiRecent').innerHTML=projects.slice(0,3).map(card).join('');$('baiStats').innerHTML=[['登録素材',assets.length],['シーン数',3],['要確認',2]].map(([n,v])=>`<div class="baiCard"><p class="baiTiny">${n}</p><div class="baiStat">${v}</div></div>`).join('');$('baiProgress').innerHTML=[['素材の準備',100],['モーション配置',70],['カメラ演出',45],['音声調整',60]].map(([n,v])=>`<p>${n} <span style="float:right">${v}%</span></p><div style="height:9px;background:#29394d;border-radius:5px"><div style="height:100%;width:${v}%;background:#428ac4;border-radius:5px"></div></div>`).join('')+'<p class="baiTiny">進捗は見本であり、実プロジェクトの測定値ではありません。</p>'}
-$('baiProjectList').addEventListener('click',e=>{let open=e.target.closest('[data-openproject]');if(open){selectedProject=+open.dataset.openproject;notify('編集中：'+projects[selectedProject].name);page('edit');return}let item=e.target.closest('[data-project]');if(item){selectedProject=+item.dataset.project;item.style.borderColor='#6cb8f3'}});$('baiProjectList').addEventListener('dblclick',e=>{const a=e.target.closest('[data-project]');if(a){selectedProject=+a.dataset.project;page('edit')}});
+$('baiProjectList').addEventListener('click',e=>{let open=e.target.closest('[data-openproject]');if(open){selectedProject=+open.dataset.openproject;notify('編集中：'+projects[selectedProject].name);page('edit');return}let item=e.target.closest('[data-project]');if(item){selectedProject=+item.dataset.project;item.style.borderColor='#6cb8f3'}});// v0.5 Phase04: non-destructive capture/view. These do not activate or restore an engine project.
+$('baiProjectList').addEventListener('click',async e=>{
+ const btn=e.target.closest('[data-v05-snapshot]');if(!btn)return;
+ e.stopPropagation();const item=projects[+btn.dataset.v05Snapshot];if(!catalogConnected||!item?.id){notify('保存用プロジェクトIDがありません');return}
+ try{
+  if(btn.dataset.snapshotAction==='save'){
+   const r=await fetch('/api/studio/v05/project/snapshot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id})});
+   const data=await r.json();if(!r.ok)throw Error(data.error||'保存不可');notify('現行の制作データを作品のスナップショットへ保存しました');
+  }else{
+   const r=await fetch('/api/studio/v05/project/snapshot?id='+encodeURIComponent(item.id));const data=await r.json();if(!r.ok)throw Error(data.error||'読み込み不可');
+   notify('保存データを検査しました。編集中の作品には適用されません');
+  }
+ }catch(err){notify('スナップショット操作失敗：'+err.message)}
+},true);
+const originalCard=card;
+card=(p,i)=>{const html=originalCard(p,i);if(!p?.id||!Number.isInteger(i))return html;
+ const actions=`<div class="baiRow" style="padding:4px 12px"><button class="small" data-v05-snapshot="${i}" data-snapshot-action="save">現行編集を保存</button><button class="small" data-v05-snapshot="${i}" data-snapshot-action="read">保存状態を確認</button></div>`;
+ return html+actions;
+};
+$('baiProjectList').addEventListener('dblclick',e=>{const a=e.target.closest('[data-project]');if(a){selectedProject=+a.dataset.project;page('edit')}});
 $('baiRecent').addEventListener('click',e=>{let item=e.target.closest('[data-project]');if(item){selectedProject=+item.dataset.project;page('edit')}});
 $('baiProjectSearch').oninput=renderProjects;$('baiProjectFilter').onchange=renderProjects;$('baiProjectSort').onclick=()=>{sortAsc=!sortAsc;renderProjects()};
 function renderAssets(){const q=$('baiAssetSearch').value.trim().toLowerCase(),fav=$('baiFavOnly').checked;const list=assets.filter(a=>(cat==='all'||a.type===cat)&&(!fav||a.favorite)&&(a.name.toLowerCase().includes(q)||types[a.type].toLowerCase().includes(q)));list.sort((a,b)=>($('baiAssetSort').value==='type'?a.type.localeCompare(b.type):a.name.localeCompare(b.name)));$('baiLibraryGrid').innerHTML=list.map(a=>`<div class="baiCard clickable" draggable="true" data-asset="${a.id}" tabindex="0"><img src="assets/${esc(a.img)}" alt="素材プレビュー"><b>${esc(a.name)}</b><p class="baiTiny">${types[a.type]}　${a.favorite?'★':''}</p></div>`).join('')||'<p>一致する素材はありません。</p>';$('baiAssetCount').textContent=list.length+'件';document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('on',x.dataset.cat===cat));$('baiAssetCatSelect').value=cat;}
