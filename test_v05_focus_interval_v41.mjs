@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {createFocusIntervalRunner} from './studio/v05/js/focus-interval-v41.js';
+const evaluateFrame=async ({projectId,frame,seconds})=>({snapshot:{projectId,frame,seconds,pose:{position:[0,0,0]},lens:{focalLengthMm:50,fStop:2.8,focusDistance:5}},target:{projectId,frame,seconds,worldPosition:[0,0,frame===2?8:5]}});
+const runner=createFocusIntervalRunner({evaluateFrame});
+const r=await runner.run({projectId:'p1',startFrame:0,endFrame:3,fps:30,tolerance:0.1});
+assert.equal(r.count,4);assert.equal(r.passed,3);assert.equal(r.failed,1);assert.equal(r.problemFrames[0].frame,2);assert.equal(r.maximumError,3);assert.equal(r.evaluatedAgainstGPU,false);
+await assert.rejects(runner.run({startFrame:3,endFrame:2,fps:30}),RangeError);
+await assert.rejects(runner.run({startFrame:0,endFrame:12000,fps:30}),RangeError);
+const fail=createFocusIntervalRunner({evaluateFrame:async ({frame})=>{if(frame===1)throw Error('missing_bone');return evaluateFrame({projectId:'p',frame,seconds:frame/30});}});
+const f=await fail.run({projectId:'p',startFrame:0,endFrame:1,fps:30});assert.equal(f.invalid,1);assert.equal(f.problemFrames[0].reason,'missing_bone');
+const controller=new AbortController();controller.abort();await assert.rejects(runner.run({startFrame:0,endFrame:1,fps:30,signal:controller.signal}),/cancelled/);
+console.log('v41 interval focus: 8 assertions passed');
