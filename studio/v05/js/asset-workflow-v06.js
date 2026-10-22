@@ -21,6 +21,8 @@
      const runtime=window.BAIStudioAssetRuntime;
      if(!runtime) throw Error('再生接続モジュールを読めません');
      const result=await runtime.reconcile({project_id,clips:arr.clips,assets:inventory.items});
+     await window.BAIStudioPersistedSeek?.configure(project_id,arr.clips);
+     await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'after-loader-ready');
      const reasons=result.issues.map(issue=>issue.reason).join(', ');
      status('モーション接続 '+result.connected+'件 / 待機 '+(result.pending||0)+'件'+(reasons?' / '+reasons:''));
    } catch(err) {status('接続検査失敗: '+err.message)}
@@ -29,10 +31,10 @@
  async function request(url,opt){const res=await fetch(url,opt);const data=await res.json();if(!res.ok)throw Error(data.error||'HTTP '+res.status);return data}
  function status(s){$('v06status').textContent=s}
  async function projects(){try{const d=await request('/api/studio/v05/projects');$('v06project').innerHTML=d.projects.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('');await arrangement()}catch(e){status('作品取得不可: '+e.message)}}
- async function arrangement(){if(!$('v06project').value)return;selectedClips.clear();try{const d=await request('/api/studio/v05/arrangement?id='+encodeURIComponent($('v06project').value));revision=d.revision;$('v06clips').innerHTML='<h4>配置履歴（保存済み）</h4>'+d.clips.map(c=>`<p>${esc(c.name)}: ${c.start}s / ${c.duration}s → ${esc(c.track)}</p>`).join('');await loadLayout();await loadPlayhead();await drawTimeline()}catch(e){status('配置読み込み失敗: '+e.message)}}
+ async function arrangement(){if(!$('v06project').value)return;selectedClips.clear();try{const d=await request('/api/studio/v05/arrangement?id='+encodeURIComponent($('v06project').value));revision=d.revision;await window.BAIStudioPersistedSeek?.configure($('v06project').value,d.clips);$('v06clips').innerHTML='<h4>配置履歴（保存済み）</h4>'+d.clips.map(c=>`<p>${esc(c.name)}: ${c.start}s / ${c.duration}s → ${esc(c.track)}</p>`).join('');await loadLayout();await loadPlayhead();await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'persisted-restore');await drawTimeline()}catch(e){status('配置読み込み失敗: '+e.message)}}
  let playheadSeconds=0,playheadRevision=0;
  async function loadPlayhead(){const id=$('v06project').value;if(!id)return;try{const p=await request('/api/studio/v05/playhead?id='+encodeURIComponent(id));playheadSeconds=p.seconds;playheadRevision=p.revision}catch(e){status('再生位置取得失敗: '+e.message)}}
- async function setPlayhead(seconds){const id=$('v06project').value;try{const p=await request('/api/studio/v05/playhead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,seconds,revision:playheadRevision})});playheadSeconds=p.seconds;playheadRevision=p.revision;await drawTimeline()}catch(e){status('再生位置保存失敗: '+e.message);await loadPlayhead();await drawTimeline()}}
+ async function setPlayhead(seconds){const id=$('v06project').value;try{const p=await request('/api/studio/v05/playhead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,seconds,revision:playheadRevision})});playheadSeconds=p.seconds;playheadRevision=p.revision;await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'persisted-playhead');await drawTimeline()}catch(e){status('再生位置保存失敗: '+e.message);await loadPlayhead();await drawTimeline()}}
  let currentClip=null;
  let timelineZoom=12,snapSeconds=0.5,dragBusy=false,trackLayout=null,layoutHistory=[],selectedClips=new Map(),lastClips=[];
  const allTracks=['audio','camera','effect','expression','image','light','lip','model','motion','music','video'];
