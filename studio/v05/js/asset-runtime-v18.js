@@ -7,6 +7,8 @@
   const active = new Map();
   let generation = 0;
   let loader = null;
+  let modelLoader = null;
+  const ownedModels = new Map();
   let projectId = null;
   const targetBindings = new Map();
   function bindTarget(modelId, preview) {
@@ -14,6 +16,10 @@
     if (!preview || typeof preview.seek !== 'function') throw new TypeError('Target must provide seek(seconds)');
     targetBindings.set(modelId, preview);
     return () => { if (targetBindings.get(modelId) === preview) targetBindings.delete(modelId); };
+  }
+  function setModelLoader(fn) {
+    if (fn !== null && typeof fn !== 'function') throw new TypeError('modelLoader must be a function or null');
+    modelLoader = fn;
   }
   function setLoader(fn) {
     if (fn !== null && typeof fn !== 'function') throw new TypeError('loader must be a function or null');
@@ -53,6 +59,8 @@
       try {entry.dispose?.();} catch (_) {}
     }
     active.clear();
+    for (const entry of ownedModels.values()) { try {entry.dispose?.();} catch (_) {} }
+    ownedModels.clear();
     targetBindings.clear();
   }
   async function reconcile({project_id,clips,assets}) {
@@ -68,6 +76,24 @@
       }
     }
     if (!loader) return {connected:active.size, pending:playable.length-active.size, issues:[...issues,{reason:'loader_not_registered'}]};
+    // Load each distinct model once before loading its motion. An old async completion
+    // must never replace the target of a newly selected project.
+    const assetMap = new Map(assets.map(a => [a.id, a]));
+    for (const modelId of new Set(playable.map(x => x.modelId).filter(Boolean))) {
+      if (targetBindings.has(modelId)) continue;
+      if (!modelLoader) {issues.push({modelId,reason:'model_loader_not_registered'});continue;}
+      let result;
+      try {
+        result = await modelLoader({modelId,asset:assetMap.get(modelId),projectId:project_id});
+        if (token !== generation) {try {result?.dispose?.();} catch (_) {} return {stale:true,connected:active.size,issues};}
+        if (!result || typeof result.seek !== 'function') throw new TypeError('Model loader must return a seekable target');
+        targetBindings.set(modelId,result);
+        ownedModels.set(modelId,result);
+      } catch(err) {
+        try {result?.dispose?.();} catch (_) {}
+        issues.push({modelId,reason:'model_load_failed',message:String(err?.message||err)});
+      }
+    }
     for (const {clip,asset,modelId} of playable) {
       if (active.has(clip.id)) continue;
       let loaded;
@@ -86,5 +112,5 @@
     }
     return {connected:active.size,pending:playable.length-active.size,issues};
   }
-  root.BAIStudioAssetRuntime=Object.freeze({setLoader,bindTarget,reconcile,validate,detachAll,status:()=>({projectId,connected:[...active.keys()],targets:[...targetBindings.keys()],loaderReady:Boolean(loader)})});
+  root.BAIStudioAssetRuntime=Object.freeze({setLoader,setModelLoader,bindTarget,reconcile,validate,detachAll,status:()=>({projectId,connected:[...active.keys()],targets:[...targetBindings.keys()],loaderReady:Boolean(loader)})});
 })(typeof window !== 'undefined' ? window : globalThis);
