@@ -1,3 +1,4 @@
+import {createFocusComparisonPlot} from './focus-compare-plot-v48.js';
 /* Compare measured focus frames only. Missing/failed samples are never inferred. */
 export function compareFocusReports(before, after, {epsilon=1e-6}={}) {
   if (!Number.isFinite(epsilon)||epsilon<0) throw new RangeError('invalid_epsilon');
@@ -36,5 +37,5 @@ export function createFocusComparison(doc,result,{onJump=()=>{}}={}){
     const button=doc.createElement('button');button.type='button';button.textContent=`${item.frame}f ${item.status==='improved'?'改善':'悪化'} ${item.delta.toFixed(4)}`;
     button.addEventListener('click',()=>onJump(item.frame));list.append(button);
   }
-  panel.append(list);return panel;
+  panel.append(createFocusComparisonPlot(doc,result,{onJump}));panel.append(list);return panel;
 }

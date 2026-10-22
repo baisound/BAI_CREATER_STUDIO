@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {compareFocusReports} from './studio/v05/js/focus-compare-v47.js';
+import {buildFocusComparisonPlot} from './studio/v05/js/focus-compare-plot-v48.js';
+const report=(id,v)=>({id,startFrame:0,endFrame:4,fps:60,samples:v.map((e,i)=>({frame:i,ok:e!==null,error:e}))});
+const result=compareFocusReports(report('a',[4,3,null,2,1]),report('b',[2,4,2,2,.5]));
+const p=buildFocusComparisonPlot(result);
+assert.equal(p.points.length,4);
+assert.equal(p.unavailable,1);
+assert.deepEqual(p.runs.map(r=>r.length),[2,2]);
+assert.equal(p.points[0].status,'improved');
+assert.equal(p.points[1].status,'worsened');
+assert.equal(p.points[2].status,'unchanged');
+assert.equal(p.max,4);
+assert.throws(()=>buildFocusComparisonPlot({}),/invalid_comparison/);
+console.log('v48: 8 assertions passed');
