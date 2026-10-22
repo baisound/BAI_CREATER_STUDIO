@@ -43,7 +43,7 @@ def read(root,catalog,project_id):
     if data.get('schema')!=1 or data.get('project_id')!=project_id or not isinstance(data.get('clips'),list) or not isinstance(data.get('revision'),int):raise ArrangementError('Invalid arrangement; original retained')
     return data
 
-def place(root,catalog,project_id,asset_id,track,start,duration,revision,items):
+def place(root,catalog,project_id,asset_id,track,start,duration,revision,items,*,layout_root=None):
     if track not in TRACKS:raise ArrangementError('Unsupported track')
     if not isinstance(asset_id,str) or len(asset_id)>300:raise ArrangementError('Invalid asset ID')
     if any(isinstance(x,bool) or not isinstance(x,(int,float)) or not math.isfinite(x) for x in (start,duration)) or start<0 or duration<=0 or start+duration>24*60*60:raise ArrangementError('Invalid time range')
@@ -53,6 +53,9 @@ def place(root,catalog,project_id,asset_id,track,start,duration,revision,items):
     with LOCK:
         data=read(root,catalog,project_id)
         if data['revision']!=revision:raise ArrangementError('Revision conflict')
+        if layout_root is not None:
+            from studio_v05_track_layout import get as get_layout
+            if track in get_layout(layout_root,catalog,project_id).get('locked',[]):raise ArrangementError('Track locked')
         if len(data['clips'])>=2000:raise ArrangementError('Clip limit reached')
         clip={'id':str(uuid.uuid4()),'asset_id':asset_id,'name':found['name'],'category':found['category'],'track':track,'start':round(start,4),'duration':round(duration,4)}
         data['clips'].append(clip);data['revision']+=1
@@ -71,7 +74,7 @@ def timeline_view(root,catalog,project_id):
     return {'schema':1,'project_id':project_id,'revision':data['revision'],'tracks':rows,'duration':round(end,4),'clip_count':len(data['clips']),'engine_connected':False}
 
 
-def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,duration=None,track=None):
+def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,duration=None,track=None,layout_root=None):
     """Atomic revision-guarded metadata edit, isolated from legacy playback."""
     if not isinstance(clip_id,str) or not clip_id or len(clip_id)>100:raise ArrangementError('Invalid clip ID')
     if type(revision) is not int or revision<0:raise ArrangementError('Revision required')
@@ -84,6 +87,10 @@ def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,durat
         if revision!=data['revision']:raise ArrangementError('Revision conflict')
         clip=next((x for x in data['clips'] if x.get('id')==clip_id),None)
         if clip is None:raise ArrangementError('Clip not found')
+        if layout_root is not None:
+            from studio_v05_track_layout import get as get_layout
+            locked=set(get_layout(layout_root,catalog,project_id).get('locked',[]))
+            if clip['track'] in locked or (action=='update' and track in locked):raise ArrangementError('Track locked')
         before=dict(clip)
         if action=='delete':data['clips'].remove(clip)
         else:clip.update(start=round(start,4),duration=round(duration,4),track=track)
@@ -92,7 +99,7 @@ def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,durat
         return {'action':action,'clip_id':clip_id,'before':before,'clip':None if action=='delete' else dict(clip),'revision':data['revision'],'legacy_engine_unchanged':True}
 
 
-def batch_move(root,catalog,project_id,revision,edits):
+def batch_move(root,catalog,project_id,revision,edits,*,layout_root=None):
     """Atomically move multiple clips with a single revision and one-step undo snapshot."""
     if type(revision) is not int or revision<0:raise ArrangementError('Invalid revision')
     if not isinstance(edits,list) or not 1<=len(edits)<=100:raise ArrangementError('Invalid edit batch')
@@ -110,6 +117,10 @@ def batch_move(root,catalog,project_id,revision,edits):
         if data['revision']!=revision:raise ArrangementError('Revision conflict')
         mapping={c['id']:c for c in data['clips']}
         if any(i not in mapping for i in ids):raise ArrangementError('Clip not found')
+        if layout_root is not None:
+            from studio_v05_track_layout import get as get_layout
+            locked=set(get_layout(layout_root,catalog,project_id).get('locked',[]))
+            if any(mapping[e['clip_id']]['track'] in locked or e['track'] in locked for e in edits):raise ArrangementError('Track locked')
         before=[dict(c) for c in data['clips']]
         for e in edits:mapping[e['clip_id']].update(start=round(e['start'],4),duration=round(e['duration'],4),track=e['track'])
         data['revision']+=1

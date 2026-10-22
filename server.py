@@ -534,7 +534,7 @@ class Handler(BaseHTTPRequestHandler):
                 if path.endswith('/batch-move'):
                     from studio_v05_arrangement import batch_move
                     if set(body)!={'project_id','revision','edits'}:return self.bad(400,'Invalid fields')
-                    result=batch_move(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',**body)
+                    result=batch_move(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',layout_root=DATA/'studio_v05_track_layouts',**body)
                 elif path.endswith('/undo'):
                     from studio_v05_arrangement import undo_batch
                     if set(body)!={'project_id','revision'}:return self.bad(400,'Invalid fields')
@@ -571,7 +571,7 @@ class Handler(BaseHTTPRequestHandler):
                 expected=base|({'start','duration','track'} if body.get('action')=='update' else set())
                 if set(body)!=expected:return self.bad(400,'Invalid clip edit fields')
                 args={k:body[k] for k in ('start','duration','track') if k in body}
-                result=edit_clip(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['clip_id'],body['revision'],body['action'],**args)
+                result=edit_clip(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['clip_id'],body['revision'],body['action'],layout_root=DATA/'studio_v05_track_layouts',**args)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid clip edit')
@@ -584,7 +584,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not 0<length<=8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
                 if not isinstance(body,dict) or set(body)!={'project_id','asset_id','track','start','duration','revision'}:return self.bad(400,'Invalid arrangement request')
-                result=place(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['asset_id'],body['track'],body['start'],body['duration'],body['revision'],unified_assets())
+                result=place(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['asset_id'],body['track'],body['start'],body['duration'],body['revision'],unified_assets(),layout_root=DATA/'studio_v05_track_layouts')
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid clip data')
