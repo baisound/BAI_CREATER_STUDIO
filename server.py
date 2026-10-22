@@ -241,6 +241,13 @@ class Handler(BaseHTTPRequestHandler):
             try:self.send(200,json.dumps(inventory(unified_assets(),q.get('category',['all'])[0],q.get('query',[''])[0]),ensure_ascii=False).encode())
             except ArrangementError as exc:self.bad(400,str(exc))
             return
+        if urlsplit(self.path).path=='/api/studio/v05/timeline/view':
+            from studio_v05_arrangement import timeline_view, ArrangementError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                self.send(200,json.dumps(timeline_view(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
+            except (ArrangementError,ValueError,KeyError,OSError):self.bad(422,'Cannot read project timeline')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement':
             from studio_v05_arrangement import read, ArrangementError
             try:

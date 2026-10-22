@@ -58,3 +58,14 @@ def place(root,catalog,project_id,asset_id,track,start,duration,revision,items):
         data['clips'].append(clip);data['revision']+=1
         _atomic(Path(root)/(project_id+'.json'),data)
         return {'clip':clip,'revision':data['revision'],'legacy_engine_unchanged':True}
+
+
+def timeline_view(root,catalog,project_id):
+    """Read-only deterministic projection for the v0.5 timeline and both MCP surfaces."""
+    data=read(root,catalog,project_id)
+    rows=[]
+    for track in sorted(TRACKS):
+        clips=sorted((c for c in data['clips'] if c.get('track')==track), key=lambda c:(c['start'],c['id']))
+        if clips:rows.append({'track':track,'clips':clips})
+    end=max((c['start']+c['duration'] for c in data['clips']),default=0)
+    return {'schema':1,'project_id':project_id,'revision':data['revision'],'tracks':rows,'duration':round(end,4),'clip_count':len(data['clips']),'engine_connected':False}
