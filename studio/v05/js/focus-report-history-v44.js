@@ -1,3 +1,4 @@
+import {compareFocusReports,createFocusComparison} from './focus-compare-v47.js';
 import {createFocusPlot} from './focus-visualization-v45.js';
 /* Saved focus report history: real API data only, no fabricated GPU results. */
 export function normalizeFocusHistory(payload) {
@@ -22,7 +23,7 @@ export function installFocusHistory(win=window){
     container.style.cssText='margin-top:10px;border-top:1px solid #65758b;padding-top:8px;max-height:220px;overflow:auto';
     const title=win.document.createElement('strong');title.textContent='診断履歴';container.append(title);
     const refresh=win.document.createElement('button');refresh.type='button';refresh.textContent='履歴更新';refresh.style.marginLeft='8px';container.append(refresh);
-    const list=win.document.createElement('div');list.setAttribute('aria-live','polite');container.append(list);panel.append(container);
+    const list=win.document.createElement('div');list.setAttribute('aria-live','polite');container.append(list);const comparison=win.document.createElement('div');container.append(comparison);panel.append(container);
     const project=()=>win.BAIStudioPersistedSeek?.status?.().projectId;
     const load=async()=>{
       const id=project();list.replaceChildren();if(!id){list.textContent='作品を選択してください';return;}
@@ -33,6 +34,16 @@ export function installFocusHistory(win=window){
         const reports=normalizeFocusHistory(await response.json());
         if(project()!==requested)return;
         if(!reports.length){list.textContent='保存された診断はありません';return;}
+        const choices=win.document.createElement('div');choices.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin:8px 0';
+        const first=win.document.createElement('select'),second=win.document.createElement('select');
+        for(const r of reports){for(const sel of [first,second]){const opt=win.document.createElement('option');opt.value=r.id;opt.textContent=r.id+' ('+r.startFrame+'–'+r.endFrame+'f)';sel.append(opt);}}
+        if(reports.length>1)second.selectedIndex=1;
+        const compareButton=win.document.createElement('button');compareButton.type='button';compareButton.textContent='選択した2件を比較';
+        compareButton.addEventListener('click',()=>{comparison.replaceChildren();if(project()!==requested){comparison.textContent='作品が切り替わりました';return;}
+          try{if(first.value===second.value)throw new Error('異なる2件を選んでください');const result=compareFocusReports(reports.find(r=>r.id===first.value),reports.find(r=>r.id===second.value));
+            comparison.append(createFocusComparison(win.document,result,{onJump:f=>jumpToFocusFrame({frame:f,fps:result.fps,seek:seconds=>win.BAIStudioPersistedSeek.evaluate(seconds,'focus-compare-v47')})}));}
+          catch(err){comparison.textContent='比較できません: '+String(err.message||err);}});
+        choices.append(first,second,compareButton);list.append(choices);
         for(const report of reports){
           const details=win.document.createElement('details');
           const summary=win.document.createElement('summary');

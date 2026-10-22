@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {compareFocusReports} from './studio/v05/js/focus-compare-v47.js';
+const report=(id,errors)=>({id,startFrame:0,endFrame:3,fps:60,samples:errors.map((e,i)=>({frame:i,ok:e!==null,error:e,reason:e===null?'failed':null}))});
+const a=report('old',[1,2,3,null]);const b=report('new',[.5,3,3,1]);
+const r=compareFocusReports(a,b);
+assert.deepEqual(r.count,{improved:1,worsened:1,unchanged:1,unavailable:1});
+assert.equal(r.frames[3].reason,'before_failed');
+assert.equal(r.gpuVerified,false);
+assert.throws(()=>compareFocusReports(a,{...b,fps:30}),/fps_mismatch/);
+assert.throws(()=>compareFocusReports(a,{...b,samples:null}),/full_samples_required/);
+assert.throws(()=>compareFocusReports(a,{...b,samples:[...b.samples,b.samples[0]]}),/invalid_focus_samples/);
+assert.throws(()=>compareFocusReports(a,b,{epsilon:-1}),/invalid_epsilon/);
+console.log('v47 comparison: 7 assertions passed');
