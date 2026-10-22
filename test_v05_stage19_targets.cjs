@@ -1,0 +1,24 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs'); const vm = require('node:vm');
+const calls=[];
+const root={BAIStudioLiveMotion:{attach:({clipId})=>{calls.push(['attach',clipId]);return ()=>calls.push(['detach',clipId])}}};
+vm.runInNewContext(fs.readFileSync('studio/v05/js/asset-runtime-v18.js','utf8'),{window:root,globalThis:root});
+const runtime=root.BAIStudioAssetRuntime;
+const assets=[{id:'motion1',category:'motion',available:true},{id:'model1',category:'model',available:true},{id:'model2',category:'model',available:true}];
+const clip={id:'clip1',asset_id:'motion1',target_model_id:'model1',track:'motion',start:0,duration:10};
+(async()=>{
+ assert.equal(runtime.validate([clip],assets).playable.length,1);
+ assert.equal(runtime.validate([{...clip,target_model_id:'oops'}],assets).issues[0].reason,'missing_target_model');
+ assert.equal(runtime.validate([{...clip,target_model_id:'motion1'}],assets).issues[0].reason,'unavailable_target_model');
+ assert.equal(runtime.validate([{...clip,target_model_id:7}],assets).issues[0].reason,'invalid_target');
+ const loaded=[];runtime.setLoader(async ctx=>{loaded.push(ctx);return {seek(){},dispose(){}}});
+ let r=await runtime.reconcile({project_id:'p1',clips:[clip],assets});
+ assert.equal(r.issues[0].reason,'target_not_loaded');assert.equal(loaded.length,0);
+ const p={seek(){}};const unbind=runtime.bindTarget('model1',p);
+ r=await runtime.reconcile({project_id:'p1',clips:[clip],assets});
+ assert.equal(r.connected,1);assert.equal(loaded[0].targetPreview,p);assert.equal(loaded[0].targetModelId,'model1');
+ await runtime.reconcile({project_id:'p1',clips:[{...clip,target_model_id:'model2'}],assets});
+ assert.ok(calls.some(x=>x[0]==='detach')); assert.equal(runtime.status().connected.length,0);
+ unbind();runtime.detachAll();assert.equal(runtime.status().targets.length,0);
+ console.log('stage19 target resolution: PASS');
+})().catch(e=>{console.error(e);process.exitCode=1});
