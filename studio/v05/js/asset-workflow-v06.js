@@ -31,10 +31,23 @@
  async function request(url,opt){const res=await fetch(url,opt);const data=await res.json();if(!res.ok)throw Error(data.error||'HTTP '+res.status);return data}
  function status(s){$('v06status').textContent=s}
  async function projects(){try{const d=await request('/api/studio/v05/projects');$('v06project').innerHTML=d.projects.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('');await arrangement()}catch(e){status('作品取得不可: '+e.message)}}
- async function arrangement(){if(!$('v06project').value)return;selectedClips.clear();try{const d=await request('/api/studio/v05/arrangement?id='+encodeURIComponent($('v06project').value));revision=d.revision;await window.BAIStudioPersistedSeek?.configure($('v06project').value,d.clips);$('v06clips').innerHTML='<h4>配置履歴（保存済み）</h4>'+d.clips.map(c=>`<p>${esc(c.name)}: ${c.start}s / ${c.duration}s → ${esc(c.track)}</p>`).join('');await loadLayout();await loadPlayhead();await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'persisted-restore');await drawTimeline()}catch(e){status('配置読み込み失敗: '+e.message)}}
+ async function arrangement(){if(!$('v06project').value)return;remoteSync?.select($('v06project').value);selectedClips.clear();try{const d=await request('/api/studio/v05/arrangement?id='+encodeURIComponent($('v06project').value));revision=d.revision;await window.BAIStudioPersistedSeek?.configure($('v06project').value,d.clips);$('v06clips').innerHTML='<h4>配置履歴（保存済み）</h4>'+d.clips.map(c=>`<p>${esc(c.name)}: ${c.start}s / ${c.duration}s → ${esc(c.track)}</p>`).join('');await loadLayout();await loadPlayhead();await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'persisted-restore');await drawTimeline()}catch(e){status('配置読み込み失敗: '+e.message)}}
  let playheadSeconds=0,playheadRevision=0;
- async function loadPlayhead(){const id=$('v06project').value;if(!id)return;try{const p=await request('/api/studio/v05/playhead?id='+encodeURIComponent(id));playheadSeconds=p.seconds;playheadRevision=p.revision}catch(e){status('再生位置取得失敗: '+e.message)}}
- async function setPlayhead(seconds){const id=$('v06project').value;try{const p=await request('/api/studio/v05/playhead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,seconds,revision:playheadRevision})});playheadSeconds=p.seconds;playheadRevision=p.revision;await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'persisted-playhead');await drawTimeline()}catch(e){status('再生位置保存失敗: '+e.message);await loadPlayhead();await drawTimeline()}}
+ const remoteSync=window.BAIStudioRemotePlayhead?.create({
+   read:id=>request('/api/studio/v05/playhead?id='+encodeURIComponent(id)),
+   apply:async(seconds,remoteRevision,id)=>{
+     if($('v06project').value!==id)return;
+     playheadSeconds=seconds;playheadRevision=remoteRevision;
+     await window.BAIStudioPersistedSeek?.evaluate(seconds,'external-api-playhead');
+     await drawTimeline();
+   },
+   onError:e=>status('外部の再生位置確認に失敗: '+e.message)
+ });
+ // No requests when document is hidden. Stop requests after page unload.
+ let pollTimer=setInterval(()=>{if(!document.hidden)void remoteSync?.poll()},2000);
+ window.addEventListener('pagehide',()=>{clearInterval(pollTimer);remoteSync?.select(null)},{once:true});
+ async function loadPlayhead(){const id=$('v06project').value;if(!id)return;try{const p=await request('/api/studio/v05/playhead?id='+encodeURIComponent(id));playheadSeconds=p.seconds;playheadRevision=p.revision;remoteSync?.select(id,p.revision)}catch(e){status('再生位置取得失敗: '+e.message)}}
+ async function setPlayhead(seconds){const id=$('v06project').value;remoteSync?.suspend(true);try{const p=await request('/api/studio/v05/playhead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,seconds,revision:playheadRevision})});playheadSeconds=p.seconds;playheadRevision=p.revision;remoteSync?.localWrite(p.revision);await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'persisted-playhead');await drawTimeline()}catch(e){status('再生位置保存失敗: '+e.message);await loadPlayhead();await drawTimeline()}finally{remoteSync?.suspend(false)}}
  let currentClip=null;
  let timelineZoom=12,snapSeconds=0.5,dragBusy=false,trackLayout=null,layoutHistory=[],selectedClips=new Map(),lastClips=[];
  const allTracks=['audio','camera','effect','expression','image','light','lip','model','motion','music','video'];
