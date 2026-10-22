@@ -13,6 +13,7 @@ export function createShootingPreview({THREE,host,parent,cameraRuntime,win=windo
   parent.appendChild(renderer.domElement);
   let disposed=false,frame=0,linked=false;
   const unregister=cameraRuntime.registerShootingCamera(camera,{navigationCamera:navigation});
+  const unregisterLens=win.BAIStudioCameraLensRuntime?.register(camera,{navigationCamera:navigation}) || (()=>{});
   const measure=()=>{const w=Math.max(1,parent.clientWidth),h=Math.max(1,parent.clientHeight);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
   const draw=()=>{frame=0;if(disposed)return;measure();renderer.render(host.scene,camera);};
   function invalidate(){if(disposed||frame)return;frame=win.requestAnimationFrame(draw);}
@@ -24,5 +25,5 @@ export function createShootingPreview({THREE,host,parent,cameraRuntime,win=windo
   const previous=cameraRuntime.status?.().last;
   if(previous?.pose){cameraRuntime.apply(previous.pose,previous.meta);linked=true;}
   invalidate();
-  return Object.freeze({camera,invalidate,status:()=>({linked,disposed}),dispose(){if(disposed)return;disposed=true;win.removeEventListener('bai:camera-pose-evaluated',onPose);observer?.disconnect();offInvalidate?.();unregister();if(frame)win.cancelAnimationFrame(frame);renderer.dispose();renderer.domElement.remove();}});
+  return Object.freeze({camera,invalidate,status:()=>({linked,disposed}),dispose(){if(disposed)return;disposed=true;win.removeEventListener('bai:camera-pose-evaluated',onPose);observer?.disconnect();offInvalidate?.();unregisterLens();unregister();if(frame)win.cancelAnimationFrame(frame);renderer.dispose();renderer.domElement.remove();}});
 }
