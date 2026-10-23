@@ -56,7 +56,7 @@
       const active = activeAt(clip, seconds);
       if (kind === 'image') { element.hidden = !active; if (active && element.complete && element.naturalWidth > 0) visible++; continue; }
       if (!active) { if (kind === 'video') element.hidden = true; pauseElement(element); continue; }
-      const target = Math.max(0, seconds - clip.start);
+      const target = Math.max(0, (clip.source_start || 0) + seconds - clip.start);
       if (Number.isFinite(element.duration) && target >= element.duration) {
         sourceEnded++;
         if (kind === 'video') element.hidden = true;

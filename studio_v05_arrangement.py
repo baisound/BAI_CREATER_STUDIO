@@ -55,13 +55,25 @@ def _lane(lane,track,layout):
     if track=='image' and lane>layout.get('image_lanes',1):raise ArrangementError('Image lane does not exist')
     return lane
 
-def place(root,catalog,project_id,asset_id,track,start,duration,revision,items,*,layout_root=None,lane=1):
+def _source_window(category, source_start, duration, source_duration):
+    if type(source_start) not in (int,float) or not math.isfinite(source_start) or source_start<0:
+        raise ArrangementError('Invalid source start')
+    if category not in {'video','audio','music'}:
+        if source_start!=0:raise ArrangementError('Only timed media supports a source start')
+        return
+    if source_duration is not None:
+        if type(source_duration) not in (int,float) or not math.isfinite(source_duration) or source_duration<=0:
+            raise ArrangementError('Invalid source duration')
+        if source_start+duration>source_duration+0.02:raise ArrangementError('Clip exceeds source media duration')
+
+def place(root,catalog,project_id,asset_id,track,start,duration,revision,items,*,layout_root=None,lane=1,source_duration=None,source_has_audio=None):
     if track not in TRACKS:raise ArrangementError('Unsupported track')
     if not isinstance(asset_id,str) or len(asset_id)>300:raise ArrangementError('Invalid asset ID')
     if any(isinstance(x,bool) or not isinstance(x,(int,float)) or not math.isfinite(x) for x in (start,duration)) or start<0 or duration<=0 or start+duration>24*60*60:raise ArrangementError('Invalid time range')
     if not isinstance(revision,int) or isinstance(revision,bool):raise ArrangementError('Revision required')
     found=next((a for a in inventory(items)['items'] if a['id']==asset_id and a['available']),None)
     if not found:raise ArrangementError('Asset is not registered or available')
+    _source_window(found['category'],0,duration,source_duration)
     with LOCK:
         data=read(root,catalog,project_id)
         if data['revision']!=revision:raise ArrangementError('Revision conflict')
@@ -73,6 +85,10 @@ def place(root,catalog,project_id,asset_id,track,start,duration,revision,items,*
         _lane(lane,track,layout)
         if len(data['clips'])>=2000:raise ArrangementError('Clip limit reached')
         clip={'id':str(uuid.uuid4()),'asset_id':asset_id,'name':found['name'],'category':found['category'],'track':track,'lane':lane,'start':round(start,4),'duration':round(duration,4)}
+        if found['category'] in {'video','audio','music'}:
+            clip['source_start']=0
+            if source_duration is not None:clip['source_duration']=round(source_duration,4)
+            if source_has_audio is not None:clip['source_has_audio']=bool(source_has_audio)
         data['clips'].append(clip);data['revision']+=1
         _atomic(Path(root)/(project_id+'.json'),data)
         return {'clip':clip,'revision':data['revision'],'legacy_engine_unchanged':True}
@@ -89,7 +105,7 @@ def timeline_view(root,catalog,project_id):
     return {'schema':1,'project_id':project_id,'revision':data['revision'],'tracks':rows,'duration':round(end,4),'clip_count':len(data['clips']),'engine_connected':False}
 
 
-def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,duration=None,track=None,lane=None,layout_root=None):
+def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,duration=None,track=None,lane=None,source_start=None,source_duration=None,layout_root=None):
     """Atomic revision-guarded metadata edit, isolated from legacy playback."""
     if not isinstance(clip_id,str) or not clip_id or len(clip_id)>100:raise ArrangementError('Invalid clip ID')
     if type(revision) is not int or revision<0:raise ArrangementError('Revision required')
@@ -108,10 +124,18 @@ def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,durat
             layout=get_layout(layout_root,catalog,project_id)
             locked=set(layout.get('locked',[]))
             if clip['track'] in locked or (action=='update' and track in locked):raise ArrangementError('Track locked')
-        if action=='update':_lane(clip.get('lane',1) if lane is None and track=='image' else (1 if lane is None else lane),track,layout)
+        if action=='update':
+            _lane(clip.get('lane',1) if lane is None and track=='image' else (1 if lane is None else lane),track,layout)
+            effective_source=clip.get('source_start',0) if source_start is None else source_start
+            effective_duration=clip.get('source_duration') if source_duration is None else source_duration
+            _source_window(clip.get('category'),effective_source,duration,effective_duration)
         before=dict(clip)
         if action=='delete':data['clips'].remove(clip)
-        else:clip.update(start=round(start,4),duration=round(duration,4),track=track,lane=clip.get('lane',1) if lane is None and track=='image' else (1 if lane is None else lane))
+        else:
+            clip.update(start=round(start,4),duration=round(duration,4),track=track,lane=clip.get('lane',1) if lane is None and track=='image' else (1 if lane is None else lane))
+            if clip.get('category') in {'video','audio','music'}:
+                clip['source_start']=round(effective_source,4)
+                if effective_duration is not None:clip['source_duration']=round(effective_duration,4)
         data['revision']+=1
         _atomic(Path(root)/(project_id+'.json'),data)
         return {'action':action,'clip_id':clip_id,'before':before,'clip':None if action=='delete' else dict(clip),'revision':data['revision'],'legacy_engine_unchanged':True}

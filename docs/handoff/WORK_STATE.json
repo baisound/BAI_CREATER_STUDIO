@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T03:36:31+09:00",
+  "updated_at": "2026-10-24T03:49:33+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-media-specific-timeline",
-  "head_at_update": "bda7acf",
+  "head_at_update": "9229da4",
   "current": {
     "task": "Issue #77: v0.5動画・音声の素材尺に沿う直接タイムライン操作",
-    "status": "in_progress",
+    "status": "done",
     "step": "元素材の長さとトリム位置を保存し、ドラッグ配置・端操作・プレビュー・限定MP4を一致させる",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "PRをmainへ統合し、8765実画面でOwnerの操作実演作品を使って画像配置と保存再読込を確認する",
-    "画像以外の素材別タイムライン操作と3D/カメラの同一出力へ進む"
+    "PRをmainへ統合し、ローカルmainと8765の配信を更新する",
+    "別作業ツリーのPMX/VMD探査を再開する"
   ],
   "unverified": [
-    "動画・音声の媒体別ドラッグとソース尺制約、3D・カメラ入りMP4、MCP、Linux、実GPU、実PMX/VMD変形は未接続または未検証"
+    "3D・モーション・カメラの直接配置と同一MP4、動画内音声、MCP、Linux、実GPU、長尺同期は未実装または未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T03:49:33+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9229da4",
+      "text": "Issue #77媒体別タイムライン: 動画・音声の元尺ドラッグ/両端トリム/元位置保存/プレビュー/限定MP4を接続。Windows Chrome 4件、Python 21件、型検査、実データハッシュ一致"
+    },
     {
       "at": "2026-10-24T03:36:31+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "0d55d75",
       "text": "Issue #37/#63: 既存登録素材をv0.5で再利用する入口を監査・接続: 既存素材カタログとv0.5素材画面のAPI/ID経路を照合"
-    },
-    {
-      "at": "2026-10-23T23:29:10+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a74d1ae",
-      "text": "Issue #63: PR65後のOwner最新指定をAGENTS/ロードマップ/トレーサビリティへ反映。v0.5の登録→共通タイムライン→書き出しとPMX顔優先の段階・確認条件を明文化。Issue63へ記録。"
     }
   ]
 }
