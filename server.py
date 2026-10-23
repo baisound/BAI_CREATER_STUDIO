@@ -235,6 +235,9 @@ class Handler(BaseHTTPRequestHandler):
         msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
         self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
     def do_GET(self):
+        if urlsplit(self.path).path=='/api/studio/v05/assets/capabilities':
+            from studio_v05_asset_categories import capabilities
+            self.send(200,json.dumps(capabilities(),ensure_ascii=False).encode());return
         if urlsplit(self.path).path=='/api/studio/v05/assets':
             from studio_v05_arrangement import inventory, ArrangementError
             q=parse_qs(urlsplit(self.path).query)

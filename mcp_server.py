@@ -58,6 +58,7 @@ def run(name,a):
     if name=='bai_studio_project_activate':return api('/api/studio/v05/project/activate',a)
     if name=='bai_studio_project_snapshot_get':return api('/api/studio/v05/project/snapshot?id='+urllib.parse.quote(a['id']))
     if name=='bai_studio_project_snapshot_save':return api('/api/studio/v05/project/snapshot',{'id':a['id']})
+    if name=='bai_studio_asset_capabilities':return api('/api/studio/v05/assets/capabilities')
     if name=='bai_studio_assets_search':return api('/api/studio/v05/assets?category='+urllib.parse.quote(a.get('category','all'))+'&query='+urllib.parse.quote(a.get('query','')))
     if name=='bai_studio_track_layout_get':return api('/api/studio/v05/timeline/layout?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_track_layout_set':return api('/api/studio/v05/timeline/layout',a)
@@ -176,6 +177,7 @@ TOOLS=[
 ('bai_studio_project_activate','Explicitly activate saved project; requires confirm=true and preview revision; automatically backs up existing state.',S({'id':STR,'expected_revision':STR,'confirm':{'type':'boolean'}},['id','expected_revision','confirm'])),
 ('bai_studio_project_snapshot_get','Read a per-project saved snapshot without activating it.',S({'id':STR},['id'])),
 ('bai_studio_project_snapshot_save','Capture legacy active combination/camera bundle into per-project snapshot without switching projects.',S({'id':STR},['id'])),
+('bai_studio_asset_capabilities','Read supported v0.5 import types and searchable categories.',S()),
 ('bai_studio_assets_search','Search registered local assets by category and text.',S({'category':STR,'query':STR})),
 ('bai_studio_track_layout_get','Read project track order and heights.',S({'project_id':STR},['project_id'])),
 ('bai_studio_track_layout_set','Update track order and heights with revision guard.',S({'project_id':STR,'revision':{'type':'integer'},'order':{'type':'array','items':STR},'heights':{'type':'object','additionalProperties':{'type':'integer'}}},['project_id','revision','order','heights'])),

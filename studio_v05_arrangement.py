@@ -27,6 +27,12 @@ def inventory(items,category='all',query=''):
 def classify(item):
     name=str(item.get('filename') or item.get('name') or '').lower()
     kind=str(item.get('kind') or '').lower()
+    # Existing library records use category metadata separate from file extension.
+    if item.get('source')=='library' or str(item.get('id','')).startswith('library:'):
+        if kind in ('fx',):return 'effect'
+        if kind in ('stage','prop'):return 'model'
+        if kind in ('material','image'):return 'image'
+        if kind in ('audio','video'):return kind
     if 'camera' in kind or name.endswith('.vmd') and 'camera' in name:return 'camera'
     if 'motion' in kind or name.endswith(('.vmd','.bvh')):return 'motion'
     if name.endswith(('.vrm','.glb','.gltf','.fbx','.pmx','.pmd')):return 'model'
