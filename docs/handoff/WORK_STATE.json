@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-23T23:59:39+09:00",
+  "updated_at": "2026-10-24T00:01:32+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-asset-bridge",
-  "head_at_update": "5f4af83",
+  "head_at_update": "bce33c1",
   "current": {
-    "task": "Issue #37/#63: 既存登録素材をv0.5で再利用する入口を監査・接続",
-    "status": "done",
-    "step": "既存素材カタログとv0.5素材画面のAPI/ID経路を照合",
-    "design_doc": "docs/v05/PROGRESS_STAGE61_JA.md"
+    "task": "Issue #63: v0.5配置素材の既存3D実描画経路を隔離環境で検証",
+    "status": "in_progress",
+    "step": "登録GLBから作品配置・3D表示・保存再読込を実素材で追う",
+    "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
     "Owner承認後に固定診断パネルの重なりを修正し、マウス操作を再検証する",
@@ -35,6 +35,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T00:01:32+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "bce33c1",
+      "text": "Issue #63: v0.5配置素材の既存3D実描画経路を隔離環境で検証: 登録GLBから作品配置・3D表示・保存再読込を実素材で追う"
+    },
     {
       "at": "2026-10-23T23:59:39+09:00",
       "by": "codex",
@@ -237,13 +244,6 @@
       "event": "start",
       "head": "06371ed",
       "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06b: 要素ID配置表とSCR02常駐カメラホスト"
-    },
-    {
-      "at": "2026-10-22T01:10:38+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "da53248",
-      "text": "P2-WP-06a後半: camera_3d.jsのmount化、旧カメラ契約・全画面テスト通過"
     }
   ]
 }
