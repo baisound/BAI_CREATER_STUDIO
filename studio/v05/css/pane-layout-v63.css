@@ -1,0 +1,69 @@
+.main.baiResizable {
+  --bai-pane-left: 256px;
+  --bai-pane-bottom: 275px;
+  --bai-pane-right: 300px;
+  position: relative;
+  grid-template-columns: var(--bai-pane-left) minmax(0, 1fr) var(--bai-pane-right);
+  grid-template-rows: minmax(300px, 1fr) var(--bai-pane-bottom);
+}
+
+.main.baiResizable .baiPaneHandle {
+  position: absolute;
+  z-index: 15;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  touch-action: none;
+}
+
+.main.baiResizable .baiPaneHandle::after {
+  content: '';
+  position: absolute;
+  background: #587089;
+  opacity: .55;
+}
+
+.main.baiResizable .baiPaneHandle:hover::after,
+.main.baiResizable .baiPaneHandle:focus-visible::after {
+  background: #75bdff;
+  opacity: 1;
+}
+
+#baiLeftPaneHandle {
+  left: calc(var(--bai-pane-left) - 5px);
+  top: 0;
+  bottom: var(--bai-pane-bottom);
+  width: 10px;
+  cursor: col-resize;
+}
+
+#baiLeftPaneHandle::after {
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  width: 2px;
+}
+
+#baiBottomPaneHandle {
+  left: 0;
+  right: var(--bai-pane-right);
+  top: calc(100% - var(--bai-pane-bottom) - 5px);
+  height: 10px;
+  cursor: row-resize;
+}
+
+#baiBottomPaneHandle::after {
+  top: 4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+
+@media (max-width: 1000px) {
+  .main.baiResizable { --bai-pane-right: 245px; }
+}
+
+@media (max-width: 730px) {
+  .main.baiResizable .baiPaneHandle { display: none; }
+}
