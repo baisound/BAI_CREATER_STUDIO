@@ -13,7 +13,9 @@ const clip={id:'clip1',asset_id:'motion1',target_model_id:'model1',track:'motion
  assert.equal(runtime.validate([{...clip,target_model_id:7}],assets).issues[0].reason,'invalid_target');
  const loaded=[];runtime.setLoader(async ctx=>{loaded.push(ctx);return {seek(){},dispose(){}}});
  let r=await runtime.reconcile({project_id:'p1',clips:[clip],assets});
- assert.equal(r.issues[0].reason,'target_not_loaded');assert.equal(loaded.length,0);
+ assert.ok(r.issues.some(issue=>issue.reason==='model_loader_not_registered'));
+ assert.ok(r.issues.some(issue=>issue.reason==='target_not_loaded'));
+ assert.equal(loaded.length,0);
  const p={seek(){}};const unbind=runtime.bindTarget('model1',p);
  r=await runtime.reconcile({project_id:'p1',clips:[clip],assets});
  assert.equal(r.connected,1);assert.equal(loaded[0].targetPreview,p);assert.equal(loaded[0].targetModelId,'model1');

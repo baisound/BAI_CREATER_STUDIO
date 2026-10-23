@@ -1,6 +1,6 @@
 from pathlib import Path
 import unittest
-SRC = (Path(__file__).parent/'studio/v05/js/asset-workflow-v06.js').read_text()
+SRC = (Path(__file__).parent/'studio/v05/js/asset-workflow-v06.js').read_text(encoding='utf-8')
 class TimelineDragContract(unittest.TestCase):
  def test_pointer_actions(self):
   for token in ('pointerdown','pointermove','pointerup','pointercancel','trim-left','trim-right'):
@@ -12,5 +12,8 @@ class TimelineDragContract(unittest.TestCase):
   self.assertIn('roundSnap(',SRC)
   self.assertIn("'[data-track]'",SRC)
  def test_no_persist_until_release(self):
-  self.assertIn('if(v.moved){e.preventDefault();dragCommit(',SRC)
+  self.assertIn("clip.addEventListener('pointerup'",SRC)
+  self.assertIn('if(v.moved){e.preventDefault();',SRC)
+  self.assertIn('/api/studio/v05/arrangement/batch-move',SRC)
+  self.assertIn('dragCommit(c,v.track,v.start,v.duration)',SRC)
 if __name__=='__main__':unittest.main()
