@@ -237,5 +237,30 @@
     "target_unassigned": "対象モデル未指定",
     "target_mismatch": "他のモデルを参照",
     "readyCount": "実行可能なクリップ"
+  },
+  "v57": {
+    "title": "シーン内のモデル一覧（新方式）",
+    "notRendered": "配置データのみ。複数モデルのGPU同時描画は後続工程です。",
+    "model": "追加する3Dモデル",
+    "instances": "配置済みモデル",
+    "position": "位置",
+    "rotation": "回転",
+    "scale": "大きさ",
+    "add": "モデルを追加",
+    "save": "位置・回転・大きさを保存",
+    "remove": "選択モデルを削除",
+    "refresh": "再読み込み",
+    "missing": "素材が見つかりません",
+    "badTransform": "XYZの数値を確認してください",
+    "chooseProject": "作品を選んでください",
+    "chooseModel": "モデルを選んでください",
+    "loaded": "取得しました",
+    "loadError": "読込失敗",
+    "saveError": "保存失敗",
+    "saved": "保存しました",
+    "confirmRemove": "選択モデルを削除しますか？",
+    "visible": "表示する",
+    "locked": "操作をロック",
+    "unlockFirst": "まずロックを解除して保存してください"
   }
 }

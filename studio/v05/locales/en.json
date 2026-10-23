@@ -254,5 +254,30 @@
     "target_unassigned": "Target not assigned",
     "target_mismatch": "Target is another model",
     "readyCount": "Playable clips"
+  },
+  "v57": {
+    "title": "Scene Model Instances (new)",
+    "notRendered": "Placements only. Multi-model GPU rendering is a later stage.",
+    "model": "Model asset",
+    "instances": "Scene instances",
+    "position": "Position",
+    "rotation": "Rotation",
+    "scale": "Scale",
+    "add": "Add instance",
+    "save": "Save transform",
+    "remove": "Remove instance",
+    "refresh": "Reload",
+    "missing": "Missing asset",
+    "badTransform": "Check XYZ values",
+    "chooseProject": "Select project",
+    "chooseModel": "Select model",
+    "loaded": "Loaded",
+    "loadError": "Load failed",
+    "saveError": "Save failed",
+    "saved": "Saved",
+    "confirmRemove": "Remove selected instance?",
+    "visible": "Visible",
+    "locked": "Locked",
+    "unlockFirst": "Unlock and save before editing the transform"
   }
 }

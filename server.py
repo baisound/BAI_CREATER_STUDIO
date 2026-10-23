@@ -239,6 +239,16 @@ class Handler(BaseHTTPRequestHandler):
         msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
         self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
     def do_GET(self):
+        if urlsplit(self.path).path == '/api/studio/v05/scene/instances':
+            from studio_v05_scene_instances import read as instance_read, SceneInstancesError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                result=instance_read(DATA/'studio_v05_scene_instances', DATA/'studio_v05_scene_models',
+                                     DATA/'studio_v05_catalog.json',project_id,unified_assets())
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (SceneInstancesError,ValueError,OSError) as exc:
+                self.bad(409 if 'reconcile' in str(exc).lower() else 422,str(exc))
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/motion-plan':
             from studio_v05_motion_plan import plan
             from studio_v05_arrangement import ArrangementError
@@ -601,6 +611,24 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path == '/api/studio/v05/scene/instances':
+            from studio_v05_scene_instances import mutate, SceneInstancesError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0 < length <= 8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                allowed={'project_id','action','revision','instance_id','asset_id',
+                         'transform','visible','locked'}
+                if not isinstance(body,dict) or not {'project_id','action','revision'} <= set(body) or set(body)-allowed:
+                    return self.bad(400,'Invalid scene instances fields')
+                result=mutate(DATA/'studio_v05_scene_instances',DATA/'studio_v05_scene_models',
+                              DATA/'studio_v05_catalog.json',assets=unified_assets(),**body)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (SceneInstancesError,ValueError,TypeError,KeyError) as exc:
+                self.bad(409 if ('conflict' in str(exc).lower() or 'locked' in str(exc).lower()
+                                 or 'reconcile' in str(exc).lower()) else 422,str(exc))
+            except OSError:self.bad(500,'Scene instances write failed; original retained')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/scene/model':
             from studio_v05_scene_model import set_model,SceneModelError
             try:
