@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T02:44:35+09:00",
+  "updated_at": "2026-10-24T03:07:52+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-scene-preview",
-  "head_at_update": "6c08f8e",
+  "branch": "codex/v05-direct-timeline",
+  "head_at_update": "2c14e1e",
   "current": {
-    "task": "Issue #39/#40/#50/#63/#69: v0.5作品別3Dシーンを同じ再生時刻でプレビューへ接続",
-    "status": "done",
-    "step": "既存scene/instances・multi-motionとv0.5メディアプレビューの境界を調べ、実3D見本を同じ作品IDと再生位置へ接続する",
+    "task": "Issue #77/#63/#69: v0.5素材の直接ドラッグ配置・画像複数トラック・自由な長さ",
+    "status": "in_progress",
+    "step": "現行の保存形式とUIを確認し、画像の任意配置・移動・端伸縮・保存再読込を段階実装する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T03:07:52+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "2c14e1e",
+      "text": "Issue #77/#63/#69: v0.5素材の直接ドラッグ配置・画像複数トラック・自由な長さ: 現行の保存形式とUIを確認し、画像の任意配置・移動・端伸縮・保存再読込を段階実装する"
+    },
     {
       "at": "2026-10-24T02:44:35+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "ba67214",
       "text": "Issue #64: v0.5枝番61のmain統合前検証。Python503件+59サブテスト、v0.5 Node47件、素材Chrome33件、新UI起動導線1件成功。P2全体は1件、旧UI全体は2件の要素待ちタイムアウトがあり、該当試験の隔離再実行は成功。"
-    },
-    {
-      "at": "2026-10-23T23:11:08+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "75f39a4",
-      "text": "Issue #64: v0.5枝番61のソースをmainへPRで統合: PR #65の既存機能回帰と枝番試験を確認し、必要な試験修正後にマージ"
     }
   ]
 }
