@@ -83,8 +83,15 @@ export function createActualMotionLoaders(container, report = () => {}) {
       let closed=false;
       return {
         duration:preview.duration,
-        seek(seconds) {if(closed)return;preview.seek(seconds);
-          window.dispatchEvent(new CustomEvent('bai:model-pose-evaluated',{detail:{seconds:window.BAIStudioCameraFocusRuntime?.current?.()?.seconds,projectId:window.BAIStudioCameraFocusRuntime?.current?.()?.projectId}}));
+        seek(seconds, clip, context) {if(closed)return;preview.seek(seconds);
+          // Never stamp an evaluated pose with a camera snapshot from an unrelated seek.
+          const snapshot=window.BAIStudioCameraFocusRuntime?.current?.();
+          const timeline=window.BAIStudioPersistedSeek?.status?.();
+          if(snapshot && timeline && Number.isFinite(context?.globalSeconds)
+            && snapshot.seconds===context.globalSeconds && timeline.seconds===context.globalSeconds
+            && snapshot.projectId===timeline.projectId && Number.isInteger(snapshot.frame)) {
+            window.dispatchEvent(new CustomEvent('bai:model-pose-evaluated',{detail:{seconds:context.globalSeconds,frame:snapshot.frame,projectId:timeline.projectId}}));
+          }
           host.invalidate?.();targetPreview.invalidate?.();},
         invalidate(){host.invalidate?.();targetPreview.invalidate?.();},
         dispose(){if(closed)return;closed=true;preview.dispose();if(sourceObject)disposeObject(sourceObject);}

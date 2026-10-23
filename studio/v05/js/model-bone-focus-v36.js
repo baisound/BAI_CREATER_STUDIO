@@ -49,7 +49,7 @@ export function installModelBoneFocus({win=window,THREE}={}) {
   // Evaluated camera snapshots are cached so a model-pose update uses the identical frame.
   let snapshot=null;
   const onSnapshot=e=>{snapshot=e.detail;};
-  const onPose=e=>{if(!snapshot||e.detail?.seconds!==snapshot.seconds||e.detail?.projectId!==snapshot.projectId)return;
+  const onPose=e=>{if(!snapshot||e.detail?.seconds!==snapshot.seconds||e.detail?.frame!==snapshot.frame||e.detail?.projectId!==snapshot.projectId)return;
     runtime.update({seconds:snapshot.seconds,frame:snapshot.frame,projectId:snapshot.projectId});};
   win.addEventListener('bai:camera-focus-snapshot',onSnapshot);
   win.addEventListener('bai:model-pose-evaluated',onPose);

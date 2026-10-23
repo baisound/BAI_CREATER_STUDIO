@@ -8,7 +8,7 @@ function normalize(state){
  if(!finite(seconds)||seconds<0||!Number.isInteger(frame)||frame<0||!finite(fps)||fps<=0)throw new RangeError('Invalid camera time');
  const focalLengthMm=lens.focalLengthMm, fStop=lens.fStop, focusDistance=lens.focusDistance;
  const focusValid=[focalLengthMm,fStop,focusDistance].every(x=>finite(x)&&x>0);
- return Object.freeze({seconds,frame,fps,pose,lens:Object.freeze({...lens}),focusValid,
+ return Object.freeze({projectId:state?.projectId??null,seconds,frame,fps,pose,lens:Object.freeze({...lens}),focusValid,
   focusReason:focusValid?'ok':'missing_or_invalid_lens',dofRendered:false});
 }
 function create({emit=()=>{},diagnostic=()=>{}}={}){
