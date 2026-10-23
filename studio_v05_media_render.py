@@ -234,7 +234,7 @@ def _snapshot(data_root: Path, project_id: str, range_revision: int, arrangement
         resolved.append({"clip": dict(clip), "kind": kind, "path": path,
                          "asset_id": clip["asset_id"], "bytes": path.stat().st_size,
                          "registered_sha256": entry.get("sha256")})
-    resolved.sort(key=lambda item: (item["clip"]["start"], item["clip"]["id"]))
+    resolved.sort(key=lambda item: (item["clip"].get("lane", 1), item["clip"]["start"], item["clip"]["id"]))
     return render_range, resolved
 
 

@@ -1,7 +1,8 @@
 import tempfile,unittest,json
 from pathlib import Path
 from studio_project_catalog import create
-from studio_v05_arrangement import inventory,place,read,ArrangementError
+from studio_v05_arrangement import inventory,place,read,edit_clip,timeline_view,ArrangementError
+from studio_v05_track_layout import add_image_lane,get as get_layout
 class Tests(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.cat=self.root/'catalog.json';self.project=create(self.cat,'Demo');self.items=[{'id':'lib:abc','name':'Dance.vmd','kind':'motions','available':True,'source':'library'},{'id':'lib:missing','name':'Camera.vmd','available':False}]
@@ -31,4 +32,18 @@ class Tests(unittest.TestCase):
   d=self.root/'arr';d.mkdir();f=d/(self.project['id']+'.json');f.write_text('{oops')
   with self.assertRaises(ValueError):read(d,self.cat,self.project['id'])
   self.assertEqual(f.read_text(),'{oops')
+ def test_image_lanes_validate_and_old_clip_defaults_to_one(self):
+  pid=self.project['id'];layout=self.root/'layout';items=[{'id':'lib:image','name':'frame.webp','available':True}]
+  first=place(self.root/'arr',self.cat,pid,'lib:image','image',1,3,0,items,layout_root=layout)
+  self.assertEqual(first['clip']['lane'],1)
+  with self.assertRaisesRegex(ArrangementError,'does not exist'):
+   place(self.root/'arr',self.cat,pid,'lib:image','image',4,3,1,items,layout_root=layout,lane=2)
+  add_image_lane(layout,self.cat,pid,0)
+  second=place(self.root/'arr',self.cat,pid,'lib:image','image',4,3,1,items,layout_root=layout,lane=2)
+  self.assertEqual(second['clip']['lane'],2)
+  with self.assertRaisesRegex(ArrangementError,'Invalid lane'):
+   edit_clip(self.root/'arr',self.cat,pid,second['clip']['id'],2,'update',start=4,duration=3,track='image',lane=0,layout_root=layout)
+  self.assertEqual(get_layout(layout,self.cat,pid)['image_lanes'],2)
+  data=read(self.root/'arr',self.cat,pid);data['clips'][0].pop('lane');(self.root/'arr'/(pid+'.json')).write_text(json.dumps(data))
+  self.assertEqual([c.get('lane',1) for c in timeline_view(self.root/'arr',self.cat,pid)['tracks'][0]['clips']],[1,2])
 if __name__=='__main__':unittest.main()
