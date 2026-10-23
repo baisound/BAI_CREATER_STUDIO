@@ -52,13 +52,13 @@ function placeOrthographic(THREE, camera, mode, bounds, aspect) {
 /**
  * @param {HTMLElement} container 大きさを持つ要素（canvas を中に置く）
  * @param {Libs} libs
- * @param {{background?: number, freeDolly?: boolean}} [o]
+ * @param {{background?: number, freeDolly?: boolean, transparent?: boolean}} [o]
  */
 export function createViewport(container, libs, o = {}) {
   const { THREE, OrbitControls } = libs;
   /** @type {any} */ let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: Boolean(o.transparent) });
   } catch {
     throw new WebGLError();
   }
@@ -70,13 +70,15 @@ export function createViewport(container, libs, o = {}) {
   container.prepend(canvas);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(o.background ?? 0x162235);
+  scene.background = o.transparent ? null : new THREE.Color(o.background ?? 0x162235);
+  if (o.transparent) renderer.setClearColor(0x000000, 0);
   const ambient = new THREE.HemisphereLight(0xffffff, 0x556677, 2.0);
   scene.add(ambient);
   const lamp = new THREE.DirectionalLight(0xffffff, 2);
   lamp.position.set(2, 6, 4);
   scene.add(lamp);
   const grid = new THREE.GridHelper(8, 16, 0x718098, 0x37465e);
+  grid.visible = !o.transparent;
   scene.add(grid);
 
   const camera = new THREE.PerspectiveCamera(40, 1, 0.03, 500);
@@ -283,13 +285,14 @@ export function createViewport(container, libs, o = {}) {
      * 描画の直後に読むので preserveDrawingBuffer は要らない。
      */
     countNonBackground() {
+      const gridWasVisible = grid.visible;
       grid.visible = false;
       renderer.render(scene, activeCamera);
       const gl = renderer.getContext();
       const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight;
       const px = new Uint8Array(w * h * 4);
       gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px);
-      grid.visible = true;
+      grid.visible = gridWasVisible;
       const [r, g, b] = [px[0], px[1], px[2]];
       let n = 0;
       for (let i = 0; i < px.length; i += 4) if (Math.abs(px[i] - r) + Math.abs(px[i + 1] - g) + Math.abs(px[i + 2] - b) > 12) n++;
