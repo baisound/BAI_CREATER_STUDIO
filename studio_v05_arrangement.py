@@ -52,7 +52,7 @@ def read(root,catalog,project_id):
 def _lane(lane,track,layout):
     if type(lane) is not int or lane<1:raise ArrangementError('Invalid lane')
     if track!='image' and lane!=1:raise ArrangementError('Only image tracks support multiple lanes')
-    if track=='image' and lane>layout.get('image_lanes',1):raise ArrangementError('Image lane does not exist')
+    if track=='image' and lane not in layout.get('image_lane_ids',range(1,layout.get('image_lanes',1)+1)):raise ArrangementError('Image lane does not exist')
     return lane
 
 def _source_window(category, source_start, duration, source_duration):

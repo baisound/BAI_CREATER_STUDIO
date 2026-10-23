@@ -77,5 +77,25 @@ test('drag registered image to saved timeline, move/resize, add lane, then reloa
       window.BAIStudioMediaPreviewV68.status().projectId === projectId &&
       window.BAIStudioMediaPreviewV68.status().mediaCount === 3, id);
     assert.equal(await page.locator('#v68layers img').count(), 3);
+    await page.getByRole('button', { name: '＋ 画像トラック' }).click();
+    await page.locator('#v07timeline [data-track="image"][data-lane="3"]').waitFor();
+    const lane2Clip = data.clips.find(c => c.lane === 2);
+    await page.locator(`#v07timeline [data-clip-id="${lane2Clip.id}"]`).dblclick();
+    await page.locator('#v77EditLane').selectOption('3');
+    await page.locator('#v08save').click();
+    await page.waitForFunction(async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips.some(c => c.lane === 3), id);
+    await page.locator('#v80RemoveLane').selectOption('2');
+    await page.getByRole('button', { name: '空の画像行を削除' }).click();
+    await page.waitForFunction(() => !document.querySelector('#v07timeline [data-track="image"][data-lane="2"]'));
+    assert.equal(await page.locator('#v07timeline [data-track="image"][data-lane="3"]').count(), 1);
+    await page.getByRole('button', { name: '＋ 画像トラック' }).click();
+    await page.locator('#v07timeline [data-track="image"][data-lane="4"]').waitFor();
+    await page.reload();
+    await page.locator('#v06project').selectOption(id);
+    await page.locator('#nav [data-workspace="edit"]').click();
+    const layout = await json(await fetch(`${server.base}/api/studio/v05/timeline/layout?id=${id}`));
+    assert.deepEqual(layout.image_lane_ids, [1, 3, 4]);
+    assert.equal(layout.next_image_lane_id, 5);
+    assert.deepEqual((await json(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`))).clips.map(c => c.lane).sort(), [1, 1, 3]);
   } finally { await page?.close(); await browser?.close(); await server.stop(); }
 });

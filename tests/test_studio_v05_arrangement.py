@@ -1,8 +1,8 @@
 import tempfile,unittest,json
 from pathlib import Path
 from studio_project_catalog import create
-from studio_v05_arrangement import inventory,place,read,edit_clip,timeline_view,ArrangementError
-from studio_v05_track_layout import add_image_lane,get as get_layout
+from studio_v05_arrangement import inventory,place,read,edit_clip,timeline_view,ArrangementError,TRACKS
+from studio_v05_track_layout import add_image_lane,remove_image_lane,update as update_layout,get as get_layout
 class Tests(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.cat=self.root/'catalog.json';self.project=create(self.cat,'Demo');self.items=[{'id':'lib:abc','name':'Dance.vmd','kind':'motions','available':True,'source':'library'},{'id':'lib:missing','name':'Camera.vmd','available':False}]
@@ -46,4 +46,29 @@ class Tests(unittest.TestCase):
   self.assertEqual(get_layout(layout,self.cat,pid)['image_lanes'],2)
   data=read(self.root/'arr',self.cat,pid);data['clips'][0].pop('lane');(self.root/'arr'/(pid+'.json')).write_text(json.dumps(data))
   self.assertEqual([c.get('lane',1) for c in timeline_view(self.root/'arr',self.cat,pid)['tracks'][0]['clips']],[1,2])
+ def test_image_lane_ids_survive_deletion_and_are_never_reused(self):
+  pid=self.project['id'];layout=self.root/'layout';arr=self.root/'arr';items=[{'id':'lib:image','name':'frame.webp','available':True}]
+  old={'project_id':pid,'revision':0,'order':sorted(TRACKS),'heights':{},'locked':[],'muted':[],'image_lanes':2}
+  layout.mkdir();(layout/(pid+'.json')).write_text(json.dumps(old))
+  self.assertEqual(get_layout(layout,self.cat,pid)['image_lane_ids'],[1,2])
+  third=add_image_lane(layout,self.cat,pid,0)
+  self.assertEqual(third['image_lane_ids'],[1,2,3])
+  clip=place(arr,self.cat,pid,'lib:image','image',2,4,0,items,layout_root=layout,lane=3)['clip']
+  with self.assertRaisesRegex(ArrangementError,'clips'):
+   remove_image_lane(layout,self.cat,arr,pid,1,3)
+  with self.assertRaisesRegex(ArrangementError,'conflict'):
+   remove_image_lane(layout,self.cat,arr,pid,0,2)
+  removed=remove_image_lane(layout,self.cat,arr,pid,1,2)
+  self.assertEqual(removed['image_lane_ids'],[1,3]);self.assertEqual(removed['image_lanes'],2)
+  self.assertEqual(removed['next_image_lane_id'],4)
+  self.assertEqual(read(arr,self.cat,pid)['clips'][0],clip)
+  self.assertEqual(get_layout(layout,self.cat,pid)['image_lane_ids'],[1,3])
+  with self.assertRaisesRegex(ArrangementError,'does not exist'):
+   place(arr,self.cat,pid,'lib:image','image',0,1,1,items,layout_root=layout,lane=2)
+  self.assertEqual(add_image_lane(layout,self.cat,pid,2)['image_lane_ids'],[1,3,4])
+  updated=update_layout(layout,self.cat,pid,3,list(reversed(third['order'])),{})
+  self.assertEqual(updated['image_lane_ids'],[1,3,4]);self.assertEqual(updated['next_image_lane_id'],5)
+  single=self.root/'single'
+  with self.assertRaisesRegex(ArrangementError,'last image lane'):
+   remove_image_lane(single,self.cat,arr,pid,0,1)
 if __name__=='__main__':unittest.main()
