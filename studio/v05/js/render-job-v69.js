@@ -33,6 +33,7 @@
   let context = null, requestSeq = 0, timer = 0, selectedJobId = null;
   const activeProject = () => $('v06project')?.value || '';
   const status = text => { $('v69status').textContent = text; };
+  const hint = value => { button.dataset.i18nOriginalTitle = value; button.title = value; };
   const get = async url => {
     const response = await fetch(url, { cache: 'no-store' });
     const data = await response.json();
@@ -119,7 +120,10 @@
         await jobs(projectId);
         if (!['queued', 'running'].includes(job.status)) {
           stopPolling();
-          if (context?.projectId === projectId) button.disabled = false;
+          if (context?.projectId === projectId) {
+            button.disabled = false;
+            hint('保存済み作品の範囲から別名MP4を生成します');
+          }
         }
       } catch (error) { status(`書き出し状況を取得できません: ${error.message}`); stopPolling(); }
     }, 1000);
@@ -129,9 +133,10 @@
     const projectId = activeProject();
     context = null;
     button.disabled = true;
+    hint('書き出し条件を確認中');
     clearVideo();
     stopPolling();
-    if (!projectId) { status('作品を選択してください。'); queue.textContent = '作品を選択してください。'; return; }
+    if (!projectId) { status('作品を選択してください。'); hint('作品を選択してください'); queue.textContent = '作品を選択してください。'; return; }
     status('保存済み作品とencoderを確認中…');
     try {
       const encoded = encodeURIComponent(projectId);
@@ -169,16 +174,18 @@
       else status(`MP4 / H.264 + AAC、${range.fps} fps、F${range.range_start_frame}〜${range.range_end_exclusive - 1}${hasScene ? '、3D実描画720p・自動配置カメラ' : ''}を別名で書き出せます。`);
       button.disabled = Boolean(reason);
       button.textContent = '実MP4を書き出す';
+      hint(reason || '保存済み作品の範囲から別名MP4を生成します');
       const recent = await jobs(projectId);
       const active = recent.find(job => ['queued', 'running'].includes(job.status));
-      if (active) { button.disabled = true; watch(active.id, projectId); }
+      if (active) { button.disabled = true; hint('この作品のMP4を書き出し中'); watch(active.id, projectId); }
     } catch (error) {
-      if (seq === requestSeq) { status(`書き出し準備に失敗: ${error.message}`); queue.textContent = '書き出し履歴を読み込めません。'; }
+      if (seq === requestSeq) { status(`書き出し準備に失敗: ${error.message}`); hint('書き出し条件を取得できません'); queue.textContent = '書き出し履歴を読み込めません。'; }
     }
   }
   button.addEventListener('click', async () => {
     if (!context || button.disabled || context.projectId !== activeProject()) return;
     button.disabled = true;
+    hint('MP4ジョブを作成中');
     selectedJobId = null;
     status('保存済み範囲のMP4ジョブを作成中…');
     let created = false;
@@ -196,7 +203,10 @@
       await jobs(context.projectId);
       watch(job.id, context.projectId);
     } catch (error) { status(`ジョブを作成できません: ${error.message}`); }
-    finally { if (!created && context?.projectId === activeProject()) button.disabled = false; }
+    finally { if (!created && context?.projectId === activeProject()) {
+      button.disabled = false;
+      hint('保存済み作品の範囲から別名MP4を生成します');
+    } }
   });
   const observer = new MutationObserver(() => { if (page.classList.contains('active')) void refresh(); });
   observer.observe(page, { attributes: true, attributeFilter: ['class'] });

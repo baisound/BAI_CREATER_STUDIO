@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T06:01:04+09:00",
+  "updated_at": "2026-10-24T06:05:27+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-export-button-status",
-  "head_at_update": "4696349",
+  "head_at_update": "0ea3f6b",
   "current": {
     "task": "Issue #69: 書き出しボタンの状態案内を実際の利用可否へ同期",
-    "status": "in_progress",
+    "status": "done",
     "step": "実ブラウザで見つけた残存ツールチップを修正し隔離Chromeで確認",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "PRをレビュー・mainへ統合し、ローカルmain/8765と実画面を確認。続いて保存カメラ・字幕・音画同期等の承認済み残条件を進める。"
+    "PRをmainへ統合し、ローカルmain/8765と実画面を確認。続いて保存カメラなど承認済みの残条件を進める。"
   ],
   "unverified": [
-    "今回の回帰試験ではBAI_REAL_MMD_DATA未指定のためPMX/VMDケースはskip。前段PR92では実PMX/VMDを検証済み。Linux/MCP/長尺/全音画同期は未検証。"
+    "今回のPMX/VMD回帰ケースはBAI_REAL_MMD_DATA未指定でskip。PR92では実素材検証済み。Linux/MCP/長尺/全音画同期は未確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T06:05:27+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "0ea3f6b",
+      "text": "Issue #69: 出力ボタンの有効/準備中/実行中/理由のツールチップを実状態へ同期。i18nが元文言で上書きする原因を修正。隔離Chrome実MP4 1/1、型・構文・JSON・実データhash確認。"
+    },
     {
       "at": "2026-10-24T06:01:04+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "10426b2",
       "text": "Issue #63/#69: v0.5作品カード・新規作品・保存済みタイムラインのIDを同期。Chrome二作品/遅延応答/再読込3件と結合7件を確認"
-    },
-    {
-      "at": "2026-10-24T01:29:18+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5ae9410",
-      "text": "Issue #63/#69: v0.5の作品カードと保存済みタイムラインの作品IDを一致させる: 既存作品選択と作品ドロップダウンを同期し、再読込後も同じ作品を開く。範囲表示・カメラ設定への伝播を隔離試験する"
     }
   ]
 }
