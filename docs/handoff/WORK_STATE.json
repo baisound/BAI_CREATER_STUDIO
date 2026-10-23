@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T05:58:53+09:00",
+  "updated_at": "2026-10-24T06:01:04+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-export-screen-copy",
-  "head_at_update": "8d43dda",
+  "branch": "codex/v05-export-button-status",
+  "head_at_update": "4696349",
   "current": {
-    "task": "Issue #69: v0.5書き出し画面の実MP4対応表示",
-    "status": "done",
-    "step": "書き出し画面の古い未接続表記を現行の限定MP4機能と一致させて確認",
+    "task": "Issue #69: 書き出しボタンの状態案内を実際の利用可否へ同期",
+    "status": "in_progress",
+    "step": "実ブラウザで見つけた残存ツールチップを修正し隔離Chromeで確認",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T06:01:04+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4696349",
+      "text": "Issue #69: 書き出しボタンの状態案内を実際の利用可否へ同期: 実ブラウザで見つけた残存ツールチップを修正し隔離Chromeで確認"
+    },
     {
       "at": "2026-10-24T05:58:53+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "5ae9410",
       "text": "Issue #63/#69: v0.5の作品カードと保存済みタイムラインの作品IDを一致させる: 既存作品選択と作品ドロップダウンを同期し、再読込後も同じ作品を開く。範囲表示・カメラ設定への伝播を隔離試験する"
-    },
-    {
-      "at": "2026-10-24T01:22:57+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9f040fa",
-      "text": "Issue #49/#69: v0.5作品の保存済みタイムラインにIn/Outフレーム範囲を追加。既定0〜最終フレーム、revision競合、出力画面表示を隔離試験で確認。実レンダーは未接続"
     }
   ]
 }
