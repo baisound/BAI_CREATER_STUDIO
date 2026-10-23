@@ -1,24 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T00:08:32+09:00",
+  "updated_at": "2026-10-24T00:20:04+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-asset-bridge",
-  "head_at_update": "ca92fa9",
+  "head_at_update": "c649a6e",
   "current": {
     "task": "Issue #63: 承認済み固定診断パネルの撮影画面内への移動",
-    "status": "in_progress",
+    "status": "done",
     "step": "固定診断をカメラ・演出欄の折りたたみへ移し、素材選択をポインタで再検証",
     "design_doc": "docs/v05/ASSET_LIBRARY_BRIDGE_20261023_JA.md"
   },
   "next_steps": [
-    "Owner承認後に固定診断パネルの重なりを修正し、ポインタ操作を再検証する",
-    "v0.5素材詳細へ既存3D・音声波形・動画見本を安全に接続する",
-    "PMX/VMDと音声・動画の同一作品再生、基本動画出力を順に接続する"
+    "Issue #63: 共通編集グリッドの左幅・タイムライン高さをドラッグ調整・保存・リセット可能にし、重複した簡易素材タブを整理する",
+    "Issue #39/#63: 実動作プレビューをフレーム指定と実再生・停止・前後移動に接続し、音声編集はAUDIO-001の範囲で実波形・同期試聴を優先する",
+    "同じ作品の音声・動画・モデル・動作をプレビューから出力まで接続する"
   ],
   "unverified": [
-    "固定診断パネルによるポインタ遮蔽は未修正、レイアウト承認待ち",
-    "GLBはSwiftShaderでのモデル表示のみ。PMX/VMD/FBXモーション、実GPU、音声・動画配置再生、最終出力、Linux/MCPは未検証または未接続",
-    "隔離Chrome: 素材2件とGLB表示1件成功。実データ5ファイル前後ハッシュ一致、typecheck成功"
+    "PMX/VMD/FBX動作、実GPU、音声・動画の同時刻再生、最終出力、Linux/MCPは未検証または未接続",
+    "隔離Chrome4件成功、焦点診断Node2ファイル成功、typecheck成功、実データ5ファイル前後ハッシュ一致"
   ],
   "blockers": [],
   "owner_questions": [
@@ -35,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T00:20:04+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "c649a6e",
+      "text": "v0.5素材画面の診断欄・ヘッダー・参照カードの重なりをOwner承認どおり整理し、ポインタ操作と既存3D再表示を隔離Chrome4件で確認"
+    },
     {
       "at": "2026-10-24T00:08:32+09:00",
       "by": "codex",
@@ -237,13 +243,6 @@
       "event": "done",
       "head": "21597c7",
       "text": "P2-WP-06b: 現行camera.htmlの124 ID配置表・SCR02カメラホスト・常駐・隔離Chrome4件・27画面共通20件を完了。カメラ単独保存と旧画面の再読込互換を確認。"
-    },
-    {
-      "at": "2026-10-22T01:30:47+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ffd1f12",
-      "text": "AUDIO-001/SCR10: 登録済みGLB/VMD/FBXダンス候補、PMX+VMD評価、FBX人体骨プレビュー、SCR08導線、保存復元を実装。typecheck、隔離Chrome 2件、実PMX+実FBX/VMDの描画・保存再読込・原本hash検証に成功。Issue #39に追跡。"
     }
   ]
 }

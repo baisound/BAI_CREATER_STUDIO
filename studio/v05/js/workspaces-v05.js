@@ -1,5 +1,19 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// The navigation can wrap at desktop as well as narrow widths. Keep the
+// supplemental page layer below its measured height so it cannot cover tabs.
+const topBar=document.querySelector('.top'), pageLayer=$('baiPages');
+if(topBar){topBar.style.height='auto';topBar.style.minHeight='53px';}
+function positionPageLayer(){
+ if(!topBar||!pageLayer)return;
+ const height=Math.ceil(topBar.getBoundingClientRect().height);
+ pageLayer.style.top=`${height}px`;
+ const main=document.querySelector('.main');
+ if(main)main.style.height=window.innerWidth>730?`calc(100vh - ${height+26}px)`:'';
+}
+positionPageLayer();
+if(topBar&&typeof ResizeObserver!=='undefined')new ResizeObserver(positionPageLayer).observe(topBar);
+window.addEventListener('resize',positionPageLayer);
 const storeKey='bai.mock.v05.projects';let projects=JSON.parse(localStorage.getItem(storeKey)||'null')||[{name:'LAST CHASE MV',status:'draft',image:'proj-sakura-dance.webp',modified:'2026-10-22'},{name:'2027 新春企画',status:'draft',image:'proj-virtual-stage.webp',modified:'2026-10-21'},{name:'ダンス映像制作',status:'done',image:'proj-blue-resonance.webp',modified:'2026-10-19'}];let selectedProject=0,audioPlaying=false,sortAsc=true,assetCount=0;
 const catalogApi='/api/studio/v05/projects';
 let catalogConnected=false;
