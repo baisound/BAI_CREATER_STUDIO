@@ -54,6 +54,47 @@ def update_chain(action, name=None, from_index=None,to_index=None):
     return {'timeline':seq,'history_count':len(history)}
 
 def run(name,a):
+    if name=='bai_studio_project_activation_preview':return api('/api/studio/v05/project/activation-preview?id='+urllib.parse.quote(a['id']))
+    if name=='bai_studio_project_activate':return api('/api/studio/v05/project/activate',a)
+    if name=='bai_studio_project_snapshot_get':return api('/api/studio/v05/project/snapshot?id='+urllib.parse.quote(a['id']))
+    if name=='bai_studio_project_snapshot_save':return api('/api/studio/v05/project/snapshot',{'id':a['id']})
+    if name=='bai_studio_asset_capabilities':return api('/api/studio/v05/assets/capabilities')
+    if name=='bai_studio_scene_multi_motion_plan':return api('/api/studio/v05/scene/multi-motion-plan?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_scene_motion_target_set':return api('/api/studio/v05/scene/motion-target',a)
+    if name=='bai_studio_scene_motion_plan':return api('/api/studio/v05/scene/motion-plan?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_scene_model_candidates':return api('/api/studio/v05/scene/model-candidates')
+    if name=='bai_studio_scene_instances_get':return api('/api/studio/v05/scene/instances?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_scene_preview_plan':
+        r=api('/api/studio/v05/scene/instances?id='+urllib.parse.quote(a['project_id']))
+        return {'project_id':r['project_id'],'revision':r['revision'],'instances':r['instances'],'renderer_verified':False,'note':'Preview rendering is browser-local; this tool reads saved scene placement only.'}
+    if name=='bai_studio_scene_instances_mutate':return api('/api/studio/v05/scene/instances',a)
+    if name=='bai_studio_scene_model_get':return api('/api/studio/v05/scene/model?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_scene_model_set':return api('/api/studio/v05/scene/model',a)
+    if name=='bai_studio_asset_sources_get':return api('/api/studio/v05/asset-sources')
+    if name=='bai_studio_asset_source_register':return api('/api/studio/v05/asset-sources/register',a)
+    if name=='bai_studio_asset_source_relink':return api('/api/studio/v05/asset-sources/relink',a)
+    if name=='bai_studio_assets_search':return api('/api/studio/v05/assets?category='+urllib.parse.quote(a.get('category','all'))+'&query='+urllib.parse.quote(a.get('query','')))
+    if name=='bai_studio_track_layout_get':return api('/api/studio/v05/timeline/layout?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_track_layout_set':return api('/api/studio/v05/timeline/layout',a)
+    if name=='bai_studio_playhead_get':return api('/api/studio/v05/playhead?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_playhead_set':return api('/api/studio/v05/playhead',a)
+    if name=='bai_studio_timeline_view':return api('/api/studio/v05/timeline/view?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_arrangement_get':return api('/api/studio/v05/arrangement?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_batch_move':return api('/api/studio/v05/arrangement/batch-move',a)
+    if name=='bai_studio_batch_undo':return api('/api/studio/v05/arrangement/undo',a)
+    if name=='bai_studio_track_flags_set':return api('/api/studio/v05/timeline/flags',a)
+    if name=='bai_studio_clip_target_set':return api('/api/studio/v05/arrangement/clip/target',a)
+    if name=='bai_studio_clip_edit':return api('/api/studio/v05/arrangement/clip/edit',a)
+    if name=='bai_studio_clip_place':return api('/api/studio/v05/arrangement/place',a)
+    if name=='bai_studio_focus_reports_get':return api('/api/studio/v05/focus-reports?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_focus_reports_save':return api('/api/studio/v05/focus-reports',a)
+    if name=='bai_studio_focus_target_get':return api('/api/studio/v05/focus-target?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_focus_target_set':return api('/api/studio/v05/focus-target',a)
+    if name=='bai_studio_project_fps_get':return api('/api/studio/v05/project/fps?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_project_fps_set':return api('/api/studio/v05/project/fps',a)
+    if name=='bai_studio_projects_list':return api('/api/studio/v05/projects')
+    if name=='bai_studio_project_create':return api('/api/studio/v05/projects',a)
+    if name=='bai_studio_project_rename':return api('/api/studio/v05/projects/rename',a)
     if name=="bai_camera_get":return api("/api/camera/project")
     if name=="bai_camera_set":return api("/api/camera/project",a)
     if name=="bai_camera_sequence_edit":return api("/api/camera/sequence/edit",a)
@@ -146,6 +187,45 @@ def run(name,a):
 S=lambda props=None,req=None:{'type':'object','properties':props or {},'required':req or [],'additionalProperties':False}
 STR={'type':'string'};INT={'type':'integer'}
 TOOLS=[
+('bai_studio_project_activation_preview','Preview differences and get current revision before activating stored project.',S({'id':STR},['id'])),
+('bai_studio_project_activate','Explicitly activate saved project; requires confirm=true and preview revision; automatically backs up existing state.',S({'id':STR,'expected_revision':STR,'confirm':{'type':'boolean'}},['id','expected_revision','confirm'])),
+('bai_studio_project_snapshot_get','Read a per-project saved snapshot without activating it.',S({'id':STR},['id'])),
+('bai_studio_project_snapshot_save','Capture legacy active combination/camera bundle into per-project snapshot without switching projects.',S({'id':STR},['id'])),
+('bai_studio_asset_capabilities','Read supported v0.5 import types and searchable categories.',S()),
+('bai_studio_scene_multi_motion_plan','Read validated scene-instance-specific motion assignments and readiness.',S({'project_id':STR},['project_id'])),
+('bai_studio_scene_motion_target_set','Assign one motion clip to an explicit scene instance, with revision check.',S({'project_id':STR,'clip_id':STR,'revision':INT,'instance_id':{'type':['string','null']}},['project_id','clip_id','revision','instance_id'])),
+('bai_studio_scene_motion_plan','Read valid motion-to-scene-model pairings, format compatibility, and preview readiness.',S({'project_id':STR},['project_id'])),
+ ('bai_studio_scene_model_candidates','List actually previewable model assets.',S()),
+('bai_studio_scene_instances_get','Get project scene instances and independent transforms.',S({'project_id':STR},['project_id'])),
+('bai_studio_scene_preview_plan','Read model placement plan for shared 3D preview, not live GPU state.',S({'project_id':STR},['project_id'])),
+('bai_studio_scene_instances_mutate','Add/update/remove a scene instance using a revision.',S({'project_id':STR,'action':{'type':'string','enum':['add','update','remove']},'revision':INT,'instance_id':STR,'asset_id':STR,'transform':{'type':'object'},'visible':{'type':'boolean'},'locked':{'type':'boolean'}},['project_id','action','revision'])),
+('bai_studio_scene_model_get','Read a single-model scene placement for a project.',S({'project_id':STR},['project_id'])),
+('bai_studio_scene_model_set','Save or remove a project scene model with XYZ transform and revision.',S({'project_id':STR,'asset_id':{'type':['string','null']},'transform':{'type':['object','null']},'revision':INT},['project_id','asset_id','transform','revision'])),
+('bai_studio_asset_sources_get','Get registered reference paths (within the approved inbox) and catalog revision.',S()),
+('bai_studio_asset_source_register','Register approved inbox file as a read-only reference or managed library copy, with SHA-256 deduplication.',S({'relative_path':STR,'kind':STR,'mode':{'type':'string','enum':['reference','copy']},'revision':INT},['relative_path','kind','mode','revision'])),
+('bai_studio_asset_source_relink','Relink an existing reference to identical content in the approved inbox.',S({'asset_id':STR,'relative_path':STR,'revision':INT},['asset_id','relative_path','revision'])),
+('bai_studio_assets_search','Search registered local assets by category and text.',S({'category':STR,'query':STR})),
+('bai_studio_track_layout_get','Read project track order and heights.',S({'project_id':STR},['project_id'])),
+('bai_studio_track_layout_set','Update track order and heights with revision guard.',S({'project_id':STR,'revision':{'type':'integer'},'order':{'type':'array','items':STR},'heights':{'type':'object','additionalProperties':{'type':'integer'}}},['project_id','revision','order','heights'])),
+('bai_studio_playhead_get','Read saved edit cursor; not engine playback.',S({'project_id':STR},['project_id'])),
+('bai_studio_playhead_set','Set saved edit cursor, revision guarded; no engine seek.',S({'project_id':STR,'seconds':{'type':'number'},'revision':{'type':'integer'}},['project_id','seconds','revision'])),
+('bai_studio_timeline_view','Read deterministic track-grouped per-project timeline projection; read-only.',S({'project_id':STR},['project_id'])),
+('bai_studio_arrangement_get','Read v0.5 per-project clip arrangement; does not change legacy engine.',S({'project_id':STR},['project_id'])),
+('bai_studio_batch_move','Atomically move multiple saved clips.',S({'project_id':STR,'revision':INT,'edits':{'type':'array','items':{'type':'object'}}},['project_id','revision','edits'])),
+('bai_studio_batch_undo','Undo previous atomic batch move.',S({'project_id':STR,'revision':INT},['project_id','revision'])),
+('bai_studio_track_flags_set','Set track locks and mutes.',S({'project_id':STR,'revision':INT,'locked':{'type':'array','items':STR},'muted':{'type':'array','items':STR}},['project_id','revision','locked','muted'])),
+('bai_studio_clip_target_set','Set or clear a motion clip target model with revision check.',S({'project_id':STR,'clip_id':STR,'revision':INT,'target_model_id':{'type':['string','null']}},['project_id','clip_id','revision','target_model_id'])),
+('bai_studio_clip_edit','Update or delete saved v0.5 clip metadata by ID with revision check; legacy engine unchanged.',S({'project_id':STR,'clip_id':STR,'revision':INT,'action':{'type':'string','enum':['update','delete']},'start':{'type':'number'},'duration':{'type':'number'},'track':STR},['project_id','clip_id','revision','action'])),
+('bai_studio_clip_place','Place registered asset into v0.5 clip arrangement with optimistic revision.',S({'project_id':STR,'asset_id':STR,'track':STR,'start':{'type':'number'},'duration':{'type':'number'},'revision':INT},['project_id','asset_id','track','start','duration','revision'])),
+('bai_studio_focus_reports_get','Read saved project focus interval reports.',S({'project_id':STR},['project_id'])),
+('bai_studio_focus_reports_save','Save completed focus interval report.',S({'project_id':STR,'revision':INT,'report':{'type':'object'}},['project_id','revision','report'])),
+('bai_studio_focus_target_get','Read saved focus target selection.',S({'project_id':STR},['project_id'])),
+('bai_studio_focus_target_set','Persist selected focus model and bone.',S({'project_id':STR,'revision':INT,'model_id':{'type':['string','null']},'bone_name':{'type':['string','null']},'enabled':{'type':'boolean'}},['project_id','revision','model_id','bone_name','enabled'])),
+('bai_studio_project_fps_get','Read project FPS; nullable when not configured.',S({'project_id':STR},['project_id'])),
+('bai_studio_project_fps_set','Persist project FPS without changing legacy engine state.',S({'project_id':STR,'fps':{'type':'number','minimum':1,'maximum':240}},['project_id','fps'])),
+('bai_studio_projects_list','List v0.5 project catalog metadata. Does not read engine project payload.',S()),
+('bai_studio_project_create','Create v0.5 catalog record only, not a new 3D engine project.',S({'name':STR,'kind':{'type':'string','enum':['empty','dance','mv','video']}},['name'])),
+('bai_studio_project_rename','Rename a v0.5 catalog record.',S({'id':STR,'name':STR},['id','name'])),
 ('bai_camera_get','Read BAI Camera keyframe project.',S()),
 ('bai_camera_set','Save non-destructive BAI Camera keyframes; original motions unaffected.',S({'schema':INT,'fps':INT,'duration':INT,'keys':{'type':'array','items':{'type':'object'}}},['schema','fps','duration','keys'])),
 ('bai_camera_sample','Read interpolated camera transform at a specified frame.',S({'frame':INT},['frame'])),

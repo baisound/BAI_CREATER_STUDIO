@@ -1,0 +1,17 @@
+# Canonical LF line endings for the source tree
+* text=auto eol=lf
+*.bat text eol=lf
+*.cmd text eol=lf
+*.ps1 text eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.mp4 binary
+*.glb binary
+*.fbx binary
+*.vrm binary
+*.vmd binary
+*.pmx binary
+*.zip binary

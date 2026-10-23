@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const code=readFileSync(new URL('./studio/v05/js/actual-motion-loader-v22.js',import.meta.url),'utf8');
+for(const token of ['loadLibs','loadModel','createViewport','loadVmdClip','createPmxVmdPreview','createPmxGlbPreview','createGenericGlbPreview','disposeObject','compatibleMotion','seek(seconds)','ensureActive']) assert.ok(code.includes(token),token);
+const fn=code.match(/export function compatibleMotion\([\s\S]*?\n}/)?.[0];
+assert.ok(fn);
+const compatible=new Function(fn.replace('export ','')+'; return compatibleMotion;')();
+assert.equal(compatible('PMX','VMD'),true);
+assert.equal(compatible('VRM','VMD'),false);
+assert.equal(compatible('GLB','FBX'),true);
+assert.equal(compatible('PMX','GLB'),true);
+assert.equal(compatible('FBX','MP3'),false);
+console.log('PASS: phase22 loader compatibility and real-loader contract (16 checks)');

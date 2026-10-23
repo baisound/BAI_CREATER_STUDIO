@@ -66,6 +66,8 @@ CUSTOM_ASSETS=DATA/'integrated_v02'/'assets'; CUSTOM_ASSETS.mkdir(parents=True,e
 CUSTOM_INDEX=DATA/'integrated_v02'/'user_assets.json'
 CUSTOM_LOCK=threading.RLock()
 LIBRARY_ROOT=DATA/'library_assets'
+V05_SOURCE_ROOT=DATA/'studio_v05_asset_sources'
+V05_INBOX_ROOT=DATA/'asset_inbox'
 LIBRARY_LOCK=threading.RLock()
 CHAR_THUMB_ROOT=DATA/'asset_thumbnails'
 CHAR_THUMB_LOCK=threading.RLock()
@@ -140,6 +142,8 @@ def unified_assets():
             if fmt not in ('PMX','VMD'):continue
             result.append({'id':'mmd:'+slot+':'+name,'name':name,'format':fmt,'kind':slot,'source':'mmd','available':(MMD_DIR/slot/name).is_file(),'previewable':True})
     with LIBRARY_LOCK:result.extend(library_assets.public_items(LIBRARY_ROOT))
+    from studio_v05_asset_sources import listing as v05_sources_listing
+    result.extend(v05_sources_listing(V05_SOURCE_ROOT,V05_INBOX_ROOT)['items'])
     for entry in result:
         source=character_source(entry)
         if source is None:continue
@@ -235,6 +239,150 @@ class Handler(BaseHTTPRequestHandler):
         msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
         self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
     def do_GET(self):
+        if urlsplit(self.path).path == '/api/studio/v05/scene/instances':
+            from studio_v05_scene_instances import read as instance_read, SceneInstancesError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                result=instance_read(DATA/'studio_v05_scene_instances', DATA/'studio_v05_scene_models',
+                                     DATA/'studio_v05_catalog.json',project_id,unified_assets())
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (SceneInstancesError,ValueError,OSError) as exc:
+                self.bad(409 if 'reconcile' in str(exc).lower() else 422,str(exc))
+            return
+        if urlsplit(self.path).path == '/api/studio/v05/scene/multi-motion-plan':
+            from studio_v05_multi_motion import plan, MultiMotionError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                result=plan(DATA/'studio_v05_arrangements',DATA/'studio_v05_scene_instances',
+                            DATA/'studio_v05_scene_models',DATA/'studio_v05_catalog.json',project_id,unified_assets())
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (MultiMotionError,ValueError,OSError) as exc:self.bad(422,str(exc))
+            return
+        if urlsplit(self.path).path == '/api/studio/v05/scene/motion-plan':
+            from studio_v05_motion_plan import plan
+            from studio_v05_arrangement import ArrangementError
+            from studio_v05_scene_model import SceneModelError
+            try:
+                project_id = parse_qs(urlsplit(self.path).query).get('id', [''])[0]
+                result = plan(DATA/'studio_v05_scene_models', DATA/'studio_v05_arrangements',
+                              DATA/'studio_v05_catalog.json', project_id, unified_assets())
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except (ArrangementError, SceneModelError, ValueError, OSError) as exc:
+                self.bad(422, str(exc))
+            return
+        if urlsplit(self.path).path in ('/api/studio/v05/scene/model','/api/studio/v05/scene/model-candidates'):
+            from studio_v05_scene_model import read as scene_read, choices, SceneModelError
+            try:
+                inventory=unified_assets()
+                if urlsplit(self.path).path.endswith('/model-candidates'):
+                    result=choices(inventory)
+                else:
+                    project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                    result=scene_read(DATA/'studio_v05_scene_models', DATA/'studio_v05_catalog.json', project_id,inventory)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (SceneModelError,ValueError,OSError) as exc:self.bad(422,str(exc))
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/asset-sources':
+            from studio_v05_asset_sources import listing, AssetSourceError
+            try:
+                result=listing(V05_SOURCE_ROOT,V05_INBOX_ROOT)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (AssetSourceError,ValueError,OSError) as exc:self.bad(422,str(exc))
+            return
+        if urlsplit(self.path).path.startswith('/api/studio/v05/asset-source/file/'):
+            from studio_v05_asset_sources import file_for
+            from urllib.parse import unquote
+            asset_id=unquote(urlsplit(self.path).path.split('/file/',1)[1])
+            found=file_for(V05_SOURCE_ROOT,V05_INBOX_ROOT,asset_id)
+            if not found:return self.bad(404,'Reference file unavailable or has changed')
+            self.send_library_file(*found)
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/assets/capabilities':
+            from studio_v05_asset_categories import capabilities
+            self.send(200,json.dumps(capabilities(),ensure_ascii=False).encode());return
+        if urlsplit(self.path).path=='/api/studio/v05/assets':
+            from studio_v05_arrangement import inventory, ArrangementError
+            q=parse_qs(urlsplit(self.path).query)
+            try:self.send(200,json.dumps(inventory(unified_assets(),q.get('category',['all'])[0],q.get('query',[''])[0]),ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(400,str(exc))
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/playhead':
+            from studio_v05_playhead import read, PlayheadError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                self.send(200,json.dumps(read(DATA/'studio_v05_playheads',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
+            except (PlayheadError,ValueError,KeyError,OSError):self.bad(422,'Cannot read playhead')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/timeline/layout':
+            from studio_v05_track_layout import get
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                self.send(200,json.dumps(get(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
+            except (ValueError,KeyError,OSError):self.bad(422,'Cannot read track layout')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/timeline/view':
+            from studio_v05_arrangement import timeline_view, ArrangementError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                self.send(200,json.dumps(timeline_view(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
+            except (ArrangementError,ValueError,KeyError,OSError):self.bad(422,'Cannot read project timeline')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/arrangement':
+            from studio_v05_arrangement import read, ArrangementError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                self.send(200,json.dumps(read(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
+            except (ArrangementError,ValueError,KeyError,OSError):self.bad(422,'Cannot read project arrangement')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/focus-reports':
+            from studio_v05_focus_reports import read, FocusReportError
+            try:
+                pid=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                self.send(200,json.dumps(read(DATA/'studio_v05_focus_reports',DATA/'studio_v05_catalog.json',pid),ensure_ascii=False).encode())
+            except (FocusReportError,ValueError,KeyError,OSError) as exc:self.bad(422,str(exc))
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/focus-target':
+            from studio_v05_focus_target import read, FocusTargetError
+            try:
+                pid=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                self.send(200,json.dumps(read(DATA/'studio_v05_focus_targets',DATA/'studio_v05_catalog.json',pid),ensure_ascii=False).encode())
+            except (FocusTargetError,ValueError,KeyError,OSError) as exc:self.bad(422,str(exc))
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/project/fps':
+            from studio_project_catalog import list_projects, CatalogError
+            try:
+                pid=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                catalog=list_projects(DATA/'studio_v05_catalog.json')
+                item=next((v for v in catalog['projects'] if v['id']==pid),None)
+                if item is None:raise CatalogError('Project not found')
+                self.send(200,json.dumps({'project_id':pid,'fps':item.get('fps'),'configured':'fps' in item}).encode())
+            except (CatalogError,ValueError,OSError) as exc:self.bad(422,str(exc))
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/projects':
+            from studio_project_catalog import list_projects, CatalogError
+            try:self.send(200,json.dumps(list_projects(DATA/'studio_v05_catalog.json'),ensure_ascii=False).encode())
+            except (ValueError,OSError):self.bad(422,'プロジェクト一覧を読めません。元ファイルは保護されます。')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/project/activation-preview':
+            from studio_project_activation import preview, ActivationConflict
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                with PROJECT_LOCK: result=preview(DATA/'studio_v05_snapshots',DATA/'studio_v05_catalog.json',project_id,PROJECT,DATA/'camera_project.json')
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except FileNotFoundError:return self.bad(404,'保存済み作品がありません')
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
+            except (ValueError,TypeError,KeyError,OSError):return self.bad(422,'復元プレビューを作成できません')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/project/snapshot':
+            from studio_project_snapshots import read
+            from studio_project_catalog import CatalogError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                payload=read(DATA/'studio_v05_snapshots',DATA/'studio_v05_catalog.json',project_id)
+                self.send(200,json.dumps(payload,ensure_ascii=False).encode())
+            except FileNotFoundError:return self.bad(404,'保存済みスナップショットがありません')
+            except (CatalogError,ValueError,KeyError,OSError):return self.bad(422,'スナップショットの読み込みに失敗しました')
+            return
         path=urlsplit(self.path).path
         if path in ("/camera.html", "/camera.css", "/camera.js", "/camera_3d.js", "/camera_vmd_local.js", "/camera_rig.js", "/camera_follow_config.js", "/camera_follow_smoothing.js", "/camera_framing.js", "/camera_lens.js", "/camera_dof.js", "/camera_focus_tracking.js", "/camera_focus_consistency.js", "/camera_bundle_core.js", "/camera_project_bundle_ui.js", "/camera_sequence_playback.js"):
             file=BASE/path[1:];self.send(200,file.read_bytes(),"text/css" if path.endswith(".css") else "text/javascript" if path.endswith(".js") else "text/html; charset=utf-8");return
@@ -472,6 +620,268 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path == '/api/studio/v05/scene/motion-target':
+            from studio_v05_multi_motion import assign, MultiMotionError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','clip_id','revision','instance_id'}:
+                    return self.bad(400,'Invalid motion target fields')
+                result=assign(DATA/'studio_v05_arrangements',DATA/'studio_v05_scene_instances',
+                    DATA/'studio_v05_scene_models',DATA/'studio_v05_catalog.json',
+                    body['project_id'],body['clip_id'],body['revision'],body['instance_id'],
+                    unified_assets(),layout_root=DATA/'studio_v05_track_layouts')
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except MultiMotionError as exc:
+                self.bad(409 if 'conflict' in str(exc).lower() or 'locked' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'Motion binding write failed')
+            return
+        if urlsplit(self.path).path == '/api/studio/v05/scene/instances':
+            from studio_v05_scene_instances import mutate, SceneInstancesError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0 < length <= 8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                allowed={'project_id','action','revision','instance_id','asset_id',
+                         'transform','visible','locked'}
+                if not isinstance(body,dict) or not {'project_id','action','revision'} <= set(body) or set(body)-allowed:
+                    return self.bad(400,'Invalid scene instances fields')
+                result=mutate(DATA/'studio_v05_scene_instances',DATA/'studio_v05_scene_models',
+                              DATA/'studio_v05_catalog.json',assets=unified_assets(),**body)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (SceneInstancesError,ValueError,TypeError,KeyError) as exc:
+                self.bad(409 if ('conflict' in str(exc).lower() or 'locked' in str(exc).lower()
+                                 or 'reconcile' in str(exc).lower()) else 422,str(exc))
+            except OSError:self.bad(500,'Scene instances write failed; original retained')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/scene/model':
+            from studio_v05_scene_model import set_model,SceneModelError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','asset_id','transform','revision'}:
+                    return self.bad(400,'Invalid scene model fields')
+                result=set_model(DATA/'studio_v05_scene_models',DATA/'studio_v05_catalog.json',
+                                 items=unified_assets(),**body)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (SceneModelError,TypeError,ValueError,KeyError) as exc:
+                self.bad(409 if 'conflict' in str(exc).lower() else 422,str(exc))
+            except OSError:self.bad(500,'Scene model write failed; original retained')
+            return
+        if urlsplit(self.path).path in ('/api/studio/v05/asset-sources/register',
+                                       '/api/studio/v05/asset-sources/relink'):
+            from studio_v05_asset_sources import register,relink,AssetSourceError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict):return self.bad(400,'Invalid payload')
+                if urlsplit(self.path).path.endswith('/register'):
+                    if set(body)!={'relative_path','kind','mode','revision'}:
+                        return self.bad(400,'Invalid source fields')
+                    result=register(V05_SOURCE_ROOT,V05_INBOX_ROOT,LIBRARY_ROOT,**body)
+                else:
+                    if set(body)!={'asset_id','relative_path','revision'}:
+                        return self.bad(400,'Invalid relink fields')
+                    result=relink(V05_SOURCE_ROOT,V05_INBOX_ROOT,**body)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (AssetSourceError,ValueError,TypeError,KeyError) as exc:
+                self.bad(409 if 'conflict' in str(exc).lower() else 422,str(exc))
+            except OSError:self.bad(500,'Asset source operation failed; original files preserved')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/playhead':
+            from studio_v05_playhead import update, PlayheadError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=4096:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','seconds','revision'}:return self.bad(400,'Invalid fields')
+                result=update(DATA/'studio_v05_playheads',DATA/'studio_v05_catalog.json',**body)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (PlayheadError,ValueError,TypeError,KeyError) as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except OSError:self.bad(500,'Write failed')
+            return
+        if urlsplit(self.path).path in ('/api/studio/v05/arrangement/batch-move','/api/studio/v05/arrangement/undo','/api/studio/v05/timeline/flags'):
+            path=urlsplit(self.path).path
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=32768:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict):return self.bad(400,'Invalid payload')
+                if path.endswith('/batch-move'):
+                    from studio_v05_arrangement import batch_move
+                    if set(body)!={'project_id','revision','edits'}:return self.bad(400,'Invalid fields')
+                    result=batch_move(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',layout_root=DATA/'studio_v05_track_layouts',**body)
+                elif path.endswith('/undo'):
+                    from studio_v05_arrangement import undo_batch
+                    if set(body)!={'project_id','revision'}:return self.bad(400,'Invalid fields')
+                    result=undo_batch(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',**body)
+                else:
+                    from studio_v05_track_layout import set_flags
+                    if set(body)!={'project_id','revision','locked','muted'}:return self.bad(400,'Invalid fields')
+                    result=set_flags(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',**body)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (ValueError,KeyError,TypeError) as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except OSError:self.bad(500,'Write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/timeline/layout':
+            from studio_v05_track_layout import update, ArrangementError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','revision','order','heights'}:return self.bad(400,'Invalid track layout request')
+                result=update(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',body['project_id'],body['revision'],body['order'],body['heights'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid track layout')
+            except OSError:self.bad(500,'Track layout write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/target':
+            from studio_v05_arrangement import set_clip_target, ArrangementError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','clip_id','revision','target_model_id'}:return self.bad(400,'Invalid target request')
+                result=set_clip_target(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['clip_id'],body['revision'],body['target_model_id'],unified_assets(),layout_root=DATA/'studio_v05_track_layouts')
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid target binding')
+            except OSError:self.bad(500,'Target binding write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/edit':
+            from studio_v05_arrangement import edit_clip, ArrangementError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict):return self.bad(400,'Invalid clip edit')
+                base={'project_id','clip_id','revision','action'}
+                expected=base|({'start','duration','track'} if body.get('action')=='update' else set())
+                if set(body)!=expected:return self.bad(400,'Invalid clip edit fields')
+                args={k:body[k] for k in ('start','duration','track') if k in body}
+                result=edit_clip(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['clip_id'],body['revision'],body['action'],layout_root=DATA/'studio_v05_track_layouts',**args)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid clip edit')
+            except OSError:self.bad(500,'Clip update failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/arrangement/place':
+            from studio_v05_arrangement import place, ArrangementError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','asset_id','track','start','duration','revision'}:return self.bad(400,'Invalid arrangement request')
+                result=place(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['asset_id'],body['track'],body['start'],body['duration'],body['revision'],unified_assets(),layout_root=DATA/'studio_v05_track_layouts')
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid clip data')
+            except OSError:self.bad(500,'Arrangement write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/project/activate':
+            from studio_project_activation import activate, ActivationConflict
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                request=json.loads(self.rfile.read(length))
+                if not isinstance(request,dict) or set(request)!={'id','expected_revision','confirm'} or request['confirm'] is not True:
+                    return self.bad(400,'Explicit confirmation and revision required')
+                with PROJECT_LOCK:
+                    result=activate(DATA/'studio_v05_snapshots',DATA/'studio_v05_catalog.json',request['id'],PROJECT,DATA/'camera_project.json',DATA/'studio_v05_activation_backups',request['expected_revision'])
+                sync_bump();self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ActivationConflict:return self.bad(409,'現在の作品が変更されました。再確認してください')
+            except FileNotFoundError:return self.bad(404,'保存済み作品がありません')
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
+            except (ValueError,TypeError,KeyError):return self.bad(400,'復元要求が不正です')
+            except OSError:return self.bad(500,'復元中にファイル操作が失敗しました。バックアップを確認してください')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/project/snapshot':
+            from studio_project_snapshots import save
+            from studio_project_catalog import CatalogError
+            from project_state_bundle import read_bundle
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                request=json.loads(self.rfile.read(length))
+                if not isinstance(request,dict) or set(request)!={'id'}:return self.bad(400,'Expected project ID')
+                with PROJECT_LOCK:
+                    bundle=read_bundle(PROJECT,DATA/'camera_project.json',strict=True)
+                    bundle={k:v for k,v in bundle.items() if k in ('schema','combination','camera','workspace') and (k!='workspace' or v is not None)}
+                    result=save(DATA/'studio_v05_snapshots',DATA/'studio_v05_catalog.json',request['id'],bundle)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
+            except (CatalogError,ValueError,TypeError,KeyError):return self.bad(400,'Invalid project snapshot request')
+            except OSError:return self.bad(500,'Snapshot save failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/diagnostic':
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=4096:return self.bad(413,'Diagnostic payload too large')
+                payload=json.loads(self.rfile.read(length))
+                if not isinstance(payload,dict) or payload.get('category')!='camera' or not isinstance(payload.get('code'),str) or not re.fullmatch(r'[a-z][a-z0-9_]{0,63}',payload['code']):raise ValueError('Invalid diagnostic')
+                event('v05_camera_diagnostic',level=payload.get('level') if payload.get('level') in ('info','warning','error') else 'info',code=payload['code'],project_id=payload.get('projectId'),frame=payload.get('frame'))
+                self.send(200,b'{"logged":true}')
+            except (ValueError,TypeError):self.bad(400,'Invalid camera diagnostic')
+            except OSError:self.bad(500,'Diagnostic log write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/focus-reports':
+            from studio_v05_focus_reports import save, FocusReportError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=262144:return self.bad(413,'Request too large')
+                data=json.loads(self.rfile.read(length))
+                result=save(DATA/'studio_v05_focus_reports',DATA/'studio_v05_catalog.json',data.get('project_id'),data.get('revision'),data.get('report'))
+                event('v05_focus_report_saved',project_id=result['project_id'],revision=result['revision'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (FocusReportError,ValueError,TypeError,KeyError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'Focus report write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/focus-target':
+            from studio_v05_focus_target import save, FocusTargetError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                data=json.loads(self.rfile.read(length))
+                if not isinstance(data,dict):raise FocusTargetError('Expected object')
+                result=save(DATA/'studio_v05_focus_targets',DATA/'studio_v05_catalog.json',data.get('project_id'),data.get('revision'),data.get('model_id'),data.get('bone_name'),data.get('enabled',False))
+                event('v05_focus_target_saved',project_id=result['project_id'],enabled=result['enabled'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (FocusTargetError,ValueError,TypeError,KeyError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'Focus target save failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/project/fps':
+            from studio_project_catalog import set_fps, CatalogError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                payload=json.loads(self.rfile.read(length))
+                if not isinstance(payload,dict):raise CatalogError('Expected JSON object')
+                item=set_fps(DATA/'studio_v05_catalog.json',payload.get('project_id'),payload.get('fps'))
+                event('v05_project_fps_set',project_id=item['id'],fps=item['fps'])
+                self.send(200,json.dumps({'project':item},ensure_ascii=False).encode())
+            except (CatalogError,TypeError,ValueError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'Failed to save project FPS')
+            return
+        if urlsplit(self.path).path in ('/api/studio/v05/projects','/api/studio/v05/projects/rename'):
+            from studio_project_catalog import create, rename, CatalogError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                data=json.loads(self.rfile.read(length))
+                if not isinstance(data,dict):raise CatalogError('Expected JSON object')
+                catalog=DATA/'studio_v05_catalog.json'
+                if urlsplit(self.path).path.endswith('/rename'):
+                    item=rename(catalog,data.get('id'),data.get('name'))
+                else:item=create(catalog,data.get('name'),data.get('kind','empty'))
+                self.send(200,json.dumps({'project':item},ensure_ascii=False).encode())
+            except (CatalogError,ValueError,TypeError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'Failed to save project catalog')
+            return
         if urlsplit(self.path).path=='/api/music-dance/project':
             try:
                 length=int(self.headers.get('Content-Length','0'))

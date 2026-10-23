@@ -380,6 +380,17 @@ export const musicDanceStudio = (ctx) => {
   sourceFrame.addEventListener('change', () => { const [, field] = trackFields(); changeTrack(field, Number(sourceFrame.value)); });
   save.addEventListener('click', () => { void savePlacement(); });
   reload.addEventListener('click', () => { void loadPlacement(); });
+  // v0.5 integration: accept validated seeks from the embedded studio workspace.
+  // This connects to the REAL loaded preview's seek()/poseAt() rather than a mock runtime.
+  const onV05Seek = (event) => {
+    if (!alive || event.origin !== window.location.origin || event.source !== window.parent) return;
+    const payload = event.data;
+    if (!payload || payload.type !== 'bai:v05:seek' || !Number.isFinite(payload.seconds) || payload.seconds < 0 || payload.seconds > 7200) return;
+    seek(payload.seconds * FPS);
+    window.parent.postMessage({ type: 'bai:v05:seek-ack', requestId: payload.requestId, seconds: frame / FPS, ready: Boolean(preview), modelLoaded: Boolean(actor) }, event.origin);
+  };
+  window.addEventListener('message', onV05Seek);
+  ctx.onCleanup(() => window.removeEventListener('message', onV05Seek));
   ctx.onCleanup(assets.subscribe(() => refreshOptions()));
   ctx.onCleanup(() => {
     alive = false; loadGeneration++; audioGeneration++; audioAbort?.abort(); pausePlayback();

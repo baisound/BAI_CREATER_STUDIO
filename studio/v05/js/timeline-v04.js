@@ -1,0 +1,49 @@
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const state={zoom:1,rowHeight:34,selected:null,editing:null,history:[],dragging:null,seek:10};
+const types={scene:'#62798c',video:'#437da8',camera:'#ba923e',motion:'#408b72',face:'#aa6c9e',lip:'#b56e86',effect:'#855eb5',light:'#b2a356',audio:'#4677ae'};
+function copy(){return JSON.parse(JSON.stringify(model.tracks))}
+function snapshot(){state.history.push(copy());if(state.history.length>40)state.history.shift()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]))}
+function seconds(t){return Math.max(0,Number(t)||0)}
+function setup(t){if(t.startSec===undefined)t.startSec=(t.start||0)*.4;if(t.durationSec===undefined)t.durationSec=Math.max(.1,(t.width||35)*.4)}
+function duration(){return 40/state.zoom}
+function fmt(t){let n=Math.max(0,Math.round(t));return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
+function publishSeek(source){
+  const detail={seconds:state.seek,source,tracks:model.tracks.filter(t=>{setup(t);return t.startSec<=state.seek&&state.seek<t.startSec+t.durationSec}).map(t=>({id:t.id,type:t.type,clip:t.clip,offsetSeconds:Math.max(0,state.seek-t.startSec)}))};
+  window.dispatchEvent(new CustomEvent('bai:timeline-seek',{detail}));
+}
+function setSeek(secondsValue,source='user'){
+  if(typeof secondsValue!=='number'||!Number.isFinite(secondsValue)||secondsValue<0)throw new TypeError('Invalid seek time');
+  state.seek=Math.min(86400,secondsValue);draw();publishSeek(source);return state.seek;
+}
+window.BAIStudioTimeline={seek:setSeek,getTime:()=>state.seek,getActiveClips:()=>model.tracks.filter(t=>{setup(t);return t.startSec<=state.seek&&state.seek<t.startSec+t.durationSec}).map(t=>({id:t.id,type:t.type,clip:t.clip,offsetSeconds:state.seek-t.startSec}))};
+function choose(id){state.selected=id;draw()}
+function draw(){const visible=model.workspace==='motion'?['scene','motion','face','lip','audio']:model.workspace==='camera'?['scene','video','camera','effect','light','audio']:null;
+ const scroll=$('#tlBody').scrollTop;$('#tracks').innerHTML=model.tracks.filter(t=>!visible||visible.includes(t.type)).map(t=>{setup(t);let left=t.startSec/duration()*100,wide=t.durationSec/duration()*100;return `<div class="track ${t.id===state.selected?'track-selected':''}" data-row="${esc(t.id)}"><div class="tracklabel" data-track="${esc(t.id)}" tabindex="0" role="button" aria-label="${esc(t.name)} を選択。ダブルクリックで編集"><span class="draggrip" draggable="true" title="上下にドラッグして順序変更">⠿</span><span class="trackname" title="${esc(t.name)}">${esc(t.name)}</span><span class="track-controls"><button type="button" class="small mute-track" title="トラックの表示切替">${t.muted?'○':'◉'}</button><button type="button" class="small trackedit" title="トラック内容を編集">✎</button></span></div><div class="tracklane" data-lane="${esc(t.id)}" style="--playhead:${state.seek/duration()*100}%"><div class="clip" tabindex="0" draggable="false" title="${esc(t.clip)}（ダブルクリックで編集）" data-clip="${esc(t.id)}" style="left:${left}%;width:${wide}%;background:${esc(t.color)};${left>=100?'display:none':''}">${esc(t.clip)}</div><div class="playhead"></div></div></div>`}).join('');
+ $('#timelineTicks').innerHTML=Array.from({length:9},(_,i)=>`<span>${fmt(duration()*i/8)}</span>`).join('');$('#zoomPercent').textContent=Math.round(state.zoom*100)+'%';$('.timeline').style.setProperty('--track-h',state.rowHeight+'px');$('#tlBody').scrollTop=scroll;
+ $$('.tracklabel').forEach(el=>{let id=el.dataset.track;el.onclick=e=>{if(e.target.closest('button')||e.target.closest('.draggrip'))return;choose(id)};el.ondblclick=e=>{if(e.target.closest('.draggrip'))return;open(id)};el.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();open(id)}else if(e.altKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')){e.preventDefault();reorder(id,e.key==='ArrowUp'?-1:1)}};el.querySelector('.trackedit').onclick=e=>{e.stopPropagation();open(id)};el.querySelector('.mute-track').onclick=e=>{e.stopPropagation();snapshot();let t=model.tracks.find(x=>x.id===id);t.muted=!t.muted;draw()};let grip=el.querySelector('.draggrip');grip.ondragstart=e=>{state.dragging=id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('application/x-bai-track',id)};grip.ondragend=()=>{state.dragging=null;$$('.drag-over').forEach(e=>e.classList.remove('drag-over'))}});
+ $$('.track').forEach(el=>{el.ondragover=e=>{if(!state.dragging)return;e.preventDefault();el.classList.add('drag-over')};el.ondragleave=()=>el.classList.remove('drag-over');el.ondrop=e=>{if(!state.dragging)return;e.preventDefault();el.classList.remove('drag-over');reorderTo(state.dragging,el.dataset.row);state.dragging=null}});
+ $$('.tracklane').forEach(lane=>{lane.ondragover=e=>{if(e.dataTransfer.types.includes('text/plain'))e.preventDefault()};lane.ondrop=e=>{if(state.dragging)return;e.preventDefault();let raw=e.dataTransfer.getData('text/plain');try{let a=JSON.parse(raw);let target=model.tracks.find(t=>t.id===lane.dataset.lane);if(!target)return;if(a.type!==target.type){toast('素材の種類とトラックが異なります。新しいトラックに追加してください');return}snapshot();target.clip=a.name;let rect=lane.getBoundingClientRect();target.startSec=seconds((e.clientX-rect.left)/rect.width*duration());target.durationSec=Math.min(12,Math.max(.1,duration()-target.startSec));draw()}catch{}};
+ lane.onclick=e=>{if(e.target.closest('.clip'))return;let rect=lane.getBoundingClientRect();setSeek(Math.min(duration(),seconds((e.clientX-rect.left)/rect.width*duration())),'ruler')}});
+ $$('.clip').forEach(el=>{el.onclick=e=>{e.stopPropagation();choose(el.dataset.clip)};el.ondblclick=e=>{e.stopPropagation();open(el.dataset.clip)} });
+}
+function reorderTo(id,target){if(id===target)return;let a=model.tracks.findIndex(t=>t.id===id),b=model.tracks.findIndex(t=>t.id===target);if(a<0||b<0)return;snapshot();model.tracks.splice(b,0,model.tracks.splice(a,1)[0]);state.selected=id;draw()}
+function reorder(id,dir){let i=model.tracks.findIndex(t=>t.id===id);let j=i+dir;if(j<0||j>=model.tracks.length)return;snapshot();[model.tracks[i],model.tracks[j]]=[model.tracks[j],model.tracks[i]];choose(id)}
+function open(id){state.editing=id;let creating=id===null;const t=creating?{name:'新しいトラック',type:'video',clip:'新しいクリップ',startSec:0,durationSec:10,color:types.video}:model.tracks.find(x=>x.id===id);if(!t)return;setup(t);$('#trackDialogTitle').textContent=creating?'新しいトラックを作成':'トラック・クリップを編集';$('#trackName').value=t.name;$('#trackType').value=t.type;$('#clipName').value=t.clip;$('#clipStart').value=t.startSec;$('#clipDuration').value=t.durationSec;$('#trackColor').value=t.color;$('#deleteTrack').hidden=creating;$('#trackError').textContent='';$('#trackDialog').classList.add('open');$('#trackDialog').setAttribute('aria-hidden','false');$('#trackName').focus()}
+function close(){ $('#trackDialog').classList.remove('open');$('#trackDialog').setAttribute('aria-hidden','true');$('#trackAdd').focus() }
+$('#trackForm').onsubmit=e=>{e.preventDefault();let name=$('#trackName').value.trim(),clip=$('#clipName').value.trim(),start=Number($('#clipStart').value),dur=Number($('#clipDuration').value);if(!name||!clip||!Number.isFinite(start)||start<0||!Number.isFinite(dur)||dur<=0){$('#trackError').textContent='名前、開始時間、長さを正しく入力してください。';return}snapshot();let t=state.editing===null?{id:'user-'+Date.now()+'-'+Math.floor(Math.random()*10000)}:model.tracks.find(x=>x.id===state.editing);if(!t)return;t.name=name;t.clip=clip;t.type=$('#trackType').value;t.color=$('#trackColor').value;t.startSec=start;t.durationSec=dur;if(state.editing===null)model.tracks.push(t);state.selected=t.id;close();draw();toast('トラックの変更を反映しました')};
+$('#trackType').onchange=e=>{$('#trackColor').value=types[e.target.value]||'#437da8'};
+$('#cancelTrack').onclick=close;$('#trackDialog').onmousedown=e=>{if(e.target.id==='trackDialog')close()};$('#deleteTrack').onclick=()=>{if(state.editing===null)return;let t=model.tracks.find(x=>x.id===state.editing);if(!t)return;if(!confirm('「'+t.name+'」を削除しますか？ この操作は元に戻せます。'))return;snapshot();model.tracks=model.tracks.filter(x=>x.id!==t.id);state.selected=null;close();draw()};
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#trackDialog').classList.contains('open')){e.stopPropagation();close()}});
+$('#trackAdd').onclick=()=>open(null);
+$('#sceneAdd').onclick=()=>{open(null);$('#trackType').value='scene';$('#trackName').value='新しいシーン';$('#clipName').value='シーン区間';$('#trackColor').value=types.scene};
+$('#zoomIn').onclick=()=>{state.zoom=Math.min(8,Math.round(state.zoom*125)/100);draw()};$('#zoomOut').onclick=()=>{state.zoom=Math.max(.25,Math.round(state.zoom*80)/100);draw()};$('#rowMore').onclick=()=>{state.rowHeight=Math.min(82,state.rowHeight+8);draw()};$('#rowLess').onclick=()=>{state.rowHeight=Math.max(24,state.rowHeight-8);draw()};$('#undoTrack').onclick=()=>{let h=state.history.pop();if(!h){toast('取り消せるトラック操作はありません');return}model.tracks=h;draw();toast('直前のトラック操作を元に戻しました')};
+// Preserve the asset drop model and original workspace switching, while replacing track drawing.
+renderTracks=draw;
+addClip=function(name,type){snapshot();let t={id:'user-'+Date.now()+'-'+Math.floor(Math.random()*10000),name,type:types[type]?type:'video',color:types[type]||types.video,clip:name,startSec:state.seek,durationSec:10};model.tracks.push(t);state.selected=t.id;draw();toast(name+' のトラックを追加しました')};
+// A double-click on empty timeline space creates a track at that time.
+$('#timelineTicks').ondblclick=e=>{let r=e.currentTarget.getBoundingClientRect();setSeek(Math.max(0,Math.min(duration(),(e.clientX-r.left)/r.width*duration())),'ruler-dblclick');open(null);$('#clipStart').value=Math.round(state.seek*10)/10};
+model.tracks.forEach(setup);draw();
+})();
