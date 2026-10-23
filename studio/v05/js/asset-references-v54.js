@@ -3,14 +3,16 @@
   'use strict';
   const host=document.getElementById('bai-library') || document.getElementById('assetPanel');
   if (!host) return;
-  const pane=document.createElement('section');
+  const pane=document.createElement('details');
   pane.id='v54-assets';
   pane.style.cssText='margin:10px 0;padding:12px;border:1px solid #5a6b82;border-radius:8px;background:#1c2b3d;color:#f2f5f8';
   const lang=localStorage.getItem('bai.ui.lang')==='en'?'en':'jp';
   let texts={};
   try {const r=await fetch('./locales/'+lang+'.json');if(r.ok)texts=(await r.json()).v54||{}} catch(_){}
   const t=(key)=>texts[key]||key;
-  const heading=document.createElement('h3');heading.textContent=t('title');
+  const heading=document.createElement('summary');
+  const summaryText=language=>language==='en'?'Advanced asset sources and relink':'高度な素材参照・再リンク';
+  heading.textContent=summaryText(lang);
   const help=document.createElement('p');help.textContent=t('hint');
   help.style.cssText='font-size:12px;line-height:1.5';
   const form=document.createElement('form');form.style.cssText='display:grid;gap:8px;max-width:560px';
@@ -26,7 +28,9 @@
   const add=b('register'),link=b('relink'),refresh=b('reload');form.append(bar);
   const status=document.createElement('p');status.role='status';status.setAttribute('aria-live','polite');status.textContent=t('statusReady');
   const listing=document.createElement('ul');listing.style.cssText='max-height:170px;overflow:auto;font-size:12px';
-  pane.append(heading,help,form,status,listing);host.prepend(pane);
+  pane.append(heading,help,form,status,listing);
+  const title=host.querySelector('.baiTitle');
+  if(title)title.after(pane);else host.prepend(pane);
   let revision=0,working=false;
   async function call(url,data){const result=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});let response=await result.json();if(!result.ok)throw Error(response.error||result.statusText);return response;}
   async function reload(){
@@ -53,7 +57,7 @@
       const res=await fetch('./locales/'+(e.target.value==='en'?'en':'jp')+'.json');
       if(!res.ok)return;
       texts=(await res.json()).v54||{};
-      heading.textContent=t('title');help.textContent=t('hint');
+      heading.textContent=summaryText(e.target.value);help.textContent=t('hint');
       const fieldKeys=['path','kind','mode','sourceId'];
       [...form.querySelectorAll(':scope > label')].forEach((el,i)=>{if(fieldKeys[i])el.firstChild.nodeValue=t(fieldKeys[i]);});
       [...mode.options].forEach(el=>{el.textContent=t(el.value);});

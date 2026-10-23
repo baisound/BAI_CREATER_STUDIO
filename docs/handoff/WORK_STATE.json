@@ -1,21 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-23T23:29:10+09:00",
+  "updated_at": "2026-10-24T00:20:04+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-minimum-workflow",
-  "head_at_update": "a74d1ae",
+  "branch": "codex/v05-asset-bridge",
+  "head_at_update": "c649a6e",
   "current": {
-    "task": "Issue #63: v0.5の最短制作経路とロードマップの優先順をOwner最新指定へ更新",
+    "task": "Issue #63: 承認済み固定診断パネルの撮影画面内への移動",
     "status": "done",
-    "step": "既存IDと未完了状態を照合し、素材登録から書き出しまでの順序を記録",
-    "design_doc": "docs/v05/PROGRESS_STAGE61_JA.md"
+    "step": "固定診断をカメラ・演出欄の折りたたみへ移し、素材選択をポインタで再検証",
+    "design_doc": "docs/v05/ASSET_LIBRARY_BRIDGE_20261023_JA.md"
   },
   "next_steps": [
-    "v0.5最短制作経路のロードマップPRをレビュー・mainへ統合する",
-    "Issue37の既存素材とv0.5素材管理の接続状態を監査し、最初の不足を実装する"
+    "Issue #63: 共通編集グリッドの左幅・タイムライン高さをドラッグ調整・保存・リセット可能にし、重複した簡易素材タブを整理する",
+    "Issue #39/#63: 実動作プレビューをフレーム指定と実再生・停止・前後移動に接続し、音声編集はAUDIO-001の範囲で実波形・同期試聴を優先する",
+    "同じ作品の音声・動画・モデル・動作をプレビューから出力まで接続する"
   ],
   "unverified": [
-    "このコミットは文書のみ。v0.5の登録→配置→書き出し通し操作、PMX顔、GLB→VMD、GPU、MCP/WebMCP、実素材の動作は未確認"
+    "PMX/VMD/FBX動作、実GPU、音声・動画の同時刻再生、最終出力、Linux/MCPは未検証または未接続",
+    "隔離Chrome4件成功、焦点診断Node2ファイル成功、typecheck成功、実データ5ファイル前後ハッシュ一致"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +34,55 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T00:20:04+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "c649a6e",
+      "text": "v0.5素材画面の診断欄・ヘッダー・参照カードの重なりをOwner承認どおり整理し、ポインタ操作と既存3D再表示を隔離Chrome4件で確認"
+    },
+    {
+      "at": "2026-10-24T00:08:32+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "ca92fa9",
+      "text": "Issue #63: 承認済み固定診断パネルの撮影画面内への移動: 固定診断をカメラ・演出欄の折りたたみへ移し、素材選択をポインタで再検証"
+    },
+    {
+      "at": "2026-10-24T00:04:44+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "f9c83cf",
+      "text": "登録済み小型GLBのv0.5作品保存・v22実描画・再読込を隔離Chromeで確認"
+    },
+    {
+      "at": "2026-10-24T00:01:32+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "bce33c1",
+      "text": "Issue #63: v0.5配置素材の既存3D実描画経路を隔離環境で検証: 登録GLBから作品配置・3D表示・保存再読込を実素材で追う"
+    },
+    {
+      "at": "2026-10-23T23:59:39+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "5f4af83",
+      "text": "v0.5素材接続の既存v22実描画経路を再確認し、未検証範囲の表現を訂正"
+    },
+    {
+      "at": "2026-10-23T23:49:17+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "aaacd63",
+      "text": "Issue37/63: v0.5素材画面を既存登録索引・追加登録・タイムライン選択へ接続し、隔離Chrome2件と型検査を確認"
+    },
+    {
+      "at": "2026-10-23T23:31:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0d55d75",
+      "text": "Issue #37/#63: 既存登録素材をv0.5で再利用する入口を監査・接続: 既存素材カタログとv0.5素材画面のAPI/ID経路を照合"
+    },
     {
       "at": "2026-10-23T23:29:10+09:00",
       "by": "codex",
@@ -192,55 +243,6 @@
       "event": "done",
       "head": "21597c7",
       "text": "P2-WP-06b: 現行camera.htmlの124 ID配置表・SCR02カメラホスト・常駐・隔離Chrome4件・27画面共通20件を完了。カメラ単独保存と旧画面の再読込互換を確認。"
-    },
-    {
-      "at": "2026-10-22T01:30:47+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ffd1f12",
-      "text": "AUDIO-001/SCR10: 登録済みGLB/VMD/FBXダンス候補、PMX+VMD評価、FBX人体骨プレビュー、SCR08導線、保存復元を実装。typecheck、隔離Chrome 2件、実PMX+実FBX/VMDの描画・保存再読込・原本hash検証に成功。Issue #39に追跡。"
-    },
-    {
-      "at": "2026-10-22T01:17:10+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3a1d40e",
-      "text": "Issue #39: SCR10で登録済みVMD/FBXダンスを選択・再生する: GLB/VMD/FBXの候補・読込・互換条件・保存復元を実装"
-    },
-    {
-      "at": "2026-10-22T01:11:11+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "06371ed",
-      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06b: 要素ID配置表とSCR02常駐カメラホスト"
-    },
-    {
-      "at": "2026-10-22T01:10:38+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "da53248",
-      "text": "P2-WP-06a後半: camera_3d.jsのmount化、旧カメラ契約・全画面テスト通過"
-    },
-    {
-      "at": "2026-10-22T00:57:31+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9565648",
-      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06a後半: camera_3d.jsを旧画面互換のmount APIにする"
-    },
-    {
-      "at": "2026-10-22T00:56:02+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "10e4744",
-      "text": "P2-WP-06aの1/2: camera.jsをroot基準の冪等mount APIへ移し、旧カメラのキー編集・Undo/Redo・保存再読込のmain比較が一致"
-    },
-    {
-      "at": "2026-10-22T00:48:49+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "84410e8",
-      "text": "Issue #50追補: SCR-10の踊るモデルにGLB/VRM/PMX/FBXを追加し、主要人体骨のGLBダンスプレビューを実装。実VRM/GLB/FBXの隔離Chrome動作、VRM保存再読込、原本hash不変、型検査と状態検査を確認"
     }
   ]
 }

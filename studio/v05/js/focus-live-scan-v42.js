@@ -37,10 +37,16 @@ export function installLiveFocusScanControls(win=window){
     const runner=win.BAIStudioFocusIntervalV41;
     if(!runner||!win.BAIStudioPersistedSeek)return false;
     const detach=connectLiveFocusScan({win,seekFrame:({seconds})=>win.BAIStudioPersistedSeek.evaluate(seconds,'focus-interval-v42')});
-    const panel=win.document.createElement('section');panel.id='v42-focus-scan';
-    panel.style.cssText='position:fixed;right:12px;bottom:12px;z-index:1000;background:#1e2835;color:#fff;padding:10px;border:1px solid #78889a;border-radius:8px;font:12px sans-serif;max-width:310px';
-    panel.innerHTML='<b>ピント区間診断（試験）</b><div style="margin:8px 0"><label>開始フレーム <input id="v42-start" type="number" min="0" value="0" style="width:65px"></label> <label>終了 <input id="v42-end" type="number" min="0" value="60" style="width:65px"></label></div><button id="v42-run">区間診断</button> <button id="v42-cancel">停止</button><div id="v42-status" role="status">実モデルの読み込みが必要です</div>';
-    win.document.body.append(panel);
+    const cameraTab=win.document.querySelector('#nav [data-workspace="camera"]');
+    const inspector=win.document.querySelector('.main .right');
+    if(!cameraTab||!inspector){detach();return false;}
+    const panel=win.document.createElement('details');panel.id='v42-focus-scan';
+    panel.innerHTML='<summary>ピント区間診断（試験）</summary><div class="controls"><div style="display:flex;gap:6px;flex-wrap:wrap"><label>開始フレーム <input id="v42-start" type="number" min="0" value="0" style="width:65px"></label> <label>終了 <input id="v42-end" type="number" min="0" value="60" style="width:65px"></label></div><div><button id="v42-run">区間診断</button> <button id="v42-cancel">停止</button></div><div id="v42-status" role="status">実モデルの読み込みが必要です</div></div>';
+    inspector.append(panel);
+    const updateVisibility=()=>{panel.hidden=!cameraTab.classList.contains('on');};
+    const observer=new MutationObserver(updateVisibility);
+    observer.observe(cameraTab,{attributes:true,attributeFilter:['class']});
+    updateVisibility();
     const status=panel.querySelector('#v42-status');
     panel.querySelector('#v42-run').onclick=async()=>{
       const projectId=win.BAIStudioPersistedSeek.status().projectId;
@@ -62,7 +68,7 @@ export function installLiveFocusScanControls(win=window){
       }catch(e){status.textContent='保存できません: '+String(e.message||e);}
     };
     panel.querySelector('#v42-cancel').onclick=()=>{runner.cancel();status.textContent='停止しました';};
-    win.addEventListener('pagehide',()=>{detach();panel.remove();},{once:true});return true;
+    win.addEventListener('pagehide',()=>{observer.disconnect();detach();panel.remove();},{once:true});return true;
   };
   if(win.document.readyState==='loading')win.document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
 }
