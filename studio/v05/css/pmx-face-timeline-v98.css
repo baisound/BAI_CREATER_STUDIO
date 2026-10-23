@@ -1,0 +1,7 @@
+#v07timeline .v98-face-marker{position:absolute;z-index:3;min-width:100px;max-width:160px;height:20px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;padding:1px 4px;
+  border:1px solid #e7b4d8;border-radius:4px;background:#75476f;color:#fff;
+  font-size:10px;touch-action:none;cursor:grab}
+#v07timeline [data-track="lip"] .v98-face-marker{background:#7c4f55;border-color:#edc1b3}
+#v07timeline .v98-face-marker.v98-face-locked{cursor:default;opacity:.65}
+#v07timeline .v98-face-marker:focus-visible{outline:3px solid #ffd36b}

@@ -68,6 +68,7 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
     await page.locator('#v96-face-save').click();
     await page.waitForFunction(() => document.querySelector('#v96-face-saved')?.options.length === 2);
     await page.locator('#v96-face-time').fill('4');
+    await page.locator('#v98-face-track').selectOption('lip');
     await page.locator('#v96-face-value').evaluate(el => {
       el.value = '1'; el.dispatchEvent(new Event('input', {bubbles:true}));
     });
@@ -107,13 +108,35 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
     const restored = await read(120);
     assert.equal(await page.evaluate(instanceId =>
       window.BAIStudioMultiScenePreview.morphProbe(instanceId).morphs['まばたき'],instanceId),1);
+    const lipMarker=page.locator('#v07timeline [data-track="lip"] .v98-face-marker');
+    const expressionMarker=page.locator('#v07timeline [data-track="expression"] .v98-face-marker');
+    await lipMarker.waitFor({state:'visible'});
+    assert.equal(await expressionMarker.count(),1);
+    assert.equal(await lipMarker.getAttribute('data-face-time'),'4');
+    await lipMarker.scrollIntoViewIfNeeded();
+    const markerBox=await lipMarker.boundingBox();
+    assert.ok(markerBox);
+    await page.mouse.move(markerBox.x+10,markerBox.y+10);
+    await page.mouse.down();
+    await page.mouse.move(markerBox.x+34,markerBox.y+10,{steps:5});
+    await page.mouse.up();
+    await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker[data-face-time="5"]'));
+    const movedFace=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+    assert.deepEqual(movedFace.face_keys.map(x=>[x.time,x.track]),[[0,'expression'],[5,'lip']]);
+    await page.locator('#v07timeline [data-track="lip"] .v98-face-marker').click();
+    await page.waitForFunction(() => document.querySelector('#v96-face-time')?.value==='5');
+    assert.equal(await page.locator('#v98-face-track').inputValue(),'lip');
+    const at150=await read(150);
+    assert.equal(await page.evaluate(instanceId =>
+      window.BAIStudioMultiScenePreview.morphProbe(instanceId).morphs['まばたき'],instanceId),1);
     assert.ok(poseDelta(at120.pose.bones[changed[0]],restored.pose.bones[changed[0]]) < 1e-4,
       '保存再読込後のF120姿勢が変わりました');
     console.log(JSON.stringify({model_sha256:original.model,motion_sha256:original.motion,changedBones:changed,
       morphNames:Object.keys(morphs.morphs).slice(0,60),morphCount:Object.keys(morphs.morphs).length,
       headDelta:poseDelta(at0.pose.bones[changed[0]],at120.pose.bones[changed[0]]),
       renderer:at0.frame.renderer,canvas:at0.frame.canvas,frame0:at0.frame.precise.size,frame120:at120.frame.precise.size,
-      faceKeyRevision:storedFace.revision,facePreviewPixels}));
+      faceKeyRevision:storedFace.revision,faceMoveRevision:movedFace.revision,
+      facePreviewPixels,faceAt150:at150.frame?.precise?.size}));
     harness.assertNoErrors(page);
   } finally {
     await page?.close(); await browser?.close(); await server.stop();

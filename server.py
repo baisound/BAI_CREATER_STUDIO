@@ -689,7 +689,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self.bad(400,'Invalid scene instances fields')
                 result=mutate(DATA/'studio_v05_scene_instances',DATA/'studio_v05_scene_models',
                               DATA/'studio_v05_catalog.json',assets=unified_assets(),
-                              morph_lookup=lambda entry: pmx_morph_names(character_source(entry)),**body)
+                              morph_lookup=lambda entry: pmx_morph_names(character_source(entry)),
+                              layout_root=DATA/'studio_v05_track_layouts',**body)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except (SceneInstancesError,ValueError,TypeError,KeyError) as exc:
                 self.bad(409 if ('conflict' in str(exc).lower() or 'locked' in str(exc).lower()

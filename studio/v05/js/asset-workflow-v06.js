@@ -115,10 +115,14 @@
   const el=$('v07timeline'),id=$('v06project').value;if(!id){el.replaceChildren();return}
   const previousLeft=el.scrollLeft,previousTop=el.scrollTop,previousScale=timelineRenderedScale,previousProject=timelineRenderedProject;
   try{
-   const d=await request('/api/studio/v05/timeline/view?id='+encodeURIComponent(id));lastClips=d.tracks.flatMap(t=>t.clips);
+   const [d,faceScene]=await Promise.all([
+     request('/api/studio/v05/timeline/view?id='+encodeURIComponent(id)),
+     request('/api/studio/v05/scene/instances?id='+encodeURIComponent(id)).catch(()=>null)
+   ]);lastClips=d.tracks.flatMap(t=>t.clips);
    await Promise.all(lastClips.filter(c=>timed(c)&&!c.source_duration).map(async c=>{try{c.source_duration=(await mediaInfo(c.asset_id)).duration_seconds}catch(error){c.media_error=error.message}}));
    if($('v06project').value!==id)return;
-   const scale=timelineZoom,duration=Math.max(30,Math.ceil(d.duration/10)*10),width=Math.ceil(duration*scale);
+   const faceEnd=Math.max(0,...(faceScene?.face_keys||[]).map(key=>key.time+1));
+   const scale=timelineZoom,duration=Math.max(30,Math.ceil(Math.max(d.duration,faceEnd)/10)*10),width=Math.ceil(duration*scale);
    el.replaceChildren();
    const header=document.createElement('div');header.style.cssText='background:#18283a;padding:6px';header.textContent='保存済みタイムライン — '+d.clip_count+'件（画像・動画・音声はプレビューへ部分接続）';el.append(header);
    const toolbar=document.createElement('div');toolbar.style.cssText='display:flex;gap:10px;align-items:center;flex-wrap:wrap';
@@ -191,6 +195,9 @@
    el.scrollLeft=previousProject===id?previousLeft/previousScale*scale:0;
    el.scrollTop=previousProject===id?previousTop:0;
    showTimelineHead(playheadSeconds);
+   window.dispatchEvent(new CustomEvent('bai:v98-timeline-drawn',{
+     detail:{projectId:id,scale,scene:faceScene,snapEnabled,snapSeconds,
+       lockedTracks:trackLayout?.locked||[]}}));
   }catch(e){el.textContent='タイムライン取得失敗: '+e.message}
  }
  async function search(){try{const d=await request('/api/studio/v05/assets?category='+encodeURIComponent($('v06cat').value)+'&query='+encodeURIComponent($('v06query').value));assets=d.items;selected=null;$('v06results').innerHTML=assets.map((a,i)=>`<button type="button" data-i="${i}" draggable="${a.available&&['image','video','audio','music'].includes(a.category)}" style="display:block;width:100%;text-align:left;cursor:${a.available&&['image','video','audio','music'].includes(a.category)?'grab':'pointer'}">${esc(a.name)} (${esc(a.category)}) ${a.available?'':'— 使用不可'}</button>`).join('')||'<p>該当する実素材はありません</p>';status(d.count+'件の登録素材。画像・動画・音声は下の対応する行へドラッグできます');}catch(e){status('素材取得不可: '+e.message)}}
@@ -211,6 +218,11 @@
    if(selected&&timed(selected)){try{$('v06duration').value=String((await mediaInfo(selected.id)).duration_seconds)}catch(error){status('元素材の長さを確認できません: '+error.message)}}
    status(selected?`タイムラインに配置する素材: ${selected.name}`:'選んだ素材は配置できません。登録状態を確認してください。');
  });
- window.BAIStudioV05Arrangement=Object.freeze({commitPreviewPlayhead:(projectId,seconds)=>$('v06project').value===projectId?setPlayhead(seconds):Promise.resolve(false)});
+ window.addEventListener('bai:v96-face-saved',event=>{if(event.detail?.projectId===$('v06project').value)void drawTimeline()});
+ window.addEventListener('bai:v57-scene-changed',event=>{if(event.detail?.projectId===$('v06project').value)void drawTimeline()});
+ window.BAIStudioV05Arrangement=Object.freeze({
+   commitPreviewPlayhead:(projectId,seconds)=>$('v06project').value===projectId?setPlayhead(seconds):Promise.resolve(false),
+   refreshTimeline:drawTimeline
+ });
  projects();search();
 })();

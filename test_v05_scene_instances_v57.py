@@ -12,6 +12,7 @@ from unittest.mock import patch
 from studio_project_catalog import create
 from studio_v05_scene_model import set_model, read as legacy_read
 from studio_v05_scene_instances import read, mutate, SceneInstancesError, LEGACY_ID
+from studio_v05_track_layout import set_flags
 
 class MultiSceneV57(unittest.TestCase):
     def setUp(self):
@@ -20,6 +21,7 @@ class MultiSceneV57(unittest.TestCase):
         self.catalog = self.data / 'studio_v05_catalog.json'
         self.legacy = self.data / 'studio_v05_scene_models'
         self.store = self.data / 'studio_v05_scene_instances'
+        self.layout = self.data / 'studio_v05_track_layouts'
         self.p = create(self.catalog,'Scene A')['id']
         self.other = create(self.catalog,'Scene B')['id']
         self.a = {'id':'integrated:model.glb','source':'integrated','kind':'model','format':'GLB',
@@ -94,8 +96,9 @@ class MultiSceneV57(unittest.TestCase):
                         morph_lookup=lambda source:{'まばたき'})
         saved=self.mutate(action='face-set',revision=1,face_key=key,
                           morph_lookup=lambda source:{'髙・あ'})
-        self.assertEqual(saved['face_keys'],[key])
-        self.assertEqual(read(self.store,self.legacy,self.catalog,self.p,self.assets)['face_keys'],[key])
+        expected=[{**key,'track':'expression'}]
+        self.assertEqual(saved['face_keys'],expected)
+        self.assertEqual(read(self.store,self.legacy,self.catalog,self.p,self.assets)['face_keys'],expected)
         before=(self.store/(self.p+'.json')).read_bytes()
         for invalid in ({**key,'value':1.1},{**key,'time':float('nan')},
                         {**key,'morph_name':''},{**key,'value':True}):
@@ -115,6 +118,51 @@ class MultiSceneV57(unittest.TestCase):
         saved=self.mutate(action='face-set',revision=3,face_key=key)
         gone=self.mutate(action='remove',revision=saved['revision'],instance_id=instance)
         self.assertEqual(gone['face_keys'],[])
+    def test_face_key_move_keeps_track_value_and_rejects_collision(self):
+        pmx={**self.a,'id':'mmd:A:face.pmx','source':'mmd','kind':'A',
+             'format':'PMX','filename':'face.pmx'}
+        self.assets.append(pmx)
+        added=self.mutate(action='add',revision=0,asset_id=pmx['id'],transform=self.tr)
+        instance=added['instances'][0]['id']
+        base={'instance_id':instance,'morph_name':'あ','value':0.8,'track':'lip'}
+        first=self.mutate(action='face-set',revision=1,face_key={**base,'time':0})
+        second=self.mutate(action='face-set',revision=2,face_key={**base,'time':2,'value':0})
+        moved=self.mutate(action='face-move',revision=3,
+                          face_key={'instance_id':instance,'morph_name':'あ','time':0,'to_time':1})
+        self.assertEqual([(x['time'],x['value'],x['track']) for x in moved['face_keys']],
+                         [(1,0.8,'lip'),(2,0.0,'lip')])
+        before=(self.store/(self.p+'.json')).read_bytes()
+        with self.assertRaisesRegex(SceneInstancesError,'destination'):
+            self.mutate(action='face-move',revision=4,
+                        face_key={'instance_id':instance,'morph_name':'あ','time':1,'to_time':2})
+        with self.assertRaises(SceneInstancesError):
+            self.mutate(action='face-move',revision=4,
+                        face_key={'instance_id':instance,'morph_name':'あ','time':1,'to_time':float('nan')})
+        self.assertEqual((self.store/(self.p+'.json')).read_bytes(),before)
+    def test_locked_face_track_rejects_edits_and_track_transfer(self):
+        pmx={**self.a,'id':'mmd:A:face.pmx','source':'mmd','kind':'A',
+             'format':'PMX','filename':'face.pmx'}
+        self.assets.append(pmx)
+        added=self.mutate(action='add',revision=0,asset_id=pmx['id'],transform=self.tr)
+        instance=added['instances'][0]['id']
+        key={'instance_id':instance,'morph_name':'あ','time':1,'value':0.8,'track':'lip'}
+        saved=self.mutate(action='face-set',revision=1,face_key=key,layout_root=self.layout)
+        set_flags(self.layout,self.catalog,self.p,0,['lip'],[])
+        before=(self.store/(self.p+'.json')).read_bytes()
+        with self.assertRaisesRegex(SceneInstancesError,'locked'):
+            self.mutate(action='face-move',revision=2,layout_root=self.layout,
+                        face_key={'instance_id':instance,'morph_name':'あ','time':1,'to_time':2})
+        with self.assertRaisesRegex(SceneInstancesError,'locked'):
+            self.mutate(action='face-remove',revision=2,layout_root=self.layout,
+                        face_key={'instance_id':instance,'morph_name':'あ','time':1})
+        with self.assertRaisesRegex(SceneInstancesError,'locked'):
+            self.mutate(action='face-set',revision=2,layout_root=self.layout,
+                        face_key={**key,'track':'expression'})
+        self.assertEqual((self.store/(self.p+'.json')).read_bytes(),before)
+        set_flags(self.layout,self.catalog,self.p,1,[],[])
+        moved=self.mutate(action='face-move',revision=2,layout_root=self.layout,
+                          face_key={'instance_id':instance,'morph_name':'あ','time':1,'to_time':2})
+        self.assertEqual(moved['face_keys'][0]['time'],2)
     def test_reject_invalid_and_preserve(self):
         r=self.mutate(action='add',revision=0,asset_id=self.a['id'],transform=self.tr)
         before=(self.store/(self.p+'.json')).read_bytes()

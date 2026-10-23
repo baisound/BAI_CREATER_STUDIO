@@ -59,7 +59,7 @@ async function main() {
     await page.waitForFunction(id => {
       const scene = window.BAIStudioMultiScenePreview?.status?.();
       return scene?.opened && scene.composite && scene.projectId === id && scene.loaded > 0;
-    }, config.projectId);
+    }, config.projectId, { timeout: 75000 });
     const check = async () => page.evaluate(async expected => {
       const encoded = encodeURIComponent(expected.projectId);
       const urls = [`/api/studio/v05/scene/instances?id=${encoded}`,

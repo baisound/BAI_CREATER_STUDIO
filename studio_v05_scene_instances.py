@@ -111,25 +111,35 @@ def _camera(value):
     return {"position": position, "target": target, "fov": round(float(fov), 6)}
 
 
+def _face_time(seconds):
+    if isinstance(seconds, bool) or not isinstance(seconds, (int, float)) or not math.isfinite(seconds) \
+            or not 0 <= seconds <= 86400 or round(seconds, 3) != seconds:
+        raise SceneInstancesError("Face key time must be 0–86400 seconds at millisecond precision")
+    return float(seconds)
+
+
 def _face_key(value, require_value):
     required = {"instance_id", "morph_name", "time"}
-    if not isinstance(value, dict) or set(value) != (required | ({"value"} if require_value else set())):
+    allowed = required | ({"value", "track"} if require_value else set())
+    if not isinstance(value, dict) or not required <= set(value) or set(value) - allowed \
+            or ("value" in value) != require_value:
         raise SceneInstancesError("Face key fields are invalid")
     instance_id, name, seconds = value["instance_id"], value["morph_name"], value["time"]
     if not isinstance(instance_id, str) or not 0 < len(instance_id) <= 100:
         raise SceneInstancesError("Face key instance is invalid")
     if not isinstance(name, str) or not 0 < len(name) <= 100 or any(ord(ch) < 32 for ch in name):
         raise SceneInstancesError("Face morph name is invalid")
-    if isinstance(seconds, bool) or not isinstance(seconds, (int, float)) or not math.isfinite(seconds) \
-            or not 0 <= seconds <= 86400 or round(seconds, 3) != seconds:
-        raise SceneInstancesError("Face key time must be 0–86400 seconds at millisecond precision")
-    result = {"instance_id": instance_id, "morph_name": name, "time": float(seconds)}
+    result = {"instance_id": instance_id, "morph_name": name, "time": _face_time(seconds)}
     if require_value:
         weight = value["value"]
         if isinstance(weight, bool) or not isinstance(weight, (int, float)) or not math.isfinite(weight) \
                 or not 0 <= weight <= 1:
             raise SceneInstancesError("Face morph value must be 0–1")
         result["value"] = float(weight)
+        if "track" in value:
+            if value["track"] not in ("expression", "lip"):
+                raise SceneInstancesError("Face key track must be expression or lip")
+            result["track"] = value["track"]
     return result
 
 def read(root, legacy_root, catalog, project_id, assets=None):
@@ -145,7 +155,8 @@ def read(root, legacy_root, catalog, project_id, assets=None):
         if data["legacy_revision"] != legacy["revision"]:
             raise SceneInstancesError("Legacy scene changed since multi-instance seed; reconcile before editing")
     result = {**data, "camera": data.get("camera"),
-              "face_keys": [dict(row) for row in data.get("face_keys", [])],
+              "face_keys": [{**row, "track": row.get("track", "expression")}
+                            for row in data.get("face_keys", [])],
               "instances": [dict(row) for row in data["instances"]]}
     if assets is not None:
         lookup = {row.get("id"): row for row in assets if isinstance(row, dict)}
@@ -158,21 +169,27 @@ def read(root, legacy_root, catalog, project_id, assets=None):
 
 def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
            instance_id=None, asset_id=None, transform=None, visible=None, locked=None,
-           camera=_UNSET, face_key=_UNSET, morph_lookup=None):
+           camera=_UNSET, face_key=_UNSET, morph_lookup=None, layout_root=None):
     if type(revision) is not int or revision < 0:
         raise SceneInstancesError("Revision required")
-    if action not in ("add", "update", "remove", "camera", "face-set", "face-remove"):
+    if action not in ("add", "update", "remove", "camera", "face-set", "face-remove", "face-move"):
         raise SceneInstancesError("Unknown scene instance action")
     with _LOCK:
         current = read(root, legacy_root, catalog, project_id)
         if current["revision"] != revision:
             raise SceneInstancesError("Revision conflict")
         rows = current["instances"]
-        if action in ("face-set", "face-remove"):
+        if action in ("face-set", "face-remove", "face-move"):
             if face_key is _UNSET or camera is not _UNSET or any(x is not None for x in
                 (instance_id, asset_id, transform, visible, locked)):
                 raise SceneInstancesError("Face action requires only face_key")
-            key = _face_key(face_key, require_value=action == "face-set")
+            if action == "face-move":
+                if not isinstance(face_key, dict) or set(face_key) != {"instance_id", "morph_name", "time", "to_time"}:
+                    raise SceneInstancesError("Face move fields are invalid")
+                to_time = _face_time(face_key["to_time"])
+                key = _face_key({k:face_key[k] for k in ("instance_id", "morph_name", "time")}, False)
+            else:
+                key = _face_key(face_key, require_value=action == "face-set")
             target = next((row for row in rows if row["id"] == key["instance_id"]), None)
             if not target:
                 raise SceneInstancesError("Face key scene instance not found")
@@ -192,14 +209,34 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
             identity = (key["instance_id"], key["morph_name"], key["time"])
             had_key = any((x["instance_id"], x["morph_name"], x["time"]) == identity
                           for x in current["face_keys"])
-            if action == "face-remove" and not had_key:
+            if action in ("face-remove", "face-move") and not had_key:
                 raise SceneInstancesError("Face key not found")
+            if action == "face-move" and to_time != key["time"] and any(
+                (x["instance_id"], x["morph_name"], x["time"]) ==
+                (key["instance_id"], key["morph_name"], to_time) for x in current["face_keys"]):
+                raise SceneInstancesError("Face key already exists at the destination time")
+            old = next((x for x in current["face_keys"] if
+                (x["instance_id"], x["morph_name"], x["time"]) == identity), None)
+            if layout_root is not None:
+                from studio_v05_track_layout import get as get_layout
+                locked_tracks = set(get_layout(layout_root, catalog, project_id).get("locked", []))
+                edited_tracks = ({key.get("track", old.get("track", "expression") if old else "expression")}
+                                 if action == "face-set" else {old.get("track", "expression")})
+                if old:
+                    edited_tracks.add(old.get("track", "expression"))
+                if edited_tracks & locked_tracks:
+                    raise SceneInstancesError("Face key track is locked")
             current["face_keys"] = [x for x in current["face_keys"] if
                 (x["instance_id"], x["morph_name"], x["time"]) != identity]
             if action == "face-set":
                 if len(current["face_keys"]) >= 1024:
                     raise SceneInstancesError("Face key limit is 1024")
+                if "track" not in key:
+                    key["track"] = old.get("track", "expression") if old else "expression"
                 current["face_keys"].append(key)
+                current["face_keys"].sort(key=lambda x: (x["instance_id"], x["morph_name"], x["time"]))
+            elif action == "face-move":
+                current["face_keys"].append({**old, "time": to_time})
                 current["face_keys"].sort(key=lambda x: (x["instance_id"], x["morph_name"], x["time"]))
         elif action == "camera":
             if face_key is not _UNSET:
