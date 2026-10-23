@@ -522,6 +522,12 @@ window.addEventListener('bai:v57-scene-changed',()=>{if(opened)reload();});
 window.addEventListener('bai:v98-face-moved',event=>{
   if(opened&&event.detail?.projectId===project?.value)void reload();
 });
+window.addEventListener('bai:v101-face-value',async event=>{
+  const id=event.detail?.projectId,time=event.detail?.time;
+  if(!opened||id!==project?.value)return;
+  await reload();
+  if(opened&&id===project?.value&&Number.isFinite(time))seekScene(time);
+});
 window.addEventListener('bai:v98-face-key-select',async event=>{
   const key=event.detail?.key,projectId=event.detail?.projectId;
   if(captureMode||!key||projectId!==project?.value)return;
