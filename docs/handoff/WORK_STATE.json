@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T00:20:04+09:00",
+  "updated_at": "2026-10-24T00:25:25+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-asset-bridge",
-  "head_at_update": "c649a6e",
+  "branch": "codex/v05-pane-layout",
+  "head_at_update": "647161e",
   "current": {
-    "task": "Issue #63: 承認済み固定診断パネルの撮影画面内への移動",
-    "status": "done",
-    "step": "固定診断をカメラ・演出欄の折りたたみへ移し、素材選択をポインタで再検証",
-    "design_doc": "docs/v05/ASSET_LIBRARY_BRIDGE_20261023_JA.md"
+    "task": "Issue #63: v0.5編集画面の共通パネルサイズ調整と重複タブ整理",
+    "status": "in_progress",
+    "step": "左欄とタイムラインの境界ドラッグ・保存・復元・リセットを共通グリッドへ実装し、簡易素材の重複入口を整理",
+    "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
     "Issue #63: 共通編集グリッドの左幅・タイムライン高さをドラッグ調整・保存・リセット可能にし、重複した簡易素材タブを整理する",
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T00:25:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "647161e",
+      "text": "Issue #63: v0.5編集画面の共通パネルサイズ調整と重複タブ整理: 左欄とタイムラインの境界ドラッグ・保存・復元・リセットを共通グリッドへ実装し、簡易素材の重複入口を整理"
+    },
     {
       "at": "2026-10-24T00:20:04+09:00",
       "by": "codex",
@@ -236,13 +243,6 @@
       "event": "start",
       "head": "6d35a94",
       "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06c: ②の統合保存・workspace所有とSCR02カメラホストの同期"
-    },
-    {
-      "at": "2026-10-22T02:00:40+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "21597c7",
-      "text": "P2-WP-06b: 現行camera.htmlの124 ID配置表・SCR02カメラホスト・常駐・隔離Chrome4件・27画面共通20件を完了。カメラ単独保存と旧画面の再読込互換を確認。"
     }
   ]
 }
