@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T02:31:24+09:00",
+  "updated_at": "2026-10-24T02:44:35+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-scene-preview",
-  "head_at_update": "e51ac98",
+  "head_at_update": "6c08f8e",
   "current": {
     "task": "Issue #39/#40/#50/#63/#69: v0.5作品別3Dシーンを同じ再生時刻でプレビューへ接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存scene/instances・multi-motionとv0.5メディアプレビューの境界を調べ、実3D見本を同じ作品IDと再生位置へ接続する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "PRをmainへ統合し8765サーバーの更新版を確認した後、3D/カメラ/字幕を含む共通出力経路の未完成部分へ進む"
+    "PRをmainへ統合し8765実画面を確認した後、実PMX/GLB動作の互換素材で実変形を確認し、3D・カメラの同一出力へ進む"
   ],
   "unverified": [
-    "長尺実利用者素材、全区間の音声同期1F以内、動画内音声/3D/カメラ/字幕合成、Linux/GPU/MCPは未接続または未検証"
+    "実PMX/VMD/GLBダンス変形、顔、3Dと2Dの画素合成、3D入りMP4、長尺音声同期1F以内、Linux/MCPは未接続または未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T02:44:35+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6c08f8e",
+      "text": "Issue #39/#40/#50/#63/#69: 保存済み3Dシーンと画像・音声プレビューの共通フレーム操作を別画面で部分接続、隔離Chrome回帰7/7"
+    },
     {
       "at": "2026-10-24T02:31:24+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "75f39a4",
       "text": "Issue #64: v0.5枝番61のソースをmainへPRで統合: PR #65の既存機能回帰と枝番試験を確認し、必要な試験修正後にマージ"
-    },
-    {
-      "at": "2026-10-22T05:55:23+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9ed5011",
-      "text": "PR59へPR57最新修正を統合。復元中のカメラ保存防止を検証。typecheck、P2 Node249件、Python386件と50 subtests、画面20件、E2E S8まで成功。Node全件355件は2回とも各342成功・11計画skip・2失敗で、Windows接続資源不足と後続の要素待機に起因。実data7ファイルhash不変。BlenderはFBX手順からVMDへの既存変換で動画出力ではない"
     }
   ]
 }

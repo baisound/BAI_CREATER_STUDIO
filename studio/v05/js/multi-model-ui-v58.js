@@ -39,6 +39,7 @@ const clipSelect=document.createElement('select');clipSelect.setAttribute('aria-
 const targetSelect=document.createElement('select');targetSelect.setAttribute('aria-label','適用するモデル');
 const assignBtn=document.createElement('button');assignBtn.type='button';
 const seekInput=document.createElement('input');seekInput.type='number';seekInput.min='0';seekInput.step='0.03333';seekInput.value='0';seekInput.style.width='75px';
+seekInput.id='v58-motion-seek';
 const seekBtn=document.createElement('button');seekBtn.type='button';
 const motionStatus=document.createElement('span');motionStatus.setAttribute('role','status');
 heading.append(title,choose,refreshBtn,focusBtn,closeBtn);
@@ -112,9 +113,15 @@ function redrawMotionControls(){
   if(selected?.target_scene_instance_id)targetSelect.value=selected.target_scene_instance_id;
   else if(oldInstance&&(motionPlan?.instances||[]).some(x=>x.id===oldInstance))targetSelect.value=oldInstance;
   assignBtn.disabled=!clipSelect.value||!motionPlan;
-  motionStatus.textContent=motionCoordinator?`${tr('motionReady')}: ${motionCoordinator.status().loadedClips.length}`:'';
+  const motionState=motionCoordinator?.status();
+  const failure=motionState?.issues.find(issue=>issue.message);
+  motionStatus.textContent=failure
+    ?`モーション未読込: ${failure.message}`
+    :motionState?`${tr('motionReady')}: ${motionState.loadedClips.length}`:'';
 }
 function currentSeek(){
+  const media=window.BAIStudioMediaPreviewV68?.status?.();
+  if(media?.ready&&media.projectId===project?.value)return media.frame/media.fps;
   const persisted=window.BAIStudioPersistedSeek?.status?.();
   const value=persisted?.projectId===project?.value
     ?persisted.seconds:window.BAIStudioTimeline?.getTime?.();
@@ -234,6 +241,7 @@ async function reload(){
     seekScene(currentSeek());
     viewport.fit?.();
     viewport.invalidate?.();
+    window.dispatchEvent(new CustomEvent('bai:v58-scene-reloaded',{detail:{projectId:id,loaded:controller.status().loaded}}));
   }catch(error){if(thisNonce===nonce&&opened)progress.textContent=tr('loadFailed')+': '+String(error?.message||error);}
 }
 async function open(){
@@ -297,6 +305,10 @@ seekBtn.addEventListener('click',()=>{
 window.addEventListener('bai:timeline-seek',event=>{
   if(opened&&(event.detail?.projectId==null||event.detail?.projectId===project?.value)
     &&Number.isFinite(event.detail?.seconds))seekScene(event.detail.seconds);
+});
+window.addEventListener('bai:v05-media-frame',event=>{
+  if(opened&&event.detail?.projectId===project?.value&&Number.isFinite(event.detail?.seconds))
+    seekScene(event.detail.seconds);
 });
 window.addEventListener('bai:studio-persisted-seek',event=>{
   if(opened&&event.detail?.projectId===project?.value&&Number.isFinite(event.detail?.seconds))
