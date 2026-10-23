@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T01:06:18+09:00",
+  "updated_at": "2026-10-24T01:10:22+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-audio-workspace",
-  "head_at_update": "ae8657f",
+  "branch": "codex/v05-render-range",
+  "head_at_update": "045df5e",
   "current": {
-    "task": "Issue #39/#69: v0.5音声画面の仮操作を実波形・試聴へ接続",
-    "status": "done",
-    "step": "既存の音楽・ダンス配置APIと30fps計算を再利用し、再生/停止/前後移動・保存再読込を検証",
+    "task": "Issue #49/#69: v0.5タイムラインのイン点・アウト点と書き出し範囲",
+    "status": "in_progress",
+    "step": "作品FPSと保存済みクリップから最終フレームを算出し、範囲保存・出力表示・隔離試験へ接続",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T01:10:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "045df5e",
+      "text": "Issue #49/#69: v0.5タイムラインのイン点・アウト点と書き出し範囲: 作品FPSと保存済みクリップから最終フレームを算出し、範囲保存・出力表示・隔離試験へ接続"
+    },
     {
       "at": "2026-10-24T01:06:18+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "fa75389",
       "text": "WP07a: 旧UI/APIとexports書込先を監査し、SCR23の操作・安全な隔離試験方針を記録"
-    },
-    {
-      "at": "2026-10-22T02:50:05+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "87338f8",
-      "text": "P2-WP-07 書き出し: WP07a: 既存出力・変換マップ・UI受け口と受け入れ条件を監査"
     }
   ]
 }
