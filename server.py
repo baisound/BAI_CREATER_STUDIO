@@ -306,6 +306,16 @@ class Handler(BaseHTTPRequestHandler):
             try:self.send(200,json.dumps(inventory(unified_assets(),q.get('category',['all'])[0],q.get('query',[''])[0]),ensure_ascii=False).encode())
             except ArrangementError as exc:self.bad(400,str(exc))
             return
+        if urlsplit(self.path).path=='/api/studio/v05/motion/glb-vmd/candidates':
+            from studio_v05_glb_vmd import candidates
+            from studio_v05_scene_instances import SceneInstancesError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                result=candidates(DATA,unified_assets(),project_id,DATA/'studio_v05_scene_instances',DATA/'studio_v05_catalog.json')
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (SceneInstancesError,ValueError,KeyError):self.bad(400,'Invalid project or scene')
+            except OSError:self.bad(500,'Cannot read GLB/PMX candidates')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/media-info':
             from studio_v05_media_render import media_info, RenderError
             try:
@@ -658,6 +668,31 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path == '/api/studio/v05/motion/glb-vmd':
+            from studio_v05_glb_vmd import candidates, convert, ConversionError
+            from studio_v05_scene_instances import SceneInstancesError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','source_asset_id','instance_id'}:
+                    return self.bad(400,'Invalid GLB/VMD request')
+                items=unified_assets()
+                available=candidates(DATA,items,body['project_id'],DATA/'studio_v05_scene_instances',DATA/'studio_v05_catalog.json')
+                target=next((x for x in available['targets'] if x['instance_id']==body['instance_id']),None)
+                if not target or body['source_asset_id'] not in {x['id'] for x in available['sources']}:
+                    return self.bad(400,'Select a registered GLB and a PMX in this project')
+                if not CONVERT_LOCK.acquire(blocking=False):return self.bad(409,'Conversion already running')
+                try:
+                    result=convert(DATA,BASE,body['source_asset_id'],target['asset_id'],items,
+                                   os.environ.get('MIXAMO_BLENDER','blender'),MMD_LOCK,read_mmd,write_mmd)
+                finally:CONVERT_LOCK.release()
+                result['project_id']=body['project_id'];result['instance_id']=body['instance_id']
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ConversionError as exc:self.bad(exc.status,str(exc))
+            except (SceneInstancesError,ValueError,TypeError,KeyError):self.bad(400,'Invalid project, GLB or PMX')
+            except OSError:self.bad(500,'GLB/VMD conversion failed')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/motion-target':
             from studio_v05_multi_motion import assign, MultiMotionError
             try:

@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T07:43:51+09:00",
+  "updated_at": "2026-10-24T08:08:36+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-pmx-face-value",
-  "head_at_update": "d438961",
+  "branch": "codex/v05-glb-to-vmd",
+  "head_at_update": "a71cc25",
   "current": {
-    "task": "Issue #96: PMX表情・口キーのタイムライン上の値編集",
+    "task": "Issue #102: GLBダンスを対象PMX向けVMDへ変換し同じ作品で確認",
     "status": "done",
-    "step": "既存キー表示・保存API・ロックを確認し、値の直接編集を実装・隔離検証する",
+    "step": "既存FBX変換・GLB登録・実素材の骨対応を監査し、非破壊の変換経路を設計・実証する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "このPRをmainへ統合しlocal main/8765を同期する",
-    "ロードマップ順4の残り（視線・自動リップ）と順5のGLB動作からVMDの既存要件を進める"
+    "Issue #102のPRをmainへ統合し、local mainと利用中8765サーバーを確認する",
+    "ロードマップ順5の残り（モデル別マッピング、足IK・接地、動作キー編集）を既存要件に沿って進める"
   ],
   "unverified": [
-    "今回の値編集直後のMP4別デコード、複数キー一括操作/一括Undo、値グラフ、アプリ全体Undo統合、視線・自動リップ、他PMX/Linux/MCP実運用・長尺/全区間同期・Owner採用は未確認"
+    "他PMX/GLB、足IK・接地・grant/物理・手指品質、Linux、WebMCP/標準MCP、Owner採用は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T08:08:36+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a71cc25",
+      "text": "Issue #102: 実GLBから対象PMX用別名VMDをBlenderで生成し、v0.5作品へ配置・再読込・実描画を検証"
+    },
+    {
+      "at": "2026-10-24T07:47:16+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4c38950",
+      "text": "Issue #102: GLBダンスを対象PMX向けVMDへ変換し同じ作品で確認: 既存FBX変換・GLB登録・実素材の骨対応を監査し、非破壊の変換経路を設計・実証する"
+    },
     {
       "at": "2026-10-24T07:43:51+09:00",
       "by": "codex",
@@ -227,20 +241,6 @@
       "event": "start",
       "head": "b70fa06",
       "text": "Issue #80: 画像トラック削除後も後続番号とクリップ参照を維持: 既存レイアウトを安定した行IDへ後方互換移行し、空行削除と再追加を保存・再読込で確認"
-    },
-    {
-      "at": "2026-10-24T03:49:33+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9229da4",
-      "text": "Issue #77媒体別タイムライン: 動画・音声の元尺ドラッグ/両端トリム/元位置保存/プレビュー/限定MP4を接続。Windows Chrome 4件、Python 21件、型検査、実データハッシュ一致"
-    },
-    {
-      "at": "2026-10-24T03:36:31+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "bda7acf",
-      "text": "Issue #77: v0.5動画・音声の素材尺に沿う直接タイムライン操作: 元素材の長さとトリム位置を保存し、ドラッグ配置・端操作・プレビュー・限定MP4を一致させる"
     }
   ]
 }

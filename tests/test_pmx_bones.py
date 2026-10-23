@@ -1,4 +1,4 @@
-import struct,unittest,sys
+import os,struct,unittest,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from pmx_bones import parse
@@ -25,4 +25,14 @@ class TestPMX(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d)/'x.pmx';p.write_bytes(minimal());result=inspect(p)
             assert result['bone_count']==1 and result['status']=='inspectable'
+    def test_real_materials_before_bones(self):
+        root=os.environ.get('BAI_REAL_MMD_DATA')
+        if not root:self.skipTest('BAI_REAL_MMD_DATA に実PMXがありません')
+        files=list((Path(root)/'mmd'/'A').glob('*.pmx'))
+        if not files:self.skipTest('BAI_REAL_MMD_DATA に実PMXがありません')
+        parsed=parse(files[0].read_bytes())
+        names={bone['name'] for bone in parsed['bones_detail']}
+        self.assertGreater(parsed['materials'],0)
+        self.assertIn('センター',names)
+        self.assertIn('左足D',names)
 if __name__=='__main__': unittest.main()

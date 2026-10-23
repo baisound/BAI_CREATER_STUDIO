@@ -45,8 +45,11 @@ def parse(data):
     material_count=r.count(200_000)
     for _ in range(material_count):
         r.text(codec);r.text(codec)
-        r.read(16+12+4+12+1+16+4+4+1+1)
+        # Diffuse, specular, ambient, draw flags, edge colour and edge size.
+        # Texture/sphere indices and the sphere mode follow at their declared widths.
+        r.read(16+12+4+12+1+16+4)
         r.read(texture_size*2)
+        r.read(1)  # sphere mode
         toon_flag=r.unpack('B')[0]
         r.read(1 if toon_flag else texture_size)
         r.text(codec)
