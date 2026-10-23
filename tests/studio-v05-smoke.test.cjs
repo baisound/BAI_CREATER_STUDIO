@@ -33,9 +33,9 @@ test('v0.5 library shows existing registration, uploads and selects a real asset
     const response = await page.goto(`${server.base}/studio/v05/index.html`);
     assert.equal(response?.status(), 200);
     await page.locator('.brand').waitFor();
-    assert.ok(await page.evaluate(() => document.querySelector('#baiPages').getBoundingClientRect().top >= document.querySelector('.top').getBoundingClientRect().bottom));
+    await page.waitForFunction(() => document.querySelector('#baiPages').getBoundingClientRect().top >= document.querySelector('.top').getBoundingClientRect().bottom);
     await page.setViewportSize({ width: 1280, height: 720 });
-    assert.ok(await page.evaluate(() => document.querySelector('#baiPages').getBoundingClientRect().top >= document.querySelector('.top').getBoundingClientRect().bottom));
+    await page.waitForFunction(() => document.querySelector('#baiPages').getBoundingClientRect().top >= document.querySelector('.top').getBoundingClientRect().bottom);
     await page.locator('[data-go="library"]').first().click();
     await page.waitForFunction(() => document.querySelector('#bai-library')?.classList.contains('active'));
     await page.locator('#v54-assets').waitFor();
@@ -101,7 +101,7 @@ test('focus interval diagnostic stays folded in camera workspace and does not co
   try {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${server.base}/studio/v05/index.html`);
-    assert.ok(await page.evaluate(() => document.querySelector('#baiPages').getBoundingClientRect().top >= document.querySelector('.top').getBoundingClientRect().bottom));
+    await page.waitForFunction(() => document.querySelector('#baiPages').getBoundingClientRect().top >= document.querySelector('.top').getBoundingClientRect().bottom);
     await page.locator('[data-workspace="camera"]').click();
     await page.locator('#v42-focus-scan').waitFor({ state: 'visible' });
     assert.equal(await page.locator('#v42-focus-scan').evaluate((panel) => panel.open), false);
