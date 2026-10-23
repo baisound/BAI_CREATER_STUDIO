@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T08:12:37+09:00",
+  "updated_at": "2026-10-24T08:24:16+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-glb-vmd-profile",
-  "head_at_update": "abaef3d",
+  "head_at_update": "b7d22cb",
   "current": {
     "task": "Issue #102: GLB→PMX VMD変換の骨対応と失敗経路を強化",
-    "status": "in_progress",
+    "status": "done",
     "step": "無動作・骨不足GLBと骨対応の保存・画面接続を設計し隔離検証する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "Issue #102のPRをmainへ統合し、local mainと利用中8765サーバーを確認する",
-    "ロードマップ順5の残り（モデル別マッピング、足IK・接地、動作キー編集）を既存要件に沿って進める"
+    "追補PRをmainへ統合しlocal main/8765を同期する",
+    "ロードマップ順5の足IK・接地品質と任意フレームの骨編集を既存仕様に沿って進める"
   ],
   "unverified": [
-    "他PMX/GLB、足IK・接地・grant/物理・手指品質、Linux、WebMCP/標準MCP、Owner採用は未検証"
+    "プロファイル共有入出力・Undo/Redo、任意追加骨マップ、他PMXの見た目・足IK/接地、Linux、MCP、Owner採用は未検証または未実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T08:24:16+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b7d22cb",
+      "text": "Issue #102追補: GLB骨対応を画面で修正・改訂付き保存し、同じPMX/骨構造の別動作へ再利用。無動作・骨不足・不正骨・古い改訂・Blender欠落を拒否して実素材検証"
+    },
     {
       "at": "2026-10-24T08:12:37+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "fb58f86",
       "text": "Issues #82/#84/#83: video/audio scissors split, snap/grid editing and persistent track labels: 保存済みクリップの分割契約とUI操作を既存タイムラインに接続し、隔離Chromeで検査"
-    },
-    {
-      "at": "2026-10-24T04:07:01+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8b50bae",
-      "text": "Issue #80 stable image lane IDs and empty-row removal, isolated Python/Chrome checks passed"
     }
   ]
 }

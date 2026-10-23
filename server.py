@@ -316,6 +316,17 @@ class Handler(BaseHTTPRequestHandler):
             except (SceneInstancesError,ValueError,KeyError):self.bad(400,'Invalid project or scene')
             except OSError:self.bad(500,'Cannot read GLB/PMX candidates')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/motion/glb-vmd/map':
+            from studio_v05_glb_vmd import inspect_profile, ConversionError
+            from studio_v05_glb_vmd_map import MappingError
+            try:
+                query=parse_qs(urlsplit(self.path).query)
+                result=inspect_profile(DATA,query.get('source_id',[''])[0],query.get('target_id',[''])[0],unified_assets())
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (ConversionError,MappingError) as exc:self.bad(exc.status,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid GLB/PMX mapping request')
+            except OSError:self.bad(500,'Cannot read GLB/PMX mapping')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/media-info':
             from studio_v05_media_render import media_info, RenderError
             try:
@@ -668,14 +679,32 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path == '/api/studio/v05/motion/glb-vmd/map':
+            from studio_v05_glb_vmd import save_profile, ConversionError
+            from studio_v05_glb_vmd_map import MappingError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=16384:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'source_asset_id','target_asset_id','revision','overrides'}:
+                    return self.bad(400,'Invalid mapping fields')
+                result=save_profile(DATA,body['source_asset_id'],body['target_asset_id'],
+                                    body['revision'],body['overrides'],unified_assets())
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (ConversionError,MappingError) as exc:self.bad(exc.status,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid mapping data')
+            except OSError:self.bad(500,'Mapping save failed')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/motion/glb-vmd':
             from studio_v05_glb_vmd import candidates, convert, ConversionError
+            from studio_v05_glb_vmd_map import MappingError
             from studio_v05_scene_instances import SceneInstancesError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
-                if not isinstance(body,dict) or set(body)!={'project_id','source_asset_id','instance_id'}:
+                required={'project_id','source_asset_id','instance_id'}
+                if not isinstance(body,dict) or not required<=set(body) or set(body)-required-{'profile_revision'}:
                     return self.bad(400,'Invalid GLB/VMD request')
                 items=unified_assets()
                 available=candidates(DATA,items,body['project_id'],DATA/'studio_v05_scene_instances',DATA/'studio_v05_catalog.json')
@@ -685,11 +714,12 @@ class Handler(BaseHTTPRequestHandler):
                 if not CONVERT_LOCK.acquire(blocking=False):return self.bad(409,'Conversion already running')
                 try:
                     result=convert(DATA,BASE,body['source_asset_id'],target['asset_id'],items,
-                                   os.environ.get('MIXAMO_BLENDER','blender'),MMD_LOCK,read_mmd,write_mmd)
+                                   os.environ.get('MIXAMO_BLENDER','blender'),MMD_LOCK,read_mmd,write_mmd,
+                                   profile_revision=body.get('profile_revision'))
                 finally:CONVERT_LOCK.release()
                 result['project_id']=body['project_id'];result['instance_id']=body['instance_id']
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
-            except ConversionError as exc:self.bad(exc.status,str(exc))
+            except (ConversionError,MappingError) as exc:self.bad(exc.status,str(exc))
             except (SceneInstancesError,ValueError,TypeError,KeyError):self.bad(400,'Invalid project, GLB or PMX')
             except OSError:self.bad(500,'GLB/VMD conversion failed')
             return
