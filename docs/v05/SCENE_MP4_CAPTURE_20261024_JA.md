@@ -1,0 +1,22 @@
+# v0.5 保存済み3Dを含む限定MP4 — 2026-10-24
+
+関連: Issues #63/#69、`RENDER-001/002/004/005/006`、`DATA-008`、`AUDIO-001`。最短制作経路の順3を部分接続した記録。機能全体の完成認定ではない。
+
+## 接続した経路
+
+- v0.5の作品ID、保存済みタイムラインとIn/Out、3Dシーンのrevisionをジョブ開始時に照合する。3Dシーンがある作品からscene revisionを省いた要求は拒否する。動作クリップは3Dシーンの実モデルへ割り当て済みで、形式判定とブラウザ読込を通る必要がある。
+- 別のローカルChrome/Edgeで同じ作品を読み、フレーム番号ごとに動作を固定時刻へシークし、透明WebGLキャンバスを720p PNGへ実描画する。連番の枚数・寸法・hashを確認してから、既存FFmpegグラフの画像・動画の上へ重ね、独立音声とH.264/AAC MP4へ多重化する。最大300フレーム、連番キャッシュ最大256MiB。作業連番はジョブ終了時に削除し、原本は変更しない。
+- 作品のscene/arrangement/range revisionを描画前後で確認し、モデル・動作・PMXの`tex/`内素材の入力hashをエンコード前後で比較する。最終MP4のcodec・解像度・フレーム数・長さをffprobeで再読込する。完成物はジョブIDの別名で保存し、既存MP4を上書きしない。
+- 出力画面は3Dの条件と不足した実行環境を示す。3Dがある場合は720pのみ選択でき、300フレームを超えるIn/Outは開始前に拒否する。実描画の失敗、モデル/動作の読込失敗、シーン変更は失敗理由として表示する。
+
+## 実データ・試験
+
+- Windows隔離サーバーとChromeで、登録GLB＋WebP＋WAVを12フレームのMP4へ出力。2Dのみの完成MP4とデコード画素が200画素超異なり、独立音声PCMの実音量を確認した。GLBを含む保存シーンで3D指定を省くAPI要求と古いscene revisionは拒否した。出力画面のボタンからも3Dジョブを作り、履歴と最新完成MP4のプレビュー/保存リンクを確認した。
+- Ownerの登録PMX `Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx` と `狐面物理確認用_頭振り_F000-0300.vmd` を隔離データへコピーし、作品60fpsのF0–F2とF240–F242（VMD元30fpsの約F120）を別名MP4へ出力。ffprobeで両方ともH.264/AAC・1280×720・3フレームを再読込した。F0/F240の描画時頭骨差0.1733、MP4デコード画素差8,430点（1280×720、逐次ゲートの一回）、F240の非黒51,384点を確認し、先のMP4は後のジョブ後も同hashだった。描画側はANGLEのNVIDIA GeForce RTX 4070 SUPER/D3D11と報告。原PMX SHA-256 `542a4daa561f0b0da578fc303af9b8c6dc4acdd8d380771a170e96e95a205488`、原VMD `3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebebd0a3d234` は前後一致。既存プレビューのF0/4秒の骨・画素変化検査も再実行した。
+- `CHROMIUM_PATH=C:\Program Files\Google\Chrome\Application\chrome.exe`、`BAI_REAL_MMD_DATA=<原本を持つdata>`、`BAI_TEST_CONCURRENCY=1`を指定し、`node tests/run-guarded.cjs tests/studio-v05-scene-mp4.test.cjs tests/studio-v05-media-render.test.cjs tests/studio-v05-composite-scene-preview.test.cjs tests/studio-v05-real-pmx-vmd.test.cjs` は5/5成功。既定の2並列ゲートはChrome同時起動時の接続拒否/読込競合で3件失敗しており、並列ゲート自体は未完走として残す。ワーカーは画面スクリプトと動作素材の読込完了を確認してから描画する。`run-guarded`の利用者data 7ファイルとexportsは前後同hash。Python/JS構文、TypeScript型検査、台帳JSON構文は成功。
+
+## 残る条件
+
+レンダーの3Dカメラは新しいブラウザの自動フィットで、編集画面で手動移動した未保存カメラとは一致しない。保存カメラ、照明、エフェクト、表情・口、字幕、動画内音声、複数形式の3D/動作組合せ、長尺、Linux、標準MCP/WebMCP、任意透過PNG連番の納品は未接続または未検証。PMXの`tex/`以外の外部参照と物理再現も未確認。先頭・中間・末尾の全区間で音と映像が1フレーム以内という要件、同名置換と旧版退避も未達。`RENDER-001/002/005/006`および最短制作経路全体を完了扱いしない。
+
+段階別モデル区分: 原因調査・3D/FFmpeg設計は高性能、実装・試験・文書は標準。

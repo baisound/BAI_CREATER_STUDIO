@@ -844,7 +844,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "MMD無し動画書出し",
-      "detail": "ブラウザからオフスクリーン固定時刻描画。v0.5の作品別In/Out範囲保存と未設定時0〜最終フレーム算出は部分接続済み。画像・動画・独立音声のFFmpeg実MP4は限定部分接続。3D/カメラ・動画内音声・字幕と同じオフスクリーン描画は未接続",
+      "detail": "ブラウザからオフスクリーン固定時刻描画。v0.5の保存済みIn/Outと画像・動画・独立音声の実MP4に加え、3Dシーン/適用済み動作の720p・300F以内の実描画を部分接続。GLBと実PMX/VMDのMP4画素確認済み。保存カメラ・長尺・動画内音声・字幕は未接続",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -880,7 +880,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "PNG・EXR連番出力",
-      "detail": "透過初期受入はRGBA PNG連番。EXRは実書出し・再読込後",
+      "detail": "透過初期受入はRGBA PNG連番。3D限定MP4の内部中間PNG連番は作成・寸法/hash確認後に削除し、納品用PNG連番やEXRの受入は未接続",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -889,7 +889,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "FFmpeg変換と書出しプリセット",
-      "detail": "H264と音声encoderを実測して多重化。v0.5の画像・動画・独立音声から別名MP4ジョブを部分接続し再読込。全素材/音声同期1F以内と明示置換/旧版退避は未接続",
+      "detail": "H264と音声encoderを実測して多重化。v0.5の画像・動画・独立音声に限定3D/動作の実画素を重ねる別名MP4ジョブを部分接続し再読込。全素材/全区間音声同期1F以内、保存カメラ、明示置換/旧版退避は未接続",
       "status": "計画・未検証",
       "dependency": "CORE,DATA,CAM,AUDIO"
     },

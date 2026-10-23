@@ -788,9 +788,10 @@ class Handler(BaseHTTPRequestHandler):
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
-                if not isinstance(body,dict) or set(body)!={'project_id','range_revision','arrangement_revision','resolution'}:
+                required={'project_id','range_revision','arrangement_revision','resolution'}
+                if not isinstance(body,dict) or not required.issubset(body) or set(body)-required-{'scene_revision'}:
                     return self.bad(400,'Invalid render request')
-                result=start(DATA,inventory=unified_assets(),**body)
+                result=start(DATA,inventory=unified_assets(),server_port=self.server.server_port,**body)
                 event('v05_render_started',project_id=body['project_id'],job_id=result['id'])
                 self.send(202,json.dumps(result,ensure_ascii=False).encode())
             except RenderError as exc:self.bad(exc.status,str(exc))

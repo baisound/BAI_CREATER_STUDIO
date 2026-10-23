@@ -37,7 +37,7 @@
     if (state.sceneOverlay) $('v68stageNote').hidden = true;
     const sceneLoaded = state.sceneOverlay && window.BAIStudioMultiScenePreview?.status?.().loaded > 0;
     $('v68play').disabled = !state.ready || (!state.entries.length && !sceneLoaded);
-    if (state.ready) message(`${state.entries.length}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : state.sceneOverlay ? '3Dを同じ画面に重ねて表示。3D入りMP4は未接続。' : '3Dは別画面、動画内音声は未接続。限定MP4は出力画面に接続。'}`);
+    if (state.ready) message(`${state.entries.length}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : state.sceneOverlay ? '3Dを同じ画面に重ねて表示。限定MP4は出力画面で条件を確認。' : '3Dは別画面、動画内音声は未接続。限定MP4は出力画面に接続。'}`);
   }
   function release() {
     cancelAnimationFrame(state.raf);

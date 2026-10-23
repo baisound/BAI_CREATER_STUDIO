@@ -21,7 +21,7 @@
   resolution.disabled = false;
   resolution.value = '720p';
   fpsSelect.title = '保存済み作品のFPSで書き出します';
-  settings.insertAdjacentHTML('beforeend', '<p id="v69status" role="status" class="baiTiny">作品の書き出し条件を確認中…</p><p class="baiTiny">現在の実MP4プリセットは10分以内、画像・動画・独立音声クリップに対応。3D・動作・カメラ・字幕を含む作品は欠落を避けるため拒否します。</p>');
+  settings.insertAdjacentHTML('beforeend', '<p id="v69status" role="status" class="baiTiny">作品の書き出し条件を確認中…</p><p class="baiTiny">画像・動画・独立音声は10分以内。保存済み3Dシーンと適用済み動作を含む作品は720p・300フレーム以内の実描画に対応し、3Dカメラは自動配置です。編集画面の手動カメラ操作・字幕・動画内音声などの未接続内容は出力へ反映されません。保存済みの未対応クリップは欠落を避けるため拒否します。</p>');
   const result = document.createElement('div');
   result.id = 'v69result';
   result.hidden = true;
@@ -30,7 +30,7 @@
   const preview = page.querySelector('.baiPreview');
   const sample = preview.querySelector('img');
   const $ = id => document.getElementById(id);
-  let context = null, requestSeq = 0, timer = 0;
+  let context = null, requestSeq = 0, timer = 0, selectedJobId = null;
   const activeProject = () => $('v06project')?.value || '';
   const status = text => { $('v69status').textContent = text; };
   const get = async url => {
@@ -39,7 +39,7 @@
     if (!response.ok) throw Error(data.error || `HTTP ${response.status}`);
     return data;
   };
-  function showVideo(job) {
+  function showVideo(job, manual = false) {
     if (!job || job.status !== 'succeeded' || job.project_id !== activeProject()) return;
     const url = `/api/studio/v05/render/file?id=${encodeURIComponent(job.id)}`;
     sample.hidden = true;
@@ -52,13 +52,16 @@
       preview.prepend(video);
     }
     video.src = url;
+    video.dataset.jobId = job.id;
     video.hidden = false;
+    if (manual) selectedJobId = job.id;
     $('v69download').href = url;
     $('v69download').download = `BAI-${job.project_id}-${job.id.slice(0, 8)}.mp4`;
     $('v69resultInfo').textContent = `${job.probe?.width || '?'}×${job.probe?.height || '?'} / ${job.probe?.frames || '?'}F / ${job.bytes || 0} bytes`;
     result.hidden = false;
   }
   function clearVideo() {
+    selectedJobId = null;
     sample.hidden = false;
     const video = preview.querySelector('#v69video');
     if (video) { video.pause(); video.removeAttribute('src'); video.load(); video.remove(); }
@@ -83,7 +86,7 @@
         const open = document.createElement('button');
         open.type = 'button';
         open.textContent = '完成映像を確認';
-        open.addEventListener('click', () => showVideo(job));
+        open.addEventListener('click', () => showVideo(job, true));
         row.append(open);
       }
       if (job.error) {
@@ -94,7 +97,9 @@
       queue.append(row);
     }
     const newest = items.find(job => job.status === 'succeeded');
-    if (newest && result.hidden) showVideo(newest);
+    const selected = selectedJobId && items.find(job => job.id === selectedJobId && job.status === 'succeeded');
+    const wanted = selected || newest;
+    if (wanted && preview.querySelector('#v69video')?.dataset.jobId !== wanted.id) showVideo(wanted);
   }
   async function jobs(projectId) {
     const data = await get(`/api/studio/v05/render/jobs?project_id=${encodeURIComponent(projectId)}`);
@@ -109,7 +114,7 @@
         const job = await get(`/api/studio/v05/render/jobs?id=${encodeURIComponent(jobId)}`);
         if (projectId !== activeProject()) { stopPolling(); return; }
         status(job.status === 'running' || job.status === 'queued'
-          ? `実MP4を生成中: ${job.progress_percent || 0}%` :
+          ? `${job.phase === 'capturing_3d' ? '3Dフレームを実描画中' : '実MP4を生成中'}: ${job.progress_percent || 0}%` :
             job.status === 'succeeded' ? '実MP4を完成・再読込しました。' : `書き出し失敗: ${job.error || job.status}`);
         await jobs(projectId);
         if (!['queued', 'running'].includes(job.status)) {
@@ -130,13 +135,16 @@
     status('保存済み作品とencoderを確認中…');
     try {
       const encoded = encodeURIComponent(projectId);
-      const [caps, range, arrangement] = await Promise.all([
+      const [caps, range, arrangement, scene, motion] = await Promise.all([
         get('/api/studio/v05/render/capabilities'),
         get(`/api/studio/v05/timeline/range?id=${encoded}`),
         get(`/api/studio/v05/arrangement?id=${encoded}`),
+        get(`/api/studio/v05/scene/instances?id=${encoded}`),
+        get(`/api/studio/v05/scene/multi-motion-plan?id=${encoded}`),
       ]);
       if (seq !== requestSeq || projectId !== activeProject()) return;
-      context = { projectId, range, arrangement };
+      const hasScene = scene.instances.some(instance => instance.visible);
+      context = { projectId, range, arrangement, sceneRevision: hasScene ? scene.revision : null };
       const selectedFps = [...fpsSelect.options].find(option => option.textContent.trim().startsWith(String(range.fps)));
       if (selectedFps) fpsSelect.value = selectedFps.value;
       else {
@@ -144,13 +152,21 @@
         if (!custom) { custom = document.createElement('option'); custom.dataset.projectFps = 'true'; fpsSelect.prepend(custom); }
         custom.value = String(range.fps); custom.textContent = `${range.fps} fps（作品設定）`; fpsSelect.value = custom.value;
       }
-      const unsupported = arrangement.clips.find(clip => !['image', 'video', 'audio', 'music'].includes(clip.category));
+      const allowed = hasScene ? ['image', 'video', 'audio', 'music', 'motion'] : ['image', 'video', 'audio', 'music'];
+      const unsupported = arrangement.clips.find(clip => !allowed.includes(clip.category));
+      const unreadyMotion = hasScene && motion.rows.find(row => row.status !== 'ready');
+      if (hasScene && resolution.value !== '720p') resolution.value = '720p';
+      for (const option of resolution.options) if (option.value === '1080p') option.disabled = hasScene;
       const reason = !caps.available ? caps.reason : !range.valid ? range.error :
         !range.has_clips ? '保存済みクリップがありません' :
+          hasScene && !caps.scene_capture_available ? '3D書き出し用のChrome/Edge・Node.js・Playwright・Three.jsがありません' :
+          hasScene && scene.instances.some(instance => !instance.available) ? '登録済み3Dモデルの原本が見つかりません' :
+          hasScene && range.frame_count > 300 ? '3Dを含む限定MP4は300フレーム以内です。In/Outを短くしてください' :
+          unreadyMotion ? `${unreadyMotion.name} の3D動作は未割当または読込不能です` :
           range.frame_count / range.fps > caps.max_duration_seconds ? 'このプリセットは10分以内の範囲に対応します' :
             unsupported ? `${unsupported.name} は実MP4へ未接続です。欠落を避けるため書き出せません` : null;
       if (reason) status(reason);
-      else status(`MP4 / H.264 + AAC、${range.fps} fps、F${range.range_start_frame}〜${range.range_end_exclusive - 1}を別名で書き出せます。`);
+      else status(`MP4 / H.264 + AAC、${range.fps} fps、F${range.range_start_frame}〜${range.range_end_exclusive - 1}${hasScene ? '、3D実描画720p・自動配置カメラ' : ''}を別名で書き出せます。`);
       button.disabled = Boolean(reason);
       button.textContent = '実MP4を書き出す';
       const recent = await jobs(projectId);
@@ -163,13 +179,15 @@
   button.addEventListener('click', async () => {
     if (!context || button.disabled || context.projectId !== activeProject()) return;
     button.disabled = true;
+    selectedJobId = null;
     status('保存済み範囲のMP4ジョブを作成中…');
     let created = false;
     try {
       const response = await fetch('/api/studio/v05/render/jobs', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ project_id: context.projectId, range_revision: context.range.revision,
-          arrangement_revision: context.arrangement.revision, resolution: resolution.value }),
+          arrangement_revision: context.arrangement.revision, resolution: resolution.value,
+          ...(context.sceneRevision === null ? {} : { scene_revision: context.sceneRevision }) }),
       });
       const job = await response.json();
       if (!response.ok) throw Error(job.error || `HTTP ${response.status}`);
