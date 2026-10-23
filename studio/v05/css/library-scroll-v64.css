@@ -1,0 +1,29 @@
+/* Keep the library tools visible while its registered asset grid scrolls. */
+@media (min-width: 1001px) {
+  #baiPages:has(#bai-library.active) { overflow: hidden; }
+  #bai-library.active {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+  #bai-library > .baiTitle,
+  #bai-library > details { flex: none; }
+  #bai-library > details[open] { max-height: 30vh; overflow: auto; }
+  #bai-library .baiSplit { flex: 1; min-height: 0; overflow: hidden; }
+  #bai-library .baiSplit > .baiCard { min-height: 0; overflow: auto; }
+  #bai-library .baiSplit > .baiCard:nth-child(2) { display: flex; overflow: hidden; }
+  #bai-library .baiSplit > .baiCard:nth-child(2) > .baiCol {
+    flex: 1;
+    min-height: 0;
+  }
+  #baiLibraryGrid {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
+    padding-right: 4px;
+    scrollbar-gutter: stable;
+  }
+}

@@ -1,23 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T00:36:00+09:00",
+  "updated_at": "2026-10-24T00:50:39+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-live-transport",
-  "head_at_update": "56c4630",
+  "head_at_update": "71128e8",
   "current": {
     "task": "Issue #39/#63: v0.5実動作プレビューを既存の音楽・ダンス再生へ接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "30fpsフレーム表示、再生・一時停止・停止・前後移動の双方向同期",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "Issue39/63: 実動作プレビューの30fpsフレーム入力と実再生・一時停止・停止・前後移動を子画面へ接続する",
-    "AUDIO-001: 音声編集の仮操作と誤解を招くEQ表示を整理し、同一時刻の実波形・試聴を優先する",
-    "書き出し範囲をタイムラインのイン点・アウト点へ接続し、未設定時は0から最終フレームを使う"
+    "AUDIO-001: 音声画面の仮操作とEQ表示を整理し、実波形と同じ時刻の試聴へ接続",
+    "RENDER: タイムラインのイン点・アウト点と未設定時の0〜最終フレームを書き出しに接続"
   ],
   "unverified": [
-    "Chrome合同試験は5/5件成功、typecheckとJS構文検査成功、実データ5ファイルとexportsのハッシュ前後一致",
-    "PMX/VMD/FBX動作、音声・動画の同一時刻再生、最終出力、実GPU、Linux/MCPは未検証または未接続"
+    "実PMX/VMD/FBX/GLBのGPU品質、共有作品タイムラインと音声配置、最終動画出力、WebMCP/標準MCP、Linux、1000px以下の素材管理固定スクロールは未確認・未接続"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T00:50:39+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "71128e8",
+      "text": "Issue39/63/69: v0.5実動作プレビューを既存30fps再生クロックへ接続し、素材管理の中央一覧だけをスクロール。隔離Chrome試験は新規1件・素材4件・旧音楽ダンス2件成功、実素材指定2件スキップ。"
+    },
     {
       "at": "2026-10-24T00:36:00+09:00",
       "by": "codex",
@@ -236,13 +241,6 @@
       "event": "start",
       "head": "3e9a663",
       "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06d: Phase E §7に現行カメラホストと保存の読み替え表を作成"
-    },
-    {
-      "at": "2026-10-22T02:43:31+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b9d7f57",
-      "text": "P2-WP-06c実装をb9d7f57でpush済み。台帳に同SHAとE2E S7を確定記録"
     }
   ]
 }
