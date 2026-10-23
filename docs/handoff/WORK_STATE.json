@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T00:50:39+09:00",
+  "updated_at": "2026-10-24T00:56:51+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-live-transport",
-  "head_at_update": "71128e8",
+  "branch": "codex/v05-audio-workspace",
+  "head_at_update": "629fbed",
   "current": {
-    "task": "Issue #39/#63: v0.5実動作プレビューを既存の音楽・ダンス再生へ接続",
-    "status": "done",
-    "step": "30fpsフレーム表示、再生・一時停止・停止・前後移動の双方向同期",
+    "task": "Issue #39/#69: v0.5音声画面の仮操作を実波形・試聴へ接続",
+    "status": "in_progress",
+    "step": "既存の音楽・ダンス配置APIと30fps計算を再利用し、再生/停止/前後移動・保存再読込を検証",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T00:56:51+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "629fbed",
+      "text": "Issue #39/#69: v0.5音声画面の仮操作を実波形・試聴へ接続: 既存の音楽・ダンス配置APIと30fps計算を再利用し、再生/停止/前後移動・保存再読込を検証"
+    },
     {
       "at": "2026-10-24T00:50:39+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "fdf4429",
       "text": "WP06d: Phase E §7に124 ID配置、SCR02保存・復元・MCP読み替えを追記。現行ソースと照合し、独立高性能モデルレビューは未実施として台帳に記録"
-    },
-    {
-      "at": "2026-10-22T02:44:18+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3e9a663",
-      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06d: Phase E §7に現行カメラホストと保存の読み替え表を作成"
     }
   ]
 }
