@@ -66,6 +66,8 @@ CUSTOM_ASSETS=DATA/'integrated_v02'/'assets'; CUSTOM_ASSETS.mkdir(parents=True,e
 CUSTOM_INDEX=DATA/'integrated_v02'/'user_assets.json'
 CUSTOM_LOCK=threading.RLock()
 LIBRARY_ROOT=DATA/'library_assets'
+V05_SOURCE_ROOT=DATA/'studio_v05_asset_sources'
+V05_INBOX_ROOT=DATA/'asset_inbox'
 LIBRARY_LOCK=threading.RLock()
 CHAR_THUMB_ROOT=DATA/'asset_thumbnails'
 CHAR_THUMB_LOCK=threading.RLock()
@@ -140,6 +142,8 @@ def unified_assets():
             if fmt not in ('PMX','VMD'):continue
             result.append({'id':'mmd:'+slot+':'+name,'name':name,'format':fmt,'kind':slot,'source':'mmd','available':(MMD_DIR/slot/name).is_file(),'previewable':True})
     with LIBRARY_LOCK:result.extend(library_assets.public_items(LIBRARY_ROOT))
+    from studio_v05_asset_sources import listing as v05_sources_listing
+    result.extend(v05_sources_listing(V05_SOURCE_ROOT,V05_INBOX_ROOT)['items'])
     for entry in result:
         source=character_source(entry)
         if source is None:continue
@@ -235,6 +239,21 @@ class Handler(BaseHTTPRequestHandler):
         msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
         self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
     def do_GET(self):
+        if urlsplit(self.path).path=='/api/studio/v05/asset-sources':
+            from studio_v05_asset_sources import listing, AssetSourceError
+            try:
+                result=listing(V05_SOURCE_ROOT,V05_INBOX_ROOT)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (AssetSourceError,ValueError,OSError) as exc:self.bad(422,str(exc))
+            return
+        if urlsplit(self.path).path.startswith('/api/studio/v05/asset-source/file/'):
+            from studio_v05_asset_sources import file_for
+            from urllib.parse import unquote
+            asset_id=unquote(urlsplit(self.path).path.split('/file/',1)[1])
+            found=file_for(V05_SOURCE_ROOT,V05_INBOX_ROOT,asset_id)
+            if not found:return self.bad(404,'Reference file unavailable or has changed')
+            self.send_library_file(*found)
+            return
         if urlsplit(self.path).path=='/api/studio/v05/assets/capabilities':
             from studio_v05_asset_categories import capabilities
             self.send(200,json.dumps(capabilities(),ensure_ascii=False).encode());return
@@ -558,6 +577,27 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path in ('/api/studio/v05/asset-sources/register',
+                                       '/api/studio/v05/asset-sources/relink'):
+            from studio_v05_asset_sources import register,relink,AssetSourceError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict):return self.bad(400,'Invalid payload')
+                if urlsplit(self.path).path.endswith('/register'):
+                    if set(body)!={'relative_path','kind','mode','revision'}:
+                        return self.bad(400,'Invalid source fields')
+                    result=register(V05_SOURCE_ROOT,V05_INBOX_ROOT,LIBRARY_ROOT,**body)
+                else:
+                    if set(body)!={'asset_id','relative_path','revision'}:
+                        return self.bad(400,'Invalid relink fields')
+                    result=relink(V05_SOURCE_ROOT,V05_INBOX_ROOT,**body)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (AssetSourceError,ValueError,TypeError,KeyError) as exc:
+                self.bad(409 if 'conflict' in str(exc).lower() else 422,str(exc))
+            except OSError:self.bad(500,'Asset source operation failed; original files preserved')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/playhead':
             from studio_v05_playhead import update, PlayheadError
             try:

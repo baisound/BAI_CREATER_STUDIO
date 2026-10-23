@@ -8,4 +8,7 @@ def capabilities():
             'upload_formats':{ext:sorted(kinds) for ext,kinds in sorted(FORMATS.items())},
             'max_upload_bytes':MAX_UPLOAD,'max_stage_bytes':MAX_STAGE_UPLOAD,
             'upload_endpoint':'/api/library-assets/upload',
+            'source_modes':['reference','copy'],
+            'source_inbox':'data/asset_inbox (server-side relative paths only)',
+            'reference_endpoint':'/api/studio/v05/asset-sources/register',
             'note':'Uploads require actual file bytes; MCP/WebMCP expose capabilities and search, not arbitrary local file reads.'}

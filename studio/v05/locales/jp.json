@@ -171,5 +171,24 @@
     "rowZoomIn": "トラックを高く表示",
     "rowZoomOut": "トラックを低く表示",
     "tip": "左のハンドルで上下に並べ替え、ダブルクリックで編集"
+  },
+  "v54": {
+    "title": "素材の参照・コピーと再リンク",
+    "hint": "サーバーの data/asset_inbox に素材を置き、フォルダ内の相対パスを入力します。任意のPCパスへのアクセスはできません。",
+    "path": "素材の相対パス（例: music/theme.wav）",
+    "kind": "素材の種類",
+    "mode": "保存方法",
+    "reference": "参照（元ファイルを移動しない）",
+    "copy": "コピー（Studio管理領域へ登録）",
+    "register": "登録",
+    "reload": "参照素材を更新",
+    "relink": "同じ内容のファイルへ再リンク",
+    "sourceId": "再リンク対象ID",
+    "statusReady": "準備完了",
+    "statusBusy": "処理中…",
+    "done": "完了",
+    "error": "処理失敗",
+    "count": "参照素材数",
+    "revision": "管理版数"
   }
 }

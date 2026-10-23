@@ -28,7 +28,7 @@ def classify(item):
     name=str(item.get('filename') or item.get('name') or '').lower()
     kind=str(item.get('kind') or '').lower()
     # Existing library records use category metadata separate from file extension.
-    if item.get('source')=='library' or str(item.get('id','')).startswith('library:'):
+    if item.get('source') in ('library','v05source') or str(item.get('id','')).startswith(('library:','v05source:')):
         if kind in ('fx',):return 'effect'
         if kind in ('stage','prop'):return 'model'
         if kind in ('material','image'):return 'image'

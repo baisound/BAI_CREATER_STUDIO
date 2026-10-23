@@ -188,5 +188,24 @@
     "rowZoomIn": "Increase Track Height",
     "rowZoomOut": "Decrease Track Height",
     "tip": "Drag the handle to reorder; double-click to edit"
+  },
+  "v54": {
+    "title": "Reference, copy and relink assets",
+    "hint": "Place files under the server's data/asset_inbox and use paths relative to that folder. Arbitrary host paths are not allowed.",
+    "path": "Relative asset path (e.g. music/theme.wav)",
+    "kind": "Asset type",
+    "mode": "Storage mode",
+    "reference": "Reference (keep original)",
+    "copy": "Copy into Studio library",
+    "register": "Register",
+    "reload": "Refresh references",
+    "relink": "Relink to matching file",
+    "sourceId": "Asset ID to relink",
+    "statusReady": "Ready",
+    "statusBusy": "Working…",
+    "done": "Completed",
+    "error": "Operation failed",
+    "count": "Referenced assets",
+    "revision": "Catalog revision"
   }
 }
