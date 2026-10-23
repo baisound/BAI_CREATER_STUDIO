@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T00:04:44+09:00",
+  "updated_at": "2026-10-24T00:08:32+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-asset-bridge",
-  "head_at_update": "f9c83cf",
+  "head_at_update": "ca92fa9",
   "current": {
-    "task": "Issue #63: v0.5配置素材の既存3D実描画経路を隔離環境で検証",
-    "status": "done",
-    "step": "登録GLBから作品配置・3D表示・保存再読込を実素材で追う",
-    "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
+    "task": "Issue #63: 承認済み固定診断パネルの撮影画面内への移動",
+    "status": "in_progress",
+    "step": "固定診断をカメラ・演出欄の折りたたみへ移し、素材選択をポインタで再検証",
+    "design_doc": "docs/v05/ASSET_LIBRARY_BRIDGE_20261023_JA.md"
   },
   "next_steps": [
     "Owner承認後に固定診断パネルの重なりを修正し、ポインタ操作を再検証する",
@@ -35,6 +35,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T00:08:32+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "ca92fa9",
+      "text": "Issue #63: 承認済み固定診断パネルの撮影画面内への移動: 固定診断をカメラ・演出欄の折りたたみへ移し、素材選択をポインタで再検証"
+    },
     {
       "at": "2026-10-24T00:04:44+09:00",
       "by": "codex",
@@ -237,13 +244,6 @@
       "event": "done",
       "head": "ffd1f12",
       "text": "AUDIO-001/SCR10: 登録済みGLB/VMD/FBXダンス候補、PMX+VMD評価、FBX人体骨プレビュー、SCR08導線、保存復元を実装。typecheck、隔離Chrome 2件、実PMX+実FBX/VMDの描画・保存再読込・原本hash検証に成功。Issue #39に追跡。"
-    },
-    {
-      "at": "2026-10-22T01:17:10+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3a1d40e",
-      "text": "Issue #39: SCR10で登録済みVMD/FBXダンスを選択・再生する: GLB/VMD/FBXの候補・読込・互換条件・保存復元を実装"
     }
   ]
 }
