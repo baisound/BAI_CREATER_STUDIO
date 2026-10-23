@@ -74,6 +74,9 @@
     }
     $('v68stageNote').hidden = Boolean(visible);
     if (!visible) $('v68stageNote').textContent = sourceEnded ? '元メディアの終端を超えています。クリップの長さを確認してください。' : sounding ? 'この位置は音声のみです。' : 'この位置に対応する画像・動画はありません。';
+    if (state.ready) window.dispatchEvent(new CustomEvent('bai:v05-media-frame', {
+      detail: { projectId: state.projectId, frame: state.frame, seconds, fps: state.fps, playing: state.playing },
+    }));
   }
   function pause(commit = false) {
     if (!state.playing) return;
@@ -112,7 +115,8 @@
     await saveHead();
   }
   function play() {
-    if (!state.ready || !state.entries.length) return;
+    const scene = window.BAIStudioMultiScenePreview?.status?.();
+    if (!state.ready || (!state.entries.length && !(scene?.opened && scene.loaded > 0))) return;
     if (state.frame >= state.outFrame) setFrame(state.inFrame);
     state.startFrame = state.frame;
     state.startTime = performance.now();
@@ -122,6 +126,7 @@
     setFrame(state.frame, true);
     state.raf = requestAnimationFrame(tick);
   }
+  async function stop() { pause(); await seek(state.inFrame); }
   async function configure(detail) {
     const projectId = detail?.projectId;
     if (typeof projectId !== 'string' || !projectId) return;
@@ -176,7 +181,7 @@
       setFrame(state.frame);
       $('v68play').disabled = !state.entries.length;
       const count = state.entries.length;
-      message(`${count}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : '3D・埋込動画音声・実レンダーは別途接続。'}`);
+      message(`${count}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : '3Dは別画面、動画内音声は未接続。限定MP4は出力画面に接続。'}`);
     } catch (error) {
       if (generation !== state.generation) return;
       stage.hidden = false;
@@ -187,7 +192,7 @@
 
   $('v68play').addEventListener('click', play);
   $('v68pause').addEventListener('click', () => pause(true));
-  $('v68stop').addEventListener('click', () => { pause(); void seek(state.inFrame); });
+  $('v68stop').addEventListener('click', () => { void stop(); });
   $('v68back').addEventListener('click', () => { void seek(state.frame - 1); });
   $('v68forward').addEventListener('click', () => { void seek(state.frame + 1); });
   $('v68seek').addEventListener('click', () => { void seek($('v68frame').value); });
@@ -206,6 +211,9 @@
     if (event.detail?.projectId === state.projectId && state.ready && !state.playing) setFrame(Math.round(event.detail.seconds * state.fps));
   });
   window.addEventListener('pagehide', () => { ++state.generation; pause(); release(); }, { once: true });
-  window.BAIStudioMediaPreviewV68 = Object.freeze({ status: () => ({ projectId: state.projectId, frame: state.frame, fps: state.fps,
-    ready: state.ready, playing: state.playing, mediaCount: state.entries.length, issues: [...state.issues] }) });
+  window.BAIStudioMediaPreviewV68 = Object.freeze({
+    play, pause: () => pause(true), stop, seek,
+    status: () => ({ projectId: state.projectId, frame: state.frame, fps: state.fps,
+      ready: state.ready, playing: state.playing, mediaCount: state.entries.length, issues: [...state.issues] }),
+  });
 })();
