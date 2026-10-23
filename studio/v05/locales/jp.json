@@ -285,5 +285,32 @@
     "motionReady": "モーション読込",
     "seek": "時刻を移動",
     "badTime": "時間を確認してください"
+  },
+  "spatialV61": {
+    "title": "共通XYZ操作",
+    "select": "対象",
+    "position": "位置",
+    "rotation": "回転 (°)",
+    "scale": "倍率",
+    "move": "移動 (W)",
+    "rotate": "回転 (E)",
+    "size": "倍率 (R)",
+    "save": "数値を適用",
+    "locked": "ロック中",
+    "readOnly": "保存経路未接続／プレビュー専用",
+    "saved": "位置・回転・倍率を保存しました",
+    "failed": "保存に失敗しました",
+    "render": "3Dシーン内のモデルを選択",
+    "loading": "モデルの読み込み待ち",
+    "preview": "位置・回転・倍率を編集中",
+    "cancel": "変更を取り消す",
+    "unavailable": "操作ハンドルを使用できません",
+    "busy": "保存中",
+    "notSaved": "未保存",
+    "type_model": "モデル",
+    "type_camera": "カメラ",
+    "type_light": "照明",
+    "type_effect": "3Dエフェクト",
+    "type_environment": "背景・ステージ"
   }
 }

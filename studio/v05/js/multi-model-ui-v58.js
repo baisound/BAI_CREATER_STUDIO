@@ -1,3 +1,4 @@
+import {createSpatialEditor} from './spatial-ui-v61.js';
 /* v58 - real multi-instance Three.js preview.
  * Uses a single viewport renderer and physically separate loaded objects
  * (including skeletons) per scene instance. Animation wiring is stage 59.
@@ -20,6 +21,7 @@ const tr=(key)=>locale[key]||({
 })[key]||key;
 const section=document.getElementById('v57-scene-instances');
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,nonce=0,selectedId='';
+let spatialEditor=null,sceneSnapshot=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
 panel.hidden=true;
@@ -176,6 +178,29 @@ async function setup(){
       }catch(error){disposeObject(object);throw error;}
     }
   });
+  // v61: common XYZ inspector acts on actual scene instance roots.
+  // Persist only through the existing revisioned v57 scene API.
+  spatialEditor=createSpatialEditor({
+    panel,viewport,controller,project,
+    getSceneData:()=>sceneSnapshot,
+    async saveTransform(instanceId,transform){
+      const id=project?.value;
+      if(!id||!sceneSnapshot||sceneSnapshot.project_id!==id)
+        throw Error('No current project');
+      const originalRevision=sceneSnapshot.revision;
+      const response=await fetch('/api/studio/v05/scene/instances',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({project_id:id,action:'update',revision:originalRevision,
+          instance_id:instanceId,transform})
+      });
+      const data=await response.json();
+      if(!response.ok)throw Error(data.error||'HTTP '+response.status);
+      if(project?.value!==id)throw Error('Project changed');
+      sceneSnapshot=data;
+      window.dispatchEvent(new CustomEvent('bai:v61-transform-saved',{detail:{projectId:id,instanceId}}));
+      return data;
+    }
+  });
   motionCoordinator=window.BAIStudioMultiMotionV59.createCoordinator({
     controller,loadMotion:loadInstanceMotion,
     onChange:()=>{if(opened)redrawMotionControls();},
@@ -194,6 +219,10 @@ async function reload(){
     const data=await request('/api/studio/v05/scene/instances?id='+encodeURIComponent(id));
     if(thisNonce!==nonce||!opened||id!==project.value)return;
     const result=await controller.reconcile(data);
+    if(thisNonce!==nonce||!opened)return;
+    sceneSnapshot=data;
+    await spatialEditor?.update(data.instances);
+    spatialEditor?.select(choose.value||selectedId||data.instances?.[0]?.id);
     if(thisNonce!==nonce||!opened)return;
     const plan=await request('/api/studio/v05/scene/multi-motion-plan?id='+encodeURIComponent(id));
     if(thisNonce!==nonce||!opened||id!==project.value)return;
@@ -217,6 +246,7 @@ async function open(){
 }
 function close(){
   nonce++;opened=false;
+  spatialEditor?.dispose();spatialEditor=null;sceneSnapshot=null;
   motionCoordinator?.dispose();motionCoordinator=null;motionPlan=null;
   controller?.dispose();controller=null;
   viewport?.dispose();viewport=null;
@@ -224,7 +254,10 @@ function close(){
   progress.textContent='';
 }
 refreshBtn.addEventListener('click',reload);
-choose.addEventListener('change',()=>{selectedId=choose.value;});
+choose.addEventListener('change',()=>{
+  selectedId=choose.value;
+  spatialEditor?.select(selectedId);
+});
 focusBtn.addEventListener('click',()=>{
   const id=choose.value;
   if(!id)return;

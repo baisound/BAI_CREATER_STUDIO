@@ -302,5 +302,32 @@
     "motionReady": "Motions loaded",
     "seek": "Seek",
     "badTime": "Invalid time"
+  },
+  "spatialV61": {
+    "title": "Shared XYZ controls",
+    "select": "Object",
+    "position": "Position",
+    "rotation": "Rotation (°)",
+    "scale": "Scale",
+    "move": "Move (W)",
+    "rotate": "Rotate (E)",
+    "size": "Scale (R)",
+    "save": "Apply values",
+    "locked": "Locked",
+    "readOnly": "No persistence adapter / preview only",
+    "saved": "Transform saved",
+    "failed": "Save failed",
+    "render": "Select a model in the 3D scene",
+    "loading": "Waiting for model",
+    "preview": "Editing transform",
+    "cancel": "Cancel changes",
+    "unavailable": "Transform handles unavailable",
+    "busy": "Saving",
+    "notSaved": "Not saved",
+    "type_model": "Model",
+    "type_camera": "Camera",
+    "type_light": "Light",
+    "type_effect": "3D effect",
+    "type_environment": "Environment"
   }
 }
