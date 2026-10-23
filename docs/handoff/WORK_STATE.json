@@ -1,21 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T03:54:48+09:00",
+  "updated_at": "2026-10-24T04:07:01+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-stable-image-lanes",
-  "head_at_update": "b70fa06",
+  "head_at_update": "8b50bae",
   "current": {
     "task": "Issue #80: 画像トラック削除後も後続番号とクリップ参照を維持",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存レイアウトを安定した行IDへ後方互換移行し、空行削除と再追加を保存・再読込で確認",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "PRをmainへ統合し、ローカルmainと8765の配信を更新する",
-    "別作業ツリーのPMX/VMD探査を再開する"
+    "Issue #82 split saved video/audio clips and verify source windows",
+    "Issue #84 snap/editor modes/fine timeline grid",
+    "Issue #83 editable track names"
   ],
   "unverified": [
-    "3D・モーション・カメラの直接配置と同一MP4、動画内音声、MCP、Linux、実GPU、長尺同期は未実装または未検証"
+    "3D/motion/camera shared output, embedded video audio, MCP, Linux and long-form timing remain unverified"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T04:07:01+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8b50bae",
+      "text": "Issue #80 stable image lane IDs and empty-row removal, isolated Python/Chrome checks passed"
+    },
     {
       "at": "2026-10-24T03:54:48+09:00",
       "by": "codex",
@@ -234,13 +242,6 @@
       "event": "done",
       "head": "5f4af83",
       "text": "v0.5素材接続の既存v22実描画経路を再確認し、未検証範囲の表現を訂正"
-    },
-    {
-      "at": "2026-10-23T23:49:17+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "aaacd63",
-      "text": "Issue37/63: v0.5素材画面を既存登録索引・追加登録・タイムライン選択へ接続し、隔離Chrome2件と型検査を確認"
     }
   ]
 }
