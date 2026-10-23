@@ -81,6 +81,43 @@ test('v0.5 library shows existing registration, uploads and selects a real asset
   }
 });
 
+test('library scroll stays below its filters without clipping the management panes', async () => {
+  const page = await server.newPage(browser, { viewport: { width: 1280, height: 720 } });
+  try {
+    await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.locator('[data-go="library"]').first().click();
+    await page.locator('#baiLibraryGrid [data-library-id]').first().waitFor();
+    const before = await page.evaluate(() => {
+      const grid = document.getElementById('baiLibraryGrid');
+      for (let i = 0; i < 80; i++) {
+        const card = document.createElement('button');
+        card.type = 'button'; card.className = 'baiCard'; card.textContent = `寸法確認 ${i}`;
+        grid.appendChild(card);
+      }
+      const box = (id) => { const r = document.getElementById(id).getBoundingClientRect(); return { top: r.top, bottom: r.bottom }; };
+      return { outerScrollHeight: document.getElementById('baiPages').scrollHeight,
+        outerClientHeight: document.getElementById('baiPages').clientHeight,
+        gridScrollHeight: grid.scrollHeight, gridClientHeight: grid.clientHeight,
+        filter: box('baiAssetSort'), grid: box('baiLibraryGrid'),
+        detail: box('baiAssetDetail'), pages: box('baiPages') };
+    });
+    assert.equal(before.outerScrollHeight, before.outerClientHeight);
+    assert.ok(before.gridScrollHeight > before.gridClientHeight);
+    assert.ok(before.grid.top > before.filter.bottom);
+    assert.ok(before.detail.bottom <= before.pages.bottom + 1);
+    await page.locator('#baiLibraryGrid').evaluate((grid) => { grid.scrollTop = 350; });
+    const after = await page.evaluate(() => ({
+      gridScrollTop: document.getElementById('baiLibraryGrid').scrollTop,
+      outerScrollTop: document.getElementById('baiPages').scrollTop,
+      filterTop: document.getElementById('baiAssetSort').getBoundingClientRect().top,
+    }));
+    assert.ok(after.gridScrollTop > 0);
+    assert.equal(after.outerScrollTop, 0);
+    assert.equal(after.filterTop, before.filter.top);
+    harness.assertNoErrors(page);
+  } finally { await page.context().close(); }
+});
+
 test('v0.5 library reports index failure without showing sample assets', async () => {
   const page = await server.newPage(browser, { expectErrors: [/Failed to load resource:.*500/] });
   try {

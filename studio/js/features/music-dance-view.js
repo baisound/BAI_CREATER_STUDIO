@@ -69,6 +69,7 @@ export const musicDanceStudio = (ctx) => {
   let revision = '', dirty = false, alive = true, selected = 'audio';
   let totalFrames = 330, frame = 0, playing = false, playAnchorFrame = 0, playAnchorTime = 0, raf = 0;
   let loadGeneration = 0, audioGeneration = 0;
+  let lastTransportState = '';
   /** @type {import('../viewport/model-loader.js').Libs|null} */ let libs = null;
   /** @type {import('../viewport/three-host.js').Viewport|null} */ let host = null;
   /** @type {any} */ let actor = null, motionObject = null, preview = null, physics = null;
@@ -108,6 +109,19 @@ export const musicDanceStudio = (ctx) => {
     sourceLabel.textContent = `音楽 ${a?.active ? a.seconds.toFixed(2) + ' 秒' : '—'} / ダンス ${m?.active ? m.seconds.toFixed(2) + ' 秒' : '—'}`;
     play.textContent = playing ? '▶ 再生中' : '▶ 再生';
     play.disabled = playing || (!hasAudio() && !hasDance()); pause.disabled = !playing;
+    publishTransportState();
+  }
+  function transportState() {
+    return { frame: Math.round(currentFrame()), totalFrames, fps: FPS, playing,
+      modelLoaded: Boolean(actor), motionLoaded: Boolean(preview), audioLoaded: Boolean(decoded) };
+  }
+  function publishTransportState(force = false) {
+    if (window.parent === window) return;
+    const state = transportState();
+    const key = JSON.stringify(state);
+    if (!force && key === lastTransportState) return;
+    lastTransportState = key;
+    window.parent.postMessage({ type: 'bai:v05:transport-state', ...state }, window.location.origin);
   }
   function followActor() {
     if (!follow.checked || !preview || !host || !libs) { followed = null; return; }
@@ -380,17 +394,23 @@ export const musicDanceStudio = (ctx) => {
   sourceFrame.addEventListener('change', () => { const [, field] = trackFields(); changeTrack(field, Number(sourceFrame.value)); });
   save.addEventListener('click', () => { void savePlacement(); });
   reload.addEventListener('click', () => { void loadPlacement(); });
-  // v0.5 integration: accept validated seeks from the embedded studio workspace.
-  // This connects to the REAL loaded preview's seek()/poseAt() rather than a mock runtime.
-  const onV05Seek = (event) => {
+  // v0.5 controls this same audio clock and pose runtime through a same-origin bridge.
+  const onV05Transport = async (event) => {
     if (!alive || event.origin !== window.location.origin || event.source !== window.parent) return;
     const payload = event.data;
-    if (!payload || payload.type !== 'bai:v05:seek' || !Number.isFinite(payload.seconds) || payload.seconds < 0 || payload.seconds > 7200) return;
-    seek(payload.seconds * FPS);
-    window.parent.postMessage({ type: 'bai:v05:seek-ack', requestId: payload.requestId, seconds: frame / FPS, ready: Boolean(preview), modelLoaded: Boolean(actor) }, event.origin);
+    if (!payload || payload.type !== 'bai:v05:transport' || !Number.isSafeInteger(payload.requestId)) return;
+    if (payload.action === 'seek' && Number.isInteger(payload.frame) && payload.frame >= 0 && payload.frame <= 216000) seek(payload.frame);
+    else if (payload.action === 'step' && Number.isInteger(payload.frames) && Math.abs(payload.frames) <= 300) seek(currentFrame() + payload.frames);
+    else if (payload.action === 'play') await startPlayback();
+    else if (payload.action === 'pause') pausePlayback();
+    else if (payload.action === 'stop') { pausePlayback(); seek(0); }
+    else if (payload.action !== 'state') return;
+    if (!alive) return;
+    window.parent.postMessage({ type: 'bai:v05:transport-ack', requestId: payload.requestId, ...transportState() }, event.origin);
+    publishTransportState(true);
   };
-  window.addEventListener('message', onV05Seek);
-  ctx.onCleanup(() => window.removeEventListener('message', onV05Seek));
+  window.addEventListener('message', onV05Transport);
+  ctx.onCleanup(() => window.removeEventListener('message', onV05Transport));
   ctx.onCleanup(assets.subscribe(() => refreshOptions()));
   ctx.onCleanup(() => {
     alive = false; loadGeneration++; audioGeneration++; audioAbort?.abort(); pausePlayback();
