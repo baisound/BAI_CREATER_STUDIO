@@ -678,16 +678,18 @@ class Handler(BaseHTTPRequestHandler):
             return
         if urlsplit(self.path).path == '/api/studio/v05/scene/instances':
             from studio_v05_scene_instances import mutate, SceneInstancesError
+            from studio_v05_pmx_morphs import names as pmx_morph_names
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0 < length <= 8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
                 allowed={'project_id','action','revision','instance_id','asset_id',
-                         'transform','visible','locked','camera'}
+                         'transform','visible','locked','camera','face_key'}
                 if not isinstance(body,dict) or not {'project_id','action','revision'} <= set(body) or set(body)-allowed:
                     return self.bad(400,'Invalid scene instances fields')
                 result=mutate(DATA/'studio_v05_scene_instances',DATA/'studio_v05_scene_models',
-                              DATA/'studio_v05_catalog.json',assets=unified_assets(),**body)
+                              DATA/'studio_v05_catalog.json',assets=unified_assets(),
+                              morph_lookup=lambda entry: pmx_morph_names(character_source(entry)),**body)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except (SceneInstancesError,ValueError,TypeError,KeyError) as exc:
                 self.bad(409 if ('conflict' in str(exc).lower() or 'locked' in str(exc).lower()

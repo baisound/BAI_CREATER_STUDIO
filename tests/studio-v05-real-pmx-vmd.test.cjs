@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const {spawnSync} = require('node:child_process');
 const harness = require('./helpers/studio-harness.cjs');
 
 const sourceRoot = process.env.BAI_REAL_MMD_DATA;
@@ -50,6 +51,8 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
     await page.locator('#v70sceneOpen').click();
     await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().loaded === 1 &&
       window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length === 1, null, {timeout: 120000});
+    const morphs = await page.evaluate(instanceId => window.BAIStudioMultiScenePreview.morphProbe(instanceId), instanceId);
+    assert.ok(morphs && Object.keys(morphs.morphs).length > 0, '実PMXのモーフ名を取得できません');
     const names = ['センター','上半身','首','頭','右腕','左腕'];
     const read = async frame => {
       await page.evaluate(frame => window.BAIStudioTimeline.seek(frame / 30, 'real-pmx-test'), frame);
@@ -59,6 +62,33 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
         pixels: await page.locator('#v58-canvas canvas').screenshot()};
     };
     const at0 = await read(0), at120 = await read(120);
+    assert.ok(Object.hasOwn(morphs.morphs,'まばたき'));
+    await page.locator('#v96-face-name').selectOption('まばたき');
+    await page.locator('#v96-face-time').fill('0');
+    await page.locator('#v96-face-save').click();
+    await page.waitForFunction(() => document.querySelector('#v96-face-saved')?.options.length === 2);
+    await page.locator('#v96-face-time').fill('4');
+    await page.locator('#v96-face-value').evaluate(el => {
+      el.value = '1'; el.dispatchEvent(new Event('input', {bubbles:true}));
+    });
+    await page.locator('#v96-face-save').click();
+    await page.waitForFunction(() => document.querySelector('#v96-face-saved')?.options.length === 3);
+    const storedFace = await ok(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+    assert.deepEqual(storedFace.face_keys.map(x=>[x.morph_name,x.time,x.value]),
+      [['まばたき',0,0],['まばたき',4,1]]);
+    await page.evaluate(() => window.BAIStudioTimeline.seek(2, 'face-key-test'));
+    await page.waitForTimeout(250);
+    const half = await page.evaluate(instanceId =>
+      window.BAIStudioMultiScenePreview.morphProbe(instanceId).morphs['まばたき'],instanceId);
+    assert.ok(Math.abs(half-.5)<.001, `表情キー補間は${half}`);
+    const keyed120 = await read(120);
+    const beforeFace=rawPng(at120.pixels),afterFace=rawPng(keyed120.pixels);
+    let facePreviewPixels=0;
+    for(let i=0;i<beforeFace.length;i+=3)
+      if(Math.max(...[0,1,2].map(j=>Math.abs(beforeFace[i+j]-afterFace[i+j])))>5)facePreviewPixels++;
+    assert.ok(facePreviewPixels>2,`表情キーがプレビュー実画素を変えません (${facePreviewPixels})`);
+    assert.equal(await page.evaluate(instanceId =>
+      window.BAIStudioMultiScenePreview.morphProbe(instanceId).morphs['まばたき'],instanceId),1);
     assert.ok(at0.frame?.precise?.size.every(n => Number.isFinite(n) && n > 0 && n < 100));
     assert.ok(at0.frame.camera.every(n => Number.isFinite(n) && Math.abs(n) < 100));
     const poseDelta = (a,b) => Math.max(...a.quaternion.map((n,i) => Math.abs(n-b.quaternion[i])),
@@ -75,11 +105,15 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
     await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().loaded === 1 &&
       window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length === 1, null, {timeout: 120000});
     const restored = await read(120);
+    assert.equal(await page.evaluate(instanceId =>
+      window.BAIStudioMultiScenePreview.morphProbe(instanceId).morphs['まばたき'],instanceId),1);
     assert.ok(poseDelta(at120.pose.bones[changed[0]],restored.pose.bones[changed[0]]) < 1e-4,
       '保存再読込後のF120姿勢が変わりました');
     console.log(JSON.stringify({model_sha256:original.model,motion_sha256:original.motion,changedBones:changed,
+      morphNames:Object.keys(morphs.morphs).slice(0,60),morphCount:Object.keys(morphs.morphs).length,
       headDelta:poseDelta(at0.pose.bones[changed[0]],at120.pose.bones[changed[0]]),
-      renderer:at0.frame.renderer,canvas:at0.frame.canvas,frame0:at0.frame.precise.size,frame120:at120.frame.precise.size}));
+      renderer:at0.frame.renderer,canvas:at0.frame.canvas,frame0:at0.frame.precise.size,frame120:at120.frame.precise.size,
+      faceKeyRevision:storedFace.revision,facePreviewPixels}));
     harness.assertNoErrors(page);
   } finally {
     await page?.close(); await browser?.close(); await server.stop();
@@ -87,3 +121,12 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
     assert.equal(digest(motionPath), original.motion, 'VMD原本が変わりました');
   }
 });
+
+function rawPng(bytes){
+  const run=spawnSync('ffmpeg',['-hide_banner','-loglevel','error','-i','pipe:0',
+    '-frames:v','1','-vf','scale=160:90','-pix_fmt','rgb24','-f','rawvideo','pipe:1'],
+    {input:bytes,maxBuffer:1024*1024});
+  assert.equal(run.status,0,run.stderr.toString());
+  assert.equal(run.stdout.length,160*90*3);
+  return run.stdout;
+}

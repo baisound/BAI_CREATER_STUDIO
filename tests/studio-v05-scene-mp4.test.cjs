@@ -306,6 +306,41 @@ test('real registered PMX and VMD produce different MP4 pixels at project F0/F24
     for (let i = 0; i < pixels.length; i += 3)
       if (Math.max(pixels[i], pixels[i + 1], pixels[i + 2]) > 24) nonblack++;
     assert.ok(nonblack > 200, `実PMXがMP4画素にありません (${nonblack})`);
+    const faceKey = (time,value) => ({instance_id:scene.instances[0].id,
+      morph_name:'まばたき',time,value});
+    const unknownMorph = await fetch(`${server.base}/api/studio/v05/scene/instances`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({project_id:id,action:'face-set',revision:scene.revision,
+        face_key:{...faceKey(0,1),morph_name:'実PMXに存在しない名前'}})
+    });
+    assert.equal(unknownMorph.status,422);
+    assert.match((await unknownMorph.json()).error,/not present/);
+    const face0 = await json(await fetch(`${server.base}/api/studio/v05/scene/instances`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({project_id:id,action:'face-set',revision:scene.revision,face_key:faceKey(0,0)})
+    }));
+    const face4 = await json(await fetch(`${server.base}/api/studio/v05/scene/instances`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({project_id:id,action:'face-set',revision:face0.revision,face_key:faceKey(4,1)})
+    }));
+    const staleFace = await fetch(`${server.base}/api/studio/v05/render/jobs`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({project_id:id,arrangement_revision:assigned.revision,
+        range_revision:range.revision,scene_revision:scene.revision,resolution:'720p'})
+    });
+    assert.equal(staleFace.status,409);
+    const keyedStart = await json(await fetch(`${server.base}/api/studio/v05/render/jobs`, {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({project_id:id,arrangement_revision:assigned.revision,
+        range_revision:range.revision,scene_revision:face4.revision,resolution:'720p'})
+    }),202);
+    await waitJob(server.base,keyedStart.id);
+    const keyedMp4=Buffer.from(await (await fetch(`${server.base}/api/studio/v05/render/file?id=${keyedStart.id}`)).arrayBuffer());
+    const keyedPixels=rawFrame(keyedMp4,0.01,1280,720);
+    let facePixelChanges=0;
+    for(let i=0;i<pixels.length;i+=3)
+      if(Math.max(...[0,1,2].map(j=>Math.abs(pixels[i+j]-keyedPixels[i+j])))>5)facePixelChanges++;
+    assert.ok(facePixelChanges>2,`保存表情キーが実MP4画素を変えません (${facePixelChanges})`);
     const earlyRange = await json(await fetch(`${server.base}/api/studio/v05/timeline/range`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ project_id: id, revision: range.revision,
@@ -314,7 +349,7 @@ test('real registered PMX and VMD produce different MP4 pixels at project F0/F24
     const earlyStart = await json(await fetch(`${server.base}/api/studio/v05/render/jobs`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ project_id: id, arrangement_revision: assigned.revision,
-        range_revision: earlyRange.revision, scene_revision: scene.revision, resolution: '720p' }),
+        range_revision: earlyRange.revision, scene_revision: face4.revision, resolution: '720p' }),
     }), 202);
     await waitJob(server.base, earlyStart.id);
     const earlyMp4 = Buffer.from(await (await fetch(`${server.base}/api/studio/v05/render/file?id=${earlyStart.id}`)).arrayBuffer());
@@ -333,7 +368,8 @@ test('real registered PMX and VMD produce different MP4 pixels at project F0/F24
     const reread = Buffer.from(await (await fetch(`${server.base}/api/studio/v05/render/file?id=${started.id}`)).arrayBuffer());
     assert.equal(hash(reread), hash(mp4), '別名出力後も最初のMP4を保持');
     console.log(JSON.stringify({ pmx_sha256: before.model, vmd_sha256: before.motion,
-      frames: job.probe.frames, renderer: job.scene_capture.renderer, nonblack, headDelta, motionPixelChanges }));
+      frames: job.probe.frames, renderer: job.scene_capture.renderer, nonblack, headDelta,
+      facePixelChanges,motionPixelChanges }));
   } finally {
     await server.stop();
     assert.equal(hash(fs.readFileSync(modelPath)), before.model);

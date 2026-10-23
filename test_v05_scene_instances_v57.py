@@ -82,6 +82,39 @@ class MultiSceneV57(unittest.TestCase):
         another=self.mutate(action='add',revision=1,asset_id=self.a['id'],transform=self.tr)
         self.assertEqual(another['camera'],pose)
         self.assertIsNone(read(self.store,self.legacy,self.catalog,self.other,self.assets)['camera'])
+    def test_face_keys_are_revisioned_and_do_not_modify_source(self):
+        pmx={**self.a,'id':'mmd:A:face.pmx','source':'mmd','kind':'A',
+             'format':'PMX','filename':'face.pmx'}
+        self.assets.append(pmx)
+        added=self.mutate(action='add',revision=0,asset_id=pmx['id'],transform=self.tr)
+        instance=added['instances'][0]['id']
+        key={'instance_id':instance,'morph_name':'髙・あ','time':1.5,'value':0.75}
+        with self.assertRaisesRegex(SceneInstancesError,'not present'):
+            self.mutate(action='face-set',revision=1,face_key=key,
+                        morph_lookup=lambda source:{'まばたき'})
+        saved=self.mutate(action='face-set',revision=1,face_key=key,
+                          morph_lookup=lambda source:{'髙・あ'})
+        self.assertEqual(saved['face_keys'],[key])
+        self.assertEqual(read(self.store,self.legacy,self.catalog,self.p,self.assets)['face_keys'],[key])
+        before=(self.store/(self.p+'.json')).read_bytes()
+        for invalid in ({**key,'value':1.1},{**key,'time':float('nan')},
+                        {**key,'morph_name':''},{**key,'value':True}):
+            with self.assertRaises(SceneInstancesError):
+                self.mutate(action='face-set',revision=2,face_key=invalid)
+        with self.assertRaisesRegex(SceneInstancesError,'conflict'):
+            self.mutate(action='face-set',revision=1,face_key=key)
+        self.assertEqual((self.store/(self.p+'.json')).read_bytes(),before)
+        self.assets.remove(pmx)
+        removed=self.mutate(action='face-remove',revision=2,face_key={k:key[k] for k in
+            ('instance_id','morph_name','time')},morph_lookup=lambda source: (_ for _ in ()).throw(ValueError('missing')))
+        self.assertEqual(removed['face_keys'],[])
+        with self.assertRaises(SceneInstancesError):
+            self.mutate(action='face-remove',revision=3,face_key={k:key[k] for k in
+                ('instance_id','morph_name','time')})
+        self.assets.append(pmx)
+        saved=self.mutate(action='face-set',revision=3,face_key=key)
+        gone=self.mutate(action='remove',revision=saved['revision'],instance_id=instance)
+        self.assertEqual(gone['face_keys'],[])
     def test_reject_invalid_and_preserve(self):
         r=self.mutate(action='add',revision=0,asset_id=self.a['id'],transform=self.tr)
         before=(self.store/(self.p+'.json')).read_bytes()
