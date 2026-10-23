@@ -56,6 +56,9 @@ const faceControls=document.createElement('div');faceControls.id='v96-face-contr
 faceControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid #435a73;padding-top:6px';
 const faceLabel=document.createElement('strong');faceLabel.textContent='PMX表情・口';
 const faceName=document.createElement('select');faceName.id='v96-face-name';faceName.setAttribute('aria-label','実PMXのモーフ名');
+const faceTrack=document.createElement('select');faceTrack.id='v98-face-track';
+faceTrack.setAttribute('aria-label','保存先の表情・口行');
+faceTrack.add(new Option('表情行','expression'));faceTrack.add(new Option('口行','lip'));
 const faceTime=document.createElement('input');faceTime.id='v96-face-time';faceTime.type='number';
 faceTime.min='0';faceTime.max='86400';faceTime.step='0.001';faceTime.value='0';faceTime.style.width='82px';
 faceTime.setAttribute('aria-label','表情キーの時刻（秒）');
@@ -67,7 +70,7 @@ const faceSave=document.createElement('button');faceSave.id='v96-face-save';face
 const faceSaved=document.createElement('select');faceSaved.id='v96-face-saved';faceSaved.setAttribute('aria-label','保存済み表情キー');
 const faceDelete=document.createElement('button');faceDelete.id='v96-face-delete';faceDelete.type='button';faceDelete.textContent='選択キーを削除';
 const faceStatus=document.createElement('span');faceStatus.setAttribute('role','status');
-faceControls.append(faceLabel,faceName,faceTime,faceUseSeek,faceValue,faceValueText,faceSave,
+faceControls.append(faceLabel,faceName,faceTrack,faceTime,faceUseSeek,faceValue,faceValueText,faceSave,
   faceSaved,faceDelete,faceStatus);
 heading.append(title,choose,refreshBtn,focusBtn,saveCameraBtn,restoreCameraBtn,modeBtn,closeBtn);
 const motionControls=document.createElement('div');motionControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
@@ -369,6 +372,7 @@ faceSaved.addEventListener('change',()=>{
   const key=sceneSnapshot?.face_keys?.[Number(faceSaved.value)];
   if(!faceSaved.value||!key)return;
   faceName.value=key.morph_name;faceTime.value=String(key.time);
+  faceTrack.value=key.track||'expression';
   faceValue.value=String(key.value);faceValueText.textContent=key.value.toFixed(2);
   faceDelete.disabled=false;
 });
@@ -393,7 +397,8 @@ faceSave.addEventListener('click',async()=>{
     faceStatus.textContent='実PMXにあるモーフを選んでください';return;
   }
   faceSave.disabled=true;
-  try{await writeFace('face-set',{instance_id:instanceId,morph_name:name,time,value});
+  try{await writeFace('face-set',{instance_id:instanceId,morph_name:name,time,value,
+    track:faceTrack.value});
     faceStatus.textContent='表情キーを保存しました';
   }catch(error){faceStatus.textContent='保存失敗: '+String(error.message||error);}
   finally{faceSave.disabled=false;}
@@ -491,6 +496,26 @@ modeBtn.addEventListener('click',()=>{open({composite:!composite}).catch(e=>prog
 project?.addEventListener('change',()=>{if(opened)reload();});
 window.addEventListener('bai:v58-preview-open',()=>{open().catch(e=>progress.textContent=e.message);});
 window.addEventListener('bai:v57-scene-changed',()=>{if(opened)reload();});
+window.addEventListener('bai:v98-face-moved',event=>{
+  if(opened&&event.detail?.projectId===project?.value)void reload();
+});
+window.addEventListener('bai:v98-face-key-select',async event=>{
+  const key=event.detail?.key,projectId=event.detail?.projectId;
+  if(captureMode||!key||projectId!==project?.value)return;
+  try{
+    await open({composite:true});
+    if(project?.value!==projectId||!opened)return;
+    choose.value=key.instance_id;
+    selectedId=key.instance_id;
+    spatialEditor?.select(selectedId);
+    redrawFaceControls();
+    const index=sceneSnapshot?.face_keys?.findIndex(row=>row.instance_id===key.instance_id&&
+      row.morph_name===key.morph_name&&row.time===key.time);
+    if(index>=0){faceSaved.value=String(index);faceSaved.dispatchEvent(new Event('change'));}
+    if(window.BAIStudioTimeline?.seek)await window.BAIStudioTimeline.seek(key.time,'face-key');
+    else seekScene(key.time);
+  }catch(error){faceStatus.textContent='表情キーを開けません: '+String(error.message||error);}
+});
 window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,

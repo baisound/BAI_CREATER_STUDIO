@@ -144,8 +144,12 @@ test('saved GLB scene is captured at each In/Out frame and composited into a rea
     await page.locator('#v69result').waitFor({ state: 'visible' });
     assert.equal(await page.locator('#v69resolution').inputValue(), '720p');
     await page.locator('#baiAddRender').click();
-    await page.waitForFunction(() => document.querySelectorAll('#baiRenderQueue .v69job').length >= 3 &&
-      document.querySelector('#v69status')?.textContent.includes('完成'), null, { timeout: 90000 });
+    await page.waitForFunction(previousId => {
+      const link=document.querySelector('#v69download')?.getAttribute('href')||'';
+      return document.querySelectorAll('#baiRenderQueue .v69job').length >= 3 &&
+        document.querySelector('#v69status')?.textContent.includes('完成') &&
+        link.includes('/api/studio/v05/render/file?id=') && !link.includes(previousId);
+    }, started.id, { timeout: 90000 });
     const uiJobs = await json(await fetch(`${server.base}/api/studio/v05/render/jobs?project_id=${id}`));
     assert.equal(uiJobs.jobs[0].status, 'succeeded');
     assert.equal(uiJobs.jobs[0].scene_revision, scene.revision);
@@ -341,6 +345,24 @@ test('real registered PMX and VMD produce different MP4 pixels at project F0/F24
     for(let i=0;i<pixels.length;i+=3)
       if(Math.max(...[0,1,2].map(j=>Math.abs(pixels[i+j]-keyedPixels[i+j])))>5)facePixelChanges++;
     assert.ok(facePixelChanges>2,`保存表情キーが実MP4画素を変えません (${facePixelChanges})`);
+    const movedScene=await json(await fetch(`${server.base}/api/studio/v05/scene/instances`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({project_id:id,action:'face-move',revision:face4.revision,
+        face_key:{instance_id:scene.instances[0].id,morph_name:'まばたき',time:4,to_time:5}})
+    }));
+    assert.deepEqual(movedScene.face_keys.map(key=>key.time),[0,5]);
+    const movedStart=await json(await fetch(`${server.base}/api/studio/v05/render/jobs`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({project_id:id,arrangement_revision:assigned.revision,
+        range_revision:range.revision,scene_revision:movedScene.revision,resolution:'720p'})
+    }),202);
+    await waitJob(server.base,movedStart.id);
+    const movedMp4=Buffer.from(await (await fetch(`${server.base}/api/studio/v05/render/file?id=${movedStart.id}`)).arrayBuffer());
+    const movedPixels=rawFrame(movedMp4,0.01,1280,720);
+    let movedFacePixels=0;
+    for(let i=0;i<pixels.length;i+=3)
+      if(Math.max(...[0,1,2].map(j=>Math.abs(keyedPixels[i+j]-movedPixels[i+j])))>5)movedFacePixels++;
+    assert.ok(movedFacePixels>2,`キー時刻の移動がMP4画素に反映されません (${movedFacePixels})`);
     const earlyRange = await json(await fetch(`${server.base}/api/studio/v05/timeline/range`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ project_id: id, revision: range.revision,
@@ -349,7 +371,7 @@ test('real registered PMX and VMD produce different MP4 pixels at project F0/F24
     const earlyStart = await json(await fetch(`${server.base}/api/studio/v05/render/jobs`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ project_id: id, arrangement_revision: assigned.revision,
-        range_revision: earlyRange.revision, scene_revision: face4.revision, resolution: '720p' }),
+        range_revision: earlyRange.revision, scene_revision: movedScene.revision, resolution: '720p' }),
     }), 202);
     await waitJob(server.base, earlyStart.id);
     const earlyMp4 = Buffer.from(await (await fetch(`${server.base}/api/studio/v05/render/file?id=${earlyStart.id}`)).arrayBuffer());
@@ -369,7 +391,7 @@ test('real registered PMX and VMD produce different MP4 pixels at project F0/F24
     assert.equal(hash(reread), hash(mp4), '別名出力後も最初のMP4を保持');
     console.log(JSON.stringify({ pmx_sha256: before.model, vmd_sha256: before.motion,
       frames: job.probe.frames, renderer: job.scene_capture.renderer, nonblack, headDelta,
-      facePixelChanges,motionPixelChanges }));
+      facePixelChanges,movedFacePixels,motionPixelChanges }));
   } finally {
     await server.stop();
     assert.equal(hash(fs.readFileSync(modelPath)), before.model);
