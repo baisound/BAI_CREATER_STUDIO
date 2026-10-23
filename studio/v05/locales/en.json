@@ -257,7 +257,7 @@
   },
   "v57": {
     "title": "Scene Model Instances (new)",
-    "notRendered": "Placements only. Multi-model GPU rendering is a later stage.",
+    "notRendered": "Saved model placements. Use Preview 3D for multiple models (real GPU rendering not yet verified).",
     "model": "Model asset",
     "instances": "Scene instances",
     "position": "Position",
@@ -278,6 +278,23 @@
     "confirmRemove": "Remove selected instance?",
     "visible": "Visible",
     "locked": "Locked",
-    "unlockFirst": "Unlock and save before editing the transform"
+    "unlockFirst": "Unlock and save before editing the transform",
+    "preview": "Preview 3D"
+  },
+  "v58": {
+    "title": "Multi-model 3D preview",
+    "renderingNote": "Each model is loaded separately into one scene. Verify real WebGL rendering on your machine.",
+    "select": "Select scene model",
+    "refresh": "Reload placements",
+    "focus": "Focus selected model",
+    "close": "Close",
+    "choose": "Select a model",
+    "loadedCount": "Models loaded",
+    "problems": "Issues",
+    "chooseProject": "Choose a project first",
+    "loading": "Loading 3D models…",
+    "loadFailed": "Load failed",
+    "runtimeError": "3D renderer is unavailable",
+    "mismatch": "Different project selected"
   }
 }

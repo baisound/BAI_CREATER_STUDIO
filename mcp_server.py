@@ -62,6 +62,9 @@ def run(name,a):
     if name=='bai_studio_scene_motion_plan':return api('/api/studio/v05/scene/motion-plan?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_scene_model_candidates':return api('/api/studio/v05/scene/model-candidates')
     if name=='bai_studio_scene_instances_get':return api('/api/studio/v05/scene/instances?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_scene_preview_plan':
+        r=api('/api/studio/v05/scene/instances?id='+urllib.parse.quote(a['project_id']))
+        return {'project_id':r['project_id'],'revision':r['revision'],'instances':r['instances'],'renderer_verified':False,'note':'Preview rendering is browser-local; this tool reads saved scene placement only.'}
     if name=='bai_studio_scene_instances_mutate':return api('/api/studio/v05/scene/instances',a)
     if name=='bai_studio_scene_model_get':return api('/api/studio/v05/scene/model?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_scene_model_set':return api('/api/studio/v05/scene/model',a)
@@ -190,6 +193,7 @@ TOOLS=[
 ('bai_studio_scene_motion_plan','Read valid motion-to-scene-model pairings, format compatibility, and preview readiness.',S({'project_id':STR},['project_id'])),
  ('bai_studio_scene_model_candidates','List actually previewable model assets.',S()),
 ('bai_studio_scene_instances_get','Get project scene instances and independent transforms.',S({'project_id':STR},['project_id'])),
+('bai_studio_scene_preview_plan','Read model placement plan for shared 3D preview, not live GPU state.',S({'project_id':STR},['project_id'])),
 ('bai_studio_scene_instances_mutate','Add/update/remove a scene instance using a revision.',S({'project_id':STR,'action':{'type':'string','enum':['add','update','remove']},'revision':INT,'instance_id':STR,'asset_id':STR,'transform':{'type':'object'},'visible':{'type':'boolean'},'locked':{'type':'boolean'}},['project_id','action','revision'])),
 ('bai_studio_scene_model_get','Read a single-model scene placement for a project.',S({'project_id':STR},['project_id'])),
 ('bai_studio_scene_model_set','Save or remove a project scene model with XYZ transform and revision.',S({'project_id':STR,'asset_id':{'type':['string','null']},'transform':{'type':['object','null']},'revision':INT},['project_id','asset_id','transform','revision'])),

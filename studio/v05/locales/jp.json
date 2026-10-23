@@ -240,7 +240,7 @@
   },
   "v57": {
     "title": "シーン内のモデル一覧（新方式）",
-    "notRendered": "配置データのみ。複数モデルのGPU同時描画は後続工程です。",
+    "notRendered": "配置データを保存します。複数モデルは「3D表示」で確認（実GPU動作は未検証）。",
     "model": "追加する3Dモデル",
     "instances": "配置済みモデル",
     "position": "位置",
@@ -261,6 +261,23 @@
     "confirmRemove": "選択モデルを削除しますか？",
     "visible": "表示する",
     "locked": "操作をロック",
-    "unlockFirst": "まずロックを解除して保存してください"
+    "unlockFirst": "まずロックを解除して保存してください",
+    "preview": "3D表示"
+  },
+  "v58": {
+    "title": "複数モデルの3D表示",
+    "renderingNote": "実モデルを別々に読み込み、同じ3D空間で表示します。実GPU動作は環境で検証してください。",
+    "select": "表示対象モデル",
+    "refresh": "配置を再読み込み",
+    "focus": "選択モデルに注目",
+    "close": "閉じる",
+    "choose": "モデルを選択",
+    "loadedCount": "読み込み済み",
+    "problems": "問題",
+    "chooseProject": "先に作品を選択してください",
+    "loading": "3Dモデルを読み込み中…",
+    "loadFailed": "読み込み失敗",
+    "runtimeError": "実3D機能が利用できません",
+    "mismatch": "現在の作品と一致しません"
   }
 }

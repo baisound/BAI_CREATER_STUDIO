@@ -19,6 +19,7 @@ function stop(){
 }
 open?.addEventListener('click',()=>{
   if(instance){stop();return;}
+  window.BAIStudioMultiScenePreview?.close();
   panel.classList.add('open');
   instance=createActualMotionLoaders(document.getElementById('v22-preview'),announce);
   const runtime=window.BAIStudioAssetRuntime;

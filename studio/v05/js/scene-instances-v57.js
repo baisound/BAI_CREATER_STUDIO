@@ -31,7 +31,7 @@
   flags.append(visibleControl,lockedControl);
   const actions=document.createElement('div');actions.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
   const mk=(key)=>{const b=document.createElement('button');b.type='button';b.textContent=t(key);actions.append(b);return b;};
-  const add=mk('add'),save=mk('save'),remove=mk('remove'),refresh=mk('refresh');
+  const add=mk('add'),save=mk('save'),remove=mk('remove'),refresh=mk('refresh'),preview=mk('preview');
   const status=document.createElement('p');status.setAttribute('role','status');
   section.prepend(title,note,asset,list);
   section.append(flags,actions,status);
@@ -90,6 +90,7 @@
         {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       if(project.value!==id)return;
       state=result;refreshSelect();display(t('saved')+' · '+state.instances.length);
+      window.dispatchEvent(new CustomEvent('bai:v57-scene-changed',{detail:{projectId:id}}));
     }catch(e){display(t('saveError')+': '+e.message);await reload();}
     finally{refresh.disabled=false;add.disabled=false;refreshSelect();}
   }
@@ -106,6 +107,7 @@
   });
   remove.addEventListener('click',()=>{const s=selected();if(s&&confirm(t('confirmRemove')))modify('remove',{instance_id:s.id});});
   refresh.addEventListener('click',reload);
+  preview.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('bai:v58-preview-open',{detail:{projectId:project.value}})));
   list.addEventListener('change',()=>{fill(selected()?.transform);visibleBox.checked=selected()?.visible ?? true;lockedBox.checked=selected()?.locked ?? false;save.disabled=!selected();remove.disabled=!selected()||selected().locked;});
   project.addEventListener('change',reload);
   for(let i=0;i<30&&!project.value;i++)await new Promise(r=>setTimeout(r,100));
