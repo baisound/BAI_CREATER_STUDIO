@@ -11,10 +11,11 @@
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "main差分統合、PRとmain同期後、3D/2D同一画素プレビューと3D入り動画出力を進める"
+    "Finish isolated same-pixel 3D/media preview, commit/PR/merge and sync main",
+    "Continue approved v0.5 3D-inclusive MP4 output after preview verification"
   ],
   "unverified": [
-    "全身ダンス、顔・口・物理、実GPU、3Dと2Dの合成、3D入りMP4、長尺同期、Linux/MCPは未確認"
+    "Real PMX plus 2D composite, real GPU, 3D-inclusive MP4, long-form sync, Linux and MCP are unverified or unimplemented"
   ],
   "blockers": [],
   "owner_questions": [
@@ -37,6 +38,20 @@
       "event": "start",
       "head": "4778af2",
       "text": "Issue #63/#69: v0.5保存済み3Dと画像・動画の同一画素プレビュー: 既存作品時刻で3Dキャンバスと2Dメディアを同じ編集ビューに重ね、保存再読込と実画素を隔離確認する"
+    },
+    {
+      "at": "2026-10-24T05:07:22+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "7f0a888",
+      "text": "Issues #88/#89: HOME JST second display, live timeline cursor and usable zoom; isolated Chrome 4 tests, typecheck, JSON and data hashes passed"
+    },
+    {
+      "at": "2026-10-24T04:54:00+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4778af2",
+      "text": "Issues #88/#89: HOME Japan-time display and media timeline playhead/zoom synchronization: Inspect existing UI, preserve stored timestamps and clip edits, implement display/clock fixes, verify isolated Chrome"
     },
     {
       "at": "2026-10-24T04:40:32+09:00",
