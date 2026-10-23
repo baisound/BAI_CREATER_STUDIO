@@ -21,7 +21,7 @@ export function diagnoseFocus(snapshot, target) {
 }
 export function createFocusDiagnostic({emit=()=>{}}={}) {
   let snapshot=null,target=null,last=null;
-  function compute() { const result=diagnoseFocus(snapshot,target);if(result.ok){last=result;emit(result);}return result; }
+  function compute() { const result=diagnoseFocus(snapshot,target);last=result.ok?result:null;if(result.ok)emit(result);return result; }
   return {setSnapshot(v){snapshot=v;return compute();},setTarget(v){target=v;return compute();},current(){return last;}};
 }
 export function installFocusDiagnostic(win=window) {

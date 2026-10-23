@@ -23,8 +23,9 @@ export function analyzeFocusInterval(frames, {tolerance=0.1}={}) {
 export function installFocusVisualAudit(win=window) {
   const snapshots=new Map();let latest=null;
   const limit=240;
-  const onSnapshot=e=>{const s=e.detail;if(!Number.isInteger(s?.frame))return;snapshots.set(s.frame,s);if(snapshots.size>limit)snapshots.delete(snapshots.keys().next().value);};
-  const onTarget=e=>{const target=e.detail;const snapshot=snapshots.get(target?.frame);latest=analyzeFocusFrame(snapshot,target);win.dispatchEvent(new CustomEvent('bai:focus-visual-diagnostic-v40',{detail:latest}));};
+  const key = value => value?.projectId != null && Number.isInteger(value?.frame) ? JSON.stringify([value.projectId,value.frame]) : null;
+  const onSnapshot=e=>{const s=e.detail,k=key(s);if(k===null)return;snapshots.set(k,s);if(snapshots.size>limit)snapshots.delete(snapshots.keys().next().value);};
+  const onTarget=e=>{const target=e.detail,k=key(target);const snapshot=k===null?null:snapshots.get(k);latest=k===null?{ok:false,reason:'missing_project_or_frame'}:analyzeFocusFrame(snapshot,target);win.dispatchEvent(new CustomEvent('bai:focus-visual-diagnostic-v40',{detail:latest}));};
   win.addEventListener('bai:camera-focus-snapshot',onSnapshot);
   win.addEventListener('bai:camera-focus-target-position',onTarget);
   return {current:()=>latest,dispose(){win.removeEventListener('bai:camera-focus-snapshot',onSnapshot);win.removeEventListener('bai:camera-focus-target-position',onTarget);snapshots.clear();}};
