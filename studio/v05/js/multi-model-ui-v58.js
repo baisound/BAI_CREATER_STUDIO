@@ -12,6 +12,9 @@ import {createPmxVmdPreview} from '../../js/motion/pmx-vmd-preview.js';
 import {loadVmdClip,vmdUrl} from '../../js/motion/vmd.js';
 
 const project=document.getElementById('v06project');
+// A separate, short-lived headless page uses this mode for exact saved frames.
+// It never writes the edit playhead or scene data.
+const captureMode=new URLSearchParams(location.search).get('scene_capture')==='1';
 let locale={};
 const tr=(key)=>locale[key]||({
   title:'複数モデルの3D表示',renderingNote:'同じ3D空間で別々のモデルを表示します（実GPU動作は未検証）。',
@@ -159,7 +162,8 @@ async function setup(){
   const token=nonce;
   const libs=await loadLibs();
   if(token!==nonce||!opened)throw Error('プレビューは閉じられました');
-  viewport=createViewport(canvasParent,libs,{freeDolly:true,transparent:composite});
+  viewport=createViewport(canvasParent,libs,{freeDolly:true,transparent:composite,
+    preserveDrawingBuffer:captureMode});
   const shared=window.BAIStudioSharedSceneV57?.createHost({
     scene:viewport.content,
     // Draw once via the viewport's RAF, not an extra direct renderer call.
@@ -207,7 +211,7 @@ async function setup(){
   });
   // v61: common XYZ inspector acts on actual scene instance roots.
   // Persist only through the existing revisioned v57 scene API.
-  spatialEditor=createSpatialEditor({
+  if(!captureMode)spatialEditor=createSpatialEditor({
     panel,viewport,controller,project,
     getSceneData:()=>sceneSnapshot,
     async saveTransform(instanceId,transform){
@@ -355,7 +359,8 @@ window.addEventListener('bai:v57-scene-changed',()=>{if(opened)reload();});
 window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
-  status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,composite,rendererReady:Boolean(viewport),renderingVerified:false}),
+  status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,composite,
+    rendererReady:Boolean(viewport),renderer:viewport?.rendererName||null,renderingVerified:false}),
   poseProbe(instanceId,boneNames){
     if(!opened||!controller||!Array.isArray(boneNames)||boneNames.length>16||
        boneNames.some(name=>typeof name!=='string'||name.length>100))return null;
@@ -372,6 +377,27 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     return {projectId:project?.value,instanceId,bones};
   },
   refit(){return viewport?.fit?.()||false;},
+  captureFrame(frame,fps,width,height){
+    if(!captureMode||!opened||!composite||!viewport||!controller||
+       project?.value!==sceneSnapshot?.project_id||!Number.isInteger(frame)||
+       !Number.isFinite(fps)||fps<=0||!Number.isInteger(width)||!Number.isInteger(height)||
+       width<16||height<16||width>1920||height>1080||controller.status().loaded<1)
+      throw Error('3D capture is not ready for this saved project');
+    const motion=motionCoordinator?.status();
+    if(motion?.issues?.length)throw Error('3D motion has unresolved issues');
+    const result=motionCoordinator?.seek(frame/fps);
+    if(result?.errors?.length)throw Error('3D motion seek failed: '+result.errors.map(x=>String(x.error?.message||x.error)).join('; '));
+    // The capture page has no transform gizmo. Render synchronously after the
+    // exact motion seek; preserveDrawingBuffer keeps the transparent pixels.
+    viewport.renderer.setPixelRatio(1);
+    viewport.renderer.setSize(width,height,false);
+    if(viewport.camera.isPerspectiveCamera){
+      viewport.camera.aspect=width/height;
+      viewport.camera.updateProjectionMatrix();
+    }
+    viewport.renderer.render(viewport.scene,viewport.camera);
+    return viewport.renderer.domElement.toDataURL('image/png');
+  },
   frameProbe(instanceId){
     const target=controller?.getLoaded(instanceId);
     if(!opened||!target?.root||!viewport)return null;

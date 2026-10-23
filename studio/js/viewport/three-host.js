@@ -52,13 +52,14 @@ function placeOrthographic(THREE, camera, mode, bounds, aspect) {
 /**
  * @param {HTMLElement} container 大きさを持つ要素（canvas を中に置く）
  * @param {Libs} libs
- * @param {{background?: number, freeDolly?: boolean, transparent?: boolean}} [o]
+ * @param {{background?: number, freeDolly?: boolean, transparent?: boolean, preserveDrawingBuffer?: boolean}} [o]
  */
 export function createViewport(container, libs, o = {}) {
   const { THREE, OrbitControls } = libs;
   /** @type {any} */ let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: Boolean(o.transparent) });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: Boolean(o.transparent),
+      preserveDrawingBuffer: Boolean(o.preserveDrawingBuffer) });
   } catch {
     throw new WebGLError();
   }
