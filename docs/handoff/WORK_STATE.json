@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T01:45:33+09:00",
+  "updated_at": "2026-10-24T02:01:13+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-project-context",
-  "head_at_update": "1f696e6",
+  "branch": "codex/v05-media-preview",
+  "head_at_update": "a0c0055",
   "current": {
-    "task": "Issue #63/#69: v0.5元画面の消えた入口・機能領域を復元",
+    "task": "Issue #63/#69: v0.5保存済み作品の映像・音声プレビューを同じ時刻へ接続",
     "status": "done",
-    "step": "PR65原型と現行画面を比較し、未接続操作は明示して残し、実機能を保持する",
+    "step": "保存済み配置の画像・動画・音声を同一作品IDと再生位置で評価し、実画面で確認する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "PRでmainへ統合し、mainサーバーとIssue #63/#69の結果を更新する"
+    "PRでmain統合・8765実画面確認後、保存済みIn/Outを実レンダーへ渡す最小経路を実装する"
   ],
   "unverified": [
-    "ミキサー・EQ・録音・VST・旧範囲選択の実動作、実レンダー、作品別音声、Linux/GPU/MCPは未接続または未検証"
+    "動画・音声のフレーム精度、3D/カメラとの合成、実レンダー、長尺実素材、Linux/GPU/MCPは未接続または未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T02:01:13+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a0c0055",
+      "text": "保存済みv0.5作品の画像・動画・音声クリップを同じフレームで実プレビュー。Chrome隔離PNG/WAV/MP4と作品切替・再読込成功"
+    },
+    {
+      "at": "2026-10-24T01:50:38+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "c0b11e9",
+      "text": "Issue #63/#69: v0.5保存済み作品の映像・音声プレビューを同じ時刻へ接続: 保存済み配置の画像・動画・音声を同一作品IDと再生位置で評価し、実画面で確認する"
+    },
     {
       "at": "2026-10-24T01:45:33+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "87338f8",
       "text": "PR #57: 最新main統合とカメラ移植ゲートの解消: PR #56/#62を含むmainへの競合解消とカメラ経路の再検証"
-    },
-    {
-      "at": "2026-10-22T03:45:39+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "70e24e0",
-      "text": "PR #59をPR #56/#62マージ後のmainに統合。WORK_STATEの両履歴を保持。typecheck成功、SCR10/カメラ/SCR23の隔離Chrome9件成功・実素材任意2件スキップ、data7ファイルSHA-256不変"
-    },
-    {
-      "at": "2026-10-22T03:42:21+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "ad7b18c",
-      "text": "P2-WP06/07 PR #59: main統合と残ゲート監査: PR #56/#62マージ後のmainを統合し、差分とゲートを再確認"
     }
   ]
 }
