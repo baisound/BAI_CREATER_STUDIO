@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {focusIdentity,compareFocusStates,createFocusRenderAudit} from './studio/v05/js/focus-render-consistency-v50.js';
+const sample={projectId:'p1',frame:120,seconds:2,fps:60,lens:{focalLengthMm:50,fStop:2.8,focusDistance:4}};
+assert.ok(focusIdentity(sample));
+assert.equal(compareFocusStates(sample,sample).consistent,true);
+assert.deepEqual(compareFocusStates(sample,{...sample,frame:121}).mismatches,['frame']);
+assert.deepEqual(compareFocusStates(sample,{...sample,projectId:'p2'}).mismatches,['projectId']);
+assert.ok(compareFocusStates(sample,{...sample,lens:{...sample.lens,focusDistance:5}}).mismatches.includes('focusDistance'));
+assert.equal(compareFocusStates(sample,{...sample,lens:{...sample.lens,fStop:0}}).reason,'invalid_snapshot');
+assert.equal(compareFocusStates(sample,{...sample,seconds:9}).consistent,false);
+let diagnostics=[];const audit=createFocusRenderAudit({notify:x=>diagnostics.push(x)});
+assert.equal(audit.setDiagnostic(sample).reason,'renderer_not_ready');
+assert.equal(audit.setRendered({...sample,lens:{...sample.lens,fStop:4}}).consistent,false);
+assert.equal(diagnostics[0].code,'focus_render_state_mismatch');
+assert.equal(audit.setRendered(sample).consistent,true);
+console.log('v50: 10 assertions passed');
