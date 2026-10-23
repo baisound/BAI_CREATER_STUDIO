@@ -28,6 +28,7 @@ export function createActualMotionLoaders(container, report = () => {}) {
   function ensureActive() { if (disposed) throw new Error('Preview was closed'); }
   async function loadTarget({modelId, asset}) {
     ensureActive();
+    if (models.has(modelId)) return models.get(modelId);
     if (models.size && !models.has(modelId)) throw new Error('このプレビューは単一モデル表示です。別モデルを表示するにはプレビューを閉じてください。');
     const libs = await getLibs(); ensureActive();
     const loaded = await loadModel(asset, libs);

@@ -239,6 +239,18 @@ class Handler(BaseHTTPRequestHandler):
         msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
         self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
     def do_GET(self):
+        if urlsplit(self.path).path in ('/api/studio/v05/scene/model','/api/studio/v05/scene/model-candidates'):
+            from studio_v05_scene_model import read as scene_read, choices, SceneModelError
+            try:
+                inventory=unified_assets()
+                if urlsplit(self.path).path.endswith('/model-candidates'):
+                    result=choices(inventory)
+                else:
+                    project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                    result=scene_read(DATA/'studio_v05_scene_models', DATA/'studio_v05_catalog.json', project_id,inventory)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (SceneModelError,ValueError,OSError) as exc:self.bad(422,str(exc))
+            return
         if urlsplit(self.path).path=='/api/studio/v05/asset-sources':
             from studio_v05_asset_sources import listing, AssetSourceError
             try:
@@ -577,6 +589,21 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path=='/api/studio/v05/scene/model':
+            from studio_v05_scene_model import set_model,SceneModelError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','asset_id','transform','revision'}:
+                    return self.bad(400,'Invalid scene model fields')
+                result=set_model(DATA/'studio_v05_scene_models',DATA/'studio_v05_catalog.json',
+                                 items=unified_assets(),**body)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (SceneModelError,TypeError,ValueError,KeyError) as exc:
+                self.bad(409 if 'conflict' in str(exc).lower() else 422,str(exc))
+            except OSError:self.bad(500,'Scene model write failed; original retained')
+            return
         if urlsplit(self.path).path in ('/api/studio/v05/asset-sources/register',
                                        '/api/studio/v05/asset-sources/relink'):
             from studio_v05_asset_sources import register,relink,AssetSourceError

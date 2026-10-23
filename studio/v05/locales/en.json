@@ -207,5 +207,30 @@
     "error": "Operation failed",
     "count": "Referenced assets",
     "revision": "Catalog revision"
+  },
+  "v55": {
+    "title": "3D Model Placement",
+    "singleModelNote": "One model per project for now. Save before opening the real 3D preview.",
+    "model": "Model asset",
+    "save": "Save transform",
+    "preview": "Open 3D preview",
+    "remove": "Remove from scene",
+    "reload": "Reload",
+    "position": "Position",
+    "rotation": "Rotation (°)",
+    "scale": "Scale",
+    "invalidTransform": "Invalid XYZ values",
+    "chooseProject": "Choose a project",
+    "chooseModel": "Choose a model asset",
+    "missingModel": "Model unavailable",
+    "savedModelReady": "Saved placement loaded; rendering is not started.",
+    "emptyScene": "No model placed for this project.",
+    "loadError": "Load failed",
+    "saved": "Saved",
+    "saveError": "Save failed",
+    "saveFirst": "Save placement first",
+    "previewReady": "3D preview opened",
+    "previewError": "3D preview failed",
+    "confirmRemove": "Remove placement from this project? The asset file will be retained."
   }
 }

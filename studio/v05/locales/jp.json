@@ -190,5 +190,30 @@
     "error": "処理失敗",
     "count": "参照素材数",
     "revision": "管理版数"
+  },
+  "v55": {
+    "title": "作品の3Dモデル配置",
+    "singleModelNote": "1作品につき1モデル。共有シーンでの複数モデルは後続工程です。保存してから実3D表示を開きます。",
+    "model": "3Dモデル素材",
+    "save": "位置を保存",
+    "preview": "実3Dで表示",
+    "remove": "シーンから除去",
+    "reload": "読み直す",
+    "position": "位置",
+    "rotation": "回転（°）",
+    "scale": "倍率",
+    "invalidTransform": "XYZの値が不正です",
+    "chooseProject": "作品を選択してください",
+    "chooseModel": "モデル素材を選択してください",
+    "missingModel": "素材がありません",
+    "savedModelReady": "保存済みモデルを読み込みました。実描画は未起動です。",
+    "emptyScene": "この作品にモデルは配置されていません。",
+    "loadError": "読み込み失敗",
+    "saved": "保存しました",
+    "saveError": "保存失敗",
+    "saveFirst": "先に配置を保存してください",
+    "previewReady": "実3Dプレビューを表示",
+    "previewError": "3D表示失敗",
+    "confirmRemove": "この作品からモデル配置を解除しますか？（素材ファイルは削除しません）"
   }
 }
