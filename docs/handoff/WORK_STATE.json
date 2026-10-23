@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T02:01:13+09:00",
+  "updated_at": "2026-10-24T02:26:04+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-media-preview",
-  "head_at_update": "a0c0055",
+  "branch": "codex/v05-media-render",
+  "head_at_update": "79e392a",
   "current": {
-    "task": "Issue #63/#69: v0.5保存済み作品の映像・音声プレビューを同じ時刻へ接続",
+    "task": "Issue #49/#63/#69: v0.5保存済み作品の実MP4書き出し",
     "status": "done",
-    "step": "保存済み配置の画像・動画・音声を同一作品IDと再生位置で評価し、実画面で確認する",
+    "step": "In/Outと画像・動画・音声を安全な別名ジョブへ渡し、再読込可能な実ファイルを検証する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "PRでmain統合・8765実画面確認後、保存済みIn/Outを実レンダーへ渡す最小経路を実装する"
+    "PRをmainへ統合し8765サーバーの更新版を確認した後、3D/カメラ/字幕を含む共通出力経路の未完成部分へ進む"
   ],
   "unverified": [
-    "動画・音声のフレーム精度、3D/カメラとの合成、実レンダー、長尺実素材、Linux/GPU/MCPは未接続または未検証"
+    "長尺実利用者素材、全区間の音声同期1F以内、動画内音声/3D/カメラ/字幕合成、Linux/GPU/MCPは未接続または未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T02:26:04+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "79e392a",
+      "text": "Issue #49/#63/#69: v0.5保存済みIn/Outの画像・動画・独立音声を限定MP4へ実書き出し、8件の隔離Chrome回帰と完成物再読込を確認"
+    },
+    {
+      "at": "2026-10-24T02:05:34+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8c4fc02",
+      "text": "Issue #49/#63/#69: v0.5保存済み作品の実MP4書き出し: In/Outと画像・動画・音声を安全な別名ジョブへ渡し、再読込可能な実ファイルを検証する"
+    },
     {
       "at": "2026-10-24T02:01:13+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "24c99ea",
       "text": "PR #59: PR #57更新分の統合とWP07ゲート再確認: PR57のWindows/カメラ修正を取り込み、P2書き出しのテストと競合を確認"
-    },
-    {
-      "at": "2026-10-22T04:42:43+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "293899e",
-      "text": "PR57: 最新mainを統合し、WindowsのUTF-8試験読込とカメラ再訪時の非同期復元を修正。pytest386件、Evidence146件、重点Chrome25件、P2通しS7到達。Node全350件は1件表示待ち時間切れ、単独再実行は合格。Issue63へ画面連携とエフェクト未実装を記録"
-    },
-    {
-      "at": "2026-10-22T03:50:55+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "87338f8",
-      "text": "PR #57: 最新main統合とカメラ移植ゲートの解消: PR #56/#62を含むmainへの競合解消とカメラ経路の再検証"
     }
   ]
 }

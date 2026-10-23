@@ -336,6 +336,27 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except (RenderRangeError,ValueError,KeyError,OSError) as exc:self.bad(422,str(exc))
             return
+        if urlsplit(self.path).path=='/api/studio/v05/render/capabilities':
+            from studio_v05_media_render import capabilities
+            self.send(200,json.dumps(capabilities(probe_root=DATA/'studio_v05_media_renders'/'probe'),ensure_ascii=False).encode());return
+        if urlsplit(self.path).path in ('/api/studio/v05/render/jobs','/api/studio/v05/render/file'):
+            from studio_v05_media_render import status, list_jobs, output_file, RenderError
+            path=urlsplit(self.path).path
+            q=parse_qs(urlsplit(self.path).query)
+            try:
+                if path.endswith('/file'):
+                    self.send_library_file(output_file(DATA/'studio_v05_media_renders',q.get('id',[''])[0]),'video/mp4')
+                elif 'id' in q:
+                    self.send(200,json.dumps(status(DATA/'studio_v05_media_renders',q['id'][0]),ensure_ascii=False).encode())
+                else:
+                    project_id=q.get('project_id',[''])[0]
+                    from studio_project_catalog import load
+                    if not any(p['id']==project_id for p in load(DATA/'studio_v05_catalog.json')['projects']):
+                        raise RenderError('Unknown project ID',404)
+                    self.send(200,json.dumps(list_jobs(DATA/'studio_v05_media_renders',project_id),ensure_ascii=False).encode())
+            except RenderError as exc:self.bad(exc.status,str(exc))
+            except (ValueError,KeyError,OSError) as exc:self.bad(422,'Cannot read render job')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement':
             from studio_v05_arrangement import read, ArrangementError
             try:
@@ -752,6 +773,21 @@ class Handler(BaseHTTPRequestHandler):
             except (RenderRangeError,ValueError,TypeError,KeyError) as exc:
                 self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
             except OSError:self.bad(500,'Render range write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/render/jobs':
+            from studio_v05_media_render import start, RenderError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','range_revision','arrangement_revision','resolution'}:
+                    return self.bad(400,'Invalid render request')
+                result=start(DATA,inventory=unified_assets(),**body)
+                event('v05_render_started',project_id=body['project_id'],job_id=result['id'])
+                self.send(202,json.dumps(result,ensure_ascii=False).encode())
+            except RenderError as exc:self.bad(exc.status,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid render request')
+            except OSError:self.bad(500,'Render job could not start')
             return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/layout':
             from studio_v05_track_layout import update, ArrangementError
