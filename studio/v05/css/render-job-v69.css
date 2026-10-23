@@ -1,0 +1,8 @@
+#v69status{margin-top:12px;white-space:normal}
+.v69job{display:grid;gap:5px;padding:8px;border:1px solid #405269;border-radius:6px;font-size:12px}
+.v69job small{color:#e4b2aa;overflow-wrap:anywhere}
+#v69result{padding:10px 0;color:#e6f4ff}
+.v69resultActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:5px;font-size:12px}
+#v69download{color:#9bd7ff;text-decoration:underline}
+#v69video{width:100%;height:100%;object-fit:contain}
+#v69video[hidden],.baiPreview img[hidden]{display:none}
