@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T07:33:47+09:00",
+  "updated_at": "2026-10-24T07:36:28+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-pmx-full-dance",
-  "head_at_update": "580b6eb",
+  "branch": "codex/v05-pmx-face-value",
+  "head_at_update": "2d42fd6",
   "current": {
-    "task": "Issues #39/#96: 実PMXと全身VMDの体・顔同時刻実証",
-    "status": "done",
-    "step": "原本を保ち隔離Chromeで登録・配置・シーク・保存再読込・限定MP4を比較する",
+    "task": "Issue #96: PMX表情・口キーのタイムライン上の値編集",
+    "status": "in_progress",
+    "step": "既存キー表示・保存API・ロックを確認し、値の直接編集を実装・隔離検証する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T07:36:28+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "2d42fd6",
+      "text": "Issue #96: PMX表情・口キーのタイムライン上の値編集: 既存キー表示・保存API・ロックを確認し、値の直接編集を実装・隔離検証する"
+    },
     {
       "at": "2026-10-24T07:33:47+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "done",
       "head": "f83a7b2",
       "text": "Issue #77: v0.5主タイムラインで登録画像を任意位置・複数画像行へ直接ドラッグ配置、移動・端伸縮・保存再読込・プレビューを部分接続"
-    },
-    {
-      "at": "2026-10-24T03:07:52+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2c14e1e",
-      "text": "Issue #77/#63/#69: v0.5素材の直接ドラッグ配置・画像複数トラック・自由な長さ: 現行の保存形式とUIを確認し、画像の任意配置・移動・端伸縮・保存再読込を段階実装する"
     }
   ]
 }
