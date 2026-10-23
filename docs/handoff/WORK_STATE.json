@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T01:22:57+09:00",
+  "updated_at": "2026-10-24T01:29:18+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-render-range",
-  "head_at_update": "9f040fa",
+  "branch": "codex/v05-project-context",
+  "head_at_update": "5ae9410",
   "current": {
-    "task": "Issue #49/#69: v0.5タイムラインのイン点・アウト点と書き出し範囲",
-    "status": "done",
-    "step": "作品FPSと保存済みクリップから最終フレームを算出し、範囲保存・出力表示・隔離試験へ接続",
+    "task": "Issue #63/#69: v0.5の作品カードと保存済みタイムラインの作品IDを一致させる",
+    "status": "in_progress",
+    "step": "既存作品選択と作品ドロップダウンを同期し、再読込後も同じ作品を開く。範囲表示・カメラ設定への伝播を隔離試験する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T01:29:18+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5ae9410",
+      "text": "Issue #63/#69: v0.5の作品カードと保存済みタイムラインの作品IDを一致させる: 既存作品選択と作品ドロップダウンを同期し、再読込後も同じ作品を開く。範囲表示・カメラ設定への伝播を隔離試験する"
+    },
     {
       "at": "2026-10-24T01:22:57+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "7b024f5",
       "text": "WP07b: SCR23でVMD対応表・FBX変換ジョブ・Blender実行確認・状態表示を移植。S8と隔離Chrome/型検査は成功。MMDカメラ補間の公開実装との読取順差をIssue #58とPhase E設計へ記録"
-    },
-    {
-      "at": "2026-10-22T02:52:56+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "dd0322e",
-      "text": "P2-WP-07 書き出し: WP07b: SCR23のVMD対応表・ジョブ作成・Blender実行と状態表示を実装"
     }
   ]
 }
