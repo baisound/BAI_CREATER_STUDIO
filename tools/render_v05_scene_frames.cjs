@@ -40,7 +40,7 @@ async function main() {
     args: ['--enable-unsafe-swiftshader', '--no-sandbox'] });
   try {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-    page.setDefaultTimeout(45000);
+    page.setDefaultTimeout(75000);
     await page.route(/cdn\.jsdelivr\.net\/npm\/three@0\.160\.1\/(.*)/, route => {
       const match = route.request().url().match(/three@0\.160\.1\/([^?#]*)/);
       if (!match) return route.abort();

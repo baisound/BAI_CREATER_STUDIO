@@ -163,6 +163,54 @@ class MultiSceneV57(unittest.TestCase):
         moved=self.mutate(action='face-move',revision=2,layout_root=self.layout,
                           face_key={'instance_id':instance,'morph_name':'あ','time':1,'to_time':2})
         self.assertEqual(moved['face_keys'][0]['time'],2)
+    def test_face_undo_redo_survive_reload_and_reject_stale_or_locked(self):
+        pmx={**self.a,'id':'mmd:A:face.pmx','source':'mmd','kind':'A',
+             'format':'PMX','filename':'face.pmx'}
+        self.assets.append(pmx)
+        added=self.mutate(action='add',revision=0,asset_id=pmx['id'],transform=self.tr)
+        instance=added['instances'][0]['id']
+        key={'instance_id':instance,'morph_name':'あ','time':1,'value':0.8,'track':'lip'}
+        saved=self.mutate(action='face-set',revision=1,face_key=key,layout_root=self.layout)
+        moved=self.mutate(action='face-move',revision=2,layout_root=self.layout,
+                          face_key={'instance_id':instance,'morph_name':'あ','time':1,'to_time':2})
+        self.assertEqual(moved['face_keys'][0]['time'],2)
+        self.assertEqual(len(read(self.store,self.legacy,self.catalog,self.p)['face_history']['undo']),2)
+        with self.assertRaisesRegex(SceneInstancesError,'conflict'):
+            self.mutate(action='face-undo',revision=2,layout_root=self.layout)
+        set_flags(self.layout,self.catalog,self.p,0,['lip'],[])
+        before=(self.store/(self.p+'.json')).read_bytes()
+        with self.assertRaisesRegex(SceneInstancesError,'locked'):
+            self.mutate(action='face-undo',revision=3,layout_root=self.layout)
+        self.assertEqual((self.store/(self.p+'.json')).read_bytes(),before)
+        set_flags(self.layout,self.catalog,self.p,1,[],[])
+        undone_move=self.mutate(action='face-undo',revision=3,layout_root=self.layout)
+        self.assertEqual(undone_move['face_keys'][0]['time'],1)
+        undone_add=self.mutate(action='face-undo',revision=4,layout_root=self.layout)
+        self.assertEqual(undone_add['face_keys'],[])
+        self.assertEqual(len(undone_add['face_history']['redo']),2)
+        redone_add=self.mutate(action='face-redo',revision=5,layout_root=self.layout)
+        self.assertEqual(redone_add['face_keys'][0]['value'],0.8)
+        redone_move=self.mutate(action='face-redo',revision=6,layout_root=self.layout)
+        self.assertEqual(redone_move['face_keys'][0]['time'],2)
+        removed=self.mutate(action='face-remove',revision=7,layout_root=self.layout,
+                            face_key={'instance_id':instance,'morph_name':'あ','time':2})
+        self.assertEqual(removed['face_keys'],[])
+        restored=self.mutate(action='face-undo',revision=8,layout_root=self.layout)
+        self.assertEqual(restored['face_keys'][0]['time'],2)
+        self.mutate(action='face-set',revision=9,layout_root=self.layout,
+                    face_key={**key,'time':3})
+        with self.assertRaisesRegex(SceneInstancesError,'No face history'):
+            self.mutate(action='face-redo',revision=10,layout_root=self.layout)
+        changed=self.mutate(action='face-set',revision=10,layout_root=self.layout,
+                            face_key={**key,'time':3,'value':0.2,'track':'expression'})
+        self.assertEqual([(x['time'],x['value'],x['track']) for x in changed['face_keys'] if x['time']==3],
+                         [(3,0.2,'expression')])
+        reverted=self.mutate(action='face-undo',revision=11,layout_root=self.layout)
+        self.assertEqual([(x['value'],x['track']) for x in reverted['face_keys'] if x['time']==3],
+                         [(0.8,'lip')])
+        repeated=self.mutate(action='face-redo',revision=12,layout_root=self.layout)
+        self.assertEqual([(x['value'],x['track']) for x in repeated['face_keys'] if x['time']==3],
+                         [(0.2,'expression')])
     def test_reject_invalid_and_preserve(self):
         r=self.mutate(action='add',revision=0,asset_id=self.a['id'],transform=self.tr)
         before=(self.store/(self.p+'.json')).read_bytes()

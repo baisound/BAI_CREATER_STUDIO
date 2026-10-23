@@ -69,9 +69,11 @@ const faceValueText=document.createElement('output');faceValueText.textContent='
 const faceSave=document.createElement('button');faceSave.id='v96-face-save';faceSave.type='button';faceSave.textContent='このキーを保存';
 const faceSaved=document.createElement('select');faceSaved.id='v96-face-saved';faceSaved.setAttribute('aria-label','保存済み表情キー');
 const faceDelete=document.createElement('button');faceDelete.id='v96-face-delete';faceDelete.type='button';faceDelete.textContent='選択キーを削除';
+const faceUndo=document.createElement('button');faceUndo.id='v99-face-undo';faceUndo.type='button';faceUndo.textContent='表情キーを戻す';
+const faceRedo=document.createElement('button');faceRedo.id='v99-face-redo';faceRedo.type='button';faceRedo.textContent='表情キーをやり直す';
 const faceStatus=document.createElement('span');faceStatus.setAttribute('role','status');
 faceControls.append(faceLabel,faceName,faceTrack,faceTime,faceUseSeek,faceValue,faceValueText,faceSave,
-  faceSaved,faceDelete,faceStatus);
+  faceSaved,faceDelete,faceUndo,faceRedo,faceStatus);
 heading.append(title,choose,refreshBtn,focusBtn,saveCameraBtn,restoreCameraBtn,modeBtn,closeBtn);
 const motionControls=document.createElement('div');motionControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
 motionControls.append(clipSelect,targetSelect,assignBtn,seekInput,seekBtn,motionStatus);
@@ -186,6 +188,8 @@ function redrawFaceControls(){
   if([...faceSaved.options].some(x=>x.value===priorKey))faceSaved.value=priorKey;
   faceSave.disabled=!names.length;
   faceDelete.disabled=!faceSaved.value;
+  faceUndo.disabled=!(sceneSnapshot?.face_history?.undo?.length);
+  faceRedo.disabled=!(sceneSnapshot?.face_history?.redo?.length);
   faceStatus.textContent=names.length?`${names.length}件の実在モーフ`:'PMXモデルを選んでください';
 }
 function currentSeek(){
@@ -412,6 +416,25 @@ faceDelete.addEventListener('click',async()=>{
   }catch(error){faceStatus.textContent='削除失敗: '+String(error.message||error);}
   finally{faceDelete.disabled=!faceSaved.value;}
 });
+for(const [button,action] of [[faceUndo,'face-undo'],[faceRedo,'face-redo']]){
+  button.addEventListener('click',async()=>{
+    button.disabled=true;
+    try{
+      const id=project?.value;
+      if(!id||sceneSnapshot?.project_id!==id)throw Error('作品を選んでください');
+      const response=await fetch('/api/studio/v05/scene/instances',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({project_id:id,action,revision:sceneSnapshot.revision})
+      });
+      const data=await response.json();
+      if(!response.ok)throw Error(data.error||`HTTP ${response.status}`);
+      if(project?.value!==id||!opened)return;
+      sceneSnapshot=data;redrawFaceControls();seekScene(currentSeek());
+      faceStatus.textContent=action==='face-undo'?'表情キーを戻しました':'表情キーをやり直しました';
+      window.dispatchEvent(new CustomEvent('bai:v96-face-saved',{detail:{projectId:id,revision:data.revision}}));
+    }catch(error){redrawFaceControls();faceStatus.textContent='表情履歴の操作に失敗: '+String(error.message||error);}
+  });
+}
 focusBtn.addEventListener('click',()=>{
   const id=choose.value;
   if(!id)return;

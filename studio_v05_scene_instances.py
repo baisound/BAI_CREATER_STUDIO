@@ -45,7 +45,7 @@ def _seed(project_id, legacy):
 
 def _check_record(data, project_id):
     required = {"schema", "project_id", "revision", "legacy_revision", "instances"}
-    if not isinstance(data, dict) or not required <= set(data) or set(data) - required - {"camera", "face_keys"} \
+    if not isinstance(data, dict) or not required <= set(data) or set(data) - required - {"camera", "face_keys", "face_history"} \
             or data["schema"] != 1 or data["project_id"] != project_id:
         raise SceneInstancesError("Invalid scene-instances file; original retained")
     if any(type(data[k]) is not int or data[k] < 0 for k in ("revision", "legacy_revision")):
@@ -80,6 +80,25 @@ def _check_record(data, project_id):
         if checked != key or checked["instance_id"] not in ids or identity in identities:
             raise SceneInstancesError("Invalid or duplicate face key; original retained")
         identities.add(identity)
+    history = data.get("face_history", {"undo": [], "redo": []})
+    if not isinstance(history, dict) or set(history) != {"undo", "redo"}:
+        raise SceneInstancesError("Invalid face history; original retained")
+    for stack in history.values():
+        if not isinstance(stack, list) or len(stack) > 32:
+            raise SceneInstancesError("Invalid face history; original retained")
+        for entry in stack:
+            if not isinstance(entry, dict) or set(entry) != {"before", "after"} or \
+                    entry["before"] is None and entry["after"] is None:
+                raise SceneInstancesError("Invalid face history; original retained")
+            for key in entry.values():
+                if key is None: continue
+                checked = _face_key(key, require_value=True)
+                if checked != key or checked["instance_id"] not in ids:
+                    raise SceneInstancesError("Invalid face history key; original retained")
+            if entry["before"] and entry["after"] and (
+                entry["before"]["instance_id"], entry["before"]["morph_name"]) != (
+                entry["after"]["instance_id"], entry["after"]["morph_name"]):
+                raise SceneInstancesError("Invalid face history identity; original retained")
     return data
 
 def _transform(value):
@@ -155,6 +174,7 @@ def read(root, legacy_root, catalog, project_id, assets=None):
         if data["legacy_revision"] != legacy["revision"]:
             raise SceneInstancesError("Legacy scene changed since multi-instance seed; reconcile before editing")
     result = {**data, "camera": data.get("camera"),
+              "face_history": data.get("face_history", {"undo": [], "redo": []}),
               "face_keys": [{**row, "track": row.get("track", "expression")}
                             for row in data.get("face_keys", [])],
               "instances": [dict(row) for row in data["instances"]]}
@@ -172,14 +192,60 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
            camera=_UNSET, face_key=_UNSET, morph_lookup=None, layout_root=None):
     if type(revision) is not int or revision < 0:
         raise SceneInstancesError("Revision required")
-    if action not in ("add", "update", "remove", "camera", "face-set", "face-remove", "face-move"):
+    if action not in ("add", "update", "remove", "camera", "face-set", "face-remove", "face-move",
+                      "face-undo", "face-redo"):
         raise SceneInstancesError("Unknown scene instance action")
     with _LOCK:
         current = read(root, legacy_root, catalog, project_id)
         if current["revision"] != revision:
             raise SceneInstancesError("Revision conflict")
         rows = current["instances"]
-        if action in ("face-set", "face-remove", "face-move"):
+        history = current["face_history"]
+        if action in ("face-undo", "face-redo"):
+            if face_key is not _UNSET or camera is not _UNSET or any(x is not None for x in
+                (instance_id, asset_id, transform, visible, locked)):
+                raise SceneInstancesError("Face history action requires only project and revision")
+            source_stack = history["undo" if action == "face-undo" else "redo"]
+            target_stack = history["redo" if action == "face-undo" else "undo"]
+            if not source_stack:
+                raise SceneInstancesError("No face history available")
+            entry = source_stack[-1]
+            expected = entry["after" if action == "face-undo" else "before"]
+            replacement = entry["before" if action == "face-undo" else "after"]
+            if expected is not None and expected not in current["face_keys"]:
+                raise SceneInstancesError("Face history no longer matches the saved keys")
+            if replacement is not None and any(
+                x != expected and (x["instance_id"], x["morph_name"], x["time"]) ==
+                (replacement["instance_id"], replacement["morph_name"], replacement["time"])
+                for x in current["face_keys"]):
+                raise SceneInstancesError("Face history destination is occupied")
+            instance = next((row for row in rows if row["id"] ==
+                             (expected or replacement)["instance_id"]), None)
+            if not instance or instance["locked"]:
+                raise SceneInstancesError("Scene instance is locked or missing")
+            if layout_root is not None:
+                from studio_v05_track_layout import get as get_layout
+                locked_tracks = set(get_layout(layout_root, catalog, project_id).get("locked", []))
+                if locked_tracks & {key.get("track", "expression") for key in (expected, replacement) if key}:
+                    raise SceneInstancesError("Face key track is locked")
+            if replacement is not None and replacement != expected:
+                source = next((x for x in assets if x.get("id") == instance["asset_id"]), None)
+                if not isinstance(source, dict) or str(source.get("format", "")).upper() != "PMX":
+                    raise SceneInstancesError("Face history requires the registered PMX")
+                if morph_lookup is not None:
+                    try:
+                        names = morph_lookup(source)
+                    except (OSError, ValueError) as exc:
+                        raise SceneInstancesError("Registered PMX morph inspection failed") from exc
+                    if replacement["morph_name"] not in names:
+                        raise SceneInstancesError("Face history morph is absent from the registered PMX")
+            current["face_keys"] = [x for x in current["face_keys"] if x != expected] if expected else current["face_keys"]
+            if replacement is not None:
+                current["face_keys"].append(replacement)
+                current["face_keys"].sort(key=lambda x: (x["instance_id"], x["morph_name"], x["time"]))
+            source_stack.pop()
+            target_stack.append(entry)
+        elif action in ("face-set", "face-remove", "face-move"):
             if face_key is _UNSET or camera is not _UNSET or any(x is not None for x in
                 (instance_id, asset_id, transform, visible, locked)):
                 raise SceneInstancesError("Face action requires only face_key")
@@ -236,8 +302,13 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
                 current["face_keys"].append(key)
                 current["face_keys"].sort(key=lambda x: (x["instance_id"], x["morph_name"], x["time"]))
             elif action == "face-move":
-                current["face_keys"].append({**old, "time": to_time})
+                moved = {**old, "time": to_time}
+                current["face_keys"].append(moved)
                 current["face_keys"].sort(key=lambda x: (x["instance_id"], x["morph_name"], x["time"]))
+            history["undo"].append({"before": old, "after": key if action == "face-set"
+                                    else moved if action == "face-move" else None})
+            history["undo"] = history["undo"][-32:]
+            history["redo"] = []
         elif action == "camera":
             if face_key is not _UNSET:
                 raise SceneInstancesError("Face key is a separate scene action")
@@ -274,6 +345,7 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
                 rows.remove(row)
                 current["face_keys"] = [key for key in current["face_keys"]
                                         if key["instance_id"] != instance_id]
+                history = {"undo": [], "redo": []}
             else:
                 if asset_id is not None:
                     raise SceneInstancesError("Asset changes require creating a new instance")
@@ -289,6 +361,7 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
                     row["locked"] = locked
         saved = {k: current[k] for k in ("schema", "project_id", "legacy_revision")}
         saved.update({"revision": revision + 1, "instances": rows,
-                      "camera": current["camera"], "face_keys": current["face_keys"]})
+                      "camera": current["camera"], "face_keys": current["face_keys"],
+                      "face_history": history})
         _atomic(Path(root) / (project_id + ".json"), saved)
         return read(root, legacy_root, catalog, project_id, assets)
