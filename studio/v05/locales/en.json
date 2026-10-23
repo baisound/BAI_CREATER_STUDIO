@@ -287,6 +287,8 @@
     "select": "Select scene model",
     "refresh": "Reload placements",
     "focus": "Focus selected model",
+    "saveCamera": "Save this camera",
+    "restoreCamera": "Restore saved camera",
     "close": "Close",
     "choose": "Select a model",
     "loadedCount": "Models loaded",

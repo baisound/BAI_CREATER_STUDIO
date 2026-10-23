@@ -60,6 +60,28 @@ class MultiSceneV57(unittest.TestCase):
         self.mutate(action='update',revision=2,instance_id=id,locked=False)
         out=self.mutate(action='remove',revision=3,instance_id=id)
         self.assertEqual(out['instances'],[])
+    def test_saved_camera_is_revisioned_and_legacy_scene_is_compatible(self):
+        self.assertIsNone(read(self.store,self.legacy,self.catalog,self.p,self.assets)['camera'])
+        old={'schema':1,'project_id':self.p,'revision':0,'legacy_revision':0,'instances':[]}
+        self.store.mkdir()
+        (self.store/(self.p+'.json')).write_text(json.dumps(old),encoding='utf-8')
+        self.assertIsNone(read(self.store,self.legacy,self.catalog,self.p,self.assets)['camera'])
+        pose={'position':[3,2,5],'target':[0,1,0],'fov':42}
+        saved=self.mutate(action='camera',revision=0,camera=pose)
+        self.assertEqual(saved['camera'],pose)
+        self.assertEqual(saved['revision'],1)
+        before=(self.store/(self.p+'.json')).read_bytes()
+        with self.assertRaisesRegex(SceneInstancesError,'conflict'):
+            self.mutate(action='camera',revision=0,camera=pose)
+        for invalid in ({**pose,'position':[0,1,0]}, {**pose,'fov':float('nan')},
+                        {**pose,'target':[0,1,0],'position':[0,1,0]},
+                        {**pose,'fov':130}):
+            with self.assertRaises(SceneInstancesError):
+                self.mutate(action='camera',revision=1,camera=invalid)
+        self.assertEqual((self.store/(self.p+'.json')).read_bytes(),before)
+        another=self.mutate(action='add',revision=1,asset_id=self.a['id'],transform=self.tr)
+        self.assertEqual(another['camera'],pose)
+        self.assertIsNone(read(self.store,self.legacy,self.catalog,self.other,self.assets)['camera'])
     def test_reject_invalid_and_preserve(self):
         r=self.mutate(action='add',revision=0,asset_id=self.a['id'],transform=self.tr)
         before=(self.store/(self.p+'.json')).read_bytes()
@@ -95,14 +117,18 @@ class MultiSceneV57(unittest.TestCase):
                 with urllib.request.urlopen(req,timeout=3) as res: self.assertEqual(len(json.load(res)['instances']),1)
                 with self.assertRaises(urllib.error.HTTPError) as ctx:urllib.request.urlopen(req,timeout=3)
                 self.assertEqual(ctx.exception.code,409)
+                pose={'position':[4,3,6],'target':[0,1,0],'fov':38}
+                camera={'project_id':self.p,'action':'camera','revision':1,'camera':pose}
+                req=urllib.request.Request(u,data=json.dumps(camera).encode(),method='POST',headers={'Content-Type':'application/json'})
+                with urllib.request.urlopen(req,timeout=3) as res: self.assertEqual(json.load(res)['camera'],pose)
             finally:
                 api.shutdown();thr.join(timeout=4);api.server_close()
         for p in ['mcp_server.py','webmcp.js']:
             content=(Path(__file__).parent/p).read_text(encoding='utf-8')
             self.assertIn('bai_studio_scene_instances_get',content)
             self.assertIn('bai_studio_scene_instances_mutate',content)
-        self.assertIn('scene-instances-v57.js',(Path(__file__).parent/'studio/v05/index.html').read_text())
+        self.assertIn('scene-instances-v57.js',(Path(__file__).parent/'studio/v05/index.html').read_text(encoding='utf-8'))
         for language in ['jp','en']:
-            self.assertIn('v57',json.loads((Path(__file__).parent/'studio/v05/locales'/f'{language}.json').read_text()))
+            self.assertIn('v57',json.loads((Path(__file__).parent/'studio/v05/locales'/f'{language}.json').read_text(encoding='utf-8')))
 
 if __name__=='__main__':unittest.main()

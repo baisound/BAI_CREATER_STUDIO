@@ -110,6 +110,9 @@
   preview.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('bai:v58-preview-open',{detail:{projectId:project.value}})));
   list.addEventListener('change',()=>{fill(selected()?.transform);visibleBox.checked=selected()?.visible ?? true;lockedBox.checked=selected()?.locked ?? false;save.disabled=!selected();remove.disabled=!selected()||selected().locked;});
   project.addEventListener('change',reload);
+  window.addEventListener('bai:v58-camera-saved',event=>{
+    if(event.detail?.projectId===project.value)void reload();
+  });
   for(let i=0;i<30&&!project.value;i++)await new Promise(r=>setTimeout(r,100));
   if(project.value)reload();
 })();

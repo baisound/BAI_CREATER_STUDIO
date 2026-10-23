@@ -21,7 +21,7 @@
   resolution.disabled = false;
   resolution.value = '720p';
   fpsSelect.title = '保存済み作品のFPSで書き出します';
-  settings.insertAdjacentHTML('beforeend', '<p id="v69status" role="status" class="baiTiny">作品の書き出し条件を確認中…</p><p class="baiTiny">画像・動画・独立音声は10分以内。保存済み3Dシーンと適用済み動作を含む作品は720p・300フレーム以内の実描画に対応し、3Dカメラは自動配置です。編集画面の手動カメラ操作・字幕・動画内音声などの未接続内容は出力へ反映されません。保存済みの未対応クリップは欠落を避けるため拒否します。</p>');
+  settings.insertAdjacentHTML('beforeend', '<p id="v69status" role="status" class="baiTiny">作品の書き出し条件を確認中…</p><p class="baiTiny">画像・動画・独立音声は10分以内。保存済み3Dシーンと適用済み動作を含む作品は720p・300フレーム以内の実描画に対応します。3Dの保存カメラがあれば同じ視点を使い、未保存なら自動配置します。字幕・動画内音声などの未接続内容は出力へ反映されません。保存済みの未対応クリップは欠落を避けるため拒否します。</p>');
   const result = document.createElement('div');
   result.id = 'v69result';
   result.hidden = true;
@@ -171,7 +171,7 @@
           range.frame_count / range.fps > caps.max_duration_seconds ? 'このプリセットは10分以内の範囲に対応します' :
             unsupported ? `${unsupported.name} は実MP4へ未接続です。欠落を避けるため書き出せません` : null;
       if (reason) status(reason);
-      else status(`MP4 / H.264 + AAC、${range.fps} fps、F${range.range_start_frame}〜${range.range_end_exclusive - 1}${hasScene ? '、3D実描画720p・自動配置カメラ' : ''}を別名で書き出せます。`);
+      else status(`MP4 / H.264 + AAC、${range.fps} fps、F${range.range_start_frame}〜${range.range_end_exclusive - 1}${hasScene ? '、3D実描画720p・'+(scene.camera?'保存済みカメラ':'自動配置カメラ') : ''}を別名で書き出せます。`);
       button.disabled = Boolean(reason);
       button.textContent = '実MP4を書き出す';
       hint(reason || '保存済み作品の範囲から別名MP4を生成します');
@@ -212,6 +212,7 @@
   observer.observe(page, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('bai:v05-arrangement-loaded', () => { if (page.classList.contains('active')) void refresh(); });
   window.addEventListener('bai:v05-project-changed', () => { if (page.classList.contains('active')) void refresh(); });
+  window.addEventListener('bai:v58-camera-saved', () => { if (page.classList.contains('active')) void refresh(); });
   window.addEventListener('pagehide', stopPolling, { once: true });
   if (page.classList.contains('active')) void refresh();
 })();
