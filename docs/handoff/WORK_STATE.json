@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-23T23:21:37+09:00",
+  "updated_at": "2026-10-23T23:26:29+09:00",
   "updated_by": "codex",
-  "branch": "feature/v05-ui-overhaul-61",
-  "head_at_update": "ba67214",
+  "branch": "codex/v05-minimum-workflow",
+  "head_at_update": "e7e64a8",
   "current": {
-    "task": "Issue #64: v0.5枝番61のソースをmainへPRで統合",
-    "status": "done",
-    "step": "PR #65の既存機能回帰と枝番試験を確認し、必要な試験修正後にマージ",
+    "task": "Issue #63: v0.5の最短制作経路とロードマップの優先順をOwner最新指定へ更新",
+    "status": "in_progress",
+    "step": "既存IDと未完了状態を照合し、素材登録から書き出しまでの順序を記録",
     "design_doc": "docs/v05/PROGRESS_STAGE61_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-23T23:26:29+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e7e64a8",
+      "text": "Issue #63: v0.5の最短制作経路とロードマップの優先順をOwner最新指定へ更新: 既存IDと未完了状態を照合し、素材登録から書き出しまでの順序を記録"
+    },
     {
       "at": "2026-10-23T23:21:37+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "dec1774",
       "text": "Issue #50: SCR-10の踊るモデルにGLB/VRM/FBXを追加: モデル候補・プレビュー経路・保存再読込を修正"
-    },
-    {
-      "at": "2026-10-22T00:28:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "dec1774",
-      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06a: camera.jsとcamera_3d.jsを旧画面互換のmount APIにする"
     }
   ]
 }
