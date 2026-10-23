@@ -306,6 +306,14 @@ class Handler(BaseHTTPRequestHandler):
             try:self.send(200,json.dumps(inventory(unified_assets(),q.get('category',['all'])[0],q.get('query',[''])[0]),ensure_ascii=False).encode())
             except ArrangementError as exc:self.bad(400,str(exc))
             return
+        if urlsplit(self.path).path=='/api/studio/v05/media-info':
+            from studio_v05_media_render import media_info, RenderError
+            try:
+                asset_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                self.send(200,json.dumps(media_info(DATA,asset_id,unified_assets()),ensure_ascii=False).encode())
+            except RenderError as exc:self.bad(exc.status,str(exc))
+            except (OSError,ValueError,KeyError):self.bad(422,'Cannot probe registered media')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/playhead':
             from studio_v05_playhead import read, PlayheadError
             try:
@@ -830,6 +838,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/edit':
             from studio_v05_arrangement import edit_clip, ArrangementError
+            from studio_v05_media_render import media_info, RenderError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -837,25 +846,38 @@ class Handler(BaseHTTPRequestHandler):
                 if not isinstance(body,dict):return self.bad(400,'Invalid clip edit')
                 base={'project_id','clip_id','revision','action'}
                 expected=base|({'start','duration','track'} if body.get('action')=='update' else set())
-                if not expected<=set(body) or set(body)-expected-({'lane'} if body.get('action')=='update' else set()):return self.bad(400,'Invalid clip edit fields')
-                args={k:body[k] for k in ('start','duration','track','lane') if k in body}
+                if not expected<=set(body) or set(body)-expected-({'lane','source_start'} if body.get('action')=='update' else set()):return self.bad(400,'Invalid clip edit fields')
+                args={k:body[k] for k in ('start','duration','track','lane','source_start') if k in body}
+                if body['action']=='update':
+                    from studio_v05_arrangement import read as read_arrangement
+                    current=read_arrangement(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'])
+                    clip=next((c for c in current['clips'] if c.get('id')==body['clip_id']),None)
+                    if clip and clip.get('category') in ('video','audio','music'):
+                        args['source_duration']=media_info(DATA,clip['asset_id'],unified_assets())['duration_seconds']
                 result=edit_clip(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['clip_id'],body['revision'],body['action'],layout_root=DATA/'studio_v05_track_layouts',**args)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except RenderError as exc:self.bad(exc.status,str(exc))
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid clip edit')
             except OSError:self.bad(500,'Clip update failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement/place':
             from studio_v05_arrangement import place, ArrangementError
+            from studio_v05_media_render import media_info, RenderError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
                 required={'project_id','asset_id','track','start','duration','revision'}
                 if not isinstance(body,dict) or not required<=set(body) or set(body)-required-{'lane'}:return self.bad(400,'Invalid arrangement request')
-                result=place(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['asset_id'],body['track'],body['start'],body['duration'],body['revision'],unified_assets(),layout_root=DATA/'studio_v05_track_layouts',lane=body.get('lane',1))
+                items=unified_assets()
+                from studio_v05_arrangement import classify
+                entry=next((a for a in items if a.get('id')==body['asset_id'] and a.get('available')),None)
+                media=media_info(DATA,body['asset_id'],items) if entry and classify(entry) in ('video','audio','music') else None
+                result=place(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['asset_id'],body['track'],body['start'],body['duration'],body['revision'],items,layout_root=DATA/'studio_v05_track_layouts',lane=body.get('lane',1),source_duration=media['duration_seconds'] if media else None,source_has_audio=media['has_audio'] if media else None)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except RenderError as exc:self.bad(exc.status,str(exc))
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid clip data')
             except OSError:self.bad(500,'Arrangement write failed')
             return
