@@ -8,7 +8,7 @@
   const button = document.createElement('button');
   button.id = 'v70sceneOpen';
   button.type = 'button';
-  button.textContent = '同じ作品の3Dシーンを開く';
+  button.textContent = '同じ作品の3Dを画面に重ねる';
   transport.append(button);
   const controls = document.createElement('div');
   controls.id = 'v70sceneTransport';
@@ -31,7 +31,7 @@
     button.disabled = true;
     try {
       if (!selectedProject()) throw Error('作品を選んでください');
-      await scene()?.open();
+      await scene()?.open({ composite: true });
       const active = scene()?.status();
       if (!active?.opened) throw Error('3Dシーンを開けません');
       if (!active.loaded) $('v70sceneStatus').textContent = '保存済み3Dモデルがありません。左の「複数モデル」で追加してください。';

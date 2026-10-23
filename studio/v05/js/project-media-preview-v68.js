@@ -19,7 +19,7 @@
   const supported = new Set(['image', 'video', 'audio', 'music']);
   const state = { projectId: '', clips: [], entries: [], fps: 60, inFrame: 0,
     outFrame: 0, frame: 0, ready: false, playing: false, generation: 0,
-    startFrame: 0, startTime: 0, raf: 0, issues: [] };
+    startFrame: 0, startTime: 0, raf: 0, issues: [], sceneOverlay: false };
   const message = text => { $('v68status').textContent = text; };
   const sourceUrl = asset => {
     if (!asset?.available || typeof asset.id !== 'string') return null;
@@ -32,6 +32,13 @@
   const clamp = frame => Math.max(0, Math.min(state.outFrame, Math.round(Number(frame) || 0)));
   const activeAt = (clip, seconds) => seconds >= clip.start && seconds < clip.start + clip.duration;
   const pauseElement = element => { try { element.pause(); } catch (_) { /* detached */ } };
+  function refreshStage() {
+    stage.hidden = !state.clips.length && !state.sceneOverlay;
+    if (state.sceneOverlay) $('v68stageNote').hidden = true;
+    const sceneLoaded = state.sceneOverlay && window.BAIStudioMultiScenePreview?.status?.().loaded > 0;
+    $('v68play').disabled = !state.ready || (!state.entries.length && !sceneLoaded);
+    if (state.ready) message(`${state.entries.length}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : state.sceneOverlay ? '3Dを同じ画面に重ねて表示。3D入りMP4は未接続。' : '3Dは別画面、動画内音声は未接続。限定MP4は出力画面に接続。'}`);
+  }
   function release() {
     cancelAnimationFrame(state.raf);
     state.playing = false;
@@ -48,7 +55,8 @@
   function setFrame(frame, playback = false) {
     state.frame = clamp(frame);
     const seconds = state.frame / state.fps;
-    $('v68frame').value = String(state.frame);
+    const frameInput = $('v68frame');
+    if (document.activeElement !== frameInput && frameInput.dataset.dirty !== 'true') frameInput.value = String(state.frame);
     $('v68time').textContent = `F ${state.frame} / ${seconds.toFixed(2)} 秒 (${state.fps} fps)`;
     let visible = 0, sounding = 0, sourceEnded = 0;
     for (const entry of state.entries) {
@@ -72,7 +80,7 @@
         element.play().catch(error => { if (state.projectId) message(`再生できません: ${error.message}`); });
       } else if (!playback) pauseElement(element);
     }
-    $('v68stageNote').hidden = Boolean(visible);
+    $('v68stageNote').hidden = Boolean(visible) || state.sceneOverlay;
     if (!visible) $('v68stageNote').textContent = sourceEnded ? '元メディアの終端を超えています。クリップの長さを確認してください。' : sounding ? 'この位置は音声のみです。' : 'この位置に対応する画像・動画はありません。';
     if (state.ready) window.dispatchEvent(new CustomEvent('bai:v05-media-frame', {
       detail: { projectId: state.projectId, frame: state.frame, seconds, fps: state.fps, playing: state.playing },
@@ -111,12 +119,15 @@
   }
   async function seek(frame) {
     pause();
+    delete $('v68frame').dataset.dirty;
     setFrame(frame);
+    $('v68frame').value = String(state.frame);
     await saveHead();
   }
   function play() {
     const scene = window.BAIStudioMultiScenePreview?.status?.();
     if (!state.ready || (!state.entries.length && !(scene?.opened && scene.loaded > 0))) return;
+    delete $('v68frame').dataset.dirty;
     if (state.frame >= state.outFrame) setFrame(state.inFrame);
     state.startFrame = state.frame;
     state.startTime = performance.now();
@@ -133,6 +144,7 @@
     const generation = ++state.generation;
     pause();
     release();
+    delete $('v68frame').dataset.dirty;
     state.projectId = projectId;
     state.ready = false;
     state.clips = Array.isArray(detail.clips) ? detail.clips : [];
@@ -176,12 +188,10 @@
       state.entries.sort((a, b) => (a.clip.lane || 1) - (b.clip.lane || 1) || a.clip.start - b.clip.start || a.clip.id.localeCompare(b.clip.id));
       for (const entry of state.entries) if (entry.kind !== 'audio') layers.append(entry.element);
       state.ready = true;
-      stage.hidden = state.clips.length === 0;
+      refreshStage();
       state.frame = clamp(Math.round(Number(head.seconds || 0) * state.fps));
       setFrame(state.frame);
-      $('v68play').disabled = !state.entries.length;
-      const count = state.entries.length;
-      message(`${count}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : '3Dは別画面、動画内音声は未接続。限定MP4は出力画面に接続。'}`);
+      refreshStage();
     } catch (error) {
       if (generation !== state.generation) return;
       stage.hidden = false;
@@ -197,6 +207,7 @@
   $('v68forward').addEventListener('click', () => { void seek(state.frame + 1); });
   $('v68seek').addEventListener('click', () => { void seek($('v68frame').value); });
   $('v68frame').addEventListener('keydown', event => { if (event.key === 'Enter') void seek($('v68frame').value); });
+  $('v68frame').addEventListener('input', () => { $('v68frame').dataset.dirty = 'true'; });
   window.addEventListener('bai:v05-arrangement-loaded', event => { void configure(event.detail); });
   window.addEventListener('load', async () => {
     if (state.projectId) return;
@@ -213,7 +224,9 @@
   window.addEventListener('pagehide', () => { ++state.generation; pause(); release(); }, { once: true });
   window.BAIStudioMediaPreviewV68 = Object.freeze({
     play, pause: () => pause(true), stop, seek,
+    sceneOverlay(active) { state.sceneOverlay = Boolean(active); refreshStage(); setFrame(state.frame); },
     status: () => ({ projectId: state.projectId, frame: state.frame, fps: state.fps,
-      ready: state.ready, playing: state.playing, mediaCount: state.entries.length, issues: [...state.issues] }),
+      ready: state.ready, playing: state.playing, mediaCount: state.entries.length,
+      sceneOverlay: state.sceneOverlay, issues: [...state.issues] }),
   });
 })();

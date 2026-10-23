@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T04:46:28+09:00",
+  "updated_at": "2026-10-24T05:19:43+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-composite-scene-preview",
-  "head_at_update": "4778af2",
+  "head_at_update": "8730d50",
   "current": {
     "task": "Issue #63/#69: v0.5保存済み3Dと画像・動画の同一画素プレビュー",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存作品時刻で3Dキャンバスと2Dメディアを同じ編集ビューに重ね、保存再読込と実画素を隔離確認する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "Finish isolated same-pixel 3D/media preview, commit/PR/merge and sync main",
-    "Continue approved v0.5 3D-inclusive MP4 output after preview verification"
+    "Review and merge composite preview PR, sync main and verify live 8765 UI",
+    "Continue approved v0.5 3D-inclusive MP4 export using the shared scene/frame clock"
   ],
   "unverified": [
-    "Real PMX plus 2D composite, real GPU, 3D-inclusive MP4, long-form sync, Linux and MCP are unverified or unimplemented"
+    "Real PMX with 2D composite, physical GPU, 3D-inclusive MP4, long-form sync, Linux and MCP remain unverified or unimplemented"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T05:19:43+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8730d50",
+      "text": "Issues #63/#69: saved GLB overlays image/video in one v0.5 editor viewport; pixel comparison, F60/F150/reload, real PMX/VMD regression and guarded hashes passed"
+    },
     {
       "at": "2026-10-24T04:46:28+09:00",
       "by": "codex",
@@ -234,27 +241,6 @@
       "event": "done",
       "head": "71128e8",
       "text": "Issue39/63/69: v0.5実動作プレビューを既存30fps再生クロックへ接続し、素材管理の中央一覧だけをスクロール。隔離Chrome試験は新規1件・素材4件・旧音楽ダンス2件成功、実素材指定2件スキップ。"
-    },
-    {
-      "at": "2026-10-24T00:36:00+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "56c4630",
-      "text": "Issue #39/#63: v0.5実動作プレビューを既存の音楽・ダンス再生へ接続: 30fpsフレーム表示、再生・一時停止・停止・前後移動の双方向同期"
-    },
-    {
-      "at": "2026-10-24T00:32:13+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b815857",
-      "text": "Issue63: 重複した簡易素材タブをタイムライン編集へ統合し、4タブ共通グリッドの左幅・トラック高さをドラッグ・キー操作・保存・復元・リセット可能にした"
-    },
-    {
-      "at": "2026-10-24T00:25:25+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "647161e",
-      "text": "Issue #63: v0.5編集画面の共通パネルサイズ調整と重複タブ整理: 左欄とタイムラインの境界ドラッグ・保存・復元・リセットを共通グリッドへ実装し、簡易素材の重複入口を整理"
     }
   ]
 }

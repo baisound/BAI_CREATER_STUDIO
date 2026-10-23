@@ -20,7 +20,7 @@ const tr=(key)=>locale[key]||({
   loading:'3Dモデルを読み込み中…',loadFailed:'読み込み失敗',runtimeError:'描画できません',mismatch:'作品が一致しません'
 })[key]||key;
 const section=document.getElementById('v57-scene-instances');
-let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,nonce=0,selectedId='';
+let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,nonce=0,selectedId='';
 let spatialEditor=null,sceneSnapshot=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
@@ -33,6 +33,7 @@ const title=document.createElement('strong');title.textContent=tr('title');
 const choose=document.createElement('select');choose.setAttribute('aria-label',tr('select'));
 const refreshBtn=document.createElement('button');refreshBtn.textContent=tr('refresh');
 const focusBtn=document.createElement('button');focusBtn.textContent=tr('focus');
+const modeBtn=document.createElement('button');modeBtn.type='button';modeBtn.textContent='同じ画面に重ねる';
 const closeBtn=document.createElement('button');closeBtn.textContent=tr('close');
 const progress=document.createElement('span');progress.setAttribute('role','status');progress.style.cssText='color:#c8d9ea';
 const clipSelect=document.createElement('select');clipSelect.setAttribute('aria-label','モーション');
@@ -42,7 +43,7 @@ const seekInput=document.createElement('input');seekInput.type='number';seekInpu
 seekInput.id='v58-motion-seek';
 const seekBtn=document.createElement('button');seekBtn.type='button';
 const motionStatus=document.createElement('span');motionStatus.setAttribute('role','status');
-heading.append(title,choose,refreshBtn,focusBtn,closeBtn);
+heading.append(title,choose,refreshBtn,focusBtn,modeBtn,closeBtn);
 const motionControls=document.createElement('div');motionControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
 motionControls.append(clipSelect,targetSelect,assignBtn,seekInput,seekBtn,motionStatus);
 const canvasParent=document.createElement('div');
@@ -55,6 +56,25 @@ footer.append(progress,hint);
 panel.append(heading,motionControls,canvasParent,footer);
 document.body.append(panel);
 panel.hidden=true;panel.style.display='none';
+const normalPanelStyle=panel.style.cssText;
+const normalCanvasStyle=canvasParent.style.cssText;
+
+function mountComposite(){
+  const stage=document.getElementById('v68stage');
+  if(!stage)return false;
+  window.BAIStudioMediaPreviewV68?.sceneOverlay?.(true);
+  stage.append(canvasParent,panel);
+  canvasParent.style.cssText='position:absolute;inset:0;width:100%;height:100%;min-height:0;background:transparent;border:0;overflow:hidden;z-index:2';
+  panel.style.cssText='position:absolute;top:8px;right:8px;left:auto;bottom:auto;z-index:3;width:min(560px,calc(100% - 16px));max-height:52%;overflow:auto;background:#172231ee;border:1px solid #6584a0;border-radius:9px;padding:8px;box-shadow:0 8px 28px #0009;display:flex;flex-direction:column;gap:5px';
+  return true;
+}
+function unmountComposite(){
+  window.BAIStudioMediaPreviewV68?.sceneOverlay?.(false);
+  panel.insertBefore(canvasParent,footer);
+  document.body.append(panel);
+  canvasParent.style.cssText=normalCanvasStyle;
+  panel.style.cssText=normalPanelStyle;
+}
 
 const request=async(url)=>{
   const response=await fetch(url,{cache:'no-store'});
@@ -139,7 +159,7 @@ async function setup(){
   const token=nonce;
   const libs=await loadLibs();
   if(token!==nonce||!opened)throw Error('プレビューは閉じられました');
-  viewport=createViewport(canvasParent,libs,{freeDolly:true});
+  viewport=createViewport(canvasParent,libs,{freeDolly:true,transparent:composite});
   const shared=window.BAIStudioSharedSceneV57?.createHost({
     scene:viewport.content,
     // Draw once via the viewport's RAF, not an extra direct renderer call.
@@ -241,15 +261,22 @@ async function reload(){
     seekScene(currentSeek());
     viewport.fit?.();
     viewport.invalidate?.();
+    if(composite)window.BAIStudioMediaPreviewV68?.sceneOverlay?.(true);
     window.dispatchEvent(new CustomEvent('bai:v58-scene-reloaded',{detail:{projectId:id,loaded:controller.status().loaded}}));
   }catch(error){if(thisNonce===nonce&&opened)progress.textContent=tr('loadFailed')+': '+String(error?.message||error);}
 }
-async function open(){
-  if(opened){await reload();return;}
+async function open(options={}){
+  const requestedComposite=Boolean(options?.composite);
+  if(opened){
+    if(requestedComposite===composite){await reload();return;}
+    close();
+  }
   // The legacy viewport owns a globally singleton Three.js host.
   // End it first; never overlap two GL contexts and two animation owners.
   window.BAIStudioScenePreview?.close();
-  opened=true;panel.hidden=false;panel.style.display='flex';
+  opened=true;composite=requestedComposite&&mountComposite();
+  modeBtn.textContent=composite?'単独画面で表示':'同じ画面に重ねる';
+  panel.hidden=false;panel.style.display='flex';
   await reload();
 }
 function close(){
@@ -258,6 +285,8 @@ function close(){
   motionCoordinator?.dispose();motionCoordinator=null;motionPlan=null;
   controller?.dispose();controller=null;
   viewport?.dispose();viewport=null;
+  if(composite)unmountComposite();
+  composite=false;
   panel.hidden=true;panel.style.display='none';choose.replaceChildren();
   progress.textContent='';
 }
@@ -319,13 +348,14 @@ window.addEventListener('bai:remote-playhead-updated',event=>{
     seekScene(event.detail.seconds);
 });
 closeBtn.addEventListener('click',close);
+modeBtn.addEventListener('click',()=>{open({composite:!composite}).catch(e=>progress.textContent=e.message);});
 project?.addEventListener('change',()=>{if(opened)reload();});
 window.addEventListener('bai:v58-preview-open',()=>{open().catch(e=>progress.textContent=e.message);});
 window.addEventListener('bai:v57-scene-changed',()=>{if(opened)reload();});
 window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
-  status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,rendererReady:Boolean(viewport),renderingVerified:false}),
+  status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,composite,rendererReady:Boolean(viewport),renderingVerified:false}),
   poseProbe(instanceId,boneNames){
     if(!opened||!controller||!Array.isArray(boneNames)||boneNames.length>16||
        boneNames.some(name=>typeof name!=='string'||name.length>100))return null;
