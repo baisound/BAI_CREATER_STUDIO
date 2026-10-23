@@ -88,14 +88,14 @@ test('scissors split keeps source windows, separated pieces move/extend, snap an
     assert.ok(left.start>0.2&&left.start<0.4,JSON.stringify({left,right}));assert.equal(right.start,2.5);assert.equal(right.source_start,0.5);
     assert.ok(await page.locator('#v07timeline .v77-ticks span').count()>6,'ruler must be finer than 10 seconds');
     await page.waitForFunction(()=>{const lane=document.querySelector('#v07timeline [data-track="audio"]');return lane?.isConnected&&getComputedStyle(lane).backgroundImage.includes('repeating-linear-gradient')});
-    await page.locator('#v07zoom').evaluate(el=>{el.value='120';el.dispatchEvent(new Event('input',{bubbles:true}))});
+    await page.locator('#v07zoom').evaluate(el=>{el.value='120';el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))});
     await page.waitForFunction(()=>[...document.querySelectorAll('#v07timeline .v77-ticks span')].some(el=>el.textContent==='0.5秒'));
     await page.locator('#v07timeline .v77-track-label').filter({hasText:'音声'}).locator('span').dblclick();
     const input=page.locator('#v07timeline input[aria-label="audio トラック名"]');await input.fill('髙田 Audio');await input.press('Enter');
     await page.waitForFunction(()=>[...document.querySelectorAll('#v07timeline .v77-track-label span')].some(el=>el.textContent==='髙田 Audio'));
     const layout=await ok(await fetch(`${server.base}/api/studio/v05/timeline/layout?id=${id}`));assert.equal(layout.labels.audio,'髙田 Audio');
     const emoji=await fetch(`${server.base}/api/studio/v05/timeline/labels`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,revision:layout.revision,key:'model',label:'😀'})});assert.equal(emoji.status,400);
-    await page.locator('#v07zoom').evaluate(el=>{el.value='24';el.dispatchEvent(new Event('input',{bubbles:true}))});
+    await page.locator('#v07zoom').evaluate(el=>{el.value='24';el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))});
     await page.waitForFunction(()=>document.querySelector('#v07timeline [data-track="video"]')?.style.width==='720px');
     await page.locator('#v06cat').selectOption('video');
     await page.locator('#v06results [draggable="true"]').first().dragTo(page.locator('#v07timeline [data-track="video"]'),{targetPosition:{x:120,y:15}});
