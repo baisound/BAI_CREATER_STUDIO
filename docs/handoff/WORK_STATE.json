@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T06:05:27+09:00",
+  "updated_at": "2026-10-24T06:08:22+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-export-button-status",
-  "head_at_update": "0ea3f6b",
+  "branch": "codex/v05-saved-scene-camera",
+  "head_at_update": "6491693",
   "current": {
-    "task": "Issue #69: 書き出しボタンの状態案内を実際の利用可否へ同期",
-    "status": "done",
-    "step": "実ブラウザで見つけた残存ツールチップを修正し隔離Chromeで確認",
+    "task": "Issue #63: v0.5保存済み3Dカメラを同一作品のプレビューと限定MP4に反映",
+    "status": "in_progress",
+    "step": "静的撮影視点の保存契約、UI、再読込、MP4実画素を隔離検証",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T06:08:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "6491693",
+      "text": "Issue #63: v0.5保存済み3Dカメラを同一作品のプレビューと限定MP4に反映: 静的撮影視点の保存契約、UI、再読込、MP4実画素を隔離検証"
+    },
     {
       "at": "2026-10-24T06:05:27+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "10426b2",
       "text": "Issue #63/#69: v0.5作品カード・新規作品・保存済みタイムラインのIDを同期。Chrome二作品/遅延応答/再読込3件、結合7件を確認"
-    },
-    {
-      "at": "2026-10-24T01:37:22+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "10426b2",
-      "text": "Issue #63/#69: v0.5作品カード・新規作品・保存済みタイムラインのIDを同期。Chrome二作品/遅延応答/再読込3件と結合7件を確認"
     }
   ]
 }
