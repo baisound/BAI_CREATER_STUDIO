@@ -1,8 +1,8 @@
 import tempfile,unittest,json
 from pathlib import Path
 from studio_project_catalog import create
-from studio_v05_arrangement import inventory,place,read,edit_clip,timeline_view,ArrangementError,TRACKS
-from studio_v05_track_layout import add_image_lane,remove_image_lane,update as update_layout,get as get_layout
+from studio_v05_arrangement import inventory,place,read,edit_clip,split_clip,timeline_view,ArrangementError,TRACKS
+from studio_v05_track_layout import add_image_lane,remove_image_lane,set_flags,set_label,update as update_layout,get as get_layout
 class Tests(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.cat=self.root/'catalog.json';self.project=create(self.cat,'Demo');self.items=[{'id':'lib:abc','name':'Dance.vmd','kind':'motions','available':True,'source':'library'},{'id':'lib:missing','name':'Camera.vmd','available':False}]
@@ -71,4 +71,43 @@ class Tests(unittest.TestCase):
   single=self.root/'single'
   with self.assertRaisesRegex(ArrangementError,'last image lane'):
    remove_image_lane(single,self.cat,arr,pid,0,1)
+ def test_timed_clip_split_and_restore_source_window(self):
+  pid=self.project['id'];arr=self.root/'arr';layout=self.root/'layout'
+  items=[{'id':'lib:sound','name':'tone.wav','available':True}]
+  initial=place(arr,self.cat,pid,'lib:sound','audio',1,1.5,0,items,layout_root=layout,source_duration=2)['clip']
+  clipped=edit_clip(arr,self.cat,pid,initial['id'],1,'update',start=1,duration=1.5,track='audio',source_start=0.25,source_duration=2,layout_root=layout)['clip']
+  result=split_clip(arr,self.cat,pid,clipped['id'],2,1.6,layout_root=layout,source_duration=2)
+  self.assertEqual((result['left']['duration'],result['right']['start'],result['right']['duration'],result['right']['source_start']),(0.6,1.6,0.9,0.85))
+  self.assertNotEqual(result['left']['id'],result['right']['id'])
+  self.assertEqual(len(read(arr,self.cat,pid)['clips']),2)
+  left=edit_clip(arr,self.cat,pid,result['left']['id'],3,'update',start=3,duration=0.8,track='audio',source_start=0.25,source_duration=2,layout_root=layout)['clip']
+  right=edit_clip(arr,self.cat,pid,result['right']['id'],4,'update',start=5,duration=1.1,track='audio',source_start=0.65,source_duration=2,layout_root=layout)['clip']
+  self.assertEqual((left['start'],left['duration'],right['start'],right['source_start'],right['duration']),(3,0.8,5,0.65,1.1))
+  with self.assertRaisesRegex(ArrangementError,'inside'):
+   split_clip(arr,self.cat,pid,right['id'],5,right['start'],layout_root=layout)
+  with self.assertRaisesRegex(ArrangementError,'inside'):
+   split_clip(arr,self.cat,pid,right['id'],5,right['start']+right['duration'],layout_root=layout)
+  with self.assertRaisesRegex(ArrangementError,'conflict'):
+   split_clip(arr,self.cat,pid,right['id'],4,5.5,layout_root=layout)
+  with self.assertRaisesRegex(ArrangementError,'not found'):
+   split_clip(arr,self.cat,pid,'missing',5,5.5,layout_root=layout)
+  set_flags(layout,self.cat,pid,0,['audio'],[])
+  with self.assertRaisesRegex(ArrangementError,'locked'):
+   split_clip(arr,self.cat,pid,right['id'],5,5.5,layout_root=layout)
+  with self.assertRaisesRegex(ArrangementError,'Only video and audio'):
+   image=place(arr,self.cat,pid,'lib:image','image',0,1,5,[{'id':'lib:image','name':'frame.webp','available':True}],layout_root=layout)['clip']
+   split_clip(arr,self.cat,pid,image['id'],6,0.5,layout_root=layout)
+ def test_track_labels_allow_japanese_and_reject_emoji(self):
+  pid=self.project['id'];layout=self.root/'layout'
+  renamed=set_label(layout,self.cat,pid,0,'image:1','髙田の画像')
+  self.assertEqual(renamed['labels']['image:1'],'髙田の画像')
+  renamed=set_label(layout,self.cat,pid,1,'model','Character A')
+  self.assertEqual(update_layout(layout,self.cat,pid,2,renamed['order'],{})['labels']['model'],'Character A')
+  with self.assertRaisesRegex(ArrangementError,'Emoji'):
+   set_label(layout,self.cat,pid,3,'model','😀')
+  with self.assertRaisesRegex(ArrangementError,'Emoji'):
+   set_label(layout,self.cat,pid,3,'model','A\nB')
+  with self.assertRaisesRegex(ArrangementError,'key'):
+   set_label(layout,self.cat,pid,3,'image:2','unused')
+  self.assertEqual(set_label(layout,self.cat,pid,3,'image:1',None)['labels'],{'model':'Character A'})
 if __name__=='__main__':unittest.main()

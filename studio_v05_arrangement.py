@@ -141,6 +141,38 @@ def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,durat
         return {'action':action,'clip_id':clip_id,'before':before,'clip':None if action=='delete' else dict(clip),'revision':data['revision'],'legacy_engine_unchanged':True}
 
 
+def split_clip(root,catalog,project_id,clip_id,revision,split_at,*,layout_root=None,source_duration=None):
+    """Split timed media without changing its source file or playback window."""
+    if not isinstance(clip_id,str) or not clip_id or len(clip_id)>100:raise ArrangementError('Invalid clip ID')
+    if type(revision) is not int or revision<0:raise ArrangementError('Revision required')
+    if type(split_at) not in (int,float) or not math.isfinite(split_at):raise ArrangementError('Invalid split time')
+    with LOCK:
+        data=read(root,catalog,project_id)
+        if data['revision']!=revision:raise ArrangementError('Revision conflict')
+        clip=next((c for c in data['clips'] if c.get('id')==clip_id),None)
+        if clip is None:raise ArrangementError('Clip not found')
+        if clip.get('category') not in {'video','audio','music'}:raise ArrangementError('Only video and audio clips can be split')
+        if layout_root is not None:
+            from studio_v05_track_layout import get as get_layout
+            if clip.get('track') in get_layout(layout_root,catalog,project_id).get('locked',[]):raise ArrangementError('Track locked')
+        if len(data['clips'])>=2000:raise ArrangementError('Clip limit reached')
+        left_duration=round(split_at-clip['start'],4)
+        right_duration=round(clip['duration']-left_duration,4)
+        if left_duration<0.1 or right_duration<0.1:raise ArrangementError('Split must be inside the clip')
+        source_start=round(clip.get('source_start',0)+left_duration,4)
+        actual_duration=clip.get('source_duration') if source_duration is None else source_duration
+        _source_window(clip['category'],source_start,right_duration,actual_duration)
+        before=dict(clip)
+        right=dict(clip,id=str(uuid.uuid4()),start=round(clip['start']+left_duration,4),duration=right_duration,source_start=source_start)
+        if actual_duration is not None:
+            clip['source_duration']=right['source_duration']=round(actual_duration,4)
+        clip['duration']=left_duration
+        data['clips'].insert(data['clips'].index(clip)+1,right)
+        data['revision']+=1;data.pop('undo',None)
+        _atomic(Path(root)/(project_id+'.json'),data)
+        return {'left':dict(clip),'right':right,'before':before,'revision':data['revision'],'legacy_engine_unchanged':True}
+
+
 def batch_move(root,catalog,project_id,revision,edits,*,layout_root=None):
     """Atomically move multiple clips with a single revision and one-step undo snapshot."""
     if type(revision) is not int or revision<0:raise ArrangementError('Invalid revision')
