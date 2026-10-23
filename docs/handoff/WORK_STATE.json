@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T01:40:52+09:00",
+  "updated_at": "2026-10-24T01:45:33+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-project-context",
-  "head_at_update": "337d8d9",
+  "head_at_update": "1f696e6",
   "current": {
     "task": "Issue #63/#69: v0.5元画面の消えた入口・機能領域を復元",
-    "status": "in_progress",
+    "status": "done",
     "step": "PR65原型と現行画面を比較し、未接続操作は明示して残し、実機能を保持する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "Owner追加指定: 元v0.5の全画面・全メニュー内で消えた操作入口と表示領域を監査し、現行の実機能を維持したまま復元する"
+    "PRでmainへ統合し、mainサーバーとIssue #63/#69の結果を更新する"
   ],
   "unverified": [
-    "旧Studio作品の完全復元、作品別音声、実3D/音声/カメラ同期、実レンダー、MCP/Linux/GPUは未接続・未検証"
+    "ミキサー・EQ・録音・VST・旧範囲選択の実動作、実レンダー、作品別音声、Linux/GPU/MCPは未接続または未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T01:45:33+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "1f696e6",
+      "text": "PR65元画面の消失入口を復元。未接続の音声/ミキサー/旧範囲を無効表示し、実音声/作品/範囲/素材の隔離Chrome9件成功"
+    },
     {
       "at": "2026-10-24T01:40:52+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "ad7b18c",
       "text": "P2-WP06/07 PR #59: main統合と残ゲート監査: PR #56/#62マージ後のmainを統合し、差分とゲートを再確認"
-    },
-    {
-      "at": "2026-10-22T03:39:55+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4d48a51",
-      "text": "Issue #61: AGENTS.mdに共通テスト手順への参照を追加し、TESTING_GUIDE_JA.mdに試験選択・保護・コマンド・失敗と未検証の記録を整備。参照先とpackage scripts一致、work_state検査とpytest 4件成功"
     }
   ]
 }
