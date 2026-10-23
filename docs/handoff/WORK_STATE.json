@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T00:32:13+09:00",
+  "updated_at": "2026-10-24T00:36:00+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-pane-layout",
-  "head_at_update": "b815857",
+  "branch": "codex/v05-live-transport",
+  "head_at_update": "56c4630",
   "current": {
-    "task": "Issue #63: v0.5編集画面の共通パネルサイズ調整と重複タブ整理",
-    "status": "done",
-    "step": "左欄とタイムラインの境界ドラッグ・保存・復元・リセットを共通グリッドへ実装し、簡易素材の重複入口を整理",
+    "task": "Issue #39/#63: v0.5実動作プレビューを既存の音楽・ダンス再生へ接続",
+    "status": "in_progress",
+    "step": "30fpsフレーム表示、再生・一時停止・停止・前後移動の双方向同期",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T00:36:00+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "56c4630",
+      "text": "Issue #39/#63: v0.5実動作プレビューを既存の音楽・ダンス再生へ接続: 30fpsフレーム表示、再生・一時停止・停止・前後移動の双方向同期"
+    },
     {
       "at": "2026-10-24T00:32:13+09:00",
       "by": "codex",
@@ -236,13 +243,6 @@
       "event": "done",
       "head": "b9d7f57",
       "text": "P2-WP-06c実装をb9d7f57でpush済み。台帳に同SHAとE2E S7を確定記録"
-    },
-    {
-      "at": "2026-10-22T02:42:01+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2097938",
-      "text": "P2-WP-06c: 共有カメラバンドル・SCR02統合保存/復元・4形式の素材参照・dirtyと単体保存版の同期を実装し、隔離ブラウザ/E2EでS7まで確認"
     }
   ]
 }
