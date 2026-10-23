@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T04:40:32+09:00",
+  "updated_at": "2026-10-24T05:07:22+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-pmx-vmd-probe",
-  "head_at_update": "31f25b5",
+  "branch": "codex/v05-home-time-playhead",
+  "head_at_update": "7f0a888",
   "current": {
-    "task": "Issue #39/#50/#63/#69: 実PMX/VMDの保存済み作品プレビューと変形を隔離確認",
+    "task": "Issues #88/#89: HOME Japan-time display and media timeline playhead/zoom synchronization",
     "status": "done",
-    "step": "実PMX/VMDの原本hashを守り、WebGL読込だけでなくF0/F120の骨・画像差を確認し必要な接続不良を修正する",
+    "step": "Inspect existing UI, preserve stored timestamps and clip edits, implement display/clock fixes, verify isolated Chrome",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "main差分統合、PRとmain同期後、3D/2D同一画素プレビューと3D入り動画出力を進める"
+    "Create PR, merge to main, fast-forward local main, verify live 8765 and link Issues #88/#89",
+    "Resume approved v0.5 same-pixel 3D/media preview and export integration in existing composite worktree"
   ],
   "unverified": [
-    "全身ダンス、顔・口・物理、実GPU、3Dと2Dの合成、3D入りMP4、長尺同期、Linux/MCPは未確認"
+    "Real user long-form media, 3D composite rendering, Linux and MCP are not covered by this bounded UI fix"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T05:07:22+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "7f0a888",
+      "text": "Issues #88/#89: HOME JST second display, live timeline cursor and usable zoom; isolated Chrome 4 tests, typecheck, JSON and data hashes passed"
+    },
+    {
+      "at": "2026-10-24T04:54:00+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4778af2",
+      "text": "Issues #88/#89: HOME Japan-time display and media timeline playhead/zoom synchronization: Inspect existing UI, preserve stored timestamps and clip edits, implement display/clock fixes, verify isolated Chrome"
+    },
     {
       "at": "2026-10-24T04:40:32+09:00",
       "by": "codex",
@@ -226,20 +241,6 @@
       "event": "done",
       "head": "b815857",
       "text": "Issue63: 重複した簡易素材タブをタイムライン編集へ統合し、4タブ共通グリッドの左幅・トラック高さをドラッグ・キー操作・保存・復元・リセット可能にした"
-    },
-    {
-      "at": "2026-10-24T00:25:25+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "647161e",
-      "text": "Issue #63: v0.5編集画面の共通パネルサイズ調整と重複タブ整理: 左欄とタイムラインの境界ドラッグ・保存・復元・リセットを共通グリッドへ実装し、簡易素材の重複入口を整理"
-    },
-    {
-      "at": "2026-10-24T00:20:04+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "c649a6e",
-      "text": "v0.5素材画面の診断欄・ヘッダー・参照カードの重なりをOwner承認どおり整理し、ポインタ操作と既存3D再表示を隔離Chrome4件で確認"
     }
   ]
 }
