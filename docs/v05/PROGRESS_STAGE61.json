@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "project": "BAI Creator Studio",
+  "release": "v0.5",
+  "stage": 61,
+  "branch": "feature/v05-ui-overhaul-61",
+  "implementation_commit": "04888e03bfd259e3dfd10d7dfd05c696819b47e9",
+  "roadmap_max_stage_provisional": 112,
+  "progress": {
+    "weighted_provisional_percent": 37.0,
+    "feature_implementation_percent": null,
+    "gui_connection_percent": null,
+    "integration_validation_percent": null,
+    "stage_number_ratio_percent": 54.46,
+    "note": "37% is a qualitative weighted estimate; not a verified product-completion percentage. The stage ratio is not a completion score."
+  },
+  "checks": {
+    "node_tests": {
+      "passed": 17,
+      "failed": 0
+    },
+    "python_tests": {
+      "passed": 17,
+      "failed": 0
+    },
+    "browser_webgl_e2e": "not_run",
+    "windows_e2e": "not_run",
+    "mcp_webmcp_protocol": "not_run"
+  },
+  "scope": {
+    "implemented": [
+      "common XYZ transform schema",
+      "Three.js model transform inspector",
+      "TransformControls model gizmo",
+      "existing revisioned scene API persistence",
+      "locale JSON keys",
+      "rollback and lock behavior"
+    ],
+    "not_yet_connected": [
+      "camera persistent adapter",
+      "light persistent adapter",
+      "effect persistent adapter",
+      "world/local transform calculations",
+      "snap",
+      "studio-wide undo/redo"
+    ]
+  },
+  "next_stage": {
+    "number": 62,
+    "scope": "world/local spatial transforms, snapping and axis controls; preserve existing APIs and implement matching tests"
+  },
+  "guardrails": [
+    "main unchanged",
+    "LF newline policy",
+    "no unapproved feature insertion",
+    "MCP and WebMCP operations must share existing API",
+    "handoff with full .git directory"
+  ]
+}
