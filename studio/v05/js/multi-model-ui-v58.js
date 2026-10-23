@@ -10,6 +10,7 @@ import {createGenericGlbPreview} from '../../js/motion/generic-glb-preview.js';
 import {createPmxGlbPreview} from '../../js/motion/pmx-glb-preview.js';
 import {createPmxVmdPreview} from '../../js/motion/pmx-vmd-preview.js';
 import {loadVmdClip,vmdUrl} from '../../js/motion/vmd.js';
+import {morphValues,resetMorphs,applyFaceKeys} from './pmx-face-keys-v96.js';
 
 const project=document.getElementById('v06project');
 // A separate, short-lived headless page uses this mode for exact saved frames.
@@ -51,6 +52,23 @@ const seekInput=document.createElement('input');seekInput.type='number';seekInpu
 seekInput.id='v58-motion-seek';
 const seekBtn=document.createElement('button');seekBtn.type='button';
 const motionStatus=document.createElement('span');motionStatus.setAttribute('role','status');
+const faceControls=document.createElement('div');faceControls.id='v96-face-controls';
+faceControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid #435a73;padding-top:6px';
+const faceLabel=document.createElement('strong');faceLabel.textContent='PMX表情・口';
+const faceName=document.createElement('select');faceName.id='v96-face-name';faceName.setAttribute('aria-label','実PMXのモーフ名');
+const faceTime=document.createElement('input');faceTime.id='v96-face-time';faceTime.type='number';
+faceTime.min='0';faceTime.max='86400';faceTime.step='0.001';faceTime.value='0';faceTime.style.width='82px';
+faceTime.setAttribute('aria-label','表情キーの時刻（秒）');
+const faceUseSeek=document.createElement('button');faceUseSeek.type='button';faceUseSeek.textContent='現在のシーク位置';
+const faceValue=document.createElement('input');faceValue.id='v96-face-value';faceValue.type='range';
+faceValue.min='0';faceValue.max='1';faceValue.step='0.01';faceValue.value='0';faceValue.setAttribute('aria-label','表情モーフの強さ');
+const faceValueText=document.createElement('output');faceValueText.textContent='0.00';
+const faceSave=document.createElement('button');faceSave.id='v96-face-save';faceSave.type='button';faceSave.textContent='このキーを保存';
+const faceSaved=document.createElement('select');faceSaved.id='v96-face-saved';faceSaved.setAttribute('aria-label','保存済み表情キー');
+const faceDelete=document.createElement('button');faceDelete.id='v96-face-delete';faceDelete.type='button';faceDelete.textContent='選択キーを削除';
+const faceStatus=document.createElement('span');faceStatus.setAttribute('role','status');
+faceControls.append(faceLabel,faceName,faceTime,faceUseSeek,faceValue,faceValueText,faceSave,
+  faceSaved,faceDelete,faceStatus);
 heading.append(title,choose,refreshBtn,focusBtn,saveCameraBtn,restoreCameraBtn,modeBtn,closeBtn);
 const motionControls=document.createElement('div');motionControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
 motionControls.append(clipSelect,targetSelect,assignBtn,seekInput,seekBtn,motionStatus);
@@ -62,7 +80,7 @@ const hint=document.createElement('small');
 hint.textContent=tr('renderingNote');
 footer.append(progress,cameraStatus,hint);
 if(captureMode){saveCameraBtn.hidden=true;restoreCameraBtn.hidden=true;}
-panel.append(heading,motionControls,canvasParent,footer);
+panel.append(heading,motionControls,faceControls,canvasParent,footer);
 document.body.append(panel);
 panel.hidden=true;panel.style.display='none';
 const normalPanelStyle=panel.style.cssText;
@@ -148,6 +166,25 @@ function redrawMotionControls(){
     ?`モーション未読込: ${failure.message}`
     :motionState?`${tr('motionReady')}: ${motionState.loadedClips.length}`:'';
 }
+function redrawFaceControls(){
+  const instanceId=choose.value||selectedId;
+  const target=controller?.getLoaded(instanceId);
+  const priorName=faceName.value;
+  const names=target?.format==='PMX'?[...morphValues(target.object).keys()]:[];
+  faceName.replaceChildren(new Option(names.length?'モーフを選択':'PMXモデルを選択',''));
+  for(const name of names)faceName.add(new Option(name,name));
+  if(names.includes(priorName))faceName.value=priorName;
+  const priorKey=faceSaved.value;
+  faceSaved.replaceChildren(new Option('保存済みキー',''));
+  for(const [index,key] of (sceneSnapshot?.face_keys||[]).entries()){
+    if(key.instance_id===instanceId)faceSaved.add(new Option(
+      `${key.time.toFixed(3)}秒 ${key.morph_name} ${key.value.toFixed(2)}`,String(index)));
+  }
+  if([...faceSaved.options].some(x=>x.value===priorKey))faceSaved.value=priorKey;
+  faceSave.disabled=!names.length;
+  faceDelete.disabled=!faceSaved.value;
+  faceStatus.textContent=names.length?`${names.length}件の実在モーフ`:'PMXモデルを選んでください';
+}
 function currentSeek(){
   const media=window.BAIStudioMediaPreviewV68?.status?.();
   if(media?.ready&&media.projectId===project?.value)return media.frame/media.fps;
@@ -159,10 +196,26 @@ function currentSeek(){
 function seekScene(seconds){
   if(!opened||!motionCoordinator)return;
   try{
+    for(const instance of sceneSnapshot?.instances||[]){
+      const target=controller?.getLoaded(instance.id);
+      if(target?.format==='PMX')resetMorphs(target.object);
+    }
     const result=motionCoordinator.seek(seconds);
     if(result?.errors?.length)motionStatus.textContent=result.errors.map(x=>String(x.error?.message||x.error)).join('; ');
+    const missing=applySavedFace(seconds);
+    if(missing.length)motionStatus.textContent='未読込の表情モーフ: '+missing.join(', ');
     seekInput.value=String(seconds);
   }catch(error){motionStatus.textContent=String(error.message||error);}
+}
+function applySavedFace(seconds){
+  const missing=[];
+  for(const instance of sceneSnapshot?.instances||[]){
+    const target=controller?.getLoaded(instance.id);
+    if(target?.format!=='PMX')continue;
+    missing.push(...applyFaceKeys(target.object,sceneSnapshot.face_keys,instance.id,seconds));
+  }
+  viewport?.invalidate?.();
+  return missing;
 }
 async function setup(){
   const token=nonce;
@@ -269,6 +322,7 @@ async function reload(){
     updateStatus(controller.status(),[...(result.issues||[]),...(motionResult.issues||[])]);
     redrawMotionControls();
     seekScene(currentSeek());
+    redrawFaceControls();
     viewport.fit?.();
     if(data.camera)viewport.applyCameraPose(data.camera);
     cameraStatus.textContent=data.camera?'保存済みカメラを反映（視点変更後は再保存）':'カメラ未保存：自動構図で表示・出力';
@@ -307,6 +361,51 @@ refreshBtn.addEventListener('click',reload);
 choose.addEventListener('change',()=>{
   selectedId=choose.value;
   spatialEditor?.select(selectedId);
+  redrawFaceControls();
+});
+faceUseSeek.addEventListener('click',()=>{faceTime.value=String(Math.round(currentSeek()*1000)/1000);});
+faceValue.addEventListener('input',()=>{faceValueText.textContent=Number(faceValue.value).toFixed(2);});
+faceSaved.addEventListener('change',()=>{
+  const key=sceneSnapshot?.face_keys?.[Number(faceSaved.value)];
+  if(!faceSaved.value||!key)return;
+  faceName.value=key.morph_name;faceTime.value=String(key.time);
+  faceValue.value=String(key.value);faceValueText.textContent=key.value.toFixed(2);
+  faceDelete.disabled=false;
+});
+async function writeFace(action,key){
+  const id=project?.value;
+  if(!id||!sceneSnapshot||sceneSnapshot.project_id!==id)throw Error('作品を選んでください');
+  const response=await fetch('/api/studio/v05/scene/instances',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({project_id:id,action,revision:sceneSnapshot.revision,face_key:key})
+  });
+  const data=await response.json();
+  if(!response.ok)throw Error(data.error||`HTTP ${response.status}`);
+  if(project?.value!==id||!opened)return;
+  sceneSnapshot=data;
+  redrawFaceControls();
+  seekScene(currentSeek());
+  window.dispatchEvent(new CustomEvent('bai:v96-face-saved',{detail:{projectId:id,revision:data.revision}}));
+}
+faceSave.addEventListener('click',async()=>{
+  const instanceId=choose.value,name=faceName.value,time=Number(faceTime.value),value=Number(faceValue.value);
+  if(!morphValues(controller?.getLoaded(instanceId)?.object).has(name)){
+    faceStatus.textContent='実PMXにあるモーフを選んでください';return;
+  }
+  faceSave.disabled=true;
+  try{await writeFace('face-set',{instance_id:instanceId,morph_name:name,time,value});
+    faceStatus.textContent='表情キーを保存しました';
+  }catch(error){faceStatus.textContent='保存失敗: '+String(error.message||error);}
+  finally{faceSave.disabled=false;}
+});
+faceDelete.addEventListener('click',async()=>{
+  const key=sceneSnapshot?.face_keys?.[Number(faceSaved.value)];
+  if(!faceSaved.value||!key)return;
+  faceDelete.disabled=true;
+  try{await writeFace('face-remove',{instance_id:key.instance_id,morph_name:key.morph_name,time:key.time});
+    faceStatus.textContent='表情キーを削除しました';
+  }catch(error){faceStatus.textContent='削除失敗: '+String(error.message||error);}
+  finally{faceDelete.disabled=!faceSaved.value;}
 });
 focusBtn.addEventListener('click',()=>{
   const id=choose.value;
@@ -414,6 +513,12 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     });
     return {projectId:project?.value,instanceId,bones};
   },
+  morphProbe(instanceId){
+    const target=controller?.getLoaded(instanceId);
+    if(!opened||!target?.object||target.format!=='PMX')return null;
+    const names=morphValues(target.object);
+    return {projectId:project?.value,instanceId,morphs:Object.fromEntries(names)};
+  },
   refit(){return viewport?.fit?.()||false;},
   captureFrame(frame,fps,width,height){
     if(!captureMode||!opened||!composite||!viewport||!controller||
@@ -423,8 +528,14 @@ window.BAIStudioMultiScenePreview=Object.freeze({
       throw Error('3D capture is not ready for this saved project');
     const motion=motionCoordinator?.status();
     if(motion?.issues?.length)throw Error('3D motion has unresolved issues');
+    for(const instance of sceneSnapshot?.instances||[]){
+      const target=controller?.getLoaded(instance.id);
+      if(target?.format==='PMX')resetMorphs(target.object);
+    }
     const result=motionCoordinator?.seek(frame/fps);
     if(result?.errors?.length)throw Error('3D motion seek failed: '+result.errors.map(x=>String(x.error?.message||x.error)).join('; '));
+    const missing=applySavedFace(frame/fps);
+    if(missing.length)throw Error('Saved face morph not found: '+missing.join(', '));
     // The capture page has no transform gizmo. Render synchronously after the
     // exact motion seek; preserveDrawingBuffer keeps the transparent pixels.
     viewport.renderer.setPixelRatio(1);

@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T06:23:40+09:00",
+  "updated_at": "2026-10-24T06:40:14+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-pmx-face-keys",
-  "head_at_update": "b16bad0",
+  "head_at_update": "72ba8d3",
   "current": {
     "task": "Issue #96: v0.5 PMX表情・口モーフ時刻キーをプレビューと限定MP4へ接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "実PMXモーフ調査、保存契約とプレビュー/出力実証",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "PRレビューとmain統合、ローカルmain/8765同期・実画面確認。その後、カメラ時間キー・カット等の承認済み残条件を続行。"
+    "PRレビューとmain統合、main/8765同期後、Issue #96の専用タイムライントラック・視線/口と自動リップ残件を続行"
   ],
   "unverified": [
-    "カメラ時間キー/カット/レール/ピント/Undo、長尺、Linux、実運用MCP、全区間音画1F同期は未接続または未確認。"
+    "専用可視トラック、Undo/Redo、視線、SRT自動リップ、母音最適化、他PMX/Linux、MCP実運用、長尺・全区間同期は未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T06:40:14+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "72ba8d3",
+      "text": "Issue #96: 実PMXの既存モーフ168名を照合し、表情キーの保存・補間・再読込・限定MP4実画素を確認。Python8、Chrome4、typecheck合格。LIP-004/009は部分実装。"
+    },
     {
       "at": "2026-10-24T06:23:40+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "c0b11e9",
       "text": "Issue #63/#69: v0.5保存済み作品の映像・音声プレビューを同じ時刻へ接続: 保存済み配置の画像・動画・音声を同一作品IDと再生位置で評価し、実画面で確認する"
-    },
-    {
-      "at": "2026-10-24T01:45:33+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "1f696e6",
-      "text": "PR65元画面の消失入口を復元。未接続の音声/ミキサー/旧範囲を無効表示し、実音声/作品/範囲/素材の隔離Chrome9件成功"
     }
   ]
 }
