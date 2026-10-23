@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T01:38:43+09:00",
+  "updated_at": "2026-10-24T01:40:52+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-project-context",
-  "head_at_update": "10426b2",
+  "head_at_update": "337d8d9",
   "current": {
-    "task": "Issue #63/#69: v0.5の作品カードと保存済みタイムラインの作品IDを一致させる",
-    "status": "done",
-    "step": "既存作品選択と作品ドロップダウンを同期し、再読込後も同じ作品を開く。範囲表示・カメラ設定への伝播を隔離試験する",
+    "task": "Issue #63/#69: v0.5元画面の消えた入口・機能領域を復元",
+    "status": "in_progress",
+    "step": "PR65原型と現行画面を比較し、未接続操作は明示して残し、実機能を保持する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T01:40:52+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "337d8d9",
+      "text": "Issue #63/#69: v0.5元画面の消えた入口・機能領域を復元: PR65原型と現行画面を比較し、未接続操作は明示して残し、実機能を保持する"
+    },
     {
       "at": "2026-10-24T01:38:43+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "4d48a51",
       "text": "Issue #61: AGENTS.mdに共通テスト手順への参照を追加し、TESTING_GUIDE_JA.mdに試験選択・保護・コマンド・失敗と未検証の記録を整備。参照先とpackage scripts一致、work_state検査とpytest 4件成功"
-    },
-    {
-      "at": "2026-10-22T03:37:44+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e3c0df1",
-      "text": "Issue #61: 共通テスト手順を独立MD化しAGENTS.mdから参照: 既存の試験契約・コマンドを照合して共通手順を作成"
     }
   ]
 }
