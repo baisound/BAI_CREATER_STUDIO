@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T05:50:07+09:00",
+  "updated_at": "2026-10-24T05:56:12+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-scene-mp4-capture",
-  "head_at_update": "72815ae",
+  "branch": "codex/v05-export-screen-copy",
+  "head_at_update": "5fd1087",
   "current": {
-    "task": "Issue #63/#69: v0.5保存済み3Dの限定MP4出力",
-    "status": "done",
-    "step": "In/Outとシーンrevisionを固定し、短い透過3Dフレームを実描画・検証して既存FFmpeg合成へ接続",
+    "task": "Issue #69: v0.5書き出し画面の実MP4対応表示",
+    "status": "in_progress",
+    "step": "書き出し画面の古い未接続表記を現行の限定MP4機能と一致させて確認",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T05:56:12+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5fd1087",
+      "text": "Issue #69: v0.5書き出し画面の実MP4対応表示: 書き出し画面の古い未接続表記を現行の限定MP4機能と一致させて確認"
+    },
     {
       "at": "2026-10-24T05:50:07+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "045df5e",
       "text": "Issue #49/#69: v0.5タイムラインのイン点・アウト点と書き出し範囲: 作品FPSと保存済みクリップから最終フレームを算出し、範囲保存・出力表示・隔離試験へ接続"
-    },
-    {
-      "at": "2026-10-24T01:06:18+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ae8657f",
-      "text": "Issue39/69: v0.5音声画面の登録WAV実波形・Web Audio試聴・30fps前後移動・配置保存再読込を接続し、偽のEQ/ミキサー操作を除去。隔離Chrome音声1件・素材回帰4件成功、競合409で既存設定保持を確認。"
     }
   ]
 }
