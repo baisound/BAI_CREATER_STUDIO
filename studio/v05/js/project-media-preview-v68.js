@@ -56,7 +56,7 @@
       const active = activeAt(clip, seconds);
       if (kind === 'image') { element.hidden = !active; if (active && element.complete && element.naturalWidth > 0) visible++; continue; }
       if (!active) { if (kind === 'video') element.hidden = true; pauseElement(element); continue; }
-      const target = Math.max(0, seconds - clip.start);
+      const target = Math.max(0, (clip.source_start || 0) + seconds - clip.start);
       if (Number.isFinite(element.duration) && target >= element.duration) {
         sourceEnded++;
         if (kind === 'video') element.hidden = true;
@@ -173,7 +173,7 @@
         else element.onerror = () => message(`${clip.name}のメディアを再生できません`);
         state.entries.push({ clip, kind, element });
       }
-      state.entries.sort((a, b) => a.clip.start - b.clip.start || a.clip.id.localeCompare(b.clip.id));
+      state.entries.sort((a, b) => (a.clip.lane || 1) - (b.clip.lane || 1) || a.clip.start - b.clip.start || a.clip.id.localeCompare(b.clip.id));
       for (const entry of state.entries) if (entry.kind !== 'audio') layers.append(entry.element);
       state.ready = true;
       stage.hidden = state.clips.length === 0;

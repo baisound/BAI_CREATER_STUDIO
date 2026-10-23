@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
@@ -193,6 +194,29 @@ def _media_info(ffprobe: str, path: Path) -> dict:
         raise RenderError(f"{path.name}: 元素材を動画・音声として読めません") from exc
 
 
+def media_info(data_root: Path, asset_id: str, inventory: list[dict]) -> dict:
+    """Probe only a registered available media file; never expose its filesystem path."""
+    from studio_v05_arrangement import classify
+    if not isinstance(asset_id, str) or not 0 < len(asset_id) <= 300:
+        raise RenderError("Invalid asset ID", 400)
+    entry = next((item for item in inventory if item.get("id") == asset_id and item.get("available")), None)
+    if not entry:
+        raise RenderError("登録済み素材が見つかりません", 404)
+    kind = classify(entry)
+    if kind not in {"video", "audio", "music"}:
+        raise RenderError("動画・音声の素材を選んでください", 400)
+    path = _source(entry, data_root / "library_assets", data_root / "studio_v05_asset_sources",
+                   data_root / "asset_inbox", data_root / "integrated_v02" / "assets")
+    if not path or not path.is_file():
+        raise RenderError("元素材を読み込めません", 404)
+    ffprobe = shutil.which("ffprobe")
+    if not ffprobe:
+        raise RenderError("ffprobeが見つからないため動画・音声の長さを確認できません")
+    info = _media_info(ffprobe, path)
+    return {"asset_id": asset_id, "kind": kind, "duration_seconds": round(info["duration"], 4),
+            "has_audio": info["audio"]}
+
+
 def _snapshot(data_root: Path, project_id: str, range_revision: int, arrangement_revision: int,
               resolution: str, inventory: list[dict], ffprobe: str) -> tuple[dict, list[dict]]:
     if resolution not in RESOLUTIONS:
@@ -214,6 +238,9 @@ def _snapshot(data_root: Path, project_id: str, range_revision: int, arrangement
     files = {entry.get("id"): entry for entry in inventory if isinstance(entry, dict)}
     resolved = []
     for clip in clips:
+        source_start = clip.get("source_start", 0)
+        if type(source_start) not in (int, float) or not math.isfinite(source_start) or source_start < 0:
+            raise RenderError(f"{clip.get('name', 'Clip')}: 元素材の開始位置が不正です")
         if clip.get("category") not in {"image", "video", "audio", "music"}:
             raise RenderError(f"{clip.get('name', 'Clip')}: 3D・動作・カメラ等を含む作品はこのMP4プリセットでまだ出力できません")
         entry = files.get(clip.get("asset_id"))
@@ -227,14 +254,14 @@ def _snapshot(data_root: Path, project_id: str, range_revision: int, arrangement
             raise RenderError(f"{clip.get('name', 'Clip')}: この形式または登録元はMP4出力へ未接続です")
         if kind in {"video", "audio"}:
             info = _media_info(ffprobe, path)
-            if info["duration"] + 0.02 < clip["duration"]:
+            if info["duration"] + 0.02 < clip.get("source_start", 0) + clip["duration"]:
                 raise RenderError(f"{clip.get('name', 'Clip')}: 配置時間が元素材より長いため出力できません")
             if kind == "video" and info["audio"]:
                 raise RenderError(f"{clip.get('name', 'Clip')}: 動画内音声はこのMP4プリセットへ未接続です。欠落を避けるため出力を停止します")
         resolved.append({"clip": dict(clip), "kind": kind, "path": path,
                          "asset_id": clip["asset_id"], "bytes": path.stat().st_size,
                          "registered_sha256": entry.get("sha256")})
-    resolved.sort(key=lambda item: (item["clip"]["start"], item["clip"]["id"]))
+    resolved.sort(key=lambda item: (item["clip"].get("lane", 1), item["clip"]["start"], item["clip"]["id"]))
     return render_range, resolved
 
 
@@ -256,9 +283,10 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
         idx = order + 2
         cstart, cend = float(clip["start"]), float(clip["start"] + clip["duration"])
         length = float(clip["duration"])
+        source_start = float(clip.get("source_start", 0)) if item["kind"] != "image" else 0.0
         if item["kind"] in {"image", "video"}:
             label = f"visual{order}"
-            graph.append(f"[{idx}:v]trim=start=0:duration={_num(length)},setpts=PTS-STARTPTS,fps={_num(fps)},"
+            graph.append(f"[{idx}:v]trim=start={_num(source_start)}:duration={_num(length)},setpts=PTS-STARTPTS,fps={_num(fps)},"
                          f"scale={width}:{height}:force_original_aspect_ratio=decrease,"
                          f"pad={width}:{height}:(ow-iw)/2:(oh-ih)/2:color=black@0,"
                          f"format=yuva420p,setpts=PTS+{_num(cstart)}/TB[{label}]")
@@ -269,7 +297,7 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
         else:
             label = f"audio{order}"
             delay = round(cstart * 1000)
-            audio.append(f"[{idx}:a]atrim=start=0:duration={_num(length)},asetpts=PTS-STARTPTS,"
+            audio.append(f"[{idx}:a]atrim=start={_num(source_start)}:duration={_num(length)},asetpts=PTS-STARTPTS,"
                          f"aresample=48000,aformat=channel_layouts=stereo,adelay={delay}|{delay}[{label}]")
             audio_labels.append(label)
     graph.append(f"[{base}]trim=start={_num(start_seconds)}:end={_num(end_seconds)},"

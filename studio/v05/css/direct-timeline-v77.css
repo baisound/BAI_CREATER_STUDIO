@@ -1,0 +1,19 @@
+.main{grid-template-rows:minmax(250px,1fr) minmax(300px,43vh)}
+.timeline{overflow:hidden;display:flex;flex-direction:column}
+#v77TimelineShell{overflow:auto;flex:1;min-height:0;padding:5px 9px}
+#v77TimelineShell h3{font-size:13px;margin:2px 0 5px}
+#v77TimelineShell #v07timeline{overflow:visible!important;max-width:none!important}
+#v77TimelineShell .v77-track-label{min-width:164px!important;max-width:164px!important;gap:2px}
+#v77TimelineShell .v77-track-label button{padding:2px 3px;font-size:10px}
+#v77TimelineShell .v77-ticks{margin-left:180px!important}
+#v77TimelineShell #v07timeline [data-track]{min-height:35px}
+#v77TimelineShell #v07timeline [data-track].v77-drop-ready{background:#335c42!important;outline:2px dashed #8edd8e;outline-offset:-2px}
+#v77TimelineShell #v07timeline [data-clip-id]{min-width:18px;box-shadow:inset 9px 0 #94c9fa69,inset -9px 0 #94c9fa69}
+#v77LegacyTimeline{flex:none;max-height:46px;overflow:auto;border-top:1px solid #465468}
+#v77LegacyTimeline[open]{max-height:220px}
+#v77LegacyTimeline summary{padding:5px 10px;font-size:10px}
+#v77LegacyTimeline .tlbody{height:165px}
+#v06AssetPicker h3{margin:0 0 7px;font-size:12px}
+#v06AssetPicker #v06results button[draggable="true"]{border-left:3px solid #72bbfa}
+#v77LegacyAssets summary{padding:7px 10px;font-size:10px}
+@media(max-width:730px){.main{display:block}.timeline{height:390px}#v77TimelineShell{height:340px}}
