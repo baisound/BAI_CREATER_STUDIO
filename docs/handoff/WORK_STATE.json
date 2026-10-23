@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T02:26:04+09:00",
+  "updated_at": "2026-10-24T02:31:24+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-media-render",
-  "head_at_update": "79e392a",
+  "branch": "codex/v05-scene-preview",
+  "head_at_update": "e51ac98",
   "current": {
-    "task": "Issue #49/#63/#69: v0.5保存済み作品の実MP4書き出し",
-    "status": "done",
-    "step": "In/Outと画像・動画・音声を安全な別名ジョブへ渡し、再読込可能な実ファイルを検証する",
+    "task": "Issue #39/#40/#50/#63/#69: v0.5作品別3Dシーンを同じ再生時刻でプレビューへ接続",
+    "status": "in_progress",
+    "step": "既存scene/instances・multi-motionとv0.5メディアプレビューの境界を調べ、実3D見本を同じ作品IDと再生位置へ接続する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T02:31:24+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e51ac98",
+      "text": "Issue #39/#40/#50/#63/#69: v0.5作品別3Dシーンを同じ再生時刻でプレビューへ接続: 既存scene/instances・multi-motionとv0.5メディアプレビューの境界を調べ、実3D見本を同じ作品IDと再生位置へ接続する"
+    },
     {
       "at": "2026-10-24T02:26:04+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "9ed5011",
       "text": "PR59へPR57最新修正を統合。復元中のカメラ保存防止を検証。typecheck、P2 Node249件、Python386件と50 subtests、画面20件、E2E S8まで成功。Node全件355件は2回とも各342成功・11計画skip・2失敗で、Windows接続資源不足と後続の要素待機に起因。実data7ファイルhash不変。BlenderはFBX手順からVMDへの既存変換で動画出力ではない"
-    },
-    {
-      "at": "2026-10-22T04:44:37+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "24c99ea",
-      "text": "PR #59: PR #57更新分の統合とWP07ゲート再確認: PR57のWindows/カメラ修正を取り込み、P2書き出しのテストと競合を確認"
     }
   ]
 }
