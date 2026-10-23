@@ -104,12 +104,14 @@ class MultiSceneV57(unittest.TestCase):
         with self.assertRaisesRegex(SceneInstancesError,'conflict'):
             self.mutate(action='face-set',revision=1,face_key=key)
         self.assertEqual((self.store/(self.p+'.json')).read_bytes(),before)
+        self.assets.remove(pmx)
         removed=self.mutate(action='face-remove',revision=2,face_key={k:key[k] for k in
-            ('instance_id','morph_name','time')})
+            ('instance_id','morph_name','time')},morph_lookup=lambda source: (_ for _ in ()).throw(ValueError('missing')))
         self.assertEqual(removed['face_keys'],[])
         with self.assertRaises(SceneInstancesError):
             self.mutate(action='face-remove',revision=3,face_key={k:key[k] for k in
                 ('instance_id','morph_name','time')})
+        self.assets.append(pmx)
         saved=self.mutate(action='face-set',revision=3,face_key=key)
         gone=self.mutate(action='remove',revision=saved['revision'],instance_id=instance)
         self.assertEqual(gone['face_keys'],[])

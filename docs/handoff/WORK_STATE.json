@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T06:40:14+09:00",
+  "updated_at": "2026-10-24T06:41:16+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-pmx-face-keys",
-  "head_at_update": "72ba8d3",
+  "head_at_update": "6a7b760",
   "current": {
     "task": "Issue #96: v0.5 PMX表情・口モーフ時刻キーをプレビューと限定MP4へ接続",
     "status": "done",
@@ -11,10 +11,10 @@
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "PRレビューとmain統合、main/8765同期後、Issue #96の専用タイムライントラック・視線/口と自動リップ残件を続行"
+    "PR #97をmainへ統合しローカルmain/8765同期、その後専用可視トラック等を継続"
   ],
   "unverified": [
-    "専用可視トラック、Undo/Redo、視線、SRT自動リップ、母音最適化、他PMX/Linux、MCP実運用、長尺・全区間同期は未確認"
+    "専用可視トラック、Undo/Redo、視線、自動リップ、母音最適化、他PMX/Linux、MCP実運用、長尺・全区間同期は未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T06:41:16+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6a7b760",
+      "text": "Issue #96: 表情キー保存と実PMX/MP4の4件結合試験合格。原本欠損時にも孤立キー削除可とし、Python8件再合格。"
+    },
     {
       "at": "2026-10-24T06:40:14+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "a0c0055",
       "text": "保存済みv0.5作品の画像・動画・音声クリップを同じフレームで実プレビュー。Chrome隔離PNG/WAV/MP4と作品切替・再読込成功"
-    },
-    {
-      "at": "2026-10-24T01:50:38+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "c0b11e9",
-      "text": "Issue #63/#69: v0.5保存済み作品の映像・音声プレビューを同じ時刻へ接続: 保存済み配置の画像・動画・音声を同一作品IDと再生位置で評価し、実画面で確認する"
     }
   ]
 }

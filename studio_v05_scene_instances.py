@@ -178,16 +178,17 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
                 raise SceneInstancesError("Face key scene instance not found")
             if target["locked"]:
                 raise SceneInstancesError("Scene instance is locked")
-            source = next((x for x in assets if x.get("id") == target["asset_id"]), None)
-            if not isinstance(source, dict) or str(source.get("format", "")).upper() != "PMX":
-                raise SceneInstancesError("Face keys require a registered PMX")
-            if morph_lookup is not None:
-                try:
-                    valid_names = morph_lookup(source)
-                except (OSError, ValueError) as exc:
-                    raise SceneInstancesError("Registered PMX morph inspection failed") from exc
-                if key["morph_name"] not in valid_names:
-                    raise SceneInstancesError("Face morph is not present in the registered PMX")
+            if action == "face-set":
+                source = next((x for x in assets if x.get("id") == target["asset_id"]), None)
+                if not isinstance(source, dict) or str(source.get("format", "")).upper() != "PMX":
+                    raise SceneInstancesError("Face keys require a registered PMX")
+                if morph_lookup is not None:
+                    try:
+                        valid_names = morph_lookup(source)
+                    except (OSError, ValueError) as exc:
+                        raise SceneInstancesError("Registered PMX morph inspection failed") from exc
+                    if key["morph_name"] not in valid_names:
+                        raise SceneInstancesError("Face morph is not present in the registered PMX")
             identity = (key["instance_id"], key["morph_name"], key["time"])
             had_key = any((x["instance_id"], x["morph_name"], x["time"]) == identity
                           for x in current["face_keys"])
