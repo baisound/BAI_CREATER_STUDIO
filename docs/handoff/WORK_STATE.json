@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T03:30:00+09:00",
+  "updated_at": "2026-10-24T03:36:31+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-direct-timeline",
-  "head_at_update": "f83a7b2",
+  "branch": "codex/v05-media-specific-timeline",
+  "head_at_update": "bda7acf",
   "current": {
-    "task": "Issue #77/#63/#69: v0.5素材の直接ドラッグ配置・画像複数トラック・自由な長さ",
-    "status": "done",
-    "step": "現行の保存形式とUIを確認し、画像の任意配置・移動・端伸縮・保存再読込を段階実装する",
+    "task": "Issue #77: v0.5動画・音声の素材尺に沿う直接タイムライン操作",
+    "status": "in_progress",
+    "step": "元素材の長さとトリム位置を保存し、ドラッグ配置・端操作・プレビュー・限定MP4を一致させる",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T03:36:31+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "bda7acf",
+      "text": "Issue #77: v0.5動画・音声の素材尺に沿う直接タイムライン操作: 元素材の長さとトリム位置を保存し、ドラッグ配置・端操作・プレビュー・限定MP4を一致させる"
+    },
     {
       "at": "2026-10-24T03:30:00+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "a74d1ae",
       "text": "Issue #63: PR65後のOwner最新指定をAGENTS/ロードマップ/トレーサビリティへ反映。v0.5の登録→共通タイムライン→書き出しとPMX顔優先の段階・確認条件を明文化。Issue63へ記録。"
-    },
-    {
-      "at": "2026-10-23T23:26:29+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e7e64a8",
-      "text": "Issue #63: v0.5の最短制作経路とロードマップの優先順をOwner最新指定へ更新: 既存IDと未完了状態を照合し、素材登録から書き出しまでの順序を記録"
     }
   ]
 }
