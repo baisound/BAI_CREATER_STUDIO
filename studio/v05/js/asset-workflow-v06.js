@@ -42,6 +42,7 @@
    apply:async(seconds,remoteRevision,id)=>{
      if($('v06project').value!==id)return;
      playheadSeconds=seconds;playheadRevision=remoteRevision;
+     window.dispatchEvent(new CustomEvent('bai:v05-playhead-changed',{detail:{projectId:id,seconds}}));
      await window.BAIStudioPersistedSeek?.evaluate(seconds,'external-api-playhead');
      await drawTimeline();
    },
@@ -50,8 +51,8 @@
  // No requests when document is hidden. Stop requests after page unload.
  let pollTimer=setInterval(()=>{if(!document.hidden)void remoteSync?.poll()},2000);
  window.addEventListener('pagehide',()=>{clearInterval(pollTimer);remoteSync?.select(null)},{once:true});
- async function loadPlayhead(id=$('v06project').value){if(!id)return;try{const p=await request('/api/studio/v05/playhead?id='+encodeURIComponent(id));if($('v06project').value!==id)return;playheadSeconds=p.seconds;playheadRevision=p.revision;remoteSync?.select(id,p.revision)}catch(e){if($('v06project').value===id)status('再生位置取得失敗: '+e.message)}}
- async function setPlayhead(seconds){const id=$('v06project').value;remoteSync?.suspend(true);try{const p=await request('/api/studio/v05/playhead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,seconds,revision:playheadRevision})});if($('v06project').value!==id)return;playheadSeconds=p.seconds;playheadRevision=p.revision;remoteSync?.localWrite(p.revision);await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'persisted-playhead');await drawTimeline()}catch(e){if($('v06project').value===id){status('再生位置保存失敗: '+e.message);await loadPlayhead(id);await drawTimeline()}}finally{remoteSync?.suspend(false)}}
+ async function loadPlayhead(id=$('v06project').value){if(!id)return;try{const p=await request('/api/studio/v05/playhead?id='+encodeURIComponent(id));if($('v06project').value!==id)return;playheadSeconds=p.seconds;playheadRevision=p.revision;remoteSync?.select(id,p.revision);window.dispatchEvent(new CustomEvent('bai:v05-playhead-changed',{detail:{projectId:id,seconds:p.seconds}}))}catch(e){if($('v06project').value===id)status('再生位置取得失敗: '+e.message)}}
+ async function setPlayhead(seconds){const id=$('v06project').value;remoteSync?.suspend(true);try{const p=await request('/api/studio/v05/playhead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,seconds,revision:playheadRevision})});if($('v06project').value!==id)return false;playheadSeconds=p.seconds;playheadRevision=p.revision;remoteSync?.localWrite(p.revision);window.dispatchEvent(new CustomEvent('bai:v05-playhead-changed',{detail:{projectId:id,seconds:p.seconds}}));await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'persisted-playhead');await drawTimeline();return true}catch(e){if($('v06project').value===id){status('再生位置保存失敗: '+e.message);await loadPlayhead(id);await drawTimeline()}return false}finally{remoteSync?.suspend(false)}}
  let currentClip=null;
  let timelineZoom=12,snapSeconds=0.5,dragBusy=false,trackLayout=null,layoutHistory=[],selectedClips=new Map(),lastClips=[];
  const allTracks=['audio','camera','effect','expression','image','light','lip','model','motion','music','video'];
@@ -77,7 +78,7 @@
    const d=await request('/api/studio/v05/timeline/view?id='+encodeURIComponent(id));lastClips=d.tracks.flatMap(t=>t.clips);
    const scale=timelineZoom,duration=Math.max(30,Math.ceil(d.duration/10)*10),width=Math.ceil(duration*scale);
    el.replaceChildren();
-   const header=document.createElement('div');header.style.cssText='background:#18283a;padding:6px';header.textContent='保存済みタイムライン — '+d.clip_count+'件（実再生は未接続）';el.append(header);
+   const header=document.createElement('div');header.style.cssText='background:#18283a;padding:6px';header.textContent='保存済みタイムライン — '+d.clip_count+'件（画像・動画・音声はプレビューへ部分接続）';el.append(header);
    const toolbar=document.createElement('div');toolbar.style.cssText='display:flex;gap:10px;align-items:center;flex-wrap:wrap';
    const zoomLabel=document.createElement('label');zoomLabel.textContent='時間倍率 ';const slider=document.createElement('input');slider.type='range';slider.min='4';slider.max='40';slider.value=String(scale);slider.id='v07zoom';slider.addEventListener('input',()=>{timelineZoom=Number(slider.value);drawTimeline()});zoomLabel.append(slider);toolbar.append(zoomLabel);
    const snapLabel=document.createElement('label');snapLabel.textContent='吸着間隔 ';const snap=document.createElement('select');snap.id='v09snap';[[0.1,'0.1秒'],[0.5,'0.5秒'],[1,'1秒'],[5,'5秒']].forEach(([value,label])=>{const option=document.createElement('option');option.value=String(value);option.textContent=label;snap.append(option)});snap.value=String(snapSeconds);snap.addEventListener('change',()=>{snapSeconds=Number(snap.value)});snapLabel.append(snap);toolbar.append(snapLabel);el.append(toolbar);
@@ -89,7 +90,7 @@
    async function toggleFlag(track,flag){if(!trackLayout)return;const locked=new Set(trackLayout.locked||[]),muted=new Set(trackLayout.muted||[]);const target=flag==='locked'?locked:muted;target.has(track)?target.delete(track):target.add(track);try{trackLayout=await request('/api/studio/v05/timeline/flags',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,revision:trackLayout.revision,locked:[...locked],muted:[...muted]})});await drawTimeline()}catch(e){status('変更失敗: '+e.message);await loadLayout();await drawTimeline()}}
  const undo=document.createElement('button');undo.textContent='トラック配置を戻す';undo.disabled=!layoutHistory.length;undo.addEventListener('click',async()=>{const prev=layoutHistory.pop();if(prev)await saveLayout(prev.order,prev.heights)});toolbar.append(undo);
    const transport=document.createElement('div');transport.style.cssText='display:flex;gap:8px;align-items:center;margin:6px 0';
-   const timeLabel=document.createElement('span');timeLabel.textContent='再生位置: '+playheadSeconds.toFixed(2)+'秒（エンジン非連動）';
+   const timeLabel=document.createElement('span');timeLabel.textContent='再生位置: '+playheadSeconds.toFixed(2)+'秒（対応メディアのプレビューに連動）';
    const timeInput=document.createElement('input');timeInput.type='number';timeInput.min='0';timeInput.max='86400';timeInput.step='0.1';timeInput.value=String(playheadSeconds);timeInput.setAttribute('aria-label','再生位置 秒');
    const seek=document.createElement('button');seek.textContent='指定秒へ移動';seek.addEventListener('click',()=>setPlayhead(Number(timeInput.value)));
    transport.append(timeLabel,timeInput,seek);el.append(transport);
@@ -127,5 +128,6 @@
    selected=assets.find((item)=>item.id===assetId&&item.available)||null;
    status(selected?`タイムラインに配置する素材: ${selected.name}`:'選んだ素材は配置できません。登録状態を確認してください。');
  });
+ window.BAIStudioV05Arrangement=Object.freeze({commitPreviewPlayhead:(projectId,seconds)=>$('v06project').value===projectId?setPlayhead(seconds):Promise.resolve(false)});
  projects();search();
 })();

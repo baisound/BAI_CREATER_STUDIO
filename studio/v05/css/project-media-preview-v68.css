@@ -1,0 +1,11 @@
+#v68stage{position:absolute;inset:0;z-index:1;background:#050b12;color:#e4eff8;cursor:default}
+#v68stage[hidden]{display:none}
+#v68layers,.v68visual{position:absolute;inset:0;width:100%;height:100%}
+.v68visual{object-fit:contain;background:transparent}
+.v68visual[hidden]{display:none}
+#v68stageNote{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:#c7d9ea}
+#v68stageNote[hidden]{display:none}
+#v68transport{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:7px 10px;background:#172536;border-top:1px solid #435875;color:#e9f3fb;font-size:12px}
+#v68transport input[type=number]{width:85px;background:#101b29;color:#fff;border:1px solid #52657c;padding:5px}
+#v68transport button{padding:5px 8px}
+#v68status{flex-basis:100%;font-size:11px;color:#c4d8eb}
