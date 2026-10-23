@@ -1,0 +1,11 @@
+#bai-audio .baiAudio > .baiCard { min-width: 0; }
+#bai-audio .baiAudio label { display: block; margin: 12px 0 5px; }
+#baiAudioWaves {
+  min-height: 165px;
+  border: 1px solid #40536c;
+  border-radius: 7px;
+  background: #101b2a;
+  padding: 8px;
+}
+#baiAudioWaves canvas { display: block; width: 100%; height: 140px; cursor: crosshair; }
+#baiAudioStatus[data-kind="error"] { color: #ffb4a8; }
