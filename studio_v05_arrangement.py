@@ -49,7 +49,13 @@ def read(root,catalog,project_id):
     if data.get('schema')!=1 or data.get('project_id')!=project_id or not isinstance(data.get('clips'),list) or not isinstance(data.get('revision'),int):raise ArrangementError('Invalid arrangement; original retained')
     return data
 
-def place(root,catalog,project_id,asset_id,track,start,duration,revision,items,*,layout_root=None):
+def _lane(lane,track,layout):
+    if type(lane) is not int or lane<1:raise ArrangementError('Invalid lane')
+    if track!='image' and lane!=1:raise ArrangementError('Only image tracks support multiple lanes')
+    if track=='image' and lane>layout.get('image_lanes',1):raise ArrangementError('Image lane does not exist')
+    return lane
+
+def place(root,catalog,project_id,asset_id,track,start,duration,revision,items,*,layout_root=None,lane=1):
     if track not in TRACKS:raise ArrangementError('Unsupported track')
     if not isinstance(asset_id,str) or len(asset_id)>300:raise ArrangementError('Invalid asset ID')
     if any(isinstance(x,bool) or not isinstance(x,(int,float)) or not math.isfinite(x) for x in (start,duration)) or start<0 or duration<=0 or start+duration>24*60*60:raise ArrangementError('Invalid time range')
@@ -59,11 +65,14 @@ def place(root,catalog,project_id,asset_id,track,start,duration,revision,items,*
     with LOCK:
         data=read(root,catalog,project_id)
         if data['revision']!=revision:raise ArrangementError('Revision conflict')
+        layout={'image_lanes':1}
         if layout_root is not None:
             from studio_v05_track_layout import get as get_layout
-            if track in get_layout(layout_root,catalog,project_id).get('locked',[]):raise ArrangementError('Track locked')
+            layout=get_layout(layout_root,catalog,project_id)
+            if track in layout.get('locked',[]):raise ArrangementError('Track locked')
+        _lane(lane,track,layout)
         if len(data['clips'])>=2000:raise ArrangementError('Clip limit reached')
-        clip={'id':str(uuid.uuid4()),'asset_id':asset_id,'name':found['name'],'category':found['category'],'track':track,'start':round(start,4),'duration':round(duration,4)}
+        clip={'id':str(uuid.uuid4()),'asset_id':asset_id,'name':found['name'],'category':found['category'],'track':track,'lane':lane,'start':round(start,4),'duration':round(duration,4)}
         data['clips'].append(clip);data['revision']+=1
         _atomic(Path(root)/(project_id+'.json'),data)
         return {'clip':clip,'revision':data['revision'],'legacy_engine_unchanged':True}
@@ -74,13 +83,13 @@ def timeline_view(root,catalog,project_id):
     data=read(root,catalog,project_id)
     rows=[]
     for track in sorted(TRACKS):
-        clips=sorted((c for c in data['clips'] if c.get('track')==track), key=lambda c:(c['start'],c['id']))
+        clips=sorted((c for c in data['clips'] if c.get('track')==track), key=lambda c:(c.get('lane',1),c['start'],c['id']))
         if clips:rows.append({'track':track,'clips':clips})
     end=max((c['start']+c['duration'] for c in data['clips']),default=0)
     return {'schema':1,'project_id':project_id,'revision':data['revision'],'tracks':rows,'duration':round(end,4),'clip_count':len(data['clips']),'engine_connected':False}
 
 
-def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,duration=None,track=None,layout_root=None):
+def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,duration=None,track=None,lane=None,layout_root=None):
     """Atomic revision-guarded metadata edit, isolated from legacy playback."""
     if not isinstance(clip_id,str) or not clip_id or len(clip_id)>100:raise ArrangementError('Invalid clip ID')
     if type(revision) is not int or revision<0:raise ArrangementError('Revision required')
@@ -93,13 +102,16 @@ def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,durat
         if revision!=data['revision']:raise ArrangementError('Revision conflict')
         clip=next((x for x in data['clips'] if x.get('id')==clip_id),None)
         if clip is None:raise ArrangementError('Clip not found')
+        layout={'image_lanes':1}
         if layout_root is not None:
             from studio_v05_track_layout import get as get_layout
-            locked=set(get_layout(layout_root,catalog,project_id).get('locked',[]))
+            layout=get_layout(layout_root,catalog,project_id)
+            locked=set(layout.get('locked',[]))
             if clip['track'] in locked or (action=='update' and track in locked):raise ArrangementError('Track locked')
+        if action=='update':_lane(clip.get('lane',1) if lane is None and track=='image' else (1 if lane is None else lane),track,layout)
         before=dict(clip)
         if action=='delete':data['clips'].remove(clip)
-        else:clip.update(start=round(start,4),duration=round(duration,4),track=track)
+        else:clip.update(start=round(start,4),duration=round(duration,4),track=track,lane=clip.get('lane',1) if lane is None and track=='image' else (1 if lane is None else lane))
         data['revision']+=1
         _atomic(Path(root)/(project_id+'.json'),data)
         return {'action':action,'clip_id':clip_id,'before':before,'clip':None if action=='delete' else dict(clip),'revision':data['revision'],'legacy_engine_unchanged':True}

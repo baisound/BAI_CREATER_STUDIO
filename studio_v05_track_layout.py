@@ -8,10 +8,12 @@ LOCK=threading.RLock()
 def get(root,catalog,project_id):
     _project(catalog,project_id)
     p=Path(root)/(project_id+'.json')
-    if not p.exists():return {'project_id':project_id,'revision':0,'order':sorted(TRACKS),'heights':{},'locked':[],'muted':[]}
+    if not p.exists():return {'project_id':project_id,'revision':0,'order':sorted(TRACKS),'heights':{},'locked':[],'muted':[],'image_lanes':1}
     d=json.loads(p.read_text(encoding='utf-8'))
     if d.get('project_id')!=project_id or type(d.get('revision')) is not int or not isinstance(d.get('order'),list) or set(d['order'])!=TRACKS or len(d['order'])!=len(TRACKS) or not isinstance(d.get('heights'),dict):raise ArrangementError('Invalid track layout')
     if any(k not in TRACKS or type(v) is not int or not 28<=v<=160 for k,v in d['heights'].items()):raise ArrangementError('Invalid track heights')
+    if type(d.get('image_lanes',1)) is not int or not 1<=d.get('image_lanes',1)<=16:raise ArrangementError('Invalid image lane count')
+    d.setdefault('image_lanes',1)
     return d
 def update(root,catalog,project_id,revision,order,heights):
     if type(revision) is not int or revision<0:raise ArrangementError('Invalid revision')
@@ -20,9 +22,19 @@ def update(root,catalog,project_id,revision,order,heights):
     with LOCK:
         d=get(root,catalog,project_id)
         if d['revision']!=revision:raise ArrangementError('Revision conflict')
-        result={'project_id':project_id,'revision':revision+1,'order':order,'heights':heights,'locked':d.get('locked',[]),'muted':d.get('muted',[])}
+        result={'project_id':project_id,'revision':revision+1,'order':order,'heights':heights,'locked':d.get('locked',[]),'muted':d.get('muted',[]),'image_lanes':d['image_lanes']}
         _atomic(Path(root)/(project_id+'.json'),result)
         return result
+
+def add_image_lane(root,catalog,project_id,revision):
+    if type(revision) is not int or revision<0:raise ArrangementError('Invalid revision')
+    with LOCK:
+        d=get(root,catalog,project_id)
+        if d['revision']!=revision:raise ArrangementError('Revision conflict')
+        if d['image_lanes']>=16:raise ArrangementError('Image lane limit reached')
+        d['image_lanes']+=1;d['revision']+=1
+        _atomic(Path(root)/(project_id+'.json'),d)
+        return d
 
 
 def set_flags(root,catalog,project_id,revision,locked,muted):

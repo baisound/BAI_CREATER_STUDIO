@@ -173,7 +173,7 @@
         else element.onerror = () => message(`${clip.name}のメディアを再生できません`);
         state.entries.push({ clip, kind, element });
       }
-      state.entries.sort((a, b) => a.clip.start - b.clip.start || a.clip.id.localeCompare(b.clip.id));
+      state.entries.sort((a, b) => (a.clip.lane || 1) - (b.clip.lane || 1) || a.clip.start - b.clip.start || a.clip.id.localeCompare(b.clip.id));
       for (const entry of state.entries) if (entry.kind !== 'audio') layers.append(entry.element);
       state.ready = true;
       stage.hidden = state.clips.length === 0;

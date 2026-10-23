@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T03:07:52+09:00",
+  "updated_at": "2026-10-24T03:30:00+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-direct-timeline",
-  "head_at_update": "2c14e1e",
+  "head_at_update": "f83a7b2",
   "current": {
     "task": "Issue #77/#63/#69: v0.5素材の直接ドラッグ配置・画像複数トラック・自由な長さ",
-    "status": "in_progress",
+    "status": "done",
     "step": "現行の保存形式とUIを確認し、画像の任意配置・移動・端伸縮・保存再読込を段階実装する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "PRをmainへ統合し8765実画面を確認した後、実PMX/GLB動作の互換素材で実変形を確認し、3D・カメラの同一出力へ進む"
+    "PRをmainへ統合し、8765実画面でOwnerの操作実演作品を使って画像配置と保存再読込を確認する",
+    "画像以外の素材別タイムライン操作と3D/カメラの同一出力へ進む"
   ],
   "unverified": [
-    "実PMX/VMD/GLBダンス変形、顔、3Dと2Dの画素合成、3D入りMP4、長尺音声同期1F以内、Linux/MCPは未接続または未検証"
+    "動画・音声の媒体別ドラッグとソース尺制約、3D・カメラ入りMP4、MCP、Linux、実GPU、実PMX/VMD変形は未接続または未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T03:30:00+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "f83a7b2",
+      "text": "Issue #77: v0.5主タイムラインで登録画像を任意位置・複数画像行へ直接ドラッグ配置、移動・端伸縮・保存再読込・プレビューを部分接続"
+    },
     {
       "at": "2026-10-24T03:07:52+09:00",
       "by": "codex",
@@ -233,13 +241,6 @@
       "event": "start",
       "head": "e7e64a8",
       "text": "Issue #63: v0.5の最短制作経路とロードマップの優先順をOwner最新指定へ更新: 既存IDと未完了状態を照合し、素材登録から書き出しまでの順序を記録"
-    },
-    {
-      "at": "2026-10-23T23:21:37+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ba67214",
-      "text": "Issue #64: v0.5枝番61のmain統合前検証。Python503件+59サブテスト、v0.5 Node47件、素材Chrome33件、新UI起動導線1件成功。P2全体は1件、旧UI全体は2件の要素待ちタイムアウトがあり、該当試験の隔離再実行は成功。"
     }
   ]
 }

@@ -802,6 +802,19 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid track layout')
             except OSError:self.bad(500,'Track layout write failed')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/timeline/image-lanes':
+            from studio_v05_track_layout import add_image_lane, ArrangementError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','revision'}:return self.bad(400,'Invalid image lane request')
+                result=add_image_lane(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',body['project_id'],body['revision'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid image lane request')
+            except OSError:self.bad(500,'Image lane write failed')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/target':
             from studio_v05_arrangement import set_clip_target, ArrangementError
             try:
@@ -824,8 +837,8 @@ class Handler(BaseHTTPRequestHandler):
                 if not isinstance(body,dict):return self.bad(400,'Invalid clip edit')
                 base={'project_id','clip_id','revision','action'}
                 expected=base|({'start','duration','track'} if body.get('action')=='update' else set())
-                if set(body)!=expected:return self.bad(400,'Invalid clip edit fields')
-                args={k:body[k] for k in ('start','duration','track') if k in body}
+                if not expected<=set(body) or set(body)-expected-({'lane'} if body.get('action')=='update' else set()):return self.bad(400,'Invalid clip edit fields')
+                args={k:body[k] for k in ('start','duration','track','lane') if k in body}
                 result=edit_clip(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['clip_id'],body['revision'],body['action'],layout_root=DATA/'studio_v05_track_layouts',**args)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
@@ -838,8 +851,9 @@ class Handler(BaseHTTPRequestHandler):
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
-                if not isinstance(body,dict) or set(body)!={'project_id','asset_id','track','start','duration','revision'}:return self.bad(400,'Invalid arrangement request')
-                result=place(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['asset_id'],body['track'],body['start'],body['duration'],body['revision'],unified_assets(),layout_root=DATA/'studio_v05_track_layouts')
+                required={'project_id','asset_id','track','start','duration','revision'}
+                if not isinstance(body,dict) or not required<=set(body) or set(body)-required-{'lane'}:return self.bad(400,'Invalid arrangement request')
+                result=place(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['asset_id'],body['track'],body['start'],body['duration'],body['revision'],unified_assets(),layout_root=DATA/'studio_v05_track_layouts',lane=body.get('lane',1))
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid clip data')
