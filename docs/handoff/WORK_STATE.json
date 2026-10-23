@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T01:10:22+09:00",
+  "updated_at": "2026-10-24T01:22:57+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-render-range",
-  "head_at_update": "045df5e",
+  "head_at_update": "9f040fa",
   "current": {
     "task": "Issue #49/#69: v0.5タイムラインのイン点・アウト点と書き出し範囲",
-    "status": "in_progress",
+    "status": "done",
     "step": "作品FPSと保存済みクリップから最終フレームを算出し、範囲保存・出力表示・隔離試験へ接続",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "RENDER/Issue69: タイムラインのイン点・アウト点を保存し、未設定時0〜最終フレームの書き出し範囲へ接続",
-    "v0.5作品IDと共通音声・動作・シーン時刻の統合を続ける"
+    "v0.5作品の共通シーン・音声・撮影時刻を同一プレビューへ接続し、範囲契約を実動画出力へ渡す"
   ],
   "unverified": [
-    "v0.5個別作品への音声配置、実PMX/VMD/GLBとのGPU同期、長尺MP3、最終動画の音声多重化、WebMCP/標準MCP、Linuxは未接続・未検証"
+    "実動画描画・音声多重化、実素材のGPU出力、WebMCP/標準MCP、Linuxは未接続・未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T01:22:57+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9f040fa",
+      "text": "Issue #49/#69: v0.5作品の保存済みタイムラインにIn/Outフレーム範囲を追加。既定0〜最終フレーム、revision競合、出力画面表示を隔離試験で確認。実レンダーは未接続"
+    },
     {
       "at": "2026-10-24T01:10:22+09:00",
       "by": "codex",
@@ -234,13 +240,6 @@
       "event": "start",
       "head": "dd0322e",
       "text": "P2-WP-07 書き出し: WP07b: SCR23のVMD対応表・ジョブ作成・Blender実行と状態表示を実装"
-    },
-    {
-      "at": "2026-10-22T02:52:45+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "fa75389",
-      "text": "WP07a: 旧UI/APIとexports書込先を監査し、SCR23の操作・安全な隔離試験方針を記録"
     }
   ]
 }

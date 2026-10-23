@@ -327,6 +327,15 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(200,json.dumps(timeline_view(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
             except (ArrangementError,ValueError,KeyError,OSError):self.bad(422,'Cannot read project timeline')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/timeline/range':
+            from studio_v05_render_range import read, RenderRangeError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                result=read(DATA/'studio_v05_render_ranges',DATA/'studio_v05_arrangements',
+                            DATA/'studio_v05_catalog.json',project_id)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (RenderRangeError,ValueError,KeyError,OSError) as exc:self.bad(422,str(exc))
+            return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement':
             from studio_v05_arrangement import read, ArrangementError
             try:
@@ -726,6 +735,23 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except (ValueError,KeyError,TypeError) as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
             except OSError:self.bad(500,'Write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/timeline/range':
+            from studio_v05_render_range import save, RenderRangeError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','revision','arrangement_revision','in_frame','out_frame'}:
+                    return self.bad(400,'Invalid render range request')
+                result=save(DATA/'studio_v05_render_ranges',DATA/'studio_v05_arrangements',
+                            DATA/'studio_v05_catalog.json',**body)
+                event('v05_timeline_range_saved',project_id=body['project_id'],
+                      in_frame=body['in_frame'],out_frame=body['out_frame'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (RenderRangeError,ValueError,TypeError,KeyError) as exc:
+                self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except OSError:self.bad(500,'Render range write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/layout':
             from studio_v05_track_layout import update, ArrangementError
