@@ -1,21 +1,24 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-23T23:31:22+09:00",
+  "updated_at": "2026-10-23T23:49:17+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-asset-bridge",
-  "head_at_update": "0d55d75",
+  "head_at_update": "aaacd63",
   "current": {
     "task": "Issue #37/#63: 既存登録素材をv0.5で再利用する入口を監査・接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存素材カタログとv0.5素材画面のAPI/ID経路を照合",
     "design_doc": "docs/v05/PROGRESS_STAGE61_JA.md"
   },
   "next_steps": [
-    "v0.5最短制作経路のロードマップPRをレビュー・mainへ統合する",
-    "Issue37の既存素材とv0.5素材管理の接続状態を監査し、最初の不足を実装する"
+    "Owner承認後に固定診断パネルの重なりを修正し、マウス操作を再検証する",
+    "v0.5素材の3D/波形/動画見本と旧形式の直接登録を段階的に接続する",
+    "素材→実再生→書き出しの未接続箇所を優先順に進める"
   ],
   "unverified": [
-    "このコミットは文書のみ。v0.5の登録→配置→書き出し通し操作、PMX顔、GLB→VMD、GPU、MCP/WebMCP、実素材の動作は未確認"
+    "固定診断パネルが素材ボタンを遮るためポインタ操作は不合格。レイアウト承認待ち",
+    "3D実見本、旧形式直接登録、実エンジン再生、最終出力、GPU/Linux/MCPは未検証・未接続",
+    "隔離Chrome2件成功、typecheck成功。実データ5ファイル前後ハッシュ一致"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +35,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-23T23:49:17+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "aaacd63",
+      "text": "Issue37/63: v0.5素材画面を既存登録索引・追加登録・タイムライン選択へ接続し、隔離Chrome2件と型検査を確認"
+    },
     {
       "at": "2026-10-23T23:31:22+09:00",
       "by": "codex",
@@ -234,13 +244,6 @@
       "event": "start",
       "head": "9565648",
       "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06a後半: camera_3d.jsを旧画面互換のmount APIにする"
-    },
-    {
-      "at": "2026-10-22T00:56:02+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "10e4744",
-      "text": "P2-WP-06aの1/2: camera.jsをroot基準の冪等mount APIへ移し、旧カメラのキー編集・Undo/Redo・保存再読込のmain比較が一致"
     }
   ]
 }

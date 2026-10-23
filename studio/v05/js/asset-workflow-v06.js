@@ -116,5 +116,13 @@
  $('v06results').addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(!b)return;const a=assets[Number(b.dataset.i)];selected=a?.available?a:null;status(selected?'選択中: '+selected.name:'使用できない素材です');});
  $('v06cat').addEventListener('change',search);$('v06query').addEventListener('input',()=>search());$('v06project').addEventListener('change',arrangement);
  $('v06place').addEventListener('click',async()=>{if(!selected){status('使用可能な素材を選んでください');return}const body={project_id:$('v06project').value,asset_id:selected.id,track:$('v06track').value,start:Number($('v06start').value),duration:Number($('v06duration').value),revision};try{const r=await request('/api/studio/v05/arrangement/place',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});revision=r.revision;status('配置しました（保存済み／実エンジンには未反映）');await arrangement()}catch(e){status('配置失敗: '+e.message);await arrangement()}});
+ window.addEventListener('bai:v05-asset-selected',async(event)=>{
+   const assetId=event.detail?.id;
+   if(typeof assetId!=='string')return;
+   $('v06cat').value='all';$('v06query').value='';
+   await search();
+   selected=assets.find((item)=>item.id===assetId&&item.available)||null;
+   status(selected?`タイムラインに配置する素材: ${selected.name}`:'選んだ素材は配置できません。登録状態を確認してください。');
+ });
  projects();search();
 })();
