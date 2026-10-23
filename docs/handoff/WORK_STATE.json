@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T07:43:51+09:00",
+  "updated_at": "2026-10-24T07:47:16+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-pmx-face-value",
-  "head_at_update": "d438961",
+  "branch": "codex/v05-glb-to-vmd",
+  "head_at_update": "4c38950",
   "current": {
-    "task": "Issue #96: PMX表情・口キーのタイムライン上の値編集",
-    "status": "done",
-    "step": "既存キー表示・保存API・ロックを確認し、値の直接編集を実装・隔離検証する",
+    "task": "Issue #102: GLBダンスを対象PMX向けVMDへ変換し同じ作品で確認",
+    "status": "in_progress",
+    "step": "既存FBX変換・GLB登録・実素材の骨対応を監査し、非破壊の変換経路を設計・実証する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T07:47:16+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4c38950",
+      "text": "Issue #102: GLBダンスを対象PMX向けVMDへ変換し同じ作品で確認: 既存FBX変換・GLB登録・実素材の骨対応を監査し、非破壊の変換経路を設計・実証する"
+    },
     {
       "at": "2026-10-24T07:43:51+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "9229da4",
       "text": "Issue #77媒体別タイムライン: 動画・音声の元尺ドラッグ/両端トリム/元位置保存/プレビュー/限定MP4を接続。Windows Chrome 4件、Python 21件、型検査、実データハッシュ一致"
-    },
-    {
-      "at": "2026-10-24T03:36:31+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "bda7acf",
-      "text": "Issue #77: v0.5動画・音声の素材尺に沿う直接タイムライン操作: 元素材の長さとトリム位置を保存し、ドラッグ配置・端操作・プレビュー・限定MP4を一致させる"
     }
   ]
 }
