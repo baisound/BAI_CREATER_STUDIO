@@ -1,24 +1,24 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T00:01:32+09:00",
+  "updated_at": "2026-10-24T00:04:44+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-asset-bridge",
-  "head_at_update": "bce33c1",
+  "head_at_update": "f9c83cf",
   "current": {
     "task": "Issue #63: v0.5配置素材の既存3D実描画経路を隔離環境で検証",
-    "status": "in_progress",
+    "status": "done",
     "step": "登録GLBから作品配置・3D表示・保存再読込を実素材で追う",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "Owner承認後に固定診断パネルの重なりを修正し、マウス操作を再検証する",
-    "既存v22モデル・モーション接続を実素材で検証し、v0.5素材見本と旧形式登録を段階的に接続する",
-    "素材→実再生→書き出しの未接続箇所を優先順に進める"
+    "Owner承認後に固定診断パネルの重なりを修正し、ポインタ操作を再検証する",
+    "v0.5素材詳細へ既存3D・音声波形・動画見本を安全に接続する",
+    "PMX/VMDと音声・動画の同一作品再生、基本動画出力を順に接続する"
   ],
   "unverified": [
-    "固定診断パネルが素材ボタンを遮るためポインタ操作は不合格。レイアウト承認待ち",
-    "既存v22の3D実描画と音声・動画配置の実再生、旧形式直接登録、最終出力、GPU/Linux/MCPは未検証または未接続",
-    "隔離Chrome2件成功、typecheck成功。実データ5ファイル前後ハッシュ一致"
+    "固定診断パネルによるポインタ遮蔽は未修正、レイアウト承認待ち",
+    "GLBはSwiftShaderでのモデル表示のみ。PMX/VMD/FBXモーション、実GPU、音声・動画配置再生、最終出力、Linux/MCPは未検証または未接続",
+    "隔離Chrome: 素材2件とGLB表示1件成功。実データ5ファイル前後ハッシュ一致、typecheck成功"
   ],
   "blockers": [],
   "owner_questions": [
@@ -35,6 +35,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T00:04:44+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "f9c83cf",
+      "text": "登録済み小型GLBのv0.5作品保存・v22実描画・再読込を隔離Chromeで確認"
+    },
     {
       "at": "2026-10-24T00:01:32+09:00",
       "by": "codex",
@@ -237,13 +244,6 @@
       "event": "start",
       "head": "3a1d40e",
       "text": "Issue #39: SCR10で登録済みVMD/FBXダンスを選択・再生する: GLB/VMD/FBXの候補・読込・互換条件・保存復元を実装"
-    },
-    {
-      "at": "2026-10-22T01:11:11+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "06371ed",
-      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06b: 要素ID配置表とSCR02常駐カメラホスト"
     }
   ]
 }
