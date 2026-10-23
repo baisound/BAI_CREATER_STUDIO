@@ -823,6 +823,19 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid image lane request')
             except OSError:self.bad(500,'Image lane write failed')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/timeline/labels':
+            from studio_v05_track_layout import set_label, ArrangementError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','revision','key','label'}:return self.bad(400,'Invalid track label request')
+                result=set_label(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',body['project_id'],body['revision'],body['key'],body['label'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid track label request')
+            except OSError:self.bad(500,'Track label write failed')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/image-lanes/remove':
             from studio_v05_track_layout import remove_image_lane, ArrangementError
             try:
@@ -848,6 +861,26 @@ class Handler(BaseHTTPRequestHandler):
             except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid target binding')
             except OSError:self.bad(500,'Target binding write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/split':
+            from studio_v05_arrangement import split_clip, read as read_arrangement, ArrangementError
+            from studio_v05_media_render import media_info, RenderError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','clip_id','revision','split_at'}:return self.bad(400,'Invalid clip split request')
+                current=read_arrangement(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'])
+                clip=next((c for c in current['clips'] if c.get('id')==body['clip_id']),None)
+                source_duration=None
+                if clip and clip.get('category') in ('video','audio','music'):
+                    source_duration=media_info(DATA,clip['asset_id'],unified_assets())['duration_seconds']
+                result=split_clip(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['clip_id'],body['revision'],body['split_at'],layout_root=DATA/'studio_v05_track_layouts',source_duration=source_duration)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except RenderError as exc:self.bad(exc.status,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid clip split request')
+            except OSError:self.bad(500,'Clip split failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/edit':
             from studio_v05_arrangement import edit_clip, ArrangementError

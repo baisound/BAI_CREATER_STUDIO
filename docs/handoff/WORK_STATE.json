@@ -1,22 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T04:07:01+09:00",
+  "updated_at": "2026-10-24T04:29:51+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-stable-image-lanes",
-  "head_at_update": "8b50bae",
+  "branch": "codex/v05-split-snap-tracknames",
+  "head_at_update": "5ba873d",
   "current": {
-    "task": "Issue #80: 画像トラック削除後も後続番号とクリップ参照を維持",
+    "task": "Issues #82/#84/#83: video/audio scissors split, snap/grid editing and persistent track labels",
     "status": "done",
-    "step": "既存レイアウトを安定した行IDへ後方互換移行し、空行削除と再追加を保存・再読込で確認",
+    "step": "保存済みクリップの分割契約とUI操作を既存タイムラインに接続し、隔離Chromeで検査",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "Issue #82 split saved video/audio clips and verify source windows",
-    "Issue #84 snap/editor modes/fine timeline grid",
-    "Issue #83 editable track names"
+    "Review and merge PR for split/snap/labels, sync main and live 8765",
+    "Continue approved v0.5 model/motion/camera integration after direct timeline issues"
   ],
   "unverified": [
-    "3D/motion/camera shared output, embedded video audio, MCP, Linux and long-form timing remain unverified"
+    "Existing user media, variable frame rate, long-form frame sync, video embedded audio, 3D/camera combined MP4, MCP and Linux remain unverified or unimplemented"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T04:29:51+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "5ba873d",
+      "text": "Issues #82/#84/#83: scissors split for timed media, snap/grid modes, persistent Unicode track labels; Python24 and isolated Chrome4 passed"
+    },
+    {
+      "at": "2026-10-24T04:09:34+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "fb58f86",
+      "text": "Issues #82/#84/#83: video/audio scissors split, snap/grid editing and persistent track labels: 保存済みクリップの分割契約とUI操作を既存タイムラインに接続し、隔離Chromeで検査"
+    },
     {
       "at": "2026-10-24T04:07:01+09:00",
       "by": "codex",
@@ -228,20 +241,6 @@
       "event": "done",
       "head": "f9c83cf",
       "text": "登録済み小型GLBのv0.5作品保存・v22実描画・再読込を隔離Chromeで確認"
-    },
-    {
-      "at": "2026-10-24T00:01:32+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "bce33c1",
-      "text": "Issue #63: v0.5配置素材の既存3D実描画経路を隔離環境で検証: 登録GLBから作品配置・3D表示・保存再読込を実素材で追う"
-    },
-    {
-      "at": "2026-10-23T23:59:39+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "5f4af83",
-      "text": "v0.5素材接続の既存v22実描画経路を再確認し、未検証範囲の表現を訂正"
     }
   ]
 }
