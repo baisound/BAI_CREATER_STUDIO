@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T04:29:51+09:00",
+  "updated_at": "2026-10-24T04:40:32+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-split-snap-tracknames",
-  "head_at_update": "5ba873d",
+  "branch": "codex/v05-pmx-vmd-probe",
+  "head_at_update": "31f25b5",
   "current": {
-    "task": "Issues #82/#84/#83: video/audio scissors split, snap/grid editing and persistent track labels",
+    "task": "Issue #39/#50/#63/#69: 実PMX/VMDの保存済み作品プレビューと変形を隔離確認",
     "status": "done",
-    "step": "保存済みクリップの分割契約とUI操作を既存タイムラインに接続し、隔離Chromeで検査",
+    "step": "実PMX/VMDの原本hashを守り、WebGL読込だけでなくF0/F120の骨・画像差を確認し必要な接続不良を修正する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "Review and merge PR for split/snap/labels, sync main and live 8765",
-    "Continue approved v0.5 model/motion/camera integration after direct timeline issues"
+    "main差分統合、PRとmain同期後、3D/2D同一画素プレビューと3D入り動画出力を進める"
   ],
   "unverified": [
-    "Existing user media, variable frame rate, long-form frame sync, video embedded audio, 3D/camera combined MP4, MCP and Linux remain unverified or unimplemented"
+    "全身ダンス、顔・口・物理、実GPU、3Dと2Dの合成、3D入りMP4、長尺同期、Linux/MCPは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T04:40:32+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "31f25b5",
+      "text": "実PMX/VMDを隔離ChromeでF0/F120骨・画素差と保存再読込を確認し、3Dカメラfitへのハンドル混入を修正"
+    },
     {
       "at": "2026-10-24T04:29:51+09:00",
       "by": "codex",
@@ -87,6 +93,13 @@
       "event": "start",
       "head": "2c14e1e",
       "text": "Issue #77/#63/#69: v0.5素材の直接ドラッグ配置・画像複数トラック・自由な長さ: 現行の保存形式とUIを確認し、画像の任意配置・移動・端伸縮・保存再読込を段階実装する"
+    },
+    {
+      "at": "2026-10-24T02:51:02+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "2c14e1e",
+      "text": "Issue #39/#50/#63/#69: 実PMX/VMDの保存済み作品プレビューと変形を隔離確認: 実PMX/VMDの原本hashを守り、WebGL読込だけでなくF0/F120の骨・画像差を確認し必要な接続不良を修正する"
     },
     {
       "at": "2026-10-24T02:44:35+09:00",
@@ -227,20 +240,6 @@
       "event": "done",
       "head": "c649a6e",
       "text": "v0.5素材画面の診断欄・ヘッダー・参照カードの重なりをOwner承認どおり整理し、ポインタ操作と既存3D再表示を隔離Chrome4件で確認"
-    },
-    {
-      "at": "2026-10-24T00:08:32+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "ca92fa9",
-      "text": "Issue #63: 承認済み固定診断パネルの撮影画面内への移動: 固定診断をカメラ・演出欄の折りたたみへ移し、素材選択をポインタで再検証"
-    },
-    {
-      "at": "2026-10-24T00:04:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "f9c83cf",
-      "text": "登録済み小型GLBのv0.5作品保存・v22実描画・再読込を隔離Chromeで確認"
     }
   ]
 }
