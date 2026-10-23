@@ -239,6 +239,18 @@ class Handler(BaseHTTPRequestHandler):
         msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
         self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
     def do_GET(self):
+        if urlsplit(self.path).path == '/api/studio/v05/scene/motion-plan':
+            from studio_v05_motion_plan import plan
+            from studio_v05_arrangement import ArrangementError
+            from studio_v05_scene_model import SceneModelError
+            try:
+                project_id = parse_qs(urlsplit(self.path).query).get('id', [''])[0]
+                result = plan(DATA/'studio_v05_scene_models', DATA/'studio_v05_arrangements',
+                              DATA/'studio_v05_catalog.json', project_id, unified_assets())
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except (ArrangementError, SceneModelError, ValueError, OSError) as exc:
+                self.bad(422, str(exc))
+            return
         if urlsplit(self.path).path in ('/api/studio/v05/scene/model','/api/studio/v05/scene/model-candidates'):
             from studio_v05_scene_model import read as scene_read, choices, SceneModelError
             try:

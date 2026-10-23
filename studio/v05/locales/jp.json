@@ -215,5 +215,27 @@
     "previewReady": "実3Dプレビューを表示",
     "previewError": "3D表示失敗",
     "confirmRemove": "この作品からモデル配置を解除しますか？（素材ファイルは削除しません）"
+  },
+  "v56": {
+    "title": "モデルへダンスモーションを適用",
+    "apply": "対象モデルに関連付けてプレビュー",
+    "refresh": "候補を更新",
+    "chooseProject": "作品を選択してください",
+    "found": "モーションクリップ",
+    "ready": "対応形式・指定済み",
+    "empty": "モーション素材を時間軸に配置してください",
+    "error": "接続エラー",
+    "noModel": "先に3Dモデルをシーンへ配置・保存してください",
+    "unsupported": "未対応の組み合わせ",
+    "viewerUnavailable": "3Dプレビューを開けません",
+    "previewAttempted": "読込処理を要求しました。再生状態は実3Dプレビューで確認してください。",
+    "no_scene_model": "モデル未配置",
+    "scene_model_unavailable": "モデル素材なし",
+    "motion_unavailable": "モーション素材なし",
+    "not_motion_asset": "モーションではありません",
+    "unsupported_combination": "形式の組み合わせ未対応",
+    "target_unassigned": "対象モデル未指定",
+    "target_mismatch": "他のモデルを参照",
+    "readyCount": "実行可能なクリップ"
   }
 }

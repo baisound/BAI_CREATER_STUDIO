@@ -232,5 +232,27 @@
     "previewReady": "3D preview opened",
     "previewError": "3D preview failed",
     "confirmRemove": "Remove placement from this project? The asset file will be retained."
+  },
+  "v56": {
+    "title": "Apply motion to scene model",
+    "apply": "Bind model and open preview",
+    "refresh": "Refresh clips",
+    "chooseProject": "Select a project",
+    "found": "Motion clips",
+    "ready": "Ready",
+    "empty": "Place a motion clip on the timeline",
+    "error": "Connection failed",
+    "noModel": "Save a 3D model in the scene first",
+    "unsupported": "Unsupported model/motion pairing",
+    "viewerUnavailable": "3D preview unavailable",
+    "previewAttempted": "Load requested. Check the real 3D preview for playback status.",
+    "no_scene_model": "No scene model",
+    "scene_model_unavailable": "Scene model unavailable",
+    "motion_unavailable": "Motion unavailable",
+    "not_motion_asset": "Not a motion asset",
+    "unsupported_combination": "Unsupported format pairing",
+    "target_unassigned": "Target not assigned",
+    "target_mismatch": "Target is another model",
+    "readyCount": "Playable clips"
   }
 }

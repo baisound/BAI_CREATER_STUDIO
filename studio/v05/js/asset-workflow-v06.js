@@ -14,13 +14,15 @@
    try {
      const project_id=$('v06project').value;
      if(!project_id) throw Error('作品を選択してください');
-     const [arr,inventory]=await Promise.all([
+     const [arr,plan]=await Promise.all([
        request('/api/studio/v05/arrangement?id='+encodeURIComponent(project_id)),
-       request('/api/studio/v05/assets?category=all&query=')
+       request('/api/studio/v05/scene/motion-plan?id='+encodeURIComponent(project_id))
      ]);
      const runtime=window.BAIStudioAssetRuntime;
      if(!runtime) throw Error('再生接続モジュールを読めません');
-     const result=await runtime.reconcile({project_id,clips:arr.clips,assets:inventory.items});
+     // The read-only server plan preserves model format and target identity.
+     // A model with no explicit motion target must not be animated by guessing.
+     const result=await runtime.reconcile({project_id,clips:plan.clips,assets:plan.assets});
      await window.BAIStudioPersistedSeek?.configure(project_id,arr.clips);
      await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'after-loader-ready');
      const reasons=result.issues.map(issue=>issue.reason).join(', ');
