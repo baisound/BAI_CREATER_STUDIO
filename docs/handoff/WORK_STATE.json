@@ -1,21 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T07:14:15+09:00",
+  "updated_at": "2026-10-24T07:33:47+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-pmx-face-undo",
-  "head_at_update": "372314a",
+  "branch": "codex/v05-pmx-full-dance",
+  "head_at_update": "580b6eb",
   "current": {
-    "task": "Issue #96: PMX表情・口キー編集のUndo/Redo",
+    "task": "Issues #39/#96: 実PMXと全身VMDの体・顔同時刻実証",
     "status": "done",
-    "step": "作品別revision付きキー履歴を保存し、共通タイムラインと3D欄で戻す/やり直すを検証",
-    "design_doc": "docs/v05/PMX_FACE_KEYS_20261024_JA.md"
+    "step": "原本を保ち隔離Chromeで登録・配置・シーク・保存再読込・限定MP4を比較する",
+    "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
     "このPRをmainへ統合しlocal main/8765を同期する",
-    "ロードマップ順4: PMXの表情値のタイムライン編集、ダンス、視線等の未完成部分を要件順に進める"
+    "ロードマップ順4/5: PMX顔値のタイムライン編集とGLB動作からVMDの未完成部分を既存Issue順に進める"
   ],
   "unverified": [
-    "Undo/Redo直後のMP4別デコード比較、複数キー一括操作/アプリ全体Undo統合、自動リップ・視線、他PMX/Linux/MCP実運用・長尺/全区間同期・Owner採用は未確認"
+    "184.5秒の全尺レンダーと全区間同期、全身見た目・物理品質、旧カメラ300Fを越えるときの400、MMDParser未知文字警告、他PMX/Linux/MCP/Owner採用は未確認",
+    "Undo/Redo直後のMP4別デコード比較、複数キー一括操作/アプリ全体Undo、自動リップ・視線は未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +33,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T07:33:47+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "580b6eb",
+      "text": "Issues #39/#96: 実PMXと全身VMDを隔離作品で0/4/90秒シークし7骨の変化、表情キー保存再読込、RTX 4070 SUPERでの3F限定MP4画素差を確認。原PMX/VMDとdata 7件は不変。試験と記録を追加。"
+    },
+    {
+      "at": "2026-10-24T07:18:53+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "7e09e7f",
+      "text": "Issues #39/#96: 実PMXと全身VMDの体・顔同時刻実証: 原本を保ち隔離Chromeで登録・配置・シーク・保存再読込・限定MP4を比較する"
+    },
     {
       "at": "2026-10-24T07:14:15+09:00",
       "by": "codex",
@@ -227,20 +242,6 @@
       "event": "start",
       "head": "2c14e1e",
       "text": "Issue #77/#63/#69: v0.5素材の直接ドラッグ配置・画像複数トラック・自由な長さ: 現行の保存形式とUIを確認し、画像の任意配置・移動・端伸縮・保存再読込を段階実装する"
-    },
-    {
-      "at": "2026-10-24T02:51:02+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2c14e1e",
-      "text": "Issue #39/#50/#63/#69: 実PMX/VMDの保存済み作品プレビューと変形を隔離確認: 実PMX/VMDの原本hashを守り、WebGL読込だけでなくF0/F120の骨・画像差を確認し必要な接続不良を修正する"
-    },
-    {
-      "at": "2026-10-24T02:44:35+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "6c08f8e",
-      "text": "Issue #39/#40/#50/#63/#69: 保存済み3Dシーンと画像・音声プレビューの共通フレーム操作を別画面で部分接続、隔離Chrome回帰7/7"
     }
   ]
 }
