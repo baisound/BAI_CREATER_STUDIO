@@ -71,7 +71,8 @@ function createSpatialEditor({panel,viewport,controller,project,getSceneData,sav
       if(disposed)return;
       gizmo=new TransformControls(viewport.camera,viewport.renderer.domElement);
       gizmoHelper=typeof gizmo.getHelper==='function'?gizmo.getHelper():gizmo;
-      viewport.content.add(gizmoHelper);
+      // Keep the infinite-size pick planes out of viewport.fit(), which must frame models only.
+      viewport.scene.add(gizmoHelper);
       gizmo.addEventListener('dragging-changed',e=>{
         isDragging=!!e.value;
         if(viewport.controls)viewport.controls.enabled=!isDragging;

@@ -100,6 +100,11 @@ test('saved 3D scene and WAV share a frame clock; incompatible dance reports its
     assert.match(await page.locator('#v58-motion-seek').locator('xpath=..').textContent(), /モーション未読込: .*人体骨対応は不足/);
     assert.equal(await page.locator('#v58-canvas canvas').count(), 1);
     assert.ok((await page.locator('#v58-canvas canvas').boundingBox()).width > 100);
+    const framing = await page.evaluate(instanceId => window.BAIStudioMultiScenePreview.frameProbe(instanceId), scene.instances[0].id);
+    assert.ok(framing?.root?.size.every(value => Number.isFinite(value) && value < 100));
+    assert.ok(framing.camera.every(value => Number.isFinite(value) && Math.abs(value) < 100),
+      `3Dカメラがモデルから離れすぎています: ${JSON.stringify(framing?.camera)}`);
+    assert.ok(framing.target.every(value => Number.isFinite(value) && Math.abs(value) < 100));
     await page.locator('#v70play').click();
     await page.waitForFunction(() => window.BAIStudioMediaPreviewV68?.status().frame >= 12 &&
       Number(document.querySelector('#v58-motion-seek')?.value) >= 0.18, null, { timeout: 6000 });

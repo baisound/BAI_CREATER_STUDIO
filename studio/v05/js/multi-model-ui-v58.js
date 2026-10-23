@@ -325,7 +325,37 @@ window.addEventListener('bai:v57-scene-changed',()=>{if(opened)reload();});
 window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
-  status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,rendererReady:Boolean(viewport),renderingVerified:false})
+  status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,rendererReady:Boolean(viewport),renderingVerified:false}),
+  poseProbe(instanceId,boneNames){
+    if(!opened||!controller||!Array.isArray(boneNames)||boneNames.length>16||
+       boneNames.some(name=>typeof name!=='string'||name.length>100))return null;
+    const target=controller.getLoaded(instanceId);
+    if(!target?.object)return null;
+    const wanted=new Set(boneNames);
+    const bones={};
+    target.object.updateMatrixWorld(true);
+    target.object.traverse(node=>{
+      if(!node.isBone||!wanted.has(node.name))return;
+      bones[node.name]={position:node.position.toArray(),quaternion:node.quaternion.toArray(),
+        world:node.matrixWorld.elements.slice()};
+    });
+    return {projectId:project?.value,instanceId,bones};
+  },
+  refit(){return viewport?.fit?.()||false;},
+  frameProbe(instanceId){
+    const target=controller?.getLoaded(instanceId);
+    if(!opened||!target?.root||!viewport)return null;
+    const THREE=target.libs.THREE;
+    const bounds=(object,precise=false)=>{
+      const box=new THREE.Box3().setFromObject(object,precise);
+      return box.isEmpty()?null:{min:box.min.toArray(),max:box.max.toArray(),size:box.getSize(new THREE.Vector3()).toArray()};
+    };
+    target.root.updateMatrixWorld(true);
+    return {projectId:project?.value,instanceId,
+      root:bounds(target.root),object:bounds(target.object),precise:bounds(target.object,true),
+      camera:viewport.camera.position.toArray(),target:viewport.controls.target.toArray(),
+      renderer:viewport.rendererName,canvas:[viewport.renderer.domElement.width,viewport.renderer.domElement.height]};
+  }
 });
 
 // Browser-local WebMCP is deliberately separate from the saved scene tools.

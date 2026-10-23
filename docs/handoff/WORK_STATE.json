@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T02:51:02+09:00",
+  "updated_at": "2026-10-24T04:40:32+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-pmx-vmd-probe",
-  "head_at_update": "2c14e1e",
+  "head_at_update": "31f25b5",
   "current": {
     "task": "Issue #39/#50/#63/#69: 実PMX/VMDの保存済み作品プレビューと変形を隔離確認",
-    "status": "in_progress",
+    "status": "done",
     "step": "実PMX/VMDの原本hashを守り、WebGL読込だけでなくF0/F120の骨・画像差を確認し必要な接続不良を修正する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "PRをmainへ統合し8765実画面を確認した後、実PMX/GLB動作の互換素材で実変形を確認し、3D・カメラの同一出力へ進む"
+    "main差分統合、PRとmain同期後、3D/2D同一画素プレビューと3D入り動画出力を進める"
   ],
   "unverified": [
-    "実PMX/VMD/GLBダンス変形、顔、3Dと2Dの画素合成、3D入りMP4、長尺音声同期1F以内、Linux/MCPは未接続または未検証"
+    "全身ダンス、顔・口・物理、実GPU、3Dと2Dの合成、3D入りMP4、長尺同期、Linux/MCPは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T04:40:32+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "31f25b5",
+      "text": "実PMX/VMDを隔離ChromeでF0/F120骨・画素差と保存再読込を確認し、3Dカメラfitへのハンドル混入を修正"
+    },
     {
       "at": "2026-10-24T02:51:02+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "e7e64a8",
       "text": "Issue #63: v0.5の最短制作経路とロードマップの優先順をOwner最新指定へ更新: 既存IDと未完了状態を照合し、素材登録から書き出しまでの順序を記録"
-    },
-    {
-      "at": "2026-10-23T23:21:37+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ba67214",
-      "text": "Issue #64: v0.5枝番61のmain統合前検証。Python503件+59サブテスト、v0.5 Node47件、素材Chrome33件、新UI起動導線1件成功。P2全体は1件、旧UI全体は2件の要素待ちタイムアウトがあり、該当試験の隔離再実行は成功。"
     }
   ]
 }
