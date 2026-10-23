@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T08:08:36+09:00",
+  "updated_at": "2026-10-24T08:12:37+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-glb-to-vmd",
-  "head_at_update": "a71cc25",
+  "branch": "codex/v05-glb-vmd-profile",
+  "head_at_update": "abaef3d",
   "current": {
-    "task": "Issue #102: GLBダンスを対象PMX向けVMDへ変換し同じ作品で確認",
-    "status": "done",
-    "step": "既存FBX変換・GLB登録・実素材の骨対応を監査し、非破壊の変換経路を設計・実証する",
+    "task": "Issue #102: GLB→PMX VMD変換の骨対応と失敗経路を強化",
+    "status": "in_progress",
+    "step": "無動作・骨不足GLBと骨対応の保存・画面接続を設計し隔離検証する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T08:12:37+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "abaef3d",
+      "text": "Issue #102: GLB→PMX VMD変換の骨対応と失敗経路を強化: 無動作・骨不足GLBと骨対応の保存・画面接続を設計し隔離検証する"
+    },
     {
       "at": "2026-10-24T08:08:36+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "8b50bae",
       "text": "Issue #80 stable image lane IDs and empty-row removal, isolated Python/Chrome checks passed"
-    },
-    {
-      "at": "2026-10-24T03:54:48+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "b70fa06",
-      "text": "Issue #80: 画像トラック削除後も後続番号とクリップ参照を維持: 既存レイアウトを安定した行IDへ後方互換移行し、空行削除と再追加を保存・再読込で確認"
     }
   ]
 }
