@@ -295,6 +295,12 @@
     "loading": "Loading 3D models…",
     "loadFailed": "Load failed",
     "runtimeError": "3D renderer is unavailable",
-    "mismatch": "Different project selected"
+    "mismatch": "Different project selected",
+    "chooseMotion": "Motion clip",
+    "unassigned": "No target",
+    "assignMotion": "Assign to model",
+    "motionReady": "Motions loaded",
+    "seek": "Seek",
+    "badTime": "Invalid time"
   }
 }

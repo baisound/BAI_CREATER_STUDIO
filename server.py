@@ -249,6 +249,15 @@ class Handler(BaseHTTPRequestHandler):
             except (SceneInstancesError,ValueError,OSError) as exc:
                 self.bad(409 if 'reconcile' in str(exc).lower() else 422,str(exc))
             return
+        if urlsplit(self.path).path == '/api/studio/v05/scene/multi-motion-plan':
+            from studio_v05_multi_motion import plan, MultiMotionError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                result=plan(DATA/'studio_v05_arrangements',DATA/'studio_v05_scene_instances',
+                            DATA/'studio_v05_scene_models',DATA/'studio_v05_catalog.json',project_id,unified_assets())
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (MultiMotionError,ValueError,OSError) as exc:self.bad(422,str(exc))
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/motion-plan':
             from studio_v05_motion_plan import plan
             from studio_v05_arrangement import ArrangementError
@@ -611,6 +620,24 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path == '/api/studio/v05/scene/motion-target':
+            from studio_v05_multi_motion import assign, MultiMotionError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','clip_id','revision','instance_id'}:
+                    return self.bad(400,'Invalid motion target fields')
+                result=assign(DATA/'studio_v05_arrangements',DATA/'studio_v05_scene_instances',
+                    DATA/'studio_v05_scene_models',DATA/'studio_v05_catalog.json',
+                    body['project_id'],body['clip_id'],body['revision'],body['instance_id'],
+                    unified_assets(),layout_root=DATA/'studio_v05_track_layouts')
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except MultiMotionError as exc:
+                self.bad(409 if 'conflict' in str(exc).lower() or 'locked' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'Motion binding write failed')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/instances':
             from studio_v05_scene_instances import mutate, SceneInstancesError
             try:

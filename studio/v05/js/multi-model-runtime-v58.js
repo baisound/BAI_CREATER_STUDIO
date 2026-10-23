@@ -65,8 +65,14 @@
             model?.dispose?.();return {stale:true,...status(),issues};
           }
           if(!model?.root||typeof model.dispose!=='function')throw TypeError('Loader must return root and dispose');
-          host.mount(id,model.root,{evaluate:model.evaluate||(()=>{}),dispose:()=>model.dispose()});
-          loaded.set(id,{assetId:entry.asset_id,root:model.root});
+          host.mount(id,model.root,{
+            evaluate:(seconds,clips)=>{
+              const current=loaded.get(id);
+              if(current?.evaluate)current.evaluate(seconds,clips);
+            },
+            dispose:()=>model.dispose()
+          });
+          loaded.set(id,{assetId:entry.asset_id,root:model.root,model,evaluate:model.evaluate||null});
           host.setTransform(id,entry.transform);
           model.root.visible=entry.visible!==false;
           notify();
@@ -83,12 +89,20 @@
       notify();
       return {...status(),issues,stale:false};
     }
-    function seek(seconds){
+    function setEvaluator(id,fn){
       if(closed)throw Error('Multi-model preview is closed');
-      return host.evaluateAt(seconds);
+      if(fn!==null&&typeof fn!=='function')throw TypeError('Evaluator must be a function');
+      const entry=loaded.get(id);
+      if(!entry)throw Error('Scene instance not loaded');
+      entry.evaluate=fn;
+    }
+    function getLoaded(id){return loaded.get(id)?.model||null;}
+    function seek(seconds,clipsByInstance={}){
+      if(closed)throw Error('Multi-model preview is closed');
+      return host.evaluateAt(seconds,clipsByInstance);
     }
     function dispose(){if(closed)return;clear();host.close?.();closed=true;notify();}
-    return {reconcile,seek,clear,dispose,status};
+    return {reconcile,seek,setEvaluator,getLoaded,clear,dispose,status};
   }
   return {createController,validTransform};
 });
