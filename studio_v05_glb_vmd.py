@@ -57,9 +57,28 @@ def candidates(data, items, project_id, scene_root, catalog):
             'note': '生成VMDは確認用です。PMX固有のIK・接地はプレビューで確認してください。'}
 
 
-def convert(data, base, source_id, target_id, items, blender, mmd_lock, read_mmd, write_mmd):
+def inspect_profile(data, source_id, target_id, items):
+    from studio_v05_glb_vmd_map import inspect
+    _, source = _registered(data, source_id, items, kind='motion', fmt='GLB', source='integrated')
+    _, target = _registered(data, target_id, items, kind='model', fmt='PMX', source='mmd')
+    return {'source_asset_id': source_id, 'target_asset_id': target_id, **inspect(data, source, target)}
+
+
+def save_profile(data, source_id, target_id, revision, overrides, items):
+    from studio_v05_glb_vmd_map import save
+    _, source = _registered(data, source_id, items, kind='motion', fmt='GLB', source='integrated')
+    _, target = _registered(data, target_id, items, kind='model', fmt='PMX', source='mmd')
+    return {'source_asset_id': source_id, 'target_asset_id': target_id,
+            **save(data, source, target, revision, overrides)}
+
+
+def convert(data, base, source_id, target_id, items, blender, mmd_lock, read_mmd, write_mmd,
+            profile_revision=None):
     source_entry, source = _registered(data, source_id, items, kind='motion', fmt='GLB', source='integrated')
     _, target = _registered(data, target_id, items, kind='model', fmt='PMX', source='mmd')
+    profile = inspect_profile(data, source_id, target_id, items)
+    if profile_revision is not None and (type(profile_revision) is not int or profile_revision != profile['revision']):
+        raise ConversionError('Mapping revision conflict; reload bone mapping', 409)
     if not blender:
         raise ConversionError('Blenderが見つかりません。MIXAMO_BLENDERを設定してください。', 503)
     executable = shutil.which(blender)
@@ -71,7 +90,8 @@ def convert(data, base, source_id, target_id, items, blender, mmd_lock, read_mmd
         output = temp / 'candidate.vmd'
         job = temp / 'job.json'
         job.write_text(json.dumps({'source': str(source), 'target': str(target),
-                                   'output': str(output), 'fps': 30}, ensure_ascii=False), encoding='utf-8')
+                                   'output': str(output), 'fps': 30,
+                                   'mapping_overrides': profile['overrides']}, ensure_ascii=False), encoding='utf-8')
         try:
             process = subprocess.run([executable, '-b', '-t', '2', '--python',
                                       str(base / 'tools' / 'glb_to_vmd_candidate.py'), '--', '--job', str(job)],
@@ -115,7 +135,9 @@ def convert(data, base, source_id, target_id, items, blender, mmd_lock, read_mmd
                     'name': filename, 'size': destination.stat().st_size,
                     'source_asset_id': source_id, 'target_asset_id': target_id,
                     'source_sha256': source_sha, 'target_sha256': target_sha,
-                    'sha256': output_sha, 'review_status': 'needs_visual_validation'})
+                    'sha256': output_sha, 'review_status': 'needs_visual_validation',
+                    'mapping_profile_key': profile['profile_key'],
+                    'mapping_revision': profile['revision']})
                 write_mmd(meta)
             except Exception:
                 destination.unlink(missing_ok=True)
@@ -126,4 +148,5 @@ def convert(data, base, source_id, target_id, items, blender, mmd_lock, read_mmd
             'source_sha256': source_sha, 'target_sha256': target_sha,
             'duration_seconds': round((frame_count - 1) / 30, 4),
             'mapped_bones': result['mapped_bones'], 'bone_keys': result['bone_keys'],
+            'mapping_profile_key': profile['profile_key'], 'mapping_revision': profile['revision'],
             'review_status': 'needs_visual_validation', 'warnings': result.get('warnings', [])}

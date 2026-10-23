@@ -13,23 +13,7 @@ from mathutils import Quaternion, Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from pmx_bones import parse as parse_pmx
-
-BODY = [
-    ('Hips', '腰'), ('Spine', '上半身'), ('Spine1', '上半身2'),
-    ('Neck', '首'), ('Head', '頭'),
-    ('LeftShoulder', '左肩'), ('LeftArm', '左腕'), ('LeftForeArm', '左ひじ'), ('LeftHand', '左手首'),
-    ('RightShoulder', '右肩'), ('RightArm', '右腕'), ('RightForeArm', '右ひじ'), ('RightHand', '右手首'),
-    ('LeftUpLeg', '左足'), ('LeftLeg', '左ひざ'), ('LeftFoot', '左足首'), ('LeftToeBase', '左つま先'),
-    ('RightUpLeg', '右足'), ('RightLeg', '右ひざ'), ('RightFoot', '右足首'), ('RightToeBase', '右つま先'),
-    ('LeftUpLeg', '左足D'), ('LeftLeg', '左ひざD'), ('LeftFoot', '左足首D'), ('LeftToeBase', '左足先EX'),
-    ('RightUpLeg', '右足D'), ('RightLeg', '右ひざD'), ('RightFoot', '右足首D'), ('RightToeBase', '右足先EX'),
-]
-FINGERS = {'Thumb': ('親指', 0), 'Index': ('人指', 1), 'Middle': ('中指', 1),
-           'Ring': ('薬指', 1), 'Pinky': ('小指', 1)}
-for side, jp in [('Left', '左'), ('Right', '右')]:
-    for finger, (name, first) in FINGERS.items():
-        for n in range(1, 4):
-            BODY.append((f'{side}Hand{finger}{n}', f'{jp}{name}{chr(ord("０") + n + first - 1)}'))
+from studio_v05_glb_vmd_map import BODY, validate as validate_mapping
 
 
 def field(value, length):
@@ -77,13 +61,10 @@ def sample(job):
     if len(bpy.data.actions) != 1:
         raise ValueError('one GLB animation clip is required')
     sources = {bone.name.removeprefix('mixamorig:'): bone for bone in arm.data.bones}
-    pairs = [(source_name, target_names[target_name]) for source_name, target_name in BODY
-             if source_name in sources and target_name in target_names]
-    required = {'Hips', 'LeftUpLeg', 'RightUpLeg'}
-    if not required <= {src for src, _ in pairs} or 'センター' not in target_names:
-        raise ValueError('essential Hips, legs or PMX center bone missing')
-    if len(pairs) < 15:
-        raise ValueError('too few mapped humanoid bones')
+    effective = validate_mapping(job.get('mapping_overrides', {}), sources, target_names)
+    pairs = [(source_name, target_names[target_name]) for target_name, source_name in effective.items()]
+    if 'センター' not in target_names or 'Hips' not in sources:
+        raise ValueError('source Hips or PMX center bone missing')
     source_fps = bpy.context.scene.render.fps / bpy.context.scene.render.fps_base
     start, end = action.frame_range
     duration = (end - start) / source_fps
@@ -156,7 +137,8 @@ def sample(job):
             'target_sha256': hashlib.sha256(target.read_bytes()).hexdigest(), 'output': str(output),
             'frames': frames + 1, 'duration_seconds': duration, 'bone_keys': len(rows),
             'mapped_bones': len(pairs), 'scale': scale,
-            'unmapped': [f'{src} → {dst}' for src, dst in BODY if src not in sources or dst not in target_names],
+            'unmapped': [dst for _, dst in BODY if dst in target_names and dst not in effective],
+            'mapping_overrides': job.get('mapping_overrides', {}),
             'warnings': ['PMX IK, grant bones and ground contact require visual validation.']}
 
 
