@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T00:50:39+09:00",
+  "updated_at": "2026-10-24T01:06:18+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-live-transport",
-  "head_at_update": "71128e8",
+  "branch": "codex/v05-audio-workspace",
+  "head_at_update": "ae8657f",
   "current": {
-    "task": "Issue #39/#63: v0.5実動作プレビューを既存の音楽・ダンス再生へ接続",
+    "task": "Issue #39/#69: v0.5音声画面の仮操作を実波形・試聴へ接続",
     "status": "done",
-    "step": "30fpsフレーム表示、再生・一時停止・停止・前後移動の双方向同期",
+    "step": "既存の音楽・ダンス配置APIと30fps計算を再利用し、再生/停止/前後移動・保存再読込を検証",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "AUDIO-001: 音声画面の仮操作とEQ表示を整理し、実波形と同じ時刻の試聴へ接続",
-    "RENDER: タイムラインのイン点・アウト点と未設定時の0〜最終フレームを書き出しに接続"
+    "RENDER/Issue69: タイムラインのイン点・アウト点を保存し、未設定時0〜最終フレームの書き出し範囲へ接続",
+    "v0.5作品IDと共通音声・動作・シーン時刻の統合を続ける"
   ],
   "unverified": [
-    "実PMX/VMD/FBX/GLBのGPU品質、共有作品タイムラインと音声配置、最終動画出力、WebMCP/標準MCP、Linux、1000px以下の素材管理固定スクロールは未確認・未接続"
+    "v0.5個別作品への音声配置、実PMX/VMD/GLBとのGPU同期、長尺MP3、最終動画の音声多重化、WebMCP/標準MCP、Linuxは未接続・未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T01:06:18+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ae8657f",
+      "text": "Issue39/69: v0.5音声画面の登録WAV実波形・Web Audio試聴・30fps前後移動・配置保存再読込を接続し、偽のEQ/ミキサー操作を除去。隔離Chrome音声1件・素材回帰4件成功、競合409で既存設定保持を確認。"
+    },
+    {
+      "at": "2026-10-24T00:56:51+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "629fbed",
+      "text": "Issue #39/#69: v0.5音声画面の仮操作を実波形・試聴へ接続: 既存の音楽・ダンス配置APIと30fps計算を再利用し、再生/停止/前後移動・保存再読込を検証"
+    },
     {
       "at": "2026-10-24T00:50:39+09:00",
       "by": "codex",
@@ -227,20 +241,6 @@
       "event": "start",
       "head": "87338f8",
       "text": "P2-WP-07 書き出し: WP07a: 既存出力・変換マップ・UI受け口と受け入れ条件を監査"
-    },
-    {
-      "at": "2026-10-22T02:47:55+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "fdf4429",
-      "text": "WP06d: Phase E §7に124 ID配置、SCR02保存・復元・MCP読み替えを追記。現行ソースと照合し、独立高性能モデルレビューは未実施として台帳に記録"
-    },
-    {
-      "at": "2026-10-22T02:44:18+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3e9a663",
-      "text": "P2-WP-06 カメラ移植とIssue #50全形式の接続: WP06d: Phase E §7に現行カメラホストと保存の読み替え表を作成"
     }
   ]
 }
