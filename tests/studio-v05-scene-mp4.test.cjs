@@ -135,6 +135,9 @@ test('saved GLB scene is captured at each In/Out frame and composited into a rea
     await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="export"]').click();
     await page.waitForFunction(() => !document.querySelector('#baiAddRender')?.disabled);
+    assert.match(await page.locator('#bai-output .baiTitle .pill').textContent(), /限定MP4の実書き出し/);
+    assert.match(await page.locator('#bai-output').textContent(), /MP4書き出し履歴/);
+    assert.doesNotMatch(await page.locator('#bai-output').textContent(), /実動画出力は未接続|実際の動画出力は行いません|実レンダー未接続/);
     assert.match(await page.locator('#v69status').textContent(), /3D実描画720p/);
     await page.locator('#v69result').waitFor({ state: 'visible' });
     assert.equal(await page.locator('#v69resolution').inputValue(), '720p');
