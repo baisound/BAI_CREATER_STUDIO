@@ -144,6 +144,51 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
     await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker[data-face-time="5"]'));
     const redoneFromPreview=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
     assert.deepEqual(redoneFromPreview.face_keys.map(x=>x.time),[0,5]);
+    const valueMarker=page.locator('#v07timeline [data-track="lip"] .v98-face-marker');
+    await valueMarker.scrollIntoViewIfNeeded();
+    const valueBox=await valueMarker.boundingBox();
+    assert.ok(valueBox);
+    await page.mouse.move(valueBox.x+10,valueBox.y+10);
+    await page.mouse.down();
+    await page.mouse.move(valueBox.x+10,valueBox.y+50,{steps:5});
+    await page.mouse.up();
+    await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker')?.dataset.faceValue==='0.5');
+    let valued=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+    assert.deepEqual(valued.face_keys.map(x=>[x.time,x.value,x.track]),[[0,0,'expression'],[5,.5,'lip']]);
+    await valueMarker.focus();
+    await valueMarker.press('Shift+ArrowUp');
+    await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker')?.dataset.faceValue==='0.51');
+    valued=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+    assert.equal(valued.face_keys[1].value,.51);
+    await page.waitForFunction(instanceId =>
+      Math.abs((window.BAIStudioMultiScenePreview?.morphProbe(instanceId)?.morphs['まばたき']??-1)-.51)<.001,
+      instanceId,{timeout:30000});
+    assert.equal(await page.evaluate(instanceId =>
+      window.BAIStudioMultiScenePreview.morphProbe(instanceId).morphs['まばたき'],instanceId),.51);
+    await page.locator('#v99FaceUndo').click();
+    await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker')?.dataset.faceValue==='0.5');
+    await page.locator('#v99FaceRedo').click();
+    await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker')?.dataset.faceValue==='0.51');
+    const lipLock=page.locator('#v07timeline [data-track="lip"]').locator('..').locator('button[title="トラックの編集をロック"]');
+    await lipLock.click();
+    await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker')?.classList.contains('v98-face-locked'));
+    await valueMarker.focus();
+    await valueMarker.press('ArrowDown');
+    assert.equal((await ok(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`))).face_keys[1].value,.51);
+    assert.match(await page.locator('#v06status').textContent(),/ロック中/);
+    await lipLock.click();
+    await page.waitForFunction(() => !document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker')?.classList.contains('v98-face-locked'));
+    await page.reload();
+    await page.locator('#v06project').selectOption(id);
+    await page.locator('#nav [data-workspace="edit"]').click();
+    await page.locator('#v70sceneOpen').click();
+    await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().loaded===1&&
+      window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
+    await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker')?.dataset.faceValue==='0.51');
+    await page.evaluate(() => window.BAIStudioTimeline.seek(5, 'face-value-reload-test'));
+    await page.waitForFunction(instanceId =>
+      Math.abs((window.BAIStudioMultiScenePreview?.morphProbe(instanceId)?.morphs['まばたき']??-1)-.51)<.001,
+      instanceId,{timeout:30000});
     assert.ok(poseDelta(at120.pose.bones[changed[0]],restored.pose.bones[changed[0]]) < 1e-4,
       '保存再読込後のF120姿勢が変わりました');
     console.log(JSON.stringify({model_sha256:original.model,motion_sha256:original.motion,changedBones:changed,
@@ -152,7 +197,7 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
       renderer:at0.frame.renderer,canvas:at0.frame.canvas,frame0:at0.frame.precise.size,frame120:at120.frame.precise.size,
       faceKeyRevision:storedFace.revision,faceMoveRevision:movedFace.revision,
       faceUndoRevision:undone.revision,faceRedoRevision:redone.revision,
-      previewRedoRevision:redoneFromPreview.revision,
+      previewRedoRevision:redoneFromPreview.revision,faceValueRevision:valued.revision,
       facePreviewPixels,faceAt150:at150.frame?.precise?.size}));
     harness.assertNoErrors(page);
   } finally {
