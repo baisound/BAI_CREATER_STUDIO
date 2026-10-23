@@ -137,6 +137,22 @@
    const tracks=(trackLayout?.order||allTracks).flatMap(track=>{const base=d.tracks.find(t=>t.track===track)||{track,clips:[]};return track==='image'?imageLaneIds().map(lane=>({...base,lane,clips:base.clips.filter(c=>(c.lane||1)===lane)})):[{...base,lane:1}]});
  const actions=document.createElement('div');actions.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin:4px 0';
    const batchUndo=document.createElement('button');batchUndo.textContent='直前の一括移動を戻す';batchUndo.addEventListener('click',async()=>{try{await request('/api/studio/v05/arrangement/undo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,revision})});status('一括移動を取り消しました');await arrangement()}catch(e){status('Undo失敗: '+e.message)}});actions.append(batchUndo);
+   for(const [action,label,stack] of [['face-undo','表情キーを戻す','undo'],['face-redo','表情キーをやり直す','redo']]){
+     const button=document.createElement('button');button.type='button';button.textContent=label;
+     button.id=stack==='undo'?'v99FaceUndo':'v99FaceRedo';
+     button.disabled=!(faceScene?.face_history?.[stack]?.length);
+     button.title='この作品の直前のPMX表情・口キー編集を'+(stack==='undo'?'戻します':'やり直します');
+     button.addEventListener('click',async()=>{
+       button.disabled=true;
+       try{
+         const data=await request('/api/studio/v05/scene/instances',{method:'POST',
+           headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,action,revision:faceScene.revision})});
+         status(label+'：保存しました');
+         window.dispatchEvent(new CustomEvent('bai:v98-face-moved',{detail:{projectId:id,revision:data.revision}}));
+         await drawTimeline();
+       }catch(error){status(label+'に失敗: '+error.message);await drawTimeline()}
+     });actions.append(button);
+   }
    const selectionInfo=document.createElement('span');selectionInfo.textContent='選択: '+selectedClips.size+'件';actions.append(selectionInfo);el.append(actions);
    async function toggleFlag(track,flag){if(!trackLayout)return;const locked=new Set(trackLayout.locked||[]),muted=new Set(trackLayout.muted||[]);const target=flag==='locked'?locked:muted;target.has(track)?target.delete(track):target.add(track);try{trackLayout=await request('/api/studio/v05/timeline/flags',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,revision:trackLayout.revision,locked:[...locked],muted:[...muted]})});await drawTimeline()}catch(e){status('変更失敗: '+e.message);await loadLayout();await drawTimeline()}}
  const undo=document.createElement('button');undo.textContent='トラック配置を戻す';undo.disabled=!layoutHistory.length;undo.addEventListener('click',async()=>{const prev=layoutHistory.pop();if(prev)await saveLayout(prev.order,prev.heights)});toolbar.append(undo);

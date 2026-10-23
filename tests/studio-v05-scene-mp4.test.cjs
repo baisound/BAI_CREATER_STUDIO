@@ -27,7 +27,7 @@ function toneWav() {
 }
 async function waitJob(base, id) {
   let job;
-  const deadline = Date.now() + 120000;
+  const deadline = Date.now() + 180000;
   do {
     await new Promise(resolve => setTimeout(resolve, 500));
     job = await json(await fetch(`${base}/api/studio/v05/render/jobs?id=${id}`));

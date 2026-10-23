@@ -457,7 +457,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             _save(root, job)
             capture = subprocess.run([node, str(script_path), str(config_path)], stdin=subprocess.DEVNULL,
                                      capture_output=True, text=True, errors="replace",
-                                     timeout=max(120, min(1800, job["frame_count"] * 10)),
+                                     timeout=max(180, min(1800, job["frame_count"] * 10)),
                                      creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
             if capture.returncode:
                 raise RenderError("3D実描画に失敗: " + capture.stderr[-900:])

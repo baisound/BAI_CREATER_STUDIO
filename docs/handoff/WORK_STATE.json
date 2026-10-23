@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T07:04:06+09:00",
+  "updated_at": "2026-10-24T07:14:15+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-pmx-face-undo",
-  "head_at_update": "13255c6",
+  "head_at_update": "372314a",
   "current": {
     "task": "Issue #96: PMX表情・口キー編集のUndo/Redo",
-    "status": "in_progress",
+    "status": "done",
     "step": "作品別revision付きキー履歴を保存し、共通タイムラインと3D欄で戻す/やり直すを検証",
     "design_doc": "docs/v05/PMX_FACE_KEYS_20261024_JA.md"
   },
   "next_steps": [
-    "Issue #96: PRをmainへ統合しlocal main/8765を同期する",
-    "ロードマップ順4の残り: 顔キーUndo/Redo、視線/自動リップ/実ダンス全体を段階的に検証する"
+    "このPRをmainへ統合しlocal main/8765を同期する",
+    "ロードマップ順4: PMXの表情値のタイムライン編集、ダンス、視線等の未完成部分を要件順に進める"
   ],
   "unverified": [
-    "他PMX・Linux/MCP実運用・長尺/全区間音画同期・物理/視線/自動リップ・Owner採用は未確認"
+    "Undo/Redo直後のMP4別デコード比較、複数キー一括操作/アプリ全体Undo統合、自動リップ・視線、他PMX/Linux/MCP実運用・長尺/全区間同期・Owner採用は未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T07:14:15+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "372314a",
+      "text": "Issue #96: PMX表情キーの単一操作Undo/Redoを作品別最大32件の永続履歴、共通タイムラインと3Dプレビューへ接続。Python11件、隔離Chrome実PMX1件・MP4 3件、型/構文/JSON、原本/data hash保持を確認"
+    },
     {
       "at": "2026-10-24T07:04:06+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "6c08f8e",
       "text": "Issue #39/#40/#50/#63/#69: 保存済み3Dシーンと画像・音声プレビューの共通フレーム操作を別画面で部分接続、隔離Chrome回帰7/7"
-    },
-    {
-      "at": "2026-10-24T02:31:24+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e51ac98",
-      "text": "Issue #39/#40/#50/#63/#69: v0.5作品別3Dシーンを同じ再生時刻でプレビューへ接続: 既存scene/instances・multi-motionとv0.5メディアプレビューの境界を調べ、実3D見本を同じ作品IDと再生位置へ接続する"
     }
   ]
 }

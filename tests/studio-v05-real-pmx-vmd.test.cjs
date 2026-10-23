@@ -129,6 +129,21 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
     const at150=await read(150);
     assert.equal(await page.evaluate(instanceId =>
       window.BAIStudioMultiScenePreview.morphProbe(instanceId).morphs['まばたき'],instanceId),1);
+    await page.locator('#v99FaceUndo').click();
+    await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker[data-face-time="4"]'));
+    let undone=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+    assert.deepEqual(undone.face_keys.map(x=>x.time),[0,4]);
+    await page.locator('#v99FaceRedo').click();
+    await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker[data-face-time="5"]'));
+    const redone=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+    assert.deepEqual(redone.face_keys.map(x=>x.time),[0,5]);
+    await page.waitForFunction(() => !document.querySelector('#v99-face-undo')?.disabled);
+    await page.locator('#v99-face-undo').click();
+    await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker[data-face-time="4"]'));
+    await page.locator('#v99-face-redo').click();
+    await page.waitForFunction(() => document.querySelector('#v07timeline [data-track="lip"] .v98-face-marker[data-face-time="5"]'));
+    const redoneFromPreview=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+    assert.deepEqual(redoneFromPreview.face_keys.map(x=>x.time),[0,5]);
     assert.ok(poseDelta(at120.pose.bones[changed[0]],restored.pose.bones[changed[0]]) < 1e-4,
       '保存再読込後のF120姿勢が変わりました');
     console.log(JSON.stringify({model_sha256:original.model,motion_sha256:original.motion,changedBones:changed,
@@ -136,6 +151,8 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
       headDelta:poseDelta(at0.pose.bones[changed[0]],at120.pose.bones[changed[0]]),
       renderer:at0.frame.renderer,canvas:at0.frame.canvas,frame0:at0.frame.precise.size,frame120:at120.frame.precise.size,
       faceKeyRevision:storedFace.revision,faceMoveRevision:movedFace.revision,
+      faceUndoRevision:undone.revision,faceRedoRevision:redone.revision,
+      previewRedoRevision:redoneFromPreview.revision,
       facePreviewPixels,faceAt150:at150.frame?.precise?.size}));
     harness.assertNoErrors(page);
   } finally {
