@@ -270,6 +270,8 @@
     "select": "表示対象モデル",
     "refresh": "配置を再読み込み",
     "focus": "選択モデルに注目",
+    "saveCamera": "この視点を保存",
+    "restoreCamera": "保存視点に戻す",
     "close": "閉じる",
     "choose": "モデルを選択",
     "loadedCount": "読み込み済み",

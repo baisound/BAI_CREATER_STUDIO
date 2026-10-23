@@ -18,7 +18,8 @@ const captureMode=new URLSearchParams(location.search).get('scene_capture')==='1
 let locale={};
 const tr=(key)=>locale[key]||({
   title:'複数モデルの3D表示',renderingNote:'同じ3D空間で別々のモデルを表示します（実GPU動作は未検証）。',
-  select:'表示対象モデル',refresh:'配置を再読み込み',focus:'選択モデルに注目',close:'閉じる',
+  select:'表示対象モデル',refresh:'配置を再読み込み',focus:'選択モデルに注目',
+  saveCamera:'この視点を保存',restoreCamera:'保存視点に戻す',close:'閉じる',
   choose:'モデルを選択',loadedCount:'読込モデル',problems:'問題',chooseProject:'作品を選んでください',
   loading:'3Dモデルを読み込み中…',loadFailed:'読み込み失敗',runtimeError:'描画できません',mismatch:'作品が一致しません'
 })[key]||key;
@@ -36,9 +37,13 @@ const title=document.createElement('strong');title.textContent=tr('title');
 const choose=document.createElement('select');choose.setAttribute('aria-label',tr('select'));
 const refreshBtn=document.createElement('button');refreshBtn.textContent=tr('refresh');
 const focusBtn=document.createElement('button');focusBtn.textContent=tr('focus');
+const saveCameraBtn=document.createElement('button');saveCameraBtn.type='button';saveCameraBtn.textContent=tr('saveCamera');
+const restoreCameraBtn=document.createElement('button');restoreCameraBtn.type='button';restoreCameraBtn.textContent=tr('restoreCamera');
+saveCameraBtn.id='v58-save-camera';restoreCameraBtn.id='v58-restore-camera';
 const modeBtn=document.createElement('button');modeBtn.type='button';modeBtn.textContent='同じ画面に重ねる';
 const closeBtn=document.createElement('button');closeBtn.textContent=tr('close');
 const progress=document.createElement('span');progress.setAttribute('role','status');progress.style.cssText='color:#c8d9ea';
+const cameraStatus=document.createElement('small');cameraStatus.setAttribute('role','status');
 const clipSelect=document.createElement('select');clipSelect.setAttribute('aria-label','モーション');
 const targetSelect=document.createElement('select');targetSelect.setAttribute('aria-label','適用するモデル');
 const assignBtn=document.createElement('button');assignBtn.type='button';
@@ -46,7 +51,7 @@ const seekInput=document.createElement('input');seekInput.type='number';seekInpu
 seekInput.id='v58-motion-seek';
 const seekBtn=document.createElement('button');seekBtn.type='button';
 const motionStatus=document.createElement('span');motionStatus.setAttribute('role','status');
-heading.append(title,choose,refreshBtn,focusBtn,modeBtn,closeBtn);
+heading.append(title,choose,refreshBtn,focusBtn,saveCameraBtn,restoreCameraBtn,modeBtn,closeBtn);
 const motionControls=document.createElement('div');motionControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
 motionControls.append(clipSelect,targetSelect,assignBtn,seekInput,seekBtn,motionStatus);
 const canvasParent=document.createElement('div');
@@ -55,7 +60,8 @@ canvasParent.style.cssText='position:relative;min-height:230px;flex:1;background
 const footer=document.createElement('div');footer.style.cssText='display:flex;justify-content:space-between;gap:8px;';
 const hint=document.createElement('small');
 hint.textContent=tr('renderingNote');
-footer.append(progress,hint);
+footer.append(progress,cameraStatus,hint);
+if(captureMode){saveCameraBtn.hidden=true;restoreCameraBtn.hidden=true;}
 panel.append(heading,motionControls,canvasParent,footer);
 document.body.append(panel);
 panel.hidden=true;panel.style.display='none';
@@ -264,6 +270,9 @@ async function reload(){
     redrawMotionControls();
     seekScene(currentSeek());
     viewport.fit?.();
+    if(data.camera)viewport.applyCameraPose(data.camera);
+    cameraStatus.textContent=data.camera?'保存済みカメラを反映（視点変更後は再保存）':'カメラ未保存：自動構図で表示・出力';
+    saveCameraBtn.disabled=controller.status().loaded<1;
     viewport.invalidate?.();
     if(composite)window.BAIStudioMediaPreviewV68?.sceneOverlay?.(true);
     window.dispatchEvent(new CustomEvent('bai:v58-scene-reloaded',{detail:{projectId:id,loaded:controller.status().loaded}}));
@@ -307,6 +316,33 @@ focusBtn.addEventListener('click',()=>{
     const entry=data.instances.find(x=>x.id===id);
     if(entry){viewport?.focusAt?.(entry.transform.position);viewport?.invalidate?.();}
   }).catch(e=>progress.textContent=String(e.message||e));
+});
+saveCameraBtn.addEventListener('click',async()=>{
+  const id=project?.value;
+  if(!id||!viewport||!sceneSnapshot||sceneSnapshot.project_id!==id||controller?.status().loaded<1)return;
+  saveCameraBtn.disabled=true;
+  cameraStatus.textContent='撮影視点を保存中…';
+  try{
+    const response=await fetch('/api/studio/v05/scene/instances',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({project_id:id,action:'camera',revision:sceneSnapshot.revision,
+        camera:viewport.getCameraPose()})
+    });
+    const data=await response.json();
+    if(!response.ok)throw Error(data.error||`HTTP ${response.status}`);
+    if(!opened||project?.value!==id)return;
+    sceneSnapshot=data;
+    viewport.applyCameraPose(data.camera);
+    cameraStatus.textContent='撮影視点を作品へ保存しました';
+    window.dispatchEvent(new CustomEvent('bai:v58-camera-saved',{detail:{projectId:id,revision:data.revision}}));
+  }catch(error){cameraStatus.textContent='撮影視点を保存できません: '+String(error.message||error);}
+  finally{saveCameraBtn.disabled=false;}
+});
+restoreCameraBtn.addEventListener('click',()=>{
+  if(!viewport||!sceneSnapshot)return;
+  if(sceneSnapshot.camera)viewport.applyCameraPose(sceneSnapshot.camera);
+  else viewport.fit?.();
+  cameraStatus.textContent=sceneSnapshot.camera?'保存済みカメラへ戻しました':'保存カメラがないため自動構図へ戻しました';
 });
 clipSelect.addEventListener('change',()=>{
   const row=(motionPlan?.rows||[]).find(x=>x.clip_id===clipSelect.value);
@@ -360,7 +396,9 @@ window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
   status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,composite,
-    rendererReady:Boolean(viewport),renderer:viewport?.rendererName||null,renderingVerified:false}),
+    rendererReady:Boolean(viewport),renderer:viewport?.rendererName||null,
+    cameraSaved:Boolean(sceneSnapshot?.camera),camera:viewport?.getCameraPose?.()||null,
+    renderingVerified:false}),
   poseProbe(instanceId,boneNames){
     if(!opened||!controller||!Array.isArray(boneNames)||boneNames.length>16||
        boneNames.some(name=>typeof name!=='string'||name.length>100))return null;
@@ -410,6 +448,7 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     return {projectId:project?.value,instanceId,
       root:bounds(target.root),object:bounds(target.object),precise:bounds(target.object,true),
       camera:viewport.camera.position.toArray(),target:viewport.controls.target.toArray(),
+      fov:viewport.camera.fov,cameraSaved:Boolean(sceneSnapshot?.camera),
       renderer:viewport.rendererName,canvas:[viewport.renderer.domElement.width,viewport.renderer.domElement.height]};
   }
 });
@@ -445,6 +484,7 @@ async function applyLanguage(){
     locale=(await r.json()).v58||{};
     title.textContent=tr('title');choose.setAttribute('aria-label',tr('select'));
     refreshBtn.textContent=tr('refresh');focusBtn.textContent=tr('focus');
+    saveCameraBtn.textContent=tr('saveCamera');restoreCameraBtn.textContent=tr('restoreCamera');
     closeBtn.textContent=tr('close');hint.textContent=tr('renderingNote');
     assignBtn.textContent=tr('assignMotion');seekBtn.textContent=tr('seek');motionStatus.textContent='';
     clipSelect.setAttribute('aria-label',tr('chooseMotion'));

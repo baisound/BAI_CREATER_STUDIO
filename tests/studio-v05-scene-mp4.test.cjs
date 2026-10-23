@@ -154,6 +154,97 @@ test('saved GLB scene is captured at each In/Out frame and composited into a rea
   } finally { await page?.close(); await browser?.close(); await server.stop(); }
 });
 
+test('saved 3D camera survives reload and changes the encoded MP4 viewpoint', async () => {
+  const server = await harness.startServer({ port: 8907 });
+  let browser, page;
+  try {
+    const glbBytes = fs.readFileSync(path.join(__dirname, 'fixtures', 'synthetic_test_model.glb'));
+    const imageBytes = fs.readFileSync(path.join(__dirname, '..', 'studio', 'assets', 'samples', 'viewport-shrine.webp'));
+    const [glb, image] = await Promise.all([
+      json(await fetch(`${server.base}/api/library-assets/upload?kind=stage&name=camera-prop.glb`,
+        { method: 'POST', body: glbBytes })),
+      json(await fetch(`${server.base}/api/library-assets/upload?kind=image&name=camera-back.webp`,
+        { method: 'POST', body: imageBytes })),
+    ]);
+    const project = await json(await fetch(`${server.base}/api/studio/v05/projects`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: '保存カメラ検査', kind: 'empty' }),
+    }));
+    const id = project.project.id;
+    const arrangement = await json(await fetch(`${server.base}/api/studio/v05/arrangement/place`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project_id: id, asset_id: image.item.id,
+        track: 'image', start: 0, duration: 1, revision: 0 }),
+    }));
+    const scene = await json(await fetch(`${server.base}/api/studio/v05/scene/instances`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project_id: id, action: 'add', revision: 0, asset_id: glb.item.id,
+        transform: { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] } }),
+    }));
+    const range = await json(await fetch(`${server.base}/api/studio/v05/timeline/range`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project_id: id, revision: 0, arrangement_revision: arrangement.revision,
+        in_frame: 0, out_frame: 2 }),
+    }));
+    const render = async sceneRevision => json(await fetch(`${server.base}/api/studio/v05/render/jobs`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project_id: id, range_revision: range.revision,
+        arrangement_revision: arrangement.revision, scene_revision: sceneRevision,
+        resolution: '720p' }),
+    }), 202);
+    const auto = await render(scene.revision);
+    await waitJob(server.base, auto.id);
+    const autoMp4 = Buffer.from(await (await fetch(`${server.base}/api/studio/v05/render/file?id=${auto.id}`)).arrayBuffer());
+    browser = await server.launchBrowser();
+    page = await server.newPage(browser);
+    await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.locator('#v06project').selectOption(id);
+    await page.waitForFunction(() => typeof window.BAIStudioMultiScenePreview?.open === 'function');
+    await page.evaluate(() => window.BAIStudioMultiScenePreview.open());
+    await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status?.().loaded === 1);
+    const initial = await page.evaluate(() => window.BAIStudioMultiScenePreview.status().camera);
+    assert.equal(initial.fov, 40);
+    const box = await page.locator('#v58-canvas canvas').boundingBox();
+    assert.ok(box?.width > 200);
+    await page.mouse.move(box.x + box.width * .5, box.y + box.height * .5);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * .75, box.y + box.height * .6, { steps: 8 });
+    await page.mouse.up();
+    const changed = await page.evaluate(() => window.BAIStudioMultiScenePreview.status().camera);
+    assert.notDeepEqual(changed.position, initial.position);
+    await page.locator('#v58-save-camera').click();
+    await page.waitForFunction(() => document.querySelector('#v58-multi-preview small[role="status"]')?.textContent.includes('作品へ保存しました'));
+    const saved = await json(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+    assert.equal(saved.revision, scene.revision + 1);
+    assert.deepEqual(saved.camera.position, changed.position.map(value => Number(value.toFixed(6))));
+    assert.equal(saved.camera.fov, changed.fov);
+    await page.reload();
+    await page.locator('#v06project').selectOption(id);
+    await page.waitForFunction(() => typeof window.BAIStudioMultiScenePreview?.open === 'function');
+    await page.evaluate(() => window.BAIStudioMultiScenePreview.open());
+    await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status?.().cameraSaved === true);
+    const restored = await page.evaluate(() => window.BAIStudioMultiScenePreview.status().camera);
+    for (let i = 0; i < 3; i++) assert.ok(Math.abs(restored.position[i] - saved.camera.position[i]) < 1e-5);
+    const stale = await fetch(`${server.base}/api/studio/v05/render/jobs`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project_id: id, range_revision: range.revision,
+        arrangement_revision: arrangement.revision, scene_revision: scene.revision,
+        resolution: '720p' }),
+    });
+    assert.equal(stale.status, 409);
+    const savedJob = await render(saved.revision);
+    const completed = await waitJob(server.base, savedJob.id);
+    assert.equal(completed.scene_revision, saved.revision);
+    const savedMp4 = Buffer.from(await (await fetch(`${server.base}/api/studio/v05/render/file?id=${savedJob.id}`)).arrayBuffer());
+    const before = rawFrame(autoMp4, 0), after = rawFrame(savedMp4, 0);
+    let changedPixels = 0;
+    for (let i = 0; i < before.length; i += 3)
+      if (Math.max(...[0, 1, 2].map(j => Math.abs(before[i + j] - after[i + j]))) > 24) changedPixels++;
+    assert.ok(changedPixels > 200, `saved camera changes encoded view (${changedPixels})`);
+    assert.equal(hash(glbBytes), hash(fs.readFileSync(path.join(__dirname, 'fixtures', 'synthetic_test_model.glb'))));
+  } finally { await page?.close(); await browser?.close(); await server.stop(); }
+});
+
 const realRoot = process.env.BAI_REAL_MMD_DATA;
 const pmxName = 'Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx';
 const vmdName = '狐面物理確認用_頭振り_F000-0300.vmd';

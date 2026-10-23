@@ -269,6 +269,22 @@ export function createViewport(container, libs, o = {}) {
       invalidate();
       return true;
     },
+    getCameraPose() {
+      return { position: camera.position.toArray(), target: controls.target.toArray(), fov: camera.fov };
+    },
+    applyCameraPose(pose) {
+      if (viewMode !== 'perspective') api.setViewMode('perspective');
+      camera.position.fromArray(pose.position);
+      controls.target.fromArray(pose.target);
+      perspectiveTarget.copy(controls.target);
+      camera.fov = pose.fov;
+      const distance = camera.position.distanceTo(controls.target);
+      camera.near = Math.max(0.01, distance / 10000);
+      camera.far = Math.max(500, distance * 100);
+      camera.updateProjectionMatrix();
+      controls.update();
+      invalidate();
+    },
     resize, invalidate,
     /** シーンが更新されたら補助ビューも再描画する。 @param {() => void} listener */
     onInvalidate(listener) { invalidateListeners.add(listener); return () => invalidateListeners.delete(listener); },
@@ -279,7 +295,8 @@ export function createViewport(container, libs, o = {}) {
       const box = new THREE.Box3().setFromObject(content);
       return { ...EMPTY, ...extra, secondaryView: companionCurrent?.host === api ? companionCurrent.getState() : null,
         renderer: rendererName, viewMode, cameraProjection: activeCamera.isOrthographicCamera ? 'orthographic' : 'perspective',
-        cameraPosition: activeCamera.position.toArray(), cameraTarget: controls.target.toArray(), bounds: box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray() } };
+        cameraPosition: activeCamera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov,
+        bounds: box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray() } };
     },
     /**
      * モデルの描画を確かめる（テスト用）。床を隠して描き、背景と違う画素の数を返す。

@@ -6,6 +6,7 @@ GPU scene graph loading is deliberately handled by the browser shared-scene host
 """
 from __future__ import annotations
 import json
+import math
 import threading
 import uuid
 from pathlib import Path
@@ -16,6 +17,7 @@ from studio_v05_scene_model import read as read_legacy, supported_model, _vector
 _LOCK = threading.RLock()
 LEGACY_ID = "legacy-primary"
 MAX_INSTANCES = 32
+_UNSET = object()
 
 class SceneInstancesError(ValueError):
     pass
@@ -38,12 +40,12 @@ def _seed(project_id, legacy):
             "parent_id": None,
         })
     return {"schema": 1, "project_id": project_id, "revision": 0,
-            "legacy_revision": legacy["revision"], "instances": items}
+            "legacy_revision": legacy["revision"], "instances": items, "camera": None}
 
 def _check_record(data, project_id):
-    if not isinstance(data, dict) or set(data) != {
-        "schema", "project_id", "revision", "legacy_revision", "instances"
-    } or data["schema"] != 1 or data["project_id"] != project_id:
+    required = {"schema", "project_id", "revision", "legacy_revision", "instances"}
+    if not isinstance(data, dict) or not required <= set(data) or set(data) - required - {"camera"} \
+            or data["schema"] != 1 or data["project_id"] != project_id:
         raise SceneInstancesError("Invalid scene-instances file; original retained")
     if any(type(data[k]) is not int or data[k] < 0 for k in ("revision", "legacy_revision")):
         raise SceneInstancesError("Invalid scene revision; original retained")
@@ -65,6 +67,8 @@ def _check_record(data, project_id):
         if row["parent_id"] is not None:
             raise SceneInstancesError("Parent hierarchies are not supported by v57")
         _transform(row["transform"])
+    if "camera" in data and data["camera"] is not None:
+        _camera(data["camera"])
     return data
 
 def _transform(value):
@@ -79,6 +83,22 @@ def _transform(value):
     except (ValueError, TypeError) as exc:
         raise SceneInstancesError(str(exc)) from exc
 
+
+def _camera(value):
+    if not isinstance(value, dict) or set(value) != {"position", "target", "fov"}:
+        raise SceneInstancesError("Camera position, target and fov required")
+    try:
+        position = _vector(value["position"], "camera position", -100000, 100000)
+        target = _vector(value["target"], "camera target", -100000, 100000)
+    except (ValueError, TypeError) as exc:
+        raise SceneInstancesError(str(exc)) from exc
+    fov = value["fov"]
+    if isinstance(fov, bool) or not isinstance(fov, (int, float)) or not math.isfinite(fov) or not 10 <= fov <= 120:
+        raise SceneInstancesError("Camera fov must be 10–120 degrees")
+    if math.dist(position, target) < 0.01:
+        raise SceneInstancesError("Camera position and target must differ")
+    return {"position": position, "target": target, "fov": round(float(fov), 6)}
+
 def read(root, legacy_root, catalog, project_id, assets=None):
     legacy = _legacy(legacy_root, catalog, project_id)
     path = Path(root) / (project_id + ".json")
@@ -91,7 +111,8 @@ def read(root, legacy_root, catalog, project_id, assets=None):
             raise SceneInstancesError("Scene-instances file unreadable; original retained") from exc
         if data["legacy_revision"] != legacy["revision"]:
             raise SceneInstancesError("Legacy scene changed since multi-instance seed; reconcile before editing")
-    result = {**data, "instances": [dict(row) for row in data["instances"]]}
+    result = {**data, "camera": data.get("camera"),
+              "instances": [dict(row) for row in data["instances"]]}
     if assets is not None:
         lookup = {row.get("id"): row for row in assets if isinstance(row, dict)}
         for row in result["instances"]:
@@ -102,17 +123,25 @@ def read(root, legacy_root, catalog, project_id, assets=None):
     return result
 
 def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
-           instance_id=None, asset_id=None, transform=None, visible=None, locked=None):
+           instance_id=None, asset_id=None, transform=None, visible=None, locked=None,
+           camera=_UNSET):
     if type(revision) is not int or revision < 0:
         raise SceneInstancesError("Revision required")
-    if action not in ("add", "update", "remove"):
+    if action not in ("add", "update", "remove", "camera"):
         raise SceneInstancesError("Unknown scene instance action")
     with _LOCK:
         current = read(root, legacy_root, catalog, project_id)
         if current["revision"] != revision:
             raise SceneInstancesError("Revision conflict")
         rows = current["instances"]
-        if action == "add":
+        if action == "camera":
+            if camera is _UNSET or any(x is not None for x in
+                (instance_id, asset_id, transform, visible, locked)):
+                raise SceneInstancesError("Camera action requires only camera fields")
+            current["camera"] = None if camera is None else _camera(camera)
+        elif action == "add":
+            if camera is not _UNSET:
+                raise SceneInstancesError("Camera is a separate scene action")
             if instance_id is not None or len(rows) >= MAX_INSTANCES:
                 raise SceneInstancesError("New IDs are generated by the server; scene limit 32")
             source = next((x for x in assets if x.get("id") == asset_id), None)
@@ -125,6 +154,8 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
                          "transform": _transform(transform), "visible": True,
                          "locked": False, "parent_id": None})
         else:
+            if camera is not _UNSET:
+                raise SceneInstancesError("Camera is a separate scene action")
             row = next((x for x in rows if x["id"] == instance_id), None)
             if not row:
                 raise SceneInstancesError("Scene instance not found")
@@ -149,6 +180,7 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
                     if type(locked) is not bool: raise SceneInstancesError("Invalid locked flag")
                     row["locked"] = locked
         saved = {k: current[k] for k in ("schema", "project_id", "legacy_revision")}
-        saved.update({"revision": revision + 1, "instances": rows})
+        saved.update({"revision": revision + 1, "instances": rows,
+                      "camera": current["camera"]})
         _atomic(Path(root) / (project_id + ".json"), saved)
         return read(root, legacy_root, catalog, project_id, assets)
