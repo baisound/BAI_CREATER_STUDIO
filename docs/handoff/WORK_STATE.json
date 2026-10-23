@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-23T23:26:29+09:00",
+  "updated_at": "2026-10-23T23:29:10+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-minimum-workflow",
-  "head_at_update": "e7e64a8",
+  "head_at_update": "a74d1ae",
   "current": {
     "task": "Issue #63: v0.5の最短制作経路とロードマップの優先順をOwner最新指定へ更新",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存IDと未完了状態を照合し、素材登録から書き出しまでの順序を記録",
     "design_doc": "docs/v05/PROGRESS_STAGE61_JA.md"
   },
   "next_steps": [
-    "PR #65を更新・mainへマージしローカルmainとサーバーを同期する",
-    "Owner最新指示に沿って素材登録→タイムライン→書き出しを軸にロードマップを見直す"
+    "v0.5最短制作経路のロードマップPRをレビュー・mainへ統合する",
+    "Issue37の既存素材とv0.5素材管理の接続状態を監査し、最初の不足を実装する"
   ],
   "unverified": [
-    "P2/旧UI全体試験の失敗ゼロ完走、GPUと実モデル操作、MCP/WebMCP実接続、素材から書き出しまでの通し操作は未確認"
+    "このコミットは文書のみ。v0.5の登録→配置→書き出し通し操作、PMX顔、GLB→VMD、GPU、MCP/WebMCP、実素材の動作は未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-23T23:29:10+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a74d1ae",
+      "text": "Issue #63: PR65後のOwner最新指定をAGENTS/ロードマップ/トレーサビリティへ反映。v0.5の登録→共通タイムライン→書き出しとPMX顔優先の段階・確認条件を明文化。Issue63へ記録。"
+    },
     {
       "at": "2026-10-23T23:26:29+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "84410e8",
       "text": "Issue #50追補: SCR-10の踊るモデルにGLB/VRM/PMX/FBXを追加し、主要人体骨のGLBダンスプレビューを実装。実VRM/GLB/FBXの隔離Chrome動作、VRM保存再読込、原本hash不変、型検査と状態検査を確認"
-    },
-    {
-      "at": "2026-10-22T00:33:29+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "dec1774",
-      "text": "Issue #50: SCR-10の踊るモデルにGLB/VRM/FBXを追加: モデル候補・プレビュー経路・保存再読込を修正"
     }
   ]
 }

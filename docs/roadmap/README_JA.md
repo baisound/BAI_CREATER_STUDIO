@@ -6,6 +6,7 @@
 - [`FEATURE_DETAIL_JA.md`](FEATURE_DETAIL_JA.md) — 全機能IDの詳細・受け入れ条件
 - [`FEATURE_REGISTER.csv`](FEATURE_REGISTER.csv) / [`FEATURE_REGISTER.json`](FEATURE_REGISTER.json) — 機械可読の機能台帳
 - [`ROADMAP_JA.md`](ROADMAP_JA.md) — 推奨開発順序・依存性
+- [`V05_MINIMUM_WORKFLOW_20261023_JA.md`](V05_MINIMUM_WORKFLOW_20261023_JA.md) — 2026-10-23 Owner指定のv0.5最短制作経路と確認ゲート
 - [`TRACEABILITY_JA.md`](TRACEABILITY_JA.md) — 会話要求とIDの対応表
 - [`IMPLEMENTATION_AUDIT_JA.md`](IMPLEMENTATION_AUDIT_JA.md) — 検証・実装状態の基準
 - [`../specs/SPEC_PROGRESS_JA.md`](../specs/SPEC_PROGRESS_JA.md) — 承認済みバックログの仕様・UIモック進捗と未検証点
