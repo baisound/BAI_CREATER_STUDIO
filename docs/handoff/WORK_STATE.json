@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T05:56:12+09:00",
+  "updated_at": "2026-10-24T05:58:53+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-export-screen-copy",
-  "head_at_update": "5fd1087",
+  "head_at_update": "8d43dda",
   "current": {
     "task": "Issue #69: v0.5書き出し画面の実MP4対応表示",
-    "status": "in_progress",
+    "status": "done",
     "step": "書き出し画面の古い未接続表記を現行の限定MP4機能と一致させて確認",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "PRレビューとmain統合、ローカルmain/8765同期・画面確認",
-    "ロードマップ順3の保存カメラ・字幕・長尺/全形式・音画1F同期の残条件を続行"
+    "PRをレビュー・mainへ統合し、ローカルmain/8765と実画面を確認。続いて保存カメラ・字幕・音画同期等の承認済み残条件を進める。"
   ],
   "unverified": [
-    "既定2並列Chromeゲートは接続/読込競合で未完走。逐次5/5成功。保存カメラ、PMX物理、長尺、Linux、WebMCP/標準MCP、全区間の音画同期は未確認または未接続"
+    "今回の回帰試験ではBAI_REAL_MMD_DATA未指定のためPMX/VMDケースはskip。前段PR92では実PMX/VMDを検証済み。Linux/MCP/長尺/全音画同期は未検証。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T05:58:53+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8d43dda",
+      "text": "Issue #69: v0.5書き出し画面とIn/Outの旧未接続表記を現行の限定MP4、見本、完成物、履歴へ同期。隔離Chrome実MP4 1/1、型・構文・JSON・実データhash確認。"
+    },
     {
       "at": "2026-10-24T05:56:12+09:00",
       "by": "codex",
@@ -234,13 +240,6 @@
       "event": "done",
       "head": "9f040fa",
       "text": "Issue #49/#69: v0.5作品の保存済みタイムラインにIn/Outフレーム範囲を追加。既定0〜最終フレーム、revision競合、出力画面表示を隔離試験で確認。実レンダーは未接続"
-    },
-    {
-      "at": "2026-10-24T01:10:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "045df5e",
-      "text": "Issue #49/#69: v0.5タイムラインのイン点・アウト点と書き出し範囲: 作品FPSと保存済みクリップから最終フレームを算出し、範囲保存・出力表示・隔離試験へ接続"
     }
   ]
 }

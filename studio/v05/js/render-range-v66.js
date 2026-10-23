@@ -1,4 +1,4 @@
-/* v0.5 In/Out markers for the saved arrangement; real video rendering is still unavailable. */
+/* v0.5 In/Out markers for the saved arrangement and bounded MP4 export. */
 (function (root) {
   'use strict';
   const project = document.getElementById('v06project');
@@ -41,8 +41,8 @@
     }
     output.dataset.kind = 'info';
     output.textContent = current.has_clips
-      ? `${name()} / ${current.fps} fps：F ${current.range_start_frame}〜${current.effective_out_frame}（${current.frame_count}フレーム、終了境界 ${current.range_end_exclusive}）。実動画出力は未接続です。`
-      : `${name()}：保存済みクリップがありません。範囲は仮のF 0〜0です。実動画出力は未接続です。`;
+      ? `${name()} / ${current.fps} fps：F ${current.range_start_frame}〜${current.effective_out_frame}（${current.frame_count}フレーム、終了境界 ${current.range_end_exclusive}）。書き出し条件を下で確認できます。`
+      : `${name()}：保存済みクリップがありません。範囲は仮のF 0〜0です。実MP4には保存済みクリップが必要です。`;
   }
   async function refresh() {
     const id = project.value;
