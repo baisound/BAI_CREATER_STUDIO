@@ -408,6 +408,23 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError, ValueError, TypeError, KeyError):
                 self.bad(422, 'Lip draft store unreadable; originals retained')
             return
+        if urlsplit(self.path).path == '/api/studio/v05/lip/adoptions':
+            from studio_v05_lip_adoptions import read as read_lip_adoptions, LipAdoptionError
+
+            query = parse_qs(urlsplit(self.path).query)
+            if (set(query) - {'project_id', 'instance_id'}
+                    or len(query.get('project_id', [])) != 1
+                    or len(query.get('instance_id', [])) > 1):
+                return self.bad(400, 'Invalid lip adoption query')
+            try:
+                result = read_lip_adoptions(DATA, unified_assets(), character_source,
+                    query['project_id'][0], query.get('instance_id', [None])[0])
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except LipAdoptionError as exc:
+                self.bad(exc.status, str(exc))
+            except (OSError, ValueError, TypeError, KeyError):
+                self.bad(422, 'Lip adoption store unreadable; originals retained')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/multi-motion-plan':
             from studio_v05_multi_motion import plan, MultiMotionError
             try:
@@ -850,6 +867,27 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path == '/api/studio/v05/lip/adoptions':
+            from studio_v05_lip_adoptions import mutate as mutate_lip_adoption, LipAdoptionError
+
+            try:
+                length = int(self.headers.get('Content-Length', '-1'))
+                if not 0 < length <= 4096:
+                    return self.bad(413, 'Lip adoption request too large')
+                body = json.loads(self.rfile.read(length))
+                if (not isinstance(body, dict) or not {'project_id', 'revision', 'action'} <= set(body)
+                        or set(body) - {'project_id', 'revision', 'action', 'instance_id', 'candidate_id'}):
+                    return self.bad(400, 'Invalid lip adoption fields')
+                result = mutate_lip_adoption(DATA, unified_assets(), character_source,
+                    body['project_id'], body['revision'], body['action'],
+                    body.get('instance_id'), body.get('candidate_id'))
+                event('v05_lip_adoption_changed', project_id=body['project_id'], action=body['action'])
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except LipAdoptionError as exc:
+                self.bad(exc.status, str(exc))
+            except (OSError, ValueError, TypeError, KeyError):
+                self.bad(422, 'Lip adoption update failed; originals retained')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/lip/vmd-candidate':
             from studio_v05_lip_vmd_candidate import create as create_lip_vmd, LipVmdError
 

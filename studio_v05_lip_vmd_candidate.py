@@ -77,7 +77,7 @@ def _plan(data_root, assets, source_for, project_id, source_id, model_asset_id,
     draft_by_cue = {(row['srtSourceId'], row['srtIndex']): row for row in drafts['drafts']}
     fps = next((row['projectFps'] for row in drafts['drafts']
                 if row['srtSourceId'] == source_id and row['draftStatus'] == 'draft'), None)
-    records, cue_count, silence_count = [], 0, 0
+    records, cue_tracks, cue_count, silence_count = [], [], 0, 0
     for cue in sorted(source['entries'], key=lambda item: (item['startMs'], item['index'])):
         cue_count += 1
         index = cue['index']
@@ -121,6 +121,7 @@ def _plan(data_root, assets, source_for, project_id, source_id, model_asset_id,
                 issues.append({'code': warning['code'], 'srtIndex': index,
                                'message': '口形候補に未解決の警告があります'})
             continue
+        cue_records = []
         for segment in draft['segments']:
             shape = segment['mouthShape']
             entry = mapping['entries'][shape]
@@ -137,10 +138,17 @@ def _plan(data_root, assets, source_for, project_id, source_id, model_asset_id,
                     issues.append({'code': 'vmd_frame_out_of_range', 'srtIndex': index,
                                    'projectFrame': frame, 'message': 'VMDフレームが上限を超えます'})
                     continue
-                records.append({'name': entry['morph_name'], 'frame': vmd_frame,
-                                'weight': value, 'srtIndex': index})
+                key = {'name': entry['morph_name'], 'frame': vmd_frame,
+                       'weight': value, 'srtIndex': index}
+                records.append(key)
+                cue_records.append(key)
                 if len(records) > 100_000:
                     raise LipVmdError('Morph VMD key limit is 100000', 413)
+        if cue_records:
+            cue_tracks.append({'srtIndex': index, 'startMs': cue['startMs'],
+                               'endMs': cue['endMs'], 'records': [
+                                   {key: row[key] for key in ('name', 'frame', 'weight')}
+                                   for row in sorted(cue_records, key=lambda item: (item['frame'], item['name']))]})
     records.sort(key=lambda row: (row['frame'], row['name']))
     for a, b in zip(records, records[1:]):
         if (a['frame'], a['name']) == (b['frame'], b['name']):
@@ -154,7 +162,8 @@ def _plan(data_root, assets, source_for, project_id, source_id, model_asset_id,
         raise LipVmdError(f'出力条件に{len(issues)}件の問題があります', 422, issues)
     records = [{key: row[key] for key in ('name', 'frame', 'weight')} for row in records]
     raw = encode_morph_vmd('BAI Lip', records)
-    return {'raw': raw, 'records': records, 'sourceHash': source['sha256'],
+    return {'raw': raw, 'records': records, 'cueTracks': cue_tracks,
+            'sourceHash': source['sha256'],
             'modelHash': mapping['model_hash'], 'mapId': mapping['id'],
             'cueCount': cue_count, 'silenceCount': silence_count, 'projectFps': fps,
             'revisions': {'source': source_revision, 'reading': reading_revision,
@@ -199,7 +208,7 @@ def create(data_root, assets, source_for, project_id, source_id, model_asset_id,
                 'downloadUrl': f'/api/studio/v05/lip/vmd-candidate/file?project_id={project_id}&candidate_id={candidate_id}'}
 
 
-def candidate_file(data_root, assets, source_for, project_id, candidate_id):
+def validated_candidate(data_root, assets, source_for, project_id, candidate_id):
     if (not isinstance(project_id, str) or not ID.fullmatch(project_id)
             or not isinstance(candidate_id, str) or not CANDIDATE_ID.fullmatch(candidate_id)):
         raise LipVmdError('Candidate identity invalid', 400)
@@ -227,4 +236,8 @@ def candidate_file(data_root, assets, source_for, project_id, candidate_id):
     if (parsed['morph_keys'] != metadata.get('morphKeys')
             or hashlib.sha256(plan['raw']).hexdigest() != metadata['sha256']):
         raise LipVmdError('Morph VMD candidate no longer matches project state', 409)
-    return raw
+    return metadata, plan, raw
+
+
+def candidate_file(data_root, assets, source_for, project_id, candidate_id):
+    return validated_candidate(data_root, assets, source_for, project_id, candidate_id)[2]

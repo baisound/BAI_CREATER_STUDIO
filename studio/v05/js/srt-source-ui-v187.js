@@ -55,6 +55,18 @@ if (picker && project) {
           <button id="v197-issues-next" type="button">次の100件</button>
         </div>
         <a id="v197-export-download" hidden>生成したVMD候補を取得</a>
+        <div id="v199-adoption-panel" class="v190-editor">
+          <strong>作品の3Dモデルへ口形を採用</strong>
+          <p>候補と対象モデルを確認してから採用します。元の動作VMD・手動表情キーは保持し、手動キーが同じモーフを優先します。</p>
+          <label>対象モデル <select id="v199-adoption-instance"></select></label>
+          <div class="v187-actions">
+            <button id="v199-adopt" type="button" disabled>この候補を採用</button>
+            <button id="v199-remove" type="button" disabled>採用を解除</button>
+            <button id="v199-undo" type="button" disabled>採用を元に戻す</button>
+            <button id="v199-redo" type="button" disabled>採用をやり直す</button>
+          </div>
+          <p id="v199-adoption-status" role="status">3Dモデルの配置と採用状態を読み込みます。</p>
+        </div>
       </details>
       <p>候補は音声に合わせた境界ではありません。SRT本文と原時刻は変更しません。</p>
     </div>`;
@@ -66,12 +78,13 @@ if (picker && project) {
   const status = $('v187-status');
   const sourceInfo = $('v187-source-info');
   const cueHost = $('v187-cues');
-  let data = null, readings = null, drafts = null, morphMaps = null;
+  let data = null, readings = null, drafts = null, morphMaps = null, scene = null, adoptions = null;
   let loadedProject = '', selectedId = '', selectedCueIndex = null;
   let page = 0, sequence = 0, candidateSequence = 0, busy = false;
   let draftBase = null;
   let exportSequence = 0, exportBusy = false, checkedExport = null;
   let exportIssues = [], exportIssuePage = 0;
+  let latestCandidate = null, adoptionBusy = false;
   const currentSource = () => data?.sources?.find(row => row.id === selectedId);
   const currentReading = () => readings?.utterances?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
   const currentDraft = () => drafts?.drafts?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
@@ -103,6 +116,30 @@ if (picker && project) {
     $('v197-export-download').removeAttribute('href');
     $('v197-export-status').textContent = '出力条件を検査してください。';
     exportIssues = []; exportIssuePage = 0; renderExportIssues();
+    latestCandidate = null; redrawAdoptions();
+  }
+  function redrawAdoptions() {
+    const select = $('v199-adoption-instance');
+    const previous = select.value;
+    select.replaceChildren(new Option('3Dモデルを選択', ''));
+    for (const row of scene?.instances || []) {
+      if (row.available && row.asset?.format === 'PMX')
+        select.add(new Option(`${row.id} (${row.asset.name || row.asset_id})`, row.id));
+    }
+    if (previous && [...select.options].some(option => option.value === previous)) select.value = previous;
+    else if (select.options.length === 2) select.selectedIndex = 1;
+    const instance = scene?.instances?.find(row => row.id === select.value);
+    const track = adoptions?.tracks?.find(row => row.instanceId === select.value);
+    $('v199-adopt').disabled = adoptionBusy || !latestCandidate || !instance || instance.locked
+      || instance.asset_id !== latestCandidate.modelAssetId;
+    $('v199-remove').disabled = adoptionBusy || !track || Boolean(instance?.locked);
+    $('v199-undo').disabled = adoptionBusy || !(adoptions?.undoCount > 0);
+    $('v199-redo').disabled = adoptionBusy || !(adoptions?.redoCount > 0);
+    if (!scene || !adoptions) $('v199-adoption-status').textContent = '3Dモデルと採用状態を読み込んでください。';
+    else if (track) $('v199-adoption-status').textContent = track.status === 'ready'
+      ? `採用中: ${track.candidateId}。保存済みの口形を元動作に重ねます。自然な口形かどうかは別途確認が必要です。`
+      : `採用候補は失効しています: ${track.issue}。原本と手動キーは保持しています。`;
+    else $('v199-adoption-status').textContent = 'このモデルに採用済みの口形候補はありません。';
   }
   function redrawExportMaps() {
     const select = $('v197-export-map');
@@ -239,6 +276,7 @@ if (picker && project) {
     $('v187-next').disabled = start + 100 >= row.entries.length;
     redrawEditor();
     redrawExportMaps();
+    redrawAdoptions();
   }
   async function request(url, options) {
     const response = await fetch(url, options);
@@ -250,11 +288,20 @@ if (picker && project) {
     }
     return body;
   }
+  async function refreshAdoptions(id) {
+    try {
+      const loaded = await request('/api/studio/v05/lip/adoptions?project_id=' + encodeURIComponent(id));
+      if (project.value === id) { adoptions = loaded; redrawAdoptions(); }
+    } catch (error) {
+      if (project.value === id) $('v199-adoption-status').textContent = `採用状態を読めません: ${error.message}`;
+    }
+  }
   async function refresh(preferredId = '', preferredCueIndex = selectedCueIndex) {
     const id = project.value;
     const mine = ++sequence;
     loadedProject = id;
     data = null; readings = null; drafts = null; morphMaps = null;
+    scene = null; adoptions = null; latestCandidate = null;
     selectedId = ''; selectedCueIndex = null; page = 0;
     sourceSelect.replaceChildren();
     redraw();
@@ -278,12 +325,24 @@ if (picker && project) {
       sourceSelect.value = selectedId;
       redraw();
       say(`${loaded.sources.length}件のSRT原本をこの作品で確認できます。`);
+      try {
+        const [loadedScene, loadedAdoptions] = await Promise.all([
+          request('/api/studio/v05/scene/instances?id=' + encodeURIComponent(id)),
+          request('/api/studio/v05/lip/adoptions?project_id=' + encodeURIComponent(id))]);
+        if (mine !== sequence || project.value !== id) return;
+        scene = loadedScene; adoptions = loadedAdoptions; redrawAdoptions();
+      } catch (error) {
+        if (mine === sequence) $('v199-adoption-status').textContent = `採用状態を読めません: ${error.message}`;
+      }
     } catch (error) {
       if (mine === sequence) say(`SRTの読込に失敗: ${error.message}`);
     }
   }
   panel.addEventListener('toggle', () => { if (panel.open) void refresh(); });
   project.addEventListener('change', () => { ++sequence; if (panel.open) void refresh(); });
+  window.addEventListener('bai:v199-lip-adoption-changed', event => {
+    if (panel.open && event.detail?.projectId === project.value) void refreshAdoptions(project.value);
+  });
   $('v187-refresh').addEventListener('click', () => void refresh(selectedId));
   sourceSelect.addEventListener('change', () => { selectedId = sourceSelect.value; selectedCueIndex = currentSource()?.entries[0]?.index ?? null; page = 0; redraw(); });
   cueHost.addEventListener('click', event => {
@@ -295,6 +354,7 @@ if (picker && project) {
   $('v187-prev').addEventListener('click', () => { page--; redraw(); });
   $('v187-next').addEventListener('click', () => { page++; redraw(); });
   $('v197-export-map').addEventListener('change', clearExport);
+  $('v199-adoption-instance').addEventListener('change', redrawAdoptions);
   $('v197-issues-prev').addEventListener('click', () => { exportIssuePage--; renderExportIssues(); });
   $('v197-issues-next').addEventListener('click', () => { exportIssuePage++; renderExportIssues(); });
   async function exportRequest(dryRun) {
@@ -309,6 +369,7 @@ if (picker && project) {
     $('v197-export-check').disabled = true;
     $('v197-export-create').disabled = true;
     $('v197-export-download').hidden = true;
+    latestCandidate = null; redrawAdoptions();
     exportIssues = []; exportIssuePage = 0; renderExportIssues();
     $('v197-export-status').textContent = dryRun ? '全発話を検査しています…' : '別名VMD候補を生成しています…';
     try {
@@ -323,9 +384,11 @@ if (picker && project) {
         $('v197-export-status').textContent = `検査通過: ${result.cueCount}発話（明示無音${result.silenceCount}件）、モーフ${result.morphKeys}キー。バイナリ再読込済み。未採用です。`;
       } else {
         checkedExport = null;
+        latestCandidate = {id: result.candidateId, modelAssetId: modelId};
         const link = $('v197-export-download');
         link.href = result.downloadUrl; link.download = result.fileName; link.hidden = false;
         $('v197-export-status').textContent = `${result.fileName} を別名候補として生成しました。実PMXの外観確認と採用は未完了です。`;
+        redrawAdoptions();
       }
     } catch (error) {
       if (mine === exportSequence) {
@@ -340,6 +403,36 @@ if (picker && project) {
   }
   $('v197-export-check').addEventListener('click', () => void exportRequest(true));
   $('v197-export-create').addEventListener('click', () => void exportRequest(false));
+  async function changeAdoption(action) {
+    const id = project.value, instanceId = $('v199-adoption-instance').value;
+    if (!id || !adoptions || adoptionBusy) return;
+    const body = {project_id: id, revision: adoptions.revision, action};
+    if (action === 'adopt') {
+      if (!latestCandidate || !instanceId) return;
+      body.instance_id = instanceId; body.candidate_id = latestCandidate.id;
+    } else if (action === 'remove') body.instance_id = instanceId;
+    adoptionBusy = true; redrawAdoptions();
+    $('v199-adoption-status').textContent = '採用状態を保存しています…';
+    let failure = null;
+    try {
+      const saved = await request('/api/studio/v05/lip/adoptions', {method: 'POST',
+        headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+      if (project.value !== id) return;
+      adoptions = saved; redrawAdoptions();
+      window.dispatchEvent(new CustomEvent('bai:v199-lip-adoption-changed',
+        {detail: {projectId: id, revision: saved.revision}}));
+    } catch (error) {
+      failure = error;
+    } finally {
+      adoptionBusy = false; redrawAdoptions();
+      if (failure && project.value === id)
+        $('v199-adoption-status').textContent = `採用状態を変更できません: ${failure.message}`;
+    }
+  }
+  $('v199-adopt').addEventListener('click', () => void changeAdoption('adopt'));
+  $('v199-remove').addEventListener('click', () => void changeAdoption('remove'));
+  $('v199-undo').addEventListener('click', () => void changeAdoption('undo'));
+  $('v199-redo').addEventListener('click', () => void changeAdoption('redo'));
   $('v190-reading-state').addEventListener('change', () => { updateReadingFields(); markReadingDirty(); });
   $('v190-reading-kana').addEventListener('input', markReadingDirty);
   $('v190-explicit-silence').addEventListener('change', () => { updateReadingFields(); markReadingDirty(); });
@@ -417,6 +510,7 @@ if (picker && project) {
       if (project.value !== id || selectedId !== source.id || selectedCueIndex !== cueIndex) return;
       drafts = saved;
       clearExport();
+      window.dispatchEvent(new CustomEvent('bai:v199-lip-adoption-changed', {detail: {projectId: id}}));
       $('v194-draft-status').textContent = `下書き版${saved.revision}を保存しました。VMDには未採用です。`;
       say(`発話 #${cueIndex} の口形下書きを保存しました。`);
     } catch (error) {
@@ -440,6 +534,7 @@ if (picker && project) {
       if (project.value !== id || selectedId !== source.id) return;
       readings = saved;
       drafts = await request('/api/studio/v05/lip/drafts?project_id=' + encodeURIComponent(id));
+      window.dispatchEvent(new CustomEvent('bai:v199-lip-adoption-changed', {detail: {projectId: id}}));
       redraw();
       say(`発話 #${cueIndex} の読みを原本と別に保存しました。`);
     } catch (error) {
@@ -470,6 +565,7 @@ if (picker && project) {
       if (project.value !== id) return;
       fileInput.value = '';
       data = saved; loadedProject = id;
+      window.dispatchEvent(new CustomEvent('bai:v199-lip-adoption-changed', {detail: {projectId: id}}));
       const row = saved.sources.at(-1);
       selectedId = row?.id || '';
       selectedCueIndex = row?.entries[0]?.index ?? null;

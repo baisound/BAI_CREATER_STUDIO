@@ -13,7 +13,7 @@ const available=Boolean(modelPath&&fs.existsSync(modelPath));
 const sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 async function json(response,status=200){const raw=await response.text();assert.equal(response.status,status,raw);return JSON.parse(raw);}
 
-test('v0.5 SRT UI exports separate morph VMD and real PMX playback changes mouth',
+test('v0.5 SRT UI adopts lip VMD over original motion while keeping manual face keys',
   {skip:!available&&'BAI_REAL_MMD_DATA に実PMXがありません'},async()=>{
   const originalModel=fs.readFileSync(modelPath),originalHash=sha(originalModel);
   const meta=JSON.parse(fs.readFileSync(path.join(root,'mmd_assets.json'),'utf8'));
@@ -84,10 +84,6 @@ test('v0.5 SRT UI exports separate morph VMD and real PMX playback changes mouth
     assert.equal(await page.locator('#v197-export-download').getAttribute('download'),made.fileName);
     const vmd=Buffer.from(await(await fetch(server.base+made.downloadUrl)).arrayBuffer());
     assert.equal(sha(vmd),made.sha256);
-    await page.locator('#v194-draft-list .v194-draft-row').nth(1).locator('[data-field="weight"]').fill('0.4');
-    assert.equal(await page.locator('#v197-export-download').isHidden(),true,
-      '未保存の下書き編集で古い候補リンクを隠す');
-    assert.equal(await page.locator('#v197-export-create').isDisabled(),true);
     const {MMDParser}=await import('three/examples/jsm/libs/mmdparser.module.js');
     const buffer=vmd.buffer.slice(vmd.byteOffset,vmd.byteOffset+vmd.byteLength);
     const parsed=new MMDParser.Parser().parseVmd(buffer,false);
@@ -97,12 +93,22 @@ test('v0.5 SRT UI exports separate morph VMD and real PMX playback changes mouth
     assert.ok(Math.abs(parsed.morphs[2].weight-.35)<1e-6);
     const candidateOnDisk=path.join(server.dataDir,'studio_v05_lip_vmd_candidates',projectId,made.candidateId+'.vmd');
     assert.deepEqual(fs.readFileSync(candidateOnDisk),vmd);
-    // Test-only registration in the isolated server proves PMX playback; product adoption remains separate.
-    const testVmdName='LIP001-review-only.vmd';
+    // A distinct source VMD controls the same morph at 0.2, including outside the SRT span.
+    // It is registered only inside this isolated server; product adoption never replaces it.
+    const originalMotion=Buffer.alloc(58+2*23+20);
+    vmd.copy(originalMotion,0,0,58);originalMotion.writeUInt32LE(2,54);
+    for(const [index,frame] of [0,120].entries()){
+      const offset=58+index*23;
+      vmd.copy(originalMotion,offset,58,73);
+      originalMotion.writeUInt32LE(frame,offset+15);
+      originalMotion.writeFloatLE(.2,offset+19);
+    }
+    const originalMotionHash=sha(originalMotion);
+    const testVmdName='LIP001-original-face.vmd';
     fs.mkdirSync(path.join(server.dataDir,'mmd','vmd'),{recursive:true});
-    fs.writeFileSync(path.join(server.dataDir,'mmd','vmd',testVmdName),vmd);
+    fs.writeFileSync(path.join(server.dataDir,'mmd','vmd',testVmdName),originalMotion);
     const isolatedMeta=JSON.parse(fs.readFileSync(path.join(server.dataDir,'mmd_assets.json'),'utf8'));
-    isolatedMeta.vmd.push({name:testVmdName,size:vmd.length});
+    isolatedMeta.vmd.push({name:testVmdName,size:originalMotion.length});
     fs.writeFileSync(path.join(server.dataDir,'mmd_assets.json'),JSON.stringify(isolatedMeta));
     const placed=await json(await fetch(`${server.base}/api/studio/v05/arrangement/place`,{method:'POST',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
@@ -110,6 +116,22 @@ test('v0.5 SRT UI exports separate morph VMD and real PMX playback changes mouth
     await json(await fetch(`${server.base}/api/studio/v05/scene/motion-target`,{method:'POST',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
         clip_id:placed.clip.id,revision:placed.revision,instance_id:instanceId})}));
+    await page.waitForFunction(()=>!document.querySelector('#v199-adopt')?.disabled);
+    assert.equal(await page.locator('#v199-adoption-instance').inputValue(),instanceId);
+    response=page.waitForResponse(r=>r.url().endsWith('/lip/adoptions')&&r.request().method()==='POST');
+    await page.locator('#v199-adopt').click();
+    const adoptResponse=await response;assert.equal(adoptResponse.status(),200,await adoptResponse.text());
+    const adopted=await adoptResponse.json();
+    assert.equal(adopted.tracks[0].candidateId,made.candidateId);
+    assert.equal(adopted.tracks[0].status,'ready');
+    const detail=await json(await fetch(`${server.base}/api/studio/v05/lip/adoptions?project_id=${projectId}&instance_id=${instanceId}`));
+    assert.equal(detail.tracks[0].cueTracks.length,1);
+    await page.reload();
+    await page.locator('#v06project').selectOption(projectId);
+    await page.locator('#nav [data-workspace="edit"]').click();
+    await page.locator('#v187-srt-panel > summary').click();
+    await page.waitForFunction(()=>document.querySelector('#v199-adoption-status')?.textContent.includes('採用中'));
+    await page.locator('#v197-export-panel > summary').click();
     await page.locator('#v70sceneOpen').click();
     await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
       window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
@@ -119,12 +141,38 @@ test('v0.5 SRT UI exports separate morph VMD and real PMX playback changes mouth
       const morphs=await page.evaluate(id=>window.BAIStudioMultiScenePreview.morphProbe(id).morphs,instanceId);
       return {morphs,pixels:await page.locator('#v58-canvas canvas').screenshot()};
     };
-    const at30=await read(30),at60=await read(60),at90=await read(90);
+    const at0=await read(0),at30=await read(30),at60=await read(60),at90=await read(90);
+    assert.ok(Math.abs(at0.morphs['あ']-.2)<.01,`F0 original A=${at0.morphs['あ']}`);
     assert.ok(Math.abs(at30.morphs['あ']-.8)<.01,`F30 A=${at30.morphs['あ']}`);
     assert.ok(Math.abs(at60.morphs['あ'])<.01&&Math.abs(at60.morphs['い']-.35)<.01,
       `F60 A/I=${at60.morphs['あ']}/${at60.morphs['い']}`);
-    assert.ok(Math.abs(at90.morphs['い'])<.01,`F90 I=${at90.morphs['い']}`);
+    assert.ok(Math.abs(at90.morphs['あ']-.2)<.01,`F90 original A=${at90.morphs['あ']}`);
     assert.notEqual(sha(at30.pixels),sha(at60.pixels),'実PMXの口形切替が描画に現れません');
+    let sceneState=await json(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${projectId}`));
+    const faceKey={instance_id:instanceId,morph_name:'あ',time:1,value:0,track:'lip'};
+    sceneState=await json(await fetch(`${server.base}/api/studio/v05/scene/instances`,{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
+        action:'face-set',revision:sceneState.revision,face_key:faceKey})}));
+    await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+    assert.ok(Math.abs((await read(30)).morphs['あ'])<.01,'同じモーフの手動0キーを優先');
+    sceneState=await json(await fetch(`${server.base}/api/studio/v05/scene/instances`,{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
+        action:'face-remove',revision:sceneState.revision,
+        face_key:{instance_id:instanceId,morph_name:'あ',time:1}})}));
+    await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+    assert.ok(Math.abs((await read(30)).morphs['あ']-.8)<.01,'手動キー解除後に採用口形へ戻る');
+    response=page.waitForResponse(r=>r.url().endsWith('/lip/adoptions')&&r.request().method()==='POST');
+    await page.locator('#v199-undo').click();assert.equal((await response).status(),200);
+    await page.waitForFunction(()=>document.querySelector('#v199-adoption-status')?.textContent.includes('採用済みの口形候補はありません'));
+    assert.ok(Math.abs((await read(30)).morphs['あ']-.2)<.01,'Undoで元VMDの値へ戻る');
+    response=page.waitForResponse(r=>r.url().endsWith('/lip/adoptions')&&r.request().method()==='POST');
+    await page.locator('#v199-redo').click();assert.equal((await response).status(),200);
+    await page.waitForFunction(()=>document.querySelector('#v199-adoption-status')?.textContent.includes('採用中'));
+    assert.ok(Math.abs((await read(30)).morphs['あ']-.8)<.01,'Redoで採用口形へ戻る');
+    await page.locator('#v194-draft-list .v194-draft-row').nth(1).locator('[data-field="weight"]').fill('0.4');
+    assert.equal(await page.locator('#v197-export-download').isHidden(),true,
+      '未保存の下書き編集で古い候補リンクを隠す');
+    assert.equal(await page.locator('#v197-export-create').isDisabled(),true);
     await page.locator('#v190-reading-state').selectOption('unresolved');
     response=page.waitForResponse(r=>r.url().includes('/lip/readings')&&r.request().method()==='POST');
     await page.locator('#v190-reading-save').click();assert.equal((await response).status(),200);
@@ -137,11 +185,15 @@ test('v0.5 SRT UI exports separate morph VMD and real PMX playback changes mouth
     await page.waitForFunction(()=>document.querySelector('#v197-export-issues')?.textContent.includes('発話 #1'));
     assert.match(await page.locator('#v197-export-issues').textContent(),/かなの読みが未確定/);
     assert.equal((await fetch(server.base+made.downloadUrl)).status,409,'読み変更後の古い候補は取得不可');
+    await page.waitForFunction(()=>document.querySelector('#v199-adoption-status')?.textContent.includes('失効'));
+    assert.ok(Math.abs((await read(30)).morphs['あ']-.2)<.01,'失効した候補は元VMDへ戻す');
+    assert.equal(sha(fs.readFileSync(path.join(server.dataDir,'mmd','vmd',testVmdName))),originalMotionHash);
     assert.deepEqual(fs.readFileSync(path.join(server.dataDir,'studio_v05_srt_sources',projectId,'sources',sha(originalSrt)+'.srt')),originalSrt);
     assert.equal(sha(originalModel),originalHash);
     harness.assertNoErrors(page);
-    console.log(JSON.stringify({modelHash:originalHash,vmdHash:made.sha256,morphKeys:made.morphKeys,
-      frames:[30,60,90],values:[at30.morphs['あ'],at60.morphs['い'],at90.morphs['い']]}));
+    console.log(JSON.stringify({modelHash:originalHash,vmdHash:made.sha256,originalMotionHash,
+      morphKeys:made.morphKeys,frames:[0,30,60,90],values:[at0.morphs['あ'],at30.morphs['あ'],
+        at60.morphs['い'],at90.morphs['あ']]}));
   }finally{await page?.close();await browser?.close();await server.stop();
     assert.equal(sha(fs.readFileSync(modelPath)),originalHash,'実PMX原本が変わりました');}
 });
