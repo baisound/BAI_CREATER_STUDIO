@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:44:37+09:00",
+  "updated_at": "2026-10-25T01:46:46+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-srt-ui",
-  "head_at_update": "e1d2645",
+  "branch": "codex/v05-lip001-utterance-readings",
+  "head_at_update": "128a78f",
   "current": {
-    "task": "Issue #187: v0.5画面でSRT原本を選択登録し発話を確認",
-    "status": "done",
-    "step": "作品単位のSRT登録APIをファイル選択・文字コード明示・保存済み発話一覧と警告表示へ接続する",
+    "task": "Issue #187: SRT発話ごとの読み確定を原本と分離保存",
+    "status": "in_progress",
+    "step": "原本hashで結び付くUtterance読み状態・明示無音・revisionを作品単位で保存/再読込し不正入力を拒否する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:46:46+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "128a78f",
+      "text": "Issue #187: SRT発話ごとの読み確定を原本と分離保存: 原本hashで結び付くUtterance読み状態・明示無音・revisionを作品単位で保存/再読込し不正入力を拒否する"
+    },
     {
       "at": "2026-10-25T01:44:37+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "eb1cfe4",
       "text": "Issue #96: 合成パネルを最大320px・ステージ幅38%へ縮小。F120の実PMX口形が中央で58画素変化し、900px画面でも操作へ到達。隔離PMX1/1、既存UI+GLB2/2、狭幅1/1、原本/data7/exports0 SHA不変"
-    },
-    {
-      "at": "2026-10-24T23:41:26+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "63576cf",
-      "text": "Issue #96: 合成編集画面のPMX顔視認性: 重ね表示の操作パネルと顔の遮蔽を最小変更で改善し、表情・口の実画素と操作経路を隔離検証する"
     }
   ]
 }
