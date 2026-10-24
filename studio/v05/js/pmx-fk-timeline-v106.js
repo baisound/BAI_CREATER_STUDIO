@@ -14,7 +14,7 @@
   }
   function select(projectId,layer,key){
     window.dispatchEvent(new CustomEvent('bai:v106-fk-key-select',{detail:{
-      projectId,instanceId:layer.instance_id,clipId:layer.clip_id,key}}));
+      projectId,instanceId:layer.instance_id,clipId:layer.clip_id,layerId:layer.id,key}}));
   }
   async function move(projectId,revision,layer,key,toFrame){
     if(writing||toFrame===key.frame||project.value!==projectId)return;
@@ -22,7 +22,7 @@
     try{
       await json('/api/studio/v05/motion-edits',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({project_id:projectId,revision,action:'move',
-          instance_id:layer.instance_id,clip_id:layer.clip_id,key,to_frame:toFrame})});
+          instance_id:layer.instance_id,clip_id:layer.clip_id,layer_id:layer.id,key,to_frame:toFrame})});
       say(`FKキーをF${toFrame}へ移動・保存しました`);
       window.dispatchEvent(new CustomEvent('bai:v106-fk-saved',{detail:{projectId}}));
     }catch(error){say('FKキー移動失敗: '+String(error.message||error));
@@ -41,7 +41,7 @@
       if(token!==generation||project.value!==id||!lane.isConnected)return;
       const fps=fpsData.configured?Number(fpsData.fps):60;
       const layers=edits.layers.filter(layer=>!layer.disabled);
-      const groups=[...new Set(layers.flatMap(layer=>layer.keys.map(key=>layer.instance_id+'\u0000'+key.bone)))];
+      const groups=[...new Set(layers.flatMap(layer=>layer.keys.map(key=>layer.id+'\u0000'+key.bone)))];
       const height=Math.max(39,38+groups.length*24);
       lane.style.minHeight=height+'px';lane.parentElement.style.minHeight=height+'px';
       const locked=(detail.lockedTracks||[]).includes('motion');
@@ -49,11 +49,12 @@
         const button=document.createElement('button');
         button.type='button';button.className='v106-fk-marker';
         button.dataset.fkFrame=String(key.frame);button.dataset.fkBone=key.bone;
-        button.textContent=`◆ ${key.bone} F${key.frame}`;
-        button.title=`FK補正 / ${key.bone} / 作品F${key.frame}（クリックで3D編集、左右へドラッグまたは矢印キーで移動）`;
+        button.dataset.fkLayer=layer.id;
+        button.textContent=`◆ ${layer.name} / ${key.bone} F${key.frame}`;
+        button.title=`FK補正 ${layer.name} / ${key.bone} / 作品F${key.frame}（クリックで3D編集、左右へドラッグまたは矢印キーで移動）`;
         button.setAttribute('aria-label',button.title);
         button.style.left=(key.frame/fps*detail.scale)+'px';
-        button.style.top=(36+groups.indexOf(layer.instance_id+'\u0000'+key.bone)*24)+'px';
+        button.style.top=(36+groups.indexOf(layer.id+'\u0000'+key.bone)*24)+'px';
         if(locked)button.classList.add('v106-fk-locked');
         const first=Math.ceil(layer.start*fps-1e-7);
         const end=Math.ceil((layer.start+layer.duration)*fps-1e-7);
@@ -83,7 +84,7 @@
           if(moved&&frame!==key.frame){ignoreClickUntil=Date.now()+350;
             void move(id,edits.revision,layer,key,frame);}
           else {button.style.left=(key.frame/fps*detail.scale)+'px';
-            button.title=`FK補正 / ${key.bone} / 作品F${key.frame}`;}
+            button.title=`FK補正 ${layer.name} / ${key.bone} / 作品F${key.frame}`;}
         });
         button.addEventListener('pointercancel',()=>{drag=null;void window.BAIStudioV05Arrangement?.refreshTimeline?.();});
         button.addEventListener('click',()=>{

@@ -8,6 +8,7 @@ import copy
 import hashlib
 import json
 import math
+import os
 import threading
 import uuid
 from pathlib import Path
@@ -181,7 +182,7 @@ def _record(data, project_id):
     if not isinstance(data['layers'], list) or len(data['layers']) > MAX_LAYERS:
         raise MotionEditError('Invalid motion edit layers; original retained')
     ids = set()
-    targets = set()
+    targets = {}
     for layer in data['layers']:
         required = {'id', 'instance_id', 'clip_id', 'model_asset_id',
                 'motion_asset_id', 'model_sha256', 'motion_sha256', 'fps', 'start', 'duration',
@@ -192,9 +193,9 @@ def _record(data, project_id):
             raise MotionEditError('Invalid motion edit layer; original retained')
         ids.add(layer['id'])
         target = (layer['instance_id'], layer['clip_id'])
-        if target in targets:
-            raise MotionEditError('Duplicate motion edit target; original retained')
-        targets.add(target)
+        if target in targets and targets[target] != _identity(layer):
+            raise MotionEditError('Conflicting motion edit layer source; original retained')
+        targets[target] = _identity(layer)
         if any(not isinstance(layer[x], str) or not layer[x] for x in
                ('instance_id', 'clip_id', 'model_asset_id', 'motion_asset_id', 'name')) \
                 or any(not isinstance(layer[x], str) or len(layer[x]) != 64 or \
@@ -230,6 +231,18 @@ def _record(data, project_id):
             _record({'schema': 1, 'project_id': project_id, 'revision': 0,
                      'layers': snapshot, 'history': {'undo': [], 'redo': []}}, project_id)
     return data
+
+
+def _save(root, project_id, data):
+    _record(data, project_id)
+    # read() refuses files above 8 MiB. More layers also enlarge Undo snapshots,
+    # so reject a write that the next read would be unable to open.
+    serialized = json.dumps(data, ensure_ascii=False, indent=2)
+    if os.linesep != '\n':
+        serialized = serialized.replace('\n', os.linesep)
+    if len(serialized.encode('utf-8')) > 8 * 1024 * 1024:
+        raise MotionEditError('Motion edits exceed safe saved size; original retained')
+    _atomic(_path(root, project_id), data)
 
 
 def read(root, catalog, project_id):
@@ -289,7 +302,8 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
            key=None, keys=None, layer_id=None, settings=None, to_frame=None, limb=None, mode=None):
     if type(revision) is not int or revision < 0:
         raise MotionEditError('Revision required')
-    if action not in ('set', 'arm-set', 'remove', 'move', 'layer-update', 'mode-set', 'undo', 'redo'):
+    if action not in ('set', 'arm-set', 'remove', 'move', 'layer-create',
+                       'layer-update', 'layer-delete', 'mode-set', 'undo', 'redo'):
         raise MotionEditError('Unknown motion edit action')
     with LOCK:
         current = read(root, catalog, project_id)
@@ -349,8 +363,7 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                 return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
             modes.setdefault(instance_id, {})[limb] = mode
             current['revision'] += 1
-            _record(current, project_id)
-            _atomic(_path(root, project_id), current)
+            _save(root, project_id, current)
             return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
         if limb is not None or mode is not None:
             raise MotionEditError('FK/IK mode fields belong to mode-set only')
@@ -396,8 +409,12 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                 raise MotionEditError('Destination frame is outside the motion clip')
             if action != 'move' and to_frame is not None:
                 raise MotionEditError('Destination frame belongs to move only')
-            if action != 'layer-update' and (layer_id is not None or settings is not None):
-                raise MotionEditError('Layer settings belong to layer-update only')
+            if ((settings is not None and action not in ('layer-create', 'layer-update')) or
+                    (layer_id is not None and action not in (
+                        'set', 'arm-set', 'remove', 'move', 'layer-update', 'layer-delete'))):
+                raise MotionEditError('Layer fields belong to layer actions or targeted keys only')
+            if layer_id is not None and not _uuid(layer_id):
+                raise MotionEditError('Invalid layer ID')
             if action in ('set', 'arm-set'):
                 try:
                     names = {row['name'] for row in parse_pmx(context['model_path'].read_bytes())['bones_detail']}
@@ -406,18 +423,54 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                 if any(item['bone'] not in names for item in (checked_pair or [checked])):
                     raise MotionEditError('Bone is absent from registered PMX')
             before = copy.deepcopy(current['layers'])
-            layer = next((l for l in current['layers'] if l['instance_id'] == instance_id and
-                          l['clip_id'] == clip_id), None)
-            if layer and _identity(layer) != _identity(context):
+            matching = [l for l in current['layers'] if l['instance_id'] == instance_id and
+                        l['clip_id'] == clip_id]
+            if any(_identity(item) != _identity(context) for item in matching):
                 raise MotionEditError('Source or clip placement changed')
+            if action == 'layer-create':
+                if layer_id is not None or settings is not None and not isinstance(settings, dict):
+                    raise MotionEditError('Invalid new layer fields')
+                if len(current['layers']) >= MAX_LAYERS:
+                    raise MotionEditError('Motion edit layer limit reached')
+                layer = {**_identity(context), 'id': str(uuid.uuid4()),
+                         'name': f'FK補正 {len(matching) + 1}',
+                         'weight': 1.0, 'muted': False, 'keys': []}
+                if settings:
+                    if set(settings) - set(_settings(layer)):
+                        raise MotionEditError('Invalid new layer settings')
+                    _check_settings({**layer, **settings})
+                    layer.update(settings)
+                current['layers'].append(layer)
+                current['history']['undo'].append(before)
+                del current['history']['undo'][:-MAX_HISTORY]
+                current['history']['redo'] = []
+                current['revision'] += 1
+                _save(root, project_id, current)
+                return view(root, data_root, scene_root, legacy_root,
+                            arrangement_root, catalog, project_id, assets)
+            if layer_id is None and len(matching) > 1:
+                raise MotionEditError('Layer ID required when several correction layers exist')
+            layer = next((item for item in matching if item['id'] == layer_id), None) if (
+                layer_id is not None) else next(iter(matching), None)
             if not layer:
-                if action not in ('set', 'arm-set'):
-                    raise MotionEditError('FK key not found')
+                if action not in ('set', 'arm-set') or layer_id is not None:
+                    raise MotionEditError('FK layer or key not found')
                 if len(current['layers']) >= MAX_LAYERS:
                     raise MotionEditError('Motion edit layer limit reached')
                 layer = {**_identity(context), 'id': str(uuid.uuid4()), 'name': 'FK補正',
                          'weight': 1.0, 'muted': False, 'keys': []}
                 current['layers'].append(layer)
+            if action == 'layer-delete':
+                if layer_id is None or settings is not None:
+                    raise MotionEditError('Layer ID required for deletion')
+                current['layers'].remove(layer)
+                current['history']['undo'].append(before)
+                del current['history']['undo'][:-MAX_HISTORY]
+                current['history']['redo'] = []
+                current['revision'] += 1
+                _save(root, project_id, current)
+                return view(root, data_root, scene_root, legacy_root,
+                            arrangement_root, catalog, project_id, assets)
             if action == 'layer-update':
                 if layer_id != layer['id'] or not isinstance(settings, dict) or not settings \
                         or set(settings) - set(_settings(layer)):
@@ -431,8 +484,7 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                 del current['history']['undo'][:-MAX_HISTORY]
                 current['history']['redo'] = []
                 current['revision'] += 1
-                _record(current, project_id)
-                _atomic(_path(root, project_id), current)
+                _save(root, project_id, current)
                 return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
             if action == 'arm-set':
                 identities = {(item['frame'], item['bone']) for item in checked_pair}
@@ -453,8 +505,7 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                 del current['history']['undo'][:-MAX_HISTORY]
                 current['history']['redo'] = []
                 current['revision'] += 1
-                _record(current, project_id)
-                _atomic(_path(root, project_id), current)
+                _save(root, project_id, current)
                 return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
             old = next((k for k in layer['keys'] if k['frame'] == checked['frame'] and
                         k['bone'] == checked['bone']), None)
@@ -479,12 +530,11 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
             elif action == 'move':
                 layer['keys'].append({**old, 'frame': to_frame})
                 layer['keys'].sort(key=lambda k: (k['frame'], k['bone']))
-            if not layer['keys']:
+            if not layer['keys'] and len(matching) <= 1:
                 current['layers'].remove(layer)
             current['history']['undo'].append(before)
             del current['history']['undo'][:-MAX_HISTORY]
             current['history']['redo'] = []
         current['revision'] += 1
-        _record(current, project_id)
-        _atomic(_path(root, project_id), current)
+        _save(root, project_id, current)
         return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
