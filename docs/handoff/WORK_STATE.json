@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T21:06:44+09:00",
+  "updated_at": "2026-10-24T21:09:22+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-curve-boundary-study",
-  "head_at_update": "f6fc2db",
+  "branch": "codex/v05-motion010-long-constant-candidate",
+  "head_at_update": "a030e68",
   "current": {
-    "task": "Issue #106: MOTION-010 長尺VMD曲線境界の診断",
-    "status": "done",
-    "step": "動く元VMDの区間境界・なじませと30fps候補の誤差を測り、安全な限定条件を探す",
+    "task": "Issue #106: MOTION-010 長尺VMDの一定補正候補",
+    "status": "in_progress",
+    "step": "動く元曲線を保つ疎な一定補正候補を実PMX全フレームで検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T21:09:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "a030e68",
+      "text": "Issue #106: MOTION-010 長尺VMDの一定補正候補: 動く元曲線を保つ疎な一定補正候補を実PMX全フレームで検証する"
+    },
     {
       "at": "2026-10-24T21:06:44+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "b9b79fa",
       "text": "Issue #106: 実PMX全骨検査済みVMD候補を原本不変で登録し同じ作品の元クリップへ明示配置、二重補正を防ぎ復元を実装。隔離Chromeで採用後プレビュー・3F MP4・画面/API復元、実データハッシュ不変を確認"
-    },
-    {
-      "at": "2026-10-24T18:13:34+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4925ba3",
-      "text": "Issue #106: MOTION-010 別名VMD候補の採用と作品配置: 実PMX検査済み候補だけを元素材不変で登録し、元クリップと同じ作品・時刻へ明示配置する経路を実装する"
     }
   ]
 }
