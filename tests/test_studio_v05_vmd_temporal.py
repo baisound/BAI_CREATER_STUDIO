@@ -117,3 +117,17 @@ def test_real_vmd_refuses_fade_boundary_that_splits_moving_source_curve():
     with pytest.raises(ValueError, match='max_angle_error_degrees'):
         temporal_replacements(original, [saved], instance_id='model-1', clip_id='clip-1')
     assert source.read_bytes() == original
+
+
+def test_real_dense_source_curve_fails_closed_at_fractional_fps():
+    root = Path(os.environ.get('BAI_REAL_MMD_DATA', Path(__file__).resolve().parents[1] / 'data'))
+    source = root / 'mmd' / 'vmd' / '神っぽいな.vmd'
+    if not source.is_file():
+        pytest.skip('registered dense local VMD is unavailable')
+    original = source.read_bytes()
+    saved = layer([key(0, 0), key(120, 0.01), key(238, 0)], fps=24000 / 1001,
+                  duration=10, start_frame=48, end_frame=192,
+                  fade_in_frames=24, fade_out_frames=24)
+    with pytest.raises(ValueError, match='30fps sample error exceeds limit.*max_angle_error_degrees'):
+        temporal_replacements(original, [saved], instance_id='model-1', clip_id='clip-1')
+    assert source.read_bytes() == original
