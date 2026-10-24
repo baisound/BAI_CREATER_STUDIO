@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T15:03:47+09:00",
+  "updated_at": "2026-10-24T15:14:42+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-foot-handle-snap",
-  "head_at_update": "631059c",
+  "head_at_update": "04f0980",
   "current": {
     "task": "Issue #106: MOTION-010 PMX足IKの足首ハンドルスナップ",
-    "status": "in_progress",
+    "status": "done",
     "step": "IKターゲット編集ハンドルを現在の足首世界位置に置き、移動量をIK骨へ安全に変換して実PMXで検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 足先ハンドルと膝ポールを現姿勢へスナップし、FK/IKの実編集を姿勢保持で検証する",
-    "MOTION-010: 元VMD物理フラグを保持する曲線分割条件を検証し、候補の採用・作品配置を安全な再判定経路へ接続する"
+    "MOTION-010: 足IKの実ポインタ補正をキー保存・再読込・Undoまで検証し、膝ポールの姿勢保持へ進む",
+    "MOTION-010: 腕IKの3D二関節解と到達・制限を設計/検証し、元VMD曲線の物理フラグと候補採用条件も継続する"
   ],
   "unverified": [
-    "腕IK、足先/膝ポールのスナップ、FK/IK回転解き直し、別名PMX骨、VRM、実GPU、物理ON、Linux、標準MCP実呼出し、Owner採用は未確認。候補採用・作品配置も未接続。"
+    "ポインタIK補正のキー保存、ドラッグ中のPMX仮評価、膝ポール、腕IK、到達不能・角度制限表示、別名PMX骨、実GPU・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。AC-M-02とMOTION-010全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T15:14:42+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "04f0980",
+      "text": "Issue #106: 実PMX足IKの3Dハンドルを評価済み足首へ置き、実マウス移動で左足追従・右足不変・Esc復元を確認"
+    },
     {
       "at": "2026-10-24T15:03:47+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "684780a",
       "text": "Issue #106: MOTION-010実PMX骨の3D選択: 同じv0.5プレビュー内に実骨階層の選択・対象表示を接続し、既存FKキー欄へ同期"
-    },
-    {
-      "at": "2026-10-24T10:47:38+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "7e63591",
-      "text": "MOTION-010 実PMX/VMDのFK補正入り完成MP4を同一保存カメラで復号比較。3/3回帰成功、補正revision記録と重み0の元評価経路復帰、原本/利用者データ不変を確認"
     }
   ]
 }

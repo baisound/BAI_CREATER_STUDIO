@@ -199,6 +199,11 @@ test('real PMX 3D rotation and translation handles preserve both FK channels',
       assert.equal(await page.locator('#v111-fk-gizmo-toggle').isDisabled(),false);
       await page.locator('#v111-fk-gizmo-toggle').click();
       assert.equal(await page.locator('#v111-fk-gizmo-toggle').getAttribute('aria-pressed'),'true');
+      const footHandle=await page.evaluate(()=>window.BAIStudioMultiScenePreview.status().gizmo);
+      assert.equal(footHandle.bone,'左足ＩＫ');
+      assert.equal(footHandle.effector,'左足首');
+      assert.ok(delta(footHandle.handleWorld,footHandle.effectorWorld)<1e-6,
+        'IK handle must start at the evaluated ankle, including the current VMD pose');
       await page.locator('#v111-fk-gizmo-toggle').click();
       const footPose=()=>page.evaluate(id=>window.BAIStudioMultiScenePreview.poseProbe(id,
         ['左足ＩＫ','左足首','右足首']),instanceId);
@@ -219,6 +224,59 @@ test('real PMX 3D rotation and translation handles preserve both FK channels',
       const savedFoot=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
       assert.equal(savedFoot.revision,4);
       assert.ok(savedFoot.layers[0].keys.some(key=>key.bone==='左足ＩＫ'&&key.frame===240));
+      await page.locator('#v111-fk-gizmo-toggle').click();
+      const correctedHandle=await page.evaluate(()=>window.BAIStudioMultiScenePreview.status().gizmo);
+      assert.ok(delta(correctedHandle.targetWorld,correctedHandle.effectorWorld)>1e-4,
+        'corrected target and evaluated ankle must be visibly different for the snap check');
+      assert.ok(delta(correctedHandle.handleWorld,correctedHandle.effectorWorld)<1e-6,
+        'handle must re-snap to the corrected ankle rather than the IK target');
+      await page.locator('#v113-fk-gizmo-mode').selectOption('rotate');
+      const ikRotationHandle=await page.evaluate(()=>window.BAIStudioMultiScenePreview.status().gizmo);
+      assert.ok(delta(ikRotationHandle.handleWorld,ikRotationHandle.targetWorld)<1e-6,
+        'rotation mode must attach to the real IK target bone');
+      await page.locator('#v113-fk-gizmo-mode').selectOption('translate');
+      const resnappedHandle=await page.evaluate(()=>window.BAIStudioMultiScenePreview.status().gizmo);
+      assert.ok(delta(resnappedHandle.handleWorld,resnappedHandle.effectorWorld)<1e-6,
+        'returning to translation must re-snap to the ankle');
+      await page.locator('#v110-bone-tree').evaluate(el=>el.open=true);
+      await page.locator('#v110-bone-search').fill('左足首');
+      await page.waitForFunction(()=>{
+        const marker=document.querySelector('#v110-bone-overlay button[data-bone="左足首"]');
+        return marker&&!marker.hidden&&marker.dataset.projectedX;
+      });
+      const ankleScreen=await page.evaluate(()=>{
+        const marker=document.querySelector('#v110-bone-overlay button[data-bone="左足首"]');
+        const canvas=document.querySelector('#v58-canvas').getBoundingClientRect();
+        const panel=document.querySelector('#v58-multi-preview').getBoundingClientRect();
+        document.querySelector('#v110-bone-overlay').style.display='none';
+        return {x:canvas.left+Number(marker.dataset.projectedX),
+          y:canvas.top+Number(marker.dataset.projectedY),panel:{left:panel.left,right:panel.right,
+            top:panel.top,bottom:panel.bottom}};
+      });
+      const footDragBefore=await footPose();
+      let footDragged=false;
+      for(const [dx,dy] of [[25,0],[0,-25],[-25,0],[0,25],[45,0],[0,-45]]){
+        const x=ankleScreen.x+dx,y=ankleScreen.y+dy;
+        if(x>=ankleScreen.panel.left&&x<=ankleScreen.panel.right&&
+           y>=ankleScreen.panel.top&&y<=ankleScreen.panel.bottom)continue;
+        await page.mouse.move(x,y);await page.mouse.down();
+        await page.mouse.move(x+35,y+24,{steps:12});await page.mouse.up();
+        await page.waitForTimeout(120);
+        footDragged=(await page.locator('#v111-fk-gizmo-status').textContent()).includes('位置を仮表示中');
+        if(footDragged)break;
+      }
+      assert.equal(footDragged,true,'ankle-snapped IK handle must accept a real pointer drag');
+      const footDragAfter=await footPose();
+      assert.ok(delta(world(footDragBefore.bones['左足ＩＫ']),world(footDragAfter.bones['左足ＩＫ']))>0.005);
+      assert.ok(delta(world(footDragBefore.bones['左足首']),world(footDragAfter.bones['左足首']))>0.005);
+      assert.ok(delta(world(footDragBefore.bones['右足首']),world(footDragAfter.bones['右足首']))<1e-4);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('破棄しました'));
+      const footDragRestored=await footPose();
+      const cancelDelta=delta(world(footDragBefore.bones['左足首']),world(footDragRestored.bones['左足首']));
+      assert.ok(cancelDelta<1e-5,`Escape must restore the saved ankle, delta ${cancelDelta}`);
+      assert.equal((await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`))).revision,4);
+      await page.locator('#v111-fk-gizmo-toggle').click();
       for(const seconds of [0,4,4,2,4]){
         await page.evaluate(t=>window.BAIStudioTimeline.seek(t,'ik-round-trip'),seconds);
         if(seconds===4){
