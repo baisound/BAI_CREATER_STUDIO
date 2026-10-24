@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:46:46+09:00",
+  "updated_at": "2026-10-25T01:49:01+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-lip001-utterance-readings",
-  "head_at_update": "128a78f",
+  "head_at_update": "8a79ba8",
   "current": {
     "task": "Issue #187: SRT発話ごとの読み確定を原本と分離保存",
-    "status": "in_progress",
+    "status": "done",
     "step": "原本hashで結び付くUtterance読み状態・明示無音・revisionを作品単位で保存/再読込し不正入力を拒否する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #187: SRTの読み状態（未確定/提案/確定/明示無音）を発話単位で作品へ保存し、原本とは分けて再読込・競合・原本hash失効を確認する"
+    "Issue #187: v0.5画面の各SRT発話で読みの未確定/提案/確定/明示無音を編集し、保存再読込と原本変更時の拒否を確認する"
   ],
   "unverified": [
-    "かな→口形候補編集、モーフ専用別名VMD書出/再読込、実ユーザーSRT、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
+    "かな→口形候補編集、別名モーフVMD書出/再読込、実ユーザーSRT、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:49:01+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8a79ba8",
+      "text": "Issue #187 LIP-001: SRT発話の読み状態/明示無音を原本と分離保存。隔離HTTPで原時刻・hash・revision・原本不変を確認"
+    },
     {
       "at": "2026-10-25T01:46:46+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "1621534",
       "text": "Issue #96: 実PMX口モーフの手動UI保存経路: 合成画面で実口モーフ「あ」を選択し複数時刻へ保存・再読込・実3D/限定MP4を照合する"
-    },
-    {
-      "at": "2026-10-24T23:48:40+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "eb1cfe4",
-      "text": "Issue #96: 合成パネルを最大320px・ステージ幅38%へ縮小。F120の実PMX口形が中央で58画素変化し、900px画面でも操作へ到達。隔離PMX1/1、既存UI+GLB2/2、狭幅1/1、原本/data7/exports0 SHA不変"
     }
   ]
 }

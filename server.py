@@ -344,6 +344,21 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError, ValueError, TypeError, KeyError):
                 self.bad(422, 'SRT source read failed; originals retained')
             return
+        if urlsplit(self.path).path == '/api/studio/v05/lip/readings':
+            from studio_v05_lip_readings import read as read_lip_readings, LipReadingError
+
+            query = parse_qs(urlsplit(self.path).query)
+            if set(query) != {'project_id'} or len(query['project_id']) != 1:
+                return self.bad(400, 'Invalid lip reading query')
+            try:
+                result = read_lip_readings(DATA/'studio_v05_lip_readings',
+                    DATA/'studio_v05_catalog.json', DATA/'studio_v05_srt_sources', query['project_id'][0])
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except LipReadingError as exc:
+                self.bad(exc.status, str(exc))
+            except (OSError, ValueError, TypeError, KeyError):
+                self.bad(422, 'Lip reading store unreadable; originals retained')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/multi-motion-plan':
             from studio_v05_multi_motion import plan, MultiMotionError
             try:
@@ -786,6 +801,28 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path == '/api/studio/v05/lip/readings':
+            from studio_v05_lip_readings import set_reading, LipReadingError
+
+            try:
+                length = int(self.headers.get('Content-Length', '-1'))
+                if not 0 < length <= 4096:
+                    return self.bad(413, 'Lip reading request too large')
+                body = json.loads(self.rfile.read(length))
+                if (not isinstance(body, dict) or set(body) != {'project_id', 'revision', 'source_id',
+                        'source_hash', 'srt_index', 'reading_state', 'reading_kana', 'explicit_silence'}):
+                    return self.bad(400, 'Invalid lip reading fields')
+                result = set_reading(DATA/'studio_v05_lip_readings', DATA/'studio_v05_catalog.json',
+                                     DATA/'studio_v05_srt_sources', **body)
+                event('v05_lip_reading_saved', project_id=body['project_id'])
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except LipReadingError as exc:
+                self.bad(exc.status, str(exc))
+            except (ValueError, TypeError, KeyError):
+                self.bad(400, 'Invalid lip reading request')
+            except OSError:
+                self.bad(500, 'Lip reading write failed; original retained')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/srt/import':
             from studio_v05_srt_sources import register as register_srt_source, SrtSourceError, MAX_BYTES
 
