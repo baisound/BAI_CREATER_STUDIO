@@ -20,6 +20,7 @@ class StudioRoutesTest(unittest.TestCase):
 
     def test_assets_have_types(self):
         self.assertEqual(resolve('/studio/js/app.js')[1], 'text/javascript; charset=utf-8')
+        self.assertEqual(resolve('/studio/v05/js/arm-ik-geometry-v134.mjs')[1], 'text/javascript; charset=utf-8')
         self.assertEqual(resolve('/studio/styles/app.css')[1], 'text/css; charset=utf-8')
         self.assertEqual(resolve('/studio/assets/samples/hero.webp')[1], 'image/webp')
 
