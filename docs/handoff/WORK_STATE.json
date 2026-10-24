@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T13:13:19+09:00",
+  "updated_at": "2026-10-24T13:22:00+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-foot-ik-target",
-  "head_at_update": "beffcb5",
+  "branch": "codex/v05-motion010-vmd-writer",
+  "head_at_update": "a2e69f4",
   "current": {
-    "task": "Issue #106: MOTION-010 PMX足IKターゲット操作",
+    "task": "Issue #106: MOTION-010 補正キーの別名VMD書き出し",
     "status": "done",
-    "step": "PMXの実IK定義から足ターゲットを識別し3D位置補正へ接続、足首追従を実素材で確認",
+    "step": "元VMDの骨区画と非骨suffixを保つ検証可能な別名writerを作り、補正評価と実PMX往復に接続する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010次段階: 手足IK/FK切替と別名VMD往復を承認済み設計に沿って進める。"
+    "MOTION-010: 作品の補正レイヤーをVMD30fpsへ標本化し、実PMX往復誤差を測って合格した別名VMDだけをUI/APIへ接続する。",
+    "手足IK/FK切替は姿勢保持と到達制限を実PMXで検証して接続する。"
   ],
   "unverified": [
-    "手IK、IK/FK切替、到達範囲外、複数レイヤー、別名VMD、長尺90秒、Linux、実GPU、WebMCP/標準MCP実呼出し、Owner採用は未確認。"
+    "補正キー焼き込み、作品/素材ID照合、実PMX往復、UI/API/MCP、手足IK/FK、複数レイヤー、長尺、Linux、実GPU、Owner採用は未確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T13:22:00+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a2e69f4",
+      "text": "Issue #106 MOTION-010: 別名VMD骨区画writerの基盤を追加。未編集骨と非骨suffixのbyte一致、実VMDの隔離再読込を15件の試験で確認。UI/焼き込み/実PMX往復は未接続。"
+    },
+    {
+      "at": "2026-10-24T13:16:41+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "33c9c53",
+      "text": "Issue #106: MOTION-010 補正キーの別名VMD書き出し: 元VMDの骨区画と非骨suffixを保つ検証可能な別名writerを作り、補正評価と実PMX往復に接続する"
+    },
     {
       "at": "2026-10-24T13:13:19+09:00",
       "by": "codex",
@@ -226,20 +241,6 @@
       "event": "start",
       "head": "2d42fd6",
       "text": "Issue #96: PMX表情・口キーのタイムライン上の値編集: 既存キー表示・保存API・ロックを確認し、値の直接編集を実装・隔離検証する"
-    },
-    {
-      "at": "2026-10-24T07:33:47+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "580b6eb",
-      "text": "Issues #39/#96: 実PMXと全身VMDを隔離作品で0/4/90秒シークし7骨の変化、表情キー保存再読込、RTX 4070 SUPERでの3F限定MP4画素差を確認。原PMX/VMDとdata 7件は不変。試験と記録を追加。"
-    },
-    {
-      "at": "2026-10-24T07:18:53+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7e09e7f",
-      "text": "Issues #39/#96: 実PMXと全身VMDの体・顔同時刻実証: 原本を保ち隔離Chromeで登録・配置・シーク・保存再読込・限定MP4を比較する"
     }
   ]
 }
