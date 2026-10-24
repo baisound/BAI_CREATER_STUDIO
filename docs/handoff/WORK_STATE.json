@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:29:54+09:00",
+  "updated_at": "2026-10-24T16:35:55+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-other-pmx-verify",
-  "head_at_update": "c1cc724",
+  "branch": "codex/v05-motion010-arm-ik-feasibility",
+  "head_at_update": "5b2927c",
   "current": {
-    "task": "Issue #106: MOTION-010 別PMX膝ポール適用検証",
+    "task": "Issue #106: MOTION-010 腕IKの3D実装準備",
     "status": "done",
-    "step": "B側の異なるPMX版で左右膝ポールの適用条件と実ドラッグ、保存・VMD往復を隔離検証する",
-    "design_doc": "docs/v05/MOTION010_KNEE_POLE_DESIGN_20261024_JA.md"
+    "step": "実PMX腕の捩り・付与を含む親子構造と保存APIを検査し、二関節3D解の最小実証条件を定める",
+    "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 腕IKの3D二関節解、元VMD曲線と物理フラグ保持、候補採用条件を継続する",
-    "MOTION-010: 任意PMXの膝制限とドラッグ中姿勢更新を別ゲートで検証する"
+    "MOTION-010: 腕・ひじ2キーの原子的保存APIと1 Undo/Redo、仮プレビュー経路を実装・検証する",
+    "MOTION-010: 実PMX腕の3D二関節解と手先・肘ハンドルを接続し、元VMD曲線/物理フラグ保持を検証する"
   ],
   "unverified": [
-    "膝ポールは3実PMXファイル（うち同系統2版）と1実VMD、単一フレーム・100%レイヤー・物理OFF/SwiftShaderの限定結果。任意膝制限・ドラッグ中連続更新・腕IK・VRM・実GPU・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
+    "腕IKハンドル・二関節解・2キー原子的保存は未実装。実測は1実PMX/VMD・作品F240・物理OFF/SwiftShader。任意PMX、手先到達、付与後全骨、元VMD物理フラグ、VRM、実GPU、Linux、標準MCP、Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T16:35:55+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "5b2927c",
+      "text": "MOTION-010: 実PMX腕は腕IK定義なし、腕捩・手捩経路とほぼ直線の初期姿勢を隔離Chromeで実測。専用3D二関節解・安定肘ポール・原子的2キー保存のゲートを文書化。腕IK操作は未実装。"
+    },
+    {
+      "at": "2026-10-24T16:32:20+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "fa534a3",
+      "text": "Issue #106: MOTION-010 腕IKの3D実装準備: 実PMX腕の捩り・付与を含む親子構造と保存APIを検査し、二関節3D解の最小実証条件を定める"
+    },
     {
       "at": "2026-10-24T16:29:54+09:00",
       "by": "codex",
@@ -227,20 +241,6 @@
       "event": "start",
       "head": "94621e3",
       "text": "Issue #106: MOTION-010 足IKを含む別名VMD候補の実PMX往復: 時間変化FK候補の境界標本を見直し、実PMXの足IKターゲットと足首を全フレーム比較する"
-    },
-    {
-      "at": "2026-10-24T13:53:42+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ab9e27c",
-      "text": "MOTION-010の時間変化FK補正を30fps別名VMD検証前候補へ接続。局所誤差超過を拒否し、複数VMD読込前の基準姿勢復元を修正。Python29件・実PMX/SwiftShader2件・typecheck合格。"
-    },
-    {
-      "at": "2026-10-24T13:40:18+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "378e69d",
-      "text": "Issue #106: MOTION-010 時間変化する補正のVMD候補: 作品FPSのキーをVMD30fpsへ標本化し、誤差超過を拒否する候補経路と実PMX往復を検証する"
     }
   ]
 }
