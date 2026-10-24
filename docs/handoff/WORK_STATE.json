@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T19:26:17+09:00",
+  "updated_at": "2026-10-24T19:29:21+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-partial-multi",
-  "head_at_update": "4199d64",
+  "branch": "codex/v05-motion010-multilayer-ui",
+  "head_at_update": "f68f2a9",
   "current": {
-    "task": "Issue #106: MOTION-010 部分VMDの複数区間と境界キー欠落",
-    "status": "done",
-    "step": "元キー保持と全区間姿勢の安全条件を設計し、実PMXで検証",
+    "task": "Issue #106: MOTION-010 複数補正レイヤーの作品別作成と選択",
+    "status": "in_progress",
+    "step": "既存1レイヤー保存との後方互換を保ち、部分VMD複数区間を実PMXで往復検証",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T19:29:21+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f68f2a9",
+      "text": "Issue #106: MOTION-010 複数補正レイヤーの作品別作成と選択: 既存1レイヤー保存との後方互換を保ち、部分VMD複数区間を実PMXで往復検証"
+    },
     {
       "at": "2026-10-24T19:26:17+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "5b2927c",
       "text": "MOTION-010: 実PMX腕は腕IK定義なし、腕捩・手捩経路とほぼ直線の初期姿勢を隔離Chromeで実測。専用3D二関節解・安定肘ポール・原子的2キー保存のゲートを文書化。腕IK操作は未実装。"
-    },
-    {
-      "at": "2026-10-24T16:32:20+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "fa534a3",
-      "text": "Issue #106: MOTION-010 腕IKの3D実装準備: 実PMX腕の捩り・付与を含む親子構造と保存APIを検査し、二関節3D解の最小実証条件を定める"
     }
   ]
 }
