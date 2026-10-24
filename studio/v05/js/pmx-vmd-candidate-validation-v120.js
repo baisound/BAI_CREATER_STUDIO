@@ -1,5 +1,5 @@
 // @ts-check
-// MOTION-010: read-only, real-PMX round trip for a review-only VMD candidate.
+// MOTION-010: read-only, physics-off real-PMX round trip for a review-only VMD candidate.
 import {loadModel,disposeObject,modelSource} from '../../js/viewport/model-loader.js';
 import {loadVmdClip,vmdUrl} from '../../js/motion/vmd.js';
 import {createPmxVmdPreview} from '../../js/motion/pmx-vmd-preview.js';

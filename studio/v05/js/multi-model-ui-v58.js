@@ -929,7 +929,7 @@ fkValidate.addEventListener('click',async()=>{
       }});
     if(!isCurrent())return;
     const location=`位置: ${report.positionClock}F${report.positionFrame} ${report.positionBone}、角度: ${report.angleClock}F${report.angleFrame} ${report.angleBone}`;
-    fkCandidateStatus.textContent=`${report.passed?'実PMX検査合格':'実PMX検査不合格'}。作品${report.checkedFrames}F＋VMD${report.checkedVmdFrames}F × ${report.bones}骨、位置最大${report.maxPosition.toExponential(3)}（上限${report.positionLimit}）、角度最大${report.maxAngle.toExponential(3)}°（上限${report.angleLimitDegrees}°）。${location}。候補は未登録・作品未配置です。`;
+    fkCandidateStatus.textContent=`${report.passed?'実PMX検査合格':'実PMX検査不合格'}（物理OFF）。作品${report.checkedFrames}F＋VMD${report.checkedVmdFrames}F × ${report.bones}骨、位置最大${report.maxPosition.toExponential(3)}（上限${report.positionLimit}）、角度最大${report.maxAngle.toExponential(3)}°（上限${report.angleLimitDegrees}°）。${location}。候補は未登録・作品未配置です。`;
   }catch(error){
     if(isCurrent())fkCandidateStatus.textContent='実PMX検査を完了できません: '+String(error.message||error);
   }finally{
