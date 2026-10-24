@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T21:00:02+09:00",
+  "updated_at": "2026-10-24T21:06:44+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-long-interval",
-  "head_at_update": "c65d263",
+  "branch": "codex/v05-motion010-curve-boundary-study",
+  "head_at_update": "f6fc2db",
   "current": {
-    "task": "Issue #106: MOTION-010 長尺VMDの限定区間候補",
+    "task": "Issue #106: MOTION-010 長尺VMD曲線境界の診断",
     "status": "done",
-    "step": "90秒付近の別名VMD候補を有界区間で生成または理由付き拒否し、実PMX往復条件を確認する",
+    "step": "動く元VMDの区間境界・なじませと30fps候補の誤差を測り、安全な限定条件を探す",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 動く元VMDの区間候補で30fps密キー化と60fpsプレビューが食い違う原因を分析し、既承認範囲で安全な限定修正を試す"
+    "MOTION-010 元曲線を保つ長尺VMD候補の限定条件を検討し、実PMX全骨往復まで検証する"
   ],
   "unverified": [
     "元曲線を保つ長尺VMD候補の生成・実PMX往復・採用、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T21:06:44+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "f6fc2db",
+      "text": "MOTION-010 長尺実VMDの密キー境界を分析。補正0でもMMDLoaderの隣接キー保持でF5415に4.91度の差が生じ、なじませ2/48Fとも安全ゲートが拒否。元VMD不変を9試験で確認。"
+    },
+    {
+      "at": "2026-10-24T21:02:56+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "42eda81",
+      "text": "Issue #106: MOTION-010 長尺VMD曲線境界の診断: 動く元VMDの区間境界・なじませと30fps候補の誤差を測り、安全な限定条件を探す"
+    },
     {
       "at": "2026-10-24T21:00:02+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "4925ba3",
       "text": "Issue #106: MOTION-010 別名VMD候補の採用と作品配置: 実PMX検査済み候補だけを元素材不変で登録し、元クリップと同じ作品・時刻へ明示配置する経路を実装する"
-    },
-    {
-      "at": "2026-10-24T18:08:55+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b329f31",
-      "text": "登録PMXの内容違い3モデルの腕IK定義と関節制限を監査し、腕PMX IK競合を画面/APIで理由付き拒否、骨長到達制限の説明を追加"
-    },
-    {
-      "at": "2026-10-24T18:02:26+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "b5191cd",
-      "text": "Issue #106: MOTION-010 PMX腕関節制限: 登録PMXの腕IK定義と関節制限を調査し、腕ハンドルの操作可否・理由表示を実データに合わせて安全に整える"
     }
   ]
 }
