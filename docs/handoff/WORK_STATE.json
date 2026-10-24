@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T12:37:37+09:00",
+  "updated_at": "2026-10-24T12:59:00+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-translate-gizmo",
-  "head_at_update": "978fa26",
+  "branch": "codex/v05-motion010-foot-ik-target",
+  "head_at_update": "10f6afe",
   "current": {
-    "task": "Issue #106: MOTION-010 実PMX骨の3D位置ハンドル",
-    "status": "done",
-    "step": "同じv0.5編集画面で選択骨の局所移動を位置差分の仮表示・既存FKキー保存へ接続",
+    "task": "Issue #106: MOTION-010 PMX足IKターゲット操作",
+    "status": "in_progress",
+    "step": "PMXの実IK定義から足ターゲットを識別し3D位置補正へ接続、足首追従を実素材で確認",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T12:59:00+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "10f6afe",
+      "text": "Issue #106: MOTION-010 PMX足IKターゲット操作: PMXの実IK定義から足ターゲットを識別し3D位置補正へ接続、足首追従を実素材で確認"
+    },
     {
       "at": "2026-10-24T12:37:37+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "372314a",
       "text": "Issue #96: PMX表情キーの単一操作Undo/Redoを作品別最大32件の永続履歴、共通タイムラインと3Dプレビューへ接続。Python11件、隔離Chrome実PMX1件・MP4 3件、型/構文/JSON、原本/data hash保持を確認"
-    },
-    {
-      "at": "2026-10-24T07:04:06+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "13255c6",
-      "text": "Issue #96: PMX表情・口キー編集のUndo/Redo: 作品別revision付きキー履歴を保存し、共通タイムラインと3D欄で戻す/やり直すを検証"
     }
   ]
 }
