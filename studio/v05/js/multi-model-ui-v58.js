@@ -384,6 +384,21 @@ function effectiveFkLayers(row,instanceId=choose.value||selectedId){
   const solo=layers.find(layer=>layer.solo);
   return layers.filter(layer=>(!solo||layer===solo)&&!layer.muted&&layer.weight>0);
 }
+function lowerFkReason(target,bone,upper,boneName){
+  if(upper.some(layer=>layer.keys.some(key=>key.bone!==boneName)))
+    return '上位層に別の骨のキーがあるため、下位層の3D姿勢を安全に逆算できません。';
+  const bones=target.object?.skeleton?.bones,metadata=target.object?.geometry?.userData?.MMD;
+  const index=bones?.indexOf(bone),iks=metadata?.iks,grants=metadata?.grants;
+  if(!Number.isInteger(index)||index<0||!Array.isArray(iks)||!Array.isArray(grants)||
+      iks.some(ik=>!Number.isInteger(ik?.target)||!Number.isInteger(ik?.effector)||
+        !Array.isArray(ik?.links)||ik.links.some(link=>!Number.isInteger(link?.index)))||
+      grants.some(grant=>!Number.isInteger(grant?.index)))
+    return 'PMXのIK・付与定義を確認できないため、下位層の3D操作を停止します。';
+  if(iks.some(ik=>ik.target===index||ik.effector===index||
+      ik.links.some(link=>link.index===index))||grants.some(grant=>grant.index===index))
+    return 'この骨はIK・付与の影響を受けるため、下位層の3D操作はできません。';
+  return null;
+}
 function setFkFrameFromSeek(){
   fkFrame.value=String(Math.max(0,Math.round(currentSeek()*projectFps)));
   redrawFkControls();
@@ -596,8 +611,13 @@ function fkGizmoContext(){
     activeArm?.bone===name?armBonesFor(target,activeArm.side):null;
   const layers=effectiveFkLayers(row,instanceId);
   const layer=selectedFkLayer(row,instanceId);
-  if(layer&&layers.at(-1)!==layer)
-    return {reason:'3D骨操作は有効な最上段レイヤーを選択してください。下位の姿勢を基準に差分を保存します。'};
+  const index=layers.indexOf(layer);
+  if(layer&&index<0)return {reason:'選択レイヤーは現在有効ではありません。'};
+  if(layer&&index<layers.length-1){
+    if(ikTarget||pole||arm)return {reason:'IK・膝・腕ハンドルは有効な最上段レイヤーで操作してください。'};
+    const reason=lowerFkReason(target,matches[0],layers.slice(index+1),name);
+    if(reason)return {reason};
+  }
   if(layer){
     const from=layer.start_frame??Math.ceil(row.start*projectFps-1e-7);
     const until=layer.end_frame??Math.ceil((row.start+row.duration)*projectFps-1e-7);
@@ -625,7 +645,8 @@ function previewCurrentFk(){
 }
 async function previewFromGizmo(desired,kind,started){
   const current=fkGizmoContext();
-  if(current.reason||current.bone!==started.bone||current.projectId!==started.projectId||
+  if(current.reason||current.bone!==started.bone||current.layer?.id!==started.layer?.id||
+      current.projectId!==started.projectId||
       current.instanceId!==started.instanceId||current.clipId!==started.clipId||current.frame!==started.frame)
     throw Error(current.reason||'ドラッグ中に作品・骨・フレームが変わりました。');
   const {bone,row,layer,frame,target}=current,THREE=target.libs.THREE;
@@ -634,14 +655,28 @@ async function previewFromGizmo(desired,kind,started){
   const source=previewFk?.projectId===current.projectId&&previewFk?.instanceId===current.instanceId&&
     previewFk?.clipId===current.clipId&&previewFk?.key?.frame===frame&&previewFk?.key?.bone===current.boneName
     ?previewFk.key:layer?.keys.find(key=>key.frame===frame&&key.bone===current.boneName);
-  const filtered=fkLayersFor(row,current.instanceId).map(item=>item===layer?
+  const allLayers=fkLayersFor(row,current.instanceId);
+  const filtered=allLayers.map(item=>item===layer?
     {...item,keys:item.keys.filter(key=>key.bone!==current.boneName)}:item);
-  let base;
+  const effective=effectiveFkLayers(row,current.instanceId);
+  const lowerIndex=effective.indexOf(layer);
+  const hasUpper=layer&&lowerIndex>=0&&lowerIndex<effective.length-1;
+  let base,upperRotation=new THREE.Quaternion(),upperPosition=new THREE.Vector3();
   try{
+    if(hasUpper){
+      const throughSelected=new Set(effective.slice(0,lowerIndex+1).map(item=>item.id));
+      motionCoordinator.setCorrectionLayers(row.clip_id,filtered.filter(item=>throughSelected.has(item.id)),null);
+      const lower=motionCoordinator.seek(frame/projectFps);
+      if(lower?.errors?.length)throw Error('下位姿勢を評価できません');
+      base={rotation:bone.quaternion.clone(),position:bone.position.clone()};
+    }
     motionCoordinator.setCorrectionLayers(row.clip_id,filtered,null);
     const result=motionCoordinator.seek(frame/projectFps);
     if(result?.errors?.length)throw Error('元姿勢を評価できません');
-    base={rotation:bone.quaternion.clone(),position:bone.position.clone()};
+    if(hasUpper){
+      upperRotation.copy(base.rotation).invert().multiply(bone.quaternion).normalize();
+      upperPosition.copy(bone.position).sub(base.position);
+    }else base={rotation:bone.quaternion.clone(),position:bone.position.clone()};
   }finally{
     applyAllMotionEdits();motionCoordinator.seek(frame/projectFps);
   }
@@ -653,13 +688,13 @@ async function previewFromGizmo(desired,kind,started){
           fkAxes[index].value=String(Math.round(value*180/Math.PI*10000)/10000);
         });
       }
-      const delta=desired.clone().sub(base.position);
+      const delta=desired.clone().sub(base.position).sub(upperPosition);
       [delta.x,delta.y,delta.z].forEach((value,index)=>{
         fkPosition[index].value=String(Math.round(value*10000)/10000);
       });
     }else{
       if(source)fkPosition.forEach((input,index)=>input.value=String(source.position?.[index]??0));
-      const delta=base.rotation.invert().multiply(desired).normalize();
+      const delta=base.rotation.invert().multiply(desired).multiply(upperRotation.invert()).normalize();
       const euler=new THREE.Euler().setFromQuaternion(delta,'XYZ');
       [euler.x,euler.y,euler.z].forEach((value,index)=>{
         fkAxes[index].value=String(Math.round(value*180/Math.PI*10000)/10000);
