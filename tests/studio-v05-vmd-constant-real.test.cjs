@@ -11,14 +11,15 @@ const sourceRoot=process.env.BAI_REAL_MMD_DATA;
 const modelName='Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx';
 const motionName='狐面物理確認用_頭振り_F000-0300.vmd';
 const candidateName='MOTION010-constant-candidate.vmd';
+const temporalName='MOTION010-temporal-candidate.vmd';
 const modelPath=sourceRoot&&path.join(sourceRoot,'mmd','A',modelName);
 const motionPath=sourceRoot&&path.join(sourceRoot,'mmd','vmd',motionName);
 const exists=modelPath&&motionPath&&fs.existsSync(modelPath)&&fs.existsSync(motionPath);
 const digest=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 async function ok(response){const body=await response.text();assert.equal(response.status,200,body);return JSON.parse(body);}
 
-test('constant FK layer and distinct VMD agree on real PMX at every VMD frame',
-  {skip:!exists&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:180000},async()=>{
+test('constant and temporal FK candidates agree with real PMX preview',
+  {skip:!exists&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:240000},async()=>{
     const originals=[digest(modelPath),digest(motionPath)];
     const angle=0.2;
     const savedKey={frame:240,bone:'頭',position:[0.3,0,0],
@@ -39,14 +40,31 @@ test('constant FK layer and distinct VMD agree on real PMX at every VMD frame',
       cwd:path.resolve(__dirname,'..'),maxBuffer:2*1024*1024});
     assert.equal(baked.status,0,baked.stderr.toString());
     assert.ok(baked.stdout.length>1000);
+    const temporalKey=(frame,x)=>({frame,bone:'頭',position:[x,0,0],rotation:[0,0,0,1]});
+    const temporalKeys=[temporalKey(0,0),temporalKey(300,0.01),temporalKey(598,0)];
+    const temporalLayer={...layer,keys:temporalKeys};
+    const temporalPython=[
+      'import json,sys',
+      'from pathlib import Path',
+      'from studio_v05_vmd_temporal import temporal_replacements',
+      'from studio_v05_vmd_rewrite import rewrite_bone_section',
+      'raw=Path(sys.argv[1]).read_bytes()',
+      'samples,report=temporal_replacements(raw,[json.loads(sys.argv[2])],instance_id="model-1",clip_id="clip-1")',
+      'sys.stdout.buffer.write(rewrite_bone_section(raw,samples)[0])',
+    ].join('\n');
+    const temporalBaked=spawnSync('python',['-c',temporalPython,motionPath,JSON.stringify(temporalLayer)],{
+      cwd:path.resolve(__dirname,'..'),maxBuffer:2*1024*1024});
+    assert.equal(temporalBaked.status,0,temporalBaked.stderr.toString());
     const metadata=JSON.parse(fs.readFileSync(path.join(sourceRoot,'mmd_assets.json'),'utf8'));
     const entries=metadata.A.filter(e=>e.name===modelName||e.name.startsWith('tex/'));
     const seed={'mmd_assets.json':JSON.stringify({A:entries,B:[],vmd:[
       {name:motionName,size:fs.statSync(motionPath).size},
-      {name:candidateName,size:baked.stdout.length}]})};
+      {name:candidateName,size:baked.stdout.length},
+      {name:temporalName,size:temporalBaked.stdout.length}]})};
     for(const entry of entries)seed[`mmd/A/${entry.name}`]=fs.readFileSync(path.join(sourceRoot,'mmd','A',...entry.name.split('/')));
     seed[`mmd/vmd/${motionName}`]=fs.readFileSync(motionPath);
     seed[`mmd/vmd/${candidateName}`]=baked.stdout;
+    seed[`mmd/vmd/${temporalName}`]=temporalBaked.stdout;
     const server=await harness.startServer({port:8898,seed});
     let browser,page;
     try{
@@ -63,9 +81,10 @@ test('constant FK layer and distinct VMD agree on real PMX at every VMD frame',
           asset_id:`mmd:vmd:${name}`,track:'motion',start,duration:10,revision})}));
       const original=await place(motionName,0,0);
       const candidate=await place(candidateName,10,original.revision);
-      for(const row of [original,candidate])await ok(await fetch(`${server.base}/api/studio/v05/scene/motion-target`,{
+      const temporal=await place(temporalName,20,candidate.revision);
+      for(const [index,row] of [original,candidate,temporal].entries())await ok(await fetch(`${server.base}/api/studio/v05/scene/motion-target`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
-          clip_id:row.clip.id,revision:row===original?candidate.revision:candidate.revision+1,
+          clip_id:row.clip.id,revision:temporal.revision+index,
           instance_id:instanceId})}));
       await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,revision:0,
@@ -94,7 +113,7 @@ test('constant FK layer and distinct VMD agree on real PMX at every VMD frame',
       await page.locator('#v70sceneOpen').click();
       await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
         window.BAIStudioMultiScenePreview?.status().loaded===1&&
-        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===2,
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===3,
         null,{timeout:120000});
       await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
       await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'vmd-candidate-ui'));
@@ -129,6 +148,59 @@ test('constant FK layer and distinct VMD agree on real PMX at every VMD frame',
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
           revision:2,instance_id:instanceId,clip_id:original.clip.id})});
       assert.equal(varying.status,422,'time-varying corrections must not be silently baked as constant');
+      let revision=2;
+      const edit=async(action,key)=>{
+        await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{method:'POST',
+          headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
+            revision,action,instance_id:instanceId,clip_id:original.clip.id,key})}));
+        revision++;
+      };
+      await edit('remove',savedKey);
+      await edit('remove',{...savedKey,frame:300,position:[0.4,0,0]});
+      for(const key of temporalKeys)await edit('set',key);
+      assert.equal(revision,7);
+      const temporalEdits=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.deepEqual(temporalEdits.layers[0].keys.map(key=>key.frame),[0,300,598]);
+      const temporalResponse=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
+          revision,instance_id:instanceId,clip_id:original.clip.id})}));
+      assert.equal(temporalResponse.sampling_report.checked_project_frames,600);
+      assert.ok(temporalResponse.sampling_report.max_position_error<1e-3);
+      assert.ok(temporalResponse.sampling_report.max_angle_error_degrees<0.01);
+      const downloaded=Buffer.from(await (await fetch(server.base+temporalResponse.download_url)).arrayBuffer());
+      assert.deepEqual(downloaded,temporalBaked.stdout);
+      await page.reload();
+      await page.locator('#v06project').selectOption(projectId);
+      await page.locator('#nav [data-workspace="edit"]').click();
+      await page.locator('#v70sceneOpen').click();
+      await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
+        window.BAIStudioMultiScenePreview?.status().loaded===1&&
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===3,
+        null,{timeout:120000});
+      await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'vmd-temporal-ui'));
+      await page.locator('#v116-vmd-candidate-create').click();
+      await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('作品600F'));
+      assert.match(await page.locator('#v116-vmd-candidate-status').textContent(),/実PMX往復の確認前/);
+      const temporalResult=await page.evaluate(instanceId=>{
+        const diff=(a,b)=>Math.max(...a.map((value,index)=>Math.abs(value-b[index])));
+        let maxPosition=0,maxRotation=0,worst=-1;
+        const timeline=window.BAIStudioTimeline,preview=window.BAIStudioMultiScenePreview;
+        for(let frame=0;frame<600;frame++){
+          timeline.seek(frame/60,'vmd-temporal-source');
+          const source=preview.poseProbe(instanceId,['頭','センター']);
+          timeline.seek(20+frame/60,'vmd-temporal-candidate');
+          const candidate=preview.poseProbe(instanceId,['頭','センター']);
+          const position=diff(source.bones['頭'].position,candidate.bones['頭'].position);
+          const rotation=diff(source.bones['頭'].quaternion,candidate.bones['頭'].quaternion);
+          if(Math.max(position,rotation)>Math.max(maxPosition,maxRotation))worst=frame;
+          maxPosition=Math.max(maxPosition,position);maxRotation=Math.max(maxRotation,rotation);
+        }
+        return {maxPosition,maxRotation,worst,renderer:preview.status().renderer};
+      },instanceId);
+      console.log(JSON.stringify({temporalResult}));
+      assert.ok(temporalResult.maxPosition<1e-3,`temporal position mismatch at ${temporalResult.worst}`);
+      assert.ok(temporalResult.maxRotation<2e-4,`temporal rotation mismatch at ${temporalResult.worst}`);
       assert.deepEqual([digest(modelPath),digest(motionPath)],originals);
       assert.equal(baked.stdout.slice(-29).toString('hex'),fs.readFileSync(motionPath).slice(-29).toString('hex'));
     }finally{

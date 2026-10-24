@@ -54,7 +54,8 @@
 ## 追加決定：リグ編集（2026-10-20 所有者）
 - 「リグを操作してモーションとカメラを編集する（UE のコントロールリグ／Sequencer 方式）」→ 既存ID `MOTION-010`（モーションスタックの行）と `CAM-003`・`CAM-006`・`CAM-007`（カメラエディター／3D撮影リグの行）の詳細として [リグ編集仕様](RIG_EDITING_SPEC_20261020_JA.md)。新IDは作らず、2026-10-23以降の実施順はv0.5最短制作経路を優先する。MOTION-010の[PMX先行詳細設計・3回の批評・段階A判定](MOTION010_V05_DETAILED_DESIGN_20261024_JA.md)、[数値FK補正の部分接続・実PMX試験](../v05/MOTION010_FK_STAGE_A_20261024_JA.md)、[レイヤーと作品キーの追加](../v05/MOTION010_FK_LAYER_TIMELINE_20261024_JA.md)、[FK補正入り完成MP4の3F画素比較](../v05/MOTION010_FK_MP4_20261024_JA.md)、[実PMX骨階層・3Dマーカー選択](../v05/MOTION010_BONE_SELECT_20261024_JA.md)、[実PMX骨の3D回転ハンドル](../v05/MOTION010_FK_3D_ROTATE_20261024_JA.md)、[局所位置差分の数値補正](../v05/MOTION010_FK_POSITION_20261024_JA.md)、[実PMX骨の3D位置ハンドル](../v05/MOTION010_FK_3D_TRANSLATE_20261024_JA.md)、[実PMXの足IKターゲットと再生補正](../v05/MOTION010_PMX_FOOT_IK_TARGET_20261024_JA.md)を2026-10-24に記録。IK/FK切替・別名VMD等とCAM側の設計改訂・判定は別で、未完了。
 - MOTION-010段階Cの[別名VMD骨区画writer](../v05/MOTION010_VMD_BINARY_REWRITE_20261024_JA.md)は、実VMDの非骨suffixと未編集骨を保持する構造検査まで。補正キー焼き込み・実PMX往復は未接続。
-- MOTION-010の[全区間一定補正VMD候補](../v05/MOTION010_VMD_CONSTANT_CANDIDATE_20261024_JA.md)は、実PMX頭骨300フレームの限定往復を確認。候補UI/API/MCPを共通化したが、時間変化キーと一般化した採用判定は未接続。
+- MOTION-010の[全区間一定補正VMD候補](../v05/MOTION010_VMD_CONSTANT_CANDIDATE_20261024_JA.md)は、実PMX頭骨300フレームの限定往復を確認。候補UI/API/MCPを共通化した。この段階では時間変化キーと一般化した採用判定は未接続。
+- MOTION-010の[時間変化FK補正VMD候補](../v05/MOTION010_VMD_TEMPORAL_CANDIDATE_20261024_JA.md)は、作品FPS全フレームの局所誤差ゲートと実PMX頭骨600フレームの限定往復を確認。IK/grantを含む一般化した採用判定と作品配置は未接続。
 
 ## UI/UX設計方針（最新ユーザー決定）
 - 「1画面に詰め込まず、固定領域・内部スクロール、タブ、注釈、ホバー説明、説明書不要の操作性」→ `UX-001`〜`UX-008`、[詳細仕様](UI_UX_DESIGN_STANDARD_JA.md)。

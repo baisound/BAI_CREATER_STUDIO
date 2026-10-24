@@ -1,0 +1,75 @@
+import math
+import os
+from pathlib import Path
+
+import pytest
+
+from studio_v05_vmd_temporal import temporal_replacements
+from studio_v05_vmd_rewrite import rewrite_bone_section
+from test_studio_v05_vmd_rewrite import fixture
+
+
+def layer(keys, **changes):
+    return {'instance_id': 'model-1', 'clip_id': 'clip-1', 'fps': 60,
+            'start': 0, 'duration': 2, 'weight': 1, 'muted': False,
+            'keys': keys} | changes
+
+
+def key(frame, x, angle=0):
+    return {'bone': '頭', 'frame': frame, 'position': [x, 0, 0],
+            'rotation': [0, math.sin(angle / 2), 0, math.cos(angle / 2)]}
+
+
+def test_linear_temporal_keys_pass_60_to_30_fps_gate_and_preserve_suffix():
+    source = fixture()
+    samples, report = temporal_replacements(
+        source, [layer([key(0, 0), key(60, 0.01), key(118, 0)])],
+        instance_id='model-1', clip_id='clip-1')
+    assert len(samples) == 4
+    assert samples[1]['frame'] == 30
+    assert samples[1]['position'][0] == pytest.approx(0.01)
+    assert report['checked_project_frames'] == 120
+    assert report['sampled_vmd_keys'] == 4
+    assert report['vmd_frame_span'] == 61
+    assert report['max_position_error'] < 1e-3
+    candidate, structure = rewrite_bone_section(source, samples)
+    assert candidate.endswith(source[-structure['suffix_bytes']:])
+    assert structure['added'] == 3
+
+
+def test_one_project_frame_spike_is_rejected_with_position_error():
+    with pytest.raises(ValueError, match='30fps sample error exceeds limit.*worst_position_frame.*1'):
+        temporal_replacements(fixture(), [layer([key(0, 0), key(1, 1), key(2, 0)])],
+                              instance_id='model-1', clip_id='clip-1')
+
+
+def test_one_project_frame_rotation_spike_is_rejected():
+    with pytest.raises(ValueError, match='max_angle_error_degrees'):
+        temporal_replacements(fixture(), [layer([key(0, 0), key(1, 0, 0.3), key(2, 0)])],
+                              instance_id='model-1', clip_id='clip-1')
+
+
+def test_rejects_inactive_and_oversize_clip():
+    with pytest.raises(ValueError, match='Active correction'):
+        temporal_replacements(fixture(), [layer([key(0, 0)], muted=True)],
+                              instance_id='model-1', clip_id='clip-1')
+    with pytest.raises(ValueError, match='bounded frame limit'):
+        temporal_replacements(fixture(), [layer([key(0, 0)], duration=1000)],
+                              instance_id='model-1', clip_id='clip-1')
+
+
+def test_real_vmd_keeps_source_curve_and_validates_600_project_frames():
+    root = Path(os.environ.get('BAI_REAL_MMD_DATA', Path(__file__).resolve().parents[1] / 'data'))
+    source = root / 'mmd' / 'vmd' / '狐面物理確認用_頭振り_F000-0300.vmd'
+    if not source.is_file():
+        pytest.skip('registered local VMD is unavailable')
+    original = source.read_bytes()
+    saved = layer([key(0, 0), key(300, 0.01), key(598, 0)], duration=10)
+    samples, report = temporal_replacements(original, [saved], instance_id='model-1', clip_id='clip-1')
+    output, structure = rewrite_bone_section(original, samples)
+    assert report['checked_project_frames'] == 600
+    assert report['max_position_error'] < 1e-3
+    assert report['max_angle_error_degrees'] < 0.01
+    assert structure['replaced'] == 9 and structure['added'] == 1
+    assert output.endswith(original[-structure['suffix_bytes']:])
+    assert source.read_bytes() == original

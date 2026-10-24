@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import uuid
 from pathlib import Path
@@ -11,6 +12,7 @@ from studio_v05_motion_edits import (LOCK, MotionEditError, _context, _identity,
                                      _registered_path, read, view)
 from studio_v05_vmd_constant import constant_replacements
 from studio_v05_vmd_rewrite import MAX_SOURCE_BYTES, write_distinct_vmd
+from studio_v05_vmd_temporal import temporal_replacements
 
 
 def _uuid(value):
@@ -25,6 +27,14 @@ def _candidate_paths(root, project_id, candidate_id):
         raise MotionEditError('Invalid VMD candidate identity')
     folder = Path(root) / project_id
     return folder / (candidate_id + '.vmd'), folder / (candidate_id + '.json')
+
+
+def _is_temporal(layer):
+    first = math.ceil(layer['start'] * layer['fps'] - 1e-7)
+    end = math.ceil((layer['start'] + layer['duration']) * layer['fps'] - 1e-7)
+    return (bool(layer.get('fade_in_frames', 0) or layer.get('fade_out_frames', 0)) or
+            layer.get('start_frame', first) != first or layer.get('end_frame', end) != end or
+            len({key['bone'] for key in layer['keys']}) != len(layer['keys']))
 
 
 def create_candidate(output_root, edit_root, data_root, scene_root, legacy_root,
@@ -55,7 +65,13 @@ def create_candidate(output_root, edit_root, data_root, scene_root, legacy_root,
         raw = source.read_bytes()
         if hashlib.sha256(raw).hexdigest() != context['motion_sha256']:
             raise MotionEditError('VMD source changed during candidate creation')
-        samples = constant_replacements(raw, layers, instance_id=instance_id, clip_id=clip_id)
+        temporal = any(_is_temporal(layer) for layer in layers)
+        if temporal:
+            samples, sampling_report = temporal_replacements(
+                raw, layers, instance_id=instance_id, clip_id=clip_id)
+        else:
+            samples = constant_replacements(raw, layers, instance_id=instance_id, clip_id=clip_id)
+            sampling_report = None
         candidate_id = str(uuid.uuid4())
         output, metadata_path = _candidate_paths(output_root, project_id, candidate_id)
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -67,6 +83,7 @@ def create_candidate(output_root, edit_root, data_root, scene_root, legacy_root,
                     'output_sha256': report['output_sha256'], 'source_name': source.name,
                     'replaced_bone_keys': report['replaced'], 'added_bone_keys': report['added'],
                     'suffix_bytes': report['suffix_bytes'],
+                    'sampling_report': sampling_report,
                     'status': 'candidate_requires_real_pmx_validation',
                     'registered_asset': False, 'placed_in_project': False}
         try:
