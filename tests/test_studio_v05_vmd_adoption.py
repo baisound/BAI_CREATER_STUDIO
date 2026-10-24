@@ -172,6 +172,20 @@ def test_sampled_candidate_adoption_requires_real_pmx_tail_coverage(mode):
                             record)['checkedVmdFrames'] == 301
 
 
+def test_sparse_temporal_candidate_adoption_requires_reported_tail_coverage():
+    record = {'export_mode': 'legacy_sparse', 'sampling_report': {
+        'gate': 'local_channels_only_requires_real_pmx_roundtrip',
+        'vmd_frame_span': 301}}
+    report = {'passed': True, 'checkedFrames': 150, 'checkedVmdFrames': 150,
+              'bones': 20, 'maxPosition': 0, 'maxAngle': 0,
+              'positionClock': '作品', 'positionFrame': 0, 'positionBone': '頭',
+              'angleClock': 'VMD', 'angleFrame': 300, 'angleBone': '頭'}
+    with pytest.raises(adoption.AdoptionError, match='whole clip'):
+        adoption._report(report, 0, 5, 30, record)
+    assert adoption._report({**report, 'checkedVmdFrames': 301}, 0, 5, 30,
+                            record)['checkedVmdFrames'] == 301
+
+
 def test_source_change_blocks_adoption_and_restore(tmp_path, monkeypatch):
     f = _fixture(tmp_path, monkeypatch)
     f['candidate'].write_bytes(b'tampered')

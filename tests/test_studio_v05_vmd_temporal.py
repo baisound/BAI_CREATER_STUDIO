@@ -1,3 +1,4 @@
+import ast
 import math
 import os
 from pathlib import Path
@@ -140,4 +141,26 @@ def test_real_dense_source_curve_fails_closed_at_fractional_fps():
                   fade_in_frames=24, fade_out_frames=24)
     with pytest.raises(ValueError, match='30fps sample error exceeds limit.*max_angle_error_degrees'):
         temporal_replacements(original, [saved], instance_id='model-1', clip_id='clip-1')
+    assert source.read_bytes() == original
+
+
+def test_long_real_vmd_allows_unkeyed_hair_step_but_refuses_moving_head_step():
+    root = Path(os.environ.get('BAI_REAL_MMD_DATA', Path(__file__).resolve().parents[1] / 'data'))
+    source = root / 'mmd' / 'vmd' / '神っぽいな.vmd'
+    if not source.is_file():
+        pytest.skip('registered dense local VMD is unavailable')
+    original = source.read_bytes()
+    base = layer([key(5400, 0.15, math.radians(12))], duration=204,
+                 start_frame=5338, end_frame=5464)
+    with pytest.raises(ValueError, match='30fps sample error exceeds limit') as failure:
+        temporal_replacements(original, [base], instance_id='model-1', clip_id='clip-1')
+    head_report = ast.literal_eval(str(failure.value).split(': ', 1)[1])
+    assert head_report['max_angle_error_degrees'] > 1
+    hair = base | {'keys': [base['keys'][0] | {'bone': '髪_16-03'}]}
+    samples, hair_report = temporal_replacements(
+        original, [hair], instance_id='model-1', clip_id='clip-1')
+    assert samples
+    assert hair_report['checked_project_frames'] == 12240
+    assert hair_report['max_position_error'] < 1e-3
+    assert hair_report['max_angle_error_degrees'] < 0.01
     assert source.read_bytes() == original

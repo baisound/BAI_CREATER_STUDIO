@@ -53,11 +53,14 @@ def _report(report, start, duration, fps, record=None):
     vmd_first = math.ceil(start * 30 - 1e-7)
     vmd_end = math.ceil((start + duration) * 30 - 1e-7)
     sampling = (record or {}).get('sampling_report') or {}
-    if (record or {}).get('export_mode') in ('whole', 'interval') and (
-            sampling.get('mode') == (record or {}).get('export_mode')):
+    mode = (record or {}).get('export_mode')
+    sampled = (mode in ('whole', 'interval') and sampling.get('mode') == mode or
+               mode == 'legacy_sparse' and
+               sampling.get('gate') == 'local_channels_only_requires_real_pmx_roundtrip')
+    if sampled:
         span = sampling.get('vmd_frame_span')
         if type(span) is not int or not 1 <= span <= 18001:
-            raise AdoptionError('Dense VMD candidate span is invalid')
+            raise AdoptionError('VMD candidate span is invalid')
         vmd_end = max(vmd_end, vmd_first + span)
     if (type(report.get('checkedFrames')) is not int or report['checkedFrames'] != end - first or
             type(report.get('checkedVmdFrames')) is not int or

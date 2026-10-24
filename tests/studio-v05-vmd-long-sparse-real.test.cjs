@@ -15,8 +15,12 @@ const available=modelPath&&motionPath&&fs.existsSync(modelPath)&&fs.existsSync(m
 const digest=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 async function ok(reply){const body=await reply.text();assert.equal(reply.status,200,body);return JSON.parse(body);}
 
-for(const duration of [100,204])test(`real moving 203s VMD sparse constant FK candidate matches PMX for ${duration}s`,
+for(const variant of [{duration:100,interval:false,port:8912},
+  {duration:204,interval:false,port:8913},
+  {duration:204,interval:true,port:8914}])test(
+  `real moving 203s VMD sparse ${variant.interval?'bounded hair':'constant head'} candidate matches PMX for ${variant.duration}s`,
   {skip:!available&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:360000},async()=>{
+    const {duration,interval}=variant;
     const originals=[digest(modelPath),digest(motionPath)];
     const metadata=JSON.parse(fs.readFileSync(path.join(root,'mmd_assets.json'),'utf8'));
     const entries=metadata.A.filter(entry=>entry.name===modelName||entry.name.startsWith('tex/'));
@@ -25,12 +29,12 @@ for(const duration of [100,204])test(`real moving 203s VMD sparse constant FK ca
     for(const entry of entries)seed[`mmd/A/${entry.name}`]=fs.readFileSync(
       path.join(root,'mmd','A',...entry.name.split('/')));
     seed[`mmd/vmd/${motionName}`]=fs.readFileSync(motionPath);
-    const server=await harness.startServer({port:duration===100?8912:8913,seed});
+    const server=await harness.startServer({port:variant.port,seed});
     let browser,page;
     try{
       const project=await ok(await fetch(`${server.base}/api/studio/v05/projects`,{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({name:'MOTION010 長尺一定補正候補実試験',kind:'empty'})}));
+        body:JSON.stringify({name:`MOTION010 長尺${interval?'区間':'一定'}補正候補実試験`,kind:'empty'})}));
       const id=project.project.id;
       const scene=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
@@ -48,19 +52,32 @@ for(const duration of [100,204])test(`real moving 203s VMD sparse constant FK ca
       const saved=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:id,revision:0,action:'set',instance_id:instance,clip_id:placed.clip.id,
-          key:{frame:5400,bone:'頭',position:[0.15,0,0],
+          key:{frame:5400,bone:interval?'髪_16-03':'頭',position:[0.15,0,0],
             rotation:[0,Math.sin(angle/2),0,Math.cos(angle/2)]}})}));
       assert.equal(saved.revision,1);
+      const edits=interval?await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:id,revision:saved.revision,action:'layer-update',instance_id:instance,
+          clip_id:placed.clip.id,layer_id:saved.layers[0].id,settings:{
+            start_frame:5338,end_frame:5464,fade_in_frames:0,fade_out_frames:0}})})):saved;
       const candidate=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-          project_id:id,revision:saved.revision,instance_id:instance,
+          project_id:id,revision:edits.revision,instance_id:instance,
           clip_id:placed.clip.id,mode:'legacy_sparse'})}));
       assert.equal(candidate.status,'candidate_requires_real_pmx_validation');
       assert.equal(candidate.export_mode,'legacy_sparse');
       assert.equal(candidate.source_motion_sha256,originals[1]);
       assert.equal(candidate.model_sha256,originals[0]);
-      assert.ok(candidate.replaced_bone_keys>0);
-      assert.equal(candidate.added_bone_keys,0);
+      if(interval){
+        assert.equal(candidate.replaced_bone_keys,0);
+        assert.ok(candidate.added_bone_keys>0);
+        assert.equal(candidate.sampling_report.checked_project_frames,duration*60);
+        assert.ok(candidate.sampling_report.max_position_error<1e-3);
+        assert.ok(candidate.sampling_report.max_angle_error_degrees<0.01);
+      }else{
+        assert.ok(candidate.replaced_bone_keys>0);
+        assert.equal(candidate.added_bone_keys,0);
+      }
       assert.equal(candidate.registered_asset,false);
       assert.equal(candidate.placed_in_project,false);
       const downloaded=Buffer.from(await (await fetch(server.base+candidate.download_url)).arrayBuffer());
@@ -85,7 +102,7 @@ for(const duration of [100,204])test(`real moving 203s VMD sparse constant FK ca
       },{id,instance,candidate});
       console.log(JSON.stringify({longSparseCandidate:report}));
       assert.equal(report.checkedFrames,duration*60);
-      assert.equal(report.checkedVmdFrames,duration*30);
+      assert.equal(report.checkedVmdFrames,duration*30+(interval?1:0));
       assert.equal(report.bones,201);
       assert.equal(report.passed,true,JSON.stringify(report));
       const plan=await ok(await fetch(`${server.base}/api/studio/v05/scene/multi-motion-plan?id=${id}`));
