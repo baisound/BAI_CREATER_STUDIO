@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:28:52+09:00",
+  "updated_at": "2026-10-25T00:32:10+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip004-morph-map-store",
-  "head_at_update": "5429ca4",
+  "branch": "codex/v05-lip004-morph-map-ui",
+  "head_at_update": "e177e52",
   "current": {
-    "task": "Issue #175: モデル別MorphMap保存",
-    "status": "done",
-    "step": "PMXモデルID/hashと解析hashに紐付く母音対応表を作品別に保存・復元し、素材変更時に失効を示す",
+    "task": "Issue #175: v0.5口形対応表の編集画面",
+    "status": "in_progress",
+    "step": "解析済みPMX口モーフからA/I/U/E/O/Closed/Restを選択し、手動重みを下書き保存・確定・再読込・失効表示する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:32:10+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e177e52",
+      "text": "Issue #175: v0.5口形対応表の編集画面: 解析済みPMX口モーフからA/I/U/E/O/Closed/Restを選択し、手動重みを下書き保存・確定・再読込・失効表示する"
+    },
     {
       "at": "2026-10-25T00:28:52+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "90d102c",
       "text": "MOTION-010 203秒実VMDの60fps・204秒作品で画面から90秒頭FKを変更・保存し、長尺疎候補作成、201骨全12240作品F＋6120VMD F検査、明示採用・元VMD復元を確認"
-    },
-    {
-      "at": "2026-10-24T22:10:50+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3df66c3",
-      "text": "Issue #106: MOTION-010 長尺VMD候補の通常画面経路: 203秒実VMDの候補作成・全骨検査・明示採用・復元をv0.5画面で操作し保存結果を読む"
     }
   ]
 }
