@@ -965,7 +965,14 @@ async function setup(){
     onTransform:previewFromGizmo,
     onPoleTransform:previewPoleFromGizmo,
     onArmTransform:previewArmFromGizmo,
-    onCancel:()=>seekScene(Number(seekInput.value)||0),
+    onArmDragStart:()=>previewArm,
+    onCancel:drag=>{
+      if(drag?.kind==='arm-hand'||drag?.kind==='arm-elbow'){
+        previewArm=drag.armPreviewAtStart;
+        applyAllMotionEdits();redrawFkControls();
+      }
+      seekScene(Number(seekInput.value)||0);
+    },
     onModeChange:(enabled,context)=>{
       spatialEditor?.setGizmoEnabled(!enabled);
       setBoneEditPanel(enabled,context);

@@ -1,5 +1,5 @@
 /* 3D PMX bone handles. IK translation uses a world-space effector proxy; persistence stays in the editor. */
-export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTransform,onPoleTransform,onArmTransform,onCancel,onModeChange,onError}){
+export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTransform,onPoleTransform,onArmTransform,onArmDragStart,onCancel,onModeChange,onError}){
   const row=document.createElement('div');row.id='v111-fk-gizmo-controls';
   const goto=document.createElement('button');goto.type='button';goto.id='v111-fk-gizmo-goto';
   goto.textContent='このFを3D表示';
@@ -104,8 +104,8 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
   }
   function deactivate(){
     wanted=false;toggle.setAttribute('aria-pressed','false');toggle.textContent=`3D${label()}ハンドルを表示`;
-    if(drag){drag.bone.quaternion.copy(drag.startRotation);drag.bone.position.copy(drag.startPosition);
-      drag.handle.position.copy(drag.startHandlePosition);drag=null;onCancel();}
+    if(drag){cancelLiveFrame(drag);drag.bone.quaternion.copy(drag.startRotation);drag.bone.position.copy(drag.startPosition);
+      drag.handle.position.copy(drag.startHandlePosition);const current=drag;drag=null;cancelDrag(current);}
     gizmo?.detach();clearProxy();attachedContext=null;if(gizmo)gizmo.enabled=false;
     if(viewport.controls)viewport.controls.enabled=true;
     onModeChange(false);viewport.invalidate();
@@ -139,6 +139,29 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
     const message=String(error?.message||error);
     status.textContent=message;onError(message);
   }
+  function cancelLiveFrame(current){
+    if(current?.liveFrame!==null&&current?.liveFrame!==undefined){
+      cancelAnimationFrame(current.liveFrame);current.liveFrame=null;
+    }
+  }
+  function cancelDrag(current){
+    if(!current||current.cancelRestored)return;
+    current.cancelRestored=true;onCancel(current);
+  }
+  function scheduleArmPreview(current){
+    if(current.liveFrame!==null||current.cancelled)return;
+    current.liveFrame=requestAnimationFrame(()=>{
+      current.liveFrame=null;
+      if(drag!==current||current.cancelled)return;
+      const desired=current.handle.position.clone();
+      if(current.startHandlePosition.distanceTo(desired)<1e-5)return;
+      Promise.resolve(onArmTransform(desired,current.kind,current.context)).then(result=>{
+        if(drag!==current||current.cancelled)return;
+        status.textContent=`ドラッグ中の腕IK仮表示。手首残差 ${result.residual.toFixed(4)} シーン単位。`;
+        viewport.invalidate();
+      }).catch(error=>{if(drag===current)fail(error);});
+    });
+  }
   async function ensureGizmo(){
     if(gizmo)return;
     const {TransformControls}=await import('three/addons/controls/TransformControls.js');
@@ -162,12 +185,18 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
       drag={context,bone:context.bone,kind:mode.value,
         handle:gizmo.object,startHandlePosition:gizmo.object.position.clone(),
         startBoneWorld:context.bone.getWorldPosition(new context.target.libs.THREE.Vector3()),
-        startRotation:context.bone.quaternion.clone(),startPosition:context.bone.position.clone(),cancelled:false};
+        startRotation:context.bone.quaternion.clone(),startPosition:context.bone.position.clone(),
+        cancelled:false,liveFrame:null,
+        armPreviewAtStart:armMode()?onArmDragStart?.()||null:null};
       mode.disabled=true;
     });
-    gizmo.addEventListener('objectChange',()=>{if(drag)viewport.invalidate();});
+    gizmo.addEventListener('objectChange',()=>{
+      if(!drag)return;
+      if(drag.kind==='arm-hand'||drag.kind==='arm-elbow')scheduleArmPreview(drag);
+      viewport.invalidate();
+    });
     gizmo.addEventListener('mouseUp',()=>{
-      const current=drag;drag=null;
+      const current=drag;cancelLiveFrame(current);drag=null;
       if(!current)return;
       mode.disabled=false;
       const desired=current.kind==='pole'||current.kind==='arm-hand'||
@@ -177,11 +206,11 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
         current.bone.quaternion.clone();
       if(current.cancelled){current.bone.quaternion.copy(current.startRotation);
         current.bone.position.copy(current.startPosition);
-        current.handle.position.copy(current.startHandlePosition);onCancel();refresh();return;}
+        current.handle.position.copy(current.startHandlePosition);cancelDrag(current);refresh();return;}
       if(current.kind==='pole'||current.kind==='arm-hand'||current.kind==='arm-elbow'?
           current.startHandlePosition.distanceTo(desired)<1e-5:
           current.kind==='translate'?current.startPosition.distanceTo(desired)<1e-5:
-          current.startRotation.angleTo(desired)<1e-5){onCancel();return;}
+          current.startRotation.angleTo(desired)<1e-5){cancelDrag(current);return;}
       queueMicrotask(async()=>{
         try{
           const result=current.kind==='arm-hand'||current.kind==='arm-elbow'?
@@ -195,7 +224,7 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
             `膝方向を仮表示中。指定との差 ${result.score.toFixed(1)}°。確認してから「このFをキー化」で保存してください。`:
             `${current.kind==='translate'?'位置':'回転'}を仮表示中。確認してから「このFをキー化」で保存してください。`;
           if(wanted)onModeChange(true,getContext());
-        }catch(error){onCancel();fail(error);}
+        }catch(error){cancelDrag(current);fail(error);}
         finally{refresh();viewport.invalidate();}
       });
     });
@@ -245,6 +274,8 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
     drag.cancelled=true;drag.bone.quaternion.copy(drag.startRotation);
     drag.bone.position.copy(drag.startPosition);
     drag.handle.position.copy(drag.startHandlePosition);viewport.invalidate();
+    cancelLiveFrame(drag);
+    if(drag.kind==='arm-hand'||drag.kind==='arm-elbow')cancelDrag(drag);
     status.textContent='ドラッグを取り消しました。';
   };
   document.addEventListener('keydown',onKey,true);

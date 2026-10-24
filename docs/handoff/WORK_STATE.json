@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T17:48:05+09:00",
+  "updated_at": "2026-10-24T18:00:24+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-mode",
-  "head_at_update": "87370a9",
+  "branch": "codex/v05-motion010-arm-live-drag",
+  "head_at_update": "5789610",
   "current": {
-    "task": "Issue #106: MOTION-010 腕FK/IK編集方法切替",
+    "task": "Issue #106: MOTION-010 右腕保存と連続ドラッグ",
     "status": "done",
-    "step": "左右腕の編集方法切替を姿勢・キー・Undo不変で接続し、実PMXで再読込まで確認する",
+    "step": "右手先・ひじの実3D操作を保存・再読込まで確認し、ドラッグ中の姿勢更新を接続・検査する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 右腕手先・ひじハンドルの保存再読込と連続ドラッグ中更新を実PMXで確認し、必要な修正を行う",
-    "MOTION-010: 任意PMXの関節制限、物理ON、実GPU、Linux、標準MCP、候補採用・作品配置の残るゲートを整理する"
+    "MOTION-010: 任意PMXの腕IK関節制限と衝突条件を実データで調査し、操作可否と表示を安全に一般化する",
+    "MOTION-010: 物理ON、実GPU、Linux、標準MCP、候補採用・作品配置の残るゲートを整理する"
   ],
   "unverified": [
-    "登録済み201骨・246骨PMX、VMD1本、作品F240、物理OFFの限定確認。右腕ハンドル保存再読込、連続ドラッグ中更新、任意PMX関節制限、物理ON、実GPU、Linux、標準MCP、候補採用・作品配置、Owner採用は未確認。衣装PMX初回の再読込待ち120秒タイムアウトは再実行で成功したが再現条件未確定。AC-M-01/02と全体は未合格。"
+    "登録済み201骨・246骨PMXとVMD1本、作品F240、物理OFF・SwiftShaderの限定確認。任意PMX関節制限、物理ON、実GPU、Linux、標準MCP、候補採用・作品配置、Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T18:00:24+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "5789610",
+      "text": "MOTION-010右手先・ひじのライブ仮表示・Esc・保存・Undo/Redo・再読込を2実PMXで確認し、VMD角度比較の四元数ノルム誤判定を修正"
+    },
+    {
+      "at": "2026-10-24T17:50:13+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "af7a754",
+      "text": "Issue #106: MOTION-010 右腕保存と連続ドラッグ: 右手先・ひじの実3D操作を保存・再読込まで確認し、ドラッグ中の姿勢更新を接続・検査する"
+    },
     {
       "at": "2026-10-24T17:48:05+09:00",
       "by": "codex",
@@ -227,20 +241,6 @@
       "event": "start",
       "head": "bdc3891",
       "text": "Issue #106: MOTION-010 足IKの到達残差表示: 実PMXの足IKターゲットと足首の評価済み位置差を3D編集画面へ表示し、未到達の誤認を防ぐ"
-    },
-    {
-      "at": "2026-10-24T15:20:30+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a0429d0",
-      "text": "Issue #106: 実PMX左足IKのポインタ補正を作品F240へ保存し、1回のUndo/Redoと画面再読込で足首姿勢を照合"
-    },
-    {
-      "at": "2026-10-24T15:16:59+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "b63d7c3",
-      "text": "Issue #106: MOTION-010 足IK実ポインタ補正の保存再読込: 足首ハンドルの実ドラッグをキー化し、再読込・Undo/Redo・原本不変を実PMXで検証する"
     }
   ]
 }

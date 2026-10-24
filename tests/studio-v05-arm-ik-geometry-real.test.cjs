@@ -386,7 +386,7 @@ test('real PMX arm chains solve, preview, handle, edit mode, save and roundtrip 
     await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().gizmo?.armSide==='右');
     const rightBefore=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
       input.instanceId,['左手首','右ひじ','右手首']),{instanceId});
-    async function dragArmMarker(name){
+    async function dragArmMarker(name,beforeWorld,revision){
       await page.locator('#v110-bone-tree').evaluate(el=>el.open=true);
       await page.locator('#v110-bone-search').fill(name);
       await page.waitForFunction(bone=>{
@@ -405,15 +405,23 @@ test('real PMX arm chains solve, preview, handle, edit mode, save and roundtrip 
         [0,25,-35,-24],[45,0,-35,24],[0,-45,35,24]]){
         await page.mouse.move(screen.x+dx,screen.y+dy);await page.mouse.down();
         await page.mouse.move(screen.x+dx+mx,screen.y+dy+my,{steps:12});
+        await page.waitForTimeout(80);
+        const live=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+          input.instanceId,[input.name]).bones[input.name].world.slice(12,15),{instanceId,name});
+        const liveDelta=distance(beforeWorld,live);
+        assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,revision,
+          'dragging an arm must not save keys');
         await page.mouse.up();await page.waitForTimeout(180);
         const status=await page.locator('#v111-fk-gizmo-status').textContent();
-        console.log(JSON.stringify({rightArmPointer:name,attempt:[dx,dy,mx,my],status,
+        console.log(JSON.stringify({rightArmPointer:name,attempt:[dx,dy,mx,my],liveDelta,status,
           fkStatus:await page.locator('#v106-fk-status').textContent()}));
-        if(status.includes('腕IKを仮表示中'))return status;
+        if(status.includes('腕IKを仮表示中'))return {status,liveDelta,screen,attempt:[dx,dy,mx,my]};
       }
       return null;
     }
-    assert.ok(await dragArmMarker('右手首'),'右手先の実ポインタ操作');
+    const rightHandDrag=await dragArmMarker('右手首',rightBefore.bones['右手首'].world.slice(12,15),12);
+    assert.ok(rightHandDrag,'右手先の実ポインタ操作');
+    assert.ok(rightHandDrag.liveDelta>1e-4,'右手先はマウスを離す前に姿勢更新する');
     const rightHandAfter=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
       input.instanceId,['左手首','右ひじ','右手首']),{instanceId});
     assert.ok(distance(rightBefore.bones['右手首'].world.slice(12,15),
@@ -425,9 +433,28 @@ test('real PMX arm chains solve, preview, handle, edit mode, save and roundtrip 
       input.instanceId,['右手首']),{instanceId});
     assert.ok(distance(rightBefore.bones['右手首'].world.slice(12,15),
       rightCancelled.bones['右手首'].world.slice(12,15))<1e-5);
+    const [cancelDx,cancelDy,cancelMx,cancelMy]=rightHandDrag.attempt;
+    await page.mouse.move(rightHandDrag.screen.x+cancelDx,rightHandDrag.screen.y+cancelDy);
+    await page.mouse.down();
+    await page.mouse.move(rightHandDrag.screen.x+cancelDx+cancelMx,
+      rightHandDrag.screen.y+cancelDy+cancelMy,{steps:12});
+    await page.waitForFunction(input=>{
+      const world=window.BAIStudioMultiScenePreview.poseProbe(input.instanceId,['右手首'])
+        .bones['右手首'].world.slice(12,15);
+      return Math.hypot(...world.map((value,index)=>value-input.before[index]))>1e-4;
+    },{instanceId,before:rightBefore.bones['右手首'].world.slice(12,15)});
+    await page.keyboard.press('Escape');
+    const cancelledWhileDragging=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['右手首']),{instanceId});
+    assert.ok(distance(rightBefore.bones['右手首'].world.slice(12,15),
+      cancelledWhileDragging.bones['右手首'].world.slice(12,15))<1e-5);
+    await page.mouse.up();
+    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,12);
     await page.locator('#v137-arm-elbow').click();
     await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().gizmo?.armElbowWorld);
-    assert.ok(await dragArmMarker('右ひじ'),'右ひじの実ポインタ操作');
+    const rightElbowDrag=await dragArmMarker('右ひじ',rightBefore.bones['右ひじ'].world.slice(12,15),12);
+    assert.ok(rightElbowDrag,'右ひじの実ポインタ操作');
+    assert.ok(rightElbowDrag.liveDelta>1e-4,'右ひじはマウスを離す前に姿勢更新する');
     const rightElbowAfter=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
       input.instanceId,['左手首','右ひじ','右手首']),{instanceId});
     assert.ok(distance(rightBefore.bones['右ひじ'].world.slice(12,15),
@@ -508,6 +535,55 @@ test('real PMX arm chains solve, preview, handle, edit mode, save and roundtrip 
     assert.deepEqual(reloadedModes.layers,modeBaseline.layers);
     await switchArmMode('left_arm','FK',15);
     await switchArmMode('right_arm','FK',16);
+    const rightSaved={};
+    for(const [kind,bone,revision] of [['hand','右手首',16],['elbow','右ひじ',19]]){
+      await page.locator('#v137-arm-side').selectOption('右');
+      await page.locator(`#v137-arm-${kind}`).click();
+      if(await page.locator('#v111-fk-gizmo-toggle').getAttribute('aria-pressed')!=='true')
+        await page.locator('#v111-fk-gizmo-toggle').click();
+      await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().gizmo?.armSide==='右');
+      const initial=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+        input.instanceId,['左手首','右ひじ','右手首']),{instanceId});
+      const dragged=await dragArmMarker(bone,initial.bones[bone].world.slice(12,15),revision);
+      assert.ok(dragged&&dragged.liveDelta>1e-4,`${bone}の連続ドラッグ更新`);
+      const preview=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+        input.instanceId,['左手首','右ひじ','右手首']),{instanceId});
+      assert.ok(distance(initial.bones[bone].world.slice(12,15),
+        preview.bones[bone].world.slice(12,15))>1e-4);
+      assert.ok(distance(initial.bones['左手首'].world.slice(12,15),
+        preview.bones['左手首'].world.slice(12,15))<1e-4);
+      await page.locator('#v106-fk-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent
+        ?.includes('腕・ひじの2キーを1回の操作として保存しました'));
+      const saved=await ok(await fetch(`${endpoint}?id=${id}`));
+      assert.equal(saved.revision,revision+1);
+      assert.ok(saved.layers[0].keys.some(key=>key.bone==='右腕'&&key.frame===240));
+      assert.ok(saved.layers[0].keys.some(key=>key.bone==='右ひじ'&&key.frame===240));
+      await page.locator('#v106-fk-undo').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('戻しました'));
+      const undone=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+        input.instanceId,[input.bone]),{instanceId,bone});
+      assert.ok(distance(initial.bones[bone].world.slice(12,15),
+        undone.bones[bone].world.slice(12,15))<1e-5);
+      await page.locator('#v106-fk-redo').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('やり直しました'));
+      const redone=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+        input.instanceId,[input.bone]),{instanceId,bone});
+      assert.ok(distance(preview.bones[bone].world.slice(12,15),
+        redone.bones[bone].world.slice(12,15))<1e-5);
+      rightSaved[bone]=redone.bones[bone].world.slice(12,15);
+      console.log(JSON.stringify({rightSavedBone:bone,revision:revision+3}));
+    }
+    await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
+      window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
+      null,{timeout:120000});
+    await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'right-arm-save-reload'));
+    const rightReloaded=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['右ひじ','右手首']),{instanceId});
+    for(const bone of Object.keys(rightSaved))assert.ok(distance(rightSaved[bone],
+      rightReloaded.bones[bone].world.slice(12,15))<1e-3,`${bone}保存再読込`);
+    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,22);
     await page.locator('#v116-vmd-candidate-create').click();
     await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-download')?.hidden===false||
       document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('不可'),

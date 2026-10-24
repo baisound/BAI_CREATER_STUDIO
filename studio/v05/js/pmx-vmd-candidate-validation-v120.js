@@ -37,6 +37,12 @@ export function comparePmxBones(source,candidate,THREE){
     a[i].getWorldPosition(ap);b[i].getWorldPosition(bp);
     a[i].getWorldQuaternion(aq);b[i].getWorldQuaternion(bq);
     const p=ap.distanceTo(bp);
+    // Matrix decomposition can return a quaternion with a tiny norm error.
+    // Compare orientation, not that norm, especially after large arm edits.
+    if(!Number.isFinite(aq.lengthSq())||!Number.isFinite(bq.lengthSq())||
+        aq.lengthSq()<1e-12||bq.lengthSq()<1e-12)
+      throw Error(`実PMXの回転が非有限です: ${a[i].name}`);
+    aq.normalize();bq.normalize();
     const dot=Math.min(1,Math.abs(aq.dot(bq)));
     const degrees=2*Math.acos(dot)*180/Math.PI;
     if(!Number.isFinite(p)||!Number.isFinite(degrees))throw Error(`実PMXの姿勢が非有限です: ${a[i].name}`);
