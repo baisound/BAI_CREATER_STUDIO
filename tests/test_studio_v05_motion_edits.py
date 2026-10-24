@@ -138,3 +138,51 @@ def test_fk_ik_mode_invalid_file_keeps_original(tmp_path):
     with pytest.raises(MotionEditError, match='unreadable'):
         read(root, catalog, project_id)
     assert path.read_bytes() == before
+
+
+def test_arm_pair_is_atomic_and_preserves_existing_position(tmp_path, monkeypatch):
+    project_id, catalog = project(tmp_path)
+    instance_id, clip_id = str(uuid.uuid4()), str(uuid.uuid4())
+    root = tmp_path / 'edits'
+    root.mkdir()
+    model = tmp_path / 'model.pmx'
+    model.write_bytes(b'PMX fixture')
+    context = {'instance_id': instance_id, 'clip_id': clip_id,
+               'model_asset_id': 'pmx', 'motion_asset_id': 'vmd',
+               'model_sha256': 'a' * 64, 'motion_sha256': 'b' * 64,
+               'fps': 60, 'start': 0, 'duration': 10, 'model_path': model}
+    monkeypatch.setattr(edits, '_context', lambda *args: context)
+    monkeypatch.setattr(edits, 'parse_pmx', lambda raw: {'bones_detail': [
+        {'name': '左腕'}, {'name': '左ひじ'}, {'name': '頭'}]})
+    args = (root, tmp_path, tmp_path, tmp_path, tmp_path, catalog, project_id)
+    arm = {'frame': 240, 'bone': '左腕', 'rotation': [0, 0, 0, 1]}
+    elbow = {'frame': 240, 'bone': '左ひじ', 'rotation': [0, 0, 0, 1]}
+    original = edits.mutate(*args, 0, 'set', [], instance_id=instance_id,
+                            clip_id=clip_id, key={**arm, 'position': [0.2, 0, 0]})
+    assert original['revision'] == 1
+    paired = edits.mutate(*args, 1, 'arm-set', [], instance_id=instance_id,
+                          clip_id=clip_id, keys=[elbow, arm])
+    assert paired['revision'] == 2
+    assert [key['bone'] for key in paired['layers'][0]['keys']] == ['左ひじ', '左腕']
+    assert next(key for key in paired['layers'][0]['keys'] if key['bone'] == '左腕')['position'] == [0.2, 0, 0]
+    path = root / (project_id + '.json')
+    saved_bytes = path.read_bytes()
+    for invalid in ([arm], [{**arm, 'frame': 241}, elbow], [arm, arm],
+                    [arm, {**elbow, 'bone': '頭'}], [arm, {**elbow, 'rotation': [0, 0, 0, 2]}]):
+        with pytest.raises(MotionEditError):
+            edits.mutate(*args, 2, 'arm-set', [], instance_id=instance_id,
+                         clip_id=clip_id, keys=invalid)
+        assert path.read_bytes() == saved_bytes
+    with pytest.raises(MotionEditError, match='Revision conflict'):
+        edits.mutate(*args, 1, 'arm-set', [], instance_id=instance_id,
+                     clip_id=clip_id, keys=[arm, elbow])
+    assert path.read_bytes() == saved_bytes
+    same = edits.mutate(*args, 2, 'arm-set', [], instance_id=instance_id,
+                        clip_id=clip_id, keys=[arm, elbow])
+    assert same['revision'] == 2 and path.read_bytes() == saved_bytes
+    undone = edits.mutate(*args, 2, 'undo', [])
+    assert undone['revision'] == 3
+    assert [key['bone'] for key in undone['layers'][0]['keys']] == ['左腕']
+    redone = edits.mutate(*args, 3, 'redo', [])
+    assert redone['revision'] == 4
+    assert [key['bone'] for key in redone['layers'][0]['keys']] == ['左ひじ', '左腕']

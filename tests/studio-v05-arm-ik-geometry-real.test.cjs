@@ -86,6 +86,27 @@ test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
       assert.ok(measured[side].twistBeforeWrist>0.02);
     }
     console.log(JSON.stringify(measured));
+    const endpoint=`${server.base}/api/studio/v05/motion-edits`;
+    const post=body=>fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({project_id:id,...(!['undo','redo'].includes(body.action)?
+        {instance_id:instanceId,clip_id:placed.clip.id}:{}),...body})});
+    const head={frame:240,bone:'頭',rotation:[0,0,0,1]};
+    const first=await ok(await post({revision:0,action:'set',key:head}));
+    assert.equal(first.revision,1);
+    const arm={frame:240,bone:'左腕',rotation:[0,0,0,1]};
+    const elbow={frame:240,bone:'左ひじ',rotation:[0,0,0,1]};
+    const paired=await ok(await post({revision:1,action:'arm-set',keys:[arm,elbow]}));
+    assert.equal(paired.revision,2);
+    assert.deepEqual(paired.layers[0].keys.map(key=>key.bone),['左ひじ','左腕','頭']);
+    const invalid=await post({revision:2,action:'arm-set',keys:[arm,{...elbow,frame:241}]});
+    assert.equal(invalid.status,422);
+    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,2);
+    const undo=await ok(await post({revision:2,action:'undo'}));
+    assert.equal(undo.revision,3);
+    assert.deepEqual(undo.layers[0].keys.map(key=>key.bone),['頭']);
+    const redo=await ok(await post({revision:3,action:'redo'}));
+    assert.equal(redo.revision,4);
+    assert.deepEqual(redo.layers[0].keys.map(key=>key.bone),['左ひじ','左腕','頭']);
     harness.assertNoErrors(page);
   }finally{
     await page?.close();await browser?.close();await server.stop();

@@ -271,17 +271,17 @@ def view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, pr
 
 def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
            project_id, revision, action, assets, *, instance_id=None, clip_id=None,
-           key=None, layer_id=None, settings=None, to_frame=None, limb=None, mode=None):
+           key=None, keys=None, layer_id=None, settings=None, to_frame=None, limb=None, mode=None):
     if type(revision) is not int or revision < 0:
         raise MotionEditError('Revision required')
-    if action not in ('set', 'remove', 'move', 'layer-update', 'mode-set', 'undo', 'redo'):
+    if action not in ('set', 'arm-set', 'remove', 'move', 'layer-update', 'mode-set', 'undo', 'redo'):
         raise MotionEditError('Unknown motion edit action')
     with LOCK:
         current = read(root, catalog, project_id)
         if current['revision'] != revision:
             raise MotionEditError('Revision conflict')
         if action == 'mode-set':
-            if any(value is not None for value in (key, layer_id, settings, to_frame)) \
+            if any(value is not None for value in (key, keys, layer_id, settings, to_frame)) \
                     or limb not in LIMBS or mode not in ('FK', 'IK'):
                 raise MotionEditError('Invalid FK/IK mode fields')
             context = _context(data_root, scene_root, legacy_root, arrangement_root,
@@ -313,7 +313,7 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
         if limb is not None or mode is not None:
             raise MotionEditError('FK/IK mode fields belong to mode-set only')
         if action in ('undo', 'redo'):
-            if any(value is not None for value in (instance_id, clip_id, key, layer_id, settings, to_frame)):
+            if any(value is not None for value in (instance_id, clip_id, key, keys, layer_id, settings, to_frame)):
                 raise MotionEditError('Undo/Redo accepts only project and revision')
             source = current['history'][action]
             target = current['history']['redo' if action == 'undo' else 'undo']
@@ -333,9 +333,22 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                 raise MotionEditError('Layer update accepts settings only')
             else:
                 checked = None
+            checked_pair = None
+            if action == 'arm-set':
+                if key is not None or not isinstance(keys, list) or len(keys) != 2:
+                    raise MotionEditError('Arm correction requires two keys')
+                checked_pair = [_key(item) for item in keys]
+                names = {item['bone'] for item in checked_pair}
+                if checked_pair[0]['frame'] != checked_pair[1]['frame'] or names not in (
+                        {'左腕', '左ひじ'}, {'右腕', '右ひじ'}):
+                    raise MotionEditError('Arm correction requires same-frame arm and elbow keys')
+            elif keys is not None:
+                raise MotionEditError('Multiple keys belong to arm-set only')
             start = math.ceil(context['start'] * context['fps'] - 1e-7)
             end = math.ceil((context['start'] + context['duration']) * context['fps'] - 1e-7)
             if checked and not start <= checked['frame'] < end:
+                raise MotionEditError('Frame is outside the motion clip')
+            if checked_pair and not start <= checked_pair[0]['frame'] < end:
                 raise MotionEditError('Frame is outside the motion clip')
             if action == 'move' and (type(to_frame) is not int or not start <= to_frame < end):
                 raise MotionEditError('Destination frame is outside the motion clip')
@@ -343,12 +356,12 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                 raise MotionEditError('Destination frame belongs to move only')
             if action != 'layer-update' and (layer_id is not None or settings is not None):
                 raise MotionEditError('Layer settings belong to layer-update only')
-            if action == 'set':
+            if action in ('set', 'arm-set'):
                 try:
                     names = {row['name'] for row in parse_pmx(context['model_path'].read_bytes())['bones_detail']}
                 except (ValueError, OSError) as exc:
                     raise MotionEditError('PMX bones cannot be inspected') from exc
-                if checked['bone'] not in names:
+                if any(item['bone'] not in names for item in (checked_pair or [checked])):
                     raise MotionEditError('Bone is absent from registered PMX')
             before = copy.deepcopy(current['layers'])
             layer = next((l for l in current['layers'] if l['instance_id'] == instance_id and
@@ -356,7 +369,7 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
             if layer and _identity(layer) != _identity(context):
                 raise MotionEditError('Source or clip placement changed')
             if not layer:
-                if action != 'set':
+                if action not in ('set', 'arm-set'):
                     raise MotionEditError('FK key not found')
                 if len(current['layers']) >= MAX_LAYERS:
                     raise MotionEditError('Motion edit layer limit reached')
@@ -372,6 +385,28 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                 if updated == layer:
                     return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
                 layer.update(settings)
+                current['history']['undo'].append(before)
+                del current['history']['undo'][:-MAX_HISTORY]
+                current['history']['redo'] = []
+                current['revision'] += 1
+                _record(current, project_id)
+                _atomic(_path(root, project_id), current)
+                return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
+            if action == 'arm-set':
+                identities = {(item['frame'], item['bone']) for item in checked_pair}
+                old_pair = [item for item in layer['keys'] if (item['frame'], item['bone']) in identities]
+                old_by_identity = {(item['frame'], item['bone']): item for item in old_pair}
+                merged_pair = []
+                for item in checked_pair:
+                    prior = old_by_identity.get((item['frame'], item['bone']), {})
+                    merged_pair.append({**({'position': prior['position']} if 'position' in prior and
+                        'position' not in item else {}), **item})
+                if len(old_pair) == 2 and all(item in old_pair for item in merged_pair):
+                    return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
+                remaining = [item for item in layer['keys'] if (item['frame'], item['bone']) not in identities]
+                if len(remaining) + 2 > MAX_KEYS:
+                    raise MotionEditError('FK key limit reached')
+                layer['keys'] = sorted([*remaining, *merged_pair], key=lambda item: (item['frame'], item['bone']))
                 current['history']['undo'].append(before)
                 del current['history']['undo'][:-MAX_HISTORY]
                 current['history']['redo'] = []
