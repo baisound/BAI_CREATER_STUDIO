@@ -7,11 +7,9 @@ const crypto=require('node:crypto');
 const harness=require('./helpers/studio-harness.cjs');
 
 const root=process.env.BAI_REAL_MMD_DATA;
-const modelName='Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx';
+const primaryModel='Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx';
 const motionName='神っぽいな.vmd';
-const modelPath=root&&path.join(root,'mmd','A',modelName);
 const motionPath=root&&path.join(root,'mmd','vmd',motionName);
-const available=modelPath&&motionPath&&fs.existsSync(modelPath)&&fs.existsSync(motionPath);
 const digest=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 async function ok(reply){const body=await reply.text();assert.equal(reply.status,200,body);return JSON.parse(body);}
 
@@ -22,17 +20,24 @@ for(const variant of [
   {duration:204,bone:'頭',angle:8,begin:5338,end:5666,port:8915},
   {duration:204,bone:'頭',angle:8,begin:5334,end:5666,
     fadeIn:4,fadeOut:4,port:8916},
+  {duration:204,bone:'頭',angle:8,begin:5334,end:5666,
+    fadeIn:4,fadeOut:4,category:'B',model:'avatar-front-garment-v04.pmx',
+    bones:246,port:8917},
 ])test(
-  `real moving 203s VMD sparse ${variant.begin?`bounded ${variant.bone} fade ${variant.fadeIn||0}/${variant.fadeOut||0}`:'constant head'} candidate matches PMX for ${variant.duration}s`,
-  {skip:!available&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:360000},async()=>{
+  `real moving 203s VMD sparse ${variant.begin?`bounded ${variant.bone} fade ${variant.fadeIn||0}/${variant.fadeOut||0}`:'constant head'} candidate matches ${variant.category||'A'} PMX for ${variant.duration}s`,
+  {skip:!(root&&fs.existsSync(path.join(root,'mmd',variant.category||'A',variant.model||primaryModel))&&
+    motionPath&&fs.existsSync(motionPath))&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:360000},async()=>{
     const {duration}=variant,interval=Boolean(variant.begin);
+    const category=variant.category||'A',modelName=variant.model||primaryModel;
+    const modelPath=path.join(root,'mmd',category,modelName);
     const originals=[digest(modelPath),digest(motionPath)];
     const metadata=JSON.parse(fs.readFileSync(path.join(root,'mmd_assets.json'),'utf8'));
-    const entries=metadata.A.filter(entry=>entry.name===modelName||entry.name.startsWith('tex/'));
-    const seed={'mmd_assets.json':JSON.stringify({A:entries,B:[],vmd:[
+    const entries=metadata[category].filter(entry=>entry.name===modelName||entry.name.startsWith('tex/'));
+    const seed={'mmd_assets.json':JSON.stringify({A:category==='A'?entries:[],
+      B:category==='B'?entries:[],vmd:[
       {name:motionName,size:fs.statSync(motionPath).size}]})};
-    for(const entry of entries)seed[`mmd/A/${entry.name}`]=fs.readFileSync(
-      path.join(root,'mmd','A',...entry.name.split('/')));
+    for(const entry of entries)seed[`mmd/${category}/${entry.name}`]=fs.readFileSync(
+      path.join(root,'mmd',category,...entry.name.split('/')));
     seed[`mmd/vmd/${motionName}`]=fs.readFileSync(motionPath);
     const server=await harness.startServer({port:variant.port,seed});
     let browser,page;
@@ -43,7 +48,7 @@ for(const variant of [
       const id=project.project.id;
       const scene=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-          project_id:id,action:'add',revision:0,asset_id:`mmd:A:${modelName}`,
+          project_id:id,action:'add',revision:0,asset_id:`mmd:${category}:${modelName}`,
           transform:{position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]}})}));
       const instance=scene.instances[0].id;
       const placed=await ok(await fetch(`${server.base}/api/studio/v05/arrangement/place`,{
@@ -110,7 +115,7 @@ for(const variant of [
       console.log(JSON.stringify({longSparseCandidate:report}));
       assert.equal(report.checkedFrames,duration*60);
       assert.equal(report.checkedVmdFrames,duration*30+(interval?1:0));
-      assert.equal(report.bones,201);
+      assert.equal(report.bones,variant.bones||201);
       assert.equal(report.passed,true,JSON.stringify(report));
       const plan=await ok(await fetch(`${server.base}/api/studio/v05/scene/multi-motion-plan?id=${id}`));
       const adopted=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate/adopt`,{
