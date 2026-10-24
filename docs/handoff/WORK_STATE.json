@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T21:09:22+09:00",
+  "updated_at": "2026-10-24T21:16:27+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-long-constant-candidate",
-  "head_at_update": "a030e68",
+  "head_at_update": "44cd056",
   "current": {
     "task": "Issue #106: MOTION-010 長尺VMDの一定補正候補",
-    "status": "in_progress",
+    "status": "done",
     "step": "動く元曲線を保つ疎な一定補正候補を実PMX全フレームで検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 元曲線を保つ長尺VMD候補の限定条件を検討し、実PMX全骨往復まで検証する"
+    "MOTION-010 時間限定補正で動く元曲線を保てる候補方式と安全な拒否を検討する"
   ],
   "unverified": [
-    "元曲線を保つ長尺VMD候補の生成・実PMX往復・採用、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "時間限定補正の長尺VMD候補、別PMX/他FPSの長尺候補、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T21:16:27+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "44cd056",
+      "text": "MOTION-010 203.63秒の動く元VMDで全クリップ一定の頭FK補正を疎な候補へ変換。100秒・204秒の201骨実PMX全作品F/全VMD Fで最大位置0.0000017793・角度0.0000261763度、明示採用・復元、原本ハッシュ一致を確認。実PMX検証上限を12600F/19000標本へ拡張。"
+    },
     {
       "at": "2026-10-24T21:09:22+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "c947d63",
       "text": "Issue #106: MOTION-010 VMD書き出し範囲: 全区間と修正区間のみの明示選択、区間外原VMD骨レコードのバイト一致と実PMX往復を検証する"
-    },
-    {
-      "at": "2026-10-24T18:31:12+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b9b79fa",
-      "text": "Issue #106: 実PMX全骨検査済みVMD候補を原本不変で登録し同じ作品の元クリップへ明示配置、二重補正を防ぎ復元を実装。隔離Chromeで採用後プレビュー・3F MP4・画面/API復元、実データハッシュ不変を確認"
     }
   ]
 }

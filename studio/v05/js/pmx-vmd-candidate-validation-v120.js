@@ -4,8 +4,9 @@ import {loadModel,disposeObject,modelSource} from '../../js/viewport/model-loade
 import {loadVmdClip,vmdUrl} from '../../js/motion/vmd.js';
 import {createPmxVmdPreview} from '../../js/motion/pmx-vmd-preview.js';
 
-const MAX_FRAMES=6000;
-const MAX_SAMPLES=10000;
+// Bounded to 210 seconds at 60 fps plus the matching 30 fps VMD frames.
+const MAX_FRAMES=12600;
+const MAX_SAMPLES=19000;
 const POSITION_LIMIT=1e-3;
 const ANGLE_LIMIT_DEGREES=0.01;
 
