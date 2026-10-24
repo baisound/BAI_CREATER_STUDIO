@@ -10,13 +10,28 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
   toggle.textContent='3D回転ハンドルを表示';toggle.setAttribute('aria-pressed','false');
   const status=document.createElement('small');status.id='v111-fk-gizmo-status';status.setAttribute('role','status');
   status.textContent='対象骨の回転・位置をドラッグで仮表示します。保存は「このFをキー化」。';
-  row.append(goto,mode,toggle,status);controls.append(row);
+  const reach=document.createElement('small');reach.id='v111-fk-ik-reach';
+  reach.setAttribute('role','status');reach.hidden=true;
+  row.append(goto,mode,toggle,status,reach);controls.append(row);
   let gizmo=null,helper=null,proxy=null,proxyContext=null,attachedContext=null;
   let wanted=false,disposed=false,loading=false,drag=null;
   const label=()=>mode.value==='translate'?'位置':'回転';
   const sameContext=(a,b)=>Boolean(a&&b&&a.projectId===b.projectId&&
     a.instanceId===b.instanceId&&a.clipId===b.clipId&&a.frame===b.frame&&
     a.bone===b.bone&&a.effectorBone===b.effectorBone);
+  function updateReach(context){
+    if(!context||context.reason||!context.effectorBone){reach.hidden=true;reach.textContent='';return;}
+    const THREE=context.target.libs.THREE;
+    context.target.object.updateWorldMatrix(true,true);
+    const target=context.bone.getWorldPosition(new THREE.Vector3());
+    const effector=context.effectorBone.getWorldPosition(new THREE.Vector3());
+    const error=target.distanceTo(effector);
+    reach.hidden=false;
+    reach.dataset.reached=Number.isFinite(error)&&error<=0.001?'true':'false';
+    reach.textContent=Number.isFinite(error)
+      ?`IK目標と${context.effectorBone.name}の位置差: ${error.toFixed(4)} シーン単位。${error>0.001?'目標に一致していません。到達距離や関節制限を確認してください。':'目標付近にあります。'}`
+      :'IK到達差を測定できません。';
+  }
   function clearProxy(){
     if(!proxy)return;
     if(gizmo?.object===proxy)gizmo.detach();
@@ -66,6 +81,7 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
       attachFor(context);
       if(previous!==gizmo.object)onModeChange(true,context);
     }
+    if(!drag)updateReach(context);
     if(!wanted)status.textContent=context?.reason||
       '対象骨の回転・位置をドラッグで仮表示します。保存は「このFをキー化」。';
   }

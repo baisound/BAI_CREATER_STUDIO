@@ -208,11 +208,25 @@ test('real PMX 3D rotation and translation handles preserve both FK channels',
       const footPose=()=>page.evaluate(id=>window.BAIStudioMultiScenePreview.poseProbe(id,
         ['左足ＩＫ','左足首','右足首']),instanceId);
       const feetBefore=await footPose();
+      const world=bone=>bone.world.slice(12,15);
+      await page.locator('#v112-fk-position-x').fill('5');
+      await page.locator('#v106-fk-preview').click();
+      await page.waitForFunction(()=>document.querySelector('#v111-fk-ik-reach')?.textContent?.includes('目標に一致していません'));
+      const farPose=await footPose();
+      const farReach=Math.hypot(...world(farPose.bones['左足ＩＫ'])
+        .map((value,index)=>value-world(farPose.bones['左足首'])[index]));
+      assert.ok(farReach>0.001,'far IK target should expose a real unsolved distance');
+      assert.match(await page.locator('#v111-fk-ik-reach').textContent(),
+        new RegExp(`位置差: ${farReach.toFixed(4)} シーン単位`));
+      await page.locator('#v106-fk-cancel').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('破棄しました'));
+      assert.ok(delta(world(feetBefore.bones['左足首']),world((await footPose()).bones['左足首']))<1e-5);
+      assert.match(await page.locator('#v111-fk-ik-reach').textContent(),/目標付近にあります/);
+      console.log(JSON.stringify({far_ik_reach_error:farReach}));
       await page.locator('#v112-fk-position-x').fill('0.3');
       await page.locator('#v106-fk-preview').click();
       await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('仮補正を表示中'));
       const feetAfter=await footPose();
-      const world=bone=>bone.world.slice(12,15);
       assert.ok(delta(feetBefore.bones['左足ＩＫ'].position,feetAfter.bones['左足ＩＫ'].position)>0.29);
       assert.ok(delta(world(feetBefore.bones['左足ＩＫ']),world(feetAfter.bones['左足ＩＫ']))>0.02);
       assert.ok(delta(world(feetBefore.bones['左足首']),world(feetAfter.bones['左足首']))>0.02,
