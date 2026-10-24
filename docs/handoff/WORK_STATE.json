@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T02:11:58+09:00",
+  "updated_at": "2026-10-25T02:16:35+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-track-draft",
-  "head_at_update": "2b4b666",
+  "branch": "codex/v05-lip001-morph-vmd",
+  "head_at_update": "0695b64",
   "current": {
-    "task": "Issue #187: 口形候補を別レイヤーの下書きへ保存",
+    "task": "Issue #187: 下書きから別名モーフVMDを出力",
     "status": "done",
-    "step": "原SRT・読みを保持し、候補の境界・口形・強度を版管理して手動調整可能にする",
+    "step": "元SRT・読み・モデルモーフ対応を厳密照合しモーフ専用VMD writer/readback を実装する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #187: 下書きの警告と読み確定を確認した上で、採用キーと別名モーフVMDの厳密writer/readbackを実装する"
+    "Issue #187: 確定読み・警告・下書き・登録PMX MorphMapを照合し、採用と別名VMD出力/再読込APIを接続する"
   ],
   "unverified": [
-    "実ユーザーSRT/歌音声、実PMXの口形再生、採用・VMD出力/再読込、Undo/Redo、WebMCP/標準MCP、production.lip、Linuxは未実装/未検証"
+    "実ユーザーSRT/歌音声、実PMX再生・見た目、作品からのVMD出力/採用、Undo/Redo、WebMCP/標準MCP、production.lip、Linuxは未実装/未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:16:35+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "0695b64",
+      "text": "Issue #187: モーフ専用VMD 0002 writer/readbackを追加。人工キー8/8、独立MMDParserで日本語名・重み・骨0を確認。"
+    },
+    {
+      "at": "2026-10-25T02:14:06+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e0a9170",
+      "text": "Issue #187: 下書きから別名モーフVMDを出力: 元SRT・読み・モデルモーフ対応を厳密照合しモーフ専用VMD writer/readback を実装する"
+    },
     {
       "at": "2026-10-25T02:11:58+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "e177e52",
       "text": "Issue #175: v0.5口形対応表の編集画面: 解析済みPMX口モーフからA/I/U/E/O/Closed/Restを選択し、手動重みを下書き保存・確定・再読込・失効表示する"
-    },
-    {
-      "at": "2026-10-25T00:28:52+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "5429ca4",
-      "text": "Issue #175: PMX対応表の作品別改訂付き保存APIを追加。隔離HTTP・実PMX Aで3/3、再読込/競合/hash失効/原本保持を検証。"
-    },
-    {
-      "at": "2026-10-25T00:25:35+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "df5d888",
-      "text": "Issue #175: モデル別MorphMap保存: PMXモデルID/hashと解析hashに紐付く母音対応表を作品別に保存・復元し、素材変更時に失効を示す"
     }
   ]
 }
