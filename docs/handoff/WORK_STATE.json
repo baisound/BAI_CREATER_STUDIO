@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T03:02:08+09:00",
+  "updated_at": "2026-10-25T03:05:51+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-composite-vmd",
-  "head_at_update": "b8df7c5",
+  "branch": "codex/v05-lip001-composite-gate",
+  "head_at_update": "8745db4",
   "current": {
-    "task": "Issue #187: 採用口形と元VMD・手動表情の別名合成出力",
-    "status": "done",
-    "step": "元VMDの全セクション保持と口モーフ優先の合成境界を確認し、安全な候補生成と再読込を実装する",
+    "task": "Issue #187: 採用口形・元VMD・手動表情の時間合成候補を比較する",
+    "status": "in_progress",
+    "step": "既存3D表示の優先規則とVMD補間を照合し、30fps別名候補の安全な比較ゲートを実装する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T03:05:51+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8745db4",
+      "text": "Issue #187: 採用口形・元VMD・手動表情の時間合成候補を比較する: 既存3D表示の優先規則とVMD補間を照合し、30fps別名候補の安全な比較ゲートを実装する"
+    },
     {
       "at": "2026-10-25T03:02:08+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "d02a35c",
       "text": "Issue #175: VRM0の実バインドをロード済み7 primitiveへ対応し、口形0.8/0.4の描画差、復元・時刻移動・モデル切替を隔離Chromeで確認。VRM1未結合は一時表示拒否。Python4/4・Node1/1・guarded Chrome2/2、原本/data7/exports0ハッシュ一致"
-    },
-    {
-      "at": "2026-10-25T01:17:43+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1eb0c70",
-      "text": "Issue #175: VRM口形の一時実描画: 登録VRMの実バインドを読み込み済みメッシュへ対応させ、保存しない口形プレビューと復元を実VRMで検証する"
     }
   ]
 }
