@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T10:47:38+09:00",
+  "updated_at": "2026-10-24T10:50:49+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-mp4-check",
-  "head_at_update": "7e63591",
+  "branch": "codex/v05-motion010-bone-select",
+  "head_at_update": "684780a",
   "current": {
-    "task": "Issue #106: MOTION-010 FK補正入り完成MP4の画素比較",
-    "status": "done",
-    "step": "実PMX＋VMDの保存補正を作品フレーム出力へ通し、別名MP4の復号画素・骨姿勢・原本ハッシュを比較",
+    "task": "Issue #106: MOTION-010実PMX骨の3D選択",
+    "status": "in_progress",
+    "step": "同じv0.5プレビュー内に実骨階層の選択・対象表示を接続し、既存FKキー欄へ同期",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T10:50:49+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "684780a",
+      "text": "Issue #106: MOTION-010実PMX骨の3D選択: 同じv0.5プレビュー内に実骨階層の選択・対象表示を接続し、既存FKキー欄へ同期"
+    },
     {
       "at": "2026-10-24T10:47:38+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "6491693",
       "text": "Issue #63: v0.5保存済み3Dカメラを同一作品のプレビューと限定MP4に反映: 静的撮影視点の保存契約、UI、再読込、MP4実画素を隔離検証"
-    },
-    {
-      "at": "2026-10-24T06:05:27+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "0ea3f6b",
-      "text": "Issue #69: 出力ボタンの有効/準備中/実行中/理由のツールチップを実状態へ同期。i18nが元文言で上書きする原因を修正。隔離Chrome実MP4 1/1、型・構文・JSON・実データhash確認。"
     }
   ]
 }
