@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:03:32+09:00",
+  "updated_at": "2026-10-25T01:07:36+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip004-vrm-expressions",
-  "head_at_update": "d914e24",
+  "branch": "codex/v05-lip004-vrm-map",
+  "head_at_update": "5bb3d73",
   "current": {
-    "task": "Issue #175: 登録VRMの表情定義確認",
-    "status": "done",
-    "step": "登録済み実VRMのexpression定義と欠落母音を原本hash付きで読み取り、v0.5で不足を明示する",
+    "task": "Issue #175: VRM表情の手動対応表",
+    "status": "in_progress",
+    "step": "登録VRM表情のモデル別対応表を原本hashと実バインドに結び付け、保存・再読込と未結合の確定拒否を実装する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:07:36+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5bb3d73",
+      "text": "Issue #175: VRM表情の手動対応表: 登録VRM表情のモデル別対応表を原本hashと実バインドに結び付け、保存・再読込と未結合の確定拒否を実装する"
+    },
     {
       "at": "2026-10-25T01:03:32+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "3999204",
       "text": "MOTION-010/CAM-015 保存済み30fpsカメラ2カットの半開境界を24/60fps作品から画面同期APIとHTTPで照合。隔離Chrome2件合格、原本SHAとdata7/exports0ハッシュ不変"
-    },
-    {
-      "at": "2026-10-24T22:53:36+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "58c69b4",
-      "text": "Issue #106: MOTION-010/CAM-015 旧カメラ複数カットの時刻境界: 保存済み30fpsカメラ複数キーのカット境界を作品24/60fpsから検証し、必要な依存修正を行う"
     }
   ]
 }
