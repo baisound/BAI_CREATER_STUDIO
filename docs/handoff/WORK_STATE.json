@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T18:00:24+09:00",
+  "updated_at": "2026-10-24T18:02:26+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-live-drag",
-  "head_at_update": "5789610",
+  "branch": "codex/v05-motion010-arm-constraints",
+  "head_at_update": "b5191cd",
   "current": {
-    "task": "Issue #106: MOTION-010 右腕保存と連続ドラッグ",
-    "status": "done",
-    "step": "右手先・ひじの実3D操作を保存・再読込まで確認し、ドラッグ中の姿勢更新を接続・検査する",
+    "task": "Issue #106: MOTION-010 PMX腕関節制限",
+    "status": "in_progress",
+    "step": "登録PMXの腕IK定義と関節制限を調査し、腕ハンドルの操作可否・理由表示を実データに合わせて安全に整える",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T18:02:26+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "b5191cd",
+      "text": "Issue #106: MOTION-010 PMX腕関節制限: 登録PMXの腕IK定義と関節制限を調査し、腕ハンドルの操作可否・理由表示を実データに合わせて安全に整える"
+    },
     {
       "at": "2026-10-24T18:00:24+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "cf61095",
       "text": "Issue #106: 実PMX左足IKの目標と足首の到達差を画面表示し、遠方仮指定0.0857シーン単位の未一致・取消後復帰を隔離Chromeで確認"
-    },
-    {
-      "at": "2026-10-24T15:24:45+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "bdc3891",
-      "text": "Issue #106: MOTION-010 足IKの到達残差表示: 実PMXの足IKターゲットと足首の評価済み位置差を3D編集画面へ表示し、未到達の誤認を防ぐ"
     }
   ]
 }
