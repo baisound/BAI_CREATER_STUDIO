@@ -1328,7 +1328,7 @@ fkCandidate.addEventListener('click',async()=>{
     const sampling=data.sampling_report;
     const gate=sampling?`作品${sampling.checked_project_frames}Fを30fps候補と比較し、局所位置最大${sampling.max_position_error.toExponential(2)}・角度最大${sampling.max_angle_error_degrees.toExponential(2)}°。`:'';
     const scope=data.export_mode==='interval'?
-      `修正区間VMD F${sampling?.start_vmd_frame}〜${sampling?.end_vmd_frame}のみ、区間外の原キー${sampling?.outside_original_records}件をバイト保持。`:
+      `修正区間VMD ${sampling?.intervals?.map(([begin,end])=>`F${begin}〜${end-1}`).join('、')}のみ、区間外の原キー${sampling?.outside_original_records}件をバイト保持。境界元キー欠落${sampling?.missing_boundary_keys??0}件。`:
       data.export_mode==='legacy_sparse'?'旧方式の疎な候補。':
       `全フレームVMD F0〜${(sampling?.vmd_frame_span??1)-1}をキー化。元VMDが配置クリップより長い場合、後続${sampling?.checked_source_tail_vmd_frames??0}Fも原姿勢と照合。`;
     fkCandidateStatus.textContent=`${scope}別名候補を作成。骨${data.replaced_bone_keys}件を更新、${data.added_bone_keys}件を追加。${gate}元VMDは不変。実PMX往復の確認前で、作品への配置はしていません。`;
@@ -1340,7 +1340,7 @@ fkScope.addEventListener('change',()=>{
   candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;candidateReport=null;
   fkCandidateLink.hidden=true;fkValidate.disabled=true;fkAdopt.disabled=true;
   fkCandidateStatus.textContent=fkScope.value==='interval'?
-    '修正区間だけの候補は、30fps境界に元VMDキーがあり、区間外キーと全フレーム姿勢を保てる入力に限ります。':
+    '修正区間だけの候補は、境界の元キーがなくても区間外キーのbyteと元動作の全区間姿勢を保てる入力に限ります。':
     fkScope.value==='legacy_sparse'?'旧方式では元キーと補正点だけを書き、作品内の全フレームを実PMXで検査します。':
     '保存済み補正を元VMDの最終骨キーまで毎フレームキー化し、作品内の全フレームを実PMXで検査できます。';
   redrawFkControls();
