@@ -905,7 +905,7 @@ Issues #63/#69（2026-10-24）：保存済みGLBシーンを同じ作品の画�
 **機能:** SRT読込→リップVMD  
 **優先:** Phase 05  
 **依存:** MOTION,DATA  
-  **確認状態:** 部分実装。v0.5のSRT原本登録、発話の読み/明示無音を隔離HTTP/Chromeで保存再読込済み。かな→口形候補APIを人工SRTで検証済み。[原本API](../v05/LIP001_SRT_SOURCE_IMPORT_20261025_JA.md)、[原本画面](../v05/LIP001_SRT_SOURCE_UI_20261025_JA.md)、[読み保存](../v05/LIP001_UTTERANCE_READING_STORE_20261025_JA.md)、[読み画面](../v05/LIP001_UTTERANCE_READING_UI_20261025_JA.md)、[口形候補](../v05/LIP001_MORA_CANDIDATES_20261025_JA.md)。候補編集、VMD出力と再読込、MCPは未実装。
+  **確認状態:** 部分実装。v0.5のSRT原本登録、発話の読み/明示無音を隔離HTTP/Chromeで保存再読込済み。かな→口形候補APIと画面表示を人工SRTで検証済み。[原本API](../v05/LIP001_SRT_SOURCE_IMPORT_20261025_JA.md)、[原本画面](../v05/LIP001_SRT_SOURCE_UI_20261025_JA.md)、[読み保存](../v05/LIP001_UTTERANCE_READING_STORE_20261025_JA.md)、[読み画面](../v05/LIP001_UTTERANCE_READING_UI_20261025_JA.md)、[口形候補API](../v05/LIP001_MORA_CANDIDATES_20261025_JA.md)、[候補画面](../v05/LIP001_CANDIDATE_UI_20261025_JA.md)。候補編集、VMD出力と再読込、MCPは未実装。
 
 **目的・要求:** 字幕時刻と日本語読み/母音推定。
 

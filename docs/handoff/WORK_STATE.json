@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T02:00:00+09:00",
+  "updated_at": "2026-10-25T02:04:41+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-mora-candidates",
-  "head_at_update": "fbe5ca0",
+  "branch": "codex/v05-lip001-candidate-ui",
+  "head_at_update": "e36b3f9",
   "current": {
-    "task": "Issue #187: 確定かなのモーラから口形候補を計算",
+    "task": "Issue #187: 口形候補と警告をv0.5画面で確認",
     "status": "done",
-    "step": "原SRT半開区間と作品FPSを保ち、促音/撥音/長音/唇閉鎖を候補にし未確定・無音を区別する",
+    "step": "選択発話のレビュー用候補APIを読んで元時刻/作品フレーム/未採用状態・衝突警告を表示する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #187: v0.5画面で選択発話のレビュー用口形候補と警告を表示し、原時刻・読み状態・未採用を区別する"
+    "Issue #187: 候補の時刻・口形・重みを手動変更して別レイヤーへ下書き保存し、元SRT/読み/元VMDを保持する。未確定・警告候補は最終出力へ進めない"
   ],
   "unverified": [
-    "候補の手動境界/強度編集、別名モーフVMD書出/再読込、実ユーザーSRT/歌音声、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
+    "候補編集/採用、別名モーフVMD書出/再読込、実ユーザーSRT/歌音声、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:04:41+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "e36b3f9",
+      "text": "Issue #187 LIP-001: v0.5画面で未確定/確定/明示無音のレビュー用口形候補、原時刻・作品F・時間重なり警告を確認。隔離Chrome 1/1、原本/data不変"
+    },
+    {
+      "at": "2026-10-25T02:02:26+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "6ac7c07",
+      "text": "Issue #187: 口形候補と警告をv0.5画面で確認: 選択発話のレビュー用候補APIを読んで元時刻/作品フレーム/未採用状態・衝突警告を表示する"
+    },
     {
       "at": "2026-10-25T02:00:00+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "cda51ef",
       "text": "Issue #175: v0.5口モーフ解析の確認画面: 現在のPMXの数値結果と手動確認が必要な母音を画面へ表示する"
-    },
-    {
-      "at": "2026-10-25T00:16:16+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4a77b1d",
-      "text": "Issue #175: 登録PMX限定の読み取り解析GETを追加。素材ID/hashとパス拒否を隔離HTTP1/1、実PMX数値2/2、型/構文で検証。"
-    },
-    {
-      "at": "2026-10-25T00:13:34+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2a8a7bc",
-      "text": "Issue #175: 登録済みPMX口モーフ解析API: 登録素材ID/hashに限定した読み取り解析APIと保存前のモデル照合を追加する"
     }
   ]
 }

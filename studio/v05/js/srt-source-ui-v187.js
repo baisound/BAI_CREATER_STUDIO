@@ -30,7 +30,13 @@ if (picker && project) {
         <button id="v190-reading-save" type="button">この発話の読みを保存</button>
         <p id="v190-reading-status" role="status"></p>
       </div>
-      <p>口形候補とリップVMDの生成は未接続です。SRT本文と原時刻は変更しません。</p>
+      <div id="v192-candidate-panel" class="v190-editor" hidden>
+        <strong>口形候補（未採用）</strong>
+        <button id="v192-candidate-run" type="button">選択した発話の候補を確認</button>
+        <p id="v192-candidate-status" role="status">かなの読みを保存すると候補を確認できます。</p>
+        <div id="v192-candidate-list" aria-label="発話の口形候補"></div>
+      </div>
+      <p>候補は音声に合わせた境界ではありません。リップVMDへの採用は未接続です。SRT本文と原時刻は変更しません。</p>
     </div>`;
   project.closest('label')?.after(panel);
   const $ = id => document.getElementById(id);
@@ -41,7 +47,7 @@ if (picker && project) {
   const sourceInfo = $('v187-source-info');
   const cueHost = $('v187-cues');
   let data = null, readings = null, loadedProject = '', selectedId = '', selectedCueIndex = null;
-  let page = 0, sequence = 0, busy = false;
+  let page = 0, sequence = 0, candidateSequence = 0, busy = false;
   const currentSource = () => data?.sources?.find(row => row.id === selectedId);
   const currentReading = () => readings?.utterances?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
   const say = message => { status.textContent = message; };
@@ -57,11 +63,24 @@ if (picker && project) {
     $('v190-reading-state').disabled = silent;
     $('v190-reading-kana').disabled = silent || $('v190-reading-state').value === 'unresolved';
   }
+  function clearCandidate() {
+    ++candidateSequence;
+    $('v192-candidate-list').replaceChildren();
+    $('v192-candidate-status').textContent = '保存済みの読みから、未採用の候補を計算できます。';
+  }
+  function markReadingDirty() {
+    clearCandidate();
+    $('v192-candidate-run').disabled = true;
+    $('v192-candidate-status').textContent = '読みの変更を保存してから候補を確認してください。';
+    $('v190-reading-status').textContent = '未保存の変更があります。';
+  }
   function redrawEditor() {
     const source = currentSource();
     const cue = source?.entries.find(row => row.index === selectedCueIndex);
     const editor = $('v190-reading-editor');
     editor.hidden = !cue;
+    $('v192-candidate-panel').hidden = !cue;
+    clearCandidate();
     if (!cue) return;
     const saved = currentReading();
     $('v190-cue-label').textContent = `#${cue.index} ${time(cue.startMs)} → ${time(cue.endMs)} の読み`;
@@ -70,6 +89,7 @@ if (picker && project) {
     $('v190-explicit-silence').checked = saved?.explicitSilence || false;
     updateReadingFields();
     $('v190-reading-save').disabled = source.sourceStatus !== 'valid' || !readings;
+    $('v192-candidate-run').disabled = source.sourceStatus !== 'valid' || !readings;
     $('v190-reading-status').textContent = source.sourceStatus !== 'valid'
       ? '原本の照合に失敗しました。読みは更新できません。'
       : saved ? `${saved.explicitSilence ? '明示無音' : saved.readingState === 'confirmed' ? '確定済み' : saved.readingState === 'proposed' ? '提案保存済み' : '未確定'}／版${saved.pronunciationVersion}`
@@ -154,9 +174,44 @@ if (picker && project) {
   });
   $('v187-prev').addEventListener('click', () => { page--; redraw(); });
   $('v187-next').addEventListener('click', () => { page++; redraw(); });
-  $('v190-reading-state').addEventListener('change', () => { updateReadingFields(); $('v190-reading-status').textContent = '未保存の変更があります。'; });
-  $('v190-reading-kana').addEventListener('input', () => { $('v190-reading-status').textContent = '未保存の変更があります。'; });
-  $('v190-explicit-silence').addEventListener('change', () => { updateReadingFields(); $('v190-reading-status').textContent = '未保存の変更があります。'; });
+  $('v190-reading-state').addEventListener('change', () => { updateReadingFields(); markReadingDirty(); });
+  $('v190-reading-kana').addEventListener('input', markReadingDirty);
+  $('v190-explicit-silence').addEventListener('change', () => { updateReadingFields(); markReadingDirty(); });
+  $('v192-candidate-run').addEventListener('click', async () => {
+    const source = currentSource(), id = project.value, cueIndex = selectedCueIndex;
+    if (!source || source.sourceStatus !== 'valid' || cueIndex === null) return;
+    const mine = ++candidateSequence;
+    const list = $('v192-candidate-list');
+    list.replaceChildren();
+    $('v192-candidate-status').textContent = '原時刻から口形候補を計算しています…';
+    try {
+      const query = new URLSearchParams({project_id: id, source_id: source.id, srt_index: String(cueIndex)});
+      const result = await request('/api/studio/v05/lip/candidates?' + query);
+      if (mine !== candidateSequence || project.value !== id || selectedId !== source.id || selectedCueIndex !== cueIndex) return;
+      const states = {ready: '確定読みから計算', needs_review: '警告あり・確認が必要',
+        proposed: '提案読み・未確定', unresolved: '読み未確定・候補なし',
+        explicit_silence: '明示無音・候補なし'};
+      const statusText = states[result.status] || result.status;
+      $('v192-candidate-status').textContent = `${statusText}／元SRT ${time(result.sourceStartMs)} → ${time(result.sourceEndMs)}／作品${result.projectFps}fps／未採用`;
+      for (const warning of result.warnings || []) {
+        const message = document.createElement('p');
+        message.className = 'v192-warning';
+        const labels = {time_overlap: 'SRT発話の時間が重なります', frame_collision: '同じ作品フレームに圧縮されます',
+          millisecond_collision: '元区間が短すぎます', unknown_mora: '読みから母音を決められません',
+          labial_closure_omitted: '短区間のため唇閉鎖を省きました'};
+        message.textContent = `要確認: ${labels[warning.code] || warning.code}`;
+        list.append(message);
+      }
+      for (const segment of result.segments || []) {
+        const item = document.createElement('p');
+        item.className = 'v192-segment';
+        item.textContent = `${segment.mora} → ${segment.mouthShape} ／ ${time(segment.startMs)}〜${time(segment.endMs)} ／ 作品F${segment.startFrame}〜${segment.endFrame}`;
+        list.append(item);
+      }
+    } catch (error) {
+      if (mine === candidateSequence) $('v192-candidate-status').textContent = `候補を計算できません: ${error.message}`;
+    }
+  });
   $('v190-reading-save').addEventListener('click', async () => {
     const source = currentSource(), id = project.value, cueIndex = selectedCueIndex;
     if (!source || source.sourceStatus !== 'valid' || !readings || cueIndex === null || busy) return;
