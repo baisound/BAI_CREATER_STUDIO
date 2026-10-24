@@ -464,12 +464,15 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             if manifest.get("frame_count") != job["frame_count"] or len(manifest.get("frame_sha256", [])) != job["frame_count"]:
                 raise RenderError("3D連番が保存範囲と一致しません")
+            if type(manifest.get("motion_edits_revision")) is not int or manifest["motion_edits_revision"] < 0:
+                raise RenderError("FK補正revisionを検証できません")
             for i, digest in enumerate(manifest["frame_sha256"], 1):
                 path = frames_dir / f"frame_{i:06d}.png"
                 if not path.is_file() or _sha(path) != digest:
                     raise RenderError("3D連番が描画後に変わりました")
             job["scene_capture"] = {"frames": job["frame_count"], "renderer": manifest.get("renderer"),
                                     "motion_clips": manifest.get("motion_clips"),
+                                    "motion_edits_revision": manifest["motion_edits_revision"],
                                     "pose_sample": manifest.get("pose_sample"),
                                     "manifest_sha256": _sha(manifest_path)}
             scene_index = 2 + len(clips)

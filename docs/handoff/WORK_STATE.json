@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T10:32:36+09:00",
+  "updated_at": "2026-10-24T10:47:38+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-layers",
-  "head_at_update": "63515fa",
+  "branch": "codex/v05-motion010-mp4-check",
+  "head_at_update": "7e63591",
   "current": {
-    "task": "Issue #106: MOTION-010補正レイヤーとタイムラインキー",
+    "task": "Issue #106: MOTION-010 FK補正入り完成MP4の画素比較",
     "status": "done",
-    "step": "作品別FKレイヤーの重み・区間・ミュートとキー表示/移動を同じAPI・再生へつなぐ",
+    "step": "実PMX＋VMDの保存補正を作品フレーム出力へ通し、別名MP4の復号画素・骨姿勢・原本ハッシュを比較",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 次段階: 3D骨選択・ギズモ/IKの限定実装と別名VMD往復設計を承認範囲で進める"
+    "MOTION-010 次段階: 3D骨選択・回転ギズモ/IKの限定実装と別名VMD往復を承認済み設計に沿って進める"
   ],
   "unverified": [
-    "ドラッグ実操作、補正入り完成MP4画素比較、WebMCP/標準MCP実呼出し、Linux、実GPU上FK、長尺90秒、Owner採用は未検証。ソロ/複数層、3D IK、別名VMDは未実装"
+    "長尺90秒、手足IK、複数レイヤー、表情との同時補正、Linux、WebMCP/標準MCP実呼出し、別名VMD、Owner採用は未確認。4回の3F MP4だけでは全尺品質を認定しない"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T10:47:38+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "7e63591",
+      "text": "MOTION-010 実PMX/VMDのFK補正入り完成MP4を同一保存カメラで復号比較。3/3回帰成功、補正revision記録と重み0の元評価経路復帰、原本/利用者データ不変を確認"
+    },
+    {
+      "at": "2026-10-24T10:36:59+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "93e4eb9",
+      "text": "Issue #106: MOTION-010 FK補正入り完成MP4の画素比較: 実PMX＋VMDの保存補正を作品フレーム出力へ通し、別名MP4の復号画素・骨姿勢・原本ハッシュを比較"
+    },
     {
       "at": "2026-10-24T10:32:36+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "done",
       "head": "0ea3f6b",
       "text": "Issue #69: 出力ボタンの有効/準備中/実行中/理由のツールチップを実状態へ同期。i18nが元文言で上書きする原因を修正。隔離Chrome実MP4 1/1、型・構文・JSON・実データhash確認。"
-    },
-    {
-      "at": "2026-10-24T06:01:04+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4696349",
-      "text": "Issue #69: 書き出しボタンの状態案内を実際の利用可否へ同期: 実ブラウザで見つけた残存ツールチップを修正し隔離Chromeで確認"
-    },
-    {
-      "at": "2026-10-24T05:58:53+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8d43dda",
-      "text": "Issue #69: v0.5書き出し画面とIn/Outの旧未接続表記を現行の限定MP4、見本、完成物、履歴へ同期。隔離Chrome実MP4 1/1、型・構文・JSON・実データhash確認。"
     }
   ]
 }

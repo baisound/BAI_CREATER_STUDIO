@@ -58,7 +58,7 @@ export function createPmxVmdPreview(THREE, MMDAnimationHelper, pmx, clip, id) {
     }
   }
   function refreshModifier() {
-    player.setPmxPoseModifier(layers.some(layer => !layer.disabled && !layer.muted && layer.keys.length) || previewKey
+    player.setPmxPoseModifier(layers.some(layer => !layer.disabled && !layer.muted && layer.weight > 0 && layer.keys.length) || previewKey
       ? applyCorrections : null);
   }
   return {
