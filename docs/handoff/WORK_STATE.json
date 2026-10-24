@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:46:32+09:00",
+  "updated_at": "2026-10-24T20:48:22+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-long-zero-eval",
-  "head_at_update": "622847a",
+  "branch": "codex/v05-motion010-long-correction",
+  "head_at_update": "008e3e8",
   "current": {
-    "task": "Issue #106: MOTION-010 長尺0補正評価",
-    "status": "done",
-    "step": "登録VMDの時長を調べ、90秒の0補正評価を隔離実PMXで検証する",
+    "task": "Issue #106: MOTION-010 長尺実補正",
+    "status": "in_progress",
+    "step": "203秒実VMDの90秒へFKキーを置き、プレビュー・保存再読込と候補適用範囲を検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T20:48:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "008e3e8",
+      "text": "Issue #106: MOTION-010 長尺実補正: 203秒実VMDの90秒へFKキーを置き、プレビュー・保存再読込と候補適用範囲を検証する"
+    },
     {
       "at": "2026-10-24T20:46:32+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "87370a9",
       "text": "MOTION-010の左右腕FK/IK編集方法切替を実装し、201骨・246骨実PMXで全骨姿勢差0・キー/Undo不変・再読込を確認"
-    },
-    {
-      "at": "2026-10-24T17:37:41+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "fb9ed92",
-      "text": "Issue #106: MOTION-010 腕FK/IK編集方法切替: 左右腕の編集方法切替を姿勢・キー・Undo不変で接続し、実PMXで再読込まで確認する"
     }
   ]
 }
