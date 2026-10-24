@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:02:05+09:00",
+  "updated_at": "2026-10-24T23:03:57+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-camera-last-cut",
-  "head_at_update": "2b888c0",
+  "branch": "codex/v05-motion010-camera-preview",
+  "head_at_update": "55ccf94",
   "current": {
-    "task": "Issue #106: MOTION-010/CAM-015 旧カメラ末尾カットの終端保持",
-    "status": "done",
-    "step": "半開カットがカメラdurationへ達する場合、長尺作品の終端保持と実プレビュー姿勢を調べる",
+    "task": "Issue #106: MOTION-010/CAM-015 実PMX撮影プレビューでのカット確認",
+    "status": "in_progress",
+    "step": "保存済み旧カメラカットを実PMXの撮影プレビューへ適用し、姿勢・ピクセル・原本保持を隔離検証する",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T23:03:57+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "55ccf94",
+      "text": "Issue #106: MOTION-010/CAM-015 実PMX撮影プレビューでのカット確認: 保存済み旧カメラカットを実PMXの撮影プレビューへ適用し、姿勢・ピクセル・原本保持を隔離検証する"
+    },
     {
       "at": "2026-10-24T23:02:05+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "c65d263",
       "text": "MOTION-010 203秒の動く元VMDの90秒付近を約2秒区間で候補生成。元頭骨キー境界[2669,2732)でも位置・角度誤差超過でHTTP422拒否、候補ファイル不在、補正revision・原本ハッシュ不変を実試験で確認。"
-    },
-    {
-      "at": "2026-10-24T20:56:21+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0187b28",
-      "text": "Issue #106: MOTION-010 長尺VMDの限定区間候補: 90秒付近の別名VMD候補を有界区間で生成または理由付き拒否し、実PMX往復条件を確認する"
     }
   ]
 }
