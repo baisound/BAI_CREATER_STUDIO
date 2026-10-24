@@ -54,6 +54,11 @@ export function createPmxVmdPreview(THREE, MMDAnimationHelper, pmx, clip, id) {
         }
         delta.normalize().slerp(identity,1-weight);
         bone.quaternion.multiply(delta);
+        // Legacy rotation-only keys have an implicit zero translation.
+        const a = left.position || [0,0,0], b = right.position || [0,0,0];
+        bone.position.x += weight * (a[0] + (b[0]-a[0]) * blend);
+        bone.position.y += weight * (a[1] + (b[1]-a[1]) * blend);
+        bone.position.z += weight * (a[2] + (b[2]-a[2]) * blend);
       }
     }
   }

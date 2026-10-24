@@ -70,25 +70,38 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
       await page.locator('#v110-bone-overlay button[data-bone="頭"]').click();
       assert.equal(await page.locator('#v106-fk-bone').inputValue(),'頭');
       assert.ok(maxDelta(baseline.bones['頭'].quaternion,(await pose()).bones['頭'].quaternion)<1e-5);
+      await page.locator('#v112-fk-position-x').fill('0.5');
+      await page.locator('#v106-fk-preview').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('仮補正を表示中'));
+      const positionOnly=await pose();
+      assert.ok(maxDelta(baseline.bones['頭'].position,positionOnly.bones['頭'].position)>0.1);
+      assert.ok(maxDelta(baseline.bones['頭'].quaternion,positionOnly.bones['頭'].quaternion)<1e-5);
+      await page.locator('#v106-fk-cancel').click();
+      assert.ok(maxDelta(baseline.bones['頭'].position,(await pose()).bones['頭'].position)<1e-5);
       await page.locator('#v106-fk-y').fill('15');
       await page.locator('#v106-fk-preview').click();
       await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('仮補正を表示中'));
       const previewed=await pose();
       assert.ok(maxDelta(baseline.bones['頭'].quaternion,previewed.bones['頭'].quaternion)>0.01);
+      assert.ok(maxDelta(baseline.bones['頭'].position,previewed.bones['頭'].position)>0.1);
       assert.ok(maxDelta(baseline.bones['センター'].quaternion,previewed.bones['センター'].quaternion)<1e-5);
+      assert.ok(maxDelta(baseline.bones['センター'].position,previewed.bones['センター'].position)<1e-5);
       await page.locator('#v106-fk-cancel').click();
       const cancelled=await pose();
       assert.ok(maxDelta(baseline.bones['頭'].quaternion,cancelled.bones['頭'].quaternion)<1e-5);
+      assert.ok(maxDelta(baseline.bones['頭'].position,cancelled.bones['頭'].position)<1e-5);
       await page.locator('#v106-fk-save').click();
       await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('保存しました'));
       const saved=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
       assert.equal(saved.revision,1);assert.equal(saved.layers.length,1);
       assert.equal(saved.layers[0].keys[0].frame,240);
       assert.equal(saved.layers[0].keys[0].bone,'頭');
+      assert.deepEqual(saved.layers[0].keys[0].position,[0.5,0,0]);
       assert.equal(saved.layers[0].model_sha256,originals[0]);
       assert.equal(saved.layers[0].motion_sha256,originals[1]);
       const corrected=await pose();
       assert.ok(maxDelta(baseline.bones['頭'].quaternion,corrected.bones['頭'].quaternion)>0.01);
+      assert.ok(maxDelta(baseline.bones['頭'].position,corrected.bones['頭'].position)>0.1);
       const stale=await fetch(`${server.base}/api/studio/v05/motion-edits`,{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
           revision:0,action:'undo'})});
@@ -105,18 +118,23 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
       await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
       await page.waitForFunction(()=>document.querySelector('#v106-fk-saved')?.options.length===2,
         null,{timeout:30000});
+      await page.locator('#v106-fk-saved').selectOption(JSON.stringify([240,'頭']));
+      assert.equal(await page.locator('#v112-fk-position-x').inputValue(),'0.5');
       await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'fk-reload'));
       await page.waitForTimeout(200);
       const restored=await pose();
       assert.ok(maxDelta(corrected.bones['頭'].quaternion,restored.bones['頭'].quaternion)<1e-5);
+      assert.ok(maxDelta(corrected.bones['頭'].position,restored.bones['頭'].position)<1e-5);
       await page.locator('#v106-fk-undo').click();
       await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('戻しました'));
       const undone=await pose();
       assert.ok(maxDelta(baseline.bones['頭'].quaternion,undone.bones['頭'].quaternion)<1e-5);
+      assert.ok(maxDelta(baseline.bones['頭'].position,undone.bones['頭'].position)<1e-5);
       await page.locator('#v106-fk-redo').click();
       await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('やり直しました'));
       const redone=await pose();
       assert.ok(maxDelta(corrected.bones['頭'].quaternion,redone.bones['頭'].quaternion)<1e-5);
+      assert.ok(maxDelta(corrected.bones['頭'].position,redone.bones['頭'].position)<1e-5);
       const final=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
       assert.equal(final.revision,3);assert.equal(final.layers[0].keys.length,1);
       await page.waitForFunction(()=>document.querySelectorAll('#v07timeline .v106-fk-marker').length===1);
@@ -132,6 +150,11 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
           revision:3,action:'set',instance_id:instanceId,clip_id:placement.clip.id,
           key:{...final.layers[0].keys[0],frame:601}})});
       assert.equal(invalidFrame.status,422);
+      const invalidPosition=await fetch(`${server.base}/api/studio/v05/motion-edits`,{method:'POST',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
+          revision:3,action:'set',instance_id:instanceId,clip_id:placement.clip.id,
+          key:{...final.layers[0].keys[0],position:[100001,0,0]}})});
+      assert.equal(invalidPosition.status,422);
       assert.equal((await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`))).revision,3);
       const post=body=>fetch(`${server.base}/api/studio/v05/motion-edits`,{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -153,6 +176,9 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
       const fullDelta=maxDelta(baseline.bones['頭'].quaternion,corrected.bones['頭'].quaternion);
       const halfDelta=maxDelta(baseline.bones['頭'].quaternion,half.bones['頭'].quaternion);
       assert.ok(halfDelta>0.005&&halfDelta<fullDelta);
+      const fullPositionDelta=maxDelta(baseline.bones['頭'].position,corrected.bones['頭'].position);
+      const halfPositionDelta=maxDelta(baseline.bones['頭'].position,half.bones['頭'].position);
+      assert.ok(halfPositionDelta>0.01&&halfPositionDelta<fullPositionDelta);
       await page.evaluate(()=>window.BAIStudioTimeline.seek(230/60,'fk-fade-start'));
       const fadeStart=await pose();
       await page.evaluate(()=>window.BAIStudioTimeline.seek(232/60,'fk-fade-mid'));
@@ -235,6 +261,7 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
       assert.equal(capture.prefix,'data:image/png;base64,');
       assert.ok(capture.length>1000);
       assert.ok(maxDelta(corrected.bones['頭'].quaternion,capture.pose.bones['頭'].quaternion)<1e-5);
+      assert.ok(maxDelta(corrected.bones['頭'].position,capture.pose.bones['頭'].position)<1e-5);
       const other=await ok(await fetch(`${server.base}/api/studio/v05/projects`,{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'別作品のFK分離',kind:'empty'})}));
       const otherEdits=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${other.project.id}`));

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from studio_v05_motion_edits import MotionEditError, read, _record, _settings
+from studio_v05_motion_edits import MotionEditError, read, _record, _settings, _key
 
 
 def project(tmp_path):
@@ -72,3 +72,12 @@ def test_layer_interval_defaults_preserve_old_schema_and_reject_invalid_values()
     layer['weight'] = True
     with pytest.raises(MotionEditError, match='settings'):
         _record(record, project_id)
+
+
+def test_fk_position_delta_preserves_rotation_only_keys_and_rejects_invalid_values():
+    legacy = {'frame': 240, 'bone': '頭', 'rotation': [0, 0, 0, 1]}
+    assert _key(legacy) == legacy
+    assert _key({**legacy, 'position': [0.5, -1, 0]})['position'] == [0.5, -1.0, 0.0]
+    for position in ([float('nan'), 0, 0], [100001, 0, 0], [True, 0, 0], [0, 0]):
+        with pytest.raises(MotionEditError, match='position'):
+            _key({**legacy, 'position': position})

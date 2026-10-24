@@ -73,7 +73,7 @@ footControls.append(footSummary,document.createTextNode('床のY '),footGround,f
   document.createTextNode(' 左右のつま先骨を測定。足裏の形状・接触力・IKは評価しません。'),footStatus,footDetails);
 const fkControls=document.createElement('details');fkControls.id='v106-fk-edit';
 fkControls.style.cssText='border-top:1px solid #435a73;padding-top:4px';
-const fkSummary=document.createElement('summary');fkSummary.textContent='リグ：PMX骨のFK回転補正（数値・段階A）';
+const fkSummary=document.createElement('summary');fkSummary.textContent='リグ：PMX骨のFK回転・位置補正';
 const fkRow=document.createElement('div');fkRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
 const fkContext=document.createElement('small');fkContext.id='v106-fk-context';
 fkContext.style.cssText='display:block;color:#c8d9ea';
@@ -86,6 +86,11 @@ const fkAxes=['X','Y','Z'].map(axis=>{
   const input=document.createElement('input');input.type='number';input.id='v106-fk-'+axis.toLowerCase();
   input.step='1';input.min='-180';input.max='180';input.value='0';input.style.width='64px';
   input.setAttribute('aria-label',`元VMDからの${axis}回転差分（度）`);return input;
+});
+const fkPosition=['X','Y','Z'].map(axis=>{
+  const input=document.createElement('input');input.type='number';input.id='v112-fk-position-'+axis.toLowerCase();
+  input.step='0.01';input.value='0';input.style.width='72px';
+  input.setAttribute('aria-label',`元VMDからの${axis}位置差分（モデル単位）`);return input;
 });
 const fkPreview=document.createElement('button');fkPreview.type='button';fkPreview.id='v106-fk-preview';fkPreview.textContent='仮プレビュー';
 const fkSave=document.createElement('button');fkSave.type='button';fkSave.id='v106-fk-save';fkSave.textContent='このFをキー化';
@@ -110,6 +115,7 @@ fkLayerRow.append(document.createTextNode('重み % '),fkWeight,document.createT
   document.createTextNode('後なじませ F '),fkFadeOut,document.createTextNode('ミュート '),fkMuted,fkLayerSave);
 fkRow.append(document.createTextNode('骨 '),fkBone,document.createTextNode('F '),fkFrame,fkHere,
   ...fkAxes.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}° `),input]),
+  ...fkPosition.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}位置 `),input]),
   fkPreview,fkSave,fkCancel,fkUndo,fkRedo,fkSaved,fkRemove);
 fkControls.append(fkSummary,fkContext,fkRow,fkLayerRow,fkStatus);
 const faceLabel=document.createElement('strong');faceLabel.textContent='PMX表情・口';
@@ -319,7 +325,7 @@ function redrawFkControls(){
   for(const key of layer?.keys||[])fkSaved.add(new Option(`F${key.frame} ${key.bone}`,JSON.stringify([key.frame,key.bone])));
   if([...fkSaved.options].some(option=>option.value===previousKey))fkSaved.value=previousKey;
   fkContext.textContent=row
-    ?`作品F${fkFrame.value} / ${projectFps}fps、モデル ${instanceId}、VMD ${row.name}、レイヤー ${layer?.name||'FK補正（未作成）'}。元VMDとの差分角度です。`
+    ?`作品F${fkFrame.value} / ${projectFps}fps、モデル ${instanceId}、VMD ${row.name}、レイヤー ${layer?.name||'FK補正（未作成）'}。元VMDからの局所回転差分と位置差分（モデル単位）です。`
     :'この位置で読み込み済みのPMX＋VMDとモデルを選択してください。';
   if(names.length<boneNames.length)fkContext.textContent+=' 同名の骨は編集対象外です。';
   const editable=Boolean(row&&names.length&&fkBone.value&&
@@ -431,7 +437,11 @@ function fkPayload(){
   const THREE=target.libs.THREE;
   const quaternion=new THREE.Quaternion().setFromEuler(new THREE.Euler(
     ...degrees.map(x=>x*Math.PI/180),'XYZ')).normalize().toArray();
-  return {row,frame,key:{frame,bone,rotation:quaternion}};
+  const position=fkPosition.map(input=>Number(input.value));
+  if(fkPosition.some(input=>input.value.trim()==='')||position.some(x=>!Number.isFinite(x)||Math.abs(x)>100000))
+    throw Error('X/Y/Zの位置差分を±100000以内の数値で指定してください');
+  return {row,frame,key:{frame,bone,rotation:quaternion,
+    ...(position.some(x=>x!==0)?{position}:{})}};
 }
 async function writeFk(action,key=null,row=null,extra={}){
   const id=project?.value,revision=motionEdits?.revision;
@@ -768,6 +778,7 @@ fkSaved.addEventListener('change',()=>{
   const target=controller.getLoaded(row.target_scene_instance_id),THREE=target.libs.THREE;
   const euler=new THREE.Euler().setFromQuaternion(new THREE.Quaternion().fromArray(key.rotation),'XYZ');
   fkAxes.forEach((input,index)=>input.value=String(Math.round([euler.x,euler.y,euler.z][index]*180/Math.PI*100)/100));
+  fkPosition.forEach((input,index)=>input.value=String(key.position?.[index]??0));
   fkRemove.disabled=false;redrawFkControls();
 });
 fkRemove.addEventListener('click',async()=>{
