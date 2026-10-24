@@ -100,7 +100,9 @@ test('24 fps faded FK correction and VMD candidate agree on real PMX',
         const diff=(a,b)=>Math.max(...a.map((value,index)=>Math.abs(value-b[index])));
         let maxWorldPosition=0,maxRotation=0,worst=-1;
         const timeline=window.BAIStudioTimeline,preview=window.BAIStudioMultiScenePreview;
-        for(let frame=0;frame<240;frame++){
+        // The shared camera sequence fixture ends at F300. Keep the scene
+        // integration probe inside it; the independent PMX check below covers all 240 F.
+        for(let frame=0;frame<60;frame++){
           timeline.seek(frame/24,'vmd-24fps-source');
           const source=preview.poseProbe(instanceId,['頭']);
           timeline.seek(10+frame/24,'vmd-24fps-candidate');
@@ -115,6 +117,40 @@ test('24 fps faded FK correction and VMD candidate agree on real PMX',
       console.log(JSON.stringify(result));
       assert.ok(result.maxWorldPosition<1e-3,`world position mismatch at ${result.worst}`);
       assert.ok(result.maxRotation<2e-4,`rotation mismatch at ${result.worst}`);
+      const roundTrip=await page.evaluate(async({projectId,response})=>{
+        const {loadLibs}=await import('/studio/js/viewport/model-loader.js');
+        const {validatePmxVmdCandidate}=await import('/studio/v05/js/pmx-vmd-candidate-validation-v120.js');
+        const [scene,plan,edits]=await Promise.all([
+          fetch(`/api/studio/v05/scene/instances?id=${projectId}`).then(r=>r.json()),
+          fetch(`/api/studio/v05/scene/multi-motion-plan?id=${projectId}`).then(r=>r.json()),
+          fetch(`/api/studio/v05/motion-edits?id=${projectId}`).then(r=>r.json())]);
+        const row=plan.rows.find(item=>item.clip_id===response.clip_id);
+        const instance=scene.instances.find(item=>item.id===response.instance_id);
+        const args={libs:await loadLibs(),modelAsset:instance.asset,
+          motionAsset:row.motion_asset,row,layers:edits.layers.filter(item=>
+            item.instance_id===response.instance_id&&item.clip_id===response.clip_id),
+          candidate:response,fps:24,isCurrent:()=>true};
+        const good=await validatePmxVmdCandidate(args);
+        let badHash='';
+        try{await validatePmxVmdCandidate({...args,candidate:{...response,output_sha256:'0'.repeat(64)}});}
+        catch(error){badHash=String(error.message||error);}
+        return {good,badHash};
+      },{projectId,response});
+      assert.equal(roundTrip.good.checkedFrames,240);
+      assert.equal(roundTrip.good.checkedVmdFrames,300);
+      assert.ok(roundTrip.good.bones>20);
+      assert.equal(roundTrip.good.passed,true,JSON.stringify(roundTrip.good));
+      assert.match(roundTrip.badHash,/内容が変わりました/);
+      console.log('all-bone round trip',JSON.stringify(roundTrip.good));
+      await page.locator('#v106-fk-edit').evaluate(el=>{el.open=true;});
+      await page.locator('#v106-fk-frame').fill('100');
+      await page.locator('#v106-fk-frame').dispatchEvent('change');
+      await page.locator('#v116-vmd-candidate-create').click();
+      await page.locator('#v116-vmd-candidate-download').waitFor({state:'visible'});
+      await page.locator('#v120-vmd-candidate-validate').click();
+      await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent
+        ?.includes('実PMX検査合格'),null,{timeout:120000});
+      assert.match(await page.locator('#v116-vmd-candidate-status').innerText(),/作品240F＋VMD300F × \d+骨/);
       assert.deepEqual([digest(modelPath),digest(motionPath)],originals);
       harness.assertNoErrors(page);
     }finally{

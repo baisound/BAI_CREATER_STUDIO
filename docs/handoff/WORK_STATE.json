@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T14:10:57+09:00",
+  "updated_at": "2026-10-24T14:28:45+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-vmd-fps-fades",
-  "head_at_update": "9a541ac",
+  "branch": "codex/v05-motion010-vmd-pmx-validation",
+  "head_at_update": "775e48b",
   "current": {
-    "task": "Issue #106: MOTION-010 別FPS・前後なじませのVMD候補",
+    "task": "Issue #106: MOTION-010 実PMX全骨VMD候補検証",
     "status": "done",
-    "step": "24fps作品と区間・なじませの30fps境界を実VMD曲線と実PMXで検証し、不要な境界キーを避ける",
+    "step": "候補VMDを独立PMXへ読み込み作品フレームごとの全骨差を検査する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: さらに別PMX/分数FPS/曲線を実PMXで検査し、候補の一般化した採用判定と安全な作品配置を設計する。IK/FK切替の姿勢保持も続ける。"
+    "MOTION-010: 分数FPS・別PMX・複雑な元VMD曲線の検証を広げ、合格レポートの永続化とサーバー再判定後に安全な候補採用/作品配置を設計する。IK/FK切替も継続。"
   ],
   "unverified": [
-    "別PMX・別骨・分数FPS・複雑な源VMD曲線、長尺ジョブ、実GPU、Linux、MCP実呼出し、候補採用/配置、Owner採用は未確認。"
+    "別PMX、分数FPS、複雑な源曲線、長尺、実GPU、Linux、標準MCP、レポート永続化、採用/配置、Owner採用は未確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T14:28:45+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "775e48b",
+      "text": "MOTION-010別名VMD候補に実PMX全骨検査UIを追加。24fps頭FKは240+300F×201骨、60fps頭FK＋左足IKは600+300F×201骨で閾値内。SHA不一致拒否、候補は未登録・未配置。"
+    },
+    {
+      "at": "2026-10-24T14:15:42+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5483e1d",
+      "text": "Issue #106: MOTION-010 実PMX全骨VMD候補検証: 候補VMDを独立PMXへ読み込み作品フレームごとの全骨差を検査する"
+    },
     {
       "at": "2026-10-24T14:10:57+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "7126c8e",
       "text": "Issue #106: PMX/VMD姿勢評価のA/B回帰と段階Aの限定FK補正: 無補正の新評価順が現行MMDプレビューと一致することを実PMXで検証し、ずれがあれば実装を止める"
-    },
-    {
-      "at": "2026-10-24T09:41:59+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a776116",
-      "text": "Issue #106: PMX＋VMDの任意フレーム骨補正について既存仕様/実装を照合し、詳細設計・3回の批評・段階A実装入口判定を記録"
-    },
-    {
-      "at": "2026-10-24T09:37:30+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "33b29f9",
-      "text": "Issue #106: v0.5の任意フレーム骨補正・別名VMD: 既存仕様と実装を照合し詳細設計、批評3回、最終判定を記録する"
     }
   ]
 }
