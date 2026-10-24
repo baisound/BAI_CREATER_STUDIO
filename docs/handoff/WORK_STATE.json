@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:55:08+09:00",
+  "updated_at": "2026-10-25T00:57:47+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip004-vertex-candidates",
-  "head_at_update": "2a01881",
+  "branch": "codex/v05-lip004-vrm-expressions",
+  "head_at_update": "f336edb",
   "current": {
-    "task": "Issue #175: 頂点型口モーフの強度候補",
-    "status": "done",
-    "step": "実PMXの頂点変位中央値比から候補を画面へ提示し、グループ・無変位型は手動確認のままにする",
+    "task": "Issue #175: 登録VRMの表情定義確認",
+    "status": "in_progress",
+    "step": "登録済み実VRMのexpression定義と欠落母音を原本hash付きで読み取り、v0.5で不足を明示する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:57:47+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f336edb",
+      "text": "Issue #175: 登録VRMの表情定義確認: 登録済み実VRMのexpression定義と欠落母音を原本hash付きで読み取り、v0.5で不足を明示する"
+    },
     {
       "at": "2026-10-25T00:55:08+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "bd02a12",
       "text": "MOTION-010/CAM-015 作品秒数を旧カメラ自身のFPSへ換算。24/60fps作品と30fpsカメラの4秒を実画面・実PMXで確認し、90秒終端保持、旧frame API、原本SHA不変、隔離Chrome2件とPython4件合格"
-    },
-    {
-      "at": "2026-10-24T22:44:31+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "8f73a8f",
-      "text": "Issue #106: MOTION-010 作品と旧カメラのFPS換算: 同じ秒数をカメラ自身のFPSで評価し、24/60fps作品と旧30fpsカメラの保存姿勢を確認する"
     }
   ]
 }
