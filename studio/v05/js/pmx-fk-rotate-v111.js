@@ -28,6 +28,11 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
     a.poleKneeBone===b.poleKneeBone&&a.armElbowBone===b.armElbowBone&&
     a.armWristBone===b.armWristBone&&a.armSide===b.armSide);
   function updateLimits(context){
+    if(context?.armWristBone){
+      limits.hidden=false;
+      limits.textContent='このPMXに腕IKの角度制限定義はありません。手先の到達範囲は腕と前腕の骨長で制限します。';
+      return;
+    }
     if(!context||context.reason||!context.effectorBone){limits.hidden=true;limits.textContent='';return;}
     const bones=context.target.object.skeleton.bones;
     const iks=context.target.object.geometry?.userData?.MMD?.iks;

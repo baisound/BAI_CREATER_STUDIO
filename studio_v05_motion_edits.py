@@ -306,11 +306,14 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                                 return True
                         return False
                     if len(elbow) != 1 or len(wrist) != 1 \
-                            or not ancestor(elbow[0], arm[0]) or not ancestor(wrist[0], elbow[0]) \
-                            or any(ik.get('target_index') == wrist[0] or any(
-                                link.get('bone_index') in (arm[0], elbow[0]) for link in ik.get('links', []))
-                                for bone in bones if isinstance(ik := bone.get('ik'), dict)):
+                            or not ancestor(elbow[0], arm[0]) or not ancestor(wrist[0], elbow[0]):
                         raise MotionEditError('Canonical PMX arm IK chain is unavailable')
+                    chain = {arm[0], elbow[0], wrist[0]}
+                    if any(index in chain or ik.get('target_index') in chain or any(
+                            link.get('bone_index') in chain for link in ik.get('links', []))
+                            for index, bone in enumerate(bones)
+                            if isinstance(ik := bone.get('ik'), dict)):
+                        raise MotionEditError('PMX arm IK definition conflicts with local arm solver')
             if limb in ('left_leg', 'right_leg'):
                 prefix = '左' if limb == 'left_leg' else '右'
                 try:
