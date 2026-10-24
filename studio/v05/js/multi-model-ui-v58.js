@@ -883,7 +883,9 @@ fkCandidate.addEventListener('click',async()=>{
     fkCandidateLink.href=data.download_url;
     fkCandidateLink.download='MOTION010-検証前候補-'+data.candidate_id+'.vmd';
     fkCandidateLink.hidden=false;
-    fkCandidateStatus.textContent=`別名候補を作成。骨${data.replaced_bone_keys}件を更新、${data.added_bone_keys}件を追加。元VMDは不変。実PMX往復の確認前で、作品への配置はしていません。`;
+    const sampling=data.sampling_report;
+    const gate=sampling?`作品${sampling.checked_project_frames}Fを30fps候補と比較し、局所位置最大${sampling.max_position_error.toExponential(2)}・角度最大${sampling.max_angle_error_degrees.toExponential(2)}°。`:'';
+    fkCandidateStatus.textContent=`別名候補を作成。骨${data.replaced_bone_keys}件を更新、${data.added_bone_keys}件を追加。${gate}元VMDは不変。実PMX往復の確認前で、作品への配置はしていません。`;
   }catch(error){fkCandidateStatus.textContent='候補作成不可: '+String(error.message||error);}
   finally{redrawFkControls();}
 });

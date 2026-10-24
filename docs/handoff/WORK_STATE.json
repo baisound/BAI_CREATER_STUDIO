@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T13:40:18+09:00",
+  "updated_at": "2026-10-24T13:53:42+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-vmd-temporal",
-  "head_at_update": "378e69d",
+  "head_at_update": "ab9e27c",
   "current": {
     "task": "Issue #106: MOTION-010 時間変化する補正のVMD候補",
-    "status": "in_progress",
+    "status": "done",
     "step": "作品FPSのキーをVMD30fpsへ標本化し、誤差超過を拒否する候補経路と実PMX往復を検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 時間変化する補正の30fps標本化と作品FPS誤差判定、実PMXの一般化した全フレーム採用判定を実装する。",
-    "手足IK/FK切替は姿勢保持と到達制限を実PMXで検証して接続する。"
+    "MOTION-010: 足IKや別PMX/FPSの全フレーム実PMX採用判定、候補の安全な採用・作品配置、IK/FK切替の姿勢保持を続ける。"
   ],
   "unverified": [
-    "別モデル/別骨/足IK候補、時間変化キー、長尺、不正CP932ヘッダーVMD、実GPU、Linux、MCP実呼出し、候補の採用/作品配置、Owner採用は未確認。"
+    "足IK・別モデル・別FPS・区間/なじませの実PMX往復、長尺ジョブ、実GPU、Linux、MCP実呼出し、候補の採用/配置、Owner採用は未確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T13:53:42+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ab9e27c",
+      "text": "MOTION-010の時間変化FK補正を30fps別名VMD検証前候補へ接続。局所誤差超過を拒否し、複数VMD読込前の基準姿勢復元を修正。Python29件・実PMX/SwiftShader2件・typecheck合格。"
+    },
     {
       "at": "2026-10-24T13:40:18+09:00",
       "by": "codex",
@@ -234,13 +240,6 @@
       "event": "start",
       "head": "abaef3d",
       "text": "Issue #102: GLB→PMX VMD変換の骨対応と失敗経路を強化: 無動作・骨不足GLBと骨対応の保存・画面接続を設計し隔離検証する"
-    },
-    {
-      "at": "2026-10-24T08:08:36+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a71cc25",
-      "text": "Issue #102: 実GLBから対象PMX用別名VMDをBlenderで生成し、v0.5作品へ配置・再読込・実描画を検証"
     }
   ]
 }

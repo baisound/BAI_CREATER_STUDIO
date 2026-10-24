@@ -67,6 +67,9 @@
         if(!target){issues.push({clipId:id,reason:'model_not_loaded'});continue;}
         let player;
         try{
+          // Each helper captures the rig's initial pose. A previously loaded
+          // clip may have left an edited pose on this shared mesh.
+          target.resetPose?.();
           player=await loadMotion({row,target,projectId:plan.project_id});
           if(token!==epoch||closed||projectId!==plan.project_id){
             player?.dispose?.();return {stale:true,...status()};
