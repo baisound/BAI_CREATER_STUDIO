@@ -37,7 +37,7 @@ let vmdCandidate=null,candidateValidation=null,candidateReport=null;
 let morphAnalysis=null,morphAnalysisNonce=0,morphMaps=null,morphMapNonce=0;
 let morphPreview=null;
 let morphCandidates=null;
-let vrmAnalysis=null,vrmAnalysisNonce=0;
+let vrmAnalysis=null,vrmAnalysisNonce=0,vrmMaps=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
 panel.hidden=true;
@@ -270,7 +270,7 @@ mapControls.append(mapSummary,mapStatus,mapGrid,mapDraft,mapConfirm,
 analysisControls.append(analysisSummary,analysisRun,analysisStatus,analysisName,analysisInfo,mapControls);
 const vrmControls=document.createElement('details');vrmControls.id='v183-vrm-expressions';
 vrmControls.style.cssText='border-top:1px solid #435a73;padding-top:4px';
-const vrmSummary=document.createElement('summary');vrmSummary.textContent='VRMの表情定義を確認（読み取りのみ）';
+const vrmSummary=document.createElement('summary');vrmSummary.textContent='VRMの表情定義と口形対応表';
 const vrmRun=document.createElement('button');vrmRun.id='v183-vrm-run';
 vrmRun.type='button';vrmRun.textContent='選択VRMを検査';
 const vrmStatus=document.createElement('small');vrmStatus.id='v183-vrm-status';
@@ -281,7 +281,28 @@ const vrmName=document.createElement('select');vrmName.id='v183-vrm-name';
 vrmName.setAttribute('aria-label','VRMの表情定義');vrmName.hidden=true;
 const vrmInfo=document.createElement('div');vrmInfo.id='v183-vrm-info';
 vrmInfo.style.cssText='font-size:12px;white-space:pre-wrap';
-vrmControls.append(vrmSummary,vrmRun,vrmStatus,vrmVowels,vrmName,vrmInfo);
+const vrmMapControls=document.createElement('details');vrmMapControls.id='v184-vrm-map';
+const vrmMapSummary=document.createElement('summary');vrmMapSummary.textContent='VRM口形対応表を編集';
+const vrmMapStatus=document.createElement('small');vrmMapStatus.id='v184-map-status';
+vrmMapStatus.setAttribute('role','status');vrmMapStatus.style.cssText='display:block;color:#c8d9ea';
+const vrmMapGrid=document.createElement('div');
+vrmMapGrid.style.cssText='display:grid;grid-template-columns:auto 1fr 72px;gap:4px;align-items:center;font-size:12px';
+const vrmMapRows=new Map();
+for(const shape of ['A','I','U','E','O','Closed','Rest']){
+  const label=document.createElement('label');label.textContent=shape;
+  const select=document.createElement('select');select.id='v184-map-'+shape;
+  select.setAttribute('aria-label',shape+'に割り当てるVRM表情');
+  const weight=document.createElement('input');weight.id='v184-weight-'+shape;
+  weight.type='number';weight.min='0';weight.max='1';weight.step='0.01';weight.value='1';
+  weight.setAttribute('aria-label',shape+'のVRM表情入力重み');
+  label.htmlFor=select.id;vrmMapGrid.append(label,select,weight);vrmMapRows.set(shape,{select,weight});
+}
+const vrmMapDraft=document.createElement('button');vrmMapDraft.id='v184-map-draft';
+vrmMapDraft.type='button';vrmMapDraft.textContent='下書きを保存';
+const vrmMapConfirm=document.createElement('button');vrmMapConfirm.id='v184-map-confirm';
+vrmMapConfirm.type='button';vrmMapConfirm.textContent='実バインドのある5母音を確定';
+vrmMapControls.append(vrmMapSummary,vrmMapStatus,vrmMapGrid,vrmMapDraft,vrmMapConfirm);
+vrmControls.append(vrmSummary,vrmRun,vrmStatus,vrmVowels,vrmName,vrmInfo,vrmMapControls);
 heading.append(title,choose,refreshBtn,focusBtn,saveCameraBtn,restoreCameraBtn,modeBtn,closeBtn);
 const motionControls=document.createElement('div');motionControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
 motionControls.append(clipSelect,targetSelect,assignBtn,seekInput,seekBtn,motionStatus);
@@ -432,11 +453,92 @@ function selectedVrmAsset(){
     ?row.asset_id:null;
 }
 function clearVrmAnalysis(){
-  vrmAnalysisNonce++;vrmAnalysis=null;
+  vrmAnalysisNonce++;vrmAnalysis=null;vrmMaps=null;
   vrmName.replaceChildren();vrmName.hidden=true;vrmVowels.textContent='';vrmInfo.textContent='';
+  for(const {select,weight} of vrmMapRows.values()){
+    select.replaceChildren(new Option('未選択',''));select.disabled=true;weight.disabled=true;weight.value='1';
+  }
+  redrawVrmMapStatus();
   vrmRun.disabled=!selectedVrmAsset();
   vrmStatus.textContent=vrmRun.disabled?'登録済みVRMモデルを選んでください。'
     :'定義名と実バインドを原本から確認できます。名前だけでは使用可能と判定しません。';
+}
+function selectedVrmMap(){
+  return vrmMaps?.maps?.filter(row=>row.model_asset_id===selectedVrmAsset())
+    .find(row=>row.source_status==='valid')||null;
+}
+function selectedVrmMapEntries(){
+  const entries={};
+  for(const [shape,{select,weight}] of vrmMapRows){
+    const row=vrmAnalysis?.expressions?.[Number(select.value)];
+    const value=Number(weight.value);
+    if(select.value!==''&&(!row||!Number.isFinite(value)||value<0||value>1||weight.value.trim()===''))
+      throw Error(shape+'の表情と入力重み0〜1を確認してください。');
+    entries[shape]=select.value===''?null:{expression_index:Number(select.value),
+      expression_name:row.name,kind:row.kind,weight:value};
+  }
+  return entries;
+}
+function redrawVrmMapStatus(){
+  const assetId=selectedVrmAsset();
+  const rows=vrmMaps?.maps?.filter(row=>row.model_asset_id===assetId)||[];
+  const current=selectedVrmMap();
+  vrmMapDraft.disabled=!vrmAnalysis||!vrmMaps||!assetId;
+  let complete=false;
+  try{
+    const entries=selectedVrmMapEntries();
+    complete=['A','I','U','E','O'].every(shape=>{
+      const entry=entries[shape],row=entry&&vrmAnalysis?.expressions?.[entry.expression_index];
+      return row&&!row.invalidMorphBinds&&row.nonzeroMorphBinds>0&&entry.weight>0;
+    });
+  }catch{complete=false;}
+  vrmMapConfirm.disabled=vrmMapDraft.disabled||!complete;
+  if(!assetId)vrmMapStatus.textContent='登録済みVRMモデルを選んでください。';
+  else if(!vrmMaps)vrmMapStatus.textContent='表情定義を検査して保存済み対応表を読み込んでください。';
+  else if(rows.some(row=>row.source_status!=='valid'))
+    vrmMapStatus.textContent='原本変更・素材不足の旧対応表があります。現在の原本で再検査して保存してください。';
+  else if(current)vrmMapStatus.textContent=`${current.confirmed?'確定済み':'下書き'}（原本SHA ${current.model_hash.slice(0,12)}…）。表情入力重みは手動値です。`;
+  else vrmMapStatus.textContent='このVRMの対応表は未保存です。実バインドを確認して割り当ててください。';
+}
+function fillVrmMap(){
+  const rows=vrmAnalysis?.expressions||[],current=selectedVrmMap();
+  for(const [shape,{select,weight}] of vrmMapRows){
+    select.replaceChildren(new Option('未選択',''));
+    for(const [index,row] of rows.entries())
+      select.add(new Option(`${row.name} [${row.kind}]${row.nonzeroMorphBinds>0&&!row.invalidMorphBinds?'':'（実結合なし・確定不可）'}`,String(index)));
+    const entry=current?.model_hash===vrmAnalysis?.modelHash?current.entries?.[shape]:null;
+    if(entry&&rows[entry.expression_index]?.name===entry.expression_name&&
+       rows[entry.expression_index]?.kind===entry.kind){
+      select.value=String(entry.expression_index);weight.value=String(entry.weight);
+    }else{select.value='';weight.value='1';}
+    select.disabled=weight.disabled=!rows.length;
+  }
+  redrawVrmMapStatus();
+}
+async function saveVrmMap(confirmed){
+  const assetId=selectedVrmAsset(),analysis=vrmAnalysis,projectId=project?.value;
+  if(!assetId||!analysis||!vrmMaps||!projectId)return;
+  let entries;
+  try{entries=selectedVrmMapEntries();}
+  catch(error){vrmMapStatus.textContent=String(error.message||error);return;}
+  if(confirmed&&vrmMapConfirm.disabled){
+    vrmMapStatus.textContent='確定には実バインドのあるA/I/U/E/Oを選び、0より大きい重みを入力してください。';return;
+  }
+  vrmMapDraft.disabled=vrmMapConfirm.disabled=true;
+  vrmMapStatus.textContent='VRM対応表を保存中…';
+  try{
+    const response=await fetch('/api/studio/v05/vrm/expression-map',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        project_id:projectId,revision:vrmMaps.revision,action:'set',model_asset_id:assetId,
+        model_hash:analysis.modelHash,analysis_hash:analysis.analysisHash,entries,confirmed})});
+    const data=await response.json();
+    if(!response.ok)throw Error(data?.error||`HTTP ${response.status}`);
+    if(!opened||projectId!==project?.value||assetId!==selectedVrmAsset())return;
+    vrmMaps=data;redrawVrmMapStatus();
+  }catch(error){
+    redrawVrmMapStatus();
+    vrmMapStatus.textContent='保存失敗: '+String(error.message||error)+'。再検査して対応表を確認してください。';
+  }
 }
 function redrawVrmAnalysis(){
   if(!vrmAnalysis)return;
@@ -1493,16 +1595,24 @@ choose.addEventListener('change',()=>{
   setFkFrameFromSeek();
 });
 vrmName.addEventListener('change',redrawVrmAnalysis);
+vrmMapDraft.addEventListener('click',()=>saveVrmMap(false));
+vrmMapConfirm.addEventListener('click',()=>saveVrmMap(true));
+for(const {select,weight} of vrmMapRows.values()){
+  select.addEventListener('change',redrawVrmMapStatus);
+  weight.addEventListener('input',redrawVrmMapStatus);
+}
 vrmRun.addEventListener('click',async()=>{
   const assetId=selectedVrmAsset(),instanceId=choose.value||selectedId,projectId=project?.value;
   if(!assetId)return clearVrmAnalysis();
   const requestNonce=++vrmAnalysisNonce;
   vrmRun.disabled=true;vrmStatus.textContent='VRM表情定義を検査中…';
   try{
-    const data=await request('/api/studio/v05/vrm/expressions?asset_id='+encodeURIComponent(assetId));
+    const [data,maps]=await Promise.all([
+      request('/api/studio/v05/vrm/expressions?asset_id='+encodeURIComponent(assetId)),
+      request('/api/studio/v05/vrm/expression-map?project_id='+encodeURIComponent(projectId))]);
     if(requestNonce!==vrmAnalysisNonce||!opened||projectId!==project?.value||
        instanceId!==(choose.value||selectedId)||assetId!==selectedVrmAsset())return;
-    vrmAnalysis=data;
+    vrmAnalysis=data;vrmMaps=maps;
     vrmName.replaceChildren();
     for(const [index,row] of data.expressions.entries())
       vrmName.add(new Option(`${row.name} [${row.kind}]`,String(index)));
@@ -1510,8 +1620,9 @@ vrmRun.addEventListener('click',async()=>{
     const ready=Object.values(data.vowels).filter(row=>row.status==='ready').length;
     vrmStatus.textContent=`VRM ${data.version}.x：表情${data.expressions.length}件、実バインドのある母音${ready}/5。原本SHA ${data.modelHash.slice(0,12)}…`;
     redrawVrmAnalysis();
+    fillVrmMap();
   }catch(error){
-    if(requestNonce===vrmAnalysisNonce){vrmAnalysis=null;
+    if(requestNonce===vrmAnalysisNonce){vrmAnalysis=null;vrmMaps=null;redrawVrmMapStatus();
       vrmStatus.textContent='VRM検査失敗: '+String(error.message||error);}
   }finally{if(requestNonce===vrmAnalysisNonce)vrmRun.disabled=!selectedVrmAsset();}
 });

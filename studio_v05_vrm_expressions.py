@@ -171,8 +171,10 @@ def inspect(asset_id: str, assets: list[dict], source_for, expected_hash: str | 
     source = Path(source)
     try:
         before = _sha256(source)
+        if expected_hash is not None and expected_hash != before:
+            raise VrmExpressionError('VRM model hash changed', 409)
         result = analyze(_read_glb_json(source))
-        if _sha256(source) != before or expected_hash is not None and expected_hash != before:
+        if _sha256(source) != before:
             raise VrmExpressionError('VRM model hash changed', 409)
     except OSError as exc:
         raise VrmExpressionError('VRM expression read failed') from exc
