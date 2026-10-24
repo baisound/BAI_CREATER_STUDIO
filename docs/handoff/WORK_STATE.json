@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T11:02:29+09:00",
+  "updated_at": "2026-10-24T11:06:05+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-bone-select",
-  "head_at_update": "15a8636",
+  "branch": "codex/v05-motion010-rotate-gizmo",
+  "head_at_update": "2c99742",
   "current": {
-    "task": "Issue #106: MOTION-010実PMX骨の3D選択",
-    "status": "done",
-    "step": "同じv0.5プレビュー内に実骨階層の選択・対象表示を接続し、既存FKキー欄へ同期",
+    "task": "Issue #106: MOTION-010 実PMX骨の3D回転ハンドル",
+    "status": "in_progress",
+    "step": "同じv0.5編集画面で選択骨の回転を未確定プレビューに変換し、既存FKキー保存へ接続",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T11:06:05+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "2c99742",
+      "text": "Issue #106: MOTION-010 実PMX骨の3D回転ハンドル: 同じv0.5編集画面で選択骨の回転を未確定プレビューに変換し、既存FKキー保存へ接続"
+    },
     {
       "at": "2026-10-24T11:02:29+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "b16bad0",
       "text": "Issue #96: v0.5 PMX表情・口モーフ時刻キーをプレビューと限定MP4へ接続: 実PMXモーフ調査、保存契約とプレビュー/出力実証"
-    },
-    {
-      "at": "2026-10-24T06:18:25+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9db7676",
-      "text": "Issue #63: v0.5作品別の静的3Dカメラ位置・注視点・FOVをrevision付きで保存し、プレビュー再読込と限定MP4へ適用。旧形式保持・MCPスキーマ接続。Python7/7、隔離Chrome実PMX/VMD含む逐次5/5、原本と利用者data7 hash不変、型/構文/JSON合格。"
     }
   ]
 }
