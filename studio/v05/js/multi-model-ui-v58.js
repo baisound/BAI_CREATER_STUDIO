@@ -88,6 +88,21 @@ const ikChoose=document.createElement('button');ikChoose.type='button';ikChoose.
 ikChoose.textContent='IK骨を選択';
 const ikStatus=document.createElement('small');ikStatus.id='v114-ik-status';ikStatus.setAttribute('role','status');
 ikRow.append(document.createTextNode('PMX IK '),ikSelect,ikChoose,ikStatus);
+const limbRow=document.createElement('div');limbRow.id='v123-limb-mode';
+limbRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
+const limbSelect=document.createElement('select');limbSelect.id='v123-limb';
+limbSelect.setAttribute('aria-label','FK/IKを切り替える部位');
+for(const [value,label] of [['left_arm','左腕'],['right_arm','右腕'],
+  ['left_leg','左脚'],['right_leg','右脚']])limbSelect.add(new Option(label,value));
+limbSelect.value='left_leg';
+const limbMode=document.createElement('select');limbMode.id='v123-limb-mode-select';
+limbMode.setAttribute('aria-label','部位の編集方法');
+limbMode.add(new Option('FK','FK'));limbMode.add(new Option('IK','IK'));
+const limbSave=document.createElement('button');limbSave.type='button';limbSave.id='v123-limb-mode-save';
+limbSave.textContent='編集方法を切替';
+const limbStatus=document.createElement('small');limbStatus.id='v123-limb-mode-status';
+limbStatus.setAttribute('role','status');
+limbRow.append(document.createTextNode('部位 '),limbSelect,limbMode,limbSave,limbStatus);
 const fkBone=document.createElement('select');fkBone.id='v106-fk-bone';fkBone.setAttribute('aria-label','補正するPMX骨');
 const fkFrame=document.createElement('input');fkFrame.id='v106-fk-frame';fkFrame.type='number';
 fkFrame.min='0';fkFrame.step='1';fkFrame.value='0';fkFrame.style.width='78px';
@@ -140,7 +155,7 @@ fkRow.append(document.createTextNode('骨 '),fkBone,document.createTextNode('F '
   ...fkAxes.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}° `),input]),
   ...fkPosition.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}位置 `),input]),
   fkPreview,fkSave,fkCancel,fkUndo,fkRedo,fkSaved,fkRemove);
-fkControls.append(fkSummary,fkContext,ikRow,fkRow,fkLayerRow,fkCandidateRow,fkStatus);
+fkControls.append(fkSummary,fkContext,limbRow,ikRow,fkRow,fkLayerRow,fkCandidateRow,fkStatus);
 const faceLabel=document.createElement('strong');faceLabel.textContent='PMX表情・口';
 const faceName=document.createElement('select');faceName.id='v96-face-name';faceName.setAttribute('aria-label','実PMXのモーフ名');
 const faceTrack=document.createElement('select');faceTrack.id='v98-face-track';
@@ -323,6 +338,49 @@ function setFkFrameFromSeek(){
   fkFrame.value=String(Math.max(0,Math.round(currentSeek()*projectFps)));
   redrawFkControls();
 }
+function limbBones(target,limb){
+  if(target?.format!=='PMX'||!limb.endsWith('_leg'))return null;
+  const side=limb==='left_leg'?'左':'右';
+  const bones=target.object?.skeleton?.bones||[];
+  const fkName=side+'足';
+  const fkMatches=bones.filter(bone=>bone.name===fkName);
+  const ikTargets=listPmxIkTargets(target.object).filter(ik=>
+    (ik.name===side+'足ＩＫ'||ik.name===side+'足IK')&&ik.effector===side+'足首');
+  return {fkName:fkMatches.length===1?fkName:null,
+    ikName:ikTargets.length===1?ikTargets[0].name:null};
+}
+function redrawLimbMode(target,instanceId,row){
+  const limb=limbSelect.value;
+  const stored=motionEdits?.fk_ik_modes?.[instanceId]?.[limb]||
+    (limb.endsWith('_leg')?'IK':'FK');
+  limbMode.value=stored;
+  const bones=limbBones(target,limb);
+  const locked=sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked;
+  const available=Boolean(bones?.fkName);
+  limbMode.disabled=!row||!available||Boolean(locked);
+  limbSave.disabled=!row||!available||Boolean(locked)||Boolean(previewFk)||
+    Boolean(motionEdits?.issues?.length)||(stored==='IK'&&!bones?.ikName);
+  limbStatus.textContent=limb.endsWith('_arm')?
+    '腕IKの3D解法は未実装です。腕はFKのみです。':
+    !bones?.fkName?'このPMXに標準の脚骨がないため切替不可です。':
+    !bones.ikName?'このPMXに標準の足IK定義がないためIKへは切替不可です。':
+    `現在 ${stored}。切替だけでは姿勢・キー・Undoを変更しません。`;
+}
+function worldBonePose(target){
+  const THREE=target.libs.THREE;
+  target.object.updateWorldMatrix(true,true);
+  return target.object.skeleton.bones.map(bone=>({
+    position:bone.getWorldPosition(new THREE.Vector3()),
+    rotation:bone.getWorldQuaternion(new THREE.Quaternion())}));
+}
+function worldPoseDifference(before,after){
+  if(before.length!==after.length)return Infinity;
+  let difference=0;
+  for(let index=0;index<before.length;index++)difference=Math.max(difference,
+    before[index].position.distanceTo(after[index].position),
+    before[index].rotation.angleTo(after[index].rotation));
+  return difference;
+}
 function redrawFkControls(){
   const instanceId=choose.value||selectedId;
   const target=controller?.getLoaded(instanceId);
@@ -345,6 +403,7 @@ function redrawFkControls(){
     `実PMXのIK定義 ${ikTargets.length}件。選択後「このFを3D表示」から位置ハンドルを使えます。`:
     '実PMXのIK定義を読み込むと選択できます。';
   const row=activeFkRow();
+  redrawLimbMode(target,instanceId,row);
   const layer=motionEdits?.layers?.find(item=>item.instance_id===instanceId&&item.clip_id===row?.clip_id&&!item.disabled);
   const first=row?Math.ceil(row.start*projectFps-1e-7):0;
   const end=row?Math.ceil((row.start+row.duration)*projectFps-1e-7):0;
@@ -805,6 +864,55 @@ choose.addEventListener('change',()=>{
 fkHere.addEventListener('click',setFkFrameFromSeek);
 fkFrame.addEventListener('change',redrawFkControls);
 fkBone.addEventListener('change',()=>{discardFkPreview();redrawFkControls();});
+limbSelect.addEventListener('change',redrawFkControls);
+limbMode.addEventListener('change',()=>{
+  const target=controller?.getLoaded(choose.value||selectedId);
+  const bones=limbBones(target,limbSelect.value);
+  const unsupported=limbMode.value==='IK'&&(!bones?.ikName||limbSelect.value.endsWith('_arm'));
+  const instanceId=choose.value||selectedId;
+  const locked=sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked;
+  limbSave.disabled=!activeFkRow()||!bones?.fkName||Boolean(locked)||Boolean(previewFk)||
+    Boolean(motionEdits?.issues?.length)||limbSelect.value.endsWith('_arm')||unsupported;
+  if(unsupported)limbStatus.textContent='この部位のIK解法・ターゲットには未対応です。';
+});
+limbSave.addEventListener('click',async()=>{
+  const id=project?.value,instanceId=choose.value||selectedId,limb=limbSelect.value;
+  const row=activeFkRow(),target=controller?.getLoaded(instanceId);
+  const mode=limbMode.value,bones=limbBones(target,limb);
+  if(!id||!row||!target||!Number.isInteger(motionEdits?.revision)||
+      previewFk||motionEdits?.issues?.length||
+      document.getElementById('v111-fk-gizmo-toggle')?.getAttribute('aria-pressed')==='true'){
+    limbStatus.textContent='仮補正を破棄し、3Dハンドルを隠してから切り替えてください。';return;
+  }
+  if(limb.endsWith('_arm')||!bones?.fkName||(mode==='IK'&&!bones.ikName)){
+    limbStatus.textContent='このPMX・部位の編集方法には未対応です。';return;
+  }
+  const name=mode==='IK'?bones.ikName:bones.fkName;
+  if(![...fkBone.options].some(option=>option.value===name)){
+    limbStatus.textContent='対象骨を選べません。PMXを再読込してください。';return;
+  }
+  limbSave.disabled=true;
+  const revision=motionEdits.revision;
+  let resultMessage='';
+  try{
+    const response=await fetch('/api/studio/v05/motion-edits',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({project_id:id,revision,action:'mode-set',
+        instance_id:instanceId,clip_id:row.clip_id,limb,mode})});
+    const data=await response.json();
+    if(!response.ok)throw Error(data.error||`HTTP ${response.status}`);
+    if(!opened||project?.value!==id||choose.value!==instanceId)return;
+    const before=worldBonePose(target);
+    motionEdits=data;fkBone.value=name;
+    rotateGizmo?.setMode(mode==='IK'?'translate':'rotate');
+    redrawFkControls();
+    const difference=worldPoseDifference(before,worldBonePose(target));
+    if(difference>1e-4)throw Error(`切替前後の姿勢差 ${difference.toExponential(2)} が上限を超えました`);
+    resultMessage=`${limbSelect.selectedOptions[0]?.textContent}を${mode}で編集。姿勢差 ${difference.toExponential(2)}、キー・Undo追加なし。`;
+    window.dispatchEvent(new CustomEvent('bai:v106-fk-saved',{detail:{projectId:id,revision:data.revision}}));
+  }catch(error){resultMessage='切替失敗: '+String(error.message||error);}
+  finally{redrawFkControls();limbStatus.textContent=resultMessage;}
+});
 ikSelect.addEventListener('change',()=>{ikChoose.disabled=!ikSelect.value;});
 ikChoose.addEventListener('click',()=>{
   const target=controller?.getLoaded(choose.value||selectedId);
@@ -1272,9 +1380,10 @@ if(document.modelContext?.registerTool){
      readOnly:true,inputSchema:{type:'object',properties:{project_id:{type:'string'}},
        required:['project_id'],additionalProperties:false},
      async execute({project_id}){return request('/api/studio/v05/motion-edits?id='+encodeURIComponent(project_id));}},
-    {name:'bai_studio_pmx_fk_edits_mutate',description:'Save/remove/move a PMX FK key, update its layer, or undo/redo with revision.',
+    {name:'bai_studio_pmx_fk_edits_mutate',description:'Save/remove/move a PMX correction key, update its layer or limb edit mode, or undo/redo with revision.',
      inputSchema:{type:'object',properties:{project_id:{type:'string'},revision:{type:'integer'},
-       action:{type:'string',enum:['set','remove','move','layer-update','undo','redo']},instance_id:{type:'string'},clip_id:{type:'string'},
+       action:{type:'string',enum:['set','remove','move','layer-update','mode-set','undo','redo']},instance_id:{type:'string'},clip_id:{type:'string'},
+       limb:{type:'string',enum:['left_arm','right_arm','left_leg','right_leg']},mode:{type:'string',enum:['FK','IK']},
        layer_id:{type:'string'},to_frame:{type:'integer'},settings:{type:'object',properties:{
          name:{type:'string'},weight:{type:'number'},muted:{type:'boolean'},start_frame:{type:'integer'},
          end_frame:{type:'integer'},fade_in_frames:{type:'integer'},fade_out_frames:{type:'integer'}},additionalProperties:false},
