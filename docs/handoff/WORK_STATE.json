@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T19:04:07+09:00",
+  "updated_at": "2026-10-24T19:08:18+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-vmd-dense",
-  "head_at_update": "df1f5c6",
+  "branch": "codex/v05-motion010-dense-curve",
+  "head_at_update": "d8a61e7",
   "current": {
-    "task": "Issue #106: MOTION-010 VMD全フレーム候補",
-    "status": "done",
-    "step": "元VMDの長さを含む全フレームキー化と作品内外の誤差ゲートを実装・検証",
+    "task": "Issue #106: MOTION-010 動く元VMD曲線の密キー不一致",
+    "status": "in_progress",
+    "step": "実PMXの局所姿勢差を時刻・ボーン別に切り分け、忠実な出力または明示的な拒否条件を検証",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T19:08:18+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "d8a61e7",
+      "text": "Issue #106: MOTION-010 動く元VMD曲線の密キー不一致: 実PMXの局所姿勢差を時刻・ボーン別に切り分け、忠実な出力または明示的な拒否条件を検証"
+    },
     {
       "at": "2026-10-24T19:04:07+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "1f03a2c",
       "text": "MOTION-010: 同一実PMX/VMDの右膝ポールを実ドラッグ、足首残差・左足不変、保存・Undo/Redo・再読込、左右キーを含む別名VMD全骨往復で検証。隔離試験1件成功。全体は要検証。"
-    },
-    {
-      "at": "2026-10-24T16:07:11+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "b05b31a",
-      "text": "Issue #106: MOTION-010 右膝ポールの実PMX検証: 右足IKの3Dハンドル実ドラッグ、保存、Undo/Redo、VMD候補の隔離検証を追加する"
     }
   ]
 }
