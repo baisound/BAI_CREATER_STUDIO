@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:54:46+09:00",
+  "updated_at": "2026-10-25T01:57:31+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-reading-ui",
-  "head_at_update": "c890010",
+  "branch": "codex/v05-lip001-mora-candidates",
+  "head_at_update": "ffcd391",
   "current": {
-    "task": "Issue #187: SRT発話の読み・無音を画面で編集",
-    "status": "done",
-    "step": "登録済み発話を選び未確定/提案/確定/明示無音を保存・再読込し原本と分離する",
+    "task": "Issue #187: 確定かなのモーラから口形候補を計算",
+    "status": "in_progress",
+    "step": "原SRT半開区間と作品FPSを保ち、促音/撥音/長音/唇閉鎖を候補にし未確定・無音を区別する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:57:31+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "ffcd391",
+      "text": "Issue #187: 確定かなのモーラから口形候補を計算: 原SRT半開区間と作品FPSを保ち、促音/撥音/長音/唇閉鎖を候補にし未確定・無音を区別する"
+    },
     {
       "at": "2026-10-25T01:54:46+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "6cf7804",
       "text": "Issue #175: PMX口パネルの頂点変位・重なり読み取りを実装し、実PMX A/Bと人工データで2/2検証。Aの母音はグループ、Bの口パネルは0件。"
-    },
-    {
-      "at": "2026-10-25T00:08:09+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "05fdbe1",
-      "text": "Issue #175: 実PMX口モーフの頂点変位解析: PMX実データの頂点変位・重なり解析と数値ゲートを追加する"
     }
   ]
 }
