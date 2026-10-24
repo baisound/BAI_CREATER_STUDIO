@@ -441,6 +441,8 @@ function fkGizmoContext(){
   if(motionEdits?.issues?.length)return {reason:'補正データの不一致を解決してください。'};
   const matches=target.object.skeleton.bones.filter(bone=>bone.name===name);
   if(matches.length!==1)return {reason:'同名または存在しない骨は3D操作できません。'};
+  const ikTarget=listPmxIkTargets(target.object).find(item=>item.name===name);
+  const effectors=ikTarget?target.object.skeleton.bones.filter(bone=>bone.name===ikTarget.effector):[];
   const layers=(motionEdits?.layers||[]).filter(layer=>!layer.disabled&&
     layer.instance_id===instanceId&&layer.clip_id===row.clip_id);
   if(layers.length>1)return {reason:'複数レイヤーの同時補正は3D操作に未対応です。'};
@@ -452,7 +454,8 @@ function fkGizmoContext(){
         frame>=until-(layer.fade_out_frames||0))
       return {reason:'3D骨操作は重み100%で有効区間のなじませ外にあるFKレイヤーに対応します。'};
   }
-  return {projectId:project.value,instanceId,clipId:row.clip_id,frame,boneName:name,bone:matches[0],target,row,layer};
+  return {projectId:project.value,instanceId,clipId:row.clip_id,frame,boneName:name,
+    bone:matches[0],effectorBone:effectors.length===1?effectors[0]:null,target,row,layer};
 }
 function previewCurrentFk(){
   const {row,frame,key}=fkPayload();
@@ -930,9 +933,12 @@ fkPreview.addEventListener('click',()=>{
   }catch(error){fkStatus.textContent='仮補正失敗: '+String(error.message||error);}
 });
 fkCancel.addEventListener('click',()=>{discardFkPreview();fkStatus.textContent='仮補正を破棄しました';});
-panel.addEventListener('keydown',event=>{
-  if(event.key==='Escape'&&previewFk){event.stopPropagation();discardFkPreview();fkStatus.textContent='仮補正を破棄しました';}
-});
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&previewFk&&!rotateGizmo?.isDragging?.()){
+    event.preventDefault();event.stopPropagation();
+    discardFkPreview();fkStatus.textContent='仮補正を破棄しました';
+  }
+},true);
 fkSave.addEventListener('click',async()=>{
   fkSave.disabled=true;
   try{
@@ -1298,7 +1304,7 @@ window.BAIStudioMultiScenePreview=Object.freeze({
   status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,composite,ready:reloadReady,
     rendererReady:Boolean(viewport),renderer:viewport?.rendererName||null,
     cameraSaved:Boolean(sceneSnapshot?.camera),camera:viewport?.getCameraPose?.()||null,
-    renderingVerified:false}),
+    gizmo:rotateGizmo?.probe?.()||null,renderingVerified:false}),
   poseProbe(instanceId,boneNames){
     if(!opened||!controller||!Array.isArray(boneNames)||boneNames.length>16||
        boneNames.some(name=>typeof name!=='string'||name.length>100))return null;
