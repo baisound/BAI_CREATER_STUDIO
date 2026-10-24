@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:10:50+09:00",
+  "updated_at": "2026-10-24T22:20:10+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-long-ui-flow",
-  "head_at_update": "3df66c3",
+  "head_at_update": "90d102c",
   "current": {
     "task": "Issue #106: MOTION-010 長尺VMD候補の通常画面経路",
-    "status": "in_progress",
+    "status": "done",
     "step": "203秒実VMDの候補作成・全骨検査・明示採用・復元をv0.5画面で操作し保存結果を読む",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 任意境界・長いなじませの安全な成立/拒否条件と通常画面の長尺手操作を調べる"
+    "MOTION-010 長尺の時間限定候補を通常画面で検査し、安全な拒否表示と短い旧カメラ境界を調べる"
   ],
   "unverified": [
-    "任意境界・長いなじませ、任意PMX、通常画面の長尺手操作、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "長尺の時間限定候補の通常画面操作、任意境界・長いなじませ、任意PMX、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T22:20:10+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "90d102c",
+      "text": "MOTION-010 203秒実VMDの60fps・204秒作品で画面から90秒頭FKを変更・保存し、長尺疎候補作成、201骨全12240作品F＋6120VMD F検査、明示採用・元VMD復元を確認"
+    },
     {
       "at": "2026-10-24T22:10:50+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "c277bad",
       "text": "Issue #106: MOTION-010 下位FKレイヤーの3D直接編集: 後段差分の局所逆算とIK/付与条件の拒否を実PMXで検証"
-    },
-    {
-      "at": "2026-10-24T20:09:10+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "44fb925",
-      "text": "Issue #106: ソロの部分・全フレームVMD候補を246骨実PMX全骨で往復し、複数層上位の腕IKドラッグ保存・Undo/Redo・再読込を確認"
     }
   ]
 }
