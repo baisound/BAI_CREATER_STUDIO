@@ -30,6 +30,14 @@ function rawFrame(mp4){
   assert.equal(run.stdout.length,640*360*3);
   return run.stdout;
 }
+function centerFace(bytes){
+  const run=spawnSync('ffmpeg',['-hide_banner','-loglevel','error','-i','pipe:0','-frames:v','1',
+    '-vf','crop=iw*0.25:ih*0.65:iw*0.37:ih*0.05,scale=320:280',
+    '-pix_fmt','rgb24','-f','rawvideo','pipe:1'],{input:bytes,maxBuffer:1024*1024});
+  assert.equal(run.status,0,run.stderr.toString());
+  assert.equal(run.stdout.length,320*280*3);
+  return run.stdout;
+}
 function changed(before,after){
   assert.equal(before.length,after.length);
   let count=0;
@@ -71,6 +79,16 @@ test('real PMX expression and mouth keys survive F0, middle, tail, reload and MP
     const loaded=()=>page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
       window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
     await loaded();
+    async function compositeFace(){
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'composite-face-check'));
+      await page.waitForTimeout(250);
+      const canvas=await page.locator('#v58-canvas canvas').boundingBox();
+      const panel=await page.locator('#v58-multi-preview').boundingBox();
+      assert.ok(canvas&&panel&&panel.x>canvas.x+canvas.width*.59,
+        `顔の中央領域に操作パネルが重なっています: ${JSON.stringify({canvas,panel})}`);
+      return await page.locator('#v58-canvas canvas').screenshot();
+    }
+    const compositeBefore=await compositeFace();
     await page.getByRole('button',{name:'単独画面で表示'}).click();
     await page.getByRole('button',{name:'同じ画面に重ねる'}).waitFor();
     await loaded();
@@ -124,6 +142,7 @@ test('real PMX expression and mouth keys survive F0, middle, tail, reload and MP
         ['あ',point.seconds,point.mouth,'lip']]).sort((a,b)=>a[0].localeCompare(b[0],'ja')||a[1]-b[1]));
     await page.reload();await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v70sceneOpen').click();await loaded();
+    const compositeAfter=await compositeFace();
     await page.getByRole('button',{name:'単独画面で表示'}).click();
     await page.getByRole('button',{name:'同じ画面に重ねる'}).waitFor();await loaded();
     const keyed=[];
@@ -137,6 +156,8 @@ test('real PMX expression and mouth keys survive F0, middle, tail, reload and MP
     for(const point of points)video.push(await renderAt(point.frame,scene.revision));
     const previewChanges=points.map((point,i)=>changed(rawFrame(baseline[i].pixels),rawFrame(keyed[i].pixels)));
     const movieChanges=points.map((point,i)=>changed(plain[i].pixels,video[i].pixels));
+    const compositeFacePixels=changed(centerFace(compositeBefore),centerFace(compositeAfter));
+    assert.ok(compositeFacePixels>2,`F120の合成画面で顔が確認できません: ${compositeFacePixels}`);
     for(const [index,point] of points.entries()){
       assert.ok(previewChanges[index]>2,`F${point.frame} preview did not change: ${previewChanges[index]}`);
       assert.ok(movieChanges[index]>2,`F${point.frame} MP4 did not change: ${movieChanges[index]}`);
@@ -144,7 +165,7 @@ test('real PMX expression and mouth keys survive F0, middle, tail, reload and MP
         `F${point.frame} body VMD pose changed`);
     }
     console.log(JSON.stringify({sourceHash,revision:scene.revision,previewChanges,movieChanges,
-      renderer:video.map(item=>item.renderer),points:points.map(point=>point.frame)}));
+      compositeFacePixels,renderer:video.map(item=>item.renderer),points:points.map(point=>point.frame)}));
     harness.assertNoErrors(page);
   }finally{
     await page?.close();await browser?.close();await server.stop();

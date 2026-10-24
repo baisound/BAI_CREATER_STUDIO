@@ -90,6 +90,13 @@ test('saved 3D canvas overlays the same project image with transparent backgroun
       window.BAIStudioMultiScenePreview.status().composite === true);
     assert.equal((await page.evaluate(() => window.BAIStudioMediaPreviewV68.status())).frame, 60);
     assert.equal((await page.evaluate(() => window.BAIStudioMultiScenePreview.status())).projectId, id);
+    await page.setViewportSize({ width: 900, height: 700 });
+    const stageBox = await page.locator('#v68stage').boundingBox();
+    const panelBox = await page.locator('#v58-multi-preview').boundingBox();
+    assert.ok(stageBox && panelBox && panelBox.x > stageBox.x + stageBox.width * .5,
+      `狭い画面の中央プレビューを操作パネルが覆っています: ${JSON.stringify({ stageBox, panelBox })}`);
+    await page.locator('#v58-save-camera').scrollIntoViewIfNeeded();
+    assert.equal(await page.locator('#v58-save-camera').isVisible(), true);
     assert.equal(scene.instances.length, 1);
   } finally { await page?.close(); await browser?.close(); await server.stop(); }
 });

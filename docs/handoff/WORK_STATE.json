@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:39:03+09:00",
+  "updated_at": "2026-10-24T23:48:40+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip096-three-point",
-  "head_at_update": "6473188",
+  "branch": "codex/v05-lip096-face-visibility",
+  "head_at_update": "eb1cfe4",
   "current": {
-    "task": "Issue #96: LIP-004/009 実PMX表情・口キーの先頭・中間・末尾検証",
+    "task": "Issue #96: 合成編集画面のPMX顔視認性",
     "status": "done",
-    "step": "既存実装の保存値と実顔画素・限定MP4を3時点で照合し、差があれば修正する",
-    "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
+    "step": "重ね表示の操作パネルと顔の遮蔽を最小変更で改善し、表情・口の実画素と操作経路を隔離検証する",
+    "design_doc": "docs/roadmap/UI_UX_DESIGN_STANDARD_JA.md"
   },
   "next_steps": [
-    "Issue #96: 合成編集画面の操作パネルが顔を覆う条件を改善し、口・表情の画素と操作性を再検証する"
+    "Issue #96の受け入れ条件とPR反映を最終監査し、満たせばIssueを閉じる。その後は最新ロードマップ順4の残る承認済み表情・口機能を進める"
   ],
   "unverified": [
-    "合成画面の顔視認性、任意PMX・長尺全区間・Linux・標準MCP実通信・視線・SRT/音素自動リップ・頂点変位解析・Owner採用は未確認。LIP-004/009全体は未完了。Issue #106はOwnerクローズ済み"
+    "任意PMX・カメラ構図での顔視認性、さらに狭い画面・タッチ・Linux・標準MCP実通信・長尺・視線・SRT/音素自動リップ・頂点変位解析・Owner採用は未検証。LIP-004/009全体は未完了"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T23:48:40+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "eb1cfe4",
+      "text": "Issue #96: 合成パネルを最大320px・ステージ幅38%へ縮小。F120の実PMX口形が中央で58画素変化し、900px画面でも操作へ到達。隔離PMX1/1、既存UI+GLB2/2、狭幅1/1、原本/data7/exports0 SHA不変"
+    },
+    {
+      "at": "2026-10-24T23:41:26+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "63576cf",
+      "text": "Issue #96: 合成編集画面のPMX顔視認性: 重ね表示の操作パネルと顔の遮蔽を最小変更で改善し、表情・口の実画素と操作経路を隔離検証する"
+    },
     {
       "at": "2026-10-24T23:39:03+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "2f8672d",
       "text": "Issue #106: MOTION-010 動く頭骨曲線の区間境界: 長尺実VMDの動く頭骨に時間限定補正を置ける境界条件を数値検査し、実PMXで検証する"
-    },
-    {
-      "at": "2026-10-24T21:28:39+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "83105aa",
-      "text": "MOTION-010 長尺実VMDの時間限定髪骨補正を疎な候補で実証。元VMD未キー骨・なじませ0に限定し、204秒作品12240F＋VMD6121F・201骨の物理OFF往復、隔離採用・復元に合格。疎候補のVMD整数境界と採用レポート範囲を修正。動く頭骨候補は誤差で拒否。"
-    },
-    {
-      "at": "2026-10-24T21:18:26+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "330a649",
-      "text": "Issue #106: MOTION-010 長尺VMDの時間限定候補: 元曲線を保つ時間限定補正の境界条件を実VMDで調べ、安全な候補か理由付き拒否を検証する"
     }
   ]
 }

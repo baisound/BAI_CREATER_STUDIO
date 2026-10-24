@@ -238,7 +238,7 @@ function mountComposite(){
   window.BAIStudioMediaPreviewV68?.sceneOverlay?.(true);
   stage.append(canvasParent,panel);
   canvasParent.style.cssText='position:absolute;inset:0;width:100%;height:100%;min-height:0;background:transparent;border:0;overflow:hidden;z-index:2';
-  panel.style.cssText='position:absolute;top:8px;right:8px;left:auto;bottom:auto;z-index:3;width:min(560px,calc(100% - 16px));max-height:52%;overflow:auto;background:#172231ee;border:1px solid #6584a0;border-radius:9px;padding:8px;box-shadow:0 8px 28px #0009;display:flex;flex-direction:column;gap:5px';
+  panel.style.cssText='position:absolute;top:8px;right:8px;left:auto;bottom:auto;z-index:3;width:min(320px,38%);max-height:82%;overflow:auto;background:#172231ee;border:1px solid #6584a0;border-radius:9px;padding:8px;box-shadow:0 8px 28px #0009;display:flex;flex-direction:column;gap:5px';
   return true;
 }
 function unmountComposite(){
@@ -251,7 +251,7 @@ function unmountComposite(){
 function setBoneEditPanel(enabled,context){
   if(!composite)return;
   if(!enabled){
-    panel.style.width='min(560px,calc(100% - 16px))';panel.style.maxHeight='52%';
+    panel.style.width='min(320px,38%)';panel.style.maxHeight='82%';
     panel.style.left='auto';panel.style.right='8px';return;
   }
   const bone=context?.bone,THREE=context?.target?.libs?.THREE;
