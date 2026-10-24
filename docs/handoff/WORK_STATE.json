@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T15:46:01+09:00",
+  "updated_at": "2026-10-24T15:48:55+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-knee-pole-design",
-  "head_at_update": "8aa42b2",
+  "branch": "codex/v05-motion010-knee-pole-handle",
+  "head_at_update": "341864e",
   "current": {
-    "task": "Issue #106: MOTION-010 PMX膝ポール解法の実証",
-    "status": "done",
-    "step": "実PMX足IKのCCD挙動と膝制限を測り、保存・VMD往復に一致するポール操作の設計と最小試験を確定する",
-    "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
+    "task": "Issue #106: MOTION-010 膝ポール3Dハンドル",
+    "status": "in_progress",
+    "step": "実PMX膝位置へハンドルをスナップし、実ドラッグを太ももFK補正へ解き、Esc・保存・Undo/Redo・VMD往復を隔離検証する",
+    "design_doc": "docs/v05/MOTION010_KNEE_POLE_DESIGN_20261024_JA.md"
   },
   "next_steps": [
     "MOTION-010: 現姿勢へスナップする膝ポールの実ドラッグを太もも回転差分へ解き、保存・Undo/Redo・実PMX/VMD往復で検証する",
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T15:48:55+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "341864e",
+      "text": "Issue #106: MOTION-010 膝ポール3Dハンドル: 実PMX膝位置へハンドルをスナップし、実ドラッグを太ももFK補正へ解き、Esc・保存・Undo/Redo・VMD往復を隔離検証する"
+    },
     {
       "at": "2026-10-24T15:46:01+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "beffcb5",
       "text": "Issue #106 MOTION-010: 実PMXの足IK定義を選択UIと3D位置補正へ接続。左足首追従・往復シーク・保存再読込を実素材で確認し、補正累積を修正。"
-    },
-    {
-      "at": "2026-10-24T12:59:00+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "10f6afe",
-      "text": "Issue #106: MOTION-010 PMX足IKターゲット操作: PMXの実IK定義から足ターゲットを識別し3D位置補正へ接続、足首追従を実素材で確認"
     }
   ]
 }
