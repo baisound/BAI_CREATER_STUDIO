@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:48:22+09:00",
+  "updated_at": "2026-10-24T20:54:17+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-long-correction",
-  "head_at_update": "008e3e8",
+  "head_at_update": "285fe8a",
   "current": {
     "task": "Issue #106: MOTION-010 長尺実補正",
-    "status": "in_progress",
+    "status": "done",
     "step": "203秒実VMDの90秒へFKキーを置き、プレビュー・保存再読込と候補適用範囲を検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 長尺VMDの90秒付近に実補正キーを置き、プレビュー・保存再読込・別名VMD候補の適用範囲を調べる"
+    "MOTION-010 長尺VMDの90秒付近に限定した別名候補の安全な生成・拒否理由と実PMX往復を調べる"
   ],
   "unverified": [
-    "長尺への実補正・VMD候補、画面再読込断続失敗の原因、別IK・付与構成、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "長尺VMD候補の生成・実PMX往復・採用、短い旧カメラと長尺作品の境界、画面再読込断続失敗の原因、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T20:54:17+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "285fe8a",
+      "text": "MOTION-010 203秒実VMDの90秒F5400へ画面から頭骨Y回転12度・X位置0.15を仮表示、取消、保存再読込。センター不変・原本SHA一致。初期カメラ300FのHTTP400は隔離試験のカメラ範囲を設定して回避、修正後1試験通過。"
+    },
     {
       "at": "2026-10-24T20:48:22+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "af7a754",
       "text": "Issue #106: MOTION-010 右腕保存と連続ドラッグ: 右手先・ひじの実3D操作を保存・再読込まで確認し、ドラッグ中の姿勢更新を接続・検査する"
-    },
-    {
-      "at": "2026-10-24T17:48:05+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "87370a9",
-      "text": "MOTION-010の左右腕FK/IK編集方法切替を実装し、201骨・246骨実PMXで全骨姿勢差0・キー/Undo不変・再読込を確認"
     }
   ]
 }
