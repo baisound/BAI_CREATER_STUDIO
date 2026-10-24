@@ -119,6 +119,16 @@ const fkFadeIn=document.createElement('input');fkFadeIn.id='v106-fk-fade-in';fkF
 const fkFadeOut=document.createElement('input');fkFadeOut.id='v106-fk-fade-out';fkFadeOut.type='number';fkFadeOut.min='0';fkFadeOut.step='1';fkFadeOut.style.width='65px';
 const fkMuted=document.createElement('input');fkMuted.id='v106-fk-muted';fkMuted.type='checkbox';
 const fkLayerSave=document.createElement('button');fkLayerSave.id='v106-fk-layer-save';fkLayerSave.type='button';fkLayerSave.textContent='レイヤーを保存';
+const fkCandidateRow=document.createElement('div');fkCandidateRow.id='v116-vmd-candidate';
+fkCandidateRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
+const fkCandidate=document.createElement('button');fkCandidate.id='v116-vmd-candidate-create';
+fkCandidate.type='button';fkCandidate.textContent='一定補正の別名VMD候補を作成';
+const fkCandidateLink=document.createElement('a');fkCandidateLink.id='v116-vmd-candidate-download';
+fkCandidateLink.textContent='検証前の候補をダウンロード';fkCandidateLink.hidden=true;
+const fkCandidateStatus=document.createElement('small');fkCandidateStatus.id='v116-vmd-candidate-status';
+fkCandidateStatus.setAttribute('role','status');
+fkCandidateStatus.textContent='保存済みの全区間一定補正だけ対応。実PMX往復の未確認候補です。';
+fkCandidateRow.append(fkCandidate,fkCandidateLink,fkCandidateStatus);
 fkLayerRow.append(document.createTextNode('重み % '),fkWeight,document.createTextNode('区間 F '),fkStart,
   document.createTextNode('〜'),fkEnd,document.createTextNode('前なじませ F '),fkFadeIn,
   document.createTextNode('後なじませ F '),fkFadeOut,document.createTextNode('ミュート '),fkMuted,fkLayerSave);
@@ -126,7 +136,7 @@ fkRow.append(document.createTextNode('骨 '),fkBone,document.createTextNode('F '
   ...fkAxes.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}° `),input]),
   ...fkPosition.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}位置 `),input]),
   fkPreview,fkSave,fkCancel,fkUndo,fkRedo,fkSaved,fkRemove);
-fkControls.append(fkSummary,fkContext,ikRow,fkRow,fkLayerRow,fkStatus);
+fkControls.append(fkSummary,fkContext,ikRow,fkRow,fkLayerRow,fkCandidateRow,fkStatus);
 const faceLabel=document.createElement('strong');faceLabel.textContent='PMX表情・口';
 const faceName=document.createElement('select');faceName.id='v96-face-name';faceName.setAttribute('aria-label','実PMXのモーフ名');
 const faceTrack=document.createElement('select');faceTrack.id='v98-face-track';
@@ -338,6 +348,7 @@ function redrawFkControls(){
   fkStart.value=String(layer?.start_frame??first);fkEnd.value=String(layer?.end_frame??end);
   fkFadeIn.value=String(layer?.fade_in_frames??0);fkFadeOut.value=String(layer?.fade_out_frames??0);
   fkMuted.checked=Boolean(layer?.muted);fkLayerSave.disabled=!layer;
+  fkCandidate.disabled=!row||!layer||Boolean(motionEdits?.issues?.length)||Boolean(previewFk);
   const previousKey=fkSaved.value;
   fkSaved.replaceChildren(new Option('保存済みFKキー',''));
   for(const key of layer?.keys||[])fkSaved.add(new Option(`F${key.frame} ${key.bone}`,JSON.stringify([key.frame,key.bone])));
@@ -857,6 +868,25 @@ fkLayerSave.addEventListener('click',async()=>{
   }catch(error){fkStatus.textContent='レイヤー保存失敗: '+String(error.message||error);}
   finally{redrawFkControls();}
 });
+fkCandidate.addEventListener('click',async()=>{
+  const row=activeFkRow(),id=project?.value;
+  if(!row||!id||previewFk){fkCandidateStatus.textContent='保存済みキーのあるVMDクリップを選択し、仮補正を破棄してください。';return;}
+  fkCandidate.disabled=true;fkCandidateLink.hidden=true;
+  try{
+    const response=await fetch('/api/studio/v05/motion/vmd-candidate',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        project_id:id,revision:motionEdits?.revision,
+        instance_id:row.target_scene_instance_id,clip_id:row.clip_id})});
+    const data=await response.json();
+    if(!response.ok)throw Error(data.error||`HTTP ${response.status}`);
+    if(project?.value!==id||!opened)return;
+    fkCandidateLink.href=data.download_url;
+    fkCandidateLink.download='MOTION010-検証前候補-'+data.candidate_id+'.vmd';
+    fkCandidateLink.hidden=false;
+    fkCandidateStatus.textContent=`別名候補を作成。骨${data.replaced_bone_keys}件を更新、${data.added_bone_keys}件を追加。元VMDは不変。実PMX往復の確認前で、作品への配置はしていません。`;
+  }catch(error){fkCandidateStatus.textContent='候補作成不可: '+String(error.message||error);}
+  finally{redrawFkControls();}
+});
 for(const [button,action] of [[fkUndo,'undo'],[fkRedo,'redo']])button.addEventListener('click',async()=>{
   button.disabled=true;
   try{await writeFk(action);fkStatus.textContent=action==='undo'?'FKキーを戻しました':'FKキーをやり直しました';}
@@ -1211,6 +1241,18 @@ if(document.modelContext?.registerTool){
        if(opened&&project?.value===input.project_id){motionEdits=data;previewFk=null;
          applyAllMotionEdits();seekScene(Number(seekInput.value)||currentSeek());redrawFkControls();}
        window.dispatchEvent(new CustomEvent('bai:v106-fk-saved',{detail:{projectId:input.project_id,revision:data.revision}}));
+       return data;
+     }},
+    {name:'bai_studio_pmx_vmd_candidate_create',
+     description:'Create a review-only VMD from saved whole-clip constant PMX correction keys. PMX roundtrip and project placement are not performed.',
+     inputSchema:{type:'object',properties:{project_id:{type:'string'},revision:{type:'integer'},
+       instance_id:{type:'string'},clip_id:{type:'string'}},
+       required:['project_id','revision','instance_id','clip_id'],additionalProperties:false},
+     async execute(input){
+       const response=await fetch('/api/studio/v05/motion/vmd-candidate',{
+         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
+       const data=await response.json();
+       if(!response.ok)throw Error(data.error||`HTTP ${response.status}`);
        return data;
      }}
   ]) {

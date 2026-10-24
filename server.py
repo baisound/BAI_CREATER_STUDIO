@@ -239,6 +239,20 @@ class Handler(BaseHTTPRequestHandler):
         msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
         self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
     def do_GET(self):
+        if urlsplit(self.path).path == '/api/studio/v05/motion/vmd-candidate/file':
+            from studio_v05_vmd_candidate import candidate_file
+            from studio_v05_motion_edits import MotionEditError
+
+            try:
+                query = parse_qs(urlsplit(self.path).query)
+                file = candidate_file(DATA/'studio_v05_vmd_candidates',
+                                      query.get('project_id', [''])[0], query.get('candidate_id', [''])[0])
+                self.send_library_file(file, 'application/octet-stream')
+            except MotionEditError as exc:
+                self.bad(422, str(exc))
+            except OSError:
+                self.bad(500, 'VMD candidate read failed')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/motion-edits':
             from studio_v05_motion_edits import view, MotionEditError
             try:
@@ -750,6 +764,32 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(409 if 'conflict' in str(exc).lower() or 'locked' in str(exc).lower() else 400,str(exc))
             except (ValueError,TypeError,KeyError) as exc:self.bad(400,str(exc))
             except OSError:self.bad(500,'Motion binding write failed')
+            return
+        if urlsplit(self.path).path == '/api/studio/v05/motion/vmd-candidate':
+            from studio_v05_vmd_candidate import create_candidate
+            from studio_v05_motion_edits import MotionEditError
+
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                if not 0 < length <= 4096:
+                    return self.bad(413, 'Request too large')
+                body = json.loads(self.rfile.read(length))
+                if not isinstance(body, dict) or set(body) != {
+                        'project_id', 'revision', 'instance_id', 'clip_id'}:
+                    return self.bad(400, 'Invalid VMD candidate fields')
+                result = create_candidate(DATA/'studio_v05_vmd_candidates',
+                    DATA/'studio_v05_motion_edits', DATA,
+                    DATA/'studio_v05_scene_instances', DATA/'studio_v05_scene_models',
+                    DATA/'studio_v05_arrangements', DATA/'studio_v05_catalog.json',
+                    assets=unified_assets(), **body)
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except MotionEditError as exc:
+                self.bad(409 if 'conflict' in str(exc).lower() or 'locked' in str(exc).lower()
+                         else 422, str(exc))
+            except (ValueError, TypeError, KeyError) as exc:
+                self.bad(422, str(exc))
+            except OSError:
+                self.bad(500, 'VMD candidate creation failed; source retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/motion-edits':
             from studio_v05_motion_edits import mutate as edit_motion, MotionEditError

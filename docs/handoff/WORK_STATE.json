@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T13:24:33+09:00",
+  "updated_at": "2026-10-24T13:35:01+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-vmd-constant-export",
-  "head_at_update": "cad32ab",
+  "head_at_update": "3b7ba53",
   "current": {
     "task": "Issue #106: MOTION-010 一定補正の別名VMD出力",
-    "status": "in_progress",
+    "status": "done",
     "step": "作品内の全区間一定FK/IKターゲット補正を厳格に抽出し、元VMD骨キーへ合成して実PMX往復で検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 作品の補正レイヤーをVMD30fpsへ標本化し、実PMX往復誤差を測って合格した別名VMDだけをUI/APIへ接続する。",
+    "MOTION-010: 時間変化する補正の30fps標本化と作品FPS誤差判定、実PMXの一般化した全フレーム採用判定を実装する。",
     "手足IK/FK切替は姿勢保持と到達制限を実PMXで検証して接続する。"
   ],
   "unverified": [
-    "補正キー焼き込み、作品/素材ID照合、実PMX往復、UI/API/MCP、手足IK/FK、複数レイヤー、長尺、Linux、実GPU、Owner採用は未確認。"
+    "別モデル/別骨/足IK候補、時間変化キー、長尺、不正CP932ヘッダーVMD、実GPU、Linux、MCP実呼出し、候補の採用/作品配置、Owner採用は未確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T13:35:01+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "3b7ba53",
+      "text": "Issue #106 MOTION-010: 保存済み全区間一定補正を別名VMD検証前候補へ接続。UI/API/WebMCP/標準MCP共通入口、実PMX頭骨300 VMDフレームの往復姿勢差、原本ハッシュ不変を確認。"
+    },
     {
       "at": "2026-10-24T13:24:33+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "4c38950",
       "text": "Issue #102: GLBダンスを対象PMX向けVMDへ変換し同じ作品で確認: 既存FBX変換・GLB登録・実素材の骨対応を監査し、非破壊の変換経路を設計・実証する"
-    },
-    {
-      "at": "2026-10-24T07:43:51+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d438961",
-      "text": "Issue #96: 共通タイムラインのPMX表情・口キーを上下ドラッグ/上下矢印で値編集し既存face-set revision/Undo/Redoへ接続。実PMX隔離Chromeで1→0.50→0.51、3Dプレビュー、ロック、再読込を確認。原PMX/VMD/data7件不変。"
     }
   ]
 }
