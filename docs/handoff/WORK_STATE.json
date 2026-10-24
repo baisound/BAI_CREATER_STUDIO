@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T02:24:25+09:00",
+  "updated_at": "2026-10-25T02:28:23+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-lip001-export-ui",
-  "head_at_update": "0d1d96d",
+  "head_at_update": "93fab6c",
   "current": {
     "task": "Issue #187: v0.5から別名モーフVMD候補を出力",
-    "status": "in_progress",
+    "status": "done",
     "step": "確定MorphMap選択・dry-run・候補生成・ダウンロードをSRT画面へ接続し実Chromeで確認する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #187: v0.5画面へ候補の事前検査・生成・ダウンロードを接続し、隔離実Chromeで実PMXのVMD再生/見た目を検証する"
+    "Issue #187: 候補を製品内で明示採用し、元VMD/他の表情との優先合成・Undo/Redo・別名出力再読込を接続する"
   ],
   "unverified": [
-    "v0.5画面操作、実PMXのVMD再生/見た目、実ユーザーSRT/歌音声、採用・Undo/Redo、WebMCP/標準MCP、production.lip、Linuxは未実装/未検証"
+    "実ユーザーSRT/歌音声との境界品質、製品内候補採用/合成/Undo/Redo、WebMCP/標準MCP、production.lip、Linuxは未実装/未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:28:23+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "93fab6c",
+      "text": "Issue #187: v0.5画面のdry-run→別名VMD候補生成→取得を接続。隔離Chrome2/2、実PMX AのF30/F60/F90口モーフ値とキャンバス画素差を確認、原本不変。"
+    },
     {
       "at": "2026-10-25T02:24:25+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "eee5b37",
       "text": "Issue #175: 頂点型口モーフの強度候補: 実PMXの頂点変位中央値比から候補を画面へ提示し、グループ・無変位型は手動確認のままにする"
-    },
-    {
-      "at": "2026-10-25T00:48:23+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "c65af0f",
-      "text": "Issue #175: 実PMXの口形を保存前に一時表示し、あ0.8/0.4の描画差と復元・時刻移動での解除を隔離Chrome1/1で確認。原本hash一致。LIP-004は部分実装"
     }
   ]
 }

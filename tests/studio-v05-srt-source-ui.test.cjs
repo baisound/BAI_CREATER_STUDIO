@@ -24,6 +24,7 @@ test('v0.5 SRT panel imports originals and saves readings separately from source
     await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('#v187-srt-panel > summary').click();
     await page.waitForFunction(()=>document.querySelector('#v187-status')?.textContent.includes('0件'));
+    assert.equal(await page.locator('#v197-export-check').isDisabled(),true,'PMX対応なしで出力を開始しない');
     await page.locator('#v187-file').setInputFiles({name:'歌詞.srt',mimeType:'text/plain',buffer:original});
     await page.locator('#v187-import').click();
     assert.match(await page.locator('#v187-status').textContent(),/文字コードを明示/);
