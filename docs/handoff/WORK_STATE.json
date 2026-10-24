@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T02:16:35+09:00",
+  "updated_at": "2026-10-25T02:17:53+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-morph-vmd",
-  "head_at_update": "0695b64",
+  "branch": "codex/v05-lip001-export-candidate",
+  "head_at_update": "945a8b2",
   "current": {
-    "task": "Issue #187: 下書きから別名モーフVMDを出力",
-    "status": "done",
-    "step": "元SRT・読み・モデルモーフ対応を厳密照合しモーフ専用VMD writer/readback を実装する",
+    "task": "Issue #187: 確定口形から別名モーフVMD候補を生成",
+    "status": "in_progress",
+    "step": "確定読み・警告・下書き・PMX MorphMapを照合して衝突なし候補のみ原本と別に保存する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:17:53+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "945a8b2",
+      "text": "Issue #187: 確定口形から別名モーフVMD候補を生成: 確定読み・警告・下書き・PMX MorphMapを照合して衝突なし候補のみ原本と別に保存する"
+    },
     {
       "at": "2026-10-25T02:16:35+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "6d7577f",
       "text": "Issue #175: v0.5の口形対応表画面で実PMX Aの5母音重みを下書き・確定保存、再読込と旧原本hash失効表示を確認。隔離Chrome1/1、監視原本hash一致。LIP-004は部分実装"
-    },
-    {
-      "at": "2026-10-25T00:32:10+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e177e52",
-      "text": "Issue #175: v0.5口形対応表の編集画面: 解析済みPMX口モーフからA/I/U/E/O/Closed/Restを選択し、手動重みを下書き保存・確定・再読込・失効表示する"
     }
   ]
 }
