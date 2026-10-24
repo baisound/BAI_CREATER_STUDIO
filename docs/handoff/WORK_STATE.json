@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T18:02:26+09:00",
+  "updated_at": "2026-10-24T18:08:55+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-arm-constraints",
-  "head_at_update": "b5191cd",
+  "head_at_update": "b329f31",
   "current": {
     "task": "Issue #106: MOTION-010 PMX腕関節制限",
-    "status": "in_progress",
+    "status": "done",
     "step": "登録PMXの腕IK定義と関節制限を調査し、腕ハンドルの操作可否・理由表示を実データに合わせて安全に整える",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 任意PMXの腕IK関節制限と衝突条件を実データで調査し、操作可否と表示を安全に一般化する",
-    "MOTION-010: 物理ON、実GPU、Linux、標準MCP、候補採用・作品配置の残るゲートを整理する"
+    "MOTION-010: 別名VMD候補の検証済み出力を元素材不変で採用・同じ作品へ配置する経路を設計・実装する",
+    "MOTION-010: 角度制限付き腕PMX、物理ON、実GPU、Linux、標準MCPの残るゲートを明記して確認可能な入力から進める"
   ],
   "unverified": [
-    "登録済み201骨・246骨PMXとVMD1本、作品F240、物理OFF・SwiftShaderの限定確認。任意PMX関節制限、物理ON、実GPU、Linux、標準MCP、候補採用・作品配置、Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
+    "登録3種類のPMXは腕に干渉するIK角度制限を持たない。角度制限付き腕PMXの解法、物理ON、実GPU、Linux、標準MCP、候補採用・作品配置、Owner採用は未実装または未確認。201骨・246骨実PMX/VMD1本・作品F240・物理OFF/SwiftShaderの限定結果。AC-M-01/02と全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T18:08:55+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b329f31",
+      "text": "登録PMXの内容違い3モデルの腕IK定義と関節制限を監査し、腕PMX IK競合を画面/APIで理由付き拒否、骨長到達制限の説明を追加"
+    },
     {
       "at": "2026-10-24T18:02:26+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "5b03d9d",
       "text": "Issue #106: MOTION-010 PMX足IK膝制限の可視化: 実PMXの足IK膝リンク制限を3D編集画面へ表示し、制限のある骨と未到達差を区別して検証する"
-    },
-    {
-      "at": "2026-10-24T15:30:38+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "cf61095",
-      "text": "Issue #106: 実PMX左足IKの目標と足首の到達差を画面表示し、遠方仮指定0.0857シーン単位の未一致・取消後復帰を隔離Chromeで確認"
     }
   ]
 }

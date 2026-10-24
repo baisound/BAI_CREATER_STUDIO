@@ -165,8 +165,14 @@ def test_arm_edit_mode_requires_real_chain_and_preserves_keys_and_undo(tmp_path,
     assert (root / (project_id + '.json')).read_bytes() == saved
     bones[7]['parent_index'] = 6
     bones.append({'name': '右手IK', 'parent_index': -1,
-                  'ik': {'target_index': 7, 'links': [{'bone_index': 6}]}})
-    with pytest.raises(MotionEditError, match='arm IK chain'):
+                  'ik': {'target_index': 7, 'links': [{
+                      'bone_index': 6, 'min': [-0.5, 0, 0], 'max': [0.5, 0, 0]}]}})
+    with pytest.raises(MotionEditError, match='arm IK definition conflicts'):
+        edits.mutate(*args, 3, 'mode-set', [], instance_id=instance_id,
+                     clip_id=clip_id, limb='right_arm', mode='IK')
+    assert (root / (project_id + '.json')).read_bytes() == saved
+    bones[-1]['ik'] = {'target_index': 0, 'links': [{'bone_index': 7}]}
+    with pytest.raises(MotionEditError, match='arm IK definition conflicts'):
         edits.mutate(*args, 3, 'mode-set', [], instance_id=instance_id,
                      clip_id=clip_id, limb='right_arm', mode='IK')
     assert (root / (project_id + '.json')).read_bytes() == saved

@@ -382,6 +382,8 @@ test('real PMX arm chains solve, preview, handle, edit mode, save and roundtrip 
     await page.locator('#v111-fk-gizmo-goto').click();
     await page.locator('#v137-arm-side').selectOption('右');
     await page.locator('#v137-arm-hand').click();
+    assert.match(await page.locator('#v127-fk-ik-limits').textContent(),
+      /腕IKの角度制限定義はありません/);
     await page.locator('#v111-fk-gizmo-toggle').click();
     await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().gizmo?.armSide==='右');
     const rightBefore=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(

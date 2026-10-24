@@ -370,24 +370,33 @@ function kneePoleFor(target,name){
       Math.abs(lower.z)>1e-5||Math.abs(upper.z)>1e-5)return null;
   return {knee,thigh,ankle,targetBone,limb:side==='左'?'left_leg':'right_leg'};
 }
-function armBonesFor(target,side){
-  if(target?.format!=='PMX'||!['左','右'].includes(side))return null;
+function armSupportFor(target,side){
+  if(target?.format!=='PMX'||!['左','右'].includes(side))
+    return {bones:null,reason:'実PMXの左腕または右腕を選択してください。'};
   const bones=target.object?.skeleton?.bones||[];
   const names=[side+'腕',side+'ひじ',side+'手首'];
   const matches=names.map(name=>bones.filter(bone=>bone.name===name));
-  if(matches.some(list=>list.length!==1))return null;
+  if(matches.some(list=>list.length!==1))
+    return {bones:null,reason:'腕・ひじ・手首の骨名が一意に揃っていません。'};
   const [arm,elbow,wrist]=matches.map(list=>list[0]);
   const ancestor=(child,parent)=>{
     for(let node=child.parent;node;node=node.parent)if(node===parent)return true;
     return false;
   };
-  if(!ancestor(elbow,arm)||!ancestor(wrist,elbow))return null;
+  if(!ancestor(elbow,arm)||!ancestor(wrist,elbow))
+    return {bones:null,reason:'腕→ひじ→手首が一つの親子経路にありません。'};
   const iks=target.object?.geometry?.userData?.MMD?.iks;
-  if(iks!==undefined&&!Array.isArray(iks))return null;
-  if((iks||[]).some(ik=>ik.effector===bones.indexOf(wrist)||ik.links?.some(link=>
-      link.index===bones.indexOf(arm)||link.index===bones.indexOf(elbow))))return null;
-  return {arm,elbow,wrist,side};
+  if(iks!==undefined&&(!Array.isArray(iks)||iks.some(ik=>!ik||
+      !Number.isInteger(ik.target)||!Number.isInteger(ik.effector)||
+      !Array.isArray(ik.links)||ik.links.some(link=>!Number.isInteger(link?.index)))))
+    return {bones:null,reason:'PMXのIK定義を検査できません。'};
+  const chain=new Set([arm,elbow,wrist].map(bone=>bones.indexOf(bone)));
+  if((iks||[]).some(ik=>chain.has(ik.target)||chain.has(ik.effector)||
+      ik.links?.some(link=>chain.has(link.index))))
+    return {bones:null,reason:'PMXのIK定義が腕・ひじ・手首に干渉します。二重IKと関節制限の競合を避けるため、この腕ハンドルは使えません。'};
+  return {bones:{arm,elbow,wrist,side},reason:null};
 }
+function armBonesFor(target,side){return armSupportFor(target,side).bones;}
 function limbBones(target,limb){
   if(target?.format!=='PMX')return null;
   if(limb.endsWith('_arm')){
@@ -418,7 +427,8 @@ function redrawLimbMode(target,instanceId,row){
   limbSave.disabled=!row||!available||Boolean(locked)||Boolean(previewFk||previewArm)||
     Boolean(motionEdits?.issues?.length)||(stored==='IK'&&!bones?.ikName);
   limbStatus.textContent=!bones?.fkName?'このPMXに対応する部位の骨がないため切替不可です。':
-    !bones.ikName?'このPMXに対応するIK経路がないためIKへは切替不可です。':
+    !bones.ikName?limb.endsWith('_arm')?armSupportFor(target,limb==='left_arm'?'左':'右').reason:
+      'このPMXに対応するIK経路がないためIKへは切替不可です。':
     `現在 ${stored}。切替だけでは姿勢・キー・Undoを変更しません。`;
 }
 function worldBonePose(target){
@@ -464,13 +474,13 @@ function redrawFkControls(){
   poleChoose.disabled=!row||!pole||poleMode!=='IK'||Boolean(previewFk||previewArm)||
     Boolean(motionEdits?.issues?.length)||
     Boolean(sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked);
-  const armBones=armBonesFor(target,armSelect.value);
+  const armSupport=armSupportFor(target,armSelect.value),armBones=armSupport.bones;
   const armDisabled=!row||!armBones||Boolean(previewFk||previewArm)||
     Boolean(motionEdits?.issues?.length)||
     Boolean(sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked);
   armHandChoose.disabled=armDisabled;armElbowChoose.disabled=armDisabled;
   armStatus.textContent=previewArm?`${previewArm.side}腕を仮表示中。キー化かEscで確定してください。`:
-    armBones?'手先・ひじの3Dハンドルを選べます。':'対応する腕→ひじ→手首の実骨がありません。';
+    armBones?'手先・ひじの3Dハンドルを選べます。':armSupport.reason;
   const layer=motionEdits?.layers?.find(item=>item.instance_id===instanceId&&item.clip_id===row?.clip_id&&!item.disabled);
   const first=row?Math.ceil(row.start*projectFps-1e-7):0;
   const end=row?Math.ceil((row.start+row.duration)*projectFps-1e-7):0;
@@ -1106,7 +1116,9 @@ limbMode.addEventListener('change',()=>{
   const locked=sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked;
   limbSave.disabled=!activeFkRow()||!bones?.fkName||Boolean(locked)||Boolean(previewFk||previewArm)||
     Boolean(motionEdits?.issues?.length)||unsupported;
-  if(unsupported)limbStatus.textContent='この部位のIK解法・ターゲットには未対応です。';
+  if(unsupported)limbStatus.textContent=limbSelect.value.endsWith('_arm')?
+    armSupportFor(target,limbSelect.value==='left_arm'?'左':'右').reason:
+    'この部位のIK解法・ターゲットには未対応です。';
 });
 limbSave.addEventListener('click',async()=>{
   const id=project?.value,instanceId=choose.value||selectedId,limb=limbSelect.value;
@@ -1118,7 +1130,9 @@ limbSave.addEventListener('click',async()=>{
     limbStatus.textContent='仮補正を破棄し、3Dハンドルを隠してから切り替えてください。';return;
   }
   if(!bones?.fkName||(mode==='IK'&&!bones.ikName)){
-    limbStatus.textContent='このPMX・部位の編集方法には未対応です。';return;
+    limbStatus.textContent=limb.endsWith('_arm')&&mode==='IK'?
+      armSupportFor(target,limb==='left_arm'?'左':'右').reason:
+      'このPMX・部位の編集方法には未対応です。';return;
   }
   const name=mode==='IK'?bones.ikName:bones.fkName;
   if(![...fkBone.options].some(option=>option.value===name)){
@@ -1188,10 +1202,11 @@ poleChoose.addEventListener('click',()=>{
 armSelect.addEventListener('change',()=>{activeArm=null;redrawFkControls();});
 function chooseArmHandle(kind){
   const instanceId=choose.value||selectedId,target=controller?.getLoaded(instanceId);
-  const bones=armBonesFor(target,armSelect.value),frame=Number(fkFrame.value),row=activeFkRow(frame);
+  const support=armSupportFor(target,armSelect.value),bones=support.bones;
+  const frame=Number(fkFrame.value),row=activeFkRow(frame);
   if(!bones||!row||armHandChoose.disabled||armElbowChoose.disabled||
       ![...fkBone.options].some(option=>option.value===bones.arm.name)){
-    armStatus.textContent='このPMXの腕IK操作は利用できません。骨の親子経路と作品Fを確認してください。';return;
+    armStatus.textContent=support.reason||'作品F・モデルのロック・補正データを確認してください。';return;
   }
   discardFkPreview();fkBone.value=bones.arm.name;activePole=null;
   activeArm={projectId:project.value,instanceId,clipId:row.clip_id,frame,
