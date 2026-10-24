@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T11:33:10+09:00",
+  "updated_at": "2026-10-24T12:29:40+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-position",
-  "head_at_update": "5d84633",
+  "branch": "codex/v05-motion010-translate-gizmo",
+  "head_at_update": "bc93ea4",
   "current": {
-    "task": "Issue #106: MOTION-010 PMX骨の位置差分",
-    "status": "done",
-    "step": "同じ作品のFK骨キーに位置差分を追加し、数値仮表示・保存・再読込を接続",
+    "task": "Issue #106: MOTION-010 実PMX骨の3D位置ハンドル",
+    "status": "in_progress",
+    "step": "同じv0.5編集画面で選択骨の局所移動を位置差分の仮表示・既存FKキー保存へ接続",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T12:29:40+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "bc93ea4",
+      "text": "Issue #106: MOTION-010 実PMX骨の3D位置ハンドル: 同じv0.5編集画面で選択骨の局所移動を位置差分の仮表示・既存FKキー保存へ接続"
+    },
     {
       "at": "2026-10-24T11:33:10+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "631dfe8",
       "text": "Issue #96: PMX表情・口キーを既存タイムライン行へ表示し、吸着付き時刻移動・選択・保存/再生/限定MP4を接続。Python10件、隔離Chrome実PMXプレビュー1件、限定MP4 3件、型/構文/JSON、原本hash保持を確認"
-    },
-    {
-      "at": "2026-10-24T06:45:05+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "44eba62",
-      "text": "Issue #96: PMX表情・口キーを可視タイムラインの表情/口行で編集: キーの行割当と原子的な時刻移動、シーク連携、隔離試験"
     }
   ]
 }
