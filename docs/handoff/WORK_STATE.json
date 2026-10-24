@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T19:43:30+09:00",
+  "updated_at": "2026-10-24T19:46:24+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-multilayer-ui",
-  "head_at_update": "894ece7",
+  "branch": "codex/v05-motion010-solo-gizmo",
+  "head_at_update": "cd848b7",
   "current": {
-    "task": "Issue #106: MOTION-010 複数補正レイヤーの作品別作成と選択",
-    "status": "done",
-    "step": "既存1レイヤー保存との後方互換を保ち、部分VMD複数区間を実PMXで往復検証",
+    "task": "Issue #106: MOTION-010 ソロ切替と複数レイヤー3D骨操作",
+    "status": "in_progress",
+    "step": "評価順と保存条件を固定し、実PMXの重畳姿勢と別名VMDを検証",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T19:46:24+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cd848b7",
+      "text": "Issue #106: MOTION-010 ソロ切替と複数レイヤー3D骨操作: 評価順と保存条件を固定し、実PMXの重畳姿勢と別名VMDを検証"
+    },
     {
       "at": "2026-10-24T19:43:30+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "fda3eba",
       "text": "MOTION-010: 同作品Fの腕・ひじ2キーを1 revision・1 Undoで原子的に保存するarm-set共通APIとWebMCP入力を追加。単体9件、実PMX HTTPと既存FK回帰各1件成功。腕IKの3D解・手動UIは未接続。"
-    },
-    {
-      "at": "2026-10-24T16:37:54+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "a856087",
-      "text": "Issue #106: MOTION-010 腕IKの2キー原子的保存: 腕・ひじ2キーを同作品・同フレーム・同レイヤーで一括検証し、1 revision・1 Undoで保存するAPIを追加する"
     }
   ]
 }
