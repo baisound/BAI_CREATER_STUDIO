@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T02:04:41+09:00",
+  "updated_at": "2026-10-25T02:07:33+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-candidate-ui",
-  "head_at_update": "e36b3f9",
+  "branch": "codex/v05-lip001-track-draft",
+  "head_at_update": "97ddc55",
   "current": {
-    "task": "Issue #187: 口形候補と警告をv0.5画面で確認",
-    "status": "done",
-    "step": "選択発話のレビュー用候補APIを読んで元時刻/作品フレーム/未採用状態・衝突警告を表示する",
+    "task": "Issue #187: 口形候補を別レイヤーの下書きへ保存",
+    "status": "in_progress",
+    "step": "原SRT・読みを保持し、候補の境界・口形・強度を版管理して手動調整可能にする",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:07:33+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "97ddc55",
+      "text": "Issue #187: 口形候補を別レイヤーの下書きへ保存: 原SRT・読みを保持し、候補の境界・口形・強度を版管理して手動調整可能にする"
+    },
     {
       "at": "2026-10-25T02:04:41+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "b2aacd5",
       "text": "Issue #175: v0.5のPMX口モーフ解析読み取り画面を接続。実PMX A/B切替・48件/0件・グループ警告・原本/作品不変を隔離Chrome1/1で確認。"
-    },
-    {
-      "at": "2026-10-25T00:18:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cda51ef",
-      "text": "Issue #175: v0.5口モーフ解析の確認画面: 現在のPMXの数値結果と手動確認が必要な母音を画面へ表示する"
     }
   ]
 }
