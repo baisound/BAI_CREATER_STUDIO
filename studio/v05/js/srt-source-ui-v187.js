@@ -35,6 +35,12 @@ if (picker && project) {
         <button id="v192-candidate-run" type="button">選択した発話の候補を確認</button>
         <p id="v192-candidate-status" role="status">かなの読みを保存すると候補を確認できます。</p>
         <div id="v192-candidate-list" aria-label="発話の口形候補"></div>
+        <div id="v194-draft-panel" hidden>
+          <strong>口形の下書き（未採用）</strong>
+          <p id="v194-draft-status" role="status"></p>
+          <div id="v194-draft-list" aria-label="口形の下書き編集"></div>
+          <button id="v194-draft-save" type="button">下書きを保存</button>
+        </div>
       </div>
       <p>候補は音声に合わせた境界ではありません。リップVMDへの採用は未接続です。SRT本文と原時刻は変更しません。</p>
     </div>`;
@@ -46,10 +52,12 @@ if (picker && project) {
   const status = $('v187-status');
   const sourceInfo = $('v187-source-info');
   const cueHost = $('v187-cues');
-  let data = null, readings = null, loadedProject = '', selectedId = '', selectedCueIndex = null;
+  let data = null, readings = null, drafts = null, loadedProject = '', selectedId = '', selectedCueIndex = null;
   let page = 0, sequence = 0, candidateSequence = 0, busy = false;
+  let draftBase = null;
   const currentSource = () => data?.sources?.find(row => row.id === selectedId);
   const currentReading = () => readings?.utterances?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
+  const currentDraft = () => drafts?.drafts?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
   const say = message => { status.textContent = message; };
   const time = milliseconds => {
     const hours = Math.floor(milliseconds / 3600000);
@@ -67,6 +75,40 @@ if (picker && project) {
     ++candidateSequence;
     $('v192-candidate-list').replaceChildren();
     $('v192-candidate-status').textContent = '保存済みの読みから、未採用の候補を計算できます。';
+    draftBase = null;
+    $('v194-draft-panel').hidden = true;
+    $('v194-draft-list').replaceChildren();
+  }
+  function drawDraft(base, segments, message) {
+    draftBase = base;
+    $('v194-draft-panel').hidden = false;
+    $('v194-draft-status').textContent = message;
+    const list = $('v194-draft-list');
+    list.replaceChildren();
+    for (const [index, segment] of segments.entries()) {
+      const row = document.createElement('div');
+      row.className = 'v194-draft-row';
+      row.dataset.index = String(index);
+      for (const [key, label, value, step] of [
+        ['startFrame', '開始F', segment.startFrame, '1'],
+        ['endFrame', '終了F', segment.endFrame, '1'],
+        ['weight', '強さ', segment.weight, '0.01']]) {
+        const field = document.createElement('label');
+        field.textContent = label;
+        const input = document.createElement('input');
+        input.type = 'number'; input.dataset.field = key; input.value = String(value); input.step = step;
+        if (key === 'weight') { input.min = '0'; input.max = '1'; }
+        else { input.min = '0'; input.max = '1000000'; }
+        field.append(input); row.append(field);
+      }
+      const field = document.createElement('label');
+      field.textContent = '口形';
+      const select = document.createElement('select'); select.dataset.field = 'mouthShape';
+      for (const shape of ['A', 'I', 'U', 'E', 'O', 'Closed', 'Rest']) select.add(new Option(shape, shape));
+      select.value = segment.mouthShape;
+      field.append(select); row.append(field); list.append(row);
+    }
+    $('v194-draft-save').disabled = !base || currentSource()?.sourceStatus !== 'valid';
   }
   function markReadingDirty() {
     clearCandidate();
@@ -83,6 +125,14 @@ if (picker && project) {
     clearCandidate();
     if (!cue) return;
     const saved = currentReading();
+    const draft = currentDraft();
+    if (draft) {
+      const valid = draft.draftStatus === 'draft';
+      drawDraft(valid ? {sourceHash: draft.sourceHash,
+        pronunciationVersion: draft.pronunciationVersion, projectFps: draft.projectFps} : null,
+        draft.segments, valid ? '保存済みの下書きです。VMDには採用されていません。'
+          : `旧下書きは${draft.draftStatus}です。候補を再計算してから保存してください。`);
+    }
     $('v190-cue-label').textContent = `#${cue.index} ${time(cue.startMs)} → ${time(cue.endMs)} の読み`;
     $('v190-reading-state').value = saved?.readingState || 'unresolved';
     $('v190-reading-kana').value = saved?.readingKana || '';
@@ -139,18 +189,20 @@ if (picker && project) {
     const id = project.value;
     const mine = ++sequence;
     loadedProject = id;
-    data = null; readings = null; selectedId = ''; selectedCueIndex = null; page = 0;
+    data = null; readings = null; drafts = null; selectedId = ''; selectedCueIndex = null; page = 0;
     sourceSelect.replaceChildren();
     redraw();
     if (!id) { say('作品を選んでください。'); return; }
     say('登録済みSRTを読み込んでいます…');
     try {
-      const [loaded, loadedReadings] = await Promise.all([
+      const [loaded, loadedReadings, loadedDrafts] = await Promise.all([
         request('/api/studio/v05/srt/sources?project_id=' + encodeURIComponent(id)),
-        request('/api/studio/v05/lip/readings?project_id=' + encodeURIComponent(id))]);
+        request('/api/studio/v05/lip/readings?project_id=' + encodeURIComponent(id)),
+        request('/api/studio/v05/lip/drafts?project_id=' + encodeURIComponent(id))]);
       if (mine !== sequence || project.value !== id) return;
       data = loaded;
       readings = loadedReadings;
+      drafts = loadedDrafts;
       for (const row of loaded.sources) sourceSelect.add(new Option(row.originalName, row.id));
       selectedId = loaded.sources.some(row => row.id === preferredId) ? preferredId : loaded.sources.at(-1)?.id || '';
       selectedCueIndex = currentSource()?.entries.some(row => row.index === preferredCueIndex)
@@ -208,9 +260,52 @@ if (picker && project) {
         item.textContent = `${segment.mora} → ${segment.mouthShape} ／ ${time(segment.startMs)}〜${time(segment.endMs)} ／ 作品F${segment.startFrame}〜${segment.endFrame}`;
         list.append(item);
       }
+      if (result.segments?.length && result.status !== 'unresolved' && result.status !== 'explicit_silence') {
+        const saved = currentDraft();
+        if (!saved || saved.draftStatus !== 'draft') {
+          drawDraft({sourceHash: result.sourceHash,
+            pronunciationVersion: result.pronunciationVersion, projectFps: result.projectFps},
+            result.segments.map(row => ({startFrame: row.startFrame, endFrame: row.endFrame,
+              mouthShape: row.mouthShape, weight: 1})),
+            '候補から作成した未保存の下書きです。区間の重複・ゼロ長は保存時に拒否します。');
+        }
+      }
     } catch (error) {
       if (mine === candidateSequence) $('v192-candidate-status').textContent = `候補を計算できません: ${error.message}`;
     }
+  });
+  $('v194-draft-list').addEventListener('input', () => {
+    if (draftBase) $('v194-draft-status').textContent = '未保存の変更があります。';
+  });
+  $('v194-draft-save').addEventListener('click', async () => {
+    const source = currentSource(), id = project.value, cueIndex = selectedCueIndex;
+    if (!source || !draftBase || !drafts || cueIndex === null || busy) return;
+    const segments = [...$('v194-draft-list').querySelectorAll('.v194-draft-row')].map(row => {
+      const input = key => row.querySelector(`[data-field="${key}"]`).value;
+      return {startFrame: input('startFrame') === '' ? NaN : Number(input('startFrame')),
+        endFrame: input('endFrame') === '' ? NaN : Number(input('endFrame')),
+        mouthShape: input('mouthShape'), weight: input('weight') === '' ? NaN : Number(input('weight'))};
+    });
+    if (segments.some(row => !Number.isInteger(row.startFrame) || !Number.isInteger(row.endFrame)
+      || !Number.isFinite(row.weight))) {
+      $('v194-draft-status').textContent = '整数フレームと有限な強さを入力してください。'; return;
+    }
+    busy = true; $('v194-draft-save').disabled = true;
+    $('v194-draft-status').textContent = '下書きを保存しています…';
+    try {
+      const saved = await request('/api/studio/v05/lip/drafts', {method: 'POST',
+        headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
+          project_id: id, revision: drafts.revision, source_id: source.id,
+          source_hash: draftBase.sourceHash, srt_index: cueIndex,
+          pronunciation_version: draftBase.pronunciationVersion,
+          project_fps: draftBase.projectFps, segments})});
+      if (project.value !== id || selectedId !== source.id || selectedCueIndex !== cueIndex) return;
+      drafts = saved;
+      $('v194-draft-status').textContent = `下書き版${saved.revision}を保存しました。VMDには未採用です。`;
+      say(`発話 #${cueIndex} の口形下書きを保存しました。`);
+    } catch (error) {
+      if (project.value === id) $('v194-draft-status').textContent = `下書きの保存に失敗: ${error.message}`;
+    } finally { busy = false; $('v194-draft-save').disabled = !draftBase || currentSource()?.sourceStatus !== 'valid'; }
   });
   $('v190-reading-save').addEventListener('click', async () => {
     const source = currentSource(), id = project.value, cueIndex = selectedCueIndex;
@@ -228,6 +323,7 @@ if (picker && project) {
           reading_kana: kana, explicit_silence: silent})});
       if (project.value !== id || selectedId !== source.id) return;
       readings = saved;
+      drafts = await request('/api/studio/v05/lip/drafts?project_id=' + encodeURIComponent(id));
       redraw();
       say(`発話 #${cueIndex} の読みを原本と別に保存しました。`);
     } catch (error) {

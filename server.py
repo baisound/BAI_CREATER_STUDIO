@@ -377,6 +377,21 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError, ValueError, TypeError, KeyError):
                 self.bad(422, 'Lip candidate calculation failed; originals retained')
             return
+        if urlsplit(self.path).path == '/api/studio/v05/lip/drafts':
+            from studio_v05_lip_drafts import read as read_lip_drafts, LipDraftError
+
+            query = parse_qs(urlsplit(self.path).query)
+            if set(query) != {'project_id'} or len(query['project_id']) != 1:
+                return self.bad(400, 'Invalid lip draft query')
+            try:
+                result = read_lip_drafts(DATA/'studio_v05_lip_drafts', DATA/'studio_v05_catalog.json',
+                    DATA/'studio_v05_srt_sources', DATA/'studio_v05_lip_readings', query['project_id'][0])
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except LipDraftError as exc:
+                self.bad(exc.status, str(exc))
+            except (OSError, ValueError, TypeError, KeyError):
+                self.bad(422, 'Lip draft store unreadable; originals retained')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/multi-motion-plan':
             from studio_v05_multi_motion import plan, MultiMotionError
             try:
@@ -819,6 +834,28 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path == '/api/studio/v05/lip/drafts':
+            from studio_v05_lip_drafts import save as save_lip_draft, LipDraftError
+
+            try:
+                length = int(self.headers.get('Content-Length', '-1'))
+                if not 0 < length <= 131072:
+                    return self.bad(413, 'Lip draft request too large')
+                body = json.loads(self.rfile.read(length))
+                if (not isinstance(body, dict) or set(body) != {'project_id', 'revision', 'source_id',
+                        'source_hash', 'srt_index', 'pronunciation_version', 'project_fps', 'segments'}):
+                    return self.bad(400, 'Invalid lip draft fields')
+                result = save_lip_draft(DATA/'studio_v05_lip_drafts', DATA/'studio_v05_catalog.json',
+                    DATA/'studio_v05_srt_sources', DATA/'studio_v05_lip_readings', **body)
+                event('v05_lip_draft_saved', project_id=body['project_id'])
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except LipDraftError as exc:
+                self.bad(exc.status, str(exc))
+            except (ValueError, TypeError, KeyError):
+                self.bad(400, 'Invalid lip draft request')
+            except OSError:
+                self.bad(500, 'Lip draft write failed; originals retained')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/lip/readings':
             from studio_v05_lip_readings import set_reading, LipReadingError
 
