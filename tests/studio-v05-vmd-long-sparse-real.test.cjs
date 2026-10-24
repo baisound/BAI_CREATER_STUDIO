@@ -24,6 +24,7 @@ for(const variant of [
     fadeIn:4,fadeOut:4,category:'B',model:'avatar-front-garment-v04.pmx',
     bones:246,port:8917},
   {duration:204,bone:'頭',angle:12,fps:24,port:8918},
+  {duration:204,bone:'頭',angle:12,fps:24000/1001,port:8919},
 ])test(
   `real moving 203s VMD sparse ${variant.begin?`bounded ${variant.bone} fade ${variant.fadeIn||0}/${variant.fadeOut||0}`:'constant head'} candidate matches ${variant.category||'A'} PMX for ${variant.duration}s at ${variant.fps||60}fps`,
   {skip:!(root&&fs.existsSync(path.join(root,'mmd',variant.category||'A',variant.model||primaryModel))&&
@@ -66,7 +67,7 @@ for(const variant of [
       const saved=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:id,revision:0,action:'set',instance_id:instance,clip_id:placed.clip.id,
-          key:{frame:90*fps,bone:variant.bone,position:[0.15,0,0],
+          key:{frame:Math.round(90*fps),bone:variant.bone,position:[0.15,0,0],
             rotation:[0,Math.sin(angle/2),0,Math.cos(angle/2)]}})}));
       assert.equal(saved.revision,1);
       const edits=interval?await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{
@@ -87,7 +88,8 @@ for(const variant of [
       if(interval){
         assert.equal(candidate.replaced_bone_keys>0,variant.bone==='頭');
         assert.ok(candidate.added_bone_keys>0);
-        assert.equal(candidate.sampling_report.checked_project_frames,duration*fps);
+        assert.equal(candidate.sampling_report.checked_project_frames,
+          Math.ceil(duration*fps-1e-7));
         assert.ok(candidate.sampling_report.max_position_error<1e-3);
         assert.ok(candidate.sampling_report.max_angle_error_degrees<0.01);
       }else{
@@ -117,7 +119,7 @@ for(const variant of [
           candidate,fps,isCurrent:()=>true});
       },{id,instance,candidate,fps});
       console.log(JSON.stringify({longSparseCandidate:report}));
-      assert.equal(report.checkedFrames,duration*fps);
+      assert.equal(report.checkedFrames,Math.ceil(duration*fps-1e-7));
       assert.equal(report.checkedVmdFrames,duration*30+(interval?1:0));
       assert.equal(report.bones,variant.bones||201);
       assert.equal(report.passed,true,JSON.stringify(report));

@@ -213,22 +213,26 @@ def test_long_real_moving_head_fades_on_flat_source_key_pairs():
     assert source.read_bytes() == original
 
 
-def test_long_real_24fps_moving_head_fade_refuses_fractional_vmd_boundaries():
+@pytest.mark.parametrize('fps,start_frame,end_frame', [
+    (24, 2134, 2266), (24000 / 1001, 2132, 2264),
+])
+def test_long_real_non30fps_moving_head_fade_refuses_fractional_vmd_boundaries(
+        fps, start_frame, end_frame):
     root = Path(os.environ.get('BAI_REAL_MMD_DATA', Path(__file__).resolve().parents[1] / 'data'))
     source = root / 'mmd' / 'vmd' / '神っぽいな.vmd'
     if not source.is_file():
         pytest.skip('registered dense local VMD is unavailable')
     original = source.read_bytes()
     # The flat source keys at VMD 2667/2669 and 2831/2833 do not map to
-    # integral 24 fps project frames at both fade boundaries.
-    saved = layer([key(2160, 0.15, math.radians(8))], fps=24, duration=204,
-                  start_frame=2134, end_frame=2266,
+    # integral project frames at both fade boundaries for these frame rates.
+    saved = layer([key(round(90 * fps), 0.15, math.radians(8))], fps=fps, duration=204,
+                  start_frame=start_frame, end_frame=end_frame,
                   fade_in_frames=4, fade_out_frames=4)
     with pytest.raises(ValueError, match='30fps sample error exceeds limit') as failure:
         temporal_replacements(original, [saved], instance_id='model-1', clip_id='clip-1')
     report = ast.literal_eval(str(failure.value).split(': ', 1)[1])
-    assert report['checked_project_frames'] == 4896
-    assert report['worst_angle_frame'] == 2135
+    assert report['checked_project_frames'] == math.ceil(204 * fps - 1e-7)
+    assert report['worst_angle_frame'] == start_frame + 1
     assert report['max_position_error'] > 0.02
     assert report['max_angle_error_degrees'] > 1
     assert source.read_bytes() == original

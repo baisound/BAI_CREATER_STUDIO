@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:02:56+09:00",
+  "updated_at": "2026-10-24T22:08:02+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-long-fractional-fps",
-  "head_at_update": "d0ed2b0",
+  "head_at_update": "2ed62e4",
   "current": {
     "task": "Issue #106: MOTION-010 長尺VMDの分数FPS候補検証",
-    "status": "in_progress",
+    "status": "done",
     "step": "203秒実VMDと201骨PMXで24000/1001fps長尺候補の全骨往復を検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 24000/1001fpsの長尺候補、および任意境界・長いなじませの安全な成立/拒否条件を調べる"
+    "MOTION-010 任意境界・長いなじませの安全な成立/拒否条件と通常画面の長尺手操作を調べる"
   ],
   "unverified": [
-    "任意境界・長いなじませ、24000/1001fps長尺候補、任意PMX、通常画面の長尺手操作、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "任意境界・長いなじませ、任意PMX、通常画面の長尺手操作、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T22:08:02+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2ed62e4",
+      "text": "MOTION-010 長尺203秒VMDの24000/1001fps一定補正を201骨PMX全4892作品F＋6120VMD Fで検証、隔離採用・復元を確認。同FPS区間4Fなじませの不適合は拒否を固定"
+    },
     {
       "at": "2026-10-24T22:02:56+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "f77fda1",
       "text": "Issue #106: MOTION-010 ソロVMD往復と複数層腕IK: 実PMX全骨の候補検査と腕ハンドルの下位層姿勢差分を評価"
-    },
-    {
-      "at": "2026-10-24T19:58:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "28176b6",
-      "text": "Issue #106: ソロ切替を保存・Undo/Redo・3D再生・全VMD候補へ接続し、複数レイヤーの有効最上段3D骨ハンドルを実PMXで検証"
     }
   ]
 }
