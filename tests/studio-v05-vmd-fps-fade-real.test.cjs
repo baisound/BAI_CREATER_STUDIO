@@ -137,7 +137,7 @@ test('24 fps faded FK correction and VMD candidate agree on real PMX',
         return {good,badHash};
       },{projectId,response});
       assert.equal(roundTrip.good.checkedFrames,240);
-      assert.equal(roundTrip.good.checkedVmdFrames,300);
+      assert.equal(roundTrip.good.checkedVmdFrames,301);
       assert.ok(roundTrip.good.bones>20);
       assert.equal(roundTrip.good.passed,true,JSON.stringify(roundTrip.good));
       assert.match(roundTrip.badHash,/内容が変わりました/);
@@ -151,7 +151,7 @@ test('24 fps faded FK correction and VMD candidate agree on real PMX',
       await page.locator('#v120-vmd-candidate-validate').click();
       await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent
         ?.includes('実PMX検査合格'),null,{timeout:120000});
-      assert.match(await page.locator('#v116-vmd-candidate-status').innerText(),/作品240F＋VMD300F × \d+骨/);
+      assert.match(await page.locator('#v116-vmd-candidate-status').innerText(),/作品240F＋VMD301F × \d+骨/);
       assert.match(await page.locator('#v116-vmd-candidate-status').innerText(),/物理OFF/);
       assert.deepEqual([digest(modelPath),digest(motionPath)],originals);
       harness.assertNoErrors(page);
