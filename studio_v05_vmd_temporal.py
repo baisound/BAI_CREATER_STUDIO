@@ -115,6 +115,13 @@ def _compose(position, rotation, offset, delta):
     return tuple(a + b for a, b in zip(position, offset)), _multiply(rotation, delta)
 
 
+def _needs_boundary(layers, bone, project_frame):
+    offset, rotation = _correction(layers, bone, project_frame)
+    angle = math.degrees(2 * math.acos(max(-1, min(1, abs(rotation[3])))))
+    return math.sqrt(sum(x * x for x in offset)) > POSITION_LIMIT / 2 or \
+        angle > ANGLE_LIMIT_DEGREES / 2
+
+
 def temporal_replacements(raw_vmd, layers, *, instance_id, clip_id):
     """Return samples and a local-channel error report, or refuse lossy output."""
     if not isinstance(layers, list):
@@ -156,19 +163,25 @@ def temporal_replacements(raw_vmd, layers, *, instance_id, clip_id):
                 continue
             from_frame = layer.get('start_frame', first)
             until_frame = layer.get('end_frame', end)
-            points += [from_frame, until_frame,
-                       from_frame + layer.get('fade_in_frames', 0),
-                       until_frame - layer.get('fade_out_frames', 0)]
+            fade_in = layer.get('fade_in_frames', 0)
+            fade_out = layer.get('fade_out_frames', 0)
+            if fade_in:
+                points.extend((from_frame, from_frame + fade_in))
+            if fade_out:
+                points.extend((until_frame - fade_out, until_frame))
             frames.update(max(0, min(end_vmd, round((point / fps - start) * 30)))
                           for point in points)
-            # A constant target remains active through the last project frame.
-            # Preserve that value on the final 30 fps key before the interval
-            # ends; otherwise interpolation would taper it toward the first
-            # inactive key across a long span.
+            # Insert a discontinuity only if its amplitude matters. Extra
+            # keys with zero correction can split the original VMD curve and
+            # change the source motion more than the correction itself.
             first_vmd = math.ceil((from_frame / fps - start) * 30 - 1e-7)
             stop_vmd = math.ceil((until_frame / fps - start) * 30 - 1e-7)
-            frames.update(max(0, min(end_vmd, point)) for point in
-                          (first_vmd - 1, first_vmd, stop_vmd - 1, stop_vmd))
+            if _needs_boundary(active, bone, (start + first_vmd / 30) * fps):
+                frames.update(max(0, min(end_vmd, point)) for point in
+                              (first_vmd - 1, first_vmd))
+            if _needs_boundary(active, bone, (start + (stop_vmd - 1) / 30) * fps):
+                frames.update(max(0, min(end_vmd, point)) for point in
+                              (stop_vmd - 1, stop_vmd))
         if len(frames) * len(bones) > 250000:
             raise ValueError('VMD candidate exceeds bounded sample limit')
         for frame in sorted(frames):

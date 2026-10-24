@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T14:01:58+09:00",
+  "updated_at": "2026-10-24T14:10:57+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-vmd-foot-ik",
-  "head_at_update": "4f0f1f8",
+  "branch": "codex/v05-motion010-vmd-fps-fades",
+  "head_at_update": "9a541ac",
   "current": {
-    "task": "Issue #106: MOTION-010 足IKを含む別名VMD候補の実PMX往復",
+    "task": "Issue #106: MOTION-010 別FPS・前後なじませのVMD候補",
     "status": "done",
-    "step": "時間変化FK候補の境界標本を見直し、実PMXの足IKターゲットと足首を全フレーム比較する",
+    "step": "24fps作品と区間・なじませの30fps境界を実VMD曲線と実PMXで検証し、不要な境界キーを避ける",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 別PMX/FPS/足IK有効状態と区間・なじませを実PMXで検査し、一般化した採用判定と候補の安全な作品配置を設計・実装する。IK/FK切替の姿勢保持も続ける。"
+    "MOTION-010: さらに別PMX/分数FPS/曲線を実PMXで検査し、候補の一般化した採用判定と安全な作品配置を設計する。IK/FK切替の姿勢保持も続ける。"
   ],
   "unverified": [
-    "別PMX・別FPS・IK無効区間、区間/なじませ、長尺ジョブ、実GPU、Linux、MCP実呼出し、候補採用/配置、Owner採用は未確認。"
+    "別PMX・別骨・分数FPS・複雑な源VMD曲線、長尺ジョブ、実GPU、Linux、MCP実呼出し、候補採用/配置、Owner採用は未確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T14:10:57+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9a541ac",
+      "text": "MOTION-010の24fps前後なじませ候補で不要な30fps境界を省き、実PMX頭骨240作品フレーム往復と元曲線分断の拒否を確認。Python32件・隔離Chrome24fps/60fps各1件成功。"
+    },
+    {
+      "at": "2026-10-24T14:05:48+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "7e140cb",
+      "text": "Issue #106: MOTION-010 別FPS・前後なじませのVMD候補: 24fps作品と区間・なじませの30fps境界を実VMD曲線と実PMXで検証し、不要な境界キーを避ける"
+    },
     {
       "at": "2026-10-24T14:01:58+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "33b29f9",
       "text": "Issue #106: v0.5の任意フレーム骨補正・別名VMD: 既存仕様と実装を照合し詳細設計、批評3回、最終判定を記録する"
-    },
-    {
-      "at": "2026-10-24T09:34:47+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "cfdbf23",
-      "text": "Issue #102: v0.5の実PMXプレビューから左右つま先を2秒標本化し、既存の両足接地診断APIへ接続。実GLB→VMD/PMXの0秒・30秒で各61点、診断後姿勢復元と原本SHA不変を確認"
-    },
-    {
-      "at": "2026-10-24T09:21:45+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3f33f66",
-      "text": "Issue #102: 実PMX動作の足接地診断をv0.5プレビューへ接続: 保存済み作品の実ポーズから左右足をサンプリングし既存接地診断APIへつなぐ"
     }
   ]
 }
