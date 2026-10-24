@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T13:13:19+09:00",
+  "updated_at": "2026-10-24T13:16:41+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-foot-ik-target",
-  "head_at_update": "beffcb5",
+  "branch": "codex/v05-motion010-vmd-writer",
+  "head_at_update": "33c9c53",
   "current": {
-    "task": "Issue #106: MOTION-010 PMX足IKターゲット操作",
-    "status": "done",
-    "step": "PMXの実IK定義から足ターゲットを識別し3D位置補正へ接続、足首追従を実素材で確認",
+    "task": "Issue #106: MOTION-010 補正キーの別名VMD書き出し",
+    "status": "in_progress",
+    "step": "元VMDの骨区画と非骨suffixを保つ検証可能な別名writerを作り、補正評価と実PMX往復に接続する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T13:16:41+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "33c9c53",
+      "text": "Issue #106: MOTION-010 補正キーの別名VMD書き出し: 元VMDの骨区画と非骨suffixを保つ検証可能な別名writerを作り、補正評価と実PMX往復に接続する"
+    },
     {
       "at": "2026-10-24T13:13:19+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "580b6eb",
       "text": "Issues #39/#96: 実PMXと全身VMDを隔離作品で0/4/90秒シークし7骨の変化、表情キー保存再読込、RTX 4070 SUPERでの3F限定MP4画素差を確認。原PMX/VMDとdata 7件は不変。試験と記録を追加。"
-    },
-    {
-      "at": "2026-10-24T07:18:53+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7e09e7f",
-      "text": "Issues #39/#96: 実PMXと全身VMDの体・顔同時刻実証: 原本を保ち隔離Chromeで登録・配置・シーク・保存再読込・限定MP4を比較する"
     }
   ]
 }
