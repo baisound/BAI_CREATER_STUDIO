@@ -53,7 +53,11 @@ test('real PMX gizmo edits the selected upper layer over a saved lower pose',
       const lower=await mutate(0,'set',{key:{frame:240,bone:'頭',
         rotation:[0,0,0,1],position:[0.02,0,0]}});
       const lowerId=lower.layers[0].id;
-      const created=await mutate(lower.revision,'layer-create',{settings:{name:'上段3D補正'}});
+      const lowerArm=await mutate(lower.revision,'arm-set',{layer_id:lowerId,keys:[
+        {frame:240,bone:'左腕',rotation:[0,Math.sin(0.03),0,Math.cos(0.03)]},
+        {frame:240,bone:'左ひじ',rotation:[0,0,0,1]}
+      ]});
+      const created=await mutate(lowerArm.revision,'layer-create',{settings:{name:'上段3D補正'}});
       const upperId=created.layers[1].id;
       const stacked=await mutate(created.revision,'set',{layer_id:upperId,key:{
         frame:240,bone:'頭',rotation:[0,0,0,1],position:[0.01,0,0]}});
@@ -80,7 +84,14 @@ test('real PMX gizmo edits the selected upper layer over a saved lower pose',
       await page.locator('#v146-fk-layer-select').selectOption(upperId);
       await page.waitForFunction(()=>!document.querySelector('#v111-fk-gizmo-toggle')?.disabled);
       await page.locator('#v111-fk-gizmo-toggle').click();
-      assert.equal(await page.locator('#v111-fk-gizmo-toggle').getAttribute('aria-pressed'),'true');
+      await page.waitForFunction(()=>document.querySelector('#v111-fk-gizmo-toggle')?.getAttribute('aria-pressed')==='true',
+        null,{timeout:10000});
+      const pressed=await page.locator('#v111-fk-gizmo-toggle').getAttribute('aria-pressed');
+      assert.equal(pressed,'true',JSON.stringify({
+        status:await page.locator('#v111-fk-gizmo-status').textContent(),
+        fk:await page.locator('#v106-fk-status').textContent(),
+        selected:await page.locator('#v146-fk-layer-select').inputValue(),
+        bone:await page.locator('#v106-fk-bone').inputValue()}));
       const origin=await page.evaluate(()=>{
         const marker=document.querySelector('#v110-bone-overlay button[data-bone="頭"]');
         const canvas=document.querySelector('#v58-canvas').getBoundingClientRect();
@@ -121,6 +132,75 @@ test('real PMX gizmo edits the selected upper layer over a saved lower pose',
       const restored=await pose();
       assert.ok(difference(during.bones['頭'].quaternion,restored.bones['頭'].quaternion)<1e-5);
       assert.ok(difference(during.bones['頭'].position,restored.bones['頭'].position)<1e-5);
+      await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+      await page.locator('#v146-fk-layer-select').selectOption(upperId);
+      await page.locator('#v106-fk-frame').fill('240');
+      await page.locator('#v106-fk-frame').dispatchEvent('change');
+      await page.locator('#v111-fk-gizmo-goto').click();
+      await page.locator('#v137-arm-side').selectOption('左');
+      assert.equal(await page.locator('#v137-arm-hand').isDisabled(),false);
+      const armPose=()=>page.evaluate(instanceId=>window.BAIStudioMultiScenePreview.poseProbe(
+        instanceId,['左腕','左ひじ','左手首','右手首','頭','上半身']),instance);
+      const armBefore=await armPose();
+      await page.locator('#v137-arm-hand').click();
+      await page.locator('#v111-fk-gizmo-toggle').click();
+      await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().gizmo?.armSide==='左');
+      await page.locator('#v110-bone-tree').evaluate(el=>el.open=true);
+      await page.locator('#v110-bone-search').fill('左手首');
+      await page.waitForFunction(()=>{
+        const marker=document.querySelector('#v110-bone-overlay button[data-bone="左手首"]');
+        return marker&&!marker.hidden&&marker.dataset.projectedX;
+      });
+      const handle=await page.evaluate(()=>{
+        const marker=document.querySelector('#v110-bone-overlay button[data-bone="左手首"]');
+        const canvas=document.querySelector('#v58-canvas').getBoundingClientRect();
+        document.querySelector('#v110-bone-overlay').style.display='none';
+        return {x:canvas.left+Number(marker.dataset.projectedX),
+          y:canvas.top+Number(marker.dataset.projectedY)};
+      });
+      let armPreview=false;
+      for(const [dx,dy,mx,my] of [[25,0,35,24],[0,-25,35,24],[-25,0,-35,24],
+        [0,25,-35,-24],[45,0,-35,24],[0,-45,35,24]]){
+        await page.mouse.move(handle.x+dx,handle.y+dy);
+        await page.mouse.down();
+        await page.mouse.move(handle.x+dx+mx,handle.y+dy+my,{steps:12});
+        await page.mouse.up();await page.waitForTimeout(180);
+        armPreview=(await page.locator('#v111-fk-gizmo-status').textContent()).includes('腕IKを仮表示中');
+        if(armPreview)break;
+      }
+      assert.equal(armPreview,true,'upper arm handle must preview over lower arm layer');
+      const armDuring=await armPose();
+      const world=bone=>bone.world.slice(12,15);
+      const length=(a,b)=>Math.hypot(...a.map((value,index)=>value-b[index]));
+      assert.ok(length(world(armBefore.bones['左手首']),world(armDuring.bones['左手首']))>1e-4);
+      assert.ok(length(world(armBefore.bones['右手首']),world(armDuring.bones['右手首']))<1e-4);
+      assert.ok(length(world(armBefore.bones['頭']),world(armDuring.bones['頭']))<1e-4);
+      await page.locator('#v106-fk-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('腕・ひじの2キーを1回の操作として保存しました'));
+      const armSaved=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${id}`));
+      assert.deepEqual(armSaved.layers[0].keys,stacked.layers[0].keys);
+      assert.deepEqual(armSaved.layers[1].keys.map(key=>key.bone),['左ひじ','左腕','頭']);
+      await page.locator('#v106-fk-undo').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('戻しました'));
+      const undone=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${id}`));
+      assert.deepEqual(undone.layers[0].keys,stacked.layers[0].keys);
+      assert.deepEqual(undone.layers[1].keys.map(key=>key.bone),['頭']);
+      await page.locator('#v106-fk-redo').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('やり直しました'));
+      const redone=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${id}`));
+      assert.deepEqual(redone.layers[0].keys,stacked.layers[0].keys);
+      assert.deepEqual(redone.layers[1].keys,armSaved.layers[1].keys);
+      await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());
+      await page.reload();
+      await page.locator('#v06project').selectOption(id);
+      await page.locator('#nav [data-workspace="edit"]').click();
+      await page.locator('#v70sceneOpen').click();
+      await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
+        null,{timeout:120000});
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'arm-layer-reload'));
+      const armRestored=await armPose();
+      assert.ok(length(world(armDuring.bones['左手首']),world(armRestored.bones['左手首']))<1e-5);
       assert.deepEqual([digest(modelPath),digest(motionPath)],originals);
       harness.assertNoErrors(page);
     }finally{

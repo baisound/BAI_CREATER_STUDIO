@@ -46,6 +46,23 @@ function outsideRecords(bytes,intervals){
   return Object.fromEntries(result);
 }
 
+async function validateCandidate(page,projectId,candidate,fps){
+  return page.evaluate(async({projectId,candidate,fps})=>{
+    const {loadLibs}=await import('/studio/js/viewport/model-loader.js');
+    const {validatePmxVmdCandidate}=await import('/studio/v05/js/pmx-vmd-candidate-validation-v120.js');
+    const [scene,plan,edits]=await Promise.all([
+      fetch(`/api/studio/v05/scene/instances?id=${projectId}`).then(r=>r.json()),
+      fetch(`/api/studio/v05/scene/multi-motion-plan?id=${projectId}`).then(r=>r.json()),
+      fetch(`/api/studio/v05/motion-edits?id=${projectId}`).then(r=>r.json())]);
+    const row=plan.rows.find(item=>item.clip_id===candidate.clip_id);
+    const instance=scene.instances.find(item=>item.id===candidate.instance_id);
+    return validatePmxVmdCandidate({libs:await loadLibs(),modelAsset:instance.asset,
+      motionAsset:row.motion_asset,row,layers:edits.layers.filter(item=>
+        item.instance_id===candidate.instance_id&&item.clip_id===candidate.clip_id),
+      candidate,fps,isCurrent:()=>true});
+  },{projectId,candidate,fps});
+}
+
 test('24fps two-layer interval VMD preserves gap bytes and validates on real PMX',
   {skip:!available&&'BAI_REAL_MMD_DATA に別PMXとVMDがありません',timeout:240000},async()=>{
     const originals=[digest(modelPath),digest(originalVmdPath)];
@@ -165,20 +182,7 @@ test('24fps two-layer interval VMD preserves gap bytes and validates on real PMX
       await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('区間外の原キー'),
         null,{timeout:30000});
       assert.match(await page.locator('#v116-vmd-candidate-status').textContent(),/F90〜149、F180〜239/);
-      const report=await page.evaluate(async({projectId,candidate,fps})=>{
-        const {loadLibs}=await import('/studio/js/viewport/model-loader.js');
-        const {validatePmxVmdCandidate}=await import('/studio/v05/js/pmx-vmd-candidate-validation-v120.js');
-        const [scene,plan,edits]=await Promise.all([
-          fetch(`/api/studio/v05/scene/instances?id=${projectId}`).then(r=>r.json()),
-          fetch(`/api/studio/v05/scene/multi-motion-plan?id=${projectId}`).then(r=>r.json()),
-          fetch(`/api/studio/v05/motion-edits?id=${projectId}`).then(r=>r.json())]);
-        const row=plan.rows.find(item=>item.clip_id===candidate.clip_id);
-        const instance=scene.instances.find(item=>item.id===candidate.instance_id);
-        return validatePmxVmdCandidate({libs:await loadLibs(),modelAsset:instance.asset,
-          motionAsset:row.motion_asset,row,layers:edits.layers.filter(item=>
-            item.instance_id===candidate.instance_id&&item.clip_id===candidate.clip_id),
-          candidate,fps,isCurrent:()=>true});
-      },{projectId,candidate,fps});
+      const report=await validateCandidate(page,projectId,candidate,fps);
       console.log('interval 24fps other-PMX round trip',JSON.stringify(report));
       assert.equal(report.passed,true,JSON.stringify(report));
       assert.equal(report.checkedFrames,240);
@@ -247,6 +251,23 @@ test('24fps two-layer interval VMD preserves gap bytes and validates on real PMX
           project_id:projectId,revision:firstSolo.revision,instance_id:instanceId,
           clip_id:placed.clip.id,mode:'interval'})}));
       assert.deepEqual(soloCandidate.sampling_report.intervals,[[90,150]]);
+      const soloReport=await validateCandidate(page,projectId,soloCandidate,fps);
+      console.log('solo interval real-PMX round trip',JSON.stringify(soloReport));
+      assert.equal(soloReport.passed,true,JSON.stringify(soloReport));
+      assert.equal(soloReport.checkedFrames,240);
+      assert.equal(soloReport.checkedVmdFrames,301);
+      assert.ok(soloReport.bones>200);
+      const soloWhole=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,revision:firstSolo.revision,instance_id:instanceId,
+          clip_id:placed.clip.id})}));
+      assert.equal(soloWhole.export_mode,'whole');
+      const soloWholeReport=await validateCandidate(page,projectId,soloWhole,fps);
+      console.log('solo whole real-PMX round trip',JSON.stringify(soloWholeReport));
+      assert.equal(soloWholeReport.passed,true,JSON.stringify(soloWholeReport));
+      assert.equal(soloWholeReport.checkedFrames,240);
+      assert.equal(soloWholeReport.checkedVmdFrames,301);
+      assert.ok(soloWholeReport.bones>200);
       await page.locator('#v146-fk-layer-select').selectOption(secondId);
       await page.locator('#v148-fk-solo').check();
       await page.locator('#v106-fk-layer-save').click();
