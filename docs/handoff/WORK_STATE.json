@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:12:36+09:00",
+  "updated_at": "2026-10-24T23:39:03+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-camera-export",
-  "head_at_update": "f17c535",
+  "branch": "codex/v05-lip096-three-point",
+  "head_at_update": "6473188",
   "current": {
-    "task": "Issue #106: MOTION-010/CAM-015 MP4への旧カメラカット反映",
+    "task": "Issue #96: LIP-004/009 実PMX表情・口キーの先頭・中間・末尾検証",
     "status": "done",
-    "step": "書き出し契約を確認し、保存済み旧カメラカットが実PMX MP4へ反映されるか隔離出力で検証する",
-    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
+    "step": "既存実装の保存値と実顔画素・限定MP4を3時点で照合し、差があれば修正する",
+    "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "MOTION-010の残る承認済みPMX編集条件へ戻り、実変形と保存・出力の未確認項目を進める。CAM-015のカメラ源選択とMP4接続は未完了として保持する"
+    "Issue #96: 合成編集画面の操作パネルが顔を覆う条件を改善し、口・表情の画素と操作性を再検証する"
   ],
   "unverified": [
-    "旧カメラと3Dシーンカメラの明示選択・MP4カット、カット編集UI、任意カット構成、MOTION-010の物理ON・任意IK/PMX・長なじませ、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "合成画面の顔視認性、任意PMX・長尺全区間・Linux・標準MCP実通信・視線・SRT/音素自動リップ・頂点変位解析・Owner採用は未確認。LIP-004/009全体は未完了。Issue #106はOwnerクローズ済み"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T23:39:03+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6473188",
+      "text": "Issue #96: 実PMXの表情・口6キーをF0/F120/F270で保存再読込し、単独3Dと各1F MP4の実画素差・頭骨姿勢・原本SHAを照合。隔離合同5/5、Python11/11。保存カメラ試験の状態表示セレクターも修正"
+    },
+    {
+      "at": "2026-10-24T23:16:12+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "a6ed2d0",
+      "text": "Issue #96: LIP-004/009 実PMX表情・口キーの先頭・中間・末尾検証: 既存実装の保存値と実顔画素・限定MP4を3時点で照合し、差があれば修正する"
+    },
     {
       "at": "2026-10-24T23:12:36+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "330a649",
       "text": "Issue #106: MOTION-010 長尺VMDの時間限定候補: 元曲線を保つ時間限定補正の境界条件を実VMDで調べ、安全な候補か理由付き拒否を検証する"
-    },
-    {
-      "at": "2026-10-24T21:16:27+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "44cd056",
-      "text": "MOTION-010 203.63秒の動く元VMDで全クリップ一定の頭FK補正を疎な候補へ変換。100秒・204秒の201骨実PMX全作品F/全VMD Fで最大位置0.0000017793・角度0.0000261763度、明示採用・復元、原本ハッシュ一致を確認。実PMX検証上限を12600F/19000標本へ拡張。"
-    },
-    {
-      "at": "2026-10-24T21:09:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "a030e68",
-      "text": "Issue #106: MOTION-010 長尺VMDの一定補正候補: 動く元曲線を保つ疎な一定補正候補を実PMX全フレームで検証する"
     }
   ]
 }
