@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T11:06:05+09:00",
+  "updated_at": "2026-10-24T11:21:20+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-rotate-gizmo",
-  "head_at_update": "2c99742",
+  "head_at_update": "11e7d19",
   "current": {
     "task": "Issue #106: MOTION-010 実PMX骨の3D回転ハンドル",
-    "status": "in_progress",
+    "status": "done",
     "step": "同じv0.5編集画面で選択骨の回転を未確定プレビューに変換し、既存FKキー保存へ接続",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 次段階: 3D回転ギズモ・位置チャネル/IKと別名VMD往復を承認済み設計に沿って進める。"
+    "MOTION-010 次段階: 位置チャネル・手足IK/FK切替と別名VMD往復を承認済み設計に沿って段階的に進める。"
   ],
   "unverified": [
-    "3D回転操作・手足IK・複数レイヤー・別名VMD・長尺90秒・Linux・今回の実GPU・WebMCP/標準MCP実呼出し・Owner採用は未確認。隔離試験サーバーの断続的接続拒否は発生条件未特定。"
+    "複数レイヤー、位置チャネル、手足IK、別名VMD、長尺90秒、Linux、今回の実GPU、WebMCP/標準MCP実呼出し、Owner採用は未確認。Chromeの一時ERR_NO_BUFFER_SPACEは再実行で消えたが条件未特定。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T11:21:20+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "11e7d19",
+      "text": "Issue #106 MOTION-010: 実PMX頭骨の3D回転ハンドルを仮FK補正・既存キー保存に接続し、Esc取消と保存再読込を実機確認。PR作成前。"
+    },
     {
       "at": "2026-10-24T11:06:05+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "72ba8d3",
       "text": "Issue #96: 実PMXの既存モーフ168名を照合し、表情キーの保存・補間・再読込・限定MP4実画素を確認。Python8、Chrome4、typecheck合格。LIP-004/009は部分実装。"
-    },
-    {
-      "at": "2026-10-24T06:23:40+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "b16bad0",
-      "text": "Issue #96: v0.5 PMX表情・口モーフ時刻キーをプレビューと限定MP4へ接続: 実PMXモーフ調査、保存契約とプレビュー/出力実証"
     }
   ]
 }

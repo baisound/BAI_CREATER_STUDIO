@@ -58,7 +58,7 @@ function createSpatialEditor({panel,viewport,controller,project,getSceneData,sav
   const status=document.createElement('span');status.setAttribute('role','status');status.style.cssText='font-size:12px;color:#cee0f1';
   inspector.append(title,sub,tool,table,controls,status);
   panel.insertBefore(inspector,panel.querySelector('#v58-canvas'));
-  let gizmo=null,disposed=false,selected='',isDragging=false,busy=false,selectionEpoch=0,dragStarted=false;
+  let gizmo=null,disposed=false,selected='',isDragging=false,busy=false,selectionEpoch=0,dragStarted=false,gizmoEnabled=true;
   const registeredRoots=new Map();
   let gizmoHelper=null;
   const registry=core.createRegistry({
@@ -100,9 +100,14 @@ function createSpatialEditor({panel,viewport,controller,project,getSceneData,sav
   function bindGizmo(){
     if(!gizmo)return;
     const obj=selected?controller.getLoaded(selected)?.root:null;
-    if(obj&&registry.ids().includes(selected)&&!(registry.snapshot(selected).locked))gizmo.attach(obj);
+    if(gizmoEnabled&&obj&&registry.ids().includes(selected)&&!(registry.snapshot(selected).locked))gizmo.attach(obj);
     else gizmo.detach();
     viewport.invalidate();
+  }
+  function setGizmoEnabled(enabled){
+    gizmoEnabled=Boolean(enabled);
+    inspector.style.display=gizmoEnabled?'grid':'none';
+    bindGizmo();
   }
   function syncInputs(){
     let snap=null;
@@ -152,7 +157,7 @@ function createSpatialEditor({panel,viewport,controller,project,getSceneData,sav
   });
   const onKey=e=>{
     const active=document.activeElement;
-    if(!panel.contains(active)||['INPUT','SELECT','TEXTAREA'].includes(active?.tagName)||e.ctrlKey||e.altKey||e.metaKey)return;
+    if(!gizmoEnabled||!panel.contains(active)||['INPUT','SELECT','TEXTAREA'].includes(active?.tagName)||e.ctrlKey||e.altKey||e.metaKey)return;
     const m={w:'translate',e:'rotate',r:'scale'}[e.key.toLowerCase()];
     if(m){e.preventDefault();e.stopPropagation();modes[m].click();}
   };
@@ -225,6 +230,6 @@ function createSpatialEditor({panel,viewport,controller,project,getSceneData,sav
   const languageControl=document.getElementById('langChoice');
   languageControl?.addEventListener('change',applyLanguage);
   syncInputs();applyLanguage();createGizmo();
-  return {update,select,dispose,registry};
+  return {update,select,dispose,registry,setGizmoEnabled};
 }
 export {createSpatialEditor,readThree,writeThree};

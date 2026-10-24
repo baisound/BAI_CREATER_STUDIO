@@ -1,0 +1,4 @@
+#v111-fk-gizmo-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:5px 0}
+#v111-fk-gizmo-controls small{color:#c8d9ea}
+#v111-fk-gizmo-toggle[aria-pressed="true"]{background:#665321;border-color:#ffdc8d;color:#fff}
+#v111-fk-gizmo-toggle:disabled{opacity:.55;cursor:not-allowed}

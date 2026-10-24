@@ -43,6 +43,8 @@ export function createPmxBonePicker({container,controls,viewport,getModel,getSel
       if(visible){
         const x=(point.x+1)*container.clientWidth/2;
         let y=(1-point.y)*container.clientHeight/2;
+        button.dataset.projectedX=String(x);
+        button.dataset.projectedY=String(y);
         const underPanel=floatingPanel&&
           canvasRect.left+x>=floatingPanel.left-10&&canvasRect.left+x<=floatingPanel.right+10&&
           canvasRect.top+y>=floatingPanel.top-10&&canvasRect.top+y<=floatingPanel.bottom+10;
