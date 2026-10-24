@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:04:44+09:00",
+  "updated_at": "2026-10-24T16:18:29+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-knee-pole-handle",
-  "head_at_update": "2107e45",
+  "branch": "codex/v05-motion010-right-knee-validation",
+  "head_at_update": "1f03a2c",
   "current": {
-    "task": "Issue #106: MOTION-010 膝ポール3Dハンドル",
+    "task": "Issue #106: MOTION-010 右膝ポールの実PMX検証",
     "status": "done",
-    "step": "実PMX膝位置へハンドルをスナップし、実ドラッグを太ももFK補正へ解き、Esc・保存・Undo/Redo・VMD往復を隔離検証する",
+    "step": "右足IKの3Dハンドル実ドラッグ、保存、Undo/Redo、VMD候補の隔離検証を追加する",
     "design_doc": "docs/v05/MOTION010_KNEE_POLE_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 右脚と別PMXで膝ポールの適用条件と実ドラッグを検証する",
+    "MOTION-010: 別PMXに対する膝ポール適用条件・拒否条件を実証する",
     "MOTION-010: 腕IKの3D二関節解、元VMD曲線と物理フラグ保持、候補採用条件を継続する"
   ],
   "unverified": [
-    "膝ポールは1実PMX/VMD・左脚・単一フレームの限定結果。右脚・別PMX・ドラッグ中連続更新・腕IK・VRM・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
+    "左右膝ポールは同一1実PMX/VMD・単一フレーム・単一100%レイヤー・物理OFF/SwiftShaderの限定結果。別PMX・任意膝制限・ドラッグ中連続更新・腕IK・VRM・実GPU・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T16:18:29+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "1f03a2c",
+      "text": "MOTION-010: 同一実PMX/VMDの右膝ポールを実ドラッグ、足首残差・左足不変、保存・Undo/Redo・再読込、左右キーを含む別名VMD全骨往復で検証。隔離試験1件成功。全体は要検証。"
+    },
+    {
+      "at": "2026-10-24T16:07:11+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "b05b31a",
+      "text": "Issue #106: MOTION-010 右膝ポールの実PMX検証: 右足IKの3Dハンドル実ドラッグ、保存、Undo/Redo、VMD候補の隔離検証を追加する"
+    },
     {
       "at": "2026-10-24T16:04:44+09:00",
       "by": "codex",
@@ -227,20 +241,6 @@
       "event": "start",
       "head": "cad32ab",
       "text": "Issue #106: MOTION-010 一定補正の別名VMD出力: 作品内の全区間一定FK/IKターゲット補正を厳格に抽出し、元VMD骨キーへ合成して実PMX往復で検証する"
-    },
-    {
-      "at": "2026-10-24T13:22:00+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a2e69f4",
-      "text": "Issue #106 MOTION-010: 別名VMD骨区画writerの基盤を追加。未編集骨と非骨suffixのbyte一致、実VMDの隔離再読込を15件の試験で確認。UI/焼き込み/実PMX往復は未接続。"
-    },
-    {
-      "at": "2026-10-24T13:16:41+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "33c9c53",
-      "text": "Issue #106: MOTION-010 補正キーの別名VMD書き出し: 元VMDの骨区画と非骨suffixを保つ検証可能な別名writerを作り、補正評価と実PMX往復に接続する"
     }
   ]
 }

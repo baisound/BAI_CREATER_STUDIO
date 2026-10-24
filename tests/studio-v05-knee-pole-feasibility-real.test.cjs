@@ -90,6 +90,7 @@ test('real PMX native CCD keeps ankle while FK thigh twist changes knee directio
     assert.equal(await page.locator('#v106-fk-bone').inputValue(),'左足');
     assert.equal(await page.locator('#v113-fk-gizmo-mode').inputValue(),'pole');
     await page.locator('#v111-fk-gizmo-toggle').click();
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().gizmo?.poleKnee==='左ひざ');
     const handle=await page.evaluate(()=>window.BAIStudioMultiScenePreview.status().gizmo);
     assert.equal(handle.poleKnee,'左ひざ');
     assert.ok(gap(handle.handleWorld,handle.poleKneeWorld)<1e-6);
@@ -177,6 +178,92 @@ test('real PMX native CCD keeps ankle while FK thigh twist changes knee directio
     const poleValidation=await page.locator('#v116-vmd-candidate-status').textContent();
     assert.match(poleValidation,/実PMX検査合格（物理OFF）/);
     console.log(JSON.stringify({poleValidation}));
+    await page.locator('#v106-fk-frame').fill('240');
+    await page.locator('#v106-fk-frame').dispatchEvent('change');
+    await page.locator('#v111-fk-gizmo-goto').click();
+    await page.locator('#v114-ik-select').selectOption('右足ＩＫ');
+    assert.equal(await page.locator('#v128-knee-pole-choose').isDisabled(),false);
+    await page.locator('#v128-knee-pole-choose').click();
+    assert.equal(await page.locator('#v106-fk-bone').inputValue(),'右足');
+    await page.locator('#v111-fk-gizmo-toggle').click();
+    await page.waitForFunction(()=>document.querySelector('#v111-fk-gizmo-toggle')?.getAttribute('aria-pressed')==='true'&&
+      window.BAIStudioMultiScenePreview?.status().gizmo?.poleKnee==='右ひざ');
+    const rightHandle=await page.evaluate(()=>window.BAIStudioMultiScenePreview.status().gizmo);
+    assert.equal(rightHandle.poleKnee,'右ひざ');
+    assert.ok(gap(rightHandle.handleWorld,rightHandle.poleKneeWorld)<1e-6);
+    await page.locator('#v110-bone-tree').evaluate(el=>el.open=true);
+    await page.locator('#v110-bone-search').fill('右ひざ');
+    await page.waitForFunction(()=>{
+      const marker=document.querySelector('#v110-bone-overlay button[data-bone="右ひざ"]');
+      return marker&&!marker.hidden&&marker.dataset.projectedX;
+    });
+    const rightScreen=await page.evaluate(()=>{
+      const marker=document.querySelector('#v110-bone-overlay button[data-bone="右ひざ"]');
+      const canvas=document.querySelector('#v58-canvas').getBoundingClientRect();
+      const panel=document.querySelector('#v58-multi-preview').getBoundingClientRect();
+      document.querySelector('#v110-bone-overlay').style.display='none';
+      return {x:canvas.left+Number(marker.dataset.projectedX),
+        y:canvas.top+Number(marker.dataset.projectedY),
+        panel:{left:panel.left,right:panel.right,top:panel.top,bottom:panel.bottom}};
+    });
+    const rightPose=()=>page.evaluate(id=>window.BAIStudioMultiScenePreview.poseProbe(
+      id,['左足首','右ひざ','右足首','右足ＩＫ']),instanceId);
+    const rightBefore=await rightPose();
+    let rightAfter=null;
+    for(const [dx,dy,mx,my] of [
+      [25,0,-35,24],[0,-25,-35,24],[-25,0,-35,24],[0,25,-35,24]]){
+      const x=rightScreen.x+dx,y=rightScreen.y+dy;
+      if(x>=rightScreen.panel.left&&x<=rightScreen.panel.right&&
+         y>=rightScreen.panel.top&&y<=rightScreen.panel.bottom)continue;
+      await page.mouse.move(x,y);await page.mouse.down();
+      await page.mouse.move(x+mx,y+my,{steps:12});await page.mouse.up();
+      await page.waitForTimeout(160);
+      const status=await page.locator('#v111-fk-gizmo-status').textContent();
+      if(status.includes('膝方向を仮表示中')){
+        rightAfter=await rightPose();break;
+      }
+    }
+    assert.ok(rightAfter,'real right knee pole handle must create a pose preview');
+    const rightKneeDelta=gap(world(rightBefore.bones['右ひざ']),world(rightAfter.bones['右ひざ']));
+    const rightAnkleDelta=gap(world(rightBefore.bones['右足首']),world(rightAfter.bones['右足首']));
+    const leftAnkleDelta=gap(world(rightBefore.bones['左足首']),world(rightAfter.bones['左足首']));
+    const rightTargetError=gap(world(rightAfter.bones['右足首']),world(rightAfter.bones['右足ＩＫ']));
+    assert.ok(rightKneeDelta>0.001);
+    assert.ok(rightAnkleDelta<0.001);
+    assert.ok(rightTargetError<0.001);
+    assert.ok(leftAnkleDelta<1e-4);
+    console.log(JSON.stringify({rightKneeDelta,rightAnkleDelta,rightTargetError,leftAnkleDelta}));
+    await page.locator('#v106-fk-save').click();
+    await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('保存しました'));
+    const bothSaved=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${id}`));
+    assert.equal(bothSaved.revision,5);
+    assert.ok(bothSaved.layers[0].keys.some(key=>key.bone==='右足'&&key.frame===240));
+    await page.locator('#v111-fk-gizmo-toggle').click();
+    await page.locator('#v106-fk-undo').click();
+    await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('戻しました'));
+    assert.ok(gap(world(rightBefore.bones['右ひざ']),world((await rightPose()).bones['右ひざ']))<1e-5);
+    await page.locator('#v106-fk-redo').click();
+    await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('やり直しました'));
+    assert.ok(gap(world(rightAfter.bones['右ひざ']),world((await rightPose()).bones['右ひざ']))<1e-5);
+    await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());
+    await page.reload();
+    await page.locator('#v06project').selectOption(id);
+    await page.locator('#nav [data-workspace="edit"]').click();
+    await page.locator('#v70sceneOpen').click();
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
+      window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
+    await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'right-pole-reload'));
+    assert.ok(gap(world(rightAfter.bones['右ひざ']),world((await rightPose()).bones['右ひざ']))<1e-5);
+    await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+    await page.locator('#v116-vmd-candidate-create').click();
+    await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-download')?.hidden===false||
+      document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('不可'),null,{timeout:120000});
+    await page.locator('#v120-vmd-candidate-validate').click();
+    await page.waitForFunction(()=>/実PMX検査合格|実PMX検査不合格|実PMX検査を完了できません/.test(
+      document.querySelector('#v116-vmd-candidate-status')?.textContent||''),null,{timeout:160000});
+    const bothPoleValidation=await page.locator('#v116-vmd-candidate-status').textContent();
+    assert.match(bothPoleValidation,/実PMX検査合格（物理OFF）/);
+    console.log(JSON.stringify({bothPoleValidation}));
     harness.assertNoErrors(page);
   }finally{
     await page?.close();await browser?.close();await server.stop();
