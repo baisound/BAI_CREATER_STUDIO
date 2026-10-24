@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T19:08:18+09:00",
+  "updated_at": "2026-10-24T19:14:43+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-dense-curve",
-  "head_at_update": "d8a61e7",
+  "head_at_update": "a27c7c1",
   "current": {
     "task": "Issue #106: MOTION-010 動く元VMD曲線の密キー不一致",
-    "status": "in_progress",
+    "status": "done",
     "step": "実PMXの局所姿勢差を時刻・ボーン別に切り分け、忠実な出力または明示的な拒否条件を検証",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 動く元VMD曲線の全フレーム候補が実PMXゲートで拒否された原因を絞り、忠実な密キー化または明示した対応境界を検証する"
+    "MOTION-010: 複数の異なる修正区間・境界元キー欠落を含む部分VMD出力の安全な条件を設計し、可能な範囲を実PMXで検証する"
   ],
   "unverified": [
-    "動く元VMDの密キー候補は実PMX位置0.00398/角度0.0369度で不合格。モーフだけの後続時間、異なる修正区間、物理ON、実GPU、Linux、標準MCP、腕IK角度制限付き実PMX、Owner採用、MOTION-010全ACは未確認。一括4件のChrome試験はERR_NO_BUFFER_SPACEで未完走、単独再実行は合格"
+    "動く元曲線の万能な密キー化はThree.js境界補間と元キーbyte保持の両立不可例あり。モーフのみの後続時間、異なる複数修正区間、物理ON、実GPU、Linux、標準MCP、腕IK角度制限付き実PMX、Owner採用、MOTION-010全ACは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T19:14:43+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a27c7c1",
+      "text": "Issue #106: 動く元VMD曲線の密キー不一致をThree.js境界補間に特定し、候補作成前の全VMDフレーム誤差ゲートで拒否。静止入力は実PMX採用・復元、動く入力は元クリップ保持を確認"
+    },
     {
       "at": "2026-10-24T19:08:18+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "9213678",
       "text": "Issue #106: MOTION-010 別PMX膝ポール適用検証: B側の異なるPMX版で左右膝ポールの適用条件と実ドラッグ、保存・VMD往復を隔離検証する"
-    },
-    {
-      "at": "2026-10-24T16:18:29+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "1f03a2c",
-      "text": "MOTION-010: 同一実PMX/VMDの右膝ポールを実ドラッグ、足首残差・左足不変、保存・Undo/Redo・再読込、左右キーを含む別名VMD全骨往復で検証。隔離試験1件成功。全体は要検証。"
     }
   ]
 }

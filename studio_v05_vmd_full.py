@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 import math
+from bisect import bisect_right
 
 from studio_v05_vmd_rewrite import _sections, LINEAR_INTERPOLATION, rewrite_bone_section
 from studio_v05_vmd_temporal import (
     ANGLE_LIMIT_DEGREES, MAX_VMD_FRAMES, POSITION_LIMIT,
-    _compose, _correction, _pose, _tracks,
+    _bezier, _compose, _correction, _pose, _slerp, _tracks,
 )
 
 
@@ -20,6 +21,26 @@ def _error(expected, actual):
 def _snap_frame(frame):
     nearest = round(frame)
     return nearest if abs(frame - nearest) < 1e-7 else frame
+
+
+def _three_boundary_pose(rows, frame):
+    """MMDLoader's 15-step Bezier solver does not return exactly 0 at x=0.
+
+    At an original VMD key, the next key's curve changes that key's observed
+    pose. Dense insertion changes its next key. Model that boundary effect for
+    a conservative local preflight; the independent PMX browser gate remains.
+    """
+    if not rows:
+        return _pose(rows, frame)
+    index = bisect_right(rows, frame, key=lambda row: row[0])
+    if index == 0 or index == len(rows) or rows[index - 1][0] != frame:
+        return _pose(rows, frame)
+    left, right = rows[index - 1:index + 1]
+    curves = right[3]
+    position = tuple(left[1][axis] + (right[1][axis] - left[1][axis]) *
+                     _bezier(curves, axis, 0) for axis in range(3))
+    rotation = _slerp(left[2], right[2], _bezier(curves, 3, 0))
+    return position, rotation
 
 
 def full_frame_replacements(raw_vmd, layers, *, instance_id, clip_id):
@@ -87,9 +108,11 @@ def full_frame_replacements(raw_vmd, layers, *, instance_id, clip_id):
     for project_frame in range(first_project, end_project):
         vmd_frame = _snap_frame((project_frame / fps - start) * 30)
         for bone in bones:
-            base = _pose(source_tracks.get(bone, []), vmd_frame)
+            base = (_three_boundary_pose(source_tracks.get(bone, []), vmd_frame)
+                    if type(vmd_frame) is int else _pose(source_tracks.get(bone, []), vmd_frame))
             corrected = _compose(*base, *_correction(active, bone, project_frame))
-            actual = _pose(candidate_tracks[bone], vmd_frame)
+            actual = (_three_boundary_pose(candidate_tracks[bone], vmd_frame)
+                      if type(vmd_frame) is int else _pose(candidate_tracks[bone], vmd_frame))
             position_error, angle_error = _error(corrected, actual)
             if position_error > max_position:
                 max_position, worst_position = position_error, project_frame
@@ -97,13 +120,18 @@ def full_frame_replacements(raw_vmd, layers, *, instance_id, clip_id):
                 max_angle, worst_angle = angle_error, project_frame
     # The source may continue after this clip. It must retain its uncorrected
     # value at every VMD frame, including dense frames newly added above.
-    tail_max_position = tail_max_angle = 0.0
-    for frame in range(clip_end, last + 1):
+    boundary_max_position = boundary_max_angle = 0.0
+    boundary_position_frame = boundary_angle_frame = 0
+    for frame in range(last + 1):
         for bone in bones:
-            errors = _error(_pose(source_tracks.get(bone, []), frame),
-                            _pose(candidate_tracks[bone], frame))
-            tail_max_position = max(tail_max_position, errors[0])
-            tail_max_angle = max(tail_max_angle, errors[1])
+            source_pose = _three_boundary_pose(source_tracks.get(bone, []), frame)
+            correction = _correction(active, bone, (start + frame / 30) * fps)
+            expected = _compose(*source_pose, *correction)
+            errors = _error(expected, _three_boundary_pose(candidate_tracks[bone], frame))
+            if errors[0] > boundary_max_position:
+                boundary_max_position, boundary_position_frame = errors[0], frame
+            if errors[1] > boundary_max_angle:
+                boundary_max_angle, boundary_angle_frame = errors[1], frame
     report = {'mode': 'whole', 'sampled_vmd_keys': len(samples),
               'vmd_frame_span': last + 1, 'source_last_bone_frame': source_last,
               'clip_end_vmd_frame': clip_end,
@@ -111,10 +139,12 @@ def full_frame_replacements(raw_vmd, layers, *, instance_id, clip_id):
               'checked_source_tail_vmd_frames': max(0, last - clip_end + 1),
               'max_position_error': max_position, 'worst_position_frame': worst_position,
               'max_angle_error_degrees': max_angle, 'worst_angle_frame': worst_angle,
-              'source_tail_max_position_error': tail_max_position,
-              'source_tail_max_angle_error_degrees': tail_max_angle,
+              'three_boundary_max_position_error': boundary_max_position,
+              'three_boundary_worst_position_vmd_frame': boundary_position_frame,
+              'three_boundary_max_angle_error_degrees': boundary_max_angle,
+              'three_boundary_worst_angle_vmd_frame': boundary_angle_frame,
               'gate': 'local_channels_and_dense_keys_requires_real_pmx_roundtrip'}
     if (max_position > POSITION_LIMIT or max_angle > ANGLE_LIMIT_DEGREES or
-            tail_max_position > POSITION_LIMIT or tail_max_angle > ANGLE_LIMIT_DEGREES):
-        raise ValueError('Full-frame VMD pose error exceeds limit: ' + str(report))
+            boundary_max_position > POSITION_LIMIT or boundary_max_angle > ANGLE_LIMIT_DEGREES):
+        raise ValueError('全フレーム候補の姿勢差が許容値を超えました。旧方式も選択できます: ' + str(report))
     return samples, report

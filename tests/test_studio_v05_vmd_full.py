@@ -1,5 +1,6 @@
 import struct
 import hashlib
+import math
 import os
 from pathlib import Path
 
@@ -53,8 +54,25 @@ def test_unrepresentable_project_frame_is_rejected():
          'rotation': [0, 0, 0, 1]}
         for frame, x in [(0, 0), (1, 1), (2, 0)]
     ]
-    with pytest.raises(ValueError, match='Full-frame VMD pose error exceeds limit.*worst_position_frame'):
+    with pytest.raises(ValueError, match='全フレーム候補の姿勢差.*worst_position_frame'):
         full_frame_replacements(source(), [layer(fps=60, duration=2, keys=keys)],
+                                instance_id='model-1', clip_id='clip-1')
+
+
+def test_three_boundary_bias_rejects_sparse_moving_curve_without_real_data():
+    header = b'Vocaloid Motion Data 0002'.ljust(30, b'\0') + b'Test'.ljust(20, b'\0')
+    rows = []
+    interpolation = bytes([20, 20, 0, 0, 20, 20, 20, 20,
+                           107, 107, 107, 107, 107, 107, 107, 107]) * 4
+    for frame, degrees in [(0, 0), (30, 20), (60, -20)]:
+        angle = math.radians(degrees)
+        rows.append('頭'.encode('cp932').ljust(15, b'\0') +
+                    struct.pack('<I3f4f', frame, 0, 0, 0, 0, math.sin(angle / 2),
+                                0, math.cos(angle / 2)) +
+                    interpolation)
+    raw = header + struct.pack('<I', len(rows)) + b''.join(rows) + b'opaque-suffix'
+    with pytest.raises(ValueError, match="three_boundary_max_angle_error_degrees.*three_boundary_worst_angle_vmd_frame': 30"):
+        full_frame_replacements(raw, [layer(duration=1)],
                                 instance_id='model-1', clip_id='clip-1')
 
 
@@ -67,25 +85,14 @@ def test_rejects_source_longer_than_bounded_frame_limit():
         full_frame_replacements(raw, [layer()], instance_id='model-1', clip_id='clip-1')
 
 
-def test_real_vmd_longer_than_clip_keeps_source_and_tail_keys():
+def test_real_moving_vmd_rejects_three_boundary_error_before_candidate():
     root = Path(os.environ.get('BAI_REAL_MMD_DATA', Path(__file__).resolve().parents[1] / 'data'))
     path = root / 'mmd' / 'vmd' / '狐面物理確認用_頭振り_F000-0300.vmd'
     if not path.is_file():
         pytest.skip('Registered real VMD is unavailable')
     raw = path.read_bytes()
     before = hashlib.sha256(raw).hexdigest()
-    samples, report = full_frame_replacements(raw, [layer(duration=5)],
-                                               instance_id='model-1', clip_id='clip-1')
-    output, _ = rewrite_bone_section(raw, samples)
-    original, source_suffix = _sections(raw)
-    candidate, suffix = _sections(output)
-    assert report['clip_end_vmd_frame'] == 150
-    assert report['source_last_bone_frame'] == 300
-    assert report['checked_source_tail_vmd_frames'] == 151
-    assert report['checked_project_frames'] == 150
-    assert {(name, frame) for name, frame, _ in candidate if name == '頭'} >= {
-        ('頭', frame) for frame in range(301)}
-    assert next(row for name, frame, row in original if name == '頭' and frame == 300) == \
-        next(row for name, frame, row in candidate if name == '頭' and frame == 300)
-    assert source_suffix == suffix
+    with pytest.raises(ValueError, match="three_boundary_max_angle_error_degrees.*three_boundary_worst_angle_vmd_frame': 120"):
+        full_frame_replacements(raw, [layer(duration=5)],
+                                instance_id='model-1', clip_id='clip-1')
     assert hashlib.sha256(path.read_bytes()).hexdigest() == before

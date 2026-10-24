@@ -30,7 +30,9 @@ function staticHeadVmd(original){
   return output;
 }
 
-for(const variant of ['static','moving'])test(`default whole VMD ${variant} source runs the PMX tail gate`,
+for(const variant of ['static','moving'])test(variant==='static'?
+  'default dense VMD validates the static source through its PMX tail':
+  'default dense VMD rejects the moving source at the Three.js boundary preflight',
   {skip:!available&&'BAI_REAL_MMD_DATA に別PMXとVMDがありません',timeout:240000},async()=>{
     const originals=[digest(modelPath),digest(originalPath)];
     const name=`MOTION010-full-${variant}-source.vmd`;
@@ -70,10 +72,19 @@ for(const variant of ['static','moving'])test(`default whole VMD ${variant} sour
           project_id:projectId,revision:0,action:'set',instance_id:instanceId,
           clip_id:placed.clip.id,key:{frame:60,bone:'頭',position:[0.01,0,0],
             rotation:[0,0,0,1]}})}));
-      const candidate=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
+      const reply=await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:projectId,revision:saved.revision,
-          instance_id:instanceId,clip_id:placed.clip.id})}));
+          instance_id:instanceId,clip_id:placed.clip.id})});
+      if(variant==='moving'){
+        assert.equal(reply.status,422);
+        assert.match(await reply.text(),/three_boundary_worst_angle_vmd_frame.*120/);
+        const arrangement=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${projectId}`));
+        assert.equal(arrangement.clips[0].asset_id,`mmd:vmd:${name}`);
+        assert.deepEqual([digest(modelPath),digest(originalPath)],originals);
+        return;
+      }
+      const candidate=await ok(reply);
       assert.equal(candidate.export_mode,'whole');
       assert.equal(candidate.sampling_report.mode,'whole');
       assert.equal(candidate.sampling_report.vmd_frame_span,301);
@@ -116,7 +127,7 @@ for(const variant of ['static','moving'])test(`default whole VMD ${variant} sour
           candidate,fps,isCurrent:()=>true});
       },{projectId,candidate,fps});
       console.log(`dense ${variant} source tail PMX round trip`,JSON.stringify(report));
-      assert.equal(report.passed,variant==='static',JSON.stringify(report));
+      assert.equal(report.passed,true,JSON.stringify(report));
       assert.equal(report.checkedFrames,150);
       assert.equal(report.checkedVmdFrames,301);
       assert.ok(report.bones>200);
@@ -126,19 +137,13 @@ for(const variant of ['static','moving'])test(`default whole VMD ${variant} sour
           project_id:projectId,candidate_id:candidate.candidate_id,
           edit_revision:saved.revision,arrangement_revision:plan.arrangement_revision,
           scene_revision:plan.scene_revision,report})});
-      if(variant==='static'){
-        const adopted=await ok(adoption);
-        const arrangement=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${projectId}`));
-        assert.equal(arrangement.clips[0].asset_id,adopted.asset_id);
-        await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate/restore`,{
-          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-            project_id:projectId,clip_id:placed.clip.id,
-            arrangement_revision:arrangement.revision})}));
-      }else{
-        assert.equal(adoption.status,422);
-        const arrangement=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${projectId}`));
-        assert.equal(arrangement.clips[0].asset_id,`mmd:vmd:${name}`);
-      }
+      const adopted=await ok(adoption);
+      const arrangement=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${projectId}`));
+      assert.equal(arrangement.clips[0].asset_id,adopted.asset_id);
+      await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate/restore`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,clip_id:placed.clip.id,
+          arrangement_revision:arrangement.revision})}));
       assert.deepEqual([digest(modelPath),digest(originalPath)],originals);
       harness.assertNoErrors(page);
     }finally{
