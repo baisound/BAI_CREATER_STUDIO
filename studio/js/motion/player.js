@@ -38,8 +38,10 @@ export function createPlayer(THREE, MMDAnimationHelper) {
           typeof mmdHelper._sortBoneDataArray !== 'function' ||
           object.geometry?.userData?.MMD?.format !== 'pmx')
         throw new Error('PMX 補正の評価器はこの Three.js 版に対応していません');
-      pmxPoseModifier(object, t);
+      // Keep the raw VMD pose for the next seek. Saving after the modifier
+      // accumulates offsets on bones without an animation track (notably foot IK).
       mmdHelper._saveBones(object);
+      pmxPoseModifier(object, t);
       if (!state.sortedBonesData)
         state.sortedBonesData = mmdHelper._sortBoneDataArray(object.geometry.userData.MMD.bones.slice());
       mmdHelper._animatePMXMesh(object, state.sortedBonesData,
