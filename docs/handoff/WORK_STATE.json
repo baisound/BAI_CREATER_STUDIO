@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:29:54+09:00",
+  "updated_at": "2026-10-24T16:32:20+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-other-pmx-verify",
-  "head_at_update": "c1cc724",
+  "branch": "codex/v05-motion010-arm-ik-feasibility",
+  "head_at_update": "fa534a3",
   "current": {
-    "task": "Issue #106: MOTION-010 別PMX膝ポール適用検証",
-    "status": "done",
-    "step": "B側の異なるPMX版で左右膝ポールの適用条件と実ドラッグ、保存・VMD往復を隔離検証する",
-    "design_doc": "docs/v05/MOTION010_KNEE_POLE_DESIGN_20261024_JA.md"
+    "task": "Issue #106: MOTION-010 腕IKの3D実装準備",
+    "status": "in_progress",
+    "step": "実PMX腕の捩り・付与を含む親子構造と保存APIを検査し、二関節3D解の最小実証条件を定める",
+    "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
     "MOTION-010: 腕IKの3D二関節解、元VMD曲線と物理フラグ保持、候補採用条件を継続する",
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T16:32:20+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "fa534a3",
+      "text": "Issue #106: MOTION-010 腕IKの3D実装準備: 実PMX腕の捩り・付与を含む親子構造と保存APIを検査し、二関節3D解の最小実証条件を定める"
+    },
     {
       "at": "2026-10-24T16:29:54+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "ab9e27c",
       "text": "MOTION-010の時間変化FK補正を30fps別名VMD検証前候補へ接続。局所誤差超過を拒否し、複数VMD読込前の基準姿勢復元を修正。Python29件・実PMX/SwiftShader2件・typecheck合格。"
-    },
-    {
-      "at": "2026-10-24T13:40:18+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "378e69d",
-      "text": "Issue #106: MOTION-010 時間変化する補正のVMD候補: 作品FPSのキーをVMD30fpsへ標本化し、誤差超過を拒否する候補経路と実PMX往復を検証する"
     }
   ]
 }
