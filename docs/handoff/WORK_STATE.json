@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:33:43+09:00",
+  "updated_at": "2026-10-25T01:37:43+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-lip001-srt-source",
-  "head_at_update": "75fc20f",
+  "head_at_update": "00c422b",
   "current": {
     "task": "Issue #187: 日本語SRT原本の管理下登録",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存のSRT処理と作品保存契約を調べ、開始終了時刻・原本hashを保った読み取り入口を限定接続する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #175の限定受け入れ条件と未検証範囲をレビューし、達成ならIssueを閉じて次の承認済みLIP項目へ進む"
+    "Issue #187: v0.5画面でSRTファイル選択・文字コード明示・登録済み発話/警告/欠損表示を同じ作品に接続する"
   ],
   "unverified": [
-    "テスト重みのOwner採用、任意PMX/VRM、WebMCP/標準MCP、統合production耐障害性、Linuxは未検証。LIP-004全体は部分実装"
+    "読み確定、かな→口形候補編集、別名モーフVMD書出/再読込、実ユーザーSRT、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:37:43+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "00c422b",
+      "text": "Issue #187 LIP-001: 作品単位のSRT原本登録/読取APIを追加。明示符号化・独立開始終了時刻・原本hash・競合/改変検出を隔離HTTP 2件で確認"
+    },
     {
       "at": "2026-10-25T01:33:43+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "a6ed2d0",
       "text": "Issue #96: LIP-004/009 実PMX表情・口キーの先頭・中間・末尾検証: 既存実装の保存値と実顔画素・限定MP4を3時点で照合し、差があれば修正する"
-    },
-    {
-      "at": "2026-10-24T23:12:36+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "f17c535",
-      "text": "MOTION-010/CAM-015 実PMX隔離1F MP4を旧カメラX0/X5で2本出力。カメラAPIは変化したが復号画素差0で、MP4は保存済み3Dシーンカメラを使う接続差を確認。原本SHA不変、未実装として記録"
     }
   ]
 }
