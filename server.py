@@ -239,6 +239,22 @@ class Handler(BaseHTTPRequestHandler):
         msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
         self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
     def do_GET(self):
+        if urlsplit(self.path).path == '/api/studio/v05/lip/vmd-candidate/file':
+            from studio_v05_lip_vmd_candidate import candidate_file, LipVmdError
+
+            query = parse_qs(urlsplit(self.path).query)
+            if (set(query) != {'project_id', 'candidate_id'}
+                    or any(len(values) != 1 for values in query.values())):
+                return self.bad(400, 'Invalid lip VMD candidate query')
+            try:
+                raw = candidate_file(DATA, unified_assets(), character_source,
+                                     query['project_id'][0], query['candidate_id'][0])
+                self.send(200, raw, 'application/octet-stream')
+            except LipVmdError as exc:
+                self.bad(exc.status, str(exc))
+            except (OSError, ValueError, TypeError):
+                self.bad(422, 'Lip VMD candidate unreadable')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/motion/vmd-candidate/file':
             from studio_v05_vmd_candidate import candidate_file
             from studio_v05_motion_edits import MotionEditError
@@ -834,6 +850,30 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path == '/api/studio/v05/lip/vmd-candidate':
+            from studio_v05_lip_vmd_candidate import create as create_lip_vmd, LipVmdError
+
+            try:
+                length = int(self.headers.get('Content-Length', '-1'))
+                if not 0 < length <= 4096:
+                    return self.bad(413, 'Lip VMD candidate request too large')
+                body = json.loads(self.rfile.read(length))
+                if (not isinstance(body, dict) or set(body) != {'project_id', 'source_id',
+                        'model_asset_id', 'source_revision', 'reading_revision',
+                        'draft_revision', 'map_revision', 'dry_run'}):
+                    return self.bad(400, 'Invalid lip VMD candidate fields')
+                result = create_lip_vmd(DATA, unified_assets(), character_source, **body)
+                if not body['dry_run']:
+                    event('v05_lip_vmd_candidate_created', project_id=body['project_id'],
+                          morph_keys=result['morphKeys'])
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except LipVmdError as exc:
+                self.bad(exc.status, str(exc))
+            except (ValueError, TypeError, KeyError):
+                self.bad(400, 'Invalid lip VMD candidate request')
+            except OSError:
+                self.bad(500, 'Lip VMD candidate write failed; originals retained')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/lip/drafts':
             from studio_v05_lip_drafts import save as save_lip_draft, LipDraftError
 
