@@ -20,17 +20,18 @@ async function ok(reply,status=200){const body=await reply.text();assert.equal(r
 function staticHeadVmd(original){
   const count=original.readUInt32LE(50),suffix=original.subarray(54+count*111);
   const bone=original.subarray(54,69),interpolation=original.subarray(54+47,54+111);
-  const size=54+4*111+suffix.length,output=Buffer.alloc(size);
+  const frames=[0,300];
+  const size=54+frames.length*111+suffix.length,output=Buffer.alloc(size);
   original.copy(output,0,0,50);
-  output.writeUInt32LE(4,50);
-  for(const [index,frame] of [0,90,240,300].entries()){
+  output.writeUInt32LE(frames.length,50);
+  for(const [index,frame] of frames.entries()){
     const offset=54+index*111;
     bone.copy(output,offset);
     output.writeUInt32LE(frame,offset+15);
     output.writeFloatLE(1,offset+15+4+6*4);
     interpolation.copy(output,offset+47);
   }
-  suffix.copy(output,54+4*111);
+  suffix.copy(output,54+frames.length*111);
   return output;
 }
 
@@ -39,12 +40,12 @@ function outsideRecords(bytes,start,end){
   for(let i=0;i<count;i++){
     const record=bytes.subarray(54+i*111,54+(i+1)*111);
     const frame=record.readUInt32LE(15);
-    if(frame<=start||frame>=end)result.set(frame,record.toString('hex'));
+    if(frame<start||frame>=end)result.set(frame,record.toString('hex'));
   }
   return Object.fromEntries(result);
 }
 
-test('24fps interval VMD preserves outside bytes, validates on another real PMX and can be adopted',
+test('24fps interval VMD with missing boundary keys preserves outside bytes and validates on real PMX',
   {skip:!available&&'BAI_REAL_MMD_DATA に別PMXとVMDがありません',timeout:240000},async()=>{
     const originals=[digest(modelPath),digest(originalVmdPath)];
     const source=staticHeadVmd(fs.readFileSync(originalVmdPath));
@@ -111,6 +112,9 @@ test('24fps interval VMD preserves outside bytes, validates on another real PMX 
       assert.equal(candidate.export_mode,'interval');
       assert.equal(candidate.sampling_report.start_vmd_frame,90);
       assert.equal(candidate.sampling_report.end_vmd_frame,240);
+      assert.equal(candidate.sampling_report.missing_boundary_keys,2);
+      assert.deepEqual(candidate.sampling_report.intervals,[[90,240]]);
+      assert.equal(candidate.sampling_report.vmd_frame_span,301);
       const output=Buffer.from(await (await fetch(server.base+candidate.download_url)).arrayBuffer());
       assert.deepEqual(outsideRecords(output,90,240),outsideRecords(source,90,240));
       const originalCount=source.readUInt32LE(50),outputCount=output.readUInt32LE(50);
@@ -146,7 +150,7 @@ test('24fps interval VMD preserves outside bytes, validates on another real PMX 
       console.log('interval 24fps other-PMX round trip',JSON.stringify(report));
       assert.equal(report.passed,true,JSON.stringify(report));
       assert.equal(report.checkedFrames,240);
-      assert.equal(report.checkedVmdFrames,300);
+      assert.equal(report.checkedVmdFrames,301);
       assert.ok(report.bones>200);
       const plan=await ok(await fetch(`${server.base}/api/studio/v05/scene/multi-motion-plan?id=${projectId}`));
       const adopted=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate/adopt`,{

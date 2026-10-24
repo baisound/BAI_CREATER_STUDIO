@@ -53,7 +53,8 @@ def _report(report, start, duration, fps, record=None):
     vmd_first = math.ceil(start * 30 - 1e-7)
     vmd_end = math.ceil((start + duration) * 30 - 1e-7)
     sampling = (record or {}).get('sampling_report') or {}
-    if (record or {}).get('export_mode') == 'whole' and sampling.get('mode') == 'whole':
+    if (record or {}).get('export_mode') in ('whole', 'interval') and (
+            sampling.get('mode') == (record or {}).get('export_mode')):
         span = sampling.get('vmd_frame_span')
         if type(span) is not int or not 1 <= span <= 18001:
             raise AdoptionError('Dense VMD candidate span is invalid')

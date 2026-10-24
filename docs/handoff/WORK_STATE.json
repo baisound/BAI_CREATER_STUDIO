@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T19:18:54+09:00",
+  "updated_at": "2026-10-24T19:26:17+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-partial-multi",
-  "head_at_update": "f0aebd2",
+  "head_at_update": "4199d64",
   "current": {
     "task": "Issue #106: MOTION-010 部分VMDの複数区間と境界キー欠落",
-    "status": "in_progress",
+    "status": "done",
     "step": "元キー保持と全区間姿勢の安全条件を設計し、実PMXで検証",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 複数の異なる修正区間・境界元キー欠落を含む部分VMD出力の安全な条件を設計し、可能な範囲を実PMXで検証する"
+    "MOTION-010: 複数補正レイヤーの作成・保存・画面操作を接続し、部分VMDの複数区間を実PMXで検証する"
   ],
   "unverified": [
-    "動く元曲線の万能な密キー化はThree.js境界補間と元キーbyte保持の両立不可例あり。モーフのみの後続時間、異なる複数修正区間、物理ON、実GPU、Linux、標準MCP、腕IK角度制限付き実PMX、Owner採用、MOTION-010全ACは未確認"
+    "複数区間は計算単体のみ。動く元曲線の万能な部分/全フレーム変換、物理ON、実GPU、Linux、標準MCP、Owner採用、MOTION-010全ACは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T19:26:17+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4199d64",
+      "text": "Issue #106: 部分VMDで骨別複数区間・境界元キー欠落を条件付きで扱い、実PMXの静止入力で採用/復元まで確認"
+    },
     {
       "at": "2026-10-24T19:18:54+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "fa534a3",
       "text": "Issue #106: MOTION-010 腕IKの3D実装準備: 実PMX腕の捩り・付与を含む親子構造と保存APIを検査し、二関節3D解の最小実証条件を定める"
-    },
-    {
-      "at": "2026-10-24T16:29:54+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "c1cc724",
-      "text": "MOTION-010: 201骨の別版と246骨の異なる実PMXで左右膝ポールの実ドラッグ・保存・Undo/Redo・再読込・別名VMD物理OFF全骨往復を確認。既定PMX回帰も通過し3ファイルで限定実証。全体は要検証。"
     }
   ]
 }
