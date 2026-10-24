@@ -31,7 +31,7 @@ const tr=(key)=>locale[key]||({
 })[key]||key;
 const section=document.getElementById('v57-scene-instances');
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,reloadReady=false,nonce=0,selectedId='';
-let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null,activePole=null;
+let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null,previewArm=null,activePole=null;
 let vmdCandidate=null,candidateValidation=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
@@ -379,7 +379,7 @@ function redrawLimbMode(target,instanceId,row){
   const locked=sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked;
   const available=Boolean(bones?.fkName);
   limbMode.disabled=!row||!available||Boolean(locked);
-  limbSave.disabled=!row||!available||Boolean(locked)||Boolean(previewFk)||
+  limbSave.disabled=!row||!available||Boolean(locked)||Boolean(previewFk||previewArm)||
     Boolean(motionEdits?.issues?.length)||(stored==='IK'&&!bones?.ikName);
   limbStatus.textContent=limb.endsWith('_arm')?
     '腕IKの3D解法は未実装です。腕はFKのみです。':
@@ -427,7 +427,7 @@ function redrawFkControls(){
   redrawLimbMode(target,instanceId,row);
   const pole=kneePoleFor(target,ikSelect.value);
   const poleMode=pole&&((motionEdits?.fk_ik_modes?.[instanceId]?.[pole.limb])||'IK');
-  poleChoose.disabled=!row||!pole||poleMode!=='IK'||Boolean(previewFk)||
+  poleChoose.disabled=!row||!pole||poleMode!=='IK'||Boolean(previewFk||previewArm)||
     Boolean(motionEdits?.issues?.length)||
     Boolean(sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked);
   const layer=motionEdits?.layers?.find(item=>item.instance_id===instanceId&&item.clip_id===row?.clip_id&&!item.disabled);
@@ -436,8 +436,8 @@ function redrawFkControls(){
   fkWeight.value=String(Math.round((layer?.weight??1)*100));
   fkStart.value=String(layer?.start_frame??first);fkEnd.value=String(layer?.end_frame??end);
   fkFadeIn.value=String(layer?.fade_in_frames??0);fkFadeOut.value=String(layer?.fade_out_frames??0);
-  fkMuted.checked=Boolean(layer?.muted);fkLayerSave.disabled=!layer;
-  fkCandidate.disabled=!row||!layer||Boolean(motionEdits?.issues?.length)||Boolean(previewFk)||Boolean(candidateValidation);
+  fkMuted.checked=Boolean(layer?.muted);fkLayerSave.disabled=!layer||Boolean(previewArm);
+  fkCandidate.disabled=!row||!layer||Boolean(motionEdits?.issues?.length)||Boolean(previewFk||previewArm)||Boolean(candidateValidation);
   const previousKey=fkSaved.value;
   fkSaved.replaceChildren(new Option('保存済みFKキー',''));
   for(const key of layer?.keys||[])fkSaved.add(new Option(`F${key.frame} ${key.bone}`,JSON.stringify([key.frame,key.bone])));
@@ -448,15 +448,19 @@ function redrawFkControls(){
   if(names.length<boneNames.length)fkContext.textContent+=' 同名の骨は編集対象外です。';
   const editable=Boolean(row&&names.length&&fkBone.value&&
     !(sceneSnapshot?.instances||[]).find(item=>item.id===instanceId)?.locked);
-  fkPreview.disabled=!editable;fkSave.disabled=!editable;
-  fkCancel.disabled=!previewFk;fkRemove.disabled=!fkSaved.value;
-  fkUndo.disabled=!motionEdits?.can_undo;fkRedo.disabled=!motionEdits?.can_redo;
-  if(motionEdits?.issues?.length)fkStatus.textContent='補正を停止: '+motionEdits.issues.map(x=>x.reason).join('; ');
+  fkPreview.disabled=!editable||Boolean(previewArm);fkSave.disabled=!editable;
+  fkCancel.disabled=!previewFk&&!previewArm;fkRemove.disabled=!fkSaved.value||Boolean(previewArm);
+  fkSaved.disabled=Boolean(previewArm);
+  fkUndo.disabled=!motionEdits?.can_undo||Boolean(previewArm);
+  fkRedo.disabled=!motionEdits?.can_redo||Boolean(previewArm);
+  if(previewArm)fkStatus.textContent=`${previewArm.side}腕IKの2キーを仮表示中。保存は「このFをキー化」、破棄はEscです。`;
+  else if(motionEdits?.issues?.length)fkStatus.textContent='補正を停止: '+motionEdits.issues.map(x=>x.reason).join('; ');
   else if(!row)fkStatus.textContent='対象VMDのある作品フレームへ移動してください。';
   bonePicker?.refresh();
   rotateGizmo?.refresh();
 }
 function fkGizmoContext(){
+  if(previewArm)return {reason:'腕IKの2キー仮表示を保存または破棄してください。'};
   const instanceId=choose.value||selectedId,frame=Number(fkFrame.value),name=fkBone.value;
   const row=activeFkRow(frame),target=controller?.getLoaded(instanceId);
   if(!opened||!row||!target?.object?.skeleton||!name)return {reason:'実PMX骨と有効なVMDのある作品フレームを選択してください。'};
@@ -492,6 +496,7 @@ function fkGizmoContext(){
     poleTargetBone:pole?.targetBone||null,target,row,layer};
 }
 function previewCurrentFk(){
+  if(previewArm)throw Error('腕IKの2キー仮表示を先に保存または破棄してください。');
   const {row,frame,key}=fkPayload();
   const layer=motionEdits?.layers?.find(item=>!item.disabled&&
     item.instance_id===row.target_scene_instance_id&&item.clip_id===row.clip_id);
@@ -636,18 +641,25 @@ function applyAllMotionEdits(){
     if(previewFk?.projectId===project?.value&&previewFk?.instanceId===row.target_scene_instance_id&&
        previewFk?.clipId===row.clip_id){
       preview=previewFk.key;
-      if(!layers.some(layer=>layer.id===preview.layer_id))layers.push({
-        id:preview.layer_id,start:row.start,fps:projectFps,weight:1,muted:false,keys:[]});
+    }else if(previewArm?.projectId===project?.value&&
+        previewArm.instanceId===row.target_scene_instance_id&&previewArm.clipId===row.clip_id){
+      preview=previewArm.keys;
+    }
+    if(preview){
+      const layerId=Array.isArray(preview)?preview[0].layer_id:preview.layer_id;
+      if(!layers.some(layer=>layer.id===layerId))layers.push({
+        id:layerId,start:row.start,duration:row.duration,fps:projectFps,weight:1,muted:false,keys:[]});
     }
     motionCoordinator.setCorrectionLayers(row.clip_id,layers,preview);
   }
 }
 function discardFkPreview(){
-  if(!previewFk)return;
-  previewFk=null;applyAllMotionEdits();seekScene(Number(seekInput.value)||currentSeek());
+  if(!previewFk&&!previewArm)return;
+  previewFk=null;previewArm=null;applyAllMotionEdits();seekScene(Number(seekInput.value)||currentSeek());
   redrawFkControls();
 }
 function fkPayload(){
+  if(previewArm)throw Error('腕IKの2キー仮表示を先に保存または破棄してください。');
   const frame=Number(fkFrame.value),row=activeFkRow(frame),bone=fkBone.value;
   if(!row||!bone)throw Error('作品F・実PMX骨・読み込み済みVMDを選択してください');
   const target=controller.getLoaded(row.target_scene_instance_id);
@@ -676,7 +688,7 @@ async function writeFk(action,key=null,row=null,extra={}){
   const data=await response.json();
   if(!response.ok)throw Error(data.error||`HTTP ${response.status}`);
   if(!opened||project?.value!==id)return;
-  motionEdits=data;previewFk=null;applyAllMotionEdits();
+  motionEdits=data;previewFk=null;previewArm=null;applyAllMotionEdits();
   const displayTime=row?Number(fkFrame.value)/projectFps:Number(seekInput.value);
   seekScene(Number.isFinite(displayTime)&&displayTime>=0?displayTime:currentSeek());
   redrawFkControls();
@@ -909,7 +921,7 @@ async function reload(){
       request('/api/studio/v05/motion-edits?id='+encodeURIComponent(id))]);
     if(thisNonce!==nonce||!opened||id!==project.value)return;
     projectFps=fpsResult.configured?Number(fpsResult.fps):60;
-    motionEdits=edits;previewFk=null;
+    motionEdits=edits;previewFk=null;previewArm=null;
     const motionResult=await motionCoordinator.reconcile(plan);
     if(thisNonce!==nonce||!opened)return;
     applyAllMotionEdits();
@@ -928,7 +940,7 @@ async function reload(){
     window.dispatchEvent(new CustomEvent('bai:v58-scene-reloaded',{detail:{projectId:id,loaded:controller.status().loaded}}));
   }catch(error){
     if(thisNonce===nonce&&opened){
-      motionEdits=null;previewFk=null;motionPlan=null;
+      motionEdits=null;previewFk=null;previewArm=null;motionPlan=null;
       motionCoordinator?.clear();
       for(const instance of sceneSnapshot?.instances||[])controller?.getLoaded(instance.id)?.resetPose?.();
       viewport?.invalidate?.();redrawFkControls();
@@ -957,7 +969,7 @@ function close(){
   bonePicker?.dispose();bonePicker=null;
   spatialEditor?.dispose();spatialEditor=null;sceneSnapshot=null;
   motionCoordinator?.dispose();motionCoordinator=null;motionPlan=null;
-  motionEdits=null;previewFk=null;activePole=null;
+  motionEdits=null;previewFk=null;previewArm=null;activePole=null;
   controller?.dispose();controller=null;
   viewport?.dispose();viewport=null;
   if(composite)unmountComposite();
@@ -974,7 +986,7 @@ choose.addEventListener('change',()=>{
   setFkFrameFromSeek();
 });
 fkHere.addEventListener('click',setFkFrameFromSeek);
-fkFrame.addEventListener('change',()=>{activePole=null;redrawFkControls();});
+fkFrame.addEventListener('change',()=>{activePole=null;if(previewArm)discardFkPreview();redrawFkControls();});
 fkBone.addEventListener('change',()=>{activePole=null;discardFkPreview();redrawFkControls();});
 limbSelect.addEventListener('change',redrawFkControls);
 limbMode.addEventListener('change',()=>{
@@ -983,7 +995,7 @@ limbMode.addEventListener('change',()=>{
   const unsupported=limbMode.value==='IK'&&(!bones?.ikName||limbSelect.value.endsWith('_arm'));
   const instanceId=choose.value||selectedId;
   const locked=sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked;
-  limbSave.disabled=!activeFkRow()||!bones?.fkName||Boolean(locked)||Boolean(previewFk)||
+  limbSave.disabled=!activeFkRow()||!bones?.fkName||Boolean(locked)||Boolean(previewFk||previewArm)||
     Boolean(motionEdits?.issues?.length)||limbSelect.value.endsWith('_arm')||unsupported;
   if(unsupported)limbStatus.textContent='この部位のIK解法・ターゲットには未対応です。';
 });
@@ -992,7 +1004,7 @@ limbSave.addEventListener('click',async()=>{
   const row=activeFkRow(),target=controller?.getLoaded(instanceId);
   const mode=limbMode.value,bones=limbBones(target,limb);
   if(!id||!row||!target||!Number.isInteger(motionEdits?.revision)||
-      previewFk||motionEdits?.issues?.length||
+      previewFk||previewArm||motionEdits?.issues?.length||
       document.getElementById('v111-fk-gizmo-toggle')?.getAttribute('aria-pressed')==='true'){
     limbStatus.textContent='仮補正を破棄し、3Dハンドルを隠してから切り替えてください。';return;
   }
@@ -1065,7 +1077,7 @@ fkPreview.addEventListener('click',()=>{
 });
 fkCancel.addEventListener('click',()=>{discardFkPreview();fkStatus.textContent='仮補正を破棄しました';});
 document.addEventListener('keydown',event=>{
-  if(event.key==='Escape'&&previewFk&&!rotateGizmo?.isDragging?.()){
+  if(event.key==='Escape'&&(previewFk||previewArm)&&!rotateGizmo?.isDragging?.()){
     event.preventDefault();event.stopPropagation();
     discardFkPreview();fkStatus.textContent='仮補正を破棄しました';
   }
@@ -1073,9 +1085,18 @@ document.addEventListener('keydown',event=>{
 fkSave.addEventListener('click',async()=>{
   fkSave.disabled=true;
   try{
-    const {row,key}=fkPayload();
-    await writeFk('set',key,row);
-    fkStatus.textContent='FKキーを作品に保存しました';
+    if(previewArm){
+      const pair=previewArm,row=activeFkRow(pair.frame);
+      if(!row||project.value!==pair.projectId||row.target_scene_instance_id!==pair.instanceId||
+          row.clip_id!==pair.clipId||Number(fkFrame.value)!==pair.frame)
+        throw Error('腕IK仮表示中に作品・フレームが変わりました。');
+      await writeFk('arm-set',null,row,{keys:pair.keys.map(({layer_id,...key})=>key)});
+      fkStatus.textContent='腕・ひじの2キーを1回の操作として保存しました';
+    }else{
+      const {row,key}=fkPayload();
+      await writeFk('set',key,row);
+      fkStatus.textContent='FKキーを作品に保存しました';
+    }
   }catch(error){fkStatus.textContent='FK保存失敗: '+String(error.message||error);}
   finally{redrawFkControls();}
 });
@@ -1124,7 +1145,7 @@ fkLayerSave.addEventListener('click',async()=>{
 });
 fkCandidate.addEventListener('click',async()=>{
   const row=activeFkRow(),id=project?.value;
-  if(!row||!id||previewFk){fkCandidateStatus.textContent='保存済みキーのあるVMDクリップを選択し、仮補正を破棄してください。';return;}
+  if(!row||!id||previewFk||previewArm){fkCandidateStatus.textContent='保存済みキーのあるVMDクリップを選択し、仮補正を破棄してください。';return;}
   candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;
   fkValidate.disabled=true;fkCandidate.disabled=true;fkCandidateLink.hidden=true;
   try{
@@ -1152,7 +1173,7 @@ fkValidate.addEventListener('click',async()=>{
   const instance=sceneSnapshot?.instances?.find(item=>item.id===data?.instance_id);
   const target=controller?.getLoaded(data?.instance_id);
   if(!data||!id||!row||row.clip_id!==data.clip_id||
-      motionEdits?.revision!==data.revision||previewFk||!instance?.asset||!target){
+      motionEdits?.revision!==data.revision||previewFk||previewArm||!instance?.asset||!target){
     fkCandidateStatus.textContent='候補作成時の作品・補正・PMX・VMDを再確認してください。';return;
   }
   const layers=(motionEdits.layers||[]).filter(layer=>layer.instance_id===data.instance_id&&
@@ -1407,7 +1428,7 @@ window.addEventListener('bai:v106-fk-saved',async event=>{
   try{
     const data=await request('/api/studio/v05/motion-edits?id='+encodeURIComponent(id));
     if(!opened||project?.value!==id)return;
-    motionEdits=data;previewFk=null;applyAllMotionEdits();
+    motionEdits=data;previewFk=null;previewArm=null;applyAllMotionEdits();
     seekScene(Number(seekInput.value)||currentSeek());redrawFkControls();
   }catch(error){fkStatus.textContent='FK補正再読込失敗: '+String(error.message||error);}
 });
@@ -1455,7 +1476,7 @@ window.BAIStudioMultiScenePreview=Object.freeze({
   // is tested through the normal arm-set API before exposing a hand handle.
   armIkProbe(instanceId,side,handTarget,fallbackPole){
     if(!opened||!['左','右'].includes(side)||!Array.isArray(handTarget)||
-        !Array.isArray(fallbackPole)||previewFk||motionEdits?.issues?.length)
+        !Array.isArray(fallbackPole)||previewFk||previewArm||motionEdits?.issues?.length)
       throw Error('腕IKの診断条件が揃っていません。');
     const target=controller?.getLoaded(instanceId),skeleton=target?.object?.skeleton;
     if(target?.format!=='PMX'||!skeleton||
@@ -1474,6 +1495,10 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     if(layers.length>1||layers.some(layer=>layer.keys.some(key=>
         names.slice(0,2).includes(key.bone))))
       throw Error('この腕には既存補正があり、診断では上書きしません。');
+    if(layers.some(layer=>layer.weight!==1||layer.muted||
+        frame<(layer.start_frame??Math.ceil(row.start*projectFps-1e-7))+(layer.fade_in_frames||0)||
+        frame>=(layer.end_frame??Math.ceil((row.start+row.duration)*projectFps-1e-7))-(layer.fade_out_frames||0)))
+      throw Error('腕IK診断は重み100%で有効区間のなじませ外に限ります。');
     const before=worldBonePose(target);
     const result=solveArmLocalRotations({THREE:target.libs.THREE,object:target.object,
       arm:found[0][0],elbow:found[1][0],wrist:found[2][0],
@@ -1487,6 +1512,35 @@ window.BAIStudioMultiScenePreview=Object.freeze({
       keys:[{frame,bone:names[0],rotation:delta(result.armBase,result.armLocal)},
         {frame,bone:names[1],rotation:delta(result.elbowBase,result.elbowLocal)}],
       ...result,restoreDifference:difference};
+  },
+  armIkPreview(instanceId,side,handTarget,fallbackPole){
+    const probe=window.BAIStudioMultiScenePreview.armIkProbe(instanceId,side,handTarget,fallbackPole);
+    const target=controller.getLoaded(instanceId);
+    const layer=(motionEdits?.layers||[]).find(item=>!item.disabled&&
+      item.instance_id===instanceId&&item.clip_id===probe.clipId);
+    const before=worldBonePose(target);
+    previewArm={projectId:project.value,instanceId,clipId:probe.clipId,frame:probe.frame,side,
+      keys:probe.keys.map(key=>({...key,layer_id:layer?.id||'preview'}))};
+    try{
+      applyAllMotionEdits();seekScene(probe.frame/projectFps);
+      target.object.updateWorldMatrix(true,true);
+      const wrist=target.object.skeleton.bones.find(bone=>bone.name===side+'手首');
+      const actual=wrist.getWorldPosition(new target.libs.THREE.Vector3()).toArray();
+      const residual=Math.hypot(...actual.map((value,index)=>value-probe.wristTarget[index]));
+      const after=worldBonePose(target),bones=target.object.skeleton.bones;
+      const unrelated=['頭','上半身'].map(name=>bones.findIndex(bone=>bone.name===name));
+      const drift=Math.max(...unrelated.map(index=>index<0?Infinity:Math.max(
+        before[index].position.distanceTo(after[index].position),
+        before[index].rotation.angleTo(after[index].rotation))));
+      if(!Number.isFinite(residual)||residual>1e-3||drift>1e-4)
+        throw Error(`腕IK仮評価で手首残差 ${residual}、未編集骨差 ${drift} が上限を超えました。`);
+      fkFrame.value=String(probe.frame);fkControls.open=true;redrawFkControls();
+      fkStatus.textContent=`${side}腕IKの2キーを仮表示中。手首残差 ${residual.toExponential(2)} シーン単位。保存は「このFをキー化」、破棄はEscです。`;
+      return {frame:probe.frame,residual,unrelatedDrift:drift,keys:probe.keys};
+    }catch(error){
+      previewArm=null;applyAllMotionEdits();seekScene(probe.frame/projectFps);redrawFkControls();
+      throw error;
+    }
   },
   morphProbe(instanceId){
     const target=controller?.getLoaded(instanceId);
@@ -1577,7 +1631,7 @@ if(document.modelContext?.registerTool){
          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
        const data=await response.json();
        if(!response.ok)throw Error(data.error||`HTTP ${response.status}`);
-       if(opened&&project?.value===input.project_id){motionEdits=data;previewFk=null;
+       if(opened&&project?.value===input.project_id){motionEdits=data;previewFk=null;previewArm=null;
          applyAllMotionEdits();seekScene(Number(seekInput.value)||currentSeek());redrawFkControls();}
        window.dispatchEvent(new CustomEvent('bai:v106-fk-saved',{detail:{projectId:input.project_id,revision:data.revision}}));
        return data;

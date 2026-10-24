@@ -17,7 +17,7 @@ export function createPmxVmdPreview(THREE, MMDAnimationHelper, pmx, clip, id) {
   const identity = new THREE.Quaternion();
   const delta = new THREE.Quaternion();
   /** @type {any[]} */ let layers = [];
-  /** @type {any|null} */ let previewKey = null;
+  /** @type {any[]} */ let previewKeys = [];
   function applyCorrections(_mesh, seconds) {
     for (const layer of layers) {
       const frame = (layer.start + seconds) * layer.fps;
@@ -30,13 +30,14 @@ export function createPmxVmdPreview(THREE, MMDAnimationHelper, pmx, clip, id) {
         (fadeOut ? Math.min(1,(until-frame)/fadeOut) : 1);
       if (weight <= 0) continue;
       const names = new Set(layer.keys.map((/** @type {any} */ key) => key.bone));
-      if (previewKey && previewKey.layer_id === layer.id) names.add(previewKey.bone);
+      for (const key of previewKeys) if (key.layer_id === layer.id) names.add(key.bone);
       for (const name of names) {
         const bone = bones.get(name);
         if (!bone) throw Error(`保存済みFK骨がPMXにありません: ${name}`);
         const keys = layer.keys.filter((/** @type {any} */ key) => key.bone === name &&
-          !(previewKey && previewKey.layer_id === layer.id && previewKey.bone === name && key.frame === previewKey.frame));
-        if (previewKey && previewKey.layer_id === layer.id && previewKey.bone === name) keys.push(previewKey);
+          !previewKeys.some(preview => preview.layer_id === layer.id &&
+            preview.bone === name && key.frame === preview.frame));
+        keys.push(...previewKeys.filter(preview => preview.layer_id === layer.id && preview.bone === name));
         keys.sort((a,b) => a.frame - b.frame);
         if (!keys.length) continue;
         let left = keys[0], right = keys[0];
@@ -63,16 +64,21 @@ export function createPmxVmdPreview(THREE, MMDAnimationHelper, pmx, clip, id) {
     }
   }
   function refreshModifier() {
-    player.setPmxPoseModifier(layers.some(layer => !layer.disabled && !layer.muted && layer.weight > 0 && layer.keys.length) || previewKey
+    player.setPmxPoseModifier(layers.some(layer => !layer.disabled && !layer.muted && layer.weight > 0 && layer.keys.length) || previewKeys.length
       ? applyCorrections : null);
   }
   return {
     duration: Math.max(0, Number(clip.duration) || 0), followBone,
-    /** Saved layers belong only to this clip. preview is an unsaved replacement key. */
+    /** Saved layers belong only to this clip. Preview replaces one or two unsaved keys. */
     setCorrectionLayers(nextLayers, preview = null) {
       if (!Array.isArray(nextLayers)) throw TypeError('FK layers required');
+      const keys=preview===null?[]:Array.isArray(preview)?preview:[preview];
+      if(keys.length>2||keys.some(key=>!key||typeof key.layer_id!=='string'||
+          typeof key.bone!=='string'||!Number.isInteger(key.frame))||
+          new Set(keys.map(key=>`${key.layer_id}\u0000${key.bone}\u0000${key.frame}`)).size!==keys.length)
+        throw TypeError('Invalid FK preview key pair');
       layers = nextLayers;
-      previewKey = preview;
+      previewKeys = keys;
       refreshModifier();
     },
     /** @param {number} seconds */
