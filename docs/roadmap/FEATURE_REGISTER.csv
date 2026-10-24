@@ -37,7 +37,7 @@ MOTION-006,MOTION,3,MMD/VMD入出力,生成・インポート・エクスポー�
 MOTION-007,MOTION,3,BlenderバックエンドVMD変換,MCP経由/手動ボタン実行,要検証,"CORE,DATA"
 MOTION-008,MOTION,3,VMD一括・区間・部分変換,複数素材のバッチ化,要検証,"CORE,DATA"
 MOTION-009,MOTION,3,PMX二体プレビュー,テクスチャとVMDの読み込み,要検証,"CORE,DATA"
-MOTION-010,MOTION,3,3Dポーズ・ボーン直接操作,IKコントローラと任意フレーム補正（詳細：RIG_EDITING_SPEC_20261020_JA.md）。v0.5 PMXの一定・時間変化FK補正は別名VMD検証前候補へ接続。時間変化は作品FPS全フレームの局所誤差で拒否、実PMX採用判定・作品配置は未接続,要検証,"CORE,DATA"
+MOTION-010,MOTION,3,3Dポーズ・ボーン直接操作,IKコントローラと任意フレーム補正（詳細：RIG_EDITING_SPEC_20261020_JA.md）。v0.5 PMXの一定・時間変化FK補正と左足IKターゲットを別名VMD検証前候補へ接続。作品FPS全フレームの局所誤差と限定実PMX往復を確認、一般化した採用判定・作品配置は未接続,要検証,"CORE,DATA"
 MOTION-011,MOTION,3,足IK・接地・床貫通修正,歩行/ダンス/Kip Upへの対応,要検証,"CORE,DATA"
 MOTION-012,MOTION,3,フットステップ・歩幅編集,足跡指定と接地時刻,要検証,"CORE,DATA"
 MOTION-013,MOTION,3,重心・ルート座標累積,前モーション終端→次開始へ継承,要検証,"CORE,DATA"

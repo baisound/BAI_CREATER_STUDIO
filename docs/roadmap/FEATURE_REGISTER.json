@@ -349,7 +349,7 @@
       "group": "MOTION",
       "phase": 3,
       "name": "3Dポーズ・ボーン直接操作",
-      "detail": "IKコントローラと任意フレーム補正（詳細：RIG_EDITING_SPEC_20261020_JA.md）。v0.5 PMXの一定・時間変化FK補正は別名VMD検証前候補へ接続。時間変化は作品FPS全フレームの局所誤差で拒否、実PMX採用判定・作品配置は未接続",
+      "detail": "IKコントローラと任意フレーム補正（詳細：RIG_EDITING_SPEC_20261020_JA.md）。v0.5 PMXの一定・時間変化FK補正と左足IKターゲットを別名VMD検証前候補へ接続。作品FPS全フレームの局所誤差と限定実PMX往復を確認、一般化した採用判定・作品配置は未接続",
       "status": "要検証",
       "dependency": "CORE,DATA"
     },

@@ -12,6 +12,7 @@ const modelName='Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx
 const motionName='狐面物理確認用_頭振り_F000-0300.vmd';
 const candidateName='MOTION010-constant-candidate.vmd';
 const temporalName='MOTION010-temporal-candidate.vmd';
+const footName='MOTION010-foot-ik-candidate.vmd';
 const modelPath=sourceRoot&&path.join(sourceRoot,'mmd','A',modelName);
 const motionPath=sourceRoot&&path.join(sourceRoot,'mmd','vmd',motionName);
 const exists=modelPath&&motionPath&&fs.existsSync(modelPath)&&fs.existsSync(motionPath);
@@ -19,7 +20,7 @@ const digest=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('h
 async function ok(response){const body=await response.text();assert.equal(response.status,200,body);return JSON.parse(body);}
 
 test('constant and temporal FK candidates agree with real PMX preview',
-  {skip:!exists&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:240000},async()=>{
+  {skip:!exists&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:300000},async()=>{
     const originals=[digest(modelPath),digest(motionPath)];
     const angle=0.2;
     const savedKey={frame:240,bone:'頭',position:[0.3,0,0],
@@ -42,6 +43,7 @@ test('constant and temporal FK candidates agree with real PMX preview',
     assert.ok(baked.stdout.length>1000);
     const temporalKey=(frame,x)=>({frame,bone:'頭',position:[x,0,0],rotation:[0,0,0,1]});
     const temporalKeys=[temporalKey(0,0),temporalKey(300,0.01),temporalKey(598,0)];
+    const footKey={frame:240,bone:'左足ＩＫ',position:[0.3,0,0],rotation:[0,0,0,1]};
     const temporalLayer={...layer,keys:temporalKeys};
     const temporalPython=[
       'import json,sys',
@@ -55,16 +57,22 @@ test('constant and temporal FK candidates agree with real PMX preview',
     const temporalBaked=spawnSync('python',['-c',temporalPython,motionPath,JSON.stringify(temporalLayer)],{
       cwd:path.resolve(__dirname,'..'),maxBuffer:2*1024*1024});
     assert.equal(temporalBaked.status,0,temporalBaked.stderr.toString());
+    const footBaked=spawnSync('python',['-c',temporalPython,motionPath,
+      JSON.stringify({...temporalLayer,keys:[...temporalKeys,footKey]})],{
+      cwd:path.resolve(__dirname,'..'),maxBuffer:2*1024*1024});
+    assert.equal(footBaked.status,0,footBaked.stderr.toString());
     const metadata=JSON.parse(fs.readFileSync(path.join(sourceRoot,'mmd_assets.json'),'utf8'));
     const entries=metadata.A.filter(e=>e.name===modelName||e.name.startsWith('tex/'));
     const seed={'mmd_assets.json':JSON.stringify({A:entries,B:[],vmd:[
       {name:motionName,size:fs.statSync(motionPath).size},
       {name:candidateName,size:baked.stdout.length},
-      {name:temporalName,size:temporalBaked.stdout.length}]})};
+      {name:temporalName,size:temporalBaked.stdout.length},
+      {name:footName,size:footBaked.stdout.length}]})};
     for(const entry of entries)seed[`mmd/A/${entry.name}`]=fs.readFileSync(path.join(sourceRoot,'mmd','A',...entry.name.split('/')));
     seed[`mmd/vmd/${motionName}`]=fs.readFileSync(motionPath);
     seed[`mmd/vmd/${candidateName}`]=baked.stdout;
     seed[`mmd/vmd/${temporalName}`]=temporalBaked.stdout;
+    seed[`mmd/vmd/${footName}`]=footBaked.stdout;
     const server=await harness.startServer({port:8898,seed});
     let browser,page;
     try{
@@ -82,9 +90,10 @@ test('constant and temporal FK candidates agree with real PMX preview',
       const original=await place(motionName,0,0);
       const candidate=await place(candidateName,10,original.revision);
       const temporal=await place(temporalName,20,candidate.revision);
-      for(const [index,row] of [original,candidate,temporal].entries())await ok(await fetch(`${server.base}/api/studio/v05/scene/motion-target`,{
+      const foot=await place(footName,30,temporal.revision);
+      for(const [index,row] of [original,candidate,temporal,foot].entries())await ok(await fetch(`${server.base}/api/studio/v05/scene/motion-target`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
-          clip_id:row.clip.id,revision:temporal.revision+index,
+          clip_id:row.clip.id,revision:foot.revision+index,
           instance_id:instanceId})}));
       await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,revision:0,
@@ -113,7 +122,7 @@ test('constant and temporal FK candidates agree with real PMX preview',
       await page.locator('#v70sceneOpen').click();
       await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
         window.BAIStudioMultiScenePreview?.status().loaded===1&&
-        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===3,
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===4,
         null,{timeout:120000});
       await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
       await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'vmd-candidate-ui'));
@@ -175,7 +184,7 @@ test('constant and temporal FK candidates agree with real PMX preview',
       await page.locator('#v70sceneOpen').click();
       await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
         window.BAIStudioMultiScenePreview?.status().loaded===1&&
-        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===3,
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===4,
         null,{timeout:120000});
       await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
       await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'vmd-temporal-ui'));
@@ -201,6 +210,42 @@ test('constant and temporal FK candidates agree with real PMX preview',
       console.log(JSON.stringify({temporalResult}));
       assert.ok(temporalResult.maxPosition<1e-3,`temporal position mismatch at ${temporalResult.worst}`);
       assert.ok(temporalResult.maxRotation<2e-4,`temporal rotation mismatch at ${temporalResult.worst}`);
+      await edit('set',footKey);
+      const footResponse=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
+          revision,instance_id:instanceId,clip_id:original.clip.id})}));
+      assert.ok(footResponse.sampling_report.max_position_error<1e-3);
+      assert.deepEqual(Buffer.from(await (await fetch(server.base+footResponse.download_url)).arrayBuffer()),footBaked.stdout);
+      await page.reload();
+      await page.locator('#v06project').selectOption(projectId);
+      await page.locator('#nav [data-workspace="edit"]').click();
+      await page.locator('#v70sceneOpen').click();
+      await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
+        window.BAIStudioMultiScenePreview?.status().loaded===1&&
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===4,
+        null,{timeout:120000});
+      const footResult=await page.evaluate(instanceId=>{
+        const names=['左足ＩＫ','左足首','右足首'];
+        const diff=(a,b)=>Math.max(...a.map((value,index)=>Math.abs(value-b[index])));
+        const maximum=Object.fromEntries(names.map(name=>[name,0]));
+        let worst=-1;
+        const timeline=window.BAIStudioTimeline,preview=window.BAIStudioMultiScenePreview;
+        for(let frame=0;frame<600;frame++){
+          timeline.seek(frame/60,'vmd-foot-source');
+          const source=preview.poseProbe(instanceId,names);
+          timeline.seek(30+frame/60,'vmd-foot-candidate');
+          const candidate=preview.poseProbe(instanceId,names);
+          for(const name of names){
+            const error=diff(source.bones[name].world.slice(12,15),candidate.bones[name].world.slice(12,15));
+            if(error>maximum[name]){maximum[name]=error;worst=frame;}
+          }
+        }
+        return {maximum,worst,renderer:preview.status().renderer};
+      },instanceId);
+      console.log(JSON.stringify({footResult}));
+      assert.ok(footResult.maximum['左足ＩＫ']<1e-3,`IK target mismatch at ${footResult.worst}`);
+      assert.ok(footResult.maximum['左足首']<1e-3,`IK ankle mismatch at ${footResult.worst}`);
+      assert.ok(footResult.maximum['右足首']<1e-4,`unmodified ankle mismatch at ${footResult.worst}`);
       assert.deepEqual([digest(modelPath),digest(motionPath)],originals);
       assert.equal(baked.stdout.slice(-29).toString('hex'),fs.readFileSync(motionPath).slice(-29).toString('hex'));
     }finally{
