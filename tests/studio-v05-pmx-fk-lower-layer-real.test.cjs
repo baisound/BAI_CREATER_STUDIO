@@ -7,26 +7,31 @@ const crypto=require('node:crypto');
 const harness=require('./helpers/studio-harness.cjs');
 
 const root=process.env.BAI_REAL_MMD_DATA;
-const modelName='Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx';
 const motionName='狐面物理確認用_頭振り_F000-0300.vmd';
-const modelPath=root&&path.join(root,'mmd','A',modelName);
 const motionPath=root&&path.join(root,'mmd','vmd',motionName);
-const available=modelPath&&motionPath&&fs.existsSync(modelPath)&&fs.existsSync(motionPath);
+const models=[
+  {collection:'A',name:'Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx',port:8908},
+  {collection:'B',name:'avatar-front-garment-v04.pmx',port:8909}
+];
 const digest=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 async function ok(reply){const body=await reply.text();assert.equal(reply.status,200,body);return JSON.parse(body);}
 const difference=(a,b)=>Math.max(...a.map((value,index)=>Math.abs(value-b[index])));
 
-test('lower FK layer head rotation is inverted through an active upper correction',
+for(const {collection,name:modelName,port} of models){
+  const modelPath=root&&path.join(root,'mmd',collection,modelName);
+  const available=modelPath&&motionPath&&fs.existsSync(modelPath)&&fs.existsSync(motionPath);
+test(`lower FK layer head rotation is inverted through an active upper correction: ${modelName}`,
   {skip:!available&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:180000},async()=>{
     const originals=[digest(modelPath),digest(motionPath)];
     const metadata=JSON.parse(fs.readFileSync(path.join(root,'mmd_assets.json'),'utf8'));
-    const entries=metadata.A.filter(entry=>entry.name===modelName||entry.name.startsWith('tex/'));
-    const seed={'mmd_assets.json':JSON.stringify({A:entries,B:[],vmd:[
+    const entries=metadata[collection].filter(entry=>entry.name===modelName||entry.name.startsWith('tex/'));
+    const seed={'mmd_assets.json':JSON.stringify({A:collection==='A'?entries:[],
+      B:collection==='B'?entries:[],vmd:[
       {name:motionName,size:fs.statSync(motionPath).size}]})};
-    for(const entry of entries)seed[`mmd/A/${entry.name}`]=fs.readFileSync(
-      path.join(root,'mmd','A',...entry.name.split('/')));
+    for(const entry of entries)seed[`mmd/${collection}/${entry.name}`]=fs.readFileSync(
+      path.join(root,'mmd',collection,...entry.name.split('/')));
     seed[`mmd/vmd/${motionName}`]=fs.readFileSync(motionPath);
-    const server=await harness.startServer({port:8908,seed});
+    const server=await harness.startServer({port,seed});
     let browser,page;
     try{
       const project=await ok(await fetch(`${server.base}/api/studio/v05/projects`,{
@@ -35,7 +40,7 @@ test('lower FK layer head rotation is inverted through an active upper correctio
       const id=project.project.id;
       const scene=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-          project_id:id,action:'add',revision:0,asset_id:`mmd:A:${modelName}`,
+          project_id:id,action:'add',revision:0,asset_id:`mmd:${collection}:${modelName}`,
           transform:{position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]}})}));
       const instance=scene.instances[0].id;
       const placed=await ok(await fetch(`${server.base}/api/studio/v05/arrangement/place`,{
@@ -169,3 +174,4 @@ test('lower FK layer head rotation is inverted through an active upper correctio
       await page?.close().catch(()=>{});await browser?.close().catch(()=>{});await server.stop();
     }
   });
+}

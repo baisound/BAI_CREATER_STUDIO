@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:22:39+09:00",
+  "updated_at": "2026-10-24T20:32:17+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-lower-fk-inverse",
-  "head_at_update": "f8fcd8a",
+  "branch": "codex/v05-motion010-lower-fk-crossmodel",
+  "head_at_update": "14538bb",
   "current": {
-    "task": "Issue #106: MOTION-010 下位FKレイヤーの3D直接編集",
+    "task": "Issue #106: MOTION-010 下位FKの別形状PMX検証と再読込画面調査",
     "status": "done",
-    "step": "後段差分の局所逆算とIK/付与条件の拒否を実PMXで検証",
+    "step": "別形状PMXの下位FK3D編集を実測し、画面再読込の断続的失敗を切り分ける",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 下位FKの別形状PMXと画面再読込の断続的失敗を調べ、既承認の受け入れ条件へ進む"
+    "MOTION-010 下位FKのIK・付与定義を持つ骨の拒否と複数上位同骨レイヤーを実PMXで検査し、残る受け入れ条件へ進む"
   ],
   "unverified": [
-    "別形状PMXの下位FK、複数段、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全AC、画面再読込断続失敗の原因は未確認。順変更O-05は未承認。"
+    "画面再読込断続失敗の原因、異なるIK・付与構成のPMX、複数上位同骨層、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T20:32:17+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "14538bb",
+      "text": "MOTION-010 下位FKを201骨と246骨の実PMXで検証。両方で回転・位置の保存再読込、上位キー保持と別骨拒否を確認。統合4試験通過、原本ハッシュ一致。画面再読込失敗は再現せず診断を追加。"
+    },
+    {
+      "at": "2026-10-24T20:25:06+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e34f1cb",
+      "text": "Issue #106: MOTION-010 下位FKの別形状PMX検証と再読込画面調査: 別形状PMXの下位FK3D編集を実測し、画面再読込の断続的失敗を切り分ける"
+    },
     {
       "at": "2026-10-24T20:22:39+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "35c2555",
       "text": "Issue #106: MOTION-010 手先・肘の3Dハンドル: 既存キーの再編集に対応する腕2キー解法を整え、実ポインタの手先・肘操作を仮表示・保存へ接続する"
-    },
-    {
-      "at": "2026-10-24T17:08:04+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "eb4ab77",
-      "text": "MOTION-010腕・ひじ2キーを同時仮表示し、Esc復帰と画面のキー化ボタンから1 revision・1 Undo保存を隔離実PMXで確認"
-    },
-    {
-      "at": "2026-10-24T17:02:26+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "bfa7865",
-      "text": "Issue #106: MOTION-010 腕IKの2キー仮表示: 腕・ひじの2キーを同時刻に一組として仮評価し、Escで元姿勢へ戻せる画面経路をつなぐ"
     }
   ]
 }
