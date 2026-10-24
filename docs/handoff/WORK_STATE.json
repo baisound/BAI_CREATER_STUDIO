@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T15:40:13+09:00",
+  "updated_at": "2026-10-24T15:46:01+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-knee-pole-design",
-  "head_at_update": "b1a9941",
+  "head_at_update": "8aa42b2",
   "current": {
     "task": "Issue #106: MOTION-010 PMX膝ポール解法の実証",
-    "status": "in_progress",
+    "status": "done",
     "step": "実PMX足IKのCCD挙動と膝制限を測り、保存・VMD往復に一致するポール操作の設計と最小試験を確定する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 膝ポールの3D解法・PMX制限・作品キー・別名VMD往復を同じ条件で設計/検証する",
+    "MOTION-010: 現姿勢へスナップする膝ポールの実ドラッグを太もも回転差分へ解き、保存・Undo/Redo・実PMX/VMD往復で検証する",
     "MOTION-010: 腕IKの3D二関節解と元VMD曲線の物理フラグ保持、候補採用条件を継続する"
   ],
   "unverified": [
-    "表示は膝の定義角度範囲であり制限端接触判定ではない。膝ポール操作、別PMX/PMD、腕IK、ドラッグ中姿勢更新、VRM、実GPU・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
+    "太もも回転による膝方向の実証は1実PMX/VMD・左脚・単一フレームの限定結果。3Dポール操作、角度探索、別PMX/右脚、ドラッグ中姿勢更新、腕IK、VRM、実GPU・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。別名候補は未登録・未配置。AC-M-01/02とMOTION-010全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T15:46:01+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8aa42b2",
+      "text": "Issue #106: 実PMX/VMDで太もも±20°の膝方向差と足首保持を確認し、保存+20°の別名VMD候補を物理OFF全骨900標本で往復検査、膝ポール解法と拒否条件を設計"
+    },
     {
       "at": "2026-10-24T15:40:13+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "10f6afe",
       "text": "Issue #106: MOTION-010 PMX足IKターゲット操作: PMXの実IK定義から足ターゲットを識別し3D位置補正へ接続、足首追従を実素材で確認"
-    },
-    {
-      "at": "2026-10-24T12:37:37+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "978fa26",
-      "text": "Issue #106: 選択PMX骨の3D位置ハンドルを数値位置差分・同一FKキーへ接続。回転→位置→回転、Esc取消、保存再読込、実PMX/VMD画面1件、型/構文検査、元素材/利用者データハッシュ不変を確認。"
     }
   ]
 }
