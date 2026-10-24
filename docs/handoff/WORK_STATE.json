@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:54:46+09:00",
+  "updated_at": "2026-10-25T02:00:00+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-reading-ui",
-  "head_at_update": "c890010",
+  "branch": "codex/v05-lip001-mora-candidates",
+  "head_at_update": "fbe5ca0",
   "current": {
-    "task": "Issue #187: SRT発話の読み・無音を画面で編集",
+    "task": "Issue #187: 確定かなのモーラから口形候補を計算",
     "status": "done",
-    "step": "登録済み発話を選び未確定/提案/確定/明示無音を保存・再読込し原本と分離する",
+    "step": "原SRT半開区間と作品FPSを保ち、促音/撥音/長音/唇閉鎖を候補にし未確定・無音を区別する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #187: 確定かなから半開SRT区間内の母音/Closed/Rest口形候補を作品FPSで計算し、未確定読みの候補採用・最終出力を禁止する"
+    "Issue #187: v0.5画面で選択発話のレビュー用口形候補と警告を表示し、原時刻・読み状態・未採用を区別する"
   ],
   "unverified": [
-    "口形候補の編集、別名モーフVMD書出/再読込、実ユーザーSRT、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
+    "候補の手動境界/強度編集、別名モーフVMD書出/再読込、実ユーザーSRT/歌音声、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:00:00+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "fbe5ca0",
+      "text": "Issue #187 LIP-001: 確定かなの半開SRT区間からモーラ口形候補APIを追加。促音/撥音/長音/唇閉鎖、未確定/無音、24fps・原本hashを隔離HTTPで確認"
+    },
+    {
+      "at": "2026-10-25T01:57:31+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "ffcd391",
+      "text": "Issue #187: 確定かなのモーラから口形候補を計算: 原SRT半開区間と作品FPSを保ち、促音/撥音/長音/唇閉鎖を候補にし未確定・無音を区別する"
+    },
     {
       "at": "2026-10-25T01:54:46+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "2a8a7bc",
       "text": "Issue #175: 登録済みPMX口モーフ解析API: 登録素材ID/hashに限定した読み取り解析APIと保存前のモデル照合を追加する"
-    },
-    {
-      "at": "2026-10-25T00:11:28+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "6cf7804",
-      "text": "Issue #175: PMX口パネルの頂点変位・重なり読み取りを実装し、実PMX A/Bと人工データで2/2検証。Aの母音はグループ、Bの口パネルは0件。"
-    },
-    {
-      "at": "2026-10-25T00:08:09+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "05fdbe1",
-      "text": "Issue #175: 実PMX口モーフの頂点変位解析: PMX実データの頂点変位・重なり解析と数値ゲートを追加する"
     }
   ]
 }
