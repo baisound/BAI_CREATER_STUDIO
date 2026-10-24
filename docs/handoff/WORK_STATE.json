@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T21:45:20+09:00",
+  "updated_at": "2026-10-24T21:47:49+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-fade-flat-boundaries",
-  "head_at_update": "cf63b7d",
+  "branch": "codex/v05-motion010-crossmodel-fade",
+  "head_at_update": "dbafecf",
   "current": {
-    "task": "Issue #106: MOTION-010 平坦境界のなじませ候補",
-    "status": "done",
-    "step": "動く頭骨の前後でなじませを安全に表現できる境界と不要な隣接キーを検証する",
+    "task": "Issue #106: MOTION-010 長尺なじませ候補の別PMX検証",
+    "status": "in_progress",
+    "step": "246骨の別形状PMXと203秒実VMDで平坦境界なじませ候補の全骨往復を確認する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T21:47:49+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "dbafecf",
+      "text": "Issue #106: MOTION-010 長尺なじませ候補の別PMX検証: 246骨の別形状PMXと203秒実VMDで平坦境界なじませ候補の全骨往復を確認する"
+    },
     {
       "at": "2026-10-24T21:45:20+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "4199d64",
       "text": "Issue #106: 部分VMDで骨別複数区間・境界元キー欠落を条件付きで扱い、実PMXの静止入力で採用/復元まで確認"
-    },
-    {
-      "at": "2026-10-24T19:18:54+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f0aebd2",
-      "text": "Issue #106: MOTION-010 部分VMDの複数区間と境界キー欠落: 元キー保持と全区間姿勢の安全条件を設計し、実PMXで検証"
     }
   ]
 }
