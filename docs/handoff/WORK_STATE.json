@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:48:23+09:00",
+  "updated_at": "2026-10-25T00:51:03+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip004-live-preview",
-  "head_at_update": "c65af0f",
+  "branch": "codex/v05-lip004-vertex-candidates",
+  "head_at_update": "eee5b37",
   "current": {
-    "task": "Issue #175: PMX口形対応表の一時プレビュー",
-    "status": "done",
-    "step": "保存前の母音モーフと手動重みを実PMXに一時表示し、元の表情・動作へ戻せることを隔離Chromeで検証する",
+    "task": "Issue #175: 頂点型口モーフの強度候補",
+    "status": "in_progress",
+    "step": "実PMXの頂点変位中央値比から候補を画面へ提示し、グループ・無変位型は手動確認のままにする",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:51:03+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "eee5b37",
+      "text": "Issue #175: 頂点型口モーフの強度候補: 実PMXの頂点変位中央値比から候補を画面へ提示し、グループ・無変位型は手動確認のままにする"
+    },
     {
       "at": "2026-10-25T00:48:23+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "ac2e9fe",
       "text": "MOTION-010 旧300Fカメラと184.5秒実PMX/VMD作品で90秒シークを検証。画面だけ終端F300を保持しHTTP失敗0、既定API範囲外400・原本保持、全身/表情/限定MP4回帰合格"
-    },
-    {
-      "at": "2026-10-24T22:35:48+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f66f1de",
-      "text": "Issue #106: MOTION-010 長尺編集と旧カメラ終端: 旧300Fカメラで90秒へ移動する失敗を再現し、元カメラを保持した境界処理と回帰を確認する"
     }
   ]
 }
