@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T09:37:30+09:00",
+  "updated_at": "2026-10-24T09:41:59+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-design",
-  "head_at_update": "33b29f9",
+  "head_at_update": "a776116",
   "current": {
     "task": "Issue #106: v0.5の任意フレーム骨補正・別名VMD",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存仕様と実装を照合し詳細設計、批評3回、最終判定を記録する",
     "design_doc": "docs/roadmap/RIG_EDITING_SPEC_20261020_JA.md"
   },
   "next_steps": [
-    "この追補PRをmainへ統合し、local mainと8765サーバーの配信を同期する",
-    "順5 MOTION-010の詳細設計・批評3回・判定と足IK品質検証を既存仕様に沿って進める"
+    "設計の段階Aに先立ちPMX/VMD無補正評価のA/B回帰試験を作り、補正注入位置を実PMXで確認する",
+    "段階Aの作品別FK補正・revision/Undo・保存再読込を実装し、実素材と原本ハッシュで検証する"
   ],
   "unverified": [
-    "足裏接触点・足IK適用/補正、全尺の品質、他PMX、実GPU、Linux、MCP、Owner採用は未検証"
+    "MOTION-010の骨編集、IK/ギズモ、VMD焼き込み、他PMX/VRM、実GPU、MCP、Owner採用は未実装・未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T09:41:59+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a776116",
+      "text": "Issue #106: PMX＋VMDの任意フレーム骨補正について既存仕様/実装を照合し、詳細設計・3回の批評・段階A実装入口判定を記録"
+    },
     {
       "at": "2026-10-24T09:37:30+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "7f0a888",
       "text": "Issues #88/#89: HOME JST second display, live timeline cursor and usable zoom; isolated Chrome 4 tests, typecheck, JSON and data hashes passed"
-    },
-    {
-      "at": "2026-10-24T04:54:00+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4778af2",
-      "text": "Issues #88/#89: HOME Japan-time display and media timeline playhead/zoom synchronization: Inspect existing UI, preserve stored timestamps and clip edits, implement display/clock fixes, verify isolated Chrome"
     }
   ]
 }
