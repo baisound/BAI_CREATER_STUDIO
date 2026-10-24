@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:04:44+09:00",
+  "updated_at": "2026-10-24T16:07:11+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-knee-pole-handle",
-  "head_at_update": "2107e45",
+  "branch": "codex/v05-motion010-right-knee-validation",
+  "head_at_update": "b05b31a",
   "current": {
-    "task": "Issue #106: MOTION-010 膝ポール3Dハンドル",
-    "status": "done",
-    "step": "実PMX膝位置へハンドルをスナップし、実ドラッグを太ももFK補正へ解き、Esc・保存・Undo/Redo・VMD往復を隔離検証する",
+    "task": "Issue #106: MOTION-010 右膝ポールの実PMX検証",
+    "status": "in_progress",
+    "step": "右足IKの3Dハンドル実ドラッグ、保存、Undo/Redo、VMD候補の隔離検証を追加する",
     "design_doc": "docs/v05/MOTION010_KNEE_POLE_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T16:07:11+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "b05b31a",
+      "text": "Issue #106: MOTION-010 右膝ポールの実PMX検証: 右足IKの3Dハンドル実ドラッグ、保存、Undo/Redo、VMD候補の隔離検証を追加する"
+    },
     {
       "at": "2026-10-24T16:04:44+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "a2e69f4",
       "text": "Issue #106 MOTION-010: 別名VMD骨区画writerの基盤を追加。未編集骨と非骨suffixのbyte一致、実VMDの隔離再読込を15件の試験で確認。UI/焼き込み/実PMX往復は未接続。"
-    },
-    {
-      "at": "2026-10-24T13:16:41+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "33c9c53",
-      "text": "Issue #106: MOTION-010 補正キーの別名VMD書き出し: 元VMDの骨区画と非骨suffixを保つ検証可能な別名writerを作り、補正評価と実PMX往復に接続する"
     }
   ]
 }
