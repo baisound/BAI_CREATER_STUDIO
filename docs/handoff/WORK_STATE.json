@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T19:29:21+09:00",
+  "updated_at": "2026-10-24T19:43:30+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-multilayer-ui",
-  "head_at_update": "f68f2a9",
+  "head_at_update": "894ece7",
   "current": {
     "task": "Issue #106: MOTION-010 複数補正レイヤーの作品別作成と選択",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存1レイヤー保存との後方互換を保ち、部分VMD複数区間を実PMXで往復検証",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 複数補正レイヤーの作成・保存・画面操作を接続し、部分VMDの複数区間を実PMXで検証する"
+    "MOTION-010: 複数レイヤー重畳中の3D骨ハンドルとソロ切替の評価順・安全条件を設計し、実PMXで検証する"
   ],
   "unverified": [
-    "複数区間は計算単体のみ。動く元曲線の万能な部分/全フレーム変換、物理ON、実GPU、Linux、標準MCP、Owner採用、MOTION-010全ACは未確認"
+    "重畳中の3D骨ハンドル/腕IK編集とソロは未実装。物理ON、実GPU、Linux、標準MCP実通信、Owner採用、MOTION-010全ACは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T19:43:30+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "894ece7",
+      "text": "Issue #106: 同一クリップの複数補正レイヤー作成/選択/保存/削除とタイムライン連携を追加し、2区間の実PMX全骨往復・採用/復元を確認"
+    },
     {
       "at": "2026-10-24T19:29:21+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "a856087",
       "text": "Issue #106: MOTION-010 腕IKの2キー原子的保存: 腕・ひじ2キーを同作品・同フレーム・同レイヤーで一括検証し、1 revision・1 Undoで保存するAPIを追加する"
-    },
-    {
-      "at": "2026-10-24T16:35:55+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "5b2927c",
-      "text": "MOTION-010: 実PMX腕は腕IK定義なし、腕捩・手捩経路とほぼ直線の初期姿勢を隔離Chromeで実測。専用3D二関節解・安定肘ポール・原子的2キー保存のゲートを文書化。腕IK操作は未実装。"
     }
   ]
 }

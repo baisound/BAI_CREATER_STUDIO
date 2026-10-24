@@ -35,17 +35,18 @@ function staticHeadVmd(original){
   return output;
 }
 
-function outsideRecords(bytes,start,end){
+function outsideRecords(bytes,intervals){
   const count=bytes.readUInt32LE(50),result=new Map();
   for(let i=0;i<count;i++){
     const record=bytes.subarray(54+i*111,54+(i+1)*111);
     const frame=record.readUInt32LE(15);
-    if(frame<start||frame>=end)result.set(frame,record.toString('hex'));
+    if(!intervals.some(([start,end])=>start<=frame&&frame<end))
+      result.set(frame,record.toString('hex'));
   }
   return Object.fromEntries(result);
 }
 
-test('24fps interval VMD with missing boundary keys preserves outside bytes and validates on real PMX',
+test('24fps two-layer interval VMD preserves gap bytes and validates on real PMX',
   {skip:!available&&'BAI_REAL_MMD_DATA に別PMXとVMDがありません',timeout:240000},async()=>{
     const originals=[digest(modelPath),digest(originalVmdPath)];
     const source=staticHeadVmd(fs.readFileSync(originalVmdPath));
@@ -88,35 +89,57 @@ test('24fps interval VMD with missing boundary keys preserves outside bytes and 
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:projectId,revision:saved.revision,action:'layer-update',
           instance_id:instanceId,clip_id:placed.clip.id,layer_id:saved.layers[0].id,
-          settings:{start_frame:72,end_frame:192,fade_in_frames:12,fade_out_frames:12}})}));
+          settings:{start_frame:72,end_frame:120,fade_in_frames:12,fade_out_frames:12}})}));
+      const added=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,revision:edited.revision,action:'layer-create',
+          instance_id:instanceId,clip_id:placed.clip.id,
+          settings:{name:'後半の頭補正',start_frame:144,end_frame:192,
+            fade_in_frames:12,fade_out_frames:12}})}));
+      assert.equal(added.layers.length,2);
+      const secondId=added.layers[1].id;
+      const untargeted=await fetch(`${server.base}/api/studio/v05/motion-edits`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,revision:added.revision,action:'set',
+          instance_id:instanceId,clip_id:placed.clip.id,
+          key:{frame:168,bone:'頭',position:[0.01,0,0],rotation:[0,0,0,1]}})});
+      assert.equal(untargeted.status,422);
+      const combined=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,revision:added.revision,action:'set',
+          instance_id:instanceId,clip_id:placed.clip.id,layer_id:secondId,
+          key:{frame:168,bone:'頭',position:[0.01,0,0],rotation:[0,0,0,1]}})}));
+      assert.equal(combined.layers[0].keys.length,1);
+      assert.equal(combined.layers[1].keys.length,1);
       const denseDefault=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-          project_id:projectId,revision:edited.revision,instance_id:instanceId,
+          project_id:projectId,revision:combined.revision,instance_id:instanceId,
           clip_id:placed.clip.id})}));
       assert.equal(denseDefault.export_mode,'whole');
       assert.equal(denseDefault.sampling_report.vmd_frame_span,301);
       const legacy=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-          project_id:projectId,revision:edited.revision,instance_id:instanceId,
+          project_id:projectId,revision:combined.revision,instance_id:instanceId,
           clip_id:placed.clip.id,mode:'legacy_sparse'})}));
       assert.equal(legacy.export_mode,'legacy_sparse');
       const invalidMode=await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-          project_id:projectId,revision:edited.revision,instance_id:instanceId,
+          project_id:projectId,revision:combined.revision,instance_id:instanceId,
           clip_id:placed.clip.id,mode:'unsafe'})});
       assert.equal(invalidMode.status,422);
       const candidate=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-          project_id:projectId,revision:edited.revision,instance_id:instanceId,
+          project_id:projectId,revision:combined.revision,instance_id:instanceId,
           clip_id:placed.clip.id,mode:'interval'})}));
       assert.equal(candidate.export_mode,'interval');
       assert.equal(candidate.sampling_report.start_vmd_frame,90);
       assert.equal(candidate.sampling_report.end_vmd_frame,240);
-      assert.equal(candidate.sampling_report.missing_boundary_keys,2);
-      assert.deepEqual(candidate.sampling_report.intervals,[[90,240]]);
+      assert.equal(candidate.sampling_report.missing_boundary_keys,4);
+      assert.deepEqual(candidate.sampling_report.intervals,[[90,150],[180,240]]);
       assert.equal(candidate.sampling_report.vmd_frame_span,301);
       const output=Buffer.from(await (await fetch(server.base+candidate.download_url)).arrayBuffer());
-      assert.deepEqual(outsideRecords(output,90,240),outsideRecords(source,90,240));
+      assert.deepEqual(outsideRecords(output,[[90,150],[180,240]]),
+        outsideRecords(source,[[90,150],[180,240]]));
       const originalCount=source.readUInt32LE(50),outputCount=output.readUInt32LE(50);
       assert.deepEqual(output.subarray(54+outputCount*111),source.subarray(54+originalCount*111));
       browser=await server.launchBrowser();page=await server.newPage(browser);
@@ -129,10 +152,19 @@ test('24fps interval VMD with missing boundary keys preserves outside bytes and 
         null,{timeout:120000});
       await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
       await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'partial-ui'));
+      await page.locator('#v146-fk-layer-select').selectOption(saved.layers[0].id);
+      await page.locator(`.v106-fk-marker[data-fk-layer="${secondId}"]`).first().click();
+      await page.waitForFunction(id=>document.querySelector('#v146-fk-layer-select')?.value===id,
+        secondId,{timeout:10000});
+      await page.locator('#v146-fk-layer-select').selectOption(secondId);
+      assert.equal(await page.locator('#v146-fk-layer-name').inputValue(),'後半の頭補正');
+      assert.equal(await page.locator('#v106-fk-start').inputValue(),'144');
+      assert.match(await page.locator('#v106-fk-saved').textContent(),/F168 頭/);
       await page.locator('#v143-vmd-export-range').selectOption('interval');
       await page.locator('#v116-vmd-candidate-create').click();
       await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('区間外の原キー'),
         null,{timeout:30000});
+      assert.match(await page.locator('#v116-vmd-candidate-status').textContent(),/F90〜149、F180〜239/);
       const report=await page.evaluate(async({projectId,candidate,fps})=>{
         const {loadLibs}=await import('/studio/js/viewport/model-loader.js');
         const {validatePmxVmdCandidate}=await import('/studio/v05/js/pmx-vmd-candidate-validation-v120.js');
@@ -156,7 +188,7 @@ test('24fps interval VMD with missing boundary keys preserves outside bytes and 
       const adopted=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate/adopt`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:projectId,candidate_id:candidate.candidate_id,
-          edit_revision:edited.revision,arrangement_revision:plan.arrangement_revision,
+          edit_revision:combined.revision,arrangement_revision:plan.arrangement_revision,
           scene_revision:plan.scene_revision,report})}));
       const arrangement=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${projectId}`));
       assert.equal(arrangement.clips[0].asset_id,adopted.asset_id);
@@ -168,6 +200,37 @@ test('24fps interval VMD with missing boundary keys preserves outside bytes and 
           arrangement_revision:arrangement.revision})}));
       const restored=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${projectId}`));
       assert.equal(restored.clips[0].asset_id,`mmd:vmd:${syntheticName}`);
+      await page.locator('#v146-fk-layer-select').selectOption(secondId);
+      await page.locator('#v106-fk-saved').selectOption(JSON.stringify([168,'頭']));
+      await page.locator('#v112-fk-position-x').fill('0.012');
+      await page.locator('#v106-fk-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('FKキーを作品に保存'),
+        null,{timeout:10000});
+      const afterKeyEdit=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(afterKeyEdit.layers[0].keys[0].position[0],0.01);
+      assert.equal(afterKeyEdit.layers[1].keys[0].position[0],0.012);
+      await page.locator('#v146-fk-layer-create').click();
+      await page.waitForFunction(()=>document.querySelector('#v146-fk-layer-select')?.options.length===4,
+        null,{timeout:10000});
+      const thirdId=await page.locator('#v146-fk-layer-select').inputValue();
+      const afterCreate=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(afterCreate.layers.length,3);
+      assert.equal(afterCreate.layers[2].id,thirdId);
+      await page.locator('#v146-fk-layer-name').fill('画面で追加した補正');
+      await page.locator('#v106-fk-start').fill('24');
+      await page.locator('#v106-fk-end').fill('72');
+      await page.locator('#v106-fk-layer-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('レイヤーを保存'),
+        null,{timeout:10000});
+      const afterUpdate=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(afterUpdate.layers[2].name,'画面で追加した補正');
+      assert.equal(afterUpdate.layers[2].start_frame,24);
+      assert.equal(afterUpdate.layers[2].end_frame,72);
+      await page.locator('#v146-fk-layer-delete').click();
+      await page.waitForFunction(()=>document.querySelector('#v146-fk-layer-select')?.options.length===3,
+        null,{timeout:10000});
+      const afterDelete=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(afterDelete.layers.length,2);
       assert.equal(digest(path.join(server.dataDir,'mmd','vmd',syntheticName)),hash(source));
       assert.deepEqual([digest(modelPath),digest(originalVmdPath)],originals);
       harness.assertNoErrors(page);

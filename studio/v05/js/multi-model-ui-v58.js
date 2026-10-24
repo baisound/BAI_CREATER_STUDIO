@@ -141,6 +141,19 @@ const fkSaved=document.createElement('select');fkSaved.id='v106-fk-saved';fkSave
 const fkRemove=document.createElement('button');fkRemove.type='button';fkRemove.id='v106-fk-remove';fkRemove.textContent='選択キーを削除';
 const fkStatus=document.createElement('span');fkStatus.id='v106-fk-status';fkStatus.setAttribute('role','status');
 fkStatus.style.cssText='display:block;color:#c8d9ea';
+const fkLayerPicker=document.createElement('div');fkLayerPicker.id='v146-fk-layer-picker';
+fkLayerPicker.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
+const fkLayerSelect=document.createElement('select');fkLayerSelect.id='v146-fk-layer-select';
+fkLayerSelect.setAttribute('aria-label','編集する補正レイヤー');
+const fkLayerCreate=document.createElement('button');fkLayerCreate.id='v146-fk-layer-create';
+fkLayerCreate.type='button';fkLayerCreate.textContent='レイヤーを追加';
+const fkLayerDelete=document.createElement('button');fkLayerDelete.id='v146-fk-layer-delete';
+fkLayerDelete.type='button';fkLayerDelete.textContent='選択レイヤーを削除';
+const fkLayerName=document.createElement('input');fkLayerName.id='v146-fk-layer-name';
+fkLayerName.type='text';fkLayerName.maxLength=80;fkLayerName.style.width='145px';
+fkLayerName.setAttribute('aria-label','補正レイヤーの名前');
+fkLayerPicker.append(document.createTextNode('補正レイヤー '),fkLayerSelect,fkLayerCreate,
+  fkLayerDelete,document.createTextNode('名前 '),fkLayerName);
 const fkLayerRow=document.createElement('div');fkLayerRow.id='v106-fk-layer';
 fkLayerRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
 const fkWeight=document.createElement('input');fkWeight.id='v106-fk-weight';fkWeight.type='number';fkWeight.min='0';fkWeight.max='100';fkWeight.step='1';fkWeight.value='100';fkWeight.style.width='65px';
@@ -178,7 +191,7 @@ fkRow.append(document.createTextNode('骨 '),fkBone,document.createTextNode('F '
   ...fkAxes.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}° `),input]),
   ...fkPosition.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}位置 `),input]),
   fkPreview,fkSave,fkCancel,fkUndo,fkRedo,fkSaved,fkRemove);
-fkControls.append(fkSummary,fkContext,limbRow,ikRow,armRow,fkRow,fkLayerRow,fkCandidateRow,fkStatus);
+fkControls.append(fkSummary,fkContext,limbRow,ikRow,armRow,fkRow,fkLayerPicker,fkLayerRow,fkCandidateRow,fkStatus);
 const faceLabel=document.createElement('strong');faceLabel.textContent='PMX表情・口';
 const faceName=document.createElement('select');faceName.id='v96-face-name';faceName.setAttribute('aria-label','実PMXのモーフ名');
 const faceTrack=document.createElement('select');faceTrack.id='v98-face-track';
@@ -357,6 +370,13 @@ function activeFkRow(frame=Number(fkFrame.value)){
     motionCoordinator?.status().loadedClips.includes(row.clip_id));
   return candidates.length===1?candidates[0]:null;
 }
+function fkLayersFor(row,instanceId=choose.value||selectedId){
+  return (motionEdits?.layers||[]).filter(item=>!item.disabled&&
+    item.instance_id===instanceId&&item.clip_id===row?.clip_id);
+}
+function selectedFkLayer(row,instanceId=choose.value||selectedId){
+  return fkLayersFor(row,instanceId).find(item=>item.id===fkLayerSelect.value)||null;
+}
 function setFkFrameFromSeek(){
   fkFrame.value=String(Math.max(0,Math.round(currentSeek()*projectFps)));
   redrawFkControls();
@@ -490,14 +510,25 @@ function redrawFkControls(){
   armHandChoose.disabled=armDisabled;armElbowChoose.disabled=armDisabled;
   armStatus.textContent=previewArm?`${previewArm.side}腕を仮表示中。キー化かEscで確定してください。`:
     armBones?'手先・ひじの3Dハンドルを選べます。':armSupport.reason;
-  const layer=motionEdits?.layers?.find(item=>item.instance_id===instanceId&&item.clip_id===row?.clip_id&&!item.disabled);
+  const layers=fkLayersFor(row,instanceId),previousLayer=fkLayerSelect.value;
+  fkLayerSelect.replaceChildren(new Option(layers.length?'レイヤーを選択':'未作成',''));
+  layers.forEach((item,index)=>fkLayerSelect.add(new Option(
+    `${index+1}. ${item.name}（キー${item.keys.length}件）`,item.id)));
+  fkLayerSelect.value=layers.some(item=>item.id===previousLayer)?previousLayer:layers[0]?.id||'';
+  const layer=selectedFkLayer(row,instanceId);
   const first=row?Math.ceil(row.start*projectFps-1e-7):0;
   const end=row?Math.ceil((row.start+row.duration)*projectFps-1e-7):0;
+  fkLayerCreate.disabled=!row||Boolean(previewFk||previewArm)||Boolean(motionEdits?.issues?.length);
+  fkLayerDelete.disabled=!layer||Boolean(previewFk||previewArm);
+  fkLayerSelect.disabled=Boolean(previewFk||previewArm);
+  fkLayerName.value=layer?.name||'';
+  fkLayerName.disabled=!layer||Boolean(previewFk||previewArm);
   fkWeight.value=String(Math.round((layer?.weight??1)*100));
   fkStart.value=String(layer?.start_frame??first);fkEnd.value=String(layer?.end_frame??end);
   fkFadeIn.value=String(layer?.fade_in_frames??0);fkFadeOut.value=String(layer?.fade_out_frames??0);
   fkMuted.checked=Boolean(layer?.muted);fkLayerSave.disabled=!layer||Boolean(previewArm);
-  fkCandidate.disabled=!row||!layer||Boolean(motionEdits?.issues?.length)||Boolean(previewFk||previewArm)||Boolean(candidateValidation);
+  fkCandidate.disabled=!row||!layers.some(item=>item.keys.length)||Boolean(motionEdits?.issues?.length)||
+    Boolean(previewFk||previewArm)||Boolean(candidateValidation);
   fkScope.disabled=Boolean(candidateValidation||previewFk||previewArm);
   fkAdopt.disabled=!candidateReport?.passed||!vmdCandidate||!row||
     row.clip_id!==vmdCandidate.clip_id||motionEdits?.revision!==vmdCandidate.revision||
@@ -572,8 +603,7 @@ function fkGizmoContext(){
 function previewCurrentFk(){
   if(previewArm)throw Error('腕IKの2キー仮表示を先に保存または破棄してください。');
   const {row,frame,key}=fkPayload();
-  const layer=motionEdits?.layers?.find(item=>!item.disabled&&
-    item.instance_id===row.target_scene_instance_id&&item.clip_id===row.clip_id);
+  const layer=selectedFkLayer(row,row.target_scene_instance_id);
   previewFk={projectId:project.value,instanceId:row.target_scene_instance_id,
     clipId:row.clip_id,key:{...key,layer_id:layer?.id||'preview'}};
   applyAllMotionEdits();seekScene(frame/projectFps);redrawFkControls();
@@ -792,7 +822,13 @@ async function writeFk(action,key=null,row=null,extra={}){
   const id=project?.value,revision=motionEdits?.revision;
   if(!id||!opened||!Number.isInteger(revision))throw Error('作品の補正データを再読み込みしてください');
   const body={project_id:id,revision,action};
-  if(row){body.instance_id=row.target_scene_instance_id;body.clip_id=row.clip_id;body.key=key;}
+  if(row){
+    body.instance_id=row.target_scene_instance_id;body.clip_id=row.clip_id;body.key=key;
+    if(['set','arm-set','remove','move'].includes(action)){
+      const selected=selectedFkLayer(row,row.target_scene_instance_id);
+      if(selected)body.layer_id=selected.id;
+    }
+  }
   Object.assign(body,extra);
   if(body.key===null)delete body.key;
   const response=await fetch('/api/studio/v05/motion-edits',{
@@ -805,6 +841,7 @@ async function writeFk(action,key=null,row=null,extra={}){
   seekScene(Number.isFinite(displayTime)&&displayTime>=0?displayTime:currentSeek());
   redrawFkControls();
   window.dispatchEvent(new CustomEvent('bai:v106-fk-saved',{detail:{projectId:id,revision:data.revision}}));
+  return data;
 }
 function seekScene(seconds){
   if(!opened||!motionCoordinator)return;
@@ -1269,8 +1306,7 @@ fkSaved.addEventListener('change',()=>{
   if(!fkSaved.value){fkRemove.disabled=true;return;}
   const [frame,bone]=JSON.parse(fkSaved.value);
   const row=activeFkRow(frame);
-  const layer=motionEdits?.layers?.find(item=>!item.disabled&&item.clip_id===row?.clip_id&&
-    item.instance_id===(choose.value||selectedId));
+  const layer=selectedFkLayer(row);
   const key=layer?.keys.find(item=>item.frame===frame&&item.bone===bone);
   if(!key)return;
   activePole=null;fkFrame.value=String(frame);fkBone.value=bone;
@@ -1284,16 +1320,44 @@ fkRemove.addEventListener('click',async()=>{
   try{
     if(!fkSaved.value)throw Error('削除する保存キーを選択してください');
     const [frame,bone]=JSON.parse(fkSaved.value),row=activeFkRow(frame);
-    const layer=motionEdits?.layers?.find(item=>!item.disabled&&item.clip_id===row?.clip_id&&
-      item.instance_id===(choose.value||selectedId));
+    const layer=selectedFkLayer(row);
     const key=layer?.keys.find(item=>item.frame===frame&&item.bone===bone);
     if(!row||!key)throw Error('保存キーが見つかりません');
     await writeFk('remove',key,row);fkStatus.textContent='FKキーを削除しました';
   }catch(error){fkStatus.textContent='FK削除失敗: '+String(error.message||error);}
 });
+fkLayerSelect.addEventListener('change',()=>{
+  fkSaved.value='';fkStatus.textContent='編集する補正レイヤーを切り替えました';
+  redrawFkControls();
+});
+fkLayerCreate.addEventListener('click',async()=>{
+  const row=activeFkRow();
+  if(!row){fkStatus.textContent='VMDクリップのある作品Fを選択してください';return;}
+  const prior=new Set(fkLayersFor(row).map(layer=>layer.id));
+  fkLayerCreate.disabled=true;
+  try{
+    const data=await writeFk('layer-create',null,row);
+    const created=data.layers.find(layer=>layer.instance_id===row.target_scene_instance_id&&
+      layer.clip_id===row.clip_id&&!prior.has(layer.id));
+    if(!created)throw Error('追加したレイヤーを再読込できません');
+    fkLayerSelect.value=created.id;redrawFkControls();
+    fkStatus.textContent='新しい補正レイヤーを追加しました。区間と名前を設定し、キーを保存できます。';
+  }catch(error){fkStatus.textContent='レイヤー追加失敗: '+String(error.message||error);}
+  finally{redrawFkControls();}
+});
+fkLayerDelete.addEventListener('click',async()=>{
+  const row=activeFkRow(),layer=selectedFkLayer(row);
+  if(!row||!layer){fkStatus.textContent='削除する補正レイヤーを選択してください';return;}
+  fkLayerDelete.disabled=true;
+  try{
+    await writeFk('layer-delete',null,row,{layer_id:layer.id});
+    fkStatus.textContent='選択レイヤーを削除しました。［戻す］で復元できます。';
+  }catch(error){fkStatus.textContent='レイヤー削除失敗: '+String(error.message||error);}
+  finally{redrawFkControls();}
+});
 fkLayerSave.addEventListener('click',async()=>{
   const row=activeFkRow();
-  const layer=motionEdits?.layers?.find(item=>!item.disabled&&item.instance_id===(choose.value||selectedId)&&item.clip_id===row?.clip_id);
+  const layer=selectedFkLayer(row);
   if(!row||!layer){fkStatus.textContent='保存済みレイヤーを選択してください';return;}
   const numbers=[fkWeight,fkStart,fkEnd,fkFadeIn,fkFadeOut].map(input=>Number(input.value));
   if([fkWeight,fkStart,fkEnd,fkFadeIn,fkFadeOut].some(input=>input.value.trim()==='')||
@@ -1302,7 +1366,7 @@ fkLayerSave.addEventListener('click',async()=>{
   }
   fkLayerSave.disabled=true;
   try{await writeFk('layer-update',null,row,{layer_id:layer.id,settings:{
-    weight:numbers[0]/100,start_frame:numbers[1],end_frame:numbers[2],
+    name:fkLayerName.value.trim(),weight:numbers[0]/100,start_frame:numbers[1],end_frame:numbers[2],
     fade_in_frames:numbers[3],fade_out_frames:numbers[4],muted:fkMuted.checked}});
     fkStatus.textContent='FKレイヤーを保存しました';
   }catch(error){fkStatus.textContent='レイヤー保存失敗: '+String(error.message||error);}
@@ -1651,7 +1715,7 @@ window.addEventListener('bai:v106-fk-saved',async event=>{
   }catch(error){fkStatus.textContent='FK補正再読込失敗: '+String(error.message||error);}
 });
 window.addEventListener('bai:v106-fk-key-select',async event=>{
-  const {projectId,instanceId,clipId,key} = event.detail||{};
+  const {projectId,instanceId,clipId,layerId,key} = event.detail||{};
   if(captureMode||projectId!==project?.value||!key)return;
   try{
     await open({composite:true});
@@ -1661,7 +1725,10 @@ window.addEventListener('bai:v106-fk-key-select',async event=>{
     if(window.BAIStudioTimeline?.seek)await window.BAIStudioTimeline.seek(key.frame/projectFps,'fk-key');
     else seekScene(key.frame/projectFps);
     fkControls.open=true;redrawFkControls();
-    const layer=motionEdits?.layers?.find(item=>item.instance_id===instanceId&&item.clip_id===clipId);
+    if(layerId&&[...fkLayerSelect.options].some(option=>option.value===layerId)){
+      fkLayerSelect.value=layerId;redrawFkControls();
+    }
+    const layer=selectedFkLayer(activeFkRow(key.frame),instanceId);
     if(layer?.keys.some(saved=>saved.frame===key.frame&&saved.bone===key.bone)){
       fkSaved.value=JSON.stringify([key.frame,key.bone]);fkSaved.dispatchEvent(new Event('change'));
     }
@@ -1841,9 +1908,9 @@ if(document.modelContext?.registerTool){
      readOnly:true,inputSchema:{type:'object',properties:{project_id:{type:'string'}},
        required:['project_id'],additionalProperties:false},
      async execute({project_id}){return request('/api/studio/v05/motion-edits?id='+encodeURIComponent(project_id));}},
-    {name:'bai_studio_pmx_fk_edits_mutate',description:'Save/remove/move a PMX correction key, atomically save an arm and elbow pair, update its layer or limb edit mode, or undo/redo with revision.',
+    {name:'bai_studio_pmx_fk_edits_mutate',description:'Save/remove/move a PMX correction key in a selected layer, create/update/delete correction layers, edit limb mode, or undo/redo with revision.',
      inputSchema:{type:'object',properties:{project_id:{type:'string'},revision:{type:'integer'},
-       action:{type:'string',enum:['set','arm-set','remove','move','layer-update','mode-set','undo','redo']},instance_id:{type:'string'},clip_id:{type:'string'},
+       action:{type:'string',enum:['set','arm-set','remove','move','layer-create','layer-update','layer-delete','mode-set','undo','redo']},instance_id:{type:'string'},clip_id:{type:'string'},
        limb:{type:'string',enum:['left_arm','right_arm','left_leg','right_leg']},mode:{type:'string',enum:['FK','IK']},
        layer_id:{type:'string'},to_frame:{type:'integer'},settings:{type:'object',properties:{
          name:{type:'string'},weight:{type:'number'},muted:{type:'boolean'},start_frame:{type:'integer'},

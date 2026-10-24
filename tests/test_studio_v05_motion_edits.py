@@ -239,3 +239,62 @@ def test_arm_pair_is_atomic_and_preserves_existing_position(tmp_path, monkeypatc
     redone = edits.mutate(*args, 3, 'redo', [])
     assert redone['revision'] == 4
     assert [key['bone'] for key in redone['layers'][0]['keys']] == ['左ひじ', '左腕']
+
+
+def test_multiple_layers_require_explicit_key_target_and_remain_undoable(tmp_path, monkeypatch):
+    project_id, catalog = project(tmp_path)
+    instance_id, clip_id = str(uuid.uuid4()), str(uuid.uuid4())
+    root = tmp_path / 'edits'
+    model = tmp_path / 'model.pmx'
+    model.write_bytes(b'PMX fixture')
+    context = {'instance_id': instance_id, 'clip_id': clip_id,
+               'model_asset_id': 'pmx', 'motion_asset_id': 'vmd',
+               'model_sha256': 'a' * 64, 'motion_sha256': 'b' * 64,
+               'fps': 60, 'start': 0, 'duration': 10, 'model_path': model}
+    monkeypatch.setattr(edits, '_context', lambda *args: context)
+    monkeypatch.setattr(edits, 'parse_pmx', lambda raw: {'bones_detail': [{'name': '頭'}]})
+    monkeypatch.setattr(edits, 'view', lambda *args: read(root, catalog, project_id))
+    args = (root, tmp_path, tmp_path, tmp_path, tmp_path, catalog, project_id)
+    key1 = {'frame': 240, 'bone': '頭', 'rotation': [0, 0, 0, 1],
+            'position': [0.01, 0, 0]}
+    key2 = {**key1, 'frame': 420, 'position': [0.02, 0, 0]}
+    one = edits.mutate(*args, 0, 'set', [], instance_id=instance_id,
+                       clip_id=clip_id, key=key1)
+    first_id = one['layers'][0]['id']
+    two = edits.mutate(*args, 1, 'layer-create', [], instance_id=instance_id,
+                       clip_id=clip_id, settings={'name': '後半',
+                           'start_frame': 360, 'end_frame': 480,
+                           'fade_in_frames': 30, 'fade_out_frames': 30})
+    assert two['revision'] == 2 and len(two['layers']) == 2
+    second_id = two['layers'][1]['id']
+    assert two['layers'][1]['name'] == '後半'
+    assert two['layers'][0]['keys'] == [key1] and two['layers'][1]['keys'] == []
+    conflicting = json.loads(json.dumps(two))
+    conflicting['layers'][1]['motion_sha256'] = 'c' * 64
+    with pytest.raises(MotionEditError, match='Conflicting'):
+        _record(conflicting, project_id)
+    path = root / (project_id + '.json')
+    before = path.read_bytes()
+    with pytest.raises(MotionEditError, match='Layer ID required'):
+        edits.mutate(*args, 2, 'set', [], instance_id=instance_id,
+                     clip_id=clip_id, key=key2)
+    assert path.read_bytes() == before
+    with pytest.raises(MotionEditError, match='not found'):
+        edits.mutate(*args, 2, 'set', [], instance_id=instance_id,
+                     clip_id=clip_id, layer_id=str(uuid.uuid4()), key=key2)
+    assert path.read_bytes() == before
+    three = edits.mutate(*args, 2, 'set', [], instance_id=instance_id,
+                         clip_id=clip_id, layer_id=second_id, key=key2)
+    assert [layer['keys'] for layer in three['layers']] == [[key1], [key2]]
+    four = edits.mutate(*args, 3, 'layer-update', [], instance_id=instance_id,
+                        clip_id=clip_id, layer_id=first_id,
+                        settings={'start_frame': 180, 'end_frame': 300,
+                                  'fade_in_frames': 30, 'fade_out_frames': 30})
+    assert four['layers'][0]['start_frame'] == 180
+    assert four['layers'][1]['start_frame'] == 360
+    five = edits.mutate(*args, 4, 'layer-delete', [], instance_id=instance_id,
+                        clip_id=clip_id, layer_id=second_id)
+    assert len(five['layers']) == 1 and five['layers'][0]['id'] == first_id
+    restored = edits.mutate(*args, 5, 'undo', [])
+    assert len(restored['layers']) == 2 and restored['layers'][1]['keys'] == [key2]
+    assert read(root, catalog, project_id)['history']['redo']
