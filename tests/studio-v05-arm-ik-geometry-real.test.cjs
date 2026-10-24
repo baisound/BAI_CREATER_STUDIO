@@ -63,6 +63,8 @@ test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
       '右腕','右腕捩','右ひじ','右手捩','右手首'];
     const pose=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
       input.instanceId,input.names),{instanceId,names});
+    const unchangedBefore=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['頭','上半身']),{instanceId});
     const position=name=>pose.bones[name].world.slice(12,15);
     const measured={};
     for(const side of ['左','右']){
@@ -100,6 +102,22 @@ test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
       assert.ok(Math.abs(distance(solved.elbowTarget,shoulder)-solved.upper)<1e-8);
       assert.ok(Math.abs(distance(solved.elbowTarget,solved.wristTarget)-solved.lower)<1e-8);
     }
+    const armProbes={};
+    for(const side of ['左','右']){
+      const shoulder=position(side+'腕'),wrist=position(side+'手首');
+      const direct=distance(shoulder,wrist);
+      const target=shoulder.map((value,index)=>value+(wrist[index]-value)*(direct-0.04)/direct);
+      armProbes[side]=await page.evaluate(input=>
+        window.BAIStudioMultiScenePreview.armIkProbe(input.instanceId,input.side,
+          input.target,input.fallbackPole),
+      {instanceId,side,target,fallbackPole:[shoulder[0],shoulder[1],
+        shoulder[2]+(side==='左'?1:-1)]});
+      assert.equal(armProbes[side].frame,240);
+      assert.ok(armProbes[side].residual<1e-3);
+      assert.ok(armProbes[side].elbowResidual<1e-3);
+      assert.ok(armProbes[side].restoreDifference<1e-8);
+      assert.ok(armProbes[side].keys.every(key=>key.rotation.every(Number.isFinite)));
+    }
     const endpoint=`${server.base}/api/studio/v05/motion-edits`;
     const post=body=>fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({project_id:id,...(!['undo','redo'].includes(body.action)?
@@ -107,20 +125,43 @@ test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
     const head={frame:240,bone:'頭',rotation:[0,0,0,1]};
     const first=await ok(await post({revision:0,action:'set',key:head}));
     assert.equal(first.revision,1);
-    const arm={frame:240,bone:'左腕',rotation:[0,0,0,1]};
-    const elbow={frame:240,bone:'左ひじ',rotation:[0,0,0,1]};
-    const paired=await ok(await post({revision:1,action:'arm-set',keys:[arm,elbow]}));
+    const paired=await ok(await post({revision:1,action:'arm-set',keys:armProbes['左'].keys}));
     assert.equal(paired.revision,2);
     assert.deepEqual(paired.layers[0].keys.map(key=>key.bone),['左ひじ','左腕','頭']);
-    const invalid=await post({revision:2,action:'arm-set',keys:[arm,{...elbow,frame:241}]});
+    const rightPair=await ok(await post({revision:2,action:'arm-set',keys:armProbes['右'].keys}));
+    assert.equal(rightPair.revision,3);
+    await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
+      window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
+      null,{timeout:120000});
+    await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'arm-local-rotation'));
+    const edited=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,input.names),{instanceId,names:[...names,'頭','上半身']});
+    for(const side of ['左','右']){
+      const actual=edited.bones[side+'手首'].world.slice(12,15);
+      console.log(`${side} 腕IK: 直接残差=${armProbes[side].residual}, `+
+        `保存再評価残差=${distance(actual,armProbes[side].wristTarget)}, `+
+        `復元差=${armProbes[side].restoreDifference}`);
+      assert.ok(distance(actual,armProbes[side].wristTarget)<1e-3,
+        `${side}手首の付与後残差 ${distance(actual,armProbes[side].wristTarget)}`);
+    }
+    for(const name of ['頭','上半身']){
+      const original=unchangedBefore.bones[name],current=edited.bones[name];
+      assert.ok(original&&current);
+      assert.ok(distance(original.world.slice(12,15),current.world.slice(12,15))<1e-4);
+      assert.ok(original.world.every((value,index)=>Math.abs(value-current.world[index])<1e-4));
+    }
+    const invalid=await post({revision:3,action:'arm-set',keys:[
+      armProbes['左'].keys[0],{...armProbes['左'].keys[1],frame:241}]});
     assert.equal(invalid.status,422);
-    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,2);
-    const undo=await ok(await post({revision:2,action:'undo'}));
-    assert.equal(undo.revision,3);
-    assert.deepEqual(undo.layers[0].keys.map(key=>key.bone),['頭']);
-    const redo=await ok(await post({revision:3,action:'redo'}));
-    assert.equal(redo.revision,4);
-    assert.deepEqual(redo.layers[0].keys.map(key=>key.bone),['左ひじ','左腕','頭']);
+    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,3);
+    const undo=await ok(await post({revision:3,action:'undo'}));
+    assert.equal(undo.revision,4);
+    assert.deepEqual(undo.layers[0].keys.map(key=>key.bone),['左ひじ','左腕','頭']);
+    const redo=await ok(await post({revision:4,action:'redo'}));
+    assert.equal(redo.revision,5);
+    assert.deepEqual(redo.layers[0].keys.map(key=>key.bone),
+      ['右ひじ','右腕','左ひじ','左腕','頭']);
     harness.assertNoErrors(page);
   }finally{
     await page?.close();await browser?.close();await server.stop();

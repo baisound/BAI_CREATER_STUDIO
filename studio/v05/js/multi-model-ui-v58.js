@@ -1,6 +1,7 @@
 import {createSpatialEditor} from './spatial-ui-v61.js';
 import {createPmxBonePicker} from './pmx-bone-picker-v110.js';
 import {createPmxFkRotate} from './pmx-fk-rotate-v111.js';
+import {solveArmLocalRotations} from './arm-ik-rotation-v135.mjs';
 import {listPmxIkTargets} from './pmx-ik-targets-v114.js';
 /* v58 - real multi-instance Three.js preview.
  * Uses a single viewport renderer and physically separate loaded objects
@@ -1449,6 +1450,43 @@ window.BAIStudioMultiScenePreview=Object.freeze({
         world:node.matrixWorld.elements.slice()};
     });
     return {projectId:project?.value,instanceId,bones};
+  },
+  // Read-only solver probe for the supported PMX arm chain. The returned pair
+  // is tested through the normal arm-set API before exposing a hand handle.
+  armIkProbe(instanceId,side,handTarget,fallbackPole){
+    if(!opened||!['左','右'].includes(side)||!Array.isArray(handTarget)||
+        !Array.isArray(fallbackPole)||previewFk||motionEdits?.issues?.length)
+      throw Error('腕IKの診断条件が揃っていません。');
+    const target=controller?.getLoaded(instanceId),skeleton=target?.object?.skeleton;
+    if(target?.format!=='PMX'||!skeleton||
+        sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked)
+      throw Error('未ロックの実PMXを選んでください。');
+    const names=[side+'腕',side+'ひじ',side+'手首'];
+    const found=names.map(name=>skeleton.bones.filter(bone=>bone.name===name));
+    if(found.some(matches=>matches.length!==1))throw Error('腕・ひじ・手首の骨名が一意ではありません。');
+    const shownSeconds=Number(seekInput.value);
+    const frame=Math.round(shownSeconds*projectFps),row=activeFkRow(frame);
+    if(!row||row.target_scene_instance_id!==instanceId||
+        Math.abs(shownSeconds-frame/projectFps)>1/(projectFps*100))
+      throw Error('VMDがある作品フレームへ移動してください。');
+    const layers=(motionEdits?.layers||[]).filter(layer=>!layer.disabled&&
+      layer.instance_id===instanceId&&layer.clip_id===row.clip_id);
+    if(layers.length>1||layers.some(layer=>layer.keys.some(key=>
+        names.slice(0,2).includes(key.bone))))
+      throw Error('この腕には既存補正があり、診断では上書きしません。');
+    const before=worldBonePose(target);
+    const result=solveArmLocalRotations({THREE:target.libs.THREE,object:target.object,
+      arm:found[0][0],elbow:found[1][0],wrist:found[2][0],
+      target:handTarget,fallbackPole});
+    const difference=worldPoseDifference(before,worldBonePose(target));
+    if(difference>1e-8)throw Error('腕IK診断後に元姿勢を復元できません。');
+    const THREE=target.libs.THREE;
+    const delta=(base,local)=>new THREE.Quaternion().fromArray(base).invert()
+      .multiply(new THREE.Quaternion().fromArray(local)).normalize().toArray();
+    return {frame,clipId:row.clip_id,instanceId,side,
+      keys:[{frame,bone:names[0],rotation:delta(result.armBase,result.armLocal)},
+        {frame,bone:names[1],rotation:delta(result.elbowBase,result.elbowLocal)}],
+      ...result,restoreDifference:difference};
   },
   morphProbe(instanceId){
     const target=controller?.getLoaded(instanceId);
