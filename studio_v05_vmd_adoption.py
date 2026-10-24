@@ -45,13 +45,19 @@ def _metadata(root, project_id, candidate_id):
     return source, path, record
 
 
-def _report(report, start, duration, fps):
+def _report(report, start, duration, fps, record=None):
     if not isinstance(report, dict) or report.get('passed') is not True:
         raise AdoptionError('Passing real-PMX browser report required')
     first = math.ceil(start * fps - 1e-7)
     end = math.ceil((start + duration) * fps - 1e-7)
     vmd_first = math.ceil(start * 30 - 1e-7)
     vmd_end = math.ceil((start + duration) * 30 - 1e-7)
+    sampling = (record or {}).get('sampling_report') or {}
+    if (record or {}).get('export_mode') == 'whole' and sampling.get('mode') == 'whole':
+        span = sampling.get('vmd_frame_span')
+        if type(span) is not int or not 1 <= span <= 18001:
+            raise AdoptionError('Dense VMD candidate span is invalid')
+        vmd_end = max(vmd_end, vmd_first + span)
     if (type(report.get('checkedFrames')) is not int or report['checkedFrames'] != end - first or
             type(report.get('checkedVmdFrames')) is not int or
             report['checkedVmdFrames'] != vmd_end - vmd_first or
@@ -147,7 +153,7 @@ def adopt(candidate_root, edit_root, data_root, scene_root, legacy_root,
             if not prior or prior['model_sha256'] != metadata['model_sha256'] or \
                     prior['motion_sha256'] != metadata['source_motion_sha256']:
                 raise AdoptionError('Saved correction no longer matches candidate')
-            checked = _report(report, prior['start'], prior['duration'], prior['fps'])
+            checked = _report(report, prior['start'], prior['duration'], prior['fps'], metadata)
             asset_id = _ensure_registered(candidate, metadata, mmd_root, mmd_index)
             metadata.update(status='browser_validated_adopted', registered_asset=asset_id,
                             placed_in_project=True,
@@ -171,7 +177,7 @@ def adopt(candidate_root, edit_root, data_root, scene_root, legacy_root,
         if context['model_sha256'] != metadata['model_sha256'] or \
                 context['motion_sha256'] != metadata['source_motion_sha256']:
             raise AdoptionError('PMX or original VMD changed after candidate creation')
-        checked = _report(report, context['start'], context['duration'], context['fps'])
+        checked = _report(report, context['start'], context['duration'], context['fps'], metadata)
         source_asset_id = clip['asset_id']
         original_name = clip['name']
         asset_id = _ensure_registered(candidate, metadata, mmd_root, mmd_index)

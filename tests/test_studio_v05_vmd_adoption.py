@@ -158,6 +158,19 @@ def test_stale_or_failed_report_writes_nothing(tmp_path, monkeypatch):
     assert not (f['data_root'] / 'mmd_assets.json').exists()
 
 
+def test_dense_candidate_adoption_requires_real_pmx_tail_coverage():
+    record = {'export_mode': 'whole', 'sampling_report': {
+        'mode': 'whole', 'vmd_frame_span': 301}}
+    report = {'passed': True, 'checkedFrames': 150, 'checkedVmdFrames': 150,
+              'bones': 20, 'maxPosition': 0, 'maxAngle': 0,
+              'positionClock': '作品', 'positionFrame': 0, 'positionBone': '頭',
+              'angleClock': 'VMD', 'angleFrame': 0, 'angleBone': '頭'}
+    with pytest.raises(adoption.AdoptionError, match='whole clip'):
+        adoption._report(report, 0, 5, 30, record)
+    assert adoption._report({**report, 'checkedVmdFrames': 301}, 0, 5, 30,
+                            record)['checkedVmdFrames'] == 301
+
+
 def test_source_change_blocks_adoption_and_restore(tmp_path, monkeypatch):
     f = _fixture(tmp_path, monkeypatch)
     f['candidate'].write_bytes(b'tampered')

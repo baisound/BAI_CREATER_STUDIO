@@ -61,7 +61,7 @@ test('24000/1001 fps candidate agrees with a second real PMX across all bones',
       revision++;
       const candidate=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
-          revision,instance_id:instanceId,clip_id:placed.clip.id})}));
+          revision,instance_id:instanceId,clip_id:placed.clip.id,mode:'legacy_sparse'})}));
       assert.ok(candidate.replaced_bone_keys+candidate.added_bone_keys>0);
       assert.equal(candidate.sampling_report.checked_project_frames,240);
       browser=await server.launchBrowser();page=await server.newPage(browser);

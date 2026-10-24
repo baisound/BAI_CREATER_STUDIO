@@ -154,15 +154,16 @@ const fkCandidateRow=document.createElement('div');fkCandidateRow.id='v116-vmd-c
 fkCandidateRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
 const fkScope=document.createElement('select');fkScope.id='v143-vmd-export-range';
 fkScope.setAttribute('aria-label','VMD書き出し範囲');
-fkScope.add(new Option('通常候補（クリップ全区間を検査）','whole'));
+fkScope.add(new Option('全フレーム（元VMDの最終骨キーまで）','whole'));
 fkScope.add(new Option('修正区間のみ（区間外キーを保持）','interval'));
+fkScope.add(new Option('旧方式（元キーと補正点のみ）','legacy_sparse'));
 const fkCandidate=document.createElement('button');fkCandidate.id='v116-vmd-candidate-create';
 fkCandidate.type='button';fkCandidate.textContent='別名VMD候補を作成';
 const fkCandidateLink=document.createElement('a');fkCandidateLink.id='v116-vmd-candidate-download';
 fkCandidateLink.textContent='検証前の候補をダウンロード';fkCandidateLink.hidden=true;
 const fkCandidateStatus=document.createElement('small');fkCandidateStatus.id='v116-vmd-candidate-status';
 fkCandidateStatus.setAttribute('role','status');
-fkCandidateStatus.textContent='保存済み補正から候補を作成し、実PMXで全フレーム検査できます。';
+fkCandidateStatus.textContent='保存済み補正を元VMDの最終骨キーまで毎フレームキー化し、作品内の全フレームを実PMXで検査できます。';
 const fkValidate=document.createElement('button');fkValidate.id='v120-vmd-candidate-validate';
 fkValidate.type='button';fkValidate.textContent='実PMXで全骨・全Fを検査';fkValidate.disabled=true;
 const fkAdopt=document.createElement('button');fkAdopt.id='v141-vmd-candidate-adopt';
@@ -1328,7 +1329,8 @@ fkCandidate.addEventListener('click',async()=>{
     const gate=sampling?`作品${sampling.checked_project_frames}Fを30fps候補と比較し、局所位置最大${sampling.max_position_error.toExponential(2)}・角度最大${sampling.max_angle_error_degrees.toExponential(2)}°。`:'';
     const scope=data.export_mode==='interval'?
       `修正区間VMD F${sampling?.start_vmd_frame}〜${sampling?.end_vmd_frame}のみ、区間外の原キー${sampling?.outside_original_records}件をバイト保持。`:
-      '通常候補。';
+      data.export_mode==='legacy_sparse'?'旧方式の疎な候補。':
+      `全フレームVMD F0〜${(sampling?.vmd_frame_span??1)-1}をキー化。元VMDが配置クリップより長い場合、後続${sampling?.checked_source_tail_vmd_frames??0}Fも原姿勢と照合。`;
     fkCandidateStatus.textContent=`${scope}別名候補を作成。骨${data.replaced_bone_keys}件を更新、${data.added_bone_keys}件を追加。${gate}元VMDは不変。実PMX往復の確認前で、作品への配置はしていません。`;
     fkValidate.disabled=false;
   }catch(error){fkCandidateStatus.textContent='候補作成不可: '+String(error.message||error);}
@@ -1339,7 +1341,8 @@ fkScope.addEventListener('change',()=>{
   fkCandidateLink.hidden=true;fkValidate.disabled=true;fkAdopt.disabled=true;
   fkCandidateStatus.textContent=fkScope.value==='interval'?
     '修正区間だけの候補は、30fps境界に元VMDキーがあり、区間外キーと全フレーム姿勢を保てる入力に限ります。':
-    '保存済み補正から通常候補を作成し、実PMXで全フレーム検査できます。';
+    fkScope.value==='legacy_sparse'?'旧方式では元キーと補正点だけを書き、作品内の全フレームを実PMXで検査します。':
+    '保存済み補正を元VMDの最終骨キーまで毎フレームキー化し、作品内の全フレームを実PMXで検査できます。';
   redrawFkControls();
 });
 fkValidate.addEventListener('click',async()=>{
