@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T02:22:42+09:00",
+  "updated_at": "2026-10-25T02:24:25+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-export-candidate",
-  "head_at_update": "8cf3869",
+  "branch": "codex/v05-lip001-export-ui",
+  "head_at_update": "0d1d96d",
   "current": {
-    "task": "Issue #187: 確定口形から別名モーフVMD候補を生成",
-    "status": "done",
-    "step": "確定読み・警告・下書き・PMX MorphMapを照合して衝突なし候補のみ原本と別に保存する",
+    "task": "Issue #187: v0.5から別名モーフVMD候補を出力",
+    "status": "in_progress",
+    "step": "確定MorphMap選択・dry-run・候補生成・ダウンロードをSRT画面へ接続し実Chromeで確認する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:24:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0d1d96d",
+      "text": "Issue #187: v0.5から別名モーフVMD候補を出力: 確定MorphMap選択・dry-run・候補生成・ダウンロードをSRT画面へ接続し実Chromeで確認する"
+    },
     {
       "at": "2026-10-25T02:22:42+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "c65af0f",
       "text": "Issue #175: 実PMXの口形を保存前に一時表示し、あ0.8/0.4の描画差と復元・時刻移動での解除を隔離Chrome1/1で確認。原本hash一致。LIP-004は部分実装"
-    },
-    {
-      "at": "2026-10-25T00:44:02+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7ca8727",
-      "text": "Issue #175: PMX口形対応表の一時プレビュー: 保存前の母音モーフと手動重みを実PMXに一時表示し、元の表情・動作へ戻せることを隔離Chromeで検証する"
     }
   ]
 }
