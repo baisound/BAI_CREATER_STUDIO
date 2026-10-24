@@ -115,7 +115,7 @@ def test_fk_ik_mode_migrates_legacy_without_keys_or_undo(tmp_path, monkeypatch):
     with pytest.raises(MotionEditError, match='Revision conflict'):
         edits.mutate(*args, 3, 'mode-set', [], instance_id=instance_id,
                      clip_id=clip_id, limb='left_leg', mode='IK')
-    with pytest.raises(MotionEditError, match='Arm IK solver'):
+    with pytest.raises(MotionEditError, match='Canonical PMX arm'):
         edits.mutate(*args, 4, 'mode-set', [], instance_id=instance_id,
                      clip_id=clip_id, limb='left_arm', mode='IK')
     restored = edits.mutate(*args, 4, 'mode-set', [], instance_id=instance_id,
@@ -123,6 +123,53 @@ def test_fk_ik_mode_migrates_legacy_without_keys_or_undo(tmp_path, monkeypatch):
     assert restored['revision'] == 5
     assert restored['fk_ik_modes'][instance_id]['left_leg'] == 'IK'
     assert not restored['can_undo'] and restored['layers'] == []
+
+
+def test_arm_edit_mode_requires_real_chain_and_preserves_keys_and_undo(tmp_path, monkeypatch):
+    project_id, catalog = project(tmp_path)
+    instance_id, clip_id = str(uuid.uuid4()), str(uuid.uuid4())
+    root = tmp_path / 'edits'
+    model = tmp_path / 'model.pmx'
+    model.write_bytes(b'PMX fixture')
+    monkeypatch.setattr(edits, '_context', lambda *args: {'model_path': model})
+    bones = [
+        {'name': '左腕', 'parent_index': -1},
+        {'name': '左腕捩', 'parent_index': 0},
+        {'name': '左ひじ', 'parent_index': 1},
+        {'name': '左手捩', 'parent_index': 2},
+        {'name': '左手首', 'parent_index': 3},
+        {'name': '右腕', 'parent_index': -1},
+        {'name': '右ひじ', 'parent_index': 5},
+        {'name': '右手首', 'parent_index': 6},
+    ]
+    monkeypatch.setattr(edits, 'parse_pmx', lambda raw: {'bones_detail': bones})
+    args = (root, tmp_path, tmp_path, tmp_path, tmp_path, catalog, project_id)
+    before = read(root, catalog, project_id)
+    for limb, mode, revision in [('left_arm', 'IK', 0), ('right_arm', 'IK', 1),
+                                  ('left_arm', 'FK', 2)]:
+        after = edits.mutate(*args, revision, 'mode-set', [], instance_id=instance_id,
+                             clip_id=clip_id, limb=limb, mode=mode)
+        assert after['revision'] == revision + 1
+        assert after['layers'] == before['layers']
+        assert not after['can_undo'] and not after['can_redo']
+        assert read(root, catalog, project_id)['history'] == before['history']
+    assert after['fk_ik_modes'][instance_id] == {'left_arm': 'FK', 'right_arm': 'IK'}
+    unchanged = edits.mutate(*args, 3, 'mode-set', [], instance_id=instance_id,
+                              clip_id=clip_id, limb='left_arm', mode='FK')
+    assert unchanged['revision'] == 3
+    saved = (root / (project_id + '.json')).read_bytes()
+    bones[7]['parent_index'] = -1
+    with pytest.raises(MotionEditError, match='arm IK chain'):
+        edits.mutate(*args, 3, 'mode-set', [], instance_id=instance_id,
+                     clip_id=clip_id, limb='right_arm', mode='IK')
+    assert (root / (project_id + '.json')).read_bytes() == saved
+    bones[7]['parent_index'] = 6
+    bones.append({'name': '右手IK', 'parent_index': -1,
+                  'ik': {'target_index': 7, 'links': [{'bone_index': 6}]}})
+    with pytest.raises(MotionEditError, match='arm IK chain'):
+        edits.mutate(*args, 3, 'mode-set', [], instance_id=instance_id,
+                     clip_id=clip_id, limb='right_arm', mode='IK')
+    assert (root / (project_id + '.json')).read_bytes() == saved
 
 
 def test_fk_ik_mode_invalid_file_keeps_original(tmp_path):
