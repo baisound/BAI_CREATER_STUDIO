@@ -907,6 +907,8 @@ Issues #63/#69（2026-10-24）：保存済みGLBシーンを同じ作品の画�
 **依存:** MOTION,DATA  
   **確認状態:** 部分実装。v0.5のSRT原本登録、読み/明示無音、口形候補と手動下書きを隔離HTTP/Chromeで保存再読込済み。別名モーフ専用VMD候補を画面で生成・取得し、実PMXで確認。出力不能箇所は発話別・原因別に一覧表示する。候補を3Dモデルへ明示採用・解除・Undo/Redoし、元VMD・採用口形・手動0キーの優先表示と原SRT区間外での復帰を隔離実PMXで確認。[原本API](../v05/LIP001_SRT_SOURCE_IMPORT_20261025_JA.md)、[原本画面](../v05/LIP001_SRT_SOURCE_UI_20261025_JA.md)、[読み保存](../v05/LIP001_UTTERANCE_READING_STORE_20261025_JA.md)、[読み画面](../v05/LIP001_UTTERANCE_READING_UI_20261025_JA.md)、[口形候補API](../v05/LIP001_MORA_CANDIDATES_20261025_JA.md)、[候補画面](../v05/LIP001_CANDIDATE_UI_20261025_JA.md)、[手動下書き](../v05/LIP001_MOUTH_DRAFT_20261025_JA.md)、[VMDバイナリ](../v05/LIP001_MORPH_VMD_CODEC_20261025_JA.md)、[作品別候補API](../v05/LIP001_MORPH_VMD_CANDIDATE_20261025_JA.md)、[画面/実PMX試験](../v05/LIP001_MORPH_VMD_EXPORT_UI_20261025_JA.md)、[診断一覧](../v05/LIP001_EXPORT_DIAGNOSTICS_20261025_JA.md)、[採用と優先表示](../v05/LIP001_ADOPTION_OVERLAY_20261025_JA.md)。元VMDと口形の合成VMD出力、実歌音声同期、MCPは未実装・未検証。
 
+**同日追加のバイナリ基盤:** [元VMDのモーフ区画だけを書き換える試験](../v05/LIP001_VMD_MORPH_REWRITE_20261025_JA.md)。骨・カメラ等をバイト保持し、実長尺VMDを構造再読込した。採用口形と手動表情の時間合成・実PMX往復は未実装で、LIP-001全体は部分実装のまま。
+
 **目的・要求:** 字幕時刻と日本語読み/母音推定。
 
 **実装チェック:** 手動UI操作、共通API、WebMCPツール、標準MCPツール、設定永続化、Undo/Redo対象、例外/権限処理、テスト、文書を同一IDで紐付ける。
