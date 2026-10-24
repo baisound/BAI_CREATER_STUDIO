@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:45:44+09:00",
+  "updated_at": "2026-10-24T16:49:47+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-arm-geometry",
-  "head_at_update": "20eae37",
+  "head_at_update": "25f9165",
   "current": {
     "task": "Issue #106: MOTION-010 腕IKの3D幾何",
-    "status": "in_progress",
+    "status": "done",
     "step": "実PMXのほぼ直線の腕を含む二関節3D到達・ポール選択・到達不能判定を純粋な関数として実装し、左右・境界を検証する",
     "design_doc": "docs/v05/MOTION010_ARM_IK_FEASIBILITY_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 腕・ひじ2キーを同時に仮表示する経路と実PMX 3D二関節解を実装・検証する",
-    "MOTION-010: 手先・肘ハンドル、Esc・再読込、元VMD曲線/物理フラグ保持と候補採用条件を検証する"
+    "MOTION-010: 幾何目標を実PMXの腕・ひじローカル回転差分へ変換し、捩り・付与後の手首残差と未編集骨を検証する",
+    "MOTION-010: 2キー同時仮表示と手先・肘ハンドル、Esc・保存・VMD往復を接続する"
   ],
   "unverified": [
-    "arm-setの単体/HTTP保存は確認済み。WebMCP実呼出し、標準MCP、腕IKの3D解・手動UI・実手先到達・別名VMD往復、任意PMX/VRM、物理ON、実GPU、Linux、Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
+    "二関節幾何の目標位置は左右実PMXで確認済み。実骨回転、付与後手首到達、キー化・手動UI、任意PMX、物理ON、実GPU、Linux、標準MCP、Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T16:49:47+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "25f9165",
+      "text": "MOTION-010: 実PMXのほぼ直線の左右腕に対応する3D二関節目標幾何を純粋関数で実装。骨長・到達境界・予備ポールを単体4件、実PMX/Chrome1件、静的配信6件で検証。実骨回転と手動ハンドルは未接続。"
+    },
     {
       "at": "2026-10-24T16:45:44+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "5483e1d",
       "text": "Issue #106: MOTION-010 実PMX全骨VMD候補検証: 候補VMDを独立PMXへ読み込み作品フレームごとの全骨差を検査する"
-    },
-    {
-      "at": "2026-10-24T14:10:57+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9a541ac",
-      "text": "MOTION-010の24fps前後なじませ候補で不要な30fps境界を省き、実PMX頭骨240作品フレーム往復と元曲線分断の拒否を確認。Python32件・隔離Chrome24fps/60fps各1件成功。"
     }
   ]
 }

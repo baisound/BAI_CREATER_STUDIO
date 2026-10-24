@@ -86,6 +86,20 @@ test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
       assert.ok(measured[side].twistBeforeWrist>0.02);
     }
     console.log(JSON.stringify(measured));
+    for(const side of ['左','右']){
+      const shoulder=position(side+'腕'),elbow=position(side+'ひじ'),wrist=position(side+'手首');
+      const direct=distance(shoulder,wrist);
+      const target=shoulder.map((value,index)=>value+(wrist[index]-value)*(direct-0.04)/direct);
+      const fallbackPole=[shoulder[0],shoulder[1],shoulder[2]+(side==='左'?1:-1)];
+      const solved=await page.evaluate(async input=>{
+        const {solveArmGeometry}=await import('/studio/v05/js/arm-ik-geometry-v134.mjs');
+        return solveArmGeometry(input);
+      },{shoulder,elbow,wrist,target,fallbackPole});
+      assert.equal(solved.poleSource,'fallback');
+      assert.ok(distance(solved.wristTarget,target)<1e-8);
+      assert.ok(Math.abs(distance(solved.elbowTarget,shoulder)-solved.upper)<1e-8);
+      assert.ok(Math.abs(distance(solved.elbowTarget,solved.wristTarget)-solved.lower)<1e-8);
+    }
     const endpoint=`${server.base}/api/studio/v05/motion-edits`;
     const post=body=>fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({project_id:id,...(!['undo','redo'].includes(body.action)?
