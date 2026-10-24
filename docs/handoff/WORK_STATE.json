@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:00:20+09:00",
+  "updated_at": "2026-10-24T22:02:56+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-long-24fps",
-  "head_at_update": "574a79a",
+  "branch": "codex/v05-motion010-long-fractional-fps",
+  "head_at_update": "d0ed2b0",
   "current": {
-    "task": "Issue #106: MOTION-010 長尺VMDの24fps候補検証",
-    "status": "done",
-    "step": "203秒実VMDと実PMXで24fps長尺なじませ候補の全骨往復を検証する",
+    "task": "Issue #106: MOTION-010 長尺VMDの分数FPS候補検証",
+    "status": "in_progress",
+    "step": "203秒実VMDと201骨PMXで24000/1001fps長尺候補の全骨往復を検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T22:02:56+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "d0ed2b0",
+      "text": "Issue #106: MOTION-010 長尺VMDの分数FPS候補検証: 203秒実VMDと201骨PMXで24000/1001fps長尺候補の全骨往復を検証する"
+    },
     {
       "at": "2026-10-24T22:00:20+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "28176b6",
       "text": "Issue #106: ソロ切替を保存・Undo/Redo・3D再生・全VMD候補へ接続し、複数レイヤーの有効最上段3D骨ハンドルを実PMXで検証"
-    },
-    {
-      "at": "2026-10-24T19:46:24+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cd848b7",
-      "text": "Issue #106: MOTION-010 ソロ切替と複数レイヤー3D骨操作: 評価順と保存条件を固定し、実PMXの重畳姿勢と別名VMDを検証"
     }
   ]
 }
