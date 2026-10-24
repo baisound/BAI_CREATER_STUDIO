@@ -43,6 +43,9 @@ test('v0.5 SRT panel imports originals and saves readings separately from source
     const source=path.join(server.dataDir,'studio_v05_srt_sources',a,'sources',hash+'.srt');
     assert.deepEqual(fs.readFileSync(source),original);
     assert.equal(await page.locator('#v190-reading-editor').isVisible(),true);
+    await page.locator('#v192-candidate-run').click();
+    await page.waitForFunction(()=>document.querySelector('#v192-candidate-status')?.textContent.includes('読み未確定・候補なし'));
+    assert.equal(await page.locator('#v192-candidate-list .v192-segment').count(),0);
     await page.locator('#v190-reading-state').selectOption('confirmed');
     await page.locator('#v190-reading-kana').fill('アイウ');
     let readings=await(await fetch(`${server.base}/api/studio/v05/lip/readings?project_id=${a}`)).json();
@@ -58,6 +61,17 @@ test('v0.5 SRT panel imports originals and saves readings separately from source
     assert.equal(readings.utterances[0].sourceStartMs,1250);
     assert.equal(readings.utterances[0].sourceEndMs,2750);
     assert.deepEqual(fs.readFileSync(source),original);
+    const candidateResponse=page.waitForResponse(response=>response.url().includes('/lip/candidates'));
+    await page.locator('#v192-candidate-run').click();
+    const candidate=await(await candidateResponse).json();
+    assert.equal(candidate.candidateOnly,true);
+    assert.equal(candidate.status,'needs_review','重なるSRT発話はレビューを要する');
+    assert.deepEqual(candidate.segments.map(row=>row.mouthShape),['A','I','U']);
+    assert.equal(candidate.sourceStartMs,1250);
+    assert.equal(candidate.sourceEndMs,2750);
+    assert.match(await page.locator('#v192-candidate-status').textContent(),/警告あり・確認が必要.*未採用/);
+    assert.match(await page.locator('#v192-candidate-list').textContent(),/SRT発話の時間が重なります/);
+    assert.match(await page.locator('#v192-candidate-list').textContent(),/作品F/);
     await page.locator('#v187-cues [data-index="2"]').click();
     await page.locator('#v190-explicit-silence').check();
     assert.equal(await page.locator('#v190-reading-state').inputValue(),'unresolved');
@@ -71,6 +85,9 @@ test('v0.5 SRT panel imports originals and saves readings separately from source
     assert.equal(readings.utterances[1].explicitSilence,true);
     assert.equal(readings.utterances[1].readingKana,null);
     assert.deepEqual(fs.readFileSync(source),original);
+    await page.locator('#v192-candidate-run').click();
+    await page.waitForFunction(()=>document.querySelector('#v192-candidate-status')?.textContent.includes('明示無音・候補なし'));
+    assert.equal(await page.locator('#v192-candidate-list .v192-segment').count(),0);
     await page.locator('#v187-cues [data-index="1"]').click();
     await page.locator('#v190-reading-kana').fill('歌詞');
     harness.expectErrors(page,[/Failed to load resource: the server responded with a status of 422/]);
