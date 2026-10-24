@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:07:36+09:00",
+  "updated_at": "2026-10-25T01:13:44+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-lip004-vrm-map",
-  "head_at_update": "5bb3d73",
+  "head_at_update": "448f1e8",
   "current": {
     "task": "Issue #175: VRM表情の手動対応表",
-    "status": "in_progress",
+    "status": "done",
     "step": "登録VRM表情のモデル別対応表を原本hashと実バインドに結び付け、保存・再読込と未結合の確定拒否を実装する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #175: VRM表情のモデル別手動対応表と保存・再読込を検討し、実バインドなしを確定不可にする"
+    "Issue #175: VRM表情の一時プレビューを実VRM0で実描画確認し、未結合VRM1の適用拒否を維持する"
   ],
   "unverified": [
-    "VRM表情の実描画・保存・出力、別VRM、MCP、Linux、統合production耐障害性とOwner採用は未検証"
+    "VRM表情の実描画・出力、別VRM、MCP、Linux、統合production耐障害性とOwner採用は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:13:44+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "448f1e8",
+      "text": "Issue #175: VRM表情の手動7口形対応表を作品/原本hash別に保存再読込。実VRM0は5母音確定、実VRM1は未結合のため下書きのみ/直接API確定422。Python4/4、隔離Chrome1/1、原本/data7/exports0ハッシュ一致"
+    },
     {
       "at": "2026-10-25T01:07:36+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "ce5b777",
       "text": "Issue #106: MOTION-010/CAM-015 旧カメラ末尾カットの終端保持: 半開カットがカメラdurationへ達する場合、長尺作品の終端保持と実プレビュー姿勢を調べる"
-    },
-    {
-      "at": "2026-10-24T22:57:40+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "3999204",
-      "text": "MOTION-010/CAM-015 保存済み30fpsカメラ2カットの半開境界を24/60fps作品から画面同期APIとHTTPで照合。隔離Chrome2件合格、原本SHAとdata7/exports0ハッシュ不変"
     }
   ]
 }
