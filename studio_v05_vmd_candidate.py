@@ -13,6 +13,7 @@ from studio_v05_motion_edits import (LOCK, MotionEditError, _context, _identity,
 from studio_v05_vmd_constant import constant_replacements
 from studio_v05_vmd_rewrite import MAX_SOURCE_BYTES, write_distinct_vmd
 from studio_v05_vmd_temporal import temporal_replacements
+from studio_v05_vmd_partial import partial_replacements
 
 
 def _uuid(value):
@@ -39,7 +40,9 @@ def _is_temporal(layer):
 
 def create_candidate(output_root, edit_root, data_root, scene_root, legacy_root,
                      arrangement_root, catalog, project_id, revision, instance_id,
-                     clip_id, assets):
+                     clip_id, assets, mode='whole'):
+    if mode not in ('whole', 'interval'):
+        raise MotionEditError('Unknown VMD export range')
     if type(revision) is not int or revision < 0:
         raise MotionEditError('Motion edit revision required')
     if not isinstance(instance_id, str) or not isinstance(clip_id, str):
@@ -66,7 +69,10 @@ def create_candidate(output_root, edit_root, data_root, scene_root, legacy_root,
         if hashlib.sha256(raw).hexdigest() != context['motion_sha256']:
             raise MotionEditError('VMD source changed during candidate creation')
         temporal = any(_is_temporal(layer) for layer in layers)
-        if temporal:
+        if mode == 'interval':
+            samples, sampling_report = partial_replacements(
+                raw, layers, instance_id=instance_id, clip_id=clip_id)
+        elif temporal:
             samples, sampling_report = temporal_replacements(
                 raw, layers, instance_id=instance_id, clip_id=clip_id)
         else:
@@ -77,6 +83,7 @@ def create_candidate(output_root, edit_root, data_root, scene_root, legacy_root,
         output.parent.mkdir(parents=True, exist_ok=True)
         report = write_distinct_vmd(source, output, samples)
         metadata = {'schema': 1, 'candidate_id': candidate_id, 'project_id': project_id,
+                    'export_mode': mode,
                     'revision': revision, 'instance_id': instance_id, 'clip_id': clip_id,
                     'model_sha256': context['model_sha256'],
                     'source_motion_sha256': context['motion_sha256'],
