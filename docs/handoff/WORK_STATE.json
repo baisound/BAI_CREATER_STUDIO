@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:08:09+09:00",
+  "updated_at": "2026-10-25T00:11:28+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-lip004-pmx-analysis",
-  "head_at_update": "05fdbe1",
+  "head_at_update": "6cf7804",
   "current": {
     "task": "Issue #175: 実PMX口モーフの頂点変位解析",
-    "status": "in_progress",
+    "status": "done",
     "step": "PMX実データの頂点変位・重なり解析と数値ゲートを追加する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #96のPRをmainへ反映しIssueを閉じる。次はロードマップ順4のLIP-004頂点変位・母音強度解析について既存実装とIssueを照合して着手する"
+    "Issue #175の登録素材ID/hashを結ぶ読み取りAPIとv0.5画面の手動確認入口を実装する"
   ],
   "unverified": [
-    "任意PMX・長尺・Linux・標準MCP実通信・視線・自動リップ・頂点変位解析/母音強度最適化・Owner採用は未検証。LIP-004/009全体は未完了"
+    "画面/API/保存再読込/VRM/Linux/MCP/母音強度の実見た目とOwner採用は未検証。LIP-004全体は未完成"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:11:28+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6cf7804",
+      "text": "Issue #175: PMX口パネルの頂点変位・重なり読み取りを実装し、実PMX A/Bと人工データで2/2検証。Aの母音はグループ、Bの口パネルは0件。"
+    },
     {
       "at": "2026-10-25T00:08:09+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "dbafecf",
       "text": "Issue #106: MOTION-010 長尺なじませ候補の別PMX検証: 246骨の別形状PMXと203秒実VMDで平坦境界なじませ候補の全骨往復を確認する"
-    },
-    {
-      "at": "2026-10-24T21:45:20+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "cf63b7d",
-      "text": "MOTION-010 動く元頭骨曲線の平坦キー対F2667/2669・F2831/2833で前後各4作品Fのなじませ付きY8度候補を実証。不要な終了隣接キーを省き、元局所姿勢が完全一致するキー間だけ線形補間。204秒作品12240F＋VMD6121F・201骨最大位置0.00001256/角度0.00042119度、隔離採用・復元、原本ハッシュ一致。24fps短尺回帰も確認。"
     }
   ]
 }
