@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T02:54:53+09:00",
+  "updated_at": "2026-10-25T02:57:42+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-adoption-contract",
-  "head_at_update": "7eb316c",
+  "branch": "codex/v05-lip001-composite-vmd",
+  "head_at_update": "0e03643",
   "current": {
-    "task": "Issue #187: 口形VMD候補の製品内採用契約",
-    "status": "done",
-    "step": "既存モーション・手動表情を保持する明示採用の保存/解除と競合条件を調べ、最小APIを接続する",
+    "task": "Issue #187: 採用口形と元VMD・手動表情の別名合成出力",
+    "status": "in_progress",
+    "step": "元VMDの全セクション保持と口モーフ優先の合成境界を確認し、安全な候補生成と再読込を実装する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:57:42+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0e03643",
+      "text": "Issue #187: 採用口形と元VMD・手動表情の別名合成出力: 元VMDの全セクション保持と口モーフ優先の合成境界を確認し、安全な候補生成と再読込を実装する"
+    },
     {
       "at": "2026-10-25T02:54:53+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "448f1e8",
       "text": "Issue #175: VRM表情の手動7口形対応表を作品/原本hash別に保存再読込。実VRM0は5母音確定、実VRM1は未結合のため下書きのみ/直接API確定422。Python4/4、隔離Chrome1/1、原本/data7/exports0ハッシュ一致"
-    },
-    {
-      "at": "2026-10-25T01:07:36+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5bb3d73",
-      "text": "Issue #175: VRM表情の手動対応表: 登録VRM表情のモデル別対応表を原本hashと実バインドに結び付け、保存・再読込と未結合の確定拒否を実装する"
     }
   ]
 }
