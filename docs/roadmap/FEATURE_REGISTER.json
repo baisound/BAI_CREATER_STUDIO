@@ -584,7 +584,7 @@
       "phase": 5,
       "name": "SRT読込→リップVMD",
       "detail": "字幕時刻と日本語読み/母音推定",
-        "status": "部分実装・SRT/読み/下書きと別名モーフVMD候補を実PMXで試験済み。発話別診断、作品内の明示採用/解除/Undo/Redoと元VMD・手動キー優先の3D表示を確認。合成VMD出力・MCP未実装",
+        "status": "部分実装・SRT/読み/下書きと別名モーフVMD候補を実PMXで試験済み。発話別診断、作品内の明示採用/解除/Undo/Redoと元VMD・手動キー優先の3D表示を確認。元VMDの非モーフ区画を保つ別名書換基盤を試験済み。時間合成VMD出力・MCP未実装",
       "dependency": "MOTION,DATA"
     },
     {
