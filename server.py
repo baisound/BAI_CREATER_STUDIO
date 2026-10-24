@@ -273,6 +273,19 @@ class Handler(BaseHTTPRequestHandler):
             except (SceneInstancesError,ValueError,OSError) as exc:
                 self.bad(409 if 'reconcile' in str(exc).lower() else 422,str(exc))
             return
+        if urlsplit(self.path).path == '/api/studio/v05/pmx/morph-analysis':
+            from studio_v05_pmx_analysis import inspect, PmxAnalysisError
+            query = parse_qs(urlsplit(self.path).query)
+            if (set(query) - {'asset_id', 'model_hash'} or len(query.get('asset_id', [])) != 1
+                    or len(query.get('model_hash', [])) > 1):
+                return self.bad(400, 'Invalid PMX analysis query')
+            try:
+                result = inspect(query['asset_id'][0], unified_assets(), character_source,
+                                 query.get('model_hash', [None])[0])
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except PmxAnalysisError as exc:
+                self.bad(exc.status, str(exc))
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/multi-motion-plan':
             from studio_v05_multi_motion import plan, MultiMotionError
             try:

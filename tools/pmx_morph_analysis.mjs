@@ -19,6 +19,7 @@ export function analyzeMouthMorphs(pmx){
   for(let id=0;id<pmx.morphs.length;id++){
     const morph=pmx.morphs[id];
     if(morph.panel!==3)continue;
+    if(entries.length>=256)throw new Error('Too many PMX mouth morphs');
     const item={id,name:morph.name,type:morph.type,elementCount:morph.elements.length,
       affectedVertices:0,median:0,p95:0,manualRequired:morph.type!==1};
     if(morph.type===1){

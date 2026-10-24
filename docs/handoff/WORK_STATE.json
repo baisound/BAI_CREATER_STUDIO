@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:11:28+09:00",
+  "updated_at": "2026-10-25T00:16:16+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip004-pmx-analysis",
-  "head_at_update": "6cf7804",
+  "branch": "codex/v05-lip004-pmx-analysis-api",
+  "head_at_update": "4a77b1d",
   "current": {
-    "task": "Issue #175: 実PMX口モーフの頂点変位解析",
+    "task": "Issue #175: 登録済みPMX口モーフ解析API",
     "status": "done",
-    "step": "PMX実データの頂点変位・重なり解析と数値ゲートを追加する",
+    "step": "登録素材ID/hashに限定した読み取り解析APIと保存前のモデル照合を追加する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #175の登録素材ID/hashを結ぶ読み取りAPIとv0.5画面の手動確認入口を実装する"
+    "Issue #175のv0.5画面にPMX解析結果と手動対応の入口を表示し、モデル別MorphMap保存へ進める"
   ],
   "unverified": [
-    "画面/API/保存再読込/VRM/Linux/MCP/母音強度の実見た目とOwner採用は未検証。LIP-004全体は未完成"
+    "画面操作・MorphMap保存再読込・VRM・MCP・Linux・実見た目による母音強度確定は未検証。LIP-004全体は未完成"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:16:16+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4a77b1d",
+      "text": "Issue #175: 登録PMX限定の読み取り解析GETを追加。素材ID/hashとパス拒否を隔離HTTP1/1、実PMX数値2/2、型/構文で検証。"
+    },
+    {
+      "at": "2026-10-25T00:13:34+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "2a8a7bc",
+      "text": "Issue #175: 登録済みPMX口モーフ解析API: 登録素材ID/hashに限定した読み取り解析APIと保存前のモデル照合を追加する"
+    },
     {
       "at": "2026-10-25T00:11:28+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "f5e8b44",
       "text": "Issue #106: MOTION-010 長尺VMDの24fps候補検証: 203秒実VMDと実PMXで24fps長尺なじませ候補の全骨往復を検証する"
-    },
-    {
-      "at": "2026-10-24T21:51:36+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "efd8c4f",
-      "text": "MOTION-010 203.63秒実VMDの平坦境界・前後各4Fなじませ候補を別形状246骨PMXへ拡張検査。204秒作品12240F＋VMD6121Fで最大位置0.0000136779・角度0.000421187度、隔離採用/復元、原本ハッシュ一致。201骨の既存5ケースと合わせ実PMX6件通過。"
-    },
-    {
-      "at": "2026-10-24T21:47:49+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "dbafecf",
-      "text": "Issue #106: MOTION-010 長尺なじませ候補の別PMX検証: 246骨の別形状PMXと203秒実VMDで平坦境界なじませ候補の全骨往復を確認する"
     }
   ]
 }
