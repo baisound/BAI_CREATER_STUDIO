@@ -143,6 +143,11 @@ def temporal_replacements(raw_vmd, layers, *, instance_id, clip_id):
     for bone in sorted(bones):
         rows = source_tracks.get(bone, [])
         source_interpolation = {row[0]: row[3] for row in rows}
+        # On an exactly still source segment, only the correction changes.
+        # Its linear fade can use linear interpolation without altering source motion.
+        flat_destination_frames = {right[0] for left, right in zip(rows, rows[1:])
+                                   if left[1] == right[1] and left[2] == right[2]}
+        linear_fade_frames = set()
         # Preserve source key spacing and curves. Dense adjacent VMD keys make
         # MMDLoader hold their left pose at intermediate project frames.
         # Add the correction's 30 fps sample points, then gate every project
@@ -161,8 +166,14 @@ def temporal_replacements(raw_vmd, layers, *, instance_id, clip_id):
             fade_out = layer.get('fade_out_frames', 0)
             if fade_in:
                 points.extend((from_frame, from_frame + fade_in))
+                fade_end_vmd = round(((from_frame + fade_in) / fps - start) * 30)
+                if fade_end_vmd in flat_destination_frames:
+                    linear_fade_frames.add(fade_end_vmd)
             if fade_out:
                 points.extend((until_frame - fade_out, until_frame))
+                fade_end_vmd = round((until_frame / fps - start) * 30)
+                if fade_end_vmd in flat_destination_frames:
+                    linear_fade_frames.add(fade_end_vmd)
             frames.update(max(0, min(end_vmd, round((point / fps - start) * 30)))
                           for point in points)
             # Insert a discontinuity only if its amplitude matters. Extra
@@ -173,7 +184,9 @@ def temporal_replacements(raw_vmd, layers, *, instance_id, clip_id):
             if _needs_boundary(active, bone, (start + first_vmd / 30) * fps):
                 frames.update(max(0, min(end_vmd, point)) for point in
                               (first_vmd - 1, first_vmd))
-            if _needs_boundary(active, bone, (start + (stop_vmd - 1) / 30) * fps):
+            # A fade that reaches zero already has a stop key. The adjacent
+            # extra key would make MMDLoader hold the earlier value between them.
+            if not fade_out and _needs_boundary(active, bone, (start + (stop_vmd - 1) / 30) * fps):
                 frames.update(max(0, min(end_vmd, point)) for point in
                               (stop_vmd - 1, stop_vmd))
         if len(frames) * len(bones) > 250000:
@@ -184,7 +197,8 @@ def temporal_replacements(raw_vmd, layers, *, instance_id, clip_id):
             position, rotation = _compose(base_position, base_rotation, offset, delta)
             samples.append({'bone': bone, 'frame': frame, 'position': position,
                             'rotation': rotation,
-                            'interpolation': source_interpolation.get(frame, LINEAR_INTERPOLATION)})
+                            'interpolation': (LINEAR_INTERPOLATION if frame in linear_fade_frames else
+                                              source_interpolation.get(frame, LINEAR_INTERPOLATION))})
     candidate, _ = rewrite_bone_section(raw_vmd, samples)
     candidate_tracks = _tracks(candidate)
     first_project = math.ceil(start * fps - 1e-7)

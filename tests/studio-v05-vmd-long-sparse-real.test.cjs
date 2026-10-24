@@ -20,8 +20,10 @@ for(const variant of [
   {duration:204,bone:'頭',angle:12,port:8913},
   {duration:204,bone:'髪_16-03',angle:12,begin:5338,end:5464,port:8914},
   {duration:204,bone:'頭',angle:8,begin:5338,end:5666,port:8915},
+  {duration:204,bone:'頭',angle:8,begin:5334,end:5666,
+    fadeIn:4,fadeOut:4,port:8916},
 ])test(
-  `real moving 203s VMD sparse ${variant.begin?`bounded ${variant.bone}`:'constant head'} candidate matches PMX for ${variant.duration}s`,
+  `real moving 203s VMD sparse ${variant.begin?`bounded ${variant.bone} fade ${variant.fadeIn||0}/${variant.fadeOut||0}`:'constant head'} candidate matches PMX for ${variant.duration}s`,
   {skip:!available&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:360000},async()=>{
     const {duration}=variant,interval=Boolean(variant.begin);
     const originals=[digest(modelPath),digest(motionPath)];
@@ -63,7 +65,8 @@ for(const variant of [
           project_id:id,revision:saved.revision,action:'layer-update',instance_id:instance,
           clip_id:placed.clip.id,layer_id:saved.layers[0].id,settings:{
             start_frame:variant.begin,end_frame:variant.end,
-            fade_in_frames:0,fade_out_frames:0}})})):saved;
+            fade_in_frames:variant.fadeIn||0,
+            fade_out_frames:variant.fadeOut||0}})})):saved;
       const candidate=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:id,revision:edits.revision,instance_id:instance,

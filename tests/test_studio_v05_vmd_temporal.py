@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from studio_v05_vmd_temporal import temporal_replacements
-from studio_v05_vmd_rewrite import rewrite_bone_section
+from studio_v05_vmd_rewrite import LINEAR_INTERPOLATION, rewrite_bone_section
 from test_studio_v05_vmd_rewrite import fixture
 
 
@@ -186,4 +186,28 @@ def test_long_real_moving_head_step_requires_flat_boundaries_and_bounded_angle()
         temporal_replacements(original, [larger], instance_id='model-1', clip_id='clip-1')
     larger_report = ast.literal_eval(str(failure.value).split(': ', 1)[1])
     assert larger_report['max_angle_error_degrees'] > 0.01
+    assert source.read_bytes() == original
+
+
+def test_long_real_moving_head_fades_on_flat_source_key_pairs():
+    root = Path(os.environ.get('BAI_REAL_MMD_DATA', Path(__file__).resolve().parents[1] / 'data'))
+    source = root / 'mmd' / 'vmd' / '神っぽいな.vmd'
+    if not source.is_file():
+        pytest.skip('registered dense local VMD is unavailable')
+    original = source.read_bytes()
+    saved = layer([key(5400, 0.15, math.radians(8))], duration=204,
+                  start_frame=5334, end_frame=5666,
+                  fade_in_frames=4, fade_out_frames=4)
+    samples, report = temporal_replacements(
+        original, [saved], instance_id='model-1', clip_id='clip-1')
+    by_frame = {row['frame']: row for row in samples if row['bone'] == '頭'}
+    assert 2832 not in by_frame
+    assert by_frame[2669]['interpolation'] == LINEAR_INTERPOLATION
+    assert by_frame[2833]['interpolation'] == LINEAR_INTERPOLATION
+    assert report['checked_project_frames'] == 12240
+    assert report['max_position_error'] < 1e-3
+    assert report['max_angle_error_degrees'] < 0.01
+    wider = saved | {'fade_in_frames': 8}
+    with pytest.raises(ValueError, match='30fps sample error exceeds limit'):
+        temporal_replacements(original, [wider], instance_id='model-1', clip_id='clip-1')
     assert source.read_bytes() == original
