@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:32:10+09:00",
+  "updated_at": "2026-10-25T00:40:24+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-lip004-morph-map-ui",
-  "head_at_update": "e177e52",
+  "head_at_update": "6d7577f",
   "current": {
     "task": "Issue #175: v0.5口形対応表の編集画面",
-    "status": "in_progress",
+    "status": "done",
     "step": "解析済みPMX口モーフからA/I/U/E/O/Closed/Restを選択し、手動重みを下書き保存・確定・再読込・失効表示する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #175のv0.5画面から母音モーフと手動重みを選び、対応表を保存・再読込・失効表示する"
+    "Issue #175: 実PMX口形のプレビュー強度を画面で比較・調整し、Owner採用前の候補として記録する"
   ],
   "unverified": [
-    "画面操作・実プレビュー強度調整・VRM・MCP・Linux・統合production耐障害性・Owner採用は未検証。LIP-004全体は未完成"
+    "VRM表情、WebMCP/標準MCP、Linux、実見た目による自然さ・Owner採用、統合production耐障害性は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:40:24+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6d7577f",
+      "text": "Issue #175: v0.5の口形対応表画面で実PMX Aの5母音重みを下書き・確定保存、再読込と旧原本hash失効表示を確認。隔離Chrome1/1、監視原本hash一致。LIP-004は部分実装"
+    },
     {
       "at": "2026-10-25T00:32:10+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "51ca1a2",
       "text": "Issue #106: MOTION-010 長尺区間候補の画面拒否: 203秒実VMDの動く頭骨区間を画面で設定し、誤差超過の拒否表示と候補・原本の保持を検証する"
-    },
-    {
-      "at": "2026-10-24T22:20:10+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "90d102c",
-      "text": "MOTION-010 203秒実VMDの60fps・204秒作品で画面から90秒頭FKを変更・保存し、長尺疎候補作成、201骨全12240作品F＋6120VMD F検査、明示採用・元VMD復元を確認"
     }
   ]
 }
