@@ -343,22 +343,22 @@ function fkGizmoContext(){
   const row=activeFkRow(frame),target=controller?.getLoaded(instanceId);
   if(!opened||!row||!target?.object?.skeleton||!name)return {reason:'実PMX骨と有効なVMDのある作品フレームを選択してください。'};
   if(Math.abs(Number(seekInput.value)-frame/projectFps)>1/(projectFps*100))
-    return {reason:'3D回転は表示中の作品フレームで行います。タイムラインを対象Fへ移動してください。'};
+    return {reason:'3D骨操作は表示中の作品フレームで行います。タイムラインを対象Fへ移動してください。'};
   if(sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked)
     return {reason:'ロック中のモデルは補正できません。'};
   if(motionEdits?.issues?.length)return {reason:'補正データの不一致を解決してください。'};
   const matches=target.object.skeleton.bones.filter(bone=>bone.name===name);
-  if(matches.length!==1)return {reason:'同名または存在しない骨は3D回転できません。'};
+  if(matches.length!==1)return {reason:'同名または存在しない骨は3D操作できません。'};
   const layers=(motionEdits?.layers||[]).filter(layer=>!layer.disabled&&
     layer.instance_id===instanceId&&layer.clip_id===row.clip_id);
-  if(layers.length>1)return {reason:'複数レイヤーの同時補正は3D回転に未対応です。'};
+  if(layers.length>1)return {reason:'複数レイヤーの同時補正は3D操作に未対応です。'};
   const layer=layers[0];
   if(layer){
     const from=layer.start_frame??Math.ceil(row.start*projectFps-1e-7);
     const until=layer.end_frame??Math.ceil((row.start+row.duration)*projectFps-1e-7);
     if(layer.weight!==1||layer.muted||frame<from+(layer.fade_in_frames||0)||
         frame>=until-(layer.fade_out_frames||0))
-      return {reason:'3D回転は重み100%で有効区間のなじませ外にあるFKレイヤーに対応します。'};
+      return {reason:'3D骨操作は重み100%で有効区間のなじませ外にあるFKレイヤーに対応します。'};
   }
   return {projectId:project.value,instanceId,clipId:row.clip_id,frame,boneName:name,bone:matches[0],target,row,layer};
 }
@@ -371,36 +371,55 @@ function previewCurrentFk(){
   applyAllMotionEdits();seekScene(frame/projectFps);redrawFkControls();
   fkStatus.textContent='仮補正を表示中。保存する場合は「このFをキー化」、破棄はEscです。';
 }
-async function previewFromGizmo(desired,started){
+async function previewFromGizmo(desired,kind,started){
   const current=fkGizmoContext();
   if(current.reason||current.bone!==started.bone||current.projectId!==started.projectId||
       current.instanceId!==started.instanceId||current.clipId!==started.clipId||current.frame!==started.frame)
     throw Error(current.reason||'ドラッグ中に作品・骨・フレームが変わりました。');
   const {bone,row,layer,frame,target}=current,THREE=target.libs.THREE;
-  const previousAxes=fkAxes.map(input=>input.value),previousPreview=previewFk;
+  const previousAxes=fkAxes.map(input=>input.value);
+  const previousPosition=fkPosition.map(input=>input.value),previousPreview=previewFk;
+  const source=previewFk?.projectId===current.projectId&&previewFk?.instanceId===current.instanceId&&
+    previewFk?.clipId===current.clipId&&previewFk?.key?.frame===frame&&previewFk?.key?.bone===current.boneName
+    ?previewFk.key:layer?.keys.find(key=>key.frame===frame&&key.bone===current.boneName);
   const filtered=layer?[{...layer,keys:layer.keys.filter(key=>key.bone!==current.boneName)}]:[];
   let base;
   try{
     motionCoordinator.setCorrectionLayers(row.clip_id,filtered,null);
     const result=motionCoordinator.seek(frame/projectFps);
     if(result?.errors?.length)throw Error('元姿勢を評価できません');
-    base=bone.quaternion.clone();
+    base={rotation:bone.quaternion.clone(),position:bone.position.clone()};
   }finally{
     applyAllMotionEdits();motionCoordinator.seek(frame/projectFps);
   }
   try{
-    const delta=base.invert().multiply(desired).normalize();
-    const euler=new THREE.Euler().setFromQuaternion(delta,'XYZ');
-    [euler.x,euler.y,euler.z].forEach((value,index)=>{
-      fkAxes[index].value=String(Math.round(value*180/Math.PI*10000)/10000);
-    });
+    if(kind==='translate'){
+      if(source?.rotation){
+        const euler=new THREE.Euler().setFromQuaternion(new THREE.Quaternion().fromArray(source.rotation),'XYZ');
+        [euler.x,euler.y,euler.z].forEach((value,index)=>{
+          fkAxes[index].value=String(Math.round(value*180/Math.PI*10000)/10000);
+        });
+      }
+      const delta=desired.clone().sub(base.position);
+      [delta.x,delta.y,delta.z].forEach((value,index)=>{
+        fkPosition[index].value=String(Math.round(value*10000)/10000);
+      });
+    }else{
+      if(source)fkPosition.forEach((input,index)=>input.value=String(source.position?.[index]??0));
+      const delta=base.rotation.invert().multiply(desired).normalize();
+      const euler=new THREE.Euler().setFromQuaternion(delta,'XYZ');
+      [euler.x,euler.y,euler.z].forEach((value,index)=>{
+        fkAxes[index].value=String(Math.round(value*180/Math.PI*10000)/10000);
+      });
+    }
     previewCurrentFk();
-    const mismatch=bone.quaternion.angleTo(desired);
-    if(!Number.isFinite(mismatch)||mismatch>0.01)
-      throw Error(`3D回転の再評価差が${(mismatch*180/Math.PI).toFixed(2)}°のため仮補正を破棄しました。`);
+    const mismatch=kind==='translate'?bone.position.distanceTo(desired):bone.quaternion.angleTo(desired);
+    if(!Number.isFinite(mismatch)||mismatch>(kind==='translate'?0.001:0.01))
+      throw Error(`3D${kind==='translate'?'位置':'回転'}の再評価差が${mismatch.toFixed(4)}のため仮補正を破棄しました。`);
   }catch(error){
     previewFk=previousPreview;
     fkAxes.forEach((input,index)=>input.value=previousAxes[index]);
+    fkPosition.forEach((input,index)=>input.value=previousPosition[index]);
     applyAllMotionEdits();seekScene(frame/projectFps);redrawFkControls();
     throw error;
   }
@@ -642,7 +661,7 @@ async function setup(){
         await window.BAIStudioMediaPreviewV68.seek(frame);
       else seekScene(frame/projectFps);
     },
-    onRotate:previewFromGizmo,
+    onTransform:previewFromGizmo,
     onCancel:()=>seekScene(Number(seekInput.value)||0),
     onModeChange:(enabled,context)=>{
       spatialEditor?.setGizmoEnabled(!enabled);
