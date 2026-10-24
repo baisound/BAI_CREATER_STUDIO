@@ -498,8 +498,11 @@ class Handler(BaseHTTPRequestHandler):
         if path=="/api/camera/sequence/evaluate":
             try:
                 from camera_sequence_api import evaluate
-                f=float(parse_qs(urlsplit(self.path).query).get('frame',['0'])[0])
-                result=evaluate(camera_read(DATA/'camera_project.json'),f)
+                args=parse_qs(urlsplit(self.path).query)
+                overflow=args.get('overflow',['error'])[0]
+                if overflow not in ('error','hold'):raise ValueError('Invalid camera overflow mode')
+                f=float(args.get('frame',['0'])[0])
+                result=evaluate(camera_read(DATA/'camera_project.json'),f,hold_end=overflow=='hold')
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,TypeError,OverflowError,KeyError) as exc:return self.bad(400,str(exc))
         if path=="/api/camera/sample":

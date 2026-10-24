@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:32:56+09:00",
+  "updated_at": "2026-10-24T22:41:19+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-long-ui-rejection",
-  "head_at_update": "0537858",
+  "branch": "codex/v05-motion010-camera-tail",
+  "head_at_update": "ac2e9fe",
   "current": {
-    "task": "Issue #106: MOTION-010 長尺区間候補の画面拒否",
+    "task": "Issue #106: MOTION-010 長尺編集と旧カメラ終端",
     "status": "done",
-    "step": "203秒実VMDの動く頭骨区間を画面で設定し、誤差超過の拒否表示と候補・原本の保持を検証する",
+    "step": "旧300Fカメラで90秒へ移動する失敗を再現し、元カメラを保持した境界処理と回帰を確認する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 短い旧カメラ設定のまま90秒へシークした場合の境界を診断し、安全な表示・評価を検証する"
+    "MOTION-010/CAM-015 作品FPSと旧カメラFPSが異なる時刻換算とカット終端の境界を実データで確認する"
   ],
   "unverified": [
-    "短い旧カメラとの境界、任意境界・長いなじませ、任意PMX、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "作品FPSと旧カメラFPSの秒換算、任意カット構成、任意境界・長いなじませ、物理ON、任意PMX、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T22:41:19+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ac2e9fe",
+      "text": "MOTION-010 旧300Fカメラと184.5秒実PMX/VMD作品で90秒シークを検証。画面だけ終端F300を保持しHTTP失敗0、既定API範囲外400・原本保持、全身/表情/限定MP4回帰合格"
+    },
+    {
+      "at": "2026-10-24T22:35:48+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f66f1de",
+      "text": "Issue #106: MOTION-010 長尺編集と旧カメラ終端: 旧300Fカメラで90秒へ移動する失敗を再現し、元カメラを保持した境界処理と回帰を確認する"
+    },
     {
       "at": "2026-10-24T22:32:56+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "eeda3fc",
       "text": "Issue #106: MOTION-010 下位FKのIK拒否と複数上位層: 実PMXのIK関連骨拒否と複数同骨上位補正の局所逆算を検査する"
-    },
-    {
-      "at": "2026-10-24T20:32:17+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "14538bb",
-      "text": "MOTION-010 下位FKを201骨と246骨の実PMXで検証。両方で回転・位置の保存再読込、上位キー保持と別骨拒否を確認。統合4試験通過、原本ハッシュ一致。画面再読込失敗は再現せず診断を追加。"
-    },
-    {
-      "at": "2026-10-24T20:25:06+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e34f1cb",
-      "text": "Issue #106: MOTION-010 下位FKの別形状PMX検証と再読込画面調査: 別形状PMXの下位FK3D編集を実測し、画面再読込の断続的失敗を切り分ける"
     }
   ]
 }
