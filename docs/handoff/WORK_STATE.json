@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T17:26:17+09:00",
+  "updated_at": "2026-10-24T17:28:25+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-handles",
-  "head_at_update": "004dc9f",
+  "branch": "codex/v05-motion010-arm-vmd-roundtrip",
+  "head_at_update": "1c0f19c",
   "current": {
-    "task": "Issue #106: MOTION-010 手先・肘の3Dハンドル",
-    "status": "done",
-    "step": "既存キーの再編集に対応する腕2キー解法を整え、実ポインタの手先・肘操作を仮表示・保存へ接続する",
+    "task": "Issue #106: MOTION-010 腕キーVMD全骨往復",
+    "status": "in_progress",
+    "step": "保存済み左右腕・ひじ2キーを別名VMD候補へ焼き、元PMXの全作品F・全VMD F・全骨で往復比較する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T17:28:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1c0f19c",
+      "text": "Issue #106: MOTION-010 腕キーVMD全骨往復: 保存済み左右腕・ひじ2キーを別名VMD候補へ焼き、元PMXの全作品F・全VMD F・全骨で往復比較する"
+    },
     {
       "at": "2026-10-24T17:26:17+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "a4b2425",
       "text": "Issue #106: 標準PMX左右脚のFK/IK編集方法を作品別に保存し、切替の全骨姿勢・キー・Undo不変を実PMX/VMD隔離Chromeで確認"
-    },
-    {
-      "at": "2026-10-24T14:47:08+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "ad46458",
-      "text": "Issue #106: MOTION-010 FK/IK切替の保存と姿勢保持: 既存PMX足IKとFKの編集モードを保存し、切替時に姿勢・キーを変えない検査を実装する"
     }
   ]
 }
