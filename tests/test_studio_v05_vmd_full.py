@@ -48,6 +48,17 @@ def test_every_source_frame_is_keyed_and_longer_source_tail_is_unchanged():
         next(row for name, frame, row in original if name == 'センター' and frame == 12)
 
 
+def test_solo_full_export_ignores_other_layer():
+    first = {**layer(), 'solo': True}
+    other = layer(keys=[{'bone': '頭', 'frame': 0, 'position': [0.2, 0, 0],
+                         'rotation': [0, 0, 0, 1]}])
+    actual, _ = full_frame_replacements(source(), [first, other],
+                                        instance_id='model-1', clip_id='clip-1')
+    expected, _ = full_frame_replacements(source(), [first],
+                                          instance_id='model-1', clip_id='clip-1')
+    assert actual == expected
+
+
 def test_unrepresentable_project_frame_is_rejected():
     keys = [
         {'bone': '頭', 'frame': frame, 'position': [x, 0, 0],

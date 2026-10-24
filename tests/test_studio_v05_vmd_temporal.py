@@ -37,6 +37,16 @@ def test_linear_temporal_keys_pass_60_to_30_fps_gate_and_preserve_suffix():
     assert structure['added'] == 3
 
 
+def test_solo_temporal_ignores_other_layer():
+    first = layer([key(0, 0), key(60, 0.01), key(118, 0)], solo=True)
+    other = layer([key(0, 0.02), key(118, 0.02)])
+    actual, _ = temporal_replacements(fixture(), [first, other],
+                                      instance_id='model-1', clip_id='clip-1')
+    expected, _ = temporal_replacements(fixture(), [first],
+                                        instance_id='model-1', clip_id='clip-1')
+    assert actual == expected
+
+
 def test_one_project_frame_spike_is_rejected_with_position_error():
     with pytest.raises(ValueError, match='30fps sample error exceeds limit.*worst_position_frame.*1'):
         temporal_replacements(fixture(), [layer([key(0, 0), key(1, 1), key(2, 0)])],

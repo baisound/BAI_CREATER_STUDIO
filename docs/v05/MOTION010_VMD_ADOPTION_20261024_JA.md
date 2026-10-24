@@ -15,7 +15,7 @@
 - `python -m pytest -q tests/test_studio_v05_vmd_adoption.py tests/test_studio_v05_motion_edits.py`: 14件成功。原本・候補のバイト不変、配置時刻・クリップID保持、復元、失敗報告・古いrevision・候補改変の拒否、焼き込み済みレイヤーだけの識別、メタデータ再試行を確認。
 - `npm run typecheck`と`git diff --check`: 成功。
 - `node tests/run-guarded.cjs tests/studio-v05-vmd-constant-real.test.cjs`: 隔離Chrome/SwiftShader、実PMX 201骨と実VMDで成功。候補は作品600F＋VMD300F×201骨を全件照合し、位置最大4.31e-6、角度最大2.21e-5°。検査前・不合格報告の配置拒否、採用後の素材索引と同じクリップへの配置、候補と同一姿勢のプレビュー、3フレーム720p MP4の入力SHAと出力ファイル、APIと画面ボタンの採用・復元を確認。`run-guarded`は実データ`data`7ファイルと`exports`0ファイルの前後ハッシュ一致を報告。
-- 読み取りに使用した原PMX SHA-256: `542a4daa561f0b0da578fc303af9b8c6dc4acdd8d380771a170e96e95a205488`。原VMD SHA-256: `3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebbed0a3d234`。実素材はGitへ追加していない。
+- 読み取りに使用した原PMX SHA-256: `542a4daa561f0b0da578fc303af9b8c6dc4acdd8d380771a170e96e95a205488`。原VMD SHA-256: `3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebebd0a3d234`。実素材はGitへ追加していない。
 
 ## 未確認と残る条件
 

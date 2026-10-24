@@ -5,6 +5,7 @@ import math
 from bisect import bisect_right
 
 from studio_v05_vmd_rewrite import _sections, LINEAR_INTERPOLATION, rewrite_bone_section
+from studio_v05_vmd_constant import active_correction_layers
 from studio_v05_vmd_temporal import (
     ANGLE_LIMIT_DEGREES, MAX_VMD_FRAMES, POSITION_LIMIT,
     _bezier, _compose, _correction, _pose, _slerp, _tracks,
@@ -45,13 +46,7 @@ def _three_boundary_pose(rows, frame):
 
 def full_frame_replacements(raw_vmd, layers, *, instance_id, clip_id):
     """Sample every VMD frame and reject loss at any placed project frame."""
-    if not isinstance(layers, list):
-        raise ValueError('Correction layers required')
-    active = [row for row in layers if row.get('instance_id') == instance_id and
-              row.get('clip_id') == clip_id]
-    if not active or any(row.get('disabled') or row.get('muted') or
-                         row.get('weight', 0) <= 0 for row in active):
-        raise ValueError('Active correction layer required')
+    active = active_correction_layers(layers, instance_id, clip_id)
     identity = tuple(active[0][field] for field in ('fps', 'start', 'duration'))
     if any(tuple(row[field] for field in ('fps', 'start', 'duration')) != identity
            for row in active):

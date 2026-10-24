@@ -42,6 +42,25 @@ def _weighted(q, weight):
                        left + q[3] * right))
 
 
+def active_correction_layers(layers, instance_id, clip_id):
+    """Use the same mute/solo selection for every VMD export mode."""
+    if not isinstance(layers, list):
+        raise ValueError('Correction layers required')
+    active = [layer for layer in layers if layer.get('instance_id') == instance_id and
+              layer.get('clip_id') == clip_id]
+    if any(layer.get('disabled') for layer in active):
+        raise ValueError('Correction layer is disabled')
+    solo = [layer for layer in active if layer.get('solo')]
+    if len(solo) > 1:
+        raise ValueError('Several solo layers for one clip')
+    if solo:
+        active = solo
+    active = [layer for layer in active if not layer.get('muted') and layer.get('weight', 0) > 0]
+    if not active:
+        raise ValueError('Active correction layer required')
+    return active
+
+
 def constant_replacements(raw_vmd: bytes, layers: list[dict], *, instance_id: str, clip_id: str):
     """Return complete VMD-space samples for whole-clip constant layer keys.
 
@@ -51,11 +70,7 @@ def constant_replacements(raw_vmd: bytes, layers: list[dict], *, instance_id: st
     if not isinstance(layers, list) or not isinstance(instance_id, str) or not isinstance(clip_id, str):
         raise ValueError('Motion edit context required')
     original, _ = _sections(raw_vmd)
-    matching = [layer for layer in layers if layer.get('instance_id') == instance_id and
-                layer.get('clip_id') == clip_id]
-    if not matching or any(layer.get('disabled') or layer.get('muted') for layer in matching):
-        raise ValueError('Active constant correction layer required')
-    active = matching
+    active = active_correction_layers(layers, instance_id, clip_id)
     by_bone = {}
     clip_identity = None
     for layer in active:

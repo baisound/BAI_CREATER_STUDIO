@@ -9,6 +9,7 @@ import math
 
 from studio_v05_vmd_full import _error, _snap_frame, _three_boundary_pose
 from studio_v05_vmd_rewrite import _sections, LINEAR_INTERPOLATION, rewrite_bone_section
+from studio_v05_vmd_constant import active_correction_layers
 from studio_v05_vmd_temporal import (_compose, _correction, _pose, _tracks,
                                      POSITION_LIMIT, ANGLE_LIMIT_DEGREES,
                                      MAX_VMD_FRAMES)
@@ -43,13 +44,7 @@ def _runtime_pose(rows, frame):
 
 def partial_replacements(raw_vmd, layers, *, instance_id, clip_id):
     """Return interval samples after byte and full-time pose checks, or fail."""
-    if not isinstance(layers, list):
-        raise ValueError('Correction layers required')
-    active = [layer for layer in layers if layer.get('instance_id') == instance_id and
-              layer.get('clip_id') == clip_id]
-    if not active or any(layer.get('disabled') or layer.get('muted') or
-                         layer.get('weight', 0) <= 0 for layer in active):
-        raise ValueError('Active correction layer required')
+    active = active_correction_layers(layers, instance_id, clip_id)
     identity = tuple(active[0][key] for key in ('fps', 'start', 'duration'))
     if any(tuple(layer[key] for key in ('fps', 'start', 'duration')) != identity
            for layer in active):
