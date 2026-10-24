@@ -217,7 +217,17 @@ test('saved 3D camera survives reload and changes the encoded MP4 viewpoint', as
     const changed = await page.evaluate(() => window.BAIStudioMultiScenePreview.status().camera);
     assert.notDeepEqual(changed.position, initial.position);
     await page.locator('#v58-save-camera').click();
-    await page.waitForFunction(() => document.querySelector('#v58-multi-preview small[role="status"]')?.textContent.includes('作品へ保存しました'));
+    await page.waitForFunction(() => [...document.querySelectorAll('#v58-multi-preview small[role="status"]')]
+      .some(node=>node.textContent.includes('作品へ保存しました')),
+      null,{timeout:10000}).catch(async error=>{
+      const status=await page.evaluate(()=>({
+        shown:[...document.querySelectorAll('#v58-multi-preview [role="status"]')].map(node=>node.textContent),
+        preview:window.BAIStudioMultiScenePreview?.status(),
+        selectedProject:document.querySelector('#v06project')?.value,
+      }));
+      const latest=await json(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+      throw Error(`camera save did not settle: ${JSON.stringify({status,revision:latest.revision,camera:latest.camera})}`,{cause:error});
+    });
     const saved = await json(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
     assert.equal(saved.revision, scene.revision + 1);
     assert.deepEqual(saved.camera.position, changed.position.map(value => Number(value.toFixed(6))));
