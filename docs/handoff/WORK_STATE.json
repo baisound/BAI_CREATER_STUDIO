@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T15:37:37+09:00",
+  "updated_at": "2026-10-24T15:40:13+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-knee-limits",
-  "head_at_update": "d779fdc",
+  "branch": "codex/v05-motion010-knee-pole-design",
+  "head_at_update": "b1a9941",
   "current": {
-    "task": "Issue #106: MOTION-010 PMX足IK膝制限の可視化",
-    "status": "done",
-    "step": "実PMXの足IK膝リンク制限を3D編集画面へ表示し、制限のある骨と未到達差を区別して検証する",
+    "task": "Issue #106: MOTION-010 PMX膝ポール解法の実証",
+    "status": "in_progress",
+    "step": "実PMX足IKのCCD挙動と膝制限を測り、保存・VMD往復に一致するポール操作の設計と最小試験を確定する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T15:40:13+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "b1a9941",
+      "text": "Issue #106: MOTION-010 PMX膝ポール解法の実証: 実PMX足IKのCCD挙動と膝制限を測り、保存・VMD往復に一致するポール操作の設計と最小試験を確定する"
+    },
     {
       "at": "2026-10-24T15:37:37+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "978fa26",
       "text": "Issue #106: 選択PMX骨の3D位置ハンドルを数値位置差分・同一FKキーへ接続。回転→位置→回転、Esc取消、保存再読込、実PMX/VMD画面1件、型/構文検査、元素材/利用者データハッシュ不変を確認。"
-    },
-    {
-      "at": "2026-10-24T12:29:40+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "bc93ea4",
-      "text": "Issue #106: MOTION-010 実PMX骨の3D位置ハンドル: 同じv0.5編集画面で選択骨の局所移動を位置差分の仮表示・既存FKキー保存へ接続"
     }
   ]
 }
