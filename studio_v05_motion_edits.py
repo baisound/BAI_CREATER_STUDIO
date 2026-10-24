@@ -1,4 +1,4 @@
-"""Project-scoped, revisioned PMX FK rotation corrections (MOTION-010 stage A).
+"""Project-scoped, revisioned PMX FK pose corrections (MOTION-010).
 
 Only registered MMD PMX/VMD sources are accepted. The original assets are read-only.
 """
@@ -100,7 +100,8 @@ def _identity(layer):
 
 
 def _key(value):
-    if not isinstance(value, dict) or set(value) != {'frame', 'bone', 'rotation'}:
+    if not isinstance(value, dict) or not {'frame', 'bone', 'rotation'} <= set(value) \
+            or set(value) - {'frame', 'bone', 'rotation', 'position'}:
         raise MotionEditError('Invalid FK key fields')
     frame, bone, rotation = value['frame'], value['bone'], value['rotation']
     if type(frame) is not int or not 0 <= frame <= 24 * 60 * 60 * 240:
@@ -118,7 +119,16 @@ def _key(value):
     norm = math.sqrt(sum(v * v for v in rotation))
     if not 0.999 <= norm <= 1.001:
         raise MotionEditError('Quaternion must be normalized')
-    return {'frame': frame, 'bone': bone, 'rotation': [round(float(v / norm), 9) for v in rotation]}
+    checked = {'frame': frame, 'bone': bone,
+               'rotation': [round(float(v / norm), 9) for v in rotation]}
+    if 'position' in value:
+        position = value['position']
+        if not isinstance(position, list) or len(position) != 3 or any(
+                type(v) not in (float, int) or not math.isfinite(v) or abs(v) > 100000
+                for v in position):
+            raise MotionEditError('Invalid FK position delta')
+        checked['position'] = [round(float(v), 9) for v in position]
+    return checked
 
 
 def _bounds(layer):

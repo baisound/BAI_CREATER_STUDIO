@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T11:24:49+09:00",
+  "updated_at": "2026-10-24T11:33:10+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-position",
-  "head_at_update": "ae8c79d",
+  "head_at_update": "5d84633",
   "current": {
     "task": "Issue #106: MOTION-010 PMX骨の位置差分",
-    "status": "in_progress",
+    "status": "done",
     "step": "同じ作品のFK骨キーに位置差分を追加し、数値仮表示・保存・再読込を接続",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 次段階: 位置チャネル・手足IK/FK切替と別名VMD往復を承認済み設計に沿って段階的に進める。"
+    "MOTION-010次段階: 3D位置ハンドル、手足IK/FK切替、別名VMD往復を承認済み設計で進める。"
   ],
   "unverified": [
-    "複数レイヤー、位置チャネル、手足IK、別名VMD、長尺90秒、Linux、今回の実GPU、WebMCP/標準MCP実呼出し、Owner採用は未確認。Chromeの一時ERR_NO_BUFFER_SPACEは再実行で消えたが条件未特定。"
+    "複数レイヤー、3D位置ハンドル、手足IK/FK、別名VMD、長尺90秒、Linux、今回の実GPU、WebMCP/標準MCP実呼出し、Owner採用は未確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T11:33:10+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "5d84633",
+      "text": "MOTION-010の局所位置差分をFK作品キー・プレビュー・再生・保存へ接続。実PMX/VMD画面1件、既存ギズモ1件、Python6件、型検査、原本/利用者データのハッシュ一致。Issue #106継続。"
+    },
     {
       "at": "2026-10-24T11:24:49+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "44eba62",
       "text": "Issue #96: PMX表情・口キーを可視タイムラインの表情/口行で編集: キーの行割当と原子的な時刻移動、シーク連携、隔離試験"
-    },
-    {
-      "at": "2026-10-24T06:41:16+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "6a7b760",
-      "text": "Issue #96: 表情キー保存と実PMX/MP4の4件結合試験合格。原本欠損時にも孤立キー削除可とし、Python8件再合格。"
     }
   ]
 }
