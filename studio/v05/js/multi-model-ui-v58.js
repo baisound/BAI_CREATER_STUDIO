@@ -389,7 +389,14 @@ function armBonesFor(target,side){
   return {arm,elbow,wrist,side};
 }
 function limbBones(target,limb){
-  if(target?.format!=='PMX'||!limb.endsWith('_leg'))return null;
+  if(target?.format!=='PMX')return null;
+  if(limb.endsWith('_arm')){
+    const side=limb==='left_arm'?'左':'右';
+    const bones=target.object?.skeleton?.bones||[];
+    const fkName=bones.filter(bone=>bone.name===side+'腕').length===1?side+'腕':null;
+    return {fkName,ikName:armBonesFor(target,side)?.arm.name||null};
+  }
+  if(!limb.endsWith('_leg'))return null;
   const side=limb==='left_leg'?'左':'右';
   const bones=target.object?.skeleton?.bones||[];
   const fkName=side+'足';
@@ -410,10 +417,8 @@ function redrawLimbMode(target,instanceId,row){
   limbMode.disabled=!row||!available||Boolean(locked);
   limbSave.disabled=!row||!available||Boolean(locked)||Boolean(previewFk||previewArm)||
     Boolean(motionEdits?.issues?.length)||(stored==='IK'&&!bones?.ikName);
-  limbStatus.textContent=limb.endsWith('_arm')?
-    '腕IKの3D解法は未実装です。腕はFKのみです。':
-    !bones?.fkName?'このPMXに標準の脚骨がないため切替不可です。':
-    !bones.ikName?'このPMXに標準の足IK定義がないためIKへは切替不可です。':
+  limbStatus.textContent=!bones?.fkName?'このPMXに対応する部位の骨がないため切替不可です。':
+    !bones.ikName?'このPMXに対応するIK経路がないためIKへは切替不可です。':
     `現在 ${stored}。切替だけでは姿勢・キー・Undoを変更しません。`;
 }
 function worldBonePose(target){
@@ -1072,15 +1077,28 @@ choose.addEventListener('change',()=>{
 fkHere.addEventListener('click',setFkFrameFromSeek);
 fkFrame.addEventListener('change',()=>{activePole=null;activeArm=null;if(previewArm)discardFkPreview();redrawFkControls();});
 fkBone.addEventListener('change',()=>{activePole=null;activeArm=null;discardFkPreview();redrawFkControls();});
-limbSelect.addEventListener('change',redrawFkControls);
+limbSelect.addEventListener('change',()=>{
+  redrawFkControls();
+  if(!limbSelect.value.endsWith('_arm'))return;
+  const side=limbSelect.value==='left_arm'?'左':'右';
+  armSelect.value=side;
+  const instanceId=choose.value||selectedId,target=controller?.getLoaded(instanceId);
+  const bones=limbBones(target,limbSelect.value),row=activeFkRow();
+  if(!row||!bones?.fkName)return;
+  activePole=null;fkBone.value=bones.fkName;
+  activeArm=limbMode.value==='IK'&&bones.ikName?{
+    projectId:project.value,instanceId,clipId:row.clip_id,frame:Number(fkFrame.value),
+    bone:bones.fkName,side}:null;
+  rotateGizmo?.setMode(activeArm?'arm-hand':'rotate');redrawFkControls();
+});
 limbMode.addEventListener('change',()=>{
   const target=controller?.getLoaded(choose.value||selectedId);
   const bones=limbBones(target,limbSelect.value);
-  const unsupported=limbMode.value==='IK'&&(!bones?.ikName||limbSelect.value.endsWith('_arm'));
+  const unsupported=limbMode.value==='IK'&&!bones?.ikName;
   const instanceId=choose.value||selectedId;
   const locked=sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked;
   limbSave.disabled=!activeFkRow()||!bones?.fkName||Boolean(locked)||Boolean(previewFk||previewArm)||
-    Boolean(motionEdits?.issues?.length)||limbSelect.value.endsWith('_arm')||unsupported;
+    Boolean(motionEdits?.issues?.length)||unsupported;
   if(unsupported)limbStatus.textContent='この部位のIK解法・ターゲットには未対応です。';
 });
 limbSave.addEventListener('click',async()=>{
@@ -1092,7 +1110,7 @@ limbSave.addEventListener('click',async()=>{
       document.getElementById('v111-fk-gizmo-toggle')?.getAttribute('aria-pressed')==='true'){
     limbStatus.textContent='仮補正を破棄し、3Dハンドルを隠してから切り替えてください。';return;
   }
-  if(limb.endsWith('_arm')||!bones?.fkName||(mode==='IK'&&!bones.ikName)){
+  if(!bones?.fkName||(mode==='IK'&&!bones.ikName)){
     limbStatus.textContent='このPMX・部位の編集方法には未対応です。';return;
   }
   const name=mode==='IK'?bones.ikName:bones.fkName;
@@ -1112,7 +1130,13 @@ limbSave.addEventListener('click',async()=>{
     if(!opened||project?.value!==id||choose.value!==instanceId)return;
     const before=worldBonePose(target);
     motionEdits=data;activePole=null;fkBone.value=name;
-    rotateGizmo?.setMode(mode==='IK'?'translate':'rotate');
+    if(limb.endsWith('_arm')){
+      const side=limb==='left_arm'?'左':'右';
+      armSelect.value=side;
+      activeArm=mode==='IK'?{projectId:id,instanceId,clipId:row.clip_id,
+        frame:Number(fkFrame.value),bone:name,side}:null;
+      rotateGizmo?.setMode(mode==='IK'?'arm-hand':'rotate');
+    }else rotateGizmo?.setMode(mode==='IK'?'translate':'rotate');
     redrawFkControls();
     const difference=worldPoseDifference(before,worldBonePose(target));
     if(difference>1e-4)throw Error(`切替前後の姿勢差 ${difference.toExponential(2)} が上限を超えました`);

@@ -176,8 +176,7 @@ def _record(data, project_id):
         if not isinstance(instance_id, str) or not 0 < len(instance_id) <= 100 \
                 or any(ord(char) < 32 for char in instance_id) \
                 or not isinstance(limbs, dict) or not limbs \
-                or set(limbs) - set(LIMBS) or any(mode not in ('FK', 'IK') for mode in limbs.values()) \
-                or any(limb.endswith('_arm') and mode == 'IK' for limb, mode in limbs.items()):
+                or set(limbs) - set(LIMBS) or any(mode not in ('FK', 'IK') for mode in limbs.values()):
             raise MotionEditError('Invalid FK/IK mode; original retained')
     if not isinstance(data['layers'], list) or len(data['layers']) > MAX_LAYERS:
         raise MotionEditError('Invalid motion edit layers; original retained')
@@ -286,8 +285,32 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                 raise MotionEditError('Invalid FK/IK mode fields')
             context = _context(data_root, scene_root, legacy_root, arrangement_root,
                                catalog, project_id, assets, instance_id, clip_id)
-            if limb in ('left_arm', 'right_arm') and mode == 'IK':
-                raise MotionEditError('Arm IK solver is not available')
+            if limb in ('left_arm', 'right_arm'):
+                prefix = '左' if limb == 'left_arm' else '右'
+                try:
+                    bones = parse_pmx(context['model_path'].read_bytes())['bones_detail']
+                except (ValueError, OSError) as exc:
+                    raise MotionEditError('PMX bones cannot be inspected') from exc
+                arm = [index for index, bone in enumerate(bones) if bone['name'] == prefix + '腕']
+                if len(arm) != 1:
+                    raise MotionEditError('Canonical PMX arm is unavailable')
+                if mode == 'IK':
+                    elbow = [index for index, bone in enumerate(bones) if bone['name'] == prefix + 'ひじ']
+                    wrist = [index for index, bone in enumerate(bones) if bone['name'] == prefix + '手首']
+                    def ancestor(child, parent):
+                        seen = set()
+                        while isinstance(child, int) and 0 <= child < len(bones) and child not in seen:
+                            seen.add(child)
+                            child = bones[child].get('parent_index')
+                            if child == parent:
+                                return True
+                        return False
+                    if len(elbow) != 1 or len(wrist) != 1 \
+                            or not ancestor(elbow[0], arm[0]) or not ancestor(wrist[0], elbow[0]) \
+                            or any(ik.get('target_index') == wrist[0] or any(
+                                link.get('bone_index') in (arm[0], elbow[0]) for link in ik.get('links', []))
+                                for bone in bones if isinstance(ik := bone.get('ik'), dict)):
+                        raise MotionEditError('Canonical PMX arm IK chain is unavailable')
             if limb in ('left_leg', 'right_leg'):
                 prefix = '左' if limb == 'left_leg' else '右'
                 try:

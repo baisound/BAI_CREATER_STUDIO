@@ -21,8 +21,8 @@ async function ok(response){
   return JSON.parse(body);
 }
 
-test('real PMX arm chains solve, preview, handle, save and roundtrip on both sides',
-  {skip:!exists&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:180000},async()=>{
+test('real PMX arm chains solve, preview, handle, edit mode, save and roundtrip on both sides',
+  {skip:!exists&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:300000},async()=>{
   const before=[digest(modelPath),digest(motionPath)];
   const metadata=JSON.parse(fs.readFileSync(path.join(source,'mmd_assets.json'),'utf8'));
   assert.ok(['A','B'].includes(bank));
@@ -165,9 +165,18 @@ test('real PMX arm chains solve, preview, handle, save and roundtrip on both sid
     const rightPair=await ok(await post({revision:2,action:'arm-set',keys:armProbes['右'].keys}));
     assert.equal(rightPair.revision,3);
     await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
-    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
-      window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
-      null,{timeout:120000});
+    try{
+      await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
+        null,{timeout:120000});
+    }catch(error){
+      console.log(JSON.stringify({refreshStatus:await page.evaluate(()=>({
+        scene:window.BAIStudioMultiScenePreview?.status(),
+        progress:document.querySelector('#v58-progress')?.textContent,
+        motion:document.querySelector('#v59-motion-status')?.textContent})),
+      browserErrors:page.__monitor?.errors}));
+      throw error;
+    }
     await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'arm-local-rotation'));
     const edited=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
       input.instanceId,input.names),{instanceId,names:[...names,'頭','上半身']});
@@ -429,6 +438,76 @@ test('real PMX arm chains solve, preview, handle, save and roundtrip on both sid
       rightElbowAfter.bones['左手首'].world.slice(12,15))<1e-4);
     await page.keyboard.press('Escape');
     assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,12);
+    await page.locator('#v111-fk-gizmo-toggle').click();
+    const allPose=()=>page.evaluate(instanceId=>{
+      const names=[...document.querySelector('#v106-fk-bone').options].map(option=>option.value)
+        .filter(Boolean),bones={};
+      for(let offset=0;offset<names.length;offset+=16)
+        Object.assign(bones,window.BAIStudioMultiScenePreview.poseProbe(
+          instanceId,names.slice(offset,offset+16)).bones);
+      return bones;
+    },instanceId);
+    const modeBaseline=await ok(await fetch(`${endpoint}?id=${id}`));
+    const poseBaseline=await allPose();
+    assert.ok(Object.keys(poseBaseline).length>=200);
+    async function switchArmMode(limb,mode,revision){
+      await page.locator('#v123-limb').selectOption(limb);
+      await page.locator('#v123-limb-mode-select').selectOption(mode);
+      await page.locator('#v123-limb-mode-save').click();
+      await page.waitForFunction(revision=>{
+        const status=document.querySelector('#v123-limb-mode-status')?.textContent||'';
+        return /姿勢差|切替失敗/.test(status)&&
+          document.querySelector('#v123-limb-mode-save')?.disabled===false;
+      },revision);
+      assert.match(await page.locator('#v123-limb-mode-status').textContent(),/姿勢差/);
+      const stored=await ok(await fetch(`${endpoint}?id=${id}`));
+      assert.equal(stored.revision,revision);
+      assert.equal(stored.fk_ik_modes[instanceId][limb],mode);
+      assert.deepEqual(stored.layers,modeBaseline.layers);
+      assert.equal(stored.can_undo,modeBaseline.can_undo);
+      assert.equal(stored.can_redo,modeBaseline.can_redo);
+      const poseNow=await allPose();
+      assert.deepEqual(Object.keys(poseNow),Object.keys(poseBaseline));
+      let maxDifference=0;
+      for(const name of Object.keys(poseBaseline))
+        for(let index=0;index<16;index++)maxDifference=Math.max(maxDifference,
+          Math.abs(poseNow[name].world[index]-poseBaseline[name].world[index]));
+      assert.ok(maxDifference<1e-4,`${limb} ${mode}: all-bone world matrix difference ${maxDifference}`);
+      assert.equal(await page.locator('#v106-fk-bone').inputValue(),
+        limb==='left_arm'?'左腕':'右腕');
+      assert.equal(await page.locator('#v113-fk-gizmo-mode').inputValue(),
+        mode==='IK'?'arm-hand':'rotate');
+      if(mode==='IK'){
+        await page.locator('#v111-fk-gizmo-toggle').click();
+        await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().gizmo?.armWristWorld);
+        const snap=await page.evaluate(()=>window.BAIStudioMultiScenePreview.status().gizmo);
+        assert.ok(distance(snap.handleWorld,snap.armWristWorld)<1e-6);
+        await page.locator('#v111-fk-gizmo-toggle').click();
+      }
+      console.log(JSON.stringify({bank,model,limb,mode,maxDifference}));
+    }
+    await switchArmMode('left_arm','IK',13);
+    await switchArmMode('right_arm','IK',14);
+    await page.reload();
+    await page.locator('#v06project').selectOption(id);
+    await page.locator('#nav [data-workspace="edit"]').click();
+    await page.locator('#v70sceneOpen').click();
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
+      window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
+      null,{timeout:120000});
+    await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'arm-mode-reload'));
+    await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+    await page.locator('#v106-fk-frame').fill('240');
+    await page.locator('#v106-fk-frame').dispatchEvent('change');
+    for(const limb of ['left_arm','right_arm']){
+      await page.locator('#v123-limb').selectOption(limb);
+      assert.equal(await page.locator('#v123-limb-mode-select').inputValue(),'IK');
+    }
+    const reloadedModes=await ok(await fetch(`${endpoint}?id=${id}`));
+    assert.equal(reloadedModes.revision,14);
+    assert.deepEqual(reloadedModes.layers,modeBaseline.layers);
+    await switchArmMode('left_arm','FK',15);
+    await switchArmMode('right_arm','FK',16);
     await page.locator('#v116-vmd-candidate-create').click();
     await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-download')?.hidden===false||
       document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('不可'),

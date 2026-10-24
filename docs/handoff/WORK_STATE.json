@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T17:37:41+09:00",
+  "updated_at": "2026-10-24T17:48:05+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-arm-mode",
-  "head_at_update": "fb9ed92",
+  "head_at_update": "87370a9",
   "current": {
     "task": "Issue #106: MOTION-010 腕FK/IK編集方法切替",
-    "status": "in_progress",
+    "status": "done",
     "step": "左右腕の編集方法切替を姿勢・キー・Undo不変で接続し、実PMXで再読込まで確認する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 腕FK/IK編集方法の切替を全骨姿勢・キー・Undo不変で接続し、左右と代表PMXで確認する",
-    "MOTION-010: 残る右腕の保存再読込、連続ドラッグ中更新、任意PMX制限と全入口/OSのゲートを整理する"
+    "MOTION-010: 右腕手先・ひじハンドルの保存再読込と連続ドラッグ中更新を実PMXで確認し、必要な修正を行う",
+    "MOTION-010: 任意PMXの関節制限、物理ON、実GPU、Linux、標準MCP、候補採用・作品配置の残るゲートを整理する"
   ],
   "unverified": [
-    "登録済み3 PMXファイル・VMD1本・作品F240・物理OFFの候補検証のみ。腕FK/IK切替、右腕ハンドル保存再読込、連続ドラッグ中更新、任意PMX制限、物理ON、実GPU、Linux、標準MCP、候補採用・作品配置、Owner採用は未確認。AC-M-01/02と全体は未合格。"
+    "登録済み201骨・246骨PMX、VMD1本、作品F240、物理OFFの限定確認。右腕ハンドル保存再読込、連続ドラッグ中更新、任意PMX関節制限、物理ON、実GPU、Linux、標準MCP、候補採用・作品配置、Owner採用は未確認。衣装PMX初回の再読込待ち120秒タイムアウトは再実行で成功したが再現条件未確定。AC-M-01/02と全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T17:48:05+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "87370a9",
+      "text": "MOTION-010の左右腕FK/IK編集方法切替を実装し、201骨・246骨実PMXで全骨姿勢差0・キー/Undo不変・再読込を確認"
+    },
     {
       "at": "2026-10-24T17:37:41+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "b63d7c3",
       "text": "Issue #106: MOTION-010 足IK実ポインタ補正の保存再読込: 足首ハンドルの実ドラッグをキー化し、再読込・Undo/Redo・原本不変を実PMXで検証する"
-    },
-    {
-      "at": "2026-10-24T15:14:42+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "04f0980",
-      "text": "Issue #106: 実PMX足IKの3Dハンドルを評価済み足首へ置き、実マウス移動で左足追従・右足不変・Esc復元を確認"
     }
   ]
 }
