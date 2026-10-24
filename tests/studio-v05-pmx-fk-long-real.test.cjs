@@ -107,6 +107,24 @@ test('real 203s VMD FK correction at 90s previews, saves, and reloads',
       const restored=await pose();
       assert.ok(difference(corrected.bones['頭'].quaternion,restored.bones['頭'].quaternion)<1e-5);
       assert.ok(difference(corrected.bones['頭'].position,restored.bones['頭'].position)<1e-5);
+      const bounded=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:id,revision:saved.revision,action:'layer-update',instance_id:instance,
+          clip_id:placed.clip.id,layer_id:saved.layers[0].id,settings:{
+            start_frame:5338,end_frame:5464,fade_in_frames:2,fade_out_frames:2}})}));
+      const candidateReply=await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:id,revision:bounded.revision,instance_id:instance,
+          clip_id:placed.clip.id,mode:'interval'})});
+      const candidate=await candidateReply.json();
+      assert.equal(candidateReply.status,422);
+      assert.match(candidate.error,/Interval-only VMD pose error exceeds limit/);
+      assert.match(candidate.error,/'intervals': \[\[2669, 2732\]\]/);
+      assert.match(candidate.error,/'checked_project_frames': 12000/);
+      assert.match(candidate.error,/'checked_vmd_frames': 6110/);
+      assert.equal(fs.existsSync(path.join(server.dataDir,'studio_v05_vmd_candidates',id)),false);
+      assert.equal((await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${id}`))).revision,
+        bounded.revision);
       assert.deepEqual([digest(modelPath),digest(motionPath)],originals);
       assert.deepEqual(badResponses,[]);
       harness.assertNoErrors(page);
