@@ -1,4 +1,5 @@
 import {createSpatialEditor} from './spatial-ui-v61.js';
+import {createPmxBonePicker} from './pmx-bone-picker-v110.js';
 /* v58 - real multi-instance Three.js preview.
  * Uses a single viewport renderer and physically separate loaded objects
  * (including skeletons) per scene instance. Animation wiring is stage 59.
@@ -26,7 +27,7 @@ const tr=(key)=>locale[key]||({
 })[key]||key;
 const section=document.getElementById('v57-scene-instances');
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,reloadReady=false,nonce=0,selectedId='';
-let spatialEditor=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null;
+let spatialEditor=null,bonePicker=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
 panel.hidden=true;
@@ -280,7 +281,10 @@ function setFkFrameFromSeek(){
 function redrawFkControls(){
   const instanceId=choose.value||selectedId;
   const target=controller?.getLoaded(instanceId);
-  const names=target?.format==='PMX'?target.object.skeleton.bones.map(bone=>bone.name):[];
+  const boneNames=target?.format==='PMX'?target.object.skeleton.bones.map(bone=>bone.name):[];
+  const nameCounts=new Map();
+  for(const name of boneNames)nameCounts.set(name,(nameCounts.get(name)||0)+1);
+  const names=boneNames.filter(name=>nameCounts.get(name)===1);
   const previous=fkBone.value;
   fkBone.replaceChildren(new Option(names.length?'骨を選択':'実PMXを選択',''));
   for(const name of names)fkBone.add(new Option(name,name));
@@ -301,6 +305,7 @@ function redrawFkControls(){
   fkContext.textContent=row
     ?`作品F${fkFrame.value} / ${projectFps}fps、モデル ${instanceId}、VMD ${row.name}、レイヤー ${layer?.name||'FK補正（未作成）'}。元VMDとの差分角度です。`
     :'この位置で読み込み済みのPMX＋VMDとモデルを選択してください。';
+  if(names.length<boneNames.length)fkContext.textContent+=' 同名の骨は編集対象外です。';
   const editable=Boolean(row&&names.length&&fkBone.value&&
     !(sceneSnapshot?.instances||[]).find(item=>item.id===instanceId)?.locked);
   fkPreview.disabled=!editable;fkSave.disabled=!editable;
@@ -308,6 +313,7 @@ function redrawFkControls(){
   fkUndo.disabled=!motionEdits?.can_undo;fkRedo.disabled=!motionEdits?.can_redo;
   if(motionEdits?.issues?.length)fkStatus.textContent='補正を停止: '+motionEdits.issues.map(x=>x.reason).join('; ');
   else if(!row)fkStatus.textContent='対象VMDのある作品フレームへ移動してください。';
+  bonePicker?.refresh();
 }
 function applyAllMotionEdits(){
   if(!motionCoordinator||!motionPlan)return;
@@ -521,6 +527,17 @@ async function setup(){
       return data;
     }
   });
+  if(!captureMode)bonePicker=createPmxBonePicker({
+    container:canvasParent,controls:fkControls,viewport,
+    getModel:()=>controller?.getLoaded(choose.value||selectedId),
+    getSelected:()=>fkBone.value,
+    onSelect(name){
+      discardFkPreview();
+      fkBone.value=name;
+      fkControls.open=true;
+      redrawFkControls();
+    }
+  });
   motionCoordinator=window.BAIStudioMultiMotionV59.createCoordinator({
     controller,loadMotion:loadInstanceMotion,
     onChange:()=>{if(opened)redrawMotionControls();},
@@ -596,6 +613,7 @@ async function open(options={}){
 }
 function close(){
   nonce++;opened=false;reloadReady=false;
+  bonePicker?.dispose();bonePicker=null;
   spatialEditor?.dispose();spatialEditor=null;sceneSnapshot=null;
   motionCoordinator?.dispose();motionCoordinator=null;motionPlan=null;
   motionEdits=null;previewFk=null;
