@@ -12,14 +12,16 @@ test('PMX mouth offsets, overlap and manual-required rules use moved vertex IDs'
     morph('I',1,[{index:1,position:[0.2,0,0]},{index:2,position:[0.4,0,0]}]),
     morph('Zero',1,[{index:3,position:[0,0,0]}]),
     morph('Group',0,[{index:0,ratio:0.5}]),
+    morph('Bone',2,[]),
     {name:'eye',panel:2,type:1,elements:[{index:1,position:[1,0,0]}]},
   ]};
   const result=analyzeMouthMorphs(pmx);
-  assert.equal(result.morphs.length,4);
+  assert.equal(result.morphs.length,5);
   assert.equal(result.morphs[0].median,0.2);
   assert.equal(result.morphs[0].p95,0.29);
   assert.equal(result.morphs[2].manualRequired,true);
   assert.equal(result.morphs[3].manualRequired,true);
+  assert.equal(result.morphs[4].manualRequired,true);
   assert.deepEqual(result.overlaps,[{leftId:0,rightId:1,sharedVertices:1,unionVertices:3,jaccard:1/3}]);
   const candidate=strengthCandidates(result,{A:0,I:1,U:2},0);
   assert.equal(candidate.entries.A.candidate,1);

@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:24:24+09:00",
+  "updated_at": "2026-10-25T01:30:41+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip004-vrm-preview",
-  "head_at_update": "d02a35c",
+  "branch": "codex/v05-lip004-candidate-confirm",
+  "head_at_update": "766297a",
   "current": {
-    "task": "Issue #175: VRM口形の一時実描画",
+    "task": "Issue #175: 強度候補の手動調整と保存確認",
     "status": "done",
-    "step": "登録VRMの実バインドを読み込み済みメッシュへ対応させ、保存しない口形プレビューと復元を実VRMで検証する",
+    "step": "実PMX頂点型口モーフの候補を手動変更し、対応表として保存再読込・別hash拒否を受け入れ条件に沿って確認する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #175: VRM表情の時刻キーを同じ作品へ非破壊保存し、実プレビュー・再読込・限定出力の接続を検討する"
+    "Issue #175の限定受け入れ条件と未検証範囲をレビューし、達成ならIssueを閉じて次の承認済みLIP項目へ進む"
   ],
   "unverified": [
-    "VRM表情の時刻キー・動画出力、別VRMの有効結合、VRM材質表情、MCP、Linux、統合production耐障害性とOwner採用は未検証"
+    "テスト重みのOwner採用、任意PMX/VRM、WebMCP/標準MCP、統合production耐障害性、Linuxは未検証。LIP-004全体は部分実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:30:41+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "766297a",
+      "text": "Issue #175: 実PMX Aの頂点型候補1.00/約0.51を一時描画し、Iを手動0.47へ変更して確定保存・再読込。Uグループ0.6保持、人工ゼロ/グループ/骨型は手動確認。Node2/2・guarded Chrome1/1、原本/data7/exports0ハッシュ一致"
+    },
+    {
+      "at": "2026-10-25T01:26:43+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "688ec26",
+      "text": "Issue #175: 強度候補の手動調整と保存確認: 実PMX頂点型口モーフの候補を手動変更し、対応表として保存再読込・別hash拒否を受け入れ条件に沿って確認する"
+    },
     {
       "at": "2026-10-25T01:24:24+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "a814a9e",
       "text": "Issue #106: MOTION-010/CAM-015 MP4への旧カメラカット反映: 書き出し契約を確認し、保存済み旧カメラカットが実PMX MP4へ反映されるか隔離出力で検証する"
-    },
-    {
-      "at": "2026-10-24T23:08:26+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2d4b407",
-      "text": "MOTION-010/CAM-015 旧カメラtarget未適用を修正し、201骨実PMX撮影キャンバスのA/B/末尾カット画素差16072/13932と20秒保持差0を確認。SwiftShader、原本/data7/exports0 SHA不変"
-    },
-    {
-      "at": "2026-10-24T23:03:57+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "55ccf94",
-      "text": "Issue #106: MOTION-010/CAM-015 実PMX撮影プレビューでのカット確認: 保存済み旧カメラカットを実PMXの撮影プレビューへ適用し、姿勢・ピクセル・原本保持を隔離検証する"
     }
   ]
 }
