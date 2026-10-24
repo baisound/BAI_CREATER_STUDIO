@@ -25,6 +25,9 @@ test('PMX mouth offsets, overlap and manual-required rules use moved vertex IDs'
   assert.equal(candidate.entries.A.candidate,1);
   assert.ok(Math.abs(candidate.entries.I.candidate-2/3)<1e-12);
   assert.equal(candidate.entries.U.candidate,null);
+  const clipped=strengthCandidates(result,{A:0},1);
+  assert.equal(clipped.entries.A.candidate,1);
+  assert.equal(clipped.entries.A.clipped,true);
   assert.throws(()=>strengthCandidates(result,{A:0},2),/Reference morph/);
   assert.throws(()=>strengthCandidates(result,{A:99},0),/Unknown mouth morph/);
   assert.throws(()=>analyzeMouthMorphs({metadata:{vertexCount:1},morphs:[morph('bad',1,[{index:2,position:[1,0,0]}])]}),/Invalid PMX/);
@@ -44,6 +47,14 @@ test('real PMX mouth measurements are finite and source remains unchanged',t=>{
       assert.equal(analysis.morphs.length,48);
       assert.ok(analysis.morphs.some(row=>row.name==='あ'&&row.type===0&&row.manualRequired));
       assert.ok(analysis.morphs.some(row=>row.type===1&&row.affectedVertices>0));
+      const upper=analysis.morphs.find(row=>row.name==='口上');
+      const lower=analysis.morphs.find(row=>row.name==='口下');
+      const group=analysis.morphs.find(row=>row.name==='あ');
+      const strength=strengthCandidates(analysis,{A:upper.id,I:lower.id,U:group.id},upper.id);
+      assert.equal(strength.entries.A.candidate,1);
+      assert.ok(Math.abs(strength.entries.I.candidate-upper.median/lower.median)<1e-12);
+      assert.equal(strength.entries.U.candidate,null);
+      assert.equal(strength.entries.U.manualRequired,true);
     }else{
       assert.equal(analysis.morphs.length,0);
       assert.equal(analysis.overlaps.length,0);
