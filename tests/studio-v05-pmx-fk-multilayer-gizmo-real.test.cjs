@@ -127,6 +127,18 @@ test('real PMX gizmo edits the selected upper layer over a saved lower pose',
       await page.reload();
       await page.locator('#v06project').selectOption(id);
       await page.locator('#nav [data-workspace="edit"]').click();
+      try{
+        await page.locator('#v70sceneOpen').waitFor({timeout:15000});
+      }catch(error){
+        const state=await page.evaluate(()=>({url:location.href,readyState:document.readyState,
+          transport:Boolean(document.querySelector('#v68transport')),
+          panel:Boolean(document.querySelector('#v58-multi-preview')),
+          canvas:Boolean(document.querySelector('#v58-canvas')),
+          sceneBridge:Boolean(window.BAIStudioMediaPreviewV68),
+          scene:Boolean(window.BAIStudioMultiScenePreview)}));
+        console.error(JSON.stringify({reloadUiState:state,pageErrors:page.__monitor.errors}));
+        throw error;
+      }
       await page.locator('#v70sceneOpen').click();
       await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
         window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
