@@ -94,10 +94,22 @@ const fkSaved=document.createElement('select');fkSaved.id='v106-fk-saved';fkSave
 const fkRemove=document.createElement('button');fkRemove.type='button';fkRemove.id='v106-fk-remove';fkRemove.textContent='選択キーを削除';
 const fkStatus=document.createElement('span');fkStatus.id='v106-fk-status';fkStatus.setAttribute('role','status');
 fkStatus.style.cssText='display:block;color:#c8d9ea';
+const fkLayerRow=document.createElement('div');fkLayerRow.id='v106-fk-layer';
+fkLayerRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
+const fkWeight=document.createElement('input');fkWeight.id='v106-fk-weight';fkWeight.type='number';fkWeight.min='0';fkWeight.max='100';fkWeight.step='1';fkWeight.value='100';fkWeight.style.width='65px';
+const fkStart=document.createElement('input');fkStart.id='v106-fk-start';fkStart.type='number';fkStart.step='1';fkStart.style.width='78px';
+const fkEnd=document.createElement('input');fkEnd.id='v106-fk-end';fkEnd.type='number';fkEnd.step='1';fkEnd.style.width='78px';
+const fkFadeIn=document.createElement('input');fkFadeIn.id='v106-fk-fade-in';fkFadeIn.type='number';fkFadeIn.min='0';fkFadeIn.step='1';fkFadeIn.style.width='65px';
+const fkFadeOut=document.createElement('input');fkFadeOut.id='v106-fk-fade-out';fkFadeOut.type='number';fkFadeOut.min='0';fkFadeOut.step='1';fkFadeOut.style.width='65px';
+const fkMuted=document.createElement('input');fkMuted.id='v106-fk-muted';fkMuted.type='checkbox';
+const fkLayerSave=document.createElement('button');fkLayerSave.id='v106-fk-layer-save';fkLayerSave.type='button';fkLayerSave.textContent='レイヤーを保存';
+fkLayerRow.append(document.createTextNode('重み % '),fkWeight,document.createTextNode('区間 F '),fkStart,
+  document.createTextNode('〜'),fkEnd,document.createTextNode('前なじませ F '),fkFadeIn,
+  document.createTextNode('後なじませ F '),fkFadeOut,document.createTextNode('ミュート '),fkMuted,fkLayerSave);
 fkRow.append(document.createTextNode('骨 '),fkBone,document.createTextNode('F '),fkFrame,fkHere,
   ...fkAxes.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}° `),input]),
   fkPreview,fkSave,fkCancel,fkUndo,fkRedo,fkSaved,fkRemove);
-fkControls.append(fkSummary,fkContext,fkRow,fkStatus);
+fkControls.append(fkSummary,fkContext,fkRow,fkLayerRow,fkStatus);
 const faceLabel=document.createElement('strong');faceLabel.textContent='PMX表情・口';
 const faceName=document.createElement('select');faceName.id='v96-face-name';faceName.setAttribute('aria-label','実PMXのモーフ名');
 const faceTrack=document.createElement('select');faceTrack.id='v98-face-track';
@@ -276,6 +288,12 @@ function redrawFkControls(){
   else if(names.includes('頭'))fkBone.value='頭';
   const row=activeFkRow();
   const layer=motionEdits?.layers?.find(item=>item.instance_id===instanceId&&item.clip_id===row?.clip_id&&!item.disabled);
+  const first=row?Math.ceil(row.start*projectFps-1e-7):0;
+  const end=row?Math.ceil((row.start+row.duration)*projectFps-1e-7):0;
+  fkWeight.value=String(Math.round((layer?.weight??1)*100));
+  fkStart.value=String(layer?.start_frame??first);fkEnd.value=String(layer?.end_frame??end);
+  fkFadeIn.value=String(layer?.fade_in_frames??0);fkFadeOut.value=String(layer?.fade_out_frames??0);
+  fkMuted.checked=Boolean(layer?.muted);fkLayerSave.disabled=!layer;
   const previousKey=fkSaved.value;
   fkSaved.replaceChildren(new Option('保存済みFKキー',''));
   for(const key of layer?.keys||[])fkSaved.add(new Option(`F${key.frame} ${key.bone}`,JSON.stringify([key.frame,key.bone])));
@@ -325,11 +343,13 @@ function fkPayload(){
     ...degrees.map(x=>x*Math.PI/180),'XYZ')).normalize().toArray();
   return {row,frame,key:{frame,bone,rotation:quaternion}};
 }
-async function writeFk(action,key=null,row=null){
+async function writeFk(action,key=null,row=null,extra={}){
   const id=project?.value,revision=motionEdits?.revision;
   if(!id||!opened||!Number.isInteger(revision))throw Error('作品の補正データを再読み込みしてください');
   const body={project_id:id,revision,action};
   if(row){body.instance_id=row.target_scene_instance_id;body.clip_id=row.clip_id;body.key=key;}
+  Object.assign(body,extra);
+  if(body.key===null)delete body.key;
   const response=await fetch('/api/studio/v05/motion-edits',{
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   const data=await response.json();
@@ -646,6 +666,23 @@ fkRemove.addEventListener('click',async()=>{
     await writeFk('remove',key,row);fkStatus.textContent='FKキーを削除しました';
   }catch(error){fkStatus.textContent='FK削除失敗: '+String(error.message||error);}
 });
+fkLayerSave.addEventListener('click',async()=>{
+  const row=activeFkRow();
+  const layer=motionEdits?.layers?.find(item=>!item.disabled&&item.instance_id===(choose.value||selectedId)&&item.clip_id===row?.clip_id);
+  if(!row||!layer){fkStatus.textContent='保存済みレイヤーを選択してください';return;}
+  const numbers=[fkWeight,fkStart,fkEnd,fkFadeIn,fkFadeOut].map(input=>Number(input.value));
+  if([fkWeight,fkStart,fkEnd,fkFadeIn,fkFadeOut].some(input=>input.value.trim()==='')||
+      numbers.some(n=>!Number.isFinite(n))||numbers.slice(1).some(n=>!Number.isInteger(n))){
+    fkStatus.textContent='重みと区間・なじませを数値で指定してください';return;
+  }
+  fkLayerSave.disabled=true;
+  try{await writeFk('layer-update',null,row,{layer_id:layer.id,settings:{
+    weight:numbers[0]/100,start_frame:numbers[1],end_frame:numbers[2],
+    fade_in_frames:numbers[3],fade_out_frames:numbers[4],muted:fkMuted.checked}});
+    fkStatus.textContent='FKレイヤーを保存しました';
+  }catch(error){fkStatus.textContent='レイヤー保存失敗: '+String(error.message||error);}
+  finally{redrawFkControls();}
+});
 for(const [button,action] of [[fkUndo,'undo'],[fkRedo,'redo']])button.addEventListener('click',async()=>{
   button.disabled=true;
   try{await writeFk(action);fkStatus.textContent=action==='undo'?'FKキーを戻しました':'FKキーをやり直しました';}
@@ -865,6 +902,33 @@ window.addEventListener('bai:v98-face-key-select',async event=>{
     else seekScene(key.time);
   }catch(error){faceStatus.textContent='表情キーを開けません: '+String(error.message||error);}
 });
+window.addEventListener('bai:v106-fk-saved',async event=>{
+  const id=event.detail?.projectId;
+  if(!opened||!id||project?.value!==id||motionEdits?.revision===event.detail?.revision)return;
+  try{
+    const data=await request('/api/studio/v05/motion-edits?id='+encodeURIComponent(id));
+    if(!opened||project?.value!==id)return;
+    motionEdits=data;previewFk=null;applyAllMotionEdits();
+    seekScene(Number(seekInput.value)||currentSeek());redrawFkControls();
+  }catch(error){fkStatus.textContent='FK補正再読込失敗: '+String(error.message||error);}
+});
+window.addEventListener('bai:v106-fk-key-select',async event=>{
+  const {projectId,instanceId,clipId,key} = event.detail||{};
+  if(captureMode||projectId!==project?.value||!key)return;
+  try{
+    await open({composite:true});
+    if(!opened||project.value!==projectId)return;
+    choose.value=instanceId;selectedId=instanceId;spatialEditor?.select(instanceId);
+    fkFrame.value=String(key.frame);fkBone.value=key.bone;
+    if(window.BAIStudioTimeline?.seek)await window.BAIStudioTimeline.seek(key.frame/projectFps,'fk-key');
+    else seekScene(key.frame/projectFps);
+    fkControls.open=true;redrawFkControls();
+    const layer=motionEdits?.layers?.find(item=>item.instance_id===instanceId&&item.clip_id===clipId);
+    if(layer?.keys.some(saved=>saved.frame===key.frame&&saved.bone===key.bone)){
+      fkSaved.value=JSON.stringify([key.frame,key.bone]);fkSaved.dispatchEvent(new Event('change'));
+    }
+  }catch(error){fkStatus.textContent='FKキーを開けません: '+String(error.message||error);}
+});
 window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
@@ -938,6 +1002,7 @@ window.BAIStudioMultiScenePreview=Object.freeze({
       renderer:viewport.rendererName,canvas:[viewport.renderer.domElement.width,viewport.renderer.domElement.height]};
   }
 });
+window.dispatchEvent(new Event('bai:v58-ui-ready'));
 
 // Browser-local WebMCP is deliberately separate from the saved scene tools.
 // Standard MCP exposes a read-only placement plan; GPU canvas lives here.
@@ -953,9 +1018,12 @@ if(document.modelContext?.registerTool){
      readOnly:true,inputSchema:{type:'object',properties:{project_id:{type:'string'}},
        required:['project_id'],additionalProperties:false},
      async execute({project_id}){return request('/api/studio/v05/motion-edits?id='+encodeURIComponent(project_id));}},
-    {name:'bai_studio_pmx_fk_edits_mutate',description:'Save/remove one PMX FK quaternion key or undo/redo with revision.',
+    {name:'bai_studio_pmx_fk_edits_mutate',description:'Save/remove/move a PMX FK key, update its layer, or undo/redo with revision.',
      inputSchema:{type:'object',properties:{project_id:{type:'string'},revision:{type:'integer'},
-       action:{type:'string',enum:['set','remove','undo','redo']},instance_id:{type:'string'},clip_id:{type:'string'},
+       action:{type:'string',enum:['set','remove','move','layer-update','undo','redo']},instance_id:{type:'string'},clip_id:{type:'string'},
+       layer_id:{type:'string'},to_frame:{type:'integer'},settings:{type:'object',properties:{
+         name:{type:'string'},weight:{type:'number'},muted:{type:'boolean'},start_frame:{type:'integer'},
+         end_frame:{type:'integer'},fade_in_frames:{type:'integer'},fade_out_frames:{type:'integer'}},additionalProperties:false},
        key:{type:'object',properties:{frame:{type:'integer'},bone:{type:'string'},
          rotation:{type:'array',items:{type:'number'},minItems:4,maxItems:4}},
          required:['frame','bone','rotation'],additionalProperties:false}},
@@ -968,6 +1036,7 @@ if(document.modelContext?.registerTool){
        if(!response.ok)throw Error(data.error||`HTTP ${response.status}`);
        if(opened&&project?.value===input.project_id){motionEdits=data;previewFk=null;
          applyAllMotionEdits();seekScene(Number(seekInput.value)||currentSeek());redrawFkControls();}
+       window.dispatchEvent(new CustomEvent('bai:v106-fk-saved',{detail:{projectId:input.project_id,revision:data.revision}}));
        return data;
      }}
   ]) {

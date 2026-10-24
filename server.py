@@ -757,7 +757,8 @@ class Handler(BaseHTTPRequestHandler):
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
-                allowed={'project_id','revision','action','instance_id','clip_id','key'}
+                allowed={'project_id','revision','action','instance_id','clip_id','key',
+                         'layer_id','settings','to_frame'}
                 if not isinstance(body,dict) or not {'project_id','revision','action'}<=set(body) or set(body)-allowed:
                     return self.bad(400,'Invalid motion edit fields')
                 result=edit_motion(DATA/'studio_v05_motion_edits',DATA,

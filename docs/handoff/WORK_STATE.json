@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T10:15:42+09:00",
+  "updated_at": "2026-10-24T10:32:36+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-layers",
-  "head_at_update": "8728d42",
+  "head_at_update": "63515fa",
   "current": {
     "task": "Issue #106: MOTION-010補正レイヤーとタイムラインキー",
-    "status": "in_progress",
+    "status": "done",
     "step": "作品別FKレイヤーの重み・区間・ミュートとキー表示/移動を同じAPI・再生へつなぐ",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 段階A残り: レイヤー重み・区間・ミュート等の操作と作品タイムラインキーを接続",
-    "MOTION-010 段階B/C: 3D IK/ギズモと別名VMD往復検証を段階的に実施"
+    "MOTION-010 次段階: 3D骨選択・ギズモ/IKの限定実装と別名VMD往復設計を承認範囲で進める"
   ],
   "unverified": [
-    "FK補正入り完成MP4の画素比較、長尺90秒、WebMCP/標準MCP実呼出し、Linux、実GPU上のFK補正、Owner採用は未検証"
+    "ドラッグ実操作、補正入り完成MP4画素比較、WebMCP/標準MCP実呼出し、Linux、実GPU上FK、長尺90秒、Owner採用は未検証。ソロ/複数層、3D IK、別名VMDは未実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T10:32:36+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "63515fa",
+      "text": "MOTION-010 PMX FK補正レイヤーの重み・区間・なじませ・ミュート、作品タイムラインキー表示/移動を接続。実PMX試験と保存再読込・原本不変を確認"
+    },
     {
       "at": "2026-10-24T10:15:42+09:00",
       "by": "codex",
@@ -234,13 +240,6 @@
       "event": "done",
       "head": "8d43dda",
       "text": "Issue #69: v0.5書き出し画面とIn/Outの旧未接続表記を現行の限定MP4、見本、完成物、履歴へ同期。隔離Chrome実MP4 1/1、型・構文・JSON・実データhash確認。"
-    },
-    {
-      "at": "2026-10-24T05:56:12+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5fd1087",
-      "text": "Issue #69: v0.5書き出し画面の実MP4対応表示: 書き出し画面の古い未接続表記を現行の限定MP4機能と一致させて確認"
     }
   ]
 }

@@ -1,10 +1,11 @@
 /* One saved project clock drives the existing multi-model GPU scene and media preview. */
 (() => {
   'use strict';
+  function connect() {
   const transport = document.querySelector('#v68transport');
   const panel = document.querySelector('#v58-multi-preview');
   const canvas = document.querySelector('#v58-canvas');
-  if (!transport || !panel || !canvas) return;
+  if (!transport || !panel || !canvas || document.getElementById('v70sceneOpen')) return;
   const button = document.createElement('button');
   button.id = 'v70sceneOpen';
   button.type = 'button';
@@ -48,4 +49,7 @@
   window.addEventListener('bai:v05-project-changed', update);
   window.addEventListener('bai:v57-scene-changed', update);
   window.addEventListener('bai:v58-scene-reloaded', update);
+  }
+  connect();
+  window.addEventListener('bai:v58-ui-ready', connect);
 })();

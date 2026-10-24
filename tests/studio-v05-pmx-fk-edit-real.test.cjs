@@ -102,6 +102,8 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
       assert.ok(maxDelta(corrected.bones['頭'].quaternion,redone.bones['頭'].quaternion)<1e-5);
       const final=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
       assert.equal(final.revision,3);assert.equal(final.layers[0].keys.length,1);
+      await page.waitForFunction(()=>document.querySelectorAll('#v07timeline .v106-fk-marker').length===1);
+      assert.equal(await page.locator('#v07timeline .v106-fk-marker').getAttribute('data-fk-frame'),'240');
       assert.ok(fs.existsSync(path.join(server.dataDir,'studio_v05_motion_edits',projectId+'.json')));
       const invalidBone=await fetch(`${server.base}/api/studio/v05/motion-edits`,{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
@@ -114,6 +116,90 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
           key:{...final.layers[0].keys[0],frame:601}})});
       assert.equal(invalidFrame.status,422);
       assert.equal((await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`))).revision,3);
+      const post=body=>fetch(`${server.base}/api/studio/v05/motion-edits`,{method:'POST',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      let editRevision=3;
+      const settings={project_id:projectId,action:'layer-update',instance_id:instanceId,
+        clip_id:placement.clip.id,layer_id:final.layers[0].id};
+      let updated=await ok(await post({...settings,revision:editRevision,settings:{weight:0.5,
+        start_frame:230,end_frame:270,fade_in_frames:5,fade_out_frames:5}}));
+      editRevision=updated.revision;
+      assert.equal(updated.layers[0].weight,0.5);
+      assert.equal(updated.layers[0].start_frame,230);
+      const invalidInterval=await post({...settings,revision:editRevision,
+        settings:{start_frame:275,end_frame:270}});
+      assert.equal(invalidInterval.status,422);
+      assert.equal((await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`))).revision,editRevision);
+      await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'fk-half'));
+      const half=await pose();
+      const fullDelta=maxDelta(baseline.bones['頭'].quaternion,corrected.bones['頭'].quaternion);
+      const halfDelta=maxDelta(baseline.bones['頭'].quaternion,half.bones['頭'].quaternion);
+      assert.ok(halfDelta>0.005&&halfDelta<fullDelta);
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(230/60,'fk-fade-start'));
+      const fadeStart=await pose();
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(232/60,'fk-fade-mid'));
+      const fadeMid=await pose();
+      updated=await ok(await post({...settings,revision:editRevision,settings:{muted:true}}));
+      editRevision=updated.revision;
+      await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'fk-muted'));
+      assert.ok(maxDelta(baseline.bones['頭'].quaternion,(await pose()).bones['頭'].quaternion)<1e-5);
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(230/60,'fk-muted-fade-start'));
+      assert.ok(maxDelta(fadeStart.bones['頭'].quaternion,(await pose()).bones['頭'].quaternion)<1e-5);
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(232/60,'fk-muted-fade-mid'));
+      assert.ok(maxDelta(fadeMid.bones['頭'].quaternion,(await pose()).bones['頭'].quaternion)>0.001);
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(3,'fk-muted-outside'));
+      const mutedAtThree=await pose();
+      updated=await ok(await post({...settings,revision:editRevision,settings:{muted:false,weight:1}}));
+      editRevision=updated.revision;
+      await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(3,'fk-outside'));
+      const outside=await pose();
+      assert.ok(maxDelta(outside.bones['頭'].quaternion,mutedAtThree.bones['頭'].quaternion)<1e-5);
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'fk-inside'));
+      assert.ok(maxDelta(baseline.bones['頭'].quaternion,(await pose()).bones['頭'].quaternion)>0.01);
+      updated=await ok(await post({...settings,revision:editRevision,settings:{
+        start_frame:0,end_frame:600,fade_in_frames:0,fade_out_frames:0}}));
+      editRevision=updated.revision;
+      updated=await ok(await post({project_id:projectId,revision:editRevision,action:'move',
+        instance_id:instanceId,clip_id:placement.clip.id,key:final.layers[0].keys[0],to_frame:241}));
+      editRevision=updated.revision;
+      assert.equal(updated.layers[0].keys[0].frame,241);
+      await page.evaluate(()=>window.BAIStudioV05Arrangement.refreshTimeline());
+      await page.waitForFunction(()=>document.querySelector('#v07timeline .v106-fk-marker')?.dataset.fkFrame==='241');
+      updated=await ok(await post({project_id:projectId,revision:editRevision,action:'undo'}));
+      editRevision=updated.revision;
+      assert.equal(updated.layers[0].keys[0].frame,240);
+      await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());
+      await page.evaluate(()=>window.BAIStudioV05Arrangement.refreshTimeline());
+      await page.waitForFunction(()=>document.querySelector('#v07timeline .v106-fk-marker')?.dataset.fkFrame==='240');
+      await page.locator('#v07timeline .v106-fk-marker').press('ArrowRight');
+      await page.waitForFunction(()=>{
+        const frame=document.querySelector('#v07timeline .v106-fk-marker')?.dataset.fkFrame;
+        return frame&&frame!=='240';
+      });
+      updated=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.ok(updated.layers[0].keys[0].frame>240&&updated.layers[0].keys[0].frame<600);
+      editRevision=updated.revision;
+      updated=await ok(await post({project_id:projectId,revision:editRevision,action:'undo'}));
+      editRevision=updated.revision;
+      assert.equal(updated.layers[0].keys[0].frame,240);
+      await page.evaluate(()=>window.BAIStudioMultiScenePreview.open({composite:true}));
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'fk-layer-ui'));
+      await page.locator('#v106-fk-weight').fill('25');
+      await page.locator('#v106-fk-layer-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('レイヤーを保存しました'));
+      updated=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(updated.layers[0].weight,0.25);
+      editRevision=updated.revision;
+      await page.locator('#v106-fk-weight').fill('100');
+      await page.locator('#v106-fk-status').evaluate(el=>el.textContent='');
+      await page.locator('#v106-fk-layer-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('レイヤーを保存しました'));
+      updated=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(updated.layers[0].weight,1);
+      editRevision=updated.revision;
       await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());
       await page.goto(`${server.base}/studio/v05/index.html?scene_capture=1`);
       await page.locator('#v06project').selectOption(projectId);
@@ -140,7 +226,7 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
           revision:currentScene.revision,action:'update',instance_id:instanceId,locked:true})}));
       const lockedWrite=await fetch(`${server.base}/api/studio/v05/motion-edits`,{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
-          revision:3,action:'set',instance_id:instanceId,clip_id:placement.clip.id,
+          revision:editRevision,action:'set',instance_id:instanceId,clip_id:placement.clip.id,
           key:final.layers[0].keys[0]})});
       assert.equal(lockedWrite.status,409);
       await ok(await fetch(`${server.base}/api/studio/v05/scene/instances`,{method:'POST',
@@ -152,7 +238,7 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
       assert.match(staleSource.issues[0].reason,/changed/);
       const changedSourceWrite=await fetch(`${server.base}/api/studio/v05/motion-edits`,{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
-          revision:3,action:'set',instance_id:instanceId,clip_id:placement.clip.id,
+          revision:editRevision,action:'set',instance_id:instanceId,clip_id:placement.clip.id,
           key:final.layers[0].keys[0]})});
       assert.equal(changedSourceWrite.status,409);
       console.log(JSON.stringify({model_sha256:originals[0],motion_sha256:originals[1],

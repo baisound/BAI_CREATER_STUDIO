@@ -20,8 +20,15 @@ export function createPmxVmdPreview(THREE, MMDAnimationHelper, pmx, clip, id) {
   /** @type {any|null} */ let previewKey = null;
   function applyCorrections(_mesh, seconds) {
     for (const layer of layers) {
-      if (layer.disabled || layer.muted || layer.weight <= 0) continue;
       const frame = (layer.start + seconds) * layer.fps;
+      const first = Math.ceil(layer.start * layer.fps - 1e-7);
+      const end = Math.ceil((layer.start + layer.duration) * layer.fps - 1e-7);
+      const from = layer.start_frame ?? first, until = layer.end_frame ?? end;
+      if (layer.disabled || layer.muted || layer.weight <= 0 || frame < from || frame >= until) continue;
+      const fadeIn = layer.fade_in_frames ?? 0, fadeOut = layer.fade_out_frames ?? 0;
+      const weight = layer.weight * (fadeIn ? Math.min(1,(frame-from)/fadeIn) : 1) *
+        (fadeOut ? Math.min(1,(until-frame)/fadeOut) : 1);
+      if (weight <= 0) continue;
       const names = new Set(layer.keys.map((/** @type {any} */ key) => key.bone));
       if (previewKey && previewKey.layer_id === layer.id) names.add(previewKey.bone);
       for (const name of names) {
@@ -45,7 +52,7 @@ export function createPmxVmdPreview(THREE, MMDAnimationHelper, pmx, clip, id) {
           quat.fromArray(right.rotation);
           delta.slerp(quat,blend);
         }
-        delta.normalize().slerp(identity,1-layer.weight);
+        delta.normalize().slerp(identity,1-weight);
         bone.quaternion.multiply(delta);
       }
     }
