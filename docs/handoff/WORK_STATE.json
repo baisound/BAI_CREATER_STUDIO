@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T15:14:42+09:00",
+  "updated_at": "2026-10-24T15:16:59+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-foot-handle-snap",
-  "head_at_update": "04f0980",
+  "branch": "codex/v05-motion010-foot-drag-persist",
+  "head_at_update": "b63d7c3",
   "current": {
-    "task": "Issue #106: MOTION-010 PMX足IKの足首ハンドルスナップ",
-    "status": "done",
-    "step": "IKターゲット編集ハンドルを現在の足首世界位置に置き、移動量をIK骨へ安全に変換して実PMXで検証する",
+    "task": "Issue #106: MOTION-010 足IK実ポインタ補正の保存再読込",
+    "status": "in_progress",
+    "step": "足首ハンドルの実ドラッグをキー化し、再読込・Undo/Redo・原本不変を実PMXで検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T15:16:59+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "b63d7c3",
+      "text": "Issue #106: MOTION-010 足IK実ポインタ補正の保存再読込: 足首ハンドルの実ドラッグをキー化し、再読込・Undo/Redo・原本不変を実PMXで検証する"
+    },
     {
       "at": "2026-10-24T15:14:42+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "15a8636",
       "text": "Issue #106 MOTION-010: 実PMX骨階層・3Dマーカーから既存FK欄への選択接続と実モデル回帰を完了。PR作成前。"
-    },
-    {
-      "at": "2026-10-24T10:50:49+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "684780a",
-      "text": "Issue #106: MOTION-010実PMX骨の3D選択: 同じv0.5プレビュー内に実骨階層の選択・対象表示を接続し、既存FKキー欄へ同期"
     }
   ]
 }
