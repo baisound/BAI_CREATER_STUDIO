@@ -61,8 +61,15 @@ test(`lower FK layer head rotation is inverted through an active upper correctio
       const created=await mutate(lower.revision,'layer-create',{settings:{name:'上段頭補正'}});
       const upperId=created.layers[1].id;
       const upperRotation=[0,Math.sin(0.1),0,Math.cos(0.1)];
-      const stacked=await mutate(created.revision,'set',{layer_id:upperId,key:{
+      let stacked=await mutate(created.revision,'set',{layer_id:upperId,key:{
         frame:240,bone:'頭',rotation:upperRotation,position:[0.01,0,0]}});
+      if(collection==='B'){
+        const third=await mutate(stacked.revision,'layer-create',
+          {settings:{name:'さらに上の頭補正'}});
+        stacked=await mutate(third.revision,'set',{layer_id:third.layers[2].id,key:{
+          frame:240,bone:'頭',rotation:[Math.sin(0.12),0,0,Math.cos(0.12)],
+          position:[0,-0.008,0.004]}});
+      }
       browser=await server.launchBrowser();page=await server.newPage(browser);
       await page.goto(`${server.base}/studio/v05/index.html`);
       await page.locator('#v06project').selectOption(id);
@@ -80,6 +87,16 @@ test(`lower FK layer head rotation is inverted through an active upper correctio
       await page.waitForFunction(()=>window.BAIStudioMediaPreviewV68?.status().frame===240);
       await page.locator('#v146-fk-layer-select').selectOption(lowerId);
       await page.waitForFunction(()=>!document.querySelector('#v111-fk-gizmo-toggle')?.disabled);
+      if(collection==='A'){
+        await page.locator('#v106-fk-bone').selectOption('左足');
+        await page.waitForFunction(()=>document.querySelector('#v111-fk-gizmo-toggle')?.disabled);
+        assert.match(await page.locator('#v111-fk-gizmo-status').textContent(),/IK・付与の影響/);
+        await page.locator('#v106-fk-bone').selectOption('左目');
+        await page.waitForFunction(()=>document.querySelector('#v111-fk-gizmo-toggle')?.disabled);
+        assert.match(await page.locator('#v111-fk-gizmo-status').textContent(),/IK・付与の影響/);
+        await page.locator('#v106-fk-bone').selectOption('頭');
+        await page.waitForFunction(()=>!document.querySelector('#v111-fk-gizmo-toggle')?.disabled);
+      }
       const pose=()=>page.evaluate(instanceId=>window.BAIStudioMultiScenePreview.poseProbe(
         instanceId,['頭','センター']),instance);
       const baseline=await pose();
@@ -110,7 +127,8 @@ test(`lower FK layer head rotation is inverted through an active upper correctio
       await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('保存しました'));
       const saved=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${id}`));
       assert.equal(saved.revision,stacked.revision+1);
-      assert.deepEqual(saved.layers[1].keys,stacked.layers[1].keys);
+      assert.deepEqual(saved.layers.slice(1).map(layer=>layer.keys),
+        stacked.layers.slice(1).map(layer=>layer.keys));
       assert.ok(difference(saved.layers[0].keys[0].rotation,[0,0,0,1])>0.01);
       assert.deepEqual(saved.layers[0].keys[0].position,[0.02,0,0]);
       await page.locator('#v113-fk-gizmo-mode').selectOption('translate');
@@ -137,7 +155,8 @@ test(`lower FK layer head rotation is inverted through an active upper correctio
       await page.locator('#v106-fk-save').click();
       await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('保存しました'));
       const savedBoth=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${id}`));
-      assert.deepEqual(savedBoth.layers[1].keys,stacked.layers[1].keys);
+      assert.deepEqual(savedBoth.layers.slice(1).map(layer=>layer.keys),
+        stacked.layers.slice(1).map(layer=>layer.keys));
       assert.ok(difference(savedBoth.layers[0].keys[0].position,[0.02,0,0])>0.02);
       assert.ok(difference(savedBoth.layers[0].keys[0].rotation,saved.layers[0].keys[0].rotation)<1e-5);
       await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());

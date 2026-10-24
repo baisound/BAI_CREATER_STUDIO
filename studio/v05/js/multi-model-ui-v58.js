@@ -385,8 +385,6 @@ function effectiveFkLayers(row,instanceId=choose.value||selectedId){
   return layers.filter(layer=>(!solo||layer===solo)&&!layer.muted&&layer.weight>0);
 }
 function lowerFkReason(target,bone,upper,boneName){
-  if(upper.some(layer=>layer.keys.some(key=>key.bone!==boneName)))
-    return '上位層に別の骨のキーがあるため、下位層の3D姿勢を安全に逆算できません。';
   const bones=target.object?.skeleton?.bones,metadata=target.object?.geometry?.userData?.MMD;
   const index=bones?.indexOf(bone),iks=metadata?.iks,grants=metadata?.grants;
   if(!Number.isInteger(index)||index<0||!Array.isArray(iks)||!Array.isArray(grants)||
@@ -397,6 +395,8 @@ function lowerFkReason(target,bone,upper,boneName){
   if(iks.some(ik=>ik.target===index||ik.effector===index||
       ik.links.some(link=>link.index===index))||grants.some(grant=>grant.index===index))
     return 'この骨はIK・付与の影響を受けるため、下位層の3D操作はできません。';
+  if(upper.some(layer=>layer.keys.some(key=>key.bone!==boneName)))
+    return '上位層に別の骨のキーがあるため、下位層の3D姿勢を安全に逆算できません。';
   return null;
 }
 function setFkFrameFromSeek(){
