@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T02:37:04+09:00",
+  "updated_at": "2026-10-25T02:40:03+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-export-diagnostics",
-  "head_at_update": "b87f6d6",
+  "branch": "codex/v05-lip001-adoption-contract",
+  "head_at_update": "0ed0217",
   "current": {
-    "task": "Issue #187: 口形VMD出力不能箇所を一覧化",
-    "status": "done",
-    "step": "未確定発話・警告・欠落モーフ・フレーム衝突を発話別に返しv0.5画面で修正対象を示す",
+    "task": "Issue #187: 口形VMD候補の製品内採用契約",
+    "status": "in_progress",
+    "step": "既存モーション・手動表情を保持する明示採用の保存/解除と競合条件を調べ、最小APIを接続する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:40:03+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0ed0217",
+      "text": "Issue #187: 口形VMD候補の製品内採用契約: 既存モーション・手動表情を保持する明示採用の保存/解除と競合条件を調べ、最小APIを接続する"
+    },
     {
       "at": "2026-10-25T02:37:04+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "d914e24",
       "text": "Issue #175: 登録VRM0/1の表情定義と実バインドを原本hash付きで読み、v0.5画面に5母音の使用可否を表示。実VRM0は5/5 ready、実VRM1は5/5定義のみ・unbound。Python3/3・隔離Chrome1/1、原本hash一致"
-    },
-    {
-      "at": "2026-10-25T00:57:47+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f336edb",
-      "text": "Issue #175: 登録VRMの表情定義確認: 登録済み実VRMのexpression定義と欠落母音を原本hash付きで読み取り、v0.5で不足を明示する"
     }
   ]
 }
