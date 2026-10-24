@@ -24,6 +24,7 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
   const armMode=()=>mode.value==='arm-hand'||mode.value==='arm-elbow';
   const sameContext=(a,b)=>Boolean(a&&b&&a.projectId===b.projectId&&
     a.instanceId===b.instanceId&&a.clipId===b.clipId&&a.frame===b.frame&&
+    a.layer?.id===b.layer?.id&&
     a.bone===b.bone&&a.effectorBone===b.effectorBone&&
     a.poleKneeBone===b.poleKneeBone&&a.armElbowBone===b.armElbowBone&&
     a.armWristBone===b.armWristBone&&a.armSide===b.armSide);

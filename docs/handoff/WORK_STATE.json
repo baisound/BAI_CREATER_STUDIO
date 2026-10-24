@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:09:10+09:00",
+  "updated_at": "2026-10-24T20:22:39+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-solo-roundtrip-arm",
-  "head_at_update": "44fb925",
+  "branch": "codex/v05-motion010-lower-fk-inverse",
+  "head_at_update": "f8fcd8a",
   "current": {
-    "task": "Issue #106: MOTION-010 ソロVMD往復と複数層腕IK",
+    "task": "Issue #106: MOTION-010 下位FKレイヤーの3D直接編集",
     "status": "done",
-    "step": "実PMX全骨の候補検査と腕ハンドルの下位層姿勢差分を評価",
+    "step": "後段差分の局所逆算とIK/付与条件の拒否を実PMXで検証",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 下位レイヤーFK骨の3D直接編集で後段差分を安全に逆算し、IK/付与や非可逆条件を拒否して実PMXで検証する"
+    "MOTION-010 下位FKの別形状PMXと画面再読込の断続的失敗を調べ、既承認の受け入れ条件へ進む"
   ],
   "unverified": [
-    "下位層直接3D編集、順変更(O-05未承認)、腕IKの別形状PMXでの重畳、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認"
+    "別形状PMXの下位FK、複数段、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全AC、画面再読込断続失敗の原因は未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T20:22:39+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "f8fcd8a",
+      "text": "MOTION-010 下位FK単一骨の後段差分逆算を実装。実PMXで回転・位置の保存再読込、上位キー保持、別骨後段キー拒否を確認。統合3試験中1件UI初期化失敗、単独再実行通過。"
+    },
+    {
+      "at": "2026-10-24T20:12:18+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "c277bad",
+      "text": "Issue #106: MOTION-010 下位FKレイヤーの3D直接編集: 後段差分の局所逆算とIK/付与条件の拒否を実PMXで検証"
+    },
     {
       "at": "2026-10-24T20:09:10+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "bfa7865",
       "text": "Issue #106: MOTION-010 腕IKの2キー仮表示: 腕・ひじの2キーを同時刻に一組として仮評価し、Escで元姿勢へ戻せる画面経路をつなぐ"
-    },
-    {
-      "at": "2026-10-24T16:59:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a25b70a",
-      "text": "MOTION-010の実PMX左右腕IK幾何を腕・ひじ局所回転2キーへ変換し、隔離Chromeで保存再読込後の付与後手首残差と未編集骨を検証"
-    },
-    {
-      "at": "2026-10-24T16:53:38+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "056ba49",
-      "text": "Issue #106: MOTION-010 腕IKの実骨回転: 実PMXの幾何目標から左右の腕・ひじのローカル回転差分を算出し、付与後の手首と未編集骨を検証する"
     }
   ]
 }

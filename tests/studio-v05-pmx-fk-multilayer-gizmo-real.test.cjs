@@ -80,7 +80,10 @@ test('real PMX gizmo edits the selected upper layer over a saved lower pose',
         instanceId,['頭','センター']),instance);
       const baseline=await pose();
       await page.locator('#v146-fk-layer-select').selectOption(lowerId);
+      assert.equal(await page.locator('#v111-fk-gizmo-toggle').isDisabled(),false);
+      await page.locator('#v106-fk-bone').selectOption('左足ＩＫ');
       assert.equal(await page.locator('#v111-fk-gizmo-toggle').isDisabled(),true);
+      await page.locator('#v106-fk-bone').selectOption('頭');
       await page.locator('#v146-fk-layer-select').selectOption(upperId);
       await page.waitForFunction(()=>!document.querySelector('#v111-fk-gizmo-toggle')?.disabled);
       await page.locator('#v111-fk-gizmo-toggle').click();
