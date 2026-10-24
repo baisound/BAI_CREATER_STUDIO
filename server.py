@@ -359,6 +359,24 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError, ValueError, TypeError, KeyError):
                 self.bad(422, 'Lip reading store unreadable; originals retained')
             return
+        if urlsplit(self.path).path == '/api/studio/v05/lip/candidates':
+            from studio_v05_lip_candidates import propose, LipCandidateError
+
+            query = parse_qs(urlsplit(self.path).query)
+            if (set(query) != {'project_id', 'source_id', 'srt_index'}
+                    or any(len(values) != 1 for values in query.values())
+                    or not re.fullmatch(r'[1-9]\d{0,8}', query['srt_index'][0])):
+                return self.bad(400, 'Invalid lip candidate query')
+            try:
+                result = propose(DATA/'studio_v05_catalog.json', DATA/'studio_v05_srt_sources',
+                    DATA/'studio_v05_lip_readings', query['project_id'][0],
+                    query['source_id'][0], int(query['srt_index'][0]))
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except LipCandidateError as exc:
+                self.bad(exc.status, str(exc))
+            except (OSError, ValueError, TypeError, KeyError):
+                self.bad(422, 'Lip candidate calculation failed; originals retained')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/multi-motion-plan':
             from studio_v05_multi_motion import plan, MultiMotionError
             try:

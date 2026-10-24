@@ -584,7 +584,7 @@
       "phase": 5,
       "name": "SRT読込→リップVMD",
       "detail": "字幕時刻と日本語読み/母音推定",
-        "status": "部分実装・SRT原本登録と発話読み/無音の画面保存再読込試験済み、口形候補・VMD出力未実装",
+        "status": "部分実装・SRT原本/読み画面保存と口形候補API試験済み、候補編集・VMD出力未実装",
       "dependency": "MOTION,DATA"
     },
     {
