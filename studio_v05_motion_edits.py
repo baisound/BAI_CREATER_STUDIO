@@ -121,6 +121,37 @@ def _key(value):
     return {'frame': frame, 'bone': bone, 'rotation': [round(float(v / norm), 9) for v in rotation]}
 
 
+def _bounds(layer):
+    first = math.ceil(layer['start'] * layer['fps'] - 1e-7)
+    end = math.ceil((layer['start'] + layer['duration']) * layer['fps'] - 1e-7)
+    return first, end
+
+
+def _settings(layer):
+    first, end = _bounds(layer)
+    return {**{field: layer[field] for field in ('name', 'weight', 'muted')},
+            'start_frame': layer.get('start_frame', first),
+            'end_frame': layer.get('end_frame', end),
+            'fade_in_frames': layer.get('fade_in_frames', 0),
+            'fade_out_frames': layer.get('fade_out_frames', 0)}
+
+
+def _check_settings(layer):
+    settings = _settings(layer)
+    first, end = _bounds(layer)
+    if not isinstance(settings['name'], str) or not settings['name'] or len(settings['name']) > 80 \
+            or any(ord(c) < 32 for c in settings['name']) \
+            or type(settings['weight']) not in (float, int) or not math.isfinite(settings['weight']) \
+            or not 0 <= settings['weight'] <= 1 or type(settings['muted']) is not bool \
+            or any(type(settings[field]) is not int for field in
+                   ('start_frame', 'end_frame', 'fade_in_frames', 'fade_out_frames')) \
+            or not first <= settings['start_frame'] < settings['end_frame'] <= end \
+            or min(settings['fade_in_frames'], settings['fade_out_frames']) < 0 \
+            or settings['fade_in_frames'] + settings['fade_out_frames'] > settings['end_frame'] - settings['start_frame']:
+        raise MotionEditError('Invalid motion edit layer settings; original retained')
+    return settings
+
+
 def _record(data, project_id):
     if not isinstance(data, dict) or set(data) != {'schema', 'project_id', 'revision', 'layers', 'history'} \
             or data['schema'] != 1 or data['project_id'] != project_id \
@@ -131,9 +162,12 @@ def _record(data, project_id):
     ids = set()
     targets = set()
     for layer in data['layers']:
-        if not isinstance(layer, dict) or set(layer) != {'id', 'instance_id', 'clip_id', 'model_asset_id',
+        required = {'id', 'instance_id', 'clip_id', 'model_asset_id',
                 'motion_asset_id', 'model_sha256', 'motion_sha256', 'fps', 'start', 'duration',
-                'name', 'weight', 'muted', 'keys'} or not _uuid(layer['id']) or layer['id'] in ids:
+                'name', 'weight', 'muted', 'keys'}
+        optional = {'start_frame', 'end_frame', 'fade_in_frames', 'fade_out_frames'}
+        if not isinstance(layer, dict) or not required <= set(layer) or set(layer) - required - optional \
+                or not _uuid(layer['id']) or layer['id'] in ids:
             raise MotionEditError('Invalid motion edit layer; original retained')
         ids.add(layer['id'])
         target = (layer['instance_id'], layer['clip_id'])
@@ -147,19 +181,16 @@ def _record(data, project_id):
                        ('model_sha256', 'motion_sha256')) \
                 or type(layer['fps']) not in (float, int) or not math.isfinite(layer['fps']) or not 1 <= layer['fps'] <= 240 \
                 or type(layer['start']) not in (float, int) or not math.isfinite(layer['start']) or layer['start'] < 0 \
-                or type(layer['duration']) not in (float, int) or not math.isfinite(layer['duration']) or layer['duration'] <= 0 \
-                or type(layer['weight']) not in (float, int) or not math.isfinite(layer['weight']) or not 0 <= layer['weight'] <= 1 \
-                or type(layer['muted']) is not bool or len(layer['name']) > 80 \
-                or any(ord(c) < 32 for c in layer['name']):
+                or type(layer['duration']) not in (float, int) or not math.isfinite(layer['duration']) or layer['duration'] <= 0:
             raise MotionEditError('Invalid motion edit layer metadata; original retained')
+        _check_settings(layer)
         keys = layer['keys']
         if not isinstance(keys, list) or len(keys) > MAX_KEYS:
             raise MotionEditError('Invalid FK keys; original retained')
         identities = set()
         for key in keys:
             _key(key)
-            first = math.ceil(layer['start'] * layer['fps'] - 1e-7)
-            end = math.ceil((layer['start'] + layer['duration']) * layer['fps'] - 1e-7)
+            first, end = _bounds(layer)
             if not first <= key['frame'] < end:
                 raise MotionEditError('FK key outside saved clip; original retained')
             identity = (key['frame'], key['bone'])
@@ -217,17 +248,18 @@ def view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, pr
 
 
 def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
-           project_id, revision, action, assets, *, instance_id=None, clip_id=None, key=None):
+           project_id, revision, action, assets, *, instance_id=None, clip_id=None,
+           key=None, layer_id=None, settings=None, to_frame=None):
     if type(revision) is not int or revision < 0:
         raise MotionEditError('Revision required')
-    if action not in ('set', 'remove', 'undo', 'redo'):
+    if action not in ('set', 'remove', 'move', 'layer-update', 'undo', 'redo'):
         raise MotionEditError('Unknown motion edit action')
     with LOCK:
         current = read(root, catalog, project_id)
         if current['revision'] != revision:
             raise MotionEditError('Revision conflict')
         if action in ('undo', 'redo'):
-            if instance_id is not None or clip_id is not None or key is not None:
+            if any(value is not None for value in (instance_id, clip_id, key, layer_id, settings, to_frame)):
                 raise MotionEditError('Undo/Redo accepts only project and revision')
             source = current['history'][action]
             target = current['history']['redo' if action == 'undo' else 'undo']
@@ -241,11 +273,22 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                 raise MotionEditError('Select a scene instance and motion clip')
             context = _context(data_root, scene_root, legacy_root, arrangement_root,
                                catalog, project_id, assets, instance_id, clip_id)
-            checked = _key(key)
+            if action in ('set', 'remove', 'move'):
+                checked = _key(key)
+            elif key is not None:
+                raise MotionEditError('Layer update accepts settings only')
+            else:
+                checked = None
             start = math.ceil(context['start'] * context['fps'] - 1e-7)
             end = math.ceil((context['start'] + context['duration']) * context['fps'] - 1e-7)
-            if not start <= checked['frame'] < end:
+            if checked and not start <= checked['frame'] < end:
                 raise MotionEditError('Frame is outside the motion clip')
+            if action == 'move' and (type(to_frame) is not int or not start <= to_frame < end):
+                raise MotionEditError('Destination frame is outside the motion clip')
+            if action != 'move' and to_frame is not None:
+                raise MotionEditError('Destination frame belongs to move only')
+            if action != 'layer-update' and (layer_id is not None or settings is not None):
+                raise MotionEditError('Layer settings belong to layer-update only')
             if action == 'set':
                 try:
                     names = {row['name'] for row in parse_pmx(context['model_path'].read_bytes())['bones_detail']}
@@ -259,17 +302,40 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
             if layer and _identity(layer) != _identity(context):
                 raise MotionEditError('Source or clip placement changed')
             if not layer:
-                if action == 'remove':
+                if action != 'set':
                     raise MotionEditError('FK key not found')
                 if len(current['layers']) >= MAX_LAYERS:
                     raise MotionEditError('Motion edit layer limit reached')
                 layer = {**_identity(context), 'id': str(uuid.uuid4()), 'name': 'FK補正',
                          'weight': 1.0, 'muted': False, 'keys': []}
                 current['layers'].append(layer)
+            if action == 'layer-update':
+                if layer_id != layer['id'] or not isinstance(settings, dict) or not settings \
+                        or set(settings) - set(_settings(layer)):
+                    raise MotionEditError('Invalid layer update target or fields')
+                updated = {**layer, **settings}
+                _check_settings(updated)
+                if updated == layer:
+                    return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
+                layer.update(settings)
+                current['history']['undo'].append(before)
+                del current['history']['undo'][:-MAX_HISTORY]
+                current['history']['redo'] = []
+                current['revision'] += 1
+                _record(current, project_id)
+                _atomic(_path(root, project_id), current)
+                return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
             old = next((k for k in layer['keys'] if k['frame'] == checked['frame'] and
                         k['bone'] == checked['bone']), None)
             if action == 'remove' and old is None:
                 raise MotionEditError('FK key not found')
+            if action == 'move':
+                if old is None:
+                    raise MotionEditError('FK key not found')
+                if to_frame == checked['frame']:
+                    return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
+                if any(k['frame'] == to_frame and k['bone'] == checked['bone'] for k in layer['keys']):
+                    raise MotionEditError('FK destination key already exists')
             if action == 'set' and old == checked:
                 return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
             if old is not None:
@@ -278,6 +344,9 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                 if len(layer['keys']) >= MAX_KEYS:
                     raise MotionEditError('FK key limit reached')
                 layer['keys'].append(checked)
+                layer['keys'].sort(key=lambda k: (k['frame'], k['bone']))
+            elif action == 'move':
+                layer['keys'].append({**old, 'frame': to_frame})
                 layer['keys'].sort(key=lambda k: (k['frame'], k['bone']))
             if not layer['keys']:
                 current['layers'].remove(layer)

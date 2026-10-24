@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from studio_v05_motion_edits import MotionEditError, read
+from studio_v05_motion_edits import MotionEditError, read, _record, _settings
 
 
 def project(tmp_path):
@@ -48,3 +48,27 @@ def test_corrupt_store_preserves_original_bytes(tmp_path, contents):
     with pytest.raises(MotionEditError):
         read(root, catalog, project_id)
     assert file.read_bytes() == before
+
+
+def test_layer_interval_defaults_preserve_old_schema_and_reject_invalid_values():
+    project_id = str(uuid.uuid4())
+    layer = {'id': str(uuid.uuid4()), 'instance_id': str(uuid.uuid4()),
+             'clip_id': str(uuid.uuid4()), 'model_asset_id': 'pmx', 'motion_asset_id': 'vmd',
+             'model_sha256': 'a' * 64, 'motion_sha256': 'b' * 64,
+             'fps': 60, 'start': 2, 'duration': 4,
+             'name': 'FK補正', 'weight': 1.0, 'muted': False,
+             'keys': [{'frame': 180, 'bone': '頭', 'rotation': [0, 0, 0, 1]}]}
+    record = {'schema': 1, 'project_id': project_id, 'revision': 0,
+              'layers': [layer], 'history': {'undo': [], 'redo': []}}
+    _record(record, project_id)
+    assert _settings(layer)['start_frame'] == 120
+    assert _settings(layer)['end_frame'] == 360
+    layer.update(start_frame=150, end_frame=200, fade_in_frames=10, fade_out_frames=10)
+    _record(record, project_id)
+    layer['fade_out_frames'] = 41
+    with pytest.raises(MotionEditError, match='settings'):
+        _record(record, project_id)
+    layer['fade_out_frames'] = 10
+    layer['weight'] = True
+    with pytest.raises(MotionEditError, match='settings'):
+        _record(record, project_id)

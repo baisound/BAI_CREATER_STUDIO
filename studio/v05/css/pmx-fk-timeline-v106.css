@@ -1,0 +1,6 @@
+#v07timeline .v106-fk-marker{position:absolute;z-index:4;min-width:94px;max-width:145px;height:20px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;padding:1px 4px;
+  border:1px solid #ead28f;border-radius:4px;background:#765b26;color:#fff;
+  font-size:10px;touch-action:none;cursor:grab}
+#v07timeline .v106-fk-marker.v106-fk-locked{cursor:default;opacity:.65}
+#v07timeline .v106-fk-marker:focus-visible{outline:3px solid #fff}
