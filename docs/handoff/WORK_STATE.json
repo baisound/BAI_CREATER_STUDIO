@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T18:08:55+09:00",
+  "updated_at": "2026-10-24T18:31:12+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-constraints",
-  "head_at_update": "b329f31",
+  "branch": "codex/v05-motion010-vmd-adoption",
+  "head_at_update": "b9b79fa",
   "current": {
-    "task": "Issue #106: MOTION-010 PMX腕関節制限",
+    "task": "Issue #106: MOTION-010 別名VMD候補の採用と作品配置",
     "status": "done",
-    "step": "登録PMXの腕IK定義と関節制限を調査し、腕ハンドルの操作可否・理由表示を実データに合わせて安全に整える",
+    "step": "実PMX検査済み候補だけを元素材不変で登録し、元クリップと同じ作品・時刻へ明示配置する経路を実装する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 別名VMD候補の検証済み出力を元素材不変で採用・同じ作品へ配置する経路を設計・実装する",
-    "MOTION-010: 角度制限付き腕PMX、物理ON、実GPU、Linux、標準MCPの残るゲートを明記して確認可能な入力から進める"
+    "MOTION-010: 全フレーム/修正区間のみの別名VMD書き出し選択と区間外バイト一致、異なるPMXやFPSの採用・書き出し回帰を進める"
   ],
   "unverified": [
-    "登録3種類のPMXは腕に干渉するIK角度制限を持たない。角度制限付き腕PMXの解法、物理ON、実GPU、Linux、標準MCP、候補採用・作品配置、Owner採用は未実装または未確認。201骨・246骨実PMX/VMD1本・作品F240・物理OFF/SwiftShaderの限定結果。AC-M-01/02と全体は未合格。"
+    "実GPU、物理ON、Linux、標準MCP、腕IK角度制限付き実PMX、任意PMXへの膝ポール一般化、Owner採用、MOTION-010全ACは未確認。現在の採用検証は物理OFFの201骨実PMX/実VMDと隔離Chrome/SwiftShaderの限定結果"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T18:31:12+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b9b79fa",
+      "text": "Issue #106: 実PMX全骨検査済みVMD候補を原本不変で登録し同じ作品の元クリップへ明示配置、二重補正を防ぎ復元を実装。隔離Chromeで採用後プレビュー・3F MP4・画面/API復元、実データハッシュ不変を確認"
+    },
+    {
+      "at": "2026-10-24T18:13:34+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4925ba3",
+      "text": "Issue #106: MOTION-010 別名VMD候補の採用と作品配置: 実PMX検査済み候補だけを元素材不変で登録し、元クリップと同じ作品・時刻へ明示配置する経路を実装する"
+    },
     {
       "at": "2026-10-24T18:08:55+09:00",
       "by": "codex",
@@ -227,20 +240,6 @@
       "event": "start",
       "head": "b1a9941",
       "text": "Issue #106: MOTION-010 PMX膝ポール解法の実証: 実PMX足IKのCCD挙動と膝制限を測り、保存・VMD往復に一致するポール操作の設計と最小試験を確定する"
-    },
-    {
-      "at": "2026-10-24T15:37:37+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d779fdc",
-      "text": "Issue #106: 実PMX左右膝のIKリンク角度制限を3D画面へ表示し、左右の値と従来補正経路を隔離Chromeで確認"
-    },
-    {
-      "at": "2026-10-24T15:34:37+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5b03d9d",
-      "text": "Issue #106: MOTION-010 PMX足IK膝制限の可視化: 実PMXの足IK膝リンク制限を3D編集画面へ表示し、制限のある骨と未到達差を区別して検証する"
     }
   ]
 }

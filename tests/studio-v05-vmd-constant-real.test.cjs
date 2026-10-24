@@ -18,6 +18,16 @@ const motionPath=sourceRoot&&path.join(sourceRoot,'mmd','vmd',motionName);
 const exists=modelPath&&motionPath&&fs.existsSync(modelPath)&&fs.existsSync(motionPath);
 const digest=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 async function ok(response){const body=await response.text();assert.equal(response.status,200,body);return JSON.parse(body);}
+async function waitJob(base,id){
+  const deadline=Date.now()+180000;
+  let job;
+  do{
+    await new Promise(resolve=>setTimeout(resolve,500));
+    job=await ok(await fetch(`${base}/api/studio/v05/render/jobs?id=${id}`));
+  }while(['queued','running'].includes(job.status)&&Date.now()<deadline);
+  assert.equal(job.status,'succeeded',job.error);
+  return job;
+}
 
 test('constant and temporal FK candidates agree with real PMX preview',
   {skip:!exists&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:300000},async()=>{
@@ -264,6 +274,94 @@ test('constant and temporal FK candidates agree with real PMX preview',
       assert.equal(fullSkeleton.checkedFrames,600);
       assert.equal(fullSkeleton.checkedVmdFrames,300);
       assert.equal(fullSkeleton.passed,true,JSON.stringify(fullSkeleton));
+      const adoptionPlan=await ok(await fetch(`${server.base}/api/studio/v05/scene/multi-motion-plan?id=${projectId}`));
+      const rejected=await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate/adopt`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,candidate_id:footResponse.candidate_id,
+          edit_revision:footResponse.revision,arrangement_revision:adoptionPlan.arrangement_revision,
+          scene_revision:adoptionPlan.scene_revision,report:{...fullSkeleton,passed:false}})});
+      assert.equal(rejected.status,422);
+      const adopted=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate/adopt`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,candidate_id:footResponse.candidate_id,
+          edit_revision:footResponse.revision,arrangement_revision:adoptionPlan.arrangement_revision,
+          scene_revision:adoptionPlan.scene_revision,report:fullSkeleton})}));
+      assert.match(adopted.asset_id,/^mmd:vmd:MOTION010-[0-9a-f-]+\.vmd$/);
+      const placed=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${projectId}`));
+      const placedClip=placed.clips.find(item=>item.id===original.clip.id);
+      assert.equal(placedClip.asset_id,adopted.asset_id);
+      assert.equal(placedClip.start,0);assert.equal(placedClip.duration,10);
+      assert.equal(placedClip.motion010_source_asset_id,`mmd:vmd:${motionName}`);
+      const registered=await ok(await fetch(`${server.base}/api/assets`));
+      assert.ok(registered.items.some(item=>item.id===adopted.asset_id&&item.available));
+      const adoptedName=adopted.asset_id.slice('mmd:vmd:'.length);
+      assert.equal(digest(path.join(server.dataDir,'mmd','vmd',adoptedName)),footResponse.output_sha256);
+      const exportRange=await ok(await fetch(`${server.base}/api/studio/v05/timeline/range`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,revision:0,arrangement_revision:placed.revision,
+          in_frame:240,out_frame:242})}));
+      const started=await fetch(`${server.base}/api/studio/v05/render/jobs`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,arrangement_revision:placed.revision,
+          range_revision:exportRange.revision,scene_revision:adoptionPlan.scene_revision,
+          resolution:'720p'})});
+      const startedBody=await started.text();
+      assert.equal(started.status,202,startedBody);
+      const job=await waitJob(server.base,JSON.parse(startedBody).id);
+      assert.equal(job.scene_capture.motion_clips,4);
+      assert.ok(job.inputs.some(item=>item.asset_id===adopted.asset_id&&
+        item.sha256===footResponse.output_sha256));
+      const mp4=await fetch(`${server.base}/api/studio/v05/render/file?id=${job.id}`);
+      assert.equal(mp4.status,200);
+      assert.ok((await mp4.arrayBuffer()).byteLength>1000);
+      await page.reload();
+      await page.locator('#v06project').selectOption(projectId);
+      await page.locator('#nav [data-workspace="edit"]').click();
+      await page.locator('#v70sceneOpen').click();
+      await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===4,
+        null,{timeout:120000});
+      const bakedPose=await page.evaluate(instanceId=>{
+        const timeline=window.BAIStudioTimeline,preview=window.BAIStudioMultiScenePreview;
+        timeline.seek(4,'adopted');
+        const adopted=preview.poseProbe(instanceId,['頭','左足首']);
+        timeline.seek(34,'reference');
+        const reference=preview.poseProbe(instanceId,['頭','左足首']);
+        return Math.max(...['頭','左足首'].flatMap(name=>adopted.bones[name].world.map(
+          (value,index)=>Math.abs(value-reference.bones[name].world[index]))));
+      },instanceId);
+      assert.ok(bakedPose<1e-3,`placed VMD playback differs from validated candidate: ${bakedPose}`);
+      const restored=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate/restore`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,clip_id:original.clip.id,arrangement_revision:placed.revision})}));
+      assert.equal(restored.asset_id,`mmd:vmd:${motionName}`);
+      const afterRestore=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${projectId}`));
+      assert.equal(afterRestore.clips.find(item=>item.id===original.clip.id).asset_id,`mmd:vmd:${motionName}`);
+      assert.equal(digest(path.join(server.dataDir,'mmd','vmd',adoptedName)),footResponse.output_sha256);
+      await page.reload();
+      await page.locator('#v06project').selectOption(projectId);
+      await page.locator('#nav [data-workspace="edit"]').click();
+      await page.locator('#v70sceneOpen').click();
+      await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===4,
+        null,{timeout:120000});
+      await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'adoption-ui'));
+      await page.locator('#v116-vmd-candidate-create').click();
+      await page.locator('#v116-vmd-candidate-download').waitFor({state:'visible'});
+      assert.equal(await page.locator('#v141-vmd-candidate-adopt').isDisabled(),true);
+      await page.locator('#v120-vmd-candidate-validate').click();
+      await page.waitForFunction(()=>!document.querySelector('#v141-vmd-candidate-adopt')?.disabled,
+        null,{timeout:160000});
+      await page.locator('#v141-vmd-candidate-adopt').click();
+      await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('配置しました'),
+        null,{timeout:120000});
+      assert.equal(await page.locator('#v141-vmd-candidate-restore').isHidden(),false);
+      await page.locator('#v141-vmd-candidate-restore').click();
+      await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('元VMDを同じクリップへ戻しました'),
+        null,{timeout:120000});
+      const uiRestored=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${projectId}`));
+      assert.equal(uiRestored.clips.find(item=>item.id===original.clip.id).asset_id,`mmd:vmd:${motionName}`);
       assert.deepEqual([digest(modelPath),digest(motionPath)],originals);
       assert.equal(baked.stdout.slice(-29).toString('hex'),fs.readFileSync(motionPath).slice(-29).toString('hex'));
     }finally{

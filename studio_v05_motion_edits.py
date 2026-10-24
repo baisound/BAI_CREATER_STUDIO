@@ -250,11 +250,27 @@ def view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, pr
     current = read(root, catalog, project_id)
     layers = copy.deepcopy(current['layers'])
     issues = []
+    from studio_v05_arrangement import read as arrangement_read
+    clips = {row.get('id'): row for row in
+             arrangement_read(arrangement_root, catalog, project_id)['clips']}
     for layer in layers:
         try:
             context = _context(data_root, scene_root, legacy_root, arrangement_root,
                                catalog, project_id, assets, layer['instance_id'], layer['clip_id'])
             if _identity(layer) != _identity(context):
+                clip = clips.get(layer['clip_id'], {})
+                baked_identity = _identity({**layer,
+                    'motion_asset_id': context['motion_asset_id'],
+                    'motion_sha256': context['motion_sha256']})
+                if (clip.get('motion010_candidate_id') and
+                    clip.get('motion010_source_asset_id') == layer['motion_asset_id'] and
+                    clip.get('motion010_source_sha256') == layer['motion_sha256'] and
+                    clip.get('motion010_output_sha256') == context['motion_sha256'] and
+                    baked_identity == _identity(context)):
+                    layer['disabled'] = True
+                    issues.append({'layer_id': layer['id'], 'kind': 'baked_into_candidate',
+                                   'reason': '保存済み補正は配置中の別名VMDへ焼き込み済み'})
+                    continue
                 raise MotionEditError('Source or clip placement changed')
             if layer['keys']:
                 names = {bone['name'] for bone in parse_pmx(context['model_path'].read_bytes())['bones_detail']}
