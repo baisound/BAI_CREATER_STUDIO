@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T18:41:36+09:00",
+  "updated_at": "2026-10-24T18:45:00+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-vmd-scopes",
-  "head_at_update": "7835cd6",
+  "branch": "codex/v05-motion010-vmd-dense",
+  "head_at_update": "0e96db1",
   "current": {
-    "task": "Issue #106: MOTION-010 VMD書き出し範囲",
-    "status": "done",
-    "step": "全区間と修正区間のみの明示選択、区間外原VMD骨レコードのバイト一致と実PMX往復を検証する",
+    "task": "Issue #106: MOTION-010 VMD全フレーム候補",
+    "status": "in_progress",
+    "step": "元VMDの長さを含む全フレームキー化と作品内外の誤差ゲートを実装・検証",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T18:45:00+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0e96db1",
+      "text": "Issue #106: MOTION-010 VMD全フレーム候補: 元VMDの長さを含む全フレームキー化と作品内外の誤差ゲートを実装・検証"
+    },
     {
       "at": "2026-10-24T18:41:36+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "2107e45",
       "text": "MOTION-010: 膝ポール3Dハンドルを実PMX左脚の太ももFKへ接続し、ドラッグ・Esc・保存・Undo/Redo・再読込・VMD候補全骨検査まで実証。状態は要検証。"
-    },
-    {
-      "at": "2026-10-24T15:48:55+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "341864e",
-      "text": "Issue #106: MOTION-010 膝ポール3Dハンドル: 実PMX膝位置へハンドルをスナップし、実ドラッグを太ももFK補正へ解き、Esc・保存・Undo/Redo・VMD往復を隔離検証する"
     }
   ]
 }
