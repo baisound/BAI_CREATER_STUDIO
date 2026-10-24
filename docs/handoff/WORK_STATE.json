@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:18:29+09:00",
+  "updated_at": "2026-10-24T16:20:19+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-right-knee-validation",
-  "head_at_update": "1f03a2c",
+  "branch": "codex/v05-motion010-other-pmx-verify",
+  "head_at_update": "9213678",
   "current": {
-    "task": "Issue #106: MOTION-010 右膝ポールの実PMX検証",
-    "status": "done",
-    "step": "右足IKの3Dハンドル実ドラッグ、保存、Undo/Redo、VMD候補の隔離検証を追加する",
+    "task": "Issue #106: MOTION-010 別PMX膝ポール適用検証",
+    "status": "in_progress",
+    "step": "B側の異なるPMX版で左右膝ポールの適用条件と実ドラッグ、保存・VMD往復を隔離検証する",
     "design_doc": "docs/v05/MOTION010_KNEE_POLE_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T16:20:19+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9213678",
+      "text": "Issue #106: MOTION-010 別PMX膝ポール適用検証: B側の異なるPMX版で左右膝ポールの適用条件と実ドラッグ、保存・VMD往復を隔離検証する"
+    },
     {
       "at": "2026-10-24T16:18:29+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "3b7ba53",
       "text": "Issue #106 MOTION-010: 保存済み全区間一定補正を別名VMD検証前候補へ接続。UI/API/WebMCP/標準MCP共通入口、実PMX頭骨300 VMDフレームの往復姿勢差、原本ハッシュ不変を確認。"
-    },
-    {
-      "at": "2026-10-24T13:24:33+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cad32ab",
-      "text": "Issue #106: MOTION-010 一定補正の別名VMD出力: 作品内の全区間一定FK/IKターゲット補正を厳格に抽出し、元VMD骨キーへ合成して実PMX往復で検証する"
     }
   ]
 }
