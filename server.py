@@ -1,5 +1,5 @@
 # Python 3.9+ standard library only. Binds to loopback, not LAN.
-import hashlib, json, mimetypes, os, re, sys, threading, shutil, subprocess, time, zipfile, io, posixpath
+import hashlib, json, math, mimetypes, os, re, sys, threading, shutil, subprocess, time, zipfile, io, posixpath
 from pathlib import Path
 from bai_camera import read as camera_read, save as camera_save, sample as camera_sample, read_project as camera_read_project, reset_project as camera_reset_project, CameraProjectInvalid
 from camera_project_revision import revision as camera_revision
@@ -501,8 +501,17 @@ class Handler(BaseHTTPRequestHandler):
                 args=parse_qs(urlsplit(self.path).query)
                 overflow=args.get('overflow',['error'])[0]
                 if overflow not in ('error','hold'):raise ValueError('Invalid camera overflow mode')
-                f=float(args.get('frame',['0'])[0])
-                result=evaluate(camera_read(DATA/'camera_project.json'),f,hold_end=overflow=='hold')
+                if 'seconds' in args and 'frame' in args:raise ValueError('Choose frame or seconds')
+                project=camera_read(DATA/'camera_project.json')
+                if 'seconds' in args:
+                    seconds=float(args['seconds'][0])
+                    if not math.isfinite(seconds) or not 0<=seconds<=1000000000:
+                        raise ValueError('Invalid camera timeline seconds')
+                    f=math.floor(seconds*project['fps']+0.5)
+                else:f=float(args.get('frame',['0'])[0])
+                result=evaluate(project,f,hold_end=overflow=='hold')
+                if 'seconds' in args:
+                    result.update(requested_seconds=seconds,requested_frame=f,camera_fps=project['fps'])
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,TypeError,OverflowError,KeyError) as exc:return self.bad(400,str(exc))
         if path=="/api/camera/sample":

@@ -82,17 +82,32 @@ test('full PMX dance VMD and face keys share saved project time',
         face:await page.evaluate(target=>window.BAIStudioMultiScenePreview.morphProbe(target),instanceId),
         frame:await page.evaluate(target=>window.BAIStudioMultiScenePreview.frameProbe(target),instanceId)};
     }
-    const at0=await sample(0),at4=await sample(4),at90=await sample(90);
+    const at0=await sample(0),at4=await sample(4);
+    await page.waitForFunction(()=>window.BAIStudioCameraV29Runtime?.status()?.frame===240&&
+      window.BAIStudioCameraV29Runtime?.status()?.sampleFrame===120);
+    const cameraAt4=await page.evaluate(()=>window.BAIStudioCameraV29Runtime.status());
+    assert.equal(cameraAt4.cameraFps,30);
+    assert.equal(cameraAt4.heldAtEnd,false);
+    const exactCamera=await json(await fetch(
+      `${server.base}/api/camera/sequence/evaluate?seconds=4&overflow=hold`));
+    assert.equal(exactCamera.frame,120);
+    assert.equal(exactCamera.requested_frame,120);
+    assert.deepEqual(cameraAt4.pose,exactCamera.pose);
+    const at90=await sample(90);
     await page.waitForFunction(()=>window.BAIStudioCameraV29Runtime?.status()?.frame===5400&&
       window.BAIStudioCameraV29Runtime?.status()?.heldAtEnd===true);
     const cameraTail=await page.evaluate(()=>window.BAIStudioCameraV29Runtime.status());
     assert.equal(cameraTail.sampleFrame,300);
+    assert.equal(cameraTail.requestedCameraFrame,2700);
+    assert.equal(cameraTail.cameraFps,30);
     const strictCamera=await fetch(`${server.base}/api/camera/sequence/evaluate?frame=5400`);
     assert.equal(strictCamera.status,400,'既存APIの範囲外判定を保つ');
     const heldCamera=await json(await fetch(
-      `${server.base}/api/camera/sequence/evaluate?frame=5400&overflow=hold`));
+      `${server.base}/api/camera/sequence/evaluate?seconds=90&overflow=hold`));
     assert.equal(heldCamera.frame,300);
-    assert.equal(heldCamera.requested_frame,5400);
+    assert.equal(heldCamera.requested_frame,2700);
+    assert.equal(heldCamera.requested_seconds,90);
+    assert.equal(heldCamera.camera_fps,30);
     assert.equal(heldCamera.held_at_end,true);
     const changed=names.filter(name=>at0.pose.bones[name]&&at4.pose.bones[name]&&
       delta(at0.pose.bones[name],at4.pose.bones[name])>1e-3);
@@ -151,8 +166,11 @@ test('full PMX dance VMD and face keys share saved project time',
     console.log(JSON.stringify({pmx_sha256:before.model,vmd_sha256:before.motion,
       changedBones:changed,modelCount:saved.instances.length,motionClips:1,faceKeyRevision:keyed.revision,
       longPoseDelta:delta(at4.pose.bones[changed[0]],at90.pose.bones[changed[0]]),renderer:at4.frame.renderer,
+      cameraAt4:{frame:cameraAt4.frame,sampleFrame:cameraAt4.sampleFrame,
+        cameraFps:cameraAt4.cameraFps},
       cameraTail:{frame:cameraTail.frame,sampleFrame:cameraTail.sampleFrame,
-        heldAtEnd:cameraTail.heldAtEnd},httpErrors,
+        requestedCameraFrame:cameraTail.requestedCameraFrame,heldAtEnd:cameraTail.heldAtEnd},
+      httpErrors,
       parserWarnings:consoleErrors.filter(x=>x.startsWith('unknown char code')).length,
       outputFrames:faceMovie.job.probe.frames,mp4Renderer:faceMovie.job.scene_capture.renderer,facePixels}));
   }finally{

@@ -25,17 +25,18 @@ function create({evaluate,onState=()=>{},onError=()=>{},fps=60}={}){
    if(aperture!==undefined){if(!validPositive(aperture))throw new RangeError('Invalid f-stop');lens.fStop=aperture;}
    if(focus!==undefined){if(!validPositive(focus))throw new RangeError('Invalid focus distance');lens.focusDistance=focus;}
    last={seconds,frame,fps:rate,pose,lens,sampleFrame:data.frame,
-    heldAtEnd:data.held_at_end===true};onState(last);return last;
+    requestedCameraFrame:data.requested_frame??data.frame,
+    cameraFps:data.camera_fps??rate,heldAtEnd:data.held_at_end===true};onState(last);return last;
   }catch(error){if(ticket===generation&&!disposed)onError(error);return null;}
  }
  return Object.freeze({seek,setFrameRate,getFrameRate:()=>rate,status:()=>last,dispose(){disposed=true;generation++;}});
 }
 function install({fps=60}={}){
- const sync=create({fps,evaluate:async frame=>{
-  const response=await fetch('/api/camera/sequence/evaluate?frame='+encodeURIComponent(frame)+'&overflow=hold',{credentials:'same-origin'});
+ const sync=create({fps,evaluate:async(_frame,{seconds})=>{
+  const response=await fetch('/api/camera/sequence/evaluate?seconds='+encodeURIComponent(seconds)+'&overflow=hold',{credentials:'same-origin'});
   if(!response.ok)throw new Error('Camera evaluation HTTP '+response.status);
   return response.json();
- },onState:state=>{root.dispatchEvent(new CustomEvent('bai:camera-pose-evaluated',{detail:{pose:state.pose,seconds:state.seconds,frame:state.frame,fps:state.fps,sampleFrame:state.sampleFrame,heldAtEnd:state.heldAtEnd}}));root.dispatchEvent(new CustomEvent('bai:camera-v29-state',{detail:state}));},
+ },onState:state=>{root.dispatchEvent(new CustomEvent('bai:camera-pose-evaluated',{detail:{pose:state.pose,seconds:state.seconds,frame:state.frame,fps:state.fps,sampleFrame:state.sampleFrame,requestedCameraFrame:state.requestedCameraFrame,cameraFps:state.cameraFps,heldAtEnd:state.heldAtEnd}}));root.dispatchEvent(new CustomEvent('bai:camera-v29-state',{detail:state}));},
  onError:error=>root.dispatchEvent(new CustomEvent('bai:camera-sync-error',{detail:{message:String(error.message||error)}}))});
  root.addEventListener('bai:timeline-seek',event=>{const seconds=event.detail?.seconds;if(Number.isFinite(seconds))void sync.seek(seconds);});
  root.addEventListener('bai:project-frame-rate',event=>{try{sync.setFrameRate(Number(event.detail?.fps));}catch(error){root.dispatchEvent(new CustomEvent('bai:camera-sync-error',{detail:{message:error.message}}));}});
