@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:13:44+09:00",
+  "updated_at": "2026-10-25T01:17:43+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip004-vrm-map",
-  "head_at_update": "448f1e8",
+  "branch": "codex/v05-lip004-vrm-preview",
+  "head_at_update": "1eb0c70",
   "current": {
-    "task": "Issue #175: VRM表情の手動対応表",
-    "status": "done",
-    "step": "登録VRM表情のモデル別対応表を原本hashと実バインドに結び付け、保存・再読込と未結合の確定拒否を実装する",
+    "task": "Issue #175: VRM口形の一時実描画",
+    "status": "in_progress",
+    "step": "登録VRMの実バインドを読み込み済みメッシュへ対応させ、保存しない口形プレビューと復元を実VRMで検証する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:17:43+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1eb0c70",
+      "text": "Issue #175: VRM口形の一時実描画: 登録VRMの実バインドを読み込み済みメッシュへ対応させ、保存しない口形プレビューと復元を実VRMで検証する"
+    },
     {
       "at": "2026-10-25T01:13:44+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "2b888c0",
       "text": "MOTION-010/CAM-015 旧カメラ末尾半開カットの終端で元キーへ跳ぶ不連続を再現し、画面追従の保持指定だけ最終可視F299を評価。隔離Chrome3件・Python16件合格、strict APIと原本保持"
-    },
-    {
-      "at": "2026-10-24T22:59:08+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "ce5b777",
-      "text": "Issue #106: MOTION-010/CAM-015 旧カメラ末尾カットの終端保持: 半開カットがカメラdurationへ達する場合、長尺作品の終端保持と実プレビュー姿勢を調べる"
     }
   ]
 }
