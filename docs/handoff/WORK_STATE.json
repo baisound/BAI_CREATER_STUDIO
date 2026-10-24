@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:51:25+09:00",
+  "updated_at": "2026-10-24T22:53:36+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-camera-seconds",
-  "head_at_update": "bd02a12",
+  "branch": "codex/v05-motion010-camera-cuts",
+  "head_at_update": "58c69b4",
   "current": {
-    "task": "Issue #106: MOTION-010 作品と旧カメラのFPS換算",
-    "status": "done",
-    "step": "同じ秒数をカメラ自身のFPSで評価し、24/60fps作品と旧30fpsカメラの保存姿勢を確認する",
-    "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
+    "task": "Issue #106: MOTION-010/CAM-015 旧カメラ複数カットの時刻境界",
+    "status": "in_progress",
+    "step": "保存済み30fpsカメラ複数キーのカット境界を作品24/60fpsから検証し、必要な依存修正を行う",
+    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
     "MOTION-010/CAM-015 旧カメラの複数カットと作品時刻の境界を実データ・画面で確認する"
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T22:53:36+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "58c69b4",
+      "text": "Issue #106: MOTION-010/CAM-015 旧カメラ複数カットの時刻境界: 保存済み30fpsカメラ複数キーのカット境界を作品24/60fpsから検証し、必要な依存修正を行う"
+    },
     {
       "at": "2026-10-24T22:51:25+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "622847a",
       "text": "MOTION-010 203.63秒の実VMDで0/4/90/180秒と往復シークの0補正評価を全201骨・168モーフで比較。最大差2.81e-7未満、元経路復帰差0。短尺回帰含む2試験通過、原本ハッシュ一致。"
-    },
-    {
-      "at": "2026-10-24T20:44:31+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e9cff19",
-      "text": "Issue #106: MOTION-010 長尺0補正評価: 登録VMDの時長を調べ、90秒の0補正評価を隔離実PMXで検証する"
     }
   ]
 }
