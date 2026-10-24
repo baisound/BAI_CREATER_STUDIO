@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:41:19+09:00",
+  "updated_at": "2026-10-24T22:44:31+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-camera-tail",
-  "head_at_update": "ac2e9fe",
+  "branch": "codex/v05-motion010-camera-seconds",
+  "head_at_update": "8f73a8f",
   "current": {
-    "task": "Issue #106: MOTION-010 長尺編集と旧カメラ終端",
-    "status": "done",
-    "step": "旧300Fカメラで90秒へ移動する失敗を再現し、元カメラを保持した境界処理と回帰を確認する",
+    "task": "Issue #106: MOTION-010 作品と旧カメラのFPS換算",
+    "status": "in_progress",
+    "step": "同じ秒数をカメラ自身のFPSで評価し、24/60fps作品と旧30fpsカメラの保存姿勢を確認する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T22:44:31+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8f73a8f",
+      "text": "Issue #106: MOTION-010 作品と旧カメラのFPS換算: 同じ秒数をカメラ自身のFPSで評価し、24/60fps作品と旧30fpsカメラの保存姿勢を確認する"
+    },
     {
       "at": "2026-10-24T22:41:19+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "1aef36f",
       "text": "MOTION-010 下位FKで実PMX左足IKリンク・左目付与対象の拒否理由を確認し、非可換な上位2層の下の頭骨回転・位置を保存再読込で検証。初回は拒否理由の優先順で失敗、修正後2モデル通過・原本ハッシュ一致。"
-    },
-    {
-      "at": "2026-10-24T20:34:59+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "eeda3fc",
-      "text": "Issue #106: MOTION-010 下位FKのIK拒否と複数上位層: 実PMXのIK関連骨拒否と複数同骨上位補正の局所逆算を検査する"
     }
   ]
 }
