@@ -118,14 +118,40 @@ test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
       assert.ok(armProbes[side].restoreDifference<1e-8);
       assert.ok(armProbes[side].keys.every(key=>key.rotation.every(Number.isFinite)));
     }
+    const leftInput={instanceId,side:'左',target:armProbes['左'].wristTarget,
+      fallbackPole:[position('左腕')[0],position('左腕')[1],position('左腕')[2]+1]};
+    const preview=await page.evaluate(input=>window.BAIStudioMultiScenePreview.armIkPreview(
+      input.instanceId,input.side,input.target,input.fallbackPole),leftInput);
+    assert.ok(preview.residual<1e-3);
+    assert.ok(preview.unrelatedDrift<1e-4);
+    const previewPose=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左手首']),{instanceId});
+    assert.ok(distance(previewPose.bones['左手首'].world.slice(12,15),
+      armProbes['左'].wristTarget)<1e-3);
+    await page.keyboard.press('Escape');
+    const cancelled=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左手首']),{instanceId});
+    assert.ok(distance(cancelled.bones['左手首'].world.slice(12,15),position('左手首'))<1e-8);
     const endpoint=`${server.base}/api/studio/v05/motion-edits`;
+    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,0);
     const post=body=>fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({project_id:id,...(!['undo','redo'].includes(body.action)?
         {instance_id:instanceId,clip_id:placed.clip.id}:{}),...body})});
     const head={frame:240,bone:'頭',rotation:[0,0,0,1]};
     const first=await ok(await post({revision:0,action:'set',key:head}));
     assert.equal(first.revision,1);
-    const paired=await ok(await post({revision:1,action:'arm-set',keys:armProbes['左'].keys}));
+    await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
+      window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
+      null,{timeout:120000});
+    await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'arm-pair-preview-save'));
+    const secondPreview=await page.evaluate(input=>window.BAIStudioMultiScenePreview.armIkPreview(
+      input.instanceId,input.side,input.target,input.fallbackPole),leftInput);
+    assert.ok(secondPreview.residual<1e-3);
+    await page.locator('#v106-fk-save').click();
+    await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent
+      ?.includes('腕・ひじの2キーを1回の操作として保存しました'));
+    const paired=await ok(await fetch(`${endpoint}?id=${id}`));
     assert.equal(paired.revision,2);
     assert.deepEqual(paired.layers[0].keys.map(key=>key.bone),['左ひじ','左腕','頭']);
     const rightPair=await ok(await post({revision:2,action:'arm-set',keys:armProbes['右'].keys}));

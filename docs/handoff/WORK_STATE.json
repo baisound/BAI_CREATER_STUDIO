@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:59:44+09:00",
+  "updated_at": "2026-10-24T17:08:04+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-local-rotation",
-  "head_at_update": "a25b70a",
+  "branch": "codex/v05-motion010-arm-pair-preview",
+  "head_at_update": "eb4ab77",
   "current": {
-    "task": "Issue #106: MOTION-010 腕IKの実骨回転",
+    "task": "Issue #106: MOTION-010 腕IKの2キー仮表示",
     "status": "done",
-    "step": "実PMXの幾何目標から左右の腕・ひじのローカル回転差分を算出し、付与後の手首と未編集骨を検証する",
-    "design_doc": "docs/v05/MOTION010_ARM_IK_FEASIBILITY_20261024_JA.md"
+    "step": "腕・ひじの2キーを同時刻に一組として仮評価し、Escで元姿勢へ戻せる画面経路をつなぐ",
+    "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 腕・ひじ2キーの同時仮表示と手先・肘3Dハンドル、Esc・保存・Undo/Redoを接続する",
+    "MOTION-010: 手先・肘の実3Dポインタハンドルを2キー仮表示へ接続し、到達不能表示と保存・Undo/Redoを検証する",
     "MOTION-010: 別PMXと別名VMD候補の全骨往復を検査する"
   ],
   "unverified": [
-    "実PMX1モデル・VMD1本・作品F240・物理OFFのみ確認。手動ハンドル、2キー仮表示、別PMX、VMD往復、物理ON、実GPU、Linux、標準MCP、Owner採用は未確認。AC-M-01/02と全体は未合格。"
+    "開始操作は診断入口のみ。手先・肘ハンドル、別PMX、別名VMD全骨往復、物理ON、実GPU、Linux、標準MCP、Owner採用は未確認。AC-M-01/02と全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T17:08:04+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "eb4ab77",
+      "text": "MOTION-010腕・ひじ2キーを同時仮表示し、Esc復帰と画面のキー化ボタンから1 revision・1 Undo保存を隔離実PMXで確認"
+    },
+    {
+      "at": "2026-10-24T17:02:26+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "bfa7865",
+      "text": "Issue #106: MOTION-010 腕IKの2キー仮表示: 腕・ひじの2キーを同時刻に一組として仮評価し、Escで元姿勢へ戻せる画面経路をつなぐ"
+    },
     {
       "at": "2026-10-24T16:59:44+09:00",
       "by": "codex",
@@ -227,20 +241,6 @@
       "event": "start",
       "head": "0a4a369",
       "text": "Issue #106: MOTION-010 元VMD曲線の分割保持: 密な元VMD曲線に補正キーを入れる際のBezier分割と実PMX往復を検証する"
-    },
-    {
-      "at": "2026-10-24T14:36:11+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "e5f28df",
-      "text": "MOTION-010の24000/1001fps・別PMX246骨で作品240F＋VMD300F全骨往復成功。密な実VMD曲線は角度0.264度の誤差で安全に拒否。隔離ChromeとPython9件、guardedデータハッシュ一致。"
-    },
-    {
-      "at": "2026-10-24T14:32:51+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0f1dce3",
-      "text": "Issue #106: MOTION-010 分数FPS・別PMX候補検証: 24000/1001fps作品と別PMXで候補の局所誤差と実全骨往復を照合する"
     }
   ]
 }
