@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:03:28+09:00",
+  "updated_at": "2026-10-25T00:08:09+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip096-manual-mouth",
-  "head_at_update": "56e521a",
+  "branch": "codex/v05-lip004-pmx-analysis",
+  "head_at_update": "05fdbe1",
   "current": {
-    "task": "Issue #96: 実PMX口モーフの手動UI保存経路",
-    "status": "done",
-    "step": "合成画面で実口モーフ「あ」を選択し複数時刻へ保存・再読込・実3D/限定MP4を照合する",
-    "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
+    "task": "Issue #175: 実PMX口モーフの頂点変位解析",
+    "status": "in_progress",
+    "step": "PMX実データの頂点変位・重なり解析と数値ゲートを追加する",
+    "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
     "Issue #96のPRをmainへ反映しIssueを閉じる。次はロードマップ順4のLIP-004頂点変位・母音強度解析について既存実装とIssueを照合して着手する"
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:08:09+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "05fdbe1",
+      "text": "Issue #175: 実PMX口モーフの頂点変位解析: PMX実データの頂点変位・重なり解析と数値ゲートを追加する"
+    },
     {
       "at": "2026-10-25T00:03:28+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "cf63b7d",
       "text": "MOTION-010 動く元頭骨曲線の平坦キー対F2667/2669・F2831/2833で前後各4作品Fのなじませ付きY8度候補を実証。不要な終了隣接キーを省き、元局所姿勢が完全一致するキー間だけ線形補間。204秒作品12240F＋VMD6121F・201骨最大位置0.00001256/角度0.00042119度、隔離採用・復元、原本ハッシュ一致。24fps短尺回帰も確認。"
-    },
-    {
-      "at": "2026-10-24T21:39:16+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "295c26f",
-      "text": "Issue #106: MOTION-010 平坦境界のなじませ候補: 動く頭骨の前後でなじませを安全に表現できる境界と不要な隣接キーを検証する"
     }
   ]
 }
