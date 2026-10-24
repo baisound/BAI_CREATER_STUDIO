@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:56:21+09:00",
+  "updated_at": "2026-10-24T21:00:02+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-long-interval",
-  "head_at_update": "0187b28",
+  "head_at_update": "c65d263",
   "current": {
     "task": "Issue #106: MOTION-010 長尺VMDの限定区間候補",
-    "status": "in_progress",
+    "status": "done",
     "step": "90秒付近の別名VMD候補を有界区間で生成または理由付き拒否し、実PMX往復条件を確認する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 長尺VMDの90秒付近に限定した別名候補の安全な生成・拒否理由と実PMX往復を調べる"
+    "MOTION-010 動く元VMDの区間候補で30fps密キー化と60fpsプレビューが食い違う原因を分析し、既承認範囲で安全な限定修正を試す"
   ],
   "unverified": [
-    "長尺VMD候補の生成・実PMX往復・採用、短い旧カメラと長尺作品の境界、画面再読込断続失敗の原因、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "元曲線を保つ長尺VMD候補の生成・実PMX往復・採用、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T21:00:02+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "c65d263",
+      "text": "MOTION-010 203秒の動く元VMDの90秒付近を約2秒区間で候補生成。元頭骨キー境界[2669,2732)でも位置・角度誤差超過でHTTP422拒否、候補ファイル不在、補正revision・原本ハッシュ不変を実試験で確認。"
+    },
     {
       "at": "2026-10-24T20:56:21+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "b5191cd",
       "text": "Issue #106: MOTION-010 PMX腕関節制限: 登録PMXの腕IK定義と関節制限を調査し、腕ハンドルの操作可否・理由表示を実データに合わせて安全に整える"
-    },
-    {
-      "at": "2026-10-24T18:00:24+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "5789610",
-      "text": "MOTION-010右手先・ひじのライブ仮表示・Esc・保存・Undo/Redo・再読込を2実PMXで確認し、VMD角度比較の四元数ノルム誤判定を修正"
     }
   ]
 }
