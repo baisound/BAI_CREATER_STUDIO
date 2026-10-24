@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T14:36:11+09:00",
+  "updated_at": "2026-10-24T14:39:21+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-fractional-pmx",
-  "head_at_update": "e5f28df",
+  "branch": "codex/v05-motion010-vmd-bezier-split",
+  "head_at_update": "0a4a369",
   "current": {
-    "task": "Issue #106: MOTION-010 分数FPS・別PMX候補検証",
-    "status": "done",
-    "step": "24000/1001fps作品と別PMXで候補の局所誤差と実全骨往復を照合する",
+    "task": "Issue #106: MOTION-010 元VMD曲線の分割保持",
+    "status": "in_progress",
+    "step": "密な元VMD曲線に補正キーを入れる際のBezier分割と実PMX往復を検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T14:39:21+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0a4a369",
+      "text": "Issue #106: MOTION-010 元VMD曲線の分割保持: 密な元VMD曲線に補正キーを入れる際のBezier分割と実PMX往復を検証する"
+    },
     {
       "at": "2026-10-24T14:36:11+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "366468a",
       "text": "Issue #106 MOTION-010: 実PMXの数値FK仮表示・作品別キー保存/revision/Undo・再読込・3Dキャプチャ姿勢を接続。実PMX3/3、保存安全4/4、既存MP4 3/3"
-    },
-    {
-      "at": "2026-10-24T09:47:01+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9abfe2f",
-      "text": "Issue #106: MOTION-010段階Aの限定FK補正: 作品別API・revision/Undo、実PMXプレビュー、保存再読込をつなぐ"
     }
   ]
 }
