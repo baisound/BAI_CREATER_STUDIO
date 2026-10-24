@@ -63,6 +63,7 @@ def run(name,a):
     if name=='bai_studio_scene_motion_target_set':return api('/api/studio/v05/scene/motion-target',a)
     if name=='bai_studio_pmx_fk_edits_get':return api('/api/studio/v05/motion-edits?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_pmx_fk_edits_mutate':return api('/api/studio/v05/motion-edits',a)
+    if name=='bai_studio_pmx_vmd_candidate_create':return api('/api/studio/v05/motion/vmd-candidate',a)
     if name=='bai_studio_scene_motion_plan':return api('/api/studio/v05/scene/motion-plan?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_scene_model_candidates':return api('/api/studio/v05/scene/model-candidates')
     if name=='bai_studio_scene_instances_get':return api('/api/studio/v05/scene/instances?id='+urllib.parse.quote(a['project_id']))
@@ -198,6 +199,7 @@ TOOLS=[
 ('bai_studio_scene_motion_target_set','Assign one motion clip to an explicit scene instance, with revision check.',S({'project_id':STR,'clip_id':STR,'revision':INT,'instance_id':{'type':['string','null']}},['project_id','clip_id','revision','instance_id'])),
 ('bai_studio_pmx_fk_edits_get','Read project-scoped PMX FK correction keys, revision, and source match status; no live GPU state.',S({'project_id':STR},['project_id'])),
 ('bai_studio_pmx_fk_edits_mutate','Set/remove/move a PMX FK key, update layer settings, or undo/redo with revision.',S({'project_id':STR,'revision':INT,'action':{'type':'string','enum':['set','remove','move','layer-update','undo','redo']},'instance_id':STR,'clip_id':STR,'layer_id':STR,'to_frame':INT,'settings':S({'name':STR,'weight':{'type':'number'},'muted':{'type':'boolean'},'start_frame':INT,'end_frame':INT,'fade_in_frames':INT,'fade_out_frames':INT},[]),'key':S({'frame':INT,'bone':STR,'rotation':{'type':'array','items':{'type':'number'},'minItems':4,'maxItems':4}},['frame','bone','rotation'])},['project_id','revision','action'])),
+('bai_studio_pmx_vmd_candidate_create','Create a distinct review-only VMD from saved whole-clip constant PMX corrections; visual PMX validation and project placement are not performed.',S({'project_id':STR,'revision':INT,'instance_id':STR,'clip_id':STR},['project_id','revision','instance_id','clip_id'])),
 ('bai_studio_scene_motion_plan','Read valid motion-to-scene-model pairings, format compatibility, and preview readiness.',S({'project_id':STR},['project_id'])),
  ('bai_studio_scene_model_candidates','List actually previewable model assets.',S()),
 ('bai_studio_scene_instances_get','Get project scene instances and independent transforms.',S({'project_id':STR},['project_id'])),
