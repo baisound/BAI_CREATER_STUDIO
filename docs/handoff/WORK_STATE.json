@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T19:58:44+09:00",
+  "updated_at": "2026-10-24T20:09:10+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-solo-gizmo",
-  "head_at_update": "28176b6",
+  "branch": "codex/v05-motion010-solo-roundtrip-arm",
+  "head_at_update": "44fb925",
   "current": {
-    "task": "Issue #106: MOTION-010 ソロ切替と複数レイヤー3D骨操作",
+    "task": "Issue #106: MOTION-010 ソロVMD往復と複数層腕IK",
     "status": "done",
-    "step": "評価順と保存条件を固定し、実PMXの重畳姿勢と別名VMDを検証",
+    "step": "実PMX全骨の候補検査と腕ハンドルの下位層姿勢差分を評価",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: ソロ候補の実PMX全骨往復と複数層での腕IKドラッグを評価し、下位層直接編集の安全な逆算条件を設計する"
+    "MOTION-010: 下位レイヤーFK骨の3D直接編集で後段差分を安全に逆算し、IK/付与や非可逆条件を拒否して実PMXで検証する"
   ],
   "unverified": [
-    "下位層の直接3D編集、順変更(O-05未承認)、ソロ候補の実PMX全骨往復、複数層の腕IKドラッグ、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認"
+    "下位層直接3D編集、順変更(O-05未承認)、腕IKの別形状PMXでの重畳、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T20:09:10+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "44fb925",
+      "text": "Issue #106: ソロの部分・全フレームVMD候補を246骨実PMX全骨で往復し、複数層上位の腕IKドラッグ保存・Undo/Redo・再読込を確認"
+    },
+    {
+      "at": "2026-10-24T20:01:55+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f77fda1",
+      "text": "Issue #106: MOTION-010 ソロVMD往復と複数層腕IK: 実PMX全骨の候補検査と腕ハンドルの下位層姿勢差分を評価"
+    },
     {
       "at": "2026-10-24T19:58:44+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "056ba49",
       "text": "Issue #106: MOTION-010 腕IKの実骨回転: 実PMXの幾何目標から左右の腕・ひじのローカル回転差分を算出し、付与後の手首と未編集骨を検証する"
-    },
-    {
-      "at": "2026-10-24T16:49:47+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "25f9165",
-      "text": "MOTION-010: 実PMXのほぼ直線の左右腕に対応する3D二関節目標幾何を純粋関数で実装。骨長・到達境界・予備ポールを単体4件、実PMX/Chrome1件、静的配信6件で検証。実骨回転と手動ハンドルは未接続。"
-    },
-    {
-      "at": "2026-10-24T16:45:44+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "20eae37",
-      "text": "Issue #106: MOTION-010 腕IKの3D幾何: 実PMXのほぼ直線の腕を含む二関節3D到達・ポール選択・到達不能判定を純粋な関数として実装し、左右・境界を検証する"
     }
   ]
 }
