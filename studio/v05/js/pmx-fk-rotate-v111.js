@@ -127,5 +127,10 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
     gizmo=null;helper=null;row.remove();
   }
   refresh();
-  return {refresh,dispose};
+  return {refresh,dispose,setMode(next){
+    if(next!=='rotate'&&next!=='translate')throw Error('Unknown PMX bone handle mode');
+    if(drag)throw Error('骨のドラッグ中は操作を切り替えられません');
+    if(mode.value===next)return;
+    mode.value=next;mode.dispatchEvent(new Event('change'));
+  }};
 }

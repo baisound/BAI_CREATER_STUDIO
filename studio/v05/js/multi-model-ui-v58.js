@@ -1,6 +1,7 @@
 import {createSpatialEditor} from './spatial-ui-v61.js';
 import {createPmxBonePicker} from './pmx-bone-picker-v110.js';
 import {createPmxFkRotate} from './pmx-fk-rotate-v111.js';
+import {listPmxIkTargets} from './pmx-ik-targets-v114.js';
 /* v58 - real multi-instance Three.js preview.
  * Uses a single viewport renderer and physically separate loaded objects
  * (including skeletons) per scene instance. Animation wiring is stage 59.
@@ -73,10 +74,18 @@ footControls.append(footSummary,document.createTextNode('床のY '),footGround,f
   document.createTextNode(' 左右のつま先骨を測定。足裏の形状・接触力・IKは評価しません。'),footStatus,footDetails);
 const fkControls=document.createElement('details');fkControls.id='v106-fk-edit';
 fkControls.style.cssText='border-top:1px solid #435a73;padding-top:4px';
-const fkSummary=document.createElement('summary');fkSummary.textContent='リグ：PMX骨のFK回転・位置補正';
+const fkSummary=document.createElement('summary');fkSummary.textContent='リグ：PMX骨の回転・位置補正（IKターゲット含む）';
 const fkRow=document.createElement('div');fkRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
 const fkContext=document.createElement('small');fkContext.id='v106-fk-context';
 fkContext.style.cssText='display:block;color:#c8d9ea';
+const ikRow=document.createElement('div');ikRow.id='v114-ik-targets';
+ikRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
+const ikSelect=document.createElement('select');ikSelect.id='v114-ik-select';
+ikSelect.setAttribute('aria-label','PMXのIKターゲット骨');
+const ikChoose=document.createElement('button');ikChoose.type='button';ikChoose.id='v114-ik-choose';
+ikChoose.textContent='IK骨を選択';
+const ikStatus=document.createElement('small');ikStatus.id='v114-ik-status';ikStatus.setAttribute('role','status');
+ikRow.append(document.createTextNode('PMX IK '),ikSelect,ikChoose,ikStatus);
 const fkBone=document.createElement('select');fkBone.id='v106-fk-bone';fkBone.setAttribute('aria-label','補正するPMX骨');
 const fkFrame=document.createElement('input');fkFrame.id='v106-fk-frame';fkFrame.type='number';
 fkFrame.min='0';fkFrame.step='1';fkFrame.value='0';fkFrame.style.width='78px';
@@ -117,7 +126,7 @@ fkRow.append(document.createTextNode('骨 '),fkBone,document.createTextNode('F '
   ...fkAxes.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}° `),input]),
   ...fkPosition.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}位置 `),input]),
   fkPreview,fkSave,fkCancel,fkUndo,fkRedo,fkSaved,fkRemove);
-fkControls.append(fkSummary,fkContext,fkRow,fkLayerRow,fkStatus);
+fkControls.append(fkSummary,fkContext,ikRow,fkRow,fkLayerRow,fkStatus);
 const faceLabel=document.createElement('strong');faceLabel.textContent='PMX表情・口';
 const faceName=document.createElement('select');faceName.id='v96-face-name';faceName.setAttribute('aria-label','実PMXのモーフ名');
 const faceTrack=document.createElement('select');faceTrack.id='v98-face-track';
@@ -312,6 +321,15 @@ function redrawFkControls(){
   for(const name of names)fkBone.add(new Option(name,name));
   if(names.includes(previous))fkBone.value=previous;
   else if(names.includes('頭'))fkBone.value='頭';
+  const ikTargets=target?.format==='PMX'?listPmxIkTargets(target.object):[];
+  const previousIk=ikSelect.value;
+  ikSelect.replaceChildren(new Option(ikTargets.length?'IK骨を選択':'IK定義なし',''));
+  for(const ik of ikTargets)ikSelect.add(new Option(`${ik.name} → ${ik.effector}`,ik.name));
+  if(ikTargets.some(ik=>ik.name===previousIk))ikSelect.value=previousIk;
+  ikSelect.disabled=!ikTargets.length;ikChoose.disabled=!ikSelect.value;
+  ikStatus.textContent=ikTargets.length?
+    `実PMXのIK定義 ${ikTargets.length}件。選択後「このFを3D表示」から位置ハンドルを使えます。`:
+    '実PMXのIK定義を読み込むと選択できます。';
   const row=activeFkRow();
   const layer=motionEdits?.layers?.find(item=>item.instance_id===instanceId&&item.clip_id===row?.clip_id&&!item.disabled);
   const first=row?Math.ceil(row.start*projectFps-1e-7):0;
@@ -767,6 +785,17 @@ choose.addEventListener('change',()=>{
 fkHere.addEventListener('click',setFkFrameFromSeek);
 fkFrame.addEventListener('change',redrawFkControls);
 fkBone.addEventListener('change',()=>{discardFkPreview();redrawFkControls();});
+ikSelect.addEventListener('change',()=>{ikChoose.disabled=!ikSelect.value;});
+ikChoose.addEventListener('click',()=>{
+  const target=controller?.getLoaded(choose.value||selectedId);
+  const selected=listPmxIkTargets(target?.object).find(ik=>ik.name===ikSelect.value);
+  if(!selected||![...fkBone.options].some(option=>option.value===selected.name)){
+    ikStatus.textContent='IK骨を選び直してください。';return;
+  }
+  discardFkPreview();fkBone.value=selected.name;
+  fkControls.open=true;rotateGizmo?.setMode('translate');redrawFkControls();
+  ikStatus.textContent=`${selected.name}を選択。${selected.effector}の追従は仮表示で確認してください。`;
+});
 fkPreview.addEventListener('click',()=>{
   try{
     previewCurrentFk();

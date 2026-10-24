@@ -188,9 +188,65 @@ test('real PMX 3D rotation and translation handles preserve both FK channels',
       const restored=await pose();
       assert.ok(delta(finalPreview.bones['頭'].quaternion,restored.bones['頭'].quaternion)<1e-5);
       assert.ok(delta(finalPreview.bones['頭'].position,restored.bones['頭'].position)<1e-5);
+      await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+      await page.locator('#v106-fk-frame').fill('240');
+      await page.locator('#v106-fk-frame').dispatchEvent('change');
+      await page.waitForFunction(()=>document.querySelector('#v114-ik-select')?.options.length===5);
+      await page.locator('#v114-ik-select').selectOption('左足ＩＫ');
+      await page.locator('#v114-ik-choose').click();
+      assert.equal(await page.locator('#v106-fk-bone').inputValue(),'左足ＩＫ');
+      assert.equal(await page.locator('#v113-fk-gizmo-mode').inputValue(),'translate');
+      assert.equal(await page.locator('#v111-fk-gizmo-toggle').isDisabled(),false);
+      await page.locator('#v111-fk-gizmo-toggle').click();
+      assert.equal(await page.locator('#v111-fk-gizmo-toggle').getAttribute('aria-pressed'),'true');
+      await page.locator('#v111-fk-gizmo-toggle').click();
+      const footPose=()=>page.evaluate(id=>window.BAIStudioMultiScenePreview.poseProbe(id,
+        ['左足ＩＫ','左足首','右足首']),instanceId);
+      const feetBefore=await footPose();
+      await page.locator('#v112-fk-position-x').fill('0.3');
+      await page.locator('#v106-fk-preview').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('仮補正を表示中'));
+      const feetAfter=await footPose();
+      const world=bone=>bone.world.slice(12,15);
+      assert.ok(delta(feetBefore.bones['左足ＩＫ'].position,feetAfter.bones['左足ＩＫ'].position)>0.29);
+      assert.ok(delta(world(feetBefore.bones['左足ＩＫ']),world(feetAfter.bones['左足ＩＫ']))>0.02);
+      assert.ok(delta(world(feetBefore.bones['左足首']),world(feetAfter.bones['左足首']))>0.02,
+        'the real PMX IK effector must follow its target');
+      assert.ok(delta(world(feetAfter.bones['左足ＩＫ']),world(feetAfter.bones['左足首']))<1e-3);
+      assert.ok(delta(world(feetBefore.bones['右足首']),world(feetAfter.bones['右足首']))<1e-4);
+      await page.locator('#v106-fk-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('保存しました'));
+      const savedFoot=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(savedFoot.revision,4);
+      assert.ok(savedFoot.layers[0].keys.some(key=>key.bone==='左足ＩＫ'&&key.frame===240));
+      for(const seconds of [0,4,4,2,4]){
+        await page.evaluate(t=>window.BAIStudioTimeline.seek(t,'ik-round-trip'),seconds);
+        if(seconds===4){
+          const replayed=await footPose();
+          assert.ok(delta(world(feetAfter.bones['左足首']),world(replayed.bones['左足首']))<1e-5,
+            'foot IK correction must not accumulate across seeks');
+        }
+      }
+      await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());
+      await page.reload();
+      await page.locator('#v06project').selectOption(projectId);
+      await page.locator('#nav [data-workspace="edit"]').click();
+      await page.locator('#v70sceneOpen').click();
+      await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
+        window.BAIStudioMultiScenePreview?.status().loaded===1&&
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-saved')?.options.length===3,
+        null,{timeout:30000});
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'ik-reload'));
+      const feetReloaded=await footPose();
+      console.log(JSON.stringify({ik_reload_before:world(feetAfter.bones['左足首']),
+        ik_reload_after:world(feetReloaded.bones['左足首'])}));
+      assert.ok(delta(world(feetAfter.bones['左足首']),world(feetReloaded.bones['左足首']))<1e-5);
       harness.assertNoErrors(page);
       console.log(JSON.stringify({head_rotation_delta:delta(baseline.bones['頭'].quaternion,preview.bones['頭'].quaternion),
         head_position_delta:delta(rotated.bones['頭'].position,translatedPose.bones['頭'].position),
+        left_ankle_delta:delta(world(feetBefore.bones['左足首']),world(feetAfter.bones['左足首'])),
+        ik_target_error:delta(world(feetAfter.bones['左足ＩＫ']),world(feetAfter.bones['左足首'])),
         renderer:(await page.evaluate(()=>window.BAIStudioMultiScenePreview.status())).renderer,
         model_sha256:originals[0],motion_sha256:originals[1]}));
     }finally{
