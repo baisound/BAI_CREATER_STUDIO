@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:23:11+09:00",
+  "updated_at": "2026-10-25T00:28:52+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip004-analysis-ui",
-  "head_at_update": "b2aacd5",
+  "branch": "codex/v05-lip004-morph-map-store",
+  "head_at_update": "5429ca4",
   "current": {
-    "task": "Issue #175: v0.5口モーフ解析の確認画面",
+    "task": "Issue #175: モデル別MorphMap保存",
     "status": "done",
-    "step": "現在のPMXの数値結果と手動確認が必要な母音を画面へ表示する",
+    "step": "PMXモデルID/hashと解析hashに紐付く母音対応表を作品別に保存・復元し、素材変更時に失効を示す",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #175のモデル別MorphMap選択・手動強度調整・保存再読込とhash失効を実装する"
+    "Issue #175のv0.5画面から母音モーフと手動重みを選び、対応表を保存・再読込・失効表示する"
   ],
   "unverified": [
-    "VRM・MCP・Linux・任意PMX・実プレビューでの候補強度確定とOwner採用は未検証。LIP-004全体は未完成"
+    "画面操作・実プレビュー強度調整・VRM・MCP・Linux・統合production耐障害性・Owner採用は未検証。LIP-004全体は未完成"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:28:52+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "5429ca4",
+      "text": "Issue #175: PMX対応表の作品別改訂付き保存APIを追加。隔離HTTP・実PMX Aで3/3、再読込/競合/hash失効/原本保持を検証。"
+    },
+    {
+      "at": "2026-10-25T00:25:35+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "df5d888",
+      "text": "Issue #175: モデル別MorphMap保存: PMXモデルID/hashと解析hashに紐付く母音対応表を作品別に保存・復元し、素材変更時に失効を示す"
+    },
     {
       "at": "2026-10-25T00:23:11+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "3df66c3",
       "text": "Issue #106: MOTION-010 長尺VMD候補の通常画面経路: 203秒実VMDの候補作成・全骨検査・明示採用・復元をv0.5画面で操作し保存結果を読む"
-    },
-    {
-      "at": "2026-10-24T22:08:02+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2ed62e4",
-      "text": "MOTION-010 長尺203秒VMDの24000/1001fps一定補正を201骨PMX全4892作品F＋6120VMD Fで検証、隔離採用・復元を確認。同FPS区間4Fなじませの不適合は拒否を固定"
-    },
-    {
-      "at": "2026-10-24T22:02:56+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "d0ed2b0",
-      "text": "Issue #106: MOTION-010 長尺VMDの分数FPS候補検証: 203秒実VMDと201骨PMXで24000/1001fps長尺候補の全骨往復を検証する"
     }
   ]
 }

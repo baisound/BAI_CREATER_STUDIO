@@ -286,6 +286,21 @@ class Handler(BaseHTTPRequestHandler):
             except PmxAnalysisError as exc:
                 self.bad(exc.status, str(exc))
             return
+        if urlsplit(self.path).path == '/api/studio/v05/pmx/morph-map':
+            from studio_v05_morph_maps import read as read_morph_maps, MorphMapError
+            query = parse_qs(urlsplit(self.path).query)
+            if set(query) != {'project_id'} or len(query['project_id']) != 1:
+                return self.bad(400, 'Invalid morph map query')
+            try:
+                result = read_morph_maps(DATA/'studio_v05_morph_maps',
+                                         DATA/'studio_v05_catalog.json', query['project_id'][0],
+                                         unified_assets(), character_source)
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except MorphMapError as exc:
+                self.bad(exc.status, str(exc))
+            except (OSError, ValueError, TypeError, KeyError):
+                self.bad(422, 'Morph map read failed; original retained')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/multi-motion-plan':
             from studio_v05_multi_motion import plan, MultiMotionError
             try:
@@ -895,6 +910,29 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(409 if ('conflict' in str(exc).lower() or 'locked' in str(exc).lower()
                                  or 'reconcile' in str(exc).lower()) else 422,str(exc))
             except OSError:self.bad(500,'Scene instances write failed; original retained')
+            return
+        if urlsplit(self.path).path == '/api/studio/v05/pmx/morph-map':
+            from studio_v05_morph_maps import mutate as mutate_morph_map, MorphMapError
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                if not 0 < length <= 8192:
+                    return self.bad(413, 'Morph map request too large')
+                body = json.loads(self.rfile.read(length))
+                allowed = {'project_id', 'revision', 'action', 'model_asset_id',
+                           'model_hash', 'analysis_hash', 'entries', 'confirmed', 'map_id'}
+                if (not isinstance(body, dict) or not {'project_id', 'revision', 'action'} <= set(body)
+                        or set(body) - allowed):
+                    return self.bad(400, 'Invalid morph map fields')
+                result = mutate_morph_map(DATA/'studio_v05_morph_maps',
+                    DATA/'studio_v05_catalog.json', assets=unified_assets(),
+                    source_for=character_source, **body)
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except MorphMapError as exc:
+                self.bad(exc.status, str(exc))
+            except (ValueError, TypeError, KeyError):
+                self.bad(400, 'Invalid morph map request')
+            except OSError:
+                self.bad(500, 'Morph map write failed; original retained')
             return
         if urlsplit(self.path).path=='/api/studio/v05/scene/model':
             from studio_v05_scene_model import set_model,SceneModelError
