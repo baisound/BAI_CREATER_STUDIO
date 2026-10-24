@@ -137,3 +137,59 @@ test('24/60fps projects cross half-open 30fps camera cuts at the same seconds',
       await page?.close().catch(()=>{});await browser?.close().catch(()=>{});await server.stop();
     }
   });
+
+test('long project holds the last visible half-open camera shot',
+  {timeout:120000},async()=>{
+    const camera={schema:1,fps:30,duration:300,keys:[
+      {frame:0,position:[0,1.6,5],target:[0,1,0],fov:40}],
+    custom_presets:[{name:'last',pose:{position:[20,2,5],target:[0,1,0],fov:40}}],
+    sequence:[{start:240,end:300,preset:'last',transition:'cut'}]};
+    const server=await harness.startServer({port:8922,seed:{
+      'camera_project.json':JSON.stringify(camera)}});
+    let browser,page;
+    try{
+      const cameraPath=path.join(server.dataDir,'camera_project.json');
+      const original=hash(cameraPath);
+      const created=await json(await fetch(`${server.base}/api/studio/v05/projects`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name:'CAM-015 末尾カット',kind:'empty'})}));
+      const projectId=created.project.id;
+      await json(await fetch(`${server.base}/api/studio/v05/project/fps`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({project_id:projectId,fps:24})}));
+      browser=await server.launchBrowser();page=await server.newPage(browser);
+      await page.goto(`${server.base}/studio/v05/index.html`);
+      await page.locator('#v06project').selectOption(projectId);
+      await page.waitForFunction(()=>window.BAIStudioCameraV29Runtime?.getFrameRate()===24);
+      await page.evaluate(()=>{
+        window.__cameraPoseEvents=[];
+        window.addEventListener('bai:camera-pose-evaluated',
+          event=>window.__cameraPoseEvents.push(event.detail));
+      });
+      const beforeEnd=await seekCamera(page,239/24,239,299);
+      assert.equal(beforeEnd.pose.position[0],20);
+      const atEnd=await seekCamera(page,10,240,299,true);
+      assert.equal(atEnd.requestedCameraFrame,300);
+      assert.equal(atEnd.pose.position[0],20);
+      const beyond=await seekCamera(page,20,480,299,true);
+      assert.equal(beyond.requestedCameraFrame,600);
+      assert.equal(beyond.pose.position[0],20);
+      const event=await page.evaluate(()=>window.__cameraPoseEvents.at(-1));
+      assert.equal(event.sampleFrame,299);
+      assert.equal(event.pose.position[0],20);
+      const strict=await json(await fetch(`${server.base}/api/camera/sequence/evaluate?frame=300`));
+      assert.equal(strict.source,'keys');
+      assert.equal(strict.pose.position[0],0);
+      const held=await json(await fetch(
+        `${server.base}/api/camera/sequence/evaluate?seconds=10&overflow=hold`));
+      assert.equal(held.source,'sequence');
+      assert.equal(held.preset,'last');
+      assert.equal(held.frame,299);
+      assert.equal(held.requested_frame,300);
+      assert.equal(held.held_at_end,true);
+      assert.equal(hash(cameraPath),original);
+      harness.assertNoErrors(page);
+    }finally{
+      await page?.close().catch(()=>{});await browser?.close().catch(()=>{});await server.stop();
+    }
+  });
