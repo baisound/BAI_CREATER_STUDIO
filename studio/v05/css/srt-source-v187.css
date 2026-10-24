@@ -19,3 +19,9 @@
 #v192-candidate-list p{margin:0 0 5px;padding:5px;overflow-wrap:anywhere}
 #v192-candidate-list .v192-segment{background:#1a3445}
 #v192-candidate-list .v192-warning{background:#584021;color:#ffe2ae}
+#v194-draft-panel{border:1px solid #55738e;border-radius:6px;padding:7px;display:grid;gap:6px}
+#v194-draft-panel[hidden]{display:none}
+#v194-draft-list{max-height:260px;overflow:auto;display:grid;gap:6px}
+#v194-draft-list .v194-draft-row{display:grid;grid-template-columns:repeat(4,minmax(70px,1fr));gap:5px;padding:5px;background:#1a3445}
+#v194-draft-list .v194-draft-row input,#v194-draft-list .v194-draft-row select{width:100%}
+@media(max-width:650px){#v194-draft-list .v194-draft-row{grid-template-columns:repeat(2,minmax(70px,1fr))}}

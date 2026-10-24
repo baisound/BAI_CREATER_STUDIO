@@ -72,6 +72,27 @@ test('v0.5 SRT panel imports originals and saves readings separately from source
     assert.match(await page.locator('#v192-candidate-status').textContent(),/警告あり・確認が必要.*未採用/);
     assert.match(await page.locator('#v192-candidate-list').textContent(),/SRT発話の時間が重なります/);
     assert.match(await page.locator('#v192-candidate-list').textContent(),/作品F/);
+    let draftState=await(await fetch(`${server.base}/api/studio/v05/lip/drafts?project_id=${a}`)).json();
+    assert.equal(draftState.revision,0,'候補確認だけでは下書きを保存しない');
+    assert.equal(await page.locator('#v194-draft-panel').isVisible(),true);
+    const firstEnd=candidate.segments[0].endFrame-1;
+    await page.locator('#v194-draft-list .v194-draft-row').nth(0).locator('[data-field="endFrame"]').fill(String(firstEnd));
+    await page.locator('#v194-draft-list .v194-draft-row').nth(1).locator('[data-field="startFrame"]').fill(String(firstEnd));
+    await page.locator('#v194-draft-list .v194-draft-row').nth(1).locator('[data-field="mouthShape"]').selectOption('E');
+    await page.locator('#v194-draft-list .v194-draft-row').nth(1).locator('[data-field="weight"]').fill('0.55');
+    const draftResponse=page.waitForResponse(response=>response.url().includes('/lip/drafts')&&
+      response.request().method()==='POST');
+    await page.locator('#v194-draft-save').click();
+    assert.equal((await draftResponse).status(),200);
+    await page.waitForFunction(()=>document.querySelector('#v194-draft-status')?.textContent.includes('保存しました'));
+    draftState=await(await fetch(`${server.base}/api/studio/v05/lip/drafts?project_id=${a}`)).json();
+    assert.equal(draftState.revision,1);
+    assert.equal(draftState.drafts[0].segments[0].endFrame,firstEnd);
+    assert.equal(draftState.drafts[0].segments[1].startFrame,firstEnd);
+    assert.equal(draftState.drafts[0].segments[1].mouthShape,'E');
+    assert.equal(draftState.drafts[0].segments[1].weight,0.55);
+    assert.equal(draftState.drafts[0].exportReady,false);
+    assert.deepEqual(fs.readFileSync(source),original);
     await page.locator('#v187-cues [data-index="2"]').click();
     await page.locator('#v190-explicit-silence').check();
     assert.equal(await page.locator('#v190-reading-state').inputValue(),'unresolved');
@@ -97,6 +118,8 @@ test('v0.5 SRT panel imports originals and saves readings separately from source
     assert.equal((await savedReading).status(),422);
     await page.waitForFunction(()=>document.querySelector('#v190-reading-status')?.textContent.includes('保存に失敗'));
     assert.equal(await page.locator('#v190-reading-kana').inputValue(),'アイウ');
+    assert.equal(await page.locator('#v194-draft-panel').isVisible(),true);
+    assert.equal(await page.locator('#v194-draft-list .v194-draft-row').nth(1).locator('[data-field="weight"]').inputValue(),'0.55');
     assert.equal((await(await fetch(`${server.base}/api/studio/v05/lip/readings?project_id=${a}`)).json()).revision,2);
 
     await page.reload();
@@ -112,6 +135,7 @@ test('v0.5 SRT panel imports originals and saves readings separately from source
     await page.locator('#v06project').selectOption(b);
     await page.waitForFunction(()=>document.querySelector('#v187-source-info')?.textContent.includes('ありません'));
     assert.equal(await page.locator('#v190-reading-editor').isVisible(),false);
+    assert.equal((await(await fetch(`${server.base}/api/studio/v05/lip/drafts?project_id=${b}`)).json()).drafts.length,0);
     await page.locator('#v06project').selectOption(a);
     await page.waitForFunction(()=>document.querySelector('#v187-source-info')?.textContent.includes('2発話'));
     fs.writeFileSync(source,'changed');

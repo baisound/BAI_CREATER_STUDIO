@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T02:07:33+09:00",
+  "updated_at": "2026-10-25T02:11:58+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-lip001-track-draft",
-  "head_at_update": "97ddc55",
+  "head_at_update": "2b4b666",
   "current": {
     "task": "Issue #187: 口形候補を別レイヤーの下書きへ保存",
-    "status": "in_progress",
+    "status": "done",
     "step": "原SRT・読みを保持し、候補の境界・口形・強度を版管理して手動調整可能にする",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #187: 候補の時刻・口形・重みを手動変更して別レイヤーへ下書き保存し、元SRT/読み/元VMDを保持する。未確定・警告候補は最終出力へ進めない"
+    "Issue #187: 下書きの警告と読み確定を確認した上で、採用キーと別名モーフVMDの厳密writer/readbackを実装する"
   ],
   "unverified": [
-    "候補編集/採用、別名モーフVMD書出/再読込、実ユーザーSRT/歌音声、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
+    "実ユーザーSRT/歌音声、実PMXの口形再生、採用・VMD出力/再読込、Undo/Redo、WebMCP/標準MCP、production.lip、Linuxは未実装/未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:11:58+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2b4b666",
+      "text": "Issue #187: SRT候補から口形境界・形・強さを編集し別台帳の下書きへ保存。隔離Python6/6・Chrome1/1、原本不変。"
+    },
     {
       "at": "2026-10-25T02:07:33+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "df5d888",
       "text": "Issue #175: モデル別MorphMap保存: PMXモデルID/hashと解析hashに紐付く母音対応表を作品別に保存・復元し、素材変更時に失効を示す"
-    },
-    {
-      "at": "2026-10-25T00:23:11+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b2aacd5",
-      "text": "Issue #175: v0.5のPMX口モーフ解析読み取り画面を接続。実PMX A/B切替・48件/0件・グループ警告・原本/作品不変を隔離Chrome1/1で確認。"
     }
   ]
 }

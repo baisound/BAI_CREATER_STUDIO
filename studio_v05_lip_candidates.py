@@ -57,7 +57,10 @@ def _shape(mora, previous_vowel):
 
 def _frame(milliseconds, fps):
     value = Fraction(milliseconds) * Fraction(str(fps)) / 1000
-    return (2 * value.numerator + value.denominator) // (2 * value.denominator)
+    whole, remainder = divmod(value.numerator, value.denominator)
+    doubled = remainder * 2
+    return whole + (1 if doubled > value.denominator or
+                    (doubled == value.denominator and whole % 2) else 0)
 
 
 def segments(reading, start_ms, end_ms, fps):

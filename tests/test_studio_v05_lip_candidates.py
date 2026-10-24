@@ -8,10 +8,11 @@ from http.server import ThreadingHTTPServer
 
 import server
 from studio_project_catalog import create, set_fps
-from studio_v05_lip_candidates import segments
+from studio_v05_lip_candidates import segments, _frame
 
 
 def test_mora_splits_long_sokuon_nasal_and_project_frame_rounding():
+    assert [_frame(ms, 10) for ms in (50, 150, 250, 350)] == [0, 2, 2, 4]
     rows, warnings = segments('まっすぐー', 1000, 6000, 30)
     assert warnings == []
     assert [row['mouthShape'] for row in rows] == ['Closed', 'A', 'Closed', 'U', 'U', 'U']
