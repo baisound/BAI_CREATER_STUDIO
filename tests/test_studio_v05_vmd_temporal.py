@@ -164,3 +164,26 @@ def test_long_real_vmd_allows_unkeyed_hair_step_but_refuses_moving_head_step():
     assert hair_report['max_position_error'] < 1e-3
     assert hair_report['max_angle_error_degrees'] < 0.01
     assert source.read_bytes() == original
+
+
+def test_long_real_moving_head_step_requires_flat_boundaries_and_bounded_angle():
+    root = Path(os.environ.get('BAI_REAL_MMD_DATA', Path(__file__).resolve().parents[1] / 'data'))
+    source = root / 'mmd' / 'vmd' / '神っぽいな.vmd'
+    if not source.is_file():
+        pytest.skip('registered dense local VMD is unavailable')
+    original = source.read_bytes()
+    # Source head keys at 2667/2669 and 2831/2833 share the same poses.
+    saved = layer([key(5400, 0.15, math.radians(8))], duration=204,
+                  start_frame=5338, end_frame=5666)
+    samples, report = temporal_replacements(
+        original, [saved], instance_id='model-1', clip_id='clip-1')
+    assert samples
+    assert report['checked_project_frames'] == 12240
+    assert report['max_position_error'] < 1e-3
+    assert report['max_angle_error_degrees'] < 0.01
+    larger = saved | {'keys': [key(5400, 0.15, math.radians(12))]}
+    with pytest.raises(ValueError, match='30fps sample error exceeds limit') as failure:
+        temporal_replacements(original, [larger], instance_id='model-1', clip_id='clip-1')
+    larger_report = ast.literal_eval(str(failure.value).split(': ', 1)[1])
+    assert larger_report['max_angle_error_degrees'] > 0.01
+    assert source.read_bytes() == original

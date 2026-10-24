@@ -103,10 +103,11 @@ export async function validatePmxVmdCandidate(input){
       for(let frame=from;frame<until;frame++){
         checkCurrent(signal,isCurrent);
         const seconds=frame/rate-row.start;
-        // VMDLoader stores key times as float32. JS frame/30 can land just
-        // before a dense key, so evaluate a frame boundary inside that key.
+        // VMDLoader stores key times as float32. The quantization error grows
+        // with time, so a fixed epsilon can still land before a long VMD key.
         const atVmdFrame=sampledSpan>0&&Math.abs(seconds*30-Math.round(seconds*30))<1e-7;
-        const sampleSeconds=atVmdFrame?seconds+1e-6:seconds;
+        const keySeconds=Math.fround(Math.round(seconds*30)/30);
+        const sampleSeconds=atVmdFrame?Math.max(seconds,keySeconds)+1e-7:seconds;
         sourcePlayer.seek(sampleSeconds);outputPlayer.seek(sampleSeconds);
         const diff=comparePmxBones(source.object,output.object,libs.THREE);
         bones=diff.bones;done++;

@@ -15,12 +15,15 @@ const available=modelPath&&motionPath&&fs.existsSync(modelPath)&&fs.existsSync(m
 const digest=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 async function ok(reply){const body=await reply.text();assert.equal(reply.status,200,body);return JSON.parse(body);}
 
-for(const variant of [{duration:100,interval:false,port:8912},
-  {duration:204,interval:false,port:8913},
-  {duration:204,interval:true,port:8914}])test(
-  `real moving 203s VMD sparse ${variant.interval?'bounded hair':'constant head'} candidate matches PMX for ${variant.duration}s`,
+for(const variant of [
+  {duration:100,bone:'頭',angle:12,port:8912},
+  {duration:204,bone:'頭',angle:12,port:8913},
+  {duration:204,bone:'髪_16-03',angle:12,begin:5338,end:5464,port:8914},
+  {duration:204,bone:'頭',angle:8,begin:5338,end:5666,port:8915},
+])test(
+  `real moving 203s VMD sparse ${variant.begin?`bounded ${variant.bone}`:'constant head'} candidate matches PMX for ${variant.duration}s`,
   {skip:!available&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:360000},async()=>{
-    const {duration,interval}=variant;
+    const {duration}=variant,interval=Boolean(variant.begin);
     const originals=[digest(modelPath),digest(motionPath)];
     const metadata=JSON.parse(fs.readFileSync(path.join(root,'mmd_assets.json'),'utf8'));
     const entries=metadata.A.filter(entry=>entry.name===modelName||entry.name.startsWith('tex/'));
@@ -48,18 +51,19 @@ for(const variant of [{duration:100,interval:false,port:8912},
       await ok(await fetch(`${server.base}/api/studio/v05/scene/motion-target`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:id,clip_id:placed.clip.id,revision:placed.revision,instance_id:instance})}));
-      const angle=12*Math.PI/180;
+      const angle=variant.angle*Math.PI/180;
       const saved=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:id,revision:0,action:'set',instance_id:instance,clip_id:placed.clip.id,
-          key:{frame:5400,bone:interval?'髪_16-03':'頭',position:[0.15,0,0],
+          key:{frame:5400,bone:variant.bone,position:[0.15,0,0],
             rotation:[0,Math.sin(angle/2),0,Math.cos(angle/2)]}})}));
       assert.equal(saved.revision,1);
       const edits=interval?await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:id,revision:saved.revision,action:'layer-update',instance_id:instance,
           clip_id:placed.clip.id,layer_id:saved.layers[0].id,settings:{
-            start_frame:5338,end_frame:5464,fade_in_frames:0,fade_out_frames:0}})})):saved;
+            start_frame:variant.begin,end_frame:variant.end,
+            fade_in_frames:0,fade_out_frames:0}})})):saved;
       const candidate=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:id,revision:edits.revision,instance_id:instance,
@@ -69,7 +73,7 @@ for(const variant of [{duration:100,interval:false,port:8912},
       assert.equal(candidate.source_motion_sha256,originals[1]);
       assert.equal(candidate.model_sha256,originals[0]);
       if(interval){
-        assert.equal(candidate.replaced_bone_keys,0);
+        assert.equal(candidate.replaced_bone_keys>0,variant.bone==='頭');
         assert.ok(candidate.added_bone_keys>0);
         assert.equal(candidate.sampling_report.checked_project_frames,duration*60);
         assert.ok(candidate.sampling_report.max_position_error<1e-3);
