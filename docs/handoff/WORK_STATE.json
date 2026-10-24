@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T14:28:45+09:00",
+  "updated_at": "2026-10-24T14:32:51+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-vmd-pmx-validation",
-  "head_at_update": "775e48b",
+  "branch": "codex/v05-motion010-fractional-pmx",
+  "head_at_update": "0f1dce3",
   "current": {
-    "task": "Issue #106: MOTION-010 実PMX全骨VMD候補検証",
-    "status": "done",
-    "step": "候補VMDを独立PMXへ読み込み作品フレームごとの全骨差を検査する",
+    "task": "Issue #106: MOTION-010 分数FPS・別PMX候補検証",
+    "status": "in_progress",
+    "step": "24000/1001fps作品と別PMXで候補の局所誤差と実全骨往復を照合する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T14:32:51+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0f1dce3",
+      "text": "Issue #106: MOTION-010 分数FPS・別PMX候補検証: 24000/1001fps作品と別PMXで候補の局所誤差と実全骨往復を照合する"
+    },
     {
       "at": "2026-10-24T14:28:45+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "6b59dc1",
       "text": "Issue #106: PMX無補正A/B評価ゲートを実PMX/VMDで確認。201骨・168モーフの最大差2.17e-8、元経路へ戻した差0"
-    },
-    {
-      "at": "2026-10-24T09:42:20+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7126c8e",
-      "text": "Issue #106: PMX/VMD姿勢評価のA/B回帰と段階Aの限定FK補正: 無補正の新評価順が現行MMDプレビューと一致することを実PMXで検証し、ずれがあれば実装を止める"
     }
   ]
 }
