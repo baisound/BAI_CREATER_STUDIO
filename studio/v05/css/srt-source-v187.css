@@ -32,3 +32,6 @@
 #v197-export-map{max-width:100%}
 #v197-export-download{display:inline-block;margin-top:5px;padding:5px 8px;border:1px solid #79afd6;border-radius:4px;color:#d6edff}
 #v197-export-download[hidden]{display:none}
+#v197-export-issues{max-height:260px;overflow:auto}
+#v197-export-issues p{margin:0 0 4px;padding:5px;background:#584021;color:#ffe2ae;overflow-wrap:anywhere}
+#v197-issue-pages[hidden]{display:none}

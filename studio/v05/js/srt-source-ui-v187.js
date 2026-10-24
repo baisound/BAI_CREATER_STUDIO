@@ -48,6 +48,12 @@ if (picker && project) {
         <div class="v187-actions"><button id="v197-export-check" type="button">出力条件を検査</button>
           <button id="v197-export-create" type="button" disabled>別名VMD候補を生成</button></div>
         <p id="v197-export-status" role="status">作品・SRT・PMX対応を選んでください。</p>
+        <div id="v197-export-issues" aria-label="出力できない箇所"></div>
+        <div id="v197-issue-pages" class="v187-actions" hidden>
+          <button id="v197-issues-prev" type="button">前の100件</button>
+          <span id="v197-issues-page"></span>
+          <button id="v197-issues-next" type="button">次の100件</button>
+        </div>
         <a id="v197-export-download" hidden>生成したVMD候補を取得</a>
       </details>
       <p>候補は音声に合わせた境界ではありません。SRT本文と原時刻は変更しません。</p>
@@ -65,10 +71,30 @@ if (picker && project) {
   let page = 0, sequence = 0, candidateSequence = 0, busy = false;
   let draftBase = null;
   let exportSequence = 0, exportBusy = false, checkedExport = null;
+  let exportIssues = [], exportIssuePage = 0;
   const currentSource = () => data?.sources?.find(row => row.id === selectedId);
   const currentReading = () => readings?.utterances?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
   const currentDraft = () => drafts?.drafts?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
   const say = message => { status.textContent = message; };
+  function renderExportIssues() {
+    const host = $('v197-export-issues');
+    host.replaceChildren();
+    const start = exportIssuePage * 100;
+    for (const issue of exportIssues.slice(start, start + 100)) {
+      const row = document.createElement('p');
+      row.className = 'v192-warning';
+      const cue = issue.srtIndex ? `発話 #${issue.srtIndex}: `
+        : issue.srtIndices?.length ? `発話 #${issue.srtIndices.join(' / #')}: ` : '';
+      const frame = Number.isInteger(issue.vmdFrame) ? `（VMD F${issue.vmdFrame} ${issue.morphName || ''}）` : '';
+      row.textContent = `${cue}${issue.message || issue.code}${frame}`;
+      host.append(row);
+    }
+    $('v197-issue-pages').hidden = exportIssues.length <= 100;
+    $('v197-issues-page').textContent = exportIssues.length
+      ? `${start + 1}〜${Math.min(start + 100, exportIssues.length)} / ${exportIssues.length}件` : '';
+    $('v197-issues-prev').disabled = exportIssuePage === 0;
+    $('v197-issues-next').disabled = start + 100 >= exportIssues.length;
+  }
   function clearExport() {
     ++exportSequence;
     checkedExport = null;
@@ -76,6 +102,7 @@ if (picker && project) {
     $('v197-export-download').hidden = true;
     $('v197-export-download').removeAttribute('href');
     $('v197-export-status').textContent = '出力条件を検査してください。';
+    exportIssues = []; exportIssuePage = 0; renderExportIssues();
   }
   function redrawExportMaps() {
     const select = $('v197-export-map');
@@ -216,7 +243,11 @@ if (picker && project) {
   async function request(url, options) {
     const response = await fetch(url, options);
     const body = await response.json();
-    if (!response.ok) throw Error(body.error || `HTTP ${response.status}`);
+    if (!response.ok) {
+      const error = Error(body.error || `HTTP ${response.status}`);
+      error.issues = Array.isArray(body.issues) ? body.issues : [];
+      throw error;
+    }
     return body;
   }
   async function refresh(preferredId = '', preferredCueIndex = selectedCueIndex) {
@@ -264,6 +295,8 @@ if (picker && project) {
   $('v187-prev').addEventListener('click', () => { page--; redraw(); });
   $('v187-next').addEventListener('click', () => { page++; redraw(); });
   $('v197-export-map').addEventListener('change', clearExport);
+  $('v197-issues-prev').addEventListener('click', () => { exportIssuePage--; renderExportIssues(); });
+  $('v197-issues-next').addEventListener('click', () => { exportIssuePage++; renderExportIssues(); });
   async function exportRequest(dryRun) {
     const source = currentSource(), id = project.value, modelId = $('v197-export-map').value;
     if (!source || !id || !modelId || !data || !readings || !drafts || !morphMaps || exportBusy) return;
@@ -276,6 +309,7 @@ if (picker && project) {
     $('v197-export-check').disabled = true;
     $('v197-export-create').disabled = true;
     $('v197-export-download').hidden = true;
+    exportIssues = []; exportIssuePage = 0; renderExportIssues();
     $('v197-export-status').textContent = dryRun ? '全発話を検査しています…' : '別名VMD候補を生成しています…';
     try {
       const result = await request('/api/studio/v05/lip/vmd-candidate', {method: 'POST',
@@ -297,6 +331,7 @@ if (picker && project) {
       if (mine === exportSequence) {
         checkedExport = null;
         $('v197-export-status').textContent = `出力できません: ${error.message}`;
+        exportIssues = error.issues || []; exportIssuePage = 0; renderExportIssues();
       }
     } finally {
       exportBusy = false;

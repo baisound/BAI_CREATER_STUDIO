@@ -868,7 +868,8 @@ class Handler(BaseHTTPRequestHandler):
                           morph_keys=result['morphKeys'])
                 self.send(200, json.dumps(result, ensure_ascii=False).encode())
             except LipVmdError as exc:
-                self.bad(exc.status, str(exc))
+                self.send(exc.status, json.dumps({'error': str(exc), 'issues': exc.issues},
+                                                 ensure_ascii=False).encode())
             except (ValueError, TypeError, KeyError):
                 self.bad(400, 'Invalid lip VMD candidate request')
             except OSError:

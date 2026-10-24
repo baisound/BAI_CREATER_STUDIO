@@ -905,7 +905,7 @@ Issues #63/#69（2026-10-24）：保存済みGLBシーンを同じ作品の画�
 **機能:** SRT読込→リップVMD  
 **優先:** Phase 05  
 **依存:** MOTION,DATA  
-  **確認状態:** 部分実装。v0.5のSRT原本登録、読み/明示無音、口形候補と手動下書きを隔離HTTP/Chromeで保存再読込済み。別名モーフ専用VMD候補を画面で生成・取得し、隔離実PMXでの試験内登録/再生と画素変化まで確認。[原本API](../v05/LIP001_SRT_SOURCE_IMPORT_20261025_JA.md)、[原本画面](../v05/LIP001_SRT_SOURCE_UI_20261025_JA.md)、[読み保存](../v05/LIP001_UTTERANCE_READING_STORE_20261025_JA.md)、[読み画面](../v05/LIP001_UTTERANCE_READING_UI_20261025_JA.md)、[口形候補API](../v05/LIP001_MORA_CANDIDATES_20261025_JA.md)、[候補画面](../v05/LIP001_CANDIDATE_UI_20261025_JA.md)、[手動下書き](../v05/LIP001_MOUTH_DRAFT_20261025_JA.md)、[VMDバイナリ](../v05/LIP001_MORPH_VMD_CODEC_20261025_JA.md)、[作品別候補API](../v05/LIP001_MORPH_VMD_CANDIDATE_20261025_JA.md)、[画面/実PMX試験](../v05/LIP001_MORPH_VMD_EXPORT_UI_20261025_JA.md)。候補の製品内採用/合成出力とMCPは未実装。
+  **確認状態:** 部分実装。v0.5のSRT原本登録、読み/明示無音、口形候補と手動下書きを隔離HTTP/Chromeで保存再読込済み。別名モーフ専用VMD候補を画面で生成・取得し、隔離実PMXでの試験内登録/再生と画素変化まで確認。出力不能箇所は発話別・原因別に一覧表示する。[原本API](../v05/LIP001_SRT_SOURCE_IMPORT_20261025_JA.md)、[原本画面](../v05/LIP001_SRT_SOURCE_UI_20261025_JA.md)、[読み保存](../v05/LIP001_UTTERANCE_READING_STORE_20261025_JA.md)、[読み画面](../v05/LIP001_UTTERANCE_READING_UI_20261025_JA.md)、[口形候補API](../v05/LIP001_MORA_CANDIDATES_20261025_JA.md)、[候補画面](../v05/LIP001_CANDIDATE_UI_20261025_JA.md)、[手動下書き](../v05/LIP001_MOUTH_DRAFT_20261025_JA.md)、[VMDバイナリ](../v05/LIP001_MORPH_VMD_CODEC_20261025_JA.md)、[作品別候補API](../v05/LIP001_MORPH_VMD_CANDIDATE_20261025_JA.md)、[画面/実PMX試験](../v05/LIP001_MORPH_VMD_EXPORT_UI_20261025_JA.md)、[診断一覧](../v05/LIP001_EXPORT_DIAGNOSTICS_20261025_JA.md)。候補の製品内採用/合成出力とMCPは未実装。
 
 **目的・要求:** 字幕時刻と日本語読み/母音推定。
 

@@ -26,9 +26,10 @@ VOWELS = frozenset(('A', 'I', 'U', 'E', 'O'))
 
 
 class LipVmdError(ValueError):
-    def __init__(self, message, status=422):
+    def __init__(self, message, status=422, issues=None):
         super().__init__(message)
         self.status = status
+        self.issues = issues or []
 
 
 def _vmd_frame(project_frame, fps):
@@ -64,8 +65,10 @@ def _plan(data_root, assets, source_for, project_id, source_id, model_asset_id,
         raise LipVmdError('SRT source not found', 404)
     if source['sourceStatus'] != 'valid':
         raise LipVmdError('SRT original changed or missing', 409)
-    if source['warnings']:
-        raise LipVmdError('SRT cue overlap must be resolved before VMD candidate', 422)
+    issues = []
+    for warning in source['warnings']:
+        issues.append({'code': warning['code'], 'srtIndices': warning['indices'],
+                       'message': 'SRT発話の時刻が重なっています'})
     mapping = next((row for row in maps['maps'] if row['model_asset_id'] == model_asset_id
                     and row['source_status'] == 'valid' and row['confirmed']), None)
     if not mapping:
@@ -77,51 +80,79 @@ def _plan(data_root, assets, source_for, project_id, source_id, model_asset_id,
     records, cue_count, silence_count = [], 0, 0
     for cue in sorted(source['entries'], key=lambda item: (item['startMs'], item['index'])):
         cue_count += 1
+        index = cue['index']
         reading = reading_by_cue.get((source_id, cue['index']))
         if not reading or reading['sourceStatus'] != 'valid':
-            raise LipVmdError(f'Cue {cue["index"]} needs an unchanged confirmed reading')
+            issues.append({'code': 'reading_missing', 'srtIndex': index,
+                           'message': '原本と一致する確定読みがありません'})
+            continue
         if reading['explicitSilence']:
             silence_count += 1
             continue
         if reading['readingState'] != 'confirmed':
-            raise LipVmdError(f'Cue {cue["index"]} reading is not confirmed')
+            issues.append({'code': 'reading_unconfirmed', 'srtIndex': index,
+                           'message': 'かなの読みが未確定です'})
+            continue
         draft = draft_by_cue.get((source_id, cue['index']))
         if not draft or draft['draftStatus'] != 'draft':
-            raise LipVmdError(f'Cue {cue["index"]} needs a current mouth draft')
+            issues.append({'code': 'draft_missing_or_stale', 'srtIndex': index,
+                           'message': '現在の読みと一致する口形下書きがありません'})
+            continue
         if (draft['sourceHash'] != source['sha256'] or draft['pronunciationVersion'] != reading['pronunciationVersion']
                 or draft['sourceStartMs'] != cue['startMs'] or draft['sourceEndMs'] != cue['endMs']):
-            raise LipVmdError(f'Cue {cue["index"]} draft no longer matches SRT or reading', 409)
+            issues.append({'code': 'draft_source_changed', 'srtIndex': index,
+                           'message': '口形下書きの元SRTまたは読み版が変わっています'})
+            continue
         if fps is None:
             fps = draft['projectFps']
         if fps != draft['projectFps']:
-            raise LipVmdError('Draft FPS differs across cues', 409)
+            issues.append({'code': 'draft_fps_changed', 'srtIndex': index,
+                           'message': '口形下書きの作品FPSが一致しません'})
+            continue
         try:
             proposal = propose(catalog, Path(data_root)/'studio_v05_srt_sources',
                 Path(data_root)/'studio_v05_lip_readings', project_id, source_id, cue['index'])
         except LipCandidateError as exc:
             raise LipVmdError(str(exc), exc.status) from exc
         if proposal['warnings']:
-            raise LipVmdError(f'Cue {cue["index"]} has unresolved mouth candidate warnings')
+            for warning in proposal['warnings']:
+                if warning['code'] == 'time_overlap':
+                    continue  # source warnings already identify both cue numbers
+                issues.append({'code': warning['code'], 'srtIndex': index,
+                               'message': '口形候補に未解決の警告があります'})
+            continue
         for segment in draft['segments']:
             shape = segment['mouthShape']
             entry = mapping['entries'][shape]
             if shape in VOWELS and (not entry or entry['weight'] <= 0):
-                raise LipVmdError(f'PMX morph map for {shape} is missing or zero')
+                issues.append({'code': 'morph_missing_or_zero', 'srtIndex': index,
+                               'mouthShape': shape, 'message': f'{shape}に有効なPMX口モーフ対応がありません'})
+                continue
             if entry is None:
                 continue
             weight = segment['weight'] * entry['weight']
             for frame, value in ((segment['startFrame'], weight), (segment['endFrame'], 0.0)):
                 vmd_frame = _vmd_frame(frame, fps)
                 if not 0 <= vmd_frame <= 1_000_000:
-                    raise LipVmdError('VMD frame exceeds allowed range')
-                records.append({'name': entry['morph_name'], 'frame': vmd_frame, 'weight': value})
+                    issues.append({'code': 'vmd_frame_out_of_range', 'srtIndex': index,
+                                   'projectFrame': frame, 'message': 'VMDフレームが上限を超えます'})
+                    continue
+                records.append({'name': entry['morph_name'], 'frame': vmd_frame,
+                                'weight': value, 'srtIndex': index})
                 if len(records) > 100_000:
                     raise LipVmdError('Morph VMD key limit is 100000', 413)
-    if not records:
-        raise LipVmdError('No mapped mouth morph records to export')
     records.sort(key=lambda row: (row['frame'], row['name']))
-    if any((a['frame'], a['name']) == (b['frame'], b['name']) for a, b in zip(records, records[1:])):
-        raise LipVmdError('Multiple mouth keys collide on the same VMD frame; adjust draft boundaries')
+    for a, b in zip(records, records[1:]):
+        if (a['frame'], a['name']) == (b['frame'], b['name']):
+            issues.append({'code': 'vmd_frame_collision', 'vmdFrame': a['frame'],
+                           'morphName': a['name'],
+                           'srtIndices': sorted({a['srtIndex'], b['srtIndex']}),
+                           'message': '同じVMDフレーム・モーフへ複数キーが重なります'})
+    if not records and not issues:
+        issues.append({'code': 'no_morph_records', 'message': '出力できる口モーフキーがありません'})
+    if issues:
+        raise LipVmdError(f'出力条件に{len(issues)}件の問題があります', 422, issues)
+    records = [{key: row[key] for key in ('name', 'frame', 'weight')} for row in records]
     raw = encode_morph_vmd('BAI Lip', records)
     return {'raw': raw, 'records': records, 'sourceHash': source['sha256'],
             'modelHash': mapping['model_hash'], 'mapId': mapping['id'],

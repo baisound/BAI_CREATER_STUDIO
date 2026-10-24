@@ -125,6 +125,18 @@ test('v0.5 SRT UI exports separate morph VMD and real PMX playback changes mouth
       `F60 A/I=${at60.morphs['あ']}/${at60.morphs['い']}`);
     assert.ok(Math.abs(at90.morphs['い'])<.01,`F90 I=${at90.morphs['い']}`);
     assert.notEqual(sha(at30.pixels),sha(at60.pixels),'実PMXの口形切替が描画に現れません');
+    await page.locator('#v190-reading-state').selectOption('unresolved');
+    response=page.waitForResponse(r=>r.url().includes('/lip/readings')&&r.request().method()==='POST');
+    await page.locator('#v190-reading-save').click();assert.equal((await response).status(),200);
+    harness.expectErrors(page,[/Failed to load resource: the server responded with a status of 422/]);
+    response=page.waitForResponse(r=>r.url().endsWith('/lip/vmd-candidate')&&r.request().method()==='POST');
+    await page.locator('#v197-export-check').click();
+    const blockedResponse=await response;assert.equal(blockedResponse.status(),422);
+    const blocked=await blockedResponse.json();
+    assert.equal(blocked.issues[0].code,'reading_unconfirmed');
+    await page.waitForFunction(()=>document.querySelector('#v197-export-issues')?.textContent.includes('発話 #1'));
+    assert.match(await page.locator('#v197-export-issues').textContent(),/かなの読みが未確定/);
+    assert.equal((await fetch(server.base+made.downloadUrl)).status,409,'読み変更後の古い候補は取得不可');
     assert.deepEqual(fs.readFileSync(path.join(server.dataDir,'studio_v05_srt_sources',projectId,'sources',sha(originalSrt)+'.srt')),originalSrt);
     assert.equal(sha(originalModel),originalHash);
     harness.assertNoErrors(page);
