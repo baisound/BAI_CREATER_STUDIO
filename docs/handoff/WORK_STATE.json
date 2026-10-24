@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:54:17+09:00",
+  "updated_at": "2026-10-24T20:56:21+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-long-correction",
-  "head_at_update": "285fe8a",
+  "branch": "codex/v05-motion010-long-interval",
+  "head_at_update": "0187b28",
   "current": {
-    "task": "Issue #106: MOTION-010 長尺実補正",
-    "status": "done",
-    "step": "203秒実VMDの90秒へFKキーを置き、プレビュー・保存再読込と候補適用範囲を検証する",
+    "task": "Issue #106: MOTION-010 長尺VMDの限定区間候補",
+    "status": "in_progress",
+    "step": "90秒付近の別名VMD候補を有界区間で生成または理由付き拒否し、実PMX往復条件を確認する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T20:56:21+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0187b28",
+      "text": "Issue #106: MOTION-010 長尺VMDの限定区間候補: 90秒付近の別名VMD候補を有界区間で生成または理由付き拒否し、実PMX往復条件を確認する"
+    },
     {
       "at": "2026-10-24T20:54:17+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "5789610",
       "text": "MOTION-010右手先・ひじのライブ仮表示・Esc・保存・Undo/Redo・再読込を2実PMXで確認し、VMD角度比較の四元数ノルム誤判定を修正"
-    },
-    {
-      "at": "2026-10-24T17:50:13+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "af7a754",
-      "text": "Issue #106: MOTION-010 右腕保存と連続ドラッグ: 右手先・ひじの実3D操作を保存・再読込まで確認し、ドラッグ中の姿勢更新を接続・検査する"
     }
   ]
 }
