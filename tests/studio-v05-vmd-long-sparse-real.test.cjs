@@ -15,7 +15,7 @@ async function ok(reply){const body=await reply.text();assert.equal(reply.status
 
 for(const variant of [
   {duration:100,bone:'頭',angle:12,port:8912},
-  {duration:204,bone:'頭',angle:12,port:8913},
+  {duration:204,bone:'頭',angle:12,port:8913,ui:true},
   {duration:204,bone:'髪_16-03',angle:12,begin:5338,end:5464,port:8914},
   {duration:204,bone:'頭',angle:8,begin:5338,end:5666,port:8915},
   {duration:204,bone:'頭',angle:8,begin:5334,end:5666,
@@ -37,7 +37,9 @@ for(const variant of [
     const entries=metadata[category].filter(entry=>entry.name===modelName||entry.name.startsWith('tex/'));
     const seed={'mmd_assets.json':JSON.stringify({A:category==='A'?entries:[],
       B:category==='B'?entries:[],vmd:[
-      {name:motionName,size:fs.statSync(motionPath).size}]})};
+      {name:motionName,size:fs.statSync(motionPath).size}]}),
+      'camera_project.json':JSON.stringify({schema:1,fps:30,duration:12000,keys:[
+        {frame:0,position:[0,1.6,5],target:[0,1,0],fov:40}]})};
     for(const entry of entries)seed[`mmd/${category}/${entry.name}`]=fs.readFileSync(
       path.join(root,'mmd',category,...entry.name.split('/')));
     seed[`mmd/vmd/${motionName}`]=fs.readFileSync(motionPath);
@@ -149,6 +151,54 @@ for(const variant of [
       assert.equal(originalClip.duration,duration);
       assert.equal(digest(modelPath),originals[0]);
       assert.equal(digest(motionPath),originals[1]);
+      if(variant.ui){
+        await page.reload();
+        await page.locator('#v06project').selectOption(id);
+        await page.locator('#nav [data-workspace="edit"]').click();
+        await page.locator('#v70sceneOpen').click();
+        await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
+          window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
+          null,{timeout:120000});
+        await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+        await page.locator('#v106-fk-frame').fill('5400');
+        await page.locator('#v106-fk-frame').dispatchEvent('change');
+        await page.locator('#v106-fk-bone').selectOption('頭');
+        await page.evaluate(()=>window.BAIStudioMediaPreviewV68.seek(5400));
+        await page.waitForFunction(()=>window.BAIStudioMediaPreviewV68?.status().frame===5400);
+        await page.locator('#v106-fk-y').fill('10');
+        await page.locator('#v112-fk-position-x').fill('0.12');
+        await page.locator('#v106-fk-save').click();
+        await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('保存しました'));
+        const uiSaved=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${id}`));
+        assert.equal(uiSaved.revision,edits.revision+1);
+        assert.equal(uiSaved.layers[0].keys[0].frame,5400);
+        assert.deepEqual(uiSaved.layers[0].keys[0].position,[0.12,0,0]);
+        await page.locator('#v143-vmd-export-range').selectOption('legacy_sparse');
+        assert.equal(await page.locator('#v116-vmd-candidate-create').isDisabled(),false);
+        await page.locator('#v116-vmd-candidate-create').click();
+        await page.locator('#v116-vmd-candidate-download').waitFor({state:'visible'});
+        assert.equal(await page.locator('#v141-vmd-candidate-adopt').isDisabled(),true);
+        await page.locator('#v120-vmd-candidate-validate').click();
+        await page.waitForFunction(()=>!document.querySelector('#v141-vmd-candidate-adopt')?.disabled,
+          null,{timeout:180000});
+        assert.match(await page.locator('#v116-vmd-candidate-status').textContent(),
+          /作品12240F＋VMD6120F × 201骨/);
+        await page.locator('#v141-vmd-candidate-adopt').click();
+        await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('配置しました'),
+          null,{timeout:120000});
+        const uiPlaced=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`));
+        assert.match(uiPlaced.clips.find(item=>item.id===placed.clip.id).asset_id,
+          /^mmd:vmd:MOTION010-[0-9a-f-]+\.vmd$/);
+        assert.equal(await page.locator('#v141-vmd-candidate-restore').isHidden(),false);
+        await page.locator('#v141-vmd-candidate-restore').click();
+        await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('元VMDを同じクリップへ戻しました'),
+          null,{timeout:120000});
+        const uiRestored=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`));
+        assert.equal(uiRestored.clips.find(item=>item.id===placed.clip.id).asset_id,
+          `mmd:vmd:${motionName}`);
+        assert.equal(digest(modelPath),originals[0]);
+        assert.equal(digest(motionPath),originals[1]);
+      }
       harness.assertNoErrors(page);
     }finally{
       await page?.close().catch(()=>{});await browser?.close().catch(()=>{});await server.stop();
