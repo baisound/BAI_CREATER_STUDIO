@@ -77,7 +77,8 @@ async function main() {
           range.frame_count !== expected.frameCount)
         throw Error('Saved scene or timeline changed during capture');
       const status = window.BAIStudioMultiScenePreview.status();
-      if (!status.ready || motionEdits.issues?.length || status.loaded !== scene.instances.length ||
+      if (!status.ready || motionEdits.issues?.some(issue=>issue.kind!=='baked_into_candidate') ||
+          status.loaded !== scene.instances.length ||
           status.motion?.issues?.length ||
           status.motion?.loadedClips?.length !== motionPlan.ready_count ||
           status.motion?.projectId !== expected.projectId)

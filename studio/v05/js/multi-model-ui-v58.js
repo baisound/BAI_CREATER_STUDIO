@@ -32,7 +32,7 @@ const tr=(key)=>locale[key]||({
 const section=document.getElementById('v57-scene-instances');
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,reloadReady=false,nonce=0,selectedId='';
 let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null,previewArm=null,activePole=null,activeArm=null;
-let vmdCandidate=null,candidateValidation=null;
+let vmdCandidate=null,candidateValidation=null,candidateReport=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
 panel.hidden=true;
@@ -161,7 +161,11 @@ fkCandidateStatus.setAttribute('role','status');
 fkCandidateStatus.textContent='保存済み補正から候補を作成し、実PMXで全フレーム検査できます。';
 const fkValidate=document.createElement('button');fkValidate.id='v120-vmd-candidate-validate';
 fkValidate.type='button';fkValidate.textContent='実PMXで全骨・全Fを検査';fkValidate.disabled=true;
-fkCandidateRow.append(fkCandidate,fkCandidateLink,fkValidate,fkCandidateStatus);
+const fkAdopt=document.createElement('button');fkAdopt.id='v141-vmd-candidate-adopt';
+fkAdopt.type='button';fkAdopt.textContent='検査済みVMDをこの作品へ配置';fkAdopt.disabled=true;
+const fkRestore=document.createElement('button');fkRestore.id='v141-vmd-candidate-restore';
+fkRestore.type='button';fkRestore.textContent='元VMDへ戻す';fkRestore.hidden=true;
+fkCandidateRow.append(fkCandidate,fkCandidateLink,fkValidate,fkAdopt,fkRestore,fkCandidateStatus);
 fkLayerRow.append(document.createTextNode('重み % '),fkWeight,document.createTextNode('区間 F '),fkStart,
   document.createTextNode('〜'),fkEnd,document.createTextNode('前なじませ F '),fkFadeIn,
   document.createTextNode('後なじませ F '),fkFadeOut,document.createTextNode('ミュート '),fkMuted,fkLayerSave);
@@ -489,6 +493,11 @@ function redrawFkControls(){
   fkFadeIn.value=String(layer?.fade_in_frames??0);fkFadeOut.value=String(layer?.fade_out_frames??0);
   fkMuted.checked=Boolean(layer?.muted);fkLayerSave.disabled=!layer||Boolean(previewArm);
   fkCandidate.disabled=!row||!layer||Boolean(motionEdits?.issues?.length)||Boolean(previewFk||previewArm)||Boolean(candidateValidation);
+  fkAdopt.disabled=!candidateReport?.passed||!vmdCandidate||!row||
+    row.clip_id!==vmdCandidate.clip_id||motionEdits?.revision!==vmdCandidate.revision||
+    Boolean(candidateValidation||previewFk||previewArm);
+  fkRestore.hidden=!row?.motion010_candidate_id;
+  fkRestore.disabled=Boolean(candidateValidation||previewFk||previewArm);
   const previousKey=fkSaved.value;
   fkSaved.replaceChildren(new Option('保存済みFKキー',''));
   for(const key of layer?.keys||[])fkSaved.add(new Option(`F${key.frame} ${key.bone}`,JSON.stringify([key.frame,key.bone])));
@@ -998,8 +1007,9 @@ async function setup(){
 async function reload(){
   if(!opened)return;
   activePole=null;
-  candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;
+  candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;candidateReport=null;
   fkValidate.disabled=true;fkValidate.textContent='実PMXで全骨・全Fを検査';
+  fkAdopt.disabled=true;
   fkCandidateLink.hidden=true;
   fkCandidateStatus.textContent='保存済み補正から候補を作成し、実PMXで全フレーム検査できます。';
   const id=project?.value;
@@ -1069,7 +1079,7 @@ async function open(options={}){
 }
 function close(){
   nonce++;opened=false;reloadReady=false;
-  candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;
+  candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;candidateReport=null;
   rotateGizmo?.dispose();rotateGizmo=null;
   bonePicker?.dispose();bonePicker=null;
   spatialEditor?.dispose();spatialEditor=null;sceneSnapshot=null;
@@ -1295,7 +1305,7 @@ fkLayerSave.addEventListener('click',async()=>{
 fkCandidate.addEventListener('click',async()=>{
   const row=activeFkRow(),id=project?.value;
   if(!row||!id||previewFk||previewArm){fkCandidateStatus.textContent='保存済みキーのあるVMDクリップを選択し、仮補正を破棄してください。';return;}
-  candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;
+  candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;candidateReport=null;
   fkValidate.disabled=true;fkCandidate.disabled=true;fkCandidateLink.hidden=true;
   try{
     const response=await fetch('/api/studio/v05/motion/vmd-candidate',{
@@ -1334,6 +1344,7 @@ fkValidate.addEventListener('click',async()=>{
     motionEdits?.revision===initial.revision&&sceneSnapshot?.revision===initial.sceneRevision&&
     motionPlan?.arrangement_revision===initial.arrangementRevision&&nonce===initial.nonce;
   const abort=new AbortController();candidateValidation=abort;
+  candidateReport=null;fkAdopt.disabled=true;
   fkValidate.textContent='検査を中止';fkCandidate.disabled=true;
   try{
     fkCandidateStatus.textContent='候補・元VMD・PMXのSHA-256を照合中…';
@@ -1343,14 +1354,53 @@ fkValidate.addEventListener('click',async()=>{
         if(isCurrent())fkCandidateStatus.textContent=`実PMX全骨検査 ${done}/${total}標本。作品データは変更しません。`;
       }});
     if(!isCurrent())return;
+    candidateReport=report.passed?report:null;
     const location=`位置: ${report.positionClock}F${report.positionFrame} ${report.positionBone}、角度: ${report.angleClock}F${report.angleFrame} ${report.angleBone}`;
-    fkCandidateStatus.textContent=`${report.passed?'実PMX検査合格':'実PMX検査不合格'}（物理OFF）。作品${report.checkedFrames}F＋VMD${report.checkedVmdFrames}F × ${report.bones}骨、位置最大${report.maxPosition.toExponential(3)}（上限${report.positionLimit}）、角度最大${report.maxAngle.toExponential(3)}°（上限${report.angleLimitDegrees}°）。${location}。候補は未登録・作品未配置です。`;
+    fkCandidateStatus.textContent=`${report.passed?'実PMX検査合格':'実PMX検査不合格'}（物理OFF）。作品${report.checkedFrames}F＋VMD${report.checkedVmdFrames}F × ${report.bones}骨、位置最大${report.maxPosition.toExponential(3)}（上限${report.positionLimit}）、角度最大${report.maxAngle.toExponential(3)}°（上限${report.angleLimitDegrees}°）。${location}。${report.passed?'採用する場合は配置ボタンを押してください。':'候補は配置できません。'}`;
   }catch(error){
     if(isCurrent())fkCandidateStatus.textContent='実PMX検査を完了できません: '+String(error.message||error);
   }finally{
     if(candidateValidation===abort){candidateValidation=null;fkValidate.textContent='実PMXで全骨・全Fを検査';
       fkValidate.disabled=!vmdCandidate;redrawFkControls();}
   }
+});
+fkAdopt.addEventListener('click',async()=>{
+  const data=vmdCandidate,report=candidateReport,id=project?.value,row=activeFkRow();
+  if(!data||!report?.passed||!row||row.clip_id!==data.clip_id||!id||
+      motionEdits?.revision!==data.revision||candidateValidation||previewFk||previewArm){
+    fkCandidateStatus.textContent='作品と実PMX検査結果を再確認してください。';return;
+  }
+  fkAdopt.disabled=true;
+  try{
+    const response=await fetch('/api/studio/v05/motion/vmd-candidate/adopt',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        project_id:id,candidate_id:data.candidate_id,edit_revision:data.revision,
+        arrangement_revision:motionPlan.arrangement_revision,
+        scene_revision:sceneSnapshot.revision,report})});
+    const result=await response.json();
+    if(!response.ok)throw Error(result.error||`HTTP ${response.status}`);
+    if(project?.value!==id||!opened)return;
+    await reload();
+    window.dispatchEvent(new CustomEvent('bai:v05-arrangement-refresh',{detail:{projectId:id}}));
+    await window.BAIStudioV05Library?.refresh?.();
+    fkCandidateStatus.textContent=`実PMX検査済みVMDを同じ作品・時刻へ配置しました。元VMDは素材として保持し、補正レイヤーは二重適用しません。元へ戻す場合は［元VMDへ戻す］を押してください。`;
+  }catch(error){fkCandidateStatus.textContent='配置失敗: '+String(error.message||error);redrawFkControls();}
+});
+fkRestore.addEventListener('click',async()=>{
+  const row=activeFkRow(),id=project?.value;
+  if(!row?.motion010_candidate_id||!id||previewFk||previewArm)return;
+  fkRestore.disabled=true;
+  try{
+    const response=await fetch('/api/studio/v05/motion/vmd-candidate/restore',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        project_id:id,clip_id:row.clip_id,arrangement_revision:motionPlan.arrangement_revision})});
+    const result=await response.json();
+    if(!response.ok)throw Error(result.error||`HTTP ${response.status}`);
+    if(project?.value!==id||!opened)return;
+    await reload();
+    window.dispatchEvent(new CustomEvent('bai:v05-arrangement-refresh',{detail:{projectId:id}}));
+    fkCandidateStatus.textContent='元VMDを同じクリップへ戻しました。別名VMD素材と検証記録は保持しています。';
+  }catch(error){fkCandidateStatus.textContent='元VMDへの復元失敗: '+String(error.message||error);redrawFkControls();}
 });
 for(const [button,action] of [[fkUndo,'undo'],[fkRedo,'redo']])button.addEventListener('click',async()=>{
   button.disabled=true;

@@ -791,6 +791,43 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:
                 self.bad(500, 'VMD candidate creation failed; source retained')
             return
+        if urlsplit(self.path).path in ('/api/studio/v05/motion/vmd-candidate/adopt',
+                                       '/api/studio/v05/motion/vmd-candidate/restore'):
+            from studio_v05_vmd_adoption import adopt, restore, AdoptionError
+            from studio_v05_motion_edits import MotionEditError
+            from studio_v05_arrangement import ArrangementError
+            from studio_v05_scene_instances import SceneInstancesError
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                if not 0 < length <= 8192:
+                    return self.bad(413, 'Request too large')
+                body = json.loads(self.rfile.read(length))
+                if not isinstance(body, dict):
+                    return self.bad(400, 'Invalid VMD adoption fields')
+                if urlsplit(self.path).path.endswith('/adopt'):
+                    if set(body) != {'project_id', 'candidate_id', 'edit_revision',
+                                     'arrangement_revision', 'scene_revision', 'report'}:
+                        return self.bad(400, 'Invalid VMD adoption fields')
+                    result = adopt(DATA/'studio_v05_vmd_candidates',
+                        DATA/'studio_v05_motion_edits', DATA,
+                        DATA/'studio_v05_scene_instances', DATA/'studio_v05_scene_models',
+                        DATA/'studio_v05_arrangements', DATA/'studio_v05_catalog.json',
+                        DATA/'studio_v05_track_layouts', MMD_DIR, MMD_META, MMD_LOCK,
+                        assets=unified_assets(), **body)
+                else:
+                    if set(body) != {'project_id', 'clip_id', 'arrangement_revision'}:
+                        return self.bad(400, 'Invalid VMD restore fields')
+                    result = restore(DATA/'studio_v05_vmd_candidates', DATA,
+                        DATA/'studio_v05_arrangements', DATA/'studio_v05_catalog.json',
+                        DATA/'studio_v05_track_layouts', assets=unified_assets(), **body)
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except (AdoptionError, MotionEditError, ArrangementError,
+                    SceneInstancesError, ValueError, TypeError, KeyError) as exc:
+                self.bad(409 if any(word in str(exc).lower() for word in
+                         ('conflict', 'locked', 'changed')) else 422, str(exc))
+            except OSError:
+                self.bad(500, 'VMD placement failed; originals retained')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/motion-edits':
             from studio_v05_motion_edits import mutate as edit_motion, MotionEditError
             try:

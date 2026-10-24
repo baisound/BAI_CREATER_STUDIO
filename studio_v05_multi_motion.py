@@ -33,6 +33,8 @@ def plan(arrangement_root, scene_root, legacy_root, catalog, project_id, assets)
             "duration":clip.get("duration"),"motion_format":motion.get("format") if motion else None,
             "model_format":model.get("format") if model else None,
             "motion_asset":motion if status == "ready" else None,
+            "motion010_candidate_id":clip.get("motion010_candidate_id"),
+            "motion010_source_asset_id":clip.get("motion010_source_asset_id"),
         })
     # Each instance may have only one active full-body motion per moment. Fail closed.
     by_instance = {}

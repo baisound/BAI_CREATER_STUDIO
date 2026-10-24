@@ -106,7 +106,9 @@ def candidate_file(output_root, project_id, candidate_id):
         metadata = json.loads(metadata_path.read_text(encoding='utf-8'))
         if (metadata.get('project_id') != project_id or
                 metadata.get('candidate_id') != candidate_id or
-                metadata.get('status') != 'candidate_requires_real_pmx_validation' or
+                metadata.get('status') not in {'candidate_requires_real_pmx_validation',
+                                                'browser_validated_adopted',
+                                                'browser_validated_unplaced'} or
                 hashlib.sha256(output.read_bytes()).hexdigest() != metadata.get('output_sha256')):
             raise MotionEditError('VMD candidate metadata or hash mismatch')
     except (OSError, ValueError, TypeError) as exc:
