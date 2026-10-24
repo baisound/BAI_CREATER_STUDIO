@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:57:40+09:00",
+  "updated_at": "2026-10-24T23:02:05+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-camera-cuts",
-  "head_at_update": "3999204",
+  "branch": "codex/v05-motion010-camera-last-cut",
+  "head_at_update": "2b888c0",
   "current": {
-    "task": "Issue #106: MOTION-010/CAM-015 旧カメラ複数カットの時刻境界",
+    "task": "Issue #106: MOTION-010/CAM-015 旧カメラ末尾カットの終端保持",
     "status": "done",
-    "step": "保存済み30fpsカメラ複数キーのカット境界を作品24/60fpsから検証し、必要な依存修正を行う",
+    "step": "半開カットがカメラdurationへ達する場合、長尺作品の終端保持と実プレビュー姿勢を調べる",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "MOTION-010/CAM-015 末尾カットと終端保持、実レンダリング切替の境界を確認する"
+    "MOTION-010/CAM-015 PMX付き撮影プレビューとMP4で保存済みカメラカットの実描画を確認する"
   ],
   "unverified": [
-    "カット編集UI、任意カット構成、末尾カット終端姿勢、実レンダリングでの切替、任意境界・長いなじませ、物理ON、任意PMX、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "PMX付き撮影プレビューの実ピクセルとMP4カット、カット編集UI、任意カット構成、任意境界・長いなじませ、物理ON、任意PMX、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T23:02:05+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2b888c0",
+      "text": "MOTION-010/CAM-015 旧カメラ末尾半開カットの終端で元キーへ跳ぶ不連続を再現し、画面追従の保持指定だけ最終可視F299を評価。隔離Chrome3件・Python16件合格、strict APIと原本保持"
+    },
+    {
+      "at": "2026-10-24T22:59:08+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "ce5b777",
+      "text": "Issue #106: MOTION-010/CAM-015 旧カメラ末尾カットの終端保持: 半開カットがカメラdurationへ達する場合、長尺作品の終端保持と実プレビュー姿勢を調べる"
+    },
     {
       "at": "2026-10-24T22:57:40+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "0187b28",
       "text": "Issue #106: MOTION-010 長尺VMDの限定区間候補: 90秒付近の別名VMD候補を有界区間で生成または理由付き拒否し、実PMX往復条件を確認する"
-    },
-    {
-      "at": "2026-10-24T20:54:17+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "285fe8a",
-      "text": "MOTION-010 203秒実VMDの90秒F5400へ画面から頭骨Y回転12度・X位置0.15を仮表示、取消、保存再読込。センター不変・原本SHA一致。初期カメラ300FのHTTP400は隔離試験のカメラ範囲を設定して回避、修正後1試験通過。"
-    },
-    {
-      "at": "2026-10-24T20:48:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "008e3e8",
-      "text": "Issue #106: MOTION-010 長尺実補正: 203秒実VMDの90秒へFKキーを置き、プレビュー・保存再読込と候補適用範囲を検証する"
     }
   ]
 }
