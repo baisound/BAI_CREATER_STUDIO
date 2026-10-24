@@ -7,6 +7,11 @@
 #v187-srt-panel .v187-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 #v187-status{min-height:1.5em}
 #v187-cues{max-height:235px;overflow:auto;border:1px solid #41576c;border-radius:5px;padding:5px}
-#v187-cues .v187-cue{margin:0 0 5px;padding:5px;background:#1b3045;white-space:pre-wrap;overflow-wrap:anywhere}
+#v187-cues .v187-cue{display:block;width:100%;margin:0 0 5px;padding:5px;text-align:left;background:#1b3045;white-space:pre-wrap;overflow-wrap:anywhere}
+#v187-cues .v187-cue[aria-pressed="true"]{border-color:#80c1f7;background:#244c6c}
 #v187-cues .v187-cue strong,#v187-cues .v187-cue span{display:block}
 #v187-cues .v187-cue strong{color:#b5d9ff}
+#v190-reading-editor{border:1px solid #55738e;border-radius:6px;padding:8px;display:grid;gap:7px}
+#v190-reading-editor[hidden]{display:none}
+#v190-reading-editor label:has(input[type=checkbox]){display:flex;align-items:center;gap:5px}
+#v190-reading-status{min-height:1.5em}

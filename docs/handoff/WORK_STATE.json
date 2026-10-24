@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:49:01+09:00",
+  "updated_at": "2026-10-25T01:54:46+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-utterance-readings",
-  "head_at_update": "8a79ba8",
+  "branch": "codex/v05-lip001-reading-ui",
+  "head_at_update": "c890010",
   "current": {
-    "task": "Issue #187: SRT発話ごとの読み確定を原本と分離保存",
+    "task": "Issue #187: SRT発話の読み・無音を画面で編集",
     "status": "done",
-    "step": "原本hashで結び付くUtterance読み状態・明示無音・revisionを作品単位で保存/再読込し不正入力を拒否する",
+    "step": "登録済み発話を選び未確定/提案/確定/明示無音を保存・再読込し原本と分離する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #187: v0.5画面の各SRT発話で読みの未確定/提案/確定/明示無音を編集し、保存再読込と原本変更時の拒否を確認する"
+    "Issue #187: 確定かなから半開SRT区間内の母音/Closed/Rest口形候補を作品FPSで計算し、未確定読みの候補採用・最終出力を禁止する"
   ],
   "unverified": [
-    "かな→口形候補編集、別名モーフVMD書出/再読込、実ユーザーSRT、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
+    "口形候補の編集、別名モーフVMD書出/再読込、実ユーザーSRT、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:54:46+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "c890010",
+      "text": "Issue #187 LIP-001: v0.5画面で発話読み確定/明示無音を保存再読込。隔離Chrome 1/1、原SRTと既存data/exports不変"
+    },
+    {
+      "at": "2026-10-25T01:51:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "329b23a",
+      "text": "Issue #187: SRT発話の読み・無音を画面で編集: 登録済み発話を選び未確定/提案/確定/明示無音を保存・再読込し原本と分離する"
+    },
     {
       "at": "2026-10-25T01:49:01+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "05fdbe1",
       "text": "Issue #175: 実PMX口モーフの頂点変位解析: PMX実データの頂点変位・重なり解析と数値ゲートを追加する"
-    },
-    {
-      "at": "2026-10-25T00:03:28+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "56e521a",
-      "text": "Issue #96: 実PMX口モーフ「あ」を合成画面の手動UIから0/4/9秒へ保存、4秒キー1→0.8の再編集・削除、F0/F120/F270の再読込・3D中央画素・各1F MP4を確認。隔離Chrome1/1、Python11/11、原本/data7/exports0 SHA不変"
-    },
-    {
-      "at": "2026-10-24T23:51:08+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1621534",
-      "text": "Issue #96: 実PMX口モーフの手動UI保存経路: 合成画面で実口モーフ「あ」を選択し複数時刻へ保存・再読込・実3D/限定MP4を照合する"
     }
   ]
 }
