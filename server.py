@@ -286,6 +286,19 @@ class Handler(BaseHTTPRequestHandler):
             except PmxAnalysisError as exc:
                 self.bad(exc.status, str(exc))
             return
+        if urlsplit(self.path).path == '/api/studio/v05/vrm/expressions':
+            from studio_v05_vrm_expressions import inspect, VrmExpressionError
+            query = parse_qs(urlsplit(self.path).query)
+            if (set(query) - {'asset_id', 'model_hash'} or len(query.get('asset_id', [])) != 1
+                    or len(query.get('model_hash', [])) > 1):
+                return self.bad(400, 'Invalid VRM expression query')
+            try:
+                result = inspect(query['asset_id'][0], unified_assets(), character_source,
+                                 query.get('model_hash', [None])[0])
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except VrmExpressionError as exc:
+                self.bad(exc.status, str(exc))
+            return
         if urlsplit(self.path).path == '/api/studio/v05/pmx/morph-map':
             from studio_v05_morph_maps import read as read_morph_maps, MorphMapError
             query = parse_qs(urlsplit(self.path).query)

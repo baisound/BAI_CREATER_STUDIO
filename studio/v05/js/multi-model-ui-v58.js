@@ -37,6 +37,7 @@ let vmdCandidate=null,candidateValidation=null,candidateReport=null;
 let morphAnalysis=null,morphAnalysisNonce=0,morphMaps=null,morphMapNonce=0;
 let morphPreview=null;
 let morphCandidates=null;
+let vrmAnalysis=null,vrmAnalysisNonce=0;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
 panel.hidden=true;
@@ -267,6 +268,20 @@ mapControls.append(mapSummary,mapStatus,mapGrid,mapDraft,mapConfirm,
   mapPreviewShape,mapPreviewButton,mapRestoreButton,mapPreviewStatus,
   mapCandidateReference,mapCandidateRun,mapCandidateApply,mapCandidateInfo);
 analysisControls.append(analysisSummary,analysisRun,analysisStatus,analysisName,analysisInfo,mapControls);
+const vrmControls=document.createElement('details');vrmControls.id='v183-vrm-expressions';
+vrmControls.style.cssText='border-top:1px solid #435a73;padding-top:4px';
+const vrmSummary=document.createElement('summary');vrmSummary.textContent='VRMの表情定義を確認（読み取りのみ）';
+const vrmRun=document.createElement('button');vrmRun.id='v183-vrm-run';
+vrmRun.type='button';vrmRun.textContent='選択VRMを検査';
+const vrmStatus=document.createElement('small');vrmStatus.id='v183-vrm-status';
+vrmStatus.setAttribute('role','status');vrmStatus.style.cssText='display:block;color:#c8d9ea';
+const vrmVowels=document.createElement('div');vrmVowels.id='v183-vrm-vowels';
+vrmVowels.style.cssText='font-size:12px;white-space:pre-wrap';
+const vrmName=document.createElement('select');vrmName.id='v183-vrm-name';
+vrmName.setAttribute('aria-label','VRMの表情定義');vrmName.hidden=true;
+const vrmInfo=document.createElement('div');vrmInfo.id='v183-vrm-info';
+vrmInfo.style.cssText='font-size:12px;white-space:pre-wrap';
+vrmControls.append(vrmSummary,vrmRun,vrmStatus,vrmVowels,vrmName,vrmInfo);
 heading.append(title,choose,refreshBtn,focusBtn,saveCameraBtn,restoreCameraBtn,modeBtn,closeBtn);
 const motionControls=document.createElement('div');motionControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
 motionControls.append(clipSelect,targetSelect,assignBtn,seekInput,seekBtn,motionStatus);
@@ -278,8 +293,8 @@ const hint=document.createElement('small');
 hint.textContent=tr('renderingNote');
 footer.append(progress,cameraStatus,hint);
 if(captureMode){saveCameraBtn.hidden=true;restoreCameraBtn.hidden=true;}
-panel.append(heading,motionControls,faceControls,analysisControls,fkControls,footControls,canvasParent,footer);
-if(captureMode){footControls.hidden=true;fkControls.hidden=true;analysisControls.hidden=true;}
+panel.append(heading,motionControls,faceControls,analysisControls,vrmControls,fkControls,footControls,canvasParent,footer);
+if(captureMode){footControls.hidden=true;fkControls.hidden=true;analysisControls.hidden=true;vrmControls.hidden=true;}
 document.body.append(panel);
 panel.hidden=true;panel.style.display='none';
 const normalPanelStyle=panel.style.cssText;
@@ -408,6 +423,32 @@ function selectedMorphAsset(){
   const target=controller?.getLoaded(instanceId);
   return target?.format==='PMX'&&row?.asset?.source==='mmd'&&row?.asset?.format==='PMX'
     ?row.asset_id:null;
+}
+function selectedVrmAsset(){
+  const instanceId=choose.value||selectedId;
+  const row=(sceneSnapshot?.instances||[]).find(item=>item.id===instanceId);
+  const target=controller?.getLoaded(instanceId);
+  return target?.format==='VRM'&&row?.asset?.source==='integrated'&&row?.asset?.format==='VRM'
+    ?row.asset_id:null;
+}
+function clearVrmAnalysis(){
+  vrmAnalysisNonce++;vrmAnalysis=null;
+  vrmName.replaceChildren();vrmName.hidden=true;vrmVowels.textContent='';vrmInfo.textContent='';
+  vrmRun.disabled=!selectedVrmAsset();
+  vrmStatus.textContent=vrmRun.disabled?'登録済みVRMモデルを選んでください。'
+    :'定義名と実バインドを原本から確認できます。名前だけでは使用可能と判定しません。';
+}
+function redrawVrmAnalysis(){
+  if(!vrmAnalysis)return;
+  const label={ready:'実バインドあり',unbound:'定義のみ・実変形なし',missing:'定義なし',
+    invalid_bind:'無効なバインドあり'};
+  vrmVowels.textContent=['A','I','U','E','O'].map(shape=>{
+    const row=vrmAnalysis.vowels[shape];
+    return `${shape} (${row.preset})：${label[row.status]||row.status}`;
+  }).join('\n');
+  const row=vrmAnalysis.expressions[Number(vrmName.value)]||vrmAnalysis.expressions[0];
+  vrmInfo.textContent=row?`${row.name}（${row.kind}）\nモーフバインド ${row.validMorphBinds}/${row.morphBindCount}件、無効${row.invalidMorphBinds}件、材質${row.materialBindCount}件\n表情入力範囲0〜1、バインド重み範囲${row.bindWeightRange.join('〜')}${row.isBinary?'、二値表情':''}`
+    :'表情定義がありません。';
 }
 function clearMorphAnalysis(){
   if(morphPreview&&opened&&motionCoordinator)seekScene(Number(seekInput.value)||0);
@@ -1346,6 +1387,7 @@ async function reload(){
   if(!opened)return;
   morphMapNonce++;morphMaps=null;
   clearMorphAnalysis();
+  clearVrmAnalysis();
   activePole=null;
   candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;candidateReport=null;
   fkValidate.disabled=true;fkValidate.textContent='実PMXで全骨・全Fを検査';
@@ -1385,6 +1427,7 @@ async function reload(){
     seekScene(currentSeek());
     redrawFaceControls();
     clearMorphAnalysis();
+    clearVrmAnalysis();
     await loadMorphMaps(id);
     if(thisNonce!==nonce||!opened||id!==project.value)return;
     setFkFrameFromSeek();
@@ -1424,6 +1467,7 @@ function close(){
   nonce++;opened=false;reloadReady=false;
   morphMapNonce++;morphMaps=null;
   clearMorphAnalysis();
+  clearVrmAnalysis();
   candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;candidateReport=null;
   rotateGizmo?.dispose();rotateGizmo=null;
   bonePicker?.dispose();bonePicker=null;
@@ -1445,7 +1489,31 @@ choose.addEventListener('change',()=>{
   spatialEditor?.select(selectedId);
   redrawFaceControls();
   clearMorphAnalysis();
+  clearVrmAnalysis();
   setFkFrameFromSeek();
+});
+vrmName.addEventListener('change',redrawVrmAnalysis);
+vrmRun.addEventListener('click',async()=>{
+  const assetId=selectedVrmAsset(),instanceId=choose.value||selectedId,projectId=project?.value;
+  if(!assetId)return clearVrmAnalysis();
+  const requestNonce=++vrmAnalysisNonce;
+  vrmRun.disabled=true;vrmStatus.textContent='VRM表情定義を検査中…';
+  try{
+    const data=await request('/api/studio/v05/vrm/expressions?asset_id='+encodeURIComponent(assetId));
+    if(requestNonce!==vrmAnalysisNonce||!opened||projectId!==project?.value||
+       instanceId!==(choose.value||selectedId)||assetId!==selectedVrmAsset())return;
+    vrmAnalysis=data;
+    vrmName.replaceChildren();
+    for(const [index,row] of data.expressions.entries())
+      vrmName.add(new Option(`${row.name} [${row.kind}]`,String(index)));
+    vrmName.hidden=!data.expressions.length;
+    const ready=Object.values(data.vowels).filter(row=>row.status==='ready').length;
+    vrmStatus.textContent=`VRM ${data.version}.x：表情${data.expressions.length}件、実バインドのある母音${ready}/5。原本SHA ${data.modelHash.slice(0,12)}…`;
+    redrawVrmAnalysis();
+  }catch(error){
+    if(requestNonce===vrmAnalysisNonce){vrmAnalysis=null;
+      vrmStatus.textContent='VRM検査失敗: '+String(error.message||error);}
+  }finally{if(requestNonce===vrmAnalysisNonce)vrmRun.disabled=!selectedVrmAsset();}
 });
 analysisName.addEventListener('change',redrawMorphAnalysis);
 mapDraft.addEventListener('click',()=>saveMorphMap(false));
