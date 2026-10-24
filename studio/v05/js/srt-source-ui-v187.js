@@ -1,4 +1,4 @@
-// LIP-001: source-only SRT import. Reading and lip/VMD generation follow later.
+// LIP-001: source-preserving SRT import and separate utterance reading edits.
 const picker = document.getElementById('v06AssetPicker');
 const project = document.getElementById('v06project');
 
@@ -20,7 +20,17 @@ if (picker && project) {
       <p id="v187-source-info"></p><div id="v187-cues" aria-label="SRT発話一覧"></div>
       <div class="v187-actions"><button id="v187-prev" type="button">前の100件</button>
       <span id="v187-page"></span><button id="v187-next" type="button">次の100件</button></div>
-      <p>読み・口形候補とリップVMDの生成は未接続です。ここでは原本の確認だけを行います。</p>
+      <div id="v190-reading-editor" class="v190-editor" hidden>
+        <strong id="v190-cue-label"></strong>
+        <label>読みの状態 <select id="v190-reading-state">
+          <option value="unresolved">未確定</option><option value="proposed">提案</option>
+          <option value="confirmed">確定</option></select></label>
+        <label>かなの読み <input id="v190-reading-kana" type="text" maxlength="300" placeholder="例：かし"></label>
+        <label><input id="v190-explicit-silence" type="checkbox"> この発話は口形なし（明示無音）</label>
+        <button id="v190-reading-save" type="button">この発話の読みを保存</button>
+        <p id="v190-reading-status" role="status"></p>
+      </div>
+      <p>口形候補とリップVMDの生成は未接続です。SRT本文と原時刻は変更しません。</p>
     </div>`;
   project.closest('label')?.after(panel);
   const $ = id => document.getElementById(id);
@@ -30,8 +40,10 @@ if (picker && project) {
   const status = $('v187-status');
   const sourceInfo = $('v187-source-info');
   const cueHost = $('v187-cues');
-  let data = null, loadedProject = '', selectedId = '', page = 0, sequence = 0, busy = false;
+  let data = null, readings = null, loadedProject = '', selectedId = '', selectedCueIndex = null;
+  let page = 0, sequence = 0, busy = false;
   const currentSource = () => data?.sources?.find(row => row.id === selectedId);
+  const currentReading = () => readings?.utterances?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
   const say = message => { status.textContent = message; };
   const time = milliseconds => {
     const hours = Math.floor(milliseconds / 3600000);
@@ -39,6 +51,30 @@ if (picker && project) {
     const seconds = Math.floor(milliseconds / 1000) % 60;
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(milliseconds % 1000).padStart(3, '0')}`;
   };
+  function updateReadingFields() {
+    const silent = $('v190-explicit-silence').checked;
+    if (silent) $('v190-reading-state').value = 'unresolved';
+    $('v190-reading-state').disabled = silent;
+    $('v190-reading-kana').disabled = silent || $('v190-reading-state').value === 'unresolved';
+  }
+  function redrawEditor() {
+    const source = currentSource();
+    const cue = source?.entries.find(row => row.index === selectedCueIndex);
+    const editor = $('v190-reading-editor');
+    editor.hidden = !cue;
+    if (!cue) return;
+    const saved = currentReading();
+    $('v190-cue-label').textContent = `#${cue.index} ${time(cue.startMs)} → ${time(cue.endMs)} の読み`;
+    $('v190-reading-state').value = saved?.readingState || 'unresolved';
+    $('v190-reading-kana').value = saved?.readingKana || '';
+    $('v190-explicit-silence').checked = saved?.explicitSilence || false;
+    updateReadingFields();
+    $('v190-reading-save').disabled = source.sourceStatus !== 'valid' || !readings;
+    $('v190-reading-status').textContent = source.sourceStatus !== 'valid'
+      ? '原本の照合に失敗しました。読みは更新できません。'
+      : saved ? `${saved.explicitSilence ? '明示無音' : saved.readingState === 'confirmed' ? '確定済み' : saved.readingState === 'proposed' ? '提案保存済み' : '未確定'}／版${saved.pronunciationVersion}`
+      : '未確定です。保存するまで原SRTには影響しません。';
+  }
   function redraw() {
     const row = currentSource();
     cueHost.replaceChildren();
@@ -46,6 +82,7 @@ if (picker && project) {
       sourceInfo.textContent = data?.sources?.length ? '登録済みSRTを選んでください。' : 'この作品に登録済みのSRTはありません。';
       $('v187-page').textContent = '';
       $('v187-prev').disabled = $('v187-next').disabled = true;
+      redrawEditor();
       return;
     }
     const state = row.sourceStatus === 'valid' ? '原本照合済み' : row.sourceStatus === 'changed' ? '原本の内容が変わりました' : '原本が見つかりません';
@@ -53,10 +90,15 @@ if (picker && project) {
     sourceInfo.textContent = `${state}／${row.entries.length}発話${warning}／${row.encoding}／SHA-256 ${row.sha256.slice(0, 16)}…`;
     const start = page * 100;
     for (const cue of row.entries.slice(start, start + 100)) {
-      const item = document.createElement('p');
+      const item = document.createElement('button');
+      item.type = 'button';
       item.className = 'v187-cue';
+      item.dataset.index = String(cue.index);
+      item.setAttribute('aria-pressed', String(cue.index === selectedCueIndex));
       const label = document.createElement('strong');
-      label.textContent = `#${cue.index} ${time(cue.startMs)} → ${time(cue.endMs)}`;
+      const saved = readings?.utterances?.find(reading => reading.srtSourceId === selectedId && reading.srtIndex === cue.index);
+      const state = saved?.explicitSilence ? '明示無音' : saved?.readingState === 'confirmed' ? '確定' : saved?.readingState === 'proposed' ? '提案' : '未確定';
+      label.textContent = `#${cue.index} ${time(cue.startMs)} → ${time(cue.endMs)} ／ ${state}`;
       const body = document.createElement('span');
       body.textContent = cue.text;
       item.append(label, body);
@@ -65,6 +107,7 @@ if (picker && project) {
     $('v187-page').textContent = `${start + 1}〜${Math.min(start + 100, row.entries.length)} / ${row.entries.length}件`;
     $('v187-prev').disabled = page === 0;
     $('v187-next').disabled = start + 100 >= row.entries.length;
+    redrawEditor();
   }
   async function request(url, options) {
     const response = await fetch(url, options);
@@ -72,21 +115,26 @@ if (picker && project) {
     if (!response.ok) throw Error(body.error || `HTTP ${response.status}`);
     return body;
   }
-  async function refresh(preferredId = '') {
+  async function refresh(preferredId = '', preferredCueIndex = selectedCueIndex) {
     const id = project.value;
     const mine = ++sequence;
     loadedProject = id;
-    data = null; selectedId = ''; page = 0;
+    data = null; readings = null; selectedId = ''; selectedCueIndex = null; page = 0;
     sourceSelect.replaceChildren();
     redraw();
     if (!id) { say('作品を選んでください。'); return; }
     say('登録済みSRTを読み込んでいます…');
     try {
-      const loaded = await request('/api/studio/v05/srt/sources?project_id=' + encodeURIComponent(id));
+      const [loaded, loadedReadings] = await Promise.all([
+        request('/api/studio/v05/srt/sources?project_id=' + encodeURIComponent(id)),
+        request('/api/studio/v05/lip/readings?project_id=' + encodeURIComponent(id))]);
       if (mine !== sequence || project.value !== id) return;
       data = loaded;
+      readings = loadedReadings;
       for (const row of loaded.sources) sourceSelect.add(new Option(row.originalName, row.id));
       selectedId = loaded.sources.some(row => row.id === preferredId) ? preferredId : loaded.sources.at(-1)?.id || '';
+      selectedCueIndex = currentSource()?.entries.some(row => row.index === preferredCueIndex)
+        ? preferredCueIndex : currentSource()?.entries[0]?.index ?? null;
       sourceSelect.value = selectedId;
       redraw();
       say(`${loaded.sources.length}件のSRT原本をこの作品で確認できます。`);
@@ -97,9 +145,46 @@ if (picker && project) {
   panel.addEventListener('toggle', () => { if (panel.open) void refresh(); });
   project.addEventListener('change', () => { ++sequence; if (panel.open) void refresh(); });
   $('v187-refresh').addEventListener('click', () => void refresh(selectedId));
-  sourceSelect.addEventListener('change', () => { selectedId = sourceSelect.value; page = 0; redraw(); });
+  sourceSelect.addEventListener('change', () => { selectedId = sourceSelect.value; selectedCueIndex = currentSource()?.entries[0]?.index ?? null; page = 0; redraw(); });
+  cueHost.addEventListener('click', event => {
+    const button = event.target.closest('[data-index]');
+    if (!button) return;
+    selectedCueIndex = Number(button.dataset.index);
+    redraw();
+  });
   $('v187-prev').addEventListener('click', () => { page--; redraw(); });
   $('v187-next').addEventListener('click', () => { page++; redraw(); });
+  $('v190-reading-state').addEventListener('change', () => { updateReadingFields(); $('v190-reading-status').textContent = '未保存の変更があります。'; });
+  $('v190-reading-kana').addEventListener('input', () => { $('v190-reading-status').textContent = '未保存の変更があります。'; });
+  $('v190-explicit-silence').addEventListener('change', () => { updateReadingFields(); $('v190-reading-status').textContent = '未保存の変更があります。'; });
+  $('v190-reading-save').addEventListener('click', async () => {
+    const source = currentSource(), id = project.value, cueIndex = selectedCueIndex;
+    if (!source || source.sourceStatus !== 'valid' || !readings || cueIndex === null || busy) return;
+    const silent = $('v190-explicit-silence').checked;
+    const state = silent ? 'unresolved' : $('v190-reading-state').value;
+    const kana = silent || state === 'unresolved' ? null : $('v190-reading-kana').value;
+    busy = true; $('v190-reading-save').disabled = true;
+    $('v190-reading-status').textContent = '読みを保存しています…';
+    try {
+      const saved = await request('/api/studio/v05/lip/readings', {method: 'POST',
+        headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
+          project_id: id, revision: readings.revision, source_id: source.id,
+          source_hash: source.sha256, srt_index: cueIndex, reading_state: state,
+          reading_kana: kana, explicit_silence: silent})});
+      if (project.value !== id || selectedId !== source.id) return;
+      readings = saved;
+      redraw();
+      say(`発話 #${cueIndex} の読みを原本と別に保存しました。`);
+    } catch (error) {
+      if (project.value === id) {
+        const beforeId = selectedId;
+        await refresh(beforeId, cueIndex);
+        const message = `読みの保存に失敗: ${error.message}`;
+        $('v190-reading-status').textContent = message;
+        say(message);
+      }
+    } finally { busy = false; $('v190-reading-save').disabled = currentSource()?.sourceStatus !== 'valid' || !readings; }
+  });
   $('v187-import').addEventListener('click', async () => {
     if (busy) return;
     const id = project.value;
@@ -120,6 +205,7 @@ if (picker && project) {
       data = saved; loadedProject = id;
       const row = saved.sources.at(-1);
       selectedId = row?.id || '';
+      selectedCueIndex = row?.entries[0]?.index ?? null;
       sourceSelect.replaceChildren(...saved.sources.map(source => new Option(source.originalName, source.id)));
       sourceSelect.value = selectedId;
       page = 0; redraw();

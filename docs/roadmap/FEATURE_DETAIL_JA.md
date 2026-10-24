@@ -905,7 +905,7 @@ Issues #63/#69（2026-10-24）：保存済みGLBシーンを同じ作品の画�
 **機能:** SRT読込→リップVMD  
 **優先:** Phase 05  
 **依存:** MOTION,DATA  
-  **確認状態:** 部分実装。v0.5の作品単位SRT原本登録APIと画面での選択・発話確認、読み/明示無音の分離保存APIを隔離HTTP/Chromeで試験済み。[原本API](../v05/LIP001_SRT_SOURCE_IMPORT_20261025_JA.md)、[画面](../v05/LIP001_SRT_SOURCE_UI_20261025_JA.md)、[読み保存](../v05/LIP001_UTTERANCE_READING_STORE_20261025_JA.md)。読み・口形候補の画面編集、VMD出力と再読込、MCPは未実装。
+  **確認状態:** 部分実装。v0.5のSRT原本登録、発話の読み/明示無音を隔離HTTP/Chromeで保存再読込済み。[原本API](../v05/LIP001_SRT_SOURCE_IMPORT_20261025_JA.md)、[原本画面](../v05/LIP001_SRT_SOURCE_UI_20261025_JA.md)、[読み保存](../v05/LIP001_UTTERANCE_READING_STORE_20261025_JA.md)、[読み画面](../v05/LIP001_UTTERANCE_READING_UI_20261025_JA.md)。口形候補、VMD出力と再読込、MCPは未実装。
 
 **目的・要求:** 字幕時刻と日本語読み/母音推定。
 
