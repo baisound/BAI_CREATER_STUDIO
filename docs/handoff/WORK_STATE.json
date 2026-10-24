@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T11:21:20+09:00",
+  "updated_at": "2026-10-24T11:24:49+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-rotate-gizmo",
-  "head_at_update": "11e7d19",
+  "branch": "codex/v05-motion010-position",
+  "head_at_update": "ae8c79d",
   "current": {
-    "task": "Issue #106: MOTION-010 実PMX骨の3D回転ハンドル",
-    "status": "done",
-    "step": "同じv0.5編集画面で選択骨の回転を未確定プレビューに変換し、既存FKキー保存へ接続",
+    "task": "Issue #106: MOTION-010 PMX骨の位置差分",
+    "status": "in_progress",
+    "step": "同じ作品のFK骨キーに位置差分を追加し、数値仮表示・保存・再読込を接続",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T11:24:49+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "ae8c79d",
+      "text": "Issue #106: MOTION-010 PMX骨の位置差分: 同じ作品のFK骨キーに位置差分を追加し、数値仮表示・保存・再読込を接続"
+    },
     {
       "at": "2026-10-24T11:21:20+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "6a7b760",
       "text": "Issue #96: 表情キー保存と実PMX/MP4の4件結合試験合格。原本欠損時にも孤立キー削除可とし、Python8件再合格。"
-    },
-    {
-      "at": "2026-10-24T06:40:14+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "72ba8d3",
-      "text": "Issue #96: 実PMXの既存モーフ168名を照合し、表情キーの保存・補間・再読込・限定MP4実画素を確認。Python8、Chrome4、typecheck合格。LIP-004/009は部分実装。"
     }
   ]
 }
