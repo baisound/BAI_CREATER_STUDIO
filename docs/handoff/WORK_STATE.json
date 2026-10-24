@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T14:58:37+09:00",
+  "updated_at": "2026-10-24T15:03:47+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-ikfk-mode",
-  "head_at_update": "a4b2425",
+  "branch": "codex/v05-motion010-foot-handle-snap",
+  "head_at_update": "631059c",
   "current": {
-    "task": "Issue #106: MOTION-010 FK/IK切替の保存と姿勢保持",
-    "status": "done",
-    "step": "既存PMX足IKとFKの編集モードを保存し、切替時に姿勢・キーを変えない検査を実装する",
+    "task": "Issue #106: MOTION-010 PMX足IKの足首ハンドルスナップ",
+    "status": "in_progress",
+    "step": "IKターゲット編集ハンドルを現在の足首世界位置に置き、移動量をIK骨へ安全に変換して実PMXで検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T15:03:47+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "631059c",
+      "text": "Issue #106: MOTION-010 PMX足IKの足首ハンドルスナップ: IKターゲット編集ハンドルを現在の足首世界位置に置き、移動量をIK骨へ安全に変換して実PMXで検証する"
+    },
     {
       "at": "2026-10-24T14:58:37+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "7e63591",
       "text": "MOTION-010 実PMX/VMDのFK補正入り完成MP4を同一保存カメラで復号比較。3/3回帰成功、補正revision記録と重み0の元評価経路復帰、原本/利用者データ不変を確認"
-    },
-    {
-      "at": "2026-10-24T10:36:59+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "93e4eb9",
-      "text": "Issue #106: MOTION-010 FK補正入り完成MP4の画素比較: 実PMX＋VMDの保存補正を作品フレーム出力へ通し、別名MP4の復号画素・骨姿勢・原本ハッシュを比較"
     }
   ]
 }
