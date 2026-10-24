@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T17:35:03+09:00",
+  "updated_at": "2026-10-24T17:37:41+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-vmd-roundtrip",
-  "head_at_update": "9f30c9e",
+  "branch": "codex/v05-motion010-arm-mode",
+  "head_at_update": "fb9ed92",
   "current": {
-    "task": "Issue #106: MOTION-010 腕キーVMD全骨往復",
-    "status": "done",
-    "step": "保存済み左右腕・ひじ2キーを別名VMD候補へ焼き、元PMXの全作品F・全VMD F・全骨で往復比較する",
+    "task": "Issue #106: MOTION-010 腕FK/IK編集方法切替",
+    "status": "in_progress",
+    "step": "左右腕の編集方法切替を姿勢・キー・Undo不変で接続し、実PMXで再読込まで確認する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T17:37:41+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "fb9ed92",
+      "text": "Issue #106: MOTION-010 腕FK/IK編集方法切替: 左右腕の編集方法切替を姿勢・キー・Undo不変で接続し、実PMXで再読込まで確認する"
+    },
     {
       "at": "2026-10-24T17:35:03+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "04f0980",
       "text": "Issue #106: 実PMX足IKの3Dハンドルを評価済み足首へ置き、実マウス移動で左足追従・右足不変・Esc復元を確認"
-    },
-    {
-      "at": "2026-10-24T15:03:47+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "631059c",
-      "text": "Issue #106: MOTION-010 PMX足IKの足首ハンドルスナップ: IKターゲット編集ハンドルを現在の足首世界位置に置き、移動量をIK骨へ安全に変換して実PMXで検証する"
     }
   ]
 }
