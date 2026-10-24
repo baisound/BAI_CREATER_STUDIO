@@ -246,6 +246,24 @@ test('constant and temporal FK candidates agree with real PMX preview',
       assert.ok(footResult.maximum['左足ＩＫ']<1e-3,`IK target mismatch at ${footResult.worst}`);
       assert.ok(footResult.maximum['左足首']<1e-3,`IK ankle mismatch at ${footResult.worst}`);
       assert.ok(footResult.maximum['右足首']<1e-4,`unmodified ankle mismatch at ${footResult.worst}`);
+      const fullSkeleton=await page.evaluate(async({projectId,footResponse})=>{
+        const {loadLibs}=await import('/studio/js/viewport/model-loader.js');
+        const {validatePmxVmdCandidate}=await import('/studio/v05/js/pmx-vmd-candidate-validation-v120.js');
+        const [scene,plan,edits]=await Promise.all([
+          fetch(`/api/studio/v05/scene/instances?id=${projectId}`).then(r=>r.json()),
+          fetch(`/api/studio/v05/scene/multi-motion-plan?id=${projectId}`).then(r=>r.json()),
+          fetch(`/api/studio/v05/motion-edits?id=${projectId}`).then(r=>r.json())]);
+        const row=plan.rows.find(item=>item.clip_id===footResponse.clip_id);
+        const instance=scene.instances.find(item=>item.id===footResponse.instance_id);
+        return validatePmxVmdCandidate({libs:await loadLibs(),modelAsset:instance.asset,
+          motionAsset:row.motion_asset,row,layers:edits.layers.filter(item=>
+            item.instance_id===footResponse.instance_id&&item.clip_id===footResponse.clip_id),
+          candidate:footResponse,fps:60,isCurrent:()=>true});
+      },{projectId,footResponse});
+      console.log('foot IK all-bone round trip',JSON.stringify(fullSkeleton));
+      assert.equal(fullSkeleton.checkedFrames,600);
+      assert.equal(fullSkeleton.checkedVmdFrames,300);
+      assert.equal(fullSkeleton.passed,true,JSON.stringify(fullSkeleton));
       assert.deepEqual([digest(modelPath),digest(motionPath)],originals);
       assert.equal(baked.stdout.slice(-29).toString('hex'),fs.readFileSync(motionPath).slice(-29).toString('hex'));
     }finally{
