@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T02:37:04+09:00",
+  "updated_at": "2026-10-25T02:54:53+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-export-diagnostics",
-  "head_at_update": "b87f6d6",
+  "branch": "codex/v05-lip001-adoption-contract",
+  "head_at_update": "7eb316c",
   "current": {
-    "task": "Issue #187: 口形VMD出力不能箇所を一覧化",
+    "task": "Issue #187: 口形VMD候補の製品内採用契約",
     "status": "done",
-    "step": "未確定発話・警告・欠落モーフ・フレーム衝突を発話別に返しv0.5画面で修正対象を示す",
+    "step": "既存モーション・手動表情を保持する明示採用の保存/解除と競合条件を調べ、最小APIを接続する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #187: 候補を製品内で明示採用し、元VMD/他の表情との優先合成・Undo/Redo・別名出力再読込を接続する"
+    "Issue #187: 採用した口形と元VMD・手動表情を優先合成した別名VMDを作り、全キー再読込・実PMX・最終動画を検証する"
   ],
   "unverified": [
-    "実ユーザーSRT/歌音声との境界品質、製品内候補採用/合成/Undo/Redo、WebMCP/標準MCP、production.lip、Linuxは未実装/未検証"
+    "実ユーザーSRT/歌音声の境界品質、合成VMD出力、製品の最終MP4での採用口形、WebMCP/標準MCP、production.lip、Linuxは未実装/未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:54:53+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "7eb316c",
+      "text": "Issue #187: 別名口形VMD候補を作品PMXへ明示採用・解除・Undo/Redo。元VMD→採用口形→手動0キーの優先表示、SRT区間外復帰、保存再読込と失効を隔離実PMXで確認。Python11件、Chrome2件、原本hash不変。"
+    },
+    {
+      "at": "2026-10-25T02:40:03+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0ed0217",
+      "text": "Issue #187: 口形VMD候補の製品内採用契約: 既存モーション・手動表情を保持する明示採用の保存/解除と競合条件を調べ、最小APIを接続する"
+    },
     {
       "at": "2026-10-25T02:37:04+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "5bb3d73",
       "text": "Issue #175: VRM表情の手動対応表: 登録VRM表情のモデル別対応表を原本hashと実バインドに結び付け、保存・再読込と未結合の確定拒否を実装する"
-    },
-    {
-      "at": "2026-10-25T01:03:32+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d914e24",
-      "text": "Issue #175: 登録VRM0/1の表情定義と実バインドを原本hash付きで読み、v0.5画面に5母音の使用可否を表示。実VRM0は5/5 ready、実VRM1は5/5定義のみ・unbound。Python3/3・隔離Chrome1/1、原本hash一致"
-    },
-    {
-      "at": "2026-10-25T00:57:47+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f336edb",
-      "text": "Issue #175: 登録VRMの表情定義確認: 登録済み実VRMのexpression定義と欠落母音を原本hash付きで読み取り、v0.5で不足を明示する"
     }
   ]
 }

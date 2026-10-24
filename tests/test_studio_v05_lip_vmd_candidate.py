@@ -17,6 +17,8 @@ from studio_v05_lip_readings import set_reading
 from studio_v05_lip_drafts import save as save_draft
 from studio_v05_morph_maps import mutate
 from studio_v05_pmx_analysis import inspect
+from studio_v05_scene_model import set_model
+from studio_v05_scene_instances import mutate as mutate_scene
 from studio_v05_srt_sources import register
 from tools.make_test_pmx import build_pmx
 from vmd_readback import read_vmd_morphs
@@ -58,6 +60,18 @@ def test_candidate_http_roundtrip_and_all_failure_gates(tmp_path, monkeypatch):
     mutate(data/'studio_v05_morph_maps', catalog, project_id, 0, 'set', [asset], source_for,
            model_asset_id=asset['id'], model_hash=analysis['modelHash'],
            analysis_hash=analysis['analysisHash'], entries=entries, confirmed=True)
+    transform = {'position': [0, 0, 0], 'rotation': [0, 0, 0], 'scale': [1, 1, 1]}
+    set_model(data/'studio_v05_scene_models', catalog, project_id,
+              asset['id'], transform, 0, [asset])
+    scene_file = data/'studio_v05_scene_models'/(project_id+'.json')
+    original_scene = scene_file.read_bytes()
+    mutate_scene(data/'studio_v05_scene_instances', data/'studio_v05_scene_models',
+        catalog, project_id, 'face-set', 0, [asset],
+        face_key={'instance_id': 'legacy-primary', 'morph_name': 'あ',
+                  'time': 1.0, 'value': 0.0, 'track': 'lip'},
+        morph_lookup=lambda _source: {'あ'})
+    face_file = data/'studio_v05_scene_instances'/(project_id+'.json')
+    original_face = face_file.read_bytes()
     api = ThreadingHTTPServer(('127.0.0.1', 0), server.Handler)
     thread = threading.Thread(target=api.serve_forever, daemon=True)
     thread.start()
@@ -99,6 +113,26 @@ def test_candidate_http_roundtrip_and_all_failure_gates(tmp_path, monkeypatch):
         assert abs(parsed['records'][0]['weight'] - .56) < 1e-6
         assert parsed['records'][1]['weight'] == 0
         assert source_file.read_bytes() == original_srt and model.read_bytes() == original_pmx
+        assert request('/adoptions', {'project_id': project_id})[1]['tracks'] == []
+        adopt = {'project_id': project_id, 'revision': 0, 'action': 'adopt',
+                 'instance_id': 'legacy-primary', 'candidate_id': made['candidateId']}
+        code, adopted = request('/adoptions', body=adopt)
+        assert code == 200 and adopted['revision'] == 1
+        assert adopted['tracks'][0]['status'] == 'ready' and adopted['tracks'][0]['cueTracks'] == []
+        code, for_playback = request('/adoptions', {'project_id': project_id,
+                                                    'instance_id': 'legacy-primary'})
+        assert code == 200 and len(for_playback['tracks'][0]['cueTracks']) == 1
+        assert [(row['name'], row['frame']) for row in for_playback['tracks'][0]['cueTracks'][0]['records']] == [
+            ('あ', 30), ('あ', 60)]
+        assert request('/adoptions', body={**adopt, 'revision': 0})[0] == 409
+        code, undone = request('/adoptions', body={'project_id': project_id,
+            'revision': 1, 'action': 'undo'})
+        assert code == 200 and undone['tracks'] == []
+        code, redone = request('/adoptions', body={'project_id': project_id,
+            'revision': 2, 'action': 'redo'})
+        assert code == 200 and redone['tracks'][0]['candidateId'] == made['candidateId']
+        assert scene_file.read_bytes() == original_scene
+        assert face_file.read_bytes() == original_face
         assert request('/vmd-candidate/file', {'project_id': project_id,
             'candidate_id': '0'*32})[0] == 404
         save_draft(data/'studio_v05_lip_drafts', catalog, data/'studio_v05_srt_sources',
@@ -114,6 +148,15 @@ def test_candidate_http_roundtrip_and_all_failure_gates(tmp_path, monkeypatch):
         assert len(list(folder.glob('*.vmd'))) == 1
         assert request('/vmd-candidate/file', {'project_id': project_id,
             'candidate_id': made['candidateId']})[0] == 409
+        code, stale = request('/adoptions', {'project_id': project_id,
+                                             'instance_id': 'legacy-primary'})
+        assert code == 200 and stale['tracks'][0]['status'] == 'stale'
+        assert stale['tracks'][0]['cueTracks'] == []
+        code, removed = request('/adoptions', body={'project_id': project_id,
+            'revision': 3, 'action': 'remove', 'instance_id': 'legacy-primary'})
+        assert code == 200 and removed['tracks'] == []
+        assert request('/adoptions', body={'project_id': project_id,
+            'revision': 4, 'action': 'undo'})[0] == 409
         set_reading(data/'studio_v05_lip_readings', catalog, data/'studio_v05_srt_sources',
                     project_id, 2, source['id'], source['sha256'], 2, 'unresolved', None, False)
         code, diagnosed = request('/vmd-candidate', body={**body, 'reading_revision': 3,

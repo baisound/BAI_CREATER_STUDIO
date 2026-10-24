@@ -905,7 +905,7 @@ Issues #63/#69（2026-10-24）：保存済みGLBシーンを同じ作品の画�
 **機能:** SRT読込→リップVMD  
 **優先:** Phase 05  
 **依存:** MOTION,DATA  
-  **確認状態:** 部分実装。v0.5のSRT原本登録、読み/明示無音、口形候補と手動下書きを隔離HTTP/Chromeで保存再読込済み。別名モーフ専用VMD候補を画面で生成・取得し、隔離実PMXでの試験内登録/再生と画素変化まで確認。出力不能箇所は発話別・原因別に一覧表示する。[原本API](../v05/LIP001_SRT_SOURCE_IMPORT_20261025_JA.md)、[原本画面](../v05/LIP001_SRT_SOURCE_UI_20261025_JA.md)、[読み保存](../v05/LIP001_UTTERANCE_READING_STORE_20261025_JA.md)、[読み画面](../v05/LIP001_UTTERANCE_READING_UI_20261025_JA.md)、[口形候補API](../v05/LIP001_MORA_CANDIDATES_20261025_JA.md)、[候補画面](../v05/LIP001_CANDIDATE_UI_20261025_JA.md)、[手動下書き](../v05/LIP001_MOUTH_DRAFT_20261025_JA.md)、[VMDバイナリ](../v05/LIP001_MORPH_VMD_CODEC_20261025_JA.md)、[作品別候補API](../v05/LIP001_MORPH_VMD_CANDIDATE_20261025_JA.md)、[画面/実PMX試験](../v05/LIP001_MORPH_VMD_EXPORT_UI_20261025_JA.md)、[診断一覧](../v05/LIP001_EXPORT_DIAGNOSTICS_20261025_JA.md)。候補の製品内採用/合成出力とMCPは未実装。
+  **確認状態:** 部分実装。v0.5のSRT原本登録、読み/明示無音、口形候補と手動下書きを隔離HTTP/Chromeで保存再読込済み。別名モーフ専用VMD候補を画面で生成・取得し、実PMXで確認。出力不能箇所は発話別・原因別に一覧表示する。候補を3Dモデルへ明示採用・解除・Undo/Redoし、元VMD・採用口形・手動0キーの優先表示と原SRT区間外での復帰を隔離実PMXで確認。[原本API](../v05/LIP001_SRT_SOURCE_IMPORT_20261025_JA.md)、[原本画面](../v05/LIP001_SRT_SOURCE_UI_20261025_JA.md)、[読み保存](../v05/LIP001_UTTERANCE_READING_STORE_20261025_JA.md)、[読み画面](../v05/LIP001_UTTERANCE_READING_UI_20261025_JA.md)、[口形候補API](../v05/LIP001_MORA_CANDIDATES_20261025_JA.md)、[候補画面](../v05/LIP001_CANDIDATE_UI_20261025_JA.md)、[手動下書き](../v05/LIP001_MOUTH_DRAFT_20261025_JA.md)、[VMDバイナリ](../v05/LIP001_MORPH_VMD_CODEC_20261025_JA.md)、[作品別候補API](../v05/LIP001_MORPH_VMD_CANDIDATE_20261025_JA.md)、[画面/実PMX試験](../v05/LIP001_MORPH_VMD_EXPORT_UI_20261025_JA.md)、[診断一覧](../v05/LIP001_EXPORT_DIAGNOSTICS_20261025_JA.md)、[採用と優先表示](../v05/LIP001_ADOPTION_OVERLAY_20261025_JA.md)。元VMDと口形の合成VMD出力、実歌音声同期、MCPは未実装・未検証。
 
 **目的・要求:** 字幕時刻と日本語読み/母音推定。
 
@@ -1044,6 +1044,8 @@ Issues #63/#69（2026-10-24）：保存済みGLBシーンを同じ作品の画�
 **同日合成画面の顔視認性:** 重ね表示の右操作パネルを最大320px・ステージ幅38%へ縮め、F120の実PMX口形が中央プレビューで見えることと900px幅で主要ボタンへスクロール到達できることを確認した。任意構図とさらに狭い画面は未検証。[証拠](../v05/PMX_FACE_COMPOSITE_VISIBILITY_20261024_JA.md)。
 
 **2026-10-25 手動口形:** 実PMXの「あ」を合成画面から0/4/9秒へ保存し、再読込後のF0/F120/F270の中央顔画素・各1F MP4、4秒キーの再編集と削除を確認した。標準MCP実通信・任意PMX・長尺は未確認。[証拠](../v05/PMX_FACE_MANUAL_MOUTH_20261025_JA.md)。
+
+**同日LIP-001採用口形の優先表示:** 元VMD「あ」0.2、採用候補「あ」0.8、手動キー「あ」0を同一モデル・時刻で照合し、手動キー→採用候補→元VMDの順に3D表示することと原SRT区間外の元VMD復帰を確認した。合成VMD出力と最終MP4は未検証。[証拠](../v05/LIP001_ADOPTION_OVERLAY_20261025_JA.md)。
 
 **実装チェック:** 手動UI操作、共通API、WebMCPツール、標準MCPツール、設定永続化、Undo/Redo対象、例外/権限処理、テスト、文書を同一IDで紐付ける。
 

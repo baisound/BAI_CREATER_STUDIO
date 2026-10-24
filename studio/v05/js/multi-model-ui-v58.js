@@ -16,6 +16,7 @@ import {createPmxVmdPreview} from '../../js/motion/pmx-vmd-preview.js';
 import {loadVmdClip,vmdUrl} from '../../js/motion/vmd.js';
 import {validatePmxVmdCandidate} from './pmx-vmd-candidate-validation-v120.js';
 import {morphValues,resetMorphs,applyFaceKeys,setMorphValue} from './pmx-face-keys-v96.js';
+import {evaluateLipCueTracks} from './pmx-lip-overlay-v199.mjs';
 import {strengthCandidates} from './pmx-morph-strength.mjs';
 import {applyVrmExpressionPreview} from './vrm-expression-preview.mjs';
 
@@ -33,7 +34,7 @@ const tr=(key)=>locale[key]||({
 })[key]||key;
 const section=document.getElementById('v57-scene-instances');
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,reloadReady=false,nonce=0,selectedId='';
-let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null,previewArm=null,activePole=null,activeArm=null;
+let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,lipAdoptions=null,projectFps=60,previewFk=null,previewArm=null,activePole=null,activeArm=null;
 let vmdCandidate=null,candidateValidation=null,candidateReport=null;
 let morphAnalysis=null,morphAnalysisNonce=0,morphMaps=null,morphMapNonce=0;
 let morphPreview=null;
@@ -759,6 +760,8 @@ async function saveMorphMap(confirmed){
     if(!response.ok)throw Error(data?.error||`HTTP ${response.status}`);
     if(!opened||projectId!==project?.value||assetId!==selectedMorphAsset())return;
     morphMaps=data;redrawMorphMapStatus();
+    window.dispatchEvent(new CustomEvent('bai:v199-lip-adoption-changed',
+      {detail:{projectId}}));
   }catch(error){
     mapStatus.textContent='保存失敗: '+String(error.message||error)+'。対応表を再読込して確認してください。';
   }finally{mapDraft.disabled=mapConfirm.disabled=!morphAnalysis?.morphs?.length||!morphMaps||!selectedMorphAsset();}
@@ -1414,10 +1417,25 @@ function applySavedFace(seconds){
   for(const instance of sceneSnapshot?.instances||[]){
     const target=controller?.getLoaded(instance.id);
     if(target?.format!=='PMX')continue;
+    const adopted=lipAdoptions?.tracks?.find(row=>row.instanceId===instance.id&&row.status==='ready');
+    for(const [name,value] of evaluateLipCueTracks(adopted?.cueTracks,seconds)){
+      if(!setMorphValue(target.object,name,value))missing.push(name);
+    }
     missing.push(...applyFaceKeys(target.object,sceneSnapshot.face_keys,instance.id,seconds));
   }
   viewport?.invalidate?.();
   return missing;
+}
+async function loadLipAdoptions(id){
+  const path='/api/studio/v05/lip/adoptions?project_id='+encodeURIComponent(id);
+  const summary=await request(path);
+  const tracks=await Promise.all((summary.tracks||[]).map(async row=>{
+    if(row.status!=='ready')return row;
+    const detail=await request(path+'&instance_id='+encodeURIComponent(row.instanceId));
+    if(detail.revision!==summary.revision)throw Error('口形採用状態が読込中に変わりました');
+    return detail.tracks.find(item=>item.instanceId===row.instanceId)||row;
+  }));
+  return {...summary,tracks};
 }
 async function setup(){
   const token=nonce;
@@ -1567,12 +1585,13 @@ async function reload(){
     const plan=await request('/api/studio/v05/scene/multi-motion-plan?id='+encodeURIComponent(id));
     if(thisNonce!==nonce||!opened||id!==project.value)return;
     motionPlan=plan;
-    const [fpsResult,edits]=await Promise.all([
+    const [fpsResult,edits,adoptions]=await Promise.all([
       request('/api/studio/v05/project/fps?id='+encodeURIComponent(id)),
-      request('/api/studio/v05/motion-edits?id='+encodeURIComponent(id))]);
+      request('/api/studio/v05/motion-edits?id='+encodeURIComponent(id)),
+      loadLipAdoptions(id)]);
     if(thisNonce!==nonce||!opened||id!==project.value)return;
     projectFps=fpsResult.configured?Number(fpsResult.fps):60;
-    motionEdits=edits;previewFk=null;previewArm=null;
+    motionEdits=edits;lipAdoptions=adoptions;previewFk=null;previewArm=null;
     const motionResult=await motionCoordinator.reconcile(plan);
     if(thisNonce!==nonce||!opened)return;
     applyAllMotionEdits();
@@ -1595,7 +1614,7 @@ async function reload(){
     window.dispatchEvent(new CustomEvent('bai:v58-scene-reloaded',{detail:{projectId:id,loaded:controller.status().loaded}}));
   }catch(error){
     if(thisNonce===nonce&&opened){
-      motionEdits=null;previewFk=null;previewArm=null;motionPlan=null;
+      motionEdits=null;lipAdoptions=null;previewFk=null;previewArm=null;motionPlan=null;
       motionCoordinator?.clear();
       for(const instance of sceneSnapshot?.instances||[])controller?.getLoaded(instance.id)?.resetPose?.();
       viewport?.invalidate?.();redrawFkControls();
@@ -1625,7 +1644,7 @@ function close(){
   candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;candidateReport=null;
   rotateGizmo?.dispose();rotateGizmo=null;
   bonePicker?.dispose();bonePicker=null;
-  spatialEditor?.dispose();spatialEditor=null;sceneSnapshot=null;
+  spatialEditor?.dispose();spatialEditor=null;sceneSnapshot=null;lipAdoptions=null;
   motionCoordinator?.dispose();motionCoordinator=null;motionPlan=null;
   motionEdits=null;previewFk=null;previewArm=null;activePole=null;activeArm=null;
   controller?.dispose();controller=null;
@@ -2289,6 +2308,21 @@ window.addEventListener('bai:v106-fk-saved',async event=>{
     motionEdits=data;previewFk=null;previewArm=null;applyAllMotionEdits();
     seekScene(Number(seekInput.value)||currentSeek());redrawFkControls();
   }catch(error){fkStatus.textContent='FK補正再読込失敗: '+String(error.message||error);}
+});
+window.addEventListener('bai:v199-lip-adoption-changed',async event=>{
+  const id=event.detail?.projectId,token=nonce;
+  if(!opened||!id||project?.value!==id)return;
+  try{
+    const fresh=await loadLipAdoptions(id);
+    if(!opened||nonce!==token||project?.value!==id)return;
+    lipAdoptions=fresh;
+    seekScene(Number(seekInput.value)||currentSeek());
+  }catch(error){
+    if(opened&&nonce===token&&project?.value===id){
+      lipAdoptions=null;seekScene(Number(seekInput.value)||currentSeek());
+      faceStatus.textContent='採用口形の再読込失敗: '+String(error.message||error);
+    }
+  }
 });
 window.addEventListener('bai:v106-fk-key-select',async event=>{
   const {projectId,instanceId,clipId,layerId,key} = event.detail||{};
