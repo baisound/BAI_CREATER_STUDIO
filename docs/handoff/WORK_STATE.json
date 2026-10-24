@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T14:01:58+09:00",
+  "updated_at": "2026-10-24T14:05:48+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-vmd-foot-ik",
-  "head_at_update": "4f0f1f8",
+  "branch": "codex/v05-motion010-vmd-fps-fades",
+  "head_at_update": "7e140cb",
   "current": {
-    "task": "Issue #106: MOTION-010 足IKを含む別名VMD候補の実PMX往復",
-    "status": "done",
-    "step": "時間変化FK候補の境界標本を見直し、実PMXの足IKターゲットと足首を全フレーム比較する",
+    "task": "Issue #106: MOTION-010 別FPS・前後なじませのVMD候補",
+    "status": "in_progress",
+    "step": "24fps作品と区間・なじませの30fps境界を実VMD曲線と実PMXで検証し、不要な境界キーを避ける",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T14:05:48+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "7e140cb",
+      "text": "Issue #106: MOTION-010 別FPS・前後なじませのVMD候補: 24fps作品と区間・なじませの30fps境界を実VMD曲線と実PMXで検証し、不要な境界キーを避ける"
+    },
     {
       "at": "2026-10-24T14:01:58+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "cfdbf23",
       "text": "Issue #102: v0.5の実PMXプレビューから左右つま先を2秒標本化し、既存の両足接地診断APIへ接続。実GLB→VMD/PMXの0秒・30秒で各61点、診断後姿勢復元と原本SHA不変を確認"
-    },
-    {
-      "at": "2026-10-24T09:21:45+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3f33f66",
-      "text": "Issue #102: 実PMX動作の足接地診断をv0.5プレビューへ接続: 保存済み作品の実ポーズから左右足をサンプリングし既存接地診断APIへつなぐ"
     }
   ]
 }
