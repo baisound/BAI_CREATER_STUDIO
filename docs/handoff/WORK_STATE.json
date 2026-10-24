@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:34:59+09:00",
+  "updated_at": "2026-10-24T20:42:08+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-lower-fk-multistage",
-  "head_at_update": "eeda3fc",
+  "head_at_update": "1aef36f",
   "current": {
     "task": "Issue #106: MOTION-010 下位FKのIK拒否と複数上位層",
-    "status": "in_progress",
+    "status": "done",
     "step": "実PMXのIK関連骨拒否と複数同骨上位補正の局所逆算を検査する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 下位FKのIK・付与定義を持つ骨の拒否と複数上位同骨レイヤーを実PMXで検査し、残る受け入れ条件へ進む"
+    "MOTION-010 長尺入力の0補正評価と再読込画面の断続的失敗を確認し、残る既承認条件へ進む"
   ],
   "unverified": [
-    "画面再読込断続失敗の原因、異なるIK・付与構成のPMX、複数上位同骨層、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "画面再読込断続失敗の原因、別のIK・付与構成、長尺90秒、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T20:42:08+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "1aef36f",
+      "text": "MOTION-010 下位FKで実PMX左足IKリンク・左目付与対象の拒否理由を確認し、非可換な上位2層の下の頭骨回転・位置を保存再読込で検証。初回は拒否理由の優先順で失敗、修正後2モデル通過・原本ハッシュ一致。"
+    },
     {
       "at": "2026-10-24T20:34:59+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "1c0f19c",
       "text": "Issue #106: MOTION-010 腕キーVMD全骨往復: 保存済み左右腕・ひじ2キーを別名VMD候補へ焼き、元PMXの全作品F・全VMD F・全骨で往復比較する"
-    },
-    {
-      "at": "2026-10-24T17:26:17+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "004dc9f",
-      "text": "MOTION-010左右腕の手先・ひじ3Dハンドルを接続し、隔離Chrome実ポインタで仮表示・左の保存/Undo/Redo/再読込・右の手首保持/Escと既存膝回帰を確認"
     }
   ]
 }
