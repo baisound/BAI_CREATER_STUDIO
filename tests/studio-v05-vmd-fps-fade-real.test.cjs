@@ -82,7 +82,7 @@ test('24 fps faded FK correction and VMD candidate agree on real PMX',
       revision++;
       const response=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
-          revision,instance_id:instanceId,clip_id:original.clip.id})}));
+          revision,instance_id:instanceId,clip_id:original.clip.id,mode:'legacy_sparse'})}));
       assert.equal(response.sampling_report.checked_project_frames,240);
       assert.ok(response.sampling_report.max_position_error<1e-3);
       assert.ok(response.sampling_report.max_angle_error_degrees<0.01);
@@ -145,6 +145,7 @@ test('24 fps faded FK correction and VMD candidate agree on real PMX',
       await page.locator('#v106-fk-edit').evaluate(el=>{el.open=true;});
       await page.locator('#v106-fk-frame').fill('100');
       await page.locator('#v106-fk-frame').dispatchEvent('change');
+      await page.locator('#v143-vmd-export-range').selectOption('legacy_sparse');
       await page.locator('#v116-vmd-candidate-create').click();
       await page.locator('#v116-vmd-candidate-download').waitFor({state:'visible'});
       await page.locator('#v120-vmd-candidate-validate').click();

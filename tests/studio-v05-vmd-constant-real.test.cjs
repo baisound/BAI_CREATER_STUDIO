@@ -110,7 +110,7 @@ test('constant and temporal FK candidates agree with real PMX preview',
           action:'set',instance_id:instanceId,clip_id:original.clip.id,key:savedKey})}));
       const candidateResponse=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
-          revision:1,instance_id:instanceId,clip_id:original.clip.id})}));
+          revision:1,instance_id:instanceId,clip_id:original.clip.id,mode:'legacy_sparse'})}));
       assert.equal(candidateResponse.status,'candidate_requires_real_pmx_validation');
       assert.equal(candidateResponse.registered_asset,false);
       assert.equal(candidateResponse.placed_in_project,false);
@@ -136,6 +136,7 @@ test('constant and temporal FK candidates agree with real PMX preview',
         null,{timeout:120000});
       await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
       await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'vmd-candidate-ui'));
+      await page.locator('#v143-vmd-export-range').selectOption('legacy_sparse');
       assert.equal(await page.locator('#v116-vmd-candidate-create').isDisabled(),false);
       await page.locator('#v116-vmd-candidate-create').click();
       await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-download')?.hidden===false);
@@ -165,7 +166,7 @@ test('constant and temporal FK candidates agree with real PMX preview',
           key:{...savedKey,frame:300,position:[0.4,0,0]}})}));
       const varying=await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
-          revision:2,instance_id:instanceId,clip_id:original.clip.id})});
+          revision:2,instance_id:instanceId,clip_id:original.clip.id,mode:'legacy_sparse'})});
       assert.equal(varying.status,422,'time-varying corrections must not be silently baked as constant');
       let revision=2;
       const edit=async(action,key)=>{
@@ -182,7 +183,7 @@ test('constant and temporal FK candidates agree with real PMX preview',
       assert.deepEqual(temporalEdits.layers[0].keys.map(key=>key.frame),[0,300,598]);
       const temporalResponse=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
-          revision,instance_id:instanceId,clip_id:original.clip.id})}));
+          revision,instance_id:instanceId,clip_id:original.clip.id,mode:'legacy_sparse'})}));
       assert.equal(temporalResponse.sampling_report.checked_project_frames,600);
       assert.ok(temporalResponse.sampling_report.max_position_error<1e-3);
       assert.ok(temporalResponse.sampling_report.max_angle_error_degrees<0.01);
@@ -198,6 +199,7 @@ test('constant and temporal FK candidates agree with real PMX preview',
         null,{timeout:120000});
       await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
       await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'vmd-temporal-ui'));
+      await page.locator('#v143-vmd-export-range').selectOption('legacy_sparse');
       await page.locator('#v116-vmd-candidate-create').click();
       await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('作品600F'));
       assert.match(await page.locator('#v116-vmd-candidate-status').textContent(),/実PMX往復の確認前/);
@@ -223,7 +225,7 @@ test('constant and temporal FK candidates agree with real PMX preview',
       await edit('set',footKey);
       const footResponse=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
-          revision,instance_id:instanceId,clip_id:original.clip.id})}));
+          revision,instance_id:instanceId,clip_id:original.clip.id,mode:'legacy_sparse'})}));
       assert.ok(footResponse.sampling_report.max_position_error<1e-3);
       assert.deepEqual(Buffer.from(await (await fetch(server.base+footResponse.download_url)).arrayBuffer()),footBaked.stdout);
       await page.reload();
@@ -347,6 +349,7 @@ test('constant and temporal FK candidates agree with real PMX preview',
         null,{timeout:120000});
       await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
       await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'adoption-ui'));
+      await page.locator('#v143-vmd-export-range').selectOption('legacy_sparse');
       await page.locator('#v116-vmd-candidate-create').click();
       await page.locator('#v116-vmd-candidate-download').waitFor({state:'visible'});
       assert.equal(await page.locator('#v141-vmd-candidate-adopt').isDisabled(),true);

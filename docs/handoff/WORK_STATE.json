@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T18:45:00+09:00",
+  "updated_at": "2026-10-24T19:04:07+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-vmd-dense",
-  "head_at_update": "0e96db1",
+  "head_at_update": "df1f5c6",
   "current": {
     "task": "Issue #106: MOTION-010 VMD全フレーム候補",
-    "status": "in_progress",
+    "status": "done",
     "step": "元VMDの長さを含む全フレームキー化と作品内外の誤差ゲートを実装・検証",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 通常候補の全VMDフレームキー化と配置クリップより長い原VMDの出力範囲を仕様に合わせて実装・全フレーム往復確認する"
+    "MOTION-010: 動く元VMD曲線の全フレーム候補が実PMXゲートで拒否された原因を絞り、忠実な密キー化または明示した対応境界を検証する"
   ],
   "unverified": [
-    "修正区間の異なる複数レイヤー、境界元キーのない入力は保守的に拒否。通常候補の全フレームキー化、実GPU、物理ON、Linux、標準MCP、腕IK角度制限付き実PMX、Owner採用、MOTION-010全ACは未確認"
+    "動く元VMDの密キー候補は実PMX位置0.00398/角度0.0369度で不合格。モーフだけの後続時間、異なる修正区間、物理ON、実GPU、Linux、標準MCP、腕IK角度制限付き実PMX、Owner採用、MOTION-010全ACは未確認。一括4件のChrome試験はERR_NO_BUFFER_SPACEで未完走、単独再実行は合格"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T19:04:07+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "df1f5c6",
+      "text": "Issue #106: 既定の全フレームVMD候補を元VMD最終骨キーまで生成し後続実PMX検査と採用ゲートを追加。静止頭骨の実PMX採用/復元合格、動く元曲線は不合格採用拒否、旧方式維持"
+    },
     {
       "at": "2026-10-24T18:45:00+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "b05b31a",
       "text": "Issue #106: MOTION-010 右膝ポールの実PMX検証: 右足IKの3Dハンドル実ドラッグ、保存、Undo/Redo、VMD候補の隔離検証を追加する"
-    },
-    {
-      "at": "2026-10-24T16:04:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2107e45",
-      "text": "MOTION-010: 膝ポール3Dハンドルを実PMX左脚の太ももFKへ接続し、ドラッグ・Esc・保存・Undo/Redo・再読込・VMD候補全骨検査まで実証。状態は要検証。"
     }
   ]
 }

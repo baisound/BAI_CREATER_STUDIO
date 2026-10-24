@@ -67,7 +67,12 @@ export async function validatePmxVmdCandidate(input){
   const end=Math.ceil((row.start+row.duration)*input.fps-1e-7);
   const firstVmd=Math.ceil(row.start*30-1e-7);
   const endVmd=Math.ceil((row.start+row.duration)*30-1e-7);
-  const count=end-first,vmdCount=endVmd-firstVmd,total=count+vmdCount;
+  const denseSpan=candidate.export_mode==='whole'&&candidate.sampling_report?.mode==='whole'?
+    candidate.sampling_report.vmd_frame_span:0;
+  if(denseSpan&&(!Number.isInteger(denseSpan)||denseSpan<1||denseSpan>18001))
+    throw Error('全フレーム候補のVMD範囲が不正です');
+  const untilVmd=Math.max(endVmd,firstVmd+denseSpan);
+  const count=end-first,vmdCount=untilVmd-firstVmd,total=count+vmdCount;
   if(count<1||count>MAX_FRAMES||vmdCount<1||total>MAX_SAMPLES)
     throw Error(`全フレーム検証は作品1〜${MAX_FRAMES}F、合計${MAX_SAMPLES}標本までです（対象${count}+${vmdCount}）。間引き検証はしません。`);
   checkCurrent(signal,isCurrent);
@@ -89,11 +94,15 @@ export async function validatePmxVmdCandidate(input){
     sourcePlayer.setCorrectionLayers(layers);
     let maxPosition=0,maxAngle=0,positionFrame=first,angleFrame=first;
     let positionClock='作品',angleClock='作品',positionBone='',angleBone='',bones=0,done=0;
-    for(const [clock,from,until,rate] of [['作品',first,end,input.fps],['VMD',firstVmd,endVmd,30]]){
+    for(const [clock,from,until,rate] of [['作品',first,end,input.fps],['VMD',firstVmd,untilVmd,30]]){
       for(let frame=from;frame<until;frame++){
         checkCurrent(signal,isCurrent);
         const seconds=frame/rate-row.start;
-        sourcePlayer.seek(seconds);outputPlayer.seek(seconds);
+        // VMDLoader stores key times as float32. JS frame/30 can land just
+        // before a dense key, so evaluate a frame boundary inside that key.
+        const atVmdFrame=denseSpan>0&&Math.abs(seconds*30-Math.round(seconds*30))<1e-7;
+        const sampleSeconds=atVmdFrame?seconds+1e-6:seconds;
+        sourcePlayer.seek(sampleSeconds);outputPlayer.seek(sampleSeconds);
         const diff=comparePmxBones(source.object,output.object,libs.THREE);
         bones=diff.bones;done++;
         if(diff.position>maxPosition){maxPosition=diff.position;positionFrame=frame;positionClock=clock;positionBone=diff.positionBone;}

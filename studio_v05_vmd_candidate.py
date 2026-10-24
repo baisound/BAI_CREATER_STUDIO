@@ -12,8 +12,9 @@ from studio_v05_motion_edits import (LOCK, MotionEditError, _context, _identity,
                                      _registered_path, read, view)
 from studio_v05_vmd_constant import constant_replacements
 from studio_v05_vmd_rewrite import MAX_SOURCE_BYTES, write_distinct_vmd
-from studio_v05_vmd_temporal import temporal_replacements
 from studio_v05_vmd_partial import partial_replacements
+from studio_v05_vmd_full import full_frame_replacements
+from studio_v05_vmd_temporal import temporal_replacements
 
 
 def _uuid(value):
@@ -41,7 +42,7 @@ def _is_temporal(layer):
 def create_candidate(output_root, edit_root, data_root, scene_root, legacy_root,
                      arrangement_root, catalog, project_id, revision, instance_id,
                      clip_id, assets, mode='whole'):
-    if mode not in ('whole', 'interval'):
+    if mode not in ('whole', 'interval', 'legacy_sparse'):
         raise MotionEditError('Unknown VMD export range')
     if type(revision) is not int or revision < 0:
         raise MotionEditError('Motion edit revision required')
@@ -68,16 +69,22 @@ def create_candidate(output_root, edit_root, data_root, scene_root, legacy_root,
         raw = source.read_bytes()
         if hashlib.sha256(raw).hexdigest() != context['motion_sha256']:
             raise MotionEditError('VMD source changed during candidate creation')
-        temporal = any(_is_temporal(layer) for layer in layers)
         if mode == 'interval':
             samples, sampling_report = partial_replacements(
                 raw, layers, instance_id=instance_id, clip_id=clip_id)
-        elif temporal:
-            samples, sampling_report = temporal_replacements(
-                raw, layers, instance_id=instance_id, clip_id=clip_id)
+        elif mode == 'legacy_sparse':
+            # Existing API behavior stays available for projects whose source
+            # curves cannot survive dense 30 fps keys at fractional scene FPS.
+            if any(_is_temporal(layer) for layer in layers):
+                samples, sampling_report = temporal_replacements(
+                    raw, layers, instance_id=instance_id, clip_id=clip_id)
+            else:
+                samples = constant_replacements(
+                    raw, layers, instance_id=instance_id, clip_id=clip_id)
+                sampling_report = None
         else:
-            samples = constant_replacements(raw, layers, instance_id=instance_id, clip_id=clip_id)
-            sampling_report = None
+            samples, sampling_report = full_frame_replacements(
+                raw, layers, instance_id=instance_id, clip_id=clip_id)
         candidate_id = str(uuid.uuid4())
         output, metadata_path = _candidate_paths(output_root, project_id, candidate_id)
         output.parent.mkdir(parents=True, exist_ok=True)

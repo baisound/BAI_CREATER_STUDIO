@@ -88,11 +88,17 @@ test('24fps interval VMD preserves outside bytes, validates on another real PMX 
           project_id:projectId,revision:saved.revision,action:'layer-update',
           instance_id:instanceId,clip_id:placed.clip.id,layer_id:saved.layers[0].id,
           settings:{start_frame:72,end_frame:192,fade_in_frames:12,fade_out_frames:12}})}));
-      const legacyDefault=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
+      const denseDefault=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:projectId,revision:edited.revision,instance_id:instanceId,
           clip_id:placed.clip.id})}));
-      assert.equal(legacyDefault.export_mode,'whole');
+      assert.equal(denseDefault.export_mode,'whole');
+      assert.equal(denseDefault.sampling_report.vmd_frame_span,301);
+      const legacy=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,revision:edited.revision,instance_id:instanceId,
+          clip_id:placed.clip.id,mode:'legacy_sparse'})}));
+      assert.equal(legacy.export_mode,'legacy_sparse');
       const invalidMode=await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:projectId,revision:edited.revision,instance_id:instanceId,
