@@ -33,7 +33,7 @@ export function createPlayer(THREE, MMDAnimationHelper) {
     // Keep the original helper path untouched unless a caller explicitly opts in.
     if (pmxPoseModifier) {
       const state = mmdHelper.objects.get(object);
-      if (!state?.ikSolver || !state?.grantSolver ||
+      if (String(THREE.REVISION) !== '160' || !state || state.mixer !== mixer ||
           typeof mmdHelper._animatePMXMesh !== 'function' ||
           typeof mmdHelper._sortBoneDataArray !== 'function' ||
           object.geometry?.userData?.MMD?.format !== 'pmx')

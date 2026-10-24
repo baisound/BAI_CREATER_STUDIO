@@ -49,7 +49,7 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
     await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('#v70sceneOpen').click();
-    await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().loaded === 1 &&
+    await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().ready && window.BAIStudioMultiScenePreview?.status().loaded === 1 &&
       window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length === 1, null, {timeout: 120000});
     const morphs = await page.evaluate(instanceId => window.BAIStudioMultiScenePreview.morphProbe(instanceId), instanceId);
     assert.ok(morphs && Object.keys(morphs.morphs).length > 0, '実PMXのモーフ名を取得できません');
@@ -103,7 +103,7 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
     await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('#v70sceneOpen').click();
-    await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().loaded === 1 &&
+    await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().ready && window.BAIStudioMultiScenePreview?.status().loaded === 1 &&
       window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length === 1, null, {timeout: 120000});
     const restored = await read(120);
     assert.equal(await page.evaluate(instanceId =>
@@ -111,6 +111,15 @@ test('real PMX and VMD change saved-scene pose and pixels at F0/F120', {skip: !e
     const lipMarker=page.locator('#v07timeline [data-track="lip"] .v98-face-marker');
     const expressionMarker=page.locator('#v07timeline [data-track="expression"] .v98-face-marker');
     await lipMarker.waitFor({state:'visible'});
+    await expressionMarker.waitFor({state:'visible',timeout:5000}).catch(async()=>{
+      const state=await page.evaluate(()=>({
+        tracks:[...document.querySelectorAll('#v07timeline [data-track]')].map(x=>x.dataset.track),
+        markers:[...document.querySelectorAll('#v07timeline .v98-face-marker')].map(x=>({track:x.dataset.faceTrack,time:x.dataset.faceTime})),
+        project:document.querySelector('#v06project')?.value,
+        preview:window.BAIStudioMultiScenePreview?.status(),
+      }));
+      throw Error('Expression marker did not render: '+JSON.stringify(state));
+    });
     assert.equal(await expressionMarker.count(),1);
     assert.equal(await lipMarker.getAttribute('data-face-time'),'4');
     await lipMarker.scrollIntoViewIfNeeded();

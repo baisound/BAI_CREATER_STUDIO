@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T09:47:01+09:00",
+  "updated_at": "2026-10-24T10:10:53+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-design",
-  "head_at_update": "9abfe2f",
+  "head_at_update": "366468a",
   "current": {
     "task": "Issue #106: MOTION-010段階Aの限定FK補正",
-    "status": "in_progress",
+    "status": "done",
     "step": "作品別API・revision/Undo、実PMXプレビュー、保存再読込をつなぐ",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "段階A: 作品別FK補正の保存APIとrevision/Undoを実装",
-    "段階A: 実PMX画面で数値プレビュー・確定・再読込と原本ハッシュを検証"
+    "MOTION-010 段階A残り: レイヤー重み・区間・ミュート等の操作と作品タイムラインキーを接続",
+    "MOTION-010 段階B/C: 3D IK/ギズモと別名VMD往復検証を段階的に実施"
   ],
   "unverified": [
-    "骨編集、MP4への補正反映、別名VMD、90秒長尺比較、実GPU/Linux/MCP/Owner採用は未検証"
+    "FK補正入り完成MP4の画素比較、長尺90秒、WebMCP/標準MCP実呼出し、Linux、実GPU上のFK補正、Owner採用は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T10:10:53+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "366468a",
+      "text": "Issue #106 MOTION-010: 実PMXの数値FK仮表示・作品別キー保存/revision/Undo・再読込・3Dキャプチャ姿勢を接続。実PMX3/3、保存安全4/4、既存MP4 3/3"
+    },
     {
       "at": "2026-10-24T09:47:01+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "72815ae",
       "text": "Issue #63/#69: v0.5保存済み3D/動作を720p・300F以内の別名MP4へ実描画し、GLB+画像+WAVと実PMX+VMDの画素/音/再読込を隔離確認"
-    },
-    {
-      "at": "2026-10-24T05:23:55+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "68a35ec",
-      "text": "Issue #63/#69: v0.5保存済み3Dの限定MP4出力: In/Outとシーンrevisionを固定し、短い透過3Dフレームを実描画・検証して既存FFmpeg合成へ接続"
     }
   ]
 }

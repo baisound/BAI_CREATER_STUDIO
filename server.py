@@ -239,6 +239,16 @@ class Handler(BaseHTTPRequestHandler):
         msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
         self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
     def do_GET(self):
+        if urlsplit(self.path).path == '/api/studio/v05/motion-edits':
+            from studio_v05_motion_edits import view, MotionEditError
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                result=view(DATA/'studio_v05_motion_edits',DATA,DATA/'studio_v05_scene_instances',
+                            DATA/'studio_v05_scene_models',DATA/'studio_v05_arrangements',
+                            DATA/'studio_v05_catalog.json',project_id,unified_assets())
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (MotionEditError,ValueError,OSError) as exc:self.bad(422,str(exc))
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/instances':
             from studio_v05_scene_instances import read as instance_read, SceneInstancesError
             try:
@@ -740,6 +750,26 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(409 if 'conflict' in str(exc).lower() or 'locked' in str(exc).lower() else 400,str(exc))
             except (ValueError,TypeError,KeyError) as exc:self.bad(400,str(exc))
             except OSError:self.bad(500,'Motion binding write failed')
+            return
+        if urlsplit(self.path).path == '/api/studio/v05/motion-edits':
+            from studio_v05_motion_edits import mutate as edit_motion, MotionEditError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                allowed={'project_id','revision','action','instance_id','clip_id','key'}
+                if not isinstance(body,dict) or not {'project_id','revision','action'}<=set(body) or set(body)-allowed:
+                    return self.bad(400,'Invalid motion edit fields')
+                result=edit_motion(DATA/'studio_v05_motion_edits',DATA,
+                    DATA/'studio_v05_scene_instances',DATA/'studio_v05_scene_models',
+                    DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',
+                    assets=unified_assets(),**body)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except MotionEditError as exc:
+                self.bad(409 if any(word in str(exc).lower() for word in
+                    ('conflict','locked','changed')) else 422,str(exc))
+            except (ValueError,TypeError,KeyError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'Motion edit write failed; original retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/scene/instances':
             from studio_v05_scene_instances import mutate, SceneInstancesError
