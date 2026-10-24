@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T21:31:02+09:00",
+  "updated_at": "2026-10-24T21:36:59+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-moving-head-boundary",
-  "head_at_update": "2f8672d",
+  "head_at_update": "980a70b",
   "current": {
     "task": "Issue #106: MOTION-010 動く頭骨曲線の区間境界",
-    "status": "in_progress",
+    "status": "done",
     "step": "長尺実VMDの動く頭骨に時間限定補正を置ける境界条件を数値検査し、実PMXで検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 動く元頭骨曲線に時間限定補正を安全に焼ける条件または拒否境界を検討する"
+    "MOTION-010 任意の動く元曲線・なじませ付き補正を安全に候補化できる条件を調べる"
   ],
   "unverified": [
-    "動く元頭骨曲線の時間限定候補、なじませ付き高振幅補正、別PMX/他FPSの長尺候補、通常画面の長尺手操作、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "任意境界の動く元曲線・なじませ付き高振幅補正、別PMX/他FPSの長尺候補、通常画面の長尺手操作、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T21:36:59+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "980a70b",
+      "text": "MOTION-010 203.63秒実VMDの動く頭骨曲線で平坦な元キー対に区間を合わせ、なじませ0・Y8度の疎な候補を204秒作品12240F＋VMD6121F・201骨の実PMXで検証。最大位置0.000203891・角度0.00743056度、隔離採用・復元、原本ハッシュ一致。12度は角度上限超過で拒否。Float32 VMDキー時刻の境界誤判定を修正。"
+    },
     {
       "at": "2026-10-24T21:31:02+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "d8a61e7",
       "text": "Issue #106: MOTION-010 動く元VMD曲線の密キー不一致: 実PMXの局所姿勢差を時刻・ボーン別に切り分け、忠実な出力または明示的な拒否条件を検証"
-    },
-    {
-      "at": "2026-10-24T19:04:07+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "df1f5c6",
-      "text": "Issue #106: 既定の全フレームVMD候補を元VMD最終骨キーまで生成し後続実PMX検査と採用ゲートを追加。静止頭骨の実PMX採用/復元合格、動く元曲線は不合格採用拒否、旧方式維持"
     }
   ]
 }
