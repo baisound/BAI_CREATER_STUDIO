@@ -30,7 +30,7 @@ const tr=(key)=>locale[key]||({
 })[key]||key;
 const section=document.getElementById('v57-scene-instances');
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,reloadReady=false,nonce=0,selectedId='';
-let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null;
+let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null,activePole=null;
 let vmdCandidate=null,candidateValidation=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
@@ -86,8 +86,10 @@ const ikSelect=document.createElement('select');ikSelect.id='v114-ik-select';
 ikSelect.setAttribute('aria-label','PMXのIKターゲット骨');
 const ikChoose=document.createElement('button');ikChoose.type='button';ikChoose.id='v114-ik-choose';
 ikChoose.textContent='IK骨を選択';
+const poleChoose=document.createElement('button');poleChoose.type='button';poleChoose.id='v128-knee-pole-choose';
+poleChoose.textContent='膝方向を編集';
 const ikStatus=document.createElement('small');ikStatus.id='v114-ik-status';ikStatus.setAttribute('role','status');
-ikRow.append(document.createTextNode('PMX IK '),ikSelect,ikChoose,ikStatus);
+ikRow.append(document.createTextNode('PMX IK '),ikSelect,ikChoose,poleChoose,ikStatus);
 const limbRow=document.createElement('div');limbRow.id='v123-limb-mode';
 limbRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
 const limbSelect=document.createElement('select');limbSelect.id='v123-limb';
@@ -338,6 +340,24 @@ function setFkFrameFromSeek(){
   fkFrame.value=String(Math.max(0,Math.round(currentSeek()*projectFps)));
   redrawFkControls();
 }
+function kneePoleFor(target,name){
+  if(target?.format!=='PMX'||!['左足ＩＫ','右足ＩＫ'].includes(name))return null;
+  const bones=target.object?.skeleton?.bones,iks=target.object?.geometry?.userData?.MMD?.iks;
+  if(!Array.isArray(bones)||!Array.isArray(iks))return null;
+  const matches=iks.filter(ik=>bones[ik.target]?.name===name&&ik.links?.length===2);
+  if(matches.length!==1)return null;
+  const ik=matches[0],knee=bones[ik.links[0].index],thigh=bones[ik.links[1].index];
+  const ankle=bones[ik.effector],targetBone=bones[ik.target],side=name[0];
+  const lower=ik.links[0].rotationMin,upper=ik.links[0].rotationMax;
+  if(!knee?.isBone||!thigh?.isBone||!ankle?.isBone||!targetBone?.isBone||
+      knee.parent!==thigh||ankle.parent!==knee||
+      knee.name!==side+'ひざ'||thigh.name!==side+'足'||ankle.name!==side+'足首'||
+      !lower||!upper||!['x','y','z'].every(axis=>
+        Number.isFinite(lower[axis])&&Number.isFinite(upper[axis]))||
+      Math.abs(lower.y)>1e-5||Math.abs(upper.y)>1e-5||
+      Math.abs(lower.z)>1e-5||Math.abs(upper.z)>1e-5)return null;
+  return {knee,thigh,ankle,targetBone,limb:side==='左'?'left_leg':'right_leg'};
+}
 function limbBones(target,limb){
   if(target?.format!=='PMX'||!limb.endsWith('_leg'))return null;
   const side=limb==='left_leg'?'左':'右';
@@ -404,6 +424,11 @@ function redrawFkControls(){
     '実PMXのIK定義を読み込むと選択できます。';
   const row=activeFkRow();
   redrawLimbMode(target,instanceId,row);
+  const pole=kneePoleFor(target,ikSelect.value);
+  const poleMode=pole&&((motionEdits?.fk_ik_modes?.[instanceId]?.[pole.limb])||'IK');
+  poleChoose.disabled=!row||!pole||poleMode!=='IK'||Boolean(previewFk)||
+    Boolean(motionEdits?.issues?.length)||
+    Boolean(sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked);
   const layer=motionEdits?.layers?.find(item=>item.instance_id===instanceId&&item.clip_id===row?.clip_id&&!item.disabled);
   const first=row?Math.ceil(row.start*projectFps-1e-7):0;
   const end=row?Math.ceil((row.start+row.duration)*projectFps-1e-7):0;
@@ -443,6 +468,12 @@ function fkGizmoContext(){
   if(matches.length!==1)return {reason:'同名または存在しない骨は3D操作できません。'};
   const ikTarget=listPmxIkTargets(target.object).find(item=>item.name===name);
   const effectors=ikTarget?target.object.skeleton.bones.filter(bone=>bone.name===ikTarget.effector):[];
+  const pole=['左足ＩＫ','右足ＩＫ'].map(ikName=>kneePoleFor(target,ikName))
+    .find(item=>item?.thigh===matches[0]&&
+      (motionEdits?.fk_ik_modes?.[instanceId]?.[item.limb]||'IK')==='IK'&&
+      activePole?.projectId===project.value&&activePole?.instanceId===instanceId&&
+      activePole?.clipId===row.clip_id&&activePole?.frame===frame&&
+      activePole?.bone===name);
   const layers=(motionEdits?.layers||[]).filter(layer=>!layer.disabled&&
     layer.instance_id===instanceId&&layer.clip_id===row.clip_id);
   if(layers.length>1)return {reason:'複数レイヤーの同時補正は3D操作に未対応です。'};
@@ -455,7 +486,9 @@ function fkGizmoContext(){
       return {reason:'3D骨操作は重み100%で有効区間のなじませ外にあるFKレイヤーに対応します。'};
   }
   return {projectId:project.value,instanceId,clipId:row.clip_id,frame,boneName:name,
-    bone:matches[0],effectorBone:effectors.length===1?effectors[0]:null,target,row,layer};
+    bone:matches[0],effectorBone:effectors.length===1?effectors[0]:null,
+    poleKneeBone:pole?.knee||null,poleAnkleBone:pole?.ankle||null,
+    poleTargetBone:pole?.targetBone||null,target,row,layer};
 }
 function previewCurrentFk(){
   const {row,frame,key}=fkPayload();
@@ -516,6 +549,79 @@ async function previewFromGizmo(desired,kind,started){
     fkAxes.forEach((input,index)=>input.value=previousAxes[index]);
     fkPosition.forEach((input,index)=>input.value=previousPosition[index]);
     applyAllMotionEdits();seekScene(frame/projectFps);redrawFkControls();
+    throw error;
+  }
+}
+function projectedPoleDirection(point,hip,axis){
+  const radial=point.clone().sub(hip).addScaledVector(axis,-point.clone().sub(hip).dot(axis));
+  return radial.length()>1e-5?radial.normalize():null;
+}
+async function previewPoleFromGizmo(desiredWorld,started){
+  const current=fkGizmoContext();
+  if(current.reason||current.bone!==started.bone||current.poleKneeBone!==started.poleKneeBone||
+      current.projectId!==started.projectId||current.instanceId!==started.instanceId||
+      current.clipId!==started.clipId||current.frame!==started.frame)
+    throw Error(current.reason||'ドラッグ中に作品・膝・フレームが変わりました。');
+  const {target,poleKneeBone:knee,poleAnkleBone:ankle,poleTargetBone:ikTarget,bone}=current;
+  if(!knee||!ankle||!ikTarget)throw Error('このPMXの膝ポール構造には未対応です。');
+  const THREE=target.libs.THREE;
+  target.object.updateWorldMatrix(true,true);
+  const hipWorld=bone.getWorldPosition(new THREE.Vector3());
+  const axis=ankle.getWorldPosition(new THREE.Vector3()).sub(hipWorld);
+  if(axis.length()<1e-4)throw Error('股関節と足首が重なり、膝方向を定義できません。');
+  axis.normalize();
+  const desired=projectedPoleDirection(desiredWorld,hipWorld,axis);
+  if(!desired)throw Error('膝方向が脚の軸と重なっています。別の位置へ動かしてください。');
+  const otherName=knee.name.startsWith('左')?'右足首':'左足首';
+  const other=target.object.skeleton.bones.find(item=>item.name===otherName);
+  if(!other)throw Error('未編集側の足首を照合できません。');
+  const otherStart=other.getWorldPosition(new THREE.Vector3());
+  const previousAxes=fkAxes.map(input=>input.value);
+  const previousPreview=previewFk;
+  const center=Number(fkAxes[1].value);
+  if(!Number.isFinite(center))throw Error('太ももY回転差分を読み取れません。');
+  let best=null,baseline=null;
+  const measured=new Map();
+  function measure(value){
+    const angle=Math.max(-180,Math.min(180,Math.round(value*10000)/10000));
+    if(measured.has(angle))return measured.get(angle);
+    fkAxes[1].value=String(angle);
+    previewCurrentFk();
+    target.object.updateWorldMatrix(true,true);
+    const direction=projectedPoleDirection(knee.getWorldPosition(new THREE.Vector3()),hipWorld,axis);
+    const reach=ankle.getWorldPosition(new THREE.Vector3()).distanceTo(
+      ikTarget.getWorldPosition(new THREE.Vector3()));
+    const otherDrift=other.getWorldPosition(new THREE.Vector3()).distanceTo(otherStart);
+    const score=direction?Math.acos(Math.max(-1,Math.min(1,direction.dot(desired))))*180/Math.PI:Infinity;
+    const result={angle,score,reach,otherDrift,
+      valid:Number.isFinite(score)&&reach<=0.001&&otherDrift<=1e-4};
+    measured.set(angle,result);
+    if(result.valid&&(!best||result.score<best.score-1e-6||
+        (Math.abs(result.score-best.score)<=1e-6&&
+          Math.abs(result.angle-center)<Math.abs(best.angle-center))))best=result;
+    return result;
+  }
+  try{
+    baseline=measure(center);
+    if(!baseline.valid)throw Error('現在の足IKが目標へ届いていないため膝方向を変更できません。');
+    if(baseline.score<0.5)throw Error('膝方向は既に指定位置付近です。');
+    for(let offset=-60;offset<=60;offset+=10)measure(center+offset);
+    if(!best||best.score>=baseline.score-0.5)
+      throw Error('膝方向を改善できる太もも回転が見つかりません。');
+    for(const step of [5,2.5,1.25,0.625]){
+      const around=best.angle;
+      measure(around-step);measure(around+step);
+    }
+    if(best.score>15)throw Error(`膝方向の指定差 ${best.score.toFixed(1)}° が大きく、仮補正を破棄しました。`);
+    const final=measure(best.angle);
+    fkAxes[1].value=String(final.angle);
+    previewCurrentFk();
+    fkStatus.textContent=`膝方向を仮表示中。目標との差 ${final.score.toFixed(1)}°、足首残差 ${final.reach.toFixed(4)} シーン単位。キー化前に確認してください。`;
+    return final;
+  }catch(error){
+    fkAxes.forEach((input,index)=>input.value=previousAxes[index]);
+    previewFk=previousPreview;
+    applyAllMotionEdits();seekScene(current.frame/projectFps);redrawFkControls();
     throw error;
   }
 }
@@ -757,6 +863,7 @@ async function setup(){
       else seekScene(frame/projectFps);
     },
     onTransform:previewFromGizmo,
+    onPoleTransform:previewPoleFromGizmo,
     onCancel:()=>seekScene(Number(seekInput.value)||0),
     onModeChange:(enabled,context)=>{
       spatialEditor?.setGizmoEnabled(!enabled);
@@ -772,6 +879,7 @@ async function setup(){
 }
 async function reload(){
   if(!opened)return;
+  activePole=null;
   candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;
   fkValidate.disabled=true;fkValidate.textContent='実PMXで全骨・全Fを検査';
   fkCandidateLink.hidden=true;
@@ -848,7 +956,7 @@ function close(){
   bonePicker?.dispose();bonePicker=null;
   spatialEditor?.dispose();spatialEditor=null;sceneSnapshot=null;
   motionCoordinator?.dispose();motionCoordinator=null;motionPlan=null;
-  motionEdits=null;previewFk=null;
+  motionEdits=null;previewFk=null;activePole=null;
   controller?.dispose();controller=null;
   viewport?.dispose();viewport=null;
   if(composite)unmountComposite();
@@ -865,8 +973,8 @@ choose.addEventListener('change',()=>{
   setFkFrameFromSeek();
 });
 fkHere.addEventListener('click',setFkFrameFromSeek);
-fkFrame.addEventListener('change',redrawFkControls);
-fkBone.addEventListener('change',()=>{discardFkPreview();redrawFkControls();});
+fkFrame.addEventListener('change',()=>{activePole=null;redrawFkControls();});
+fkBone.addEventListener('change',()=>{activePole=null;discardFkPreview();redrawFkControls();});
 limbSelect.addEventListener('change',redrawFkControls);
 limbMode.addEventListener('change',()=>{
   const target=controller?.getLoaded(choose.value||selectedId);
@@ -906,7 +1014,7 @@ limbSave.addEventListener('click',async()=>{
     if(!response.ok)throw Error(data.error||`HTTP ${response.status}`);
     if(!opened||project?.value!==id||choose.value!==instanceId)return;
     const before=worldBonePose(target);
-    motionEdits=data;fkBone.value=name;
+    motionEdits=data;activePole=null;fkBone.value=name;
     rotateGizmo?.setMode(mode==='IK'?'translate':'rotate');
     redrawFkControls();
     const difference=worldPoseDifference(before,worldBonePose(target));
@@ -916,7 +1024,7 @@ limbSave.addEventListener('click',async()=>{
   }catch(error){resultMessage='切替失敗: '+String(error.message||error);}
   finally{redrawFkControls();limbStatus.textContent=resultMessage;}
 });
-ikSelect.addEventListener('change',()=>{ikChoose.disabled=!ikSelect.value;});
+ikSelect.addEventListener('change',()=>{redrawFkControls();});
 ikChoose.addEventListener('click',()=>{
   const target=controller?.getLoaded(choose.value||selectedId);
   const selected=listPmxIkTargets(target?.object).find(ik=>ik.name===ikSelect.value);
@@ -924,8 +1032,30 @@ ikChoose.addEventListener('click',()=>{
     ikStatus.textContent='IK骨を選び直してください。';return;
   }
   discardFkPreview();fkBone.value=selected.name;
+  activePole=null;
   fkControls.open=true;rotateGizmo?.setMode('translate');redrawFkControls();
   ikStatus.textContent=`${selected.name}を選択。${selected.effector}の追従は仮表示で確認してください。`;
+});
+poleChoose.addEventListener('click',()=>{
+  const instanceId=choose.value||selectedId,target=controller?.getLoaded(instanceId);
+  const pole=kneePoleFor(target,ikSelect.value);
+  if(!pole||poleChoose.disabled||![...fkBone.options].some(option=>option.value===pole.thigh.name)){
+    ikStatus.textContent='このPMXの膝方向操作は利用できません。IK定義と編集方法を確認してください。';return;
+  }
+  discardFkPreview();
+  fkBone.value=pole.thigh.name;
+  const frame=Number(fkFrame.value),row=activeFkRow(frame);
+  const layer=motionEdits?.layers?.find(item=>!item.disabled&&
+    item.instance_id===instanceId&&item.clip_id===row?.clip_id);
+  const key=layer?.keys.find(item=>item.frame===frame&&item.bone===pole.thigh.name);
+  const THREE=target.libs.THREE;
+  const euler=key?new THREE.Euler().setFromQuaternion(
+    new THREE.Quaternion().fromArray(key.rotation),'XYZ'):null;
+  fkAxes.forEach((input,index)=>input.value=String(euler?[euler.x,euler.y,euler.z][index]*180/Math.PI:0));
+  fkPosition.forEach((input,index)=>input.value=String(key?.position?.[index]??0));
+  activePole={projectId:project.value,instanceId,clipId:row.clip_id,frame,bone:pole.thigh.name};
+  fkControls.open=true;rotateGizmo?.setMode('pole');redrawFkControls();
+  ikStatus.textContent=`${pole.knee.name}の現在位置を膝方向ハンドルに設定。ドラッグ後は仮表示を確認し、キー化してください。`;
 });
 fkPreview.addEventListener('click',()=>{
   try{
@@ -956,7 +1086,7 @@ fkSaved.addEventListener('change',()=>{
     item.instance_id===(choose.value||selectedId));
   const key=layer?.keys.find(item=>item.frame===frame&&item.bone===bone);
   if(!key)return;
-  fkFrame.value=String(frame);fkBone.value=bone;
+  activePole=null;fkFrame.value=String(frame);fkBone.value=bone;
   const target=controller.getLoaded(row.target_scene_instance_id),THREE=target.libs.THREE;
   const euler=new THREE.Euler().setFromQuaternion(new THREE.Quaternion().fromArray(key.rotation),'XYZ');
   fkAxes.forEach((input,index)=>input.value=String(Math.round([euler.x,euler.y,euler.z][index]*180/Math.PI*100)/100));
