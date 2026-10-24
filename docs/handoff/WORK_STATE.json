@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T17:48:05+09:00",
+  "updated_at": "2026-10-24T17:50:13+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-mode",
-  "head_at_update": "87370a9",
+  "branch": "codex/v05-motion010-arm-live-drag",
+  "head_at_update": "af7a754",
   "current": {
-    "task": "Issue #106: MOTION-010 腕FK/IK編集方法切替",
-    "status": "done",
-    "step": "左右腕の編集方法切替を姿勢・キー・Undo不変で接続し、実PMXで再読込まで確認する",
+    "task": "Issue #106: MOTION-010 右腕保存と連続ドラッグ",
+    "status": "in_progress",
+    "step": "右手先・ひじの実3D操作を保存・再読込まで確認し、ドラッグ中の姿勢更新を接続・検査する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T17:50:13+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "af7a754",
+      "text": "Issue #106: MOTION-010 右腕保存と連続ドラッグ: 右手先・ひじの実3D操作を保存・再読込まで確認し、ドラッグ中の姿勢更新を接続・検査する"
+    },
     {
       "at": "2026-10-24T17:48:05+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "a0429d0",
       "text": "Issue #106: 実PMX左足IKのポインタ補正を作品F240へ保存し、1回のUndo/Redoと画面再読込で足首姿勢を照合"
-    },
-    {
-      "at": "2026-10-24T15:16:59+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "b63d7c3",
-      "text": "Issue #106: MOTION-010 足IK実ポインタ補正の保存再読込: 足首ハンドルの実ドラッグをキー化し、再読込・Undo/Redo・原本不変を実PMXで検証する"
     }
   ]
 }
