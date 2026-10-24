@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:48:40+09:00",
+  "updated_at": "2026-10-24T23:51:08+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip096-face-visibility",
-  "head_at_update": "eb1cfe4",
+  "branch": "codex/v05-lip096-manual-mouth",
+  "head_at_update": "1621534",
   "current": {
-    "task": "Issue #96: 合成編集画面のPMX顔視認性",
-    "status": "done",
-    "step": "重ね表示の操作パネルと顔の遮蔽を最小変更で改善し、表情・口の実画素と操作経路を隔離検証する",
-    "design_doc": "docs/roadmap/UI_UX_DESIGN_STANDARD_JA.md"
+    "task": "Issue #96: 実PMX口モーフの手動UI保存経路",
+    "status": "in_progress",
+    "step": "合成画面で実口モーフ「あ」を選択し複数時刻へ保存・再読込・実3D/限定MP4を照合する",
+    "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
     "Issue #96の受け入れ条件とPR反映を最終監査し、満たせばIssueを閉じる。その後は最新ロードマップ順4の残る承認済み表情・口機能を進める"
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T23:51:08+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1621534",
+      "text": "Issue #96: 実PMX口モーフの手動UI保存経路: 合成画面で実口モーフ「あ」を選択し複数時刻へ保存・再読込・実3D/限定MP4を照合する"
+    },
     {
       "at": "2026-10-24T23:48:40+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "980a70b",
       "text": "MOTION-010 203.63秒実VMDの動く頭骨曲線で平坦な元キー対に区間を合わせ、なじませ0・Y8度の疎な候補を204秒作品12240F＋VMD6121F・201骨の実PMXで検証。最大位置0.000203891・角度0.00743056度、隔離採用・復元、原本ハッシュ一致。12度は角度上限超過で拒否。Float32 VMDキー時刻の境界誤判定を修正。"
-    },
-    {
-      "at": "2026-10-24T21:31:02+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2f8672d",
-      "text": "Issue #106: MOTION-010 動く頭骨曲線の区間境界: 長尺実VMDの動く頭骨に時間限定補正を置ける境界条件を数値検査し、実PMXで検証する"
     }
   ]
 }
