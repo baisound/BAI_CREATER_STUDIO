@@ -25,3 +25,10 @@
 #v194-draft-list .v194-draft-row{display:grid;grid-template-columns:repeat(4,minmax(70px,1fr));gap:5px;padding:5px;background:#1a3445}
 #v194-draft-list .v194-draft-row input,#v194-draft-list .v194-draft-row select{width:100%}
 @media(max-width:650px){#v194-draft-list .v194-draft-row{grid-template-columns:repeat(2,minmax(70px,1fr))}}
+#v197-export-panel{border:1px solid #52677e;border-radius:6px;padding:7px}
+#v197-export-panel summary{padding:4px;color:#d6ebff}
+#v197-export-panel p{margin:7px 0;overflow-wrap:anywhere}
+#v197-export-panel label{display:grid;gap:4px;margin:7px 0}
+#v197-export-map{max-width:100%}
+#v197-export-download{display:inline-block;margin-top:5px;padding:5px 8px;border:1px solid #79afd6;border-radius:4px;color:#d6edff}
+#v197-export-download[hidden]{display:none}

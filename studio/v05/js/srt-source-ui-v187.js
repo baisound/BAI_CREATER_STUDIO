@@ -42,7 +42,15 @@ if (picker && project) {
           <button id="v194-draft-save" type="button">下書きを保存</button>
         </div>
       </div>
-      <p>候補は音声に合わせた境界ではありません。リップVMDへの採用は未接続です。SRT本文と原時刻は変更しません。</p>
+      <details id="v197-export-panel"><summary>別名モーフVMD候補を作成</summary>
+        <p>全発話の確定読み・有効な下書きとPMX口形対応を検査します。生成物は未採用で、実PMXの外観確認が必要です。</p>
+        <label>確定済みPMX口形対応 <select id="v197-export-map"></select></label>
+        <div class="v187-actions"><button id="v197-export-check" type="button">出力条件を検査</button>
+          <button id="v197-export-create" type="button" disabled>別名VMD候補を生成</button></div>
+        <p id="v197-export-status" role="status">作品・SRT・PMX対応を選んでください。</p>
+        <a id="v197-export-download" hidden>生成したVMD候補を取得</a>
+      </details>
+      <p>候補は音声に合わせた境界ではありません。SRT本文と原時刻は変更しません。</p>
     </div>`;
   project.closest('label')?.after(panel);
   const $ = id => document.getElementById(id);
@@ -52,13 +60,35 @@ if (picker && project) {
   const status = $('v187-status');
   const sourceInfo = $('v187-source-info');
   const cueHost = $('v187-cues');
-  let data = null, readings = null, drafts = null, loadedProject = '', selectedId = '', selectedCueIndex = null;
+  let data = null, readings = null, drafts = null, morphMaps = null;
+  let loadedProject = '', selectedId = '', selectedCueIndex = null;
   let page = 0, sequence = 0, candidateSequence = 0, busy = false;
   let draftBase = null;
+  let exportSequence = 0, exportBusy = false, checkedExport = null;
   const currentSource = () => data?.sources?.find(row => row.id === selectedId);
   const currentReading = () => readings?.utterances?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
   const currentDraft = () => drafts?.drafts?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
   const say = message => { status.textContent = message; };
+  function clearExport() {
+    ++exportSequence;
+    checkedExport = null;
+    $('v197-export-create').disabled = true;
+    $('v197-export-download').hidden = true;
+    $('v197-export-download').removeAttribute('href');
+    $('v197-export-status').textContent = '出力条件を検査してください。';
+  }
+  function redrawExportMaps() {
+    const select = $('v197-export-map');
+    const prior = select.value;
+    select.replaceChildren();
+    const maps = morphMaps?.maps?.filter(row => row.confirmed && row.source_status === 'valid') || [];
+    for (const row of maps) select.add(new Option(row.model_asset_id, row.model_asset_id));
+    if (maps.some(row => row.model_asset_id === prior)) select.value = prior;
+    const usable = Boolean(currentSource()?.sourceStatus === 'valid' && maps.length && data && readings && drafts);
+    $('v197-export-check').disabled = !usable || exportBusy;
+    if (!usable) $('v197-export-status').textContent = maps.length
+      ? '原本を照合できるSRTを選んでください。' : 'この作品に確定済みの登録PMX口形対応がありません。対応表を確定後、登録を再読み込みしてください。';
+  }
   const time = milliseconds => {
     const hours = Math.floor(milliseconds / 3600000);
     const minutes = Math.floor(milliseconds / 60000) % 60;
@@ -112,6 +142,7 @@ if (picker && project) {
   }
   function markReadingDirty() {
     clearCandidate();
+    clearExport();
     $('v192-candidate-run').disabled = true;
     $('v192-candidate-status').textContent = '読みの変更を保存してから候補を確認してください。';
     $('v190-reading-status').textContent = '未保存の変更があります。';
@@ -146,6 +177,7 @@ if (picker && project) {
       : '未確定です。保存するまで原SRTには影響しません。';
   }
   function redraw() {
+    clearExport();
     const row = currentSource();
     cueHost.replaceChildren();
     if (!row) {
@@ -153,6 +185,7 @@ if (picker && project) {
       $('v187-page').textContent = '';
       $('v187-prev').disabled = $('v187-next').disabled = true;
       redrawEditor();
+      redrawExportMaps();
       return;
     }
     const state = row.sourceStatus === 'valid' ? '原本照合済み' : row.sourceStatus === 'changed' ? '原本の内容が変わりました' : '原本が見つかりません';
@@ -178,6 +211,7 @@ if (picker && project) {
     $('v187-prev').disabled = page === 0;
     $('v187-next').disabled = start + 100 >= row.entries.length;
     redrawEditor();
+    redrawExportMaps();
   }
   async function request(url, options) {
     const response = await fetch(url, options);
@@ -189,20 +223,23 @@ if (picker && project) {
     const id = project.value;
     const mine = ++sequence;
     loadedProject = id;
-    data = null; readings = null; drafts = null; selectedId = ''; selectedCueIndex = null; page = 0;
+    data = null; readings = null; drafts = null; morphMaps = null;
+    selectedId = ''; selectedCueIndex = null; page = 0;
     sourceSelect.replaceChildren();
     redraw();
     if (!id) { say('作品を選んでください。'); return; }
     say('登録済みSRTを読み込んでいます…');
     try {
-      const [loaded, loadedReadings, loadedDrafts] = await Promise.all([
+      const [loaded, loadedReadings, loadedDrafts, loadedMaps] = await Promise.all([
         request('/api/studio/v05/srt/sources?project_id=' + encodeURIComponent(id)),
         request('/api/studio/v05/lip/readings?project_id=' + encodeURIComponent(id)),
-        request('/api/studio/v05/lip/drafts?project_id=' + encodeURIComponent(id))]);
+        request('/api/studio/v05/lip/drafts?project_id=' + encodeURIComponent(id)),
+        request('/api/studio/v05/pmx/morph-map?project_id=' + encodeURIComponent(id))]);
       if (mine !== sequence || project.value !== id) return;
       data = loaded;
       readings = loadedReadings;
       drafts = loadedDrafts;
+      morphMaps = loadedMaps;
       for (const row of loaded.sources) sourceSelect.add(new Option(row.originalName, row.id));
       selectedId = loaded.sources.some(row => row.id === preferredId) ? preferredId : loaded.sources.at(-1)?.id || '';
       selectedCueIndex = currentSource()?.entries.some(row => row.index === preferredCueIndex)
@@ -226,6 +263,48 @@ if (picker && project) {
   });
   $('v187-prev').addEventListener('click', () => { page--; redraw(); });
   $('v187-next').addEventListener('click', () => { page++; redraw(); });
+  $('v197-export-map').addEventListener('change', clearExport);
+  async function exportRequest(dryRun) {
+    const source = currentSource(), id = project.value, modelId = $('v197-export-map').value;
+    if (!source || !id || !modelId || !data || !readings || !drafts || !morphMaps || exportBusy) return;
+    const snapshot = {project_id: id, source_id: source.id, model_asset_id: modelId,
+      source_revision: data.revision, reading_revision: readings.revision,
+      draft_revision: drafts.revision, map_revision: morphMaps.revision};
+    if (!dryRun && (!checkedExport || JSON.stringify(snapshot) !== JSON.stringify(checkedExport))) return;
+    const mine = ++exportSequence;
+    exportBusy = true;
+    $('v197-export-check').disabled = true;
+    $('v197-export-create').disabled = true;
+    $('v197-export-download').hidden = true;
+    $('v197-export-status').textContent = dryRun ? '全発話を検査しています…' : '別名VMD候補を生成しています…';
+    try {
+      const result = await request('/api/studio/v05/lip/vmd-candidate', {method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({...snapshot, dry_run: dryRun})});
+      if (mine !== exportSequence || project.value !== id || selectedId !== source.id
+        || $('v197-export-map').value !== modelId) return;
+      if (dryRun) {
+        checkedExport = snapshot;
+        $('v197-export-create').disabled = false;
+        $('v197-export-status').textContent = `検査通過: ${result.cueCount}発話（明示無音${result.silenceCount}件）、モーフ${result.morphKeys}キー。バイナリ再読込済み。未採用です。`;
+      } else {
+        checkedExport = null;
+        const link = $('v197-export-download');
+        link.href = result.downloadUrl; link.download = result.fileName; link.hidden = false;
+        $('v197-export-status').textContent = `${result.fileName} を別名候補として生成しました。実PMXの外観確認と採用は未完了です。`;
+      }
+    } catch (error) {
+      if (mine === exportSequence) {
+        checkedExport = null;
+        $('v197-export-status').textContent = `出力できません: ${error.message}`;
+      }
+    } finally {
+      exportBusy = false;
+      redrawExportMaps();
+    }
+  }
+  $('v197-export-check').addEventListener('click', () => void exportRequest(true));
+  $('v197-export-create').addEventListener('click', () => void exportRequest(false));
   $('v190-reading-state').addEventListener('change', () => { updateReadingFields(); markReadingDirty(); });
   $('v190-reading-kana').addEventListener('input', markReadingDirty);
   $('v190-explicit-silence').addEventListener('change', () => { updateReadingFields(); markReadingDirty(); });
@@ -275,6 +354,7 @@ if (picker && project) {
     }
   });
   $('v194-draft-list').addEventListener('input', () => {
+    clearExport();
     if (draftBase) $('v194-draft-status').textContent = '未保存の変更があります。';
   });
   $('v194-draft-save').addEventListener('click', async () => {
@@ -301,6 +381,7 @@ if (picker && project) {
           project_fps: draftBase.projectFps, segments})});
       if (project.value !== id || selectedId !== source.id || selectedCueIndex !== cueIndex) return;
       drafts = saved;
+      clearExport();
       $('v194-draft-status').textContent = `下書き版${saved.revision}を保存しました。VMDには未採用です。`;
       say(`発話 #${cueIndex} の口形下書きを保存しました。`);
     } catch (error) {
