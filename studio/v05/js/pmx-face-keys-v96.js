@@ -19,6 +19,20 @@ export function resetMorphs(object){
   });
 }
 
+export function setMorphValue(object,name,value){
+  if(typeof name!=='string'||!name||!Number.isFinite(value)||value<0||value>1)return false;
+  let found=false;
+  object?.traverse?.(node=>{
+    if(!node.morphTargetDictionary||!node.morphTargetInfluences)return;
+    const index=node.morphTargetDictionary[name];
+    if(Number.isInteger(index)&&index>=0&&index<node.morphTargetInfluences.length){
+      node.morphTargetInfluences[index]=value;
+      found=true;
+    }
+  });
+  return found;
+}
+
 export function evaluateFaceKeys(keys,instanceId,seconds){
   const byName=new Map();
   for(const key of keys||[]){

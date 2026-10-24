@@ -72,6 +72,31 @@ test('v0.5 shows registered PMX mouth measurements and group vowel manual warnin
       await page.locator('#v180-map-'+shape).selectOption(String(row.id));
       await page.locator('#v180-weight-'+shape).fill(String(weight));
     }
+    const instanceId=scene.instances[0].id;
+    const probe=()=>page.evaluate(id=>window.BAIStudioMultiScenePreview.morphProbe(id).morphs,instanceId);
+    const plain=await page.locator('#v58-canvas canvas').screenshot();
+    await page.locator('#v181-preview').click();
+    assert.equal((await probe())['あ'],0.8);
+    assert.match(await page.locator('#v181-preview-status').textContent(),/一時表示中/);
+    await page.waitForTimeout(250);
+    const full=await page.locator('#v58-canvas canvas').screenshot();
+    assert.notDeepEqual(full,plain,'実PMXの一時口形が画面に現れる');
+    await page.locator('#v180-weight-A').fill('0.4');
+    assert.equal((await probe())['あ'],0,'重み編集で一時表示を解除');
+    await page.locator('#v181-preview').click();
+    assert.equal((await probe())['あ'],0.4);
+    await page.waitForTimeout(250);
+    const half=await page.locator('#v58-canvas canvas').screenshot();
+    assert.notDeepEqual(half,full,'重みの違いが実PMX描画に現れる');
+    await page.locator('#v181-preview-restore').click();
+    assert.equal((await probe())['あ'],0);
+    assert.equal(await page.locator('#v181-preview-restore').isDisabled(),true);
+    await page.locator('#v181-preview').click();
+    assert.equal((await probe())['あ'],0.4);
+    await page.evaluate(()=>window.BAIStudioTimeline.seek(0.2,'mouth-preview-test'));
+    await page.waitForFunction(()=>document.querySelector('#v181-preview-restore')?.disabled);
+    assert.equal((await probe())['あ'],0,'時刻移動でも一時表示を解除');
+    await page.locator('#v180-weight-A').fill('0.8');
     let mapResponse=page.waitForResponse(response=>response.url().includes('/pmx/morph-map')&&
       response.request().method()==='POST',{timeout:30000});
     await page.locator('#v180-map-draft').click();

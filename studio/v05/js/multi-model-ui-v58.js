@@ -15,7 +15,7 @@ import {createPmxGlbPreview} from '../../js/motion/pmx-glb-preview.js';
 import {createPmxVmdPreview} from '../../js/motion/pmx-vmd-preview.js';
 import {loadVmdClip,vmdUrl} from '../../js/motion/vmd.js';
 import {validatePmxVmdCandidate} from './pmx-vmd-candidate-validation-v120.js';
-import {morphValues,resetMorphs,applyFaceKeys} from './pmx-face-keys-v96.js';
+import {morphValues,resetMorphs,applyFaceKeys,setMorphValue} from './pmx-face-keys-v96.js';
 
 const project=document.getElementById('v06project');
 // A separate, short-lived headless page uses this mode for exact saved frames.
@@ -34,6 +34,7 @@ let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=
 let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null,previewArm=null,activePole=null,activeArm=null;
 let vmdCandidate=null,candidateValidation=null,candidateReport=null;
 let morphAnalysis=null,morphAnalysisNonce=0,morphMaps=null,morphMapNonce=0;
+let morphPreview=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
 panel.hidden=true;
@@ -241,7 +242,18 @@ for(const shape of ['A','I','U','E','O','Closed','Rest']){
 }
 const mapDraft=document.createElement('button');mapDraft.id='v180-map-draft';mapDraft.type='button';mapDraft.textContent='下書きを保存';
 const mapConfirm=document.createElement('button');mapConfirm.id='v180-map-confirm';mapConfirm.type='button';mapConfirm.textContent='5母音を確定保存';
-mapControls.append(mapSummary,mapStatus,mapGrid,mapDraft,mapConfirm);
+const mapPreviewShape=document.createElement('select');mapPreviewShape.id='v181-preview-shape';
+mapPreviewShape.setAttribute('aria-label','一時表示する口形');
+for(const shape of mapRows.keys())mapPreviewShape.add(new Option(shape,shape));
+const mapPreviewButton=document.createElement('button');mapPreviewButton.id='v181-preview';
+mapPreviewButton.type='button';mapPreviewButton.textContent='この口形を一時表示';
+const mapRestoreButton=document.createElement('button');mapRestoreButton.id='v181-preview-restore';
+mapRestoreButton.type='button';mapRestoreButton.textContent='元の表情へ戻す';mapRestoreButton.disabled=true;
+const mapPreviewStatus=document.createElement('small');mapPreviewStatus.id='v181-preview-status';
+mapPreviewStatus.setAttribute('role','status');mapPreviewStatus.style.cssText='display:block;color:#c8d9ea';
+mapPreviewStatus.textContent='一時表示は保存・書き出しに含まれません。';
+mapControls.append(mapSummary,mapStatus,mapGrid,mapDraft,mapConfirm,
+  mapPreviewShape,mapPreviewButton,mapRestoreButton,mapPreviewStatus);
 analysisControls.append(analysisSummary,analysisRun,analysisStatus,analysisName,analysisInfo,mapControls);
 heading.append(title,choose,refreshBtn,focusBtn,saveCameraBtn,restoreCameraBtn,modeBtn,closeBtn);
 const motionControls=document.createElement('div');motionControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
@@ -386,6 +398,9 @@ function selectedMorphAsset(){
     ?row.asset_id:null;
 }
 function clearMorphAnalysis(){
+  if(morphPreview&&opened&&motionCoordinator)seekScene(Number(seekInput.value)||0);
+  morphPreview=null;mapRestoreButton.disabled=true;
+  mapPreviewStatus.textContent='一時表示は保存・書き出しに含まれません。';
   morphAnalysisNonce++;morphAnalysis=null;
   analysisName.replaceChildren();analysisName.hidden=true;analysisInfo.textContent='';
   analysisRun.disabled=!selectedMorphAsset();
@@ -407,6 +422,7 @@ function redrawMorphMapStatus(){
   const current=selectedMorphMap();
   const stale=rows.filter(row=>row.source_status!=='valid');
   mapDraft.disabled=mapConfirm.disabled=!morphAnalysis?.morphs?.length||!morphMaps||!assetId;
+  mapPreviewButton.disabled=!morphAnalysis?.morphs?.length||!assetId;
   if(!assetId)mapStatus.textContent='登録済みPMXモデルを選んでください。';
   else if(!morphMaps)mapStatus.textContent='保存済み対応表を読み込めていません。';
   else if(stale.length)mapStatus.textContent='原本変更・素材不足の旧対応表があります。現在の原本で再解析して新規に保存してください。';
@@ -438,6 +454,34 @@ function fillMorphMap(){
     select.disabled=weight.disabled=!rows.length;
   }
   redrawMorphMapStatus();
+}
+function restoreMorphPreview(){
+  if(!morphPreview)return;
+  if(opened&&motionCoordinator)seekScene(Number(seekInput.value)||0);
+  else{morphPreview=null;mapRestoreButton.disabled=true;}
+}
+function previewMorphMap(){
+  const shape=mapPreviewShape.value,{select,weight}=mapRows.get(shape)||{};
+  const row=morphAnalysis?.morphs?.find(item=>String(item.id)===select?.value);
+  const value=Number(weight?.value);
+  const instanceId=choose.value||selectedId,target=controller?.getLoaded(instanceId);
+  if(!row||!target||target.format!=='PMX'){
+    mapPreviewStatus.textContent='口形に実在モーフを選んでください。';return;
+  }
+  if(!Number.isFinite(value)||value<0||value>1||weight.value.trim()===''){
+    mapPreviewStatus.textContent='重みは0〜1で入力してください。';return;
+  }
+  if(window.BAIStudioMediaPreviewV68?.status?.()?.playing){
+    mapPreviewStatus.textContent='再生を一時停止してから口形を比較してください。';return;
+  }
+  seekScene(Number(seekInput.value)||0);
+  if(!setMorphValue(target.object,row.name,value)){
+    mapPreviewStatus.textContent='読み込み済みPMXにこのモーフがありません。';return;
+  }
+  morphPreview={projectId:project.value,instanceId,shape,morphName:row.name,value};
+  mapRestoreButton.disabled=false;
+  mapPreviewStatus.textContent=`${shape} ${row.name} を重み${value.toFixed(2)}で一時表示中。時刻移動・元に戻すで解除。`;
+  viewport?.invalidate?.();
 }
 async function saveMorphMap(confirmed){
   const assetId=selectedMorphAsset(),analysis=morphAnalysis,projectId=project?.value;
@@ -1035,6 +1079,10 @@ async function writeFk(action,key=null,row=null,extra={}){
 }
 function seekScene(seconds){
   if(!opened||!motionCoordinator)return;
+  if(morphPreview){
+    morphPreview=null;mapRestoreButton.disabled=true;
+    mapPreviewStatus.textContent='一時表示を解除しました。保存済みの表情・動作を表示中。';
+  }
   try{
     for(const instance of sceneSnapshot?.instances||[]){
       const target=controller?.getLoaded(instance.id);
@@ -1345,6 +1393,13 @@ choose.addEventListener('change',()=>{
 analysisName.addEventListener('change',redrawMorphAnalysis);
 mapDraft.addEventListener('click',()=>saveMorphMap(false));
 mapConfirm.addEventListener('click',()=>saveMorphMap(true));
+mapPreviewButton.addEventListener('click',previewMorphMap);
+mapRestoreButton.addEventListener('click',restoreMorphPreview);
+mapPreviewShape.addEventListener('change',restoreMorphPreview);
+for(const {select,weight} of mapRows.values()){
+  select.addEventListener('change',restoreMorphPreview);
+  weight.addEventListener('input',restoreMorphPreview);
+}
 analysisRun.addEventListener('click',async()=>{
   const assetId=selectedMorphAsset(),instanceId=choose.value||selectedId,projectId=project?.value;
   if(!assetId)return clearMorphAnalysis();

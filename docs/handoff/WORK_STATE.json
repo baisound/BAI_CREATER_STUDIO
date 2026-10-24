@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:40:24+09:00",
+  "updated_at": "2026-10-25T00:48:23+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip004-morph-map-ui",
-  "head_at_update": "6d7577f",
+  "branch": "codex/v05-lip004-live-preview",
+  "head_at_update": "c65af0f",
   "current": {
-    "task": "Issue #175: v0.5口形対応表の編集画面",
+    "task": "Issue #175: PMX口形対応表の一時プレビュー",
     "status": "done",
-    "step": "解析済みPMX口モーフからA/I/U/E/O/Closed/Restを選択し、手動重みを下書き保存・確定・再読込・失効表示する",
+    "step": "保存前の母音モーフと手動重みを実PMXに一時表示し、元の表情・動作へ戻せることを隔離Chromeで検証する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #175: 実PMX口形のプレビュー強度を画面で比較・調整し、Owner採用前の候補として記録する"
+    "Issue #175: 頂点型口モーフの候補強度算出を既存解析に接続し、グループ/無変位は手動必須を維持して実データ検証する"
   ],
   "unverified": [
-    "VRM表情、WebMCP/標準MCP、Linux、実見た目による自然さ・Owner採用、統合production耐障害性は未検証"
+    "自然な強度のOwner採用、保存済み表情キーとの重ね合わせ専用試験、VRM、MCP、Linux、統合production耐障害性は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:48:23+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "c65af0f",
+      "text": "Issue #175: 実PMXの口形を保存前に一時表示し、あ0.8/0.4の描画差と復元・時刻移動での解除を隔離Chrome1/1で確認。原本hash一致。LIP-004は部分実装"
+    },
+    {
+      "at": "2026-10-25T00:44:02+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "7ca8727",
+      "text": "Issue #175: PMX口形対応表の一時プレビュー: 保存前の母音モーフと手動重みを実PMXに一時表示し、元の表情・動作へ戻せることを隔離Chromeで検証する"
+    },
     {
       "at": "2026-10-25T00:40:24+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "f66f1de",
       "text": "Issue #106: MOTION-010 長尺編集と旧カメラ終端: 旧300Fカメラで90秒へ移動する失敗を再現し、元カメラを保持した境界処理と回帰を確認する"
-    },
-    {
-      "at": "2026-10-24T22:32:56+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "0537858",
-      "text": "MOTION-010 長尺203秒実VMDの動く頭骨区間をv0.5画面で設定し、HTTP422の候補作成不可表示、ダウンロード/配置の無効化、候補SHA・revision・配置・原本不変を確認"
-    },
-    {
-      "at": "2026-10-24T22:22:24+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "51ca1a2",
-      "text": "Issue #106: MOTION-010 長尺区間候補の画面拒否: 203秒実VMDの動く頭骨区間を画面で設定し、誤差超過の拒否表示と候補・原本の保持を検証する"
     }
   ]
 }
