@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');
 const context={};context.globalThis=context;vm.createContext(context);vm.runInContext(fs.readFileSync('studio/v05/js/camera-render-v26.js','utf8'),context);
 const runtime=context.BAIStudioCameraRenderer.create();let projection=0,updated=0;
-const camera={position:{set(...v){this.values=v}},rotation:{set(...v){this.values=v}},quaternion:{set(...v){this.values=v}},fov:40,updateProjectionMatrix(){projection++},updateMatrixWorld(){updated++},userData:{}};
+const camera={position:{set(...v){this.values=v}},rotation:{set(...v){this.values=v}},quaternion:{set(...v){this.values=v}},lookAt(...v){this.target=v},fov:40,updateProjectionMatrix(){projection++},updateMatrixWorld(){updated++},userData:{}};
 const nav={position:{set(){throw Error('navigation modified')}}};
 assert.throws(()=>runtime.registerShootingCamera(camera,{navigationCamera:camera}));
 const detach=runtime.registerShootingCamera(camera,{navigationCamera:nav});
@@ -9,5 +9,12 @@ assert.equal(runtime.apply({position:[1,2,3],rotation:[0,0,1],fov:55,focusDistan
 assert.equal(camera.position.values.join(','),'1,2,3');assert.equal(camera.rotation.values.join(','),'0,0,1');assert.equal(camera.fov,55);assert.equal(projection,1);assert.equal(camera.userData.baiFocusDistance,4);
 assert.equal(runtime.apply({fov:200}).applied,false);assert.equal(projection,1);
 assert.equal(runtime.apply({quaternion:[0,0,0,1]}).applied,true);assert.equal(camera.quaternion.values.length,4);
+assert.equal(runtime.apply({position:[5,2,3],target:[0,1,0]}).applied,true);
+assert.equal(camera.target.join(','),'0,1,0');
+assert.equal(runtime.apply({position:[8,2,3],target:[NaN,1,0]}).reason,'invalid_target');
+assert.equal(camera.position.values.join(','),'5,2,3');
+assert.equal(runtime.apply({rotation:[0,1,0],target:[2,1,0]}).applied,true);
+assert.equal(camera.rotation.values.join(','),'0,1,0');
+assert.equal(camera.target.join(','),'0,1,0');
 runtime.setEnabled(false);assert.equal(runtime.apply({fov:50}).applied,false);runtime.setEnabled(true);
 detach();assert.equal(runtime.apply({fov:50}).applied,false);assert.ok(updated>=2);console.log('PASS camera render adapter tests');
