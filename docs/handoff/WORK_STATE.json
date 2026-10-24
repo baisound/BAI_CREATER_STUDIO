@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T13:22:00+09:00",
+  "updated_at": "2026-10-24T13:24:33+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-vmd-writer",
-  "head_at_update": "a2e69f4",
+  "branch": "codex/v05-motion010-vmd-constant-export",
+  "head_at_update": "cad32ab",
   "current": {
-    "task": "Issue #106: MOTION-010 補正キーの別名VMD書き出し",
-    "status": "done",
-    "step": "元VMDの骨区画と非骨suffixを保つ検証可能な別名writerを作り、補正評価と実PMX往復に接続する",
+    "task": "Issue #106: MOTION-010 一定補正の別名VMD出力",
+    "status": "in_progress",
+    "step": "作品内の全区間一定FK/IKターゲット補正を厳格に抽出し、元VMD骨キーへ合成して実PMX往復で検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T13:24:33+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cad32ab",
+      "text": "Issue #106: MOTION-010 一定補正の別名VMD出力: 作品内の全区間一定FK/IKターゲット補正を厳格に抽出し、元VMD骨キーへ合成して実PMX往復で検証する"
+    },
     {
       "at": "2026-10-24T13:22:00+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "d438961",
       "text": "Issue #96: 共通タイムラインのPMX表情・口キーを上下ドラッグ/上下矢印で値編集し既存face-set revision/Undo/Redoへ接続。実PMX隔離Chromeで1→0.50→0.51、3Dプレビュー、ロック、再読込を確認。原PMX/VMD/data7件不変。"
-    },
-    {
-      "at": "2026-10-24T07:36:28+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2d42fd6",
-      "text": "Issue #96: PMX表情・口キーのタイムライン上の値編集: 既存キー表示・保存API・ロックを確認し、値の直接編集を実装・隔離検証する"
     }
   ]
 }
