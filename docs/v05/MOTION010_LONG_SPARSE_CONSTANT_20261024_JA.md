@@ -6,6 +6,6 @@
 
 各隔離作品で候補を明示採用し、同じクリップID・開始時刻・長さを保った配置を読み返し、元VMDへの復元も確認した。候補は検査前には `candidate_requires_real_pmx_validation` のままで、自動採用しない。試験が使う別名候補と採用素材は隔離サーバーの一時データであり、利用者の実作品へは配置していない。
 
-実測に合わせ、実PMX検証の上限を作品12600F・合計19000標本へ引き上げた。超過入力は引き続き間引かず拒否する。`node tests/run-guarded.cjs tests/studio-v05-vmd-long-constant-real.test.cjs` は2件通過、0失敗、0スキップ。隔離ChromeはWindows上のANGLE SwiftShader。守護検査は実データ `data` 7件、`exports` 0件の前後ハッシュ一致を確認。`npm run typecheck` とJS構文確認も通過。
+実測に合わせ、実PMX検証の上限を作品12600F・合計19000標本へ引き上げた。超過入力は引き続き間引かず拒否する。統合時の `node tests/run-guarded.cjs tests/studio-v05-vmd-long-constant-real.test.cjs` は2件通過、0失敗、0スキップ。後続で時間限定の成立条件を加えたため、現行の試験名は `tests/studio-v05-vmd-long-sparse-real.test.cjs`。[後続の境界検証](MOTION010_LONG_SPARSE_INTERVAL_20261024_JA.md)も参照。隔離ChromeはWindows上のANGLE SwiftShader。守護検査は実データ `data` 7件、`exports` 0件の前後ハッシュ一致を確認。`npm run typecheck` とJS構文確認も通過。
 
 この結果の範囲は、登録済み1種類の実PMX・実VMD、60fps、全クリップ一定の頭FK補正、物理OFFである。**90秒付近だけの時間限定補正は別の密キー境界問題で拒否されたまま**。別PMX/他FPS、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、MOTION-010全ACは未確認。画像・動画成果物はないためEagle登録対象なし。モデル区分：境界判断に高性能、実装・試験・文書に標準モデル区分を使用。

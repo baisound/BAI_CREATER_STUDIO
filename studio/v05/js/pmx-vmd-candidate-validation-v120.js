@@ -68,8 +68,11 @@ export async function validatePmxVmdCandidate(input){
   const end=Math.ceil((row.start+row.duration)*input.fps-1e-7);
   const firstVmd=Math.ceil(row.start*30-1e-7);
   const endVmd=Math.ceil((row.start+row.duration)*30-1e-7);
-  const sampledSpan=['whole','interval'].includes(candidate.export_mode)&&
-    candidate.sampling_report?.mode===candidate.export_mode?
+  const sampledReport=candidate.sampling_report;
+  const sampledSpan=(['whole','interval'].includes(candidate.export_mode)&&
+    sampledReport?.mode===candidate.export_mode||
+    candidate.export_mode==='legacy_sparse'&&
+    sampledReport?.gate==='local_channels_only_requires_real_pmx_roundtrip')?
     candidate.sampling_report.vmd_frame_span:0;
   if(sampledSpan&&(!Number.isInteger(sampledSpan)||sampledSpan<1||sampledSpan>18001))
     throw Error('VMD候補の検証範囲が不正です');

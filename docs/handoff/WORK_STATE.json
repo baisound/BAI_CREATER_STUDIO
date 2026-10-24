@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T21:16:27+09:00",
+  "updated_at": "2026-10-24T21:28:39+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-long-constant-candidate",
-  "head_at_update": "44cd056",
+  "branch": "codex/v05-motion010-temporal-curve-study",
+  "head_at_update": "83105aa",
   "current": {
-    "task": "Issue #106: MOTION-010 長尺VMDの一定補正候補",
+    "task": "Issue #106: MOTION-010 長尺VMDの時間限定候補",
     "status": "done",
-    "step": "動く元曲線を保つ疎な一定補正候補を実PMX全フレームで検証する",
+    "step": "元曲線を保つ時間限定補正の境界条件を実VMDで調べ、安全な候補か理由付き拒否を検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 時間限定補正で動く元曲線を保てる候補方式と安全な拒否を検討する"
+    "MOTION-010 動く元頭骨曲線に時間限定補正を安全に焼ける条件または拒否境界を検討する"
   ],
   "unverified": [
-    "時間限定補正の長尺VMD候補、別PMX/他FPSの長尺候補、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "動く元頭骨曲線の時間限定候補、なじませ付き高振幅補正、別PMX/他FPSの長尺候補、通常画面の長尺手操作、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T21:28:39+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "83105aa",
+      "text": "MOTION-010 長尺実VMDの時間限定髪骨補正を疎な候補で実証。元VMD未キー骨・なじませ0に限定し、204秒作品12240F＋VMD6121F・201骨の物理OFF往復、隔離採用・復元に合格。疎候補のVMD整数境界と採用レポート範囲を修正。動く頭骨候補は誤差で拒否。"
+    },
+    {
+      "at": "2026-10-24T21:18:26+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "330a649",
+      "text": "Issue #106: MOTION-010 長尺VMDの時間限定候補: 元曲線を保つ時間限定補正の境界条件を実VMDで調べ、安全な候補か理由付き拒否を検証する"
+    },
     {
       "at": "2026-10-24T21:16:27+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "0e96db1",
       "text": "Issue #106: MOTION-010 VMD全フレーム候補: 元VMDの長さを含む全フレームキー化と作品内外の誤差ゲートを実装・検証"
-    },
-    {
-      "at": "2026-10-24T18:41:36+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "7835cd6",
-      "text": "Issue #106: 修正区間のみの別名VMD候補を保守的な境界条件で追加。区間外原骨レコード・非骨区画byte一致、24/60fps局所試験と246骨別PMXの24fps全骨往復・採用復元を確認"
-    },
-    {
-      "at": "2026-10-24T18:35:02+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "c947d63",
-      "text": "Issue #106: MOTION-010 VMD書き出し範囲: 全区間と修正区間のみの明示選択、区間外原VMD骨レコードのバイト一致と実PMX往復を検証する"
     }
   ]
 }
