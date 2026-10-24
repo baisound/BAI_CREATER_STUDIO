@@ -20,7 +20,7 @@ from studio_v05_pmx_analysis import inspect
 from studio_v05_srt_sources import register
 from tools.make_test_pmx import build_pmx
 from vmd_readback import read_vmd_morphs
-from studio_v05_lip_vmd_candidate import create as create_candidate, candidate_file
+from studio_v05_lip_vmd_candidate import create as create_candidate, candidate_file, LipVmdError
 
 
 def test_candidate_http_roundtrip_and_all_failure_gates(tmp_path, monkeypatch):
@@ -106,16 +106,30 @@ def test_candidate_http_roundtrip_and_all_failure_gates(tmp_path, monkeypatch):
                    1, 1, 24, [
                        {'startFrame': 24, 'endFrame': 25, 'mouthShape': 'A', 'weight': .7},
                        {'startFrame': 25, 'endFrame': 48, 'mouthShape': 'A', 'weight': .8}])
-        assert request('/vmd-candidate', body={**body, 'draft_revision': 2})[0] == 422
+        code, collision = request('/vmd-candidate', body={**body, 'draft_revision': 2})
+        assert code == 422
+        assert collision['issues'][0]['code'] == 'vmd_frame_collision'
+        assert collision['issues'][0]['vmdFrame'] == 31
+        assert collision['issues'][0]['srtIndices'] == [1]
         assert len(list(folder.glob('*.vmd'))) == 1
         assert request('/vmd-candidate/file', {'project_id': project_id,
             'candidate_id': made['candidateId']})[0] == 409
         set_reading(data/'studio_v05_lip_readings', catalog, data/'studio_v05_srt_sources',
-                    project_id, 2, source['id'], source['sha256'], 1, 'unresolved', None, False)
-        assert request('/vmd-candidate', body={**body, 'reading_revision': 3,
-            'draft_revision': 2})[0] == 422
+                    project_id, 2, source['id'], source['sha256'], 2, 'unresolved', None, False)
+        code, diagnosed = request('/vmd-candidate', body={**body, 'reading_revision': 3,
+            'draft_revision': 2})
+        assert code == 422
+        assert {(issue.get('srtIndex'), issue['code']) for issue in diagnosed['issues']} == {
+            (2, 'reading_unconfirmed'), (None, 'vmd_frame_collision')}
+        set_reading(data/'studio_v05_lip_readings', catalog, data/'studio_v05_srt_sources',
+                    project_id, 3, source['id'], source['sha256'], 1, 'unresolved', None, False)
+        code, diagnosed = request('/vmd-candidate', body={**body, 'reading_revision': 4,
+            'draft_revision': 2})
+        assert code == 422
+        assert [(issue['srtIndex'], issue['code']) for issue in diagnosed['issues']] == [
+            (1, 'reading_unconfirmed'), (2, 'reading_unconfirmed')]
         source_file.write_bytes(b'changed')
-        assert request('/vmd-candidate', body={**body, 'reading_revision': 3,
+        assert request('/vmd-candidate', body={**body, 'reading_revision': 4,
             'draft_revision': 2})[0] == 409
         assert model.read_bytes() == original_pmx
     finally:
@@ -166,6 +180,15 @@ def test_real_registered_pmx_morph_names_roundtrip(tmp_path):
     assert [(row['name'], row['frame']) for row in parsed['records']] == [
         ('あ', 30), ('あ', 60), ('い', 60), ('い', 90)]
     assert [round(row['weight'], 5) for row in parsed['records']] == [.8, 0, .35, 0]
+    zero_a = {**entries, 'A': {**entries['A'], 'weight': 0}}
+    mutate(data/'studio_v05_morph_maps', catalog, project_id, 1, 'set', assets, source_for,
+           model_asset_id=asset['id'], model_hash=analysis['modelHash'],
+           analysis_hash=analysis['analysisHash'], entries=zero_a, confirmed=True)
+    with pytest.raises(LipVmdError) as rejected:
+        create_candidate(*arguments[:-1], 2, True)
+    assert rejected.value.issues[0]['code'] == 'morph_missing_or_zero'
+    assert rejected.value.issues[0]['srtIndex'] == 1
+    assert rejected.value.issues[0]['mouthShape'] == 'A'
     assert hashlib.sha256(model.read_bytes()).hexdigest() == original_hash
     original_file = data/'studio_v05_srt_sources'/project_id/'sources'/srt['relativePath']
     assert original_file.read_bytes() == original_srt
