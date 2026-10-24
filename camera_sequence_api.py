@@ -2,14 +2,16 @@
 from bai_camera import validate, sample, number
 
 
-def evaluate(project, frame):
+def evaluate(project, frame, *, hold_end=False):
     project = validate(project)
-    f = number(frame, 0, project['duration'])
+    requested = number(frame, 0, 1000000000) if hold_end else number(frame, 0, project['duration'])
+    f = min(requested, project['duration']) if hold_end else requested
+    tail = {'requested_frame': requested, 'held_at_end': True} if requested > f else {}
     for shot in project.get('sequence', []):
         if shot['start'] <= f < shot['end']:
             preset = next(p for p in project.get('custom_presets', []) if p['name'] == shot['preset'])
-            return {'frame': f, 'source': 'sequence', 'preset': shot['preset'],
+            return {'frame': f, 'source': 'sequence', 'preset': shot['preset'], **tail,
                     'range': {'start': shot['start'], 'end': shot['end']},
                     'pose': preset['pose']}
-    return {'frame': f, 'source': 'keys', 'preset': None,
+    return {'frame': f, 'source': 'keys', 'preset': None, **tail,
             'range': None, 'pose': sample(project, f)}
