@@ -774,8 +774,9 @@ class Handler(BaseHTTPRequestHandler):
                 if not 0 < length <= 4096:
                     return self.bad(413, 'Request too large')
                 body = json.loads(self.rfile.read(length))
-                if not isinstance(body, dict) or set(body) != {
-                        'project_id', 'revision', 'instance_id', 'clip_id'}:
+                if not isinstance(body, dict) or not {
+                        'project_id', 'revision', 'instance_id', 'clip_id'} <= set(body) or \
+                        set(body) - {'project_id', 'revision', 'instance_id', 'clip_id', 'mode'}:
                     return self.bad(400, 'Invalid VMD candidate fields')
                 result = create_candidate(DATA/'studio_v05_vmd_candidates',
                     DATA/'studio_v05_motion_edits', DATA,

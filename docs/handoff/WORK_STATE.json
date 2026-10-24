@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T18:31:12+09:00",
+  "updated_at": "2026-10-24T18:41:36+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-vmd-adoption",
-  "head_at_update": "b9b79fa",
+  "branch": "codex/v05-motion010-vmd-scopes",
+  "head_at_update": "7835cd6",
   "current": {
-    "task": "Issue #106: MOTION-010 別名VMD候補の採用と作品配置",
+    "task": "Issue #106: MOTION-010 VMD書き出し範囲",
     "status": "done",
-    "step": "実PMX検査済み候補だけを元素材不変で登録し、元クリップと同じ作品・時刻へ明示配置する経路を実装する",
+    "step": "全区間と修正区間のみの明示選択、区間外原VMD骨レコードのバイト一致と実PMX往復を検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 全フレーム/修正区間のみの別名VMD書き出し選択と区間外バイト一致、異なるPMXやFPSの採用・書き出し回帰を進める"
+    "MOTION-010: 通常候補の全VMDフレームキー化と配置クリップより長い原VMDの出力範囲を仕様に合わせて実装・全フレーム往復確認する"
   ],
   "unverified": [
-    "実GPU、物理ON、Linux、標準MCP、腕IK角度制限付き実PMX、任意PMXへの膝ポール一般化、Owner採用、MOTION-010全ACは未確認。現在の採用検証は物理OFFの201骨実PMX/実VMDと隔離Chrome/SwiftShaderの限定結果"
+    "修正区間の異なる複数レイヤー、境界元キーのない入力は保守的に拒否。通常候補の全フレームキー化、実GPU、物理ON、Linux、標準MCP、腕IK角度制限付き実PMX、Owner採用、MOTION-010全ACは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T18:41:36+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "7835cd6",
+      "text": "Issue #106: 修正区間のみの別名VMD候補を保守的な境界条件で追加。区間外原骨レコード・非骨区画byte一致、24/60fps局所試験と246骨別PMXの24fps全骨往復・採用復元を確認"
+    },
+    {
+      "at": "2026-10-24T18:35:02+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "c947d63",
+      "text": "Issue #106: MOTION-010 VMD書き出し範囲: 全区間と修正区間のみの明示選択、区間外原VMD骨レコードのバイト一致と実PMX往復を検証する"
+    },
     {
       "at": "2026-10-24T18:31:12+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "341864e",
       "text": "Issue #106: MOTION-010 膝ポール3Dハンドル: 実PMX膝位置へハンドルをスナップし、実ドラッグを太ももFK補正へ解き、Esc・保存・Undo/Redo・VMD往復を隔離検証する"
-    },
-    {
-      "at": "2026-10-24T15:46:01+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8aa42b2",
-      "text": "Issue #106: 実PMX/VMDで太もも±20°の膝方向差と足首保持を確認し、保存+20°の別名VMD候補を物理OFF全骨900標本で往復検査、膝ポール解法と拒否条件を設計"
-    },
-    {
-      "at": "2026-10-24T15:40:13+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "b1a9941",
-      "text": "Issue #106: MOTION-010 PMX膝ポール解法の実証: 実PMX足IKのCCD挙動と膝制限を測り、保存・VMD往復に一致するポール操作の設計と最小試験を確定する"
     }
   ]
 }
