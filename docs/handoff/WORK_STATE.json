@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T09:42:20+09:00",
+  "updated_at": "2026-10-24T09:46:31+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-design",
-  "head_at_update": "7126c8e",
+  "head_at_update": "6b59dc1",
   "current": {
     "task": "Issue #106: PMX/VMD姿勢評価のA/B回帰と段階Aの限定FK補正",
-    "status": "in_progress",
+    "status": "done",
     "step": "無補正の新評価順が現行MMDプレビューと一致することを実PMXで検証し、ずれがあれば実装を止める",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "設計の段階Aに先立ちPMX/VMD無補正評価のA/B回帰試験を作り、補正注入位置を実PMXで確認する",
-    "段階Aの作品別FK補正・revision/Undo・保存再読込を実装し、実素材と原本ハッシュで検証する"
+    "段階A: 作品別FK補正の保存APIとrevision/Undoを実装",
+    "段階A: 実PMX画面で数値プレビュー・確定・再読込と原本ハッシュを検証"
   ],
   "unverified": [
-    "MOTION-010の骨編集、IK/ギズモ、VMD焼き込み、他PMX/VRM、実GPU、MCP、Owner採用は未実装・未検証"
+    "骨編集、MP4への補正反映、別名VMD、90秒長尺比較、実GPU/Linux/MCP/Owner採用は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T09:46:31+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6b59dc1",
+      "text": "Issue #106: PMX無補正A/B評価ゲートを実PMX/VMDで確認。201骨・168モーフの最大差2.17e-8、元経路へ戻した差0"
+    },
     {
       "at": "2026-10-24T09:42:20+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "8730d50",
       "text": "Issues #63/#69: saved GLB overlays image/video in one v0.5 editor viewport; pixel comparison, F60/F150/reload, real PMX/VMD regression and guarded hashes passed"
-    },
-    {
-      "at": "2026-10-24T04:46:28+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4778af2",
-      "text": "Issue #63/#69: v0.5保存済み3Dと画像・動画の同一画素プレビュー: 既存作品時刻で3Dキャンバスと2Dメディアを同じ編集ビューに重ね、保存再読込と実画素を隔離確認する"
     }
   ]
 }

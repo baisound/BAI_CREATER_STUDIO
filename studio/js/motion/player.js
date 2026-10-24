@@ -20,6 +20,7 @@ export function createPlayer(THREE, MMDAnimationHelper) {
   /** @type {any} */ let mmdHelper = null;
   /** @type {MotionInfo|null} */ let motion = null;
   let playing = false;
+  /** @type {((mesh: any, seconds: number) => void)|null} */ let pmxPoseModifier = null;
 
   /** シーク先のキーを評価し、同じ時刻で PMX の IK・grant まで解く。 @param {number} t */
   function evaluateMmdTime(t) {
@@ -28,9 +29,27 @@ export function createPlayer(THREE, MMDAnimationHelper) {
     // mixer の変更検知バッファを現在姿勢に合わせる。往復シークで同じキー値へ戻る時も骨へ反映する。
     mmdHelper._updatePropertyMixersBuffer(object);
     mixer.setTime(t);
-    // helper.update は保存姿勢を復元するため、シーク後の VMD 姿勢を保存してから IK を解く。
-    mmdHelper._saveBones(object);
-    mmdHelper.update(0);
+    // A modifier is evaluated after the raw VMD and before PMX IK/grant.
+    // Keep the original helper path untouched unless a caller explicitly opts in.
+    if (pmxPoseModifier) {
+      const state = mmdHelper.objects.get(object);
+      if (!state?.ikSolver || !state?.grantSolver ||
+          typeof mmdHelper._animatePMXMesh !== 'function' ||
+          typeof mmdHelper._sortBoneDataArray !== 'function' ||
+          object.geometry?.userData?.MMD?.format !== 'pmx')
+        throw new Error('PMX 補正の評価器はこの Three.js 版に対応していません');
+      pmxPoseModifier(object, t);
+      mmdHelper._saveBones(object);
+      if (!state.sortedBonesData)
+        state.sortedBonesData = mmdHelper._sortBoneDataArray(object.geometry.userData.MMD.bones.slice());
+      mmdHelper._animatePMXMesh(object, state.sortedBonesData,
+        mmdHelper.enabled.ik ? state.ikSolver : null,
+        mmdHelper.enabled.grant ? state.grantSolver : null);
+    } else {
+      // helper.update restores the saved raw pose, then resolves IK and grant.
+      mmdHelper._saveBones(object);
+      mmdHelper.update(0);
+    }
   }
 
   function stopActions() {
@@ -82,7 +101,7 @@ export function createPlayer(THREE, MMDAnimationHelper) {
       if (mmdHelper && object) mmdHelper.remove(object);
       mmdHelper = null;
       if (mixer && object) { try { mixer.uncacheRoot(object); } catch { /* 既に無い */ } }
-      mixer = null; object = null; format = null; animations = [];
+      mixer = null; object = null; format = null; animations = []; pmxPoseModifier = null;
     },
     /** @param {number} index */
     applyClip(index) {
@@ -95,6 +114,12 @@ export function createPlayer(THREE, MMDAnimationHelper) {
     play() { if (motion) playing = true; },
     /** 位置を保つ（index.html:213「現在位置を保持」）。 */
     pause() { playing = false; },
+    /** PMX only. null restores the existing evaluation path. */
+    setPmxPoseModifier(fn) {
+      if (fn !== null && typeof fn !== 'function') throw new TypeError('PMX modifier must be a function or null');
+      if (fn && (!mmdHelper || format !== 'PMX')) throw new Error('PMX VMD がありません');
+      pmxPoseModifier = fn;
+    },
     /** 0〜duration に丸めて姿勢を当てる（index.html:162 の mixer.setTime）。 @param {number} sec */
     seek(sec) {
       if (!mixer || !motion) return;
@@ -103,7 +128,14 @@ export function createPlayer(THREE, MMDAnimationHelper) {
       else mixer.setTime(t);
     },
     /** 再生中だけ進める（ループは three の既定 LoopRepeat。旧と同じ）。 @param {number} dt */
-    update(dt) { if (playing && mixer) { if (mmdHelper) mmdHelper.update(dt); else mixer.update(dt); } },
+    update(dt) { if (playing && mixer) {
+      if (mmdHelper && pmxPoseModifier) {
+        const duration = Math.max(END_EPS, motion?.duration || 0);
+        const next = ((action?.time || 0) + dt) % duration;
+        evaluateMmdTime(next < 0 ? next + duration : next);
+      }
+      else if (mmdHelper) mmdHelper.update(dt); else mixer.update(dt);
+    } },
     /** @returns {PlayerState} */
     state() { return { format, motion, playing, time: action ? action.time : 0 }; },
     /** テスト用の読み取りだけ。無い名前は null。 @param {{bones?: string[], rotations?: string[], morphs?: string[]}} q */
