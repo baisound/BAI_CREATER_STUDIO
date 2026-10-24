@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T15:30:38+09:00",
+  "updated_at": "2026-10-24T15:34:37+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-foot-reach",
-  "head_at_update": "cf61095",
+  "branch": "codex/v05-motion010-knee-limits",
+  "head_at_update": "5b03d9d",
   "current": {
-    "task": "Issue #106: MOTION-010 足IKの到達残差表示",
-    "status": "done",
-    "step": "実PMXの足IKターゲットと足首の評価済み位置差を3D編集画面へ表示し、未到達の誤認を防ぐ",
+    "task": "Issue #106: MOTION-010 PMX足IK膝制限の可視化",
+    "status": "in_progress",
+    "step": "実PMXの足IK膝リンク制限を3D編集画面へ表示し、制限のある骨と未到達差を区別して検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T15:34:37+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5b03d9d",
+      "text": "Issue #106: MOTION-010 PMX足IK膝制限の可視化: 実PMXの足IK膝リンク制限を3D編集画面へ表示し、制限のある骨と未到達差を区別して検証する"
+    },
     {
       "at": "2026-10-24T15:30:38+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "5d84633",
       "text": "MOTION-010の局所位置差分をFK作品キー・プレビュー・再生・保存へ接続。実PMX/VMD画面1件、既存ギズモ1件、Python6件、型検査、原本/利用者データのハッシュ一致。Issue #106継続。"
-    },
-    {
-      "at": "2026-10-24T11:24:49+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "ae8c79d",
-      "text": "Issue #106: MOTION-010 PMX骨の位置差分: 同じ作品のFK骨キーに位置差分を追加し、数値仮表示・保存・再読込を接続"
     }
   ]
 }
