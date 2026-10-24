@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T09:34:47+09:00",
+  "updated_at": "2026-10-24T10:10:53+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-pmx-foot-qa",
-  "head_at_update": "cfdbf23",
+  "branch": "codex/v05-motion010-design",
+  "head_at_update": "366468a",
   "current": {
-    "task": "Issue #102: 実PMX動作の足接地診断をv0.5プレビューへ接続",
+    "task": "Issue #106: MOTION-010段階Aの限定FK補正",
     "status": "done",
-    "step": "保存済み作品の実ポーズから左右足をサンプリングし既存接地診断APIへつなぐ",
-    "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
+    "step": "作品別API・revision/Undo、実PMXプレビュー、保存再読込をつなぐ",
+    "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "この追補PRをmainへ統合し、local mainと8765サーバーの配信を同期する",
-    "順5 MOTION-010の詳細設計・批評3回・判定と足IK品質検証を既存仕様に沿って進める"
+    "MOTION-010 段階A残り: レイヤー重み・区間・ミュート等の操作と作品タイムラインキーを接続",
+    "MOTION-010 段階B/C: 3D IK/ギズモと別名VMD往復検証を段階的に実施"
   ],
   "unverified": [
-    "足裏接触点・足IK適用/補正、全尺の品質、他PMX、実GPU、Linux、MCP、Owner採用は未検証"
+    "FK補正入り完成MP4の画素比較、長尺90秒、WebMCP/標準MCP実呼出し、Linux、実GPU上のFK補正、Owner採用は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,48 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T10:10:53+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "366468a",
+      "text": "Issue #106 MOTION-010: 実PMXの数値FK仮表示・作品別キー保存/revision/Undo・再読込・3Dキャプチャ姿勢を接続。実PMX3/3、保存安全4/4、既存MP4 3/3"
+    },
+    {
+      "at": "2026-10-24T09:47:01+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9abfe2f",
+      "text": "Issue #106: MOTION-010段階Aの限定FK補正: 作品別API・revision/Undo、実PMXプレビュー、保存再読込をつなぐ"
+    },
+    {
+      "at": "2026-10-24T09:46:31+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6b59dc1",
+      "text": "Issue #106: PMX無補正A/B評価ゲートを実PMX/VMDで確認。201骨・168モーフの最大差2.17e-8、元経路へ戻した差0"
+    },
+    {
+      "at": "2026-10-24T09:42:20+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "7126c8e",
+      "text": "Issue #106: PMX/VMD姿勢評価のA/B回帰と段階Aの限定FK補正: 無補正の新評価順が現行MMDプレビューと一致することを実PMXで検証し、ずれがあれば実装を止める"
+    },
+    {
+      "at": "2026-10-24T09:41:59+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a776116",
+      "text": "Issue #106: PMX＋VMDの任意フレーム骨補正について既存仕様/実装を照合し、詳細設計・3回の批評・段階A実装入口判定を記録"
+    },
+    {
+      "at": "2026-10-24T09:37:30+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "33b29f9",
+      "text": "Issue #106: v0.5の任意フレーム骨補正・別名VMD: 既存仕様と実装を照合し詳細設計、批評3回、最終判定を記録する"
+    },
     {
       "at": "2026-10-24T09:34:47+09:00",
       "by": "codex",
@@ -199,48 +241,6 @@
       "event": "done",
       "head": "72815ae",
       "text": "Issue #63/#69: v0.5保存済み3D/動作を720p・300F以内の別名MP4へ実描画し、GLB+画像+WAVと実PMX+VMDの画素/音/再読込を隔離確認"
-    },
-    {
-      "at": "2026-10-24T05:23:55+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "68a35ec",
-      "text": "Issue #63/#69: v0.5保存済み3Dの限定MP4出力: In/Outとシーンrevisionを固定し、短い透過3Dフレームを実描画・検証して既存FFmpeg合成へ接続"
-    },
-    {
-      "at": "2026-10-24T05:19:43+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8730d50",
-      "text": "Issues #63/#69: saved GLB overlays image/video in one v0.5 editor viewport; pixel comparison, F60/F150/reload, real PMX/VMD regression and guarded hashes passed"
-    },
-    {
-      "at": "2026-10-24T04:46:28+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4778af2",
-      "text": "Issue #63/#69: v0.5保存済み3Dと画像・動画の同一画素プレビュー: 既存作品時刻で3Dキャンバスと2Dメディアを同じ編集ビューに重ね、保存再読込と実画素を隔離確認する"
-    },
-    {
-      "at": "2026-10-24T05:07:22+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "7f0a888",
-      "text": "Issues #88/#89: HOME JST second display, live timeline cursor and usable zoom; isolated Chrome 4 tests, typecheck, JSON and data hashes passed"
-    },
-    {
-      "at": "2026-10-24T04:54:00+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4778af2",
-      "text": "Issues #88/#89: HOME Japan-time display and media timeline playhead/zoom synchronization: Inspect existing UI, preserve stored timestamps and clip edits, implement display/clock fixes, verify isolated Chrome"
-    },
-    {
-      "at": "2026-10-24T04:40:32+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "31f25b5",
-      "text": "実PMX/VMDを隔離ChromeでF0/F120骨・画素差と保存再読込を確認し、3Dカメラfitへのハンドル混入を修正"
     }
   ]
 }

@@ -135,8 +135,14 @@
       }
       return controller.seek(seconds,input);
     }
+    function setCorrectionLayers(clipId,layers,preview=null){
+      const entry=players.get(clipId);
+      if(!entry||typeof entry.player.setCorrectionLayers!=='function')return false;
+      entry.player.setCorrectionLayers(layers,preview);
+      return true;
+    }
     function dispose(){if(closed)return;clear();closed=true;notify();}
-    return {reconcile,seek,clear,dispose,status};
+    return {reconcile,seek,setCorrectionLayers,clear,dispose,status};
   }
   return {createCoordinator,activeAt};
 });

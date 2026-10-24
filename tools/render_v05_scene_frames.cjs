@@ -58,17 +58,18 @@ async function main() {
     await page.evaluate(() => window.BAIStudioMultiScenePreview.open({ composite: true }));
     await page.waitForFunction(id => {
       const scene = window.BAIStudioMultiScenePreview?.status?.();
-      return scene?.opened && scene.composite && scene.projectId === id && scene.loaded > 0;
+      return scene?.opened && scene.ready && scene.composite && scene.projectId === id && scene.loaded > 0;
     }, config.projectId, { timeout: 75000 });
     const check = async () => page.evaluate(async expected => {
       const encoded = encodeURIComponent(expected.projectId);
       const urls = [`/api/studio/v05/scene/instances?id=${encoded}`,
         `/api/studio/v05/arrangement?id=${encoded}`,
         `/api/studio/v05/timeline/range?id=${encoded}`,
-        `/api/studio/v05/scene/multi-motion-plan?id=${encoded}`];
+        `/api/studio/v05/scene/multi-motion-plan?id=${encoded}`,
+        `/api/studio/v05/motion-edits?id=${encoded}`];
       const replies = await Promise.all(urls.map(url => fetch(url, { cache: 'no-store' })));
       if (replies.some(reply => !reply.ok)) throw Error('Saved scene changed during capture');
-      const [scene, arrangement, range, motionPlan] = await Promise.all(replies.map(reply => reply.json()));
+      const [scene, arrangement, range, motionPlan, motionEdits] = await Promise.all(replies.map(reply => reply.json()));
       if (scene.revision !== expected.sceneRevision ||
           arrangement.revision !== expected.arrangementRevision ||
           range.revision !== expected.rangeRevision ||
@@ -76,12 +77,13 @@ async function main() {
           range.frame_count !== expected.frameCount)
         throw Error('Saved scene or timeline changed during capture');
       const status = window.BAIStudioMultiScenePreview.status();
-      if (status.loaded !== scene.instances.length ||
+      if (!status.ready || motionEdits.issues?.length || status.loaded !== scene.instances.length ||
           status.motion?.issues?.length ||
           status.motion?.loadedClips?.length !== motionPlan.ready_count ||
           status.motion?.projectId !== expected.projectId)
         throw Error('A saved 3D model or motion could not be loaded');
       return { renderer: status.renderer, loaded: status.loaded,
+        motionEditsRevision: motionEdits.revision,
         sampleInstanceId: scene.instances.find(row => row.visible)?.id || null,
         motionClips: status.motion?.loadedClips?.length || 0 };
     }, config);
@@ -117,9 +119,12 @@ async function main() {
         }, { instanceId: checked.sampleInstanceId, frame });
       }
     }
-    await check();
+    const after = await check();
+    if (after.motionEditsRevision !== checked.motionEditsRevision)
+      throw Error('Saved FK corrections changed during capture');
     const manifest = { project_id: config.projectId, scene_revision: config.sceneRevision,
       arrangement_revision: config.arrangementRevision, range_revision: config.rangeRevision,
+      motion_edits_revision: checked.motionEditsRevision,
       start_frame: config.startFrame, frame_count: config.frameCount,
       width: config.width, height: config.height, fps: config.fps,
       renderer: checked.renderer, loaded: checked.loaded, motion_clips: checked.motionClips,
