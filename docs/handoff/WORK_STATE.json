@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:18:29+09:00",
+  "updated_at": "2026-10-24T16:29:54+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-right-knee-validation",
-  "head_at_update": "1f03a2c",
+  "branch": "codex/v05-motion010-other-pmx-verify",
+  "head_at_update": "c1cc724",
   "current": {
-    "task": "Issue #106: MOTION-010 右膝ポールの実PMX検証",
+    "task": "Issue #106: MOTION-010 別PMX膝ポール適用検証",
     "status": "done",
-    "step": "右足IKの3Dハンドル実ドラッグ、保存、Undo/Redo、VMD候補の隔離検証を追加する",
+    "step": "B側の異なるPMX版で左右膝ポールの適用条件と実ドラッグ、保存・VMD往復を隔離検証する",
     "design_doc": "docs/v05/MOTION010_KNEE_POLE_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 別PMXに対する膝ポール適用条件・拒否条件を実証する",
-    "MOTION-010: 腕IKの3D二関節解、元VMD曲線と物理フラグ保持、候補採用条件を継続する"
+    "MOTION-010: 腕IKの3D二関節解、元VMD曲線と物理フラグ保持、候補採用条件を継続する",
+    "MOTION-010: 任意PMXの膝制限とドラッグ中姿勢更新を別ゲートで検証する"
   ],
   "unverified": [
-    "左右膝ポールは同一1実PMX/VMD・単一フレーム・単一100%レイヤー・物理OFF/SwiftShaderの限定結果。別PMX・任意膝制限・ドラッグ中連続更新・腕IK・VRM・実GPU・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
+    "膝ポールは3実PMXファイル（うち同系統2版）と1実VMD、単一フレーム・100%レイヤー・物理OFF/SwiftShaderの限定結果。任意膝制限・ドラッグ中連続更新・腕IK・VRM・実GPU・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T16:29:54+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "c1cc724",
+      "text": "MOTION-010: 201骨の別版と246骨の異なる実PMXで左右膝ポールの実ドラッグ・保存・Undo/Redo・再読込・別名VMD物理OFF全骨往復を確認。既定PMX回帰も通過し3ファイルで限定実証。全体は要検証。"
+    },
+    {
+      "at": "2026-10-24T16:20:19+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9213678",
+      "text": "Issue #106: MOTION-010 別PMX膝ポール適用検証: B側の異なるPMX版で左右膝ポールの適用条件と実ドラッグ、保存・VMD往復を隔離検証する"
+    },
     {
       "at": "2026-10-24T16:18:29+09:00",
       "by": "codex",
@@ -227,20 +241,6 @@
       "event": "start",
       "head": "378e69d",
       "text": "Issue #106: MOTION-010 時間変化する補正のVMD候補: 作品FPSのキーをVMD30fpsへ標本化し、誤差超過を拒否する候補経路と実PMX往復を検証する"
-    },
-    {
-      "at": "2026-10-24T13:35:01+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "3b7ba53",
-      "text": "Issue #106 MOTION-010: 保存済み全区間一定補正を別名VMD検証前候補へ接続。UI/API/WebMCP/標準MCP共通入口、実PMX頭骨300 VMDフレームの往復姿勢差、原本ハッシュ不変を確認。"
-    },
-    {
-      "at": "2026-10-24T13:24:33+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cad32ab",
-      "text": "Issue #106: MOTION-010 一定補正の別名VMD出力: 作品内の全区間一定FK/IKターゲット補正を厳格に抽出し、元VMD骨キーへ合成して実PMX往復で検証する"
     }
   ]
 }
