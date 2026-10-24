@@ -33,7 +33,7 @@ const section=document.getElementById('v57-scene-instances');
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,reloadReady=false,nonce=0,selectedId='';
 let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null,previewArm=null,activePole=null,activeArm=null;
 let vmdCandidate=null,candidateValidation=null,candidateReport=null;
-let morphAnalysis=null,morphAnalysisNonce=0;
+let morphAnalysis=null,morphAnalysisNonce=0,morphMaps=null,morphMapNonce=0;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
 panel.hidden=true;
@@ -217,7 +217,7 @@ faceControls.append(faceLabel,faceName,faceTrack,faceTime,faceUseSeek,faceValue,
   faceSaved,faceDelete,faceUndo,faceRedo,faceStatus);
 const analysisControls=document.createElement('details');analysisControls.id='v178-morph-analysis';
 analysisControls.style.cssText='border-top:1px solid #435a73;padding-top:4px';
-const analysisSummary=document.createElement('summary');analysisSummary.textContent='口モーフの形状を確認（読み取りのみ）';
+const analysisSummary=document.createElement('summary');analysisSummary.textContent='口モーフの形状と口形対応表';
 const analysisRun=document.createElement('button');analysisRun.id='v178-analysis-run';
 analysisRun.type='button';analysisRun.textContent='選択PMXを解析';
 const analysisStatus=document.createElement('small');analysisStatus.id='v178-analysis-status';
@@ -226,7 +226,23 @@ const analysisName=document.createElement('select');analysisName.id='v178-analys
 analysisName.setAttribute('aria-label','解析した口モーフ');analysisName.hidden=true;
 const analysisInfo=document.createElement('div');analysisInfo.id='v178-analysis-info';
 analysisInfo.style.cssText='max-height:180px;overflow:auto;font-size:12px;white-space:pre-wrap';
-analysisControls.append(analysisSummary,analysisRun,analysisStatus,analysisName,analysisInfo);
+const mapControls=document.createElement('details');mapControls.id='v180-morph-map';
+const mapSummary=document.createElement('summary');mapSummary.textContent='口形対応表を編集';
+const mapStatus=document.createElement('small');mapStatus.id='v180-map-status';
+mapStatus.setAttribute('role','status');mapStatus.style.cssText='display:block;color:#c8d9ea';
+const mapRows=new Map();
+const mapGrid=document.createElement('div');mapGrid.style.cssText='display:grid;grid-template-columns:auto 1fr 72px;gap:4px;align-items:center;font-size:12px';
+for(const shape of ['A','I','U','E','O','Closed','Rest']){
+  const label=document.createElement('label');label.textContent=shape;
+  const select=document.createElement('select');select.id='v180-map-'+shape;select.setAttribute('aria-label',shape+'に割り当てる口モーフ');
+  const weight=document.createElement('input');weight.id='v180-weight-'+shape;weight.type='number';
+  weight.min='0';weight.max='1';weight.step='0.01';weight.value='1';weight.setAttribute('aria-label',shape+'の手動重み');
+  label.htmlFor=select.id;mapGrid.append(label,select,weight);mapRows.set(shape,{select,weight});
+}
+const mapDraft=document.createElement('button');mapDraft.id='v180-map-draft';mapDraft.type='button';mapDraft.textContent='下書きを保存';
+const mapConfirm=document.createElement('button');mapConfirm.id='v180-map-confirm';mapConfirm.type='button';mapConfirm.textContent='5母音を確定保存';
+mapControls.append(mapSummary,mapStatus,mapGrid,mapDraft,mapConfirm);
+analysisControls.append(analysisSummary,analysisRun,analysisStatus,analysisName,analysisInfo,mapControls);
 heading.append(title,choose,refreshBtn,focusBtn,saveCameraBtn,restoreCameraBtn,modeBtn,closeBtn);
 const motionControls=document.createElement('div');motionControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
 motionControls.append(clipSelect,targetSelect,assignBtn,seekInput,seekBtn,motionStatus);
@@ -375,6 +391,82 @@ function clearMorphAnalysis(){
   analysisRun.disabled=!selectedMorphAsset();
   analysisStatus.textContent=analysisRun.disabled?'登録済みPMXモデルを選んでください'
     :'解析値は形状の目安です。母音の自然さはプレビューで確認してください。';
+  for(const {select,weight} of mapRows.values()){
+    select.replaceChildren(new Option('未選択',''));weight.value='1';select.disabled=true;weight.disabled=true;
+  }
+  redrawMorphMapStatus();
+}
+function selectedMorphMap(){
+  const assetId=selectedMorphAsset();
+  return morphMaps?.maps?.filter(row=>row.model_asset_id===assetId)
+    .find(row=>row.source_status==='valid')||null;
+}
+function redrawMorphMapStatus(){
+  const assetId=selectedMorphAsset();
+  const rows=morphMaps?.maps?.filter(row=>row.model_asset_id===assetId)||[];
+  const current=selectedMorphMap();
+  const stale=rows.filter(row=>row.source_status!=='valid');
+  mapDraft.disabled=mapConfirm.disabled=!morphAnalysis?.morphs?.length||!morphMaps||!assetId;
+  if(!assetId)mapStatus.textContent='登録済みPMXモデルを選んでください。';
+  else if(!morphMaps)mapStatus.textContent='保存済み対応表を読み込めていません。';
+  else if(stale.length)mapStatus.textContent='原本変更・素材不足の旧対応表があります。現在の原本で再解析して新規に保存してください。';
+  else if(current)mapStatus.textContent=`${current.confirmed?'確定済み':'下書き'}（原本SHA ${current.model_hash.slice(0,12)}…）。重みは手動値です。`;
+  else mapStatus.textContent='このPMXの対応表は未保存です。重みを手動で決めてください。';
+}
+async function loadMorphMaps(projectId=project?.value){
+  const requestNonce=++morphMapNonce;
+  morphMaps=null;redrawMorphMapStatus();
+  if(!projectId)return;
+  try{
+    const data=await request('/api/studio/v05/pmx/morph-map?project_id='+encodeURIComponent(projectId));
+    if(requestNonce!==morphMapNonce||!opened||projectId!==project?.value)return;
+    morphMaps=data;redrawMorphMapStatus();
+  }catch(error){
+    if(requestNonce===morphMapNonce)mapStatus.textContent='対応表の読込失敗: '+String(error.message||error);
+  }
+}
+function fillMorphMap(){
+  const rows=morphAnalysis?.morphs||[];
+  const current=selectedMorphMap();
+  for(const [shape,{select,weight}] of mapRows){
+    select.replaceChildren(new Option('未選択',''));
+    for(const row of rows)select.add(new Option(row.name+(row.manualRequired?'（手動確認）':''),String(row.id)));
+    const entry=current?.model_hash===morphAnalysis?.modelHash?current.entries?.[shape]:null;
+    if(entry&&rows.some(row=>row.id===entry.morph_id&&row.name===entry.morph_name)){
+      select.value=String(entry.morph_id);weight.value=String(entry.weight);
+    }else{select.value='';weight.value='1';}
+    select.disabled=weight.disabled=!rows.length;
+  }
+  redrawMorphMapStatus();
+}
+async function saveMorphMap(confirmed){
+  const assetId=selectedMorphAsset(),analysis=morphAnalysis,projectId=project?.value;
+  if(!assetId||!analysis?.morphs?.length||!morphMaps||!projectId)return;
+  const entries={};
+  for(const [shape,{select,weight}] of mapRows){
+    const row=analysis.morphs.find(item=>String(item.id)===select.value);
+    const value=Number(weight.value);
+    if(row&&(!Number.isFinite(value)||value<0||value>1||weight.value.trim()==='')){
+      mapStatus.textContent=shape+'の重みは0〜1で入力してください。';return;
+    }
+    entries[shape]=row?{morph_id:row.id,morph_name:row.name,weight:value}:null;
+  }
+  if(confirmed&&['A','I','U','E','O'].some(shape=>!entries[shape])){
+    mapStatus.textContent='確定にはA/I/U/E/Oの5母音を選んでください。';return;
+  }
+  mapDraft.disabled=mapConfirm.disabled=true;mapStatus.textContent='対応表を保存中…';
+  try{
+    const response=await fetch('/api/studio/v05/pmx/morph-map',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        project_id:projectId,revision:morphMaps.revision,action:'set',model_asset_id:assetId,
+        model_hash:analysis.modelHash,analysis_hash:analysis.analysisHash,entries,confirmed})});
+    const data=await response.json();
+    if(!response.ok)throw Error(data?.error||`HTTP ${response.status}`);
+    if(!opened||projectId!==project?.value||assetId!==selectedMorphAsset())return;
+    morphMaps=data;redrawMorphMapStatus();
+  }catch(error){
+    mapStatus.textContent='保存失敗: '+String(error.message||error)+'。対応表を再読込して確認してください。';
+  }finally{mapDraft.disabled=mapConfirm.disabled=!morphAnalysis?.morphs?.length||!morphMaps||!selectedMorphAsset();}
 }
 function redrawMorphAnalysis(){
   const rows=morphAnalysis?.morphs||[];
@@ -1147,6 +1239,7 @@ async function setup(){
 }
 async function reload(){
   if(!opened)return;
+  morphMapNonce++;morphMaps=null;
   clearMorphAnalysis();
   activePole=null;
   candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;candidateReport=null;
@@ -1187,6 +1280,8 @@ async function reload(){
     seekScene(currentSeek());
     redrawFaceControls();
     clearMorphAnalysis();
+    await loadMorphMaps(id);
+    if(thisNonce!==nonce||!opened||id!==project.value)return;
     setFkFrameFromSeek();
     viewport.fit?.();
     if(data.camera)viewport.applyCameraPose(data.camera);
@@ -1222,6 +1317,7 @@ async function open(options={}){
 }
 function close(){
   nonce++;opened=false;reloadReady=false;
+  morphMapNonce++;morphMaps=null;
   clearMorphAnalysis();
   candidateValidation?.abort();candidateValidation=null;vmdCandidate=null;candidateReport=null;
   rotateGizmo?.dispose();rotateGizmo=null;
@@ -1247,13 +1343,17 @@ choose.addEventListener('change',()=>{
   setFkFrameFromSeek();
 });
 analysisName.addEventListener('change',redrawMorphAnalysis);
+mapDraft.addEventListener('click',()=>saveMorphMap(false));
+mapConfirm.addEventListener('click',()=>saveMorphMap(true));
 analysisRun.addEventListener('click',async()=>{
   const assetId=selectedMorphAsset(),instanceId=choose.value||selectedId,projectId=project?.value;
   if(!assetId)return clearMorphAnalysis();
   const requestNonce=++morphAnalysisNonce;
   analysisRun.disabled=true;analysisStatus.textContent='口モーフを解析中…';
   try{
-    const data=await request('/api/studio/v05/pmx/morph-analysis?asset_id='+encodeURIComponent(assetId));
+    const [data]=await Promise.all([
+      request('/api/studio/v05/pmx/morph-analysis?asset_id='+encodeURIComponent(assetId)),
+      loadMorphMaps(projectId)]);
     if(requestNonce!==morphAnalysisNonce||!opened||projectId!==project?.value||
        instanceId!==(choose.value||selectedId)||assetId!==selectedMorphAsset())return;
     morphAnalysis=data;
@@ -1263,6 +1363,7 @@ analysisRun.addEventListener('click',async()=>{
     if(data.morphs.some(row=>row.name==='あ'))analysisName.value=String(data.morphs.find(row=>row.name==='あ').id);
     analysisStatus.textContent=`口モーフ${data.morphs.length}件／手動確認${data.morphs.filter(row=>row.manualRequired).length}件。原本SHA ${data.modelHash.slice(0,12)}…`;
     redrawMorphAnalysis();
+    fillMorphMap();
   }catch(error){
     if(requestNonce===morphAnalysisNonce){morphAnalysis=null;analysisStatus.textContent='解析失敗: '+String(error.message||error);}
   }finally{

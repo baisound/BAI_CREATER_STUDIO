@@ -45,7 +45,7 @@ test('v0.5 shows registered PMX mouth measurements and group vowel manual warnin
     await page.locator('#v70sceneOpen').click();
     await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===2,null,{timeout:120000});
     await page.locator('#v58-multi-preview select[aria-label="表示対象モデル"]').selectOption(scene.instances[0].id);
-    await page.locator('#v178-morph-analysis summary').click();
+    await page.locator('#v178-morph-analysis > summary').click();
     assert.equal(await page.locator('#v178-analysis-run').isEnabled(),true);
     const responsePromise=page.waitForResponse(response=>response.url().includes('/pmx/morph-analysis'),{timeout:30000});
     await page.locator('#v178-analysis-run').click();
@@ -64,6 +64,40 @@ test('v0.5 shows registered PMX mouth measurements and group vowel manual warnin
     await page.locator('#v178-analysis-name').selectOption(String(upper.id));
     assert.match(await page.locator('#v178-analysis-info').textContent(),/移動頂点1136件/);
     assert.match(await page.locator('#v178-analysis-info').textContent(),/中央値0\.09341/);
+    await page.locator('#v180-morph-map summary').click();
+    const mouth={A:['あ',0.8],I:['い',0.7],U:['う',0.6],E:['え',0.7],O:['お',0.9]};
+    for(const [shape,[name,weight]] of Object.entries(mouth)){
+      const row=measured.morphs.find(item=>item.name===name);
+      assert.equal(row.manualRequired,true);
+      await page.locator('#v180-map-'+shape).selectOption(String(row.id));
+      await page.locator('#v180-weight-'+shape).fill(String(weight));
+    }
+    let mapResponse=page.waitForResponse(response=>response.url().includes('/pmx/morph-map')&&
+      response.request().method()==='POST',{timeout:30000});
+    await page.locator('#v180-map-draft').click();
+    assert.equal((await mapResponse).status(),200);
+    let map=await json(await fetch(`${server.base}/api/studio/v05/pmx/morph-map?project_id=${projectId}`));
+    assert.equal(map.revision,1);
+    assert.equal(map.maps[0].confirmed,false);
+    assert.equal(map.maps[0].entries.A.weight,0.8);
+    assert.match(await page.locator('#v180-map-status').textContent(),/下書き/);
+    mapResponse=page.waitForResponse(response=>response.url().includes('/pmx/morph-map')&&
+      response.request().method()==='POST',{timeout:30000});
+    await page.locator('#v180-map-confirm').click();
+    assert.equal((await mapResponse).status(),200);
+    map=await json(await fetch(`${server.base}/api/studio/v05/pmx/morph-map?project_id=${projectId}`));
+    assert.equal(map.revision,2);
+    assert.equal(map.maps[0].confirmed,true);
+    assert.equal(map.maps[0].source_status,'valid');
+    assert.match(await page.locator('#v180-map-status').textContent(),/確定済み/);
+    await page.getByRole('button',{name:'配置を再読み込み'}).click();
+    await page.waitForFunction(()=>document.querySelector('#v180-map-status')?.textContent.includes('確定済み'),
+      null,{timeout:120000});
+    assert.equal(await page.locator('#v180-map-A').isDisabled(),true);
+    await page.locator('#v178-analysis-run').click();
+    await page.waitForFunction(()=>!document.querySelector('#v180-map-A')?.disabled,null,{timeout:30000});
+    assert.equal(await page.locator('#v180-map-A').inputValue(),String(measured.morphs.find(row=>row.name==='あ').id));
+    assert.equal(await page.locator('#v180-weight-O').inputValue(),'0.9');
     await page.locator('#v58-multi-preview select[aria-label="表示対象モデル"]').selectOption(withOther.instances[1].id);
     assert.equal(await page.locator('#v178-analysis-name').isHidden(),true);
     assert.doesNotMatch(await page.locator('#v178-analysis-status').textContent(),/48件/);
@@ -72,6 +106,16 @@ test('v0.5 shows registered PMX mouth measurements and group vowel manual warnin
     assert.equal((await second).status(),200);
     await page.waitForFunction(()=>document.querySelector('#v178-analysis-status')?.textContent.includes('0件'));
     assert.match(await page.locator('#v178-analysis-info').textContent(),/口パネルのモーフがありません/);
+    assert.equal(await page.locator('#v180-map-draft').isDisabled(),true);
+    assert.match(await page.locator('#v180-map-status').textContent(),/未保存/);
+    fs.appendFileSync(path.join(server.dataDir,'mmd','A',pmx),Buffer.from([0]));
+    await page.locator('#v58-multi-preview select[aria-label="表示対象モデル"]').selectOption(scene.instances[0].id);
+    await page.locator('#v178-analysis-run').click();
+    await page.waitForFunction(()=>document.querySelector('#v180-map-status')?.textContent.includes('原本変更'),
+      null,{timeout:30000});
+    const stale=await json(await fetch(`${server.base}/api/studio/v05/pmx/morph-map?project_id=${projectId}`));
+    assert.equal(stale.maps[0].source_status,'changed');
+    assert.equal(stale.maps[0].id,map.maps[0].id,'旧対応表を保持');
     const saved=await json(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${projectId}`));
     assert.equal(saved.revision,withOther.revision);
     assert.deepEqual(saved.face_keys,[]);
