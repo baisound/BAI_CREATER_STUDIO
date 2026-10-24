@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T17:08:04+09:00",
+  "updated_at": "2026-10-24T17:10:21+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-pair-preview",
-  "head_at_update": "eb4ab77",
+  "branch": "codex/v05-motion010-arm-handles",
+  "head_at_update": "35c2555",
   "current": {
-    "task": "Issue #106: MOTION-010 腕IKの2キー仮表示",
-    "status": "done",
-    "step": "腕・ひじの2キーを同時刻に一組として仮評価し、Escで元姿勢へ戻せる画面経路をつなぐ",
+    "task": "Issue #106: MOTION-010 手先・肘の3Dハンドル",
+    "status": "in_progress",
+    "step": "既存キーの再編集に対応する腕2キー解法を整え、実ポインタの手先・肘操作を仮表示・保存へ接続する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T17:10:21+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "35c2555",
+      "text": "Issue #106: MOTION-010 手先・肘の3Dハンドル: 既存キーの再編集に対応する腕2キー解法を整え、実ポインタの手先・肘操作を仮表示・保存へ接続する"
+    },
     {
       "at": "2026-10-24T17:08:04+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "7fccec3",
       "text": "密な元VMDのF209-221曲線と補間64バイトを調査。先頭値とシフト複製の差から物理フラグ領域への影響が疑われ、単純なBezier分割は採用せず誤差ゲートで拒否を維持。画面の実PMX検査へ物理OFFを明記しguarded Chromeで確認。"
-    },
-    {
-      "at": "2026-10-24T14:39:21+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0a4a369",
-      "text": "Issue #106: MOTION-010 元VMD曲線の分割保持: 密な元VMD曲線に補正キーを入れる際のBezier分割と実PMX往復を検証する"
     }
   ]
 }
