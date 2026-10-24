@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T21:00:02+09:00",
+  "updated_at": "2026-10-24T21:02:56+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-long-interval",
-  "head_at_update": "c65d263",
+  "branch": "codex/v05-motion010-curve-boundary-study",
+  "head_at_update": "42eda81",
   "current": {
-    "task": "Issue #106: MOTION-010 長尺VMDの限定区間候補",
-    "status": "done",
-    "step": "90秒付近の別名VMD候補を有界区間で生成または理由付き拒否し、実PMX往復条件を確認する",
+    "task": "Issue #106: MOTION-010 長尺VMD曲線境界の診断",
+    "status": "in_progress",
+    "step": "動く元VMDの区間境界・なじませと30fps候補の誤差を測り、安全な限定条件を探す",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T21:02:56+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "42eda81",
+      "text": "Issue #106: MOTION-010 長尺VMD曲線境界の診断: 動く元VMDの区間境界・なじませと30fps候補の誤差を測り、安全な限定条件を探す"
+    },
     {
       "at": "2026-10-24T21:00:02+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "b329f31",
       "text": "登録PMXの内容違い3モデルの腕IK定義と関節制限を監査し、腕PMX IK競合を画面/APIで理由付き拒否、骨長到達制限の説明を追加"
-    },
-    {
-      "at": "2026-10-24T18:02:26+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "b5191cd",
-      "text": "Issue #106: MOTION-010 PMX腕関節制限: 登録PMXの腕IK定義と関節制限を調査し、腕ハンドルの操作可否・理由表示を実データに合わせて安全に整える"
     }
   ]
 }
