@@ -1516,16 +1516,22 @@ if(document.modelContext?.registerTool){
      readOnly:true,inputSchema:{type:'object',properties:{project_id:{type:'string'}},
        required:['project_id'],additionalProperties:false},
      async execute({project_id}){return request('/api/studio/v05/motion-edits?id='+encodeURIComponent(project_id));}},
-    {name:'bai_studio_pmx_fk_edits_mutate',description:'Save/remove/move a PMX correction key, update its layer or limb edit mode, or undo/redo with revision.',
+    {name:'bai_studio_pmx_fk_edits_mutate',description:'Save/remove/move a PMX correction key, atomically save an arm and elbow pair, update its layer or limb edit mode, or undo/redo with revision.',
      inputSchema:{type:'object',properties:{project_id:{type:'string'},revision:{type:'integer'},
-       action:{type:'string',enum:['set','remove','move','layer-update','mode-set','undo','redo']},instance_id:{type:'string'},clip_id:{type:'string'},
+       action:{type:'string',enum:['set','arm-set','remove','move','layer-update','mode-set','undo','redo']},instance_id:{type:'string'},clip_id:{type:'string'},
        limb:{type:'string',enum:['left_arm','right_arm','left_leg','right_leg']},mode:{type:'string',enum:['FK','IK']},
        layer_id:{type:'string'},to_frame:{type:'integer'},settings:{type:'object',properties:{
          name:{type:'string'},weight:{type:'number'},muted:{type:'boolean'},start_frame:{type:'integer'},
          end_frame:{type:'integer'},fade_in_frames:{type:'integer'},fade_out_frames:{type:'integer'}},additionalProperties:false},
        key:{type:'object',properties:{frame:{type:'integer'},bone:{type:'string'},
-         rotation:{type:'array',items:{type:'number'},minItems:4,maxItems:4}},
-         required:['frame','bone','rotation'],additionalProperties:false}},
+         rotation:{type:'array',items:{type:'number'},minItems:4,maxItems:4},
+         position:{type:'array',items:{type:'number'},minItems:3,maxItems:3}},
+         required:['frame','bone','rotation'],additionalProperties:false},
+       keys:{type:'array',minItems:2,maxItems:2,items:{type:'object',properties:{
+         frame:{type:'integer'},bone:{type:'string'},
+         rotation:{type:'array',items:{type:'number'},minItems:4,maxItems:4},
+         position:{type:'array',items:{type:'number'},minItems:3,maxItems:3}},
+         required:['frame','bone','rotation'],additionalProperties:false}}},
        required:['project_id','revision','action'],additionalProperties:false},
      async execute(input){
        if(captureMode)throw Error('撮影中にFK補正は変更できません');
