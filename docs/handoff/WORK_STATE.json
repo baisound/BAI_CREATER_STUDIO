@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T13:53:42+09:00",
+  "updated_at": "2026-10-24T13:58:25+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-vmd-temporal",
-  "head_at_update": "ab9e27c",
+  "branch": "codex/v05-motion010-vmd-foot-ik",
+  "head_at_update": "94621e3",
   "current": {
-    "task": "Issue #106: MOTION-010 時間変化する補正のVMD候補",
-    "status": "done",
-    "step": "作品FPSのキーをVMD30fpsへ標本化し、誤差超過を拒否する候補経路と実PMX往復を検証する",
+    "task": "Issue #106: MOTION-010 足IKを含む別名VMD候補の実PMX往復",
+    "status": "in_progress",
+    "step": "時間変化FK候補の境界標本を見直し、実PMXの足IKターゲットと足首を全フレーム比較する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T13:58:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "94621e3",
+      "text": "Issue #106: MOTION-010 足IKを含む別名VMD候補の実PMX往復: 時間変化FK候補の境界標本を見直し、実PMXの足IKターゲットと足首を全フレーム比較する"
+    },
     {
       "at": "2026-10-24T13:53:42+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "b7d22cb",
       "text": "Issue #102追補: GLB骨対応を画面で修正・改訂付き保存し、同じPMX/骨構造の別動作へ再利用。無動作・骨不足・不正骨・古い改訂・Blender欠落を拒否して実素材検証"
-    },
-    {
-      "at": "2026-10-24T08:12:37+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "abaef3d",
-      "text": "Issue #102: GLB→PMX VMD変換の骨対応と失敗経路を強化: 無動作・骨不足GLBと骨対応の保存・画面接続を設計し隔離検証する"
     }
   ]
 }
