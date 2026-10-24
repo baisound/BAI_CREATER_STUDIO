@@ -1,5 +1,8 @@
 """Interval VMD export preserves original keys outside the correction span."""
+import ast
+import os
 import struct
+from pathlib import Path
 
 import pytest
 
@@ -111,3 +114,26 @@ def test_missing_boundaries_reject_moving_source_when_interpolation_changes():
     struct.pack_into('<f', source, 54 + 111 + 15 + 4, 1.0)
     with pytest.raises(ValueError, match='pose error exceeds limit'):
         partial_replacements(bytes(source), [_layer()], instance_id='one', clip_id='clip')
+
+
+@pytest.mark.parametrize('fade', [2, 48])
+def test_real_dense_curve_cannot_survive_adjacent_interval_keys_even_without_correction(fade):
+    root = Path(os.environ.get('BAI_REAL_MMD_DATA', Path(__file__).resolve().parents[1] / 'data'))
+    source = root / 'mmd' / 'vmd' / '神っぽいな.vmd'
+    if not source.is_file():
+        pytest.skip('registered dense local VMD is unavailable')
+    original = source.read_bytes()
+    correction = {'instance_id': 'one', 'clip_id': 'clip', 'fps': 60,
+                  'start': 0, 'duration': 200, 'weight': 1, 'muted': False,
+                  'start_frame': 5338, 'end_frame': 5464,
+                  'fade_in_frames': fade, 'fade_out_frames': fade,
+                  'keys': [{'frame': 5400, 'bone': '頭', 'position': [0, 0, 0],
+                            'rotation': [0, 0, 0, 1]}]}
+    with pytest.raises(ValueError, match='Interval-only VMD pose error exceeds limit') as failure:
+        partial_replacements(original, [correction], instance_id='one', clip_id='clip')
+    report = ast.literal_eval(str(failure.value).split(': ', 1)[1])
+    assert report['intervals'] == [[2669, 2732]]
+    assert report['worst_angle_frame'] == 5415
+    assert report['max_angle_error_degrees'] > 4.9
+    assert report['outside_span_max_angle_error_degrees'] > 0.03
+    assert source.read_bytes() == original
