@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:59:44+09:00",
+  "updated_at": "2026-10-24T17:02:26+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-local-rotation",
-  "head_at_update": "a25b70a",
+  "branch": "codex/v05-motion010-arm-pair-preview",
+  "head_at_update": "bfa7865",
   "current": {
-    "task": "Issue #106: MOTION-010 腕IKの実骨回転",
-    "status": "done",
-    "step": "実PMXの幾何目標から左右の腕・ひじのローカル回転差分を算出し、付与後の手首と未編集骨を検証する",
-    "design_doc": "docs/v05/MOTION010_ARM_IK_FEASIBILITY_20261024_JA.md"
+    "task": "Issue #106: MOTION-010 腕IKの2キー仮表示",
+    "status": "in_progress",
+    "step": "腕・ひじの2キーを同時刻に一組として仮評価し、Escで元姿勢へ戻せる画面経路をつなぐ",
+    "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
     "MOTION-010: 腕・ひじ2キーの同時仮表示と手先・肘3Dハンドル、Esc・保存・Undo/Redoを接続する",
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T17:02:26+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "bfa7865",
+      "text": "Issue #106: MOTION-010 腕IKの2キー仮表示: 腕・ひじの2キーを同時刻に一組として仮評価し、Escで元姿勢へ戻せる画面経路をつなぐ"
+    },
     {
       "at": "2026-10-24T16:59:44+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "e5f28df",
       "text": "MOTION-010の24000/1001fps・別PMX246骨で作品240F＋VMD300F全骨往復成功。密な実VMD曲線は角度0.264度の誤差で安全に拒否。隔離ChromeとPython9件、guardedデータハッシュ一致。"
-    },
-    {
-      "at": "2026-10-24T14:32:51+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0f1dce3",
-      "text": "Issue #106: MOTION-010 分数FPS・別PMX候補検証: 24000/1001fps作品と別PMXで候補の局所誤差と実全骨往復を照合する"
     }
   ]
 }
