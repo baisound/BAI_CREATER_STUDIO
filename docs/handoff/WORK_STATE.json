@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T10:10:53+09:00",
+  "updated_at": "2026-10-24T10:15:42+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-design",
-  "head_at_update": "366468a",
+  "branch": "codex/v05-motion010-layers",
+  "head_at_update": "8728d42",
   "current": {
-    "task": "Issue #106: MOTION-010段階Aの限定FK補正",
-    "status": "done",
-    "step": "作品別API・revision/Undo、実PMXプレビュー、保存再読込をつなぐ",
+    "task": "Issue #106: MOTION-010補正レイヤーとタイムラインキー",
+    "status": "in_progress",
+    "step": "作品別FKレイヤーの重み・区間・ミュートとキー表示/移動を同じAPI・再生へつなぐ",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T10:15:42+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8728d42",
+      "text": "Issue #106: MOTION-010補正レイヤーとタイムラインキー: 作品別FKレイヤーの重み・区間・ミュートとキー表示/移動を同じAPI・再生へつなぐ"
+    },
     {
       "at": "2026-10-24T10:10:53+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "5fd1087",
       "text": "Issue #69: v0.5書き出し画面の実MP4対応表示: 書き出し画面の古い未接続表記を現行の限定MP4機能と一致させて確認"
-    },
-    {
-      "at": "2026-10-24T05:50:07+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "72815ae",
-      "text": "Issue #63/#69: v0.5保存済み3D/動作を720p・300F以内の別名MP4へ実描画し、GLB+画像+WAVと実PMX+VMDの画素/音/再読込を隔離確認"
     }
   ]
 }
