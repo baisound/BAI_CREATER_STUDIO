@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:49:47+09:00",
+  "updated_at": "2026-10-24T16:53:38+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-geometry",
-  "head_at_update": "25f9165",
+  "branch": "codex/v05-motion010-arm-local-rotation",
+  "head_at_update": "056ba49",
   "current": {
-    "task": "Issue #106: MOTION-010 腕IKの3D幾何",
-    "status": "done",
-    "step": "実PMXのほぼ直線の腕を含む二関節3D到達・ポール選択・到達不能判定を純粋な関数として実装し、左右・境界を検証する",
+    "task": "Issue #106: MOTION-010 腕IKの実骨回転",
+    "status": "in_progress",
+    "step": "実PMXの幾何目標から左右の腕・ひじのローカル回転差分を算出し、付与後の手首と未編集骨を検証する",
     "design_doc": "docs/v05/MOTION010_ARM_IK_FEASIBILITY_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T16:53:38+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "056ba49",
+      "text": "Issue #106: MOTION-010 腕IKの実骨回転: 実PMXの幾何目標から左右の腕・ひじのローカル回転差分を算出し、付与後の手首と未編集骨を検証する"
+    },
     {
       "at": "2026-10-24T16:49:47+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "775e48b",
       "text": "MOTION-010別名VMD候補に実PMX全骨検査UIを追加。24fps頭FKは240+300F×201骨、60fps頭FK＋左足IKは600+300F×201骨で閾値内。SHA不一致拒否、候補は未登録・未配置。"
-    },
-    {
-      "at": "2026-10-24T14:15:42+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5483e1d",
-      "text": "Issue #106: MOTION-010 実PMX全骨VMD候補検証: 候補VMDを独立PMXへ読み込み作品フレームごとの全骨差を検査する"
     }
   ]
 }
