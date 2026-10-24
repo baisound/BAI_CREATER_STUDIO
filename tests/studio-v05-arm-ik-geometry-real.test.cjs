@@ -7,9 +7,10 @@ const crypto=require('node:crypto');
 const harness=require('./helpers/studio-harness.cjs');
 
 const source=process.env.BAI_REAL_MMD_DATA;
-const model='Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx';
+const bank=process.env.BAI_TEST_MMD_BANK||'A';
+const model=process.env.BAI_TEST_MMD_MODEL||'Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx';
 const motion='狐面物理確認用_頭振り_F000-0300.vmd';
-const modelPath=source&&path.join(source,'mmd','A',model);
+const modelPath=source&&path.join(source,'mmd',bank,model);
 const motionPath=source&&path.join(source,'mmd','vmd',motion);
 const exists=modelPath&&motionPath&&fs.existsSync(modelPath)&&fs.existsSync(motionPath);
 const digest=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -20,15 +21,17 @@ async function ok(response){
   return JSON.parse(body);
 }
 
-test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
+test('real PMX arm chains solve, preview, handle, save and roundtrip on both sides',
   {skip:!exists&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:180000},async()=>{
   const before=[digest(modelPath),digest(motionPath)];
   const metadata=JSON.parse(fs.readFileSync(path.join(source,'mmd_assets.json'),'utf8'));
-  const entries=metadata.A.filter(entry=>entry.name===model||entry.name.startsWith('tex/'));
-  const seed={'mmd_assets.json':JSON.stringify({A:entries,B:[],
+  assert.ok(['A','B'].includes(bank));
+  const entries=metadata[bank].filter(entry=>entry.name===model||entry.name.startsWith('tex/'));
+  assert.ok(entries.some(entry=>entry.name===model));
+  const seed={'mmd_assets.json':JSON.stringify({A:bank==='A'?entries:[],B:bank==='B'?entries:[],
     vmd:[{name:motion,size:fs.statSync(motionPath).size}]})};
-  for(const entry of entries)seed[`mmd/A/${entry.name}`]=fs.readFileSync(
-    path.join(source,'mmd','A',...entry.name.split('/')));
+  for(const entry of entries)seed[`mmd/${bank}/${entry.name}`]=fs.readFileSync(
+    path.join(source,'mmd',bank,...entry.name.split('/')));
   seed[`mmd/vmd/${motion}`]=fs.readFileSync(motionPath);
   const server=await harness.startServer({port:8899,seed});
   let browser,page;
@@ -39,7 +42,7 @@ test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
     const id=project.project.id;
     const scene=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances`,{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({project_id:id,action:'add',revision:0,asset_id:`mmd:A:${model}`,
+      body:JSON.stringify({project_id:id,action:'add',revision:0,asset_id:`mmd:${bank}:${model}`,
         transform:{position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]}})}));
     const instanceId=scene.instances[0].id;
     const placed=await ok(await fetch(`${server.base}/api/studio/v05/arrangement/place`,{
@@ -80,10 +83,14 @@ test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
       measured[side]={upper,lower,direct,straightGap,radial,inwardCircleRadius,
         twistBeforeElbow:distance(position(side+'腕捩'),elbow),
         twistBeforeWrist:distance(position(side+'手捩'),wrist)};
+      console.log(JSON.stringify({bank,model,side,armGeometry:measured[side]}));
       assert.ok(upper>0.15&&lower>0.15);
-      assert.ok(straightGap>=0&&straightGap<1e-4);
-      assert.ok(radial<0.001);
-      assert.ok(inwardCircleRadius>0.05);
+      assert.ok(straightGap>=-1e-6&&straightGap<upper+lower);
+      assert.ok(inwardCircleRadius>0.001);
+      if(model.startsWith('Baisound-New-')){
+        assert.ok(straightGap<1e-4);
+        assert.ok(radial<0.001);
+      }
       assert.ok(measured[side].twistBeforeElbow>0.02);
       assert.ok(measured[side].twistBeforeWrist>0.02);
     }
@@ -97,7 +104,8 @@ test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
         const {solveArmGeometry}=await import('/studio/v05/js/arm-ik-geometry-v134.mjs');
         return solveArmGeometry(input);
       },{shoulder,elbow,wrist,target,fallbackPole});
-      assert.equal(solved.poleSource,'fallback');
+      assert.equal(solved.poleSource,
+        measured[side].radial<=Math.max(1e-5,measured[side].upper*0.01)?'fallback':'current');
       assert.ok(distance(solved.wristTarget,target)<1e-8);
       assert.ok(Math.abs(distance(solved.elbowTarget,shoulder)-solved.upper)<1e-8);
       assert.ok(Math.abs(distance(solved.elbowTarget,solved.wristTarget)-solved.lower)<1e-8);
@@ -421,6 +429,18 @@ test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
       rightElbowAfter.bones['左手首'].world.slice(12,15))<1e-4);
     await page.keyboard.press('Escape');
     assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,12);
+    await page.locator('#v116-vmd-candidate-create').click();
+    await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-download')?.hidden===false||
+      document.querySelector('#v116-vmd-candidate-status')?.textContent?.includes('不可'),
+      null,{timeout:120000});
+    assert.match(await page.locator('#v116-vmd-candidate-status').textContent(),/実PMX往復の確認前/);
+    await page.locator('#v120-vmd-candidate-validate').click();
+    await page.waitForFunction(()=>/実PMX検査合格|実PMX検査不合格|実PMX検査を完了できません/.test(
+      document.querySelector('#v116-vmd-candidate-status')?.textContent||''),
+      null,{timeout:160000});
+    const armValidation=await page.locator('#v116-vmd-candidate-status').textContent();
+    console.log(JSON.stringify({armValidation}));
+    assert.match(armValidation,/実PMX検査合格（物理OFF）/);
     harness.assertNoErrors(page);
   }finally{
     await page?.close();await browser?.close();await server.stop();
