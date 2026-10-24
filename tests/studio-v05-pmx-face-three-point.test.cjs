@@ -79,19 +79,13 @@ test('real PMX expression and mouth keys survive F0, middle, tail, reload and MP
     const loaded=()=>page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
       window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
     await loaded();
-    async function compositeFace(){
-      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'composite-face-check'));
-      await page.waitForTimeout(250);
+    async function assertLayout(){
       const canvas=await page.locator('#v58-canvas canvas').boundingBox();
       const panel=await page.locator('#v58-multi-preview').boundingBox();
       assert.ok(canvas&&panel&&panel.x>canvas.x+canvas.width*.59,
         `顔の中央領域に操作パネルが重なっています: ${JSON.stringify({canvas,panel})}`);
-      return await page.locator('#v58-canvas canvas').screenshot();
     }
-    const compositeBefore=await compositeFace();
-    await page.getByRole('button',{name:'単独画面で表示'}).click();
-    await page.getByRole('button',{name:'同じ画面に重ねる'}).waitFor();
-    await loaded();
+    await assertLayout();
     const names=await page.evaluate(target=>Object.keys(window.BAIStudioMultiScenePreview.morphProbe(target).morphs),instanceId);
     assert.ok(names.includes('まばたき')&&names.includes('あ'),'実PMXの目・口モーフが必要です');
     async function preview(seconds){
@@ -130,9 +124,30 @@ test('real PMX expression and mouth keys survive F0, middle, tail, reload and MP
         headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,action:'face-set',
           revision:scene.revision,face_key:{instance_id:instanceId,morph_name,time,value,track}})}));
     };
+    for(const point of points)await set('まばたき',point.seconds,point.eye,'expression');
+    await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+    await page.waitForFunction(revision=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
+      window.BAIStudioMultiScenePreview?.status().composite===true&&
+      window.BAIStudioMultiScenePreview?.status().revision===revision,scene.revision,{timeout:120000});
     for(const point of points){
-      await set('まばたき',point.seconds,point.eye,'expression');
-      await set('あ',point.seconds,point.mouth,'lip');
+      const prior=scene.revision;
+      await page.locator('#v96-face-name').selectOption('あ');
+      await page.locator('#v98-face-track').selectOption('lip');
+      await page.locator('#v96-face-time').fill(String(point.seconds));
+      await page.locator('#v96-face-value').evaluate((element,value)=>{
+        element.value=String(value);element.dispatchEvent(new Event('input',{bubbles:true}));
+      },point.mouth);
+      const saving=page.waitForResponse(response=>response.url().includes('/api/studio/v05/scene/instances')&&
+        response.request().method()==='POST',{timeout:30000});
+      await page.locator('#v96-face-save').click();
+      const response=await saving;
+      const body=await response.text();
+      assert.equal(response.status(),200,body);
+      assert.equal(JSON.parse(body).revision,prior+1);
+      await page.waitForFunction(()=>!document.querySelector('#v96-face-save')?.disabled);
+      scene=await json(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+      assert.ok(scene.face_keys.some(key=>key.instance_id===instanceId&&key.morph_name==='あ'&&
+        key.time===point.seconds&&key.value===point.mouth&&key.track==='lip'));
     }
     assert.equal(scene.face_keys.length,6);
     const stored=await json(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
@@ -142,9 +157,7 @@ test('real PMX expression and mouth keys survive F0, middle, tail, reload and MP
         ['あ',point.seconds,point.mouth,'lip']]).sort((a,b)=>a[0].localeCompare(b[0],'ja')||a[1]-b[1]));
     await page.reload();await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v70sceneOpen').click();await loaded();
-    const compositeAfter=await compositeFace();
-    await page.getByRole('button',{name:'単独画面で表示'}).click();
-    await page.getByRole('button',{name:'同じ画面に重ねる'}).waitFor();await loaded();
+    await assertLayout();
     const keyed=[];
     for(const point of points){
       const sample=await preview(point.seconds);
@@ -154,9 +167,9 @@ test('real PMX expression and mouth keys survive F0, middle, tail, reload and MP
     }
     const video=[];
     for(const point of points)video.push(await renderAt(point.frame,scene.revision));
-    const previewChanges=points.map((point,i)=>changed(rawFrame(baseline[i].pixels),rawFrame(keyed[i].pixels)));
+    const previewChanges=points.map((point,i)=>changed(centerFace(baseline[i].pixels),centerFace(keyed[i].pixels)));
     const movieChanges=points.map((point,i)=>changed(plain[i].pixels,video[i].pixels));
-    const compositeFacePixels=changed(centerFace(compositeBefore),centerFace(compositeAfter));
+    const compositeFacePixels=previewChanges[1];
     assert.ok(compositeFacePixels>2,`F120の合成画面で顔が確認できません: ${compositeFacePixels}`);
     for(const [index,point] of points.entries()){
       assert.ok(previewChanges[index]>2,`F${point.frame} preview did not change: ${previewChanges[index]}`);
@@ -164,8 +177,35 @@ test('real PMX expression and mouth keys survive F0, middle, tail, reload and MP
       assert.deepEqual(baseline[index].pose.bones['頭'],keyed[index].pose.bones['頭'],
         `F${point.frame} body VMD pose changed`);
     }
+    let mouthIndex=scene.face_keys.findIndex(key=>key.morph_name==='あ'&&key.time===4);
+    assert.ok(mouthIndex>=0);
+    await page.locator('#v96-face-saved').selectOption(String(mouthIndex));
+    assert.equal(await page.locator('#v96-face-name').inputValue(),'あ');
+    assert.equal(await page.locator('#v96-face-time').inputValue(),'4');
+    await page.locator('#v96-face-value').evaluate(element=>{
+      element.value='0.8';element.dispatchEvent(new Event('input',{bubbles:true}));
+    });
+    let saving=page.waitForResponse(response=>response.url().includes('/api/studio/v05/scene/instances')&&
+      response.request().method()==='POST',{timeout:30000});
+    await page.locator('#v96-face-save').click();
+    let response=await saving;
+    assert.equal(response.status(),200,await response.text());
+    await page.waitForFunction(()=>!document.querySelector('#v96-face-save')?.disabled);
+    scene=await json(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+    assert.equal(scene.face_keys.find(key=>key.morph_name==='あ'&&key.time===4)?.value,.8);
+    mouthIndex=scene.face_keys.findIndex(key=>key.morph_name==='あ'&&key.time===4);
+    await page.locator('#v96-face-saved').selectOption(String(mouthIndex));
+    saving=page.waitForResponse(result=>result.url().includes('/api/studio/v05/scene/instances')&&
+      result.request().method()==='POST',{timeout:30000});
+    await page.locator('#v96-face-delete').click();
+    response=await saving;
+    assert.equal(response.status(),200,await response.text());
+    scene=await json(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${id}`));
+    assert.equal(scene.face_keys.length,5);
+    assert.ok(!scene.face_keys.some(key=>key.morph_name==='あ'&&key.time===4));
     console.log(JSON.stringify({sourceHash,revision:scene.revision,previewChanges,movieChanges,
-      compositeFacePixels,renderer:video.map(item=>item.renderer),points:points.map(point=>point.frame)}));
+      compositeFacePixels,manualMouthEditDelete:true,
+      renderer:video.map(item=>item.renderer),points:points.map(point=>point.frame)}));
     harness.assertNoErrors(page);
   }finally{
     await page?.close();await browser?.close();await server.stop();

@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:51:08+09:00",
+  "updated_at": "2026-10-25T00:03:28+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-lip096-manual-mouth",
-  "head_at_update": "1621534",
+  "head_at_update": "56e521a",
   "current": {
     "task": "Issue #96: 実PMX口モーフの手動UI保存経路",
-    "status": "in_progress",
+    "status": "done",
     "step": "合成画面で実口モーフ「あ」を選択し複数時刻へ保存・再読込・実3D/限定MP4を照合する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "Issue #96の受け入れ条件とPR反映を最終監査し、満たせばIssueを閉じる。その後は最新ロードマップ順4の残る承認済み表情・口機能を進める"
+    "Issue #96のPRをmainへ反映しIssueを閉じる。次はロードマップ順4のLIP-004頂点変位・母音強度解析について既存実装とIssueを照合して着手する"
   ],
   "unverified": [
-    "任意PMX・カメラ構図での顔視認性、さらに狭い画面・タッチ・Linux・標準MCP実通信・長尺・視線・SRT/音素自動リップ・頂点変位解析・Owner採用は未検証。LIP-004/009全体は未完了"
+    "任意PMX・長尺・Linux・標準MCP実通信・視線・自動リップ・頂点変位解析/母音強度最適化・Owner採用は未検証。LIP-004/009全体は未完了"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:03:28+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "56e521a",
+      "text": "Issue #96: 実PMX口モーフ「あ」を合成画面の手動UIから0/4/9秒へ保存、4秒キー1→0.8の再編集・削除、F0/F120/F270の再読込・3D中央画素・各1F MP4を確認。隔離Chrome1/1、Python11/11、原本/data7/exports0 SHA不変"
+    },
     {
       "at": "2026-10-24T23:51:08+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "295c26f",
       "text": "Issue #106: MOTION-010 平坦境界のなじませ候補: 動く頭骨の前後でなじませを安全に表現できる境界と不要な隣接キーを検証する"
-    },
-    {
-      "at": "2026-10-24T21:36:59+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "980a70b",
-      "text": "MOTION-010 203.63秒実VMDの動く頭骨曲線で平坦な元キー対に区間を合わせ、なじませ0・Y8度の疎な候補を204秒作品12240F＋VMD6121F・201骨の実PMXで検証。最大位置0.000203891・角度0.00743056度、隔離採用・復元、原本ハッシュ一致。12度は角度上限超過で拒否。Float32 VMDキー時刻の境界誤判定を修正。"
     }
   ]
 }
