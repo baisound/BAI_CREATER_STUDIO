@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T21:54:18+09:00",
+  "updated_at": "2026-10-24T22:00:20+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-long-24fps",
-  "head_at_update": "f5e8b44",
+  "head_at_update": "574a79a",
   "current": {
     "task": "Issue #106: MOTION-010 長尺VMDの24fps候補検証",
-    "status": "in_progress",
+    "status": "done",
     "step": "203秒実VMDと実PMXで24fps長尺なじませ候補の全骨往復を検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 他FPSの長尺候補と任意境界・長いなじませの安全な拒否/成立条件を調べる"
+    "MOTION-010 24000/1001fpsの長尺候補、および任意境界・長いなじませの安全な成立/拒否条件を調べる"
   ],
   "unverified": [
-    "任意境界・長いなじませ、他FPSの長尺候補、任意PMX、通常画面の長尺手操作、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "任意境界・長いなじませ、24000/1001fps長尺候補、任意PMX、通常画面の長尺手操作、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T22:00:20+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "574a79a",
+      "text": "MOTION-010 長尺203秒VMDの24fps一定補正を201骨PMX全4896作品F＋6120VMD Fで検証、隔離採用・復元を確認。24fps区間4Fなじませの不適合は拒否を固定"
+    },
     {
       "at": "2026-10-24T21:54:18+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "cd848b7",
       "text": "Issue #106: MOTION-010 ソロ切替と複数レイヤー3D骨操作: 評価順と保存条件を固定し、実PMXの重畳姿勢と別名VMDを検証"
-    },
-    {
-      "at": "2026-10-24T19:43:30+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "894ece7",
-      "text": "Issue #106: 同一クリップの複数補正レイヤー作成/選択/保存/削除とタイムライン連携を追加し、2区間の実PMX全骨往復・採用/復元を確認"
     }
   ]
 }

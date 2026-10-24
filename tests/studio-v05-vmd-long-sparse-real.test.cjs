@@ -23,11 +23,12 @@ for(const variant of [
   {duration:204,bone:'頭',angle:8,begin:5334,end:5666,
     fadeIn:4,fadeOut:4,category:'B',model:'avatar-front-garment-v04.pmx',
     bones:246,port:8917},
+  {duration:204,bone:'頭',angle:12,fps:24,port:8918},
 ])test(
-  `real moving 203s VMD sparse ${variant.begin?`bounded ${variant.bone} fade ${variant.fadeIn||0}/${variant.fadeOut||0}`:'constant head'} candidate matches ${variant.category||'A'} PMX for ${variant.duration}s`,
+  `real moving 203s VMD sparse ${variant.begin?`bounded ${variant.bone} fade ${variant.fadeIn||0}/${variant.fadeOut||0}`:'constant head'} candidate matches ${variant.category||'A'} PMX for ${variant.duration}s at ${variant.fps||60}fps`,
   {skip:!(root&&fs.existsSync(path.join(root,'mmd',variant.category||'A',variant.model||primaryModel))&&
     motionPath&&fs.existsSync(motionPath))&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:360000},async()=>{
-    const {duration}=variant,interval=Boolean(variant.begin);
+    const {duration}=variant,interval=Boolean(variant.begin),fps=variant.fps||60;
     const category=variant.category||'A',modelName=variant.model||primaryModel;
     const modelPath=path.join(root,'mmd',category,modelName);
     const originals=[digest(modelPath),digest(motionPath)];
@@ -46,6 +47,9 @@ for(const variant of [
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({name:`MOTION010 長尺${interval?'区間':'一定'}補正候補実試験`,kind:'empty'})}));
       const id=project.project.id;
+      if(fps!==60)await ok(await fetch(`${server.base}/api/studio/v05/project/fps`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({project_id:id,fps})}));
       const scene=await ok(await fetch(`${server.base}/api/studio/v05/scene/instances`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:id,action:'add',revision:0,asset_id:`mmd:${category}:${modelName}`,
@@ -62,7 +66,7 @@ for(const variant of [
       const saved=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           project_id:id,revision:0,action:'set',instance_id:instance,clip_id:placed.clip.id,
-          key:{frame:5400,bone:variant.bone,position:[0.15,0,0],
+          key:{frame:90*fps,bone:variant.bone,position:[0.15,0,0],
             rotation:[0,Math.sin(angle/2),0,Math.cos(angle/2)]}})}));
       assert.equal(saved.revision,1);
       const edits=interval?await ok(await fetch(`${server.base}/api/studio/v05/motion-edits`,{
@@ -83,7 +87,7 @@ for(const variant of [
       if(interval){
         assert.equal(candidate.replaced_bone_keys>0,variant.bone==='頭');
         assert.ok(candidate.added_bone_keys>0);
-        assert.equal(candidate.sampling_report.checked_project_frames,duration*60);
+        assert.equal(candidate.sampling_report.checked_project_frames,duration*fps);
         assert.ok(candidate.sampling_report.max_position_error<1e-3);
         assert.ok(candidate.sampling_report.max_angle_error_degrees<0.01);
       }else{
@@ -98,7 +102,7 @@ for(const variant of [
         fs.readFileSync(motionPath).subarray(-candidate.suffix_bytes));
       browser=await server.launchBrowser();page=await server.newPage(browser);
       await page.goto(`${server.base}/studio/v05/index.html`);
-      const report=await page.evaluate(async({id,instance,candidate})=>{
+      const report=await page.evaluate(async({id,instance,candidate,fps})=>{
         const {loadLibs}=await import('/studio/js/viewport/model-loader.js');
         const {validatePmxVmdCandidate}=await import('/studio/v05/js/pmx-vmd-candidate-validation-v120.js');
         const [scene,plan,edits]=await Promise.all([
@@ -110,10 +114,10 @@ for(const variant of [
         return validatePmxVmdCandidate({libs:await loadLibs(),modelAsset:model.asset,
           motionAsset:row.motion_asset,row,layers:edits.layers.filter(item=>
             item.instance_id===instance&&item.clip_id===candidate.clip_id),
-          candidate,fps:60,isCurrent:()=>true});
-      },{id,instance,candidate});
+          candidate,fps,isCurrent:()=>true});
+      },{id,instance,candidate,fps});
       console.log(JSON.stringify({longSparseCandidate:report}));
-      assert.equal(report.checkedFrames,duration*60);
+      assert.equal(report.checkedFrames,duration*fps);
       assert.equal(report.checkedVmdFrames,duration*30+(interval?1:0));
       assert.equal(report.bones,variant.bones||201);
       assert.equal(report.passed,true,JSON.stringify(report));
