@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T02:28:23+09:00",
+  "updated_at": "2026-10-25T02:30:39+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-export-ui",
-  "head_at_update": "93fab6c",
+  "branch": "codex/v05-lip001-export-diagnostics",
+  "head_at_update": "3925d8d",
   "current": {
-    "task": "Issue #187: v0.5から別名モーフVMD候補を出力",
-    "status": "done",
-    "step": "確定MorphMap選択・dry-run・候補生成・ダウンロードをSRT画面へ接続し実Chromeで確認する",
+    "task": "Issue #187: 口形VMD出力不能箇所を一覧化",
+    "status": "in_progress",
+    "step": "未確定発話・警告・欠落モーフ・フレーム衝突を発話別に返しv0.5画面で修正対象を示す",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T02:30:39+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3925d8d",
+      "text": "Issue #187: 口形VMD出力不能箇所を一覧化: 未確定発話・警告・欠落モーフ・フレーム衝突を発話別に返しv0.5画面で修正対象を示す"
+    },
     {
       "at": "2026-10-25T02:28:23+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "2a01881",
       "text": "Issue #175: 頂点型口モーフの中央値比候補をNode解析とv0.5画面で共有。実PMX Aの口上/口下で候補1/約0.51、グループ型は手動必須、Bは候補なし。隔離Chrome1/1・実PMX Node2/2、原本hash一致"
-    },
-    {
-      "at": "2026-10-25T00:51:03+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "eee5b37",
-      "text": "Issue #175: 頂点型口モーフの強度候補: 実PMXの頂点変位中央値比から候補を画面へ提示し、グループ・無変位型は手動確認のままにする"
     }
   ]
 }
