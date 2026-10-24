@@ -329,6 +329,21 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError, ValueError, TypeError, KeyError):
                 self.bad(422, 'Morph map read failed; original retained')
             return
+        if urlsplit(self.path).path == '/api/studio/v05/srt/sources':
+            from studio_v05_srt_sources import read as read_srt_sources, SrtSourceError
+
+            query = parse_qs(urlsplit(self.path).query)
+            if set(query) != {'project_id'} or len(query['project_id']) != 1:
+                return self.bad(400, 'Invalid SRT source query')
+            try:
+                result = read_srt_sources(DATA/'studio_v05_srt_sources',
+                                          DATA/'studio_v05_catalog.json', query['project_id'][0])
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except SrtSourceError as exc:
+                self.bad(exc.status, str(exc))
+            except (OSError, ValueError, TypeError, KeyError):
+                self.bad(422, 'SRT source read failed; originals retained')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/scene/multi-motion-plan':
             from studio_v05_multi_motion import plan, MultiMotionError
             try:
@@ -771,6 +786,31 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path == '/api/studio/v05/srt/import':
+            from studio_v05_srt_sources import register as register_srt_source, SrtSourceError, MAX_BYTES
+
+            query = parse_qs(urlsplit(self.path).query, keep_blank_values=True)
+            if set(query) != {'project_id', 'revision', 'name', 'encoding'} or any(len(v) != 1 for v in query.values()):
+                return self.bad(400, 'Invalid SRT import query')
+            try:
+                length = int(self.headers.get('Content-Length', '-1'))
+                if not 0 < length <= MAX_BYTES:
+                    return self.bad(413, 'SRT must be 1 byte to 8 MiB')
+                if not re.fullmatch(r'\d+', query['revision'][0]):
+                    return self.bad(400, 'SRT revision invalid')
+                payload = self.rfile.read(length)
+                if len(payload) != length:
+                    return self.bad(400, 'Incomplete SRT upload')
+                result = register_srt_source(DATA/'studio_v05_srt_sources',
+                    DATA/'studio_v05_catalog.json', query['project_id'][0],
+                    int(query['revision'][0]), query['name'][0], query['encoding'][0], payload)
+                event('v05_srt_source_imported', project_id=query['project_id'][0], bytes=length)
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except SrtSourceError as exc:
+                self.bad(exc.status, str(exc))
+            except (OSError, ValueError, TypeError, KeyError):
+                self.bad(500, 'SRT import failed; original upload retained by client')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/motion/glb-vmd/map':
             from studio_v05_glb_vmd import save_profile, ConversionError
             from studio_v05_glb_vmd_map import MappingError
