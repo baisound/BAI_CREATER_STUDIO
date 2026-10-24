@@ -196,6 +196,34 @@ for(const variant of [
         const uiRestored=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`));
         assert.equal(uiRestored.clips.find(item=>item.id===placed.clip.id).asset_id,
           `mmd:vmd:${motionName}`);
+        await page.locator('#v106-fk-start').fill('5338');
+        await page.locator('#v106-fk-end').fill('5464');
+        await page.locator('#v106-fk-fade-in').fill('2');
+        await page.locator('#v106-fk-fade-out').fill('2');
+        await page.locator('#v106-fk-layer-save').click();
+        await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('FKレイヤーを保存しました'));
+        const intervalEdits=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${id}`));
+        assert.equal(intervalEdits.revision,uiSaved.revision+1);
+        assert.equal(intervalEdits.layers[0].start_frame,5338);
+        assert.equal(intervalEdits.layers[0].end_frame,5464);
+        const candidateFolder=path.join(server.dataDir,'studio_v05_vmd_candidates',id);
+        const beforeReject=fs.readdirSync(candidateFolder).sort().map(name=>[name,digest(path.join(candidateFolder,name))]);
+        await page.locator('#v143-vmd-export-range').selectOption('interval');
+        harness.expectErrors(page,[/Failed to load resource: the server responded with a status of 422/]);
+        await page.locator('#v116-vmd-candidate-create').click();
+        await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent?.startsWith('候補作成不可:'),
+          null,{timeout:120000});
+        assert.match(await page.locator('#v116-vmd-candidate-status').textContent(),
+          /Interval-only VMD pose error exceeds limit/);
+        assert.equal(await page.locator('#v116-vmd-candidate-download').isHidden(),true);
+        assert.equal(await page.locator('#v141-vmd-candidate-adopt').isDisabled(),true);
+        assert.deepEqual(fs.readdirSync(candidateFolder).sort().map(name=>
+          [name,digest(path.join(candidateFolder,name))]),beforeReject);
+        assert.equal((await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${id}`))).revision,
+          intervalEdits.revision);
+        const afterReject=await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`));
+        assert.equal(afterReject.clips.find(item=>item.id===placed.clip.id).asset_id,
+          `mmd:vmd:${motionName}`);
         assert.equal(digest(modelPath),originals[0]);
         assert.equal(digest(motionPath),originals[1]);
       }

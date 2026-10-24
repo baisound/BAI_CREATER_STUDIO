@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:22:24+09:00",
+  "updated_at": "2026-10-24T22:32:56+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-long-ui-rejection",
-  "head_at_update": "51ca1a2",
+  "head_at_update": "0537858",
   "current": {
     "task": "Issue #106: MOTION-010 長尺区間候補の画面拒否",
-    "status": "in_progress",
+    "status": "done",
     "step": "203秒実VMDの動く頭骨区間を画面で設定し、誤差超過の拒否表示と候補・原本の保持を検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 長尺の時間限定候補を通常画面で検査し、安全な拒否表示と短い旧カメラ境界を調べる"
+    "MOTION-010 短い旧カメラ設定のまま90秒へシークした場合の境界を診断し、安全な表示・評価を検証する"
   ],
   "unverified": [
-    "長尺の時間限定候補の通常画面操作、任意境界・長いなじませ、任意PMX、短い旧カメラとの境界、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "短い旧カメラとの境界、任意境界・長いなじませ、任意PMX、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T22:32:56+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "0537858",
+      "text": "MOTION-010 長尺203秒実VMDの動く頭骨区間をv0.5画面で設定し、HTTP422の候補作成不可表示、ダウンロード/配置の無効化、候補SHA・revision・配置・原本不変を確認"
+    },
     {
       "at": "2026-10-24T22:22:24+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "e34f1cb",
       "text": "Issue #106: MOTION-010 下位FKの別形状PMX検証と再読込画面調査: 別形状PMXの下位FK3D編集を実測し、画面再読込の断続的失敗を切り分ける"
-    },
-    {
-      "at": "2026-10-24T20:22:39+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "f8fcd8a",
-      "text": "MOTION-010 下位FK単一骨の後段差分逆算を実装。実PMXで回転・位置の保存再読込、上位キー保持、別骨後段キー拒否を確認。統合3試験中1件UI初期化失敗、単独再実行通過。"
     }
   ]
 }
