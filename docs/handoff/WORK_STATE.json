@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:51:03+09:00",
+  "updated_at": "2026-10-25T00:55:08+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-lip004-vertex-candidates",
-  "head_at_update": "eee5b37",
+  "head_at_update": "2a01881",
   "current": {
     "task": "Issue #175: 頂点型口モーフの強度候補",
-    "status": "in_progress",
+    "status": "done",
     "step": "実PMXの頂点変位中央値比から候補を画面へ提示し、グループ・無変位型は手動確認のままにする",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #175: 頂点型口モーフの候補強度算出を既存解析に接続し、グループ/無変位は手動必須を維持して実データ検証する"
+    "Issue #175: 登録済みVRM表情定義の列挙と欠落母音の明示を調べ、モデルhashに紐付く候補へ接続する"
   ],
   "unverified": [
-    "自然な強度のOwner採用、保存済み表情キーとの重ね合わせ専用試験、VRM、MCP、Linux、統合production耐障害性は未検証"
+    "自然な強度のOwner採用、VRM実表情、MCP、Linux、統合production耐障害性は未検証。LIP-004は部分実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:55:08+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2a01881",
+      "text": "Issue #175: 頂点型口モーフの中央値比候補をNode解析とv0.5画面で共有。実PMX Aの口上/口下で候補1/約0.51、グループ型は手動必須、Bは候補なし。隔離Chrome1/1・実PMX Node2/2、原本hash一致"
+    },
     {
       "at": "2026-10-25T00:51:03+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "8f73a8f",
       "text": "Issue #106: MOTION-010 作品と旧カメラのFPS換算: 同じ秒数をカメラ自身のFPSで評価し、24/60fps作品と旧30fpsカメラの保存姿勢を確認する"
-    },
-    {
-      "at": "2026-10-24T22:41:19+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ac2e9fe",
-      "text": "MOTION-010 旧300Fカメラと184.5秒実PMX/VMD作品で90秒シークを検証。画面だけ終端F300を保持しHTTP失敗0、既定API範囲外400・原本保持、全身/表情/限定MP4回帰合格"
     }
   ]
 }

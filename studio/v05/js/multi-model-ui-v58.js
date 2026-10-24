@@ -16,6 +16,7 @@ import {createPmxVmdPreview} from '../../js/motion/pmx-vmd-preview.js';
 import {loadVmdClip,vmdUrl} from '../../js/motion/vmd.js';
 import {validatePmxVmdCandidate} from './pmx-vmd-candidate-validation-v120.js';
 import {morphValues,resetMorphs,applyFaceKeys,setMorphValue} from './pmx-face-keys-v96.js';
+import {strengthCandidates} from './pmx-morph-strength.mjs';
 
 const project=document.getElementById('v06project');
 // A separate, short-lived headless page uses this mode for exact saved frames.
@@ -35,6 +36,7 @@ let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motio
 let vmdCandidate=null,candidateValidation=null,candidateReport=null;
 let morphAnalysis=null,morphAnalysisNonce=0,morphMaps=null,morphMapNonce=0;
 let morphPreview=null;
+let morphCandidates=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
 panel.hidden=true;
@@ -252,8 +254,18 @@ mapRestoreButton.type='button';mapRestoreButton.textContent='元の表情へ戻�
 const mapPreviewStatus=document.createElement('small');mapPreviewStatus.id='v181-preview-status';
 mapPreviewStatus.setAttribute('role','status');mapPreviewStatus.style.cssText='display:block;color:#c8d9ea';
 mapPreviewStatus.textContent='一時表示は保存・書き出しに含まれません。';
+const mapCandidateReference=document.createElement('select');mapCandidateReference.id='v182-reference';
+mapCandidateReference.setAttribute('aria-label','頂点移動の基準モーフ');
+const mapCandidateRun=document.createElement('button');mapCandidateRun.id='v182-candidate-run';
+mapCandidateRun.type='button';mapCandidateRun.textContent='頂点移動から候補を計算';
+const mapCandidateApply=document.createElement('button');mapCandidateApply.id='v182-candidate-apply';
+mapCandidateApply.type='button';mapCandidateApply.textContent='候補を重みに入力（未確定）';mapCandidateApply.disabled=true;
+const mapCandidateInfo=document.createElement('small');mapCandidateInfo.id='v182-candidate-info';
+mapCandidateInfo.setAttribute('role','status');mapCandidateInfo.style.cssText='display:block;white-space:pre-wrap;color:#c8d9ea';
+mapCandidateInfo.textContent='頂点型のみ中央値比で候補を出します。自然さは一時表示で確認してください。';
 mapControls.append(mapSummary,mapStatus,mapGrid,mapDraft,mapConfirm,
-  mapPreviewShape,mapPreviewButton,mapRestoreButton,mapPreviewStatus);
+  mapPreviewShape,mapPreviewButton,mapRestoreButton,mapPreviewStatus,
+  mapCandidateReference,mapCandidateRun,mapCandidateApply,mapCandidateInfo);
 analysisControls.append(analysisSummary,analysisRun,analysisStatus,analysisName,analysisInfo,mapControls);
 heading.append(title,choose,refreshBtn,focusBtn,saveCameraBtn,restoreCameraBtn,modeBtn,closeBtn);
 const motionControls=document.createElement('div');motionControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
@@ -402,6 +414,9 @@ function clearMorphAnalysis(){
   morphPreview=null;mapRestoreButton.disabled=true;
   mapPreviewStatus.textContent='一時表示は保存・書き出しに含まれません。';
   morphAnalysisNonce++;morphAnalysis=null;
+  morphCandidates=null;mapCandidateApply.disabled=true;
+  mapCandidateReference.replaceChildren(new Option('基準となる頂点モーフ',''));
+  mapCandidateInfo.textContent='頂点型のみ中央値比で候補を出します。自然さは一時表示で確認してください。';
   analysisName.replaceChildren();analysisName.hidden=true;analysisInfo.textContent='';
   analysisRun.disabled=!selectedMorphAsset();
   analysisStatus.textContent=analysisRun.disabled?'登録済みPMXモデルを選んでください'
@@ -423,6 +438,7 @@ function redrawMorphMapStatus(){
   const stale=rows.filter(row=>row.source_status!=='valid');
   mapDraft.disabled=mapConfirm.disabled=!morphAnalysis?.morphs?.length||!morphMaps||!assetId;
   mapPreviewButton.disabled=!morphAnalysis?.morphs?.length||!assetId;
+  mapCandidateRun.disabled=!morphAnalysis?.morphs?.some(row=>row.type===1&&!row.manualRequired&&row.median>0)||!assetId;
   if(!assetId)mapStatus.textContent='登録済みPMXモデルを選んでください。';
   else if(!morphMaps)mapStatus.textContent='保存済み対応表を読み込めていません。';
   else if(stale.length)mapStatus.textContent='原本変更・素材不足の旧対応表があります。現在の原本で再解析して新規に保存してください。';
@@ -453,7 +469,48 @@ function fillMorphMap(){
     }else{select.value='';weight.value='1';}
     select.disabled=weight.disabled=!rows.length;
   }
+  mapCandidateReference.replaceChildren(new Option('基準となる頂点モーフ',''));
+  for(const row of rows.filter(item=>item.type===1&&!item.manualRequired&&item.median>0))
+    mapCandidateReference.add(new Option(`${row.name}（中央値${row.median.toFixed(5)}）`,String(row.id)));
+  if(mapCandidateReference.options.length>1)mapCandidateReference.selectedIndex=1;
+  morphCandidates=null;mapCandidateApply.disabled=true;
   redrawMorphMapStatus();
+}
+function clearMorphCandidates(){
+  morphCandidates=null;mapCandidateApply.disabled=true;
+  mapCandidateInfo.textContent='割当または基準が変わりました。候補を再計算してください。';
+}
+function calculateMorphCandidates(){
+  const mapping={};
+  for(const shape of ['A','I','U','E','O']){
+    const value=mapRows.get(shape).select.value;
+    if(value!=='')mapping[shape]=Number(value);
+  }
+  if(!Object.keys(mapping).length){mapCandidateInfo.textContent='母音にモーフを選んでください。';return;}
+  try{
+    const result=strengthCandidates(morphAnalysis,mapping,Number(mapCandidateReference.value));
+    morphCandidates=result;
+    const reference=morphAnalysis.morphs.find(row=>row.id===result.referenceMorphId);
+    const lines=[`基準 ${reference.name} 中央値${reference.median.toFixed(5)}。参考値であり自然さは未判定。`];
+    for(const [shape,entry] of Object.entries(result.entries)){
+      const row=morphAnalysis.morphs.find(item=>item.id===entry.morphId);
+      lines.push(entry.manualRequired?`${shape} ${row.name}：手動確認（頂点変位で算出不可）`
+        :`${shape} ${row.name}：候補${entry.candidate.toFixed(3)}${entry.clipped?'（上限1へ丸め）':''}`);
+    }
+    mapCandidateInfo.textContent=lines.join('\n');
+    mapCandidateApply.disabled=!Object.values(result.entries).some(entry=>!entry.manualRequired);
+  }catch(error){morphCandidates=null;mapCandidateApply.disabled=true;
+    mapCandidateInfo.textContent='候補を計算できません: '+String(error.message||error);}
+}
+function applyMorphCandidates(){
+  if(!morphCandidates)return;
+  restoreMorphPreview();
+  for(const [shape,entry] of Object.entries(morphCandidates.entries)){
+    if(entry.manualRequired)continue;
+    mapRows.get(shape).weight.value=String(Number(entry.candidate.toFixed(2)));
+  }
+  mapCandidateInfo.textContent+='\n頂点型の候補を入力しました。まだ保存・確定していません。一時表示で比較してください。';
+  mapCandidateApply.disabled=true;
 }
 function restoreMorphPreview(){
   if(!morphPreview)return;
@@ -1396,8 +1453,11 @@ mapConfirm.addEventListener('click',()=>saveMorphMap(true));
 mapPreviewButton.addEventListener('click',previewMorphMap);
 mapRestoreButton.addEventListener('click',restoreMorphPreview);
 mapPreviewShape.addEventListener('change',restoreMorphPreview);
+mapCandidateRun.addEventListener('click',calculateMorphCandidates);
+mapCandidateApply.addEventListener('click',applyMorphCandidates);
+mapCandidateReference.addEventListener('change',clearMorphCandidates);
 for(const {select,weight} of mapRows.values()){
-  select.addEventListener('change',restoreMorphPreview);
+  select.addEventListener('change',()=>{restoreMorphPreview();clearMorphCandidates();});
   weight.addEventListener('input',restoreMorphPreview);
 }
 analysisRun.addEventListener('click',async()=>{

@@ -65,6 +65,21 @@ test('v0.5 shows registered PMX mouth measurements and group vowel manual warnin
     assert.match(await page.locator('#v178-analysis-info').textContent(),/移動頂点1136件/);
     assert.match(await page.locator('#v178-analysis-info').textContent(),/中央値0\.09341/);
     await page.locator('#v180-morph-map summary').click();
+    const lower=measured.morphs.find(row=>row.name==='口下');
+    await page.locator('#v180-map-A').selectOption(String(upper.id));
+    await page.locator('#v180-map-I').selectOption(String(lower.id));
+    await page.locator('#v180-map-U').selectOption(String(measured.morphs.find(row=>row.name==='う').id));
+    await page.locator('#v182-reference').selectOption(String(upper.id));
+    await page.locator('#v182-candidate-run').click();
+    assert.match(await page.locator('#v182-candidate-info').textContent(),/A 口上：候補1\.000/);
+    assert.match(await page.locator('#v182-candidate-info').textContent(),/I 口下：候補0\.51/);
+    assert.match(await page.locator('#v182-candidate-info').textContent(),/U う：手動確認/);
+    await page.locator('#v182-candidate-apply').click();
+    assert.equal(await page.locator('#v180-weight-A').inputValue(),'1');
+    assert.equal(await page.locator('#v180-weight-I').inputValue(),'0.51');
+    assert.equal(await page.locator('#v180-weight-U').inputValue(),'1','グループ型は上書きしない');
+    const proposed=await json(await fetch(`${server.base}/api/studio/v05/pmx/morph-map?project_id=${projectId}`));
+    assert.equal(proposed.revision,0,'候補を入力しても自動保存しない');
     const mouth={A:['あ',0.8],I:['い',0.7],U:['う',0.6],E:['え',0.7],O:['お',0.9]};
     for(const [shape,[name,weight]] of Object.entries(mouth)){
       const row=measured.morphs.find(item=>item.name===name);
@@ -132,6 +147,7 @@ test('v0.5 shows registered PMX mouth measurements and group vowel manual warnin
     await page.waitForFunction(()=>document.querySelector('#v178-analysis-status')?.textContent.includes('0件'));
     assert.match(await page.locator('#v178-analysis-info').textContent(),/口パネルのモーフがありません/);
     assert.equal(await page.locator('#v180-map-draft').isDisabled(),true);
+    assert.equal(await page.locator('#v182-candidate-run').isDisabled(),true);
     assert.match(await page.locator('#v180-map-status').textContent(),/未保存/);
     fs.appendFileSync(path.join(server.dataDir,'mmd','A',pmx),Buffer.from([0]));
     await page.locator('#v58-multi-preview select[aria-label="表示対象モデル"]').selectOption(scene.instances[0].id);

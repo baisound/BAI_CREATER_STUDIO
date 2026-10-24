@@ -4,6 +4,7 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {MMDParser} from '../node_modules/three/examples/jsm/libs/mmdparser.module.js';
+export {strengthCandidates} from '../studio/v05/js/pmx-morph-strength.mjs';
 
 const percentile=(sorted,p)=>{
   if(!sorted.length)return 0;
@@ -60,22 +61,6 @@ export function analyzeMouthMorphs(pmx){
       jaccard:shared/(ls.size+rs.size-shared)});
   }
   return {schema:1,vertexCount:pmx.metadata.vertexCount,morphs:entries,overlaps};
-}
-
-export function strengthCandidates(analysis,mapping,reference){
-  const referenceEntry=analysis.morphs.find(row=>row.id===reference);
-  if(!referenceEntry||referenceEntry.manualRequired||referenceEntry.median<=0)
-    throw new Error('Reference morph needs measured vertex movement');
-  const entries={};
-  for(const [shape,id] of Object.entries(mapping)){
-    if(!['A','I','U','E','O'].includes(shape))throw new Error('Unknown mouth shape');
-    const row=analysis.morphs.find(item=>item.id===id);
-    if(!row)throw new Error('Unknown mouth morph');
-    entries[shape]={morphId:id,median:row.median,
-      candidate:row.manualRequired?null:Math.max(0,Math.min(1,referenceEntry.median/row.median)),
-      manualRequired:row.manualRequired};
-  }
-  return {referenceMorphId:reference,entries};
 }
 
 export function analyzePmxBytes(bytes){
