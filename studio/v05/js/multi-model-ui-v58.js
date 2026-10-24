@@ -31,7 +31,7 @@ const tr=(key)=>locale[key]||({
 })[key]||key;
 const section=document.getElementById('v57-scene-instances');
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,reloadReady=false,nonce=0,selectedId='';
-let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null,previewArm=null,activePole=null;
+let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,projectFps=60,previewFk=null,previewArm=null,activePole=null,activeArm=null;
 let vmdCandidate=null,candidateValidation=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
@@ -91,6 +91,17 @@ const poleChoose=document.createElement('button');poleChoose.type='button';poleC
 poleChoose.textContent='膝方向を編集';
 const ikStatus=document.createElement('small');ikStatus.id='v114-ik-status';ikStatus.setAttribute('role','status');
 ikRow.append(document.createTextNode('PMX IK '),ikSelect,ikChoose,poleChoose,ikStatus);
+const armRow=document.createElement('div');armRow.id='v137-arm-handles';
+armRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
+const armSelect=document.createElement('select');armSelect.id='v137-arm-side';
+armSelect.setAttribute('aria-label','腕IKで編集する側');
+armSelect.add(new Option('左腕','左'));armSelect.add(new Option('右腕','右'));
+const armHandChoose=document.createElement('button');armHandChoose.type='button';armHandChoose.id='v137-arm-hand';
+armHandChoose.textContent='手先を3Dで編集';
+const armElbowChoose=document.createElement('button');armElbowChoose.type='button';armElbowChoose.id='v137-arm-elbow';
+armElbowChoose.textContent='ひじ方向を3Dで編集';
+const armStatus=document.createElement('small');armStatus.id='v137-arm-status';armStatus.setAttribute('role','status');
+armRow.append(document.createTextNode('腕IK '),armSelect,armHandChoose,armElbowChoose,armStatus);
 const limbRow=document.createElement('div');limbRow.id='v123-limb-mode';
 limbRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
 const limbSelect=document.createElement('select');limbSelect.id='v123-limb';
@@ -158,7 +169,7 @@ fkRow.append(document.createTextNode('骨 '),fkBone,document.createTextNode('F '
   ...fkAxes.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}° `),input]),
   ...fkPosition.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}位置 `),input]),
   fkPreview,fkSave,fkCancel,fkUndo,fkRedo,fkSaved,fkRemove);
-fkControls.append(fkSummary,fkContext,limbRow,ikRow,fkRow,fkLayerRow,fkCandidateRow,fkStatus);
+fkControls.append(fkSummary,fkContext,limbRow,ikRow,armRow,fkRow,fkLayerRow,fkCandidateRow,fkStatus);
 const faceLabel=document.createElement('strong');faceLabel.textContent='PMX表情・口';
 const faceName=document.createElement('select');faceName.id='v96-face-name';faceName.setAttribute('aria-label','実PMXのモーフ名');
 const faceTrack=document.createElement('select');faceTrack.id='v98-face-track';
@@ -359,6 +370,24 @@ function kneePoleFor(target,name){
       Math.abs(lower.z)>1e-5||Math.abs(upper.z)>1e-5)return null;
   return {knee,thigh,ankle,targetBone,limb:side==='左'?'left_leg':'right_leg'};
 }
+function armBonesFor(target,side){
+  if(target?.format!=='PMX'||!['左','右'].includes(side))return null;
+  const bones=target.object?.skeleton?.bones||[];
+  const names=[side+'腕',side+'ひじ',side+'手首'];
+  const matches=names.map(name=>bones.filter(bone=>bone.name===name));
+  if(matches.some(list=>list.length!==1))return null;
+  const [arm,elbow,wrist]=matches.map(list=>list[0]);
+  const ancestor=(child,parent)=>{
+    for(let node=child.parent;node;node=node.parent)if(node===parent)return true;
+    return false;
+  };
+  if(!ancestor(elbow,arm)||!ancestor(wrist,elbow))return null;
+  const iks=target.object?.geometry?.userData?.MMD?.iks;
+  if(iks!==undefined&&!Array.isArray(iks))return null;
+  if((iks||[]).some(ik=>ik.effector===bones.indexOf(wrist)||ik.links?.some(link=>
+      link.index===bones.indexOf(arm)||link.index===bones.indexOf(elbow))))return null;
+  return {arm,elbow,wrist,side};
+}
 function limbBones(target,limb){
   if(target?.format!=='PMX'||!limb.endsWith('_leg'))return null;
   const side=limb==='left_leg'?'左':'右';
@@ -430,6 +459,13 @@ function redrawFkControls(){
   poleChoose.disabled=!row||!pole||poleMode!=='IK'||Boolean(previewFk||previewArm)||
     Boolean(motionEdits?.issues?.length)||
     Boolean(sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked);
+  const armBones=armBonesFor(target,armSelect.value);
+  const armDisabled=!row||!armBones||Boolean(previewFk||previewArm)||
+    Boolean(motionEdits?.issues?.length)||
+    Boolean(sceneSnapshot?.instances?.find(item=>item.id===instanceId)?.locked);
+  armHandChoose.disabled=armDisabled;armElbowChoose.disabled=armDisabled;
+  armStatus.textContent=previewArm?`${previewArm.side}腕を仮表示中。キー化かEscで確定してください。`:
+    armBones?'手先・ひじの3Dハンドルを選べます。':'対応する腕→ひじ→手首の実骨がありません。';
   const layer=motionEdits?.layers?.find(item=>item.instance_id===instanceId&&item.clip_id===row?.clip_id&&!item.disabled);
   const first=row?Math.ceil(row.start*projectFps-1e-7):0;
   const end=row?Math.ceil((row.start+row.duration)*projectFps-1e-7):0;
@@ -460,8 +496,11 @@ function redrawFkControls(){
   rotateGizmo?.refresh();
 }
 function fkGizmoContext(){
-  if(previewArm)return {reason:'腕IKの2キー仮表示を保存または破棄してください。'};
   const instanceId=choose.value||selectedId,frame=Number(fkFrame.value),name=fkBone.value;
+  if(previewArm&&(!activeArm||previewArm.projectId!==project.value||
+      previewArm.instanceId!==instanceId||previewArm.frame!==frame||
+      previewArm.side!==activeArm.side||activeArm.bone!==name))
+    return {reason:'腕IKの2キー仮表示を保存または破棄してください。'};
   const row=activeFkRow(frame),target=controller?.getLoaded(instanceId);
   if(!opened||!row||!target?.object?.skeleton||!name)return {reason:'実PMX骨と有効なVMDのある作品フレームを選択してください。'};
   if(Math.abs(Number(seekInput.value)-frame/projectFps)>1/(projectFps*100))
@@ -479,6 +518,9 @@ function fkGizmoContext(){
       activePole?.projectId===project.value&&activePole?.instanceId===instanceId&&
       activePole?.clipId===row.clip_id&&activePole?.frame===frame&&
       activePole?.bone===name);
+  const arm=activeArm?.projectId===project.value&&activeArm?.instanceId===instanceId&&
+    activeArm?.clipId===row.clip_id&&activeArm?.frame===frame&&
+    activeArm?.bone===name?armBonesFor(target,activeArm.side):null;
   const layers=(motionEdits?.layers||[]).filter(layer=>!layer.disabled&&
     layer.instance_id===instanceId&&layer.clip_id===row.clip_id);
   if(layers.length>1)return {reason:'複数レイヤーの同時補正は3D操作に未対応です。'};
@@ -493,7 +535,9 @@ function fkGizmoContext(){
   return {projectId:project.value,instanceId,clipId:row.clip_id,frame,boneName:name,
     bone:matches[0],effectorBone:effectors.length===1?effectors[0]:null,
     poleKneeBone:pole?.knee||null,poleAnkleBone:pole?.ankle||null,
-    poleTargetBone:pole?.targetBone||null,target,row,layer};
+    poleTargetBone:pole?.targetBone||null,
+    armElbowBone:arm?.elbow||null,armWristBone:arm?.wrist||null,
+    armSide:arm?.side||null,armPreviewActive:Boolean(previewArm),target,row,layer};
 }
 function previewCurrentFk(){
   if(previewArm)throw Error('腕IKの2キー仮表示を先に保存または破棄してください。');
@@ -630,6 +674,44 @@ async function previewPoleFromGizmo(desiredWorld,started){
     applyAllMotionEdits();seekScene(current.frame/projectFps);redrawFkControls();
     throw error;
   }
+}
+async function previewArmFromGizmo(desiredWorld,kind,started){
+  const current=fkGizmoContext();
+  if(current.reason||current.bone!==started.bone||
+      current.armElbowBone!==started.armElbowBone||
+      current.armWristBone!==started.armWristBone||
+      current.projectId!==started.projectId||current.instanceId!==started.instanceId||
+      current.clipId!==started.clipId||current.frame!==started.frame)
+    throw Error(current.reason||'ドラッグ中に作品・腕・フレームが変わりました。');
+  const {target,bone:arm,armElbowBone:elbow,armWristBone:wrist,armSide:side}=current;
+  if(!arm||!elbow||!wrist||!side)throw Error('対応する腕IKの親子経路がありません。');
+  const THREE=target.libs.THREE;
+  target.object.updateWorldMatrix(true,true);
+  const shoulder=arm.getWorldPosition(new THREE.Vector3());
+  const elbowPoint=elbow.getWorldPosition(new THREE.Vector3());
+  const wristPoint=wrist.getWorldPosition(new THREE.Vector3());
+  const modelDirection=new THREE.Vector3(0,0,side==='左'?1:-1)
+    .applyQuaternion(target.object.getWorldQuaternion(new THREE.Quaternion())).normalize();
+  const fallbackPole=shoulder.clone().add(modelDirection).toArray();
+  const handTarget=kind==='arm-hand'?desiredWorld.toArray():wristPoint.toArray();
+  let pole=null;
+  if(kind==='arm-elbow')pole=desiredWorld.toArray();
+  else{
+    const axis=new THREE.Vector3().fromArray(handTarget).sub(shoulder);
+    if(axis.lengthSq()>1e-8){
+      axis.normalize();
+      const radial=elbowPoint.clone().sub(shoulder);
+      radial.addScaledVector(axis,-radial.dot(axis));
+      if(radial.length()>Math.max(1e-5,shoulder.distanceTo(elbowPoint)*0.01))
+        pole=elbowPoint.toArray();
+    }
+  }
+  const result=window.BAIStudioMultiScenePreview.armIkPreview(
+    current.instanceId,side,handTarget,fallbackPole,pole);
+  armStatus.textContent=result.unreachableDistance>1e-8?
+    `手先は届く範囲の端へ配置。指定位置との差 ${result.unreachableDistance.toFixed(4)} シーン単位。`:
+    `手首残差 ${result.residual.toExponential(2)} シーン単位。保存前に姿勢を確認してください。`;
+  return result;
 }
 function applyAllMotionEdits(){
   if(!motionCoordinator||!motionPlan)return;
@@ -860,7 +942,7 @@ async function setup(){
     getSelected:()=>fkBone.value,
     onSelect(name){
       discardFkPreview();
-      fkBone.value=name;
+      fkBone.value=name;activeArm=null;
       fkControls.open=true;
       redrawFkControls();
     }
@@ -877,6 +959,7 @@ async function setup(){
     },
     onTransform:previewFromGizmo,
     onPoleTransform:previewPoleFromGizmo,
+    onArmTransform:previewArmFromGizmo,
     onCancel:()=>seekScene(Number(seekInput.value)||0),
     onModeChange:(enabled,context)=>{
       spatialEditor?.setGizmoEnabled(!enabled);
@@ -969,7 +1052,7 @@ function close(){
   bonePicker?.dispose();bonePicker=null;
   spatialEditor?.dispose();spatialEditor=null;sceneSnapshot=null;
   motionCoordinator?.dispose();motionCoordinator=null;motionPlan=null;
-  motionEdits=null;previewFk=null;previewArm=null;activePole=null;
+  motionEdits=null;previewFk=null;previewArm=null;activePole=null;activeArm=null;
   controller?.dispose();controller=null;
   viewport?.dispose();viewport=null;
   if(composite)unmountComposite();
@@ -980,14 +1063,15 @@ function close(){
 refreshBtn.addEventListener('click',reload);
 choose.addEventListener('change',()=>{
   discardFkPreview();
+  activeArm=null;
   selectedId=choose.value;
   spatialEditor?.select(selectedId);
   redrawFaceControls();
   setFkFrameFromSeek();
 });
 fkHere.addEventListener('click',setFkFrameFromSeek);
-fkFrame.addEventListener('change',()=>{activePole=null;if(previewArm)discardFkPreview();redrawFkControls();});
-fkBone.addEventListener('change',()=>{activePole=null;discardFkPreview();redrawFkControls();});
+fkFrame.addEventListener('change',()=>{activePole=null;activeArm=null;if(previewArm)discardFkPreview();redrawFkControls();});
+fkBone.addEventListener('change',()=>{activePole=null;activeArm=null;discardFkPreview();redrawFkControls();});
 limbSelect.addEventListener('change',redrawFkControls);
 limbMode.addEventListener('change',()=>{
   const target=controller?.getLoaded(choose.value||selectedId);
@@ -1045,7 +1129,7 @@ ikChoose.addEventListener('click',()=>{
     ikStatus.textContent='IK骨を選び直してください。';return;
   }
   discardFkPreview();fkBone.value=selected.name;
-  activePole=null;
+  activePole=null;activeArm=null;
   fkControls.open=true;rotateGizmo?.setMode('translate');redrawFkControls();
   ikStatus.textContent=`${selected.name}を選択。${selected.effector}の追従は仮表示で確認してください。`;
 });
@@ -1066,10 +1150,29 @@ poleChoose.addEventListener('click',()=>{
     new THREE.Quaternion().fromArray(key.rotation),'XYZ'):null;
   fkAxes.forEach((input,index)=>input.value=String(euler?[euler.x,euler.y,euler.z][index]*180/Math.PI:0));
   fkPosition.forEach((input,index)=>input.value=String(key?.position?.[index]??0));
-  activePole={projectId:project.value,instanceId,clipId:row.clip_id,frame,bone:pole.thigh.name};
+  activeArm=null;activePole={projectId:project.value,instanceId,clipId:row.clip_id,frame,bone:pole.thigh.name};
   fkControls.open=true;rotateGizmo?.setMode('pole');redrawFkControls();
   ikStatus.textContent=`${pole.knee.name}の現在位置を膝方向ハンドルに設定。ドラッグ後は仮表示を確認し、キー化してください。`;
 });
+armSelect.addEventListener('change',()=>{activeArm=null;redrawFkControls();});
+function chooseArmHandle(kind){
+  const instanceId=choose.value||selectedId,target=controller?.getLoaded(instanceId);
+  const bones=armBonesFor(target,armSelect.value),frame=Number(fkFrame.value),row=activeFkRow(frame);
+  if(!bones||!row||armHandChoose.disabled||armElbowChoose.disabled||
+      ![...fkBone.options].some(option=>option.value===bones.arm.name)){
+    armStatus.textContent='このPMXの腕IK操作は利用できません。骨の親子経路と作品Fを確認してください。';return;
+  }
+  discardFkPreview();fkBone.value=bones.arm.name;activePole=null;
+  activeArm={projectId:project.value,instanceId,clipId:row.clip_id,frame,
+    bone:bones.arm.name,side:armSelect.value};
+  fkControls.open=true;rotateGizmo?.setMode(kind);
+  redrawFkControls();
+  armStatus.textContent=kind==='arm-hand'?
+    `${armSelect.value}手首の3Dハンドルを表示して動かしてください。`:
+    `${armSelect.value}ひじの3Dハンドルで曲げる方向を指定してください。`;
+}
+armHandChoose.addEventListener('click',()=>chooseArmHandle('arm-hand'));
+armElbowChoose.addEventListener('click',()=>chooseArmHandle('arm-elbow'));
 fkPreview.addEventListener('click',()=>{
   try{
     previewCurrentFk();
@@ -1472,11 +1575,12 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     });
     return {projectId:project?.value,instanceId,bones};
   },
-  // Read-only solver probe for the supported PMX arm chain. The returned pair
-  // is tested through the normal arm-set API before exposing a hand handle.
-  armIkProbe(instanceId,side,handTarget,fallbackPole){
+  // Re-evaluate without the two edited channels to derive deltas from raw VMD.
+  armIkProbe(instanceId,side,handTarget,fallbackPole,pole=null){
     if(!opened||!['左','右'].includes(side)||!Array.isArray(handTarget)||
-        !Array.isArray(fallbackPole)||previewFk||previewArm||motionEdits?.issues?.length)
+        !Array.isArray(fallbackPole)||previewFk||motionEdits?.issues?.length||
+        (previewArm&&(previewArm.projectId!==project.value||
+          previewArm.instanceId!==instanceId||previewArm.side!==side)))
       throw Error('腕IKの診断条件が揃っていません。');
     const target=controller?.getLoaded(instanceId),skeleton=target?.object?.skeleton;
     if(target?.format!=='PMX'||!skeleton||
@@ -1492,19 +1596,30 @@ window.BAIStudioMultiScenePreview=Object.freeze({
       throw Error('VMDがある作品フレームへ移動してください。');
     const layers=(motionEdits?.layers||[]).filter(layer=>!layer.disabled&&
       layer.instance_id===instanceId&&layer.clip_id===row.clip_id);
-    if(layers.length>1||layers.some(layer=>layer.keys.some(key=>
-        names.slice(0,2).includes(key.bone))))
-      throw Error('この腕には既存補正があり、診断では上書きしません。');
+    if(layers.length>1)throw Error('複数レイヤーの腕IK再編集には未対応です。');
+    if(layers.some(layer=>layer.keys.some(key=>names.slice(0,2).includes(key.bone)&&
+        key.position?.some(value=>value!==0))))
+      throw Error('腕・ひじに位置差分のある補正は腕IKハンドルで上書きしません。');
     if(layers.some(layer=>layer.weight!==1||layer.muted||
         frame<(layer.start_frame??Math.ceil(row.start*projectFps-1e-7))+(layer.fade_in_frames||0)||
         frame>=(layer.end_frame??Math.ceil((row.start+row.duration)*projectFps-1e-7))-(layer.fade_out_frames||0)))
       throw Error('腕IK診断は重み100%で有効区間のなじませ外に限ります。');
     const before=worldBonePose(target);
-    const result=solveArmLocalRotations({THREE:target.libs.THREE,object:target.object,
-      arm:found[0][0],elbow:found[1][0],wrist:found[2][0],
-      target:handTarget,fallbackPole});
+    const filtered=layers.map(layer=>({...layer,
+      keys:layer.keys.filter(key=>!names.slice(0,2).includes(key.bone))}));
+    let result;
+    try{
+      motionCoordinator.setCorrectionLayers(row.clip_id,filtered,null);
+      const evaluated=motionCoordinator.seek(frame/projectFps);
+      if(evaluated?.errors?.length)throw Error('腕IKの元姿勢を評価できません。');
+      result=solveArmLocalRotations({THREE:target.libs.THREE,object:target.object,
+        arm:found[0][0],elbow:found[1][0],wrist:found[2][0],
+        target:handTarget,pole,fallbackPole});
+    }finally{
+      applyAllMotionEdits();motionCoordinator.seek(frame/projectFps);
+    }
     const difference=worldPoseDifference(before,worldBonePose(target));
-    if(difference>1e-8)throw Error('腕IK診断後に元姿勢を復元できません。');
+    if(difference>1e-6)throw Error(`腕IK診断後に元姿勢を復元できません。最大差 ${difference.toExponential(3)}`);
     const THREE=target.libs.THREE;
     const delta=(base,local)=>new THREE.Quaternion().fromArray(base).invert()
       .multiply(new THREE.Quaternion().fromArray(local)).normalize().toArray();
@@ -1513,12 +1628,13 @@ window.BAIStudioMultiScenePreview=Object.freeze({
         {frame,bone:names[1],rotation:delta(result.elbowBase,result.elbowLocal)}],
       ...result,restoreDifference:difference};
   },
-  armIkPreview(instanceId,side,handTarget,fallbackPole){
-    const probe=window.BAIStudioMultiScenePreview.armIkProbe(instanceId,side,handTarget,fallbackPole);
+  armIkPreview(instanceId,side,handTarget,fallbackPole,pole=null){
+    const probe=window.BAIStudioMultiScenePreview.armIkProbe(instanceId,side,handTarget,fallbackPole,pole);
     const target=controller.getLoaded(instanceId);
     const layer=(motionEdits?.layers||[]).find(item=>!item.disabled&&
       item.instance_id===instanceId&&item.clip_id===probe.clipId);
     const before=worldBonePose(target);
+    const previousPreview=previewArm;
     previewArm={projectId:project.value,instanceId,clipId:probe.clipId,frame:probe.frame,side,
       keys:probe.keys.map(key=>({...key,layer_id:layer?.id||'preview'}))};
     try{
@@ -1536,9 +1652,11 @@ window.BAIStudioMultiScenePreview=Object.freeze({
         throw Error(`腕IK仮評価で手首残差 ${residual}、未編集骨差 ${drift} が上限を超えました。`);
       fkFrame.value=String(probe.frame);fkControls.open=true;redrawFkControls();
       fkStatus.textContent=`${side}腕IKの2キーを仮表示中。手首残差 ${residual.toExponential(2)} シーン単位。保存は「このFをキー化」、破棄はEscです。`;
-      return {frame:probe.frame,residual,unrelatedDrift:drift,keys:probe.keys};
+      return {frame:probe.frame,residual,unrelatedDrift:drift,keys:probe.keys,
+        reachable:probe.reachable,unreachableDistance:probe.unreachableDistance,
+        wristTarget:probe.wristTarget,elbowTarget:probe.elbowTarget};
     }catch(error){
-      previewArm=null;applyAllMotionEdits();seekScene(probe.frame/projectFps);redrawFkControls();
+      previewArm=previousPreview;applyAllMotionEdits();seekScene(probe.frame/projectFps);redrawFkControls();
       throw error;
     }
   },
