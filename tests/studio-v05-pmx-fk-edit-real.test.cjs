@@ -56,6 +56,20 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
       await page.waitForTimeout(200);
       const pose=()=>page.evaluate(id=>window.BAIStudioMultiScenePreview.poseProbe(id,['頭','センター']),instanceId);
       const baseline=await pose();
+      const boneTree=page.locator('#v110-bone-tree');
+      await boneTree.evaluate(el=>el.open=true);
+      await page.locator('#v110-bone-search').fill('センター');
+      await page.locator('#v110-bone-list button[data-bone="センター"]').click();
+      assert.equal(await page.locator('#v106-fk-bone').inputValue(),'センター');
+      assert.ok(maxDelta(baseline.bones['頭'].quaternion,(await pose()).bones['頭'].quaternion)<1e-5);
+      await page.locator('#v110-bone-search').fill('頭');
+      await page.waitForFunction(()=>{
+        const marker=document.querySelector('#v110-bone-overlay button[data-bone="頭"]');
+        return marker&&!marker.hidden;
+      });
+      await page.locator('#v110-bone-overlay button[data-bone="頭"]').click();
+      assert.equal(await page.locator('#v106-fk-bone').inputValue(),'頭');
+      assert.ok(maxDelta(baseline.bones['頭'].quaternion,(await pose()).bones['頭'].quaternion)<1e-5);
       await page.locator('#v106-fk-y').fill('15');
       await page.locator('#v106-fk-preview').click();
       await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('仮補正を表示中'));
@@ -79,9 +93,12 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
         headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,
           revision:0,action:'undo'})});
       assert.equal(stale.status,409);
+      await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());
       await page.reload();
       await page.locator('#v06project').selectOption(projectId);
       await page.locator('#nav [data-workspace="edit"]').click();
+      await page.waitForFunction(()=>document.querySelector('#v70sceneOpen'),null,{timeout:10000})
+        .catch(error=>{throw new Error(`Scene bridge missing after reload: ${error.message}; browser errors: ${page.__monitor.errors.join(' | ')}`);});
       await page.locator('#v70sceneOpen').click();
       await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&window.BAIStudioMultiScenePreview?.status().loaded===1&&
         window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
@@ -206,6 +223,8 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
       await page.evaluate(()=>window.BAIStudioMultiScenePreview.open({composite:true}));
       await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&window.BAIStudioMultiScenePreview?.status().loaded===1&&
         window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
+      assert.equal(await page.locator('#v110-bone-tree').count(),0);
+      assert.equal(await page.locator('#v110-bone-overlay').count(),0);
       await page.waitForFunction(()=>document.querySelector('#v106-fk-saved')?.options.length===2,
         null,{timeout:30000});
       const capture=await page.evaluate(id=>{
