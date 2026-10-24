@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:49:01+09:00",
+  "updated_at": "2026-10-25T01:51:25+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-utterance-readings",
-  "head_at_update": "8a79ba8",
+  "branch": "codex/v05-lip001-reading-ui",
+  "head_at_update": "329b23a",
   "current": {
-    "task": "Issue #187: SRT発話ごとの読み確定を原本と分離保存",
-    "status": "done",
-    "step": "原本hashで結び付くUtterance読み状態・明示無音・revisionを作品単位で保存/再読込し不正入力を拒否する",
+    "task": "Issue #187: SRT発話の読み・無音を画面で編集",
+    "status": "in_progress",
+    "step": "登録済み発話を選び未確定/提案/確定/明示無音を保存・再読込し原本と分離する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:51:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "329b23a",
+      "text": "Issue #187: SRT発話の読み・無音を画面で編集: 登録済み発話を選び未確定/提案/確定/明示無音を保存・再読込し原本と分離する"
+    },
     {
       "at": "2026-10-25T01:49:01+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "56e521a",
       "text": "Issue #96: 実PMX口モーフ「あ」を合成画面の手動UIから0/4/9秒へ保存、4秒キー1→0.8の再編集・削除、F0/F120/F270の再読込・3D中央画素・各1F MP4を確認。隔離Chrome1/1、Python11/11、原本/data7/exports0 SHA不変"
-    },
-    {
-      "at": "2026-10-24T23:51:08+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1621534",
-      "text": "Issue #96: 実PMX口モーフの手動UI保存経路: 合成画面で実口モーフ「あ」を選択し複数時刻へ保存・再読込・実3D/限定MP4を照合する"
     }
   ]
 }
