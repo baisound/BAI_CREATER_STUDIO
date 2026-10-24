@@ -342,6 +342,75 @@ test('real PMX 3D rotation and translation handles preserve both FK channels',
       assert.deepEqual(ikModes.layers,beforeModes.layers);
       assert.equal(ikModes.can_undo,beforeModes.can_undo);
       assert.equal(await page.locator('#v106-fk-bone').inputValue(),'左足ＩＫ');
+      await page.locator('#v106-fk-frame').fill('240');
+      await page.locator('#v106-fk-frame').dispatchEvent('change');
+      await page.locator('#v111-fk-gizmo-goto').click();
+      await page.waitForFunction(()=>!document.querySelector('#v111-fk-gizmo-toggle')?.disabled);
+      await page.locator('#v111-fk-gizmo-toggle').click();
+      await page.locator('#v110-bone-tree').evaluate(el=>el.open=true);
+      await page.locator('#v110-bone-search').fill('左足首');
+      await page.waitForFunction(()=>{
+        const marker=document.querySelector('#v110-bone-overlay button[data-bone="左足首"]');
+        return marker&&!marker.hidden&&marker.dataset.projectedX;
+      });
+      const saveDragScreen=await page.evaluate(()=>{
+        const marker=document.querySelector('#v110-bone-overlay button[data-bone="左足首"]');
+        const canvas=document.querySelector('#v58-canvas').getBoundingClientRect();
+        const panel=document.querySelector('#v58-multi-preview').getBoundingClientRect();
+        document.querySelector('#v110-bone-overlay').style.display='none';
+        return {x:canvas.left+Number(marker.dataset.projectedX),
+          y:canvas.top+Number(marker.dataset.projectedY),panel:{left:panel.left,right:panel.right,
+            top:panel.top,bottom:panel.bottom}};
+      });
+      const pointerBefore=await footPose();
+      let pointerPreview=null;
+      for(const [dx,dy] of [[25,0],[0,-25],[-25,0],[0,25],[45,0],[0,-45]]){
+        const x=saveDragScreen.x+dx,y=saveDragScreen.y+dy;
+        if(x>=saveDragScreen.panel.left&&x<=saveDragScreen.panel.right&&
+           y>=saveDragScreen.panel.top&&y<=saveDragScreen.panel.bottom)continue;
+        await page.mouse.move(x,y);await page.mouse.down();
+        await page.mouse.move(x+35,y+24,{steps:12});await page.mouse.up();
+        await page.waitForTimeout(120);
+        const current=await footPose();
+        if(delta(world(pointerBefore.bones['左足首']),world(current.bones['左足首']))>0.005){
+          pointerPreview=current;break;
+        }
+      }
+      assert.ok(pointerPreview,'a real ankle handle drag must produce a correction preview');
+      assert.ok(delta(world(pointerBefore.bones['左足ＩＫ']),world(pointerPreview.bones['左足ＩＫ']))>0.005);
+      assert.ok(delta(world(pointerBefore.bones['右足首']),world(pointerPreview.bones['右足首']))<1e-4);
+      await page.locator('#v106-fk-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('保存しました'));
+      const pointerSaved=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(pointerSaved.revision,ikModes.revision+1);
+      assert.equal(pointerSaved.fk_ik_modes[instanceId].left_leg,'IK');
+      const findFootKey=data=>data.layers.flatMap(layer=>layer.keys)
+        .find(key=>key.frame===240&&key.bone==='左足ＩＫ');
+      assert.notDeepEqual(findFootKey(pointerSaved),findFootKey(ikModes));
+      assert.ok(delta(world(pointerPreview.bones['左足首']),world((await footPose()).bones['左足首']))<1e-5);
+      await page.locator('#v111-fk-gizmo-toggle').click();
+      await page.locator('#v106-fk-undo').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('戻しました'));
+      const pointerUndone=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(pointerUndone.revision,pointerSaved.revision+1);
+      assert.deepEqual(pointerUndone.layers,ikModes.layers);
+      assert.equal(pointerUndone.fk_ik_modes[instanceId].left_leg,'IK');
+      assert.ok(delta(world(pointerBefore.bones['左足首']),world((await footPose()).bones['左足首']))<1e-5);
+      await page.locator('#v106-fk-redo').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('やり直しました'));
+      const pointerRedone=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(pointerRedone.revision,pointerUndone.revision+1);
+      assert.deepEqual(pointerRedone.layers,pointerSaved.layers);
+      assert.ok(delta(world(pointerPreview.bones['左足首']),world((await footPose()).bones['左足首']))<1e-5);
+      await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());
+      await page.reload();
+      await page.locator('#v06project').selectOption(projectId);
+      await page.locator('#nav [data-workspace="edit"]').click();
+      await page.locator('#v70sceneOpen').click();
+      await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'pointer-reload'));
+      assert.ok(delta(world(pointerPreview.bones['左足首']),world((await footPose()).bones['左足首']))<1e-5);
       harness.assertNoErrors(page);
       console.log(JSON.stringify({head_rotation_delta:delta(baseline.bones['頭'].quaternion,preview.bones['頭'].quaternion),
         head_position_delta:delta(rotated.bones['頭'].position,translatedPose.bones['頭'].position),

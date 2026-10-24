@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T15:16:59+09:00",
+  "updated_at": "2026-10-24T15:20:30+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-foot-drag-persist",
-  "head_at_update": "b63d7c3",
+  "head_at_update": "a0429d0",
   "current": {
     "task": "Issue #106: MOTION-010 足IK実ポインタ補正の保存再読込",
-    "status": "in_progress",
+    "status": "done",
     "step": "足首ハンドルの実ドラッグをキー化し、再読込・Undo/Redo・原本不変を実PMXで検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 足IKの実ポインタ補正をキー保存・再読込・Undoまで検証し、膝ポールの姿勢保持へ進む",
-    "MOTION-010: 腕IKの3D二関節解と到達・制限を設計/検証し、元VMD曲線の物理フラグと候補採用条件も継続する"
+    "MOTION-010: PMX足IKの膝ポールと足先ハンドルの現姿勢スナップ、到達不能・角度制限の表示を設計/検証する",
+    "MOTION-010: 腕IKの3D二関節解と元VMD曲線の物理フラグ保持、候補採用条件を継続する"
   ],
   "unverified": [
-    "ポインタIK補正のキー保存、ドラッグ中のPMX仮評価、膝ポール、腕IK、到達不能・角度制限表示、別名PMX骨、実GPU・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。AC-M-02とMOTION-010全体は未合格。"
+    "左足IK・単一レイヤー・重み100%以外、ドラッグ中のPMX姿勢更新、膝ポール、腕IK、到達不能・角度制限表示、別PMX名、VRM、実GPU・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T15:20:30+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a0429d0",
+      "text": "Issue #106: 実PMX左足IKのポインタ補正を作品F240へ保存し、1回のUndo/Redoと画面再読込で足首姿勢を照合"
+    },
     {
       "at": "2026-10-24T15:16:59+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "2c99742",
       "text": "Issue #106: MOTION-010 実PMX骨の3D回転ハンドル: 同じv0.5編集画面で選択骨の回転を未確定プレビューに変換し、既存FKキー保存へ接続"
-    },
-    {
-      "at": "2026-10-24T11:02:29+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "15a8636",
-      "text": "Issue #106 MOTION-010: 実PMX骨階層・3Dマーカーから既存FK欄への選択接続と実モデル回帰を完了。PR作成前。"
     }
   ]
 }
