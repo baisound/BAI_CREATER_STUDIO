@@ -309,7 +309,8 @@
         "0166a83（⑤-12のキー候補比較と試験再生）",
         "b050e33（⑤-14足接地診断と実装機能一覧）",
         "2b85da5（共通ゲートとE2E記録）",
-        "PR22統合修正（実ファイル長のAPI公開と150MB超の事前拒否）"
+        "PR22統合修正（実ファイル長のAPI公開と150MB超の事前拒否）",
+        "codex/v05-pmx-foot-qa（Issue #102：v0.5実PMXの足接地診断接続）"
       ],
       "tests": [
         "npm run typecheck: pass",
@@ -319,11 +320,13 @@
         "PYTHONUTF8=1 python -m pytest -q: 370 pass・23 subtests pass",
         "node tools/run_evidence_tests.mjs: 126 pass・0 fail（実data/ ハッシュ不変）",
         "E2E: S1/S2/S5 pass、S3/S4/S6/S7/S8 は設計どおり skip、furthest_step=S2（test-results/e2e_main.json から自動記録）",
-        "現行main統合後: npm run typecheck pass、隔離Chromeの転写試験10 pass（150MB超のAPI/ファイル取得前拒否を含む）、Python素材API HTTP試験1 pass"
+        "現行main統合後: npm run typecheck pass、隔離Chromeの転写試験10 pass（150MB超のAPI/ファイル取得前拒否を含む）、Python素材API HTTP試験1 pass",
+        "2026-10-24 v0.5追補: 実GLB→VMD＋実PMXの隔離Chrome試験1/1 pass。0/30秒から2秒の左右つま先各61点を既存両足診断APIへ送り、両区間で診断後の骨行列復元と原本SHA-256不変。npm run typecheckとJS構文確認成功。"
       ],
       "unverified": [
         "実利用者のモデル/GPU実機は未確認。WP05b/c/eは独立レビュー済み。WP05fは元実装者と別のCodexがコード・設計・試験を点検し、大型ファイルの事前拒否を追加。",
-        "WebMCP・stdio MCPの個別機能整合は未検証。P2全体の完成判定ではない。"
+        "WebMCP・stdio MCPの個別機能整合は未検証。P2全体の完成判定ではない。",
+        "v0.5実PMX診断は骨の代理点を2秒測るだけ。30秒付近は床Y=0で接地区間なし。足裏・IK適用・全尺品質、別モデル・実GPU・Linux・MCP・Owner採用は未検証。"
       ],
       "notes": "設計書 §2.5 05f（O-⑤-6）。docs/roadmap/P2_WP05F_AUDIT_20261021_JA.md に既存UI、3群のAPI、配置、確認ゲートを記録。⑤-11はボーンマップ末尾に同意つきQAと検証JSON保存を追加。⑤-12は中央の比較帯で登録済み転写先GLB/VRMを2体表示し、未校正キー候補をフレーム指定・5/10/15 FPSで試験再生する。品質ゲートとノードを検査し、選択変更・同意解除で候補を破棄する。⑤-14は既存足IKタブで左足・BVH・両足の診断APIを呼びJSONを表示する。docs/roadmap/IMPLEMENTED_FEATURES_NEW_UI_20261021_JA.txt に新UIの実装区画35件と現行UIのみ・部分36件を区別して列挙。モデル・VMD・weightsは変更しない。実装・テスト：標準モデル区分。",
       "owner_check": null
