@@ -204,7 +204,15 @@ test('real PMX 3D rotation and translation handles preserve both FK channels',
       assert.equal(footHandle.effector,'左足首');
       assert.ok(delta(footHandle.handleWorld,footHandle.effectorWorld)<1e-6,
         'IK handle must start at the evaluated ankle, including the current VMD pose');
+      assert.match(await page.locator('#v127-fk-ik-limits').textContent(),
+        /左ひざ: X 0\.5°〜180\.0°、Y 0\.0°固定、Z 0\.0°固定/);
       await page.locator('#v111-fk-gizmo-toggle').click();
+      await page.locator('#v114-ik-select').selectOption('右足ＩＫ');
+      await page.locator('#v114-ik-choose').click();
+      assert.match(await page.locator('#v127-fk-ik-limits').textContent(),
+        /右ひざ: X 0\.5°〜180\.0°、Y 0\.0°固定、Z 0\.0°固定/);
+      await page.locator('#v114-ik-select').selectOption('左足ＩＫ');
+      await page.locator('#v114-ik-choose').click();
       const footPose=()=>page.evaluate(id=>window.BAIStudioMultiScenePreview.poseProbe(id,
         ['左足ＩＫ','左足首','右足首']),instanceId);
       const feetBefore=await footPose();

@@ -2,5 +2,6 @@
 #v111-fk-gizmo-controls small{color:#c8d9ea}
 #v111-fk-ik-reach{flex-basis:100%}
 #v111-fk-ik-reach[data-reached="false"]{color:#ffcb87}
+#v127-fk-ik-limits{flex-basis:100%}
 #v111-fk-gizmo-toggle[aria-pressed="true"]{background:#665321;border-color:#ffdc8d;color:#fff}
 #v111-fk-gizmo-toggle:disabled{opacity:.55;cursor:not-allowed}

@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T15:34:37+09:00",
+  "updated_at": "2026-10-24T15:37:37+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-knee-limits",
-  "head_at_update": "5b03d9d",
+  "head_at_update": "d779fdc",
   "current": {
     "task": "Issue #106: MOTION-010 PMX足IK膝制限の可視化",
-    "status": "in_progress",
+    "status": "done",
     "step": "実PMXの足IK膝リンク制限を3D編集画面へ表示し、制限のある骨と未到達差を区別して検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: PMX膝ポールの現姿勢スナップと操作、角度制限の個別表示を設計/検証する",
+    "MOTION-010: 膝ポールの3D解法・PMX制限・作品キー・別名VMD往復を同じ条件で設計/検証する",
     "MOTION-010: 腕IKの3D二関節解と元VMD曲線の物理フラグ保持、候補採用条件を継続する"
   ],
   "unverified": [
-    "足IK到達差0.001は表示目安であり到達可能域や原因は未確定。左右・別PMX名の一般化、膝ポール、関節制限の個別表示、ドラッグ中姿勢更新、腕IK、VRM、実GPU・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
+    "表示は膝の定義角度範囲であり制限端接触判定ではない。膝ポール操作、別PMX/PMD、腕IK、ドラッグ中姿勢更新、VRM、実GPU・物理ON・Linux・標準MCP実呼出し・Owner採用は未確認。AC-M-01/02とMOTION-010全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T15:37:37+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "d779fdc",
+      "text": "Issue #106: 実PMX左右膝のIKリンク角度制限を3D画面へ表示し、左右の値と従来補正経路を隔離Chromeで確認"
+    },
     {
       "at": "2026-10-24T15:34:37+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "bc93ea4",
       "text": "Issue #106: MOTION-010 実PMX骨の3D位置ハンドル: 同じv0.5編集画面で選択骨の局所移動を位置差分の仮表示・既存FKキー保存へ接続"
-    },
-    {
-      "at": "2026-10-24T11:33:10+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "5d84633",
-      "text": "MOTION-010の局所位置差分をFK作品キー・プレビュー・再生・保存へ接続。実PMX/VMD画面1件、既存ギズモ1件、Python6件、型検査、原本/利用者データのハッシュ一致。Issue #106継続。"
     }
   ]
 }

@@ -12,14 +12,44 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTr
   status.textContent='対象骨の回転・位置をドラッグで仮表示します。保存は「このFをキー化」。';
   const reach=document.createElement('small');reach.id='v111-fk-ik-reach';
   reach.setAttribute('role','status');reach.hidden=true;
-  row.append(goto,mode,toggle,status,reach);controls.append(row);
+  const limits=document.createElement('small');limits.id='v127-fk-ik-limits';limits.hidden=true;
+  row.append(goto,mode,toggle,status,reach,limits);controls.append(row);
   let gizmo=null,helper=null,proxy=null,proxyContext=null,attachedContext=null;
   let wanted=false,disposed=false,loading=false,drag=null;
   const label=()=>mode.value==='translate'?'位置':'回転';
   const sameContext=(a,b)=>Boolean(a&&b&&a.projectId===b.projectId&&
     a.instanceId===b.instanceId&&a.clipId===b.clipId&&a.frame===b.frame&&
     a.bone===b.bone&&a.effectorBone===b.effectorBone);
+  function updateLimits(context){
+    if(!context||context.reason||!context.effectorBone){limits.hidden=true;limits.textContent='';return;}
+    const bones=context.target.object.skeleton.bones;
+    const iks=context.target.object.geometry?.userData?.MMD?.iks;
+    const ik=Array.isArray(iks)?iks.find(item=>bones[item.target]===context.bone):null;
+    const label=[];
+    const degrees=radians=>(radians*180/Math.PI).toFixed(1);
+    for(const link of ik?.links||[]){
+      const bone=bones[link.index];
+      if(!bone?.name)continue;
+      if(link.rotationMin&&link.rotationMax&&
+          ['x','y','z'].every(axis=>Number.isFinite(link.rotationMin[axis])&&
+            Number.isFinite(link.rotationMax[axis]))){
+        const axes=['x','y','z'].map(axis=>{
+          const min=degrees(link.rotationMin[axis]);
+          const max=degrees(link.rotationMax[axis]);
+          return min===max?`${axis.toUpperCase()} ${min}°固定`:
+            `${axis.toUpperCase()} ${min}°〜${max}°`;
+        });
+        label.push(`${bone.name}: ${axes.join('、')}`);
+      }else if(link.limitation){
+        label.push(`${bone.name}: 回転軸の制限あり`);
+      }
+    }
+    limits.hidden=false;
+    limits.textContent=label.length?`PMXのIK関節制限: ${label.join(' / ')}。`:
+      'PMXのIK関節角度制限は定義されていません。';
+  }
   function updateReach(context){
+    updateLimits(context);
     if(!context||context.reason||!context.effectorBone){reach.hidden=true;reach.textContent='';return;}
     const THREE=context.target.libs.THREE;
     context.target.object.updateWorldMatrix(true,true);
