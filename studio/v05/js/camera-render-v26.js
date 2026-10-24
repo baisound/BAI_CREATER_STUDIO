@@ -14,15 +14,20 @@ function create(){
   if(shooting===navigation)return {applied:false,reason:'camera_is_navigation'};
   if(!pose||typeof pose!=='object')return {applied:false,reason:'invalid_pose'};
   const pos=vector(pose.position??pose.location);
+  const rawTarget=pose.target??pose.lookAt;
+  const target=vector(rawTarget);
+  if(rawTarget!==undefined&&!target)return {applied:false,reason:'invalid_target'};
   const rot=vector(pose.rotation??pose.euler);
   const quaternion=pose.quaternion;
   const q=Array.isArray(quaternion)&&quaternion.length===4&&quaternion.every(finite)?quaternion:null;
   const fov=pose.fov??pose.fieldOfView;
-  if(!pos&&!rot&&!q&&!finite(fov))return {applied:false,reason:'unsupported_pose'};
+  if(!pos&&!rot&&!q&&!target&&!finite(fov))return {applied:false,reason:'unsupported_pose'};
+  if(target&&!rot&&!q&&typeof shooting.lookAt!=='function')return {applied:false,reason:'target_unsupported'};
   if(fov!==undefined&&(!finite(fov)||fov<=0||fov>=180))return {applied:false,reason:'invalid_fov'};
   if(pos)shooting.position.set(...pos);
   if(q&&shooting.quaternion?.set)shooting.quaternion.set(...q);
   else if(rot&&shooting.rotation?.set)shooting.rotation.set(...rot);
+  else if(target)shooting.lookAt(...target);
   if(finite(fov)){shooting.fov=fov;shooting.updateProjectionMatrix?.();}
   if(finite(pose.focusDistance)&&pose.focusDistance>0)shooting.userData&&(shooting.userData.baiFocusDistance=pose.focusDistance);
   shooting.updateMatrixWorld?.();last={pose,meta};return {applied:true};

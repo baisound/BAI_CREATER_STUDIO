@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:03:57+09:00",
+  "updated_at": "2026-10-24T23:08:26+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-camera-preview",
-  "head_at_update": "55ccf94",
+  "head_at_update": "2d4b407",
   "current": {
     "task": "Issue #106: MOTION-010/CAM-015 実PMX撮影プレビューでのカット確認",
-    "status": "in_progress",
+    "status": "done",
     "step": "保存済み旧カメラカットを実PMXの撮影プレビューへ適用し、姿勢・ピクセル・原本保持を隔離検証する",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "MOTION-010/CAM-015 PMX付き撮影プレビューとMP4で保存済みカメラカットの実描画を確認する"
+    "MOTION-010/CAM-015 MP4書出しに旧カメラカットが反映されるか契約と実出力を確認する"
   ],
   "unverified": [
-    "PMX付き撮影プレビューの実ピクセルとMP4カット、カット編集UI、任意カット構成、任意境界・長いなじませ、物理ON、任意PMX、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "MP4中の旧カメラカット、カット編集UI、任意構成、実GPU、物理ON、任意PMX、Linux、標準MCP実通信、Owner採用、MOTION-010/CAM-015全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T23:08:26+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2d4b407",
+      "text": "MOTION-010/CAM-015 旧カメラtarget未適用を修正し、201骨実PMX撮影キャンバスのA/B/末尾カット画素差16072/13932と20秒保持差0を確認。SwiftShader、原本/data7/exports0 SHA不変"
+    },
     {
       "at": "2026-10-24T23:03:57+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "42eda81",
       "text": "Issue #106: MOTION-010 長尺VMD曲線境界の診断: 動く元VMDの区間境界・なじませと30fps候補の誤差を測り、安全な限定条件を探す"
-    },
-    {
-      "at": "2026-10-24T21:00:02+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "c65d263",
-      "text": "MOTION-010 203秒の動く元VMDの90秒付近を約2秒区間で候補生成。元頭骨キー境界[2669,2732)でも位置・角度誤差超過でHTTP422拒否、候補ファイル不在、補正revision・原本ハッシュ不変を実試験で確認。"
     }
   ]
 }
