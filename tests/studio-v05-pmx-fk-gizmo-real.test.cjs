@@ -242,6 +242,48 @@ test('real PMX 3D rotation and translation handles preserve both FK channels',
       console.log(JSON.stringify({ik_reload_before:world(feetAfter.bones['左足首']),
         ik_reload_after:world(feetReloaded.bones['左足首'])}));
       assert.ok(delta(world(feetAfter.bones['左足首']),world(feetReloaded.bones['左足首']))<1e-5);
+      await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+      await page.locator('#v106-fk-frame').fill('240');
+      await page.locator('#v106-fk-frame').dispatchEvent('change');
+      const beforeModes=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      const beforeModePose=await page.evaluate(id=>window.BAIStudioMultiScenePreview.poseProbe(id,
+        ['頭','センター','左足','左足ＩＫ','左足首','右足首']),instanceId);
+      await page.locator('#v123-limb-mode-select').selectOption('FK');
+      await page.locator('#v123-limb-mode-save').click();
+      await page.waitForFunction(()=>/姿勢差|切替失敗/.test(document.querySelector('#v123-limb-mode-status')?.textContent||''));
+      assert.match(await page.locator('#v123-limb-mode-status').textContent(),/姿勢差/);
+      const fkModes=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(fkModes.fk_ik_modes[instanceId].left_leg,'FK');
+      assert.equal(fkModes.revision,beforeModes.revision+1);
+      assert.deepEqual(fkModes.layers,beforeModes.layers);
+      assert.equal(fkModes.can_undo,beforeModes.can_undo);
+      assert.equal(await page.locator('#v106-fk-bone').inputValue(),'左足');
+      for(const name of Object.keys(beforeModePose.bones)){
+        const after=(await page.evaluate(([id,bone])=>window.BAIStudioMultiScenePreview.poseProbe(id,[bone]),
+          [instanceId,name])).bones[name];
+        assert.ok(delta(beforeModePose.bones[name].world,after.world)<1e-4,
+          `${name} world pose changed on FK mode selection`);
+      }
+      await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());
+      await page.reload();
+      await page.locator('#v06project').selectOption(projectId);
+      await page.locator('#nav [data-workspace="edit"]').click();
+      await page.locator('#v70sceneOpen').click();
+      await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&
+        window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'mode-reload'));
+      await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+      assert.equal(await page.locator('#v123-limb-mode-select').inputValue(),'FK');
+      await page.locator('#v123-limb-mode-select').selectOption('IK');
+      await page.locator('#v123-limb-mode-save').click();
+      await page.waitForFunction(()=>/姿勢差|切替失敗/.test(document.querySelector('#v123-limb-mode-status')?.textContent||''));
+      assert.match(await page.locator('#v123-limb-mode-status').textContent(),/姿勢差/);
+      const ikModes=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(ikModes.fk_ik_modes[instanceId].left_leg,'IK');
+      assert.equal(ikModes.revision,fkModes.revision+1);
+      assert.deepEqual(ikModes.layers,beforeModes.layers);
+      assert.equal(ikModes.can_undo,beforeModes.can_undo);
+      assert.equal(await page.locator('#v106-fk-bone').inputValue(),'左足ＩＫ');
       harness.assertNoErrors(page);
       console.log(JSON.stringify({head_rotation_delta:delta(baseline.bones['頭'].quaternion,preview.bones['頭'].quaternion),
         head_position_delta:delta(rotated.bones['頭'].position,translatedPose.bones['頭'].position),

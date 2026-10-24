@@ -20,6 +20,7 @@ LOCK = threading.RLock()
 MAX_KEYS = 1024
 MAX_LAYERS = 32
 MAX_HISTORY = 80
+LIMBS = ('left_arm', 'right_arm', 'left_leg', 'right_leg')
 
 
 class MotionEditError(ValueError):
@@ -163,10 +164,21 @@ def _check_settings(layer):
 
 
 def _record(data, project_id):
-    if not isinstance(data, dict) or set(data) != {'schema', 'project_id', 'revision', 'layers', 'history'} \
+    if not isinstance(data, dict) or not {'schema', 'project_id', 'revision', 'layers', 'history'} <= set(data) \
+            or set(data) - {'schema', 'project_id', 'revision', 'layers', 'history', 'fk_ik_modes'} \
             or data['schema'] != 1 or data['project_id'] != project_id \
             or type(data['revision']) is not int or data['revision'] < 0:
         raise MotionEditError('Invalid motion edits file; original retained')
+    modes = data.get('fk_ik_modes', {})
+    if not isinstance(modes, dict) or len(modes) > 64:
+        raise MotionEditError('Invalid FK/IK modes; original retained')
+    for instance_id, limbs in modes.items():
+        if not isinstance(instance_id, str) or not 0 < len(instance_id) <= 100 \
+                or any(ord(char) < 32 for char in instance_id) \
+                or not isinstance(limbs, dict) or not limbs \
+                or set(limbs) - set(LIMBS) or any(mode not in ('FK', 'IK') for mode in limbs.values()) \
+                or any(limb.endswith('_arm') and mode == 'IK' for limb, mode in limbs.items()):
+            raise MotionEditError('Invalid FK/IK mode; original retained')
     if not isinstance(data['layers'], list) or len(data['layers']) > MAX_LAYERS:
         raise MotionEditError('Invalid motion edit layers; original retained')
     ids = set()
@@ -226,7 +238,7 @@ def read(root, catalog, project_id):
     path = _path(root, project_id)
     if not path.exists():
         return {'schema': 1, 'project_id': project_id, 'revision': 0,
-                'layers': [], 'history': {'undo': [], 'redo': []}}
+                'layers': [], 'fk_ik_modes': {}, 'history': {'undo': [], 'redo': []}}
     try:
         if path.stat().st_size > 8 * 1024 * 1024:
             raise MotionEditError('Motion edits file exceeds safe size; original retained')
@@ -253,21 +265,53 @@ def view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, pr
             layer['disabled'] = True
             issues.append({'layer_id': layer['id'], 'reason': str(exc)})
     return {'schema': 1, 'project_id': project_id, 'revision': current['revision'],
-            'layers': layers, 'issues': issues,
+            'layers': layers, 'fk_ik_modes': copy.deepcopy(current.get('fk_ik_modes', {})), 'issues': issues,
             'can_undo': bool(current['history']['undo']), 'can_redo': bool(current['history']['redo'])}
 
 
 def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
            project_id, revision, action, assets, *, instance_id=None, clip_id=None,
-           key=None, layer_id=None, settings=None, to_frame=None):
+           key=None, layer_id=None, settings=None, to_frame=None, limb=None, mode=None):
     if type(revision) is not int or revision < 0:
         raise MotionEditError('Revision required')
-    if action not in ('set', 'remove', 'move', 'layer-update', 'undo', 'redo'):
+    if action not in ('set', 'remove', 'move', 'layer-update', 'mode-set', 'undo', 'redo'):
         raise MotionEditError('Unknown motion edit action')
     with LOCK:
         current = read(root, catalog, project_id)
         if current['revision'] != revision:
             raise MotionEditError('Revision conflict')
+        if action == 'mode-set':
+            if any(value is not None for value in (key, layer_id, settings, to_frame)) \
+                    or limb not in LIMBS or mode not in ('FK', 'IK'):
+                raise MotionEditError('Invalid FK/IK mode fields')
+            context = _context(data_root, scene_root, legacy_root, arrangement_root,
+                               catalog, project_id, assets, instance_id, clip_id)
+            if limb in ('left_arm', 'right_arm') and mode == 'IK':
+                raise MotionEditError('Arm IK solver is not available')
+            if limb in ('left_leg', 'right_leg'):
+                prefix = '左' if limb == 'left_leg' else '右'
+                try:
+                    bones = parse_pmx(context['model_path'].read_bytes())['bones_detail']
+                except (ValueError, OSError) as exc:
+                    raise MotionEditError('PMX bones cannot be inspected') from exc
+                leg = [b for b in bones if b['name'] == prefix + '足']
+                targets = [b for b in bones if b['name'] in (prefix + '足ＩＫ', prefix + '足IK')
+                           and 'ik' in b and b['ik']['links']
+                           and 0 <= b['ik']['target_index'] < len(bones)
+                           and bones[b['ik']['target_index']]['name'] == prefix + '足首']
+                if len(leg) != 1 or (mode == 'IK' and len(targets) != 1):
+                    raise MotionEditError('Canonical PMX leg/IK target is unavailable')
+            modes = current.setdefault('fk_ik_modes', {})
+            prior = modes.get(instance_id, {}).get(limb, 'IK' if limb.endswith('leg') else 'FK')
+            if prior == mode:
+                return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
+            modes.setdefault(instance_id, {})[limb] = mode
+            current['revision'] += 1
+            _record(current, project_id)
+            _atomic(_path(root, project_id), current)
+            return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
+        if limb is not None or mode is not None:
+            raise MotionEditError('FK/IK mode fields belong to mode-set only')
         if action in ('undo', 'redo'):
             if any(value is not None for value in (instance_id, clip_id, key, layer_id, settings, to_frame)):
                 raise MotionEditError('Undo/Redo accepts only project and revision')

@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T14:47:08+09:00",
+  "updated_at": "2026-10-24T14:58:37+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-ikfk-mode",
-  "head_at_update": "ad46458",
+  "head_at_update": "a4b2425",
   "current": {
     "task": "Issue #106: MOTION-010 FK/IK切替の保存と姿勢保持",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存PMX足IKとFKの編集モードを保存し、切替時に姿勢・キーを変えない検査を実装する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 元VMD補間64バイトの物理フラグを保持できる分割条件を実VMD・対象プレイヤーで検証する。並行してIK/FK切替の姿勢保持設計を進める。候補採用・作品配置は再判定経路ができてから。"
+    "MOTION-010: 足先ハンドルと膝ポールを現姿勢へスナップし、FK/IKの実編集を姿勢保持で検証する",
+    "MOTION-010: 元VMD物理フラグを保持する曲線分割条件を検証し、候補の採用・作品配置を安全な再判定経路へ接続する"
   ],
   "unverified": [
-    "物理フラグ付き元曲線の安全な候補化、実MMDの物理動作、実GPU、Linux、検査結果永続化、候補採用/配置、IK/FK切替、Owner採用は未確認。"
+    "腕IK、足先/膝ポールのスナップ、FK/IK回転解き直し、別名PMX骨、VRM、実GPU、物理ON、Linux、標準MCP実呼出し、Owner採用は未確認。候補採用・作品配置も未接続。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T14:58:37+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a4b2425",
+      "text": "Issue #106: 標準PMX左右脚のFK/IK編集方法を作品別に保存し、切替の全骨姿勢・キー・Undo不変を実PMX/VMD隔離Chromeで確認"
+    },
     {
       "at": "2026-10-24T14:47:08+09:00",
       "by": "codex",
@@ -233,13 +241,6 @@
       "event": "start",
       "head": "93e4eb9",
       "text": "Issue #106: MOTION-010 FK補正入り完成MP4の画素比較: 実PMX＋VMDの保存補正を作品フレーム出力へ通し、別名MP4の復号画素・骨姿勢・原本ハッシュを比較"
-    },
-    {
-      "at": "2026-10-24T10:32:36+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "63515fa",
-      "text": "MOTION-010 PMX FK補正レイヤーの重み・区間・なじませ・ミュート、作品タイムラインキー表示/移動を接続。実PMX試験と保存再読込・原本不変を確認"
     }
   ]
 }
