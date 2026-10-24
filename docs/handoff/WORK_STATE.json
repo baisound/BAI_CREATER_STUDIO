@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T09:41:59+09:00",
+  "updated_at": "2026-10-24T09:42:20+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-design",
-  "head_at_update": "a776116",
+  "head_at_update": "7126c8e",
   "current": {
-    "task": "Issue #106: v0.5の任意フレーム骨補正・別名VMD",
-    "status": "done",
-    "step": "既存仕様と実装を照合し詳細設計、批評3回、最終判定を記録する",
-    "design_doc": "docs/roadmap/RIG_EDITING_SPEC_20261020_JA.md"
+    "task": "Issue #106: PMX/VMD姿勢評価のA/B回帰と段階Aの限定FK補正",
+    "status": "in_progress",
+    "step": "無補正の新評価順が現行MMDプレビューと一致することを実PMXで検証し、ずれがあれば実装を止める",
+    "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
     "設計の段階Aに先立ちPMX/VMD無補正評価のA/B回帰試験を作り、補正注入位置を実PMXで確認する",
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T09:42:20+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "7126c8e",
+      "text": "Issue #106: PMX/VMD姿勢評価のA/B回帰と段階Aの限定FK補正: 無補正の新評価順が現行MMDプレビューと一致することを実PMXで検証し、ずれがあれば実装を止める"
+    },
     {
       "at": "2026-10-24T09:41:59+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "4778af2",
       "text": "Issue #63/#69: v0.5保存済み3Dと画像・動画の同一画素プレビュー: 既存作品時刻で3Dキャンバスと2Dメディアを同じ編集ビューに重ね、保存再読込と実画素を隔離確認する"
-    },
-    {
-      "at": "2026-10-24T05:07:22+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "7f0a888",
-      "text": "Issues #88/#89: HOME JST second display, live timeline cursor and usable zoom; isolated Chrome 4 tests, typecheck, JSON and data hashes passed"
     }
   ]
 }
