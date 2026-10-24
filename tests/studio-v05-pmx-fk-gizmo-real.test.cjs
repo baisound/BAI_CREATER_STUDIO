@@ -16,7 +16,7 @@ const digest=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('h
 async function ok(response){const body=await response.text();assert.equal(response.status,200,body);return JSON.parse(body);}
 const delta=(a,b)=>Math.max(...a.map((n,i)=>Math.abs(n-b[i])));
 
-test('real PMX 3D rotation handle previews a bone and saves through the FK key',
+test('real PMX 3D rotation and translation handles preserve both FK channels',
   {skip:!exists&&'BAI_REAL_MMD_DATA に実素材がありません',timeout:180000},async()=>{
     const originals=[digest(modelPath),digest(motionPath)];
     const metadata=JSON.parse(fs.readFileSync(path.join(sourceRoot,'mmd_assets.json'),'utf8'));
@@ -107,6 +107,73 @@ test('real PMX 3D rotation handle previews a bone and saves through the FK key',
       assert.equal(saved.layers[0].keys[0].frame,240);
       assert.equal(saved.layers[0].model_sha256,originals[0]);
       assert.equal(saved.layers[0].motion_sha256,originals[1]);
+      const rotated=await pose();
+      await page.locator('#v113-fk-gizmo-mode').selectOption('translate');
+      await page.waitForFunction(()=>document.querySelector('#v111-fk-gizmo-toggle')?.textContent?.includes('位置'));
+      let cancelledTranslation=false;
+      for(const [dx,dy] of [[0,0],[25,0],[0,-25],[-25,0],[0,25],[45,0],[0,-45],[-45,0]]){
+        await page.mouse.move(position.x+dx,position.y+dy);
+        await page.mouse.down();
+        const active=await page.locator('#v113-fk-gizmo-mode').isDisabled();
+        if(active){
+          await page.mouse.move(position.x+dx+25,position.y+dy+20,{steps:12});
+          await page.keyboard.press('Escape');
+          await page.mouse.up();cancelledTranslation=true;break;
+        }
+        await page.mouse.up();
+      }
+      assert.equal(cancelledTranslation,true,'translation handle must accept a drag for cancellation');
+      assert.ok(delta(rotated.bones['頭'].position,(await pose()).bones['頭'].position)<1e-5);
+      assert.equal((await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`))).revision,1);
+      let translated=false;
+      for(const [dx,dy] of [[0,0],[25,0],[0,-25],[-25,0],[0,25],[45,0],[0,-45],[-45,0]]){
+        await page.mouse.move(position.x+dx,position.y+dy);
+        await page.mouse.down();
+        await page.mouse.move(position.x+dx+25,position.y+dy+20,{steps:12});
+        await page.mouse.up();
+        await page.waitForTimeout(120);
+        translated=(await page.locator('#v111-fk-gizmo-status').textContent()).includes('位置を仮表示中');
+        if(translated)break;
+      }
+      assert.equal(translated,true,'translation handle drag must create an unsaved preview');
+      const translatedPose=await pose();
+      assert.ok(delta(rotated.bones['頭'].position,translatedPose.bones['頭'].position)>0.02);
+      assert.ok(delta(rotated.bones['頭'].quaternion,translatedPose.bones['頭'].quaternion)<1e-4);
+      assert.ok(delta(rotated.bones['センター'].position,translatedPose.bones['センター'].position)<1e-5);
+      await page.locator('#v106-fk-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('保存しました'));
+      const savedWithPosition=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(savedWithPosition.revision,2);
+      assert.equal(savedWithPosition.layers[0].keys.length,1);
+      assert.ok(delta(savedWithPosition.layers[0].keys[0].position,[0,0,0])>0.02);
+      assert.ok(delta(saved.layers[0].keys[0].rotation,savedWithPosition.layers[0].keys[0].rotation)<1e-4);
+      await page.locator('#v113-fk-gizmo-mode').selectOption('rotate');
+      await page.waitForFunction(()=>document.querySelector('#v111-fk-gizmo-toggle')?.textContent?.includes('回転'));
+      const movedOrigin=await page.evaluate(()=>{
+        const marker=document.querySelector('#v110-bone-overlay button[data-bone="頭"]');
+        const canvas=document.querySelector('#v58-canvas').getBoundingClientRect();
+        return {x:canvas.left+Number(marker.dataset.projectedX),
+          y:canvas.top+Number(marker.dataset.projectedY)};
+      });
+      let rotatedAgain=false;
+      for(const [dx,dy] of [[36,0],[0,36],[-36,0],[0,-36],[52,0],[0,52]]){
+        await page.mouse.move(movedOrigin.x+dx,movedOrigin.y+dy);
+        await page.mouse.down();
+        await page.mouse.move(movedOrigin.x+dx+35,movedOrigin.y+dy+28,{steps:12});
+        await page.mouse.up();
+        await page.waitForTimeout(120);
+        rotatedAgain=(await page.locator('#v111-fk-gizmo-status').textContent()).includes('回転を仮表示中');
+        if(rotatedAgain)break;
+      }
+      assert.equal(rotatedAgain,true,'rotation drag must preserve the saved position channel');
+      const finalPreview=await pose();
+      assert.ok(delta(translatedPose.bones['頭'].position,finalPreview.bones['頭'].position)<1e-4);
+      assert.ok(delta(translatedPose.bones['頭'].quaternion,finalPreview.bones['頭'].quaternion)>0.01);
+      await page.locator('#v106-fk-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('保存しました'));
+      const savedBoth=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.equal(savedBoth.revision,3);
+      assert.ok(delta(savedBoth.layers[0].keys[0].position,savedWithPosition.layers[0].keys[0].position)<1e-5);
       await page.locator('#v111-fk-gizmo-toggle').click();
       assert.equal(await page.locator('#v61-transform-editor').isVisible(),true);
       await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());
@@ -119,9 +186,11 @@ test('real PMX 3D rotation handle previews a bone and saves through the FK key',
         window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
       await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'gizmo-reload'));
       const restored=await pose();
-      assert.ok(delta(preview.bones['頭'].quaternion,restored.bones['頭'].quaternion)<1e-5);
+      assert.ok(delta(finalPreview.bones['頭'].quaternion,restored.bones['頭'].quaternion)<1e-5);
+      assert.ok(delta(finalPreview.bones['頭'].position,restored.bones['頭'].position)<1e-5);
       harness.assertNoErrors(page);
-      console.log(JSON.stringify({head_delta:delta(baseline.bones['頭'].quaternion,preview.bones['頭'].quaternion),
+      console.log(JSON.stringify({head_rotation_delta:delta(baseline.bones['頭'].quaternion,preview.bones['頭'].quaternion),
+        head_position_delta:delta(rotated.bones['頭'].position,translatedPose.bones['頭'].position),
         renderer:(await page.evaluate(()=>window.BAIStudioMultiScenePreview.status())).renderer,
         model_sha256:originals[0],motion_sha256:originals[1]}));
     }finally{

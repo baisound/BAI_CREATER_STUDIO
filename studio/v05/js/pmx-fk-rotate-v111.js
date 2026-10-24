@@ -1,17 +1,21 @@
-/* Local 3D rotation handle for the selected real PMX bone. Persistence stays in the FK editor. */
-export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onRotate,onCancel,onModeChange,onError}){
+/* Local 3D FK handles for the selected real PMX bone. Persistence stays in the FK editor. */
+export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onTransform,onCancel,onModeChange,onError}){
   const row=document.createElement('div');row.id='v111-fk-gizmo-controls';
   const goto=document.createElement('button');goto.type='button';goto.id='v111-fk-gizmo-goto';
   goto.textContent='このFを3D表示';
+  const mode=document.createElement('select');mode.id='v113-fk-gizmo-mode';
+  mode.setAttribute('aria-label','骨の3D操作');
+  mode.add(new Option('回転','rotate'));mode.add(new Option('位置','translate'));
   const toggle=document.createElement('button');toggle.type='button';toggle.id='v111-fk-gizmo-toggle';
   toggle.textContent='3D回転ハンドルを表示';toggle.setAttribute('aria-pressed','false');
   const status=document.createElement('small');status.id='v111-fk-gizmo-status';status.setAttribute('role','status');
-  status.textContent='対象骨の姿勢をドラッグで仮表示します。保存は「このFをキー化」。';
-  row.append(goto,toggle,status);controls.append(row);
+  status.textContent='対象骨の回転・位置をドラッグで仮表示します。保存は「このFをキー化」。';
+  row.append(goto,mode,toggle,status);controls.append(row);
   let gizmo=null,helper=null,wanted=false,disposed=false,loading=false,drag=null;
+  const label=()=>mode.value==='translate'?'位置':'回転';
   function deactivate(){
-    wanted=false;toggle.setAttribute('aria-pressed','false');toggle.textContent='3D回転ハンドルを表示';
-    if(drag){drag.bone.quaternion.copy(drag.start);drag=null;onCancel();}
+    wanted=false;toggle.setAttribute('aria-pressed','false');toggle.textContent=`3D${label()}ハンドルを表示`;
+    if(drag){drag.bone.quaternion.copy(drag.startRotation);drag.bone.position.copy(drag.startPosition);drag=null;onCancel();}
     gizmo?.detach();if(gizmo)gizmo.enabled=false;
     if(viewport.controls)viewport.controls.enabled=true;
     onModeChange(false);viewport.invalidate();
@@ -20,13 +24,14 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onRo
     if(disposed)return;
     const context=controls.open?getContext():null;
     toggle.disabled=loading||!context||Boolean(context.reason);
+    mode.disabled=loading||Boolean(drag);
     if(!controls.open&&wanted){deactivate();return;}
     if(wanted&&(!context||context.reason)){deactivate();return;}
     if(wanted&&gizmo&&!drag&&gizmo.object!==context.bone){
       gizmo.attach(context.bone);onModeChange(true,context);viewport.invalidate();
     }
     if(!wanted)status.textContent=context?.reason||
-      '対象骨の姿勢をドラッグで仮表示します。保存は「このFをキー化」。';
+      '対象骨の回転・位置をドラッグで仮表示します。保存は「このFをキー化」。';
   }
   function fail(error){
     const message=String(error?.message||error);
@@ -37,7 +42,7 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onRo
     const {TransformControls}=await import('three/addons/controls/TransformControls.js');
     if(disposed)return;
     gizmo=new TransformControls(viewport.camera,viewport.renderer.domElement);
-    gizmo.setMode('rotate');gizmo.setSpace('local');gizmo.setSize(.8);gizmo.enabled=false;
+    gizmo.setMode(mode.value);gizmo.setSpace('local');gizmo.setSize(.8);gizmo.enabled=false;
     helper=typeof gizmo.getHelper==='function'?gizmo.getHelper():gizmo;
     // The helper belongs to the scene, outside viewport.content and its fit bounds.
     viewport.scene.add(helper);
@@ -49,19 +54,25 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onRo
       if(!wanted||!context||context.reason||context.bone!==gizmo.object){
         fail(context?.reason||'対象骨が変わりました');deactivate();return;
       }
-      drag={context,bone:context.bone,start:context.bone.quaternion.clone(),cancelled:false};
+      drag={context,bone:context.bone,kind:mode.value,
+        startRotation:context.bone.quaternion.clone(),startPosition:context.bone.position.clone(),cancelled:false};
+      mode.disabled=true;
     });
     gizmo.addEventListener('objectChange',()=>{if(drag)viewport.invalidate();});
     gizmo.addEventListener('mouseUp',()=>{
       const current=drag;drag=null;
       if(!current)return;
-      const desired=current.bone.quaternion.clone();
-      if(current.cancelled){current.bone.quaternion.copy(current.start);onCancel();return;}
-      if(current.start.angleTo(desired)<1e-5){onCancel();return;}
+      mode.disabled=false;
+      const desired=current.kind==='translate'?current.bone.position.clone():current.bone.quaternion.clone();
+      if(current.cancelled){current.bone.quaternion.copy(current.startRotation);
+        current.bone.position.copy(current.startPosition);onCancel();return;}
+      if(current.kind==='translate'?current.startPosition.distanceTo(desired)<1e-5:
+          current.startRotation.angleTo(desired)<1e-5){onCancel();return;}
       queueMicrotask(async()=>{
         try{
-          await onRotate(desired,current.context);
-          status.textContent='回転を仮表示中。確認してから「このFをキー化」で保存してください。';
+          await onTransform(desired,current.kind,current.context);
+          status.textContent=`${current.kind==='translate'?'位置':'回転'}を仮表示中。確認してから「このFをキー化」で保存してください。`;
+          if(wanted)onModeChange(true,getContext());
         }catch(error){onCancel();fail(error);}
         finally{refresh();viewport.invalidate();}
       });
@@ -77,12 +88,21 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onRo
       if(disposed||!controls.open)return;
       const current=getContext();
       if(!current||current.reason)throw Error(current?.reason||'対象骨が変わりました');
-      wanted=true;gizmo.enabled=true;gizmo.attach(current.bone);
-      toggle.setAttribute('aria-pressed','true');toggle.textContent='3D回転ハンドルを隠す';
-      status.textContent='骨の回転リングをドラッグ。Escで仮補正を破棄します。';
+      wanted=true;gizmo.enabled=true;gizmo.setMode(mode.value);gizmo.attach(current.bone);
+      toggle.setAttribute('aria-pressed','true');toggle.textContent=`3D${label()}ハンドルを隠す`;
+      status.textContent=`骨の${label()}ハンドルをドラッグ。Escで操作を取り消します。`;
       onModeChange(true,current);viewport.invalidate();
     }catch(error){fail(error);deactivate();}
     finally{loading=false;refresh();}
+  });
+  mode.addEventListener('change',()=>{
+    if(drag)return;
+    gizmo?.setMode(mode.value);
+    toggle.textContent=`3D${label()}ハンドルを${wanted?'隠す':'表示'}`;
+    status.textContent=wanted?`骨の${label()}ハンドルをドラッグ。Escで操作を取り消します。`:
+      '対象骨の回転・位置をドラッグで仮表示します。保存は「このFをキー化」。';
+    if(wanted)onModeChange(true,getContext());
+    viewport.invalidate();refresh();
   });
   goto.addEventListener('click',async()=>{
     goto.disabled=true;
@@ -93,7 +113,8 @@ export function createPmxFkRotate({controls,viewport,getContext,onGoToFrame,onRo
   const onKey=event=>{
     if(event.key!=='Escape'||!drag)return;
     event.preventDefault();event.stopPropagation();
-    drag.cancelled=true;drag.bone.quaternion.copy(drag.start);viewport.invalidate();
+    drag.cancelled=true;drag.bone.quaternion.copy(drag.startRotation);
+    drag.bone.position.copy(drag.startPosition);viewport.invalidate();
     status.textContent='ドラッグを取り消しました。';
   };
   document.addEventListener('keydown',onKey,true);
