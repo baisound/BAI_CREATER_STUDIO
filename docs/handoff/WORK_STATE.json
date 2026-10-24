@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T18:08:55+09:00",
+  "updated_at": "2026-10-24T18:13:34+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-constraints",
-  "head_at_update": "b329f31",
+  "branch": "codex/v05-motion010-vmd-adoption",
+  "head_at_update": "4925ba3",
   "current": {
-    "task": "Issue #106: MOTION-010 PMX腕関節制限",
-    "status": "done",
-    "step": "登録PMXの腕IK定義と関節制限を調査し、腕ハンドルの操作可否・理由表示を実データに合わせて安全に整える",
+    "task": "Issue #106: MOTION-010 別名VMD候補の採用と作品配置",
+    "status": "in_progress",
+    "step": "実PMX検査済み候補だけを元素材不変で登録し、元クリップと同じ作品・時刻へ明示配置する経路を実装する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T18:13:34+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4925ba3",
+      "text": "Issue #106: MOTION-010 別名VMD候補の採用と作品配置: 実PMX検査済み候補だけを元素材不変で登録し、元クリップと同じ作品・時刻へ明示配置する経路を実装する"
+    },
     {
       "at": "2026-10-24T18:08:55+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "d779fdc",
       "text": "Issue #106: 実PMX左右膝のIKリンク角度制限を3D画面へ表示し、左右の値と従来補正経路を隔離Chromeで確認"
-    },
-    {
-      "at": "2026-10-24T15:34:37+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "5b03d9d",
-      "text": "Issue #106: MOTION-010 PMX足IK膝制限の可視化: 実PMXの足IK膝リンク制限を3D編集画面へ表示し、制限のある骨と未到達差を区別して検証する"
     }
   ]
 }
