@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:37:43+09:00",
+  "updated_at": "2026-10-25T01:44:37+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-srt-source",
-  "head_at_update": "00c422b",
+  "branch": "codex/v05-lip001-srt-ui",
+  "head_at_update": "e1d2645",
   "current": {
-    "task": "Issue #187: 日本語SRT原本の管理下登録",
+    "task": "Issue #187: v0.5画面でSRT原本を選択登録し発話を確認",
     "status": "done",
-    "step": "既存のSRT処理と作品保存契約を調べ、開始終了時刻・原本hashを保った読み取り入口を限定接続する",
+    "step": "作品単位のSRT登録APIをファイル選択・文字コード明示・保存済み発話一覧と警告表示へ接続する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #187: v0.5画面でSRTファイル選択・文字コード明示・登録済み発話/警告/欠損表示を同じ作品に接続する"
+    "Issue #187: SRTの読み状態（未確定/提案/確定/明示無音）を発話単位で作品へ保存し、原本とは分けて再読込・競合・原本hash失効を確認する"
   ],
   "unverified": [
-    "読み確定、かな→口形候補編集、別名モーフVMD書出/再読込、実ユーザーSRT、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
+    "かな→口形候補編集、モーフ専用別名VMD書出/再読込、実ユーザーSRT、WebMCP/標準MCP、統合production.lip、Linuxは未実装/未検証。LIP-001全体は部分実装"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:44:37+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "e1d2645",
+      "text": "Issue #187 LIP-001: v0.5画面からSRT原本登録、100件単位の発話/原時刻・警告・hash状態を隔離Chromeで確認。既存data/exports不変"
+    },
+    {
+      "at": "2026-10-25T01:40:46+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "91e9bc5",
+      "text": "Issue #187: v0.5画面でSRT原本を選択登録し発話を確認: 作品単位のSRT登録APIをファイル選択・文字コード明示・保存済み発話一覧と警告表示へ接続する"
+    },
     {
       "at": "2026-10-25T01:37:43+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "63576cf",
       "text": "Issue #96: 合成編集画面のPMX顔視認性: 重ね表示の操作パネルと顔の遮蔽を最小変更で改善し、表情・口の実画素と操作経路を隔離検証する"
-    },
-    {
-      "at": "2026-10-24T23:39:03+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "6473188",
-      "text": "Issue #96: 実PMXの表情・口6キーをF0/F120/F270で保存再読込し、単独3Dと各1F MP4の実画素差・頭骨姿勢・原本SHAを照合。隔離合同5/5、Python11/11。保存カメラ試験の状態表示セレクターも修正"
-    },
-    {
-      "at": "2026-10-24T23:16:12+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "a6ed2d0",
-      "text": "Issue #96: LIP-004/009 実PMX表情・口キーの先頭・中間・末尾検証: 既存実装の保存値と実顔画素・限定MP4を3時点で照合し、差があれば修正する"
     }
   ]
 }
