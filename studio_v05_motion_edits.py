@@ -142,6 +142,7 @@ def _bounds(layer):
 def _settings(layer):
     first, end = _bounds(layer)
     return {**{field: layer[field] for field in ('name', 'weight', 'muted')},
+            'solo': layer.get('solo', False),
             'start_frame': layer.get('start_frame', first),
             'end_frame': layer.get('end_frame', end),
             'fade_in_frames': layer.get('fade_in_frames', 0),
@@ -155,6 +156,7 @@ def _check_settings(layer):
             or any(ord(c) < 32 for c in settings['name']) \
             or type(settings['weight']) not in (float, int) or not math.isfinite(settings['weight']) \
             or not 0 <= settings['weight'] <= 1 or type(settings['muted']) is not bool \
+            or type(settings['solo']) is not bool \
             or any(type(settings[field]) is not int for field in
                    ('start_frame', 'end_frame', 'fade_in_frames', 'fade_out_frames')) \
             or not first <= settings['start_frame'] < settings['end_frame'] <= end \
@@ -183,11 +185,12 @@ def _record(data, project_id):
         raise MotionEditError('Invalid motion edit layers; original retained')
     ids = set()
     targets = {}
+    solo_targets = set()
     for layer in data['layers']:
         required = {'id', 'instance_id', 'clip_id', 'model_asset_id',
                 'motion_asset_id', 'model_sha256', 'motion_sha256', 'fps', 'start', 'duration',
                 'name', 'weight', 'muted', 'keys'}
-        optional = {'start_frame', 'end_frame', 'fade_in_frames', 'fade_out_frames'}
+        optional = {'start_frame', 'end_frame', 'fade_in_frames', 'fade_out_frames', 'solo'}
         if not isinstance(layer, dict) or not required <= set(layer) or set(layer) - required - optional \
                 or not _uuid(layer['id']) or layer['id'] in ids:
             raise MotionEditError('Invalid motion edit layer; original retained')
@@ -196,6 +199,10 @@ def _record(data, project_id):
         if target in targets and targets[target] != _identity(layer):
             raise MotionEditError('Conflicting motion edit layer source; original retained')
         targets[target] = _identity(layer)
+        if layer.get('solo'):
+            if target in solo_targets:
+                raise MotionEditError('Several solo layers for one clip; original retained')
+            solo_targets.add(target)
         if any(not isinstance(layer[x], str) or not layer[x] for x in
                ('instance_id', 'clip_id', 'model_asset_id', 'motion_asset_id', 'name')) \
                 or any(not isinstance(layer[x], str) or len(layer[x]) != 64 or \
@@ -440,6 +447,9 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                         raise MotionEditError('Invalid new layer settings')
                     _check_settings({**layer, **settings})
                     layer.update(settings)
+                    if layer.get('solo'):
+                        for other in matching:
+                            other['solo'] = False
                 current['layers'].append(layer)
                 current['history']['undo'].append(before)
                 del current['history']['undo'][:-MAX_HISTORY]
@@ -477,9 +487,15 @@ def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
                     raise MotionEditError('Invalid layer update target or fields')
                 updated = {**layer, **settings}
                 _check_settings(updated)
-                if updated == layer:
+                solo_change = settings.get('solo') is True and any(
+                    other.get('solo') for other in matching if other is not layer)
+                if updated == layer and not solo_change:
                     return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
                 layer.update(settings)
+                if layer.get('solo'):
+                    for other in matching:
+                        if other is not layer:
+                            other['solo'] = False
                 current['history']['undo'].append(before)
                 del current['history']['undo'][:-MAX_HISTORY]
                 current['history']['redo'] = []

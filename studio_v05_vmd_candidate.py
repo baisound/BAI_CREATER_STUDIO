@@ -10,7 +10,7 @@ from pathlib import Path
 
 from studio_v05_motion_edits import (LOCK, MotionEditError, _context, _identity,
                                      _registered_path, read, view)
-from studio_v05_vmd_constant import constant_replacements
+from studio_v05_vmd_constant import constant_replacements, active_correction_layers
 from studio_v05_vmd_rewrite import MAX_SOURCE_BYTES, write_distinct_vmd
 from studio_v05_vmd_partial import partial_replacements
 from studio_v05_vmd_full import full_frame_replacements
@@ -75,7 +75,8 @@ def create_candidate(output_root, edit_root, data_root, scene_root, legacy_root,
         elif mode == 'legacy_sparse':
             # Existing API behavior stays available for projects whose source
             # curves cannot survive dense 30 fps keys at fractional scene FPS.
-            if any(_is_temporal(layer) for layer in layers):
+            if any(_is_temporal(layer) for layer in active_correction_layers(
+                    layers, instance_id, clip_id)):
                 samples, sampling_report = temporal_replacements(
                     raw, layers, instance_id=instance_id, clip_id=clip_id)
             else:

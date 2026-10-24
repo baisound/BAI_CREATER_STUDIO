@@ -12,7 +12,7 @@
 - `npm run typecheck`: 成功。
 - `node tests/run-guarded.cjs tests/studio-v05-vmd-full-real.test.cjs`: 隔離Chrome/SwiftShaderで2件成功。別系統の実PMX 246骨と実VMDから作った静止頭骨入力では、作品150F＋VMD301Fの実PMX全骨往復が位置最大1.45e-7、角度0°。画面の既定選択、別名候補、明示採用・復元、原本ハッシュ不変を確認。動く元VMDそのものでは、局所検査が通っても実PMX全骨往復は位置0.00398、角度0.0369°となり不合格で、採用APIは拒否した。数値だけで完成扱いにしない根拠としてこの入力を回帰試験に保持する。
 - 旧方式の実PMX回帰: `studio-v05-vmd-constant-real.test.cjs`と`studio-v05-vmd-fractional-pmx-real.test.cjs`は成功。`studio-v05-vmd-partial-real.test.cjs`は単独再実行で成功。`studio-v05-vmd-fps-fade-real.test.cjs`は4件一括実行ではChromeの`ERR_NO_BUFFER_SPACE`で失敗し、単独再実行では成功。一括実行そのものは未完走として記録する。`run-guarded`は各単独実行で原本data 7ファイルの前後ハッシュ一致を報告。
-- 入力SHA-256: PMX `d784722b85991df3a89931ef1066786205f1a9845a7995d611206ecca0bdd841`、実VMD `3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebbed0a3d234`。静止頭骨VMDは実VMDの形式と非骨区画を保ち、隔離データ内だけで作成。原本素材をGitに追加・変更していない。
+- 入力SHA-256: PMX `d784722b85991df3a89931ef1066786205f1a9845a7995d611206ecca0bdd841`、実VMD `3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebebd0a3d234`。静止頭骨VMDは実VMDの形式と非骨区画を保ち、隔離データ内だけで作成。原本素材をGitに追加・変更していない。
 
 ## 残る条件
 

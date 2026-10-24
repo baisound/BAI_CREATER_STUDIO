@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T19:46:24+09:00",
+  "updated_at": "2026-10-24T19:58:44+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-solo-gizmo",
-  "head_at_update": "cd848b7",
+  "head_at_update": "28176b6",
   "current": {
     "task": "Issue #106: MOTION-010 ソロ切替と複数レイヤー3D骨操作",
-    "status": "in_progress",
+    "status": "done",
     "step": "評価順と保存条件を固定し、実PMXの重畳姿勢と別名VMDを検証",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 複数レイヤー重畳中の3D骨ハンドルとソロ切替の評価順・安全条件を設計し、実PMXで検証する"
+    "MOTION-010: ソロ候補の実PMX全骨往復と複数層での腕IKドラッグを評価し、下位層直接編集の安全な逆算条件を設計する"
   ],
   "unverified": [
-    "重畳中の3D骨ハンドル/腕IK編集とソロは未実装。物理ON、実GPU、Linux、標準MCP実通信、Owner採用、MOTION-010全ACは未確認"
+    "下位層の直接3D編集、順変更(O-05未承認)、ソロ候補の実PMX全骨往復、複数層の腕IKドラッグ、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T19:58:44+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "28176b6",
+      "text": "Issue #106: ソロ切替を保存・Undo/Redo・3D再生・全VMD候補へ接続し、複数レイヤーの有効最上段3D骨ハンドルを実PMXで検証"
+    },
     {
       "at": "2026-10-24T19:46:24+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "20eae37",
       "text": "Issue #106: MOTION-010 腕IKの3D幾何: 実PMXのほぼ直線の腕を含む二関節3D到達・ポール選択・到達不能判定を純粋な関数として実装し、左右・境界を検証する"
-    },
-    {
-      "at": "2026-10-24T16:42:51+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "fda3eba",
-      "text": "MOTION-010: 同作品Fの腕・ひじ2キーを1 revision・1 Undoで原子的に保存するarm-set共通APIとWebMCP入力を追加。単体9件、実PMX HTTPと既存FK回帰各1件成功。腕IKの3D解・手動UIは未接続。"
     }
   ]
 }

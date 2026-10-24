@@ -231,6 +231,30 @@ test('24fps two-layer interval VMD preserves gap bytes and validates on real PMX
         null,{timeout:10000});
       const afterDelete=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
       assert.equal(afterDelete.layers.length,2);
+      await page.evaluate(()=>window.BAIStudioTimeline.seek(7,'solo-ui'));
+      const shown=()=>page.evaluate(id=>window.BAIStudioMultiScenePreview.poseProbe(id,['頭']),instanceId);
+      const combinedPose=await shown();
+      await page.locator('#v146-fk-layer-select').selectOption(saved.layers[0].id);
+      await page.locator('#v148-fk-solo').check();
+      await page.locator('#v106-fk-layer-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('レイヤーを保存'));
+      const firstSolo=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.deepEqual(firstSolo.layers.map(layer=>Boolean(layer.solo)),[true,false]);
+      const firstPose=await shown();
+      assert.ok(Math.abs(firstPose.bones['頭'].position[0]-combinedPose.bones['頭'].position[0])>0.005);
+      const soloCandidate=await ok(await fetch(`${server.base}/api/studio/v05/motion/vmd-candidate`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,revision:firstSolo.revision,instance_id:instanceId,
+          clip_id:placed.clip.id,mode:'interval'})}));
+      assert.deepEqual(soloCandidate.sampling_report.intervals,[[90,150]]);
+      await page.locator('#v146-fk-layer-select').selectOption(secondId);
+      await page.locator('#v148-fk-solo').check();
+      await page.locator('#v106-fk-layer-save').click();
+      await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('レイヤーを保存'));
+      const secondSolo=await ok(await fetch(`${server.base}/api/studio/v05/motion-edits?id=${projectId}`));
+      assert.deepEqual(secondSolo.layers.map(layer=>Boolean(layer.solo)),[false,true]);
+      const secondPose=await shown();
+      assert.ok(Math.abs(secondPose.bones['頭'].position[0]-combinedPose.bones['頭'].position[0])<0.001);
       assert.equal(digest(path.join(server.dataDir,'mmd','vmd',syntheticName)),hash(source));
       assert.deepEqual([digest(modelPath),digest(originalVmdPath)],originals);
       harness.assertNoErrors(page);

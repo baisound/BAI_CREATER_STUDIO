@@ -19,7 +19,9 @@ export function createPmxVmdPreview(THREE, MMDAnimationHelper, pmx, clip, id) {
   /** @type {any[]} */ let layers = [];
   /** @type {any[]} */ let previewKeys = [];
   function applyCorrections(_mesh, seconds) {
+    const solo = layers.find(layer => layer.solo);
     for (const layer of layers) {
+      if (solo && layer !== solo) continue;
       const frame = (layer.start + seconds) * layer.fps;
       const first = Math.ceil(layer.start * layer.fps - 1e-7);
       const end = Math.ceil((layer.start + layer.duration) * layer.fps - 1e-7);
@@ -64,7 +66,10 @@ export function createPmxVmdPreview(THREE, MMDAnimationHelper, pmx, clip, id) {
     }
   }
   function refreshModifier() {
-    player.setPmxPoseModifier(layers.some(layer => !layer.disabled && !layer.muted && layer.weight > 0 && layer.keys.length) || previewKeys.length
+    const solo = layers.find(layer => layer.solo);
+    player.setPmxPoseModifier(layers.some(layer => (!solo || layer === solo) &&
+      !layer.disabled && !layer.muted && layer.weight > 0 && layer.keys.length) ||
+      previewKeys.some(key => !solo || key.layer_id === solo.id)
       ? applyCorrections : null);
   }
   return {

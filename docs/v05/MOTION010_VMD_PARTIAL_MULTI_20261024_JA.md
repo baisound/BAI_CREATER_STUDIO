@@ -9,7 +9,7 @@
 - `python -m pytest -q tests/test_studio_v05_vmd_partial.py tests/test_studio_v05_vmd_full.py tests/test_studio_v05_vmd_temporal.py tests/test_studio_v05_vmd_adoption.py tests/test_studio_v05_vmd_rewrite.py`：32件成功、6件スキップ。静止元VMDの両境界キー欠落、同一骨の離れた2区間と間の原キー保持、動く元VMDの拒否、非30fps境界と開始補正の拒否、部分候補の後続時刻の実PMXレポート件数不足の拒否を確認。6件のスキップは既存試験の条件付き素材・環境ゲートであり成功には含めない。
 - `npm run typecheck`：成功。
 - `node tests/run-guarded.cjs tests/studio-v05-vmd-partial-real.test.cjs`：隔離Chrome/SwiftShaderで実PMX 246骨、24fps作品、実VMDの形式と非骨区画を保った静止頭骨VMD（元キーF0/F300のみ）を使用。境界F90/F240の元キーが無い候補を画面で作成し、作品240F＋VMD301Fの全骨を比較。位置最大0.0006557343 MMD単位（作品F192・頭）、角度最大0°で合格。別名採用、同じクリップへの配置、復元を確認。元のPMX/VMDと隔離素材のハッシュは前後一致し、guardのdata 7ファイル・exports 0ファイルも一致した。
-- 実PMX入力は `avatar-front-garment-v04.pmx`（SHA-256 `d784722b85991df3a89931ef1066786205f1a9845a7995d611206ecca0bdd841`）、実VMD入力は `狐面物理確認用_頭振り_F000-0300.vmd`（SHA-256 `3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebbed0a3d234`）。元VMDの動く曲線そのものをこの合格入力とは呼ばない。
+- 実PMX入力は `avatar-front-garment-v04.pmx`（SHA-256 `d784722b85991df3a89931ef1066786205f1a9845a7995d611206ecca0bdd841`）、実VMD入力は `狐面物理確認用_頭振り_F000-0300.vmd`（SHA-256 `3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebebd0a3d234`）。元VMDの動く曲線そのものをこの合格入力とは呼ばない。
 
 ## 残る条件
 

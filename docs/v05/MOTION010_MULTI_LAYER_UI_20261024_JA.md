@@ -10,7 +10,7 @@
 - `npm run typecheck`、`git diff --check`：成功。
 - `node tests/run-guarded.cjs tests/studio-v05-vmd-partial-real.test.cjs`：隔離Chrome/SwiftShader、24fps作品、246骨の実PMXと実VMD形式の静止頭骨入力を使用。補正レイヤー2つの区間はVMD F90〜149とF180〜239で、中間の元キーと非骨区画をbyte保持。作品240F＋VMD301Fを全246骨で比較し、位置最大0.0006557343 MMD単位（作品F192・頭）、角度最大0°で合格。候補の採用・同じクリップ配置・復元を確認。タイムラインのキーからレイヤー選択、画面の数値キー保存が選択した2番目だけを変え1番目を保つこと、3つ目のレイヤー追加、名前・区間の保存、削除も確認。実PMXと実VMDの原本ハッシュは前後一致し、guardもdata 7ファイル・exports 0ファイルの一致を報告。
 - `node tests/run-guarded.cjs tests/studio-v05-pmx-fk-edit-real.test.cjs tests/studio-v05-pmx-fk-gizmo-real.test.cjs`：既存の単一レイヤーFK数値編集と3D回転・位置ハンドルの2件が成功。隔離Chrome/SwiftShaderで再読込・Undo/Redoを含む回帰を確認。guardのdata 7ファイル・exports 0ファイルは前後一致。
-- 入力PMX `avatar-front-garment-v04.pmx` のSHA-256は `d784722b85991df3a89931ef1066786205f1a9845a7995d611206ecca0bdd841`。形式と非骨区画を借りた元の実VMD `狐面物理確認用_頭振り_F000-0300.vmd` は `3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebbed0a3d234`。合格した補正元は隔離領域で作った静止入力であり、元VMDの動く曲線そのものの合格を示さない。
+- 入力PMX `avatar-front-garment-v04.pmx` のSHA-256は `d784722b85991df3a89931ef1066786205f1a9845a7995d611206ecca0bdd841`。形式と非骨区画を借りた元の実VMD `狐面物理確認用_頭振り_F000-0300.vmd` は `3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebebd0a3d234`。合格した補正元は隔離領域で作った静止入力であり、元VMDの動く曲線そのものの合格を示さない。
 
 ## 残る条件
 

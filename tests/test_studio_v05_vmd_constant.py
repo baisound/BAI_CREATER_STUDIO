@@ -54,6 +54,16 @@ def test_composes_multiple_constant_layers_in_saved_order():
     assert samples[0]['rotation'][3] == pytest.approx(math.cos(0.2), abs=1e-7)
 
 
+def test_solo_constant_ignores_other_layer():
+    first = layer([key(position=[0.1, 0, 0])], solo=True)
+    other = layer([key(position=[0.3, 0, 0])])
+    actual = constant_replacements(fixture(), [first, other],
+                                   instance_id='model-1', clip_id='clip-1')
+    expected = constant_replacements(fixture(), [first],
+                                     instance_id='model-1', clip_id='clip-1')
+    assert actual == expected
+
+
 @pytest.mark.parametrize('invalid', [
     layer([key(), key(frame=241)]),
     layer([key()], fade_in_frames=10),

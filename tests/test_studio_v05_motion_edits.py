@@ -292,9 +292,24 @@ def test_multiple_layers_require_explicit_key_target_and_remain_undoable(tmp_pat
                                   'fade_in_frames': 30, 'fade_out_frames': 30})
     assert four['layers'][0]['start_frame'] == 180
     assert four['layers'][1]['start_frame'] == 360
-    five = edits.mutate(*args, 4, 'layer-delete', [], instance_id=instance_id,
+    solo = edits.mutate(*args, 4, 'layer-update', [], instance_id=instance_id,
+                        clip_id=clip_id, layer_id=first_id, settings={'solo': True})
+    assert [layer.get('solo', False) for layer in solo['layers']] == [True, False]
+    switched = edits.mutate(*args, 5, 'layer-update', [], instance_id=instance_id,
+                            clip_id=clip_id, layer_id=second_id, settings={'solo': True})
+    assert [layer.get('solo', False) for layer in switched['layers']] == [False, True]
+    assert read(root, catalog, project_id)['layers'][1]['solo'] is True
+    rejected = json.loads(json.dumps(switched))
+    rejected['layers'][0]['solo'] = True
+    with pytest.raises(MotionEditError, match='Several solo'):
+        _record(rejected, project_id)
+    undone_solo = edits.mutate(*args, 6, 'undo', [])
+    assert [layer.get('solo', False) for layer in undone_solo['layers']] == [True, False]
+    redone_solo = edits.mutate(*args, 7, 'redo', [])
+    assert [layer.get('solo', False) for layer in redone_solo['layers']] == [False, True]
+    five = edits.mutate(*args, 8, 'layer-delete', [], instance_id=instance_id,
                         clip_id=clip_id, layer_id=second_id)
     assert len(five['layers']) == 1 and five['layers'][0]['id'] == first_id
-    restored = edits.mutate(*args, 5, 'undo', [])
+    restored = edits.mutate(*args, 9, 'undo', [])
     assert len(restored['layers']) == 2 and restored['layers'][1]['keys'] == [key2]
     assert read(root, catalog, project_id)['history']['redo']

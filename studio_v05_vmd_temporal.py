@@ -10,7 +10,7 @@ from collections import defaultdict
 import math
 import struct
 
-from studio_v05_vmd_constant import _multiply, _normalize, _weighted
+from studio_v05_vmd_constant import _multiply, _normalize, _weighted, active_correction_layers
 from studio_v05_vmd_rewrite import _sections, LINEAR_INTERPOLATION, rewrite_bone_section
 
 MAX_VMD_FRAMES = 18000
@@ -124,13 +124,7 @@ def _needs_boundary(layers, bone, project_frame):
 
 def temporal_replacements(raw_vmd, layers, *, instance_id, clip_id):
     """Return samples and a local-channel error report, or refuse lossy output."""
-    if not isinstance(layers, list):
-        raise ValueError('Correction layers required')
-    active = [layer for layer in layers if layer.get('instance_id') == instance_id and
-              layer.get('clip_id') == clip_id]
-    if not active or any(layer.get('disabled') or layer.get('muted') or layer.get('weight', 0) <= 0
-                         for layer in active):
-        raise ValueError('Active correction layer required')
+    active = active_correction_layers(layers, instance_id, clip_id)
     identity = (active[0]['fps'], active[0]['start'], active[0]['duration'])
     if any((row['fps'], row['start'], row['duration']) != identity for row in active):
         raise ValueError('Correction layers must share the same clip')

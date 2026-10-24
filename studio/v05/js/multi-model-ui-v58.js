@@ -162,6 +162,7 @@ const fkEnd=document.createElement('input');fkEnd.id='v106-fk-end';fkEnd.type='n
 const fkFadeIn=document.createElement('input');fkFadeIn.id='v106-fk-fade-in';fkFadeIn.type='number';fkFadeIn.min='0';fkFadeIn.step='1';fkFadeIn.style.width='65px';
 const fkFadeOut=document.createElement('input');fkFadeOut.id='v106-fk-fade-out';fkFadeOut.type='number';fkFadeOut.min='0';fkFadeOut.step='1';fkFadeOut.style.width='65px';
 const fkMuted=document.createElement('input');fkMuted.id='v106-fk-muted';fkMuted.type='checkbox';
+const fkSolo=document.createElement('input');fkSolo.id='v148-fk-solo';fkSolo.type='checkbox';
 const fkLayerSave=document.createElement('button');fkLayerSave.id='v106-fk-layer-save';fkLayerSave.type='button';fkLayerSave.textContent='レイヤーを保存';
 const fkCandidateRow=document.createElement('div');fkCandidateRow.id='v116-vmd-candidate';
 fkCandidateRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
@@ -186,7 +187,8 @@ fkRestore.type='button';fkRestore.textContent='元VMDへ戻す';fkRestore.hidden
 fkCandidateRow.append(fkScope,fkCandidate,fkCandidateLink,fkValidate,fkAdopt,fkRestore,fkCandidateStatus);
 fkLayerRow.append(document.createTextNode('重み % '),fkWeight,document.createTextNode('区間 F '),fkStart,
   document.createTextNode('〜'),fkEnd,document.createTextNode('前なじませ F '),fkFadeIn,
-  document.createTextNode('後なじませ F '),fkFadeOut,document.createTextNode('ミュート '),fkMuted,fkLayerSave);
+  document.createTextNode('後なじませ F '),fkFadeOut,document.createTextNode('ミュート '),fkMuted,
+  document.createTextNode('この層だけ表示 '),fkSolo,fkLayerSave);
 fkRow.append(document.createTextNode('骨 '),fkBone,document.createTextNode('F '),fkFrame,fkHere,
   ...fkAxes.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}° `),input]),
   ...fkPosition.flatMap((input,index)=>[document.createTextNode(`${['X','Y','Z'][index]}位置 `),input]),
@@ -377,6 +379,11 @@ function fkLayersFor(row,instanceId=choose.value||selectedId){
 function selectedFkLayer(row,instanceId=choose.value||selectedId){
   return fkLayersFor(row,instanceId).find(item=>item.id===fkLayerSelect.value)||null;
 }
+function effectiveFkLayers(row,instanceId=choose.value||selectedId){
+  const layers=fkLayersFor(row,instanceId);
+  const solo=layers.find(layer=>layer.solo);
+  return layers.filter(layer=>(!solo||layer===solo)&&!layer.muted&&layer.weight>0);
+}
 function setFkFrameFromSeek(){
   fkFrame.value=String(Math.max(0,Math.round(currentSeek()*projectFps)));
   redrawFkControls();
@@ -526,7 +533,9 @@ function redrawFkControls(){
   fkWeight.value=String(Math.round((layer?.weight??1)*100));
   fkStart.value=String(layer?.start_frame??first);fkEnd.value=String(layer?.end_frame??end);
   fkFadeIn.value=String(layer?.fade_in_frames??0);fkFadeOut.value=String(layer?.fade_out_frames??0);
-  fkMuted.checked=Boolean(layer?.muted);fkLayerSave.disabled=!layer||Boolean(previewArm);
+  fkMuted.checked=Boolean(layer?.muted);fkSolo.checked=Boolean(layer?.solo);
+  fkSolo.disabled=!layer||Boolean(previewFk||previewArm);
+  fkLayerSave.disabled=!layer||Boolean(previewFk||previewArm);
   fkCandidate.disabled=!row||!layers.some(item=>item.keys.length)||Boolean(motionEdits?.issues?.length)||
     Boolean(previewFk||previewArm)||Boolean(candidateValidation);
   fkScope.disabled=Boolean(candidateValidation||previewFk||previewArm);
@@ -545,7 +554,9 @@ function redrawFkControls(){
   if(names.length<boneNames.length)fkContext.textContent+=' 同名の骨は編集対象外です。';
   const editable=Boolean(row&&names.length&&fkBone.value&&
     !(sceneSnapshot?.instances||[]).find(item=>item.id===instanceId)?.locked);
-  fkPreview.disabled=!editable||Boolean(previewArm);fkSave.disabled=!editable;
+  const selectedVisible=!layer||effectiveFkLayers(row,instanceId).includes(layer);
+  fkPreview.disabled=!editable||!selectedVisible||Boolean(previewArm);
+  fkSave.disabled=!editable||!selectedVisible;
   fkCancel.disabled=!previewFk&&!previewArm;fkRemove.disabled=!fkSaved.value||Boolean(previewArm);
   fkSaved.disabled=Boolean(previewArm);
   fkUndo.disabled=!motionEdits?.can_undo||Boolean(previewArm);
@@ -553,6 +564,7 @@ function redrawFkControls(){
   if(previewArm)fkStatus.textContent=`${previewArm.side}腕IKの2キーを仮表示中。保存は「このFをキー化」、破棄はEscです。`;
   else if(motionEdits?.issues?.length)fkStatus.textContent='補正を停止: '+motionEdits.issues.map(x=>x.reason).join('; ');
   else if(!row)fkStatus.textContent='対象VMDのある作品フレームへ移動してください。';
+  else if(!selectedVisible)fkStatus.textContent='選択レイヤーは現在表示されません。ソロ・ミュート・重みを変更してからキー化してください。';
   bonePicker?.refresh();
   rotateGizmo?.refresh();
 }
@@ -582,10 +594,10 @@ function fkGizmoContext(){
   const arm=activeArm?.projectId===project.value&&activeArm?.instanceId===instanceId&&
     activeArm?.clipId===row.clip_id&&activeArm?.frame===frame&&
     activeArm?.bone===name?armBonesFor(target,activeArm.side):null;
-  const layers=(motionEdits?.layers||[]).filter(layer=>!layer.disabled&&
-    layer.instance_id===instanceId&&layer.clip_id===row.clip_id);
-  if(layers.length>1)return {reason:'複数レイヤーの同時補正は3D操作に未対応です。'};
-  const layer=layers[0];
+  const layers=effectiveFkLayers(row,instanceId);
+  const layer=selectedFkLayer(row,instanceId);
+  if(layer&&layers.at(-1)!==layer)
+    return {reason:'3D骨操作は有効な最上段レイヤーを選択してください。下位の姿勢を基準に差分を保存します。'};
   if(layer){
     const from=layer.start_frame??Math.ceil(row.start*projectFps-1e-7);
     const until=layer.end_frame??Math.ceil((row.start+row.duration)*projectFps-1e-7);
@@ -604,6 +616,8 @@ function previewCurrentFk(){
   if(previewArm)throw Error('腕IKの2キー仮表示を先に保存または破棄してください。');
   const {row,frame,key}=fkPayload();
   const layer=selectedFkLayer(row,row.target_scene_instance_id);
+  if(layer&&!effectiveFkLayers(row,row.target_scene_instance_id).includes(layer))
+    throw Error('プレビューするには選択レイヤーのミュート・ソロ・重みを確認してください。');
   previewFk={projectId:project.value,instanceId:row.target_scene_instance_id,
     clipId:row.clip_id,key:{...key,layer_id:layer?.id||'preview'}};
   applyAllMotionEdits();seekScene(frame/projectFps);redrawFkControls();
@@ -620,7 +634,8 @@ async function previewFromGizmo(desired,kind,started){
   const source=previewFk?.projectId===current.projectId&&previewFk?.instanceId===current.instanceId&&
     previewFk?.clipId===current.clipId&&previewFk?.key?.frame===frame&&previewFk?.key?.bone===current.boneName
     ?previewFk.key:layer?.keys.find(key=>key.frame===frame&&key.bone===current.boneName);
-  const filtered=layer?[{...layer,keys:layer.keys.filter(key=>key.bone!==current.boneName)}]:[];
+  const filtered=fkLayersFor(row,current.instanceId).map(item=>item===layer?
+    {...item,keys:item.keys.filter(key=>key.bone!==current.boneName)}:item);
   let base;
   try{
     motionCoordinator.setCorrectionLayers(row.clip_id,filtered,null);
@@ -1367,7 +1382,8 @@ fkLayerSave.addEventListener('click',async()=>{
   fkLayerSave.disabled=true;
   try{await writeFk('layer-update',null,row,{layer_id:layer.id,settings:{
     name:fkLayerName.value.trim(),weight:numbers[0]/100,start_frame:numbers[1],end_frame:numbers[2],
-    fade_in_frames:numbers[3],fade_out_frames:numbers[4],muted:fkMuted.checked}});
+    fade_in_frames:numbers[3],fade_out_frames:numbers[4],muted:fkMuted.checked,
+    solo:fkSolo.checked}});
     fkStatus.textContent='FKレイヤーを保存しました';
   }catch(error){fkStatus.textContent='レイヤー保存失敗: '+String(error.message||error);}
   finally{redrawFkControls();}
@@ -1776,19 +1792,21 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     if(!row||row.target_scene_instance_id!==instanceId||
         Math.abs(shownSeconds-frame/projectFps)>1/(projectFps*100))
       throw Error('VMDがある作品フレームへ移動してください。');
-    const layers=(motionEdits?.layers||[]).filter(layer=>!layer.disabled&&
-      layer.instance_id===instanceId&&layer.clip_id===row.clip_id);
-    if(layers.length>1)throw Error('複数レイヤーの腕IK再編集には未対応です。');
+    const layers=fkLayersFor(row,instanceId);
+    const selected=selectedFkLayer(row,instanceId);
+    const effective=effectiveFkLayers(row,instanceId);
+    if(selected&&effective.at(-1)!==selected)
+      throw Error('腕IKは有効な最上段レイヤーを選択してください。');
     if(layers.some(layer=>layer.keys.some(key=>names.slice(0,2).includes(key.bone)&&
         key.position?.some(value=>value!==0))))
       throw Error('腕・ひじに位置差分のある補正は腕IKハンドルで上書きしません。');
-    if(layers.some(layer=>layer.weight!==1||layer.muted||
-        frame<(layer.start_frame??Math.ceil(row.start*projectFps-1e-7))+(layer.fade_in_frames||0)||
-        frame>=(layer.end_frame??Math.ceil((row.start+row.duration)*projectFps-1e-7))-(layer.fade_out_frames||0)))
+    if(selected&&(selected.weight!==1||selected.muted||
+        frame<(selected.start_frame??Math.ceil(row.start*projectFps-1e-7))+(selected.fade_in_frames||0)||
+        frame>=(selected.end_frame??Math.ceil((row.start+row.duration)*projectFps-1e-7))-(selected.fade_out_frames||0)))
       throw Error('腕IK診断は重み100%で有効区間のなじませ外に限ります。');
     const before=worldBonePose(target);
-    const filtered=layers.map(layer=>({...layer,
-      keys:layer.keys.filter(key=>!names.slice(0,2).includes(key.bone))}));
+    const filtered=layers.map(layer=>layer===selected?{...layer,
+      keys:layer.keys.filter(key=>!names.slice(0,2).includes(key.bone))}:layer);
     let result;
     try{
       motionCoordinator.setCorrectionLayers(row.clip_id,filtered,null);
@@ -1813,8 +1831,7 @@ window.BAIStudioMultiScenePreview=Object.freeze({
   armIkPreview(instanceId,side,handTarget,fallbackPole,pole=null){
     const probe=window.BAIStudioMultiScenePreview.armIkProbe(instanceId,side,handTarget,fallbackPole,pole);
     const target=controller.getLoaded(instanceId);
-    const layer=(motionEdits?.layers||[]).find(item=>!item.disabled&&
-      item.instance_id===instanceId&&item.clip_id===probe.clipId);
+    const layer=selectedFkLayer(activeFkRow(probe.frame),instanceId);
     const before=worldBonePose(target);
     const previousPreview=previewArm;
     previewArm={projectId:project.value,instanceId,clipId:probe.clipId,frame:probe.frame,side,
@@ -1913,7 +1930,7 @@ if(document.modelContext?.registerTool){
        action:{type:'string',enum:['set','arm-set','remove','move','layer-create','layer-update','layer-delete','mode-set','undo','redo']},instance_id:{type:'string'},clip_id:{type:'string'},
        limb:{type:'string',enum:['left_arm','right_arm','left_leg','right_leg']},mode:{type:'string',enum:['FK','IK']},
        layer_id:{type:'string'},to_frame:{type:'integer'},settings:{type:'object',properties:{
-         name:{type:'string'},weight:{type:'number'},muted:{type:'boolean'},start_frame:{type:'integer'},
+         name:{type:'string'},weight:{type:'number'},muted:{type:'boolean'},solo:{type:'boolean'},start_frame:{type:'integer'},
          end_frame:{type:'integer'},fade_in_frames:{type:'integer'},fade_out_frames:{type:'integer'}},additionalProperties:false},
        key:{type:'object',properties:{frame:{type:'integer'},bone:{type:'string'},
          rotation:{type:'array',items:{type:'number'},minItems:4,maxItems:4},

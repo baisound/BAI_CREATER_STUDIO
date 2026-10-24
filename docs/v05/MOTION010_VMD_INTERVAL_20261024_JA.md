@@ -13,7 +13,7 @@
 - `python -m pytest -q tests/test_studio_v05_vmd_partial.py tests/test_studio_v05_vmd_adoption.py`: 8件成功。24/60fps、区間外レコード・非骨区画一致、境界不足・開始補正・フレームずれ・複数区間の拒否を確認。
 - `npm run typecheck`、`git diff --check`: 成功。
 - `node tests/run-guarded.cjs tests/studio-v05-vmd-partial-real.test.cjs`: 隔離Chrome/SwiftShader、別系統の実PMX 246骨、24fps作品、実VMDの形式と後続非骨区画を保持した合成モーションで成功。修正区間VMD F90〜240の外の原キー4件と非骨区画はbyte一致。作品240F＋VMD300F × 246骨の物理OFF往復は位置最大7.20e-7、角度最大0°。画面の範囲選択・候補作成、採用・同じクリップ配置・復元、実PMXと実VMDの原本ハッシュ不変を確認。`run-guarded`は実データ`data`7ファイルの前後ハッシュ一致を報告。
-- 入力SHA-256: 実PMX `d784722b85991df3a89931ef1066786205f1a9845a7995d611206ecca0bdd841`、元の実VMD `3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebbed0a3d234`、試験用の静止頭VMD `c15767b068e09cd79d5d84822814c7d8c2eb739766a980b139dda8006bdd7272`。試験用VMDは実VMDの形式と非骨区画を保って隔離領域に生成し、実素材やGit内の原本を変更していない。
+- 入力SHA-256: 実PMX `d784722b85991df3a89931ef1066786205f1a9845a7995d611206ecca0bdd841`、元の実VMD `3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebebd0a3d234`、試験用の静止頭VMD `c15767b068e09cd79d5d84822814c7d8c2eb739766a980b139dda8006bdd7272`。試験用VMDは実VMDの形式と非骨区画を保って隔離領域に生成し、実素材やGit内の原本を変更していない。
 
 ## 残る条件
 

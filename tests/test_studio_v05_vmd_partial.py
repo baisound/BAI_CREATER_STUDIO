@@ -90,6 +90,14 @@ def test_different_layer_intervals_preserve_the_untouched_gap():
     rewritten = {(name, frame): raw for name, frame, raw in _sections(output)[0]}
     assert all(rewritten[identity] == raw for identity, raw in original.items()
                if frame_outside(report['intervals'], identity[1]))
+    solo_samples, solo_report = partial_replacements(source,
+        [{**first, 'solo': True}, second], instance_id='one', clip_id='clip')
+    assert solo_report['intervals'] == [[90, 150]]
+    assert all(not 180 <= row['frame'] < 240 for row in solo_samples)
+    with pytest.raises(ValueError, match='Several solo'):
+        partial_replacements(source, [{**first, 'solo': True},
+                                      {**second, 'solo': True}],
+                             instance_id='one', clip_id='clip')
 
 
 def frame_outside(intervals, frame):
