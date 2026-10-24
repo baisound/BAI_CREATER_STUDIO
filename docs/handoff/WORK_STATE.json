@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T17:08:04+09:00",
+  "updated_at": "2026-10-24T17:26:17+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-pair-preview",
-  "head_at_update": "eb4ab77",
+  "branch": "codex/v05-motion010-arm-handles",
+  "head_at_update": "004dc9f",
   "current": {
-    "task": "Issue #106: MOTION-010 腕IKの2キー仮表示",
+    "task": "Issue #106: MOTION-010 手先・肘の3Dハンドル",
     "status": "done",
-    "step": "腕・ひじの2キーを同時刻に一組として仮評価し、Escで元姿勢へ戻せる画面経路をつなぐ",
+    "step": "既存キーの再編集に対応する腕2キー解法を整え、実ポインタの手先・肘操作を仮表示・保存へ接続する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 手先・肘の実3Dポインタハンドルを2キー仮表示へ接続し、到達不能表示と保存・Undo/Redoを検証する",
-    "MOTION-010: 別PMXと別名VMD候補の全骨往復を検査する"
+    "MOTION-010: 腕キー入り別名VMD候補を全作品F・全VMD F・全骨で往復比較し、必要なら差を修正する",
+    "MOTION-010: 腕FK/IK編集方法の切替を姿勢・キー不変で実装・検証し、別PMXにも拡張する"
   ],
   "unverified": [
-    "開始操作は診断入口のみ。手先・肘ハンドル、別PMX、別名VMD全骨往復、物理ON、実GPU、Linux、標準MCP、Owner採用は未確認。AC-M-01/02と全体は未合格。"
+    "実PMX1モデル・VMD1本・作品F240・物理OFFのみ。右手先/ひじの保存再読込、腕キーVMD全骨往復、腕FK/IK切替、別PMX、連続ドラッグ中更新、任意関節制限、物理ON、実GPU、Linux、標準MCP、Owner採用は未確認。AC-M-01/02と全体は未合格。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T17:26:17+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "004dc9f",
+      "text": "MOTION-010左右腕の手先・ひじ3Dハンドルを接続し、隔離Chrome実ポインタで仮表示・左の保存/Undo/Redo/再読込・右の手首保持/Escと既存膝回帰を確認"
+    },
+    {
+      "at": "2026-10-24T17:10:21+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "35c2555",
+      "text": "Issue #106: MOTION-010 手先・肘の3Dハンドル: 既存キーの再編集に対応する腕2キー解法を整え、実ポインタの手先・肘操作を仮表示・保存へ接続する"
+    },
     {
       "at": "2026-10-24T17:08:04+09:00",
       "by": "codex",
@@ -227,20 +241,6 @@
       "event": "start",
       "head": "ad46458",
       "text": "Issue #106: MOTION-010 FK/IK切替の保存と姿勢保持: 既存PMX足IKとFKの編集モードを保存し、切替時に姿勢・キーを変えない検査を実装する"
-    },
-    {
-      "at": "2026-10-24T14:42:18+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "7fccec3",
-      "text": "密な元VMDのF209-221曲線と補間64バイトを調査。先頭値とシフト複製の差から物理フラグ領域への影響が疑われ、単純なBezier分割は採用せず誤差ゲートで拒否を維持。画面の実PMX検査へ物理OFFを明記しguarded Chromeで確認。"
-    },
-    {
-      "at": "2026-10-24T14:39:21+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0a4a369",
-      "text": "Issue #106: MOTION-010 元VMD曲線の分割保持: 密な元VMD曲線に補正キーを入れる際のBezier分割と実PMX往復を検証する"
     }
   ]
 }

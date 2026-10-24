@@ -188,6 +188,239 @@ test('real PMX arm chain starts nearly straight and needs a stable 3D pole',
     assert.equal(redo.revision,5);
     assert.deepEqual(redo.layers[0].keys.map(key=>key.bone),
       ['右ひじ','右腕','左ひじ','左腕','頭']);
+    await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
+      window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
+      null,{timeout:120000});
+    await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+    await page.locator('#v106-fk-frame').fill('240');
+    await page.locator('#v106-fk-frame').dispatchEvent('change');
+    await page.locator('#v111-fk-gizmo-goto').click();
+    await page.locator('#v137-arm-side').selectOption('左');
+    assert.equal(await page.locator('#v137-arm-hand').isDisabled(),false);
+    await page.locator('#v137-arm-hand').click();
+    assert.equal(await page.locator('#v113-fk-gizmo-mode').inputValue(),'arm-hand');
+    await page.locator('#v111-fk-gizmo-toggle').click();
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().gizmo?.armSide==='左');
+    const handHandle=await page.evaluate(()=>window.BAIStudioMultiScenePreview.status().gizmo);
+    assert.ok(distance(handHandle.handleWorld,handHandle.armWristWorld)<1e-6);
+    await page.locator('#v110-bone-tree').evaluate(el=>el.open=true);
+    await page.locator('#v110-bone-search').fill('左手首');
+    await page.waitForFunction(()=>{
+      const marker=document.querySelector('#v110-bone-overlay button[data-bone="左手首"]');
+      return marker&&!marker.hidden&&marker.dataset.projectedX;
+    });
+    const handScreen=await page.evaluate(()=>{
+      const marker=document.querySelector('#v110-bone-overlay button[data-bone="左手首"]');
+      const canvas=document.querySelector('#v58-canvas').getBoundingClientRect();
+      document.querySelector('#v110-bone-overlay').style.display='none';
+      return {x:canvas.left+Number(marker.dataset.projectedX),
+        y:canvas.top+Number(marker.dataset.projectedY)};
+    });
+    const handBefore=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左ひじ','左手首','右手首']),{instanceId});
+    let handAfter=null;
+    for(const [dx,dy,mx,my] of [[25,0,35,24],[0,-25,35,24],[-25,0,-35,24],
+      [0,25,-35,-24],[45,0,-35,24],[0,-45,35,24]]){
+      await page.mouse.move(handScreen.x+dx,handScreen.y+dy);await page.mouse.down();
+      await page.mouse.move(handScreen.x+dx+mx,handScreen.y+dy+my,{steps:12});
+      await page.mouse.up();await page.waitForTimeout(180);
+      const handleStatus=await page.locator('#v111-fk-gizmo-status').textContent();
+      console.log(JSON.stringify({armPointerAttempt:[dx,dy,mx,my],handleStatus,
+        fkStatus:await page.locator('#v106-fk-status').textContent()}));
+      if(handleStatus.includes('腕IKを仮表示中')){
+        handAfter=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+          input.instanceId,['左ひじ','左手首','右手首']),{instanceId});break;
+      }
+    }
+    assert.ok(handAfter,'実ポインタの手先ハンドルで2キー仮表示が必要');
+    assert.ok(distance(handBefore.bones['左手首'].world.slice(12,15),
+      handAfter.bones['左手首'].world.slice(12,15))>1e-4);
+    assert.ok(distance(handBefore.bones['右手首'].world.slice(12,15),
+      handAfter.bones['右手首'].world.slice(12,15))<1e-4);
+    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,5);
+    await page.keyboard.press('Escape');
+    const handCancelled=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左手首']),{instanceId});
+    assert.ok(distance(handBefore.bones['左手首'].world.slice(12,15),
+      handCancelled.bones['左手首'].world.slice(12,15))<1e-5);
+    await page.mouse.move(handScreen.x+25,handScreen.y);
+    await page.mouse.down();
+    await page.mouse.move(handScreen.x+60,handScreen.y+24,{steps:12});
+    await page.mouse.up();
+    await page.waitForFunction(()=>document.querySelector('#v111-fk-gizmo-status')?.textContent
+      ?.includes('腕IKを仮表示中'));
+    const handSavedPose=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左ひじ','左手首','右手首']),{instanceId});
+    await page.locator('#v106-fk-save').click();
+    await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent
+      ?.includes('腕・ひじの2キーを1回の操作として保存しました'));
+    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,6);
+    await page.locator('#v106-fk-undo').click();
+    await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('戻しました'));
+    const handUndone=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左手首']),{instanceId});
+    assert.ok(distance(handBefore.bones['左手首'].world.slice(12,15),
+      handUndone.bones['左手首'].world.slice(12,15))<1e-5);
+    await page.locator('#v106-fk-redo').click();
+    await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('やり直しました'));
+    const handRedone=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左手首']),{instanceId});
+    assert.ok(distance(handSavedPose.bones['左手首'].world.slice(12,15),
+      handRedone.bones['左手首'].world.slice(12,15))<1e-5);
+    await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
+      window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
+      null,{timeout:120000});
+    await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'arm-hand-reload'));
+    const handReloaded=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左手首']),{instanceId});
+    assert.ok(distance(handSavedPose.bones['左手首'].world.slice(12,15),
+      handReloaded.bones['左手首'].world.slice(12,15))<1e-5);
+    const bentPreview=await page.evaluate(input=>window.BAIStudioMultiScenePreview.armIkPreview(
+      input.instanceId,input.side,input.target,input.fallbackPole),leftInput);
+    assert.ok(bentPreview.residual<1e-3);
+    await page.locator('#v106-fk-save').click();
+    await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent
+      ?.includes('腕・ひじの2キーを1回の操作として保存しました'));
+    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,9);
+    await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+    await page.locator('#v106-fk-frame').fill('240');
+    await page.locator('#v106-fk-frame').dispatchEvent('change');
+    await page.locator('#v111-fk-gizmo-goto').click();
+    await page.locator('#v137-arm-side').selectOption('左');
+    assert.equal(await page.locator('#v137-arm-elbow').isDisabled(),false);
+    await page.locator('#v137-arm-elbow').click();
+    assert.equal(await page.locator('#v113-fk-gizmo-mode').inputValue(),'arm-elbow');
+    await page.locator('#v111-fk-gizmo-toggle').click();
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().gizmo?.armElbowWorld);
+    const elbowHandle=await page.evaluate(()=>window.BAIStudioMultiScenePreview.status().gizmo);
+    assert.ok(distance(elbowHandle.handleWorld,elbowHandle.armElbowWorld)<1e-6);
+    await page.locator('#v110-bone-tree').evaluate(el=>el.open=true);
+    await page.locator('#v110-bone-search').fill('左ひじ');
+    await page.waitForFunction(()=>{
+      const marker=document.querySelector('#v110-bone-overlay button[data-bone="左ひじ"]');
+      return marker&&!marker.hidden&&marker.dataset.projectedX;
+    });
+    const elbowScreen=await page.evaluate(()=>{
+      const marker=document.querySelector('#v110-bone-overlay button[data-bone="左ひじ"]');
+      const canvas=document.querySelector('#v58-canvas').getBoundingClientRect();
+      document.querySelector('#v110-bone-overlay').style.display='none';
+      return {x:canvas.left+Number(marker.dataset.projectedX),
+        y:canvas.top+Number(marker.dataset.projectedY)};
+    });
+    const elbowBefore=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左ひじ','左手首','右手首']),{instanceId});
+    let elbowAfter=null;
+    for(const [dx,dy,mx,my] of [[25,0,35,24],[0,-25,35,24],[-25,0,-35,24],
+      [0,25,-35,-24],[45,0,-35,24],[0,-45,35,24]]){
+      await page.mouse.move(elbowScreen.x+dx,elbowScreen.y+dy);await page.mouse.down();
+      await page.mouse.move(elbowScreen.x+dx+mx,elbowScreen.y+dy+my,{steps:12});
+      await page.mouse.up();await page.waitForTimeout(180);
+      const status=await page.locator('#v111-fk-gizmo-status').textContent();
+      console.log(JSON.stringify({elbowPointerAttempt:[dx,dy,mx,my],status}));
+      if(status.includes('腕IKを仮表示中')){
+        elbowAfter=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+          input.instanceId,['左ひじ','左手首','右手首']),{instanceId});break;
+      }
+    }
+    assert.ok(elbowAfter,'実ポインタのひじハンドルで2キー仮表示が必要');
+    assert.ok(distance(elbowBefore.bones['左ひじ'].world.slice(12,15),
+      elbowAfter.bones['左ひじ'].world.slice(12,15))>1e-3);
+    assert.ok(distance(elbowBefore.bones['左手首'].world.slice(12,15),
+      elbowAfter.bones['左手首'].world.slice(12,15))<1e-3);
+    assert.ok(distance(elbowBefore.bones['右手首'].world.slice(12,15),
+      elbowAfter.bones['右手首'].world.slice(12,15))<1e-4);
+    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,9);
+    await page.locator('#v106-fk-save').click();
+    await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent
+      ?.includes('腕・ひじの2キーを1回の操作として保存しました'));
+    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,10);
+    await page.locator('#v106-fk-undo').click();
+    await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('戻しました'));
+    const elbowUndone=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左ひじ','左手首']),{instanceId});
+    assert.ok(distance(elbowBefore.bones['左ひじ'].world.slice(12,15),
+      elbowUndone.bones['左ひじ'].world.slice(12,15))<1e-5);
+    await page.locator('#v106-fk-redo').click();
+    await page.waitForFunction(()=>document.querySelector('#v106-fk-status')?.textContent?.includes('やり直しました'));
+    const elbowRedone=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左ひじ','左手首']),{instanceId});
+    assert.ok(distance(elbowAfter.bones['左ひじ'].world.slice(12,15),
+      elbowRedone.bones['左ひじ'].world.slice(12,15))<1e-5);
+    await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
+      window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,
+      null,{timeout:120000});
+    await page.evaluate(()=>window.BAIStudioTimeline.seek(4,'arm-elbow-reload'));
+    const elbowReloaded=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左ひじ','左手首']),{instanceId});
+    assert.ok(distance(elbowAfter.bones['左ひじ'].world.slice(12,15),
+      elbowReloaded.bones['左ひじ'].world.slice(12,15))<1e-5);
+    assert.ok(distance(elbowAfter.bones['左手首'].world.slice(12,15),
+      elbowReloaded.bones['左手首'].world.slice(12,15))<1e-5);
+    await page.locator('#v106-fk-edit').evaluate(el=>el.open=true);
+    await page.locator('#v106-fk-frame').fill('240');
+    await page.locator('#v106-fk-frame').dispatchEvent('change');
+    await page.locator('#v111-fk-gizmo-goto').click();
+    await page.locator('#v137-arm-side').selectOption('右');
+    await page.locator('#v137-arm-hand').click();
+    await page.locator('#v111-fk-gizmo-toggle').click();
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().gizmo?.armSide==='右');
+    const rightBefore=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左手首','右ひじ','右手首']),{instanceId});
+    async function dragArmMarker(name){
+      await page.locator('#v110-bone-tree').evaluate(el=>el.open=true);
+      await page.locator('#v110-bone-search').fill(name);
+      await page.waitForFunction(bone=>{
+        const marker=document.querySelector(`#v110-bone-overlay button[data-bone="${bone}"]`);
+        return marker&&!marker.hidden&&marker.dataset.projectedX;
+      },name);
+      const screen=await page.evaluate(bone=>{
+        const overlay=document.querySelector('#v110-bone-overlay');overlay.style.display='';
+        const marker=overlay.querySelector(`button[data-bone="${bone}"]`);
+        const canvas=document.querySelector('#v58-canvas').getBoundingClientRect();
+        const point={x:canvas.left+Number(marker.dataset.projectedX),
+          y:canvas.top+Number(marker.dataset.projectedY)};
+        overlay.style.display='none';return point;
+      },name);
+      for(const [dx,dy,mx,my] of [[25,0,35,24],[0,-25,35,24],[-25,0,-35,24],
+        [0,25,-35,-24],[45,0,-35,24],[0,-45,35,24]]){
+        await page.mouse.move(screen.x+dx,screen.y+dy);await page.mouse.down();
+        await page.mouse.move(screen.x+dx+mx,screen.y+dy+my,{steps:12});
+        await page.mouse.up();await page.waitForTimeout(180);
+        const status=await page.locator('#v111-fk-gizmo-status').textContent();
+        console.log(JSON.stringify({rightArmPointer:name,attempt:[dx,dy,mx,my],status,
+          fkStatus:await page.locator('#v106-fk-status').textContent()}));
+        if(status.includes('腕IKを仮表示中'))return status;
+      }
+      return null;
+    }
+    assert.ok(await dragArmMarker('右手首'),'右手先の実ポインタ操作');
+    const rightHandAfter=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左手首','右ひじ','右手首']),{instanceId});
+    assert.ok(distance(rightBefore.bones['右手首'].world.slice(12,15),
+      rightHandAfter.bones['右手首'].world.slice(12,15))>1e-4);
+    assert.ok(distance(rightBefore.bones['左手首'].world.slice(12,15),
+      rightHandAfter.bones['左手首'].world.slice(12,15))<1e-4);
+    await page.keyboard.press('Escape');
+    const rightCancelled=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['右手首']),{instanceId});
+    assert.ok(distance(rightBefore.bones['右手首'].world.slice(12,15),
+      rightCancelled.bones['右手首'].world.slice(12,15))<1e-5);
+    await page.locator('#v137-arm-elbow').click();
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().gizmo?.armElbowWorld);
+    assert.ok(await dragArmMarker('右ひじ'),'右ひじの実ポインタ操作');
+    const rightElbowAfter=await page.evaluate(input=>window.BAIStudioMultiScenePreview.poseProbe(
+      input.instanceId,['左手首','右ひじ','右手首']),{instanceId});
+    assert.ok(distance(rightBefore.bones['右ひじ'].world.slice(12,15),
+      rightElbowAfter.bones['右ひじ'].world.slice(12,15))>1e-3);
+    assert.ok(distance(rightBefore.bones['右手首'].world.slice(12,15),
+      rightElbowAfter.bones['右手首'].world.slice(12,15))<1e-3);
+    assert.ok(distance(rightBefore.bones['左手首'].world.slice(12,15),
+      rightElbowAfter.bones['左手首'].world.slice(12,15))<1e-4);
+    await page.keyboard.press('Escape');
+    assert.equal((await ok(await fetch(`${endpoint}?id=${id}`))).revision,12);
     harness.assertNoErrors(page);
   }finally{
     await page?.close();await browser?.close();await server.stop();
