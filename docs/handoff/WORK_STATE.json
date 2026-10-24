@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:44:31+09:00",
+  "updated_at": "2026-10-24T20:46:32+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-long-zero-eval",
-  "head_at_update": "e9cff19",
+  "head_at_update": "622847a",
   "current": {
     "task": "Issue #106: MOTION-010 長尺0補正評価",
-    "status": "in_progress",
+    "status": "done",
     "step": "登録VMDの時長を調べ、90秒の0補正評価を隔離実PMXで検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010 長尺入力の0補正評価と再読込画面の断続的失敗を確認し、残る既承認条件へ進む"
+    "MOTION-010 長尺VMDの90秒付近に実補正キーを置き、プレビュー・保存再読込・別名VMD候補の適用範囲を調べる"
   ],
   "unverified": [
-    "画面再読込断続失敗の原因、別のIK・付与構成、長尺90秒、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
+    "長尺への実補正・VMD候補、画面再読込断続失敗の原因、別IK・付与構成、物理ON、実GPU、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T20:46:32+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "622847a",
+      "text": "MOTION-010 203.63秒の実VMDで0/4/90/180秒と往復シークの0補正評価を全201骨・168モーフで比較。最大差2.81e-7未満、元経路復帰差0。短尺回帰含む2試験通過、原本ハッシュ一致。"
+    },
     {
       "at": "2026-10-24T20:44:31+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "fb9ed92",
       "text": "Issue #106: MOTION-010 腕FK/IK編集方法切替: 左右腕の編集方法切替を姿勢・キー・Undo不変で接続し、実PMXで再読込まで確認する"
-    },
-    {
-      "at": "2026-10-24T17:35:03+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9f30c9e",
-      "text": "MOTION-010腕キー入り別名VMD候補を3つの異なる実PMXで物理OFFの作品600F＋VMD300F・全骨往復し、位置/角度誤差上限内と元素材不変を確認"
     }
   ]
 }
