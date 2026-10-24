@@ -161,6 +161,14 @@ def temporal_replacements(raw_vmd, layers, *, instance_id, clip_id):
                        until_frame - layer.get('fade_out_frames', 0)]
             frames.update(max(0, min(end_vmd, round((point / fps - start) * 30)))
                           for point in points)
+            # A constant target remains active through the last project frame.
+            # Preserve that value on the final 30 fps key before the interval
+            # ends; otherwise interpolation would taper it toward the first
+            # inactive key across a long span.
+            first_vmd = math.ceil((from_frame / fps - start) * 30 - 1e-7)
+            stop_vmd = math.ceil((until_frame / fps - start) * 30 - 1e-7)
+            frames.update(max(0, min(end_vmd, point)) for point in
+                          (first_vmd - 1, first_vmd, stop_vmd - 1, stop_vmd))
         if len(frames) * len(bones) > 250000:
             raise ValueError('VMD candidate exceeds bounded sample limit')
         for frame in sorted(frames):

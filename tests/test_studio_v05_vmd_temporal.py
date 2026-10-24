@@ -49,6 +49,18 @@ def test_one_project_frame_rotation_spike_is_rejected():
                               instance_id='model-1', clip_id='clip-1')
 
 
+def test_constant_ik_target_in_temporal_layer_stays_on_until_clip_end():
+    foot = {'bone': '左足ＩＫ', 'frame': 60, 'position': [0.3, 0, 0],
+            'rotation': [0, 0, 0, 1]}
+    samples, report = temporal_replacements(
+        fixture(), [layer([key(0, 0), key(60, 0.01), key(118, 0), foot])],
+        instance_id='model-1', clip_id='clip-1')
+    target = {row['frame']: row for row in samples if row['bone'] == '左足ＩＫ'}
+    assert target[59]['position'][0] == pytest.approx(0.3)
+    assert target[60]['position'][0] == pytest.approx(0)
+    assert report['max_position_error'] < 1e-3
+
+
 def test_rejects_inactive_and_oversize_clip():
     with pytest.raises(ValueError, match='Active correction'):
         temporal_replacements(fixture(), [layer([key(0, 0)], muted=True)],

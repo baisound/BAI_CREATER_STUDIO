@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T13:53:42+09:00",
+  "updated_at": "2026-10-24T14:01:58+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-vmd-temporal",
-  "head_at_update": "ab9e27c",
+  "branch": "codex/v05-motion010-vmd-foot-ik",
+  "head_at_update": "4f0f1f8",
   "current": {
-    "task": "Issue #106: MOTION-010 時間変化する補正のVMD候補",
+    "task": "Issue #106: MOTION-010 足IKを含む別名VMD候補の実PMX往復",
     "status": "done",
-    "step": "作品FPSのキーをVMD30fpsへ標本化し、誤差超過を拒否する候補経路と実PMX往復を検証する",
+    "step": "時間変化FK候補の境界標本を見直し、実PMXの足IKターゲットと足首を全フレーム比較する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
-    "MOTION-010: 足IKや別PMX/FPSの全フレーム実PMX採用判定、候補の安全な採用・作品配置、IK/FK切替の姿勢保持を続ける。"
+    "MOTION-010: 別PMX/FPS/足IK有効状態と区間・なじませを実PMXで検査し、一般化した採用判定と候補の安全な作品配置を設計・実装する。IK/FK切替の姿勢保持も続ける。"
   ],
   "unverified": [
-    "足IK・別モデル・別FPS・区間/なじませの実PMX往復、長尺ジョブ、実GPU、Linux、MCP実呼出し、候補の採用/配置、Owner採用は未確認。"
+    "別PMX・別FPS・IK無効区間、区間/なじませ、長尺ジョブ、実GPU、Linux、MCP実呼出し、候補採用/配置、Owner採用は未確認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T14:01:58+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4f0f1f8",
+      "text": "MOTION-010時間変化VMD候補の区間終了境界を補正し、実PMX左足IKターゲット・左右足首600作品フレームの往復を確認。Python30件・隔離Chrome1件成功。"
+    },
+    {
+      "at": "2026-10-24T13:58:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "94621e3",
+      "text": "Issue #106: MOTION-010 足IKを含む別名VMD候補の実PMX往復: 時間変化FK候補の境界標本を見直し、実PMXの足IKターゲットと足首を全フレーム比較する"
+    },
     {
       "at": "2026-10-24T13:53:42+09:00",
       "by": "codex",
@@ -226,20 +240,6 @@
       "event": "start",
       "head": "3f33f66",
       "text": "Issue #102: 実PMX動作の足接地診断をv0.5プレビューへ接続: 保存済み作品の実ポーズから左右足をサンプリングし既存接地診断APIへつなぐ"
-    },
-    {
-      "at": "2026-10-24T08:24:16+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b7d22cb",
-      "text": "Issue #102追補: GLB骨対応を画面で修正・改訂付き保存し、同じPMX/骨構造の別動作へ再利用。無動作・骨不足・不正骨・古い改訂・Blender欠落を拒否して実素材検証"
-    },
-    {
-      "at": "2026-10-24T08:12:37+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "abaef3d",
-      "text": "Issue #102: GLB→PMX VMD変換の骨対応と失敗経路を強化: 無動作・骨不足GLBと骨対応の保存・画面接続を設計し隔離検証する"
     }
   ]
 }
