@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T13:35:01+09:00",
+  "updated_at": "2026-10-24T13:40:18+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-vmd-constant-export",
-  "head_at_update": "3b7ba53",
+  "branch": "codex/v05-motion010-vmd-temporal",
+  "head_at_update": "378e69d",
   "current": {
-    "task": "Issue #106: MOTION-010 一定補正の別名VMD出力",
-    "status": "done",
-    "step": "作品内の全区間一定FK/IKターゲット補正を厳格に抽出し、元VMD骨キーへ合成して実PMX往復で検証する",
+    "task": "Issue #106: MOTION-010 時間変化する補正のVMD候補",
+    "status": "in_progress",
+    "step": "作品FPSのキーをVMD30fpsへ標本化し、誤差超過を拒否する候補経路と実PMX往復を検証する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T13:40:18+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "378e69d",
+      "text": "Issue #106: MOTION-010 時間変化する補正のVMD候補: 作品FPSのキーをVMD30fpsへ標本化し、誤差超過を拒否する候補経路と実PMX往復を検証する"
+    },
     {
       "at": "2026-10-24T13:35:01+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "a71cc25",
       "text": "Issue #102: 実GLBから対象PMX用別名VMDをBlenderで生成し、v0.5作品へ配置・再読込・実描画を検証"
-    },
-    {
-      "at": "2026-10-24T07:47:16+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4c38950",
-      "text": "Issue #102: GLBダンスを対象PMX向けVMDへ変換し同じ作品で確認: 既存FBX変換・GLB登録・実素材の骨対応を監査し、非破壊の変換経路を設計・実証する"
     }
   ]
 }
