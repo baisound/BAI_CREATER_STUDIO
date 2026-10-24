@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:16:16+09:00",
+  "updated_at": "2026-10-25T00:18:22+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip004-pmx-analysis-api",
-  "head_at_update": "4a77b1d",
+  "branch": "codex/v05-lip004-analysis-ui",
+  "head_at_update": "cda51ef",
   "current": {
-    "task": "Issue #175: 登録済みPMX口モーフ解析API",
-    "status": "done",
-    "step": "登録素材ID/hashに限定した読み取り解析APIと保存前のモデル照合を追加する",
+    "task": "Issue #175: v0.5口モーフ解析の確認画面",
+    "status": "in_progress",
+    "step": "現在のPMXの数値結果と手動確認が必要な母音を画面へ表示する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T00:18:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cda51ef",
+      "text": "Issue #175: v0.5口モーフ解析の確認画面: 現在のPMXの数値結果と手動確認が必要な母音を画面へ表示する"
+    },
     {
       "at": "2026-10-25T00:16:16+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "574a79a",
       "text": "MOTION-010 長尺203秒VMDの24fps一定補正を201骨PMX全4896作品F＋6120VMD Fで検証、隔離採用・復元を確認。24fps区間4Fなじませの不適合は拒否を固定"
-    },
-    {
-      "at": "2026-10-24T21:54:18+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f5e8b44",
-      "text": "Issue #106: MOTION-010 長尺VMDの24fps候補検証: 203秒実VMDと実PMXで24fps長尺なじませ候補の全骨往復を検証する"
     }
   ]
 }
