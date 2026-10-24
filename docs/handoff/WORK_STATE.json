@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:09:58+09:00",
+  "updated_at": "2026-10-24T23:12:36+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-camera-export",
-  "head_at_update": "a814a9e",
+  "head_at_update": "f17c535",
   "current": {
     "task": "Issue #106: MOTION-010/CAM-015 MP4への旧カメラカット反映",
-    "status": "in_progress",
+    "status": "done",
     "step": "書き出し契約を確認し、保存済み旧カメラカットが実PMX MP4へ反映されるか隔離出力で検証する",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "MOTION-010/CAM-015 MP4書出しに旧カメラカットが反映されるか契約と実出力を確認する"
+    "MOTION-010の残る承認済みPMX編集条件へ戻り、実変形と保存・出力の未確認項目を進める。CAM-015のカメラ源選択とMP4接続は未完了として保持する"
   ],
   "unverified": [
-    "MP4中の旧カメラカット、カット編集UI、任意構成、実GPU、物理ON、任意PMX、Linux、標準MCP実通信、Owner採用、MOTION-010/CAM-015全ACは未確認。順変更O-05は未承認。"
+    "旧カメラと3Dシーンカメラの明示選択・MP4カット、カット編集UI、任意カット構成、MOTION-010の物理ON・任意IK/PMX・長なじませ、Linux、標準MCP実通信、Owner採用、全ACは未確認。順変更O-05は未承認。"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T23:12:36+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "f17c535",
+      "text": "MOTION-010/CAM-015 実PMX隔離1F MP4を旧カメラX0/X5で2本出力。カメラAPIは変化したが復号画素差0で、MP4は保存済み3Dシーンカメラを使う接続差を確認。原本SHA不変、未実装として記録"
+    },
     {
       "at": "2026-10-24T23:09:58+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "a030e68",
       "text": "Issue #106: MOTION-010 長尺VMDの一定補正候補: 動く元曲線を保つ疎な一定補正候補を実PMX全フレームで検証する"
-    },
-    {
-      "at": "2026-10-24T21:06:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "f6fc2db",
-      "text": "MOTION-010 長尺実VMDの密キー境界を分析。補正0でもMMDLoaderの隣接キー保持でF5415に4.91度の差が生じ、なじませ2/48Fとも安全ゲートが拒否。元VMD不変を9試験で確認。"
     }
   ]
 }
