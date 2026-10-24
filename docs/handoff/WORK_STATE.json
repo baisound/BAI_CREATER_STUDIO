@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:42:51+09:00",
+  "updated_at": "2026-10-24T16:45:44+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-pair-api",
-  "head_at_update": "fda3eba",
+  "branch": "codex/v05-motion010-arm-geometry",
+  "head_at_update": "20eae37",
   "current": {
-    "task": "Issue #106: MOTION-010 腕IKの2キー原子的保存",
-    "status": "done",
-    "step": "腕・ひじ2キーを同作品・同フレーム・同レイヤーで一括検証し、1 revision・1 Undoで保存するAPIを追加する",
+    "task": "Issue #106: MOTION-010 腕IKの3D幾何",
+    "status": "in_progress",
+    "step": "実PMXのほぼ直線の腕を含む二関節3D到達・ポール選択・到達不能判定を純粋な関数として実装し、左右・境界を検証する",
     "design_doc": "docs/v05/MOTION010_ARM_IK_FEASIBILITY_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T16:45:44+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "20eae37",
+      "text": "Issue #106: MOTION-010 腕IKの3D幾何: 実PMXのほぼ直線の腕を含む二関節3D到達・ポール選択・到達不能判定を純粋な関数として実装し、左右・境界を検証する"
+    },
     {
       "at": "2026-10-24T16:42:51+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "9a541ac",
       "text": "MOTION-010の24fps前後なじませ候補で不要な30fps境界を省き、実PMX頭骨240作品フレーム往復と元曲線分断の拒否を確認。Python32件・隔離Chrome24fps/60fps各1件成功。"
-    },
-    {
-      "at": "2026-10-24T14:05:48+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7e140cb",
-      "text": "Issue #106: MOTION-010 別FPS・前後なじませのVMD候補: 24fps作品と区間・なじませの30fps境界を実VMD曲線と実PMXで検証し、不要な境界キーを避ける"
     }
   ]
 }
