@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:08:26+09:00",
+  "updated_at": "2026-10-24T23:09:58+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-camera-preview",
-  "head_at_update": "2d4b407",
+  "branch": "codex/v05-motion010-camera-export",
+  "head_at_update": "a814a9e",
   "current": {
-    "task": "Issue #106: MOTION-010/CAM-015 実PMX撮影プレビューでのカット確認",
-    "status": "done",
-    "step": "保存済み旧カメラカットを実PMXの撮影プレビューへ適用し、姿勢・ピクセル・原本保持を隔離検証する",
+    "task": "Issue #106: MOTION-010/CAM-015 MP4への旧カメラカット反映",
+    "status": "in_progress",
+    "step": "書き出し契約を確認し、保存済み旧カメラカットが実PMX MP4へ反映されるか隔離出力で検証する",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T23:09:58+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "a814a9e",
+      "text": "Issue #106: MOTION-010/CAM-015 MP4への旧カメラカット反映: 書き出し契約を確認し、保存済み旧カメラカットが実PMX MP4へ反映されるか隔離出力で検証する"
+    },
     {
       "at": "2026-10-24T23:08:26+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "f6fc2db",
       "text": "MOTION-010 長尺実VMDの密キー境界を分析。補正0でもMMDLoaderの隣接キー保持でF5415に4.91度の差が生じ、なじませ2/48Fとも安全ゲートが拒否。元VMD不変を9試験で確認。"
-    },
-    {
-      "at": "2026-10-24T21:02:56+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "42eda81",
-      "text": "Issue #106: MOTION-010 長尺VMD曲線境界の診断: 動く元VMDの区間境界・なじませと30fps候補の誤差を測り、安全な限定条件を探す"
     }
   ]
 }
