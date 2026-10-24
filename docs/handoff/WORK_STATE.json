@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T08:24:16+09:00",
+  "updated_at": "2026-10-24T09:34:47+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-glb-vmd-profile",
-  "head_at_update": "b7d22cb",
+  "branch": "codex/v05-pmx-foot-qa",
+  "head_at_update": "cfdbf23",
   "current": {
-    "task": "Issue #102: GLB→PMX VMD変換の骨対応と失敗経路を強化",
+    "task": "Issue #102: 実PMX動作の足接地診断をv0.5プレビューへ接続",
     "status": "done",
-    "step": "無動作・骨不足GLBと骨対応の保存・画面接続を設計し隔離検証する",
+    "step": "保存済み作品の実ポーズから左右足をサンプリングし既存接地診断APIへつなぐ",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "追補PRをmainへ統合しlocal main/8765を同期する",
-    "ロードマップ順5の足IK・接地品質と任意フレームの骨編集を既存仕様に沿って進める"
+    "この追補PRをmainへ統合し、local mainと8765サーバーの配信を同期する",
+    "順5 MOTION-010の詳細設計・批評3回・判定と足IK品質検証を既存仕様に沿って進める"
   ],
   "unverified": [
-    "プロファイル共有入出力・Undo/Redo、任意追加骨マップ、他PMXの見た目・足IK/接地、Linux、MCP、Owner採用は未検証または未実装"
+    "足裏接触点・足IK適用/補正、全尺の品質、他PMX、実GPU、Linux、MCP、Owner採用は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T09:34:47+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "cfdbf23",
+      "text": "Issue #102: v0.5の実PMXプレビューから左右つま先を2秒標本化し、既存の両足接地診断APIへ接続。実GLB→VMD/PMXの0秒・30秒で各61点、診断後姿勢復元と原本SHA不変を確認"
+    },
+    {
+      "at": "2026-10-24T09:21:45+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3f33f66",
+      "text": "Issue #102: 実PMX動作の足接地診断をv0.5プレビューへ接続: 保存済み作品の実ポーズから左右足をサンプリングし既存接地診断APIへつなぐ"
+    },
     {
       "at": "2026-10-24T08:24:16+09:00",
       "by": "codex",
@@ -227,20 +241,6 @@
       "event": "done",
       "head": "31f25b5",
       "text": "実PMX/VMDを隔離ChromeでF0/F120骨・画素差と保存再読込を確認し、3Dカメラfitへのハンドル混入を修正"
-    },
-    {
-      "at": "2026-10-24T04:29:51+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "5ba873d",
-      "text": "Issues #82/#84/#83: scissors split for timed media, snap/grid modes, persistent Unicode track labels; Python24 and isolated Chrome4 passed"
-    },
-    {
-      "at": "2026-10-24T04:09:34+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "fb58f86",
-      "text": "Issues #82/#84/#83: video/audio scissors split, snap/grid editing and persistent track labels: 保存済みクリップの分割契約とUI操作を既存タイムラインに接続し、隔離Chromeで検査"
     }
   ]
 }

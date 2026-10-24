@@ -54,6 +54,21 @@ const seekBtn=document.createElement('button');seekBtn.type='button';
 const motionStatus=document.createElement('span');motionStatus.setAttribute('role','status');
 const faceControls=document.createElement('div');faceControls.id='v96-face-controls';
 faceControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid #435a73;padding-top:6px';
+const footControls=document.createElement('details');footControls.id='v105-foot-qa';
+footControls.style.cssText='border-top:1px solid #435a73;padding-top:4px';
+const footSummary=document.createElement('summary');footSummary.textContent='実動作の足接地を診断（読み取りのみ）';
+const footGround=document.createElement('input');footGround.id='v105-ground-y';
+footGround.type='number';footGround.step='0.01';footGround.value='0';footGround.style.width='75px';
+footGround.setAttribute('aria-label','床のY座標（シーン単位）');
+const footRun=document.createElement('button');footRun.id='v105-foot-run';footRun.type='button';
+footRun.textContent='現在位置から2秒を診断';
+const footStatus=document.createElement('span');footStatus.id='v105-foot-status';
+footStatus.setAttribute('role','status');
+footStatus.style.display='block';
+const footDetails=document.createElement('pre');footDetails.id='v105-foot-details';
+footDetails.style.cssText='white-space:pre-wrap;max-height:160px;overflow:auto;font-size:11px';
+footControls.append(footSummary,document.createTextNode('床のY '),footGround,footRun,
+  document.createTextNode(' 左右のつま先骨を測定。足裏の形状・接触力・IKは評価しません。'),footStatus,footDetails);
 const faceLabel=document.createElement('strong');faceLabel.textContent='PMX表情・口';
 const faceName=document.createElement('select');faceName.id='v96-face-name';faceName.setAttribute('aria-label','実PMXのモーフ名');
 const faceTrack=document.createElement('select');faceTrack.id='v98-face-track';
@@ -85,7 +100,8 @@ const hint=document.createElement('small');
 hint.textContent=tr('renderingNote');
 footer.append(progress,cameraStatus,hint);
 if(captureMode){saveCameraBtn.hidden=true;restoreCameraBtn.hidden=true;}
-panel.append(heading,motionControls,faceControls,canvasParent,footer);
+panel.append(heading,motionControls,faceControls,footControls,canvasParent,footer);
+if(captureMode)footControls.hidden=true;
 document.body.append(panel);
 panel.hidden=true;panel.style.display='none';
 const normalPanelStyle=panel.style.cssText;
@@ -213,6 +229,68 @@ function seekScene(seconds){
     if(missing.length)motionStatus.textContent='未読込の表情モーフ: '+missing.join(', ');
     seekInput.value=String(seconds);
   }catch(error){motionStatus.textContent=String(error.message||error);}
+}
+async function sampleFootContact(instanceId,groundY){
+  if(!opened||!controller||!motionCoordinator||!sceneSnapshot||!motionPlan||
+     sceneSnapshot.project_id!==project?.value)throw Error('作品の3Dプレビューを読み込んでください');
+  if(!Number.isFinite(groundY))throw Error('床のY座標を数値で指定してください');
+  const target=controller.getLoaded(instanceId);
+  if(target?.format!=='PMX'||!target.object?.skeleton)throw Error('実PMXモデルを選んでください');
+  const bones=new Map(target.object.skeleton.bones.map(bone=>[bone.name,bone]));
+  const left=bones.get('左つま先'),right=bones.get('右つま先');
+  if(!left||!right)throw Error('このPMXに左右の「つま先」骨がありません');
+  const originalNonce=nonce,projectId=project.value;
+  const media=window.BAIStudioMediaPreviewV68?.status?.();
+  if(media?.projectId===project.value&&media.playing)throw Error('再生を一時停止してから診断してください');
+  const fpsData=await request('/api/studio/v05/project/fps?id='+encodeURIComponent(projectId));
+  if(!opened||nonce!==originalNonce||project.value!==projectId)
+    throw Error('作品が変わったため診断を中断しました');
+  const fps=fpsData.configured?Number(fpsData.fps):60;
+  if(!Number.isFinite(fps)||fps<1||fps>240)throw Error('作品FPSを取得できません');
+  // The 3D preview may already have followed a timeline seek while the media
+  // panel's frame cache still points at its prior position.
+  const shownTime=Number(seekInput.value);
+  const originalTime=Number.isFinite(shownTime)&&shownTime>=0?shownTime:currentSeek();
+  const row=motionPlan.rows.find(item=>item.status==='ready'&&
+    item.target_scene_instance_id===instanceId&&
+    item.start<=originalTime&&originalTime<item.start+item.duration&&
+    motionCoordinator.status().loadedClips.includes(item.clip_id));
+  if(!row)throw Error('現在位置に読み込み済みのPMX動作がありません');
+  const startFrame=Math.max(0,Math.ceil(originalTime*fps-1e-6));
+  const lastFrame=Math.min(startFrame+Math.ceil(2*fps),
+    Math.floor((row.start+row.duration-1e-6)*fps));
+  if(lastFrame<=startFrame)throw Error('動作の終了直前です。少し前へ移動してください');
+  const stride=Math.max(1,Math.ceil(fps/30));
+  const frames=[];
+  for(let frame=startFrame;frame<=lastFrame;frame+=stride)frames.push(frame);
+  if(frames.at(-1)!==lastFrame)frames.push(lastFrame);
+  const samples={left:[],right:[]};
+  const point=new target.libs.THREE.Vector3();
+  try{
+    for(let i=0;i<frames.length;i++){
+      if(!opened||nonce!==originalNonce||project.value!==projectId||
+         controller.getLoaded(instanceId)!==target||
+         window.BAIStudioMediaPreviewV68?.status?.()?.playing)
+        throw Error('作品または再生状態が変わったため診断を中断しました');
+      const frame=frames[i];
+      const result=motionCoordinator.seek(frame/fps);
+      if(result?.errors?.length)throw Error('動作を評価できません: '+String(result.errors[0].error));
+      target.root.updateMatrixWorld(true);
+      for(const [side,bone] of [['left',left],['right',right]]){
+        bone.getWorldPosition(point);
+        const position=point.toArray();
+        if(position.some(value=>!Number.isFinite(value)))throw Error('足骨の座標が不正です');
+        samples[side].push({frame,position});
+      }
+      if(i%8===7)await new Promise(resolve=>requestAnimationFrame(resolve));
+    }
+  }finally{
+    if(opened&&nonce===originalNonce&&project.value===projectId&&
+       controller.getLoaded(instanceId)===target)seekScene(originalTime);
+  }
+  return {projectId,instanceId,clipId:row.clip_id,token:originalNonce,
+    arrangementRevision:motionPlan.arrangement_revision,fps,startFrame,lastFrame,
+    groundY,samples,point:'PMX 左つま先 / 右つま先（足裏の代理点）'};
 }
 function applySavedFace(seconds){
   const missing=[];
@@ -516,6 +594,44 @@ window.addEventListener('bai:remote-playhead-updated',event=>{
 });
 closeBtn.addEventListener('click',close);
 modeBtn.addEventListener('click',()=>{open({composite:!composite}).catch(e=>progress.textContent=e.message);});
+footRun.addEventListener('click',async()=>{
+  if(!footGround.value.trim()||!Number.isFinite(Number(footGround.value))){
+    footStatus.textContent='床のY座標を数値で指定してください';return;
+  }
+  footRun.disabled=true;footStatus.textContent='実ポーズを測定中…';footDetails.textContent='';
+  try{
+    const sample=await sampleFootContact(choose.value||selectedId,Number(footGround.value));
+    const response=await fetch('/api/qa/dual-foot-preview',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({left_samples:sample.samples.left,right_samples:sample.samples.right,
+        ground_y:sample.groundY})
+    });
+    const report=await response.json();
+    if(!response.ok)throw Error(report.error||`HTTP ${response.status}`);
+    if(!opened||project?.value!==sample.projectId||nonce!==sample.token||
+       motionPlan?.arrangement_revision!==sample.arrangementRevision||
+       controller?.getLoaded(sample.instanceId)==null||
+       (choose.value||selectedId)!==sample.instanceId){
+      if(opened)footStatus.textContent='作品または選択が変わったため診断結果を破棄しました';
+      return;
+    }
+    const count=side=>`${side.contact_intervals.length}区間・滑り${side.drift_frames.length}F・床下${side.penetrations.length}F`;
+    const yRange=side=>{
+      const heights=sample.samples[side].map(row=>row.position[1]);
+      return [Math.min(...heights),Math.max(...heights)];
+    };
+    const ranges={left:yRange('left'),right:yRange('right')};
+    footStatus.textContent=`F${sample.startFrame}〜${sample.lastFrame}：左 ${count(report.left)}／右 ${count(report.right)}。両足補正の競合${report.conflict_frames.length}F。`+
+      ` つま先Y 左${ranges.left.map(x=>x.toFixed(3)).join('〜')}・右${ranges.right.map(x=>x.toFixed(3)).join('〜')}。`+
+      (!report.left.contact_intervals.length&&!report.right.contact_intervals.length?' 接地区間なし。床Yと動作区間を確認してください。':'');
+    footDetails.textContent=JSON.stringify({point:sample.point,clipId:sample.clipId,
+      fps:sample.fps,startFrame:sample.startFrame,lastFrame:sample.lastFrame,
+      samplesPerFoot:sample.samples.left.length,groundY:sample.groundY,heightRange:ranges,
+      left:report.left,right:report.right,conflictFrames:report.conflict_frames,
+      limitations:report.limitations},null,2);
+  }catch(error){footStatus.textContent='診断失敗: '+String(error?.message||error);}
+  finally{footRun.disabled=false;}
+});
 project?.addEventListener('change',()=>{if(opened)reload();});
 window.addEventListener('bai:v58-preview-open',()=>{open().catch(e=>progress.textContent=e.message);});
 window.addEventListener('bai:v57-scene-changed',()=>{if(opened)reload();});
@@ -548,6 +664,7 @@ window.addEventListener('bai:v98-face-key-select',async event=>{
 window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
+  sampleFootContact,
   status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,composite,
     rendererReady:Boolean(viewport),renderer:viewport?.rendererName||null,
     cameraSaved:Boolean(sceneSnapshot?.camera),camera:viewport?.getCameraPose?.()||null,
