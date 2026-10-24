@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:08:02+09:00",
+  "updated_at": "2026-10-24T22:10:50+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-long-fractional-fps",
-  "head_at_update": "2ed62e4",
+  "branch": "codex/v05-motion010-long-ui-flow",
+  "head_at_update": "3df66c3",
   "current": {
-    "task": "Issue #106: MOTION-010 長尺VMDの分数FPS候補検証",
-    "status": "done",
-    "step": "203秒実VMDと201骨PMXで24000/1001fps長尺候補の全骨往復を検証する",
+    "task": "Issue #106: MOTION-010 長尺VMD候補の通常画面経路",
+    "status": "in_progress",
+    "step": "203秒実VMDの候補作成・全骨検査・明示採用・復元をv0.5画面で操作し保存結果を読む",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T22:10:50+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3df66c3",
+      "text": "Issue #106: MOTION-010 長尺VMD候補の通常画面経路: 203秒実VMDの候補作成・全骨検査・明示採用・復元をv0.5画面で操作し保存結果を読む"
+    },
     {
       "at": "2026-10-24T22:08:02+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "44fb925",
       "text": "Issue #106: ソロの部分・全フレームVMD候補を246骨実PMX全骨で往復し、複数層上位の腕IKドラッグ保存・Undo/Redo・再読込を確認"
-    },
-    {
-      "at": "2026-10-24T20:01:55+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f77fda1",
-      "text": "Issue #106: MOTION-010 ソロVMD往復と複数層腕IK: 実PMX全骨の候補検査と腕ハンドルの下位層姿勢差分を評価"
     }
   ]
 }
