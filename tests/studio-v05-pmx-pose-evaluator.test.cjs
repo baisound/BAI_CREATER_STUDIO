@@ -8,27 +8,31 @@ const harness = require('./helpers/studio-harness.cjs');
 
 const sourceRoot = process.env.BAI_REAL_MMD_DATA;
 const modelName = 'Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx';
-const motionName = '狐面物理確認用_頭振り_F000-0300.vmd';
 const modelPath = sourceRoot && path.join(sourceRoot, 'mmd', 'A', modelName);
-const motionPath = sourceRoot && path.join(sourceRoot, 'mmd', 'vmd', motionName);
-const exists = modelPath && motionPath && fs.existsSync(modelPath) && fs.existsSync(motionPath);
+const motions = [
+  {name:'狐面物理確認用_頭振り_F000-0300.vmd',times:[0,4,9,4,0,9],minDuration:9,port:8895},
+  {name:'神っぽいな.vmd',times:[0,4,90,180,90,0,180],minDuration:180,port:8910}
+];
 const digest = p => crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 
-test('PMX no-op pre-IK evaluator matches the existing path on real PMX and VMD',
-  {skip: !exists && 'BAI_REAL_MMD_DATA に実素材がありません', timeout: 180000}, async () => {
+for (const {name:motionName,times,minDuration,port} of motions) {
+  const motionPath = sourceRoot && path.join(sourceRoot, 'mmd', 'vmd', motionName);
+  const exists = modelPath && motionPath && fs.existsSync(modelPath) && fs.existsSync(motionPath);
+test(`PMX no-op pre-IK evaluator matches the existing path: ${motionName}`,
+  {skip: !exists && 'BAI_REAL_MMD_DATA に実素材がありません', timeout: 300000}, async () => {
     const before = [digest(modelPath), digest(motionPath)];
     const metadata = JSON.parse(fs.readFileSync(path.join(sourceRoot, 'mmd_assets.json'), 'utf8'));
     const entries = metadata.A.filter(e => e.name === modelName || e.name.startsWith('tex/'));
     const seed = {'mmd_assets.json': JSON.stringify({A: entries, B: [], vmd: [{name: motionName, size: fs.statSync(motionPath).size}]})};
     for (const entry of entries) seed[`mmd/A/${entry.name}`] = fs.readFileSync(path.join(sourceRoot, 'mmd', 'A', ...entry.name.split('/')));
     seed[`mmd/vmd/${motionName}`] = fs.readFileSync(motionPath);
-    const server = await harness.startServer({port: 8895, seed});
+    const server = await harness.startServer({port, seed});
     let browser, page;
     try {
       browser = await server.launchBrowser();
       page = await server.newPage(browser);
       await page.goto(`${server.base}/studio/v05/index.html`);
-      const samples = await page.evaluate(async ({modelName, motionName}) => {
+      const samples = await page.evaluate(async ({modelName, motionName, times}) => {
         const [{loadLibs,loadModel}, {loadVmdClip}, {createPlayer}] = await Promise.all([
           import('/studio/js/viewport/model-loader.js'),
           import('/studio/js/motion/vmd.js'),
@@ -47,7 +51,7 @@ test('PMX no-op pre-IK evaluator matches the existing path on real PMX and VMD',
             morphs: [...(mesh.morphTargetInfluences||[])]};
         };
         const rows=[];
-        for (const time of [0,4,9,4,0,9]) {
+        for (const time of times) {
           player.setPmxPoseModifier(null); player.seek(time); const baseline=take();
           player.setPmxPoseModifier(() => {}); player.seek(time); const alternate=take();
           player.setPmxPoseModifier(null); player.seek(time); const returnToBaseline=take();
@@ -55,7 +59,9 @@ test('PMX no-op pre-IK evaluator matches the existing path on real PMX and VMD',
         }
         player.dispose();
         return {duration:clip.duration,rows};
-      }, {modelName,motionName});
+      }, {modelName,motionName,times});
+      assert.ok(samples.duration >= minDuration,
+        `VMD duration ${samples.duration} is shorter than required ${minDuration}s`);
       const distance = (a,b) => {
         assert.equal(a.bones.length,b.bones.length);
         assert.equal(a.morphs.length,b.morphs.length);
@@ -87,3 +93,4 @@ test('PMX no-op pre-IK evaluator matches the existing path on real PMX and VMD',
       assert.deepEqual([digest(modelPath),digest(motionPath)],before,'PMX/VMD originals changed');
     }
   });
+}
