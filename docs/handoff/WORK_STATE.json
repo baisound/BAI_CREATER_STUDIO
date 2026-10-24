@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:35:55+09:00",
+  "updated_at": "2026-10-24T16:37:54+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-arm-ik-feasibility",
-  "head_at_update": "5b2927c",
+  "branch": "codex/v05-motion010-arm-pair-api",
+  "head_at_update": "a856087",
   "current": {
-    "task": "Issue #106: MOTION-010 腕IKの3D実装準備",
-    "status": "done",
-    "step": "実PMX腕の捩り・付与を含む親子構造と保存APIを検査し、二関節3D解の最小実証条件を定める",
-    "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
+    "task": "Issue #106: MOTION-010 腕IKの2キー原子的保存",
+    "status": "in_progress",
+    "step": "腕・ひじ2キーを同作品・同フレーム・同レイヤーで一括検証し、1 revision・1 Undoで保存するAPIを追加する",
+    "design_doc": "docs/v05/MOTION010_ARM_IK_FEASIBILITY_20261024_JA.md"
   },
   "next_steps": [
     "MOTION-010: 腕・ひじ2キーの原子的保存APIと1 Undo/Redo、仮プレビュー経路を実装・検証する",
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T16:37:54+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "a856087",
+      "text": "Issue #106: MOTION-010 腕IKの2キー原子的保存: 腕・ひじ2キーを同作品・同フレーム・同レイヤーで一括検証し、1 revision・1 Undoで保存するAPIを追加する"
+    },
     {
       "at": "2026-10-24T16:35:55+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "4f0f1f8",
       "text": "MOTION-010時間変化VMD候補の区間終了境界を補正し、実PMX左足IKターゲット・左右足首600作品フレームの往復を確認。Python30件・隔離Chrome1件成功。"
-    },
-    {
-      "at": "2026-10-24T13:58:25+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "94621e3",
-      "text": "Issue #106: MOTION-010 足IKを含む別名VMD候補の実PMX往復: 時間変化FK候補の境界標本を見直し、実PMXの足IKターゲットと足首を全フレーム比較する"
     }
   ]
 }
