@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:32:17+09:00",
+  "updated_at": "2026-10-24T20:34:59+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-lower-fk-crossmodel",
-  "head_at_update": "14538bb",
+  "branch": "codex/v05-motion010-lower-fk-multistage",
+  "head_at_update": "eeda3fc",
   "current": {
-    "task": "Issue #106: MOTION-010 下位FKの別形状PMX検証と再読込画面調査",
-    "status": "done",
-    "step": "別形状PMXの下位FK3D編集を実測し、画面再読込の断続的失敗を切り分ける",
+    "task": "Issue #106: MOTION-010 下位FKのIK拒否と複数上位層",
+    "status": "in_progress",
+    "step": "実PMXのIK関連骨拒否と複数同骨上位補正の局所逆算を検査する",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T20:34:59+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "eeda3fc",
+      "text": "Issue #106: MOTION-010 下位FKのIK拒否と複数上位層: 実PMXのIK関連骨拒否と複数同骨上位補正の局所逆算を検査する"
+    },
     {
       "at": "2026-10-24T20:32:17+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "004dc9f",
       "text": "MOTION-010左右腕の手先・ひじ3Dハンドルを接続し、隔離Chrome実ポインタで仮表示・左の保存/Undo/Redo/再読込・右の手首保持/Escと既存膝回帰を確認"
-    },
-    {
-      "at": "2026-10-24T17:10:21+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "35c2555",
-      "text": "Issue #106: MOTION-010 手先・肘の3Dハンドル: 既存キーの再編集に対応する腕2キー解法を整え、実ポインタの手先・肘操作を仮表示・保存へ接続する"
     }
   ]
 }
