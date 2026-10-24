@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T09:46:31+09:00",
+  "updated_at": "2026-10-24T09:47:01+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-motion010-design",
-  "head_at_update": "6b59dc1",
+  "head_at_update": "9abfe2f",
   "current": {
-    "task": "Issue #106: PMX/VMD姿勢評価のA/B回帰と段階Aの限定FK補正",
-    "status": "done",
-    "step": "無補正の新評価順が現行MMDプレビューと一致することを実PMXで検証し、ずれがあれば実装を止める",
+    "task": "Issue #106: MOTION-010段階Aの限定FK補正",
+    "status": "in_progress",
+    "step": "作品別API・revision/Undo、実PMXプレビュー、保存再読込をつなぐ",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T09:47:01+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9abfe2f",
+      "text": "Issue #106: MOTION-010段階Aの限定FK補正: 作品別API・revision/Undo、実PMXプレビュー、保存再読込をつなぐ"
+    },
     {
       "at": "2026-10-24T09:46:31+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "68a35ec",
       "text": "Issue #63/#69: v0.5保存済み3Dの限定MP4出力: In/Outとシーンrevisionを固定し、短い透過3Dフレームを実描画・検証して既存FFmpeg合成へ接続"
-    },
-    {
-      "at": "2026-10-24T05:19:43+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8730d50",
-      "text": "Issues #63/#69: saved GLB overlays image/video in one v0.5 editor viewport; pixel comparison, F60/F150/reload, real PMX/VMD regression and guarded hashes passed"
     }
   ]
 }
