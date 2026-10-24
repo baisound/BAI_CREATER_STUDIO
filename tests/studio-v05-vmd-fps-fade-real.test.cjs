@@ -151,6 +151,7 @@ test('24 fps faded FK correction and VMD candidate agree on real PMX',
       await page.waitForFunction(()=>document.querySelector('#v116-vmd-candidate-status')?.textContent
         ?.includes('実PMX検査合格'),null,{timeout:120000});
       assert.match(await page.locator('#v116-vmd-candidate-status').innerText(),/作品240F＋VMD300F × \d+骨/);
+      assert.match(await page.locator('#v116-vmd-candidate-status').innerText(),/物理OFF/);
       assert.deepEqual([digest(modelPath),digest(motionPath)],originals);
       harness.assertNoErrors(page);
     }finally{
