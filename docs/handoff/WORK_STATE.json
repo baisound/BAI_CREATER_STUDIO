@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T15:20:30+09:00",
+  "updated_at": "2026-10-24T15:24:45+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-motion010-foot-drag-persist",
-  "head_at_update": "a0429d0",
+  "branch": "codex/v05-motion010-foot-reach",
+  "head_at_update": "bdc3891",
   "current": {
-    "task": "Issue #106: MOTION-010 足IK実ポインタ補正の保存再読込",
-    "status": "done",
-    "step": "足首ハンドルの実ドラッグをキー化し、再読込・Undo/Redo・原本不変を実PMXで検証する",
+    "task": "Issue #106: MOTION-010 足IKの到達残差表示",
+    "status": "in_progress",
+    "step": "実PMXの足IKターゲットと足首の評価済み位置差を3D編集画面へ表示し、未到達の誤認を防ぐ",
     "design_doc": "docs/roadmap/MOTION010_V05_DETAILED_DESIGN_20261024_JA.md"
   },
   "next_steps": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-24T15:24:45+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "bdc3891",
+      "text": "Issue #106: MOTION-010 足IKの到達残差表示: 実PMXの足IKターゲットと足首の評価済み位置差を3D編集画面へ表示し、未到達の誤認を防ぐ"
+    },
     {
       "at": "2026-10-24T15:20:30+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "11e7d19",
       "text": "Issue #106 MOTION-010: 実PMX頭骨の3D回転ハンドルを仮FK補正・既存キー保存に接続し、Esc取消と保存再読込を実機確認。PR作成前。"
-    },
-    {
-      "at": "2026-10-24T11:06:05+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2c99742",
-      "text": "Issue #106: MOTION-010 実PMX骨の3D回転ハンドル: 同じv0.5編集画面で選択骨の回転を未確定プレビューに変換し、既存FKキー保存へ接続"
     }
   ]
 }
