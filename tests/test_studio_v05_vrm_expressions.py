@@ -64,6 +64,7 @@ def test_registered_vrm_api_hash_and_source_isolation(tmp_path, monkeypatch):
     result = inspect(asset['id'], [asset], server.character_source)
     assert result['modelHash'] == expected
     assert result['vowels']['A']['status'] == 'ready'
+    assert result['expressionBinds'][0] == [{'node': 0, 'index': 0, 'weight': 1}]
     assert result['vowels']['I']['status'] == 'unbound'
     assert result['vowels']['U']['status'] == 'missing'
     with pytest.raises(VrmExpressionError) as changed:
@@ -114,4 +115,9 @@ def test_real_registered_vrm0_and_vrm1_are_read_only():
         assert result['version'] == version
         assert result['modelHash'] == before
         assert {item['status'] for item in result['vowels'].values()} == {status}
+        if version == '0':
+            index = next(i for i, row in enumerate(result['expressions']) if row['name'] == 'a')
+            assert result['expressionBinds'][index] == [{'mesh': 0, 'index': 39, 'weight': 1}]
+        else:
+            assert all(not row for row in result['expressionBinds'])
         assert hashlib.sha256(source.read_bytes()).hexdigest() == before

@@ -54,14 +54,40 @@ test('v0.5 VRM expression map saves bound vowels and keeps unbound definitions a
     assert.deepEqual(Object.values(data.vowels).map(row=>row.status),Array(5).fill('ready'));
     assert.match(await page.locator('#v183-vrm-status').textContent(),/実バインドのある母音5\/5/);
     assert.match(await page.locator('#v183-vrm-vowels').textContent(),/A \(a\)：実バインドあり/);
-    await page.locator('#v184-vrm-map > summary').click();
     const oldAIndex=data.expressions.findIndex(row=>row.kind==='preset'&&row.name==='a');
+    assert.deepEqual(data.expressionBinds[oldAIndex],[{mesh:0,index:39,weight:1}]);
+    const vrmProbe=()=>page.evaluate(id=>window.BAIStudioMultiScenePreview.vrmMorphProbe(id,0,39),first.instances[0].id);
+    assert.equal((await vrmProbe()).sourceHash,oldHash);
+    assert.deepEqual((await vrmProbe()).values,Array(7).fill(0));
+    await page.locator('#v184-vrm-map > summary').click();
     for(const [shape,name] of Object.entries({A:'a',I:'i',U:'u',E:'e',O:'o'})){
       const index=data.expressions.findIndex(row=>row.kind==='preset'&&row.name===name);
       assert.ok(index>=0);await page.locator(`#v184-map-${shape}`).selectOption(String(index));
       await page.locator(`#v184-weight-${shape}`).fill('0.8');
     }
     assert.equal(await page.locator('#v184-map-confirm').isEnabled(),true);
+    const plain=await page.locator('#v58-canvas canvas').screenshot();
+    await page.locator('#v185-preview').click();
+    assert.deepEqual((await vrmProbe()).values,Array(7).fill(0.8));
+    assert.match(await page.locator('#v185-preview-status').textContent(),/一時表示中/);
+    await page.waitForTimeout(250);
+    const full=await page.locator('#v58-canvas canvas').screenshot();
+    assert.notDeepEqual(full,plain,'実VRM 0.xの口形が描画に現れる');
+    await page.locator('#v184-weight-A').fill('0.4');
+    assert.deepEqual((await vrmProbe()).values,Array(7).fill(0));
+    await page.locator('#v185-preview').click();
+    assert.deepEqual((await vrmProbe()).values,Array(7).fill(0.4));
+    await page.waitForTimeout(250);
+    const half=await page.locator('#v58-canvas canvas').screenshot();
+    assert.notDeepEqual(half,full,'重み差が描画に現れる');
+    await page.locator('#v185-preview-restore').click();
+    assert.deepEqual((await vrmProbe()).values,Array(7).fill(0));
+    await page.locator('#v184-weight-A').fill('0.8');
+    await page.locator('#v185-preview').click();
+    assert.deepEqual((await vrmProbe()).values,Array(7).fill(0.8));
+    await page.evaluate(()=>window.BAIStudioTimeline.seek(0.2,'vrm-preview-test'));
+    await page.waitForFunction(()=>document.querySelector('#v185-preview-restore')?.disabled);
+    assert.deepEqual((await vrmProbe()).values,Array(7).fill(0));
     let mapResponse=page.waitForResponse(row=>row.url().includes('/vrm/expression-map')&&
       row.request().method()==='POST');
     await page.locator('#v184-map-draft').click();
@@ -76,7 +102,10 @@ test('v0.5 VRM expression map saves bound vowels and keeps unbound definitions a
     assert.equal(saved.revision,2);assert.equal(saved.maps[0].confirmed,true);
     assert.equal(saved.maps[0].model_hash,oldHash);
     assert.match(await page.locator('#v184-map-status').textContent(),/確定済み/);
+    await page.locator('#v185-preview').click();
+    assert.deepEqual((await vrmProbe()).values,Array(7).fill(0.8));
     await choose.selectOption(second.instances[1].id);
+    assert.deepEqual((await vrmProbe()).values,Array(7).fill(0),'モデル切替で一時表示を解除');
     assert.equal(await page.locator('#v183-vrm-name').isHidden(),true);
     assert.doesNotMatch(await page.locator('#v183-vrm-status').textContent(),/5\/5/);
     response=page.waitForResponse(row=>row.url().includes('/vrm/expressions'),{timeout:30000});
@@ -86,11 +115,13 @@ test('v0.5 VRM expression map saves bound vowels and keeps unbound definitions a
     assert.deepEqual(Object.values(data.vowels).map(row=>row.status),Array(5).fill('unbound'));
     assert.match(await page.locator('#v183-vrm-status').textContent(),/実バインドのある母音0\/5/);
     assert.match(await page.locator('#v183-vrm-vowels').textContent(),/A \(aa\)：定義のみ・実変形なし/);
+    assert.equal(data.expressionBinds.every(row=>row.length===0),true);
     for(const [shape,name] of Object.entries({A:'aa',I:'ih',U:'ou',E:'ee',O:'oh'})){
       const index=data.expressions.findIndex(row=>row.kind==='preset'&&row.name===name);
       assert.ok(index>=0);await page.locator(`#v184-map-${shape}`).selectOption(String(index));
     }
     assert.equal(await page.locator('#v184-map-confirm').isEnabled(),false);
+    assert.equal(await page.locator('#v185-preview').isEnabled(),false);
     mapResponse=page.waitForResponse(row=>row.url().includes('/vrm/expression-map')&&
       row.request().method()==='POST');
     await page.locator('#v184-map-draft').click();

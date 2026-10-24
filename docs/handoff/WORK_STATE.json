@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T01:17:43+09:00",
+  "updated_at": "2026-10-25T01:24:24+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-lip004-vrm-preview",
-  "head_at_update": "1eb0c70",
+  "head_at_update": "d02a35c",
   "current": {
     "task": "Issue #175: VRM口形の一時実描画",
-    "status": "in_progress",
+    "status": "done",
     "step": "登録VRMの実バインドを読み込み済みメッシュへ対応させ、保存しない口形プレビューと復元を実VRMで検証する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #175: VRM表情の一時プレビューを実VRM0で実描画確認し、未結合VRM1の適用拒否を維持する"
+    "Issue #175: VRM表情の時刻キーを同じ作品へ非破壊保存し、実プレビュー・再読込・限定出力の接続を検討する"
   ],
   "unverified": [
-    "VRM表情の実描画・出力、別VRM、MCP、Linux、統合production耐障害性とOwner採用は未検証"
+    "VRM表情の時刻キー・動画出力、別VRMの有効結合、VRM材質表情、MCP、Linux、統合production耐障害性とOwner採用は未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-10-25T01:24:24+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "d02a35c",
+      "text": "Issue #175: VRM0の実バインドをロード済み7 primitiveへ対応し、口形0.8/0.4の描画差、復元・時刻移動・モデル切替を隔離Chromeで確認。VRM1未結合は一時表示拒否。Python4/4・Node1/1・guarded Chrome2/2、原本/data7/exports0ハッシュ一致"
+    },
     {
       "at": "2026-10-25T01:17:43+09:00",
       "by": "codex",
@@ -233,13 +240,6 @@
       "event": "start",
       "head": "55ccf94",
       "text": "Issue #106: MOTION-010/CAM-015 実PMX撮影プレビューでのカット確認: 保存済み旧カメラカットを実PMXの撮影プレビューへ適用し、姿勢・ピクセル・原本保持を隔離検証する"
-    },
-    {
-      "at": "2026-10-24T23:02:05+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2b888c0",
-      "text": "MOTION-010/CAM-015 旧カメラ末尾半開カットの終端で元キーへ跳ぶ不連続を再現し、画面追従の保持指定だけ最終可視F299を評価。隔離Chrome3件・Python16件合格、strict APIと原本保持"
     }
   ]
 }

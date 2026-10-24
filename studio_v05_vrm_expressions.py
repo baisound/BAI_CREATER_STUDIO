@@ -157,6 +157,29 @@ def analyze(document: dict):
     return {'schema': 1, 'version': version, 'expressions': expressions, 'vowels': vowels}
 
 
+def _preview_binds(document, version):
+    """Return source-indexed morph binds; only actual valid nonzero binds can preview."""
+    ext = document['extensions']
+    if version == '0':
+        groups = ext['VRM']['blendShapeMaster'].get('blendShapeGroups', [])
+        binds = [group.get('binds', []) for group in groups]
+    else:
+        defs = ext['VRMC_vrm']['expressions']
+        binds = [value.get('morphTargetBinds', []) for kind in ('preset', 'custom')
+                 for value in defs.get(kind, {}).values()]
+    output = []
+    for group in binds:
+        rows = []
+        for bind in group:
+            valid, nonzero = _bind_state(document, bind, version)
+            if valid and nonzero:
+                rows.append({'mesh' if version == '0' else 'node': bind['mesh' if version == '0' else 'node'],
+                             'index': bind['index'],
+                             'weight': bind['weight'] / (100 if version == '0' else 1)})
+        output.append(rows)
+    return output
+
+
 def inspect(asset_id: str, assets: list[dict], source_for, expected_hash: str | None = None):
     if not isinstance(asset_id, str) or not 0 < len(asset_id) <= 300:
         raise VrmExpressionError('Invalid VRM asset ID', 400)
@@ -173,7 +196,8 @@ def inspect(asset_id: str, assets: list[dict], source_for, expected_hash: str | 
         before = _sha256(source)
         if expected_hash is not None and expected_hash != before:
             raise VrmExpressionError('VRM model hash changed', 409)
-        result = analyze(_read_glb_json(source))
+        document = _read_glb_json(source)
+        result = analyze(document)
         if _sha256(source) != before:
             raise VrmExpressionError('VRM model hash changed', 409)
     except OSError as exc:
@@ -181,4 +205,5 @@ def inspect(asset_id: str, assets: list[dict], source_for, expected_hash: str | 
     body = {'asset_id': asset_id, **result, 'modelHash': before}
     body['analysisHash'] = hashlib.sha256(json.dumps(result, sort_keys=True, ensure_ascii=False,
                                                       separators=(',', ':')).encode()).hexdigest()
+    body['expressionBinds'] = _preview_binds(document, result['version'])
     return body
