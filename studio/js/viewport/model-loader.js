@@ -79,12 +79,14 @@ export const isNotFound = (e) => !!e && ((e.response && e.response.status === 40
 /**
  * 素材を読み込んで three のオブジェクトにする。
  * @param {ModelItem} item @param {Libs} libs
- * @returns {Promise<{object: any, animations: any[], format: 'GLB'|'VRM'|'PMX'|'FBX', vertices: number}>}
+ * @returns {Promise<{object: any, animations: any[], format: 'GLB'|'VRM'|'PMX'|'FBX', vertices: number, vrmTargets: any, sourceHash: string|null}>}
  */
 export async function loadModel(item, libs) {
   const { url, format } = modelSource(item);
   /** @type {any} */ let object;
   /** @type {any[]} */ let animations = [];
+  /** @type {any} */ let vrmTargets = null;
+  /** @type {string|null} */ let sourceHash = null;
   if (format === 'PMX') {
     object = await new Promise((resolve, reject) => {
       new libs.MMDLoader().load(url, resolve, undefined, (/** @type {any} */ e) => reject(isNotFound(e) ? new NotFoundError() : e));
@@ -92,6 +94,10 @@ export async function loadModel(item, libs) {
   } else {
     const r = await getBinary(url);
     if (!r.ok) throw r.status === 404 ? new NotFoundError() : new Error(r.message);
+    if (format === 'VRM' && globalThis.crypto?.subtle) {
+      const digest = await globalThis.crypto.subtle.digest('SHA-256', r.data);
+      sourceHash = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+    }
     if (format === 'FBX') {
       object = new libs.FBXLoader().parse(r.data, '');
       animations = object.animations || [];
@@ -99,9 +105,20 @@ export async function loadModel(item, libs) {
       const parsed = await new libs.GLTFLoader().parseAsync(r.data, '');
       object = parsed.scene;
       animations = parsed.animations || [];
+      if (format === 'VRM') {
+        const nodes = new Map(), meshes = new Map();
+        for (const [part, association] of parsed.parser?.associations || []) {
+          if (Number.isInteger(association?.nodes)) nodes.set(association.nodes, part);
+          if (part.isMesh && Number.isInteger(association?.meshes)) {
+            const group = meshes.get(association.meshes) || [];
+            group.push(part);meshes.set(association.meshes, group);
+          }
+        }
+        vrmTargets = {nodes, meshes};
+      }
     }
   }
-  return { object, animations, format, vertices: countVertices(object) };
+  return { object, animations, format, vertices: countVertices(object), vrmTargets, sourceHash };
 }
 
 /** 画面に出す失敗の文言（設計 §2.4(d)）。 @param {unknown} e */

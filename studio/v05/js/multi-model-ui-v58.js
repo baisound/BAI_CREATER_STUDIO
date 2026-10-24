@@ -17,6 +17,7 @@ import {loadVmdClip,vmdUrl} from '../../js/motion/vmd.js';
 import {validatePmxVmdCandidate} from './pmx-vmd-candidate-validation-v120.js';
 import {morphValues,resetMorphs,applyFaceKeys,setMorphValue} from './pmx-face-keys-v96.js';
 import {strengthCandidates} from './pmx-morph-strength.mjs';
+import {applyVrmExpressionPreview} from './vrm-expression-preview.mjs';
 
 const project=document.getElementById('v06project');
 // A separate, short-lived headless page uses this mode for exact saved frames.
@@ -37,7 +38,7 @@ let vmdCandidate=null,candidateValidation=null,candidateReport=null;
 let morphAnalysis=null,morphAnalysisNonce=0,morphMaps=null,morphMapNonce=0;
 let morphPreview=null;
 let morphCandidates=null;
-let vrmAnalysis=null,vrmAnalysisNonce=0,vrmMaps=null;
+let vrmAnalysis=null,vrmAnalysisNonce=0,vrmMaps=null,vrmPreview=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
 panel.hidden=true;
@@ -301,7 +302,18 @@ const vrmMapDraft=document.createElement('button');vrmMapDraft.id='v184-map-draf
 vrmMapDraft.type='button';vrmMapDraft.textContent='下書きを保存';
 const vrmMapConfirm=document.createElement('button');vrmMapConfirm.id='v184-map-confirm';
 vrmMapConfirm.type='button';vrmMapConfirm.textContent='実バインドのある5母音を確定';
-vrmMapControls.append(vrmMapSummary,vrmMapStatus,vrmMapGrid,vrmMapDraft,vrmMapConfirm);
+const vrmPreviewShape=document.createElement('select');vrmPreviewShape.id='v185-preview-shape';
+vrmPreviewShape.setAttribute('aria-label','一時表示するVRM口形');
+for(const shape of vrmMapRows.keys())vrmPreviewShape.add(new Option(shape,shape));
+const vrmPreviewButton=document.createElement('button');vrmPreviewButton.id='v185-preview';
+vrmPreviewButton.type='button';vrmPreviewButton.textContent='このVRM口形を一時表示';
+const vrmRestoreButton=document.createElement('button');vrmRestoreButton.id='v185-preview-restore';
+vrmRestoreButton.type='button';vrmRestoreButton.textContent='元の表情へ戻す';vrmRestoreButton.disabled=true;
+const vrmPreviewStatus=document.createElement('small');vrmPreviewStatus.id='v185-preview-status';
+vrmPreviewStatus.setAttribute('role','status');vrmPreviewStatus.style.cssText='display:block;color:#c8d9ea';
+vrmPreviewStatus.textContent='一時表示は保存・書き出しに含まれません。';
+vrmMapControls.append(vrmMapSummary,vrmMapStatus,vrmMapGrid,vrmMapDraft,vrmMapConfirm,
+  vrmPreviewShape,vrmPreviewButton,vrmRestoreButton,vrmPreviewStatus);
 vrmControls.append(vrmSummary,vrmRun,vrmStatus,vrmVowels,vrmName,vrmInfo,vrmMapControls);
 heading.append(title,choose,refreshBtn,focusBtn,saveCameraBtn,restoreCameraBtn,modeBtn,closeBtn);
 const motionControls=document.createElement('div');motionControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
@@ -453,6 +465,7 @@ function selectedVrmAsset(){
     ?row.asset_id:null;
 }
 function clearVrmAnalysis(){
+  restoreVrmPreview();
   vrmAnalysisNonce++;vrmAnalysis=null;vrmMaps=null;
   vrmName.replaceChildren();vrmName.hidden=true;vrmVowels.textContent='';vrmInfo.textContent='';
   for(const {select,weight} of vrmMapRows.values()){
@@ -493,12 +506,50 @@ function redrawVrmMapStatus(){
     });
   }catch{complete=false;}
   vrmMapConfirm.disabled=vrmMapDraft.disabled||!complete;
+  const previewEntry=(()=>{try{return selectedVrmMapEntries()[vrmPreviewShape.value];}catch{return null;}})();
+  const previewModel=controller?.getLoaded(choose.value||selectedId);
+  const previewRow=previewEntry&&vrmAnalysis?.expressions?.[previewEntry.expression_index];
+  vrmPreviewButton.disabled=!previewRow||previewRow.invalidMorphBinds>0||
+    !previewRow.nonzeroMorphBinds||!previewEntry.weight||
+    !vrmAnalysis?.expressionBinds?.[previewEntry.expression_index]?.length||
+    previewModel?.sourceHash!==vrmAnalysis?.modelHash;
   if(!assetId)vrmMapStatus.textContent='登録済みVRMモデルを選んでください。';
   else if(!vrmMaps)vrmMapStatus.textContent='表情定義を検査して保存済み対応表を読み込んでください。';
   else if(rows.some(row=>row.source_status!=='valid'))
     vrmMapStatus.textContent='原本変更・素材不足の旧対応表があります。現在の原本で再検査して保存してください。';
   else if(current)vrmMapStatus.textContent=`${current.confirmed?'確定済み':'下書き'}（原本SHA ${current.model_hash.slice(0,12)}…）。表情入力重みは手動値です。`;
   else vrmMapStatus.textContent='このVRMの対応表は未保存です。実バインドを確認して割り当ててください。';
+}
+function restoreVrmPreview(){
+  if(!vrmPreview)return;
+  vrmPreview.restore();vrmPreview=null;vrmRestoreButton.disabled=true;
+  vrmPreviewStatus.textContent='一時表示を解除しました。保存済みの表情・動作を表示中。';
+  viewport?.invalidate?.();
+}
+function previewVrmMap(){
+  restoreVrmPreview();
+  const shape=vrmPreviewShape.value;
+  let entry;
+  try{entry=selectedVrmMapEntries()[shape];}
+  catch(error){vrmPreviewStatus.textContent=String(error.message||error);return;}
+  const index=entry?.expression_index,row=vrmAnalysis?.expressions?.[index];
+  const target=controller?.getLoaded(choose.value||selectedId);
+  if(!row||row.invalidMorphBinds||!row.nonzeroMorphBinds||!entry?.weight){
+    vrmPreviewStatus.textContent='実バインドのある口形と0より大きい重みを選んでください。';return;
+  }
+  if(!target?.sourceHash||target.sourceHash!==vrmAnalysis?.modelHash){
+    vrmPreviewStatus.textContent='読み込み済みVRMと解析した原本hashが異なります。配置を再読み込みしてください。';return;
+  }
+  if(window.BAIStudioMediaPreviewV68?.status?.()?.playing){
+    vrmPreviewStatus.textContent='再生を一時停止してから口形を比較してください。';return;
+  }
+  seekScene(Number(seekInput.value)||0);
+  try{
+    const applied=applyVrmExpressionPreview(target,vrmAnalysis.expressionBinds[index],entry.weight);
+    vrmPreview={...applied,target,shape};vrmRestoreButton.disabled=false;
+    vrmPreviewStatus.textContent=`${shape} ${row.name} を重み${entry.weight.toFixed(2)}で一時表示中。時刻移動・元に戻すで解除。`;
+    viewport?.invalidate?.();
+  }catch(error){vrmPreviewStatus.textContent='一時表示不可: '+String(error.message||error);}
 }
 function fillVrmMap(){
   const rows=vrmAnalysis?.expressions||[],current=selectedVrmMap();
@@ -1279,6 +1330,7 @@ async function writeFk(action,key=null,row=null,extra={}){
 }
 function seekScene(seconds){
   if(!opened||!motionCoordinator)return;
+  restoreVrmPreview();
   if(morphPreview){
     morphPreview=null;mapRestoreButton.disabled=true;
     mapPreviewStatus.textContent='一時表示を解除しました。保存済みの表情・動作を表示中。';
@@ -1404,7 +1456,7 @@ async function setup(){
         });});
         let disposed=false;
         return {
-          root,object,format:loaded.format,libs,
+          root,object,format:loaded.format,vrmTargets:loaded.vrmTargets,sourceHash:loaded.sourceHash,libs,
           resetPose(){
             for(const part of rest){
               part.bone.position.copy(part.position);
@@ -1597,9 +1649,12 @@ choose.addEventListener('change',()=>{
 vrmName.addEventListener('change',redrawVrmAnalysis);
 vrmMapDraft.addEventListener('click',()=>saveVrmMap(false));
 vrmMapConfirm.addEventListener('click',()=>saveVrmMap(true));
+vrmPreviewButton.addEventListener('click',previewVrmMap);
+vrmRestoreButton.addEventListener('click',restoreVrmPreview);
+vrmPreviewShape.addEventListener('change',()=>{restoreVrmPreview();redrawVrmMapStatus();});
 for(const {select,weight} of vrmMapRows.values()){
-  select.addEventListener('change',redrawVrmMapStatus);
-  weight.addEventListener('input',redrawVrmMapStatus);
+  select.addEventListener('change',()=>{restoreVrmPreview();redrawVrmMapStatus();});
+  weight.addEventListener('input',()=>{restoreVrmPreview();redrawVrmMapStatus();});
 }
 vrmRun.addEventListener('click',async()=>{
   const assetId=selectedVrmAsset(),instanceId=choose.value||selectedId,projectId=project?.value;
@@ -2369,6 +2424,13 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     if(!opened||!target?.object||target.format!=='PMX')return null;
     const names=morphValues(target.object);
     return {projectId:project?.value,instanceId,morphs:Object.fromEntries(names)};
+  },
+  vrmMorphProbe(instanceId,meshIndex,targetIndex){
+    const target=controller?.getLoaded(instanceId);
+    if(!opened||target?.format!=='VRM'||!Number.isInteger(meshIndex)||!Number.isInteger(targetIndex))return null;
+    const meshes=target.vrmTargets?.meshes?.get(meshIndex)||[];
+    return {projectId:project?.value,instanceId,sourceHash:target.sourceHash,
+      values:meshes.map(mesh=>mesh.morphTargetInfluences?.[targetIndex]??null)};
   },
   refit(){return viewport?.fit?.()||false;},
   captureFrame(frame,fps,width,height){
