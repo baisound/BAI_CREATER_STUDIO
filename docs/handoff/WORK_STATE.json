@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T03:02:08+09:00",
+  "updated_at": "2026-11-02T18:34:24+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-composite-vmd",
-  "head_at_update": "b8df7c5",
+  "branch": "codex/v05-lip001-composite-gate",
+  "head_at_update": "40ee410",
   "current": {
-    "task": "Issue #187: 採用口形と元VMD・手動表情の別名合成出力",
+    "task": "Issue #187: 採用口形・元VMD・手動表情の時間合成候補を比較する",
     "status": "done",
-    "step": "元VMDの全セクション保持と口モーフ優先の合成境界を確認し、安全な候補生成と再読込を実装する",
+    "step": "既存3D表示の優先規則とVMD補間を照合し、30fps別名候補の安全な比較ゲートを実装する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Issue #187: 採用口形・元VMD・手動表情の時間合成を比較ゲート付きで別名VMDへ出力し、再読込と実PMXで確認する"
+    "Owner依頼: v0.5最短制作経路の現状と欠落を再監査し、2026-11-02版ロードマップを再構築する",
+    "Issue #187: 比較ゲートを作品APIと保存候補へ接続し、実PMXと完成MP4で検証する"
   ],
   "unverified": [
-    "SRT境界の60fpsプレビューと30fps VMDの同等性、合成VMD製品経路、実PMX/最終MP4、WebMCP/標準MCP、Linuxは未実装・未検証"
+    "比較ゲートはAPI/UI未接続。実PMX描画、実歌音声SRT境界、最終MP4、WebMCP/標準MCP、Linuxは未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-02T18:34:24+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "40ee410",
+      "text": "LIP-001: 元VMD・採用口形・手動表情の優先計算を30fps候補へ焼き込み、全作品Fと60fps中間Fの重み差で拒否する比較ゲートを追加。実VMDを含む9試験成功"
+    },
+    {
+      "at": "2026-10-25T03:05:51+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8745db4",
+      "text": "Issue #187: 採用口形・元VMD・手動表情の時間合成候補を比較する: 既存3D表示の優先規則とVMD補間を照合し、30fps別名候補の安全な比較ゲートを実装する"
+    },
     {
       "at": "2026-10-25T03:02:08+09:00",
       "by": "codex",
@@ -226,20 +241,6 @@
       "event": "start",
       "head": "688ec26",
       "text": "Issue #175: 強度候補の手動調整と保存確認: 実PMX頂点型口モーフの候補を手動変更し、対応表として保存再読込・別hash拒否を受け入れ条件に沿って確認する"
-    },
-    {
-      "at": "2026-10-25T01:24:24+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d02a35c",
-      "text": "Issue #175: VRM0の実バインドをロード済み7 primitiveへ対応し、口形0.8/0.4の描画差、復元・時刻移動・モデル切替を隔離Chromeで確認。VRM1未結合は一時表示拒否。Python4/4・Node1/1・guarded Chrome2/2、原本/data7/exports0ハッシュ一致"
-    },
-    {
-      "at": "2026-10-25T01:17:43+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1eb0c70",
-      "text": "Issue #175: VRM口形の一時実描画: 登録VRMの実バインドを読み込み済みメッシュへ対応させ、保存しない口形プレビューと復元を実VRMで検証する"
     }
   ]
 }
