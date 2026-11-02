@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-02T18:41:43+09:00",
+  "updated_at": "2026-11-02T18:44:46+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-roadmap-rebuild-20261102",
-  "head_at_update": "1e54578",
+  "branch": "codex/v05-vertical-pmx-media-proof",
+  "head_at_update": "aaaa00b",
   "current": {
-    "task": "Issue #69: 2026-11-02時点のv0.5最短制作経路ロードマップを再構築",
-    "status": "done",
-    "step": "承認済み順序と機能台帳・実装・試験の差を照合し、次の縦断作業と終了条件を日付付き正本へ整理する",
-    "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
+    "task": "Issues #37/#63/#69: v0.5の登録済み素材と新規素材の同一作品縦断実証",
+    "status": "in_progress",
+    "step": "既存PMX/VMD/WAVと新規画像を隔離作品へ配置し、保存再読込・同時刻プレビュー・短MP4・原本不変を一つのゲートで確認する",
+    "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
     "Issue #69/#37/#63: 既存PMX/VMD/WAVと新規画像を同じ隔離作品で登録・配置・保存再読込・プレビュー・短MP4出力し、原本ハッシュと音画を確認する",
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-02T18:44:46+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "aaaa00b",
+      "text": "Issues #37/#63/#69: v0.5の登録済み素材と新規素材の同一作品縦断実証: 既存PMX/VMD/WAVと新規画像を隔離作品へ配置し、保存再読込・同時刻プレビュー・短MP4・原本不変を一つのゲートで確認する"
+    },
     {
       "at": "2026-11-02T18:41:43+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "00c422b",
       "text": "Issue #187 LIP-001: 作品単位のSRT原本登録/読取APIを追加。明示符号化・独立開始終了時刻・原本hash・競合/改変検出を隔離HTTP 2件で確認"
-    },
-    {
-      "at": "2026-10-25T01:33:43+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "75fc20f",
-      "text": "Issue #187: 日本語SRT原本の管理下登録: 既存のSRT処理と作品保存契約を調べ、開始終了時刻・原本hashを保った読み取り入口を限定接続する"
     }
   ]
 }
