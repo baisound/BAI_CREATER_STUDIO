@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-02T18:37:41+09:00",
+  "updated_at": "2026-11-02T18:41:43+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-roadmap-rebuild-20261102",
-  "head_at_update": "70ed811",
+  "head_at_update": "1e54578",
   "current": {
     "task": "Issue #69: 2026-11-02時点のv0.5最短制作経路ロードマップを再構築",
-    "status": "in_progress",
+    "status": "done",
     "step": "承認済み順序と機能台帳・実装・試験の差を照合し、次の縦断作業と終了条件を日付付き正本へ整理する",
     "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
-    "Owner依頼: v0.5最短制作経路の現状と欠落を再監査し、2026-11-02版ロードマップを再構築する",
-    "Issue #187: 比較ゲートを作品APIと保存候補へ接続し、実PMXと完成MP4で検証する"
+    "Issue #69/#37/#63: 既存PMX/VMD/WAVと新規画像を同じ隔離作品で登録・配置・保存再読込・プレビュー・短MP4出力し、原本ハッシュと音画を確認する",
+    "Issue #187: 縦断経路の後に合成比較ゲートを製品APIへ接続し実PMX/MP4で検証する"
   ],
   "unverified": [
-    "比較ゲートはAPI/UI未接続。実PMX描画、実歌音声SRT境界、最終MP4、WebMCP/標準MCP、Linuxは未検証"
+    "11月版ロードマップは文書照合のみ。新しい同一作品縦断試験、全形式登録、長尺音画同期、保存カメラ、WebMCP/標準MCP、Linuxは未検証"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-02T18:41:43+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "1e54578",
+      "text": "Issue #69: 2026-11-02版v0.5ロードマップを再構築し、承認済み7段階の現在の証拠・欠落・終了条件と次の同一作品ID縦断試験を整理。台帳151 IDとCSV151行の整合を確認"
+    },
     {
       "at": "2026-11-02T18:37:41+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "75fc20f",
       "text": "Issue #187: 日本語SRT原本の管理下登録: 既存のSRT処理と作品保存契約を調べ、開始終了時刻・原本hashを保った読み取り入口を限定接続する"
-    },
-    {
-      "at": "2026-10-25T01:30:41+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "766297a",
-      "text": "Issue #175: 実PMX Aの頂点型候補1.00/約0.51を一時描画し、Iを手動0.47へ変更して確定保存・再読込。Uグループ0.6保持、人工ゼロ/グループ/骨型は手動確認。Node2/2・guarded Chrome1/1、原本/data7/exports0ハッシュ一致"
     }
   ]
 }
