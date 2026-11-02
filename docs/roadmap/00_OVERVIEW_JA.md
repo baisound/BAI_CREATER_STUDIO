@@ -2,7 +2,7 @@
 
 **対象:** v0.11.0-standalone を起点に、2026-10-20 の追加決定を反映
 
-最初の v0.11.0-standalone では118個の機能IDを整理した。その後の OBS・UX・REVIEW などと、2026-10-20に所有者が独立管理を承認した歌音声配置 `AUDIO-001`、2026-10-21に最優先とした素材取り込み `DATA-016` を含め、現行台帳は **149個**。件数と状態の正本は `FEATURE_REGISTER.json`。
+最初の v0.11.0-standalone では118個の機能IDを整理した。その後の OBS・UX・REVIEW などと、2026-10-20に所有者が独立管理を承認した歌音声配置 `AUDIO-001`、2026-10-21に最優先とした素材取り込み `DATA-016` を含め、2026-11-02時点の現行台帳は **151個（重複IDなし）**。件数と状態の正本は `FEATURE_REGISTER.json`。
 
 ## 読み方
 
@@ -25,7 +25,7 @@
 | Phase | 対象 | 件数 | 先行条件 |
 |---|---|---:|---|
 | 01 | CORE: 基盤・運用 | 13 | なし |
-| 02 | DATA: 非破壊編集・プロジェクト | 15 | CORE |
+| 02 | DATA: 非破壊編集・プロジェクト | 16 | CORE |
 | 03 | MOTION: モーション素材・変換・品質 | 22 | CORE,DATA |
 | 04 | DANCE: マルチダンサー・接触 | 12 | MOTION,DATA |
 | 05 | LIP: リップ・表情・音声 | 11 | MOTION,DATA |
@@ -34,7 +34,7 @@
 | 07 | RENDER: レンダリング・エフェクト | 15 | CORE,DATA,CAM |
 | 08 | LYRIC: JIZURA・MV・ステージ | 12 | DATA,CAM,RENDER |
 
-この表は Phase 01〜08 の制作機能を示す。残る横断ID（OBS・UX・REVIEW）は `FEATURE_REGISTER.json` で管理する。
+この表は Phase 01〜08 の主な制作機能を示す。残る横断ID（OBS・UX・REVIEW・VIEW・LIGHT）は `FEATURE_REGISTER.json` で管理する。v0.5の現在の実施順は[再構築ロードマップ](V05_REBUILT_ROADMAP_20261102_JA.md)を参照する。
 
 ## Phase 01 / CORE — 基盤・運用
 
