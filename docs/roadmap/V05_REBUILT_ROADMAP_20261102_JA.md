@@ -34,4 +34,12 @@
 
 最初の作業は上の1の**同一作品IDでの縦断試験**。試験で見つかった欠落を[#69](https://github.com/baisound/BAI_CREATER_STUDIO/issues/69)と該当する既存Issueへ記録し、要件IDを付けて修正する。次のPRには、入力ID・ハッシュ、保存再読込、プレビューの時刻、MP4の画素/PCM、失敗・スキップ、未確認の形式と環境を含める。今回のロードマップ文書は試験を実行した証拠ではない。
 
+### 2026-11-02 同一作品の縦断試験結果（順1〜3）
+
+`tests/studio-v05-vertical-real-media.test.cjs` は実登録のPMX・VMD・WAVを読み取り専用で隔離サーバーへ複製し、新規画像を登録して同じ作品IDへ配置する。対象IDは `mmd:A:Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx`、`mmd:vmd:キラメキのシンフォニー1005.vmd`、`library:c753fcabd67797f28ddd4b22`。元SHA-256は順に `542a4daa561f0b0da578fc303af9b8c6dc4acdd8d380771a170e96e95a205488`、`f75a0bf518aef532c400e5ed31211d71ce294c2a69916ebf55ad16c3bfabd3d2`、`c8506bc68749956b12713631127d22771d8212de99f1e189296ee1c528a39809`。新規画像は `render-sakura.webp` の別名登録でSHA-256 `658faf3622fe2bf1150297ae6759285223c1dd2eeb998a785b33d7a3ddee224c`。試験ごとに隔離作品IDと新規画像IDは変わる。
+
+保存した3クリップとVMD対象インスタンスをAPIで読み返し、隔離ChromeのF0/F120/F240で画像表示、音声要素時刻、PMX骨姿勢の変化、WebGL描画器を確認した。ページ再読込後も同じ作品IDとクリップを復元した。F120〜F122をH.264/AAC・1280×720・3フレームのMP4へ出し、入力ハッシュ、画像単体との差10,345画素（160×90・RGB差24超）、復号PCM RMS 1,207を検査した。実描画器は NVIDIA GeForce RTX 4070 SUPER/D3D11。元の実データ7ファイルとexports 0ファイルはガード前後で同ハッシュだった。
+
+`BAI_REAL_MMD_DATA=<実登録素材のdata>`、`CHROMIUM_PATH=<Chrome>`、`BAI_TEST_CONCURRENCY=1` を指定した `node tests/run-guarded.cjs tests/studio-v05-vertical-real-media.test.cjs` は1/1成功。最初の2回は制限付き実行環境で隔離サーバーが起動せず、既存スモーク試験も同じ箇所で失敗した。ローカルソケットを使える実行で試験を再開し、試験側のAPI応答フィールドと時刻移動の呼び方を修正した後の最終実行を合格とした。これは短区間・一つの実PMX/VMD/WAVに限る。全形式直接登録、旧作品IDの完全復元、長尺音画同期、保存カメラ、WebMCP/標準MCP、Linuxは引き続き未検証。
+
 モデル区分: 既存要件と証拠の照合、順序判断、文書更新、形式検査は標準モデル。

@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-02T18:44:46+09:00",
+  "updated_at": "2026-11-02T18:54:44+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-vertical-pmx-media-proof",
-  "head_at_update": "aaaa00b",
+  "head_at_update": "841bd1c",
   "current": {
     "task": "Issues #37/#63/#69: v0.5の登録済み素材と新規素材の同一作品縦断実証",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存PMX/VMD/WAVと新規画像を隔離作品へ配置し、保存再読込・同時刻プレビュー・短MP4・原本不変を一つのゲートで確認する",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
-    "Issue #69/#37/#63: 既存PMX/VMD/WAVと新規画像を同じ隔離作品で登録・配置・保存再読込・プレビュー・短MP4出力し、原本ハッシュと音画を確認する",
-    "Issue #187: 縦断経路の後に合成比較ゲートを製品APIへ接続し実PMX/MP4で検証する"
+    "Issue #37/#50: PMX/VRM/FBX/GLB、動作・音声・画像・動画の形式別登録と旧作品復元を検証",
+    "Issue #187: 合成比較ゲートを製品APIへ接続し実PMX/MP4で検証"
   ],
   "unverified": [
-    "11月版ロードマップは文書照合のみ。新しい同一作品縦断試験、全形式登録、長尺音画同期、保存カメラ、WebMCP/標準MCP、Linuxは未検証"
+    "全形式直接登録、旧作品完全復元、長尺音画同期、保存カメラ、WebMCP/標準MCP、Linuxは未検証。短区間の一つの実PMX/VMD/WAVのみ合格"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-02T18:54:44+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "841bd1c",
+      "text": "Issues #37/#63/#69: 既存PMX/VMD/WAVと新規画像を同一隔離作品へ配置し、保存再読込・F0/F120/F240プレビュー・3F MP4の画素/PCM・原本hash不変を実Chromeで確認（縦断試験1/1）"
+    },
     {
       "at": "2026-11-02T18:44:46+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "start",
       "head": "91e9bc5",
       "text": "Issue #187: v0.5画面でSRT原本を選択登録し発話を確認: 作品単位のSRT登録APIをファイル選択・文字コード明示・保存済み発話一覧と警告表示へ接続する"
-    },
-    {
-      "at": "2026-10-25T01:37:43+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "00c422b",
-      "text": "Issue #187 LIP-001: 作品単位のSRT原本登録/読取APIを追加。明示符号化・独立開始終了時刻・原本hash・競合/改変検出を隔離HTTP 2件で確認"
     }
   ]
 }
