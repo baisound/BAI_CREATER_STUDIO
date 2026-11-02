@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-02T18:34:24+09:00",
+  "updated_at": "2026-11-02T18:37:41+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-lip001-composite-gate",
-  "head_at_update": "40ee410",
+  "branch": "codex/v05-roadmap-rebuild-20261102",
+  "head_at_update": "70ed811",
   "current": {
-    "task": "Issue #187: 採用口形・元VMD・手動表情の時間合成候補を比較する",
-    "status": "done",
-    "step": "既存3D表示の優先規則とVMD補間を照合し、30fps別名候補の安全な比較ゲートを実装する",
-    "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
+    "task": "Issue #69: 2026-11-02時点のv0.5最短制作経路ロードマップを再構築",
+    "status": "in_progress",
+    "step": "承認済み順序と機能台帳・実装・試験の差を照合し、次の縦断作業と終了条件を日付付き正本へ整理する",
+    "design_doc": "docs/roadmap/V05_MINIMUM_WORKFLOW_20261023_JA.md"
   },
   "next_steps": [
     "Owner依頼: v0.5最短制作経路の現状と欠落を再監査し、2026-11-02版ロードマップを再構築する",
@@ -32,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-02T18:37:41+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "70ed811",
+      "text": "Issue #69: 2026-11-02時点のv0.5最短制作経路ロードマップを再構築: 承認済み順序と機能台帳・実装・試験の差を照合し、次の縦断作業と終了条件を日付付き正本へ整理する"
+    },
     {
       "at": "2026-11-02T18:34:24+09:00",
       "by": "codex",
@@ -234,13 +241,6 @@
       "event": "done",
       "head": "766297a",
       "text": "Issue #175: 実PMX Aの頂点型候補1.00/約0.51を一時描画し、Iを手動0.47へ変更して確定保存・再読込。Uグループ0.6保持、人工ゼロ/グループ/骨型は手動確認。Node2/2・guarded Chrome1/1、原本/data7/exports0ハッシュ一致"
-    },
-    {
-      "at": "2026-10-25T01:26:43+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "688ec26",
-      "text": "Issue #175: 強度候補の手動調整と保存確認: 実PMX頂点型口モーフの候補を手動変更し、対応表として保存再読込・別hash拒否を受け入れ条件に沿って確認する"
     }
   ]
 }
