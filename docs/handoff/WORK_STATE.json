@@ -1,21 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-02T18:54:44+09:00",
+  "updated_at": "2026-11-02T20:13:07+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-vertical-pmx-media-proof",
-  "head_at_update": "841bd1c",
+  "branch": "codex/v05-format-legacy-audit-20261102",
+  "head_at_update": "70134ca",
   "current": {
-    "task": "Issues #37/#63/#69: v0.5の登録済み素材と新規素材の同一作品縦断実証",
+    "task": "Issues #37/#50/#69: v0.5形式別素材入口と旧作品復元",
     "status": "done",
-    "step": "既存PMX/VMD/WAVと新規画像を隔離作品へ配置し、保存再読込・同時刻プレビュー・短MP4・原本不変を一つのゲートで確認する",
+    "step": "PMX/VRM/FBX/GLB・各動作/音声/画像/動画の入口と見本・再読込を隔離検証し、旧作品IDの保存復元を追跡して欠落だけ修正する",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
-    "Issue #37/#50: PMX/VRM/FBX/GLB、動作・音声・画像・動画の形式別登録と旧作品復元を検証",
+    "Issue #37/#50: 実VRM/FBX/GLBステージと音声/画像/動画を形式別に実登録・見本・再読込し、未対応表示を修正",
+    "Issue #63/#69: 旧Studio保存状態の素材参照とv0.5作品IDへの可逆な対応を設計・実証",
     "Issue #187: 合成比較ゲートを製品APIへ接続し実PMX/MP4で検証"
   ],
   "unverified": [
-    "全形式直接登録、旧作品完全復元、長尺音画同期、保存カメラ、WebMCP/標準MCP、Linuxは未検証。短区間の一つの実PMX/VMD/WAVのみ合格"
+    "実VRM/人体GLB/FBXの3D描画、GLBステージ、動画内音声、旧作品完全復元、WebMCP/標準MCP、Linuxは未検証。制限環境の初回ブラウザ試験はサーバー起動不可で、ソケット利用可能環境で5件成功"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +33,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-02T20:13:07+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "70134ca",
+      "text": "v0.5から旧SCR-08のモデル・動作登録へ誘導し、連続登録後の一覧更新を修正。合成6形式の隔離Chrome登録・再読込5件を確認し旧作品復元の保存契約差を記録"
+    },
+    {
+      "at": "2026-11-02T19:52:44+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "02968bd",
+      "text": "Issues #37/#50/#69: v0.5形式別素材入口と旧作品復元: PMX/VRM/FBX/GLB・各動作/音声/画像/動画の入口と見本・再読込を隔離検証し、旧作品IDの保存復元を追跡して欠落だけ修正する"
+    },
     {
       "at": "2026-11-02T18:54:44+09:00",
       "by": "codex",
@@ -227,20 +242,6 @@
       "event": "start",
       "head": "128a78f",
       "text": "Issue #187: SRT発話ごとの読み確定を原本と分離保存: 原本hashで結び付くUtterance読み状態・明示無音・revisionを作品単位で保存/再読込し不正入力を拒否する"
-    },
-    {
-      "at": "2026-10-25T01:44:37+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "e1d2645",
-      "text": "Issue #187 LIP-001: v0.5画面からSRT原本登録、100件単位の発話/原時刻・警告・hash状態を隔離Chromeで確認。既存data/exports不変"
-    },
-    {
-      "at": "2026-10-25T01:40:46+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "91e9bc5",
-      "text": "Issue #187: v0.5画面でSRT原本を選択登録し発話を確認: 作品単位のSRT登録APIをファイル選択・文字コード明示・保存済み発話一覧と警告表示へ接続する"
     }
   ]
 }

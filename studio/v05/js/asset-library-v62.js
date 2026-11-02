@@ -29,6 +29,7 @@
   let category = 'all';
   let selectedId = null;
   let loading = false;
+  let needsRefresh = false;
 
   function fileUrl(item) {
     if (!item.available) return null;
@@ -99,7 +100,7 @@
   }
 
   async function refresh(preferId = selectedId) {
-    if (loading) return;
+    if (loading) { needsRefresh = true; return; }
     loading = true;
     grid.innerHTML = '<p>登録素材を読み込んでいます…</p>';
     try {
@@ -128,6 +129,7 @@
       detail.innerHTML = '<h2>登録素材の詳細</h2><p>一覧の取得後に表示します。</p>';
     } finally {
       loading = false;
+      if (needsRefresh) { needsRefresh = false; void refresh(); }
     }
   }
 
@@ -207,8 +209,21 @@
     const item = button && items.find((candidate) => candidate.id === button.dataset.libraryId);
     if (item) showDetail(item);
   });
-  $('baiImport').textContent = '＋ 素材を追加';
   $('baiImport').addEventListener('click', showImport);
+  let returningFromImport = false;
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('a[href="/workspace/08"]')) returningFromImport = true;
+  });
+  window.addEventListener('focus', () => {
+    if (!returningFromImport) return;
+    returningFromImport = false;
+    void refresh();
+  });
+  window.addEventListener('storage', (event) => {
+    if (event.key !== 'bai.studio.assets.changed') return;
+    returningFromImport = false;
+    void refresh();
+  });
   window.BAIStudioV05Library = { refresh };
   refresh();
 })();

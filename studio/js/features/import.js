@@ -140,6 +140,8 @@ async function processRow(r) {
   patchRow(r.id, { status: 'done', progress: 1, assetId: id, note: found ? '' : '登録しましたが一覧に見つかりません（再読込してください）' });
   if (found) selectAsset(id);
   emit('studio:asset-imported', { id });
+  // Notify an already-open v0.5 library tab that the shared index changed.
+  try { localStorage.setItem('bai.studio.assets.changed', `${Date.now()}:${id}`); } catch (_) { /* storage may be disabled */ }
   if (r.batchSize === 1) toast(r.route === 'pmxZip' ? `登録完了：${res.data.model_path}、素材${res.data.files}件` : `登録しました：${r.name}`, 'real');
 }
 
