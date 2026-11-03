@@ -2077,6 +2077,45 @@
     {
       "screen_id": "SCR-13",
       "route": "/workspace/13",
+      "panel": "AIポーズ案（任意）",
+      "feature_ids": [
+        "MOTION-004",
+        "MOTION-005",
+        "MOTION-006",
+        "MOTION-008",
+        "MOTION-011",
+        "DATA-003",
+        "REVIEW-001",
+        "LIP-005",
+        "LIP-006",
+        "LIP-007",
+        "LIP-008",
+        "LIP-009",
+        "LIP-010",
+        "DANCE-004",
+        "DANCE-005",
+        "DANCE-007",
+        "DANCE-008",
+        "DANCE-009",
+        "DANCE-010",
+        "DANCE-011",
+        "LYRIC-011"
+      ],
+      "new_ui_state": "real",
+      "source_evidence": "ローカルOllamaに日本語の指示を解析させ、2D補助の提案だけを表示する。保存・適用はしない。",
+      "evidence": "tests/studio-p2-pose-ai.test.cjs::ai pose preview loads into the ik helper without saving",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-13",
+      "route": "/workspace/13",
       "panel": "入出力",
       "feature_ids": [
         "MOTION-006"
@@ -2811,6 +2850,31 @@
       "browser_test": "headless_chromium_navigation_and_controls",
       "verdict": "not_implemented_in_new_ui",
       "blockers": "no implementation"
+    },
+    {
+      "screen_id": "SCR-19",
+      "route": "/workspace/19",
+      "panel": "AI管理",
+      "feature_ids": [
+        "CORE-002",
+        "CORE-003",
+        "CORE-004",
+        "CORE-011",
+        "OBS-004",
+        "NF-007",
+        "NF-016"
+      ],
+      "new_ui_state": "real",
+      "source_evidence": "旧画面の BAI AI Manager（/api/ai/settings・status）。Ollamaが無くても通常制作は使える。",
+      "evidence": "tests/studio-p2-pose-ai.test.cjs::ai manager reads settings and status",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
     },
     {
       "screen_id": "SCR-19",

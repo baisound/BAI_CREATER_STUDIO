@@ -87,6 +87,8 @@ const EV_MOTION_LIB = 'tests/studio-p2-motion.test.cjs::vmd library lists regist
 const EV_RT_VIEW = 'tests/studio-p2-retarget.test.cjs::pose compare places two models at x = -1.15 and +1.15 and applies the rotation to the right one';
 const EV_FOOT = 'tests/studio-p2-retarget.test.cjs::foot contact panel calls the three read-only diagnostic APIs';
 const EV_POSE_IK = 'tests/studio-p2-pose-ai.test.cjs::pose ik panel solves the legacy template on first open';
+const EV_AI_MANAGER = 'tests/studio-p2-pose-ai.test.cjs::ai manager reads settings and status';
+const EV_AI_POSE = 'tests/studio-p2-pose-ai.test.cjs::ai pose preview loads into the ik helper without saving';
 const EV_STAGE = 'tests/studio-p2-viewport.test.cjs::stage placement saves and restores';
 
 const CAMERA = { label: 'カメラ画面（現行）', href: '/camera.html' };
@@ -407,6 +409,7 @@ export const SCREENS = [
       { name: '曲線', status: 'mock', ids: ['DATA-003'] },
       { name: '足IK', status: 'real', evidence: EV_FOOT, note: '左足・両足・BVHの接地を既存APIで診断し、JSON結果だけを表示する。IKはモデルへ適用しない。', ids: ['MOTION-011'] },
       { name: '手動IKポーズ補助（2D）', status: 'real', evidence: EV_POSE_IK, note: '旧画面の2D平面（XY）の2関節IK補助（/api/pose/*）。目標をドラッグして肘・膝の位置を計算し、設定だけを保存する。PMX/VRM・VMDには適用しない（3DのIKは v0.5 の MOTION-010）。' },
+      { name: 'AIポーズ案（任意）', status: 'real', evidence: EV_AI_POSE, note: 'ローカルOllamaに日本語の指示を解析させ、2D補助の提案だけを表示する。保存・適用はしない。' },
       { name: '入出力', status: 'partial', note: 'motion_vmd_bridge.py・vmd_readback.py。', ids: ['MOTION-006'] },
     ],
     tools: [btn('現行画面で開く', 'href:/'), btn('VMD変換・書き出しへ', 'nav:23')],
@@ -568,6 +571,7 @@ export const SCREENS = [
       { name: '実行ログ', status: 'unimpl', ids: ['OBS-004'] },
       { name: 'タスクキュー', status: 'unimpl', ids: ['NF-007'] },
       { name: 'リソース', status: 'unimpl', note: '稼働率・GPU負荷の実測は NF-016（未承認）。', ids: ['NF-016'] },
+      { name: 'AI管理', status: 'real', evidence: EV_AI_MANAGER, note: '旧画面の BAI AI Manager（/api/ai/settings・status）。Ollamaが無くても通常制作は使える。' },
       { name: 'チャット', status: 'unimpl', ids: ['NF-007'] },
     ],
     tools: [un('エージェントを追加', 'AIエージェント統合GUIは未承認の新規候補（NF-007）。', ['NF-007'], PH.P4)],
@@ -575,6 +579,7 @@ export const SCREENS = [
     center: { type: 'cards', cards: [
       { title: 'AI接続状態（既存API）', span: 6, status: 'real', evidence: 'tests/studio-ui.test.cjs::read-only live data comes from the existing API', controls: [live('aiStatus'), note('未接続なら未接続と表示します。サンプルの稼働率やGPU負荷は表示しません。')] },
       { title: '標準MCPの起動', span: 6, status: 'partial', controls: [{ t: 'code', text: 'python mcp_server.py' }, note('設定手順は MCP_SETUP_JA.md を参照。')] },
+      { title: 'AI管理（任意・Ollama）', span: 12, status: 'real', evidence: EV_AI_MANAGER, controls: [{ t: 'feature', key: 'aiManager' }] },
       { title: '実行ログ', span: 12, status: 'unimpl', controls: [{ t: 'empty', text: 'MCP呼び出し診断（OBS-004）は未実装です。' }] },
     ] },
     right: { tabs: [{ id: 'perm', label: '権限', sections: [{ title: '権限', status: 'unimpl', controls: [tg('読み取りを許可', true), tg('保存を許可'), tg('削除を許可'), un('権限を適用', '権限・危険操作確認は CORE-011（要検証）。', ['CORE-011'], PH.P2)] }] }] },

@@ -1,24 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-03T23:18:49+00:00",
+  "updated_at": "2026-11-03T23:37:39+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "268adfc",
+  "head_at_update": "745d6f1",
   "current": {
-    "task": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認",
+    "task": "P2-WP-08c: 足IKタブのAIポーズ案",
     "status": "done",
-    "step": "§7読み替え表・書き出しのレビュー修正、Linuxでtest:node-all/test:p2/pytest/tscを実行",
-    "design_doc": "docs/roadmap/PHASE_E_DETAILED_DESIGN_20261020_JA.md"
+    "step": "aiPosePanel 実装・テスト",
+    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-08b SCR-19 のAI管理カード",
-    "P2-WP-08c 足IKタブのAIポーズ案",
     "P2-WP-99 締め"
   ],
   "unverified": [
-    "WindowsでのNode一括ゲート0 failは未確認。LinuxではH.264非対応Chromiumの動画1件（P2）とv0.5の9件（FFmpeg 6.1の-/filter_complex非対応等）が失敗",
-    "Blender実変換・実VMD品質、MCP経路との一致、実GPU、WebMCP camera_pageの登録方法（WP-02c）は未検証",
-    "WP-08は設計のみ（コード・テストは未作成）"
+    "実Ollama/Qwenの推論は未検証（成功応答はスタブ）",
+    "環境要因の失敗: 動画ポスター1件・studio-p2-generic-dance(three未解決)・pytestのv0.5系"
   ],
   "blockers": [],
   "owner_questions": [
@@ -35,6 +32,34 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-03T23:37:39+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "745d6f1",
+      "text": "P2-WP-08c: 足IKタブのAIポーズ案（aiPosePanel）実装・テスト"
+    },
+    {
+      "at": "2026-11-03T23:23:35+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "745d6f1",
+      "text": "P2-WP-08c: 足IKタブのAIポーズ案: aiPosePanel 実装・テスト"
+    },
+    {
+      "at": "2026-11-03T23:23:30+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "9beba42",
+      "text": "P2-WP-08b: SCR-19 AI管理カード（aiManager）実装・テスト"
+    },
+    {
+      "at": "2026-11-03T23:20:30+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "9beba42",
+      "text": "P2-WP-08b: SCR-19 AI管理カード: aiManager 実装・テスト"
+    },
     {
       "at": "2026-11-03T23:18:49+00:00",
       "by": "claude-code",
@@ -216,34 +241,6 @@
       "event": "start",
       "head": "e0a9170",
       "text": "Issue #187: 下書きから別名モーフVMDを出力: 元SRT・読み・モデルモーフ対応を厳密照合しモーフ専用VMD writer/readback を実装する"
-    },
-    {
-      "at": "2026-10-25T02:11:58+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2b4b666",
-      "text": "Issue #187: SRT候補から口形境界・形・強さを編集し別台帳の下書きへ保存。隔離Python6/6・Chrome1/1、原本不変。"
-    },
-    {
-      "at": "2026-10-25T02:07:33+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "97ddc55",
-      "text": "Issue #187: 口形候補を別レイヤーの下書きへ保存: 原SRT・読みを保持し、候補の境界・口形・強度を版管理して手動調整可能にする"
-    },
-    {
-      "at": "2026-10-25T02:04:41+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "e36b3f9",
-      "text": "Issue #187 LIP-001: v0.5画面で未確定/確定/明示無音のレビュー用口形候補、原時刻・作品F・時間重なり警告を確認。隔離Chrome 1/1、原本/data不変"
-    },
-    {
-      "at": "2026-10-25T02:02:26+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "6ac7c07",
-      "text": "Issue #187: 口形候補と警告をv0.5画面で確認: 選択発話のレビュー用候補APIを読んで元時刻/作品フレーム/未採用状態・衝突警告を表示する"
     }
   ]
 }
