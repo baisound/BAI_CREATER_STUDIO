@@ -42,3 +42,22 @@ export function resolveMotionNames(timeline, manifest) {
     return found.name;
   });
 }
+
+/**
+ * 変換実行APIの失敗理由。Blenderの失敗は 422 で `error` が無く `output_tail` だけを返し、
+ * 実行中の重複は 409 になる（server.py の /api/run-vmd-conversion）。共通の文言
+ * （422＝保存データを読めません、409＝他の画面が更新）では原因が分からないため、旧画面と同じく
+ * サーバーの理由を優先して出す。
+ * @param {any} r
+ */
+export function conversionFailureText(r) {
+  const body = r && r.body && typeof r.body === 'object' ? r.body : {};
+  if (r?.status === 409) return '別のVMD変換が実行中です。終わってから［変換結果を確認］で結果を見てください。';
+  if (typeof body.error === 'string' && body.error) return body.error;
+  const tail = typeof body.output_tail === 'string' ? body.output_tail.trim() : '';
+  if (tail) {
+    const code = Number.isInteger(body.returncode) ? `終了コード ${body.returncode}。` : '';
+    return `Blenderの変換に失敗しました。${code}出力の末尾：${tail.slice(-400)}`;
+  }
+  return r?.message || '不明なエラーです。';
+}

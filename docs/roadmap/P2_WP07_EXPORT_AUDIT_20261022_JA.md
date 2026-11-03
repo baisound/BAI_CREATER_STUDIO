@@ -34,3 +34,18 @@
 2. SCR-23を開き、現在の手順数、VMD用ボーン対応とジョブ・実行の操作が表示されることを確認する。
 
 ジョブ作成と実Blender変換はリポジトリ直下の `exports/` を書き換え得るため、試用データフォルダだけでは隔離できない。オーナー確認では実行を求めず、開発側の隔離Chrome試験と実変換の未検証を区別する。
+
+## 独立レビュー（2026-11-03、高性能モデル Claude Opus 系）
+
+対象はコミット `0171076` の SCR-23（`studio/js/features/export-view.js`・`export-model.js`）と、その試験。旧 `index.html` の `#vmd-job`・`#vmd-run-direct`・`#vmd-check-status` と `server.py` の `/api/conversion-map`・`/api/export-vmd-job`・`/api/run-vmd-conversion`・`/api/conversion-status` に照合した。
+
+| 観点 | 結果 |
+|---|---|
+| FBX名の解決（`manifest.mapping` → 正規化名） | 旧画面と同じ。順序も同じ。`scale:1`・`bone_map` も同じ本文。 |
+| 対応表の検査 | 新UIは空の名前と128文字以上を送信前に拒否する。サーバーの検査（128文字未満の文字列）より少し厳しいが、旧データを壊す方向ではない。 |
+| 実行の確認・スロット | 確認ダイアログ後に `{confirm:true, slot}` を送る。旧画面は PMX スロットの選択欄から、新UIは画面内の選択欄から取る。 |
+| **失敗の表示（バグ・修正済み）** | Blender の失敗は 422 `{status:'failed', returncode, output_tail}` で、`error` が無い。新UIは共通の文言に任せていたため「保存データを読めません：」とだけ出て、原因が分からなかった。409（別の変換が実行中）も「他の画面・MCP で更新されています。再読込…」と誤って案内していた。旧画面は `x.error || x.output_tail` を出していた。`conversionFailureText()` を `export-model.js` に足し、サーバーの理由（`error`、無ければ終了コードと `output_tail` の末尾400文字）を出すようにした。サーバー状態の「失敗」表示も末尾400文字に絞った。 |
+| 試験の穴（修正済み） | 失敗の試験は 503（`error` あり）だけで、実サーバーの 422 の形を試していなかった。`tests/studio-p2-export.test.cjs` に 422 の実行を足し、`tests/studio-p2-export-model.test.mjs` に 422・409・504・未接続の単体試験を足した。 |
+| 旧画面との差（判断待ち・未修正） | 旧画面は変換成功後に `refreshMmd()` で MMD 素材一覧を読み直し、PMX タブへ移っていた。新UIは結果を表示するだけで、素材一覧の読み直しはしない（SCR-08 などで変換後の `chain_motion.vmd` がすぐ見えるかは未確認）。旧画面にあった結果の `warning`（PMXで目視確認）は、新UIでは固定の文言で同じ趣旨を出す。 |
+
+レビュー後も、実Blenderでの変換品質、MCP経路との一致、実GPU・Windowsは未検証のまま。

@@ -20,7 +20,7 @@ test('SCR-23 creates a VMD job without writing exports in the test', async () =>
     'files/motion-1.fbx': fs.readFileSync(path.join(__dirname, 'fixtures', 'minimal_motion.fbx')),
   } });
   const browser = await server.launchBrowser();
-  const page = await server.newPage(browser, { expectErrors: [/Failed to load resource: the server responded with a status of 503/] });
+  const page = await server.newPage(browser, { expectErrors: [/Failed to load resource: the server responded with a status of (503|422)/] });
   const jobs = [], runs = [];
   try {
     // どちらもexports/へ書く実API。page.routeを先に登録してサーバーへ送らない。
@@ -30,7 +30,9 @@ test('SCR-23 creates a VMD job without writing exports in the test', async () =>
     });
     await page.route('**/api/run-vmd-conversion', async (route) => {
       runs.push(route.request().postDataJSON());
-      await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'Blender executable not found; set MIXAMO_BLENDER' }) });
+      // 2回目は server.py の Blender 失敗と同じ形（422、error 無し、output_tail のみ）。
+      if (runs.length === 1) await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'Blender executable not found; set MIXAMO_BLENDER' }) });
+      else await route.fulfill({ status: 422, contentType: 'application/json', body: JSON.stringify({ status: 'failed', returncode: 1, output_tail: 'Traceback (most recent call last):\nKeyError: mixamorig:Hips' }) });
     });
     await page.goto(`${server.base}/workspace/23`);
     await page.waitForSelector('[data-feature="exportPanel"]');
@@ -51,6 +53,13 @@ test('SCR-23 creates a VMD job without writing exports in the test', async () =>
     await page.waitForFunction(() => document.querySelector('[data-role="vmd-run-status"]')?.textContent.includes('Blender executable not found'));
     assert.deepEqual(runs, [{ confirm: true, slot: 'B' }]);
     assert.equal(fs.existsSync(path.join(server.dataDir, 'conversion_status.json')), false, '503のスタブは実サーバーを書かない');
+    await page.click('[data-role="vmd-run"]');
+    await page.click('[role="dialog"] [data-role="confirm-ok"]');
+    await page.waitForFunction(() => document.querySelector('[data-role="vmd-run-status"]')?.textContent.includes('KeyError: mixamorig:Hips'));
+    const failed = await page.textContent('[data-role="vmd-run-status"]');
+    assert.match(failed, /終了コード 1/, 'Blenderの失敗はサーバーの出力末尾を表示する');
+    assert.doesNotMatch(failed, /保存データを読めません/, '422を保存データの破損と誤表示しない');
+    assert.equal(runs.length, 2);
     await page.fill('[data-role="vmd-bone-map"]', '{bad json');
     assert.equal(await page.isDisabled('[data-role="vmd-run"]'), true, '対応表を変えたらジョブを作り直す');
     await page.click('[data-role="vmd-job"]');
@@ -64,7 +73,7 @@ test('SCR-23 creates a VMD job without writing exports in the test', async () =>
     await page.click('.screen-head [data-act="nav"]');
     await page.waitForFunction(() => location.pathname.endsWith('/23'));
     assert.deepEqual(JSON.parse(await page.inputValue('[data-role="vmd-bone-map"]')), { 'mixamorig:Hips': 'センター' });
-    assert.match(await page.textContent('[data-role="vmd-run-status"]'), /Blender executable not found/, '画面を離れても変換結果を保持');
+    assert.match(await page.textContent('[data-role="vmd-run-status"]'), /KeyError: mixamorig:Hips/, '画面を離れても変換結果を保持');
     await page.reload();
     await page.waitForFunction(() => document.querySelector('[data-role="vmd-map-status"]')?.textContent.includes('保存済み'));
     assert.deepEqual(JSON.parse(await page.inputValue('[data-role="vmd-bone-map"]')), { 'mixamorig:Hips': 'センター' });
