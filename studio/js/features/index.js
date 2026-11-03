@@ -11,6 +11,7 @@ import { importButton, assetCategories, assetLibrary, assetDetail, recentImports
 import { characterList, characterViewport, characterBones, useModelButton } from './character-view.js';
 import { retargetPanel, retargetViewport } from './retarget-view.js';
 import { footContactPanel } from './foot-contact.js';
+import { ikTab } from './pose-ik-view.js';
 import { motionCenter, vmdLibrary } from './motion-view.js';
 import { motionTimeline } from './motion-timeline.js';
 import { patternList, chainTimeline, playbackSettings } from './chain-view.js';
@@ -33,6 +34,8 @@ export const FEATURES = {
   sceneObjects, sceneLightTools, lightEditor, lightTimeline,
   // WP-04b（④-9・④-10 リターゲット検証、SCR-13）
   retargetPanel, retargetViewport, footContactPanel,
+  // WP-08a（⑧-1 SCR-13「足IK」タブ：足IK・接地の下に2D手動IKポーズ補助）
+  ikTab,
   // WP-05a（⑤ SCR-13［編集］の1体再生）
   motionCenter, vmdLibrary, motionTimeline,
   // WP-05c（⑤ SCR-05 の82パターン・お気に入り・コンビネーション・速度）

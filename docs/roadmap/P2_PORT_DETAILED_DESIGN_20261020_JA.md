@@ -2016,6 +2016,7 @@ function expectErrors(page, patterns) {}
 | `studio-p2-camera` | 8794 | `P2_CAMERA_PORT` |
 | `studio-p2-motion`（WP-05a・b・e・f） | 8793 | `P2_MOTION_PORT` |
 | `studio-p2-chain`（WP-05c・d・g。§2.5 で追加） | 8784 | `P2_CHAIN_PORT` |
+| `studio-p2-pose-ai`（WP-08a・b・c。§2.8 で追加。2つ目のサーバーが要るときは +1 の 8782） | 8781 | `P2_POSE_AI_PORT` |
 | `studio-p2-export` | 8792 | `P2_EXPORT_PORT` |
 | Phase E `camera-ui`（Phase E WP-03） | **8791**（Phase E §2.9 の既定 8798 を変更。Phase E §2.9 に注記した） | `CAMERA_UI_TEST_PORT` |
 | `legacy-project-save`（旧画面のバグ修正のテストは、この1ファイルにまとめる。3-m2） | 8790 | `P2_LEGACY_PORT` |

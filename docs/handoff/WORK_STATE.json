@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-03T21:46:16+00:00",
+  "updated_at": "2026-11-03T23:18:49+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "6d32ddd",
+  "head_at_update": "268adfc",
   "current": {
     "task": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認",
     "status": "done",
@@ -11,12 +11,9 @@
     "design_doc": "docs/roadmap/PHASE_E_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-08a: SCR-13足IKタブの手動IKポーズ補助（設計書§2.8(d)08a、Sonnet）",
-    "P2-WP-08b→08c（設計書§2.8。Q2で外せる単位は§2.8(i)）",
-    "Phase E UI部分は§7読み替え表（2026-11-03レビュー済み）に従ってSCR-02に実装可",
-    "Issue #37/#50: 実VRM/FBX/GLBステージと音声/画像/動画を形式別に実登録・見本・再読込し、未対応表示を修正",
-    "Issue #63/#69: 旧Studio保存状態の素材参照とv0.5作品IDへの可逆な対応を設計・実証",
-    "Issue #187: 合成比較ゲートを製品APIへ接続し実PMX/MP4で検証"
+    "P2-WP-08b SCR-19 のAI管理カード",
+    "P2-WP-08c 足IKタブのAIポーズ案",
+    "P2-WP-99 締め"
   ],
   "unverified": [
     "WindowsでのNode一括ゲート0 failは未確認。LinuxではH.264非対応Chromiumの動画1件（P2）とv0.5の9件（FFmpeg 6.1の-/filter_complex非対応等）が失敗",
@@ -38,6 +35,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-03T23:18:49+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "268adfc",
+      "text": "P2-WP-08a 手動IKポーズ補助（2D）を main に統合し、配置をレビュー・関連テスト56件合格"
+    },
     {
       "at": "2026-11-03T21:46:16+00:00",
       "by": "claude-code",
@@ -240,13 +244,6 @@
       "event": "start",
       "head": "6ac7c07",
       "text": "Issue #187: 口形候補と警告をv0.5画面で確認: 選択発話のレビュー用候補APIを読んで元時刻/作品フレーム/未採用状態・衝突警告を表示する"
-    },
-    {
-      "at": "2026-10-25T02:00:00+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "fbe5ca0",
-      "text": "Issue #187 LIP-001: 確定かなの半開SRT区間からモーラ口形候補APIを追加。促音/撥音/長音/唇閉鎖、未確定/無音、24fps・原本hashを隔離HTTPで確認"
     }
   ]
 }
