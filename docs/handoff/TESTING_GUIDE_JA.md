@@ -56,3 +56,66 @@ npm run test:evidence
 報告には、要件ID、変更コミット、実行コマンド、環境、成功/失敗/スキップ、素材とハッシュ、未検証、次のゲートを書く。コードを変更したコミットでは台帳・テスト結果・未検証を紐付け、`WORK_STATE.json` は作業位置だけ記録する。
 
 ログ機能固有の試験は [ログ検証ガイド](../logging/TEST_GUIDE_JA.md)、mainマージ後の確認は [同期手順](MAIN_SYNC_AFTER_MERGE_JA.md) を参照する。
+
+## 4. P2 の新UIで通しで制作する手順（所有者向け・任意。2026-11-03、P2-WP-99）
+
+P2 は既存機能を新UI（`/workspace/NN`）へ移した段階である。主シナリオ（MMD の「歌ってみた」）の流れ「PMX/VRM → ステージ → カメラ → BGM → VMD → エフェクト → 書き出し」に沿って、5手順で試せる。任意で、結果を待たずに次の作業は進む（AGENTS.md 規則7）。うまくいかなかったら、**止まった手順の番号と画面に出た文言**だけを知らせる。
+
+### 4.1 前提：試用データで起動する（本物の制作データを書き換えない）
+
+1. `D:\BAI\BAI_CREATER_STUDIO\data` を `D:\BAI\試用データ` へフォルダごとコピーする（2回目以降は不要）。
+2. PowerShell で `cd D:\BAI\BAI_CREATER_STUDIO` の後、`$env:BAI_DATA_DIR='D:\BAI\試用データ'; python server.py 8765`（コマンドプロンプトは `set BAI_DATA_DIR=D:\BAI\試用データ` の後に `python server.py 8765`）。
+3. `http://127.0.0.1:8765/workspace/01` を開く。終わったらサーバーを止める。
+4. 旧制作画面（`/`）や旧 `camera.html` を同時に開いて両方で保存しない（新旧の同時編集は競合する）。
+
+### 4.2 5手順
+
+| # | 主シナリオ | やること | 期待する結果 |
+|---|---|---|---|
+| 1 | PMX/VRM の読込 | 「素材管理（08）」の取り込みで、手元の PMX（テクスチャ入り ZIP）か VRM を選び［取り込む］。「キャラクター管理（12）」で選び、中央の表示をマウスで回し、［このモデルを制作に使う］→［保存］。 | 一覧に増え、モデルが3Dで出る。保存後に再読込しても残る。 |
+| 2 | ステージ | 「シーン・ステージ（06）」でステージにする素材を選び、位置・回転・大きさのスライダーを動かして［保存］。再読込する。 | 表示が変わり、再読込しても同じ配置。 |
+| 3 | カメラ（BGM は使えない） | 「カメラワーク（02）」を開き、キーを2つ足して［保存］。他の画面へ移って戻る。 | キーが残り、再読込しても残る。**S4 BGM（歌の音声）の配置は、まだ使えない**（旧画面にも API にもコードが無い。承認済みの実装はリップシンク段階）。 |
+| 4 | VMD の設置と再生（エフェクトは使えない） | 「モーションVMD編集（13）」の［編集］で対象に PMX を選び、VMD を1つ当てて［▶ 再生］。表情が入っていれば口・表情も動く。VRM/GLB を使う場合は、02 でクリップとカメラのキーを一緒に再生できる（PMX＋VMD とカメラの同期は P2 に無い）。 | モデルが動き、［停止］で位置が残る。02 ではモデルのボーンが動き、カメラがキーの間で補間される。**S6 エフェクトは、まだ使えない**（後段の MMD エフェクトのフェーズ。実装前）。 |
+| 5 | 書き出し | 「外部連携（23）」の「エクスポート」を開き、コンビネーションの手順数と VMD 変換の操作が出ることを見る。**ジョブ作成・変換実行は押さない**（`exports/` は試用フォルダの外にあり、Blender の実行は未検証）。 | 表示が出る。音声付きの動画書き出しは未実装（Phase F）。 |
+
+### 4.3 いま通しで動く範囲
+
+`npm run test:p2-e2e` の結果（`docs/roadmap/P2_PORT_STATUS.json` の `e2e_main`）は S1・S2・S3・S5・S7・S8 が pass、S4・S6 が skip（理由付き）、`furthest_step` は S8。skip は合格ではない。実 GPU・Windows・実 Ollama・Blender の実変換・実在の PMX/VRM の見た目などの未検証は、同ファイルの `p2_overall_unverified`（U1〜U16）に1か所でまとめてある。
+
+### 4.4 P2 のテスト一覧（`tests/studio-p2-*`）
+
+全体は `npm run test:p2`（`tests/run-guarded.cjs` が `data/`・`exports/` の前後ハッシュを比較）。`.mjs` はブラウザー不要、`.cjs` は実サーバー（隔離データ）と Chromium（SwiftShader）。three.js が無い環境では 3D を使う試験が skip になる。
+
+| ファイル | 確かめること |
+|---|---|
+| studio-p2-api.test.mjs | api.js：状態コードと error_code の割当、日本語文言、時間切れ・取消 |
+| studio-p2-store.test.mjs | store.js / bus.js / state-box の単体 |
+| studio-p2-project-logic.test.mjs | ② 読込・保存の制御（世代番号・競合・順序。偽の時計） |
+| studio-p2-project.test.cjs | ② SCR-18 の保存・読込・履歴・外部同期（実サーバー） |
+| studio-p2-import-rules.test.mjs | ③ 取り込み規則・素材の分類・衝突の判定 |
+| studio-p2-assets-logic.test.mjs | ③ 素材一覧の読込 |
+| studio-p2-assets.test.cjs | ③ 素材一覧・取り込み・見本画像・FBX 再生 |
+| studio-p2-viewport.test.cjs | ④ 3D 表示とステージ配置（SCR-06・12） |
+| studio-p2-normalize-parity.test.cjs | ④ 単体表示の正規化が旧カメラ画面と一致 |
+| studio-p2-pmx-fixture.test.cjs | 最小 PMX が本物の PMX として読める |
+| studio-p2-retarget.test.cjs | ④-9・10 リターゲット検証（SCR-13） |
+| studio-p2-motion.test.cjs | ⑤ SCR-13 の1体再生（PMX＋VMD、GLB/VRM のクリップ）と制作への記録 |
+| studio-p2-motion-fork.test.mjs | ⑤ patterns のフォークと旧 index.html の照合 |
+| studio-p2-motion-logic.test.mjs | ⑤ コンビネーション編集・お気に入りの通信 |
+| studio-p2-chain-fork.test.mjs | ⑤ 2体配置と連結再生の式を旧画面と照合 |
+| studio-p2-chain.test.cjs | ⑤ SCR-05：82パターン・A/B 3D・連結再生 |
+| studio-p2-fbx-clips.test.mjs | ⑤ FBX クリップの遅延読込・対応表の保存 |
+| studio-p2-timeline-logic.test.mjs | ⑤ タイムラインの時計・補間・550ms 自動保存 |
+| studio-p2-generic-dance.test.mjs | ⑤ VRM の汎用ダンス適用（要 three） |
+| studio-p2-camera-ids.test.mjs | ⑥ SCR-02 のカメラ要素 ID が重複・欠落しない |
+| studio-p2-camera.test.cjs | ⑥ カメラホストの保存・往復・壊れたファイル |
+| studio-p2-export-model.test.mjs | ⑦ VMD ジョブの本文・ボーン対応の検査・Blender 失敗の文言 |
+| studio-p2-export.test.cjs | ⑦ SCR-23 のジョブ作成（スタブ）と Blender 状態の確認 |
+| studio-p2-pose-ik-fork.test.mjs | ⑧ 手動 IK ポーズ補助のフォークを旧実コードと照合 |
+| studio-p2-pose-ai.test.cjs | ⑧ 足IK タブ・AI 管理カード・AI ポーズ案（Ollama はスタブ） |
+| studio-p2-e2e-main.test.cjs | 通し確認 S1〜S8（`npm run test:p2-e2e`） |
+| legacy-project-save.test.cjs | 旧画面の保存（B-1・B-2・B-3・reset）。three が無いと skip |
+| test_screen_status_honesty.mjs | 画面の real 表示に証拠があるか（モックを実装と偽らない） |
+| test_project_envelope.py ほか（`npm run test:p2-py`） | POST /api/project の版・壊れたファイル、カメラ保存の不正値、実 data/ の隔離 |
+
+画面の `real` 表示の証拠は `npm run test:evidence`、新UIの画面操作は `npm run test:studio` と `npm run test:node-all`、サーバーは `python -m pytest -q`。
