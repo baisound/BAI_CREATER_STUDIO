@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-03T20:28:50+00:00",
+  "updated_at": "2026-11-03T20:29:21+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "7935400",
+  "head_at_update": "73a49ef",
   "current": {
-    "task": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認",
+    "task": "P2 WP-08（IK・AI）詳細設計：§2.8 の詳しく化",
     "status": "in_progress",
-    "step": "Phase E §7読み替え表・書き出し実装のレビュー、test:node-all/test:p2/pytest/tscをLinuxで実行",
+    "step": "旧IK・AI機能の棚卸し→O-⑧決定→WP-08a/b分割→自己批評",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-03T20:29:21+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "73a49ef",
+      "text": "P2 WP-08（IK・AI）詳細設計：§2.8 の詳しく化: 旧IK・AI機能の棚卸し→O-⑧決定→WP-08a/b分割→自己批評"
+    },
     {
       "at": "2026-11-03T20:28:50+00:00",
       "by": "claude-code",
@@ -235,13 +242,6 @@
       "event": "start",
       "head": "329b23a",
       "text": "Issue #187: SRT発話の読み・無音を画面で編集: 登録済み発話を選び未確定/提案/確定/明示無音を保存・再読込し原本と分離する"
-    },
-    {
-      "at": "2026-10-25T01:49:01+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8a79ba8",
-      "text": "Issue #187 LIP-001: SRT発話の読み状態/明示無音を原本と分離保存。隔離HTTPで原時刻・hash・revision・原本不変を確認"
     }
   ]
 }
