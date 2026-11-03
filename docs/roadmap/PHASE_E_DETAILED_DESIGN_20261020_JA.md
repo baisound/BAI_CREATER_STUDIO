@@ -984,17 +984,21 @@ v4 作成時に全件をコードで再確認した（行番号は §冒頭の�
 
 `camera.html` の現物124 IDを `tools/camera_id_map.py` で列挙した [`legacy-ids.json`](../../studio/js/camera/legacy-ids.json) が**IDごとの完全な配置表**である。`camera-host.js` はHTMLを読み取り、同じ要素をSCR-02へ一度だけ移す。IDを付け替えないため、§3以降の既存ID指定は下表の配置先にある同名IDを指す。124個の内訳、直接参照するクラス・属性、実ブラウザーでの包含・重複ID検査は [WP-06b要素配置表](P2_WP06_CAMERA_ID_PLACEMENT_JA.md) に記録した。
 
-| Phase Eの記述・旧画面 | SCR-02での対応 | 実装・検証時の読み方 |
+| Phase Eの記述・旧画面 | SCR-02での対応（`legacy-ids.json` の slot） | 実装・検証時の読み方 |
 |---|---|---|
-| `#save`・`#undo`・`#redo` | 上部のカメラ操作（3 ID） | `#save` は当面「カメラだけ保存」。制作状態の［保存］は別の `projectToolbar` から統合保存する。WP-02dの一本化はその段階で再判定する。 |
-| ショット・カスタム構図 | 左パネル（17 ID） | `#camera-custom-presets` と `#camera-sequence-editor` を含む既存要素を移す。 |
-| `#scene`・`#preview`、素材・クリップ選択 | 中央の撮影ビュー（8 ID） | 2面とも旧 `camera_3d.js` を共有。モデル選択はGLB・VRM・PMX・FBXを扱う。新機能の表示確認は実モデルとGPU環境を区別して記録する。 |
-| レンズ、XYZ、FOV、`#key-save`、カメラVMD、状態 | 右の「カメラ」タブ（32 ID） | 旧 `#camera-project-bundle` ボタン群は無効表示し、統合保存は制作状態へ送る。 |
-| `#focus-lens`、ボーン追従、合焦・DOF診断 | 右の「フォーカス」タブ（27 ID） | SCR-03はこのタブへのリンク。計算上の診断と実描画DOFを混同しない。 |
-| リグ・レール | 右の「レール」タブ（18 ID） | SCR-04/14/15/16は該当タブへのリンク。単一のカメラホストを使う。 |
-| `#interpolation` | 右の「補間」タブ（1 ID） | カメラと補間のコードは旧画面と同じ要素IDを使う。 |
-| `#track`、再生・コマ送り、範囲、キー操作 | 下部タイムライン（18 ID） | 画面を離れる際はホストを`#keepalive`へ移す。再訪時も同一DOM・同一マウントを使う。 |
-| 新しい Phase E 専用UI | SCR-02の対応パネル・タブに追加 | `host==='studio'` でのみ有効にし、旧画面に要素が無いときは安全に何もしない。ID追加時は配置表を再生成し、包含・重複ID検査を更新する。 |
+| `#save`・`#undo`・`#redo` | 上部のカメラ操作 `.camera-host-toolbar`（`toolbar`、3 ID） | `#save` は当面「カメラだけ保存」（文言はホストが付け替える）。制作状態の［保存］は同じ画面のツール欄の `projectToolbar`（`[data-role="project-save"]`）から統合保存する。WP-02dの一本化はその段階で再判定する。 |
+| カスタム構図（CAM-014）・ショット区間（CAM-015） | 左の「ショット」`.camera-host-shots`（`shots`、17 ID） | `#camera-custom-presets` と `#camera-sequence-editor` の2つの fieldset をそのまま移す。右タブを切り替えても常に表示される。ショット種別の `#preset`・`#preset-apply` はここではなく右の「カメラ」タブにある。 |
+| `#scene`・`#preview`、素材・クリップ選択 | 中央の撮影ビュー `.camera-host-center`（`center`、8 ID） | 旧 `.asset-toolbar` のうち `#camera-asset`・`#camera-load-asset`・`#camera-clip`・`#camera-asset-status` と `.dual-views`。2面とも旧 `camera_3d.js` を共有。モデル選択はGLB・VRM・PMX・FBXを扱う。新機能の表示確認は実モデルとGPU環境を区別して記録する。 |
+| `#preset`・`#auto-key`・`#move-amount`・`[data-camera-move]`、レンズ、XYZ、FOV、`#key-save`・`#copy`、カメラVMD、`#status`・`#sample` | 右の「カメラ」タブ `?tab=camera`（`camera`、32 ID） | 旧 `#camera-project-bundle` は fieldset ごと無効表示し、統合保存は制作状態へ送る。`#position-fields`・`#target-fields` の中の6入力（`position0`〜`target2`）は mount 後に `camera.js` が作るので124 IDには含まれない。 |
+| ボーン追従（`#camera-follow-*` 9 ID）、構図確認 `.framing-test`、`#focus-lens` などの `.focus-test` | 右の「フォーカス」タブ `?tab=focus`（`focus`、27 ID） | ボーン追従の9 IDは旧画面では中央の `.asset-toolbar` にあり、SCR-02では `label` ごとこのタブへ移る。SCR-03［撮影画面のフォーカスタブへ］はこのタブへのリンク。計算上の診断と実描画DOFを混同しない。 |
+| 撮影リグ・レール `#camera-rig-panel` | 右の「レール」タブ `?tab=rail`（`rail`、18 ID） | SCR-14［撮影画面のレールタブへ］はこのタブへのリンク。 |
+| `#interpolation` | 右の「補間」タブ `?tab=easing`（`interpolation`、1 ID） | **タブのID・URLは `easing`、`legacy-ids.json` の slot 名は `interpolation`** で、名前が違う。カメラと補間のコードは旧画面と同じ要素IDを使う。 |
+| （旧画面に無い） | 右の「実装状態」タブ `?tab=status`（0 ID） | ホストが作る説明だけのタブ。カメラタブの状態表示 `#status` とは別物。未知の `tab` は「カメラ」タブに戻る。 |
+| `#track`、再生・コマ送り、範囲、キー操作 | 下部タイムライン `.camera-host-timeline`（`timeline`、18 ID） | 旧 `.transport` と `.timeline`。画面を離れる際はホストを`#keepalive`へ移す。再訪時も同一DOM・同一マウントを使う。 |
+| SCR-04・SCR-15・SCR-16 の撮影画面へのボタン | `?tab=camera` へのリンク | ショット区間は左パネル（常時表示）、カメラVMDは「カメラ」タブにある。SCR-03/04/14/15/16 の独立画面化は Phase E の範囲で、同じホストを2つ作らない。 |
+| 新しい Phase E 専用UI | SCR-02の対応パネル・タブに追加 | **`camera.html` には要素を足さない**（旧画面に新機能を出さない。P2 K8）。新しい要素は `camera-host.js`（またはそこから呼ぶ studio 側のモジュール）が該当パネル・タブの中に作り、共有の `camera.js`・`camera_3d.js` は `host==='studio'` のときだけ使い、要素が無ければ何もしない。このため `legacy-ids.json`（`camera.html` から生成）は変わらない。`tests/studio-p2-camera-ids.test.mjs` の「旧ID以外は `position0`〜`target2` の6個だけ」の検査には、そのWPで足したIDを加え、ページ全体の重複ID 0件は保つ。旧画面のバグ修正（G-xx）で `camera.html` にIDを足したときだけ `python tools/camera_id_map.py` で一覧を再生成する。 |
+
+124 ID の slot は `tools/camera_id_map.py` が `camera.html` の祖先要素から決め、実際の移動は `camera-host.js` の `populate()` が行う。2つは別の規則なので、`tests/studio-p2-camera-ids.test.mjs` で各IDが slot どおりの枠（上の表の `.camera-host-*` と `[data-camera-tab]`）の中にあることを実ブラウザーで照合する（2026-11-03 の独立レビューで追加）。
 
 ### 7.2 保存・API・自動操作の置き場所
 
@@ -1002,11 +1006,11 @@ v4 作成時に全件をコードで再確認した（行番号は §冒頭の�
 |---|---|
 | `camera.js`・`camera_3d.js`、`BAICameraDebug` | 共有スクリプトを `mount(root,{host:'studio'})` でSCR-02へ一度だけ接続する。`BAICameraDebug` を使うWPはSCR-02で公開し、`dirty` は `MountHandle.isDirty()` と同じ状態を見る。旧 `camera.html` の `host:'legacy'` では新機能を有効にしない。 |
 | カメラだけ保存、統合保存 | カメラだけ保存後は `bai-camera-saved` を受け、バンドル版を再取得する。統合保存前はカメラのスナップショットを取り、ストアのworkspaceと `camera_bundle_core.js` で本文を作る。カメラ破損時はマウント・保存を止め、原本と退避を保持する。 |
-| workspace の `asset`・`clip`・`frame` | 新UIストアが正本。ホストでの変更は退出時・保存前にストアへ書き、外部の素材変更をホストへ復元する。`frame` だけの変更は未保存にしない。`stage` と `character` も統合保存で保持する。WP-02dでカメラ側のフィールドを追加するときは `CAMERA_OWNED_WORKSPACE_FIELDS` を更新する。 |
+| workspace の `asset`・`clip`・`frame` | 新UIストアが正本。ホストでの変更は退出時・保存前にストアへ書き、外部の素材変更をホストへ復元する。`frame` だけの変更は未保存にしない。ホストから送る `asset` が変わったときは、同じ番号でも `clip` を一緒に送る（`setWorkspaceFields` は `clip` を伴わない `asset` の変更で `clip` を null にするため）。`stage`・`lights`・`character` もストアが持ち、統合保存で保持する。WP-02dでカメラ側のフィールドを追加するときは `CAMERA_OWNED_WORKSPACE_FIELDS` を更新する。 |
 | Playwright セレクター、静的配信 | 既存IDはSCR-02内の同名IDへ置き換える。ルートは `/workspace/02`。共有ファイルは従来の静的URLを使い、`camera_bundle_core.js` は旧画面と新UIの両方から読む。 |
-| WebMCP `camera_page` | 画面上の操作先はSCR-02。現時点で `webmcp.js` は旧 `camera.html` にもSCR-02にも読み込まれていない。SCR-02への登録と標準MCPとの同等性はPhase Eの各WPで実装・試験する。登録前に新UIで利用可能と表示しない。 |
+| WebMCP `camera_page` | 画面上の操作先はSCR-02。現時点で `webmcp.js` は旧 `camera.html` にも新UI（`studio/index.html`）にも読み込まれていない（読み込んでいるのは旧制作画面 `index.html` だけ）。**§2.5「WebMCP をカメラ画面へ」の `camera.html` への `<script … data-webmcp-scope="camera">` 追加は行わず、新UIへ読み替える**：WP-02c で、SCR-02 のホストが mount を終えて `BAICameraDebug` を公開した後に `webmcp.js` を1回だけ読み、scope `camera` として `both`＋`camera_page` のツールだけを登録する（旧制作画面の `rows`・`chain` に依存する既存ツールは登録しない）。新UIはSPAなので、SCR-02 を離れている間（ホストが `#keepalive` にある間）に `transport:'browser'` のツールが呼ばれたときの扱い（拒否して理由を返すか、ホストを裏で使うか）は WP-02c で決めて試験する。§2.5 のテスト `tests/test_camera_tools_webmcp.cjs` の「カメラ画面」は SCR-02 での読み込みを指す。SCR-02への登録と標準MCPとの同等性はPhase Eの各WPで実装・試験する。登録前に新UIで利用可能と表示しない（SCR-19 の「MCP接続」は partial のまま）。 |
 
-**ゲート**：124 IDの配置とSCR-02の基本操作はソース・隔離Chrome（SwiftShader）で照合済み。独立した高性能モデルによる本表のレビュー、実GPU/Linux、全実モデルの外観、Owner採用は未検証。Phase EのUI部分は所定のレビューを記録するまで着手しない。各WPでは旧 `camera.html` の `pageerror` 0件とP2 E2Eの到達点非後退を確認する。
+**ゲート**：124 IDの配置とSCR-02の基本操作はソース・隔離Chrome（SwiftShader）で照合済み。**独立した高性能モデル（Claude Opus 系）による本表のレビューを 2026-11-03 に実施**し、次を直した：左パネルと `#preset` の置き場所、タブのURL（特に補間＝`easing`）と「実装状態」タブ、ボーン追従9 IDの移動元、SCR-04/15/16 のリンク先、Phase E の新要素を `camera.html` に足さない読み方、§2.5 の WebMCP 読み込み先、workspace の `lights` と `asset` 変更時の `clip`。slot と実際の配置の照合試験も足した。これで §0 の「UI 部分はレビュー後」の条件は満たす。実GPU、Windows、全実モデルの外観、Owner採用は未検証。各WPでは旧 `camera.html` の `pageerror` 0件とP2 E2Eの到達点非後退を確認する。
 
 ## 8. 完了ゲート（Phase E 全体）
 1. 18機能と E-FOCUS-01/02 の本書のテストがすべて自動で合格。

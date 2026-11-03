@@ -54,6 +54,9 @@ function captureWorkspace(allowPending = false) {
   const stored = project.get().bundle?.workspace || { frame: 0, asset: '', clip: null };
   /** @type {Record<string, any>} */ const changed = {};
   for (const field of ['asset', 'clip', 'frame']) if (value[field] !== stored[field]) changed[field] = value[field];
+  // setWorkspaceFields は clip を伴わない asset の変更で clip を null にする。モデルを替えても
+  // クリップ番号が前と同じ（どちらも0など）ときに、カメラ画面の選択を失わないよう一緒に送る。
+  if ('asset' in changed) changed.clip = value.clip;
   if (Object.keys(changed).length) setWorkspaceFields(changed, { source: 'host' });
 }
 
