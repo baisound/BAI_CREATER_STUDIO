@@ -1,22 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-03T20:29:21+00:00",
+  "updated_at": "2026-11-03T20:40:12+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "73a49ef",
+  "head_at_update": "b2166ae",
   "current": {
     "task": "P2 WP-08（IK・AI）詳細設計：§2.8 の詳しく化",
-    "status": "in_progress",
+    "status": "done",
     "step": "旧IK・AI機能の棚卸し→O-⑧決定→WP-08a/b分割→自己批評",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
+    "P2-WP-08a: SCR-13足IKタブの手動IKポーズ補助（設計書§2.8(d)08a、Sonnet）",
+    "P2-WP-08b→08c（設計書§2.8。Q2で外せる単位は§2.8(i)）",
     "Issue #37/#50: 実VRM/FBX/GLBステージと音声/画像/動画を形式別に実登録・見本・再読込し、未対応表示を修正",
     "Issue #63/#69: 旧Studio保存状態の素材参照とv0.5作品IDへの可逆な対応を設計・実証",
     "Issue #187: 合成比較ゲートを製品APIへ接続し実PMX/MP4で検証"
   ],
   "unverified": [
-    "実VRM/人体GLB/FBXの3D描画、GLBステージ、動画内音声、旧作品完全復元、WebMCP/標準MCP、Linuxは未検証。制限環境の初回ブラウザ試験はサーバー起動不可で、ソケット利用可能環境で5件成功"
+    "WP-08は設計のみ（コード・テストは未作成）。実Qwen/Ollamaの推論は実装後も未検証の見込み",
+    "実VRM/人体GLB/FBXの3D描画、GLBステージ、動画内音声、旧作品完全復元、WebMCP/標準MCP、Linuxは未検証（前回からの引き継ぎ）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +36,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-03T20:40:12+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "b2166ae",
+      "text": "P2設計書§2.8（WP-08 IK・AI）をSonnetが実装できる粒度に詳しくした：旧機能の棚卸し（⑧-1〜3）、O-⑧-1〜9決定、WP-08a/08b/08cへ分割、受け入れ条件・テスト・v0.5重複の扱い・自己批評。§3表とWP-08の所有者確認行を更新。コードは未変更"
+    },
     {
       "at": "2026-11-03T20:29:21+00:00",
       "by": "claude-code",
@@ -235,13 +245,6 @@
       "event": "done",
       "head": "c890010",
       "text": "Issue #187 LIP-001: v0.5画面で発話読み確定/明示無音を保存再読込。隔離Chrome 1/1、原SRTと既存data/exports不変"
-    },
-    {
-      "at": "2026-10-25T01:51:25+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "329b23a",
-      "text": "Issue #187: SRT発話の読み・無音を画面で編集: 登録済み発話を選び未確定/提案/確定/明示無音を保存・再読込し原本と分離する"
     }
   ]
 }
