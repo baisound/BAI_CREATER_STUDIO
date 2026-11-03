@@ -521,12 +521,16 @@
     },
     {
       "id": "P2-WP-99",
-      "step": "締め",
-      "state": "not_started",
+      "step": "締め（マトリクス再生成・監査文書の件数表・台帳・手順書・ROADMAP 1行）",
+      "state": "verified",
       "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "tests": [
+        "2026-11-03：node tools/gen_screen_matrix.mjs で SCREEN_IMPLEMENTATION_MATRIX.json を再生成（差分なし＝最新）。screens=27 panels=170 real=44 partial=36 mock=22 unimpl=68。文書だけの変更で、コード・テストは変えていない。"
+      ],
+      "unverified": [
+        "設計 §5.2 の未検証の一覧は、ルートの p2_overall_unverified（U1〜U16）に写した。P2 全体の完成は「自動テストの範囲」で、実 GPU・Windows・実 Ollama・Blender の実変換・実在モデルの見た目は未検証。"
+      ],
+      "notes": "手順書：docs/handoff/TESTING_GUIDE_JA.md §4（所有者が試せる通しの制作手順とテスト一覧）。",
       "owner_check": null
     }
   ],
@@ -576,5 +580,107 @@
     ],
     "commit": "9ed5011",
     "checked_at": "2026-10-21T20:28:28.169Z"
+  },
+  "p2_overall_unverified": {
+    "recorded": "2026-11-03 P2-WP-99",
+    "note": "P2 全体でまだ確かめていないこと（設計 §5.2 の写し＋各 WP の unverified の集約）。ここに無いものを「確認済み」と読まないこと。自動テストの合格は、下の項目を確かめたことにならない。",
+    "items": [
+      {
+        "id": "U1",
+        "topic": "実GPU",
+        "text": "3D 描画はすべて SwiftShader（headless Chromium）のみ。実 GPU での描画・性能・マウス操作の感触は未検証。",
+        "from": "§5.2、WP-00a-2〜08c ほぼ全部"
+      },
+      {
+        "id": "U2",
+        "topic": "Windows",
+        "text": "開発・試験は Linux。Windows 実機の動作と、Windows での npm run test:node-all の一括 0 fail は未確認。",
+        "from": "§5.2、WP-00a-1〜、07"
+      },
+      {
+        "id": "U3",
+        "topic": "一括ゲートの不安定さ",
+        "text": "Linux でも環境要因の失敗が残る（動画ポスター1件、studio-p2-generic-dance は three 未解決、pytest の v0.5 系、H.264・FFmpeg 版）。共通の一括実行は 1〜2 件の時間切れ・不安定失敗があり、単独再実行では通る。一括ゲートの完走は未達として残す。",
+        "from": "WP-05g、06c、07、WORK_STATE"
+      },
+      {
+        "id": "U4",
+        "topic": "実Ollama/Qwen",
+        "text": "AI 管理（SCR-19）の接続済み表示・モデル一覧と、AI ポーズ案（SCR-13 足IK）の推論は未検証。開発環境に Ollama が無く、成功の応答はスタブ。",
+        "from": "WP-08b、08c"
+      },
+      {
+        "id": "U5",
+        "topic": "Blender の実変換",
+        "text": "VMD 変換（⑦、SCR-23）は Blender の実行まで確かめていない。ジョブ作成はスタブ応答まで。実 VMD の品質、MCP 経路との一致も未検証。変換成功後の素材一覧の再取得（旧 refreshMmd）は新UIに無い。",
+        "from": "§5.2、WP-07"
+      },
+      {
+        "id": "U6",
+        "topic": "実在のモデル・モーション",
+        "text": "実在の PMX（多材質・IK・剛体・PMX 2.1）・VRM（Humanoid あり）・FBX・VMD の見た目は合成ファイルでしか確かめていない。正しい最小 FBX を作る手段が決まっておらず（O-③-1）、FBX の正常な登録と 3D 表示は実ファイルで未確認。実利用者のモデルでの外観は Owner 採用も未確認。",
+        "from": "§5.2、WP-03、04、04b、05a〜05g、06b〜06d"
+      },
+      {
+        "id": "U7",
+        "topic": "表情・口パクのモーフ再生",
+        "text": "VMD の表情・口パクのモーフは最小 PMX（モーフ「あ」）で自動テストした。実在の PMX のモーフは未検証。",
+        "from": "§5.2、WP-05a"
+      },
+      {
+        "id": "U8",
+        "topic": "ステージの単位の換算",
+        "text": "実在の PMX/GLB/FBX ステージの単位の換算と見え方（O-④-6）は合成データのみ。",
+        "from": "§5.2、WP-04"
+      },
+      {
+        "id": "U9",
+        "topic": "外部クライアントからの同時操作",
+        "text": "外部の AI・MCP クライアントからの同時操作は HTTP で模擬しただけ。WebMCP・標準MCP の個別機能の整合は未検証。WebMCP camera_page の SCR-02 への登録方法（画面外のとき）は WP-02c で扱う。",
+        "from": "§5.2、WP-05f、06d"
+      },
+      {
+        "id": "U10",
+        "topic": "画面幅",
+        "text": "1180px・820px・390px 以外の画面幅は未検証。",
+        "from": "§5.2"
+      },
+      {
+        "id": "U11",
+        "topic": "新旧画面の同時利用",
+        "text": "旧制作画面（5865209 の配置）と新UIを同時に開いたときの動作は、保存の往復（K2）までしか試験していない。GET→POST 間の競合の隙（K12。タイムライン・補正レイヤー・お気に入り・対応表）は設計上残る。",
+        "from": "§5.2、K2、K12、WP-05d、05e"
+      },
+      {
+        "id": "U12",
+        "topic": "見た目と独立レビュー",
+        "text": "色・並びなど見た目（08a〜08c）と、一部 WP の独立した高性能モデルのレビュー（06b・06c・08a）は未実施。薄表示の見え方は SwiftShader のスクリーンショットのみ。",
+        "from": "WP-00c、06b、06c、08a〜08c"
+      },
+      {
+        "id": "U13",
+        "topic": "通し確認の穴",
+        "text": "e2e_main は S1〜S8 のうち S4（BGM 配置：既存機能なし）と S6（エフェクト：後段フェーズ）が skip。skip は合格ではない。音声付き 1080p 動画の書き出しは既存コードが無く Phase F。SCR-02 の撮影プレビューは SCR-06 のステージと SCR-10 の曲・ダンス配置をまだ共有しない（Issue #63）。",
+        "from": "§2.9、Q4、WP-06c"
+      },
+      {
+        "id": "U14",
+        "topic": "規模・性能",
+        "text": "400MB 級の FBX の取り込み時の読み込み・解析、全素材と大量スクロールの性能は実測していない。",
+        "from": "WP-02、03"
+      },
+      {
+        "id": "U15",
+        "topic": "未着手の導線点検・VRM/GLB への VMD",
+        "text": "導線点検 §5 の 6〜14 は所有者 OK 待ちで未着手。VRM・GLB への VMD 適用は P2 に入れていない（O-⑤-8、◇）。足IK の 3D 適用は対象外。中央の4分割ビューは ◇ のまま。",
+        "from": "WP-00c、04b、05a、08a"
+      },
+      {
+        "id": "U16",
+        "topic": "旧画面の回帰試験",
+        "text": "legacy-project-save.test.cjs は three.js がローカルに無い環境では skip（WP-00b 以来）。",
+        "from": "WP-01"
+      }
+    ]
   }
 }
