@@ -36,6 +36,17 @@ test('SCR-02 contains every camera ID once and no page-wide duplicate', harness.
     assert.deepEqual(new Set(present.filter((id) => !htmlIds.includes(id))),
       new Set(['position0', 'position1', 'position2', 'target0', 'target1', 'target2']),
       'camera.js creates six XYZ fields after mount');
+    // slot（tools/camera_id_map.py）と実際の移動先（camera-host.js の populate）は別の規則なので照合する。
+    const slotContainer = {
+      toolbar: '.camera-host-toolbar', shots: '.camera-host-shots', center: '.camera-host-center',
+      camera: '[data-camera-tab="camera"][role="tabpanel"]', focus: '[data-camera-tab="focus"][role="tabpanel"]',
+      rail: '[data-camera-tab="rail"][role="tabpanel"]', interpolation: '[data-camera-tab="easing"][role="tabpanel"]',
+      timeline: '.camera-host-timeline',
+    };
+    const misplaced = await page.evaluate(({ entries, map }) => entries
+      .filter(({ id, slot }) => !document.getElementById(id)?.closest(map[slot]))
+      .map(({ id, slot }) => `${id}→${slot}`), { entries: inventory.elements, map: slotContainer });
+    assert.deepEqual(misplaced, [], 'every legacy ID sits in the panel named by its slot');
     const all = await page.locator('[id]').evaluateAll((els) => els.map((el) => el.id));
     assert.equal(all.length, new Set(all).size, 'all page IDs are unique');
     for (const selector of ['.preview-shell', '.camera-frame', '.dual-views', '[data-camera-move]']) {

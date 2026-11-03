@@ -1575,14 +1575,266 @@ SCR-23 の中央のカード「エクスポート」（`screens.js:607` のパ�
 
 ---
 
-### 2.8 ⑦の後：IK・AI（WP-08。既定は移植する）
+### 2.8 ⑦の後：IK・AI（WP-08a〜08c。既定は移植する。2026-11-03 に Opus で詳しくした。O-⑧-1〜9 は (h) で決定済み。所有者確認待ちは (i)）
 
-| # | 機能 | 根拠 | 移植先（案） |
+- 基準：HEAD `b2166ae`（`7935400`＝origin/main の上に作業位置の記録だけを足したもの）。本節の `server.py:行`・`index.html:行`・`studio/js/*:行` はこのコミットの番号。旧画面は今後も変わることがあるので、実装時は関数名・要素ID・`data-role` で探す（行番号は目安）。
+- 本節の前提（実装済み）：§1.3 の `api.js`（`getJson`・`postJson`。POST の既定の時間切れは 30 秒：`api.js` の `postJson` の注記）、§1.6 の後始末（`ctx.onCleanup`）、WP-05f の SCR-13 右タブ「足IK」（`screens.js:415` の `{ id: 'ik', label: '足IK', custom: 'footContactPanel' }`、`features/foot-contact.js`）、SCR-19 の中央カード「AI接続状態（既存API）」（`screens.js:574`、`live.js:25` の `aiStatus`）、§1.13 の状態バッジと `evidence`。
+- **サーバーと旧画面は変えない**（R1・R5）。`server.py`・`pose_ik.py`・`ai_ik_preview.py`・`bai_ai_manager.py`・`pose_ik_ui.js`・`bai_ai_ui.js`・`index.html`・`webmcp.js`・`mcp_server.py` は WP-08 のどの段階でも変更しない（付録B の「変えない」に当たる）。
+- **3D の IK ではない**：⑧-1 は旧画面と同じ**2D 平面（XY）の模式図での2関節 IK の補助**で、PMX・VRM・FBX・VMD・制作状態のどれにも適用しない。3D の骨操作・IK は v0.5 の MOTION-010（Codex が実装中、[詳細設計](MOTION010_V05_DETAILED_DESIGN_20261024_JA.md) §2「`pose_ik.py`のXY解はこの3D解の代用品にしない」）の範囲で、WP-08 は触らない（(j)）。
+
+#### (a) 移植する機能（根拠付き。旧コードを読み直して v5 の2行の表を直した）
+
+| # | 機能 | 根拠（旧コード） | WP |
 |---|---|---|---|
-| ⑧-1 | 手動 IK のポーズ補助（基礎版） | `pose_ik_ui.js`（21行、`#bai-pose-editor`）、`/api/pose/last`・`/api/pose/save`・`/api/pose/solve` | SCR-13 の右タブ（O-⑧-1） |
-| ⑧-2 | AI 管理（`#bai-ai-manager`） | `bai_ai_ui.js`（25行）、`/api/ai/*` | SCR-19（WebMCP・標準MCP・AIエージェント統合）（O-⑧-1） |
+| ⑧-1 | **手動IKポーズ補助（2D・基礎版）**：4肢（左腕・右腕・左脚・右脚）の目標点を SVG の模式図でドラッグ／部位の選択／フレーム番号／初期姿勢／設定を保存／起動時に保存済みの設定を読む。IK の計算はサーバー（`/api/pose/solve`）で、届かない目標は届く位置に補正し、赤い破線の円で要求点を示す | `pose_ik_ui.js:4`（`template`：4肢の `base`・`target`・`upper`・`lower`・`bend`）、`:5`（初期の `active='rightArm'`）、`:7`（`sx=150+x*110`・`sy=230-y*105`）、`:8〜9`（`line`・`dot`。`dot` は `r=11`、選択中は別色）、`:10〜12`（`render`：背景・床線・首・胴・頭、肢ごとに `base→joint`・`joint→end` の2本と目標の丸、`reachable` でなければ `requested` に `r=15` の破線の円）、`:14`（`calculate`：`POST /api/pose/solve`。`busy` の間は呼び出しを**捨てる**。状態行「IK計算済み（元モーション未変更）」／「目標が届かないため、到達可能な位置に補正しました」／「IK計算失敗：…」）、`:15`（部位の選択・フレームの変更。フレームは `max(0, round(n))`、変えても再計算しない）、`:16〜17`（ドラッグ：`pointerdown` で丸の `data-limb` を選び、`move` で目標＝`[round((x-150)/110*100)/100, round((230-y)/105*100)/100]`）、`:18`（初期姿勢）、`:19`（`POST /api/pose/save`、「補正設定を保存しました。元素材は変更していません。」）、`:21`（起動時 `GET /api/pose/last`。`limbs` が空なら `template` のまま）。要素は `index.html:822` の `#bai-pose-editor`（`pose-ik-bone`・`pose-ik-frame`・`pose-ik-reset`・`pose-ik-save`・`pose-ik-svg`（viewBox 300×260）・`pose-ik-status`）。サーバーは `server.py:674〜680`（`GET /api/pose/last`。無い・壊れていれば `{schema:1,frame:0,limbs:{}}`）、`:1649〜1655`（`solve`。16384 バイトまで、400 は `bad`）、`:1656〜1663`（`save`。検証してから**受け取った本文をそのまま** `data/pose_ik_last.json` へ原子的に書く）、計算は `pose_ik.py:4〜31` | 08a |
+| ⑧-2 | **AI 管理（任意・Ollama）の設定と接続確認**：AI の有効／無効、Ollama のモデル名、［接続を確認］、［設定を保存］。状態行「接続済み — モデル名 / …」／「AI未接続：通常制作は使用できます」／「AI設定の取得に失敗しました。通常制作には影響しません。」 | `bai_ai_ui.js:2`（`json`：失敗は `data.error`）、`:3`（`update`：`GET /api/ai/settings` と `GET /api/ai/status` を並べて取り、チェックとモデル名を設定値で上書き）、`:4`（接続を確認）、`:5`（保存：本文は `{enabled, default_llm: trim()}` の**2項目だけ**。「設定を保存しました」の後に `update`。失敗は「保存失敗: …」）、`:25`（起動時に `update`）。要素は `index.html:822` の `#bai-ai-manager`（`bai-ai-status`・`bai-ai-enabled`（既定 checked）・`bai-ai-model`（既定 `qwen3.5:9b`）・`bai-ai-check`・`bai-ai-save`）。サーバーは `server.py:683〜686`（GET）、`:1665〜1670`（POST settings。8192 バイトまで）、`bai_ai_manager.py:17〜28`（`DEFAULTS` にないキーは 400、URL はローカルの既定ポートだけ）、`:39〜45`（`status`：無効なら `state:'disabled'`、Ollama に 2 秒でつながらなければ `state:'offline'`） | 08b |
+| ⑧-3 | **日本語のポーズ指示（提案のみ）**：［指示を解析］（AI の制約案を JSON で表示）、［IKプレビュー生成］（今の2D補助の設定を基準に、AI 案を当てた2D の計算結果を JSON で表示。保存しない）、［IK画面で確認］（直前のプレビューの `pose_input` を⑧-1 に**未保存のまま**読み込む。`accepted` が0件なら押せない） | `bai_ai_ui.js:6`（解析：「Qwenで指示を解析しています…」→ JSON、失敗は「推論できませんでした: … — 通常制作は継続できます」）、`:8〜13`（読み込み：`window.baiPoseIK.set(lastPreview.pose_input)`、「IK補助画面へ未保存の提案を表示しました。保存する場合は手動IK側で「設定を保存」を押してください。」）、`:14〜23`（プレビュー：基準＝`window.baiPoseIK.get()`（⑧-1 の画面上の今の値。未保存を含む）、無ければ `GET /api/pose/last`。失敗で `lastPreview=null`・読み込みボタンを無効、「プレビュー失敗: … — 手動編集は継続できます」）。要素は `index.html:822` の `bai-ai-instruction`・`bai-ai-run`・`bai-ai-preview`・`bai-ai-preview-apply`（既定 disabled）・`bai-ai-result`。サーバーは `server.py:1671〜1678`（`pose-proposal` は `interpret_pose`。`ik-preview` は**先に AI を呼び**、その後で `ai_ik_preview.preview(proposal, baseline)`。AI に届かなければ 503 `{ok:false,state:'offline',manual_available:true,error}`、文字数などの誤りは 400）、`bai_ai_manager.py:47〜68`（1〜1500 文字。Ollama の待ち時間は **75 秒**）、`ai_ik_preview.py:16〜38`（部位と方向の対応表、1部位1回、`preview_only:true`・`saved:false`・`applied:false`） | 08c |
+| — | （移さない）旧画面のグローバル `window.baiPoseIK`（`pose_ik_ui.js:20`）・`window.baiAiManager`（`bai_ai_ui.js:24`） | 使っているのは `bai_ai_ui.js:10・11・18` だけ（2026-11-03 に全リポジトリを `grep` で確認）。`webmcp.js:105〜111`・`mcp_server.py:106〜112` のツールは API を直接呼ぶ | O-⑧-6 |
+| — | （変えない）WebMCP・標準MCP の7ツール `bai_pose_ik_get`・`bai_pose_ik_solve`・`bai_pose_ik_save`・`bai_ai_status`・`bai_ai_settings`・`bai_ai_pose_proposal`・`bai_ai_ik_preview` | `webmcp.js:105〜111`、`mcp_server.py:106〜112`。新UIと同じ API を呼ぶので、手動UIと同じ API という原則（AGENTS.md）は移植だけで満たす。新UIは `webmcp.js` を読まない（R10） | — |
 
-- 方式は R2-3（接着コードを `api.js` で書き直す）。⑦の完了後に、Opus で本節を詳しくする（割り付け・テスト）。Q2 で削除してよいと決まったものは移植しない。
+#### (b) 移植先（決定。モックのタブは増やさない：O-⑧-1）
+
+| 画面 | 区画（モックの既存のもの） | 中身 | WP |
+|---|---|---|---|
+| SCR-13 | 右タブ「足IK」（`id:'ik'`。今は `custom:'footContactPanel'`） | `custom` を `'ikTab'` に変える。`ikTab` は**今の `footContactPanel` をそのまま**先頭に置き、その下に節「手動IKポーズ補助（2D・基礎版）」（⑧-1）を足す | 08a |
+| SCR-13 | 同じ節の末尾 | 折りたたみ（`details`、既定は閉じる）「AIでポーズ案を作る（任意・Ollama）」（⑧-3）。設定への導線［AI設定（19）を開く］ | 08c |
+| SCR-19 | 中央の `cards`（今は「AI接続状態（既存API）」span 6・「標準MCPの起動」span 6・「実行ログ」span 12） | 2つ目の後ろ（「実行ログ」の前）にカード「AI管理（任意・Ollama）」span 12 を足す（⑧-2）。既存の「AI接続状態（既存API）」カードは**そのまま残す**（`tests/studio-ui.test.cjs:386` が `aiStatus` の表示を確かめている） | 08b |
+
+- `screens.js` の変更：
+  - SCR-13 の `panels` に `{ name: '手動IKポーズ補助（2D）', status: 'real', evidence: EV_POSE_IK, note: '旧画面の2D平面（XY）の2関節IK補助（/api/pose/*）。目標をドラッグして肘・膝の位置を計算し、設定だけを保存する。PMX/VRM・VMDには適用しない（3DのIKは v0.5 の MOTION-010）。' }`（08a）と `{ name: 'AIポーズ案（任意）', status: 'real', evidence: EV_AI_POSE, note: 'ローカルOllamaに日本語の指示を解析させ、2D補助の提案だけを表示する。保存・適用はしない。' }`（08c）を足す。`ids` は付けない（O-⑧-8）。
+  - SCR-13 の右タブ `{ id: 'ik', label: '足IK', custom: 'ikTab', sections: [] }`（08a）。
+  - SCR-19 の `panels` に `{ name: 'AI管理', status: 'real', evidence: EV_AI_MANAGER, note: '旧画面の BAI AI Manager（/api/ai/settings・status）。Ollamaが無くても通常制作は使える。' }`、`center.cards` に `{ title: 'AI管理（任意・Ollama）', span: 12, status: 'real', evidence: EV_AI_MANAGER, controls: [{ t: 'feature', key: 'aiManager' }] }`（08b）。カードの `controls` は `app.js:455` の `control` → `:271` の `featureBlock` を通るので、`app.js` の描画は変えない。
+  - 定数：`EV_POSE_IK = 'tests/studio-p2-pose-ai.test.cjs::pose ik panel solves the legacy template on first open'`、`EV_AI_MANAGER = 'tests/studio-p2-pose-ai.test.cjs::ai manager reads settings and status'`、`EV_AI_POSE = 'tests/studio-p2-pose-ai.test.cjs::ai pose preview loads into the ik helper without saving'`（§1.13：テスト名の文字列がテストファイルに実在すること）。
+- `app.js` の変更（08a）：`window.baiStudio` に読み取り専用の `poseIk: { getState: () => currentPoseIk()?.getState() || null }` を足す（`app.js:837〜` の `motion`・`chain` と同じ形）。それ以外の `app.js` の変更は無い。
+- `features/index.js`：`ikTab`（08a）と `aiManager`（08b）を `FEATURES` に足す。`footContactPanel` の登録は残す（他の画面からは使っていないが、消す理由が無い）。
+
+#### (c) 使う既存 API・コードと新しいモジュール
+
+**既存 API**（どれも `api.js` 経由。サーバーは変えない：R1）
+
+| API | 使う WP | 備考 |
+|---|---|---|
+| `GET /api/pose/last` | 08a | 応答は保存されたままの JSON（`server.py:678`）。無ければ `{schema:1,frame:0,limbs:{}}` |
+| `POST /api/pose/solve` | 08a | 本文は `{schema:1, frame, limbs:{<名前>:{base:[x,y], target:[x,y], upper, lower, bend}}}`。応答の `limbs.<名前>` は `{base, joint, end, requested, reachable, distance_error, upper, lower, bend}`（`pose_ik.py:18`）。400 の本文は `{error}` |
+| `POST /api/pose/save` | 08a | 本文は solve と同じ。応答 `{ok:true, frame, limbs:[名前…]}`。If-Match も版も無い（O-⑧-4） |
+| `GET /api/ai/settings`・`POST /api/ai/settings` | 08b | POST の本文は `{enabled:boolean, default_llm:string}` だけ（旧と同じ。O-⑧-7） |
+| `GET /api/ai/status` | 08b | `{available, state:'connected'・'offline'・'disabled' のどれか, models:[{name,size}], manual_available:true, …}` |
+| `POST /api/ai/pose-proposal` | 08c | 本文 `{text}`。成功 `{ok:true, proposal:{constraints, preview_only:true}, applied:false, note}` |
+| `POST /api/ai/ik-preview` | 08c | 本文 `{text, baseline}`。成功は `ai_ik_preview.py:36〜38` の形（`accepted`・`ignored`・`pose_input`・`solved`・`limitations`） |
+
+**新しいモジュール**（`// @ts-check`。フォークも `@ts-check` にするので、`tests/test_screen_status_honesty.mjs:79` の `@ts-nocheck` の許可一覧は変えない）
+
+```js
+// studio/js/pose/pose-ik.fork.js（08a。pose_ik_ui.js:4・7〜11・16 のフォーク。DOM を使わない）
+export const TEMPLATE;          // pose_ik_ui.js:4 の template と値が同じ（Object.freeze で深く凍結。使うときは structuredClone）
+export const LIMBS;             // [['leftArm','左腕'],['rightArm','右腕'],['leftLeg','左脚'],['rightLeg','右脚']]（index.html:822 の選択肢の順）
+export const VIEW = { width: 300, height: 260 };
+export function sx(x) {}        // 150 + x*110（:7）
+export function sy(y) {}        // 230 - y*105（:7）
+export function pointerToTarget(clientX, clientY, rect) {}
+//   :16 と同じ式。x=(clientX-rect.left)/rect.width*300、y=(clientY-rect.top)/rect.height*260、
+//   戻り値 [Math.round((x-150)/110*100)/100, Math.round((230-y)/105*100)/100]
+export function clampFrame(value) {} // Math.round(Number(value)||0) を 0〜1000000 に丸める（:15 は下限だけ。O-⑧-9）
+export function svgParts(data, result, active) {}
+//   :10〜11 の描画を「部品の配列」で返す。各要素は {tag:'rect'|'path'|'line'|'circle', cls:string, attrs:Record<string,string|number>, limb?:string}。
+//   順番と幾何は旧と同じ：rect(0,0,300,260)・path 'M0 220 H300'・line(0,1.72→0,1.53, 幅7)・line(0,1.5→0,1, 幅11)・circle(150,35,r17)、
+//   その後 result.limbs の各肢（Object.entries の順）について line(base→joint, 幅7)・line(joint→end, 幅7)・目標の丸（data.limbs[名前].target、r=11、limb=名前）、
+//   reachable が false なら requested に破線の円（r=15、stroke-dasharray '4 3'）。
+//   色は持たない。cls で区別する：'pose-bg'・'pose-ground'・'pose-body'・'pose-head'・'pose-limb'／'pose-limb is-active'・'pose-handle'／'pose-handle is-active'・'pose-unreachable'。
+//   line の端点は sx/sy を通した値、stroke-linecap は round（:8）。
+
+// studio/js/pose/pose-ik-model.js（08a。DOM を使わない。テストは偽の solve/save/load で行う）
+/** @typedef {{schema: 1, frame: number, limbs: Record<string, {base: number[], target: number[], upper: number, lower: number, bend: number}>}} PoseInput */
+export function canonicalPose(p) {}   // キーを並べ替えた JSON 文字列（内容の比べに使う。O-⑧-4）
+export function initialPose(last) {}  // last.limbs が空でないオブジェクトなら structuredClone(last)、そうでなければ structuredClone(TEMPLATE)（:21）
+export function createPoseIkModel({ solve, save, load, onChange }) {}
+// 戻り値 { init(), getState(), setActive(name), setFrame(v), setTarget(name, xy), reset(), setData(pose, message?), save(), reloadDiscard(), overwrite(), dispose() }
+//  - state: { loaded, data: PoseInput, result: object|null, active, busy, queued, status: string, statusKind: 'ok'|'warn'|'error', synced: string|null, conflict: boolean, saving: boolean }
+//  - init()：保持（下の「画面内の保持」）があればそれを使う。無ければ load()（GET /api/pose/last）→ synced=canonicalPose(応答)、data=initialPose(応答)。
+//    load が失敗しても旧と同じく TEMPLATE で続け（:21 の catch）、synced=null。その後 solveNow()。loaded=true。
+//  - solveNow()：busy なら queued=true にして戻る。busy=true → solve(data) → result=応答、status は :14 の2通り（active の reachable で決める）。
+//    失敗は status 'IK計算失敗：' + (serverMessage || message)。finally で busy=false、queued なら queued=false にしてもう1回 solveNow()（O-⑧-3）。
+//  - setTarget：data.limbs[name].target=xy、active=name、solveNow()。setActive・setFrame は再計算しない（:15）。
+//  - reset()：data=structuredClone(TEMPLATE)、solveNow()（:18）。
+//  - setData(pose, message)：08c の読み込み。data=structuredClone(pose)、solveNow() の後、status を message にする（solve が失敗したときは失敗の文言を優先）。
+//  - save()：saving=true → load() で最新を取り、canonicalPose(最新) が synced と違えば conflict=true で止める（POST しない）。
+//    同じなら save(data) → synced=canonicalPose(data)、status '補正設定を保存しました。元素材は変更していません。'（:19）。失敗は '保存失敗：' + 文言。
+//    synced が null（起動時の読み込みに失敗した）ときは比べずに保存する（旧と同じ）。
+//  - reloadDiscard()：load() → synced・data を応答（initialPose）にして solveNow()、conflict=false。
+//  - overwrite()：比べずに save(data) → synced 更新、conflict=false。
+//  - onChange(state) を状態が変わるたびに呼ぶ。dispose() の後は何も呼ばない。
+
+// studio/js/features/pose-ik-view.js（08a・08c）
+export function ikTab(ctx, control) {}        // h('div', {class:'rt-stack', dataset:{feature:'ikTab'}}, footContactPanel(ctx, control), poseIkPanel(ctx))
+export function poseIkPanel(ctx) {}           // ⑧-1（08a）。08c で末尾に aiPosePanel(ctx, model) を足す
+export const currentPoseIk = () => current;   // 画面に節があるときだけ { getState } 。cleanup で null
+
+// studio/js/features/ai-manager-view.js（08b・08c）
+export const AI_TIMEOUT_MS = 90000;           // O-⑧-5。Ollama の 75 秒（bai_ai_manager.py:64）より長く
+export function aiManager(ctx) {}             // ⑧-2（08b。SCR-19 のカード）
+export function aiPosePanel(ctx, model) {}    // ⑧-3（08c。SCR-13 の折りたたみ。model は pose-ik-model の戻り値）
+export function aiStatusText(status) {}       // :3 の文言。available なら '接続済み — ' + models の name を ' / ' でつなぐ、それ以外は 'AI未接続：通常制作は使用できます'
+```
+
+- **画面内の保持**（08a）：`pose-ik-view.js` のモジュール変数 `kept = { data, synced, active } | null` に、モデルの状態が変わるたびに写す。SCR-13 へ戻ったとき（同じページの読み込みの中）は `kept` から始め、`GET /api/pose/last` を呼ばない。ページを再読込すると消える（旧画面の再読込と同じ）。②のストア・`dirty`・統合保存には入れない（O-⑧-2）。
+- **描画**（08a）：SVG は `document.createElementNS('http://www.w3.org/2000/svg', …)` で `svgParts` の配列から作り直す（`innerHTML` は使わない。`chain-viewport.js:68` と同じ作り方）。SVG の要素は `width:100%; max-width:460px; aspect-ratio:300/260; touch-action:none`（O-⑧-3 の座標の一致のため）。色は `features.css` にトークンだけで書く（`.pose-bg`・`.pose-handle.is-active` など。旧の `#ffc66b`・`#79b6dc` などの値は写さない）。
+- **ドラッグ**（08a）：`pointerdown` は `event.target` の `data-limb` がある丸だけで始め、その肢を `active` にして `setPointerCapture` し、**その場の位置でも1回** `setTarget` する（:17 の `move(e)`）。`pointermove` は始まっているときだけ `model.setTarget(active, pointerToTarget(e.clientX, e.clientY, svg.getBoundingClientRect()))`。`pointerup`・`pointercancel` で終える（:17 と同じ）。
+
+#### (d) 新UIの動作（WP ごと）
+
+**WP-08a：SCR-13「足IK」タブの手動IKポーズ補助（⑧-1、O-⑧-1〜4・9）**
+
+1. タブ「足IK」を開くと、上に今の「足IK・接地」（WP-05f。変えない）、下に節「手動IKポーズ補助（2D・基礎版）」が出る。節の説明文：「黄色い関節ハンドルをドラッグすると、肘・膝が連動します。AIは不要です。2D平面の補助で、PMX/VRM・VMDには適用しません。」（`index.html:822` の文を短くしたもの）。
+2. 部品（`data-role`）：部位 `pose-ik-bone`（`select`、`LIMBS` の4つ、初期値 `rightArm`）、フレーム `pose-ik-frame`（`number`、min 0・max 1000000）、［初期姿勢］`pose-ik-reset`、［設定を保存］`pose-ik-save`、SVG `pose-ik-svg`（`role="img"`、`aria-label="腕と脚のIK目標位置をドラッグするポーズ補助"`）、状態行 `pose-ik-status`（`role="status"`、初期「IK準備中…」）、競合の帯 `pose-ik-conflict`（既定は hidden。［再読込して変更を破棄］`pose-ik-reload`・［この画面の内容で上書き保存］`pose-ik-overwrite`）。ボタンは `data-act="real"`。各ボタンの title は旧と同じ（「元のサンプル姿勢に戻します」「元のFBX・PMX・VMDを変更せず補正設定だけ保存します」）。
+3. 開いたとき：`model.init()`。読み込み中は［設定を保存］を無効。`loaded` の後に有効。
+4. 部位を変えると、その肢の線と丸が `is-active` になる（再計算はしない）。フレームを変えると `clampFrame` の値を入れ直す（再計算はしない）。
+5. 丸をドラッグすると、動かすたびに目標が変わり、`/api/pose/solve` の応答で線と丸を描き直す。計算中に来た動きは最後の1つだけを、計算が終わった直後に送る（O-⑧-3）。
+6. ［設定を保存］：(c) の `save()`。競合のときは状態行「外部（旧画面・MCP）でIK設定が変わっています。どちらかを選んでください。」と競合の帯を出す。保存中は［設定を保存］を無効。
+7. ［初期姿勢］：`TEMPLATE` に戻して再計算する（保存はしない。旧と同じ）。
+8. 画面を離れたら `ctx.onCleanup` で `model.dispose()`、ポインターのつかみを外し、`current=null`。通信中の応答は捨てる（`dispose` の後は `onChange` を呼ばない）。
+
+**WP-08b：SCR-19 のカード「AI管理（任意・Ollama）」（⑧-2、O-⑧-5・7）**
+
+1. 部品（`data-role`）：状態行 `ai-status`（`role="status"`、初期「接続確認中…」）、チェック `ai-enabled`（「ローカルAIを有効にする」）、モデル名 `ai-model`（`input`、`aria-label="Ollamaモデル名"`）、［接続を確認］`ai-check`、［設定を保存］`ai-save`、結果 `ai-settings-result`（`role="status"`）、注記「Ollamaが停止していても、通常の編集・保存・再生には影響しません。」（`index.html:822` の `small` の前半）。
+2. 開いたとき・［接続を確認］：`GET /api/ai/settings` と `GET /api/ai/status` を `Promise.all` で取り（:3）、チェック＝`settings.enabled`、モデル名＝`settings.default_llm`、状態行＝`aiStatusText(status)`。どちらかが失敗したら状態行「AI設定の取得に失敗しました。通常制作には影響しません。」（チェックとモデル名は変えない）。
+3. ［設定を保存］：`POST /api/ai/settings` に `{enabled: チェック, default_llm: モデル名.trim()}`。成功で「設定を保存しました」、続けて 2 を行う。失敗は「保存失敗: 」＋（`serverMessage` か `message`）。
+4. 通信中は［接続を確認］［設定を保存］を無効にする（O-⑧-5）。画面を離れたら、届いた応答を表示しない（`foot-contact.js` の `alive` と同じ）。
+5. 既存の「AI接続状態（既存API）」カードは変えない（同じ `GET /api/ai/status` を別に読む。2回読むのは許す：読み取りだけで、Ollama への問い合わせは 2 秒で終わる）。
+
+**WP-08c：SCR-13 の折りたたみ「AIでポーズ案を作る（任意・Ollama）」（⑧-3、O-⑧-5・6）**
+
+1. 置き場所：WP-08a の節の末尾の `details`（既定は閉じる）。部品（`data-role`）：指示 `ai-instruction`（`textarea`、placeholder「例：右手を顔の横に上げて、左足は床に固定」）、［指示を解析］`ai-run`、［IKプレビュー生成］`ai-preview`、［IK画面で確認］`ai-preview-apply`（既定 disabled。title「AI計算結果をこの2D補助へ読み込みます。保存はしません」）、結果 `ai-result`（`pre`、`aria-live="polite"`）、［AI設定（19）を開く］`ai-open-settings`（`ctx.navigate('19')`）、注記「「IKプレビュー」は2D補助上の提案のみ。実モデル・VMDは変更しません。」。
+2. ［指示を解析］：結果「Qwenで指示を解析しています…」→ `POST /api/ai/pose-proposal` `{text}`（`timeoutMs: AI_TIMEOUT_MS`）→ 成功は `JSON.stringify(応答, null, 2)`、失敗は「推論できませんでした: 」＋文言＋「 — 通常制作は継続できます」。
+3. ［IKプレビュー生成］：結果「AIからIKプレビューを生成しています…」→ 基準＝`structuredClone(model.getState().data)`（:18 の `window.baiPoseIK.get()` と同じ：画面上の今の値。未保存を含む）→ `POST /api/ai/ik-preview` `{text, baseline}`（`timeoutMs: AI_TIMEOUT_MS`）。成功で `lastPreview=応答`、［IK画面で確認］は `応答.accepted.length > 0` のときだけ有効、結果に JSON。失敗で `lastPreview=null`、［IK画面で確認］を無効、「プレビュー失敗: 」＋文言＋「 — 手動編集は継続できます」。
+4. ［IK画面で確認］：`model.setData(lastPreview.pose_input, 'IK補助画面へ未保存の提案を表示しました。保存する場合は手動IK側で「設定を保存」を押してください。')`。結果の行にも同じ文言。**保存は呼ばない**。
+5. `model` の `loaded` が false の間（08a の読み込み中）は 3 つのボタンを無効にする（基準が決まらないため）。通信中は 3 つとも無効（O-⑧-5）。画面を離れたら通信を `AbortController` で止め、応答を表示しない。
+6. 文言の「エラーの文言」は `serverMessage`（サーバーの `error`。503 なら `AI disabled. Manual controls remain available.` や `Ollama unavailable; manual editing is still available`）を優先し、無ければ `api.js` の `message`。
+
+#### (e) 置き換えるサンプル
+
+なし。SCR-13「足IK」タブは WP-05f で実機能になっていて、そこへ節を足すだけ。SCR-19 はカードを1枚足すだけで、左「接続」の一覧（`ollama`：`partial`）・「エージェント」「チャット」など `unimpl` のパネルはそのまま（NF-007 は未承認）。
+
+#### (f) 受け入れ条件（WP ごと。どれも自動テストで確かめる。Ollama も GPU も要らない）
+
+**08a**
+1. 一時データ（`pose_ik_last.json` なし）で `/workspace/13?tab=ik` を開くと、`[data-feature="ikTab"]` の中に `[data-feature="footContactPanel"]` と `[data-role="pose-ik-svg"]` がある。最初の `POST /api/pose/solve` の本文が `TEMPLATE` と JSON として同じで、状態行が「IK計算済み（元モーション未変更）」。SVG に `data-limb` の丸が4つ、`is-active` の丸は `rightArm` の1つ。
+2. 種データの `pose_ik_last.json` に `TEMPLATE` の `rightArm.target` を `[0.9, 1.3]` にしたものを置くと、最初の solve の本文がその内容と同じ。
+3. `rightArm` の丸を SVG の viewBox 座標 (295, 20) までドラッグすると、最後の solve の本文の `rightArm.target` が `[1.32, 2]`（`pointerToTarget` の式）、状態行が「目標が届かないため、到達可能な位置に補正しました」、`stroke-dasharray` が `4 3` の円が1つある。丸の `cx`・`cy` が `sx(1.32)`・`sy(2)`（誤差 0.01）。
+4. `page.route` で solve の応答を 300ms 遅らせ、つかんだまま3回動かすと、solve の要求は合わせて2回で、2回目の本文は最後の位置。`baiStudio.poseIk.getState()` の `busy:false`・`queued:false`。
+5. 部位を `leftLeg`、フレームに `12.7` を入れて［設定を保存］すると、`POST /api/pose/save` の前に `GET /api/pose/last` が1回あり、保存の本文の `frame` が 13、一時データの `pose_ik_last.json` が本文と JSON として同じ、状態行が「補正設定を保存しました。元素材は変更していません。」。フレームに `2000000` を入れると 1000000 になる。
+6. 画面を開いた後、テストから別の内容を `POST /api/pose/save` しておくと、［設定を保存］で POST が送られず、競合の帯が出る。［再読込して変更を破棄］で次の solve の本文がテストの内容になる。もう一度テストから書き換えて［この画面の内容で上書き保存］を押すと、ファイルが画面の内容になる。
+7. ［初期姿勢］で次の solve の本文が `TEMPLATE`。保存の要求は無い。
+8. `page.route` で solve に 400 `{"error":"invalid lengths or bend"}` を返すと、状態行が「IK計算失敗：invalid lengths or bend」で、画面が止まらない。
+9. ドラッグした後（保存しない）に SCR-08 へ移って SCR-13 の「足IK」に戻ると、`getState().data` が移る前と同じで、戻ったときの `GET /api/pose/last` は0回。ページを再読込すると保存済みの内容に戻る。
+10. SCR-13 から離れると `baiStudio.poseIk.getState()` が `null`。どのテストでも `pageerror` が0件。
+11. WP-05f の足IKのテスト（`tests/studio-p2-retarget.test.cjs` の `foot-*`）が、タブを `ikTab` に変えた後も全件合格のまま。
+
+**08b**
+1. 種データ `bai_ai_config.json` を `{"enabled": false, "default_llm": "qwen3:8b"}` にして `/workspace/19` を開くと、`ai-enabled` が未チェック、`ai-model` が `qwen3:8b`、`ai-status` が「AI未接続：通常制作は使用できます」（実サーバー。`state:'disabled'` なので Ollama に問い合わせない）。
+2. チェックを入れ、モデル名に ` qwen3.5:9b `（前後に空白）を入れて［設定を保存］すると、`POST /api/ai/settings` の本文が `{"enabled":true,"default_llm":"qwen3.5:9b"}` と同じ、一時データの `bai_ai_config.json` の `enabled`・`default_llm` がその値で、他のキー（`ollama_url` など）が `bai_ai_manager.DEFAULTS` の値、結果が「設定を保存しました」。このテストでは `GET /api/ai/status` を `page.route` で `{available:true,state:'connected',models:[{name:'qwen3.5:9b',size:1}],manual_available:true}` にして、保存の後の状態行が「接続済み — qwen3.5:9b」になることを確かめる（開発者の PC に Ollama があってもなくても同じ結果にするため）。
+3. `page.route` で `POST /api/ai/settings` に 400 `{"error":"unknown settings"}` を返すと「保存失敗: unknown settings」。`GET /api/ai/settings` に 500 を返すと状態行が「AI設定の取得に失敗しました。通常制作には影響しません。」。
+4. `page.route` で status を 1 秒遅らせ、その間［接続を確認］が無効。遅らせている間に SCR-08 へ移っても `pageerror` が0件。
+5. 既存の `tests/studio-ui.test.cjs`（`aiStatus` の表示）が合格のまま。
+
+**08c**
+1. 種データ `bai_ai_config.json` を `{"enabled": false}`、`pose_ik_last.json` を 08a の 2 と同じにして SCR-13「足IK」を開き、折りたたみを開いて指示「右手を上げて」で［IKプレビュー生成］を押すと、`POST /api/ai/ik-preview` の本文の `baseline` が画面上の値（種データと同じ）、実サーバーの 503 で結果が「プレビュー失敗: AI disabled. Manual controls remain available. — 手動編集は継続できます」、［IK画面で確認］が無効。
+2. 先に丸をドラッグして（保存しない）から［IKプレビュー生成］を押すと、本文の `baseline` がドラッグ後の値（ファイルの値ではない）。
+3. 指示を空にして［指示を解析］を押すと、実サーバーの 400 で「推論できませんでした: pose instruction must contain 1-1500 characters — 通常制作は継続できます」。
+4. `page.route` で `ik-preview` に、テストの中で作った成功の応答（`accepted:[{limb:'rightArm',action:'up',delta:[0,0.15]}]`、`pose_input`＝基準の `rightArm.target` の y に 0.15 を足したもの、`solved`＝その `pose_input` を**実サーバーの** `/api/pose/solve` に送った応答、`preview_only:true`・`saved:false`・`applied:false`）を返すと、［IK画面で確認］が有効になる。押すと次の solve の本文が `pose_input` と同じ、状態行が (d) 08c の 4 の文言、`pose_ik_last.json` は種データのまま（保存の要求は0回）。
+5. 4 の応答の `accepted` を空にすると、［IK画面で確認］は無効のまま。4 の後にもう一度押して 503 になると、無効に戻る。
+6. `page.route` で `pose-proposal` に `{ok:true,proposal:{constraints:[],preview_only:true},applied:false,note:'AI提案のみ。IK実行・キーフレーム保存は行いません。'}` を返すと、結果がその `JSON.stringify(…, null, 2)` と同じ。
+7. 通信中は3つのボタンが無効。`ai-open-settings` で `/workspace/19` に移る。
+
+**フォーク・モデル（Node、08a）**
+1. `TEMPLATE` が `pose_ik_ui.js:4` の `template` のオブジェクトリテラルを `vm.runInNewContext('(' + 取り出した文字列 + ')')` で評価した値と `deepStrictEqual`。
+2. `sx`・`sy`・`pointerToTarget` が、`pose_ik_ui.js:7` と `:16` の式を `vm` で取り出して実行した結果と、格子状の 25 点で一致する。
+3. `svgParts` の `line`・`circle` の座標と半径・線幅が、`pose_ik_ui.js:8〜9` の `line`・`dot` を `vm` で実行した SVG 文字列の属性と一致する（`TEMPLATE` を `/api/pose/solve` と同じ計算にかけた結果。計算は `pose_ik.py` を Python で一度実行して作った固定の JSON `tests/fixtures/pose_ik_template_solved.json` を使う。生成は `tools/make_pose_ik_fixture.py`）。部品の順番は (c) の `svgParts` の注記どおり。
+4. `createPoseIkModel`（偽の solve・save・load、手で解決する Promise）：`busy` 中の `setTarget` 3回で solve が合わせて2回、2回目は最後の値。`save` は `load` の結果が `synced` と違えば `save` を呼ばない。`initialPose` は `limbs:{}`・`limbs` なし・`null` で `TEMPLATE`。`clampFrame` は `-3→0`、`12.5→13`、`'abc'→0`、`2e6→1000000`。`dispose` の後に solve が解決しても `onChange` を呼ばない。
+
+#### (g) テスト
+
+| ファイル | 種類・ポート | WP | 主な検査 |
+|---|---|---|---|
+| `tests/studio-p2-pose-ai.test.cjs` | Playwright、`P2_POSE_AI_PORT` 既定 **8781**（新規。2つ目のサーバーが要るときは +1 の 8782。2026-11-03 時点でどのテストも使っていない。§4.1 の表への追記は WP-08a の実装コミットで行う） | 08a・08b・08c | 08a：`pose ik panel solves the legacy template on first open`（(f)08a の1）、`saved pose is loaded`（2）、`drag outside reach shows the corrected target`（3）、`moves during a solve are coalesced`（4）、`save clamps frame and checks the latest file first`（5）、`external change stops the save`（6）、`reset and solve error`（7・8）、`unsaved pose survives screen changes`（9・10）。08b：`ai manager reads settings and status`（1）、`ai settings save only the two legacy fields`（2）、`ai manager errors and busy state`（3・4）。08c：`ai preview failure keeps manual editing`（1〜3）、`ai pose preview loads into the ik helper without saving`（4・5）、`ai proposal json is shown`（6・7） |
+| `tests/studio-p2-pose-ik-fork.test.mjs` | `node --test`（ブラウザー不要） | 08a | (f) のフォーク・モデルの1〜4 |
+| `tests/test_pose_ik_fixture.py` | pytest | 08a | `tools/make_pose_ik_fixture.py` の出力が、コミットした `tests/fixtures/pose_ik_template_solved.json` とバイト一致（`pose_ik.py` が変わったら気づくため） |
+| `tests/studio-p2-retarget.test.cjs` | 既存 | 08a | 足IK（`foot-*`）が合格のまま（(f)08a の11） |
+| `tests/studio-ui.test.cjs` | 既存 | 08a・08b | 総当たり（`data-act="real"` は対象外）・`aiStatus` の表示・薄い表示の検査が合格のまま |
+| `test_bai_ai.py`、`tests/test_ai_ik_preview.py` | 既存 pytest | — | サーバーは変えないので、合格のままであることだけを確かめる |
+
+- **隔離**：`pose_ik_last.json`（`server.py:677・1661` の `DATA`）と `bai_ai_config.json`（`server.py:59` の `AI_CONFIG`）は `data_dir()` の下（`tests/test_data_isolation.py:54` で確認済み）。`exports/` には何も書かない。どのテストも `tests/run-guarded.cjs` で包む。
+- **Ollama に触れない**：テストのサーバーは種データで `bai_ai_config.json` を `{"enabled": false, …}` にする（`_query` が問い合わせの前に止まる：`bai_ai_manager.py:31`）。`enabled:true` にするテスト（08b の 2）は `GET /api/ai/status` を `page.route` で受け止める。成功の応答が要る検査（08c の 4・6）は `page.route` のスタブを使い、**実際の Qwen の推論はどの WP でも未検証**として台帳に書く。
+- **通し確認（§2.9）**：S1〜S8 に IK・AI の手順は無い。WP-08 の完了ゲートでは E2E を最初から通して、`furthest_step` が後退していないことだけを確かめる。
+
+#### (h) ◇ 未実装のまま／決定（O-⑧）
+
+◇ のまま（WP-08 では作らない）：2D 補助の結果を PMX・VRM・FBX・VMD・制作状態・タイムラインへ当てること（旧画面にも無い）、3D の IK ハンドル（MOTION-010。v0.5 で実装中）、AI の設定のうち旧画面に無いもの（`ollama_url`・`auto_discovery`・`rag_enabled`・`knowledge_scope`・`execution_policy`・`keep_alive_minutes`）、推論の取り消し・ジョブの列（`docs/ai/V0159_OLLAMA_OPTIONAL_JA.md` の「未完了」）、AI エージェント・チャット（SCR-19 の `unimpl` パネル、NF-007 は未承認）。
+
+- **O-⑧-1（決定：モックを変えない案）**：⑧-1・⑧-3 は SCR-13 の右タブ「足IK」の中、⑧-2 は SCR-19 のカード。新しいタブは作らない。
+  - 理由：旧画面の IK 補助と AI のポーズ指示は同じページの末尾に並び（`index.html:822`）、AI の「IK画面で確認」は IK 補助の画面上の値を直接読み書きする（`bai_ai_ui.js:11・18`）。⑧-3 を IK 補助と同じタブに置けば、画面をまたぐ受け渡しが要らない（v5 の案のように ⑧-2・⑧-3 をまとめて SCR-19 に置くと、SCR-19 から SCR-13 の未保存の値を読む仕組みと、遷移しながら値を渡す仕組みが新たに要る）。設定と接続確認は IK に限らない AI 全体の設定なので、モックで AI を扱う SCR-19（左一覧の「Ollama（任意）」）に置く。
+  - 「足IK」タブに腕の IK を置く点：モックの SCR-13 の右タブのうち IK を扱うのはこの1つだけで、タブ名を変えるとモックが変わる（R6）。節の見出しに「腕・脚」と書いて補う。タブの中が長くなるので、⑧-3 は既定で閉じた折りたたみにする（UI/UX 基準の「過密な一画面を避ける」）。見た目は WP-08a・08c のレビューで確かめる（WP-04 の ④-11 と同じ扱い）。
+- **O-⑧-2（決定）**：IK 補助の設定は②の制作状態（`project_state.json`・統合バンドル・`dirty`）に入れない。保存先は旧と同じ `pose_ik_last.json` だけ。未保存の編集は同じページの読み込みの中だけ画面内に保持する（(c)）。
+  - 理由：旧画面でも制作状態とは別のファイルで、旧画面・WebMCP・標準MCP が同じファイルを読み書きする。②に入れると保存形式が変わり、旧画面とずれる（R1・R5）。画面内の保持は、新UIでは画面を移るのが普通の操作なので、移っただけで編集が消えないようにするため（旧画面は1ページなので、この問題が無い）。
+- **O-⑧-3（決定：旧と違う2点。どちらもバグ修正）**：
+  - 計算中の動きを**捨てずに最後の1つを後で送る**。旧の `busy` は呼び出しを捨てる（`pose_ik_ui.js:14`）ので、速くドラッグすると最後の位置が計算されず、`data` の目標（保存される値）と画面の線・丸がずれたまま残る。保存される値と表示を一致させるための最小の変更で、計算の式・送る本文は旧と同じ。
+  - SVG の縦横比を viewBox と同じにする。旧の SVG は `height:320px; max-width:460px`（`index.html:822`）で、表示の縦横比が 300:260 と違うと、`preserveAspectRatio` の余白のぶん、`:16` の式（幅と高さで別々に割る）とつかんだ位置がずれる。式を変える代わりに縦横比を合わせ、旧の式をそのまま使う（フォークの照合が成り立つ）。
+- **O-⑧-4（決定）**：［設定を保存］の前に `GET /api/pose/last` で最新を取り、**内容**が最後に読んだ／保存した内容と違えば競合として止める（O-⑤-4 と同じ方式）。自動保存は作らない（旧も明示の保存だけ）。
+  - 理由：`/api/pose/save` には If-Match も版も無く（`server.py:1656〜1663`）、旧画面・`bai_pose_ik_save`（WebMCP・標準MCP）が同じファイルを書く。外部の変更を黙って上書きしない（AGENTS.md の非破壊）。サーバーは変えない（R1）。残る隙（GET と POST の間の書き込み）はリスク K1 と同じ扱い。
+- **O-⑧-5（決定）**：AI の POST は `timeoutMs: 90000`。AI の通信中は、そのカード・折りたたみのボタンを無効にする。
+  - 理由：`api.js` の POST の既定は 30 秒で、Ollama の 75 秒（`bai_ai_manager.py:64`）より短い。既定のままだと、サーバーが推論を続けているのに画面だけ「時間切れ」になる。旧の `fetch` は時間切れが無い。ボタンを無効にするのは、75 秒かかる推論を二重に送らないため（旧は押せるまま。送る本文・結果の表示は旧と同じ）。
+- **O-⑧-6（決定）**：`window.baiPoseIK`・`window.baiAiManager` は新UIに作らない。テスト用の読み取り口は `baiStudio.poseIk.getState()` だけ（書き込みは公開しない。`app.js:837` の方針と同じ）。
+  - 理由：使っているのは `bai_ai_ui.js` だけで、新UIでは同じタブの中でモデルを直接呼ぶ。WebMCP・標準MCP のツールは API を直接呼ぶので影響しない。新UIで WebMCP を扱うのは Phase E WP-02c（R10）。
+- **O-⑧-7（決定）**：AI の設定で送るのは旧と同じ `enabled`・`default_llm` の2つだけ。他の設定の項目は画面に出さない（(h) の ◇）。モデル名の空文字もサーバーが受けるので、画面でも止めない（旧と同じ。推論のときに 503 になり、文言で分かる）。
+- **O-⑧-8（決定）**：新しいパネルに機能台帳の `ids` を付けない。
+  - 理由：近い ID は MOTION-010（3Dポーズ・ボーン直接操作）だが、⑧-1 は 2D の模式図で、MOTION-010 の受け入れ条件（3D・PMX・作品への保存）を何も満たさない。`ids` を付けると `gen_screen_matrix.mjs` の対応表で MOTION-010 の画面に見え、v0.5 の実装の進み具合と混ざる。AI 管理（v0.15.9）に当たる台帳の ID は無い（`FEATURE_REGISTER.json` を 2026-11-03 に確認）。ID を足すのは計画の変更なので、しない。
+- **O-⑧-9（決定）**：フレーム番号は 0〜1000000 に丸める（旧は下限だけ）。
+  - 理由：入力欄の `max=1000000`（`index.html:822`）とサーバーの上限（`pose_ik.py:23`）が同じ値で、旧は上限を超えた値をそのまま保存しようとして 400 になる。表示している上限に合わせるだけで、新しい制約ではない。
+
+#### (i) 所有者確認待ち（既定のまま進める）と Q2 との関係
+
+- **Q2（§5.4「旧画面の機能の中に、削除してよいものはあるか」。既定：すべて残して移植する）との関係**：WP-08 は Q2 の既定に従い、⑧-1〜⑧-3 をすべて移す。Q2 の答えで外せる単位を WP に合わせた：
+  - ⑧-1（2D の IK 補助）を「旧画面のリンクだけで残す」とした場合：**WP-08a と WP-08c を外す**（08c は 08a の画面上の値を基準にし、結果を 08a に読み込むので、08a なしでは成り立たない）。WP-08b は残せる。
+  - ⑧-2・⑧-3（AI）を外す場合：**WP-08b と WP-08c を外す**。08a は単独で残せる。
+  - どれを外しても、旧画面（`/`）の該当機能・API・WebMCP/標準MCP のツールはそのまま残る（削除はしない）。
+- **確認したいこと（Q2-⑧、既定のまま進める）**：⑧-1 は旧画面の説明どおり「骨格プロキシの2D平面補助で、PMX/VRMにはまだ適用しません」（`index.html:822`）という機能で、3D の IK は v0.5 の MOTION-010 が別に作っている（左右の腕・脚の3Dハンドル、作品への保存まで限定確認済み：機能台帳 MOTION-010 の `detail`）。新UIへ移しても、制作の結果（動画・VMD）には何も残らない。**既定は Q2 どおり移植する**が、「旧画面のリンクだけで残す」でよければ指示してください（WP-08a・08c を外すだけで、他に影響しない）。AI 管理（08b）は v0.5 に代わりが無いので、外す理由は弱い。
+- 回答が来るまで、WP-08a → 08b → 08c の順に進めてよい（AGENTS.md 規則7：所有者の確認を待たない）。外すと決まった WP は、作った後なら `screens.js` の該当パネルを外して旧画面のリンクに戻す（API・旧画面は変えていないので戻しやすい）。
+
+#### (j) v0.5（Codex の作業）との重複の扱い
+
+| v0.5 側のもの | WP-08 での扱い | 根拠 |
+|---|---|---|
+| MOTION-010（v0.5 の3D FK/IK・腕と脚のハンドル・作品別の補正 `GET/POST /api/studio/v05/motion-edits`・別名VMD候補。Issue #106） | **対象外**。WP-08 は 3D のハンドル・PMX への適用・`motion-edits` の API・v0.5 の画面（`studio/v05/`）に触らない。`pose_ik.py` を 3D の IK に使わない | `MOTION010_V05_DETAILED_DESIGN_20261024_JA.md` §2・§5（`pose_ik.py` は代用品にしない）。二重に作らないため、WP-08 の 2D 補助は「2D・モデルに適用しない」と画面に書き、台帳の ID も付けない（O-⑧-8） |
+| MOTION-011（足の接地。P2 では WP-05f で移植済み） | **既存を使う**。`footContactPanel` を変えずに `ikTab` の先頭へ置くだけ | (b)、(f)08a の 11 |
+| v0.5 の AI | **無い**（`studio/v05/` に `/api/ai`・Ollama の呼び出しは無い。2026-11-03 に `grep` で確認）。WP-08 は v0.5 の画面に AI を足さない。足すなら新しい依頼（未承認） | — |
+| Issue #37（素材の形式別登録）・#63（旧作品と v0.5 作品IDの対応）・#187（合成比較ゲート） | **重ならない**。WP-08 が触るファイル（下の一覧）は、これらの Issue の作業が触る `studio/v05/`・`studio_v05_*.py`・`server.py` と共通部分が無い。#63 について：`pose_ik_last.json`・`bai_ai_config.json` は作品ごとではない全体の設定ファイルで、旧の `project_state.json` にも入っていない。WP-08 は形式を変えないので、#63 の対応表で考える必要は無い | `V05_REBUILT_ROADMAP_20261102_JA.md` の表、`git log --since=2026-10-28` で `studio/js/screens.js`・`app.js`・`features/index.js`・`features.css` に v0.5 側の変更が無いことを確認 |
+
+- **WP-08 が触るファイル（全部）**：新規 `studio/js/pose/pose-ik.fork.js`・`studio/js/pose/pose-ik-model.js`・`studio/js/features/pose-ik-view.js`・`studio/js/features/ai-manager-view.js`・`tools/make_pose_ik_fixture.py`・`tests/fixtures/pose_ik_template_solved.json`・`tests/studio-p2-pose-ai.test.cjs`・`tests/studio-p2-pose-ik-fork.test.mjs`・`tests/test_pose_ik_fixture.py`。変更 `studio/js/screens.js`（SCR-13・SCR-19 の定義だけ）・`studio/js/features/index.js`・`studio/js/app.js`（`baiStudio.poseIk` の1行）・`studio/styles/features.css`（`.pose-*`・`.rt-stack`）・`docs/roadmap/P2_PORT_STATUS.json`（各 WP の完了時。`P2-WP-08` の行を `P2-WP-08a`〜`08c` に分ける）・`docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md` の §4.1 のポートの表（8781・8782 の追記）・生成し直す画面マトリクス。
+- v0.5 のファイル（`studio/v05/**`・`studio_v05_*.py`）と旧画面のファイルは触らない。
+
+#### (k) 批評（2026-11-03、Opus。別の視点で1回：旧コードとの食い違い・テストできない条件・スコープの逸脱・v0.5 との重複）
+
+| ID | 見つけたこと | 本節での反映 |
+|---|---|---|
+| 8-1 | v5 の表は ⑧-2 を「AI 管理（`#bai-ai-manager`）」の1行にし、SCR-19 へ置いていた。旧の `#bai-ai-manager` の中身は、設定・接続確認（AI 全体）と、IK 補助の画面上の値を読み書きするポーズ指示（`bai_ai_ui.js:9〜23`）の2つで、後者を SCR-19 に置くと SCR-13 の未保存の値を画面をまたいで読み書きする仕組みが要る | ⑧-2（設定）と ⑧-3（ポーズ指示）に分け、⑧-3 を IK 補助と同じタブに置いた（O-⑧-1）。画面をまたぐ受け渡しの仕組みは作らない |
+| 8-2 | 旧の［IKプレビュー生成］の基準は「保存済みのファイル」ではなく `window.baiPoseIK.get()`＝**画面上の今の値（未保存を含む）**で、ファイルは IK 補助が無いときの予備（`bai_ai_ui.js:18`）。ボタンの title「保存中の手動IK設定を使い」と食い違う | 旧のコードに合わせて画面上の値を基準にし、(f)08c の 2 で「ドラッグ後の値（ファイルの値ではない）」を確かめる |
+| 8-3 | `/api/ai/ik-preview` はサーバーで**先に AI を呼び**、基準の検査はその後（`server.py:1673〜1674`）。AI が無効なら基準が壊れていても 503 になり、「基準が壊れている」の 400 は AI が使えるときにしか出ない。テストで 400 を基準の検査として書くと、Ollama が無い環境で通らない | 400 の確認は空の指示（`interpret_pose` の文字数の検査。AI を呼ぶ前）で行う（(f)08c の 3）。基準の検査は既存の `tests/test_ai_ik_preview.py::test_bad_baseline` に任せる |
+| 8-4 | `api.js` の POST の既定の時間切れ（30 秒）が Ollama の 75 秒より短く、そのまま書き直すと推論中に画面だけ失敗になる（旧の `fetch` には時間切れが無いので、旧には無い食い違い） | O-⑧-5 で 90 秒にし、定数 `AI_TIMEOUT_MS` を export してフォーク・モデルのテストで値を確かめられるようにした |
+| 8-5 | 旧の `busy` で動きを捨てる動作と、SVG の縦横比のずれは、そのまま写すと「保存される値と表示が違う」「つかんだ位置と目標がずれる」になり、(f) の 3・4 をブラウザーで確かめられない | O-⑧-3 でバグ修正として直した。式・本文は旧と同じにし、フォークの照合（(f) フォーク・モデルの 2）を残した |
+| 8-6 | テストできない条件：「Ollama が使えるときの推論の結果」は開発環境で再現できない。開発者の PC に Ollama があると、`enabled:true` のテストの結果が環境で変わる | 実サーバーで確かめるのは無効（`enabled:false`）の 503 と 400 だけ。成功は `page.route` のスタブ（`solved` は実サーバーの solve の応答で作る）。`enabled:true` にする 08b の 2 は status をスタブにした。実際の Qwen の推論は未検証として台帳に書く |
+| 8-7 | テストできない条件：SVG の線と丸の見た目（色）。旧の色の値は `features.css` のトークンに置き換えるので、旧と同じ値を比べられない | 照合は幾何（座標・半径・線幅・破線）と `is-active` の有無だけにした（(f) フォーク・モデルの 3）。色はレビューで見る |
+| 8-8 | スコープ：競合の検知（O-⑧-4）、画面内の保持（O-⑧-2）、ボタンの無効化（O-⑧-5）、フレームの上限（O-⑧-9）は旧画面に無い動き | どれも保存する値・送る本文を変えず、外部の変更の上書き・新UIの画面移動での消失・二重送信・必ず 400 になる入力を防ぐだけ。理由を各 O-⑧ に書いた。異論があれば外せる（外すと (f)08a の 6・9・5 の後半、08b の 4、08c の 7 を消す） |
+| 8-9 | スコープ：旧画面に無い AI の設定（`ollama_url` など6項目）を画面に出す案は、`bai_ai_manager.DEFAULTS` にあっても旧 UI に無い | 出さない（O-⑧-7、(h) の ◇） |
+| 8-10 | v0.5 との重複：MOTION-010 は「IKコントローラ」を含み、⑧-1 を MOTION-010 の一部として台帳に結ぶと、v0.5 の3D IK と同じ要求を2か所で作っているように見える。また `pose_ik.py` の 2D の解を v0.5 の腕・脚の IK に使う誘惑がある | ⑧-1 は旧の 2D 補助の移植に限り、台帳の ID を付けない（O-⑧-8）。v0.5 のファイルと `motion-edits` の API に触らないことを (j) に書いた |
+| 8-11 | 旧コードとの食い違い：旧の `pose_ik_ui.js:15` はフレームを変えても再計算しない。新UIで「変えたら再計算」にすると、旧と要求の回数が変わる | 旧と同じく再計算しない（(d)08a の 4）。フレームは計算に使われない（`pose_ik.py:22` は値を返すだけ） |
+| 8-12 | ポートの割り当て：§4.1 の表に無いポートを使っている既存のテストがある（`studio-p2-export` は実装で 8795・8796。表は 8792）。新しいテストのポートが既存とぶつかるおそれ | 2026-11-03 に `tests/` の全ファイルでポートの数字を探し、使われていない 8781・8782 を選んだ。§4.1 の表への追記は 08a の実装コミットで行う（本節の変更の範囲の外なので、ここでは表を直さない） |
+
+#### (l) 所有者確認手順（§3.1。任意・WP の完了条件にはしない。試用データフォルダで行う）
+
+| WP | これを試してください |
+|---|---|
+| 08a | ①「モーションVMD編集（13）」の右の「足IK」タブを開き、下の「手動IKポーズ補助（2D・基礎版）」を見る。②丸を1つドラッグすると、肘や膝の線が一緒に動く。③［設定を保存］を押し、「補正設定を保存しました」と出る。④ブラウザーを再読込して同じタブを開くと、同じ形になっている。 |
+| 08b | ①「MCP・AI（19）」の「AI管理（任意・Ollama）」を開く。②［接続を確認］を押すと、「接続済み — （モデル名）」か「AI未接続：通常制作は使用できます」と出る。③モデル名を確かめて［設定を保存］を押し、「設定を保存しました」と出る。 |
+| 08c | ①13 の「足IK」の下の「AIでポーズ案を作る」を開き、「右手を上げて」と入れる。②［IKプレビュー生成］を押すと、結果か「プレビュー失敗…手動編集は継続できます」が出る（Ollama が動いていないときは後者で正しい）。③結果が出たら［IK画面で確認］を押し、上の図の右腕が上がる（保存はされない）。 |
 
 ---
 
@@ -1667,7 +1919,9 @@ SCR-23 の中央のカード「エクスポート」（`screens.js:607` のパ�
 | **P2-WP-06c** | ⑥ ②の保存との統合：`camera_bundle_core.js`（共有モジュール、`camera_project_bundle_ui.js` からの抽出、`camera.html` に1行）、workspace の所有（O-⑥-5）、`dirty.camera`（O-⑥-1）、`camera.js` の `bai-camera-saved`（3-M5） | 06b | M | Sonnet で実装 → **Opus でレビュー** | 統合保存・カメラ単独の保存の後の統合保存（200）・`test_camera_bundle_core.cjs`（`vm` で読む）・`test_camera_html_wiring_recovery.py`・直したソース文字列のテストが合格 |
 | **P2-WP-06d** | ⑥ Phase E §7 の読み替え表 | 06c | S（文書） | **Opus** | 読み替え表のレビュー完了 |
 | **P2-WP-07** | ⑦ 書き出し（§2.7）。VMD 変換用のボーン対応表 `/api/conversion-map` の編集を含む（§2.5 から移した） | 05c | M | O-⑦ を Opus で決める → Sonnet | §2.7 の受け入れ条件（Blender の実行は未検証として記録） |
-| **P2-WP-08** | IK・AI（§2.8） | 07、Q2 | M | Opus で詳しくする → Sonnet | 詳しくした版の受け入れ条件 |
+| **P2-WP-08a** | ⑧-1 SCR-13「足IK」タブの手動IKポーズ補助（2D）：`pose/pose-ik.fork.js`・`pose/pose-ik-model.js`・`features/pose-ik-view.js`（`ikTab`）、競合の検知（O-⑧-4）、計算中の動きの合流（O-⑧-3）。§2.8(d)08a | 05f（足IKタブ）、07（流れ順）、Q2（外せる：§2.8(i)） | S〜M | Sonnet で実装 → Sonnet でレビュー（`app.js`・`screens.js` の変更は Opus で見た目と配置をレビュー） | §2.8(f)08a とフォーク・モデルの全項目、`tests/test_pose_ik_fixture.py` が合格。`studio-p2-retarget` の足IKが合格のまま |
+| **P2-WP-08b** | ⑧-2 SCR-19 のカード「AI管理（任意・Ollama）」：`features/ai-manager-view.js` の `aiManager`。§2.8(d)08b | 00c、07（流れ順）、Q2 | S | Sonnet | §2.8(f)08b の全項目。実際の Ollama の接続は未検証として記録 |
+| **P2-WP-08c** | ⑧-3 SCR-13「足IK」の折りたたみ「AIでポーズ案を作る」：`aiPosePanel`（基準は画面上の値、結果は未保存で読み込む）。§2.8(d)08c | 08a、Q2 | S | Sonnet | §2.8(f)08c の全項目。実際の Qwen の推論は未検証として記録 |
 | **P2-WP-99** | 締め：マトリクス・監査文書（`STUDIO_UI_AUDIT_JA.md` の件数表）・台帳・旧画面との比較（`tools/legacy_ui_inventory.mjs` を新UIにも走らせる版は作らない。手順書にテストの一覧を書く） | 08 | S | Sonnet（文書） | 未検証の一覧（§5.2）を台帳に写す |
 
 WP-06 全体の規模は **XL**（v1 では L としていたが、旧画面の変更・テストの直し・ホスト・統合・文書の4段階に分けて見積もり直した）。
@@ -1726,7 +1980,7 @@ WP-06 全体の規模は **XL**（v1 では L としていたが、旧画面の�
 | 06b・06c | ①「カメラ（02）」を開く。②キーを2つ足す。③他の画面へ移ってから 02 に戻っても、キーが残っている。④［保存］して再読込しても残っている。⑤旧 `camera.html` を開くと、同じキーが見える。 |
 | 06d | 文書だけなので、所有者の確認は無い。 |
 | 07 | ①「外部連携（23）」の「エクスポート」を開く。②現在のコンビネーション手順数、VMD用ボーン対応とジョブ・実行の操作が表示される。ジョブ作成・実Blender変換は `exports/` を書き換え得るため、試用データフォルダだけでの所有者確認では押さない（§2.7 O-⑦-3）。隔離Chromeのスタブ試験と実変換の未検証を別に記録する。 |
-| 08 | WP-08 を詳しくするときに決める。 |
+| 08a・08b・08c | §2.8(l) の表のとおり（08a：13「足IK」で丸をドラッグして保存・再読込、08b：19 で接続確認と設定の保存、08c：13 でAIのポーズ案を作り未保存で読み込む）。 |
 | 99 | ①ホームから「制作の流れ」の順に画面を開き、薄い区画の数が P2 の前より減っている。②作業報告の「今どこまで通しで動くか」（§2.9 の `furthest_step`）を読む。 |
 
 ---

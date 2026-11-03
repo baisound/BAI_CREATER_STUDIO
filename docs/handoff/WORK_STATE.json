@@ -1,22 +1,27 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-02T20:13:07+09:00",
-  "updated_by": "codex",
-  "branch": "codex/v05-format-legacy-audit-20261102",
-  "head_at_update": "70134ca",
+  "updated_at": "2026-11-03T21:46:16+00:00",
+  "updated_by": "claude-code",
+  "branch": "claude/project-thread-8gcwq2",
+  "head_at_update": "6d32ddd",
   "current": {
-    "task": "Issues #37/#50/#69: v0.5形式別素材入口と旧作品復元",
+    "task": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認",
     "status": "done",
-    "step": "PMX/VRM/FBX/GLB・各動作/音声/画像/動画の入口と見本・再読込を隔離検証し、旧作品IDの保存復元を追跡して欠落だけ修正する",
-    "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
+    "step": "§7読み替え表・書き出しのレビュー修正、Linuxでtest:node-all/test:p2/pytest/tscを実行",
+    "design_doc": "docs/roadmap/PHASE_E_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
+    "P2-WP-08a: SCR-13足IKタブの手動IKポーズ補助（設計書§2.8(d)08a、Sonnet）",
+    "P2-WP-08b→08c（設計書§2.8。Q2で外せる単位は§2.8(i)）",
+    "Phase E UI部分は§7読み替え表（2026-11-03レビュー済み）に従ってSCR-02に実装可",
     "Issue #37/#50: 実VRM/FBX/GLBステージと音声/画像/動画を形式別に実登録・見本・再読込し、未対応表示を修正",
     "Issue #63/#69: 旧Studio保存状態の素材参照とv0.5作品IDへの可逆な対応を設計・実証",
     "Issue #187: 合成比較ゲートを製品APIへ接続し実PMX/MP4で検証"
   ],
   "unverified": [
-    "実VRM/人体GLB/FBXの3D描画、GLBステージ、動画内音声、旧作品完全復元、WebMCP/標準MCP、Linuxは未検証。制限環境の初回ブラウザ試験はサーバー起動不可で、ソケット利用可能環境で5件成功"
+    "WindowsでのNode一括ゲート0 failは未確認。LinuxではH.264非対応Chromiumの動画1件（P2）とv0.5の9件（FFmpeg 6.1の-/filter_complex非対応等）が失敗",
+    "Blender実変換・実VMD品質、MCP経路との一致、実GPU、WebMCP camera_pageの登録方法（WP-02c）は未検証",
+    "WP-08は設計のみ（コード・テストは未作成）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +38,41 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-03T21:46:16+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "6d32ddd",
+      "text": "P2-WP-06d/07を独立レビューしverified。§7読み替え表を修正、SCR-02のクリップ保持とSCR-23の失敗表示を修正、Nodeゲートのポート衝突とserver.pyのretarget比較回帰を修正"
+    },
+    {
+      "at": "2026-11-03T21:46:16+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "6d32ddd",
+      "text": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認: §7読み替え表・書き出しのレビュー修正、Linuxでtest:node-all/test:p2/pytest/tscを実行"
+    },
+    {
+      "at": "2026-11-03T20:40:12+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "b2166ae",
+      "text": "P2設計書§2.8（WP-08 IK・AI）をSonnetが実装できる粒度に詳しくした：旧機能の棚卸し（⑧-1〜3）、O-⑧-1〜9決定、WP-08a/08b/08cへ分割、受け入れ条件・テスト・v0.5重複の扱い・自己批評。§3表とWP-08の所有者確認行を更新。コードは未変更"
+    },
+    {
+      "at": "2026-11-03T20:29:21+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "73a49ef",
+      "text": "P2 WP-08（IK・AI）詳細設計：§2.8 の詳しく化: 旧IK・AI機能の棚卸し→O-⑧決定→WP-08a/b分割→自己批評"
+    },
+    {
+      "at": "2026-11-03T20:28:50+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "7935400",
+      "text": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認: Phase E §7読み替え表・書き出し実装のレビュー、test:node-all/test:p2/pytest/tscをLinuxで実行"
+    },
     {
       "at": "2026-11-02T20:13:07+09:00",
       "by": "codex",
@@ -207,41 +247,6 @@
       "event": "done",
       "head": "fbe5ca0",
       "text": "Issue #187 LIP-001: 確定かなの半開SRT区間からモーラ口形候補APIを追加。促音/撥音/長音/唇閉鎖、未確定/無音、24fps・原本hashを隔離HTTPで確認"
-    },
-    {
-      "at": "2026-10-25T01:57:31+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "ffcd391",
-      "text": "Issue #187: 確定かなのモーラから口形候補を計算: 原SRT半開区間と作品FPSを保ち、促音/撥音/長音/唇閉鎖を候補にし未確定・無音を区別する"
-    },
-    {
-      "at": "2026-10-25T01:54:46+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "c890010",
-      "text": "Issue #187 LIP-001: v0.5画面で発話読み確定/明示無音を保存再読込。隔離Chrome 1/1、原SRTと既存data/exports不変"
-    },
-    {
-      "at": "2026-10-25T01:51:25+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "329b23a",
-      "text": "Issue #187: SRT発話の読み・無音を画面で編集: 登録済み発話を選び未確定/提案/確定/明示無音を保存・再読込し原本と分離する"
-    },
-    {
-      "at": "2026-10-25T01:49:01+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8a79ba8",
-      "text": "Issue #187 LIP-001: SRT発話の読み状態/明示無音を原本と分離保存。隔離HTTPで原時刻・hash・revision・原本不変を確認"
-    },
-    {
-      "at": "2026-10-25T01:46:46+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "128a78f",
-      "text": "Issue #187: SRT発話ごとの読み確定を原本と分離保存: 原本hashで結び付くUtterance読み状態・明示無音・revisionを作品単位で保存/再読込し不正入力を拒否する"
     }
   ]
 }

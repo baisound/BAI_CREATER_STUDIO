@@ -105,7 +105,7 @@ test('camera host does not mount on an unreadable camera file', async () => {
   const browser = await server.launchBrowser();
   let page;
   try {
-    page = await server.newPage(browser, { expectErrors: [/422 \(Unprocessable Entity\)/] });
+    page = await server.newPage(browser, { expectErrors: [/422 \(Unprocessable (Entity|Content)\)/] });
     await page.goto(`${server.base}/workspace/02`);
     await page.waitForSelector('[data-role="camera-invalid"]');
     assert.match(await page.textContent('[data-role="camera-invalid"]'), /camera_project\.json/);
@@ -134,6 +134,18 @@ test('integrated save cannot capture camera while a full restore is pending', ha
   let page;
   try {
     page = await server.newPage(browser);
+    // 復元を止める受け手は camera.js より先に登録する。window が送り先のイベントでは、Chromium は
+    // 後から足した capture の受け手より先に、先に登録された camera.js の受け手を呼ぶことがあり、
+    // テスト中に足すと復元を止められず、待機が時間切れになっていた（2026-11-03 の独立レビューで特定）。
+    await page.addInitScript(() => {
+      window.__holdCameraRestore = false;
+      window.__releaseCameraRestore = null;
+      window.addEventListener('bai-camera-bundle-restore', (event) => {
+        if (!window.__holdCameraRestore || window.__releaseCameraRestore) return;
+        event.stopImmediatePropagation();
+        window.__releaseCameraRestore = () => window.dispatchEvent(new CustomEvent('bai-camera-bundle-restore', { detail: event.detail }));
+      }, { capture: true });
+    });
     await page.goto(`${server.base}/workspace/02`);
     await page.waitForFunction(() => document.querySelector('#status')?.textContent.includes('カメラ編集を開始'));
     await page.fill('#frame-number', '37');
@@ -145,12 +157,7 @@ test('integrated save cannot capture camera while a full restore is pending', ha
     let posts = 0;
     page.on('request', (request) => { if (request.method() === 'POST' && /\/api\/project\/bundle$/.test(request.url())) posts++; });
     await page.evaluate(async () => {
-      window.__releaseCameraRestore = null;
-      window.addEventListener('bai-camera-bundle-restore', (event) => {
-        if (window.__releaseCameraRestore) return;
-        event.stopImmediatePropagation();
-        window.__releaseCameraRestore = () => window.dispatchEvent(new CustomEvent('bai-camera-bundle-restore', { detail: event.detail }));
-      }, { capture: true });
+      window.__holdCameraRestore = true;
       const { emit } = await import('/studio/js/bus.js');
       emit('studio:project-loaded');
     });
@@ -300,6 +307,47 @@ test('camera host follows store-owned GLB VRM PMX FBX selection and saves the fi
     await page.click('[data-role="project-save"]');
     assert.equal((await response).status(), 200);
     assert.equal(JSON.parse(fs.readFileSync(path.join(server.dataDir, 'project_state.workspace.json'), 'utf8')).asset, 'fbx:f-model');
+    harness.assertNoErrors(page);
+  } finally { await page?.context().close(); await browser.close(); await server.stop(); }
+});
+
+test('changing the model on SCR-02 keeps the same clip index in the store', harness.skip3d(), async () => {
+  // camera-host の captureWorkspace：asset と同じ番号の clip（どちらも0）を失わない（P2-WP-06 の独立レビューで発見）。
+  const glb = fs.readFileSync(path.join(__dirname, 'fixtures', 'synthetic_test_model.glb'));
+  const server = await harness.startServer({ port: 8812, seed: {
+    'project_state.json': JSON.stringify({ schema: 1, title: 'クリップ保持', timeline: [], history: [], cursor: -1, selected: 1, playbackSpeed: 1, updatedAt: '' }),
+    'project_state.workspace.json': JSON.stringify({ frame: 0, asset: 'aaaaaaaaaaaaaaaaaaaa.glb', clip: 0 }),
+    'integrated_v02/assets/aaaaaaaaaaaaaaaaaaaa.glb': glb,
+    'integrated_v02/assets/bbbbbbbbbbbbbbbbbbbb.glb': glb,
+    'integrated_v02/user_assets.json': JSON.stringify([
+      { id: 'user-aaaaaaaaaaaaaaaaaaaa', name: 'first.glb', filename: 'aaaaaaaaaaaaaaaaaaaa.glb', kind: 'model', bytes: glb.length },
+      { id: 'user-bbbbbbbbbbbbbbbbbbbb', name: 'second.glb', filename: 'bbbbbbbbbbbbbbbbbbbb.glb', kind: 'model', bytes: glb.length },
+    ]),
+  } });
+  const browser = await server.launchBrowser();
+  let page;
+  try {
+    page = await server.newPage(browser);
+    await page.addInitScript(() => { window.__workspaceRestoreCount = 0; window.addEventListener('bai-camera-workspace-restore', () => { window.__workspaceRestoreCount++; }); });
+    await page.goto(`${server.base}/workspace/02`);
+    await page.waitForFunction(() => window.BAICameraPage?.handle()?.host === 'studio' &&
+      document.querySelector('#status')?.textContent.includes('カメラ編集を開始') &&
+      document.querySelector('#camera-asset-status')?.textContent.includes('first.glb'), null, { timeout: 30000 });
+    assert.equal(await page.locator('#camera-clip').inputValue(), '0');
+    const restoresBefore = await page.evaluate(() => window.__workspaceRestoreCount);
+    await page.selectOption('#camera-asset', 'bbbbbbbbbbbbbbbbbbbb.glb');
+    await page.click('#camera-load-asset');
+    await page.waitForFunction(() => document.querySelector('#camera-asset-status')?.textContent.includes('second.glb') &&
+      document.querySelector('#camera-asset-status')?.textContent.includes('3D表示中') && document.querySelector('#camera-clip')?.value === '0', null, { timeout: 20000 });
+    await page.evaluate(() => window.baiStudio.navigate('18'));
+    const ws = await page.evaluate(() => window.baiStudio.project.getState().bundle.workspace);
+    assert.equal(ws.asset, 'bbbbbbbbbbbbbbbbbbbb.glb');
+    assert.equal(ws.clip, 0, 'モデル変更後もカメラ画面のクリップ番号を保つ');
+    await page.evaluate(() => window.baiStudio.navigate('02'));
+    await page.waitForFunction(() => document.querySelector('#status')?.textContent.includes('カメラ'));
+    await page.waitForTimeout(500);
+    assert.equal(await page.evaluate(() => window.__workspaceRestoreCount), restoresBefore, '戻っただけでモデルを読み直さない');
+    assert.equal(await page.locator('#camera-clip').inputValue(), '0');
     harness.assertNoErrors(page);
   } finally { await page?.context().close(); await browser.close(); await server.stop(); }
 });

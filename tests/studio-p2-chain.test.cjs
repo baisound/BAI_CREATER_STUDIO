@@ -166,6 +166,8 @@ test('pattern preview draws 2D fighters and animates A/B dummies without an FBX 
     const b = await page.evaluate(() => window.baiStudio.chain.probe({ slot: 'B', rotations: ['rightarm'] }).rotations.rightarm[0]);
     assert.ok(a < -1.5 && Number.isFinite(b));
     await page.click(row(2));
+    // 表示の更新は次の描画で行われるため、読む前に待つ（負荷が高いと直後の読取りが前の時刻になる）。
+    await page.waitForFunction(() => /^0\.0 \/ /.test(document.querySelector('[data-role="pattern-time"]')?.textContent || ''), null, { timeout: 5000 }).catch(() => {});
     assert.match(await page.textContent('[data-role="pattern-time"]'), /^0\.0 \/ /, 'pattern selection resets its clock');
     await page.goto(`${server.base}/workspace/04`);
     await page.waitForFunction(() => window.baiStudio.chain.getState() === null);

@@ -3,7 +3,7 @@
 import { getJson, postJson } from '../api.js';
 import { createStore, project } from '../store.js';
 import { h, openModal, closeModal } from '../ui.js';
-import { DEFAULT_BONE_MAP, parseBoneMap, resolveMotionNames } from './export-model.js';
+import { DEFAULT_BONE_MAP, conversionFailureText, parseBoneMap, resolveMotionNames } from './export-model.js';
 
 const view = createStore({
   mapText: JSON.stringify(DEFAULT_BONE_MAP, null, 2), mapLoaded: false, mapLoading: false,
@@ -131,7 +131,7 @@ async function runConversion(slot) {
   startPolling();
   try {
     const r = await postJson('/api/run-vmd-conversion', { confirm: true, slot }, { timeoutMs: 260000 });
-    if (!r.ok) throw Error(r.message);
+    if (!r.ok) throw Error(conversionFailureText(r));
     view.set({ runMessage: `VMD変換完了：${r.data?.name || 'chain_motion.vmd'}（${r.data?.bytes ?? 'サイズ不明'} bytes）。対象PMXで動きを確認してください。` }, 'run-success');
   } catch (error) { view.set({ runMessage: `VMD変換できませんでした：${error instanceof Error ? error.message : String(error)}` }, 'run-error'); }
   finally {
@@ -147,7 +147,7 @@ function statusText(status, elapsed) {
   if (!status || status.status === 'idle') return 'サーバー上に変換結果はありません。';
   if (status.status === 'running') return `Blenderで実行中（経過 ${elapsed} 秒）。進捗率は取得できません。`;
   if (status.status === 'succeeded') return `サーバー上の変換結果：成功 ${status.name || 'chain_motion.vmd'}。対象PMXで動きを確認してください。`;
-  if (status.status === 'failed') return `サーバー上の変換結果：失敗 ${status.error || status.output_tail || ''}`;
+  if (status.status === 'failed') return `サーバー上の変換結果：失敗 ${status.error || (typeof status.output_tail === 'string' ? status.output_tail.trim().slice(-400) : '')}`;
   return `サーバー上の変換状況：${status.status}`;
 }
 

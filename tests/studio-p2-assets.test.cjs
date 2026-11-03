@@ -166,6 +166,8 @@ test('new image, audio and stage GLB upload into their categories and open real 
     await page.click('[data-feature="assetCategories"] li[data-cat="image"]');
     await page.click(CARD);
     await page.waitForSelector('[data-role="image-media"]');
+    // 要素ができた直後は画像の読込が終わっていないことがある（並列実行の負荷で naturalWidth が0のまま読まれた）。
+    await page.waitForFunction(() => document.querySelector('[data-role="image-media"]')?.complete, null, { timeout: 10000 });
     assert.equal(await page.evaluate(() => document.querySelector('[data-role="image-media"]').naturalWidth), 1);
     await page.click('[data-feature="assetCategories"] li[data-cat="stage"]');
     await page.click(CARD);
