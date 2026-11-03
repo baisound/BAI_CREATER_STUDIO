@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-03T23:23:30+00:00",
+  "updated_at": "2026-11-03T23:37:39+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "9beba42",
+  "head_at_update": "745d6f1",
   "current": {
-    "task": "P2-WP-08b: SCR-19 AI管理カード",
+    "task": "P2-WP-08c: 足IKタブのAIポーズ案",
     "status": "done",
-    "step": "aiManager 実装・テスト",
+    "step": "aiPosePanel 実装・テスト",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-08c 足IKタブのAIポーズ案",
     "P2-WP-99 締め"
   ],
   "unverified": [
-    "実Ollama/Qwenとの接続は未検証（statusはスタブ）"
+    "実Ollama/Qwenの推論は未検証（成功応答はスタブ）",
+    "環境要因の失敗: 動画ポスター1件・studio-p2-generic-dance(three未解決)・pytestのv0.5系"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,6 +32,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-03T23:37:39+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "745d6f1",
+      "text": "P2-WP-08c: 足IKタブのAIポーズ案（aiPosePanel）実装・テスト"
+    },
+    {
+      "at": "2026-11-03T23:23:35+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "745d6f1",
+      "text": "P2-WP-08c: 足IKタブのAIポーズ案: aiPosePanel 実装・テスト"
+    },
     {
       "at": "2026-11-03T23:23:30+00:00",
       "by": "claude-code",
@@ -227,20 +241,6 @@
       "event": "start",
       "head": "e0a9170",
       "text": "Issue #187: 下書きから別名モーフVMDを出力: 元SRT・読み・モデルモーフ対応を厳密照合しモーフ専用VMD writer/readback を実装する"
-    },
-    {
-      "at": "2026-10-25T02:11:58+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2b4b666",
-      "text": "Issue #187: SRT候補から口形境界・形・強さを編集し別台帳の下書きへ保存。隔離Python6/6・Chrome1/1、原本不変。"
-    },
-    {
-      "at": "2026-10-25T02:07:33+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "97ddc55",
-      "text": "Issue #187: 口形候補を別レイヤーの下書きへ保存: 原SRT・読みを保持し、候補の境界・口形・強度を版管理して手動調整可能にする"
     }
   ]
 }

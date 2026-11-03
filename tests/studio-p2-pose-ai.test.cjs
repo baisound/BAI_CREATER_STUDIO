@@ -339,3 +339,137 @@ test('ai manager errors and busy state', harness.skip3d(), async () => {
     assert.equal(await page.locator('[data-role="ai-status"]').count(), 0);
   }, { seed: { 'bai_ai_config.json': AI_OFF }, errors: [/status of 400/, /status of 500/] });
 });
+
+// ---- ⑧-3 AIでポーズ案を作る（P2 設計 §2.8(f) WP-08c）。成功の応答は page.route のスタブ（実際の Qwen の推論は未検証） ----
+const AI_DISABLED = JSON.stringify({ enabled: false });
+const SAVED_POSE = (() => { const p = clone(TEMPLATE); p.limbs.rightArm.target = [0.9, 1.3]; return p; })();
+const aiSeed = { 'bai_ai_config.json': AI_DISABLED, 'pose_ik_last.json': JSON.stringify(SAVED_POSE) };
+const aiResult = (page) => page.locator('[data-role="ai-result"]').textContent();
+const aiBusyDone = (page) => page.waitForFunction(() => !document.querySelector('[data-role="ai-run"]').disabled);
+function recordAi(page) {
+  const log = { preview: [], proposal: [], seq: [] };
+  page.on('request', (r) => {
+    const u = new URL(r.url());
+    if (r.method() !== 'POST') return;
+    if (u.pathname === '/api/ai/ik-preview') log.preview.push(r.postDataJSON());
+    if (u.pathname === '/api/ai/pose-proposal') log.proposal.push(r.postDataJSON());
+    if (u.pathname === '/api/pose/save') log.seq.push('save');
+  });
+  return log;
+}
+async function openAiPanel(page, server) {
+  await open(page, server);
+  await page.locator('[data-feature="aiPosePanel"] summary').scrollIntoViewIfNeeded();
+  await page.click('[data-feature="aiPosePanel"] summary');
+}
+/** baseline の rightArm.target の y に 0.15 を足した pose_input と、その実サーバーの solve 応答を持つ成功の応答。 */
+async function stubbedPreview(server, baseline, accepted) {
+  const poseInput = clone(baseline);
+  poseInput.limbs.rightArm.target = [poseInput.limbs.rightArm.target[0], Math.round((poseInput.limbs.rightArm.target[1] + 0.15) * 100) / 100];
+  const solved = await (await post(server, '/api/pose/solve', poseInput)).json();
+  return { poseInput, body: { ok: true, accepted, ignored: [], pose_input: poseInput, solved, limitations: ['2D'], preview_only: true, saved: false, applied: false } };
+}
+
+test('ai preview failure keeps manual editing', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    const log = recordAi(page);
+    await openAiPanel(page, server);
+    await page.fill('[data-role="ai-instruction"]', '右手を上げて');
+    await page.click('[data-role="ai-preview"]');
+    await page.waitForFunction(() => /プレビュー失敗/.test(document.querySelector('[data-role="ai-result"]').textContent));
+    assert.deepEqual(log.preview[0], { text: '右手を上げて', baseline: SAVED_POSE }, '基準は画面上の値（種データと同じ）');
+    assert.equal(await aiResult(page), 'プレビュー失敗: AI disabled. Manual controls remain available. — 手動編集は継続できます');
+    assert.equal(await page.locator('[data-role="ai-preview-apply"]').isDisabled(), true);
+    // 空の指示は AI を呼ぶ前の検査で 400
+    await page.fill('[data-role="ai-instruction"]', '');
+    await page.click('[data-role="ai-run"]');
+    await page.waitForFunction(() => /推論できませんでした/.test(document.querySelector('[data-role="ai-result"]').textContent));
+    assert.equal(await aiResult(page), '推論できませんでした: pose instruction must contain 1-1500 characters — 通常制作は継続できます');
+    // 手動編集は止まらない
+    await dragTo(page, 'leftArm', 60, 90);
+    await idle(page);
+    assert.match(await statusText(page), /IK計算済み|目標が届かない/);
+  }, { seed: aiSeed, errors: [/status of 503/, /status of 400/] });
+});
+
+test('ai preview uses the on-screen pose as baseline', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    const log = recordAi(page);
+    await openAiPanel(page, server);
+    await dragTo(page, 'rightArm', 200, 60);
+    await idle(page);
+    const dragged = (await state(page)).data;
+    assert.notDeepEqual(dragged, SAVED_POSE);
+    await page.fill('[data-role="ai-instruction"]', '右手を上げて');
+    await page.click('[data-role="ai-preview"]');
+    await page.waitForFunction(() => /プレビュー失敗/.test(document.querySelector('[data-role="ai-result"]').textContent));
+    assert.deepEqual(log.preview[0].baseline, dragged, 'ドラッグ後の値（ファイルの値ではない）');
+  }, { seed: aiSeed, errors: [/status of 503/] });
+});
+
+test('ai pose preview loads into the ik helper without saving', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    const log = recordAi(page);
+    const solveLog = record(page);
+    await openAiPanel(page, server);
+    const accepted = [{ limb: 'rightArm', action: 'up', delta: [0, 0.15] }];
+    const { poseInput, body } = await stubbedPreview(server, SAVED_POSE, accepted);
+    let mode = 'ok';
+    await page.route('**/api/ai/ik-preview', (route) => mode === 'ok'
+      ? route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) })
+      : mode === 'empty'
+        ? route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ...body, accepted: [] }) })
+        : route.fulfill({ status: 503, contentType: 'application/json', body: '{"ok":false,"state":"offline","manual_available":true,"error":"Ollama unavailable; manual editing is still available"}' }));
+    await page.fill('[data-role="ai-instruction"]', '右手を上げて');
+    await page.click('[data-role="ai-preview"]');
+    await page.waitForFunction(() => !document.querySelector('[data-role="ai-preview-apply"]').disabled);
+    assert.deepEqual(JSON.parse(await aiResult(page)), body);
+    const before = solveLog.solve.length;
+    await page.click('[data-role="ai-preview-apply"]');
+    await page.waitForFunction(() => /未保存の提案を表示しました/.test(document.querySelector('[data-role="pose-ik-status"]').textContent));
+    await idle(page);
+    assert.equal(solveLog.solve.length, before + 1);
+    assert.deepEqual(solveLog.solve.at(-1), poseInput, '次の solve の本文は pose_input');
+    assert.equal(await statusText(page), 'IK補助画面へ未保存の提案を表示しました。保存する場合は手動IK側で「設定を保存」を押してください。');
+    assert.equal(await aiResult(page), await statusText(page));
+    assert.equal(solveLog.save.length, 0, '保存の要求は0回');
+    assert.deepEqual(readFile(server), SAVED_POSE, 'pose_ik_last.json は種データのまま');
+    // accepted が空なら押せないまま
+    mode = 'empty';
+    await page.click('[data-role="ai-preview"]');
+    await page.waitForFunction(() => /"accepted": \[\]/.test(document.querySelector('[data-role="ai-result"]').textContent));
+    assert.equal(await page.locator('[data-role="ai-preview-apply"]').isDisabled(), true);
+    // 成功の後に 503 になると無効に戻る
+    mode = 'ok';
+    await page.click('[data-role="ai-preview"]');
+    await page.waitForFunction(() => !document.querySelector('[data-role="ai-preview-apply"]').disabled);
+    mode = 'fail';
+    await page.click('[data-role="ai-preview"]');
+    await page.waitForFunction(() => /プレビュー失敗/.test(document.querySelector('[data-role="ai-result"]').textContent));
+    assert.equal(await page.locator('[data-role="ai-preview-apply"]').isDisabled(), true);
+    assert.equal(log.seq.length, 0);
+  }, { seed: aiSeed, errors: [/status of 503/] });
+});
+
+test('ai proposal json is shown', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await openAiPanel(page, server);
+    const proposal = { ok: true, proposal: { constraints: [], preview_only: true }, applied: false, note: 'AI提案のみ。IK実行・キーフレーム保存は行いません。' };
+    let release;
+    const gate = new Promise((r) => { release = r; });
+    await page.route('**/api/ai/pose-proposal', async (route) => { await gate; await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(proposal) }); });
+    await page.fill('[data-role="ai-instruction"]', '右手を上げて');
+    await page.click('[data-role="ai-run"]');
+    await page.waitForFunction(() => document.querySelector('[data-role="ai-run"]').disabled);
+    assert.equal(await aiResult(page), 'Qwenで指示を解析しています…');
+    assert.equal(await page.locator('[data-role="ai-preview"]').isDisabled(), true, '通信中は3つとも無効');
+    assert.equal(await page.locator('[data-role="ai-preview-apply"]').isDisabled(), true);
+    release();
+    await aiBusyDone(page);
+    assert.equal(await aiResult(page), JSON.stringify(proposal, null, 2));
+    // 設定への導線
+    await page.click('[data-role="ai-open-settings"]');
+    await page.waitForSelector('[data-feature="aiManager"]');
+    assert.match(page.url(), /\/workspace\/19/);
+  }, { seed: aiSeed });
+});

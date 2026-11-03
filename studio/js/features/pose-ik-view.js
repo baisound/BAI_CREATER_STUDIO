@@ -8,6 +8,7 @@ import { getJson, postJson } from '../api.js';
 import { footContactPanel } from './foot-contact.js';
 import { LIMBS, VIEW, svgParts, pointerToTarget } from '../pose/pose-ik.fork.js';
 import { createPoseIkModel } from '../pose/pose-ik-model.js';
+import { aiPosePanel } from './ai-manager-view.js';
 
 /** @typedef {import('./index.js').FeatureCtx} FeatureCtx */
 /** @typedef {import('../pose/pose-ik-model.js').PoseIkState} PoseIkState */
@@ -34,8 +35,10 @@ export function poseIkPanel(ctx) {
     save: (d) => postJson('/api/pose/save', d),
     load: () => getJson('/api/pose/last'),
     kept,
-    onChange: (s) => { kept = { data: structuredClone(s.data), synced: s.synced, active: s.active }; render(s); },
+    onChange: (s) => { kept = { data: structuredClone(s.data), synced: s.synced, active: s.active }; render(s); ai?.sync(s); },
   });
+  /** @type {ReturnType<typeof aiPosePanel>|null} */
+  let ai = null;
   let disposed = false;
   let dragging = false;
   /** @type {number|null} */
@@ -114,11 +117,12 @@ export function poseIkPanel(ctx) {
   });
   render(model.getState());
   saveBtn.disabled = true;
+  ai = aiPosePanel(ctx, model);
   void model.init();
 
   return h('div', { class: 'rt-panel pose-ik', dataset: { feature: 'poseIkPanel' } },
     h('h3', null, '手動IKポーズ補助（2D・基礎版）腕・脚'),
     h('p', { class: 'section-note' }, '黄色い関節ハンドルをドラッグすると、肘・膝が連動します。AIは不要です。2D平面の補助で、PMX/VRM・VMDには適用しません。'),
     h('div', { class: 'rt-fields' }, h('label', null, '部位', bone), h('label', null, 'フレーム', frame), reset, saveBtn),
-    svg, status, conflict);
+    svg, status, conflict, ai);
 }

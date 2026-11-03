@@ -88,6 +88,7 @@ const EV_RT_VIEW = 'tests/studio-p2-retarget.test.cjs::pose compare places two m
 const EV_FOOT = 'tests/studio-p2-retarget.test.cjs::foot contact panel calls the three read-only diagnostic APIs';
 const EV_POSE_IK = 'tests/studio-p2-pose-ai.test.cjs::pose ik panel solves the legacy template on first open';
 const EV_AI_MANAGER = 'tests/studio-p2-pose-ai.test.cjs::ai manager reads settings and status';
+const EV_AI_POSE = 'tests/studio-p2-pose-ai.test.cjs::ai pose preview loads into the ik helper without saving';
 const EV_STAGE = 'tests/studio-p2-viewport.test.cjs::stage placement saves and restores';
 
 const CAMERA = { label: 'カメラ画面（現行）', href: '/camera.html' };
@@ -408,6 +409,7 @@ export const SCREENS = [
       { name: '曲線', status: 'mock', ids: ['DATA-003'] },
       { name: '足IK', status: 'real', evidence: EV_FOOT, note: '左足・両足・BVHの接地を既存APIで診断し、JSON結果だけを表示する。IKはモデルへ適用しない。', ids: ['MOTION-011'] },
       { name: '手動IKポーズ補助（2D）', status: 'real', evidence: EV_POSE_IK, note: '旧画面の2D平面（XY）の2関節IK補助（/api/pose/*）。目標をドラッグして肘・膝の位置を計算し、設定だけを保存する。PMX/VRM・VMDには適用しない（3DのIKは v0.5 の MOTION-010）。' },
+      { name: 'AIポーズ案（任意）', status: 'real', evidence: EV_AI_POSE, note: 'ローカルOllamaに日本語の指示を解析させ、2D補助の提案だけを表示する。保存・適用はしない。' },
       { name: '入出力', status: 'partial', note: 'motion_vmd_bridge.py・vmd_readback.py。', ids: ['MOTION-006'] },
     ],
     tools: [btn('現行画面で開く', 'href:/'), btn('VMD変換・書き出しへ', 'nav:23')],

@@ -504,11 +504,19 @@
     {
       "id": "P2-WP-08c",
       "step": "IK・AI：SCR-13 の折りたたみ「AIでポーズ案を作る（任意・Ollama）」（⑧-3、O-⑧-5・6。08a の後）",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "（このコミット）SCR-13 の折りたたみ「AIでポーズ案を作る（任意・Ollama）」aiPosePanel・テスト"
+      ],
+      "tests": [
+        "tests/studio-p2-pose-ai.test.cjs 15/15 pass（08c の4件＋08b の3件＋08a の8件。実サーバーは enabled:false で 503/400、成功の応答は page.route のスタブ＋solved は実サーバーの solve 応答）。tsc pass。studio-ui 20/20、test_screen_status_honesty pass",
+        "npm run test:p2 279件中 274 pass・2 fail（動画ポスター1件＝H.264非対応、studio-p2-generic-dance.test.mjs＝この環境で npm パッケージ three を解決できない ERR_MODULE_NOT_FOUND。いずれも本変更と無関係）。node tools/run_evidence_tests.mjs 164 pass・1 fail（動画ポスター）。pytest は既知の v0.5 の失敗のみ（基線と同じ3件＋既知の timeline_drag_static。test_bundle_snapshot_consistency は全体実行でだけ揺れ、単独では合格）"
+      ],
+      "unverified": [
+        "実際の Ollama／Qwen の推論結果は未検証（開発環境に Ollama が無い。成功の応答はスタブ）",
+        "見た目（折りたたみ内の並び・色）、実GPU、Windowsは未実施"
+      ],
+      "notes": "aiPosePanel は features/ai-manager-view.js。戻り値の HTMLElement に sync(state) を持たせ、pose-ik-view.js の onChange から呼んで loaded が false の間のボタン無効を反映する（設計は model だけを渡す形で、この受け渡しは最小の解釈）。AI の POST は timeoutMs=AI_TIMEOUT_MS と AbortSignal（画面を離れると中止）。api.js は変更なし。基準は model.getState().data（画面上の値）、［IK画面で確認］は model.setData のみで保存しない。台帳の ids は付けず、SCR-13 の panels に1行追加（docs/ui/SCREEN_IMPLEMENTATION_MATRIX.json 再生成）。",
       "owner_check": null
     },
     {
