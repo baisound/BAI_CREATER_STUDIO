@@ -276,3 +276,20 @@
 .ml-fields { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 7px; }
 .tls-sample-tracks { display: flex; flex-wrap: wrap; gap: 4px; }
 .tls-sample-tracks span { padding: 2px 6px; border: 1px dashed var(--border-strong); border-radius: 4px; color: var(--text-3); font-size: var(--fs-xs); opacity: .65; }
+
+/* ---- ⑧-1 手動IKポーズ補助（features/pose-ik-view.js、SCR-13「足IK」タブ。P2 §2.8） ---- */
+.rt-stack { display: flex; flex-direction: column; gap: 14px; }
+.pose-ik .pose-svg { display: block; width: 100%; max-width: 460px; aspect-ratio: 300 / 260; touch-action: none; border-radius: 8px; }
+.pose-bg { fill: var(--viewport); }
+.pose-ground { stroke: var(--border-strong); fill: none; }
+.pose-body { stroke: var(--text-3); }
+.pose-head { fill: var(--text-3); }
+.pose-limb { stroke: var(--text-2); fill: none; }
+.pose-limb.is-active { stroke: var(--accent); }
+.pose-handle { fill: var(--text-2); stroke: var(--bg); cursor: grab; }
+.pose-handle.is-active { fill: var(--accent); }
+.pose-unreachable { fill: none; stroke: var(--danger); }
+.pose-status[data-kind="error"] { color: var(--danger); }
+.pose-status[data-kind="warn"] { color: var(--accent); }
+.pose-conflict { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; padding: 8px; border: 1px solid var(--accent); border-radius: 8px; font-size: var(--fs-xs); }
+.pose-conflict[hidden] { display: none; }
