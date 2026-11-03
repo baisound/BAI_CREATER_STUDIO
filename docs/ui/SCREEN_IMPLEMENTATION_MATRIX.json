@@ -2815,6 +2815,31 @@
     {
       "screen_id": "SCR-19",
       "route": "/workspace/19",
+      "panel": "AI管理",
+      "feature_ids": [
+        "CORE-002",
+        "CORE-003",
+        "CORE-004",
+        "CORE-011",
+        "OBS-004",
+        "NF-007",
+        "NF-016"
+      ],
+      "new_ui_state": "real",
+      "source_evidence": "旧画面の BAI AI Manager（/api/ai/settings・status）。Ollamaが無くても通常制作は使える。",
+      "evidence": "tests/studio-p2-pose-ai.test.cjs::ai manager reads settings and status",
+      "UI": "implemented_route_operable",
+      "API": "existing_api_read_write",
+      "WebMCP": "unknown",
+      "stdio-MCP": "unknown",
+      "test": "tests/studio-ui.test.cjs",
+      "browser_test": "headless_chromium_navigation_and_controls",
+      "verdict": "implemented_in_new_ui",
+      "blockers": null
+    },
+    {
+      "screen_id": "SCR-19",
+      "route": "/workspace/19",
       "panel": "チャット",
       "feature_ids": [
         "NF-007"

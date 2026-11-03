@@ -271,3 +271,71 @@ test('unsaved pose survives screen changes', harness.skip3d(), async () => {
     assert.deepEqual((await state(page)).data, saved);
   }, { seed: { 'pose_ik_last.json': JSON.stringify(saved) } });
 });
+
+// ---- ⑧-2 AI管理（P2 設計 §2.8(f) WP-08b）。実サーバーは bai_ai_config.json を enabled:false にして Ollama に触れない ----
+const AI_OFF = JSON.stringify({ enabled: false, default_llm: 'qwen3:8b' });
+const CONNECTED = { available: true, state: 'connected', models: [{ name: 'qwen3.5:9b', size: 1 }], manual_available: true };
+const aiStatusText = (page) => page.locator('[data-role="ai-status"]').textContent();
+async function openAi(page, server) {
+  await page.goto(`${server.base}/workspace/19`);
+  await page.waitForSelector('[data-feature="aiManager"] [data-role="ai-status"]');
+  await page.waitForFunction(() => document.querySelector('[data-role="ai-status"]').textContent !== '接続確認中…');
+}
+
+test('ai manager reads settings and status', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await openAi(page, server);
+    assert.equal(await page.locator('[data-role="ai-enabled"]').isChecked(), false);
+    assert.equal(await page.inputValue('[data-role="ai-model"]'), 'qwen3:8b');
+    assert.equal(await aiStatusText(page), 'AI未接続：通常制作は使用できます');
+    assert.equal(await page.locator('[data-role="ai-check"]').isEnabled(), true);
+  }, { seed: { 'bai_ai_config.json': AI_OFF } });
+});
+
+test('ai settings save only the two legacy fields', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    const bodies = [];
+    let saved = false; // 既存の「AI接続状態」カードも status を読むので、回数ではなく保存の後かどうかで切り替える
+    await page.route('**/api/ai/status', (route) => {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(saved ? CONNECTED : { available: false, state: 'disabled', models: [], manual_available: true }) });
+    });
+    page.on('request', (r) => { if (new URL(r.url()).pathname === '/api/ai/settings' && r.method() === 'POST') { bodies.push(r.postDataJSON()); saved = true; } });
+    await openAi(page, server);
+    await page.check('[data-role="ai-enabled"]');
+    await page.fill('[data-role="ai-model"]', ' qwen3.5:9b ');
+    await page.click('[data-role="ai-save"]');
+    await page.waitForFunction(() => document.querySelector('[data-role="ai-status"]').textContent === '接続済み — qwen3.5:9b');
+    assert.deepEqual(bodies, [{ enabled: true, default_llm: 'qwen3.5:9b' }]);
+    assert.equal(await page.locator('[data-role="ai-settings-result"]').textContent(), '設定を保存しました');
+    const cfg = JSON.parse(fs.readFileSync(path.join(server.dataDir, 'bai_ai_config.json'), 'utf8'));
+    assert.equal(cfg.enabled, true);
+    assert.equal(cfg.default_llm, 'qwen3.5:9b');
+    const defaults = JSON.parse(require('node:child_process').execFileSync('python3', ['-c', 'import json,bai_ai_manager as m;print(json.dumps(m.DEFAULTS))'], { cwd: path.join(__dirname, '..') }).toString());
+    for (const [k, v] of Object.entries(defaults)) if (k !== 'enabled' && k !== 'default_llm') assert.deepEqual(cfg[k], v, `${k} は既定値のまま`);
+  }, { seed: { 'bai_ai_config.json': AI_OFF } });
+});
+
+test('ai manager errors and busy state', harness.skip3d(), async () => {
+  await withApp(async ({ server, page }) => {
+    await openAi(page, server);
+    await page.route('**/api/ai/settings', (route) => route.request().method() === 'POST'
+      ? route.fulfill({ status: 400, contentType: 'application/json', body: '{"error":"unknown settings"}' })
+      : route.fulfill({ status: 500, contentType: 'application/json', body: '{"error":"x"}' }));
+    await page.click('[data-role="ai-save"]');
+    await page.waitForFunction(() => /保存失敗/.test(document.querySelector('[data-role="ai-settings-result"]').textContent));
+    assert.equal(await page.locator('[data-role="ai-settings-result"]').textContent(), '保存失敗: unknown settings');
+    await page.click('[data-role="ai-check"]');
+    await page.waitForFunction(() => /取得に失敗/.test(document.querySelector('[data-role="ai-status"]').textContent));
+    assert.equal(await aiStatusText(page), 'AI設定の取得に失敗しました。通常制作には影響しません。');
+    assert.equal(await page.inputValue('[data-role="ai-model"]'), 'qwen3:8b', '失敗ではモデル名を変えない');
+    await page.unroute('**/api/ai/settings');
+    // 通信中はボタンが無効。遅らせている間に画面を移ってもエラーにならない
+    await page.route('**/api/ai/status', async (route) => { await new Promise((r) => setTimeout(r, 1000)); await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(CONNECTED) }); });
+    await page.click('[data-role="ai-check"]');
+    assert.equal(await page.locator('[data-role="ai-check"]').isDisabled(), true);
+    assert.equal(await page.locator('[data-role="ai-save"]').isDisabled(), true);
+    await page.evaluate(() => window.baiStudio.navigate('08'));
+    await page.waitForTimeout(1300);
+    assert.equal(await page.locator('[data-role="ai-status"]').count(), 0);
+  }, { seed: { 'bai_ai_config.json': AI_OFF }, errors: [/status of 400/, /status of 500/] });
+});

@@ -487,11 +487,18 @@
     {
       "id": "P2-WP-08b",
       "step": "IK・AI：SCR-19 のカード「AI管理（任意・Ollama）」（⑧-2、O-⑧-5・7）",
-      "state": "not_started",
-      "commits": [],
-      "tests": [],
-      "unverified": [],
-      "notes": "",
+      "state": "verified",
+      "commits": [
+        "（このコミット）SCR-19 のカード「AI管理（任意・Ollama）」aiManager・テスト"
+      ],
+      "tests": [
+        "tests/studio-p2-pose-ai.test.cjs 11/11 pass（08b の3件を含む。実サーバーは bai_ai_config.json を enabled:false にして Ollama に触れず、成功の status は page.route のスタブ）。tsc pass。tests/studio-ui.test.cjs 20/20 pass。test_screen_status_honesty pass"
+      ],
+      "unverified": [
+        "実際の Ollama／Qwen との接続（接続済みの表示・モデル一覧）は未検証（開発環境に Ollama が無い。status はスタブ）",
+        "見た目（カード内の並び・色）、実GPU、Windowsは未実施"
+      ],
+      "notes": "features/ai-manager-view.js の aiManager（AI_TIMEOUT_MS=90000 を export、設定保存の POST に使用）。api.js は変更なし（postJson が timeoutMs を既に受ける）。設計に無い最小の解釈：接続確認・保存中は両ボタンを共通の busy で無効にし、保存成功後の再取得は busy を解いてから行う。既存「AI接続状態（既存API）」カードは変更なし。docs/ui/SCREEN_IMPLEMENTATION_MATRIX.json を gen_screen_matrix.mjs で再生成。",
       "owner_check": null
     },
     {

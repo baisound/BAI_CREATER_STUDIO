@@ -12,6 +12,7 @@ import { characterList, characterViewport, characterBones, useModelButton } from
 import { retargetPanel, retargetViewport } from './retarget-view.js';
 import { footContactPanel } from './foot-contact.js';
 import { ikTab } from './pose-ik-view.js';
+import { aiManager } from './ai-manager-view.js';
 import { motionCenter, vmdLibrary } from './motion-view.js';
 import { motionTimeline } from './motion-timeline.js';
 import { patternList, chainTimeline, playbackSettings } from './chain-view.js';
@@ -36,6 +37,8 @@ export const FEATURES = {
   retargetPanel, retargetViewport, footContactPanel,
   // WP-08a（⑧-1 SCR-13「足IK」タブ：足IK・接地の下に2D手動IKポーズ補助）
   ikTab,
+  // WP-08b（⑧-2 SCR-19 のカード「AI管理（任意・Ollama）」）
+  aiManager,
   // WP-05a（⑤ SCR-13［編集］の1体再生）
   motionCenter, vmdLibrary, motionTimeline,
   // WP-05c（⑤ SCR-05 の82パターン・お気に入り・コンビネーション・速度）
