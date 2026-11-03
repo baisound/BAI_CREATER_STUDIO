@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-02T20:13:07+09:00",
-  "updated_by": "codex",
-  "branch": "codex/v05-format-legacy-audit-20261102",
-  "head_at_update": "70134ca",
+  "updated_at": "2026-11-03T20:28:50+00:00",
+  "updated_by": "claude-code",
+  "branch": "claude/project-thread-8gcwq2",
+  "head_at_update": "7935400",
   "current": {
-    "task": "Issues #37/#50/#69: v0.5形式別素材入口と旧作品復元",
-    "status": "done",
-    "step": "PMX/VRM/FBX/GLB・各動作/音声/画像/動画の入口と見本・再読込を隔離検証し、旧作品IDの保存復元を追跡して欠落だけ修正する",
-    "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
+    "task": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認",
+    "status": "in_progress",
+    "step": "Phase E §7読み替え表・書き出し実装のレビュー、test:node-all/test:p2/pytest/tscをLinuxで実行",
+    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
     "Issue #37/#50: 実VRM/FBX/GLBステージと音声/画像/動画を形式別に実登録・見本・再読込し、未対応表示を修正",
@@ -33,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-03T20:28:50+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "7935400",
+      "text": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認: Phase E §7読み替え表・書き出し実装のレビュー、test:node-all/test:p2/pytest/tscをLinuxで実行"
+    },
     {
       "at": "2026-11-02T20:13:07+09:00",
       "by": "codex",
@@ -235,13 +242,6 @@
       "event": "done",
       "head": "8a79ba8",
       "text": "Issue #187 LIP-001: SRT発話の読み状態/明示無音を原本と分離保存。隔離HTTPで原時刻・hash・revision・原本不変を確認"
-    },
-    {
-      "at": "2026-10-25T01:46:46+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "128a78f",
-      "text": "Issue #187: SRT発話ごとの読み確定を原本と分離保存: 原本hashで結び付くUtterance読み状態・明示無音・revisionを作品単位で保存/再読込し不正入力を拒否する"
     }
   ]
 }
