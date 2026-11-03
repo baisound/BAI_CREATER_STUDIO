@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "frame": 0,
+  "limbs": {
+    "leftArm": {
+      "base": [
+        -0.2,
+        1.5
+      ],
+      "joint": [
+        -0.40010732776377367,
+        1.1307344351618451
+      ],
+      "end": [
+        -0.8,
+        1.14
+      ],
+      "requested": [
+        -0.8,
+        1.14
+      ],
+      "reachable": true,
+      "distance_error": 0.0,
+      "upper": 0.42,
+      "lower": 0.4,
+      "bend": 1
+    },
+    "rightArm": {
+      "base": [
+        0.2,
+        1.5
+      ],
+      "joint": [
+        0.4001073277637738,
+        1.1307344351618451
+      ],
+      "end": [
+        0.8,
+        1.14
+      ],
+      "requested": [
+        0.8,
+        1.14
+      ],
+      "reachable": true,
+      "distance_error": 0.0,
+      "upper": 0.42,
+      "lower": 0.4,
+      "bend": -1
+    },
+    "leftLeg": {
+      "base": [
+        -0.14,
+        1.0
+      ],
+      "joint": [
+        0.05218931242744923,
+        0.5384122313268426
+      ],
+      "end": [
+        -0.2,
+        0.13
+      ],
+      "requested": [
+        -0.2,
+        0.13
+      ],
+      "reachable": true,
+      "distance_error": 0.0,
+      "upper": 0.5,
+      "lower": 0.48,
+      "bend": 1
+    },
+    "rightLeg": {
+      "base": [
+        0.14,
+        1.0
+      ],
+      "joint": [
+        -0.020560378442623956,
+        0.5264808716911624
+      ],
+      "end": [
+        0.25,
+        0.13
+      ],
+      "requested": [
+        0.25,
+        0.13
+      ],
+      "reachable": true,
+      "distance_error": 0.0,
+      "upper": 0.5,
+      "lower": 0.48,
+      "bend": -1
+    }
+  }
+}

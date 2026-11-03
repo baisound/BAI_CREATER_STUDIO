@@ -1,25 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-03T20:44:30+00:00",
+  "updated_at": "2026-11-03T21:41:00+00:00",
   "updated_by": "claude-code",
   "branch": "claude/p2-wp08a",
-  "head_at_update": "d79e805",
+  "head_at_update": "693d0ce",
   "current": {
     "task": "P2-WP-08a SCR-13足IKタブの手動IKポーズ補助（2D）",
-    "status": "in_progress",
+    "status": "done",
     "step": "実装→テスト→台帳→コミット",
     "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
   },
   "next_steps": [
-    "P2-WP-08a: SCR-13足IKタブの手動IKポーズ補助（設計書§2.8(d)08a、Sonnet）",
-    "P2-WP-08b→08c（設計書§2.8。Q2で外せる単位は§2.8(i)）",
-    "Issue #37/#50: 実VRM/FBX/GLBステージと音声/画像/動画を形式別に実登録・見本・再読込し、未対応表示を修正",
-    "Issue #63/#69: 旧Studio保存状態の素材参照とv0.5作品IDへの可逆な対応を設計・実証",
-    "Issue #187: 合成比較ゲートを製品APIへ接続し実PMX/MP4で検証"
+    "P2-WP-08b: SCR-19 のカード「AI管理（任意・Ollama）」（設計書§2.8(d)08b）",
+    "P2-WP-08c: SCR-13 の折りたたみ「AIでポーズ案を作る」（08b の後）"
   ],
   "unverified": [
-    "WP-08は設計のみ（コード・テストは未作成）。実Qwen/Ollamaの推論は実装後も未検証の見込み",
-    "実VRM/人体GLB/FBXの3D描画、GLBステージ、動画内音声、旧作品完全復元、WebMCP/標準MCP、Linuxは未検証（前回からの引き継ぎ）"
+    "08a の見た目・実GPU・Windows・独立レビューは未実施。基線でも失敗する既存テスト（video import・camera host・retarget panel）は未解消"
   ],
   "blockers": [],
   "owner_questions": [
@@ -36,6 +32,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-03T21:41:00+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "693d0ce",
+      "text": "P2-WP-08a 実装完了：SCR-13「足IK」タブの手動IKポーズ補助（フォーク・モデル・ビュー・テスト・台帳）"
+    },
     {
       "at": "2026-11-03T20:44:30+00:00",
       "by": "claude-code",
@@ -238,13 +241,6 @@
       "event": "done",
       "head": "fbe5ca0",
       "text": "Issue #187 LIP-001: 確定かなの半開SRT区間からモーラ口形候補APIを追加。促音/撥音/長音/唇閉鎖、未確定/無音、24fps・原本hashを隔離HTTPで確認"
-    },
-    {
-      "at": "2026-10-25T01:57:31+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "ffcd391",
-      "text": "Issue #187: 確定かなのモーラから口形候補を計算: 原SRT半開区間と作品FPSを保ち、促音/撥音/長音/唇閉鎖を候補にし未確定・無音を区別する"
     }
   ]
 }
