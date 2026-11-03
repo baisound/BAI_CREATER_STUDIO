@@ -459,7 +459,9 @@
       "id": "P2-WP-08a",
       "step": "IK・AI：SCR-13「足IK」タブの手動IKポーズ補助（2D・基礎版。⑧-1、O-⑧-1〜4・9）",
       "state": "implemented",
-      "commits": [],
+      "commits": [
+        "eaa9e07（SCR-13「足IK」タブの手動IKポーズ補助・フォーク・モデル・テスト・§4.1 のポート追記）"
+      ],
       "tests": [
         "tests/studio-p2-pose-ai.test.cjs 8/8 pass（(f)08a の1〜10。隔離Chromium・SwiftShader）。tests/studio-p2-pose-ik-fork.test.mjs 12/12 pass（旧 pose_ik_ui.js を vm で実行して TEMPLATE・式・SVG の幾何を照合）。tests/test_pose_ik_fixture.py 2/2 pass",
         "npx tsc -p tsconfig.json pass。tests/studio-ui.test.cjs 20/20 pass。node tools/run_evidence_tests.mjs の失敗は基線（HEAD d79e805）と同じ既存の環境依存6件（video import・camera host 2件・retarget panel 2件・揺れる1件）で増減なし。実データのハッシュは前後一致"
