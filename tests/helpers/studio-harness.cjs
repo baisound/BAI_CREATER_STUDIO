@@ -87,6 +87,41 @@ function assertNoErrors(page) {
   if (problems.length) throw new Error(`ブラウザーのエラー ${problems.length} 件:\n${problems.join('\n')}`);
 }
 
+// ---- ポートの排他（並列実行の衝突防止） ----
+// run-guarded は node --test を並列（既定2）で動かす。別のテストファイルが同じ番号のポートを
+// 同時に使うと、後から来た側が「既に使われています」で失敗するか、起動に失敗した直後に相手の
+// サーバーへ繋がってしまう。ポートごとのロックファイルを OS の一時フォルダに作り、持ち主の
+// テストが stop() するまで待つ（実データを使う開発サーバーの検出は従来どおり、ロック取得後に行う）。
+const heldLocks = new Set();
+function lockPath(port) { return path.join(os.tmpdir(), `bai-studio-harness-port-${port}.lock`); }
+function pidAlive(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; }
+}
+async function acquirePortLock(port, timeoutMs = Number(process.env.BAI_TEST_PORT_WAIT_MS || 900000)) {
+  const file = lockPath(port);
+  const start = Date.now();
+  for (;;) {
+    try {
+      const fd = fs.openSync(file, 'wx');
+      fs.writeSync(fd, String(process.pid));
+      fs.closeSync(fd);
+      heldLocks.add(file);
+      return () => { if (heldLocks.delete(file)) { try { fs.unlinkSync(file); } catch { /* 既に無い */ } } };
+    } catch (e) {
+      if (e.code !== 'EEXIST') throw e;
+    }
+    let owner = NaN;
+    try { owner = Number(fs.readFileSync(file, 'utf8')); } catch { continue; }
+    if (owner === process.pid && heldLocks.has(file)) throw new Error(`ポート ${port} は既に使われています（同じテストファイルの別のサーバー）`);
+    if (!pidAlive(owner)) { try { fs.unlinkSync(file); } catch { /* 他が先に消した */ } continue; }
+    if (Date.now() - start > timeoutMs) throw new Error(`ポート ${port} のロックを ${timeoutMs}ms 待っても取得できません（持ち主 pid ${owner}）`);
+    await new Promise((r) => setTimeout(r, 250));
+  }
+}
+function releaseAllLocks() { for (const file of [...heldLocks]) { heldLocks.delete(file); try { fs.unlinkSync(file); } catch { /* 既に無い */ } } }
+process.on('exit', releaseAllLocks);
+
 // ---- サーバー ----
 async function waitForServer(base, child, exited, timeoutMs = 12000) {
   const start = Date.now();
@@ -101,9 +136,11 @@ async function waitForServer(base, child, exited, timeoutMs = 12000) {
 async function startServer({ port, seed = {} } = {}) {
   if (!port) throw new Error('startServer: port が必要です');
   const base = `http://127.0.0.1:${port}`;
+  const releaseLock = await acquirePortLock(port);
   // 他のサーバー（実 data/ を使うもの）に繋がらないよう、使用中なら止める
   try {
     await fetch(`${base}/api/server-version`);
+    releaseLock();
     throw new Error(`ポート ${port} は既に使われています。別のサーバーが応答しており、実データに書き込む恐れがあるため中止します`);
   } catch (e) { if (/既に使われて/.test(e.message)) throw e; }
 
@@ -121,6 +158,7 @@ async function startServer({ port, seed = {} } = {}) {
       await Promise.race([gone, new Promise((r) => setTimeout(r, 5000))]);
       if (!exited.done) child.kill('SIGKILL');
     }
+    releaseLock();
     if (process.env.KEEP_TEST_DATA === '1') {
       liveDirs.delete(dataDir);
       console.log(`[harness] KEEP_TEST_DATA=1: 一時データを残しました: ${dataDir}`);

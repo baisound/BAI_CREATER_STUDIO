@@ -445,7 +445,9 @@ test('motion viewport is disposed on leave', harness.skip3d(), async () => {
     assert.ok((await page.evaluate(() => window.__lost)) >= 1, 'WEBGL_lose_context が呼ばれる');
     assert.equal(await page.evaluate(() => window.baiStudio.motion.getState()), null);
     assert.equal((await vp(page)).loaded, false);
-    await page.waitForTimeout(300);
+    // 画面遷移直後は SCR-08 自身の1回きりの rAF が入ることがある（負荷時に 16 !== 15 で失敗した）。
+    // 最初の待ちで落ち着かせ、その後の 700ms に1回も増えないこと（ループなら増え続ける）を確かめる。
+    await page.waitForTimeout(1000);
     const before = await page.evaluate(() => window.__raf);
     await page.waitForTimeout(700);
     assert.equal(await page.evaluate(() => window.__raf), before, 'rAF のループが残っていない');
