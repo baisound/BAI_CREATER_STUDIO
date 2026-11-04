@@ -299,6 +299,15 @@
       "commit": "efa2b7e, 2b271f8",
       "tests": "pytest 351 passed、npm run test:node-all 103 pass・10 skip・0 fail、tsc 合格、通し確認 furthest_step=null、実 data/ ハッシュ不変",
       "unverified": "Opus レビュー未実施。GPU・Windows 実機未検証。薄表示の見え方は SwiftShader のスクリーンショットのみ。導線点検 §5 の6〜14 は所有者OK待ちで未着手"
+    },
+    {
+      "item": "Issue #63/#69 旧保存→v0.5取込 WP-L1（確認の純関数 plan・M1〜M11・理由コード・vmd_last_frame・固定fixture）。適用・取消・HTTP/MCP・画面（WP-L2〜L9）は未実装",
+      "phase_e_wp": "（DATA-008、再構築ロードマップ 次の実施順2）",
+      "planned_in": "LEGACY-IMPORT-WP-L1",
+      "status": "done",
+      "commit": "e1600f3",
+      "tests": "pytest tests/test_studio_v05_legacy_import_plan.py 36 passed（skipなし）、pytest 全体 644 passed・1 failed（既存の test_v05_timeline_drag_static）、npm run typecheck 出力なし",
+      "unverified": "DATA-008 は要検証のまま。plan はファイルを読まない純関数で、collect・apply・取消・HTTP/MCP・画面・実データ確認は未実装。見た目の大きさ（§2.3）とカメラの動きは未保証"
     }
   ]
 }

@@ -511,6 +511,8 @@ flowchart LR
   - 実行の前後で fixture ディレクトリのファイルとSHA-256が変わらない。
   - `vmd_last_frame` が `tests/fixtures/minimal.vmd` で正の整数を返し、30バイトに切ったバイト列で `ValueError`。
 
+**実装済み（2026-11-04）**：`studio_v05_legacy_import.py`（`plan`・`vmd_last_frame`・`MESSAGES`・`LABELS`）、`tests/legacy_import_fixtures.py`、`tests/fixtures/legacy_import/bundle_a〜j.json`、`tests/test_studio_v05_legacy_import_plan.py`。試験 36 件合格（skip なし）。pytest 全体は 644 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし、`npm run test:node-all` は fail 11（既知10＋1件、JS・サーバー未変更のため未特定）。未検証：`collect`・適用・取消・HTTP/MCP・画面・実データ（WP-L2 以降）。実装で補った点：`plan` の出力に `presence`・`assets`、各 `items` に整形済みの `messages`、拒否の `reject.params` を足した（§5.1 の出力に項目が無いが、§4 と §7.2 が必要とするため）。
+
 ### WP-L2 取込記録のストア
 
 - 新しいファイル `studio_v05_legacy_import_record.py`：`read_record(root, project_id) -> dict | None`、`write_record(root, project_id, record)`、`validate_record(record, project_id)`、`archive_record(root, project_id, now)`（history へ移す）。§4 の形を検査する。壊れたファイルは上書きせず `RECORD_UNREADABLE` の例外（`studio_v05_scene_instances.py:46-50` と同じ方針）。6MBを超えたら `RECORD_TOO_LARGE` で書かない。

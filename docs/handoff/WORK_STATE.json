@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T00:58:01+00:00",
+  "updated_at": "2026-11-04T01:11:44+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "04a28bd",
+  "head_at_update": "e1600f3",
   "current": {
     "task": "WP-L1 旧保存→v0.5取込 plan() 実装",
-    "status": "in_progress",
+    "status": "done",
     "step": "studio_v05_legacy_import.py と固定fixture試験",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "WP-L1: studio_v05_legacy_import.py の plan() と tests/fixtures/legacy_import/ の表駆動試験（標準モデル）",
-    "以後 L2→L3→L4→L7a→L7b→L5→L6→L9。L8aは次の実施順3の後、L8bは順6の後"
+    "WP-L2 取込記録のストア(studio_v05_legacy_import_record.py)",
+    "以後 L3→L4→L7a→L7b→L5→L6→L9"
   ],
   "unverified": [
-    "設計のみで試験は未実行。見た目の大きさ（§2.3）とカメラの動きは未保証",
-    "既存失敗（変更前から）: pytest test_v05_timeline_drag_static 1件、node-all 10件"
+    "plan のみ。collect/apply/取消/HTTP/MCP/画面/実データは未実装。DATA-008は要検証のまま",
+    "node-all は fail 11(既知10。11件目は未特定、JS/サーバー未変更)、pytest 既存失敗1件(test_v05_timeline_drag_static)"
   ],
   "blockers": [],
   "owner_questions": [
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T01:11:44+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "e1600f3",
+      "text": "WP-L1 完了: studio_v05_legacy_import.plan()・vmd_last_frame・固定fixture・試験36件"
+    },
     {
       "at": "2026-11-04T00:58:01+00:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "start",
       "head": "0e03643",
       "text": "Issue #187: 採用口形と元VMD・手動表情の別名合成出力: 元VMDの全セクション保持と口モーフ優先の合成境界を確認し、安全な候補生成と再読込を実装する"
-    },
-    {
-      "at": "2026-10-25T02:54:53+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "7eb316c",
-      "text": "Issue #187: 別名口形VMD候補を作品PMXへ明示採用・解除・Undo/Redo。元VMD→採用口形→手動0キーの優先表示、SRT区間外復帰、保存再読込と失効を隔離実PMXで確認。Python11件、Chrome2件、原本hash不変。"
     }
   ]
 }
