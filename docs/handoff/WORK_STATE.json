@@ -1,21 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T03:46:54+00:00",
+  "updated_at": "2026-11-04T03:53:38+00:00",
   "updated_by": "claude-code",
   "branch": "claude/l8a-design",
-  "head_at_update": "c149e02",
+  "head_at_update": "f94f114",
   "current": {
     "task": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）",
-    "status": "in_progress",
+    "status": "done",
     "step": "3人の批評の採否を決め、詳細設計を改訂する",
     "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "WP-L8a の実装（標準モデル。docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md §8 の順。最初に §6.3 の試験が変更前に失敗することを確かめる）",
-    "所有者の判断待ち：曲とダンスのGLB動作を写すか（S3の設計変更）"
+    "WP-L8a の実装（標準モデル）。設計書 §8 の手順0（§6.0：所有者のPCで S01 の元の外接箱を SCR-06 で測る）から。判定(a)〜(c)が偽なら §10 の質問を出して止まる",
+    "所有者の判断待ち：曲とダンスのGLB動作を写すか（S3、L8a には入れない）"
   ],
   "unverified": [
-    "WP-L8a は設計のみ（コード・試験は未作成）。WP-L8b、GLB動作のダンス、取込後のMP4、標準MCP・WebMCPからの取込、Linux",
+    "WP-L8a は設計のみ（コード・試験は未作成）。S01 の元の外接箱は未測定（§6.0）",
+    "WP-L8b、GLB動作のダンス、取込後のMP4、標準MCP・WebMCPからの取込、Linux",
     "既存の失敗：test_v05_timeline_drag_static"
   ],
   "blockers": [],
@@ -30,6 +31,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T03:53:38+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "f94f114",
+      "text": "WP-L8a 詳細設計を3人の批評で改訂（採否は設計書 §11）。所有者の症状（S1がS01に隠れる）を完了条件 L2〜L5 に加え、実装前に S01 の元の外接箱を SCR-06 で測る §6.0 を足した。スキン付きの試験素材（ケースK）と実PMX（ケースR）、εにRₚ/sの項、UNIT_SEMANTICS_DIFFER は character が無いときだけ残す、古い版で開いたときの範囲、試験の穴（skip防止 BAI_REQUIRE_3D、測ってから判定、対照の手順など）を直した。実装なし"
+    },
     {
       "at": "2026-11-04T03:46:54+00:00",
       "by": "claude-code",
@@ -232,13 +240,6 @@
       "event": "done",
       "head": "af81506",
       "text": "P2-WP-99: 締め（マトリクス最新確認・件数表・台帳・手順書・ROADMAP 1行）"
-    },
-    {
-      "at": "2026-11-03T23:41:05+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "af81506",
-      "text": "P2-WP-99: P2移植の締め（文書）: マトリクス再生成・件数表・台帳・手順書"
     }
   ]
 }
