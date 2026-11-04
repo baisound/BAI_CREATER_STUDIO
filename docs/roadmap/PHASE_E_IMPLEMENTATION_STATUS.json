@@ -317,6 +317,15 @@
       "commit": "WP-L2 コミット（Git履歴で「WP-L2」を検索）",
       "tests": "pytest tests/test_studio_v05_legacy_import_record.py 35 passed（skipなし）、plan 試験36件も合格、pytest 全体 679 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static）、npm run typecheck 出力なし。JS・サーバー未変更のため node 試験は未実行",
       "unverified": "DATA-008 は要検証のまま。ストア単体のみで、どこからも呼ばれていない。collect・apply・取消・HTTP/MCP・画面・実データ確認は未実装"
+    },
+    {
+      "item": "Issue #63/#69 旧保存→v0.5取込 WP-L3（collect・apply・undo_journal・revert、studio_project_catalog.clear_fps）。曲とダンス・旧タイムライン編集の取込（WP-L7a・L7b）、試験専用逆変換（L4）、HTTP/MCP（L5）、画面（L6）、実データ（L9）は未実装",
+      "phase_e_wp": "（DATA-008、再構築ロードマップ 次の実施順2）",
+      "planned_in": "LEGACY-IMPORT-WP-L3",
+      "status": "done",
+      "commit": "WP-L3 コミット（Git履歴で「WP-L3」を検索）",
+      "tests": "pytest tests/test_studio_v05_legacy_import_apply.py 51 passed（started の印・最終保存失敗の試験を含む）（skipなし。失敗の注入・途中停止・打ち消し失敗と再実行・競合・R1/R3・事前点検・同時実行・ログを含む）、plan・record 試験も合格、pytest 全体 724 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static）、npm run typecheck 出力なし。JS・サーバー未変更のため npm ci と node-all は未実行",
+      "unverified": "DATA-008 は要検証のまま。サーバー（PROJECT_LOCK を外側に取る呼び出し）・HTTP/MCP・画面・実データは未接続。clip_place・clip_source・clip_assign は plan がまだ手順を作らないため、手で組んだ手順で実行と打ち消しだけ確認。見た目の大きさ・カメラの動きは未保証"
     }
   ]
 }
