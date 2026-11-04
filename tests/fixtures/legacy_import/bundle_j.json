@@ -1,0 +1,17 @@
+{
+  "combination": {
+    "schema": 1,
+    "timeline": [],
+    "history": [],
+    "cursor": -1
+  },
+  "workspace": {
+    "frame": 100000,
+    "asset": "mmd:A:test.pmx",
+    "clip": null
+  },
+  "camera_overrides": {
+    "fps": 1,
+    "duration": 100000
+  }
+}

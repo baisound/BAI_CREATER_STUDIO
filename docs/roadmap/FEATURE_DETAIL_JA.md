@@ -271,6 +271,8 @@ Issue #88（2026-10-24）：HOMEと作品一覧の日時は作品保存値を変
 
 Issues #63/#69（2026-10-24）：保存済みGLBシーンを同じ作品の画像・動画と同じ編集画素へ透明WebGLで重ねる。隔離ChromeでF60/F150、保存再読込と前後画素差を確認。[試験記録](../v05/COMPOSITE_SCENE_PREVIEW_20261024_JA.md)。実PMXの合成、3Dを含むMP4、実GPU/Linux/MCPは未確認で全体の確認状態は変えない。
 
+Issues #63/#69（2026-11-04）：旧Studioの保存状態をv0.5の作品IDへ写す取込のうち WP-L1（確認の純関数 `studio_v05_legacy_import.plan()`、対応表M1〜M11、理由コード、`vmd_last_frame`、固定fixture `tests/fixtures/legacy_import/`）だけ実装。設計は[旧保存→v0.5取込設計](LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md)。適用・取消・HTTP/MCP・画面は未実装、見た目の大きさとカメラの動きは未保証で、確認状態は変えない。
+
 **実装チェック:** 手動UI操作、共通API、WebMCPツール、標準MCPツール、設定永続化、Undo/Redo対象、例外/権限処理、テスト、文書を同一IDで紐付ける。
 
 **受け入れ条件:** 指定した入力に対し期待される編集・表示・保存結果が得られ、再起動後に復元でき、元の素材を変更しない。該当する3D/動画変換では実データを使った比較検証を必須とする。

@@ -1,0 +1,120 @@
+{
+  "combination": {
+    "schema": 1,
+    "timeline": [],
+    "history": [],
+    "cursor": -1,
+    "title": "Bundle A"
+  },
+  "workspace": {
+    "frame": 120,
+    "asset": "mmd:A:test.pmx",
+    "clip": null,
+    "character": {
+      "position": [
+        1.5,
+        0,
+        -2
+      ],
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "scale": 1.2
+    },
+    "stage": {
+      "asset": "library:0123456789abcdef01234567",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": 2
+    },
+    "lights": {
+      "schema": 1,
+      "duration": 300,
+      "items": []
+    }
+  },
+  "camera_overrides": {
+    "fps": 30,
+    "duration": 300,
+    "keys": [
+      {
+        "frame": 0,
+        "position": [
+          0,
+          1.6,
+          5
+        ],
+        "target": [
+          0,
+          1,
+          0
+        ],
+        "fov": 40
+      },
+      {
+        "frame": 100,
+        "position": [
+          4,
+          2,
+          3
+        ],
+        "target": [
+          0,
+          1,
+          0
+        ],
+        "fov": 35
+      },
+      {
+        "frame": 200,
+        "position": [
+          -3,
+          2,
+          4
+        ],
+        "target": [
+          0,
+          1,
+          0
+        ],
+        "fov": 30
+      }
+    ],
+    "custom_presets": [
+      {
+        "name": "wide",
+        "pose": {
+          "fov": 50,
+          "position": [
+            0,
+            2,
+            8
+          ],
+          "target": [
+            0,
+            1,
+            0
+          ]
+        }
+      }
+    ],
+    "sequence": [
+      {
+        "start": 0,
+        "end": 100,
+        "preset": "wide",
+        "transition": "cut"
+      }
+    ]
+  }
+}
