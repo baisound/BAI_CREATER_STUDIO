@@ -21,9 +21,7 @@
     "既知の失敗：test_v05_timeline_drag_static、studio-v05-pane-layout（mainでも失敗）、実VMD試験のunknown char code。接続の時間切れなど不安定な試験は引継ぎ文書の§4"
   ],
   "blockers": [],
-  "owner_questions": [
-    "旧ダンスと旧タイムラインの動きが同じキャラで重なったときの優先（既定：タイムライン優先、ダンスは置くが割り当てない。カードで質問中）"
-  ],
+  "owner_questions": [],
   "read_first": [
     "docs/handoff/CODEX_HANDOFF_20261105_JA.md",
     "AGENTS.md",
