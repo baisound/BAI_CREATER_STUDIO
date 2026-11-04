@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T01:41:22+09:00",
+  "updated_at": "2026-11-04T16:42:42+00:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-next",
-  "head_at_update": "87ba6b9",
+  "head_at_update": "470ca8d",
   "current": {
     "task": "Codexへの引継ぎ（2026-11-05）",
     "status": "done",
@@ -12,7 +12,9 @@
   },
   "next_steps": [
     "まず docs/handoff/CODEX_HANDOFF_20261105_JA.md を読む",
-    "順5（GLB→VMDとモーション編集、#102）の詳細設計（ブランチ claude/r5-glb-vmd-design、未マージ）が main に入り、所有者の質問が片付いたら、その作業単位の順に実装する"
+    "ロードマップの次の実施順3の残り（動画内音声、300F超の3D出力、音画1F以内、同名完成物の版管理、保存カメラ無しの自動構図、縦長の欄、出力のMCP）から、まだ残っている項目を確かめて着手する",
+    "次に順4（#187）の残り（開始0秒以外・整数でないFPS、LIPのMCP。実PMX・完成MP4・実歌声SRTは所有者のPC）",
+    "順5の詳細設計（docs/roadmap/R5_GLB_VMD_MOTION_EDIT_DETAILED_DESIGN_20261104_JA.md）は草案。§8 の独立批評を反映し判定を受け直してから実装する"
   ],
   "unverified": [
     "DATA-008は要検証のまま（WP-L8bが残る）。WebMCP・標準MCPからの取込と登録、Linux、取込後のMP4は未検証",
@@ -20,9 +22,10 @@
   ],
   "blockers": [],
   "owner_questions": [
-    "Q1 旧カメラの動き（キー）を順6まで保管だけにしてよいか（既定：保管だけ。時刻付きの取込はWP-L8b。返事が無くても既定で進める）"
+    "旧ダンスと旧タイムラインの動きが同じキャラで重なったときの優先（既定：タイムライン優先、ダンスは置くが割り当てない。カードで質問中）"
   ],
   "read_first": [
+    "docs/handoff/CODEX_HANDOFF_20261105_JA.md",
     "AGENTS.md",
     "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md",
     "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md",
@@ -30,6 +33,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T16:42:42+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "470ca8d",
+      "text": "引継ぎ文書を直した：次の作業はロードマップ順3・4の残り、順5の設計は独立批評を受けた草案（§8）として main に入れる"
+    },
     {
       "at": "2026-11-05T01:41:22+09:00",
       "by": "claude-code",
@@ -232,13 +242,6 @@
       "event": "start",
       "head": "a260038",
       "text": "WP-L3 適用・打ち消し・取消(collect/apply/undo_journal/revert, clear_fps): studio_v05_legacy_import.py に収集・適用・取消、catalog.clear_fps、試験"
-    },
-    {
-      "at": "2026-11-04T01:14:48+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "1643329",
-      "text": "WP-L2 取込記録のストア studio_v05_legacy_import_record.py と試験35件"
     }
   ]
 }
