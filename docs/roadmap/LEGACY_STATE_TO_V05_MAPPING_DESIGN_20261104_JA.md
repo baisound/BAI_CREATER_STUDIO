@@ -542,6 +542,8 @@ flowchart LR
   - ログ：`studio_v05_legacy_import.event` を monkeypatch で受け取り、成功・失敗・取消で1回ずつ呼ばれ、`state` が入っている。
   - R1：§5.7 のファイル群のSHA-256が、全試験の前後で一致する。
 
+**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` に `collect`・`apply`・`undo_journal`・`revert`・`event`、`studio_project_catalog.clear_fps`、`tests/test_studio_v05_legacy_import_apply.py`。試験 45 件合格（skip なし）。pytest 全体は 724 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`、WP-L5）・HTTP/MCP・画面・実データ。`clip_*` 手順は plan がまだ作らないため、手で組んだ手順で実行・打ち消しだけ確認（WP-L7a で plan が作る）。設計の穴を次のように解釈した：(1) `apply` の拒否順は「記録の状態（`ALREADY_IMPORTED`/`IMPORT_INTERRUPTED`）→ expected の食い違い（`SOURCE_CHANGED`/`TARGET_CHANGED`）→ その他の plan の拒否」（§5.2 の2と試験が両立するため）。(2) 適用が失敗して `undo_failed` になった記録を再び取り消すと `rolled_back`（`error` を持つ記録は取込が完成しなかったとみなす。適用済みの取消が失敗した記録は `reverted`）。`applying` の記録に `error` が無ければ印 `ImportInterrupted` を足す。(3) 届いていない（`pending`）`fps` 手順は、いまの値が違っても `FPS_KEPT_USER_CHANGE` を出さない。(4) `collect` は L7a・L7b まで `live` を読まず `live=None`・`durations={}`。(5) `undo.warnings` は `{code, message}`。(6) 拒否だけの操作は `event` を出さない。(7) `LegacyImportError.state` を足した。(8) 読めないストア（`SceneInstancesError` の旧1体枠以外）は元の例外のまま伝わる（何も書かない）。
+
 ### WP-L4 試験専用の逆変換と往復試験
 
 - `studio_v05_legacy_import.py` に `_export_legacy_for_test(record, current)` を足す（§5.6）。HTTP・MCP・画面からは呼ばない。

@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T01:16:32+00:00",
+  "updated_at": "2026-11-04T01:24:38+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "a260038",
+  "head_at_update": "af4b03e",
   "current": {
     "task": "WP-L3 適用・打ち消し・取消(collect/apply/undo_journal/revert, clear_fps)",
-    "status": "in_progress",
+    "status": "done",
     "step": "studio_v05_legacy_import.py に収集・適用・取消、catalog.clear_fps、試験",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "WP-L3 適用・打ち消し・取消(collect/apply/undo_journal/revert, clear_fps)",
-    "以後 L4→L7a→L7b→L5→L6→L9"
+    "WP-L4 試験専用の逆変換と往復試験(R2/R4)",
+    "以後 L7a→L7b→L5→L6→L9"
   ],
   "unverified": [
-    "ストア単体のみで呼び出し元なし。collect/apply/取消/HTTP/MCP/画面/実データは未実装。DATA-008は要検証のまま",
-    "node試験は JS・サーバー未変更のため未実行。pytest 既存失敗1件(test_v05_timeline_drag_static)"
+    "サーバー経由(外側のPROJECT_LOCK)・HTTP/MCP・画面・実データは未接続。clip_*手順はplanがまだ作らず手組みの手順で確認のみ。DATA-008は要検証のまま",
+    "pytest既存失敗1件(test_v05_timeline_drag_static)。JS・サーバー未変更のためnode試験は未実行"
   ],
   "blockers": [],
   "owner_questions": [
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T01:24:38+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "af4b03e",
+      "text": "WP-L3 collect・apply・undo_journal・revert と clear_fps、試験45件"
+    },
     {
       "at": "2026-11-04T01:16:32+00:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "start",
       "head": "70ed811",
       "text": "Issue #69: 2026-11-02時点のv0.5最短制作経路ロードマップを再構築: 承認済み順序と機能台帳・実装・試験の差を照合し、次の縦断作業と終了条件を日付付き正本へ整理する"
-    },
-    {
-      "at": "2026-11-02T18:34:24+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "40ee410",
-      "text": "LIP-001: 元VMD・採用口形・手動表情の優先計算を30fps候補へ焼き込み、全作品Fと60fps中間Fの重み差で拒否する比較ゲートを追加。実VMDを含む9試験成功"
     }
   ]
 }
