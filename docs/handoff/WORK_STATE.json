@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T09:14:57+09:00",
+  "updated_at": "2026-11-04T09:17:46+09:00",
   "updated_by": "claude-code",
-  "branch": "claude/v05-real-format",
-  "head_at_update": "f43fa4d",
+  "branch": "claude/v05-next",
+  "head_at_update": "b677dac",
   "current": {
-    "task": "Issue #37/#50/#69: v0.5実素材の形式別登録・見本・再読込（ロードマップ次の実施順2）",
-    "status": "done",
-    "step": "実素材の形式別隔離登録試験と結果表",
+    "task": "DATA-016: FBXモデル見本の黒い影絵と容量「不明」の修正、続いてロードマップ次の実施順3の調査（#39/#63/#81）",
+    "status": "in_progress",
+    "step": "画面呼称（①②③）の記録修正とFBX見本の原因調査",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T09:17:46+09:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "b677dac",
+      "text": "DATA-016: FBXモデル見本の黒い影絵と容量「不明」の修正、続いてロードマップ次の実施順3の調査（#39/#63/#81）: 画面呼称（①②③）の記録修正とFBX見本の原因調査"
+    },
     {
       "at": "2026-11-04T09:14:57+09:00",
       "by": "claude-code",
@@ -236,13 +243,6 @@
       "event": "done",
       "head": "93fab6c",
       "text": "Issue #187: v0.5画面のdry-run→別名VMD候補生成→取得を接続。隔離Chrome2/2、実PMX AのF30/F60/F90口モーフ値とキャンバス画素差を確認、原本不変。"
-    },
-    {
-      "at": "2026-10-25T02:24:25+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0d1d96d",
-      "text": "Issue #187: v0.5から別名モーフVMD候補を出力: 確定MorphMap選択・dry-run・候補生成・ダウンロードをSRT画面へ接続し実Chromeで確認する"
     }
   ]
 }

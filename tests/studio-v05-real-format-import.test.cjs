@@ -12,7 +12,7 @@ const harness = require('./helpers/studio-harness.cjs');
 const root = process.env.BAI_REAL_MMD_DATA;
 const shotDir = process.env.BAI_SHOT_DIR;
 const libraryFile = name => path.join(root, 'library_assets', 'files', name);
-// via: v05 = v0.5素材管理の追加画面、legacy = v0.5から開く旧SCR-08取込画面
+// via: v05 = v0.5素材管理の追加画面、legacy = v0.5（③）から開く②の /workspace/08（素材管理）
 // sample: v0.5詳細に出る見本（thumbnail=保存済み見本画像、none=見本なしと明示）
 const sources = root && [
   { label: 'VRM', via: 'legacy', name: 'proof-character.vrm', sample: 'thumbnail', kind: null, file: path.join(root, 'integrated_v02', 'assets', 'K00_黒狼_バイサウンド.vrm') },
@@ -70,7 +70,7 @@ test('real VRM/FBX/GLB motion/stage/WAV/image/video register, preview and reload
           !document.querySelector('#baiUploadKind'), registered);
       }
       const renderer = await harness.webglRenderer(page);
-      // v0.5の追加画面だけで登録した直後の見本（旧画面を開く前）。
+      // v0.5の追加画面だけで登録した直後の見本（②の08を開く前）。
       const v05Only = await json(await fetch(`${server.base}/api/assets`));
       const thumbnailBeforeLegacy = Object.fromEntries(v05Only.items.map(item => [item.originalName || item.name, item.thumbnailUrl || null]));
       const legacyRows = sources.filter(r => r.via === 'legacy');
@@ -92,7 +92,7 @@ test('real VRM/FBX/GLB motion/stage/WAV/image/video register, preview and reload
         document.querySelector(`[data-feature="importQueue"] tbody tr[data-name="${name}"] [data-role="status"]`)?.textContent.trim() === '完了'),
       legacyRows.map(row => row.name), { timeout: 300000 });
       await shot(legacy, '00_legacy_import_done.png');
-      // 旧画面は一覧表示時に3D・動画の見本を順番に作る。作り終わるまで旧画面を開いたままにする。
+      // ②の08は一覧表示時に3D・動画の見本を順番に作る。作り終わるまで②の08を開いたままにする。
       const wantsThumbnail = ['proof-character.vrm', 'proof-model.fbx', 'proof-stage.glb', 'proof-video.mp4'];
       const deadline = Date.now() + 180000;
       let pendingThumbs = wantsThumbnail;
@@ -103,8 +103,8 @@ test('real VRM/FBX/GLB motion/stage/WAV/image/video register, preview and reload
         await legacy.waitForTimeout(2000);
       }
       await shot(legacy, '00_legacy_after_thumbnails.png');
-      assert.deepEqual(pendingThumbs, [], '旧画面で見本が作られません');
-      // 旧画面が見本を保存したら、開いたままのv0.5一覧も再読込なしで見本を出す。
+      assert.deepEqual(pendingThumbs, [], '②の08で見本が作られません');
+      // ②の08が見本を保存したら、開いたままのv0.5一覧も再読込なしで見本を出す。
       const inventory = await json(await fetch(`${server.base}/api/assets`));
       const byName = new Map(inventory.items.map(item => [item.originalName || item.name, item]));
       const thumbIds = sources.filter(row => row.sample === 'thumbnail').map(row => byName.get(row.name).id);
