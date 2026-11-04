@@ -47,6 +47,7 @@ test('real VRM/FBX/GLB motion/stage/WAV/image/video register, preview and reload
     const server = await harness.startServer({ port: 8921 });
     let browser, page, legacy;
     const legacyErrors = [];
+    const legacyConsole = [];
     const shot = async (target, name) => {
       if (shotDir) { fs.mkdirSync(shotDir, { recursive: true }); await target.screenshot({ path: path.join(shotDir, name) }); }
     };
@@ -78,6 +79,8 @@ test('real VRM/FBX/GLB motion/stage/WAV/image/video register, preview and reload
       await page.locator('#baiLegacyImport').click();
       legacy = await popup;
       legacy.on('pageerror', error => legacyErrors.push(String(error)));
+      legacy.on('console', message => { if (message.type() === 'error') legacyConsole.push(message.text().slice(0, 300)); });
+      legacy.on('requestfailed', request => legacyConsole.push(`requestfailed ${request.url()} ${request.failure()?.errorText}`));
       await legacy.bringToFront();
       await legacy.waitForURL(/\/workspace\/08/);
       await legacy.locator('[data-feature="assetLibrary"]').waitFor({ timeout: 120000 });
@@ -135,6 +138,21 @@ test('real VRM/FBX/GLB motion/stage/WAV/image/video register, preview and reload
         if (shown.sample === 'thumbnail' || shown.sample === 'image') {
           await page.waitForFunction(() => document.querySelector('#baiAssetDetail img')?.naturalWidth > 0, null, { timeout: 30000 });
         }
+        if (shown.sample === 'thumbnail') {
+          // 見本の背景(#172638)以外の画素の平均輝度。材質が読めない黒い影絵は 0 付近になる。
+          shown.figureLuma = await detail.locator('img').evaluate(img => {
+            const canvas = document.createElement('canvas'); canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+            const g = canvas.getContext('2d'); g.drawImage(img, 0, 0);
+            const d = g.getImageData(0, 0, canvas.width, canvas.height).data;
+            let sum = 0, count = 0;
+            for (let i = 0; i < d.length; i += 16) {
+              if (Math.abs(d[i] - 0x17) + Math.abs(d[i + 1] - 0x26) + Math.abs(d[i + 2] - 0x38) <= 24) continue;
+              sum += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; count++;
+            }
+            return count ? Math.round(sum / count) : 0;
+          });
+          assert.ok(shown.figureLuma > 30, `見本が黒い影絵です（平均輝度 ${shown.figureLuma}）: ${row.label}`);
+        }
         if (shown.sample === 'audio' || shown.sample === 'video') {
           await detail.locator(shown.sample).evaluate(node => { node.preload = 'metadata'; node.load(); });
           await page.waitForFunction(t => document.querySelector(`#baiAssetDetail ${t}`)?.readyState >= 1, shown.sample, { timeout: 60000 });
@@ -176,7 +194,7 @@ test('real VRM/FBX/GLB motion/stage/WAV/image/video register, preview and reload
       }
       const count = page && !page.isClosed() ? await page.locator('#baiAssetCount').textContent().catch(() => null) : null;
       const status = page && !page.isClosed() ? await page.locator('#baiAssetDetail').textContent().catch(() => null) : null;
-      console.log(`REAL_FORMAT_FAILURE ${JSON.stringify({ count, status: status?.slice(0, 400) })}`);
+      console.log(`REAL_FORMAT_FAILURE ${JSON.stringify({ count, status: status?.slice(0, 400), legacyErrors, legacyConsole: legacyConsole.slice(0, 20) })}`);
       throw error;
     } finally {
       await legacy?.close(); await page?.close(); await browser?.close(); await server.stop();

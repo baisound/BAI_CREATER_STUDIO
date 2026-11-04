@@ -1,23 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T09:17:46+09:00",
+  "updated_at": "2026-11-04T09:39:42+09:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-next",
-  "head_at_update": "b677dac",
+  "head_at_update": "82630a0",
   "current": {
     "task": "DATA-016: FBXモデル見本の黒い影絵と容量「不明」の修正、続いてロードマップ次の実施順3の調査（#39/#63/#81）",
-    "status": "in_progress",
+    "status": "done",
     "step": "画面呼称（①②③）の記録修正とFBX見本の原因調査",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
-    "ロードマップ次の実施順3（共通の制作状態からの出力）へ進む。FBXモデル見本が黒い影絵になる件とv0.5単独で3D・動画見本を作れない件は、所有者の判断待ちの候補として扱う"
+    "ロードマップ次の実施順3：作品・シーン・時計と保存カメラ/ステージ位置のプレビュー・レンダーへの受け渡しを調査表にまとめる"
   ],
   "unverified": [
-    "FBXモデル見本の材質（黒い影絵）、FBX容量の「不明」表示",
-    "MP3・WebM/OGV・JPEG/GIF/WebP/AVIF/BMP・GLB小物/エフェクト・実PMX ZIPの旧画面登録",
-    "WebMCP・標準MCP・Linux、v0.5での動作見本・3D回転表示",
-    "studio-real-asset-visuals の実VMD試験は既存の警告 unknown char code で失敗（修正前のmainでも同じ）"
+    "②の/workspace/08がSwiftShaderで時々起動途中に止まる（stage-thumbnail.jsのERR_CONNECTION_TIMED_OUT、原因未特定）",
+    "Exo Grayの見本とMixamo公式画像の突き合わせ、他のFBXモデル",
+    "test_v05_timeline_drag_static と実VMD試験の既存の失敗"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +33,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T09:39:42+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "82630a0",
+      "text": "FBXモデル見本の黒い影絵（テクスチャ読込前に描画）と、FBX・PMX・VMDの容量「不明」を修正（DATA-016）。Exo Grayの見本を作り直し、前後画像を確認画像フォルダへ保存"
+    },
     {
       "at": "2026-11-04T09:17:46+09:00",
       "by": "claude-code",
@@ -236,13 +242,6 @@
       "event": "start",
       "head": "3925d8d",
       "text": "Issue #187: 口形VMD出力不能箇所を一覧化: 未確定発話・警告・欠落モーフ・フレーム衝突を発話別に返しv0.5画面で修正対象を示す"
-    },
-    {
-      "at": "2026-10-25T02:28:23+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "93fab6c",
-      "text": "Issue #187: v0.5画面のdry-run→別名VMD候補生成→取得を接続。隔離Chrome2/2、実PMX AのF30/F60/F90口モーフ値とキャンバス画素差を確認、原本不変。"
     }
   ]
 }
