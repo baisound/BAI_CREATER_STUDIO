@@ -1,22 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T02:23:00+00:00",
+  "updated_at": "2026-11-04T02:42:30+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "81f4c07",
+  "head_at_update": "69d0415",
   "current": {
     "task": "WP-L6 v0.5の画面（旧保存取込の作品カードのボタンと確認・取消の対話画面）",
-    "status": "in_progress",
+    "status": "done",
     "step": "workspaces-v05.js にボタン1つ、legacy-import-ui-v188.js、index.html、操作説明書、隔離Chrome試験を足す",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "WP-L6 v0.5の画面",
-    "WP-L9 実データでの確認"
+    "WP-L9 実データでの確認",
+    "WP-L8a 見た目の大きさをそろえる（次の実施順3のあと）",
+    "WP-L8b カメラの動きを写す（順6のあと）"
   ],
   "unverified": [
-    "標準MCP実クライアント・WebMCP実ブラウザ・実data/のmanifest・画面は未確認。DATA-008は要検証のまま",
-    "pytest既存失敗1件(test_v05_timeline_drag_static)、node-all fail11(mainと同じ10件+不安定1件)"
+    "標準MCP実クライアント・WebMCP実ブラウザ・実data/・実GPUでの3D表示は未確認。DATA-008は要検証のまま",
+    "pytest既存失敗1件(test_v05_timeline_drag_static)、node-all fail10(mainでも失敗する既知。不安定1件は今回成功)"
   ],
   "blockers": [],
   "owner_questions": [
@@ -30,6 +31,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T02:42:30+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "69d0415",
+      "text": "WP-L6 v0.5の画面（作品カードのボタン1つ、確認・取消の対話画面、操作説明、隔離Chromeの試験）"
+    },
     {
       "at": "2026-11-04T02:23:00+00:00",
       "by": "claude-code",
@@ -232,13 +240,6 @@
       "event": "done",
       "head": "268adfc",
       "text": "P2-WP-08a 手動IKポーズ補助（2D）を main に統合し、配置をレビュー・関連テスト56件合格"
-    },
-    {
-      "at": "2026-11-03T21:46:16+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "6d32ddd",
-      "text": "P2-WP-06d/07を独立レビューしverified。§7読み替え表を修正、SCR-02のクリップ保持とSCR-23の失敗表示を修正、Nodeゲートのポート衝突とserver.pyのretarget比較回帰を修正"
     }
   ]
 }
