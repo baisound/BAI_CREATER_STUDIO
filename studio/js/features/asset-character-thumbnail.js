@@ -39,7 +39,7 @@ export function characterFront(object, THREE, format) {
 }
 
 /** Wait until every material texture has image data (or the timeout passes, e.g. a missing external file). @param {any} object @param {number} timeoutMs */
-async function texturesReady(object, timeoutMs) {
+export async function texturesReady(object, timeoutMs) {
   /** @type {Set<any>} */ const textures = new Set();
   object.traverse((/** @type {any} */ node) => {
     if (!node.isMesh) return;

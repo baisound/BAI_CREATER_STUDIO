@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { classifyImport, effectiveRoute, conflictOf, batchErrors, batchErrorRows, fbxIdFor, sha256Hex, integratedStoredName, IMPORT_ACCEPT, MAX_UPLOAD_BYTES, MAX_STAGE_UPLOAD_BYTES } from '../studio/js/features/import-rules.js';
 import { categoryOf, sourceLabel, filterAssets, countByCategory, formatsOf, ASSET_CATS } from '../studio/js/features/assets-model.js';
+import { uploadUrlFor, importedAssetId } from '../studio/js/features/import-send.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -250,4 +251,24 @@ test('countByCategory / formatsOf / ASSET_CATS', () => {
 test('samples.js no longer carries ASSET_CATS (moved to assets-model.js)', () => {
   const src = fs.readFileSync(path.join(root, 'studio/js/samples.js'), 'utf8');
   assert.doesNotMatch(src, /export const ASSET_CATS/);
+});
+
+/* ---------------------------------------------------------------- import-send（②と③の共通部品） */
+
+test('uploadUrlFor: each route keeps the /workspace/08 upload API', () => {
+  assert.equal(uploadUrlFor('integrated', 'model', 'a b.vrm'), '/api/integrated-v02/upload?kind=model&name=a%20b.vrm');
+  assert.equal(uploadUrlFor('integrated', 'motion', 'walk.glb'), '/api/integrated-v02/upload?kind=motion&name=walk.glb');
+  assert.equal(uploadUrlFor('library', 'stage', 's.glb'), '/api/library-assets/upload?kind=stage&name=s.glb');
+  assert.equal(uploadUrlFor('pmxZip', 'A', 'x.zip'), '/api/pmx-zip-upload?slot=A');
+  assert.equal(uploadUrlFor('vmd', '', '踊り.vmd'), `/api/mmd-upload?slot=vmd&name=${encodeURIComponent('踊り.vmd')}`);
+  assert.equal(uploadUrlFor('fbx', 'modelA', 'Exo Gray.fbx'), '/api/upload?kind=modelA&name=Exo%20Gray.fbx');
+  assert.equal(uploadUrlFor('fbx', 'motions', 'walk.fbx'), '/api/upload?kind=motions&name=walk.fbx');
+});
+
+test('importedAssetId: the /api/assets id for each route', () => {
+  assert.equal(importedAssetId('library', 'a.png', { item: { id: 'library:abc' } }), 'library:abc');
+  assert.equal(importedAssetId('integrated', 'a.vrm', { asset: '0123456789abcdef0123.vrm' }), 'integrated:0123456789abcdef0123.vrm');
+  assert.equal(importedAssetId('pmxZip', 'x.zip', { slot: 'A', model_path: 'm/model.pmx' }), 'mmd:A:m/model.pmx');
+  assert.equal(importedAssetId('vmd', 'dance.vmd', {}), 'mmd:vmd:dance.vmd');
+  assert.equal(importedAssetId('fbx', 'walk.fbx', { id: '0123456789abcdef01234567' }), 'fbx:0123456789abcdef01234567');
 });
