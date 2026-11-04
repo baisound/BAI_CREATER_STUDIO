@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T00:37:46+00:00",
+  "updated_at": "2026-11-04T00:46:25+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "5649df6",
+  "head_at_update": "1c1133d",
   "current": {
-    "task": "Issue #63/#69: 旧Studio保存状態をv0.5作品IDへ可逆に対応させる設計",
-    "status": "done",
-    "step": "旧保存とv0.5保存の比較調査",
+    "task": "Issue #63/#69: 旧保存→v0.5取込設計の批評反映（最終判定）",
+    "status": "in_progress",
+    "step": "3批評の検証と採否判断・設計書改訂",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T00:46:25+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "1c1133d",
+      "text": "Issue #63/#69: 旧保存→v0.5取込設計の批評反映（最終判定）: 3批評の検証と採否判断・設計書改訂"
+    },
     {
       "at": "2026-11-04T00:37:46+00:00",
       "by": "claude-code",
@@ -236,13 +243,6 @@
       "event": "done",
       "head": "b87f6d6",
       "text": "LIP-001の別名口形VMD出力前検査を発話別・原因別の一覧へ拡張。隔離Python実PMX含む11件、隔離Chrome実PMX1件、typecheck/構文/差分検査成功。Issue #187。"
-    },
-    {
-      "at": "2026-10-25T02:30:39+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3925d8d",
-      "text": "Issue #187: 口形VMD出力不能箇所を一覧化: 未確定発話・警告・欠落モーフ・フレーム衝突を発話別に返しv0.5画面で修正対象を示す"
     }
   ]
 }
