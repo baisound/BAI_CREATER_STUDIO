@@ -600,6 +600,8 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
   - `tests/test_studio_v05_legacy_import_http.py`：隔離サーバー（`conftest.py:40` の `BAI_DATA_DIR`）で、確認 → 適用 → 記録の読込 → 取消を順に通す。400、404、409（`FPS_CONFLICT`・`TARGET_NOT_EMPTY`・`ALREADY_IMPORTED`・`REVERT_BLOCKED`）、413 の状態コード、`error_code`、日本語の `error` が §3.4 と一致することを確かめる。
   - `tests/test_studio_v05_legacy_import_mcp.py`：`mcp_server.TOOLS` に4つの名前があり、引数のスキーマが §6 と同じ。`webmcp.js` の本文に `def('bai_studio_project_legacy_import_preview'` などの4つが含まれる。標準MCPの実クライアント、WebMCPの実ブラウザでの呼び出しは未検証と記録する。
 
+**実装済み（2026-11-04）**：`server.py`（4経路、`legacy_import_asset_path`）、`mcp_server.py`・`webmcp.js`（道具4本）、`tests/test_studio_v05_legacy_import_http.py`（15件）・`tests/test_studio_v05_legacy_import_mcp.py`（4件）。skip なし。pytest 全体は 915 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、typecheck 出力なし、node-all は fail 11（main でも10件は同じ。残り1件は不安定で、再実行で成功）。未検証：標準MCPの実クライアント、WebMCPの実ブラウザ、実 data/ の manifest、画面。設計の穴を次のように解釈した：(1) 確認は、収集段階の失敗（`PROJECT_NOT_FOUND` 404・`NO_SNAPSHOT` 404・`SNAPSHOT_UNREADABLE`/`RECORD_UNREADABLE` 422・`include`/`fps_policy` の不正は 400）を §3.4 の状態コードで返し、`plan` が返す拒否だけを200で返す。(2) 本文が空・JSON でない・Content-Length が数でないときは400、8192バイト超は413 `REQUEST_TOO_LARGE`。(3) §3.4 に無い想定外の例外は500 `INTERNAL_ERROR`（診断ZIPを案内する文）で返し、操作ログ `v05_legacy_import_*` に残す。(4) 記録の読込は、作品が無ければ404 `PROJECT_NOT_FOUND`。(5) 確認・記録の読込も `PROJECT_LOCK` の内側で呼ぶ。(6) 500 の本文の `state` は例外の `state` をそのまま入れる（`rolled_back`・`undo_failed`・`reverting`・`applying`）。
+
 ### WP-L6 v0.5の画面
 
 - §7 のとおり。`workspaces-v05.js:58` にボタン1つ、新しいファイル `studio/v05/js/legacy-import-ui-v188.js`、`studio/v05/index.html` に読み込み1行。操作説明書 `docs/v05/LEGACY_IMPORT_GUIDE_JA.md` に §0.1 の手順、§7.2 の画面の説明、§7.3 の5の制限を書く。

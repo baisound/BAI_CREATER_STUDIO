@@ -55,6 +55,11 @@ def resolve_asset(identifier):
         return MMD_DIR/slot/name
     raise ValueError('unsupported asset source')
 
+def legacy_import_asset_path(identifier):
+    """旧保存取込（WP-L5）用。登録素材の原本パス。見つからなければ None（置き換えはしない）。"""
+    try:return resolve_asset(identifier)
+    except ValueError:return None
+
 BASE=Path(__file__).resolve().parent
 DATA=data_dir(); AI_CONFIG=DATA/'bai_ai_config.json'
 FILES=DATA/'files'; FILES.mkdir(parents=True,exist_ok=True)
@@ -240,6 +245,14 @@ class Handler(BaseHTTPRequestHandler):
         event('camera.project_invalid',level='error',reason=str(exc.message)[:200],backup=exc.backup_name)
         msg='カメラ保存データ（camera_project.json）を読めません。元のファイルはそのままです。退避コピー：%s。手で直す場合：サーバーを止め、data/camera_project.json を退避コピーと見比べて直すか、別の場所へ移してから、サーバーを起動し直してください。初期状態から始める場合は、新UIの［初期状態から始める…］を使ってください（退避コピーは残ります）。'%(exc.backup_name or 'なし')
         self.send(422,json.dumps({'error':msg,'error_code':'camera_project_invalid','backup':exc.backup_name},ensure_ascii=False).encode())
+    def legacy_import_error(self,exc):
+        # 設計 §3.4：{"error": 日本語の文, "error_code": コード}。適用・取消の失敗では state（rolled_back / undo_failed など）も返す。
+        body={'error':exc.message,'error_code':exc.code}
+        if exc.state:body['state']=exc.state
+        self.send(exc.status or 400,json.dumps(body,ensure_ascii=False).encode())
+    def legacy_import_unexpected(self,name,exc):
+        event(name,level='error',error_type=type(exc).__name__,error=str(exc)[:200])
+        self.bad(500,'旧保存の取込の処理を完了できませんでした。診断ZIPを保存して開発者に渡してください。','INTERNAL_ERROR')
     def do_GET(self):
         if urlsplit(self.path).path == '/api/studio/v05/lip/vmd-candidate/file':
             from studio_v05_lip_vmd_candidate import candidate_file, LipVmdError
@@ -636,6 +649,31 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(200,json.dumps(payload,ensure_ascii=False).encode())
             except FileNotFoundError:return self.bad(404,'保存済みスナップショットがありません')
             except (CatalogError,ValueError,KeyError,OSError):return self.bad(422,'スナップショットの読み込みに失敗しました')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/project/legacy-import-preview':
+            import studio_v05_legacy_import as legacy_import
+            try:
+                query=parse_qs(urlsplit(self.path).query)
+                include=[x for value in query.get('include',[]) for x in value.split(',') if x]
+                with PROJECT_LOCK:
+                    inputs=legacy_import.collect(DATA,query.get('id',[''])[0],include,unified_assets(),readmeta(),legacy_import_asset_path)
+                    result=legacy_import.plan(inputs,include=include,fps_policy=query.get('fps_policy',['keep_if_same'])[0])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except legacy_import.LegacyImportError as exc:return self.legacy_import_error(exc)
+            except Exception as exc:return self.legacy_import_unexpected('v05_legacy_import_preview',exc)
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/project/legacy-import':
+            import studio_v05_legacy_import as legacy_import, studio_v05_legacy_import_record as legacy_record
+            from studio_project_catalog import load as catalog_load
+            try:
+                project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
+                with PROJECT_LOCK:
+                    if not any(row['id']==project_id for row in catalog_load(DATA/'studio_v05_catalog.json')['projects']):
+                        raise legacy_import.LegacyImportError('PROJECT_NOT_FOUND')
+                    record=legacy_record.read_record(DATA,project_id)
+                self.send(200,json.dumps({'record':record},ensure_ascii=False).encode())
+            except legacy_import.LegacyImportError as exc:return self.legacy_import_error(exc)
+            except Exception as exc:return self.legacy_import_unexpected('v05_legacy_import_get',exc)
             return
         path=urlsplit(self.path).path
         if path in ("/camera.html", "/camera.css", "/camera.js", "/camera_3d.js", "/camera_vmd_local.js", "/camera_rig.js", "/camera_follow_config.js", "/camera_follow_smoothing.js", "/camera_framing.js", "/camera_lens.js", "/camera_dof.js", "/camera_focus_tracking.js", "/camera_focus_consistency.js", "/camera_bundle_core.js", "/camera_project_bundle_ui.js", "/camera_sequence_playback.js"):
@@ -1509,6 +1547,23 @@ class Handler(BaseHTTPRequestHandler):
             except CameraProjectInvalid as exc:return self.send_camera_invalid(exc)
             except (CatalogError,ValueError,TypeError,KeyError):return self.bad(400,'Invalid project snapshot request')
             except OSError:return self.bad(500,'Snapshot save failed')
+            return
+        if urlsplit(self.path).path in ('/api/studio/v05/project/legacy-import/apply','/api/studio/v05/project/legacy-import/revert'):
+            import studio_v05_legacy_import as legacy_import
+            applying=urlsplit(self.path).path.endswith('/apply')
+            try:
+                try:length=int(self.headers.get('Content-Length','0'))
+                except ValueError:raise legacy_import.LegacyImportError('BAD_REQUEST')
+                if length>8192:raise legacy_import.LegacyImportError('REQUEST_TOO_LARGE')
+                if length<=0:raise legacy_import.LegacyImportError('BAD_REQUEST')
+                try:request=json.loads(self.rfile.read(length))
+                except (ValueError,UnicodeDecodeError):raise legacy_import.LegacyImportError('BAD_REQUEST')
+                with PROJECT_LOCK:
+                    if applying:result=legacy_import.apply(DATA,request,unified_assets(),readmeta(),legacy_import_asset_path)
+                    else:result=legacy_import.revert(DATA,request,unified_assets())
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except legacy_import.LegacyImportError as exc:return self.legacy_import_error(exc)
+            except Exception as exc:return self.legacy_import_unexpected('v05_legacy_import_'+('apply' if applying else 'revert'),exc)
             return
         if urlsplit(self.path).path=='/api/studio/v05/diagnostic':
             try:
