@@ -1,23 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T10:58:16+09:00",
+  "updated_at": "2026-11-04T01:53:47+00:00",
   "updated_by": "claude-code",
-  "branch": "claude/v05-next",
-  "head_at_update": "a37ed31",
+  "branch": "claude/project-thread-8gcwq2",
+  "head_at_update": "1d1b6fe",
   "current": {
-    "task": "DATA-016：③の素材管理からVRM・FBX・GLB動作を直接登録し、3D見本・回転表示・動作再生を③で行う",
+    "task": "WP-L7b 旧タイムライン編集(timeline_editor)の開始時刻の取込",
     "status": "done",
-    "step": "設計メモと共通部品の切り出し",
-    "design_doc": "docs/v05/DIRECT_MODEL_MOTION_IMPORT_DESIGN_20261104_JA.md"
+    "step": "studio_v05_legacy_import.py の plan/collect に T1〜T4 を足す",
+    "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "所有者の判断待ちの次の指示（ロードマップ次の実施順4以降）"
+    "WP-L5 HTTPとMCP（server.py・mcp_server.py・webmcp.js）",
+    "以後 L6→L9"
   ],
   "unverified": [
-    "PMX ZIP・VMDの③からの登録、GLBモデル・ステージ・動画の③での見本作成",
-    "隔離サーバーへの接続が時々ERR_CONNECTION_TIMED_OUTになる（原因未特定、修正前から）",
-    "既存の失敗：test_v05_timeline_drag_static・実VMD試験（unknown char code）・arm-ik/full-dance/vmd-constant",
-    "WebMCP・標準MCP・Linux"
+    "サーバー経由(PROJECT_LOCK)・HTTP/MCP・画面・実data/のmanifestでの名前解決は未接続・未確認。DATA-008は要検証のまま",
+    "pytest既存失敗1件(test_v05_timeline_drag_static)。JS・サーバー未変更のためnode-all未実行"
   ],
   "blockers": [],
   "owner_questions": [
@@ -32,18 +31,67 @@
   ],
   "history": [
     {
-      "at": "2026-11-04T10:58:16+09:00",
+      "at": "2026-11-04T01:53:47+00:00",
       "by": "claude-code",
       "event": "done",
-      "head": "a37ed31",
-      "text": "③の素材管理からVRM・FBX（モデルA/B・動作）・GLB動作を直接登録し、見本・回転表示・動作再生を③で行えるようにした（DATA-016）。送信部品をimport-send.jsへ切り出し②と共用"
+      "head": "1d1b6fe",
+      "text": "WP-L7b 旧タイムライン編集の開始時刻の取込（plan T1〜T4、collect、試験67件）"
     },
     {
-      "at": "2026-11-04T10:33:18+09:00",
+      "at": "2026-11-04T01:46:56+00:00",
       "by": "claude-code",
       "event": "start",
-      "head": "4d9fb4c",
-      "text": "DATA-016：③の素材管理からVRM・FBX・GLB動作を直接登録し、3D見本・回転表示・動作再生を③で行う: 設計メモと共通部品の切り出し"
+      "head": "55c8662",
+      "text": "WP-L7b 旧タイムライン編集(timeline_editor)の開始時刻の取込: studio_v05_legacy_import.py の plan/collect に T1〜T4 を足す"
+    },
+    {
+      "at": "2026-11-04T01:44:46+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "549cb41",
+      "text": "WP-L7a 曲とダンス(SCR-10)の取込を実装（plan S1〜S6・collect・clip手順、試験58件）"
+    },
+    {
+      "at": "2026-11-04T01:37:19+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "3aa7216",
+      "text": "WP-L7a 曲とダンス(SCR-10)の配置と開始時刻の取込: studio_v05_legacy_import.py の plan/apply に S 手順と clip_* を足す"
+    },
+    {
+      "at": "2026-11-04T01:36:11+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "8e11890",
+      "text": "WP-L4 試験専用の逆変換 _export_legacy_for_test と往復試験(R2/R4)32件"
+    },
+    {
+      "at": "2026-11-04T01:33:42+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "8e11890",
+      "text": "WP-L4 試験専用の逆変換と往復試験(R2/R4): studio_v05_legacy_import.py に _export_legacy_for_test と往復試験"
+    },
+    {
+      "at": "2026-11-04T01:31:03+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "933bee4",
+      "text": "WP-L3 レビュー反映(started の印ほか)、試験51件"
+    },
+    {
+      "at": "2026-11-04T01:24:38+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "af4b03e",
+      "text": "WP-L3 collect・apply・undo_journal・revert と clear_fps、試験45件"
+    },
+    {
+      "at": "2026-11-04T01:16:32+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "a260038",
+      "text": "WP-L3 適用・打ち消し・取消(collect/apply/undo_journal/revert, clear_fps): studio_v05_legacy_import.py に収集・適用・取消、catalog.clear_fps、試験"
     },
     {
       "at": "2026-11-04T01:14:48+00:00",
@@ -191,55 +239,6 @@
       "event": "start",
       "head": "73a49ef",
       "text": "P2 WP-08（IK・AI）詳細設計：§2.8 の詳しく化: 旧IK・AI機能の棚卸し→O-⑧決定→WP-08a/b分割→自己批評"
-    },
-    {
-      "at": "2026-11-03T20:28:50+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "7935400",
-      "text": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認: Phase E §7読み替え表・書き出し実装のレビュー、test:node-all/test:p2/pytest/tscをLinuxで実行"
-    },
-    {
-      "at": "2026-11-02T20:13:07+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "70134ca",
-      "text": "v0.5から旧SCR-08のモデル・動作登録へ誘導し、連続登録後の一覧更新を修正。合成6形式の隔離Chrome登録・再読込5件を確認し旧作品復元の保存契約差を記録"
-    },
-    {
-      "at": "2026-11-02T19:52:44+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "02968bd",
-      "text": "Issues #37/#50/#69: v0.5形式別素材入口と旧作品復元: PMX/VRM/FBX/GLB・各動作/音声/画像/動画の入口と見本・再読込を隔離検証し、旧作品IDの保存復元を追跡して欠落だけ修正する"
-    },
-    {
-      "at": "2026-11-02T18:54:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "841bd1c",
-      "text": "Issues #37/#63/#69: 既存PMX/VMD/WAVと新規画像を同一隔離作品へ配置し、保存再読込・F0/F120/F240プレビュー・3F MP4の画素/PCM・原本hash不変を実Chromeで確認（縦断試験1/1）"
-    },
-    {
-      "at": "2026-11-02T18:44:46+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "aaaa00b",
-      "text": "Issues #37/#63/#69: v0.5の登録済み素材と新規素材の同一作品縦断実証: 既存PMX/VMD/WAVと新規画像を隔離作品へ配置し、保存再読込・同時刻プレビュー・短MP4・原本不変を一つのゲートで確認する"
-    },
-    {
-      "at": "2026-11-02T18:41:43+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "1e54578",
-      "text": "Issue #69: 2026-11-02版v0.5ロードマップを再構築し、承認済み7段階の現在の証拠・欠落・終了条件と次の同一作品ID縦断試験を整理。台帳151 IDとCSV151行の整合を確認"
-    },
-    {
-      "at": "2026-11-02T18:37:41+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "70ed811",
-      "text": "Issue #69: 2026-11-02時点のv0.5最短制作経路ロードマップを再構築: 承認済み順序と機能台帳・実装・試験の差を照合し、次の縦断作業と終了条件を日付付き正本へ整理する"
     }
   ]
 }

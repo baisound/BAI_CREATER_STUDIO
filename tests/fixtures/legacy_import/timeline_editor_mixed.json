@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "clips": [
+    {"name": "Run", "start": 0, "duration": 60, "speed": 1, "blend": 0},
+    {"name": "Walk Cycle", "start": 60, "duration": 120, "speed": 1.5, "blend": 12},
+    {"name": "Jump", "start": 200, "duration": 30, "speed": 1, "blend": 3},
+    {"name": "Nothing Here", "start": 300, "duration": 30, "speed": 1, "blend": 0},
+    {"name": "Hero", "start": 400, "duration": 30, "speed": 1, "blend": 0}
+  ],
+  "updatedAt": 1730000100
+}

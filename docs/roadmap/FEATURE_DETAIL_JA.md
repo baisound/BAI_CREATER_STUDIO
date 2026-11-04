@@ -271,7 +271,7 @@ Issue #88（2026-10-24）：HOMEと作品一覧の日時は作品保存値を変
 
 Issues #63/#69（2026-10-24）：保存済みGLBシーンを同じ作品の画像・動画と同じ編集画素へ透明WebGLで重ねる。隔離ChromeでF60/F150、保存再読込と前後画素差を確認。[試験記録](../v05/COMPOSITE_SCENE_PREVIEW_20261024_JA.md)。実PMXの合成、3Dを含むMP4、実GPU/Linux/MCPは未確認で全体の確認状態は変えない。
 
-Issues #63/#69（2026-11-04）：旧Studioの保存状態をv0.5の作品IDへ写す取込のうち WP-L1（確認の純関数 `studio_v05_legacy_import.plan()`、対応表M1〜M11、理由コード、`vmd_last_frame`、固定fixture `tests/fixtures/legacy_import/`）だけ実装。設計は[旧保存→v0.5取込設計](LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md)。続けて WP-L2（取込記録のストア `studio_v05_legacy_import_record.py`：読み書き・形の検査・6MB上限・history への退避）を実装。適用・取消・HTTP/MCP・画面は未実装、見た目の大きさとカメラの動きは未保証で、確認状態は変えない。
+Issues #63/#69（2026-11-04）：旧Studioの保存状態をv0.5の作品IDへ写す取込のうち WP-L1（確認の純関数 `studio_v05_legacy_import.plan()`、対応表M1〜M11、理由コード、`vmd_last_frame`、固定fixture `tests/fixtures/legacy_import/`）だけ実装。設計は[旧保存→v0.5取込設計](LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md)。続けて WP-L2（取込記録のストア `studio_v05_legacy_import_record.py`：読み書き・形の検査・6MB上限・history への退避）と WP-L3（`collect`・`apply`・`undo_journal`・`revert`、`studio_project_catalog.clear_fps`：v0.5の公開関数だけを通して写し、取消は打ち消す操作で行い revision は増える一方、applying で止まっても日誌で後始末）を実装。続けて WP-L4（試験専用の逆変換 `_export_legacy_for_test` と往復試験 R2/R4。取込後に編集しなければ元の bundle と一致し、v0.5での編集は旧形式へ反映、表せない変更は `unrepresentable` に出る。HTTP・MCP・画面には出さない）を実装。続けて WP-L7a（曲とダンス SCR-10 の取込：利用者がチェックを入れたときだけ、曲とダンスの開始時刻を `秒=フレーム÷30` で `music`/`audio` と `motion` トラックのクリップへ写し、ダンスのモデルは共有か原点に追加、動かす相手を割り当てる。ダンスの途中開始・FBX/GLB動作・長さが読めない曲は理由付きで保管、SCR-10 の保存ファイルは書き換えない）を実装。続けて WP-L7b（旧タイムライン編集 timeline_editor の取込：利用者がチェックを入れたときだけ、動作名を旧画面と同じ規則で登録素材へ解決し、開始と長さを `秒=フレーム÷30` で `motion` トラックのクリップへ写して動かす相手を割り当てる。再生速度を変えた動作・名前が解決できない動作・素材が無い動作は理由付きで保管、つなぎ（blend）は使わず値を記録に残す。保存ファイルは書き換えない）を実装。HTTP/MCP・画面は未実装、見た目の大きさとカメラの動きは未保証で、確認状態は変えない。
 
 **実装チェック:** 手動UI操作、共通API、WebMCPツール、標準MCPツール、設定永続化、Undo/Redo対象、例外/権限処理、テスト、文書を同一IDで紐付ける。
 
@@ -914,6 +914,8 @@ Issues #63/#69（2026-11-04）：旧Studioの保存状態をv0.5の作品IDへ�
 **同日追加の比較ゲート:** [元VMD・採用口形・手動表情のフレーム比較](../v05/LIP001_COMPOSITE_FRAME_GATE_20261025_JA.md)。画面と同じ優先順の合成値を30fps候補へ焼き込み、全作品Fと60fps相当の中間Fで差を測る。表現できないSRT/手動キー境界は拒否した。製品API/保存/実PMX往復は未接続。
 
 **2026-11-04 製品API/画面への接続（#187）:** [合成候補API](../v05/LIP001_COMPOSITE_CANDIDATE_API_20261104_JA.md)。作品の元VMDクリップ・採用口形・手動表情キーを revision 付きで選び、別名VMD候補を書き出して全キーを読み直す。失効・不連続・範囲外は拒否し、取得時にも再照合する。開始0秒・整数FPSのクリップに限る。合成PMX/VMDの隔離HTTP・Chromeで試験。実PMXの見た目・MP4・MCPは未検証。
+
+**2026-11-04 口形境界の平滑化（所有者決定）:** SRT由来の口形の開始・終了を、30fpsの1 VMDフレームかけて直線で切り替える。整数VMDフレームの値は従来のまま、その間を直線にする。Python合成・3D表示・プレビュー/MP4撮影が同じ規則（[A1設計 §4.1](../specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md)）。元VMDと値の合わない境界でも合成候補が成功し、手動キー由来の不連続は引き続き422。合成素材の試験のみで、実PMXの見た目・実歌音声SRTは未検証。
 
 **目的・要求:** 字幕時刻と日本語読み/母音推定。
 

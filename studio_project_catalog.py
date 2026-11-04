@@ -48,6 +48,17 @@ def set_fps(path,project_id,fps):
         _atomic(path,data)
         return item
 
+def clear_fps(path,project_id):
+    """Remove a project's frame-rate setting (back to 'unset'). Used only to undo a legacy import."""
+    with LOCK:
+        data=load(path)
+        item=next((x for x in data['projects'] if x['id']==project_id),None)
+        if item is None:raise CatalogError('Project not found')
+        item.pop('fps',None)
+        item['modified']=datetime.now(timezone.utc).isoformat()
+        _atomic(path,data)
+        return item
+
 def _atomic(path,data):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
     temp=path.with_name(path.name+'.tmp-'+uuid.uuid4().hex)

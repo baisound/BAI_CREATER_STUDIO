@@ -185,8 +185,12 @@
 | M11 | 旧画面の不明な項目「{key}」 |
 | S1 | ダンスのモデル「{name}」 |
 | S2 | 曲「{name}」 |
-| S3 | ダンス「{name}」 |
-| T2 | 旧タイムラインの動作「{name}」 |
+| S3・S4 | ダンス「{name}」（S4＝途中開始の保管も同じ表示名。WP-L7a で補足） |
+| S6 | 曲とダンスの画面の再生位置とFPS（WP-L7a で補足） |
+| S0 | 曲とダンスの画面の保存（ファイル全体を `LIVE_SOURCE_INVALID` で保管するとき。WP-L7a で補足） |
+| T0 | 旧タイムライン編集の保存（ファイル全体を `LIVE_SOURCE_INVALID` で保管するとき。WP-L7b で補足） |
+| T1・T2 | 旧タイムラインの動作「{name}」（T1＝解決できずに保管するときも同じ表示名。解決できたときの `{name}` は素材の名前、できないときは旧の動作名。WP-L7b で補足） |
+| T4 | 旧タイムライン編集の更新日時（WP-L7b で補足） |
 | 場面インスタンスのストア | 3D場面 |
 | アレンジのストア | タイムライン |
 
@@ -542,6 +546,10 @@ flowchart LR
   - ログ：`studio_v05_legacy_import.event` を monkeypatch で受け取り、成功・失敗・取消で1回ずつ呼ばれ、`state` が入っている。
   - R1：§5.7 のファイル群のSHA-256が、全試験の前後で一致する。
 
+**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` に `collect`・`apply`・`undo_journal`・`revert`・`event`、`studio_project_catalog.clear_fps`、`tests/test_studio_v05_legacy_import_apply.py`。試験 51 件合格（skip なし）。pytest 全体は 730 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`、WP-L5）・HTTP/MCP・画面・実データ。`clip_*` 手順は plan がまだ作らないため、手で組んだ手順で実行・打ち消しだけ確認（WP-L7a で plan が作る）。設計の穴を次のように解釈した：(1) `apply` の拒否順は「記録の状態（`ALREADY_IMPORTED`/`IMPORT_INTERRUPTED`）→ expected の食い違い（`SOURCE_CHANGED`/`TARGET_CHANGED`）→ その他の plan の拒否」（§5.2 の2と試験が両立するため）。(2) 適用が失敗して `undo_failed` になった記録を再び取り消すと `rolled_back`（`error` を持つ記録は取込が完成しなかったとみなす。適用済みの取消が失敗した記録は `reverted`）。`applying` の記録に `error` が無ければ印 `ImportInterrupted` を足す。(3) 届いていない（`pending`）`fps` 手順は、いまの値が違っても `FPS_KEPT_USER_CHANGE` を出さない。(4) `collect` は L7a・L7b まで `live` を読まず `live=None`・`durations={}`。(5) `undo.warnings` は `{code, message}`。(6) 拒否だけの操作は `event` を出さない。(7) `LegacyImportError.state` を足した。(8) 読めないストア（`SceneInstancesError` の旧1体枠以外）は元の例外のまま伝わる（何も書かない）。
+
+**WP-L3 追記（レビュー反映）**：(a) **started の印**：`fps`・`scene_add`・`clip_place` は、始める直前の保存で `started: true`（と `pre_ids`）を書く。`undo_journal` は `pending` で `started` の無い手順を何も探さず `undone` にする（plan が全手順に `pre_ids: []` を入れるため、探すと利用者が足した同じ素材のインスタンス・クリップや、利用者の FPS を消すおそれがあるため）。`FPS_KEPT_USER_CHANGE` は `started` の手順にだけ出す。`fps` の照合（`TARGET_CHANGED`）は `started` を書く前に行う。(b) **拒否の順番**：記録の状態 → expected の食い違い → その他の plan の拒否（レビューで妥当と判定）。(c) **`rolled_back` と `reverted` の使い分け**：`error` を持つ記録（取込が完成しなかった）は `rolled_back`、完成した取込（`applied` から）の取消は `reverted`（同じく妥当）。最終保存（`applied`）に失敗したときは `state` を `applying` に戻してから打ち消す。(d) **WP-L5 の受け入れ条件**：HTTP 側は `with PROJECT_LOCK:` で囲む。他の編集 API が `PROJECT_LOCK` を取らないため、取消の事前点検と打ち消しの間に入った変更は守られない、という時間差が残る（各関数の revision 照合で競合は検出するが、事前点検の対象は保証しない）。この時間差を操作説明書と Issue #69 に記録する。
+
 ### WP-L4 試験専用の逆変換と往復試験
 
 - `studio_v05_legacy_import.py` に `_export_legacy_for_test(record, current)` を足す（§5.6）。HTTP・MCP・画面からは呼ばない。
@@ -551,6 +559,8 @@ flowchart LR
   - キャラクターを削除 → `asset` が空文字、`clip` が `None`、`character` 無し、3つとも `changed`。ステージを削除 → `stage: null`。
   - 素材原本を書き換える → `asset_hash_changed` に出る。
   - どの結果も `validate_bundle` を通る。
+
+**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` に `_export_legacy_for_test(record, current)`、`tests/test_studio_v05_legacy_import_roundtrip.py`（試験 32 件、skip なし）。R2 は bundle_a〜j の全部で合格、R4 は設計の全項目を試験化。試験結果の全体は WORK_STATE.json と `PHASE_E_IMPLEMENTATION_STATUS.json` に記録。HTTP・MCP・画面からは呼ばない（`server.py` に名前が無いことも試験）。設計の穴の解釈：(1) `current` は `collect` の target に `playhead` と任意の `asset_sha256` を足した形。(2) `unrepresentable` の `pointer` は項目単位（`/workspace/stage/scale`、`/workspace/stage/visible` など）で、理由は `SCALE_NOT_UNIFORM`・`SCALE_OUT_OF_RANGE`・`POSITION_OUT_OF_RANGE`・`ROTATION_OUT_OF_RANGE`・`INSTANCE_HIDDEN`・`EXTRA_INSTANCE`・`FPS_CHANGED`・`FRAME_EXCEEDS_DURATION`・`ASSET_CHANGED`（取込後にインスタンスの素材が記録と違う場合。設計に無い理由で、黙って値を変えない方針による）。(3) 元が `absent`・`null` の character が既定値のままなら presence どおり、変えたら `value` で出して `changed` は `/workspace/character`。表せない変更を含むときは presence どおりに戻して `unrepresentable` に出す。(4) 再生位置は記録に `playhead` 手順がある（j は無い）ときだけ逆変換し、取込時の秒と同じなら元のフレーム。(5) `asset_hash_changed` は記録の `sha256` が null の素材と `current` に無い素材を比べない。(6) 数値は成分ごとでなく項目（position・rotation・scale）単位で、1成分でも範囲外なら項目全体が元の値。未検証：サーバー経由・HTTP/MCP・画面・実データ（WP-L5 以降）。
 
 ### WP-L7a 曲とダンス（SCR-10）を写す
 
@@ -569,6 +579,8 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
   - 取消で、クリップ2件とインスタンスが消え、`music_dance_project.json` のSHA-256が変わらない。
   - チェックなし（`include` が空）なら、SCR-10 のファイルを読まない（ファイルを壊れたJSONにしても拒否されない）。
 
+**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` の `plan`（S1〜S6、`_plan_music_dance`）、`collect`（`_read_music_dance`、`_music_dance_media`）、`apply`（record の `source.live`）、`tests/test_studio_v05_legacy_import_music_dance.py`、fixture 3本。試験 58 件合格（skip なし）。legacy_import 全体 212 件合格、pytest 全体は 821 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`）・HTTP/MCP・画面・実データ・実 ffprobe での曲の長さ（試験は `media_info` を差し替え）。設計の穴を次のように解釈した：(1) `durations` は秒（VMD は `(最終フレーム+1)/30`）。曲の音声の有無（`place` の `source_has_audio` 用）は `inputs["audio_flags"]` に別に入れ、`clip_place` 手順の `source_has_audio` に写す。(2) 時刻は `round(フレーム/30, 4)`（クリップの保存桁と同じ）。(3) `start + duration` が 24 時間を超える曲・ダンスは `OUT_OF_RANGE` で保管（超えると `place` が失敗して取込全体が巻き戻るため）。(4) `model_id` が指定されているのに置けない（`ASSET_MISSING`・`ASSET_UNSUPPORTED`）ときは、ダンスの対象をキャラクターへ代用せず `MOTION_TARGET_UNSET`。`model_id` が null のときだけキャラクターのインスタンスを対象にする。(5) S1 がキャラクターと共有のときも、items に S1（`mapped`、手順なし、警告なし）を残す。(6) S4（`motion_source_frame ≠ 0`）は素材の状態に関係なく先に判定し、items の id は `S4`（表示名は S3 と同じ）。(7) S6 は SCR-10 が有効なとき常に1件保管する。ラベルは §3.5 に補足した。(8) SCR-10 のファイルが検査に通らない・64KiB を超える・読めないときは item `S0`（`LIVE_SOURCE_INVALID`、ポインタ空）で保管し、他の取込は続ける。`legacy_value`・record の `live.music_dance.value` は全文（64KiB 超は `null`）。(9) `plan` の入力 `live.music_dance` は `{sha256, value, updated_at, invalid?}`。`source_info.music_dance_updated` はファイルの更新日時（`updated_at`）。(10) `collect` はチェックなし（`include` に無い）ときファイルも素材も読まない。ファイルが無ければ `None`（拒否しない）。(11) `clip_source`・`clip_assign`・`playhead` の手順にも、始める直前に `started` の印を保存する（打ち消しは何もしない手順なので動作は変わらない）。(12) 曲のトラックは `classify` の `music`/`audio`、手順の `role` は曲 `music`・ダンス `dance`・追加モデル `dance_model`。
+
 ### WP-L7b 旧タイムライン編集を写す
 
 - `plan` に §3.3 の T1〜T4 を、`collect` に `timeline_editor.json` の読み込みを足す。`include` に `"timeline_editor"` があるときだけ動く。
@@ -578,6 +590,8 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
   - 開始と長さの秒が `start/30`、`duration/30`。
   - 形の壊れたファイル → `LIVE_SOURCE_INVALID`、ほかは取り込まれる。
   - 取消でクリップが消える。
+
+**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` の `plan`（T1〜T4、`_plan_timeline_editor`、`_norm_name`）、`collect`（`_read_timeline_editor`、`_validate_timeline_editor`）、`tests/test_studio_v05_legacy_import_timeline_editor.py`、fixture 2本。試験 67 件合格（skip なし）。legacy_import 全体 279 件合格、pytest 全体は 896 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`）・HTTP/MCP・画面・実データ（試験の manifest は試験内で組んだもの）。設計の穴を次のように解釈した：(1) `mapping` の値が空文字・文字列以外のときは「自動一致」（旧画面の `manual[x] || norm(x)` と同じ）。空でない値で候補が0件のときは旧画面の自動一致へ戻らず `NAME_UNRESOLVED`（別の素材を黙って置かない）。(2) 1クリップ1項目。T1（解決できず保管：`NAME_UNRESOLVED`・`ASSET_MISSING`・`ASSET_UNSUPPORTED`）、T2（置いた、または速度で保管）。T3 の `BLEND_DROPPED` と T1 の `NAME_DUPLICATE_LAST_WINS`、S5 の `MOTION_TARGET_UNSET` は、置いたクリップの T2 項目の `codes` に載せる（別項目にしない）。つなぎの値は項目の `legacy_value`（クリップ全体）に残る。(3) 解決した素材が `classify` で `motion` でなければ `ASSET_UNSUPPORTED`（モデル枠以外の FBX モデルなど）。判定の順は 解決 → 素材の有無 → 形式 → 速度。(4) 動かす相手は、`music_dance` が有効で `model_id` があるときはその結果（置けなければ未設定）、それ以外は M3 のキャラクター。`compatible()` が偽、または相手が無いときは `MOTION_TARGET_UNSET`。(5) ファイルの検査は `server.py` の POST と同じ（`int()`・`float()` で変換、欠けた項目は開始0・長さ90・速度1・つなぎ6）。保存する値は変換後。`updatedAt` があるときだけ T4 を保管。(6) 上限は 256KiB。超える・検査に通らない・読めないときは item `T0`（`LIVE_SOURCE_INVALID`、ポインタ空）。`legacy_value`・record の `live.timeline_editor.value` は全文（256KiB 超は `null`、JSON でないときは元の文字列）。(7) 同じ素材を複数のクリップが使うときも、record の `assets` には1行だけ入れる（原本の SHA-256 を何度も計算しない）。(8) 手順の `role` は `timeline`。時刻は `round(フレーム/30, 4)`。(9) 24時間の上限は旧画面の入力上限（開始100万フレーム＋長さ10万フレーム）から超えないため、`OUT_OF_RANGE` の判定は足していない。(10) `source_info.timeline_editor_updated` はファイルの更新日時。(11) §7.2 の画面の「{n}件」は `value.clips` の件数。Issue #69 へのコメント（共通の完了条件4）は外部への書き込みのため行っていない。
 
 ### WP-L5 HTTP と MCP
 
