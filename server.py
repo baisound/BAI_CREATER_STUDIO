@@ -255,6 +255,23 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError, ValueError, TypeError):
                 self.bad(422, 'Lip VMD candidate unreadable')
             return
+        if urlsplit(self.path).path == '/api/studio/v05/lip/composite-candidate/file':
+            from studio_v05_lip_composite_candidate import candidate_file, LipCompositeError
+
+            query = parse_qs(urlsplit(self.path).query)
+            if (set(query) != {'project_id', 'candidate_id'}
+                    or any(len(values) != 1 for values in query.values())):
+                return self.bad(400, 'Invalid lip composite candidate query')
+            try:
+                raw, _ = candidate_file(DATA, unified_assets(), character_source,
+                                        query['project_id'][0], query['candidate_id'][0])
+                self.send(200, raw, 'application/octet-stream')
+            except LipCompositeError as exc:
+                self.send(exc.status, json.dumps({'error': str(exc), 'issues': exc.issues},
+                                                 ensure_ascii=False).encode())
+            except (OSError, ValueError, TypeError, KeyError):
+                self.bad(422, 'Lip composite candidate unreadable')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/motion/vmd-candidate/file':
             from studio_v05_vmd_candidate import candidate_file
             from studio_v05_motion_edits import MotionEditError
@@ -912,6 +929,32 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(400, 'Invalid lip VMD candidate request')
             except OSError:
                 self.bad(500, 'Lip VMD candidate write failed; originals retained')
+            return
+        if urlsplit(self.path).path == '/api/studio/v05/lip/composite-candidate':
+            from studio_v05_lip_composite_candidate import create as create_lip_composite, LipCompositeError
+
+            try:
+                length = int(self.headers.get('Content-Length', '-1'))
+                if not 0 < length <= 4096:
+                    return self.bad(413, 'Lip composite candidate request too large')
+                body = json.loads(self.rfile.read(length))
+                if (not isinstance(body, dict) or set(body) != {'project_id', 'instance_id',
+                        'clip_id', 'adoption_revision', 'scene_revision',
+                        'arrangement_revision', 'dry_run'}):
+                    return self.bad(400, 'Invalid lip composite candidate fields')
+                result = create_lip_composite(DATA, unified_assets(), character_source, **body)
+                if not body['dry_run']:
+                    event('v05_lip_composite_candidate_created', project_id=body['project_id'],
+                          morph_keys=result['readback']['checkedMorphKeys'])
+                self.send(200, json.dumps(result, ensure_ascii=False).encode())
+            except LipCompositeError as exc:
+                self.send(exc.status, json.dumps({'error': str(exc), 'issues': exc.issues,
+                                                  'report': exc.report},
+                                                 ensure_ascii=False).encode())
+            except (ValueError, TypeError, KeyError):
+                self.bad(400, 'Invalid lip composite candidate request')
+            except OSError:
+                self.bad(500, 'Lip composite candidate write failed; originals retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/lip/drafts':
             from studio_v05_lip_drafts import save as save_lip_draft, LipDraftError

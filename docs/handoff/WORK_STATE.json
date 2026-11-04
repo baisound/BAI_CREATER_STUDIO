@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T09:14:57+09:00",
+  "updated_at": "2026-11-04T00:27:07+00:00",
   "updated_by": "claude-code",
-  "branch": "claude/v05-real-format",
-  "head_at_update": "f43fa4d",
+  "branch": "claude/project-thread-8gcwq2",
+  "head_at_update": "2c2748d",
   "current": {
-    "task": "Issue #37/#50/#69: v0.5実素材の形式別登録・見本・再読込（ロードマップ次の実施順2）",
+    "task": "Issue #187: 合成比較ゲートを製品APIと出力へ接続（ロードマップ順4）",
     "status": "done",
-    "step": "実素材の形式別隔離登録試験と結果表",
-    "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
+    "step": "設計確認と最小限の設計追記",
+    "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "ロードマップ次の実施順3（共通の制作状態からの出力）へ進む。FBXモデル見本が黒い影絵になる件とv0.5単独で3D・動画見本を作れない件は、所有者の判断待ちの候補として扱う"
+    "Owner判断待ち: SRT由来口形の開始/終了の値の跳びは30fps VMDで再現できず拒否される。境界1F傾斜・許容差の扱いを決める",
+    "実PMX・実長尺VMDで合成候補を作り、元VMDとの顔・身体、MP4を比較（実データのある環境で）",
+    "開始0秒以外のクリップ・非整数FPSへの対応はOwner承認後"
   ],
   "unverified": [
-    "FBXモデル見本の材質（黒い影絵）、FBX容量の「不明」表示",
-    "MP3・WebM/OGV・JPEG/GIF/WebP/AVIF/BMP・GLB小物/エフェクト・実PMX ZIPの旧画面登録",
-    "WebMCP・標準MCP・Linux、v0.5での動作見本・3D回転表示",
-    "studio-real-asset-visuals の実VMD試験は既存の警告 unknown char code で失敗（修正前のmainでも同じ）"
+    "実PMX/実長尺VMDでの合成候補、PMX表示比較、最終MP4、実歌音声SRT境界、WebMCP/標準MCP、Windows",
+    "既存失敗（変更前から）: pytest test_v05_timeline_drag_static 1件、node-all 10件（動画・MP4・タイムライン系のChrome試験）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -35,18 +35,18 @@
   ],
   "history": [
     {
-      "at": "2026-11-04T09:14:57+09:00",
+      "at": "2026-11-04T00:27:07+00:00",
       "by": "claude-code",
       "event": "done",
-      "head": "f43fa4d",
-      "text": "実素材8形式（VRM・FBXモデル・FBX動作・GLB人体動作・GLBステージ・WAV・画像・動画）をv0.5と旧SCR-08から隔離登録し、ID・見本・再読込・原本hashを実GPUで確認。旧画面が作った見本がv0.5一覧に出ない欠落と、更新が重なると登録素材の選択が失われる欠落を修正（DATA-016）。記録は docs/v05/REAL_FORMAT_IMPORT_20261104_JA.md"
+      "head": "2c2748d",
+      "text": "Issue #187: 合成比較ゲートを作品の元VMDクリップ・採用口形・手動表情キーへ接続し、別名合成VMD候補API（POST /api/studio/v05/lip/composite-candidate、GET .../file）とSRT欄の『合成候補を作る』を追加。全キー読み直し、失効409・不連続/範囲外422、取得時の再照合。設計§4.1追記（5ff689e）、実装 2c2748d"
     },
     {
-      "at": "2026-11-04T08:58:17+09:00",
+      "at": "2026-11-04T00:01:42+00:00",
       "by": "claude-code",
       "event": "start",
-      "head": "e41567c",
-      "text": "Issue #37/#50/#69: v0.5実素材の形式別登録・見本・再読込（ロードマップ次の実施順2）: 実素材の形式別隔離登録試験と結果表"
+      "head": "1df3174",
+      "text": "Issue #187: 合成比較ゲートを製品APIと出力へ接続（ロードマップ順4）: 設計確認と最小限の設計追記"
     },
     {
       "at": "2026-11-03T23:42:10+00:00",
