@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T01:14:48+00:00",
+  "updated_at": "2026-11-04T01:16:32+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "1643329",
+  "head_at_update": "a260038",
   "current": {
-    "task": "WP-L2 取込記録のストア",
-    "status": "done",
-    "step": "studio_v05_legacy_import_record.py と試験",
+    "task": "WP-L3 適用・打ち消し・取消(collect/apply/undo_journal/revert, clear_fps)",
+    "status": "in_progress",
+    "step": "studio_v05_legacy_import.py に収集・適用・取消、catalog.clear_fps、試験",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T01:16:32+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "a260038",
+      "text": "WP-L3 適用・打ち消し・取消(collect/apply/undo_journal/revert, clear_fps): studio_v05_legacy_import.py に収集・適用・取消、catalog.clear_fps、試験"
+    },
     {
       "at": "2026-11-04T01:14:48+00:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "done",
       "head": "40ee410",
       "text": "LIP-001: 元VMD・採用口形・手動表情の優先計算を30fps候補へ焼き込み、全作品Fと60fps中間Fの重み差で拒否する比較ゲートを追加。実VMDを含む9試験成功"
-    },
-    {
-      "at": "2026-10-25T03:05:51+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "8745db4",
-      "text": "Issue #187: 採用口形・元VMD・手動表情の時間合成候補を比較する: 既存3D表示の優先規則とVMD補間を照合し、30fps別名候補の安全な比較ゲートを実装する"
     }
   ]
 }
