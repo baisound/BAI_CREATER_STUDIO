@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T15:31:43+09:00",
+  "updated_at": "2026-11-04T15:33:55+09:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-next",
-  "head_at_update": "680188e",
+  "head_at_update": "7827460",
   "current": {
     "task": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる",
     "status": "done",
@@ -11,7 +11,7 @@
     "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "§8手順4：§4.3〜4.5（instance-units-v189.mjs、③の読込と選択欄の注釈、floorProbe）と§6.2"
+    "§8手順5：§6.3を BAI_REQUIRE_3D=1 で合格（# skip 0）、§6.5の回帰。試験ファイルをコミット"
   ],
   "unverified": [
     "床の高さ（L3）は外接箱からは分からない。§6.4で floorProbe により測る"
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T15:33:55+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "7827460",
+      "text": "WP-L8a §8手順4：§4.3〜4.5 ③の読込（instance-units-v189.mjs の placeInstanceObject、実行部で units を渡し・違えば読み直し、選択欄の「（旧の大きさ）」注釈、floorProbe）と§6.2（N1〜N7、test_v05_multi_model_v58.cjs に2件）。成功"
+    },
     {
       "at": "2026-11-04T15:31:43+09:00",
       "by": "claude-code",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "5edde6b",
       "text": "Issue #63/#69: 旧保存→v0.5取込設計に3批評を反映（打ち消し方式の取消・手順日誌・presence・SCR-10/旧タイムラインの開始時刻取込を承認済み範囲へ・逆変換は試験専用・DATA-008主・完了判定・UI文言と自動判定の受け入れ条件・所有者質問を1件に）。コードは未変更"
-    },
-    {
-      "at": "2026-11-04T00:46:25+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "1c1133d",
-      "text": "Issue #63/#69: 旧保存→v0.5取込設計の批評反映（最終判定）: 3批評の検証と採否判断・設計書改訂"
     }
   ]
 }

@@ -8,7 +8,7 @@ import {listPmxIkTargets} from './pmx-ik-targets-v114.js';
  * (including skeletons) per scene instance. Animation wiring is stage 59.
  */
 import {loadLibs,loadModel,disposeObject} from '../../js/viewport/model-loader.js';
-import {normalizeModel} from '../../js/viewport/normalize.fork.js';
+import {placeInstanceObject,LEGACY_UNITS} from './instance-units-v189.mjs';
 import {createViewport} from '../../js/viewport/three-host.js';
 import {createGenericGlbPreview} from '../../js/motion/generic-glb-preview.js';
 import {createPmxGlbPreview} from '../../js/motion/pmx-glb-preview.js';
@@ -30,10 +30,12 @@ const tr=(key)=>locale[key]||({
   select:'表示対象モデル',refresh:'配置を再読み込み',focus:'選択モデルに注目',
   saveCamera:'この視点を保存',restoreCamera:'保存視点に戻す',close:'閉じる',
   choose:'モデルを選択',loadedCount:'読込モデル',problems:'問題',chooseProject:'作品を選んでください',
-  loading:'3Dモデルを読み込み中…',loadFailed:'読み込み失敗',runtimeError:'描画できません',mismatch:'作品が一致しません'
+  loading:'3Dモデルを読み込み中…',loadFailed:'読み込み失敗',runtimeError:'描画できません',mismatch:'作品が一致しません',
+  legacyUnits:'（旧の大きさ）',legacyUnitsHint:'旧画面と同じ大きさで置いています（旧保存の取込で置いたもの）'
 })[key]||key;
 const section=document.getElementById('v57-scene-instances');
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,reloadReady=false,nonce=0,selectedId='';
+let unitsById=new Map();
 let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,lipAdoptions=null,projectFps=60,previewFk=null,previewArm=null,activePole=null,activeArm=null;
 let vmdCandidate=null,candidateValidation=null,candidateReport=null;
 let morphAnalysis=null,morphAnalysisNonce=0,morphMaps=null,morphMapNonce=0;
@@ -381,7 +383,12 @@ function updateStatus(s,issues=[]){
   if(!opened)return;
   const old=choose.value||selectedId;
   choose.replaceChildren(new Option(tr('choose'),''));
-  for(const id of s.ids)choose.add(new Option(id,id));
+  for(const id of s.ids){
+    const legacy=unitsById.get(id)===LEGACY_UNITS;
+    const option=new Option(id+(legacy?tr('legacyUnits'):''),id);
+    if(legacy)option.title=tr('legacyUnitsHint');
+    choose.add(option);
+  }
   if(s.ids.includes(old))choose.value=old;
   else if(s.ids.length)choose.value=s.ids[0];
   selectedId=choose.value;
@@ -1491,17 +1498,12 @@ async function setup(){
     host:shared,
     onChange:s=>updateStatus(s),
     onError:({id,error})=>{progress.textContent=`読込失敗 ${id}: ${String(error?.message||error)}`;},
-    async loadInstance({asset,instanceId}){
+    async loadInstance({asset,instanceId,units}){
       // NEVER cache by asset ID: each character needs its own bone tree and mixer.
       const loaded=await loadModel(asset,libs);
       const object=loaded.object;
       try{
-        if(loaded.format==='PMX'){
-          object.scale.setScalar(.08);
-          object.updateMatrixWorld(true);
-          const box=new libs.THREE.Box3().setFromObject(object,true);
-          object.position.y-=box.min.y;
-        }else normalizeModel(object,loaded.format,libs.THREE);
+        placeInstanceObject(object,loaded.format,units,libs.THREE);
         const root=new libs.THREE.Group();
         root.name=`BAI_Inst_${instanceId}`;root.add(object);
         const rest=[];
@@ -1612,6 +1614,7 @@ async function reload(){
     if(thisNonce!==nonce||!opened)return;
     const data=await request('/api/studio/v05/scene/instances?id='+encodeURIComponent(id));
     if(thisNonce!==nonce||!opened||id!==project.value)return;
+    unitsById=new Map((data.instances||[]).map(row=>[row.id,row.units??null]));
     const result=await controller.reconcile(data);
     if(thisNonce!==nonce||!opened)return;
     sceneSnapshot=data;
@@ -2544,6 +2547,15 @@ window.BAIStudioMultiScenePreview=Object.freeze({
       camera:viewport.camera.position.toArray(),target:viewport.controls.target.toArray(),
       fov:viewport.camera.fov,cameraSaved:Boolean(sceneSnapshot?.camera),
       renderer:viewport.rendererName,canvas:[viewport.renderer.domElement.width,viewport.renderer.domElement.height]};
+  },
+  floorProbe(instanceId,point){
+    const target=controller?.getLoaded(instanceId);
+    if(!opened||!target?.root||!Array.isArray(point)||point.length!==3||!point.every(Number.isFinite))return null;
+    const THREE=target.libs.THREE;
+    target.root.updateMatrixWorld(true);
+    const ray=new THREE.Raycaster(new THREE.Vector3(...point),new THREE.Vector3(0,-1,0));
+    const hit=ray.intersectObject(target.root,true)[0];
+    return {instanceId,from:point,y:hit?hit.point.y:null};
   }
 });
 window.dispatchEvent(new Event('bai:v58-ui-ready'));

@@ -45,7 +45,7 @@
       }
       for(const [id,current] of [...loaded]){
         const next=wanted.get(id);
-        if(!next||next.asset_id!==current.assetId||!next.available||!next.asset)release(id);
+        if(!next||next.asset_id!==current.assetId||(next.units??null)!==current.units||!next.available||!next.asset)release(id);
       }
       for(const [id,entry] of wanted){
         if(!validTransform(entry.transform)){
@@ -60,7 +60,7 @@
         if(!entry.available||!entry.asset){issues.push({id,reason:'unavailable_model'});continue;}
         let model=null,detached=false;
         try{
-          model=await loadInstance({instanceId:id,asset:entry.asset,projectId:data.project_id,token});
+          model=await loadInstance({instanceId:id,asset:entry.asset,units:entry.units??null,projectId:data.project_id,token});
           if(token!==epoch||closed||projectId!==data.project_id){
             model?.dispose?.();return {stale:true,...status(),issues};
           }
@@ -72,7 +72,7 @@
             },
             dispose:()=>model.dispose()
           });
-          loaded.set(id,{assetId:entry.asset_id,root:model.root,model,evaluate:model.evaluate||null});
+          loaded.set(id,{assetId:entry.asset_id,units:entry.units??null,root:model.root,model,evaluate:model.evaluate||null});
           host.setTransform(id,entry.transform);
           model.root.visible=entry.visible!==false;
           notify();

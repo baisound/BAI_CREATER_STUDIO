@@ -59,4 +59,17 @@ const item=(id,assetId='same')=>({id,asset_id:assetId,asset:{id:assetId,format:'
  const report=await c3.reconcile({project_id:'P',revision:0,instances:[item('bad')]});
  assert.equal(report.loaded,0);assert.equal(report.issues[0].reason,'load_failed');c3.dispose();
  console.log('v58 per-model failure isolation PASS');
+ // WP-L8a §6.2：loadInstance は行の units を受け取り（無ければ null）、同じIDで units が変われば読み直す
+ const host4=fakeHost(),seen=[],gone=[];
+ const c4=createController({host:host4,loadInstance:async({instanceId,units})=>{
+  seen.push([instanceId,units]);return {root:{},dispose(){gone.push(instanceId);}};
+ }});
+ await c4.reconcile({project_id:'P',revision:0,instances:[{...item('L'),units:'legacy'},item('N')]});
+ assert.deepEqual(seen,[['L','legacy'],['N',null]]);
+ await c4.reconcile({project_id:'P',revision:1,instances:[{...item('L'),units:'legacy'},item('N')]});
+ assert.equal(seen.length,2,'same units must not reload');
+ await c4.reconcile({project_id:'P',revision:2,instances:[item('L'),item('N')]});
+ assert.deepEqual(gone,['L']);assert.deepEqual(seen.at(-1),['L',null]);assert.equal(c4.status().loaded,2);
+ c4.dispose();
+ console.log('v58 legacy units reload PASS');
 })().catch(e=>{console.error(e);process.exitCode=1});
