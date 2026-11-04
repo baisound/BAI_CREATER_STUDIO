@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T15:38:44+09:00",
+  "updated_at": "2026-11-04T16:05:10+09:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-next",
-  "head_at_update": "566fe7d",
+  "head_at_update": "9dcf613",
   "current": {
     "task": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる",
     "status": "done",
@@ -11,10 +11,12 @@
     "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "§8手順6・7：説明書・台帳、実データの L1〜L5"
+    "所有者の回答待ち：設計§10（旧②の大きさを優先か、S1がS01の上に立って見える置き方を優先か。既定は前者でL1までを合否に使う）"
   ],
   "unverified": [
-    "床の高さ（L3）は外接箱からは分からない。§6.4で floorProbe により測る"
+    "L8a はL4・L5不合格のため未完了。DATA-008は要検証のまま（L8bも残る）",
+    "既存の失敗：test_v05_timeline_drag_static、studio-v05-pane-layout（mainでも失敗）",
+    "MCP・WebMCPからの取込、Linux"
   ],
   "blockers": [],
   "owner_questions": [
@@ -28,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T16:05:10+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "9dcf613",
+      "text": "WP-L8a §8手順6・7：説明書（取り込んだキャラクター・ステージの大きさ）、台帳・設計書、実データ確認。台本に§6.4のL1〜L5と--l5/--relabelを足した。所有者の実データ（実GPU）で L1 合格（SCR-06と③の差0）、L2 合格、L3 合格（足と床の差0.132m）、L4 不合格（③の自動の構図のカメラが(105,70,234)でS01の外殻の外）、L5 不合格（S1が見えない、開発側の目視）。ケースR合格（差4.4e-16）。設計§6.4の8により完了にせず、§10の質問を所有者に出す"
+    },
     {
       "at": "2026-11-04T15:38:44+09:00",
       "by": "claude-code",
@@ -230,13 +239,6 @@
       "event": "done",
       "head": "e1600f3",
       "text": "WP-L1 完了: studio_v05_legacy_import.plan()・vmd_last_frame・固定fixture・試験36件"
-    },
-    {
-      "at": "2026-11-04T00:58:01+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "04a28bd",
-      "text": "WP-L1 旧保存→v0.5取込 plan() 実装: studio_v05_legacy_import.py と固定fixture試験"
     }
   ]
 }

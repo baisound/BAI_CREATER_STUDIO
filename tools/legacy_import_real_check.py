@@ -116,6 +116,71 @@ def scr06_line(scr06):
             f"（ステージ {scr06.get('stageAssetId') or 'なし'}、キャラクター {scr06.get('characterAssetId') or 'なし'}）")
 
 
+# ---- WP-L8a §6.4 の判定 --------------------------------------------------------------------
+def _diag(box):
+    return sum((b - a) ** 2 for a, b in zip(box["min"], box["max"])) ** 0.5
+
+
+def _rp_over_s(box, p, s):
+    corners = [[box["max"][i] if (k >> i) & 1 else box["min"][i] for i in range(3)] for k in range(8)]
+    return max(sum((c[i] - p[i]) ** 2 for i in range(3)) ** 0.5 for c in corners) / s
+
+
+def _inside(point, box):
+    return all(box["min"][i] < point[i] < box["max"][i] for i in range(3))
+
+
+def l8a_judge(ui, workspace, visual=None):
+    """設計 §6.4 の L1〜L5。ui は画面部分の結果、workspace は旧保存の workspace、visual は L5 の目視（'見える'・'見えない'・None）。"""
+    probe = (ui or {}).get("l8aProbe") or {}
+    probes, roles = probe.get("probes") or {}, probe.get("roles") or {}
+    stage = probes.get(roles.get("stage")) if roles.get("stage") else None
+    s1 = probes.get(probe.get("s1")) if probe.get("s1") else None
+    scr06 = ((ui or {}).get("scr06") or {}).get("bounds")
+    pairs, conditions = [], []
+    if stage and scr06:
+        st = (workspace or {}).get("stage") or {}
+        p, sc = st.get("position", [0, 0, 0]), st.get("scale", 1)
+        eps = 0.00001 * (1 + _diag(scr06) + _rp_over_s(stage["root"], p, sc))
+        diff = max(abs(a - b) for k in ("min", "max") for a, b in zip(stage["root"][k], scr06[k]))
+        record_only = bool(roles.get("character"))
+        pairs.append({"name": "L1 ステージ（SCR-06）", "legacy": scr06, "v05": stage["root"], "eps": eps, "max_abs_diff": diff,
+                      "pass": None if record_only else diff <= eps, "record_only": record_only})
+    if stage and s1:
+        box = s1["precise"]
+        center = [(a + b) / 2 for a, b in zip(box["min"], box["max"])]
+        conditions.append({"id": "L2", "value": center, "pass": _inside(center, stage["root"])})
+        floor_y = (probe.get("floor") or {}).get("y")
+        gap = None if floor_y is None else box["min"][1] - floor_y
+        conditions.append({"id": "L3", "value": {"feet": box["min"][1], "floor": floor_y, "gap": gap},
+                           "pass": gap is not None and -0.02 <= gap <= 0.20})
+        camera = stage.get("camera") or [2, 1.6, 4.5]
+        conditions.append({"id": "L4", "value": camera, "pass": _inside(camera, stage["root"])})
+    conditions.append({"id": "L5", "value": visual, "pass": None if visual is None else visual == "見える"})
+    judged = [p["pass"] for p in pairs if not p.get("record_only")] + [c["pass"] for c in conditions]
+    overall = None if not judged or any(v is None for v in judged) else all(judged)
+    if any(v is False for v in judged):
+        overall = False
+    return {"scr06": scr06, "pairs": pairs, "conditions": conditions, "visual": visual, "pass": overall}
+
+
+def l8a_lines(l8a):
+    """報告の L8a 節（対ごと・条件ごとに1行）。"""
+    mark3 = lambda v: "合格" if v is True else "不合格" if v is False else "未判定"  # noqa: E731
+    r = lambda v: [round(x, 4) for x in v] if isinstance(v, list) else v  # noqa: E731
+    out = ["", "## 見た目の大きさ（WP-L8a §6.4）", "", f"総合：**{mark3(l8a.get('pass'))}**", ""]
+    for p in l8a.get("pairs", []):
+        out.append(f"- {p['name']}：旧 最小 {r(p['legacy']['min'])}・最大 {r(p['legacy']['max'])}、③ 最小 {r(p['v05']['min'])}・最大 {r(p['v05']['max'])}、"
+                   f"差の最大 {p['max_abs_diff']:.3g}、ε {p['eps']:.3g}、{'記録だけ' if p.get('record_only') else mark3(p['pass'])}")
+    names = {"L2": "S1 の中心がステージの内側", "L3": "S1 の足と床の差（−0.02〜0.20m）", "L4": "③のカメラがステージの内側", "L5": "画像で S1 が見える（開発側の目視）"}
+    for c in l8a.get("conditions", []):
+        value = c["value"]
+        if isinstance(value, dict):
+            value = {k: (round(v, 4) if isinstance(v, float) else v) for k, v in value.items()}
+        out.append(f"- {c['id']} {names.get(c['id'], '')}：{r(value) if isinstance(value, list) else value}、{mark3(c['pass'])}")
+    return out
+
+
 # ---- 隔離サーバー ----------------------------------------------------------------------------
 def free_port():
     with socket.socket() as s:
@@ -338,6 +403,12 @@ def run(args):
                                   "temp_legacy_and_snapshot_unchanged": report["checks"].get("temp_legacy_and_snapshot_unchanged")}
         shutil.rmtree(tmp_parent, ignore_errors=True)
     report["finished_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    if report.get("ui"):
+        ws = read_json(data / "project_state.workspace.json") if (data / "project_state.workspace.json").is_file() else {}
+        report["workspace"] = ws.get("workspace", ws) if isinstance(ws, dict) else {}
+        report["l8a"] = l8a_judge(report["ui"], report["workspace"], args.l5)
+    else:
+        report["unverified"].append("WP-L8a の見た目の大きさ（L1〜L5）：画面を使わなかったため未検証")
     passed = all(report["checks"].get(k, {}).get("pass") for k in ("R1", "R2", "R3")) and report["checks"].get("R4", {}).get("pass") is not False
     report["pass"] = bool(passed)
     (out / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -389,6 +460,8 @@ def render_ja(r):
                   *[f"- 読込後の外接箱 {b['asset_id']}：大きさ {[round(v, 3) for v in b['size']] if b.get('size') else '不明'}、最小 {[round(v, 3) for v in b['min']] if b.get('min') else '不明'}、最大 {[round(v, 3) for v in b['max']] if b.get('max') else '不明'}"
                     for b in ui.get('bounds', [])],
                   f"- 画像：{', '.join(ui.get('shots', []))}"]
+    if r.get("l8a"):
+        lines += l8a_lines(r["l8a"])
     lines += ["", "## 未検証", ""] + [f"- {u}" for u in r["unverified"]] + [
         "- 見た目の大きさの一致（WP-L8a）。旧画面と v0.5 では、モデルの正規化の仕方が違う",
         "- カメラの動き（WP-L8b）。v0.5 に時刻付きカメラの保存先が無いため保管だけ",
@@ -404,7 +477,18 @@ def main():
     ap.add_argument("--chromium", default=None, help="Chrome/Chromium の実行ファイル（省略時は CHROMIUM_PATH）")
     ap.add_argument("--swiftshader", action="store_true", help="実GPUではなく SwiftShader で描く")
     ap.add_argument("--no-browser", action="store_true", help="画面を使わず HTTP で適用する")
-    report = run(ap.parse_args())
+    ap.add_argument("--l5", choices=["見える", "見えない"], default=None, help="WP-L8a の L5（画像で S1 が見えるか）の目視の結果")
+    ap.add_argument("--relabel", action="store_true", help="実行せず、--out の report.json の L5 だけを書き直す")
+    args = ap.parse_args()
+    if args.relabel:
+        out = Path(args.out)
+        report = json.loads((out / "report.json").read_text(encoding="utf-8"))
+        report["l8a"] = l8a_judge(report.get("ui"), report.get("workspace"), args.l5)
+        (out / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
+        (out / "report_JA.md").write_text(render_ja(report), encoding="utf-8")
+        print(json.dumps({"l8a": report["l8a"]["pass"]}, ensure_ascii=False))
+        return
+    report = run(args)
     print(json.dumps({"pass": report["pass"], "R1": report["checks"]["R1"]["pass"], "R2": report["checks"].get("R2", {}).get("pass"),
                       "R3": report["checks"].get("R3", {}).get("pass"), "R4": report["checks"].get("R4", {}).get("pass")}, ensure_ascii=False))
     sys.exit(0 if report["pass"] else 1)
