@@ -353,6 +353,15 @@
       "commit": "WP-L7b コミット（Git履歴で「WP-L7b」を検索）",
       "tests": "pytest tests/test_studio_v05_legacy_import_timeline_editor.py 67 passed（skipなし。名前の解決（mapping・正規化名・同名は後ろが勝つ・modelA除外・該当なし・mappingの値を素材IDとして扱わない）、速度・つなぎ、開始と長さの秒と往復、壊れたファイル13通り、動かす相手、曲とダンスとの併用、失敗の注入、取消、利用者が足したクリップを消さない、チェックなしで読まない、確認後の変更を含む）、legacy_import の全試験 279 passed、pytest 全体 896 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static::test_no_persist_until_release）、npm run typecheck 出力なし。JS・サーバー未変更のため npm ci と node-all は未実行",
       "unverified": "DATA-008 は要検証のまま。サーバー経由（PROJECT_LOCK）・HTTP/MCP・画面・実データは未接続。manifest は試験で組んだもので、実 data/ の manifest.json との突き合わせは未実施。再生速度を変えた動作、つなぎ、見た目の大きさ、カメラの動きは写らない"
+    },
+    {
+      "item": "Issue #63/#69 旧保存→v0.5取込 WP-L5（HTTP窓口4本 /api/studio/v05/project/legacy-import-preview・legacy-import・legacy-import/apply・legacy-import/revert、標準MCP・WebMCPの道具4本 bai_studio_project_legacy_import_*、引数名 id）",
+      "phase_e_wp": "（DATA-008、再構築ロードマップ 次の実施順2）",
+      "planned_in": "LEGACY-IMPORT-WP-L5",
+      "status": "done",
+      "commit": "WP-L5 コミット（Git履歴で「WP-L5」を検索）",
+      "tests": "pytest tests/test_studio_v05_legacy_import_http.py 15件・tests/test_studio_v05_legacy_import_mcp.py 4件 passed（skipなし。確認→適用→記録の読込→取消、400/404/409/413/422/500 の状態コード・error_code・日本語の文、PROJECT_LOCK の内側で呼ぶこと、500 の state、道具一覧とスキーマ、webmcp.js の本文）、pytest 全体 915 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static）、npm run typecheck 出力なし、npm ci 成功、node-all 474件中 pass 414・fail 11（main でも同じ10件が失敗。残り1件は不安定：main では bundle_snapshot 133、この枝では studio-p2-assets の「import GLB and VRM」が1回だけ404で失敗し、単独の再実行で成功）",
+      "unverified": "DATA-008 は要検証のまま。標準MCPの実クライアント・WebMCPの実ブラウザでの呼び出し、実 data/ の manifest での名前解決、画面（WP-L6）は未確認・未実装。取消の事前点検と打ち消しの間に他の編集APIが入る時間差が残る（他のAPIが PROJECT_LOCK を取らないため）"
     }
   ]
 }

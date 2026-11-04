@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T01:55:20+00:00",
+  "updated_at": "2026-11-04T02:21:01+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "6c41381",
+  "head_at_update": "1652bf1",
   "current": {
     "task": "WP-L5 旧保存取込のHTTPとMCP",
-    "status": "in_progress",
+    "status": "done",
     "step": "server.py に4 API、mcp_server.py・webmcp.js に4道具、試験2本を足す",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "WP-L5 HTTPとMCP（server.py・mcp_server.py・webmcp.js）",
-    "以後 L6→L9"
+    "WP-L6 v0.5の画面",
+    "WP-L9 実データでの確認"
   ],
   "unverified": [
-    "サーバー経由(PROJECT_LOCK)・HTTP/MCP・画面・実data/のmanifestでの名前解決は未接続・未確認。DATA-008は要検証のまま",
-    "pytest既存失敗1件(test_v05_timeline_drag_static)。JS・サーバー未変更のためnode-all未実行"
+    "標準MCP実クライアント・WebMCP実ブラウザ・実data/のmanifest・画面は未確認。DATA-008は要検証のまま",
+    "pytest既存失敗1件(test_v05_timeline_drag_static)、node-all fail11(mainと同じ10件+不安定1件)"
   ],
   "blockers": [],
   "owner_questions": [
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T02:21:01+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "1652bf1",
+      "text": "WP-L5 HTTP窓口4本とMCP/WebMCP道具4本を実装"
+    },
     {
       "at": "2026-11-04T01:55:20+00:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "start",
       "head": "6d32ddd",
       "text": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認: §7読み替え表・書き出しのレビュー修正、Linuxでtest:node-all/test:p2/pytest/tscを実行"
-    },
-    {
-      "at": "2026-11-03T20:40:12+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "b2166ae",
-      "text": "P2設計書§2.8（WP-08 IK・AI）をSonnetが実装できる粒度に詳しくした：旧機能の棚卸し（⑧-1〜3）、O-⑧-1〜9決定、WP-08a/08b/08cへ分割、受け入れ条件・テスト・v0.5重複の扱い・自己批評。§3表とWP-08の所有者確認行を更新。コードは未変更"
     }
   ]
 }
