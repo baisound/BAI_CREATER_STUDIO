@@ -389,6 +389,15 @@
       "commit": "WP-L7a GLB コミット（Git履歴で「WP-L7a 補足」を検索）",
       "tests": "tests/test_studio_v05_legacy_import_music_dance.py 75件・legacy_import 全体 319件 passed（skipなし）。pytest 全体 936 pass・既存失敗1件（test_v05_timeline_drag_static）・skip 21（BAI_REAL_MMD_DATA など環境依存の既存分）。npm run typecheck 成功。JS・サーバー未変更",
       "unverified": "DATA-008 は要検証のまま（WP-L8a/L8b が残る）。所有者の実 GLB（Dance of October 9 #1）を glb_channels で読み飛ばし無く読めるか、所有者の motion_start_frame と旧タイムライン編集の重なり、③の3D・MP4での GLB ダンスの見た目は未確認。サーバー経由・画面・Linux も未確認"
+    },
+    {
+      "item": "Issue #63/#69 旧保存→v0.5取込 WP-L8a（見た目の大きさ：M3・M4 の場面インスタンスに印 units:\"legacy\"、③の読込は印のときだけ素材の単位の換算だけ。instance-units-v189.mjs、選択欄の「（旧の大きさ）」、floorProbe）",
+      "phase_e_wp": "（DATA-008、再構築ロードマップ 次の実施順2）",
+      "planned_in": "LEGACY-IMPORT-WP-L8a",
+      "status": "done",
+      "commit": "WP-L8a コミット（Git履歴で「WP-L8a」を検索）",
+      "tests": "tests/studio-v05-legacy-units-l8a.test.cjs 2/2（BAI_REQUIRE_3D=1・BAI_REQUIRE_REAL=1、skip 0。全ケースで③と旧画面の外接箱の差0、実PMX 4.4e-16）、tests/studio-v05-instance-units.test.mjs 7件、tests/test_studio_v05_scene_instances_units.py 8件、取込の試験の直しと往復3件、test_v05_multi_model_v58.cjs。§6.5 の回帰は既知の不安定な1件を除き成功（saved-composition IoU 0.886・重心0.005）",
+      "unverified": "所有者の回答「旧の大きさ」により L1（S01 が旧SCR-06と差0）で完了。L2・L3 合格、L4・L5（③の自動の構図でカメラが S01 の外、S1 が見えない）は記録だけで順6（#63）の課題。DATA-008 は要検証のまま（L8b が残る）。MCP・WebMCP からの取込、取込後のMP4、Linux は未確認"
     }
   ]
 }

@@ -17,6 +17,10 @@ from studio_v05_scene_model import read as read_legacy, supported_model, _vector
 _LOCK = threading.RLock()
 LEGACY_ID = "legacy-primary"
 MAX_INSTANCES = 32
+# WP-L8a：旧画面と同じ式（素材の単位の換算だけ）で置く印。取込だけが付ける。
+# 名前は units だが、中身は「読込のときの置き方の規則」。値を足すときは _check_record と mutate の検査を広げる。
+UNITS_LEGACY = "legacy"
+_ROW_KEYS = frozenset({"id", "asset_id", "transform", "visible", "locked", "parent_id"})
 _UNSET = object()
 
 class SceneInstancesError(ValueError):
@@ -55,9 +59,10 @@ def _check_record(data, project_id):
         raise SceneInstancesError("Invalid scene instances; original retained")
     ids = set()
     for row in items:
-        if not isinstance(row, dict) or set(row) != {
-            "id", "asset_id", "transform", "visible", "locked", "parent_id"
-        }: raise SceneInstancesError("Invalid scene instance fields; original retained")
+        if not isinstance(row, dict) or not _ROW_KEYS <= set(row) <= _ROW_KEYS | {"units"}:
+            raise SceneInstancesError("Invalid scene instance fields; original retained")
+        if "units" in row and row["units"] != UNITS_LEGACY:
+            raise SceneInstancesError("Invalid scene instance units; original retained")
         rid, aid = row["id"], row["asset_id"]
         if (not isinstance(rid, str) or not rid or len(rid) > 100 or rid in ids
                 or not isinstance(aid, str) or not aid or len(aid) > 300):
@@ -189,12 +194,14 @@ def read(root, legacy_root, catalog, project_id, assets=None):
 
 def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
            instance_id=None, asset_id=None, transform=None, visible=None, locked=None,
-           camera=_UNSET, face_key=_UNSET, morph_lookup=None, layout_root=None):
+           camera=_UNSET, face_key=_UNSET, morph_lookup=None, layout_root=None, units=None):
     if type(revision) is not int or revision < 0:
         raise SceneInstancesError("Revision required")
     if action not in ("add", "update", "remove", "camera", "face-set", "face-remove", "face-move",
                       "face-undo", "face-redo"):
         raise SceneInstancesError("Unknown scene instance action")
+    if units is not None and (action != "add" or units != UNITS_LEGACY):
+        raise SceneInstancesError("Units can only be set to 'legacy' when adding")
     with _LOCK:
         current = read(root, legacy_root, catalog, project_id)
         if current["revision"] != revision:
@@ -327,9 +334,11 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
             if visible is not None or locked is not None:
                 raise SceneInstancesError("New scene flags are assigned by the server")
             new_id = uuid.uuid4().hex
-            rows.append({"id": new_id, "asset_id": asset_id,
-                         "transform": _transform(transform), "visible": True,
-                         "locked": False, "parent_id": None})
+            row = {"id": new_id, "asset_id": asset_id, "transform": _transform(transform),
+                   "visible": True, "locked": False, "parent_id": None}
+            if units is not None:
+                row["units"] = units
+            rows.append(row)
         else:
             if camera is not _UNSET or face_key is not _UNSET:
                 raise SceneInstancesError("Camera is a separate scene action")

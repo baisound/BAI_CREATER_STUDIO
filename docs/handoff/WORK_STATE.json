@@ -1,23 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T03:53:38+00:00",
+  "updated_at": "2026-11-04T16:05:10+09:00",
   "updated_by": "claude-code",
-  "branch": "claude/l8a-design",
-  "head_at_update": "f94f114",
+  "branch": "claude/v05-next",
+  "head_at_update": "9dcf613",
   "current": {
-    "task": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）",
+    "task": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる",
     "status": "done",
-    "step": "3人の批評の採否を決め、詳細設計を改訂する",
+    "step": "§6.0 所有者のS01の元の外接箱をSCR-06で測る（実装前）",
     "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "WP-L8a の実装（標準モデル）。設計書 §8 の手順0（§6.0：所有者のPCで S01 の元の外接箱を SCR-06 で測る）から。判定(a)〜(c)が偽なら §10 の質問を出して止まる",
-    "所有者の判断待ち：曲とダンスのGLB動作を写すか（S3、L8a には入れない）"
+    "所有者の回答待ち：設計§10（旧②の大きさを優先か、S1がS01の上に立って見える置き方を優先か。既定は前者でL1までを合否に使う）"
   ],
   "unverified": [
-    "WP-L8a は設計のみ（コード・試験は未作成）。S01 の元の外接箱は未測定（§6.0）",
-    "WP-L8b、GLB動作のダンス、取込後のMP4、標準MCP・WebMCPからの取込、Linux",
-    "既存の失敗：test_v05_timeline_drag_static"
+    "L8a はL4・L5不合格のため未完了。DATA-008は要検証のまま（L8bも残る）",
+    "既存の失敗：test_v05_timeline_drag_static、studio-v05-pane-layout（mainでも失敗）",
+    "MCP・WebMCPからの取込、Linux"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +30,62 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T16:05:10+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "9dcf613",
+      "text": "WP-L8a §8手順6・7：説明書（取り込んだキャラクター・ステージの大きさ）、台帳・設計書、実データ確認。台本に§6.4のL1〜L5と--l5/--relabelを足した。所有者の実データ（実GPU）で L1 合格（SCR-06と③の差0）、L2 合格、L3 合格（足と床の差0.132m）、L4 不合格（③の自動の構図のカメラが(105,70,234)でS01の外殻の外）、L5 不合格（S1が見えない、開発側の目視）。ケースR合格（差4.4e-16）。設計§6.4の8により完了にせず、§10の質問を所有者に出す"
+    },
+    {
+      "at": "2026-11-04T15:38:44+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "566fe7d",
+      "text": "WP-L8a §8手順5：§6.3 を BAI_REQUIRE_3D=1・BAI_REQUIRE_REAL=1 で実行し 2/2 合格・skip 0（S・G・K・P・F・A の全対が差0、床5.25、対照は差14.25・1.09375で感度あり、ケースR 実PMX は差4.4e-16）。§6.5：legacy-import-ui/-3d・composite-scene-preview・scene-mp4・real-stage・p2-normalize-parity の17件中16件成功・skip 0、失敗1件（p2-normalize-parity）は②の画面が起動途中で止まる既知の不安定さで、単独再実行2/2成功。saved-composition（実GPU）は IoU 0.886・重心0.005 で順3の記録と同じ"
+    },
+    {
+      "at": "2026-11-04T15:33:55+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "7827460",
+      "text": "WP-L8a §8手順4：§4.3〜4.5 ③の読込（instance-units-v189.mjs の placeInstanceObject、実行部で units を渡し・違えば読み直し、選択欄の「（旧の大きさ）」注釈、floorProbe）と§6.2（N1〜N7、test_v05_multi_model_v58.cjs に2件）。成功"
+    },
+    {
+      "at": "2026-11-04T15:31:43+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "680188e",
+      "text": "WP-L8a §8手順3：§4.2 取込（M3・M4の手順に units:legacy、UNIT_SEMANTICS_DIFFERはM3でcharacterが無い・nullのときだけ・新しい文言、_run_stepで印を渡す、逆変換で印が違えばUNITS_CHANGEDで旧の値のまま）。§6.1の既存試験の直しと§5の往復試験3件を追加。取込・場面インスタンスの試験309件成功"
+    },
+    {
+      "at": "2026-11-04T13:03:33+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "d1a113c",
+      "text": "WP-L8a §8手順2：§4.1 場面インスタンスの印 units（UNITS_LEGACY・_ROW_KEYS、_check_recordの検査、mutateのunits引数はaddで'legacy'だけ）と§6.1 U1〜U8"
+    },
+    {
+      "at": "2026-11-04T13:00:14+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "0fa106a",
+      "text": "WP-L8a §8手順1：§6.3の試験を変更前のコードで実行（BAI_REQUIRE_3D=1、SwiftShader）。L8A_RESULT：S ステージ 旧(-6.5,-0.75,-20)〜(2.5,5.25,-5) ③(-1.25,0,-5.75)〜(3.25,3,1.75) 差14.25／G キャラクター 差1.09375・場面全体 差14.25／F 差3.88／A 差0.875 で不合格。K（スキン付き）と P（最小PMX）は変更前から差0（試験素材が高さ2.0mで中心が原点、最小PMXの最小yが0のため、③の正規化が偶然何もしない。これらは大きさの差を検出できず、スキン・PMXの道の確認として使う。感度は実PMXのケースRで補う）。対照の③の値は計算上の値と一致（ステージ・GLBキャラクター）、旧との差は14.25・1.09375で100ε以上。基準画面の手計算との差は最大6e-8で合格。印・注釈・floorProbe は未実装のため不合格"
+    },
+    {
+      "at": "2026-11-04T12:56:58+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "6ffaa1e",
+      "text": "WP-L8a §6.0：所有者のS01の元の外接箱を② SCR-06で測った（製品コードは変更前）。最小(-50,-50,-50)・最大(50,50,50)、大きさ100m立方（外殻が支配）。判定(a)原点の真上がXZの内側=真、(b)初期カメラ(2,1.6,4.5)が内側=真、(c)最小y=-50≦0.02=真。すべて真のため§8の手順1へ進む。画像 _Claude確認画像/20261104-l8a/step0_before/00_scr06_legacy.png（スタジオ内部・床・壁・照明が元の大きさで見える）"
+    },
+    {
+      "at": "2026-11-04T12:55:17+09:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "6ffaa1e",
+      "text": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる: §6.0 所有者のS01の元の外接箱をSCR-06で測る（実装前）"
+    },
     {
       "at": "2026-11-04T03:53:38+00:00",
       "by": "claude-code",
@@ -184,62 +239,6 @@
       "event": "done",
       "head": "e1600f3",
       "text": "WP-L1 完了: studio_v05_legacy_import.plan()・vmd_last_frame・固定fixture・試験36件"
-    },
-    {
-      "at": "2026-11-04T00:58:01+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "04a28bd",
-      "text": "WP-L1 旧保存→v0.5取込 plan() 実装: studio_v05_legacy_import.py と固定fixture試験"
-    },
-    {
-      "at": "2026-11-04T00:56:31+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "5edde6b",
-      "text": "Issue #63/#69: 旧保存→v0.5取込設計に3批評を反映（打ち消し方式の取消・手順日誌・presence・SCR-10/旧タイムラインの開始時刻取込を承認済み範囲へ・逆変換は試験専用・DATA-008主・完了判定・UI文言と自動判定の受け入れ条件・所有者質問を1件に）。コードは未変更"
-    },
-    {
-      "at": "2026-11-04T00:46:25+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "1c1133d",
-      "text": "Issue #63/#69: 旧保存→v0.5取込設計の批評反映（最終判定）: 3批評の検証と採否判断・設計書改訂"
-    },
-    {
-      "at": "2026-11-04T00:37:46+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "5649df6",
-      "text": "Issue #63/#69: 旧保存→v0.5作品IDの可逆対応の設計書を追加（比較・対応表M1〜M10・取込記録・WP-L1〜L9・所有者判断Q1〜Q6）。コードは未変更"
-    },
-    {
-      "at": "2026-11-04T00:29:57+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "acdb339",
-      "text": "Issue #63/#69: 旧Studio保存状態をv0.5作品IDへ可逆に対応させる設計: 旧保存とv0.5保存の比較調査"
-    },
-    {
-      "at": "2026-11-04T00:27:07+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "2c2748d",
-      "text": "Issue #187: 合成比較ゲートを作品の元VMDクリップ・採用口形・手動表情キーへ接続し、別名合成VMD候補API（POST /api/studio/v05/lip/composite-candidate、GET .../file）とSRT欄の『合成候補を作る』を追加。全キー読み直し、失効409・不連続/範囲外422、取得時の再照合。設計§4.1追記（5ff689e）、実装 2c2748d"
-    },
-    {
-      "at": "2026-11-04T00:01:42+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "1df3174",
-      "text": "Issue #187: 合成比較ゲートを製品APIと出力へ接続（ロードマップ順4）: 設計確認と最小限の設計追記"
-    },
-    {
-      "at": "2026-11-03T23:42:10+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "af81506",
-      "text": "P2-WP-99: 締め（マトリクス最新確認・件数表・台帳・手順書・ROADMAP 1行）"
     }
   ]
 }

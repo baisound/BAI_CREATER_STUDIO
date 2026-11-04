@@ -33,6 +33,21 @@ async function main() {
     const shot = async (name, target = page) => { const file = path.join(config.out, name); await target.screenshot({ path: file }); shots.push(name); };
     const api = async route => { const res = await fetch(config.base + route); if (!res.ok) throw Error(`${route}: HTTP ${res.status}`); return res.json(); };
 
+    // WP-L8a §6.0：取込の前に、同じ隔離サーバー（旧保存の複製）の② SCR-06 で、旧の置き方の外接箱を測る
+    const legacyWorkspace = config.legacyStageAsset ?? null;
+    await page.goto(`${config.base}/workspace/06`);
+    await page.waitForSelector('[data-feature="sceneViewport"]');
+    await page.waitForFunction(() => window.baiStudio.project.getState().status === 'ready' && window.baiStudio.assets.getState().status === 'ready',
+      null, { timeout: 60000 });
+    if (legacyWorkspace) {
+      await page.waitForFunction(() => Boolean(window.baiStudio.viewport.getState().stage?.assetId), null, { timeout: 180000 });
+    }
+    await page.waitForTimeout(500);
+    const scr06State = await page.evaluate(() => window.baiStudio.viewport.getState());
+    const scr06 = { stageAssetId: scr06State.stage?.assetId || null, characterAssetId: scr06State.character?.assetId || null,
+      bounds: scr06State.bounds };
+    await shot('00_scr06_legacy.png');
+
     await page.goto(`${config.base}/studio/v05/index.html`);
     await page.evaluate(() => window.baiGo('projects'));
     const card = page.locator('#baiProjectList .baiCard', { has: page.locator('h3', { hasText: config.projectName }) });
@@ -91,6 +106,23 @@ async function main() {
       const probe = window.BAIStudioMultiScenePreview.frameProbe(row.id);
       return { asset_id: row.asset_id, size: probe?.root?.size || null, min: probe?.root?.min || null, max: probe?.root?.max || null };
     }), instances.map(row => ({ id: row.id, asset_id: row.asset_id })));
+    // WP-L8a §6.4：役割ごとのインスタンスと、S1（曲とダンスのモデル）の床の高さ
+    const record = (await api(`/api/studio/v05/project/legacy-import?id=${config.projectId}`)).record;
+    const roleIds = Object.fromEntries(record.steps.filter(step => step.kind === 'scene_add' && step.instance_id).map(step => [step.role, step.instance_id]));
+    const s1 = instances.find(row => !row.asset_id.startsWith('library:') && row.id !== roleIds.character) || null;
+    const l8aProbe = await page.evaluate(({ rows, stageId, s1Id }) => {
+      const P = window.BAIStudioMultiScenePreview;
+      const probes = Object.fromEntries(rows.map(row => { const f = P.frameProbe(row.id);
+        return [row.id, f && { asset_id: row.asset_id, units: row.units ?? null, root: f.root, precise: f.precise, camera: f.camera }]; }));
+      let floor = null;
+      const box = s1Id && probes[s1Id]?.precise;
+      if (box && stageId && typeof P.floorProbe === 'function') {
+        floor = P.floorProbe(stageId, box.min.map((v, i) => (v + box.max[i]) / 2));
+      }
+      return { probes, floor };
+    }, { rows: instances.map(row => ({ id: row.id, asset_id: row.asset_id, units: row.units })), stageId: roleIds.stage || null, s1Id: s1?.id || null });
+    l8aProbe.roles = roleIds;
+    l8aProbe.s1 = s1?.id || null;
     await shot('05_scene_3d.png');
     // キャラクターに注目した画像（ステージの外殻に隠れていないかを見る）
     const character = instances.find(row => !row.asset_id.startsWith('library:'));
@@ -108,7 +140,7 @@ async function main() {
     process.stdout.write(JSON.stringify({ status, timelineClips, sceneLoaded: scene.loaded, motionLoaded: scene.motion?.loadedClips?.length ?? null,
       motionIssues: scene.motion?.issues || [], motionWait, planReady: plan.ready_count,
       planRows: (plan.rows || []).map(row => ({ clip: row.clip_id, status: row.status, reason: row.reason || null })),
-      placedClips, bounds, renderer, shots, pageErrors: errors }) + '\n');
+      placedClips, bounds, scr06, l8aProbe, renderer, shots, pageErrors: errors }) + '\n');
   } finally {
     await browser.close();
   }

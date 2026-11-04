@@ -70,7 +70,7 @@ def kinds(result):
 
 # ---- §3.4 の表（設計書から写した全文。MESSAGES と完全一致を確かめる） ----
 EXPECTED = [
-    ('UNIT_SEMANTICS_DIFFER', '警告', '—', '位置・回転・大きさの数値は写しました。v0.5は読み込むときに大きさや足の位置を合わせるため、旧画面と見た目が違うことがあります。'),
+    ('UNIT_SEMANTICS_DIFFER', '警告', '—', '旧のシーン画面（②）と同じ大きさで置きました。旧のカメラ画面（①）はモデルの高さを合わせて表示していたため、①とは大きさや向きが違うことがあります。'),
     ('PLACED_AT_ORIGIN', '警告', '—', '曲とダンスの画面のモデルは位置を保存していないため、原点に置きました。'),
     ('MOTION_TARGET_UNSET', '警告', '—', '動作のクリップは置きましたが、動かすキャラクターを決められませんでした。クリップを開いて［対象モデルを保存］で選んでください。'),
     ('NAME_DUPLICATE_LAST_WINS', '警告', '—', '同じ名前の動作が複数あります。旧画面と同じく、後から登録したものを使いました。'),
@@ -140,14 +140,15 @@ def test_bundle_a_full_plan():
     assert all(s["status"] == "pending" for s in r["steps"])
     assert r["steps"][0] == {"n": 1, "kind": "fps", "status": "pending", "before": {"presence": "absent"}, "after": 30}
     assert r["steps"][1] == {"n": 2, "kind": "scene_add", "role": "character", "status": "pending",
-                             "asset_id": "mmd:A:test.pmx", "pre_ids": [], "instance_id": None,
+                             "asset_id": "mmd:A:test.pmx", "pre_ids": [], "instance_id": None, "units": "legacy",
                              "transform": {"position": [1.5, 0, -2], "rotation": [0, 90, 0], "scale": [1.2, 1.2, 1.2]}}
     assert r["steps"][2]["role"] == "stage" and r["steps"][2]["asset_id"] == STAGE_ID
+    assert r["steps"][2]["units"] == "legacy"
     assert r["steps"][2]["transform"] == {"position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [2, 2, 2]}
     assert r["steps"][3] == {"n": 4, "kind": "playhead", "status": "pending", "seconds": 4.0}
     assert [(i["id"], i["status"], i["codes"], i["step"]) for i in r["items"]] == [
         ("M1", "mapped", [], 1), ("M2", "mapped", [], 4),
-        ("M3", "mapped", ["UNIT_SEMANTICS_DIFFER"], 2), ("M4", "mapped", ["UNIT_SEMANTICS_DIFFER"], 3),
+        ("M3", "mapped", [], 2), ("M4", "mapped", [], 3),
         ("M6", "kept", ["NO_V05_FIELD"], None), ("M7", "kept", ["CAMERA_KEYS_NOT_SUPPORTED"], None),
         ("M8", "kept", ["NO_V05_FIELD"], None), ("M8", "kept", ["NO_V05_FIELD"], None),
         ("M10", "kept", ["NO_V05_FIELD"], None), ("M10", "kept", ["NO_V05_FIELD"], None),
@@ -207,12 +208,19 @@ def test_m3_character_cases():
     assert m3["status"] == "mapped" and m3["label"] == "キャラクター「foo.glb」"
     step = [s for s in r["steps"] if s["kind"] == "scene_add"][0]
     assert step["asset_id"] == "integrated:foo.glb" and step["role"] == "character"
+    assert m3["codes"] == ["UNIT_SEMANTICS_DIFFER"] and step["units"] == "legacy"  # character なし（WP-L8a §3.4）
     assert step["transform"] == {"position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1]}
     assert r["assets"] == [{"asset_id": "integrated:foo.glb", "legacy_ref": "foo.glb", "sha256": None}]
     # fbx 素材ID・character なし
     r = run("bundle_e")
     assert item(r, "M3")["status"] == "mapped"
+    assert item(r, "M3")["codes"] == ["UNIT_SEMANTICS_DIFFER"]
     assert [s["asset_id"] for s in r["steps"] if s["kind"] == "scene_add"] == [FBX_ID]
+    assert [s["units"] for s in r["steps"] if s["kind"] == "scene_add"] == ["legacy"]
+    # character が null でも警告を付ける（無いときと同じ扱い）
+    b = load_bundle("bundle_a")
+    b["workspace"]["character"] = None
+    assert item(L.plan(make_inputs(b)), "M3")["codes"] == ["UNIT_SEMANTICS_DIFFER"]
     # 一覧に無い素材
     r = run("bundle_a", assets=[a for a in make_assets() if a["id"] != "mmd:A:test.pmx"])
     m3 = item(r, "M3")
@@ -249,7 +257,7 @@ def test_m3_m4_transform_defaults_and_values():
 
 def test_m4_stage_cases():
     m4 = item(run("bundle_a"), "M4")
-    assert m4["label"] == "ステージ「テストステージ」" and m4["codes"] == ["UNIT_SEMANTICS_DIFFER"]
+    assert m4["label"] == "ステージ「テストステージ」" and m4["codes"] == []
     for name in ("bundle_d", "bundle_g", "bundle_c"):  # null / 項目なし / workspace なし → 手順なし
         r = run(name)
         assert not items(r, "M4") and "stage" not in [s.get("role") for s in r["steps"]]
@@ -388,7 +396,7 @@ def test_summary_and_source_info():
         "mapped": ["作品のFPS", "再生位置", "キャラクター「test.pmx」", "ステージ「テストステージ」"],
         "kept": ["照明", "カメラの動き（キー3件）", "カメラの補間・プリセット・ショット・リグ・追従の設定",
                  "動作の並びの編集履歴・選択などの状態"],
-        "warnings": 2, "mapped_count": 4, "kept_count": 7}
+        "warnings": 0, "mapped_count": 4, "kept_count": 7}
     assert run("bundle_c")["source_info"]["character"] == "なし" and run("bundle_c")["source_info"]["stage"] == "なし"
     assert run("bundle_c")["source_info"]["title"] == "（名前なし）"
     assert run("bundle_b")["source_info"]["character"] == "foo.glb"

@@ -52,3 +52,42 @@ def test_render_ja_marks_each_requirement(tmp_path):
     assert "総合：**不合格**" in text
     assert "| R1 元を壊さない | 合格 |" in text and "| R2 往復一致 | 不合格 |" in text and "| R4 編集後の逆変換 | 判定なし |" in text
     assert "- 画面" in text
+
+
+def test_scr06_line_with_and_without_bounds(tmp_path):
+    """WP-L8a §6.0：旧 SCR-06 の外接箱の1行（測れたとき・測れなかったとき）と、旧保存のステージ素材の読み取り。"""
+    line = check.scr06_line({"stageAssetId": "library:s", "characterAssetId": None,
+                             "bounds": {"min": [-10.5, -0.25, -8], "max": [10.5, 6.75, 8]}})
+    assert line == ("- 旧 SCR-06 の外接箱：最小 [-10.5, -0.25, -8]、最大 [10.5, 6.75, 8]、大きさ [21.0, 7.0, 16]"
+                    "（ステージ library:s、キャラクター なし）")
+    assert check.scr06_line(None).startswith("- 旧 SCR-06 の外接箱：測れていない")
+    assert check.scr06_line({"bounds": None}).startswith("- 旧 SCR-06 の外接箱：測れていない")
+    (tmp_path / "project_state.workspace.json").write_text(json.dumps({"asset": "", "stage": {"asset": "library:s"}}), encoding="utf-8")
+    assert check.legacy_stage_asset(tmp_path) == "library:s"
+    (tmp_path / "project_state.workspace.json").write_text(json.dumps({"asset": "", "stage": None}), encoding="utf-8")
+    assert check.legacy_stage_asset(tmp_path) is None
+    assert check.legacy_stage_asset(tmp_path / "missing") is None
+
+
+def _ui(floor_y=0.0, camera=(2, 1.6, 4.5)):
+    stage = {"root": {"min": [-50, -50, -50], "max": [50, 50, 50]}, "precise": None, "camera": list(camera)}
+    s1 = {"root": None, "precise": {"min": [-0.3, 0.0, -0.4], "max": [0.8, 1.7, 0.5]}, "camera": list(camera)}
+    return {"scr06": {"bounds": {"min": [-50, -50, -50], "max": [50, 50, 50]}},
+            "l8aProbe": {"roles": {"stage": "st"}, "s1": "s1", "probes": {"st": stage, "s1": s1}, "floor": {"y": floor_y}}}
+
+
+def test_l8a_judge_and_report_in_three_states():
+    """WP-L8a §6.4：合格（L5 見える）・不合格（床に埋まる）・未判定（L5 がまだ）の3通り。"""
+    ws = {"stage": {"asset": "library:s", "position": [0, 0, 0], "rotation": [0, 0, 0], "scale": 1}}
+    unjudged = check.l8a_judge(_ui(), ws, None)
+    assert unjudged["pass"] is None
+    assert [c["pass"] for c in unjudged["conditions"]] == [True, True, True, None]
+    assert unjudged["pairs"][0]["pass"] is True and unjudged["pairs"][0]["max_abs_diff"] == 0
+    passed = check.l8a_judge(_ui(), ws, "見える")
+    assert passed["pass"] is True
+    failed = check.l8a_judge(_ui(floor_y=0.5), ws, "見える")  # 足が床より 0.5m 下
+    assert failed["pass"] is False and failed["conditions"][1]["pass"] is False
+    text = "\n".join(check.l8a_lines(unjudged))
+    assert "総合：**未判定**" in text and "- L5 画像で S1 が見える（開発側の目視）：None、未判定" in text
+    assert "総合：**不合格**" in "\n".join(check.l8a_lines(failed))
+    assert "総合：**合格**" in "\n".join(check.l8a_lines(passed))
