@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T03:30:08+00:00",
+  "updated_at": "2026-11-04T03:46:54+00:00",
   "updated_by": "claude-code",
   "branch": "claude/l8a-design",
-  "head_at_update": "92f6afe",
+  "head_at_update": "c149e02",
   "current": {
     "task": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）",
-    "status": "done",
-    "step": "①②③の正規化の調査と詳細設計の執筆",
+    "status": "in_progress",
+    "step": "3人の批評の採否を決め、詳細設計を改訂する",
     "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T03:46:54+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "c149e02",
+      "text": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）: 3人の批評の採否を決め、詳細設計を改訂する"
+    },
     {
       "at": "2026-11-04T03:30:08+00:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "start",
       "head": "af81506",
       "text": "P2-WP-99: P2移植の締め（文書）: マトリクス再生成・件数表・台帳・手順書"
-    },
-    {
-      "at": "2026-11-03T23:37:39+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "745d6f1",
-      "text": "P2-WP-08c: 足IKタブのAIポーズ案（aiPosePanel）実装・テスト"
     }
   ]
 }
