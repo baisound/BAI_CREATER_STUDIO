@@ -1,39 +1,42 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T00:46:25+00:00",
+  "updated_at": "2026-11-04T00:56:31+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "1c1133d",
+  "head_at_update": "5edde6b",
   "current": {
     "task": "Issue #63/#69: 旧保存→v0.5取込設計の批評反映（最終判定）",
-    "status": "in_progress",
+    "status": "done",
     "step": "3批評の検証と採否判断・設計書改訂",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "WP-L1: studio_v05_legacy_import.py の plan() と表駆動試験（Sonnet）",
-    "WP-L2〜L6 を順に実装。L7はQ4承認後、L8はロードマップ3（カメラ・ステージ出力一致）の完了後",
-    "所有者判断待ち: Q1〜Q6（既定のまま進めてよい）"
+    "WP-L1: studio_v05_legacy_import.py の plan() と tests/fixtures/legacy_import/ の表駆動試験（標準モデル）",
+    "以後 L2→L3→L4→L7a→L7b→L5→L6→L9。L8aは次の実施順3の後、L8bは順6の後"
   ],
   "unverified": [
-    "設計のみで試験は未実行。見た目の大きさの一致（§2.3）は未保証",
+    "設計のみで試験は未実行。見た目の大きさ（§2.3）とカメラの動きは未保証",
     "既存失敗（変更前から）: pytest test_v05_timeline_drag_static 1件、node-all 10件"
   ],
   "blockers": [],
   "owner_questions": [
-    "Q1 新規プロジェクト作成の扱い（既定：◇ 未実装表示）",
-    "Q2 旧機能を削ってよいか（既定：すべて残す）",
-    "Q3 ⑥ の後に camera.html を読み取り専用にするか（既定：編集可のまま）"
+    "Q1 旧カメラの動き（キー）を順6まで保管だけにしてよいか（既定：保管だけ。時刻付きの取込はWP-L8b。返事が無くても既定で進める）"
   ],
   "read_first": [
     "AGENTS.md",
-    "docs/handoff/README_JA.md",
-    "docs/roadmap/ROADMAP_JA.md",
+    "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md",
+    "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md",
     "docs/roadmap/PHASE_E_IMPLEMENTATION_STATUS.json",
-    "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md",
-    "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
+    "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T00:56:31+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "5edde6b",
+      "text": "Issue #63/#69: 旧保存→v0.5取込設計に3批評を反映（打ち消し方式の取消・手順日誌・presence・SCR-10/旧タイムラインの開始時刻取込を承認済み範囲へ・逆変換は試験専用・DATA-008主・完了判定・UI文言と自動判定の受け入れ条件・所有者質問を1件に）。コードは未変更"
+    },
     {
       "at": "2026-11-04T00:46:25+00:00",
       "by": "claude-code",
@@ -236,13 +239,6 @@
       "event": "start",
       "head": "0ed0217",
       "text": "Issue #187: 口形VMD候補の製品内採用契約: 既存モーション・手動表情を保持する明示採用の保存/解除と競合条件を調べ、最小APIを接続する"
-    },
-    {
-      "at": "2026-10-25T02:37:04+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b87f6d6",
-      "text": "LIP-001の別名口形VMD出力前検査を発話別・原因別の一覧へ拡張。隔離Python実PMX含む11件、隔離Chrome実PMX1件、typecheck/構文/差分検査成功。Issue #187。"
     }
   ]
 }
