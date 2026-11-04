@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-03T23:42:10+00:00",
+  "updated_at": "2026-11-04T00:01:42+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "af81506",
+  "head_at_update": "1df3174",
   "current": {
-    "task": "P2-WP-99: P2移植の締め（文書）",
-    "status": "done",
-    "step": "マトリクス再生成・件数表・台帳・手順書",
-    "design_doc": "docs/roadmap/P2_PORT_DETAILED_DESIGN_20261020_JA.md"
+    "task": "Issue #187: 合成比較ゲートを製品APIと出力へ接続（ロードマップ順4）",
+    "status": "in_progress",
+    "step": "設計確認と最小限の設計追記",
+    "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
     "Phase E（カメラ）の実装に進む。所有者の承認順に従う"
@@ -31,6 +31,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T00:01:42+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "1df3174",
+      "text": "Issue #187: 合成比較ゲートを製品APIと出力へ接続（ロードマップ順4）: 設計確認と最小限の設計追記"
+    },
     {
       "at": "2026-11-03T23:42:10+00:00",
       "by": "claude-code",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "8cf3869",
       "text": "Issue #187: 全発話の確定読み・下書き・登録PMX MorphMapを照合して別名モーフVMD候補を保存/ダウンロード。関連Python13/13、実PMX名のバイナリ再読込と原本不変。"
-    },
-    {
-      "at": "2026-10-25T02:17:53+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "945a8b2",
-      "text": "Issue #187: 確定口形から別名モーフVMD候補を生成: 確定読み・警告・下書き・PMX MorphMapを照合して衝突なし候補のみ原本と別に保存する"
     }
   ]
 }

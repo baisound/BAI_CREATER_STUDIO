@@ -48,6 +48,17 @@
 
 VMD初期受入は **モーフ専用の新規 `.vmd`**。VMD 0002 のCP932モデル名・モーフ名を厳格に符号化し、モーフレコード（名称15バイト、30fps整数F、float32重み）を昇順に書く。プロジェクトFPSが30以外なら共通時間を30fpsへ1回だけ変換し、複数キーが同じVMD Fになる場合は衝突を一覧にして確認なしで間引かない。CP932不可/長名/非有限/負フレーム/未確定読みに対して書出し拒否。現行 `motion_vmd_bridge.py` の骨キーwriterとは別モジュールとし、骨レコード0件、モーフ件数、後続セクション0件を正しく書く。`vmd_readback.py` をモーフ解析まで拡張して全キーを往復比較し、実PMXでの見た目は別に検証。原VMDを上書きせず、既存ファイル名衝突は版名を提案する。
 
+### 4.1 元VMDとの合成候補（Issue #187、2026-11-04追記）
+
+モーフ専用VMDとは別に、作品内で選んだ**元VMDクリップ**へ採用口形と手動表情キーを合成した**別名の候補VMD**を作る。計算は `studio_v05_lip_vmd_composite.compose_morph_vmd`（全作品F＋VMD中間Fの比較ゲート）を使い、APIで次を固定する。
+
+- **入力の選び方**: `project_id`・`instance_id`・`clip_id` と、`adoption_revision`（口形採用台帳）・`scene_revision`（手動表情キーを持つシーン）・`arrangement_revision`（タイムライン）を必ず受け取る。どれかが現在値と違えば409。元VMDは、その場面インスタンスに割り当てた `ready` の登録VMDクリップ1本（MOTION-010の `_context` と同じ判定）。採用口形は `lip/adoptions` の同インスタンスの記録で、`stale` なら拒否（409 `adoption_stale`）。採用が無い場合は元VMD＋手動キーだけを合成する。
+- **時刻の制約（初期受入）**: 比較器は「VMDの局所時刻＝作品時刻」を前提とするため、クリップ開始0秒、整数FPS（1〜240）だけを受け入れる。比較範囲は `[0, floor(duration×fps)]` F。範囲外の発話区間・手動キーは黙って捨てずに422で一覧化する（`cue_outside_clip`／`manual_key_outside_clip`）。開始0以外の移動・クリップの途中切り出しは未対応として理由を返す。
+- **不連続の拒否**: 比較器が許容差1e-4を超えた場合は422で、モーフ・時刻・期待値・実値（`report.worst`）を返し、ファイルを作らない。
+- **書き出しと読み直し**: `dry_run=false` のとき `data/studio_v05_lip_composite_candidates/<project>/<id>.vmd` と `.json` に新規作成（`xb`）。元VMD・採用候補・シーン・台帳は書き換えない。書いたファイルを読み直し、(1) SHA-256、(2) 元VMDの骨・補間・カメラ等の区画のバイト一致、(3) 対象モーフの全キーが合成値と一致（float32）、(4) 対象外モーフの全キーが元VMDとバイト一致、を照合し、1つでも違えば両ファイルを消して500。ダウンロード名は `LIP001-COMPOSITE-<元VMD名>-<id先頭8桁>.vmd`。
+- **失効**: ダウンロード時に保存した入力（元VMDハッシュ・採用候補ハッシュ・手動キーの正規化ハッシュ・各revision）で合成を再計算し、候補バイトと一致しない場合は409で配らない。
+- **状態**: `composite_binary_checked_requires_real_pmx_validation`。作品への配置・素材登録・最終MP4への反映はこの段階では行わない（実PMX表示比較と別ゲート）。
+
 | `type` | target / payload | 成功・失敗 |
 |---|---|---|
 | `audio.import` | 許可済みuploadハンドル、`{role:"vocal"|"music"}` | assetId/hash/ストリーム情報。デコード失敗422 |
@@ -59,6 +70,7 @@ VMD初期受入は **モーフ専用の新規 `.vmd`**。VMD 0002 のCP932モデ
 | `lip.setKey` | lipTrackId、`{keyId|null,frame,mouthShape,weight}` | 手動キー、採用元、Undo単位 |
 | `lip.setMorphMap` | modelAssetId、`{entries,confirmed}` | 実在照合と分析値。別hash404/409 |
 | `lip.setExpressionKey` | modelInstanceId、`{keyId|null,frame,morphId,weight}` | 表情キーと競合一覧 |
+| `lip.composeSourceVmd` | instanceId・clipId、`{adoptionRevision,sceneRevision,arrangementRevision}`、dryRun | 別名候補ID、全キー読み直し、比較報告。失効409、不連続/範囲外422（§4.1） |
 | `lip.previewSync` | clipId、`{frame,modelInstanceId,cameraId}`、dryRun | 音声サンプル/映像F/採用元/差分。未評価を明示 |
 | `lip.exportMorphVmd` | lipTrackId、`{modelAssetId,outputHandle}` | 新規ファイルID、readback、未対応一覧。曖昧な読み/衝突時422 |
 
