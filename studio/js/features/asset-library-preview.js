@@ -25,6 +25,8 @@ async function saveThumbnail(item, canvas) {
   if (!blob || blob.size > 2 * 1024 * 1024) return null;
   const response = await fetch(`/api/library-assets/thumbnail?id=${encodeURIComponent(item.id)}`, { method: 'POST', headers: { 'Content-Type': 'image/png' }, body: blob });
   if (!response.ok) return null;
+  // Let an already-open v0.5 library tab show the new sample.
+  try { localStorage.setItem('bai.studio.assets.changed', `${Date.now()}:${item.id}`); } catch (_) { /* storage may be disabled */ }
   return `/api/library-assets/thumbnail/${encodeURIComponent(item.id)}${item.kind === 'stage' ? '?v=2' : ''}`;
 }
 

@@ -10,7 +10,7 @@
 
 | Owner指定の順 | 確認済みの狭い範囲 | 次の終了条件を妨げる残件 |
 |---|---|---|
-| 1 素材入口 `DATA-001/008/016` | v0.5の登録素材一覧、画像等の追加登録、実IDの配置保存、小型GLBの再表示を隔離Chromeで確認。[証拠](../v05/ASSET_LIBRARY_BRIDGE_20261023_JA.md) | PMX/VRM/FBX/VMD/GLB動作はv0.5からの直接登録が未接続。旧入口を経由する場合も、対象形式ごとの登録・見本・再読込を通していない。既存作品の完全復元も未確認。[#37](https://github.com/baisound/BAI_CREATER_STUDIO/issues/37) |
+| 1 素材入口 `DATA-001/008/016` | v0.5の登録素材一覧、画像等の追加登録、実IDの配置保存、小型GLBの再表示を隔離Chromeで確認。[証拠](../v05/ASSET_LIBRARY_BRIDGE_20261023_JA.md)。2026-11-04、実VRM・FBXモデル・FBX動作・GLB人体動作・所有者のGLBステージとWAV・画像・動画を、形式ごとに登録・見本・再読込・原本hashまで実GPUで確認。[形式別の結果](../v05/REAL_FORMAT_IMPORT_20261104_JA.md) | PMX/VRM/FBX/VMD/GLB動作はv0.5からの直接登録が未接続で、旧入口を経由する。3D・動画の見本は旧画面でしか作られない。FBXモデルの見本は黒い影絵で、動作の見本と3D表示はv0.5に無い。MP3・WebM/OGV・JPEG等は未検証。既存作品の完全復元も未確認。[#37](https://github.com/baisound/BAI_CREATER_STUDIO/issues/37) |
 | 2 同じ作品・時計 `DATA-003/008`、`AUDIO-001`、`MOTION-002/003/006` | 画像・動画・独立音声の配置と元区間編集、実PMX＋全身VMDの複数時刻表示、GLBの同画素重ねをそれぞれ隔離確認。[媒体操作](../v05/MEDIA_SPECIFIC_TIMELINE_20261024_JA.md)、[PMXダンス](../v05/REAL_PMX_FULL_DANCE_20261024_JA.md)、[重ね表示](../v05/COMPOSITE_SCENE_PREVIEW_20261024_JA.md) | 旧作品を含む同一IDの復元、実PMX・曲・ステージ・保存カメラを一つの編集画面と時計に結ぶ通し検証、長尺の音画同期が未達。[#39](https://github.com/baisound/BAI_CREATER_STUDIO/issues/39)、[#63](https://github.com/baisound/BAI_CREATER_STUDIO/issues/63) |
 | 3 別名動画 `RENDER-001/002/004/005/006` | 画像・動画・独立音声のH.264/AAC MP4、最大300Fの3Dを含む短いMP4を隔離再読込済み。PMX全身VMDと手動表情キーの短区間画素差も確認。[2D](../v05/MEDIA_RENDER_20261024_JA.md)、[3D](../v05/SCENE_MP4_CAPTURE_20261024_JA.md) | 編集時の保存カメラと書き出し構図の一致、300Fを超える3D、動画内音声、全区間1F以内の音画同期、完成物の同名版管理、字幕等は未達。拒否する形式は黙って欠落させない。 |
 | 4 PMX顔・口・ダンス `LIP-001/004/006/007/009` | 実PMXの手動表情・口キー、VMDダンスと短MP4、SRT原本から別名モーフVMD候補、作品内の明示採用・Undo/Redo、元VMD/採用/手動0の3D優先表示を確認。元VMDの非モーフ区画保持と全作品F・60fps中間Fの合成比較器はPythonで検査済み。[採用](../v05/LIP001_ADOPTION_OVERLAY_20261025_JA.md)、[比較器](../v05/LIP001_COMPOSITE_FRAME_GATE_20261025_JA.md) | 合成比較器は製品API/出力へ未接続。実歌音声SRTの境界品質、採用口形を含む完成MP4、一般化したPMX/VRM表情、MCPは未検証。[#187](https://github.com/baisound/BAI_CREATER_STUDIO/issues/187) |
@@ -49,3 +49,11 @@
 v0.5素材管理から旧SCR-08のモデル・動作登録画面を開く入口を明示した。旧画面で連続登録した後に、開いたままのv0.5一覧を再取得し、6種の隔離fixtureで素材ID・原本hash・一覧再読込を確認した。形式別の試験範囲と、3D詳細の見本が未接続の範囲は[調査表](../v05/FORMAT_IMPORT_LEGACY_AUDIT_20261102_JA.md)に記す。合成fixtureの拡張子登録を実VRM/人体動作の表示合格とはしない。
 
 旧Studioの全体保存とv0.5の作品ID別配置は保存契約が異なる。旧状態のスナップショットを読むAPIはあるが、v0.5タイムラインへの復元は未接続。旧作品の同一ID・同一保存状態での編集再開は未達とし、Issue #63/#69の残件を保持する。WebMCP/標準MCP、Linux、実形式の3D見本・全形式再生も未検証。
+
+### 2026-11-04 実素材の形式別登録・見本・再読込（順1、次の実施順2）
+
+`tests/studio-v05-real-format-import.test.cjs` は、所有者のPCにある実素材8形式を、読み取り専用の一時複製から隔離サーバーへ登録する。経路は、v0.5の追加画面と、v0.5から開く旧SCR-08の2つ。形式ごとに、ID、v0.5詳細の見本、「見本なし」「3D未接続」の表示、再読込後の同一表示、保存ファイルと原本のSHA-256を照合した。実GPU（RTX 4070 SUPER/D3D11）で3回、SwiftShaderで1回、すべて1/1成功。所有者のdataの13ファイルは前後でhashが一致した。形式別の表と未解決の点は[記録](../v05/REAL_FORMAT_IMPORT_20261104_JA.md)にある。
+
+試験で見つかった `DATA-016` の欠落を2つ直した。1つ目は、旧画面が後から作った見本が、開いたままのv0.5一覧に出なかったこと。2つ目は、一覧の更新が重なると、登録した素材の選択が失われたこと。FBXモデルの見本が黒い影絵になる点、FBXの容量が「不明」と出る点、v0.5だけでは3D・動画の見本を作れない点は、未解決として残す。PMX＋VMDは11/02の縦断試験で確認済みで、今回は対象外。MP3・WebM/OGV・JPEG等、WebMCP/標準MCP、Linuxは未検証。旧作品の同一IDでの復元も未達のまま。
+
+モデル区分: 実素材の選定、修正、試験、記録は高性能モデル。

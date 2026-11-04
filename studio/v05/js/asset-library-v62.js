@@ -29,7 +29,8 @@
   let category = 'all';
   let selectedId = null;
   let loading = false;
-  let needsRefresh = false;
+  let queuedRefresh = null;
+  let importOpen = false;
 
   function fileUrl(item) {
     if (!item.available) return null;
@@ -77,6 +78,7 @@
   }
 
   function showDetail(item) {
+    importOpen = false;
     selectedId = item.id;
     renderList();
     const titleSource = item.titleSource === 'metadata' ? '埋め込み情報' : item.titleSource === 'filename' ? 'ファイル名' : '登録情報';
@@ -99,8 +101,15 @@
     });
   }
 
-  async function refresh(preferId = selectedId) {
-    if (loading) { needsRefresh = true; return; }
+  // showSelected=false keeps an open import form while the list behind it updates
+  // (for example when the legacy screen saves a 3D/video sample in the background).
+  async function refresh(preferId = selectedId, showSelected = !importOpen) {
+    if (loading) {
+      // Keep an explicit request (a new upload's ID) over a later background refresh.
+      const waiters = queuedRefresh?.waiters || [];
+      if (!queuedRefresh || !queuedRefresh.showSelected || showSelected) queuedRefresh = { preferId, showSelected, waiters };
+      return new Promise((resolve) => waiters.push(resolve));
+    }
     loading = true;
     grid.innerHTML = '<p>登録素材を読み込んでいます…</p>';
     try {
@@ -119,7 +128,8 @@
       window.dispatchEvent(new CustomEvent('bai:v05-assets-loaded', { detail: { count: items.length } }));
       renderList();
       const selected = items.find((item) => item.id === preferId);
-      if (selected) showDetail(selected);
+      if (!showSelected) { /* the import form stays open */ }
+      else if (selected) showDetail(selected);
       else if (selectedId) { selectedId = null; detail.innerHTML = '<h2>登録素材の詳細</h2><p>一覧から素材を選んでください。</p>'; }
     } catch (error) {
       items = [];
@@ -129,11 +139,16 @@
       detail.innerHTML = '<h2>登録素材の詳細</h2><p>一覧の取得後に表示します。</p>';
     } finally {
       loading = false;
-      if (needsRefresh) { needsRefresh = false; void refresh(); }
+      if (queuedRefresh) {
+        const next = queuedRefresh;
+        queuedRefresh = null;
+        void refresh(next.preferId, next.showSelected).then(() => next.waiters.forEach((resolve) => resolve()));
+      }
     }
   }
 
   function showImport() {
+    importOpen = true;
     detail.innerHTML = `<h2>素材を追加</h2>
       <label>種類 <select id="baiUploadKind">
         <option value="stage">GLBステージ</option><option value="prop">GLB小物</option>
@@ -181,7 +196,7 @@
       status.textContent = result;
       button.disabled = false;
       if (successes) {
-        await refresh(latest);
+        await refresh(latest, true);
         const feedback = document.createElement('p');
         feedback.setAttribute('role', 'status');
         feedback.textContent = result;
