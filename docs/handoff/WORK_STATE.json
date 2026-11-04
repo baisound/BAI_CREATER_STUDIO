@@ -1,22 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T01:35:20+00:00",
+  "updated_at": "2026-11-04T01:43:27+00:00",
   "updated_by": "claude-code",
   "branch": "claude/lip-boundary-smooth",
-  "head_at_update": "4d9fb4c",
+  "head_at_update": "12e78de",
   "current": {
     "task": "LIP-001 口パク境界を1フレームで滑らかにする（所有者決定 2026-11-04）",
-    "status": "in_progress",
+    "status": "done",
     "step": "Python合成・3D表示・プレビュー/MP4の口形曲線を30fps格子の線形補間へ統一",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "WP-L3 適用・打ち消し・取消(collect/apply/undo_journal/revert, clear_fps)",
-    "以後 L4→L7a→L7b→L5→L6→L9"
+    "所有者の確認待ちなし。順4の残り（実PMXでの合成候補の見た目、採用口形を含む完成MP4）は実データ環境で確認"
   ],
   "unverified": [
-    "ストア単体のみで呼び出し元なし。collect/apply/取消/HTTP/MCP/画面/実データは未実装。DATA-008は要検証のまま",
-    "node試験は JS・サーバー未変更のため未実行。pytest 既存失敗1件(test_v05_timeline_drag_static)"
+    "実PMX・実長尺VMD・実歌音声SRTでの境界の見た目、採用口形を含む完成MP4、実ブラウザ/GPUでの3D表示（node試験は関数抽出と合成素材のみ）",
+    "studio-v05-scene-mp4.test.cjs の2件はこの環境にChrome/Edgeが無く失敗（変更と無関係）。pytest既存失敗1件 test_v05_timeline_drag_static"
   ],
   "blockers": [],
   "owner_questions": [
@@ -30,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T01:43:27+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "12e78de",
+      "text": "LIP-001 口形の開始・終了を1 VMDフレームの直線で切替（Python合成・3D表示・プレビュー/MP4を同一曲線に統一、A1設計§4.1追記）"
+    },
     {
       "at": "2026-11-04T01:35:20+00:00",
       "by": "claude-code",
@@ -232,13 +238,6 @@
       "event": "start",
       "head": "70ed811",
       "text": "Issue #69: 2026-11-02時点のv0.5最短制作経路ロードマップを再構築: 承認済み順序と機能台帳・実装・試験の差を照合し、次の縦断作業と終了条件を日付付き正本へ整理する"
-    },
-    {
-      "at": "2026-11-02T18:34:24+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "40ee410",
-      "text": "LIP-001: 元VMD・採用口形・手動表情の優先計算を30fps候補へ焼き込み、全作品Fと60fps中間Fの重み差で拒否する比較ゲートを追加。実VMDを含む9試験成功"
     }
   ]
 }

@@ -5,6 +5,7 @@ morph and camera records. Runs against an isolated data root through HTTP.
 """
 import hashlib
 import json
+import types
 import struct
 import threading
 import urllib.error
@@ -31,14 +32,15 @@ from tools.make_test_pmx import build_pmx
 INSTANCE = 'legacy-primary'
 
 
-def _vmd():
+def _vmd(morphs=None):
     def name(text):
         return text.encode('cp932').ljust(15, b'\0')
     header = b'Vocaloid Motion Data 0002'.ljust(30, b'\0') + 'テスト'.encode('cp932').ljust(20, b'\0')
     bones = b''.join(name('センター') + struct.pack('<I3f4f', frame, 0, y, 0, 0, 0, 0, 1)
                      + bytes([20, 20, 107, 107]) * 16 for frame, y in ((0, 0), (45, 1)))
-    morphs = [('あ', 0, .8), ('あ', 30, .8), ('あ', 60, 0.), ('あ', 90, 0.),
-              ('まばたき', 10, 1.), ('まばたき', 20, 0.)]
+    if morphs is None:
+        morphs = [('あ', 0, .8), ('あ', 30, .8), ('あ', 60, 0.), ('あ', 90, 0.),
+                  ('まばたき', 10, 1.), ('まばたき', 20, 0.)]
     morph_raw = b''.join(name(n) + struct.pack('<If', f, w) for n, f, w in morphs)
     camera = struct.pack('<If3f3f', 0, 30, 0, 10, 0, 0, 0, 0) + bytes(24) + struct.pack('<I', 30) + b'\0'
     assert len(camera) == 61
@@ -50,13 +52,14 @@ def _sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
-def test_composite_candidate_http_full_key_readback_and_rejections(tmp_path, monkeypatch):
+def _setup(tmp_path, monkeypatch, original_vmd):
+    """Project with a 1.0-2.0 s SRT cue adopted as A, a 0-3 s source VMD clip and HTTP API."""
     data = tmp_path / 'data'
     model = data / 'mmd' / 'A' / 'tiny.pmx'
     motion = data / 'mmd' / 'vmd' / 'source dance.vmd'
     model.parent.mkdir(parents=True)
     motion.parent.mkdir(parents=True)
-    original_pmx, original_vmd = build_pmx(), _vmd()
+    original_pmx = build_pmx()
     model.write_bytes(original_pmx)
     motion.write_bytes(original_vmd)
     catalog = data / 'studio_v05_catalog.json'
@@ -109,12 +112,6 @@ def test_composite_candidate_http_full_key_readback_and_rejections(tmp_path, mon
         mutate_scene(scene_root, legacy_root, catalog, project_id, action, scene_revision(), assets,
                      face_key=key, morph_lookup=lambda _source: {'あ'})
 
-    # Manual keys after the cue: continuous with the source (0) then ramp to 0.5.
-    face('face-set', {'instance_id': INSTANCE, 'morph_name': 'あ', 'time': 2.5, 'value': 0.0,
-                      'track': 'expression'})
-    face('face-set', {'instance_id': INSTANCE, 'morph_name': 'あ', 'time': 3.0, 'value': .5,
-                      'track': 'expression'})
-
     api = ThreadingHTTPServer(('127.0.0.1', 0), server.Handler)
     thread = threading.Thread(target=api.serve_forever, daemon=True)
     thread.start()
@@ -136,6 +133,24 @@ def test_composite_candidate_http_full_key_readback_and_rejections(tmp_path, mon
         return {'project_id': project_id, 'instance_id': INSTANCE, 'clip_id': clip['id'],
                 'adoption_revision': 1, 'scene_revision': scene_revision(),
                 'arrangement_revision': 2, 'dry_run': True, **overrides}
+
+    return types.SimpleNamespace(**{key: value for key, value in locals().items()
+                                    if key not in ('tmp_path', 'monkeypatch')})
+
+
+def test_composite_candidate_http_full_key_readback_and_rejections(tmp_path, monkeypatch):
+    original_vmd = _vmd()
+    ctx = _setup(tmp_path, monkeypatch, original_vmd)
+    (data, model, motion, original_pmx, catalog, project_id, source, lip, clip, arrangement_root,
+     scene_root, scene_revision, face, api, thread, request, body) = (
+        ctx.data, ctx.model, ctx.motion, ctx.original_pmx, ctx.catalog, ctx.project_id,
+        ctx.source, ctx.lip, ctx.clip, ctx.arrangement_root, ctx.scene_root,
+        ctx.scene_revision, ctx.face, ctx.api, ctx.thread, ctx.request, ctx.body)
+    # Manual keys after the cue: continuous with the source (0) then ramp to 0.5.
+    face('face-set', {'instance_id': INSTANCE, 'morph_name': 'あ', 'time': 2.5, 'value': 0.0,
+                      'track': 'expression'})
+    face('face-set', {'instance_id': INSTANCE, 'morph_name': 'あ', 'time': 3.0, 'value': .5,
+                      'track': 'expression'})
 
     folder = data / 'studio_v05_lip_composite_candidates' / project_id
     watched = [model, motion, data/'studio_v05_arrangements'/(project_id+'.json'),
@@ -223,3 +238,36 @@ def test_composite_candidate_http_full_key_readback_and_rejections(tmp_path, mon
         api.shutdown()
         api.server_close()
         thread.join(timeout=5)
+
+
+def test_composite_candidate_succeeds_when_srt_start_opens_a_closed_source_mouth(tmp_path, monkeypatch):
+    # LIP-001 owner decision 2026-11-04: a dance VMD keeps the mouth closed (0)
+    # and the SRT cue opens it to .8 at 1.0 s. The adopted curve now ramps over
+    # one VMD frame (F29 -> F30), so the candidate is written instead of a 422.
+    original_vmd = _vmd([('あ', 0, 0.), ('あ', 90, 0.), ('まばたき', 10, 1.), ('まばたき', 20, 0.)])
+    ctx = _setup(tmp_path, monkeypatch, original_vmd)
+    try:
+        code, made = ctx.request('/composite-candidate', body=ctx.body(dry_run=False))
+        assert code == 200, made
+        assert made['comparison']['worst']['difference'] < 1e-6
+        assert made['readback']['status'] == 'passed_full_key_readback'
+        code, raw = ctx.request('/composite-candidate/file', {'project_id': ctx.project_id,
+            'candidate_id': made['candidateId']}, binary=True)
+        assert code == 200 and _sha(raw) == made['sha256']
+        mouth = {row['frame']: row['weight'] for row in inspect_morph_section(raw)['rows']
+                 if row['name'] == 'あ'}
+        assert mouth[29] == 0 and abs(mouth[30] - .8) < 1e-6
+        assert abs(mouth[45] - .4) < 1e-6 and mouth[60] == 0 and mouth[90] == 0
+        assert ctx.motion.read_bytes() == original_vmd
+
+        # A manual key that forces 0 inside the ramp is still a real discontinuity.
+        ctx.face('face-set', {'instance_id': INSTANCE, 'morph_name': 'あ', 'time': 1.0,
+                              'value': 0.0, 'track': 'expression'})
+        code, rejected = ctx.request('/composite-candidate', body=ctx.body(dry_run=False))
+        assert code == 422 and rejected['issues'][0]['code'] == 'discontinuity'
+        folder = ctx.data / 'studio_v05_lip_composite_candidates' / ctx.project_id
+        assert len(list(folder.glob('*.vmd'))) == 1
+    finally:
+        ctx.api.shutdown()
+        ctx.api.server_close()
+        ctx.thread.join(timeout=5)
