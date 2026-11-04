@@ -185,7 +185,9 @@
 | M11 | 旧画面の不明な項目「{key}」 |
 | S1 | ダンスのモデル「{name}」 |
 | S2 | 曲「{name}」 |
-| S3 | ダンス「{name}」 |
+| S3・S4 | ダンス「{name}」（S4＝途中開始の保管も同じ表示名。WP-L7a で補足） |
+| S6 | 曲とダンスの画面の再生位置とFPS（WP-L7a で補足） |
+| S0 | 曲とダンスの画面の保存（ファイル全体を `LIVE_SOURCE_INVALID` で保管するとき。WP-L7a で補足） |
 | T2 | 旧タイムラインの動作「{name}」 |
 | 場面インスタンスのストア | 3D場面 |
 | アレンジのストア | タイムライン |
@@ -574,6 +576,8 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
   - 失敗の注入：`clip_assign` で例外 → クリップもインスタンスも消えて `rolled_back`。
   - 取消で、クリップ2件とインスタンスが消え、`music_dance_project.json` のSHA-256が変わらない。
   - チェックなし（`include` が空）なら、SCR-10 のファイルを読まない（ファイルを壊れたJSONにしても拒否されない）。
+
+**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` の `plan`（S1〜S6、`_plan_music_dance`）、`collect`（`_read_music_dance`、`_music_dance_media`）、`apply`（record の `source.live`）、`tests/test_studio_v05_legacy_import_music_dance.py`、fixture 3本。試験 58 件合格（skip なし）。legacy_import 全体 212 件合格、pytest 全体は 821 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`）・HTTP/MCP・画面・実データ・実 ffprobe での曲の長さ（試験は `media_info` を差し替え）。設計の穴を次のように解釈した：(1) `durations` は秒（VMD は `(最終フレーム+1)/30`）。曲の音声の有無（`place` の `source_has_audio` 用）は `inputs["audio_flags"]` に別に入れ、`clip_place` 手順の `source_has_audio` に写す。(2) 時刻は `round(フレーム/30, 4)`（クリップの保存桁と同じ）。(3) `start + duration` が 24 時間を超える曲・ダンスは `OUT_OF_RANGE` で保管（超えると `place` が失敗して取込全体が巻き戻るため）。(4) `model_id` が指定されているのに置けない（`ASSET_MISSING`・`ASSET_UNSUPPORTED`）ときは、ダンスの対象をキャラクターへ代用せず `MOTION_TARGET_UNSET`。`model_id` が null のときだけキャラクターのインスタンスを対象にする。(5) S1 がキャラクターと共有のときも、items に S1（`mapped`、手順なし、警告なし）を残す。(6) S4（`motion_source_frame ≠ 0`）は素材の状態に関係なく先に判定し、items の id は `S4`（表示名は S3 と同じ）。(7) S6 は SCR-10 が有効なとき常に1件保管する。ラベルは §3.5 に補足した。(8) SCR-10 のファイルが検査に通らない・64KiB を超える・読めないときは item `S0`（`LIVE_SOURCE_INVALID`、ポインタ空）で保管し、他の取込は続ける。`legacy_value`・record の `live.music_dance.value` は全文（64KiB 超は `null`）。(9) `plan` の入力 `live.music_dance` は `{sha256, value, updated_at, invalid?}`。`source_info.music_dance_updated` はファイルの更新日時（`updated_at`）。(10) `collect` はチェックなし（`include` に無い）ときファイルも素材も読まない。ファイルが無ければ `None`（拒否しない）。(11) `clip_source`・`clip_assign`・`playhead` の手順にも、始める直前に `started` の印を保存する（打ち消しは何もしない手順なので動作は変わらない）。(12) 曲のトラックは `classify` の `music`/`audio`、手順の `role` は曲 `music`・ダンス `dance`・追加モデル `dance_model`。
 
 ### WP-L7b 旧タイムライン編集を写す
 

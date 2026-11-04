@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "fps": 30,
+  "model_id": "mmd:A:test.pmx",
+  "motion_id": "mmd:vmd:dance.vmd",
+  "audio_id": "library:00112233445566778899aabb",
+  "motion_start_frame": 60,
+  "motion_source_frame": 0,
+  "audio_start_frame": 30,
+  "audio_source_frame": 15,
+  "head_frame": 45
+}

@@ -335,6 +335,15 @@
       "commit": "WP-L4 コミット（Git履歴で「WP-L4」を検索）",
       "tests": "pytest tests/test_studio_v05_legacy_import_roundtrip.py 32 passed（skipなし。R2 は bundle_a〜j 全部、R4 は設計の全項目）、pytest 全体 763 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static::test_no_persist_until_release）、npm run typecheck 出力なし。JS・サーバー未変更のため npm ci と node-all は未実行。途中で test_bundle_snapshot_consistency の1件が -x 実行時に1回だけ失敗（並列負荷下の時間依存の不安定。単独3回と全体実行では合格）",
       "unverified": "DATA-008 は要検証のまま。逆変換は試験専用でサーバー・HTTP/MCP・画面・実データ未接続。曲とダンス・旧タイムライン編集（L7a・L7b）の逆変換は未実装。見た目の大きさ・カメラの動きは未保証"
+    },
+    {
+      "item": "Issue #63/#69 旧保存→v0.5取込 WP-L7a（曲とダンス SCR-10 の配置と開始時刻。plan に S1〜S6、collect に music_dance の読み込みと長さの取得、clip_place/clip_source/clip_assign の手順）。include に music_dance があるときだけ動く",
+      "phase_e_wp": "（DATA-008、再構築ロードマップ 次の実施順2）",
+      "planned_in": "LEGACY-IMPORT-WP-L7A",
+      "status": "done",
+      "commit": "WP-L7a コミット（Git履歴で「WP-L7a」を検索）",
+      "tests": "pytest tests/test_studio_v05_legacy_import_music_dance.py 58 passed（skipなし。full の開始時刻・往復、offset、other_model、長さ不明、FBX動作、失敗の注入、started の印、取消、チェックなしで読まない、壊れた保存、確認後の変更を含む）、legacy_import の全試験 212 passed、pytest 全体 821 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static::test_no_persist_until_release）、npm run typecheck 出力なし。JS・サーバー未変更のため npm ci と node-all は未実行",
+      "unverified": "DATA-008 は要検証のまま。サーバー経由（PROJECT_LOCK）・HTTP/MCP・画面・実データは未接続。曲の長さは試験では media_info を差し替えており、実 ffprobe での取得は未確認。FBX・GLB動作の長さ、ダンスの途中開始、速度変更、見た目の大きさ、カメラの動きは写らない。旧タイムライン編集（L7b）は未実装"
     }
   ]
 }

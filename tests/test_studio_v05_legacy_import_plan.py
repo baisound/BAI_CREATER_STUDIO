@@ -128,7 +128,7 @@ def test_error_class_uses_messages_and_status():
 def test_labels_cover_design_table():
     assert L.LABELS["M3"] == "キャラクター「{name}」" and L.LABELS["M7"] == "カメラの動き（キー{n}件）"
     assert L.LABELS["scene_store"] == "3D場面" and L.LABELS["arrangement_store"] == "タイムライン"
-    assert len(L.LABELS) == 17
+    assert len(L.LABELS) == 19  # §3.5 の17行＋WP-L7a の S0・S6
 
 
 # ---- M1〜M11 の表駆動 ----
@@ -414,7 +414,8 @@ def test_every_item_code_has_message_and_known_kind():
 
 
 def test_expected_includes_live_hash_only_for_included():
-    live = {"music_dance": {"sha256": "cd" * 32, "value": {}}, "timeline_editor": {"sha256": "ef" * 32, "value": {}}}
+    import music_dance_project
+    live = {"music_dance": {"sha256": "cd" * 32, "value": dict(music_dance_project.DEFAULT)}, "timeline_editor": {"sha256": "ef" * 32, "value": {}}}
     r = run("bundle_a", live=live, include=("music_dance",))
     assert r["expected"]["live_sha256"] == {"music_dance": "cd" * 32, "timeline_editor": None}
     assert run("bundle_a", live=live)["expected"]["live_sha256"] == {"music_dance": None, "timeline_editor": None}
@@ -437,7 +438,7 @@ def test_fixture_files_untouched_by_plan():
     def snap():
         return {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(FIXTURE_DIR.iterdir())}
     before = snap()
-    assert len(before) == 10
+    assert len(before) == 13  # bundle_a〜j と music_dance_full・offset・other_model（WP-L7a）
     for name in "abcdefghij":
         run("bundle_" + name)
     assert snap() == before
