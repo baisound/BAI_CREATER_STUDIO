@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T15:33:55+09:00",
+  "updated_at": "2026-11-04T15:38:44+09:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-next",
-  "head_at_update": "7827460",
+  "head_at_update": "566fe7d",
   "current": {
     "task": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる",
     "status": "done",
@@ -11,7 +11,7 @@
     "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "§8手順5：§6.3を BAI_REQUIRE_3D=1 で合格（# skip 0）、§6.5の回帰。試験ファイルをコミット"
+    "§8手順6・7：説明書・台帳、実データの L1〜L5"
   ],
   "unverified": [
     "床の高さ（L3）は外接箱からは分からない。§6.4で floorProbe により測る"
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T15:38:44+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "566fe7d",
+      "text": "WP-L8a §8手順5：§6.3 を BAI_REQUIRE_3D=1・BAI_REQUIRE_REAL=1 で実行し 2/2 合格・skip 0（S・G・K・P・F・A の全対が差0、床5.25、対照は差14.25・1.09375で感度あり、ケースR 実PMX は差4.4e-16）。§6.5：legacy-import-ui/-3d・composite-scene-preview・scene-mp4・real-stage・p2-normalize-parity の17件中16件成功・skip 0、失敗1件（p2-normalize-parity）は②の画面が起動途中で止まる既知の不安定さで、単独再実行2/2成功。saved-composition（実GPU）は IoU 0.886・重心0.005 で順3の記録と同じ"
+    },
     {
       "at": "2026-11-04T15:33:55+09:00",
       "by": "claude-code",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "04a28bd",
       "text": "WP-L1 旧保存→v0.5取込 plan() 実装: studio_v05_legacy_import.py と固定fixture試験"
-    },
-    {
-      "at": "2026-11-04T00:56:31+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "5edde6b",
-      "text": "Issue #63/#69: 旧保存→v0.5取込設計に3批評を反映（打ち消し方式の取消・手順日誌・presence・SCR-10/旧タイムラインの開始時刻取込を承認済み範囲へ・逆変換は試験専用・DATA-008主・完了判定・UI文言と自動判定の受け入れ条件・所有者質問を1件に）。コードは未変更"
     }
   ]
 }
