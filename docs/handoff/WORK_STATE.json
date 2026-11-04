@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T00:56:31+00:00",
+  "updated_at": "2026-11-04T00:58:01+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "5edde6b",
+  "head_at_update": "04a28bd",
   "current": {
-    "task": "Issue #63/#69: 旧保存→v0.5取込設計の批評反映（最終判定）",
-    "status": "done",
-    "step": "3批評の検証と採否判断・設計書改訂",
+    "task": "WP-L1 旧保存→v0.5取込 plan() 実装",
+    "status": "in_progress",
+    "step": "studio_v05_legacy_import.py と固定fixture試験",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T00:58:01+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "04a28bd",
+      "text": "WP-L1 旧保存→v0.5取込 plan() 実装: studio_v05_legacy_import.py と固定fixture試験"
+    },
     {
       "at": "2026-11-04T00:56:31+00:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "done",
       "head": "7eb316c",
       "text": "Issue #187: 別名口形VMD候補を作品PMXへ明示採用・解除・Undo/Redo。元VMD→採用口形→手動0キーの優先表示、SRT区間外復帰、保存再読込と失効を隔離実PMXで確認。Python11件、Chrome2件、原本hash不変。"
-    },
-    {
-      "at": "2026-10-25T02:40:03+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0ed0217",
-      "text": "Issue #187: 口形VMD候補の製品内採用契約: 既存モーション・手動表情を保持する明示採用の保存/解除と競合条件を調べ、最小APIを接続する"
     }
   ]
 }
