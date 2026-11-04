@@ -135,7 +135,7 @@ def item_of(pv, iid, pointer=None):
 
 
 def t_warnings(pv):
-    """T 項目の警告の数（M3・M4 の UNIT_SEMANTICS_DIFFER は除く）。summary.warnings は全項目の合計に一致する。"""
+    """T 項目の警告の数（M3 の character が無いときの UNIT_SEMANTICS_DIFFER は除く）。summary.warnings は全項目の合計に一致する。"""
     n = sum(1 for i in pv["items"] if i["id"].startswith("T") for c in i["codes"] if L.KINDS[c] == "警告")
     assert pv["summary"]["warnings"] == n + sum(1 for i in pv["items"] if not i["id"].startswith("T")
                                                 for c in i["codes"] if L.KINDS[c] == "警告")

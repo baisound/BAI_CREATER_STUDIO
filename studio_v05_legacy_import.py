@@ -5,6 +5,7 @@
 WP-L3 で `collect`・`apply`・`undo_journal`・`revert` を足した（ファイルを読み書きするのはこの4つだけ）。
 WP-L7a で曲とダンス（S1〜S6）を足した（`plan` の手順と `collect` の読み込み・長さの取得）。
 WP-L7b で旧タイムライン編集（T1〜T4）を足した（`plan` の手順と `collect` の読み込み）。
+WP-L8a で、M3・M4 の場面インスタンスに印 `units: "legacy"` を付けた（旧画面と同じ大きさで置く）。
 """
 from __future__ import annotations
 
@@ -38,13 +39,14 @@ ASSET_PREFIXES = ("integrated:", "mmd:", "fbx:", "library:")
 CAMERA_EXTRAS = ("easingPresets", "custom_presets", "sequence", "rig", "focus_tracking", "bone_follow")
 COMBINATION_KNOWN = ("history", "cursor", "title", "selected", "playbackSpeed", "updatedAt")
 DEFAULT_TRANSFORM = {"position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1]}
+LEGACY_UNITS = studio_v05_scene_instances.UNITS_LEGACY  # M3・M4 の印（WP-L8a）
 MUSIC_DANCE_FPS = 30  # SCR-10 は 30fps 固定（music_dance_project.py:32-33）。秒 = フレーム ÷ 30
 TIMELINE_MAX_SECONDS = 86400  # studio_v05_arrangement.place / edit_clip の上限
 TIMELINE_EDITOR_FPS = 30  # 旧タイムライン編集は 30fps 固定のフレーム。秒 = フレーム ÷ 30
 
 # §3.4 理由コードと画面の文（全文）。
 MESSAGES = {
-    'UNIT_SEMANTICS_DIFFER': '位置・回転・大きさの数値は写しました。v0.5は読み込むときに大きさや足の位置を合わせるため、旧画面と見た目が違うことがあります。',
+    'UNIT_SEMANTICS_DIFFER': '旧のシーン画面（②）と同じ大きさで置きました。旧のカメラ画面（①）はモデルの高さを合わせて表示していたため、①とは大きさや向きが違うことがあります。',
     'PLACED_AT_ORIGIN': '曲とダンスの画面のモデルは位置を保存していないため、原点に置きました。',
     'MOTION_TARGET_UNSET': '動作のクリップは置きましたが、動かすキャラクターを決められませんでした。クリップを開いて［対象モデルを保存］で選んでください。',
     'NAME_DUPLICATE_LAST_WINS': '同じ名前の動作が複数あります。旧画面と同じく、後から登録したものを使いました。',
@@ -503,7 +505,7 @@ def plan(inputs, *, include=(), fps_policy="keep_if_same"):
     def kept(iid, pointer, label_key, code, legacy_value, **fmt):
         add(iid, pointer, label_key, "kept", [code], legacy_value, **fmt)
 
-    def place(iid, label_key, role, pointer, asset, legacy_value, legacy_transform):
+    def place(iid, label_key, role, pointer, asset, legacy_value, legacy_transform, codes=()):
         """素材をv0.5の場面インスタンスの手順にする。置けなければ理由付きで保管。"""
         asset_id = _normalize_ref(asset)
         name = _display_name(asset_id, index)
@@ -513,10 +515,11 @@ def plan(inputs, *, include=(), fps_policy="keep_if_same"):
         if not supported_model(entry):
             return kept(iid, pointer, label_key, "ASSET_UNSUPPORTED", legacy_value, name=name)
         step = {"kind": "scene_add", "role": role, "status": "pending", "asset_id": asset_id,
-                "transform": _transform(legacy_transform), "pre_ids": [], "instance_id": None}
+                "transform": _transform(legacy_transform), "units": LEGACY_UNITS,
+                "pre_ids": [], "instance_id": None}
         scene_steps.append(step)
         assets_out.append({"asset_id": asset_id, "legacy_ref": asset, "sha256": None})
-        item = add(iid, pointer, label_key, "mapped", ["UNIT_SEMANTICS_DIFFER"], legacy_value, name=name)
+        item = add(iid, pointer, label_key, "mapped", list(codes), legacy_value, name=name)
         item["_step"] = step
 
     # M1
@@ -537,7 +540,8 @@ def plan(inputs, *, include=(), fps_policy="keep_if_same"):
         if "character" in ws:
             value3["character"] = character
         if ws["asset"]:
-            place("M3", "M3", "character", "/workspace/asset", ws["asset"], value3, character)
+            place("M3", "M3", "character", "/workspace/asset", ws["asset"], value3, character,
+                  codes=["UNIT_SEMANTICS_DIFFER"] if character is None else [])
         elif character is not None:
             add("M3", "/workspace/character", "M3", "kept", ["NO_V05_FIELD"], {"character": character},
                 name="（モデルなし）")
@@ -913,7 +917,7 @@ def _run_step(roots, record, step, assets, expected_fps):
         _save(roots, record)  # 直前に pre_ids と started を残す（止まったとき相手を特定するため）
         after = studio_v05_scene_instances.mutate(
             roots.scene, roots.legacy, roots.catalog, pid, action="add", revision=before["revision"],
-            assets=assets, asset_id=step["asset_id"], transform=step["transform"])
+            assets=assets, asset_id=step["asset_id"], transform=step["transform"], units=step.get("units"))
         new = [i["id"] for i in after["instances"] if i["id"] not in set(pre)]
         if len(new) != 1:
             raise RuntimeError("scene_add did not produce exactly one new instance")
@@ -1409,14 +1413,18 @@ def _export_legacy_for_test(record, current):
                 changed += ["/workspace/asset", "/workspace/clip", "/workspace/character"]
             else:
                 asset_ok(step, inst, "/workspace/asset")
-                placed = _placement_back(inst["transform"], inst["visible"], orig_ws.get("character"),
-                                         "/workspace/character", unrep, changed)
-                if placed is not None:
-                    ws["character"] = placed
-                elif presence.get("/workspace/character") == "null":
-                    ws["character"] = None
+                if inst.get("units") != step.get("units"):
+                    # 印が違えば数値の意味が違う。旧の値のまま返す（WP-L8a §4.2 の10）
+                    unrep.append({"pointer": "/workspace/character", "reason": "UNITS_CHANGED"})
                 else:
-                    ws.pop("character", None)
+                    placed = _placement_back(inst["transform"], inst["visible"], orig_ws.get("character"),
+                                             "/workspace/character", unrep, changed)
+                    if placed is not None:
+                        ws["character"] = placed
+                    elif presence.get("/workspace/character") == "null":
+                        ws["character"] = None
+                    else:
+                        ws.pop("character", None)
         # ステージ
         step = step_of("stage")
         if step is not None:
@@ -1426,9 +1434,12 @@ def _export_legacy_for_test(record, current):
                 changed.append("/workspace/stage")
             else:
                 asset_ok(step, inst, "/workspace/stage/asset")
-                placed = _placement_back(inst["transform"], inst["visible"], orig_ws["stage"],
-                                         "/workspace/stage", unrep, changed)
-                ws["stage"] = {"asset": orig_ws["stage"]["asset"], **placed}
+                if inst.get("units") != step.get("units"):
+                    unrep.append({"pointer": "/workspace/stage", "reason": "UNITS_CHANGED"})
+                else:
+                    placed = _placement_back(inst["transform"], inst["visible"], orig_ws["stage"],
+                                             "/workspace/stage", unrep, changed)
+                    ws["stage"] = {"asset": orig_ws["stage"]["asset"], **placed}
         # 再生位置
         play = next((s for s in steps if s["kind"] == "playhead"), None)
         if play is not None:

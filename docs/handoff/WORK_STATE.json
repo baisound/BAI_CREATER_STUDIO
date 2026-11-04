@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T13:03:33+09:00",
+  "updated_at": "2026-11-04T15:31:43+09:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-next",
-  "head_at_update": "d1a113c",
+  "head_at_update": "680188e",
   "current": {
     "task": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる",
     "status": "done",
@@ -11,7 +11,7 @@
     "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "§8手順3：§4.2 取込（M3・M4に印、UNIT_SEMANTICS_DIFFERの文言と付け方、_run_stepで印を渡す、逆変換のUNITS_CHANGED）と既存試験の直し・§5の往復試験"
+    "§8手順4：§4.3〜4.5（instance-units-v189.mjs、③の読込と選択欄の注釈、floorProbe）と§6.2"
   ],
   "unverified": [
     "床の高さ（L3）は外接箱からは分からない。§6.4で floorProbe により測る"
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T15:31:43+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "680188e",
+      "text": "WP-L8a §8手順3：§4.2 取込（M3・M4の手順に units:legacy、UNIT_SEMANTICS_DIFFERはM3でcharacterが無い・nullのときだけ・新しい文言、_run_stepで印を渡す、逆変換で印が違えばUNITS_CHANGEDで旧の値のまま）。§6.1の既存試験の直しと§5の往復試験3件を追加。取込・場面インスタンスの試験309件成功"
+    },
     {
       "at": "2026-11-04T13:03:33+09:00",
       "by": "claude-code",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "1c1133d",
       "text": "Issue #63/#69: 旧保存→v0.5取込設計の批評反映（最終判定）: 3批評の検証と採否判断・設計書改訂"
-    },
-    {
-      "at": "2026-11-04T00:37:46+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "5649df6",
-      "text": "Issue #63/#69: 旧保存→v0.5作品IDの可逆対応の設計書を追加（比較・対応表M1〜M10・取込記録・WP-L1〜L9・所有者判断Q1〜Q6）。コードは未変更"
     }
   ]
 }

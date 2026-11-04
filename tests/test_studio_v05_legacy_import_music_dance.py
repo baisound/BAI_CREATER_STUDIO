@@ -224,6 +224,7 @@ def test_other_model_gets_its_own_instance_at_origin(env):
     rec = env.record()
     step = next(s for s in rec["steps"] if s.get("role") == "dance_model")
     assert step["instance_id"] == other["id"] and step["kind"] == "scene_add"
+    assert "units" not in step and "units" not in other  # S1 は印を付けない（WP-L8a §3.4）
     assert env.clips()[MOTION_ID]["target_scene_instance_id"] == other["id"]
     assert {a["asset_id"] for a in rec["assets"]} >= {OTHER_PMX}
     # キャラクター（bundle_a の PMX）は動作の対象ではない

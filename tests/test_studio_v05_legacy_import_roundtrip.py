@@ -4,6 +4,7 @@
 v0.5 で編集したあとは変更が旧形式へ反映され、表せない変更は unrepresentable に出ること（R4）を確かめる。
 隔離した tmp_path の data だけを使う（実データ data/ には触れない）。skip は使わない。
 """
+import json
 import sys
 from pathlib import Path
 
@@ -325,3 +326,50 @@ def test_export_is_not_public():
     import server
     src = Path(server.__file__).read_text(encoding="utf-8")
     assert "_export_legacy_for_test" not in src
+
+
+# ---- WP-L8a：印 units と往復（設計 WP_L8A_VISUAL_SCALE_DETAILED_DESIGN §5） -----------------------
+def test_l8a_r2_imported_character_and_stage_carry_legacy_units(make_env):
+    env = make_env("bundle_a")
+    env.apply()
+    assert {i["asset_id"]: i.get("units") for i in env.scene()["instances"]} == {CHAR_ID: "legacy", STAGE_ID: "legacy"}
+    out = export(env)
+    assert out["bundle"] == load_bundle("bundle_a")
+    assert out["changed"] == [] and out["unrepresentable"] == []
+
+
+def test_l8a_units_removed_in_current_is_unrepresentable_and_keeps_stage(make_env):
+    env = make_env("bundle_a")
+    env.apply()
+    current = current_of(env)
+    for i in current["scene"]["instances"]:
+        if i["asset_id"] == STAGE_ID:
+            i.pop("units")
+            i["transform"] = {"position": [9, 9, 9], "rotation": [0, 0, 0], "scale": [3, 3, 3]}
+    out = L._export_legacy_for_test(env.record(), current)
+    assert out["unrepresentable"] == [{"pointer": "/workspace/stage", "reason": "UNITS_CHANGED"}]
+    assert out["bundle"]["workspace"]["stage"] == load_bundle("bundle_a")["workspace"]["stage"]
+    assert out["changed"] == []
+
+
+def test_l8a_pre_l8a_record_without_units_roundtrips_and_reverts(make_env):
+    env = make_env("bundle_a")
+    before = env.state()
+    env.apply()
+    # L8a より前の形：記録の手順とインスタンスの行から units を消して書き戻す
+    rec_path = env.data / "studio_v05_legacy_imports" / (env.target + ".json")
+    rec = json.loads(rec_path.read_text(encoding="utf-8"))
+    for step in rec["steps"]:
+        step.pop("units", None)
+    rec_path.write_text(json.dumps(rec, ensure_ascii=False), encoding="utf-8")
+    scene_path = env.dirs["scene_instances"] / (env.target + ".json")
+    stored = json.loads(scene_path.read_text(encoding="utf-8"))
+    for row in stored["instances"]:
+        row.pop("units", None)
+    scene_path.write_text(json.dumps(stored, ensure_ascii=False), encoding="utf-8")
+    assert all("units" not in s for s in env.record()["steps"])
+    out = export(env)
+    assert out["bundle"] == load_bundle("bundle_a")
+    assert out["unrepresentable"] == []
+    env.revert()
+    assert env.state()["instances"] == before["instances"]
