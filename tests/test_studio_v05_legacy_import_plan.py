@@ -128,7 +128,7 @@ def test_error_class_uses_messages_and_status():
 def test_labels_cover_design_table():
     assert L.LABELS["M3"] == "キャラクター「{name}」" and L.LABELS["M7"] == "カメラの動き（キー{n}件）"
     assert L.LABELS["scene_store"] == "3D場面" and L.LABELS["arrangement_store"] == "タイムライン"
-    assert len(L.LABELS) == 19  # §3.5 の17行＋WP-L7a の S0・S6
+    assert len(L.LABELS) == 21  # §3.5 の17行＋WP-L7a の S0・S6＋WP-L7b の T0・T4
 
 
 # ---- M1〜M11 の表駆動 ----
@@ -438,7 +438,7 @@ def test_fixture_files_untouched_by_plan():
     def snap():
         return {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(FIXTURE_DIR.iterdir())}
     before = snap()
-    assert len(before) == 13  # bundle_a〜j と music_dance_full・offset・other_model（WP-L7a）
+    assert len(before) == 15  # bundle_a〜j と music_dance_full・offset・other_model（WP-L7a）、timeline_editor_basic・mixed（WP-L7b）
     for name in "abcdefghij":
         run("bundle_" + name)
     assert snap() == before

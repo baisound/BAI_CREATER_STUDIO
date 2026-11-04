@@ -344,6 +344,15 @@
       "commit": "WP-L7a コミット（Git履歴で「WP-L7a」を検索）",
       "tests": "pytest tests/test_studio_v05_legacy_import_music_dance.py 58 passed（skipなし。full の開始時刻・往復、offset、other_model、長さ不明、FBX動作、失敗の注入、started の印、取消、チェックなしで読まない、壊れた保存、確認後の変更を含む）、legacy_import の全試験 212 passed、pytest 全体 821 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static::test_no_persist_until_release）、npm run typecheck 出力なし。JS・サーバー未変更のため npm ci と node-all は未実行",
       "unverified": "DATA-008 は要検証のまま。サーバー経由（PROJECT_LOCK）・HTTP/MCP・画面・実データは未接続。曲の長さは試験では media_info を差し替えており、実 ffprobe での取得は未確認。FBX・GLB動作の長さ、ダンスの途中開始、速度変更、見た目の大きさ、カメラの動きは写らない。旧タイムライン編集（L7b）は未実装"
+    },
+    {
+      "item": "Issue #63/#69 旧保存→v0.5取込 WP-L7b（旧タイムライン編集 timeline_editor の動作の開始時刻。plan に T1〜T4、collect に timeline_editor.json の読み込みと検査、clip_place/clip_assign の手順）。include に timeline_editor があるときだけ動く",
+      "phase_e_wp": "（DATA-008、再構築ロードマップ 次の実施順2）",
+      "planned_in": "LEGACY-IMPORT-WP-L7B",
+      "status": "done",
+      "commit": "WP-L7b コミット（Git履歴で「WP-L7b」を検索）",
+      "tests": "pytest tests/test_studio_v05_legacy_import_timeline_editor.py 67 passed（skipなし。名前の解決（mapping・正規化名・同名は後ろが勝つ・modelA除外・該当なし・mappingの値を素材IDとして扱わない）、速度・つなぎ、開始と長さの秒と往復、壊れたファイル13通り、動かす相手、曲とダンスとの併用、失敗の注入、取消、利用者が足したクリップを消さない、チェックなしで読まない、確認後の変更を含む）、legacy_import の全試験 279 passed、pytest 全体 896 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static::test_no_persist_until_release）、npm run typecheck 出力なし。JS・サーバー未変更のため npm ci と node-all は未実行",
+      "unverified": "DATA-008 は要検証のまま。サーバー経由（PROJECT_LOCK）・HTTP/MCP・画面・実データは未接続。manifest は試験で組んだもので、実 data/ の manifest.json との突き合わせは未実施。再生速度を変えた動作、つなぎ、見た目の大きさ、カメラの動きは写らない"
     }
   ]
 }

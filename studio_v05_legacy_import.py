@@ -4,13 +4,14 @@
 `plan()` は渡された入力だけから結果を作り、同じ入力には同じ出力を返す（ファイルに触れない）。
 WP-L3 で `collect`・`apply`・`undo_journal`・`revert` を足した（ファイルを読み書きするのはこの4つだけ）。
 WP-L7a で曲とダンス（S1〜S6）を足した（`plan` の手順と `collect` の読み込み・長さの取得）。
-旧タイムライン編集（T1〜T4）は WP-L7b で足す。
+WP-L7b で旧タイムライン編集（T1〜T4）を足した（`plan` の手順と `collect` の読み込み）。
 """
 from __future__ import annotations
 
 import copy
 import hashlib
 import json
+import re
 import struct
 import threading
 import time
@@ -39,6 +40,7 @@ COMBINATION_KNOWN = ("history", "cursor", "title", "selected", "playbackSpeed", 
 DEFAULT_TRANSFORM = {"position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1]}
 MUSIC_DANCE_FPS = 30  # SCR-10 は 30fps 固定（music_dance_project.py:32-33）。秒 = フレーム ÷ 30
 TIMELINE_MAX_SECONDS = 86400  # studio_v05_arrangement.place / edit_clip の上限
+TIMELINE_EDITOR_FPS = 30  # 旧タイムライン編集は 30fps 固定のフレーム。秒 = フレーム ÷ 30
 
 # §3.4 理由コードと画面の文（全文）。
 MESSAGES = {
@@ -160,7 +162,9 @@ LABELS = {
     "S3": "ダンス「{name}」",
     "S0": "曲とダンスの画面の保存",
     "S6": "曲とダンスの画面の再生位置とFPS",
+    "T0": "旧タイムライン編集の保存",
     "T2": "旧タイムラインの動作「{name}」",
+    "T4": "旧タイムライン編集の更新日時",
     "scene_store": "3D場面",
     "arrangement_store": "タイムライン",
 }
@@ -353,6 +357,69 @@ def _plan_music_dance(v, index, durations, audio_flags, items, scene_steps, clip
 
     # S6 SCR-10 の再生位置と fps は保管（再生位置は M2 を使う）
     kept("S6", "/head_frame", "S6", "NO_V05_FIELD", {"head_frame": v["head_frame"], "fps": v["fps"]})
+    return target if target_ok else None  # 旧タイムライン編集の動作の対象（S5 と同じ規則）に使う
+
+
+def _norm_name(x):
+    """旧画面の norm（index.html:231）。小文字にして末尾の .fbx を取り、[a-z0-9] 以外を消す。"""
+    return re.sub(r"[^a-z0-9]", "", re.sub(r"\.fbx$", "", x.lower()))
+
+
+def _plan_timeline_editor(v, index, manifest, target, items, clip_steps, assets_out, add, kept):
+    """旧タイムライン編集 T1〜T4（§3.3）。時刻は 秒 = フレーム ÷ 30。items・手順リストへ足す（plan の内側から呼ぶ）。
+    target は動作の対象（S1 → M3 の順で決めた scene_add 手順。無ければ None）。"""
+    files = manifest.get("files") if isinstance(manifest, dict) else None
+    mapping = manifest.get("mapping") if isinstance(manifest, dict) else None
+    mapping = mapping if isinstance(mapping, dict) else {}
+    candidates = [e for e in (files if isinstance(files, list) else [])
+                  if isinstance(e, dict) and isinstance(e.get("id"), str) and isinstance(e.get("name"), str)
+                  and e.get("kind") not in ("modelA", "modelB")]
+    seen_assets = {a["asset_id"] for a in assets_out}
+    for i, clip in enumerate(v["clips"]):
+        pointer = "/clips/%d" % i
+        cname = clip["name"]
+        # T1 名前 → 素材ID。mapping の値は素材IDではなく正規化名（空・文字列以外は「自動一致」と同じ）
+        mapped = mapping.get(cname)
+        key = mapped if isinstance(mapped, str) and mapped else _norm_name(cname)
+        hits = [e for e in candidates if _norm_name(e["name"]) == key]
+        if not hits:
+            kept("T1", pointer, "T2", "NAME_UNRESOLVED", clip, name=cname)
+            continue
+        aid = "fbx:" + hits[-1]["id"]  # 旧画面と同じく、配列の後ろにあるものが勝つ
+        name = _display_name(aid, index)
+        entry = index.get(aid)
+        if not isinstance(entry, dict) or not entry.get("available"):
+            kept("T1", pointer, "T2", "ASSET_MISSING", clip, name=name)
+            continue
+        if classify(entry) != "motion":
+            kept("T1", pointer, "T2", "ASSET_UNSUPPORTED", clip, name=name)
+            continue
+        # T2 速度が 1 のときだけ置く
+        if clip["speed"] != 1:
+            kept("T2", pointer, "T2", "SPEED_NOT_SUPPORTED", clip, name=name)
+            continue
+        codes = ["NAME_DUPLICATE_LAST_WINS"] if len(hits) > 1 else []
+        place = {"kind": "clip_place", "role": "timeline", "status": "pending", "asset_id": aid, "track": "motion",
+                 "start": round(clip["start"] / TIMELINE_EDITOR_FPS, 4),
+                 "duration": round(clip["duration"] / TIMELINE_EDITOR_FPS, 4), "pre_ids": [], "clip_id": None}
+        clip_steps.append(place)
+        assigned = False
+        if target is not None:
+            model = index.get(target["asset_id"]) or {}
+            if compatible(model.get("format"), entry.get("format")):
+                clip_steps.append({"kind": "clip_assign", "status": "pending", "_clip": place, "_inst": target})
+                assigned = True
+        if not assigned:
+            codes.append("MOTION_TARGET_UNSET")
+        if clip["blend"] != 0:  # T3 つなぎ（補間フレーム）は使わない。値は legacy_value に残る
+            codes.append("BLEND_DROPPED")
+        if aid not in seen_assets:
+            seen_assets.add(aid)
+            assets_out.append({"asset_id": aid, "legacy_ref": cname, "sha256": None})
+        add("T2", pointer, "T2", "mapped", codes, clip, name=name)["_step"] = place
+    # T4 更新日時は保管（表示に使う）
+    if "updatedAt" in v:
+        kept("T4", "/updatedAt", "T4", "NO_V05_FIELD", v["updatedAt"])
 
 
 def plan(inputs, *, include=(), fps_policy="keep_if_same"):
@@ -502,15 +569,26 @@ def plan(inputs, *, include=(), fps_policy="keep_if_same"):
     # S1〜S6 曲とダンス（SCR-10）。include に "music_dance" があり、ファイルがあるときだけ（WP-L7a）
     clip_steps = []
     md = live.get("music_dance") if "music_dance" in include else None
+    motion_target = next((s for s in scene_steps if s.get("role") == "character"), None)  # M3
     if md is not None:
         source_info["music_dance_updated"] = md.get("updated_at")
         if md.get("invalid"):
             kept("S0", "", "S0", "LIVE_SOURCE_INVALID", md["value"])
         else:
-            _plan_music_dance(md["value"], index, durations, audio_flags, items, scene_steps, clip_steps,
-                              assets_out, add, kept)
+            motion_target = _plan_music_dance(md["value"], index, durations, audio_flags, items, scene_steps,
+                                              clip_steps, assets_out, add, kept)
 
-    # 手順の順番は「fps → scene_add → clip_*（曲、ダンス）→ playhead」。ここで番号を振る。
+    # T1〜T4 旧タイムライン編集。include に "timeline_editor" があり、ファイルがあるときだけ（WP-L7b）
+    te = live.get("timeline_editor") if "timeline_editor" in include else None
+    if te is not None:
+        source_info["timeline_editor_updated"] = te.get("updated_at")
+        if te.get("invalid"):
+            kept("T0", "", "T0", "LIVE_SOURCE_INVALID", te["value"])
+        else:
+            _plan_timeline_editor(te["value"], index, inputs.get("manifest"), motion_target, items, clip_steps,
+                                  assets_out, add, kept)
+
+    # 手順の順番は「fps → scene_add → clip_*（曲、ダンス、旧タイムライン）→ playhead」。ここで番号を振る。
     steps = ([fps_step] if fps_step else []) + scene_steps + clip_steps + play_steps
     for n, step in enumerate(steps, 1):
         step["_n"] = n
@@ -638,6 +716,56 @@ def _read_music_dance(roots):
                 "updated_at": updated}
 
 
+TIMELINE_EDITOR_FILE = "timeline_editor.json"  # server.py:75 の EDITOR_FILE と同じ名前
+TIMELINE_EDITOR_MAX_BYTES = 256 * 1024  # server.py:1925 の POST 上限と同じ（設計 §4）
+
+
+def _validate_timeline_editor(obj):
+    """server.py の POST /api/timeline-editor と同じ検査（正規化した値を返す。通らなければ ValueError）。"""
+    if not isinstance(obj, dict) or obj.get("schema") != 1 or not isinstance(obj.get("clips"), list) \
+            or len(obj["clips"]) > 200:
+        raise ValueError("invalid timeline")
+    valid = []
+    try:
+        for c in obj["clips"]:
+            if not isinstance(c, dict) or not isinstance(c.get("name"), str) or len(c["name"]) > 250:
+                raise ValueError("invalid clip name")
+            start, duration = int(c.get("start", 0)), int(c.get("duration", 90))
+            speed, blend = float(c.get("speed", 1)), int(c.get("blend", 6))
+            if not (0 <= start <= 1000000 and 1 <= duration <= 100000 and .1 <= speed <= 4 and 0 <= blend <= 120):
+                raise ValueError("invalid clip timing")
+            valid.append({"name": c["name"], "start": start, "duration": duration, "speed": speed, "blend": blend})
+    except (KeyError, TypeError, OverflowError) as exc:
+        raise ValueError("invalid clip") from exc
+    out = {"schema": 1, "clips": valid}
+    if "updatedAt" in obj:
+        out["updatedAt"] = obj["updatedAt"]
+    return out
+
+
+def _read_timeline_editor(roots):
+    """旧タイムライン編集の保存を読む（§5.1 の3）。ファイルが無ければ None。_read_music_dance と同じ形・同じ扱い
+    （バイト列は1回だけ読む。検査に通らない・読めないときは invalid=True で LIVE_SOURCE_INVALID）。"""
+    path = roots.data / TIMELINE_EDITOR_FILE
+    try:
+        if not path.exists():
+            return None
+        stat = path.stat()
+        updated = datetime.fromtimestamp(stat.st_mtime, timezone.utc).isoformat()
+        if stat.st_size > TIMELINE_EDITOR_MAX_BYTES:
+            return {"sha256": _sha256_file(path), "value": None, "invalid": True, "updated_at": updated}
+        raw = path.read_bytes()
+    except OSError:
+        return {"sha256": None, "value": None, "invalid": True, "updated_at": None}
+    digest = hashlib.sha256(raw).hexdigest()
+    try:
+        return {"sha256": digest, "value": _validate_timeline_editor(json.loads(raw.decode("utf-8"))),
+                "updated_at": updated}
+    except (ValueError, UnicodeError, RecursionError):
+        return {"sha256": digest, "value": raw.decode("utf-8", errors="replace"), "invalid": True,
+                "updated_at": updated}
+
+
 def _music_dance_media(data_root, value, assets, asset_path):
     """S2 の曲の長さ（media_info）と S3 の VMD の長さ（vmd_last_frame）を得る（§5.1 の4）。得られなければ入れない。
     durations は秒（VMD は (最終フレーム+1)/30）。audio_flags は曲の音声の有無（place の source_has_audio 用）。"""
@@ -671,7 +799,7 @@ def collect(data_root, project_id, include, assets, manifest, asset_path):
 
     スナップショット（バイト列を1回だけ読み、同じバイト列からSHA-256とJSONを得る）と対象作品の現在の状態、
     取込記録の状態。`include` に "music_dance" があるときだけ SCR-10 の保存と長さを読む（WP-L7a）。
-    旧タイムライン編集は WP-L7b で足すため、いまは live の timeline_editor を常に None で返す。
+    `include` に "timeline_editor" があるときだけ旧タイムライン編集の保存も読む（WP-L7b。素材の長さは読まない）。
     """
     roots = _Roots(data_root)
     _project_row(roots, project_id)
@@ -699,6 +827,7 @@ def collect(data_root, project_id, include, assets, manifest, asset_path):
     arr = studio_v05_arrangement.read(roots.arr, roots.catalog, project_id)
     record = _rec().read_record(roots.data, project_id)
     music_dance = _read_music_dance(roots) if "music_dance" in include else None
+    timeline_editor = _read_timeline_editor(roots) if "timeline_editor" in include else None
     durations, audio_flags = {}, {}
     if music_dance is not None and not music_dance.get("invalid"):
         durations, audio_flags = _music_dance_media(data_root, music_dance["value"], assets, asset_path)
@@ -713,7 +842,7 @@ def collect(data_root, project_id, include, assets, manifest, asset_path):
             "arrangement": {"revision": arr["revision"], "clips": arr["clips"]},
             "record_state": record["state"] if record else None,
         },
-        "live": {"music_dance": music_dance, "timeline_editor": None},
+        "live": {"music_dance": music_dance, "timeline_editor": timeline_editor},
         "assets": assets,
         "manifest": manifest,
         "durations": durations,
