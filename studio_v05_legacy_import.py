@@ -1,14 +1,30 @@
 """旧Studioの保存状態（スナップショット）をv0.5の作品へ写す取込の、確認（plan）の純関数。
 
 設計: docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md の WP-L1（要件 DATA-008）。
-この段階ではファイルを読まず、書かない。`plan()` は渡された入力だけから結果を作り、同じ入力には同じ出力を返す。
+`plan()` は渡された入力だけから結果を作り、同じ入力には同じ出力を返す（ファイルに触れない）。
+WP-L3 で `collect`・`apply`・`undo_journal`・`revert` を足した（ファイルを読み書きするのはこの4つだけ）。
 曲とダンス（S1〜S6）と旧タイムライン編集（T1〜T4）は WP-L7a・L7b で足す。
 """
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 import struct
+import threading
+import time
+from datetime import datetime, timezone
+from pathlib import Path
 
+import studio_project_catalog
+import studio_project_snapshots
+import studio_v05_arrangement
+import studio_v05_multi_motion
+import studio_v05_playhead
+import studio_v05_scene_instances
+import studio_v05_scene_model
+import studio_v05_track_layout
+from project_state_bundle import validate_bundle
 from studio_v05_scene_model import supported_model
 
 FPS_POLICIES = ("keep_if_same", "use_legacy")
@@ -151,6 +167,7 @@ class LegacyImportError(ValueError):
         self.status = STATUS.get(code)
         self.params = params
         self.message = MESSAGES[code].format(**params)
+        self.state = None  # 適用・取消が失敗したときの記録の state（rolled_back / undo_failed）
         super().__init__(self.message)
 
 
@@ -391,3 +408,712 @@ def plan(inputs, *, include=(), fps_policy="keep_if_same"):
                     "mapped_count": len(mapped), "kept_count": len(kept_labels)},
         "items": items, "steps": out_steps, "expected": expected, "presence": presence, "assets": assets_out,
     }
+
+
+# ======================================================================================
+# WP-L3: 収集（collect）・適用（apply）・打ち消し（undo_journal）・取消（revert）
+# 設計 §5.1〜§5.4。v0.5の保存へは既存の公開関数だけを通して書く（バイト列の書き戻しはしない）。
+# ロック: モジュールの _LOCK を取る。サーバー（server.py:64 の PROJECT_LOCK）は WP-L5 で外側に取る
+# （server.py:1484 の snapshot と同じ `with PROJECT_LOCK:`）。他のストアの内部ロックは取らない。
+# ======================================================================================
+_LOCK = threading.RLock()
+UNDO_ATTEMPTS = 3
+_EXPECTED_KEYS = {"snapshot_sha256", "fps", "scene_revision", "arrangement_revision", "live_sha256"}
+_ROLE_JA = {"character": "キャラクター", "stage": "ステージ", "dance_model": "ダンスのモデル"}
+_TRACK_JA = {"motion": "動作", "music": "音楽", "audio": "音声"}
+
+
+def event(name, level="info", **fields):
+    """OBS-004 の操作ログ。記録に失敗しても取込・取消を止めない。試験は monkeypatch で差し替える。"""
+    try:
+        import diagnostic_logging
+        diagnostic_logging.event(name, level, **fields)
+    except Exception:  # noqa: BLE001 - ログの失敗で本処理を壊さない
+        pass
+
+
+def _now():
+    return datetime.now(timezone.utc)
+
+
+def _rec():
+    import studio_v05_legacy_import_record as record_store  # 循環 import を避けるため遅延
+    return record_store
+
+
+class _Roots:
+    """作品データの置き場所（data_root 直下の固定名。サーバーの DATA/'studio_v05_...' と同じ）。"""
+
+    def __init__(self, data_root):
+        self.data = Path(data_root)
+        self.catalog = self.data / "studio_v05_catalog.json"
+        self.snapshots = self.data / "studio_v05_snapshots"
+        self.scene = self.data / "studio_v05_scene_instances"
+        self.legacy = self.data / "studio_v05_scene_models"
+        self.arr = self.data / "studio_v05_arrangements"
+        self.playhead = self.data / "studio_v05_playheads"
+        self.layouts = self.data / "studio_v05_track_layouts"
+
+
+def _project_row(roots, project_id):
+    if not isinstance(project_id, str) or len(project_id) != 36:
+        raise LegacyImportError("PROJECT_NOT_FOUND")
+    row = next((p for p in studio_project_catalog.load(roots.catalog)["projects"] if p["id"] == project_id), None)
+    if row is None:
+        raise LegacyImportError("PROJECT_NOT_FOUND")
+    return row
+
+
+def _read_scene(roots, project_id):
+    try:
+        return studio_v05_scene_instances.read(roots.scene, roots.legacy, roots.catalog, project_id)
+    except studio_v05_scene_instances.SceneInstancesError as exc:
+        if "Legacy scene changed" in str(exc):
+            raise LegacyImportError("LEGACY_SLOT_CHANGED") from exc
+        raise
+
+
+def collect(data_root, project_id, include, assets, manifest, asset_path):
+    """plan() に渡す inputs を作る（読むだけ。§5.1）。
+
+    WP-L3 の範囲: スナップショット（バイト列を1回だけ読み、同じバイト列からSHA-256とJSONを得る）と
+    対象作品の現在の状態、取込記録の状態。曲とダンス・旧タイムライン編集の読み込みと長さの取得は
+    WP-L7a・L7b で足すため、いまは live を常に None、durations を空で返す。
+    """
+    roots = _Roots(data_root)
+    _project_row(roots, project_id)
+    snap_path = roots.snapshots / (project_id + ".json")
+    with studio_project_snapshots.LOCK:
+        if not snap_path.exists():
+            raise LegacyImportError("NO_SNAPSHOT")
+        try:
+            if snap_path.stat().st_size > studio_project_snapshots.MAX_BYTES:
+                raise LegacyImportError("SNAPSHOT_UNREADABLE")
+            raw = snap_path.read_bytes()
+        except OSError as exc:
+            raise LegacyImportError("SNAPSHOT_UNREADABLE") from exc
+    try:
+        obj = json.loads(raw.decode("utf-8"))
+        if obj.get("schema") != 1 or obj.get("project_id") != project_id or not isinstance(obj.get("saved_at"), str):
+            raise ValueError("invalid snapshot")
+        bundle = validate_bundle(obj["bundle"])
+    except (ValueError, KeyError, TypeError, AttributeError) as exc:
+        raise LegacyImportError("SNAPSHOT_UNREADABLE") from exc
+    row = _project_row(roots, project_id)
+    fps = {"presence": "value", "value": row["fps"]} if "fps" in row else {"presence": "absent"}
+    scene = _read_scene(roots, project_id)
+    model = studio_v05_scene_model.read(roots.legacy, roots.catalog, project_id)
+    arr = studio_v05_arrangement.read(roots.arr, roots.catalog, project_id)
+    record = _rec().read_record(roots.data, project_id)
+    return {
+        "project_id": project_id,
+        "snapshot": {"saved_at": obj["saved_at"], "sha256": hashlib.sha256(raw).hexdigest(), "bundle": bundle},
+        "target": {
+            "fps": fps,
+            "scene": {"revision": scene["revision"], "instances": scene["instances"], "camera": scene["camera"],
+                      "face_keys": scene["face_keys"]},
+            "scene_model": {"model": model["model"]},
+            "arrangement": {"revision": arr["revision"], "clips": arr["clips"]},
+            "record_state": record["state"] if record else None,
+        },
+        "live": {"music_dance": None, "timeline_editor": None},
+        "assets": assets,
+        "manifest": manifest,
+        "durations": {},
+    }
+
+
+# ---- 記録の保存 -------------------------------------------------------------------------
+def _save(roots, record):
+    record["updated_at"] = _now().isoformat()
+    _rec().write_record(roots.data, record["project_id"], record)
+
+
+def _step_label(record, step):
+    for it in record["items"]:
+        if it.get("step") == step["n"]:
+            return it["label"]
+    kind = step["kind"]
+    if kind == "fps":
+        return LABELS["M1"]
+    if kind == "playhead":
+        return LABELS["M2"]
+    if kind == "scene_add":
+        return LABELS["scene_store"]
+    return LABELS["arrangement_store"]
+
+
+def _is_conflict(exc):
+    return "revision conflict" in str(exc).lower()
+
+
+def _fps_equal(current, value):
+    return current["presence"] == "value" and float(current["value"]) == float(value)
+
+
+def _current_fps(roots, project_id):
+    row = _project_row(roots, project_id)
+    return {"presence": "value", "value": row["fps"]} if "fps" in row else {"presence": "absent"}
+
+
+class _TargetChanged(Exception):
+    """適用中に、確認したときの作品の状態と食い違った（409 TARGET_CHANGED）。"""
+
+
+# ---- 手順の実行（apply） ----------------------------------------------------------------
+def _by_n(record, n):
+    return next((s for s in record["steps"] if s["n"] == n), None)
+
+
+def _run_step(roots, record, step, assets, expected_fps):
+    pid = record["project_id"]
+    kind = step["kind"]
+    if kind == "fps":
+        with studio_project_catalog.LOCK:
+            if _current_fps(roots, pid) != expected_fps:
+                raise _TargetChanged("fps changed")  # started を付ける前なので、打ち消しは何も触らない
+            step["started"] = True
+            _save(roots, record)
+            studio_project_catalog.set_fps(roots.catalog, pid, step["after"])
+    elif kind == "scene_add":
+        before = studio_v05_scene_instances.read(roots.scene, roots.legacy, roots.catalog, pid)
+        pre = [i["id"] for i in before["instances"]]
+        step["pre_ids"] = pre
+        step["started"] = True
+        _save(roots, record)  # 直前に pre_ids と started を残す（止まったとき相手を特定するため）
+        after = studio_v05_scene_instances.mutate(
+            roots.scene, roots.legacy, roots.catalog, pid, action="add", revision=before["revision"],
+            assets=assets, asset_id=step["asset_id"], transform=step["transform"])
+        new = [i["id"] for i in after["instances"] if i["id"] not in set(pre)]
+        if len(new) != 1:
+            raise RuntimeError("scene_add did not produce exactly one new instance")
+        step["instance_id"] = new[0]
+    elif kind == "clip_place":
+        before = studio_v05_arrangement.read(roots.arr, roots.catalog, pid)
+        pre = [c["id"] for c in before["clips"]]
+        step["pre_ids"] = pre
+        step["started"] = True
+        _save(roots, record)
+        result = studio_v05_arrangement.place(
+            roots.arr, roots.catalog, pid, step["asset_id"], step["track"], step["start"], step["duration"],
+            before["revision"], assets, layout_root=roots.layouts, source_duration=step.get("source_duration"),
+            source_has_audio=step.get("source_has_audio"))
+        step["clip_id"] = result["clip"]["id"]
+    elif kind == "clip_source":
+        clip_id = _by_n(record, step["clip_step"])["clip_id"]
+        arr = studio_v05_arrangement.read(roots.arr, roots.catalog, pid)
+        clip = next((c for c in arr["clips"] if c["id"] == clip_id), None)
+        if clip is None:
+            raise RuntimeError("clip not found for clip_source")
+        studio_v05_arrangement.edit_clip(
+            roots.arr, roots.catalog, pid, clip_id, arr["revision"], "update", start=clip["start"],
+            duration=clip["duration"], track=clip["track"], source_start=step["source_start"],
+            layout_root=roots.layouts)
+    elif kind == "clip_assign":
+        clip_id = _by_n(record, step["clip_step"])["clip_id"]
+        instance_id = _by_n(record, step["instance_step"])["instance_id"]
+        if not clip_id or not instance_id:
+            raise RuntimeError("clip_assign needs the clip and the instance")
+        arr = studio_v05_arrangement.read(roots.arr, roots.catalog, pid)
+        studio_v05_multi_motion.assign(
+            roots.arr, roots.scene, roots.legacy, roots.catalog, pid, clip_id, arr["revision"], instance_id,
+            assets, layout_root=roots.layouts)
+    elif kind == "playhead":
+        cur = studio_v05_playhead.read(roots.playhead, roots.catalog, pid)
+        studio_v05_playhead.update(roots.playhead, roots.catalog, pid, step["seconds"], cur["revision"])
+    else:  # pragma: no cover - validate_record が弾く
+        raise RuntimeError("unknown step kind")
+    step["status"] = "done"
+    _save(roots, record)
+
+
+def _sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for block in iter(lambda: f.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def _asset_sha(asset_path, asset_id):
+    try:
+        path = asset_path(asset_id)
+        return _sha256_file(path) if path is not None else None
+    except Exception:  # noqa: BLE001 - 読めない素材は null（§5.2 の3）
+        return None
+
+
+def _check_request(request, required, optional=()):
+    if not isinstance(request, dict) or not set(required) <= set(request) or set(request) - set(required) - set(optional):
+        raise LegacyImportError("BAD_REQUEST")
+    if request.get("confirm") is not True:
+        raise LegacyImportError("BAD_REQUEST")
+    if not isinstance(request.get("id"), str):
+        raise LegacyImportError("BAD_REQUEST")
+    return request
+
+
+def _raise_reject(reject):
+    raise LegacyImportError(reject["code"], **reject.get("params", {}))
+
+
+def apply(data_root, request, assets, manifest, asset_path):
+    """旧保存をv0.5の作品へ写す（§5.2）。成功で {record, project}。拒否・失敗は LegacyImportError。"""
+    req = _check_request(request, ("id", "expected", "confirm"), ("include", "fps_policy"))
+    expected = req["expected"]
+    if not isinstance(expected, dict) or set(expected) != _EXPECTED_KEYS or not isinstance(expected["fps"], dict) \
+            or not isinstance(expected["live_sha256"], dict):
+        raise LegacyImportError("BAD_REQUEST")
+    include = req.get("include", [])
+    fps_policy = req.get("fps_policy", "keep_if_same")
+    if not isinstance(include, (list, tuple)):
+        raise LegacyImportError("BAD_REQUEST")
+    pid = req["id"]
+    started = time.monotonic()
+    roots = _Roots(data_root)
+    with _LOCK:
+        inputs = collect(data_root, pid, include, assets, manifest, asset_path)
+        result = plan(inputs, include=include, fps_policy=fps_policy)
+        reject = result["reject"]
+        # 記録の状態による拒否は最優先。次に「確認したあとの変更」。その他の拒否は最後
+        # （確認後に作品が変わったときは、拒否の理由より先に「もう一度確認する」を案内するため）。
+        if reject and reject["code"] in ("ALREADY_IMPORTED", "IMPORT_INTERRUPTED"):
+            _raise_reject(reject)
+        cur = result["expected"]
+        if expected["snapshot_sha256"] != cur["snapshot_sha256"] or expected["live_sha256"] != cur["live_sha256"]:
+            raise LegacyImportError("SOURCE_CHANGED")
+        if (expected["fps"] != cur["fps"] or expected["scene_revision"] != cur["scene_revision"]
+                or expected["arrangement_revision"] != cur["arrangement_revision"]):
+            raise LegacyImportError("TARGET_CHANGED")
+        if reject:
+            _raise_reject(reject)
+
+        asset_rows = copy.deepcopy(result["assets"])
+        for row in asset_rows:
+            row["sha256"] = _asset_sha(asset_path, row["asset_id"])
+        snap = inputs["snapshot"]  # plan と同じ1回の読み込み結果（SHA-256 と bundle は同じバイト列から）
+        now = _now().isoformat()
+        record = {
+            "schema": 1, "project_id": pid, "state": "applying", "created_at": now, "updated_at": now,
+            "source": {
+                "snapshot": {"saved_at": snap["saved_at"], "sha256": snap["sha256"]},
+                "bundle": copy.deepcopy(snap["bundle"]), "presence": result["presence"],
+                "live": {"music_dance": None, "timeline_editor": None},
+                "include": list(include), "fps_policy": fps_policy,
+            },
+            "target_before": {"fps": cur["fps"], "scene_revision": cur["scene_revision"],
+                              "arrangement_revision": cur["arrangement_revision"]},
+            "assets": asset_rows,
+            "items": copy.deepcopy(result["items"]),
+            "steps": copy.deepcopy(result["steps"]),
+            "undo": {"warnings": [], "failures": []},
+            "error": None,
+        }
+        store = _rec()
+        if store.read_record(roots.data, pid) is not None:
+            store.archive_record(roots.data, pid, _now())
+        try:
+            _save(roots, record)  # ここで失敗（RECORD_TOO_LARGE・OSError）したら、まだ何も写していない
+        except LegacyImportError:
+            raise
+        except OSError as exc:
+            e = LegacyImportError("APPLY_FAILED", rolled="取込前の状態に戻しました")
+            e.state = "rolled_back"
+            raise e from exc
+
+        failure = None
+        for step in record["steps"]:
+            try:
+                _run_step(roots, record, step, assets, expected["fps"])
+            except Exception as exc:  # noqa: BLE001 - どの失敗も打ち消しへ進む
+                failure = exc
+                break
+        if failure is None:
+            record["state"] = "applied"
+            try:
+                _save(roots, record)
+            except Exception as exc:  # noqa: BLE001 - 記録が最終化できなければ打ち消す
+                failure = exc
+                record["state"] = "applying"  # applied のまま error を付けて打ち消さない
+        if failure is None:
+            event("v05_legacy_import_apply", project_id=pid, state="applied", steps=len(record["steps"]),
+                  duration_ms=int((time.monotonic() - started) * 1000))
+            return {"record": record, "project": _project_row(roots, pid)}
+
+        record["error"] = {"type": type(failure).__name__, "message": str(failure)}
+        persisted = True
+        try:
+            _save(roots, record)
+            undo_journal(data_root, record, assets)
+            clean = all(s["status"] == "undone" for s in record["steps"])
+            record["state"] = "rolled_back" if clean else "undo_failed"
+            _save(roots, record)
+        except Exception:  # noqa: BLE001 - 打ち消し中に記録を保存できなかった。ディスクの記録は applying のまま
+            persisted = False
+            clean = False
+            record["state"] = "applying"
+        event("v05_legacy_import_apply", level="warning", project_id=pid, state=record["state"],
+              steps=len(record["steps"]), error=record["error"], duration_ms=int((time.monotonic() - started) * 1000))
+        if isinstance(failure, _TargetChanged) or _is_conflict(failure):
+            err = LegacyImportError("TARGET_CHANGED")
+        else:
+            rolled = ("取込前の状態に戻しました" if clean else "取込前に戻しきれませんでした。［取込を取消］を押してください")
+            err = LegacyImportError("APPLY_FAILED", rolled=rolled)
+        err.state = record["state"] if persisted else "applying"
+        raise err from failure
+
+
+
+# ---- 打ち消し（undo_journal） -----------------------------------------------------------
+def _with_retry(fn):
+    """「Revision conflict」なら読み直して最大 UNDO_ATTEMPTS 回やり直す。それ以外の例外はそのまま出す。"""
+    last = None
+    for _ in range(UNDO_ATTEMPTS):
+        try:
+            return fn()
+        except Exception as exc:  # noqa: BLE001
+            if not _is_conflict(exc):
+                raise
+            last = exc
+    raise last
+
+
+def _find_target(rows, step, id_key, match):
+    """打ち消す相手を探す。ID が分かっていればそれ、無ければ pre_ids に無く条件に合うもの。
+    戻り値: ("none", None) | ("one", row) | ("many", None)"""
+    known = step.get(id_key)
+    if known:
+        row = next((r for r in rows if r["id"] == known), None)
+        return ("one", row) if row else ("none", None)
+    pre = set(step.get("pre_ids", []))
+    found = [r for r in rows if r["id"] not in pre and match(r)]
+    if not found:
+        return "none", None
+    return ("one", found[0]) if len(found) == 1 else ("many", None)
+
+
+def _undo_clip_place(roots, pid, step):
+
+    def once():
+        arr = studio_v05_arrangement.read(roots.arr, roots.catalog, pid)
+        want = round(step["start"], 4)
+        kind, clip = _find_target(
+            arr["clips"], step, "clip_id",
+            lambda c: c.get("asset_id") == step["asset_id"] and c.get("track") == step["track"]
+            and c.get("start") == want)
+        if kind == "none":
+            return "undone", None
+        if kind == "many":
+            return "undo_failed", "打ち消す相手が複数あり、特定できません"
+        studio_v05_arrangement.edit_clip(roots.arr, roots.catalog, pid, clip["id"], arr["revision"], "delete")
+        return "undone", None
+    return _with_retry(once)
+
+
+def _undo_scene_add(roots, pid, step, assets):
+
+    def once():
+        scene = studio_v05_scene_instances.read(roots.scene, roots.legacy, roots.catalog, pid)
+        kind, inst = _find_target(scene["instances"], step, "instance_id",
+                                  lambda i: i["asset_id"] == step["asset_id"])
+        if kind == "none":
+            return "undone", None
+        if kind == "many":
+            return "undo_failed", "打ち消す相手が複数あり、特定できません"
+        studio_v05_scene_instances.mutate(
+            roots.scene, roots.legacy, roots.catalog, pid, action="remove", revision=scene["revision"],
+            assets=assets, instance_id=inst["id"])
+        return "undone", None
+    return _with_retry(once)
+
+
+def _undo_fps(roots, record, step):
+    pid = record["project_id"]
+    if step["status"] == "pending" and not step.get("started"):
+        return "undone", None  # 始まっていない: 何も変えていない
+    with studio_project_catalog.LOCK:
+        cur = _current_fps(roots, pid)
+        before = step["before"]
+        if cur == before or (before["presence"] == "value" and _fps_equal(cur, before["value"])):
+            return "undone", None  # もう元の値（または適用が届かなかった）
+        if _fps_equal(cur, step["after"]):
+            if before["presence"] == "absent":
+                studio_project_catalog.clear_fps(roots.catalog, pid)
+            else:
+                studio_project_catalog.set_fps(roots.catalog, pid, before["value"])
+            return "undone", None
+    if step.get("started"):  # 始まっていない手順の FPS は、もともと利用者の値
+        record["undo"]["warnings"].append(
+            {"code": "FPS_KEPT_USER_CHANGE", "message": MESSAGES["FPS_KEPT_USER_CHANGE"]})
+    return "undone", None  # いまの値は利用者の変更。戻さない
+
+
+def undo_journal(data_root, record, assets):
+    """日誌の手順を番号の大きい順に打ち消す（§5.3）。何度実行しても同じ結果になる。
+    記録は手順ごとに保存する。state は変えない（呼び出し側が決める）。公開関数だけを通す。"""
+    roots = _Roots(data_root)
+    record["undo"]["failures"] = []
+    for step in sorted(record["steps"], key=lambda s: -s["n"]):
+        if step["status"] == "undone":
+            continue
+        kind = step["kind"]
+        if step["status"] == "pending" and not step.get("started"):
+            # 始まる直前の保存（started）が無い手順は、何も書いていない。探すと利用者が足した物を消しかねない
+            step["status"] = "undone"
+            _save(roots, record)
+            continue
+        pid = record["project_id"]
+        try:
+            if kind in ("playhead", "clip_assign", "clip_source"):
+                status, reason = "undone", None
+            elif kind == "clip_place":
+                status, reason = _undo_clip_place(roots, pid, step)
+            elif kind == "scene_add":
+                status, reason = _undo_scene_add(roots, pid, step, assets)
+            else:
+                status, reason = _undo_fps(roots, record, step)
+        except Exception as exc:  # noqa: BLE001 - 失敗は記録して次の手順へ（止めない）
+            status, reason = "undo_failed", "%s: %s" % (type(exc).__name__, exc)
+        step["status"] = status
+        if status == "undo_failed":
+            record["undo"]["failures"].append(
+                {"n": step["n"], "kind": kind, "label": _step_label(record, step), "reason": reason})
+        _save(roots, record)
+    return record
+
+
+# ---- 取消（revert） ---------------------------------------------------------------------
+def _revert_blocked(roots, record):
+    """applied の取消の事前点検（§5.4 の2）。取り消すと消えてしまう、あとから加えた内容の表示名を返す。"""
+    pid = record["project_id"]
+    role_of = {s["instance_id"]: s.get("role") for s in record["steps"]
+               if s["kind"] == "scene_add" and s.get("instance_id")}
+    mine_clips = {s["clip_id"] for s in record["steps"] if s["kind"] == "clip_place" and s.get("clip_id")}
+    scene = _read_scene(roots, pid)
+    arr = studio_v05_arrangement.read(roots.arr, roots.catalog, pid)
+    layout = studio_v05_track_layout.get(roots.layouts, roots.catalog, pid)
+    out = []
+
+    def role_ja(iid):
+        return _ROLE_JA.get(role_of.get(iid), "モデル")
+
+    for iid in role_of:
+        n = sum(1 for k in scene["face_keys"] if k["instance_id"] == iid)
+        if n:
+            out.append("取り込んだ%sの表情キー%d件" % (role_ja(iid), n))
+    for inst in scene["instances"]:
+        if inst["id"] in role_of and inst["locked"]:
+            out.append("ロックされた%s" % role_ja(inst["id"]))
+    for iid in role_of:
+        n = sum(1 for c in arr["clips"] if c.get("target_scene_instance_id") == iid and c["id"] not in mine_clips)
+        if n:
+            out.append("取り込んだ%sを対象にした、あとから置いた動作のクリップ%d件" % (role_ja(iid), n))
+    locked = set(layout.get("locked", []))
+    for c in arr["clips"]:
+        if c["id"] in mine_clips and c["track"] in locked:
+            out.append("ロックされた%sのトラック" % _TRACK_JA.get(c["track"], c["track"]))
+    return list(dict.fromkeys(out))
+
+
+def revert(data_root, request, assets):
+    """取り込んだものを打ち消す（§5.4）。成功で {record, project}。拒否・失敗は LegacyImportError。"""
+    req = _check_request(request, ("id", "confirm"))
+    pid = req["id"]
+    started = time.monotonic()
+    roots = _Roots(data_root)
+    store = _rec()
+    with _LOCK:
+        _project_row(roots, pid)
+        record = store.read_record(roots.data, pid)
+        if record is None or record["state"] in ("reverted", "rolled_back"):
+            raise LegacyImportError("NOTHING_TO_REVERT")
+        origin = record["state"]
+        if origin == "applied":
+            blocked = _revert_blocked(roots, record)
+            if blocked:
+                raise LegacyImportError("REVERT_BLOCKED", list="、".join(blocked))
+        elif origin == "applying" and record["error"] is None:
+            # 適用が最後まで届かなかった記録。取消が失敗して undo_failed になっても、
+            # 次の取消が rolled_back（取込は完成しなかった）で終わるよう印を残す。
+            record["error"] = {"type": "ImportInterrupted", "message": "apply did not finish"}
+        # error のある記録（適用が失敗した、または最後まで届かなかった）は、取込が完成しなかったので rolled_back で終える。
+        never_completed = record["error"] is not None
+        record["state"] = "reverting"
+        _save(roots, record)
+        try:
+            undo_journal(data_root, record, assets)
+            clean = all(s["status"] == "undone" for s in record["steps"])
+            record["state"] = ("rolled_back" if never_completed else "reverted") if clean else "undo_failed"
+            _save(roots, record)
+        except Exception as exc:  # noqa: BLE001 - 保存できなかった。ディスクの記録は reverting のまま（再実行できる）
+            event("v05_legacy_import_revert", level="warning", project_id=pid, state="reverting",
+                  error={"type": type(exc).__name__, "message": str(exc)},
+                  duration_ms=int((time.monotonic() - started) * 1000))
+            err = LegacyImportError("UNDO_FAILED", list="取込記録の保存")
+            err.state = "reverting"
+            raise err from exc
+        event("v05_legacy_import_revert", level="info" if clean else "warning", project_id=pid,
+              state=record["state"], steps=len(record["steps"]), failures=len(record["undo"]["failures"]),
+              duration_ms=int((time.monotonic() - started) * 1000))
+        if not clean:
+            err = LegacyImportError("UNDO_FAILED", list="、".join(f["label"] for f in record["undo"]["failures"]))
+            err.state = "undo_failed"
+            raise err
+        return {"record": record, "project": _project_row(roots, pid)}
+
+
+# ======================================================================================
+# WP-L4: 試験専用の逆変換（設計 §5.6）。HTTP・MCP・画面には出さない。何も書かない。
+# 「黙って捨てていない」ことを試験で確かめる判定役。v0.5のいまの状態から旧形式の bundle を組み直す。
+# ======================================================================================
+_POS_LIMIT, _ROT_LIMIT = 1000, 360
+_SCALE_MIN, _SCALE_MAX = 0.01, 100
+
+
+def _placement_back(cur, visible, orig, base, unrep, changed):
+    """v0.5の transform を旧の配置 {position, rotation, scale(数1つ)} に戻す。
+
+    orig は元の配置（dict）か、元が absent・null のときの None。None を返すのは、元が None で
+    いまも既定値のまま（または表せない）とき＝presence どおりに戻すとき。
+    """
+    fields, fallback = {}, False
+    if visible is False:
+        unrep.append({"pointer": base + "/visible", "reason": "INSTANCE_HIDDEN"})
+
+    def numbers(key, limit, reason):
+        nonlocal fallback
+        vals = list(cur[key])
+        if any(abs(v) > limit for v in vals):
+            unrep.append({"pointer": base + "/" + key, "reason": reason})
+            if orig is None:
+                fallback = True
+            else:
+                fields[key] = list(orig[key])
+            return
+        if orig is not None and all(c == round(o, 6) for c, o in zip(vals, orig[key])):
+            fields[key] = list(orig[key])
+        else:
+            fields[key] = vals
+
+    numbers("position", _POS_LIMIT, "POSITION_OUT_OF_RANGE")
+    numbers("rotation", _ROT_LIMIT, "ROTATION_OUT_OF_RANGE")
+    scale = list(cur["scale"])
+    if not (scale[0] == scale[1] == scale[2]):
+        unrep.append({"pointer": base + "/scale", "reason": "SCALE_NOT_UNIFORM"})
+        reason_bad = True
+    elif not _SCALE_MIN <= scale[0] <= _SCALE_MAX:
+        unrep.append({"pointer": base + "/scale", "reason": "SCALE_OUT_OF_RANGE"})
+        reason_bad = True
+    else:
+        reason_bad = False
+    if reason_bad:
+        if orig is None:
+            fallback = True
+        else:
+            fields["scale"] = orig["scale"]
+    elif orig is not None and scale[0] == round(orig["scale"], 6):
+        fields["scale"] = orig["scale"]
+    else:
+        fields["scale"] = scale[0]
+
+    if orig is None:
+        same = (not fallback and fields["position"] == [0, 0, 0] and fields["rotation"] == [0, 0, 0]
+                and fields["scale"] == 1)
+        if same or fallback:
+            return None
+        changed.append(base)
+        return fields
+    for key in ("position", "rotation", "scale"):
+        if fields[key] != orig[key]:
+            changed.append(base + "/" + key)
+    return fields
+
+
+def _export_legacy_for_test(record, current):
+    """取込記録と v0.5 のいまの状態から、旧形式の bundle を組み直す（試験専用）。
+
+    current は collect() の target と同じ形（fps・scene・scene_model・arrangement）に
+    `playhead`（{"seconds": 秒}）を足したもの。素材原本の確認用に任意の `asset_sha256`
+    （{素材ID: SHA-256 または None}）を渡せる。
+    戻り値: {bundle, changed, unrepresentable, asset_hash_changed}。結果は validate_bundle を通す（通らなければ例外）。
+    """
+    src = record["source"]
+    bundle = copy.deepcopy(src["bundle"])
+    presence = src["presence"]
+    changed, unrep = [], []
+    steps = record["steps"]
+    instances = {i["id"]: i for i in current["scene"]["instances"]}
+    by_id = {}  # 記録の scene_add 手順の instance_id（持つものだけ）
+    for s in steps:
+        if s["kind"] == "scene_add" and s.get("instance_id"):
+            by_id[s["instance_id"]] = s
+    step_of = lambda role: next((s for s in steps if s["kind"] == "scene_add" and s.get("role") == role
+                                 and s.get("instance_id")), None)  # noqa: E731
+
+    camera = bundle["camera"]
+    legacy_fps = camera["fps"]
+    cur_fps = current["fps"]
+    if cur_fps.get("presence") != "value" or float(cur_fps["value"]) != float(legacy_fps):
+        unrep.append({"pointer": "/camera/fps", "reason": "FPS_CHANGED"})
+
+    if any(iid not in by_id for iid in instances):
+        unrep.append({"pointer": "/workspace", "reason": "EXTRA_INSTANCE"})
+
+    if presence.get("/workspace") == "value":
+        ws = bundle["workspace"]
+        orig_ws = src["bundle"]["workspace"]
+
+        def asset_ok(step, inst, pointer):
+            if inst["asset_id"] != step["asset_id"]:
+                unrep.append({"pointer": pointer, "reason": "ASSET_CHANGED"})
+
+        # キャラクター
+        step = step_of("character")
+        if step is not None:
+            inst = instances.get(step["instance_id"])
+            if inst is None:
+                ws["asset"], ws["clip"] = "", None
+                ws.pop("character", None)
+                changed += ["/workspace/asset", "/workspace/clip", "/workspace/character"]
+            else:
+                asset_ok(step, inst, "/workspace/asset")
+                placed = _placement_back(inst["transform"], inst["visible"], orig_ws.get("character"),
+                                         "/workspace/character", unrep, changed)
+                if placed is not None:
+                    ws["character"] = placed
+                elif presence.get("/workspace/character") == "null":
+                    ws["character"] = None
+                else:
+                    ws.pop("character", None)
+        # ステージ
+        step = step_of("stage")
+        if step is not None:
+            inst = instances.get(step["instance_id"])
+            if inst is None:
+                ws["stage"] = None
+                changed.append("/workspace/stage")
+            else:
+                asset_ok(step, inst, "/workspace/stage/asset")
+                placed = _placement_back(inst["transform"], inst["visible"], orig_ws["stage"],
+                                         "/workspace/stage", unrep, changed)
+                ws["stage"] = {"asset": orig_ws["stage"]["asset"], **placed}
+        # 再生位置
+        play = next((s for s in steps if s["kind"] == "playhead"), None)
+        if play is not None:
+            now = current["playhead"]["seconds"]
+            if now != play["seconds"]:
+                frame = round(now * legacy_fps)
+                if frame > camera["duration"]:
+                    unrep.append({"pointer": "/workspace/frame", "reason": "FRAME_EXCEEDS_DURATION"})
+                elif frame != orig_ws["frame"]:
+                    ws["frame"] = frame
+                    changed.append("/workspace/frame")
+    else:
+        bundle.pop("workspace", None)
+
+    hashes = current.get("asset_sha256") or {}
+    asset_hash_changed = [a["asset_id"] for a in record["assets"]
+                          if a.get("sha256") is not None and a["asset_id"] in hashes
+                          and hashes[a["asset_id"]] != a["sha256"]]
+    return {"bundle": validate_bundle(bundle), "changed": list(dict.fromkeys(changed)),
+            "unrepresentable": unrep, "asset_hash_changed": asset_hash_changed}

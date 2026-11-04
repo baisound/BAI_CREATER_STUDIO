@@ -542,6 +542,10 @@ flowchart LR
   - ログ：`studio_v05_legacy_import.event` を monkeypatch で受け取り、成功・失敗・取消で1回ずつ呼ばれ、`state` が入っている。
   - R1：§5.7 のファイル群のSHA-256が、全試験の前後で一致する。
 
+**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` に `collect`・`apply`・`undo_journal`・`revert`・`event`、`studio_project_catalog.clear_fps`、`tests/test_studio_v05_legacy_import_apply.py`。試験 51 件合格（skip なし）。pytest 全体は 730 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`、WP-L5）・HTTP/MCP・画面・実データ。`clip_*` 手順は plan がまだ作らないため、手で組んだ手順で実行・打ち消しだけ確認（WP-L7a で plan が作る）。設計の穴を次のように解釈した：(1) `apply` の拒否順は「記録の状態（`ALREADY_IMPORTED`/`IMPORT_INTERRUPTED`）→ expected の食い違い（`SOURCE_CHANGED`/`TARGET_CHANGED`）→ その他の plan の拒否」（§5.2 の2と試験が両立するため）。(2) 適用が失敗して `undo_failed` になった記録を再び取り消すと `rolled_back`（`error` を持つ記録は取込が完成しなかったとみなす。適用済みの取消が失敗した記録は `reverted`）。`applying` の記録に `error` が無ければ印 `ImportInterrupted` を足す。(3) 届いていない（`pending`）`fps` 手順は、いまの値が違っても `FPS_KEPT_USER_CHANGE` を出さない。(4) `collect` は L7a・L7b まで `live` を読まず `live=None`・`durations={}`。(5) `undo.warnings` は `{code, message}`。(6) 拒否だけの操作は `event` を出さない。(7) `LegacyImportError.state` を足した。(8) 読めないストア（`SceneInstancesError` の旧1体枠以外）は元の例外のまま伝わる（何も書かない）。
+
+**WP-L3 追記（レビュー反映）**：(a) **started の印**：`fps`・`scene_add`・`clip_place` は、始める直前の保存で `started: true`（と `pre_ids`）を書く。`undo_journal` は `pending` で `started` の無い手順を何も探さず `undone` にする（plan が全手順に `pre_ids: []` を入れるため、探すと利用者が足した同じ素材のインスタンス・クリップや、利用者の FPS を消すおそれがあるため）。`FPS_KEPT_USER_CHANGE` は `started` の手順にだけ出す。`fps` の照合（`TARGET_CHANGED`）は `started` を書く前に行う。(b) **拒否の順番**：記録の状態 → expected の食い違い → その他の plan の拒否（レビューで妥当と判定）。(c) **`rolled_back` と `reverted` の使い分け**：`error` を持つ記録（取込が完成しなかった）は `rolled_back`、完成した取込（`applied` から）の取消は `reverted`（同じく妥当）。最終保存（`applied`）に失敗したときは `state` を `applying` に戻してから打ち消す。(d) **WP-L5 の受け入れ条件**：HTTP 側は `with PROJECT_LOCK:` で囲む。他の編集 API が `PROJECT_LOCK` を取らないため、取消の事前点検と打ち消しの間に入った変更は守られない、という時間差が残る（各関数の revision 照合で競合は検出するが、事前点検の対象は保証しない）。この時間差を操作説明書と Issue #69 に記録する。
+
 ### WP-L4 試験専用の逆変換と往復試験
 
 - `studio_v05_legacy_import.py` に `_export_legacy_for_test(record, current)` を足す（§5.6）。HTTP・MCP・画面からは呼ばない。
@@ -551,6 +555,8 @@ flowchart LR
   - キャラクターを削除 → `asset` が空文字、`clip` が `None`、`character` 無し、3つとも `changed`。ステージを削除 → `stage: null`。
   - 素材原本を書き換える → `asset_hash_changed` に出る。
   - どの結果も `validate_bundle` を通る。
+
+**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` に `_export_legacy_for_test(record, current)`、`tests/test_studio_v05_legacy_import_roundtrip.py`（試験 32 件、skip なし）。R2 は bundle_a〜j の全部で合格、R4 は設計の全項目を試験化。試験結果の全体は WORK_STATE.json と `PHASE_E_IMPLEMENTATION_STATUS.json` に記録。HTTP・MCP・画面からは呼ばない（`server.py` に名前が無いことも試験）。設計の穴の解釈：(1) `current` は `collect` の target に `playhead` と任意の `asset_sha256` を足した形。(2) `unrepresentable` の `pointer` は項目単位（`/workspace/stage/scale`、`/workspace/stage/visible` など）で、理由は `SCALE_NOT_UNIFORM`・`SCALE_OUT_OF_RANGE`・`POSITION_OUT_OF_RANGE`・`ROTATION_OUT_OF_RANGE`・`INSTANCE_HIDDEN`・`EXTRA_INSTANCE`・`FPS_CHANGED`・`FRAME_EXCEEDS_DURATION`・`ASSET_CHANGED`（取込後にインスタンスの素材が記録と違う場合。設計に無い理由で、黙って値を変えない方針による）。(3) 元が `absent`・`null` の character が既定値のままなら presence どおり、変えたら `value` で出して `changed` は `/workspace/character`。表せない変更を含むときは presence どおりに戻して `unrepresentable` に出す。(4) 再生位置は記録に `playhead` 手順がある（j は無い）ときだけ逆変換し、取込時の秒と同じなら元のフレーム。(5) `asset_hash_changed` は記録の `sha256` が null の素材と `current` に無い素材を比べない。(6) 数値は成分ごとでなく項目（position・rotation・scale）単位で、1成分でも範囲外なら項目全体が元の値。未検証：サーバー経由・HTTP/MCP・画面・実データ（WP-L5 以降）。
 
 ### WP-L7a 曲とダンス（SCR-10）を写す
 
