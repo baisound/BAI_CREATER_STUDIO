@@ -1,0 +1,17 @@
+{
+  "combination": {
+    "schema": 1,
+    "timeline": [],
+    "history": [],
+    "cursor": -1
+  },
+  "workspace": {
+    "frame": 0,
+    "asset": "",
+    "clip": null,
+    "stage": null,
+    "character": null,
+    "lights": null
+  },
+  "camera_overrides": {}
+}

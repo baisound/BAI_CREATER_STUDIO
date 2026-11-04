@@ -1,0 +1,14 @@
+{
+  "combination": {
+    "schema": 1,
+    "timeline": [],
+    "history": [],
+    "cursor": -1
+  },
+  "workspace": {
+    "frame": 0,
+    "asset": "foo.glb",
+    "clip": 2
+  },
+  "camera_overrides": {}
+}
