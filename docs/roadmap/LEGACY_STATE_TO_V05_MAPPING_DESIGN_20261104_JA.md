@@ -188,7 +188,9 @@
 | S3・S4 | ダンス「{name}」（S4＝途中開始の保管も同じ表示名。WP-L7a で補足） |
 | S6 | 曲とダンスの画面の再生位置とFPS（WP-L7a で補足） |
 | S0 | 曲とダンスの画面の保存（ファイル全体を `LIVE_SOURCE_INVALID` で保管するとき。WP-L7a で補足） |
-| T2 | 旧タイムラインの動作「{name}」 |
+| T0 | 旧タイムライン編集の保存（ファイル全体を `LIVE_SOURCE_INVALID` で保管するとき。WP-L7b で補足） |
+| T1・T2 | 旧タイムラインの動作「{name}」（T1＝解決できずに保管するときも同じ表示名。解決できたときの `{name}` は素材の名前、できないときは旧の動作名。WP-L7b で補足） |
+| T4 | 旧タイムライン編集の更新日時（WP-L7b で補足） |
 | 場面インスタンスのストア | 3D場面 |
 | アレンジのストア | タイムライン |
 
@@ -588,6 +590,8 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
   - 開始と長さの秒が `start/30`、`duration/30`。
   - 形の壊れたファイル → `LIVE_SOURCE_INVALID`、ほかは取り込まれる。
   - 取消でクリップが消える。
+
+**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` の `plan`（T1〜T4、`_plan_timeline_editor`、`_norm_name`）、`collect`（`_read_timeline_editor`、`_validate_timeline_editor`）、`tests/test_studio_v05_legacy_import_timeline_editor.py`、fixture 2本。試験 67 件合格（skip なし）。legacy_import 全体 279 件合格、pytest 全体は 896 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`）・HTTP/MCP・画面・実データ（試験の manifest は試験内で組んだもの）。設計の穴を次のように解釈した：(1) `mapping` の値が空文字・文字列以外のときは「自動一致」（旧画面の `manual[x] || norm(x)` と同じ）。空でない値で候補が0件のときは旧画面の自動一致へ戻らず `NAME_UNRESOLVED`（別の素材を黙って置かない）。(2) 1クリップ1項目。T1（解決できず保管：`NAME_UNRESOLVED`・`ASSET_MISSING`・`ASSET_UNSUPPORTED`）、T2（置いた、または速度で保管）。T3 の `BLEND_DROPPED` と T1 の `NAME_DUPLICATE_LAST_WINS`、S5 の `MOTION_TARGET_UNSET` は、置いたクリップの T2 項目の `codes` に載せる（別項目にしない）。つなぎの値は項目の `legacy_value`（クリップ全体）に残る。(3) 解決した素材が `classify` で `motion` でなければ `ASSET_UNSUPPORTED`（モデル枠以外の FBX モデルなど）。判定の順は 解決 → 素材の有無 → 形式 → 速度。(4) 動かす相手は、`music_dance` が有効で `model_id` があるときはその結果（置けなければ未設定）、それ以外は M3 のキャラクター。`compatible()` が偽、または相手が無いときは `MOTION_TARGET_UNSET`。(5) ファイルの検査は `server.py` の POST と同じ（`int()`・`float()` で変換、欠けた項目は開始0・長さ90・速度1・つなぎ6）。保存する値は変換後。`updatedAt` があるときだけ T4 を保管。(6) 上限は 256KiB。超える・検査に通らない・読めないときは item `T0`（`LIVE_SOURCE_INVALID`、ポインタ空）。`legacy_value`・record の `live.timeline_editor.value` は全文（256KiB 超は `null`、JSON でないときは元の文字列）。(7) 同じ素材を複数のクリップが使うときも、record の `assets` には1行だけ入れる（原本の SHA-256 を何度も計算しない）。(8) 手順の `role` は `timeline`。時刻は `round(フレーム/30, 4)`。(9) 24時間の上限は旧画面の入力上限（開始100万フレーム＋長さ10万フレーム）から超えないため、`OUT_OF_RANGE` の判定は足していない。(10) `source_info.timeline_editor_updated` はファイルの更新日時。(11) §7.2 の画面の「{n}件」は `value.clips` の件数。Issue #69 へのコメント（共通の完了条件4）は外部への書き込みのため行っていない。
 
 ### WP-L5 HTTP と MCP
 

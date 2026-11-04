@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T01:44:46+00:00",
+  "updated_at": "2026-11-04T01:53:47+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "549cb41",
+  "head_at_update": "1d1b6fe",
   "current": {
-    "task": "WP-L7a 曲とダンス(SCR-10)の配置と開始時刻の取込",
+    "task": "WP-L7b 旧タイムライン編集(timeline_editor)の開始時刻の取込",
     "status": "done",
-    "step": "studio_v05_legacy_import.py の plan/apply に S 手順と clip_* を足す",
+    "step": "studio_v05_legacy_import.py の plan/collect に T1〜T4 を足す",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "WP-L7b 旧タイムライン編集を写す",
-    "以後 L5→L6→L9"
+    "WP-L5 HTTPとMCP（server.py・mcp_server.py・webmcp.js）",
+    "以後 L6→L9"
   ],
   "unverified": [
-    "サーバー経由・HTTP/MCP・画面・実データ・実ffprobeでの曲の長さは未接続・未確認。DATA-008は要検証のまま",
+    "サーバー経由(PROJECT_LOCK)・HTTP/MCP・画面・実data/のmanifestでの名前解決は未接続・未確認。DATA-008は要検証のまま",
     "pytest既存失敗1件(test_v05_timeline_drag_static)。JS・サーバー未変更のためnode-all未実行"
   ],
   "blockers": [],
@@ -30,6 +30,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T01:53:47+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "1d1b6fe",
+      "text": "WP-L7b 旧タイムライン編集の開始時刻の取込（plan T1〜T4、collect、試験67件）"
+    },
+    {
+      "at": "2026-11-04T01:46:56+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "55c8662",
+      "text": "WP-L7b 旧タイムライン編集(timeline_editor)の開始時刻の取込: studio_v05_legacy_import.py の plan/collect に T1〜T4 を足す"
+    },
     {
       "at": "2026-11-04T01:44:46+00:00",
       "by": "claude-code",
@@ -225,20 +239,6 @@
       "event": "start",
       "head": "73a49ef",
       "text": "P2 WP-08（IK・AI）詳細設計：§2.8 の詳しく化: 旧IK・AI機能の棚卸し→O-⑧決定→WP-08a/b分割→自己批評"
-    },
-    {
-      "at": "2026-11-03T20:28:50+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "7935400",
-      "text": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認: Phase E §7読み替え表・書き出し実装のレビュー、test:node-all/test:p2/pytest/tscをLinuxで実行"
-    },
-    {
-      "at": "2026-11-02T20:13:07+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "70134ca",
-      "text": "v0.5から旧SCR-08のモデル・動作登録へ誘導し、連続登録後の一覧更新を修正。合成6形式の隔離Chrome登録・再読込5件を確認し旧作品復元の保存契約差を記録"
     }
   ]
 }
