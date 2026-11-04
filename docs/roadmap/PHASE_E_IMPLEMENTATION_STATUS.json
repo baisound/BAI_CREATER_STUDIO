@@ -326,6 +326,15 @@
       "commit": "WP-L3 コミット（Git履歴で「WP-L3」を検索）",
       "tests": "pytest tests/test_studio_v05_legacy_import_apply.py 51 passed（started の印・最終保存失敗の試験を含む）（skipなし。失敗の注入・途中停止・打ち消し失敗と再実行・競合・R1/R3・事前点検・同時実行・ログを含む）、plan・record 試験も合格、pytest 全体 724 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static）、npm run typecheck 出力なし。JS・サーバー未変更のため npm ci と node-all は未実行",
       "unverified": "DATA-008 は要検証のまま。サーバー（PROJECT_LOCK を外側に取る呼び出し）・HTTP/MCP・画面・実データは未接続。clip_place・clip_source・clip_assign は plan がまだ手順を作らないため、手で組んだ手順で実行と打ち消しだけ確認。見た目の大きさ・カメラの動きは未保証"
+    },
+    {
+      "item": "Issue #63/#69 旧保存→v0.5取込 WP-L4（試験専用の逆変換 _export_legacy_for_test と往復試験 R2/R4）。HTTP・MCP・画面には出さない",
+      "phase_e_wp": "（DATA-008、再構築ロードマップ 次の実施順2）",
+      "planned_in": "LEGACY-IMPORT-WP-L4",
+      "status": "done",
+      "commit": "WP-L4 コミット（Git履歴で「WP-L4」を検索）",
+      "tests": "pytest tests/test_studio_v05_legacy_import_roundtrip.py 32 passed（skipなし。R2 は bundle_a〜j 全部、R4 は設計の全項目）、pytest 全体 763 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static::test_no_persist_until_release）、npm run typecheck 出力なし。JS・サーバー未変更のため npm ci と node-all は未実行。途中で test_bundle_snapshot_consistency の1件が -x 実行時に1回だけ失敗（並列負荷下の時間依存の不安定。単独3回と全体実行では合格）",
+      "unverified": "DATA-008 は要検証のまま。逆変換は試験専用でサーバー・HTTP/MCP・画面・実データ未接続。曲とダンス・旧タイムライン編集（L7a・L7b）の逆変換は未実装。見た目の大きさ・カメラの動きは未保証"
     }
   ]
 }

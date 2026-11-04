@@ -271,7 +271,7 @@ Issue #88（2026-10-24）：HOMEと作品一覧の日時は作品保存値を変
 
 Issues #63/#69（2026-10-24）：保存済みGLBシーンを同じ作品の画像・動画と同じ編集画素へ透明WebGLで重ねる。隔離ChromeでF60/F150、保存再読込と前後画素差を確認。[試験記録](../v05/COMPOSITE_SCENE_PREVIEW_20261024_JA.md)。実PMXの合成、3Dを含むMP4、実GPU/Linux/MCPは未確認で全体の確認状態は変えない。
 
-Issues #63/#69（2026-11-04）：旧Studioの保存状態をv0.5の作品IDへ写す取込のうち WP-L1（確認の純関数 `studio_v05_legacy_import.plan()`、対応表M1〜M11、理由コード、`vmd_last_frame`、固定fixture `tests/fixtures/legacy_import/`）だけ実装。設計は[旧保存→v0.5取込設計](LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md)。続けて WP-L2（取込記録のストア `studio_v05_legacy_import_record.py`：読み書き・形の検査・6MB上限・history への退避）と WP-L3（`collect`・`apply`・`undo_journal`・`revert`、`studio_project_catalog.clear_fps`：v0.5の公開関数だけを通して写し、取消は打ち消す操作で行い revision は増える一方、applying で止まっても日誌で後始末）を実装。HTTP/MCP・画面・曲とダンスと旧タイムライン編集の取込は未実装、見た目の大きさとカメラの動きは未保証で、確認状態は変えない。
+Issues #63/#69（2026-11-04）：旧Studioの保存状態をv0.5の作品IDへ写す取込のうち WP-L1（確認の純関数 `studio_v05_legacy_import.plan()`、対応表M1〜M11、理由コード、`vmd_last_frame`、固定fixture `tests/fixtures/legacy_import/`）だけ実装。設計は[旧保存→v0.5取込設計](LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md)。続けて WP-L2（取込記録のストア `studio_v05_legacy_import_record.py`：読み書き・形の検査・6MB上限・history への退避）と WP-L3（`collect`・`apply`・`undo_journal`・`revert`、`studio_project_catalog.clear_fps`：v0.5の公開関数だけを通して写し、取消は打ち消す操作で行い revision は増える一方、applying で止まっても日誌で後始末）を実装。続けて WP-L4（試験専用の逆変換 `_export_legacy_for_test` と往復試験 R2/R4。取込後に編集しなければ元の bundle と一致し、v0.5での編集は旧形式へ反映、表せない変更は `unrepresentable` に出る。HTTP・MCP・画面には出さない）を実装。HTTP/MCP・画面・曲とダンスと旧タイムライン編集の取込は未実装、見た目の大きさとカメラの動きは未保証で、確認状態は変えない。
 
 **実装チェック:** 手動UI操作、共通API、WebMCPツール、標準MCPツール、設定永続化、Undo/Redo対象、例外/権限処理、テスト、文書を同一IDで紐付ける。
 

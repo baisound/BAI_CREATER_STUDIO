@@ -556,6 +556,8 @@ flowchart LR
   - 素材原本を書き換える → `asset_hash_changed` に出る。
   - どの結果も `validate_bundle` を通る。
 
+**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` に `_export_legacy_for_test(record, current)`、`tests/test_studio_v05_legacy_import_roundtrip.py`（試験 32 件、skip なし）。R2 は bundle_a〜j の全部で合格、R4 は設計の全項目を試験化。試験結果の全体は WORK_STATE.json と `PHASE_E_IMPLEMENTATION_STATUS.json` に記録。HTTP・MCP・画面からは呼ばない（`server.py` に名前が無いことも試験）。設計の穴の解釈：(1) `current` は `collect` の target に `playhead` と任意の `asset_sha256` を足した形。(2) `unrepresentable` の `pointer` は項目単位（`/workspace/stage/scale`、`/workspace/stage/visible` など）で、理由は `SCALE_NOT_UNIFORM`・`SCALE_OUT_OF_RANGE`・`POSITION_OUT_OF_RANGE`・`ROTATION_OUT_OF_RANGE`・`INSTANCE_HIDDEN`・`EXTRA_INSTANCE`・`FPS_CHANGED`・`FRAME_EXCEEDS_DURATION`・`ASSET_CHANGED`（取込後にインスタンスの素材が記録と違う場合。設計に無い理由で、黙って値を変えない方針による）。(3) 元が `absent`・`null` の character が既定値のままなら presence どおり、変えたら `value` で出して `changed` は `/workspace/character`。表せない変更を含むときは presence どおりに戻して `unrepresentable` に出す。(4) 再生位置は記録に `playhead` 手順がある（j は無い）ときだけ逆変換し、取込時の秒と同じなら元のフレーム。(5) `asset_hash_changed` は記録の `sha256` が null の素材と `current` に無い素材を比べない。(6) 数値は成分ごとでなく項目（position・rotation・scale）単位で、1成分でも範囲外なら項目全体が元の値。未検証：サーバー経由・HTTP/MCP・画面・実データ（WP-L5 以降）。
+
 ### WP-L7a 曲とダンス（SCR-10）を写す
 
 Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮影画面と同じ時刻で再生されません」と、順2の終了条件「開始時刻が一致」に当たる承認済みの範囲。所有者の承認を待たない（§12）。
