@@ -129,6 +129,31 @@ def _inputs(cue_tracks, face_keys, instance_id, project_fps, project_frames):
     return cues, manual, sorted(names)
 
 
+def _replacements(source_tracks, cues, manual, names, last):
+    return [{'name': name, 'frame': frame,
+             'weight': _desired(source_tracks, cues, manual, name, frame / 30)}
+            for frame in range(last + 1) for name in names]
+
+
+def expected_morph_rows(source_raw, cue_tracks, face_keys, instance_id,
+                        project_fps, project_frames):
+    """Return the touched morph names and every key the candidate must contain.
+
+    Used by the product API to verify a written candidate independently of the
+    rewrite readback. Inputs are validated exactly as in compose_morph_vmd.
+    """
+    section = inspect_morph_section(source_raw)
+    cues, manual, names = _inputs(cue_tracks, face_keys, instance_id,
+                                  project_fps, project_frames)
+    source_tracks = _source_tracks(section)
+    last_source_frame = max((row['frame'] for row in section['rows']
+                             if row['name'] in names), default=0)
+    last = max(math.ceil(project_frames * 30 / project_fps), last_source_frame)
+    if last > MAX_VMD_FRAMES:
+        raise CompositeVmdError('Composite VMD sampling limit exceeded')
+    return names, _replacements(source_tracks, cues, manual, names, last)
+
+
 def compose_morph_vmd(source_raw, cue_tracks, face_keys, instance_id,
                       project_fps, project_frames, tolerance=WEIGHT_TOLERANCE):
     """Return candidate bytes only if sampled composite equals preview rules.
@@ -147,9 +172,7 @@ def compose_morph_vmd(source_raw, cue_tracks, face_keys, instance_id,
     last = max(math.ceil(project_frames * 30 / project_fps), last_source_frame)
     if last > MAX_VMD_FRAMES or (last + 1) * len(names) + len(section['rows']) > MAX_MORPH_KEYS:
         raise CompositeVmdError('Composite VMD sampling limit exceeded')
-    replacements = [{'name': name, 'frame': frame,
-                     'weight': _desired(source_tracks, cues, manual, name, frame / 30)}
-                    for frame in range(last + 1) for name in names]
+    replacements = _replacements(source_tracks, cues, manual, names, last)
     removals = [(row['name'], row['frame']) for row in section['rows']
                 if row['name'] in names]
     raw, binary_report = rewrite_morph_section(source_raw, replacements, removals)
