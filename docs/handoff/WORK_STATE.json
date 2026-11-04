@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T00:29:57+00:00",
+  "updated_at": "2026-11-04T00:37:46+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "acdb339",
+  "head_at_update": "5649df6",
   "current": {
     "task": "Issue #63/#69: 旧Studio保存状態をv0.5作品IDへ可逆に対応させる設計",
-    "status": "in_progress",
+    "status": "done",
     "step": "旧保存とv0.5保存の比較調査",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "Owner判断待ち: SRT由来口形の開始/終了の値の跳びは30fps VMDで再現できず拒否される。境界1F傾斜・許容差の扱いを決める",
-    "実PMX・実長尺VMDで合成候補を作り、元VMDとの顔・身体、MP4を比較（実データのある環境で）",
-    "開始0秒以外のクリップ・非整数FPSへの対応はOwner承認後"
+    "WP-L1: studio_v05_legacy_import.py の plan() と表駆動試験（Sonnet）",
+    "WP-L2〜L6 を順に実装。L7はQ4承認後、L8はロードマップ3（カメラ・ステージ出力一致）の完了後",
+    "所有者判断待ち: Q1〜Q6（既定のまま進めてよい）"
   ],
   "unverified": [
-    "実PMX/実長尺VMDでの合成候補、PMX表示比較、最終MP4、実歌音声SRT境界、WebMCP/標準MCP、Windows",
-    "既存失敗（変更前から）: pytest test_v05_timeline_drag_static 1件、node-all 10件（動画・MP4・タイムライン系のChrome試験）"
+    "設計のみで試験は未実行。見た目の大きさの一致（§2.3）は未保証",
+    "既存失敗（変更前から）: pytest test_v05_timeline_drag_static 1件、node-all 10件"
   ],
   "blockers": [],
   "owner_questions": [
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T00:37:46+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "5649df6",
+      "text": "Issue #63/#69: 旧保存→v0.5作品IDの可逆対応の設計書を追加（比較・対応表M1〜M10・取込記録・WP-L1〜L9・所有者判断Q1〜Q6）。コードは未変更"
+    },
     {
       "at": "2026-11-04T00:29:57+00:00",
       "by": "claude-code",
@@ -236,13 +243,6 @@
       "event": "start",
       "head": "3925d8d",
       "text": "Issue #187: 口形VMD出力不能箇所を一覧化: 未確定発話・警告・欠落モーフ・フレーム衝突を発話別に返しv0.5画面で修正対象を示す"
-    },
-    {
-      "at": "2026-10-25T02:28:23+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "93fab6c",
-      "text": "Issue #187: v0.5画面のdry-run→別名VMD候補生成→取得を接続。隔離Chrome2/2、実PMX AのF30/F60/F90口モーフ値とキャンバス画素差を確認、原本不変。"
     }
   ]
 }
