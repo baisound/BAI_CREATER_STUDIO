@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T00:27:07+00:00",
+  "updated_at": "2026-11-04T00:29:57+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "2c2748d",
+  "head_at_update": "acdb339",
   "current": {
-    "task": "Issue #187: 合成比較ゲートを製品APIと出力へ接続（ロードマップ順4）",
-    "status": "done",
-    "step": "設計確認と最小限の設計追記",
-    "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
+    "task": "Issue #63/#69: 旧Studio保存状態をv0.5作品IDへ可逆に対応させる設計",
+    "status": "in_progress",
+    "step": "旧保存とv0.5保存の比較調査",
+    "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
     "Owner判断待ち: SRT由来口形の開始/終了の値の跳びは30fps VMDで再現できず拒否される。境界1F傾斜・許容差の扱いを決める",
@@ -34,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T00:29:57+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "acdb339",
+      "text": "Issue #63/#69: 旧Studio保存状態をv0.5作品IDへ可逆に対応させる設計: 旧保存とv0.5保存の比較調査"
+    },
     {
       "at": "2026-11-04T00:27:07+00:00",
       "by": "claude-code",
@@ -236,13 +243,6 @@
       "event": "done",
       "head": "93fab6c",
       "text": "Issue #187: v0.5画面のdry-run→別名VMD候補生成→取得を接続。隔離Chrome2/2、実PMX AのF30/F60/F90口モーフ値とキャンバス画素差を確認、原本不変。"
-    },
-    {
-      "at": "2026-10-25T02:24:25+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0d1d96d",
-      "text": "Issue #187: v0.5から別名モーフVMD候補を出力: 確定MorphMap選択・dry-run・候補生成・ダウンロードをSRT画面へ接続し実Chromeで確認する"
     }
   ]
 }
