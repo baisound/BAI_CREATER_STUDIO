@@ -68,12 +68,12 @@
 
 | 形式 | 旧（`character` または `stage` あり） | 旧（`character` なし） | v0.5の場面インスタンス |
 |---|---|---|---|
-| PMX | 拡大 = 0.08 × scale。足の位置は合わせない（`normalize.fork.js:58-65`、`placement.js:25-31`） | 高さを1.8mへ合わせ、足をy=0へ（`camera_3d.js:303-311`） | 拡大 = 0.08 × scale[i]。読込時に足をy=0へ移す（`multi-model-ui-v58.js:1463-1467`） |
-| GLB / VRM | 拡大 = 1 × scale | 高さを2.0mへ | 読込時に高さを2.0mへ、XZの中心を原点へ移す（`multi-model-ui-v58.js:1468`、`normalize.fork.js:5,13-25`）。そのうえで scale を掛ける |
-| FBX | 拡大 = UnitScaleFactor ÷ 100 × scale | 高さを1.95mへ | 高さを1.95mへ、中心を原点へ |
-| ライブラリGLBステージ | 拡大 = 1 × scale | — | GLBと同じ正規化（ステージも2mへ縮む） |
+| PMX | 拡大 = 0.08 × scale。足の位置は合わせない（`normalize.fork.js:58-65`、`placement.js:25-31`） | ① `camera.html` は高さを1.8mへ合わせ、足をy=0へ（`camera_3d.js:306-311`）。② SCR-06 は既定値で左の列と同じ式 | 拡大 = 0.08 × scale[i]。読込時に足をy=0へ移す（`multi-model-ui-v58.js:1499-1503`） |
+| GLB / VRM | 拡大 = 1 × scale | ① は高さを2.0mへ（VRMはπ回す）。② は左の列と同じ | 読込時に高さを2.0mへ、XZの中心を原点へ移す（`multi-model-ui-v58.js:1504`、`normalize.fork.js:5,13-25`）。そのうえで scale を掛ける |
+| FBX | 拡大 = UnitScaleFactor ÷ 100 × scale | ① は高さを1.95mへ。② は左の列と同じ | 高さを1.95mへ、中心を原点へ |
+| ライブラリGLBステージ | 拡大 = 1 × scale。**描くのは ② SCR-06 だけ**（`scene-parts.js:18-34`）。① `camera.html` はステージを描かない | — | GLBと同じ正規化（ステージも2mへ縮む） |
 
-写した結果には必ず警告 `UNIT_SEMANTICS_DIFFER` を付ける。見た目を合わせる換算は WP-L8a で行う。それまでは「数値は写した。見た目の一致は未達」と記録し、完了扱いにしない（§9）。
+WP-L8a より前は、写した結果に警告 `UNIT_SEMANTICS_DIFFER` を付けていた。WP-L8a では、M3・M4 の場面インスタンスに印 `units: "legacy"` を付け、③はその印のときだけ旧と同じ式（素材の単位の換算だけ、位置は動かさない）で置く。警告は、M3 で `workspace.character` が無い・null のとき（①の `camera.html` とは差が残る）だけ、文言を直して残す。数値は今のまま写す。詳細と試験は [WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md)。L8a の実装と試験が終わるまでは「数値は写した。見た目の一致は未達」と記録し、完了扱いにしない（§9）。
 
 ## 3. 対応表
 
@@ -85,7 +85,7 @@
 |---|---|---|---|---|
 | M1 | `/camera/fps` | `catalog.projects[ID].fps` | 作品FPSが未設定（`absent`）なら旧の値を設定する手順を作る。値が同じ（`float(a)==float(b)`）なら手順なし。違う値なら、`fps_policy` が `"use_legacy"` のときだけ設定し、それ以外は**取込全体を拒否**する | 拒否は `FPS_CONFLICT` |
 | M2 | `/workspace/frame` | 再生位置 | `seconds = round(frame / camera.fps, 4)`（旧のFPSで割る）。`workspace` が `absent` なら手順なし | 86400秒を超えると `OUT_OF_RANGE` で保管 |
-| M3 | `/workspace/asset` と `/workspace/character` | 場面インスタンス1件（役割 `character`） | `asset` が空文字なら手順なし。空でなければ、接頭辞が無いとき `integrated:` を付けた `asset_id` で追加する。`character` が `value` なら `transform={position, rotation, scale:[s,s,s]}`、`absent`・`null` なら `{[0,0,0],[0,0,0],[1,1,1]}`。元の綴りは `legacy_ref`、`character` の有り方は `presence` に残す | 写す。警告 `UNIT_SEMANTICS_DIFFER`。素材が一覧に無い・`available` が偽なら `ASSET_MISSING`、`supported_model()` が偽なら `ASSET_UNSUPPORTED` で保管。`character` が `value` でも `asset` が空なら `NO_V05_FIELD` で保管 |
+| M3 | `/workspace/asset` と `/workspace/character` | 場面インスタンス1件（役割 `character`） | `asset` が空文字なら手順なし。空でなければ、接頭辞が無いとき `integrated:` を付けた `asset_id` で追加する。`character` が `value` なら `transform={position, rotation, scale:[s,s,s]}`、`absent`・`null` なら `{[0,0,0],[0,0,0],[1,1,1]}`。元の綴りは `legacy_ref`、`character` の有り方は `presence` に残す。WP-L8a 以降は印 `units: "legacy"` を付ける（[WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md) §3.4） | 写す。警告 `UNIT_SEMANTICS_DIFFER`（WP-L8a 以降は `character` が `absent`・`null` のときだけ）。素材が一覧に無い・`available` が偽なら `ASSET_MISSING`、`supported_model()` が偽なら `ASSET_UNSUPPORTED` で保管。`character` が `value` でも `asset` が空なら `NO_V05_FIELD` で保管 |
 | M4 | `/workspace/stage` | 場面インスタンス1件（役割 `stage`） | `value` のときだけM3と同じ変換。`absent`・`null` は手順なし、`presence` だけ残す | M3と同じ |
 | M5 | `/workspace/clip` | なし | 値が整数のときだけ保管 | `NO_V05_FIELD` |
 | M6 | `/workspace/lights` | なし | `value` のときだけ保管。`presence` は常に残す | `NO_V05_FIELD` |
@@ -127,7 +127,7 @@
 
 | コード | 区分 | HTTP | 文（全文。試験はこの文と完全一致で照合する） |
 |---|---|---|---|
-| `UNIT_SEMANTICS_DIFFER` | 警告 | — | 位置・回転・大きさの数値は写しました。v0.5は読み込むときに大きさや足の位置を合わせるため、旧画面と見た目が違うことがあります。 |
+| `UNIT_SEMANTICS_DIFFER` | 警告 | — | 旧のシーン画面（②）と同じ大きさで置きました。旧のカメラ画面（①）はモデルの高さを合わせて表示していたため、①とは大きさや向きが違うことがあります。 |
 | `PLACED_AT_ORIGIN` | 警告 | — | 曲とダンスの画面のモデルは位置を保存していないため、原点に置きました。 |
 | `MOTION_TARGET_UNSET` | 警告 | — | 動作のクリップは置きましたが、動かすキャラクターを決められませんでした。クリップを開いて［対象モデルを保存］で選んでください。 |
 | `NAME_DUPLICATE_LAST_WINS` | 警告 | — | 同じ名前の動作が複数あります。旧画面と同じく、後から登録したものを使いました。 |
@@ -165,6 +165,8 @@
 | `UNDO_FAILED` | 失敗 | 500 | 取消の一部ができませんでした：{list}。［取込を取消］をもう一度押してください。直らないときは診断ZIPを保存してください。 |
 
 `{rolled}` は「取込前の状態に戻しました」または「取込前に戻しきれませんでした。［取込を取消］を押してください」。`{list}` は §3.5 の表示名を「、」で並べたもの（例：「取り込んだキャラクターの表情キー3件、ロックされたステージ」）。
+
+`UNIT_SEMANTICS_DIFFER` は、WP-L8a の実装後は M3 で `character` が `absent`・`null` のときだけ確認（plan）で出す。文は上の表のとおり L8a で直した（旧の文は「位置・回転・大きさの数値は写しました。v0.5は読み込むときに大きさや足の位置を合わせるため、旧画面と見た目が違うことがあります。」）。L8a より前の取込記録は、記録に保存された文を出すので表示は変わらない（[WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md) §1.3・§3.4）。
 
 ### 3.5 画面に出す表示名
 
@@ -390,6 +392,7 @@ flowchart LR
   - 3成分が等しくない scale、±360を超える回転、±1000mを超える位置、0.01〜100の外の拡大、`visible: false` は、`unrepresentable` に出し、元の値を使う。
   - インスタンスが削除されていたら、キャラクターは `asset` を空文字、`clip` を `None` にし、`character` を出さない。ステージは `null`。どれも `changed` に入れる。
   - 記録に無いインスタンスがあれば、`/workspace` に `unrepresentable`（理由 `EXTRA_INSTANCE`）。
+  - WP-L8a 以降：インスタンスの印 `units` が記録の手順の `units` と違えば、`/workspace/character` または `/workspace/stage` に `unrepresentable`（理由 `UNITS_CHANGED`）を出し、その項目は元の値を返す（[WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md) §4.2 の10）。
 - `asset` は記録の `legacy_ref`（元の綴り）を返す。
 - `camera.fps` は常に元の値。作品FPSが取込後に変わっていれば `/camera/fps` を `unrepresentable` に出す（理由 `FPS_CHANGED`。保管しているキーのフレーム番号の意味が変わるため）。
 - `workspace.frame` は `round(seconds × 元のfps)`。`seconds` が取込時の `round(frame/fps, 4)` と等しければ元のフレーム。`camera.duration` を超えるときは `unrepresentable`（理由 `FRAME_EXCEEDS_DURATION`）にして元の値。
@@ -641,9 +644,15 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
 
 ### WP-L8a 見た目の大きさをそろえる（ロードマップ「次の実施順3」のあと）
 
-- 前提：「次の実施順3」で、保存カメラとステージ位置をプレビューとレンダーへ渡す単位の約束が決まっていること。
-- §2.3 の差を、その約束に合わせて解消する。候補は (a) 場面インスタンスに「旧の単位で置く」印を足す、(b) 取込時に正規化を打ち消す scale を計算する。どちらにするかは、L8a の設計時に開発側が決める（所有者には尋ねない）。
-- 受け入れ試験：実GPUの隔離Chromeで、旧 `camera.html` とv0.5の同じフレームの画像を比べ、キャラクターとステージの外接枠の差がしきい値以内。しきい値は L8a の設計で決め、**決まるまで L8a を完了にしない**。
+詳細設計は [WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md)（2026-11-04、3人の批評を受けて改訂。採否は同書 §11。未実装）。実装はその §4・§6・§8 をそのまま使う。要点：
+
+- **調べた事実。** 旧の画面は素材の単位の換算（PMX 0.08、GLB・VRM 1、FBX は UnitScaleFactor÷100）だけを掛け、ファイルの原点のまま置く（`camera_3d.js:297-305`、`scene-parts.js:18-34`）。③は読むたびに高さを合わせ、中心と足を動かす（`multi-model-ui-v58.js:1499-1504`）。① `camera.html` はステージを描かない。`workspace.stage` を描く旧の画面は ② SCR-06 だけ。
+- **採用した案。** 候補 (a)。M3・M4 で置く場面インスタンスにだけ印 `units: "legacy"` を付け、③の読込は印のときだけ旧と同じ式で置く。保存する数値は今のまま。案 (b)（取込時に正規化を打ち消す数値を計算）は、③の three.js と同じ外接箱をサーバーで作れない形式（スキン付きGLB・VRM、FBX）が残るため採らない。③の正規化そのものを変える案は、取込以外の作品の見た目を変えるため採らない。
+- **換算式。** ③の transform = `{position: p, rotation: r, scale: [s,s,s]}`、印 `units: "legacy"`。③の読込は印があれば object の拡大を u にし、位置を動かさない（新しいファイル `studio/v05/js/instance-units-v189.mjs` にまとめる）。世界座標は `p + R(r)·(s·u·v)` で、旧と同じ。
+- **警告。** `UNIT_SEMANTICS_DIFFER` は、M3 で `character` が無い・null のときだけ、文言を直して残す。
+- **受け入れ試験。** 同じ素材で、③と旧の画面の世界座標の外接箱の6成分の差が、すべて `ε = 0.00001 × (1 + D + Rₚ/s)` m 以内（D は外接箱の対角、Rₚ は位置 p から外接箱の角までの最大の距離、s は旧の倍率）。比べる対は、ステージは ② SCR-06、`character` が値のキャラクターは ① `camera.html`（頂点の箱。スキン付きの試験素材と所有者の実PMXを含む）、キャラクターとステージの場面全体は SCR-06、`character` が無いキャラクターは SCR-06。印の無い対照では差が `100ε` 以上。3D試験は `BAI_REQUIRE_3D=1` で skip を許さない。
+- **所有者の症状。** 実データで、S01 が SCR-06 と ε 以内であることに加え、曲とダンスのモデルの中心がステージの内側、足と床の差が許容内、③の初期カメラがステージの内側、開発側の目視で見える、をすべて満たすことを完了条件にする。実装の前に、所有者のPCで S01 の元の外接箱を SCR-06 で測る。
+- **既存の作品。** 印は取込だけが付ける（HTTP・MCP・画面からは付けられない）。既存のファイルは移行しない。印の無いインスタンスの読込は今と同じ式で、見た目は変わらない。
 
 ### WP-L8b カメラの動きを写す（v0.5に時刻付きカメラの保存先ができたあと）
 
@@ -653,7 +662,7 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
 
 **順序。** L1 → L2 → L3 → L4 → L7a → L7b → L5 → L6 → L9。L8a は「次の実施順3」の完了後、L8b は順6で時刻付きカメラの保存先ができた後。L7a・L7b を L5・L6 より前に置くのは、HTTP・画面を最初から曲とダンスのチェック付きで作り、作り直しを避けるため。
 
-L1〜L7b と L9 は、カメラ・ステージの出力系のファイル（`camera*.js`、`camera_*.py`、`studio/v05/js/camera-render-*.js`、`shared-scene-v57.js`、`multi-model-*.js`、`spatial-*.js`、`studio_v05_media_render.py`）を**変えない**。`studio_v05_media_render.media_info()` は呼ぶだけ。L5・L6 は `server.py`、`mcp_server.py`、`webmcp.js`、`studio/v05/index.html` という共有ファイルを触るので、作業の前に `git fetch origin main` で並行ブランチの変更を取り込み、衝突を最小にする。
+L1〜L7b と L9 は、カメラ・ステージの出力系のファイル（`camera*.js`、`camera_*.py`、`studio/v05/js/camera-render-*.js`、`shared-scene-v57.js`、`multi-model-*.js`、`spatial-*.js`、`studio_v05_media_render.py`）を**変えない**。`studio_v05_media_render.media_info()` は呼ぶだけ。L5・L6 は `server.py`、`mcp_server.py`、`webmcp.js`、`studio/v05/index.html` という共有ファイルを触るので、作業の前に `git fetch origin main` で並行ブランチの変更を取り込み、衝突を最小にする。WP-L8a だけは、§2.3 の差を直すために `studio/v05/js/multi-model-runtime-v58.js`・`multi-model-ui-v58.js` と `studio_v05_scene_instances.py` を変え、`studio/v05/js/instance-units-v189.mjs` を新しく作る（[WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md) §4）。
 
 ## 9. 完了判定
 
@@ -662,7 +671,7 @@ L1〜L7b と L9 は、カメラ・ステージの出力系のファイル（`cam
 | L1〜L6 | スナップショットのキャラクター、ステージ、作品FPS、再生位置を、同じ作品IDへ非破壊で写し、取消せる。写さないものを理由付きで画面に出す | 見た目の大きさの一致、カメラの動き、曲とダンスの開始時刻 |
 | ＋L7a・L7b | 曲とダンス（VMD）の開始時刻、旧タイムラインの動作の開始時刻を写す | FBX・GLB動作の長さ、ダンスの途中開始、速度変更、見た目の大きさ、カメラの動き |
 | ＋L9 | 所有者の実データで R1〜R3 を確認 | 同上 |
-| ＋L8a・L8b | 見た目の大きさとカメラの動きの一致 | WP-L8a・L8b の設計で残ると決めたもの |
+| ＋L8a・L8b | 見た目の大きさとカメラの動きの一致 | L8a：`character` の無い旧作品での ① `camera.html` との差（基準は ② SCR-06）、GLB内蔵アニメ・照明（[WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md) §9）。L8b：その設計で残ると決めたもの |
 
 - Issue #69 の「旧作品とv0.5作品を同じ作品IDと保存状態で開き、編集・復元できるようにする」は、**L1〜L9 と L8a・L8b がすべて終わるまでチェックしない**。途中の結果はコメントで記録する。
 - `DATA-008` の台帳の状態は `要検証` のままにする。`detail` に、写せる範囲と写せない範囲を書き足すだけにする。
@@ -674,7 +683,7 @@ L1〜L7b と L9 は、カメラ・ステージの出力系のファイル（`cam
 
 | 初版 | 決めたこと | 理由 |
 |---|---|---|
-| Q1 見た目の違い | 数値だけ写し、警告 `UNIT_SEMANTICS_DIFFER` を出す。見た目の一致は L8a。それまで完了扱いにしない | 別案は並行中のカメラ・ステージ出力系の形式を変える必要があり、ぶつかる。L8a の (a)/(b) の選択も技術の判断なので、所有者には尋ねない |
+| Q1 見た目の違い | 数値だけ写し、警告 `UNIT_SEMANTICS_DIFFER` を出す。見た目の一致は L8a。それまで完了扱いにしない | 別案は並行中のカメラ・ステージ出力系の形式を変える必要があり、ぶつかる。L8a の (a)/(b) の選択も技術の判断なので、所有者には尋ねない。2026-11-04、[WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md) で (a)（取込で置いたものだけに印）に決めた |
 | Q3 動作の並びをタイムラインへ | 置かない（`NO_TIMING`）。名前の解決もしない | 11/02の監査で「推測して配置へ書かない」と決めている。並びには時刻が無い |
 | Q4 SCR-10 と旧タイムライン編集 | 取り込む（WP-L7a・L7b）。利用者がチェックを入れたときだけ | Issue #63 本文の困りごとと、順2の終了条件（開始時刻の一致）に含まれる承認済みの範囲。時刻を持つ旧データはこの2つだけ |
 | Q5 空でない作品への取込 | 許さない（`TARGET_NOT_EMPTY`） | 非破壊の原則に沿う安全な既定。足し込む取込は新しい機能になる |
@@ -691,7 +700,7 @@ L1〜L7b と L9 は、カメラ・ステージの出力系のファイル（`cam
 ## 11. 範囲外と未検証
 
 - この文書はコードも試験も含まない。§8 の試験は、まだ1本も実行していない。
-- 見た目の一致（§2.3）は WP-L8a まで、カメラの動きは WP-L8b まで保証しない。
+- 見た目の一致（§2.3）は WP-L8a まで、カメラの動きは WP-L8b まで保証しない。WP-L8a の詳細設計は [WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md)（未実装）。
 - カメラの保存は、スナップショットを作る時点で `bai_camera.validate` が正規化する（既定値を足す、知らない項目を落とす。`bai_camera.py:12-59`）。この設計の「元」は正規化後の bundle で、正規化前の生ファイルとの差は扱わない。
 - 旧①の2体表示（`modelA`/`modelB` のFBX、`index.html:233`）は、全体保存にもスナップショットにも入っていない。対象外。
 - MCP・WebMCP から取り込んだときは、開いている画面へは知らせない（§7.3 の5）。
