@@ -1,20 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T08:58:17+09:00",
+  "updated_at": "2026-11-04T09:14:57+09:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-real-format",
-  "head_at_update": "e41567c",
+  "head_at_update": "f43fa4d",
   "current": {
     "task": "Issue #37/#50/#69: v0.5実素材の形式別登録・見本・再読込（ロードマップ次の実施順2）",
-    "status": "in_progress",
+    "status": "done",
     "step": "実素材の形式別隔離登録試験と結果表",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
-    "Phase E（カメラ）の実装に進む。所有者の承認順に従う"
+    "ロードマップ次の実施順3（共通の制作状態からの出力）へ進む。FBXモデル見本が黒い影絵になる件とv0.5単独で3D・動画見本を作れない件は、所有者の判断待ちの候補として扱う"
   ],
   "unverified": [
-    "P2 全体の未検証は docs/roadmap/P2_PORT_STATUS.json の p2_overall_unverified（U1〜U16）に集約。実GPU・Windows一括0fail・実Ollama・Blender実変換・実PMX/VRMの見た目は未検証"
+    "FBXモデル見本の材質（黒い影絵）、FBX容量の「不明」表示",
+    "MP3・WebM/OGV・JPEG/GIF/WebP/AVIF/BMP・GLB小物/エフェクト・実PMX ZIPの旧画面登録",
+    "WebMCP・標準MCP・Linux、v0.5での動作見本・3D回転表示",
+    "studio-real-asset-visuals の実VMD試験は既存の警告 unknown char code で失敗（修正前のmainでも同じ）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T09:14:57+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "f43fa4d",
+      "text": "実素材8形式（VRM・FBXモデル・FBX動作・GLB人体動作・GLBステージ・WAV・画像・動画）をv0.5と旧SCR-08から隔離登録し、ID・見本・再読込・原本hashを実GPUで確認。旧画面が作った見本がv0.5一覧に出ない欠落と、更新が重なると登録素材の選択が失われる欠落を修正（DATA-016）。記録は docs/v05/REAL_FORMAT_IMPORT_20261104_JA.md"
+    },
     {
       "at": "2026-11-04T08:58:17+09:00",
       "by": "claude-code",
@@ -233,13 +243,6 @@
       "event": "start",
       "head": "0d1d96d",
       "text": "Issue #187: v0.5から別名モーフVMD候補を出力: 確定MorphMap選択・dry-run・候補生成・ダウンロードをSRT画面へ接続し実Chromeで確認する"
-    },
-    {
-      "at": "2026-10-25T02:22:42+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8cf3869",
-      "text": "Issue #187: 全発話の確定読み・下書き・登録PMX MorphMapを照合して別名モーフVMD候補を保存/ダウンロード。関連Python13/13、実PMX名のバイナリ再読込と原本不変。"
     }
   ]
 }
