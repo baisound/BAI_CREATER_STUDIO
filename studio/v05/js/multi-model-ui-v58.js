@@ -339,7 +339,10 @@ function mountComposite(){
   if(!stage)return false;
   window.BAIStudioMediaPreviewV68?.sceneOverlay?.(true);
   stage.append(canvasParent,panel);
-  canvasParent.style.cssText='position:absolute;inset:0;width:100%;height:100%;min-height:0;background:transparent;border:0;overflow:hidden;z-index:2';
+  // Same 16:9 output frame as the media layers (project-media-preview-v68.css),
+  // so the saved camera frames the preview exactly like the MP4 capture.
+  canvasParent.className='v68frame';
+  canvasParent.style.cssText='min-height:0;background:transparent;border:0;overflow:hidden;z-index:2';
   panel.style.cssText='position:absolute;top:8px;right:8px;left:auto;bottom:auto;z-index:3;width:min(320px,38%);max-height:82%;overflow:auto;background:#172231ee;border:1px solid #6584a0;border-radius:9px;padding:8px;box-shadow:0 8px 28px #0009;display:flex;flex-direction:column;gap:5px';
   return true;
 }
@@ -347,6 +350,7 @@ function unmountComposite(){
   window.BAIStudioMediaPreviewV68?.sceneOverlay?.(false);
   panel.insertBefore(canvasParent,footer);
   document.body.append(panel);
+  canvasParent.className='';
   canvasParent.style.cssText=normalCanvasStyle;
   panel.style.cssText=normalPanelStyle;
 }

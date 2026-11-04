@@ -38,6 +38,25 @@ export function characterFront(object, THREE, format) {
   return front.lengthSq() > 0.01 ? front.normalize() : fallback();
 }
 
+/** Wait until every material texture has image data (or the timeout passes, e.g. a missing external file). @param {any} object @param {number} timeoutMs */
+async function texturesReady(object, timeoutMs) {
+  /** @type {Set<any>} */ const textures = new Set();
+  object.traverse((/** @type {any} */ node) => {
+    if (!node.isMesh) return;
+    for (const material of Array.isArray(node.material) ? node.material : [node.material]) {
+      for (const value of Object.values(material || {})) if (value && value.isTexture) textures.add(value);
+    }
+  });
+  const ready = (/** @type {any} */ texture) => {
+    const image = texture.image;
+    return !!image && (image.complete === undefined ? (image.width || 0) > 0 : image.complete && (image.naturalWidth || image.width || 0) > 0);
+  };
+  const deadline = performance.now() + timeoutMs;
+  while ([...textures].some((texture) => !ready(texture)) && performance.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+}
+
 /** @param {AssetItem} item */
 async function renderAndSave(item) {
   const libs = await loadLibs();
@@ -65,6 +84,9 @@ async function renderAndSave(item) {
         new Promise((resolve) => setTimeout(resolve, 10000)),
       ]);
     }
+    // FBXLoader returns before its embedded/external texture images decode; a
+    // one-frame render would sample the empty textures as black.
+    if (loaded.format === 'FBX') await texturesReady(object, 10000);
     if (loaded.format === 'PMX') object.traverse((/** @type {any} */ node) => {
       if (!node.isMesh) return;
       node.frustumCulled = false;

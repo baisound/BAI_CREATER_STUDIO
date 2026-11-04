@@ -121,7 +121,8 @@ def unified_assets():
     for e in readmeta().get('files',[]):
         fid=e.get('id','');name=e.get('name','')
         if not fid or not name:continue
-        result.append({'id':'fbx:'+fid,'name':name,'format':'FBX','kind':e.get('kind','motions'),'source':'fbx','available':(FILES/(fid+'.fbx')).is_file(),'previewable':True})
+        fbx_path=FILES/(fid+'.fbx');available=fbx_path.is_file()
+        result.append({'id':'fbx:'+fid,'name':name,'format':'FBX','kind':e.get('kind','motions'),'source':'fbx','available':available,'bytes':fbx_path.stat().st_size if available else None,'previewable':True})
     c=catalog_combined()
     used=set()
     for e in c.get('motions',[])+c.get('models',[]):
@@ -140,7 +141,8 @@ def unified_assets():
             if not name:continue
             fmt=Path(name).suffix.lower().lstrip('.').upper()
             if fmt not in ('PMX','VMD'):continue
-            result.append({'id':'mmd:'+slot+':'+name,'name':name,'format':fmt,'kind':slot,'source':'mmd','available':(MMD_DIR/slot/name).is_file(),'previewable':True})
+            mmd_path=MMD_DIR/slot/name;available=mmd_path.is_file()
+            result.append({'id':'mmd:'+slot+':'+name,'name':name,'format':fmt,'kind':slot,'source':'mmd','available':available,'bytes':mmd_path.stat().st_size if available else None,'previewable':True})
     with LIBRARY_LOCK:result.extend(library_assets.public_items(LIBRARY_ROOT))
     from studio_v05_asset_sources import listing as v05_sources_listing
     result.extend(v05_sources_listing(V05_SOURCE_ROOT,V05_INBOX_ROOT)['items'])
