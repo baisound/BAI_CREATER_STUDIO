@@ -8,6 +8,7 @@ import { h, openModal, closeModal, toast } from '../ui.js';
 import { fbxLabel } from './assets-model.js';
 import { IMPORT_ACCEPT, classifyImport, effectiveRoute, conflictOf, batchErrorRows, fbxIdFor, sha256Hex } from './import-rules.js';
 import { loadAssets, selectAsset, hasAsset } from './assets.js';
+import { uploadUrlFor, importedAssetId, fbxPrecheck } from './import-send.js';
 
 /** @typedef {import('./import-rules.js').ImportEntry} ImportEntry */
 /** @typedef {import('./import-rules.js').Classified} Classified */
@@ -50,25 +51,10 @@ const rowOf = (id) => imports.get().rows.find((r) => r.id === id);
 /* ------------------------------------------------------------------ 送信 */
 
 /** @param {ImportRow} r */
-function urlFor(r) {
-  const n = encodeURIComponent(r.name);
-  switch (r.route) {
-    case 'integrated': return `/api/integrated-v02/upload?kind=${encodeURIComponent(r.kind)}&name=${n}`;
-    case 'library': return `/api/library-assets/upload?kind=${encodeURIComponent(r.kind)}&name=${n}`;
-    case 'pmxZip': return `/api/pmx-zip-upload?slot=${encodeURIComponent(r.kind)}`;
-    case 'vmd': return `/api/mmd-upload?slot=vmd&name=${n}`;
-    default: return `/api/upload?kind=${encodeURIComponent(r.kind)}&name=${n}`;
-  }
-}
+const urlFor = (r) => uploadUrlFor(r.route, r.kind, r.name);
 
 /** 登録した素材の /api/assets の id（設計 §2.3(d)-6）。 @param {ImportRow} r @param {any} data */
-function assetIdOf(r, data) {
-  if (r.route === 'library') return String(data.item.id);
-  if (r.route === 'integrated') return `integrated:${data.asset}`;
-  if (r.route === 'pmxZip') return `mmd:${data.slot}:${data.model_path}`;
-  if (r.route === 'vmd') return `mmd:vmd:${r.name}`;
-  return `fbx:${data.id}`;
-}
+const assetIdOf = (r, data) => importedAssetId(r.route, r.name, data);
 
 /** 送る前の検査。問題があれば日本語の理由を返す。 @param {ImportRow} r @returns {Promise<string|null>} */
 async function precheck(r) {
@@ -79,19 +65,7 @@ async function precheck(r) {
     if (!features.includes('pmx_zip_upload')) return `サーバーが PMX ZIP 登録に対応していません（現在のバージョン：${v.data && v.data.version}）。`;
     return null;
   }
-  if (r.route === 'fbx') {
-    /** @type {any} */
-    let mod;
-    try {
-      const spec = 'three/addons/loaders/FBXLoader.js';
-      mod = await import(/* @vite-ignore */ spec);
-    } catch { return 'FBX の確認に必要な 3D ライブラリを読み込めません。'; }
-    try {
-      const buf = await r.file.arrayBuffer();
-      const obj = new mod.FBXLoader().parse(buf, '');
-      if (r.kind === 'motions' && !(obj && obj.animations && obj.animations.length)) return `${r.name} にアニメーションがありません`;
-    } catch (e) { return `FBX として読み込めません：${e instanceof Error ? e.message : String(e)}`; }
-  }
+  if (r.route === 'fbx') return fbxPrecheck(r.file, r.name, r.kind);
   return null;
 }
 

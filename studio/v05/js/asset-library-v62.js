@@ -18,7 +18,12 @@
     fx: ['glb', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif'],
     audio: ['wav', 'mp3'], video: ['mp4', 'webm', 'ogv'],
     image: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'bmp'],
+    // Registered through model-motion-import-v188.js with the same routes as /workspace/08.
+    vrm: ['vrm'], fbxModelA: ['fbx'], fbxModelB: ['fbx'], fbxMotion: ['fbx'], glbMotion: ['glb'],
   };
+  const directKinds = new Set(['vrm', 'fbxModelA', 'fbxModelB', 'fbxMotion', 'glbMotion']);
+  const modelImport = () => window.BAIStudioV05ModelImport || null;
+  const supports3d = (item) => Boolean(modelImport()?.isModel(item) || modelImport()?.isMotion(item));
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
   const bytes = (value) => Number.isFinite(value) ? `${(value / 1024 / 1024).toFixed(2)} MiB` : '不明';
@@ -31,6 +36,7 @@
   let loading = false;
   let queuedRefresh = null;
   let importOpen = false;
+  let loadFailed = false;
 
   function fileUrl(item) {
     if (!item.available) return null;
@@ -54,6 +60,7 @@
       return `<video controls preload="metadata" src="${esc(url)}" style="max-width:100%;max-height:260px"></video>`;
     }
     if (thumb) return `<img loading="lazy" src="${esc(thumb)}" alt="${esc(item.name)}の保存済み見本" style="max-width:100%;max-height:${compact ? 110 : 260}px;object-fit:contain">`;
+    if (supports3d(item)) return `<div class="baiWarning" data-v188-thumb="${esc(item.id)}" data-compact="${compact ? 1 : 0}">${esc(item.format)}：見本を作成中…</div>`;
     return `<div class="baiWarning">${esc(item.format || item.category)}：保存済み見本なし</div>`;
   }
 
@@ -75,9 +82,34 @@
     $('baiAssetCount').textContent = `${shown.length}件表示 / 登録${items.length}件`;
     $('baiAssetCatSelect').value = category;
     $('baiCats').querySelectorAll('[data-cat]').forEach((button) => button.classList.toggle('on', button.dataset.cat === category));
+    watchThumbnails(grid);
+  }
+
+  // 3D samples are made one at a time, only for cards that come into view (as on /workspace/08).
+  const thumbObserver = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    for (const entry of entries) if (entry.isIntersecting) { thumbObserver.unobserve(entry.target); fillThumbnail(entry.target); }
+  }) : null;
+  function watchThumbnails(root) {
+    root.querySelectorAll('[data-v188-thumb]').forEach((node) => (thumbObserver ? thumbObserver.observe(node) : fillThumbnail(node)));
+  }
+  function fillThumbnail(node) {
+    const item = items.find((candidate) => candidate.id === node.dataset.v188Thumb);
+    if (!item || !modelImport()) return;
+    void modelImport().thumbnailFor(item).then((url) => {
+      if (!node.isConnected) return;
+      if (!url) { node.textContent = `${item.format}：見本を作れませんでした`; return; }
+      if (url.startsWith('/api/')) item.thumbnailUrl = url;
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = `${item.name}の3D見本`;
+      img.dataset.v188Sample = modelImport().isMotion(item) ? 'motion' : 'model';
+      img.style.cssText = `max-width:100%;max-height:${node.dataset.compact === '1' ? 110 : 260}px;object-fit:contain`;
+      node.replaceWith(img);
+    });
   }
 
   function showDetail(item) {
+    modelImport()?.disposeDetail();
     importOpen = false;
     selectedId = item.id;
     renderList();
@@ -92,9 +124,11 @@
       <dt>登録元</dt><dd>${esc(item.source || '不明')}</dd>
       <dt>表示名の出典</dt><dd>${titleSource}</dd>
       <dt>利用状態</dt><dd>${item.available ? '登録済み・利用可能' : '元ファイルが見つかりません'}</dd></dl>
-      ${is3d ? '<p class="baiTiny">3D回転表示と実動作はこの詳細欄へ未接続です。</p>' : ''}
+      ${supports3d(item) ? '<div id="baiDetail3d"></div>' : is3d ? '<p class="baiTiny">3D回転表示と実動作はこの詳細欄へ未接続です。</p>' : ''}
       ${item.available ? '<button type="button" id="baiPlaceSelected">この素材をタイムラインで選ぶ</button>' : ''}
       <p class="baiTiny">原本は変更しません。配置後の実再生は素材形式ごとに確認が必要です。</p>`;
+    if (supports3d(item)) modelImport().mountDetail($('baiDetail3d'), item, items);
+    detail.querySelectorAll('[data-v188-thumb]').forEach(fillThumbnail); // the selected item, not only when scrolled into view
     $('baiPlaceSelected')?.addEventListener('click', () => {
       window.baiGo?.('edit');
       window.dispatchEvent(new CustomEvent('bai:v05-asset-selected', { detail: { id: item.id } }));
@@ -121,6 +155,7 @@
       const [full, inventory] = await Promise.all([fullResponse.json(), inventoryResponse.json()]);
       if (!Array.isArray(full.items) || !Array.isArray(inventory.items)) throw new Error('素材索引の形式が不正です');
       const categories = new Map(inventory.items.map((item) => [item.id, item.category]));
+      loadFailed = false;
       items = full.items.filter((item) => item && typeof item.id === 'string').map((item) => ({
         ...item, category: categories.get(item.id) || 'other',
       }));
@@ -133,6 +168,7 @@
       else if (selectedId) { selectedId = null; detail.innerHTML = '<h2>登録素材の詳細</h2><p>一覧から素材を選んでください。</p>'; }
     } catch (error) {
       items = [];
+      loadFailed = true;
       selectedId = null;
       grid.innerHTML = `<p role="alert">素材一覧を読み込めません。原本は保持されています。${esc(error.message)}</p>`;
       $('baiAssetCount').textContent = '取得失敗';
@@ -147,18 +183,38 @@
     }
   }
 
+  // Overwrites and FBX model replacements are sent only after the same confirmation as /workspace/08.
+  function showConfirms(confirms) {
+    const box = $('baiUploadConfirm');
+    if (!box) return;
+    box.innerHTML = confirms.map((row, i) => `<div class="baiWarning" role="alert"><p>${esc(row.message)}</p>
+      <button type="button" data-v188-ack="${i}">内容を確認して登録：${esc(row.file.name)}</button></div>`).join('');
+    box.querySelectorAll('[data-v188-ack]').forEach((ack) => ack.addEventListener('click', async () => {
+      const row = confirms[Number(ack.dataset.v188Ack)];
+      ack.disabled = true;
+      const result = await modelImport().register(row.file, row.kind, { ack: row.message });
+      if (result.ok) { await refresh(result.id, true); return; }
+      ack.closest('.baiWarning').querySelector('p').textContent = result.error;
+      ack.disabled = false;
+    }));
+  }
+
   function showImport() {
+    modelImport()?.disposeDetail();
     importOpen = true;
     detail.innerHTML = `<h2>素材を追加</h2>
       <label>種類 <select id="baiUploadKind">
         <option value="stage">GLBステージ</option><option value="prop">GLB小物</option>
         <option value="material">材質画像</option><option value="fx">エフェクト素材</option>
         <option value="audio">音声・楽曲</option><option value="video">動画</option><option value="image">画像</option>
+        <optgroup label="3Dモデル・動作"><option value="vrm">VRMモデル</option><option value="fbxModelA">FBXモデルA（置き換え）</option>
+        <option value="fbxModelB">FBXモデルB（置き換え）</option><option value="fbxMotion">FBX動作</option><option value="glbMotion">GLB動作</option></optgroup>
       </select></label>
       <label>ファイル <input id="baiUploadFiles" type="file" multiple></label>
       <button type="button" id="baiUploadSubmit">選んだファイルを登録</button>
       <p id="baiUploadStatus" role="status">種類とファイルを選んでください。GLBステージは最大1 GiB、その他は最大400 MiBです。</p>
-      <p class="baiTiny">PMX・VRM・FBX・VMD・GLB動作の新規登録は<a href="/workspace/08" target="_blank" rel="noopener">現行の素材取込画面</a>で行えます。v0.5からの直接登録は未接続です。</p>`;
+      <div id="baiUploadConfirm"></div>
+      <p class="baiTiny">PMX ZIP・VMDの新規登録は<a href="/workspace/08" target="_blank" rel="noopener">②の素材管理</a>で行えます。FBXモデルA／Bは、同じ枠の登録済みFBXと置き換わります。</p>`;
     const kind = $('baiUploadKind');
     const files = $('baiUploadFiles');
     const button = $('baiUploadSubmit');
@@ -172,6 +228,7 @@
       let successes = 0;
       let latest = null;
       const errors = [];
+      const confirms = [];
       for (let i = 0; i < chosen.length; i++) {
         const file = chosen[i];
         const extension = file.name.split('.').pop()?.toLowerCase();
@@ -181,6 +238,14 @@
           continue;
         }
         status.textContent = `登録中 ${i + 1}/${chosen.length}: ${file.name}`;
+        if (directKinds.has(kind.value)) {
+          const direct = modelImport();
+          const result = direct ? await direct.register(file, kind.value) : { ok: false, error: '3D登録の部品を読み込めません。再読込してください' };
+          if (result.ok) { successes++; latest = result.id; }
+          else if (result.conflict) confirms.push({ file, kind: kind.value, message: result.conflict });
+          else errors.push(`${file.name}: ${result.error}`);
+          continue;
+        }
         try {
           const url = `/api/library-assets/upload?kind=${encoded(kind.value)}&name=${encoded(file.name)}`;
           const response = await fetch(url, { method: 'POST', body: file });
@@ -192,9 +257,10 @@
           errors.push(`${file.name}: ${error.message}`);
         }
       }
-      const result = `登録 ${successes}/${chosen.length}件。${errors.join(' / ')}`;
+      const result = `登録 ${successes}/${chosen.length}件。${errors.join(' / ')}${confirms.length ? ` 確認待ち ${confirms.length}件` : ''}`;
       status.textContent = result;
       button.disabled = false;
+      showConfirms(confirms);
       if (successes) {
         await refresh(latest, true);
         const feedback = document.createElement('p');
@@ -238,6 +304,17 @@
     if (event.key !== 'bai.studio.assets.changed') return;
     returningFromImport = false;
     void refresh();
+  });
+  // The 3D import module loads after this classic script; redraw once it is ready.
+  window.addEventListener('bai:v05-model-import-ready', () => {
+    if (loadFailed) return; // keep the index-failure message visible
+    const selected = !importOpen && items.find((item) => item.id === selectedId);
+    if (selected) showDetail(selected); else renderList();
+  });
+  // Release the detail WebGL view when another page or workspace is opened.
+  document.addEventListener('click', (event) => {
+    const target = event.target.closest?.('[data-go],[data-page],[data-workspace]');
+    if (target && !target.closest('#bai-library') && target.dataset.go !== 'library' && target.dataset.page !== 'library') modelImport()?.disposeDetail();
   });
   window.BAIStudioV05Library = { refresh };
   refresh();

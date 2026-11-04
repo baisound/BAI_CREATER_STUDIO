@@ -1,22 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T10:33:18+09:00",
+  "updated_at": "2026-11-04T10:58:16+09:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-next",
-  "head_at_update": "4d9fb4c",
+  "head_at_update": "a37ed31",
   "current": {
     "task": "DATA-016：③の素材管理からVRM・FBX・GLB動作を直接登録し、3D見本・回転表示・動作再生を③で行う",
-    "status": "in_progress",
+    "status": "done",
     "step": "設計メモと共通部品の切り出し",
     "design_doc": "docs/v05/DIRECT_MODEL_MOTION_IMPORT_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "WP-L3 適用・打ち消し・取消(collect/apply/undo_journal/revert, clear_fps)",
-    "以後 L4→L7a→L7b→L5→L6→L9"
+    "所有者の判断待ちの次の指示（ロードマップ次の実施順4以降）"
   ],
   "unverified": [
-    "ストア単体のみで呼び出し元なし。collect/apply/取消/HTTP/MCP/画面/実データは未実装。DATA-008は要検証のまま",
-    "node試験は JS・サーバー未変更のため未実行。pytest 既存失敗1件(test_v05_timeline_drag_static)"
+    "PMX ZIP・VMDの③からの登録、GLBモデル・ステージ・動画の③での見本作成",
+    "隔離サーバーへの接続が時々ERR_CONNECTION_TIMED_OUTになる（原因未特定、修正前から）",
+    "既存の失敗：test_v05_timeline_drag_static・実VMD試験（unknown char code）・arm-ik/full-dance/vmd-constant",
+    "WebMCP・標準MCP・Linux"
   ],
   "blockers": [],
   "owner_questions": [
@@ -30,6 +31,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T10:58:16+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "a37ed31",
+      "text": "③の素材管理からVRM・FBX（モデルA/B・動作）・GLB動作を直接登録し、見本・回転表示・動作再生を③で行えるようにした（DATA-016）。送信部品をimport-send.jsへ切り出し②と共用"
+    },
     {
       "at": "2026-11-04T10:33:18+09:00",
       "by": "claude-code",
@@ -232,13 +240,6 @@
       "event": "start",
       "head": "70ed811",
       "text": "Issue #69: 2026-11-02時点のv0.5最短制作経路ロードマップを再構築: 承認済み順序と機能台帳・実装・試験の差を照合し、次の縦断作業と終了条件を日付付き正本へ整理する"
-    },
-    {
-      "at": "2026-11-02T18:34:24+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "40ee410",
-      "text": "LIP-001: 元VMD・採用口形・手動表情の優先計算を30fps候補へ焼き込み、全作品Fと60fps中間Fの重み差で拒否する比較ゲートを追加。実VMDを含む9試験成功"
     }
   ]
 }
