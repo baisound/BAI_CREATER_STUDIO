@@ -362,6 +362,15 @@
       "commit": "WP-L5 コミット（Git履歴で「WP-L5」を検索）",
       "tests": "pytest tests/test_studio_v05_legacy_import_http.py 15件・tests/test_studio_v05_legacy_import_mcp.py 4件 passed（skipなし。確認→適用→記録の読込→取消、400/404/409/413/422/500 の状態コード・error_code・日本語の文、PROJECT_LOCK の内側で呼ぶこと、500 の state、道具一覧とスキーマ、webmcp.js の本文）、pytest 全体 915 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static）、npm run typecheck 出力なし、npm ci 成功、node-all 474件中 pass 414・fail 11（main でも同じ10件が失敗。残り1件は不安定：main では bundle_snapshot 133、この枝では studio-p2-assets の「import GLB and VRM」が1回だけ404で失敗し、単独の再実行で成功）",
       "unverified": "DATA-008 は要検証のまま。標準MCPの実クライアント・WebMCPの実ブラウザでの呼び出し、実 data/ の manifest での名前解決、画面（WP-L6）は未確認・未実装。取消の事前点検と打ち消しの間に他の編集APIが入る時間差が残る（他のAPIが PROJECT_LOCK を取らないため）"
+    },
+    {
+      "item": "Issue #63/#69 旧保存→v0.5取込 WP-L6（v0.5の画面：作品カードの既存の行にボタン［旧保存を取り込む…］1つ、対話画面 studio/v05/js/legacy-import-ui-v188.js。取込元・「写るもの／写らないもの」の要約・追加の取込チェック・詳細の表・確認と［やめる］・取込済みの［取込を取消］・拒否の文に次のボタン名・内部名を出さない・成功後に場面/タイムライン/FPSへ知らせる。操作説明 docs/v05/LEGACY_IMPORT_GUIDE_JA.md）",
+      "phase_e_wp": "（DATA-008、再構築ロードマップ 次の実施順2）",
+      "planned_in": "LEGACY-IMPORT-WP-L6",
+      "status": "done",
+      "commit": "WP-L6 コミット（Git履歴で「WP-L6」を検索）",
+      "tests": "node tests/studio-v05-legacy-import-ui.test.cjs 9件 passed（隔離サーバーとChromium 1280x720、skipなし。カードのボタンが各カードにちょうど1つ・変更前より1つ多い、取込元と日本時間、要約の先頭2行と順番、詳細の表の行数がAPIのitemsと一致、内部名の正規表現に当たらない、用語のabbr、対話画面が画面内で一覧が1px以内、［やめる］の前後で studio_v05_* の全ファイルのSHA-256が不変で適用の要求も0件、曲とダンスを含めた取込で場面インスタンス2件・クリップ2件・タイムラインの要素数一致・結果の行の形と数値がAPIの確認と一致、再読込後の［取込を取消］、再生位置を3回動かしてからの取消、FPS違い・空でない作品・確認後の保存変更・途中で止まった記録の文の完全一致と主ボタン）、tests/studio-v05-legacy-import-ui-3d.test.cjs 1件 passed（取込後の3D場面の読込モデル数2。three.js ありのため skip されず実行）、pytest 全体 915 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static::test_no_persist_until_release）、npm run typecheck 出力なし、npm run test:node-all 485件中 pass 426・fail 10・skipped 49（失敗10件はすべて main でも失敗する既知：H.264 poster、scene-mp4 2件、v0.5 実ブラウザ試験7件。不安定な1件は今回成功）。実 data/ のハッシュは前後で一致",
+      "unverified": "DATA-008 は要検証のまま。標準MCP・WebMCPの実クライアント、実 data/、実GPUでの3D表示（SwiftShaderのみ）は未確認。MCP・WebMCPから取り込んだときは開いている画面へ知らせない（作品を開き直すと反映）。取消の事前点検と打ち消しの間の時間差は操作説明書に記録。見た目の大きさ・カメラの動き・WP-L9（実データ確認）は未実装"
     }
   ]
 }
