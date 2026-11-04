@@ -3,7 +3,8 @@
 設計: docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md の WP-L1（要件 DATA-008）。
 `plan()` は渡された入力だけから結果を作り、同じ入力には同じ出力を返す（ファイルに触れない）。
 WP-L3 で `collect`・`apply`・`undo_journal`・`revert` を足した（ファイルを読み書きするのはこの4つだけ）。
-曲とダンス（S1〜S6）と旧タイムライン編集（T1〜T4）は WP-L7a・L7b で足す。
+WP-L7a で曲とダンス（S1〜S6）を足した（`plan` の手順と `collect` の読み込み・長さの取得）。
+旧タイムライン編集（T1〜T4）は WP-L7b で足す。
 """
 from __future__ import annotations
 
@@ -24,6 +25,8 @@ import studio_v05_playhead
 import studio_v05_scene_instances
 import studio_v05_scene_model
 import studio_v05_track_layout
+from studio_v05_arrangement import classify
+from studio_v05_motion_plan import compatible
 from project_state_bundle import validate_bundle
 from studio_v05_scene_model import supported_model
 
@@ -34,6 +37,8 @@ ASSET_PREFIXES = ("integrated:", "mmd:", "fbx:", "library:")
 CAMERA_EXTRAS = ("easingPresets", "custom_presets", "sequence", "rig", "focus_tracking", "bone_follow")
 COMBINATION_KNOWN = ("history", "cursor", "title", "selected", "playbackSpeed", "updatedAt")
 DEFAULT_TRANSFORM = {"position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1]}
+MUSIC_DANCE_FPS = 30  # SCR-10 は 30fps 固定（music_dance_project.py:32-33）。秒 = フレーム ÷ 30
+TIMELINE_MAX_SECONDS = 86400  # studio_v05_arrangement.place / edit_clip の上限
 
 # §3.4 理由コードと画面の文（全文）。
 MESSAGES = {
@@ -153,6 +158,8 @@ LABELS = {
     "S1": "ダンスのモデル「{name}」",
     "S2": "曲「{name}」",
     "S3": "ダンス「{name}」",
+    "S0": "曲とダンスの画面の保存",
+    "S6": "曲とダンスの画面の再生位置とFPS",
     "T2": "旧タイムラインの動作「{name}」",
     "scene_store": "3D場面",
     "arrangement_store": "タイムライン",
@@ -242,6 +249,112 @@ def _reject(code, **params):
     return {"code": code, "status": e.status, "message": e.message, "params": params}
 
 
+def _plan_music_dance(v, index, durations, audio_flags, items, scene_steps, clip_steps, assets_out, add, kept):
+    """曲とダンス S1〜S6（§3.2）。時刻は 秒 = フレーム ÷ 30。items・手順リストへ足す（plan の内側から呼ぶ）。"""
+    m3 = next((s for s in scene_steps if s.get("role") == "character"), None)
+
+    def name_of(aid):
+        return _display_name(aid, index)
+
+    def entry_of(aid):
+        e = index.get(aid)
+        return e if isinstance(e, dict) and e.get("available") else None
+
+    # S1 ダンスのモデル。キャラクターと同じ素材ならインスタンスを共有し、手順を作らない
+    target, target_ok = m3, True  # model_id が null なら M3 のインスタンスを対象にする
+    model_id = v["model_id"]
+    if model_id is not None:
+        nid = _normalize_ref(model_id)
+        name = name_of(nid)
+        entry = entry_of(nid)
+        target, target_ok = None, False
+        if m3 is not None and m3["asset_id"] == nid:
+            target, target_ok = m3, True
+            add("S1", "/model_id", "S1", "mapped", [], model_id, name=name)
+        elif entry is None:
+            kept("S1", "/model_id", "S1", "ASSET_MISSING", model_id, name=name)
+        elif not supported_model(entry):
+            kept("S1", "/model_id", "S1", "ASSET_UNSUPPORTED", model_id, name=name)
+        else:
+            step = {"kind": "scene_add", "role": "dance_model", "status": "pending", "asset_id": nid,
+                    "transform": copy.deepcopy(DEFAULT_TRANSFORM), "pre_ids": [], "instance_id": None}
+            scene_steps.append(step)
+            assets_out.append({"asset_id": nid, "legacy_ref": model_id, "sha256": None})
+            add("S1", "/model_id", "S1", "mapped", ["PLACED_AT_ORIGIN"], model_id, name=name)["_step"] = step
+            target, target_ok = step, True
+
+    # S2 曲
+    audio_id = v["audio_id"]
+    if audio_id is not None:
+        name = name_of(audio_id)
+        entry = entry_of(audio_id)
+        legacy = {"audio_id": audio_id, "audio_start_frame": v["audio_start_frame"],
+                  "audio_source_frame": v["audio_source_frame"]}
+        track = classify(entry) if entry is not None else None
+        if entry is None:
+            kept("S2", "/audio_id", "S2", "ASSET_MISSING", legacy, name=name)
+        elif track not in ("music", "audio"):
+            kept("S2", "/audio_id", "S2", "ASSET_UNSUPPORTED", legacy, name=name)
+        elif audio_id not in durations:
+            kept("S2", "/audio_id", "S2", "DURATION_UNKNOWN", legacy, name=name)
+        else:
+            src = round(float(durations[audio_id]), 4)
+            start = round(v["audio_start_frame"] / MUSIC_DANCE_FPS, 4)
+            source_start = round(v["audio_source_frame"] / MUSIC_DANCE_FPS, 4)
+            duration = round(src - source_start, 4)
+            if duration <= 0 or start + duration > TIMELINE_MAX_SECONDS:
+                kept("S2", "/audio_id", "S2", "OUT_OF_RANGE", legacy, name=name)
+            else:
+                place = {"kind": "clip_place", "role": "music", "status": "pending", "asset_id": audio_id,
+                         "track": track, "start": start, "duration": duration, "source_duration": src,
+                         "pre_ids": [], "clip_id": None}
+                if audio_id in audio_flags:
+                    place["source_has_audio"] = bool(audio_flags[audio_id])
+                clip_steps.append(place)
+                if source_start != 0:
+                    clip_steps.append({"kind": "clip_source", "status": "pending", "_clip": place,
+                                       "source_start": source_start})
+                assets_out.append({"asset_id": audio_id, "legacy_ref": audio_id, "sha256": None})
+                add("S2", "/audio_id", "S2", "mapped", [], legacy, name=name)["_step"] = place
+
+    # S3 ダンス（S4 途中開始は置かない）、S5 動かす相手
+    motion_id = v["motion_id"]
+    if motion_id is not None:
+        name = name_of(motion_id)
+        entry = entry_of(motion_id)
+        legacy = {"motion_id": motion_id, "motion_start_frame": v["motion_start_frame"],
+                  "motion_source_frame": v["motion_source_frame"]}
+        if v["motion_source_frame"] != 0:
+            kept("S4", "/motion_source_frame", "S3", "SOURCE_OFFSET_NOT_SUPPORTED", legacy, name=name)
+        elif entry is None:
+            kept("S3", "/motion_id", "S3", "ASSET_MISSING", legacy, name=name)
+        elif classify(entry) != "motion":
+            kept("S3", "/motion_id", "S3", "ASSET_UNSUPPORTED", legacy, name=name)
+        elif str(entry.get("format") or "").upper() != "VMD" or motion_id not in durations:
+            kept("S3", "/motion_id", "S3", "DURATION_UNKNOWN", legacy, name=name)
+        else:
+            start = round(v["motion_start_frame"] / MUSIC_DANCE_FPS, 4)
+            duration = round(float(durations[motion_id]), 4)
+            if duration <= 0 or start + duration > TIMELINE_MAX_SECONDS:
+                kept("S3", "/motion_id", "S3", "OUT_OF_RANGE", legacy, name=name)
+            else:
+                place = {"kind": "clip_place", "role": "dance", "status": "pending", "asset_id": motion_id,
+                         "track": "motion", "start": start, "duration": duration, "pre_ids": [], "clip_id": None}
+                clip_steps.append(place)
+                codes = ["MOTION_TARGET_UNSET"]
+                if target_ok and target is not None:
+                    model = index.get(target["asset_id"]) or {}
+                    if compatible(model.get("format"), entry.get("format")):
+                        clip_steps.append({"kind": "clip_assign", "status": "pending", "_clip": place,
+                                           "_inst": target})
+                        codes = []
+                assets_out.append({"asset_id": motion_id, "legacy_ref": motion_id, "sha256": None})
+                add("S3", "/motion_id", "S3", "mapped", codes, legacy, name=name)["_step"] = place
+
+    # S6 SCR-10 の再生位置と fps は保管（再生位置は M2 を使う）
+    kept("S6", "/head_frame", "S6", "NO_V05_FIELD", {"head_frame": v["head_frame"], "fps": v["fps"]})
+
+
 def plan(inputs, *, include=(), fps_policy="keep_if_same"):
     """旧保存をv0.5へ写す計画を作る（何も書かない）。形は設計書 §5.1。"""
     if fps_policy not in FPS_POLICIES:
@@ -256,6 +369,8 @@ def plan(inputs, *, include=(), fps_policy="keep_if_same"):
     target = inputs["target"]
     index = {a["id"]: a for a in inputs.get("assets", []) if isinstance(a, dict) and "id" in a}
     live = inputs.get("live") or {}
+    durations = inputs.get("durations") or {}
+    audio_flags = inputs.get("audio_flags") or {}
 
     presence = {"/workspace": _presence(bundle, "workspace")}
     if ws is not None:
@@ -384,12 +499,34 @@ def plan(inputs, *, include=(), fps_policy="keep_if_same"):
         if key not in ("schema", "timeline") and key not in COMBINATION_KNOWN:
             kept("M11", "/combination/" + _ptr(key), "M11", "UNKNOWN_FIELD", combo[key], key=key)
 
-    # 手順の順番は「fps → scene_add → playhead」。ここで番号を振る。
-    steps = ([fps_step] if fps_step else []) + scene_steps + play_steps
-    out_steps = []
+    # S1〜S6 曲とダンス（SCR-10）。include に "music_dance" があり、ファイルがあるときだけ（WP-L7a）
+    clip_steps = []
+    md = live.get("music_dance") if "music_dance" in include else None
+    if md is not None:
+        source_info["music_dance_updated"] = md.get("updated_at")
+        if md.get("invalid"):
+            kept("S0", "", "S0", "LIVE_SOURCE_INVALID", md["value"])
+        else:
+            _plan_music_dance(md["value"], index, durations, audio_flags, items, scene_steps, clip_steps,
+                              assets_out, add, kept)
+
+    # 手順の順番は「fps → scene_add → clip_*（曲、ダンス）→ playhead」。ここで番号を振る。
+    steps = ([fps_step] if fps_step else []) + scene_steps + clip_steps + play_steps
     for n, step in enumerate(steps, 1):
-        out_steps.append({"n": n, **step})
         step["_n"] = n
+    out_steps = []
+    for step in steps:
+        row = {"n": step["_n"]}
+        for key, val in step.items():
+            if key == "_n":
+                continue
+            if key == "_clip":
+                row["clip_step"] = val["_n"]
+            elif key == "_inst":
+                row["instance_step"] = val["_n"]
+            else:
+                row[key] = val
+        out_steps.append(row)
     for item in items:
         st = item.pop("_step", None)
         item["step"] = st["_n"] if st else None
@@ -473,12 +610,68 @@ def _read_scene(roots, project_id):
         raise
 
 
+MUSIC_DANCE_FILE = "music_dance_project.json"  # server.py:74 の MUSIC_DANCE_FILE と同じ名前
+LIVE_MAX_BYTES = 64 * 1024  # 旧の別保存（SCR-10）の読み込み・保管の上限（設計 §4）
+
+
+def _read_music_dance(roots):
+    """SCR-10 の保存を読む（§5.1 の3）。ファイルが無ければ None。バイト列は1回だけ読み、SHA-256 と検査を同じバイト列から行う。
+    検査に通らない・読めないときは invalid=True（LIVE_SOURCE_INVALID で保管。value は全文、大きすぎれば None）。"""
+    import music_dance_project
+    path = roots.data / MUSIC_DANCE_FILE
+    try:
+        if not path.exists():
+            return None
+        stat = path.stat()
+        updated = datetime.fromtimestamp(stat.st_mtime, timezone.utc).isoformat()
+        if stat.st_size > LIVE_MAX_BYTES:
+            return {"sha256": _sha256_file(path), "value": None, "invalid": True, "updated_at": updated}
+        raw = path.read_bytes()
+    except OSError:
+        return {"sha256": None, "value": None, "invalid": True, "updated_at": None}
+    digest = hashlib.sha256(raw).hexdigest()
+    try:
+        return {"sha256": digest, "value": music_dance_project.validate(json.loads(raw.decode("utf-8"))),
+                "updated_at": updated}
+    except (ValueError, UnicodeError):
+        return {"sha256": digest, "value": raw.decode("utf-8", errors="replace"), "invalid": True,
+                "updated_at": updated}
+
+
+def _music_dance_media(data_root, value, assets, asset_path):
+    """S2 の曲の長さ（media_info）と S3 の VMD の長さ（vmd_last_frame）を得る（§5.1 の4）。得られなければ入れない。
+    durations は秒（VMD は (最終フレーム+1)/30）。audio_flags は曲の音声の有無（place の source_has_audio 用）。"""
+    index = {a["id"]: a for a in assets if isinstance(a, dict) and isinstance(a.get("id"), str)}
+    durations, flags = {}, {}
+    aid = value["audio_id"]
+    entry = index.get(aid) if aid else None
+    if entry and entry.get("available") and classify(entry) in ("music", "audio"):
+        try:
+            import studio_v05_media_render
+            info = studio_v05_media_render.media_info(Path(data_root), aid, assets)
+            durations[aid] = info["duration_seconds"]
+            flags[aid] = bool(info.get("has_audio"))
+        except Exception:  # noqa: BLE001 - 長さを得られない（ffprobe なし・原本なしなど）は DURATION_UNKNOWN
+            pass
+    mid = value["motion_id"]
+    entry = index.get(mid) if mid else None
+    if (entry and entry.get("available") and value["motion_source_frame"] == 0 and classify(entry) == "motion"
+            and str(entry.get("format") or "").upper() == "VMD"):
+        try:
+            path = asset_path(mid)
+            raw = Path(path).read_bytes()
+            durations[mid] = (vmd_last_frame(raw) + 1) / MUSIC_DANCE_FPS
+        except Exception:  # noqa: BLE001
+            pass
+    return durations, flags
+
+
 def collect(data_root, project_id, include, assets, manifest, asset_path):
     """plan() に渡す inputs を作る（読むだけ。§5.1）。
 
-    WP-L3 の範囲: スナップショット（バイト列を1回だけ読み、同じバイト列からSHA-256とJSONを得る）と
-    対象作品の現在の状態、取込記録の状態。曲とダンス・旧タイムライン編集の読み込みと長さの取得は
-    WP-L7a・L7b で足すため、いまは live を常に None、durations を空で返す。
+    スナップショット（バイト列を1回だけ読み、同じバイト列からSHA-256とJSONを得る）と対象作品の現在の状態、
+    取込記録の状態。`include` に "music_dance" があるときだけ SCR-10 の保存と長さを読む（WP-L7a）。
+    旧タイムライン編集は WP-L7b で足すため、いまは live の timeline_editor を常に None で返す。
     """
     roots = _Roots(data_root)
     _project_row(roots, project_id)
@@ -505,6 +698,10 @@ def collect(data_root, project_id, include, assets, manifest, asset_path):
     model = studio_v05_scene_model.read(roots.legacy, roots.catalog, project_id)
     arr = studio_v05_arrangement.read(roots.arr, roots.catalog, project_id)
     record = _rec().read_record(roots.data, project_id)
+    music_dance = _read_music_dance(roots) if "music_dance" in include else None
+    durations, audio_flags = {}, {}
+    if music_dance is not None and not music_dance.get("invalid"):
+        durations, audio_flags = _music_dance_media(data_root, music_dance["value"], assets, asset_path)
     return {
         "project_id": project_id,
         "snapshot": {"saved_at": obj["saved_at"], "sha256": hashlib.sha256(raw).hexdigest(), "bundle": bundle},
@@ -516,10 +713,11 @@ def collect(data_root, project_id, include, assets, manifest, asset_path):
             "arrangement": {"revision": arr["revision"], "clips": arr["clips"]},
             "record_state": record["state"] if record else None,
         },
-        "live": {"music_dance": None, "timeline_editor": None},
+        "live": {"music_dance": music_dance, "timeline_editor": None},
         "assets": assets,
         "manifest": manifest,
-        "durations": {},
+        "durations": durations,
+        "audio_flags": audio_flags,
     }
 
 
@@ -568,6 +766,9 @@ def _by_n(record, n):
 def _run_step(roots, record, step, assets, expected_fps):
     pid = record["project_id"]
     kind = step["kind"]
+    if kind in ("clip_source", "clip_assign", "playhead"):
+        step["started"] = True  # 他の手順と同じく、始める直前に印を保存する（打ち消しは何もしない手順）
+        _save(roots, record)
     if kind == "fps":
         with studio_project_catalog.LOCK:
             if _current_fps(roots, pid) != expected_fps:
@@ -698,7 +899,9 @@ def apply(data_root, request, assets, manifest, asset_path):
             "source": {
                 "snapshot": {"saved_at": snap["saved_at"], "sha256": snap["sha256"]},
                 "bundle": copy.deepcopy(snap["bundle"]), "presence": result["presence"],
-                "live": {"music_dance": None, "timeline_editor": None},
+                "live": {name: ({"sha256": inputs["live"][name]["sha256"], "value": inputs["live"][name]["value"]}
+                                if name in include and inputs["live"].get(name) else None)
+                         for name in INCLUDES},
                 "include": list(include), "fps_policy": fps_policy,
             },
             "target_before": {"fps": cur["fps"], "scene_revision": cur["scene_revision"],

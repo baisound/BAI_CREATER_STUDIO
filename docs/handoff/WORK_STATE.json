@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T01:37:19+00:00",
+  "updated_at": "2026-11-04T01:44:46+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "3aa7216",
+  "head_at_update": "549cb41",
   "current": {
     "task": "WP-L7a 曲とダンス(SCR-10)の配置と開始時刻の取込",
-    "status": "in_progress",
+    "status": "done",
     "step": "studio_v05_legacy_import.py の plan/apply に S 手順と clip_* を足す",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "WP-L7a 曲とダンス(SCR-10)を写す",
-    "以後 L7b→L5→L6→L9"
+    "WP-L7b 旧タイムライン編集を写す",
+    "以後 L5→L6→L9"
   ],
   "unverified": [
-    "サーバー経由・HTTP/MCP・画面・実データは未接続。DATA-008は要検証のまま",
+    "サーバー経由・HTTP/MCP・画面・実データ・実ffprobeでの曲の長さは未接続・未確認。DATA-008は要検証のまま",
     "pytest既存失敗1件(test_v05_timeline_drag_static)。JS・サーバー未変更のためnode-all未実行"
   ],
   "blockers": [],
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T01:44:46+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "549cb41",
+      "text": "WP-L7a 曲とダンス(SCR-10)の取込を実装（plan S1〜S6・collect・clip手順、試験58件）"
+    },
     {
       "at": "2026-11-04T01:37:19+00:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "done",
       "head": "70134ca",
       "text": "v0.5から旧SCR-08のモデル・動作登録へ誘導し、連続登録後の一覧更新を修正。合成6形式の隔離Chrome登録・再読込5件を確認し旧作品復元の保存契約差を記録"
-    },
-    {
-      "at": "2026-11-02T19:52:44+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "02968bd",
-      "text": "Issues #37/#50/#69: v0.5形式別素材入口と旧作品復元: PMX/VRM/FBX/GLB・各動作/音声/画像/動画の入口と見本・再読込を隔離検証し、旧作品IDの保存復元を追跡して欠落だけ修正する"
     }
   ]
 }
