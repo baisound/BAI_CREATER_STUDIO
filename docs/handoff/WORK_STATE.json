@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T01:14:48+00:00",
+  "updated_at": "2026-11-04T10:33:18+09:00",
   "updated_by": "claude-code",
-  "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "1643329",
+  "branch": "claude/v05-next",
+  "head_at_update": "4d9fb4c",
   "current": {
-    "task": "WP-L2 取込記録のストア",
-    "status": "done",
-    "step": "studio_v05_legacy_import_record.py と試験",
-    "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
+    "task": "DATA-016：③の素材管理からVRM・FBX・GLB動作を直接登録し、3D見本・回転表示・動作再生を③で行う",
+    "status": "in_progress",
+    "step": "設計メモと共通部品の切り出し",
+    "design_doc": "docs/v05/DIRECT_MODEL_MOTION_IMPORT_DESIGN_20261104_JA.md"
   },
   "next_steps": [
     "WP-L3 適用・打ち消し・取消(collect/apply/undo_journal/revert, clear_fps)",
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T10:33:18+09:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "4d9fb4c",
+      "text": "DATA-016：③の素材管理からVRM・FBX・GLB動作を直接登録し、3D見本・回転表示・動作再生を③で行う: 設計メモと共通部品の切り出し"
+    },
     {
       "at": "2026-11-04T01:14:48+00:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "done",
       "head": "40ee410",
       "text": "LIP-001: 元VMD・採用口形・手動表情の優先計算を30fps候補へ焼き込み、全作品Fと60fps中間Fの重み差で拒否する比較ゲートを追加。実VMDを含む9試験成功"
-    },
-    {
-      "at": "2026-10-25T03:05:51+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "8745db4",
-      "text": "Issue #187: 採用口形・元VMD・手動表情の時間合成候補を比較する: 既存3D表示の優先規則とVMD補間を照合し、30fps別名候補の安全な比較ゲートを実装する"
     }
   ]
 }
