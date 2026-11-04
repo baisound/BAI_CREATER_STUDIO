@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T02:21:01+00:00",
+  "updated_at": "2026-11-04T02:23:00+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "1652bf1",
+  "head_at_update": "81f4c07",
   "current": {
-    "task": "WP-L5 旧保存取込のHTTPとMCP",
-    "status": "done",
-    "step": "server.py に4 API、mcp_server.py・webmcp.js に4道具、試験2本を足す",
+    "task": "WP-L6 v0.5の画面（旧保存取込の作品カードのボタンと確認・取消の対話画面）",
+    "status": "in_progress",
+    "step": "workspaces-v05.js にボタン1つ、legacy-import-ui-v188.js、index.html、操作説明書、隔離Chrome試験を足す",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T02:23:00+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "81f4c07",
+      "text": "WP-L6 v0.5の画面（旧保存取込の作品カードのボタンと確認・取消の対話画面）: workspaces-v05.js にボタン1つ、legacy-import-ui-v188.js、index.html、操作説明書、隔離Chrome試験を足す"
+    },
     {
       "at": "2026-11-04T02:21:01+00:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "done",
       "head": "6d32ddd",
       "text": "P2-WP-06d/07を独立レビューしverified。§7読み替え表を修正、SCR-02のクリップ保持とSCR-23の失敗表示を修正、Nodeゲートのポート衝突とserver.pyのretarget比較回帰を修正"
-    },
-    {
-      "at": "2026-11-03T21:46:16+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "6d32ddd",
-      "text": "P2-WP-06d/07: 独立レビューとNode一括ゲート確認: §7読み替え表・書き出しのレビュー修正、Linuxでtest:node-all/test:p2/pytest/tscを実行"
     }
   ]
 }
