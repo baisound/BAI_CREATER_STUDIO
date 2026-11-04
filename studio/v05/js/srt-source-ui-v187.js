@@ -66,6 +66,14 @@ if (picker && project) {
             <button id="v199-redo" type="button" disabled>採用をやり直す</button>
           </div>
           <p id="v199-adoption-status" role="status">3Dモデルの配置と採用状態を読み込みます。</p>
+          <div id="v240-composite" class="v190-editor">
+            <strong>元の動作VMDと合成した別名VMD候補</strong>
+            <p>選んだモデルに割り当てた動作VMD（開始0秒のクリップ）へ、採用中の口形と手動表情キーを重ねた別名ファイルを作ります。元VMD・作品の配置は変更しません。プレビューと同じ値を30fpsのVMDで再現できない時刻があれば作りません。</p>
+            <div class="v187-actions"><button id="v240-composite-create" type="button" disabled>合成候補を作る</button></div>
+            <p id="v240-composite-status" role="status">対象モデルを選んでください。</p>
+            <ul id="v240-composite-issues" aria-label="合成できない理由"></ul>
+            <a id="v240-composite-download" hidden>合成VMD候補を取得</a>
+          </div>
         </div>
       </details>
       <p>候補は音声に合わせた境界ではありません。SRT本文と原時刻は変更しません。</p>
@@ -84,7 +92,7 @@ if (picker && project) {
   let draftBase = null;
   let exportSequence = 0, exportBusy = false, checkedExport = null;
   let exportIssues = [], exportIssuePage = 0;
-  let latestCandidate = null, adoptionBusy = false;
+  let latestCandidate = null, adoptionBusy = false, compositeBusy = false;
   const currentSource = () => data?.sources?.find(row => row.id === selectedId);
   const currentReading = () => readings?.utterances?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
   const currentDraft = () => drafts?.drafts?.find(row => row.srtSourceId === selectedId && row.srtIndex === selectedCueIndex);
@@ -135,6 +143,7 @@ if (picker && project) {
     $('v199-remove').disabled = adoptionBusy || !track || Boolean(instance?.locked);
     $('v199-undo').disabled = adoptionBusy || !(adoptions?.undoCount > 0);
     $('v199-redo').disabled = adoptionBusy || !(adoptions?.redoCount > 0);
+    $('v240-composite-create').disabled = adoptionBusy || compositeBusy || !instance || !adoptions;
     if (!scene || !adoptions) $('v199-adoption-status').textContent = '3Dモデルと採用状態を読み込んでください。';
     else if (track) $('v199-adoption-status').textContent = track.status === 'ready'
       ? `採用中: ${track.candidateId}。保存済みの口形を元動作に重ねます。自然な口形かどうかは別途確認が必要です。`
@@ -429,6 +438,49 @@ if (picker && project) {
         $('v199-adoption-status').textContent = `採用状態を変更できません: ${failure.message}`;
     }
   }
+  // LIP-001 #187: scene-bound composite (source VMD + adopted lip + manual face keys).
+  async function createComposite() {
+    const id = project.value, instanceId = $('v199-adoption-instance').value;
+    if (!id || !instanceId || compositeBusy) return;
+    const status = $('v240-composite-status'), issues = $('v240-composite-issues');
+    const link = $('v240-composite-download');
+    compositeBusy = true; redrawAdoptions();
+    link.hidden = true; link.removeAttribute('href'); issues.replaceChildren();
+    status.textContent = '最新の配置・表情キー・採用状態を確認して合成しています…';
+    try {
+      const [plan, freshScene, freshAdoptions] = await Promise.all([
+        request('/api/studio/v05/scene/multi-motion-plan?id=' + encodeURIComponent(id)),
+        request('/api/studio/v05/scene/instances?id=' + encodeURIComponent(id)),
+        request('/api/studio/v05/lip/adoptions?project_id=' + encodeURIComponent(id))]);
+      if (project.value !== id) return;
+      const rows = (plan.rows || []).filter(row => row.status === 'ready'
+        && row.target_scene_instance_id === instanceId && row.motion_format === 'VMD');
+      if (rows.length !== 1) {
+        status.textContent = rows.length ? 'このモデルに動作VMDクリップが複数あります。1本にしてから作ってください。'
+          : 'このモデルに割り当てた使用可能な動作VMDクリップがありません。';
+        return;
+      }
+      const result = await request('/api/studio/v05/lip/composite-candidate', {method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({project_id: id, instance_id: instanceId, clip_id: rows[0].clip_id,
+          adoption_revision: freshAdoptions.revision, scene_revision: freshScene.revision,
+          arrangement_revision: plan.arrangement_revision, dry_run: false})});
+      if (project.value !== id) return;
+      link.href = result.downloadUrl; link.download = result.fileName; link.hidden = false;
+      status.textContent = `${result.fileName} を作りました。全${result.readback.checkedMorphKeys}モーフキーを読み直して照合済み（比較${result.comparison.checkedValues}値）。実PMXでの見た目と最終MP4は未確認です。`;
+    } catch (error) {
+      if (project.value !== id) return;
+      status.textContent = `合成候補を作れません: ${error.message}`;
+      for (const issue of error.issues || []) {
+        const item = document.createElement('li');
+        item.textContent = issue.message + (issue.morphName ? `（${issue.morphName}` + (Number.isFinite(issue.seconds) ? ` ${issue.seconds.toFixed(3)}秒` : '') + '）' : '');
+        issues.append(item);
+      }
+    } finally {
+      compositeBusy = false; redrawAdoptions();
+    }
+  }
+  $('v240-composite-create').addEventListener('click', () => void createComposite());
   $('v199-adopt').addEventListener('click', () => void changeAdoption('adopt'));
   $('v199-remove').addEventListener('click', () => void changeAdoption('remove'));
   $('v199-undo').addEventListener('click', () => void changeAdoption('undo'));

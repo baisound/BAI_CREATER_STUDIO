@@ -1,0 +1,14 @@
+{
+  "combination": {
+    "schema": 1,
+    "timeline": [],
+    "history": [],
+    "cursor": -1
+  },
+  "workspace": {
+    "frame": 30,
+    "asset": "fbx:0123456789abcdef01234567",
+    "clip": null
+  },
+  "camera_overrides": {}
+}

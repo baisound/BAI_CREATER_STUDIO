@@ -1,0 +1,61 @@
+{
+  "combination": {
+    "schema": 1,
+    "timeline": [
+      {
+        "name": "Idle"
+      },
+      {
+        "name": "Run",
+        "color": "red"
+      },
+      {
+        "name": "Step3"
+      },
+      {
+        "name": "Step4"
+      },
+      {
+        "name": "Step5"
+      },
+      {
+        "name": "Step6"
+      },
+      {
+        "name": "Step7"
+      },
+      {
+        "name": "Step8"
+      },
+      {
+        "name": "Step9"
+      },
+      {
+        "name": "Step10"
+      }
+    ],
+    "history": [
+      {
+        "timeline": [
+          {
+            "name": "Idle"
+          }
+        ]
+      },
+      {
+        "timeline": [
+          {
+            "name": "Idle"
+          },
+          {
+            "name": "Run"
+          }
+        ]
+      }
+    ],
+    "cursor": 1,
+    "title": "Dance Song",
+    "legacyNote": "x"
+  },
+  "camera_overrides": {}
+}
