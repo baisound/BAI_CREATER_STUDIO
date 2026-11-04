@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T12:56:58+09:00",
+  "updated_at": "2026-11-04T13:00:14+09:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-next",
-  "head_at_update": "6ffaa1e",
+  "head_at_update": "0fa106a",
   "current": {
     "task": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる",
     "status": "done",
@@ -11,7 +11,7 @@
     "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "§8 手順1：§6.3の試験とbox-glbを書き、変更前のコードで実行してL8A_RESULTを記録"
+    "§8手順2：§4.1（場面インスタンスの印 units）と§6.1 U1〜U8"
   ],
   "unverified": [
     "床の高さ（L3）は外接箱からは分からない。§6.4で floorProbe により測る"
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T13:00:14+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "0fa106a",
+      "text": "WP-L8a §8手順1：§6.3の試験を変更前のコードで実行（BAI_REQUIRE_3D=1、SwiftShader）。L8A_RESULT：S ステージ 旧(-6.5,-0.75,-20)〜(2.5,5.25,-5) ③(-1.25,0,-5.75)〜(3.25,3,1.75) 差14.25／G キャラクター 差1.09375・場面全体 差14.25／F 差3.88／A 差0.875 で不合格。K（スキン付き）と P（最小PMX）は変更前から差0（試験素材が高さ2.0mで中心が原点、最小PMXの最小yが0のため、③の正規化が偶然何もしない。これらは大きさの差を検出できず、スキン・PMXの道の確認として使う。感度は実PMXのケースRで補う）。対照の③の値は計算上の値と一致（ステージ・GLBキャラクター）、旧との差は14.25・1.09375で100ε以上。基準画面の手計算との差は最大6e-8で合格。印・注釈・floorProbe は未実装のため不合格"
+    },
     {
       "at": "2026-11-04T12:56:58+09:00",
       "by": "claude-code",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "acdb339",
       "text": "Issue #63/#69: 旧Studio保存状態をv0.5作品IDへ可逆に対応させる設計: 旧保存とv0.5保存の比較調査"
-    },
-    {
-      "at": "2026-11-04T00:27:07+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "2c2748d",
-      "text": "Issue #187: 合成比較ゲートを作品の元VMDクリップ・採用口形・手動表情キーへ接続し、別名合成VMD候補API（POST /api/studio/v05/lip/composite-candidate、GET .../file）とSRT欄の『合成候補を作る』を追加。全キー読み直し、失効409・不連続/範囲外422、取得時の再照合。設計§4.1追記（5ff689e）、実装 2c2748d"
     }
   ]
 }
