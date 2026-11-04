@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T01:53:47+00:00",
+  "updated_at": "2026-11-04T01:55:20+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "1d1b6fe",
+  "head_at_update": "6c41381",
   "current": {
-    "task": "WP-L7b 旧タイムライン編集(timeline_editor)の開始時刻の取込",
-    "status": "done",
-    "step": "studio_v05_legacy_import.py の plan/collect に T1〜T4 を足す",
+    "task": "WP-L5 旧保存取込のHTTPとMCP",
+    "status": "in_progress",
+    "step": "server.py に4 API、mcp_server.py・webmcp.js に4道具、試験2本を足す",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T01:55:20+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "6c41381",
+      "text": "WP-L5 旧保存取込のHTTPとMCP: server.py に4 API、mcp_server.py・webmcp.js に4道具、試験2本を足す"
+    },
     {
       "at": "2026-11-04T01:53:47+00:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "done",
       "head": "b2166ae",
       "text": "P2設計書§2.8（WP-08 IK・AI）をSonnetが実装できる粒度に詳しくした：旧機能の棚卸し（⑧-1〜3）、O-⑧-1〜9決定、WP-08a/08b/08cへ分割、受け入れ条件・テスト・v0.5重複の扱い・自己批評。§3表とWP-08の所有者確認行を更新。コードは未変更"
-    },
-    {
-      "at": "2026-11-03T20:29:21+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "73a49ef",
-      "text": "P2 WP-08（IK・AI）詳細設計：§2.8 の詳しく化: 旧IK・AI機能の棚卸し→O-⑧決定→WP-08a/b分割→自己批評"
     }
   ]
 }
