@@ -371,6 +371,15 @@
       "commit": "WP-L6 コミット（Git履歴で「WP-L6」を検索）",
       "tests": "node tests/studio-v05-legacy-import-ui.test.cjs 9件 passed（隔離サーバーとChromium 1280x720、skipなし。カードのボタンが各カードにちょうど1つ・変更前より1つ多い、取込元と日本時間、要約の先頭2行と順番、詳細の表の行数がAPIのitemsと一致、内部名の正規表現に当たらない、用語のabbr、対話画面が画面内で一覧が1px以内、［やめる］の前後で studio_v05_* の全ファイルのSHA-256が不変で適用の要求も0件、曲とダンスを含めた取込で場面インスタンス2件・クリップ2件・タイムラインの要素数一致・結果の行の形と数値がAPIの確認と一致、再読込後の［取込を取消］、再生位置を3回動かしてからの取消、FPS違い・空でない作品・確認後の保存変更・途中で止まった記録の文の完全一致と主ボタン）、tests/studio-v05-legacy-import-ui-3d.test.cjs 1件 passed（取込後の3D場面の読込モデル数2。three.js ありのため skip されず実行）、pytest 全体 915 passed・21 skipped（既存）・1 failed（既存の test_v05_timeline_drag_static::test_no_persist_until_release）、npm run typecheck 出力なし、npm run test:node-all 485件中 pass 426・fail 10・skipped 49（失敗10件はすべて main でも失敗する既知：H.264 poster、scene-mp4 2件、v0.5 実ブラウザ試験7件。不安定な1件は今回成功）。実 data/ のハッシュは前後で一致",
       "unverified": "DATA-008 は要検証のまま。標準MCP・WebMCPの実クライアント、実 data/、実GPUでの3D表示（SwiftShaderのみ）は未確認。MCP・WebMCPから取り込んだときは開いている画面へ知らせない（作品を開き直すと反映）。取消の事前点検と打ち消しの間の時間差は操作説明書に記録。見た目の大きさ・カメラの動き・WP-L9（実データ確認）は未実装"
+    },
+    {
+      "item": "Issue #63/#69 旧保存→v0.5取込 WP-L9（実データでの確認：tools/legacy_import_real_check.py が所有者の data を読み取り専用で複製し、隔離サーバーで確認→v0.5の取込ダイアログから適用→R2/R4→再生位置を3回動かして取消→R1 を判定。tools/legacy_import_real_check_ui.cjs が画面と画像を担当）",
+      "phase_e_wp": "（DATA-008、再構築ロードマップ 次の実施順2）",
+      "planned_in": "LEGACY-IMPORT-WP-L9",
+      "status": "done",
+      "commit": "WP-L9 コミット（Git履歴で「WP-L9」を検索）",
+      "tests": "所有者のPCの実GPU（RTX 4070 SUPER/D3D11）で台本を4回実行し R1〜R4 すべて合格（元の160ファイルのhash一致、往復一致、取消、編集後の逆変換）。tests/test_legacy_import_real_check.py 2件、pytest 全体 938 pass・既存失敗1件（test_v05_timeline_drag_static）・skip 0、npm run typecheck 成功、tests/studio-v05-legacy-import-ui.test.cjs と -3d 11/11 passed",
+      "unverified": "DATA-008 は要検証のまま（WP-L8a/L8b が残る）。実データでは S01ステージが2mに縮みキャラクターを内側に隠す（L8a の差）。所有者のSCR-10のダンスはGLB動作のため保管（S3の規則）。取込後のMP4、標準MCP・WebMCPからの取込、Linux は未確認"
     }
   ]
 }

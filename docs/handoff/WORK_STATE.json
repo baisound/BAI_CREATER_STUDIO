@@ -1,23 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T02:42:30+00:00",
+  "updated_at": "2026-11-04T11:59:57+09:00",
   "updated_by": "claude-code",
-  "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "69d0415",
+  "branch": "claude/v05-next",
+  "head_at_update": "4dd08b2",
   "current": {
-    "task": "WP-L6 v0.5の画面（旧保存取込の作品カードのボタンと確認・取消の対話画面）",
+    "task": "WP-L9：旧保存→v0.5取込の実データ確認（1コマンドの台本、実GPU、R1〜R4）",
     "status": "done",
-    "step": "workspaces-v05.js にボタン1つ、legacy-import-ui-v188.js、index.html、操作説明書、隔離Chrome試験を足す",
+    "step": "台本の作成と実データでの実行",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "WP-L9 実データでの確認",
-    "WP-L8a 見た目の大きさをそろえる（次の実施順3のあと）",
-    "WP-L8b カメラの動きを写す（順6のあと）"
+    "所有者の判断待ち：曲とダンスのGLB動作を写すか（S3の設計変更）、WP-L8a（ステージの見た目の大きさ）"
   ],
   "unverified": [
-    "標準MCP実クライアント・WebMCP実ブラウザ・実data/・実GPUでの3D表示は未確認。DATA-008は要検証のまま",
-    "pytest既存失敗1件(test_v05_timeline_drag_static)、node-all fail10(mainでも失敗する既知。不安定1件は今回成功)"
+    "WP-L8a/L8b、GLB動作のダンス、取込後のMP4、標準MCP・WebMCPからの取込、Linux",
+    "既存の失敗：test_v05_timeline_drag_static"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +29,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T11:59:57+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "4dd08b2",
+      "text": "WP-L9：旧保存→v0.5取込の実データ確認。台本 tools/legacy_import_real_check.py（＋画面部分 _ui.cjs）を作り、所有者のPCの実GPUで実行してR1〜R4すべて合格。取込の製品コードに不具合なし。台帳・設計書・証拠文書を同期（DATA-008は要検証のまま）"
+    },
+    {
+      "at": "2026-11-04T11:47:31+09:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "4dd08b2",
+      "text": "WP-L9：旧保存→v0.5取込の実データ確認（1コマンドの台本、実GPU、R1〜R4）: 台本の作成と実データでの実行"
+    },
     {
       "at": "2026-11-04T02:42:30+00:00",
       "by": "claude-code",
@@ -226,20 +238,6 @@
       "event": "done",
       "head": "9beba42",
       "text": "P2-WP-08b: SCR-19 AI管理カード（aiManager）実装・テスト"
-    },
-    {
-      "at": "2026-11-03T23:20:30+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "9beba42",
-      "text": "P2-WP-08b: SCR-19 AI管理カード: aiManager 実装・テスト"
-    },
-    {
-      "at": "2026-11-03T23:18:49+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "268adfc",
-      "text": "P2-WP-08a 手動IKポーズ補助（2D）を main に統合し、配置をレビュー・関連テスト56件合格"
     }
   ]
 }
