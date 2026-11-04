@@ -134,6 +134,8 @@ async function renderAndSave(item) {
     });
     if (!response.ok) return null;
     const body = await response.json();
+    // Let an already-open v0.5 library tab show the new front view.
+    try { localStorage.setItem('bai.studio.assets.changed', `${Date.now()}:${item.id}`); } catch (_) { /* storage may be disabled */ }
     return typeof body.url === 'string' ? body.url : null;
   } finally {
     if (object) disposeObject(object);
