@@ -2,8 +2,10 @@
 
 The caller must supply a single source VMD whose local time begins at project
 time zero. This module does not select scene clips, adopt candidates, or write
-files. It rejects discontinuities that a 30 fps VMD cannot reproduce at the
-project frame rate or at 60 fps VMD midpoints.
+files. Adopted SRT cue boundaries are ramped over one 30 fps VMD frame (see
+_lip_base); any remaining discontinuity (manual face keys, mismatched source)
+that a 30 fps VMD cannot reproduce at the project frame rate or at 60 fps VMD
+midpoints is rejected.
 """
 from __future__ import annotations
 
@@ -54,22 +56,56 @@ def _source_tracks(section):
     return tracks
 
 
-def _adopted(cues, seconds, name):
-    result = None
+GRID_SNAP = 1e-9
+
+
+def _adopted_at_frame(cues, frame, name):
+    """Hard SRT rule at one integer 30 fps VMD frame, or None (source keeps).
+
+    A cue covers project time [startMs, endMs). Membership is compared in
+    integers (frame*1000 against ms*30) so Python and the browser agree.
+    """
     for cue in cues:
-        if not cue['startMs'] / 1000 <= seconds < cue['endMs'] / 1000:
+        if not cue['startMs'] * 30 <= frame * 1000 < cue['endMs'] * 30:
             continue
         rows = cue['_tracks'].get(name)
-        if rows and seconds * 30 >= rows[0][0]:
-            result = max(0., min(1., _curve(rows, seconds * 30)))
-    return result
+        if rows and frame >= rows[0][0]:
+            return max(0., min(1., _curve(rows, frame)))
+        return None
+    return None
+
+
+def _lip_base(source_tracks, cues, name, seconds):
+    """Source VMD with adopted lip shapes, linear on the 30 fps VMD grid.
+
+    Each integer VMD frame takes the hard SRT rule (adopted value inside the
+    cue, source value outside). Between two integer frames the value is the
+    straight line between them, so a cue start/end becomes a one-VMD-frame
+    ramp that a 30 fps VMD reproduces exactly. Inside a cue (or outside all
+    cues) this equals the original curves because their keys are integer
+    frames. LIP-001 owner decision 2026-11-04; design A1 section 4.1.
+    """
+    source = source_tracks.get(name, [])
+    position = seconds * 30
+    nearest = round(position)
+    if abs(position - nearest) < GRID_SNAP:
+        value = _adopted_at_frame(cues, nearest, name)
+        return _curve(source, nearest) if value is None else value
+    frame = math.floor(position)
+    mix = position - frame
+    left = _adopted_at_frame(cues, frame, name)
+    right = _adopted_at_frame(cues, frame + 1, name)
+    if left is None and right is None:
+        return _curve(source, position)
+    if left is None:
+        left = _curve(source, frame)
+    if right is None:
+        right = _curve(source, frame + 1)
+    return max(0., min(1., left + (right - left) * mix))
 
 
 def _desired(source_tracks, cues, manual_tracks, name, seconds):
-    value = _curve(source_tracks.get(name, []), seconds * 30)
-    lip = _adopted(cues, seconds, name)
-    if lip is not None:
-        value = lip
+    value = _lip_base(source_tracks, cues, name, seconds)
     manual = manual_tracks.get(name)
     if manual and seconds >= manual[0][0]:
         value = _curve(manual, seconds)

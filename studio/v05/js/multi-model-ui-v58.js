@@ -1416,13 +1416,45 @@ async function sampleFootContact(instanceId,groundY){
     arrangementRevision:motionPlan.arrangement_revision,fps,startFrame,lastFrame,
     groundY,samples,point:'PMX 左つま先 / 右つま先（足裏の代理点）'};
 }
+function seekSourceMorphs(seconds){
+  // Source motion only: every PMX starts from zero morphs, then the assigned clip.
+  for(const instance of sceneSnapshot?.instances||[]){
+    const target=controller?.getLoaded(instance.id);
+    if(target?.format==='PMX')resetMorphs(target.object);
+  }
+  const result=motionCoordinator?.seek(seconds);
+  if(result?.errors?.length)throw Error('元動作を評価できません: '+result.errors.map(x=>String(x.error?.message||x.error)).join('; '));
+}
+// Shared by the 3D view (seekScene) and the preview/MP4 capture (captureFrame).
+// The caller has already seeked the source motion to `seconds`. Inside a lip
+// boundary ramp the source morph value at the two neighbouring 30 fps VMD frames
+// is needed (LIP-001, design A1 section 4.1): sample them, then seek back.
 function applySavedFace(seconds){
   const missing=[];
+  const samples=new Map();
+  const sourceAt=(instanceId,name,frame)=>{
+    if(!samples.has(frame)){
+      seekSourceMorphs(frame/30);
+      const values=new Map();
+      for(const instance of sceneSnapshot?.instances||[]){
+        const target=controller?.getLoaded(instance.id);
+        if(target?.format==='PMX')values.set(instance.id,morphValues(target.object));
+      }
+      samples.set(frame,values);
+    }
+    return samples.get(frame).get(instanceId)?.get(name)??0;
+  };
+  const planned=[];
   for(const instance of sceneSnapshot?.instances||[]){
     const target=controller?.getLoaded(instance.id);
     if(target?.format!=='PMX')continue;
     const adopted=lipAdoptions?.tracks?.find(row=>row.instanceId===instance.id&&row.status==='ready');
-    for(const [name,value] of evaluateLipCueTracks(adopted?.cueTracks,seconds)){
+    planned.push([instance,target,evaluateLipCueTracks(adopted?.cueTracks,seconds,
+      (name,frame)=>sourceAt(instance.id,name,frame))]);
+  }
+  if(samples.size)seekSourceMorphs(seconds);
+  for(const [instance,target,lip] of planned){
+    for(const [name,value] of lip){
       if(!setMorphValue(target.object,name,value))missing.push(name);
     }
     missing.push(...applyFaceKeys(target.object,sceneSnapshot.face_keys,instance.id,seconds));
