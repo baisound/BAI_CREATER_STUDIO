@@ -637,6 +637,8 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
 - 見た目の判定は、開発側が画像を見て記録する。結果の文書は `docs/v05/LEGACY_IMPORT_REAL_DATA_<日付>_JA.md`。
 - 受け入れ条件：R1〜R3 がすべて合格。合格しなければ、見つかった欠落を Issue #69 に記録し、該当WPへ戻る。
 
+**実施済み（2026-11-04）**：`tools/legacy_import_real_check.py`（台本）と `tools/legacy_import_real_check_ui.cjs`（v0.5の取込ダイアログからの適用と画像）、`tests/test_legacy_import_real_check.py`（2件）。所有者のPC（Windows 11、RTX 4070 SUPER/D3D11）で、所有者の data（`D:\BAI\BAI_CREATER_STUDIO\BAI_Creator_Studio\data`。上の例の `…\data` はこのPCには無い）に対して実行し、R1〜R4 すべて合格（4回）。元の160ファイルのhashは前後で一致した。写したもの12件・保管14件・注意9件。曲（0秒、274.36秒）と旧タイムライン編集のFBX動作7件（0〜18秒に3秒ずつ）がタイムラインに置かれ、3D場面ではステージとPMXの2体、FBX動作7件が読み込まれた。見た目の判定は開発側が画像で行った：S01ステージが2mの箱に縮み、キャラクター（高さ1.73m）がその内側に隠れる（§2.3、WP-L8a）。所有者のSCR-10のダンスはGLB動作のため、S3の規則どおり保管（`DURATION_UNKNOWN`）になった。取込の製品コードに不具合は無かった。証拠は [実データ確認](../v05/LEGACY_IMPORT_REAL_DATA_20261104_JA.md)。未検証：WP-L8a/L8b、GLB動作のダンス、取込後のMP4、標準MCP・WebMCPからの取込、Linux。
+
 ### WP-L8a 見た目の大きさをそろえる（ロードマップ「次の実施順3」のあと）
 
 - 前提：「次の実施順3」で、保存カメラとステージ位置をプレビューとレンダーへ渡す単位の約束が決まっていること。
