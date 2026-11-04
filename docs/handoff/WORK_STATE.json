@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T01:24:38+00:00",
+  "updated_at": "2026-11-04T01:31:03+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "af4b03e",
+  "head_at_update": "933bee4",
   "current": {
     "task": "WP-L3 適用・打ち消し・取消(collect/apply/undo_journal/revert, clear_fps)",
     "status": "done",
@@ -15,7 +15,7 @@
     "以後 L7a→L7b→L5→L6→L9"
   ],
   "unverified": [
-    "サーバー経由(外側のPROJECT_LOCK)・HTTP/MCP・画面・実データは未接続。clip_*手順はplanがまだ作らず手組みの手順で確認のみ。DATA-008は要検証のまま",
+    "サーバー経由(外側のPROJECT_LOCK)・HTTP/MCP・画面・実データは未接続。DATA-008は要検証のまま",
     "pytest既存失敗1件(test_v05_timeline_drag_static)。JS・サーバー未変更のためnode試験は未実行"
   ],
   "blockers": [],
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T01:31:03+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "933bee4",
+      "text": "WP-L3 レビュー反映(started の印ほか)、試験51件"
+    },
     {
       "at": "2026-11-04T01:24:38+00:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "done",
       "head": "1e54578",
       "text": "Issue #69: 2026-11-02版v0.5ロードマップを再構築し、承認済み7段階の現在の証拠・欠落・終了条件と次の同一作品ID縦断試験を整理。台帳151 IDとCSV151行の整合を確認"
-    },
-    {
-      "at": "2026-11-02T18:37:41+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "70ed811",
-      "text": "Issue #69: 2026-11-02時点のv0.5最短制作経路ロードマップを再構築: 承認済み順序と機能台帳・実装・試験の差を照合し、次の縦断作業と終了条件を日付付き正本へ整理する"
     }
   ]
 }

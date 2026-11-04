@@ -836,7 +836,11 @@ def test_undo_never_writes_stores_directly(env, monkeypatch):
     monkeypatch.setattr(R, "_atomic", spy)
     env.revert()
     # 呼ばれたのは、公開関数（mutate remove、clear_fps）と取込記録の保存だけ
-    assert set(w.split("/")[0] for w in writes) <= {"studio_v05_scene_instances", "data", "studio_v05_legacy_imports"}
+    dirs = set(w.split("/")[0] for w in writes)
+    assert dirs <= {"studio_v05_scene_instances", "data", "studio_v05_legacy_imports"}
+    # 0件でも通る部分集合だけにしない: 実際に書かれたことを確かめる
+    assert dirs == {"studio_v05_scene_instances", "data", "studio_v05_legacy_imports"}
+    assert sum(w.startswith("studio_v05_scene_instances/") for w in writes) == 2  # インスタンス2件の削除
     assert ph_file.read_bytes() == ph_bytes  # 再生位置は取消の前後で書かない
 
 
@@ -963,3 +967,102 @@ def test_revert_blocked_by_foreign_motion_clip_and_locked_track(env, clip_plan):
     layout.set_flags(env.dirs["track_layouts"], env.catalog, env.target, lay["revision"], [], [])
     env.revert()
     assert env.arr()["clips"] == []
+
+
+# ---- started の印（始まっていない手順は何も探さず、何も戻さない） ----------------------------
+def test_unstarted_scene_add_does_not_delete_users_instance(env, monkeypatch):
+    real = scene.mutate
+    seen = {"adds": 0}
+
+    def die_on_first_add(*a, **k):
+        if k.get("action") == "add":
+            seen["adds"] += 1
+            if seen["adds"] == 1:
+                raise KeyboardInterrupt  # 1件目の scene_add の途中で強制停止
+        return real(*a, **k)
+    monkeypatch.setattr(scene, "mutate", die_on_first_add)
+    with pytest.raises(KeyboardInterrupt):
+        env.apply()
+    monkeypatch.setattr(scene, "mutate", real)
+    steps = env.record()["steps"]
+    assert steps[1].get("started") is True and not steps[2].get("started")
+    mine = env.add_instance(STAGE_ID)["instances"][0]["id"]  # 利用者が同じ素材のステージを手で足す
+    out = env.revert()
+    assert out["record"]["state"] == "rolled_back"
+    assert [i["id"] for i in env.scene()["instances"]] == [mine]  # 利用者のステージは残る
+    assert [s["status"] for s in env.record()["steps"]] == ["undone"] * 4
+
+
+def test_unstarted_clip_place_does_not_delete_users_clip(env, clip_plan, monkeypatch):
+    real = arrangement.place
+
+    def die(*a, **k):
+        raise KeyboardInterrupt
+    monkeypatch.setattr(arrangement, "place", die)
+    with pytest.raises(KeyboardInterrupt):
+        env.apply()
+    monkeypatch.setattr(arrangement, "place", real)
+    places = [s for s in env.record()["steps"] if s["kind"] == "clip_place"]
+    assert places[0].get("started") is True and not places[1].get("started")
+    mine = arrangement.place(env.dirs["arrangements"], env.catalog, env.target, MOTION_ID, "motion", 2.0, 4.0,
+                             env.arr()["revision"], env.assets)["clip"]["id"]  # 2件目と同じ素材・トラック・開始
+    env.revert()
+    assert [c["id"] for c in env.arr()["clips"]] == [mine]
+
+
+@pytest.mark.parametrize("user_value", [30, 24])
+def test_target_changed_at_fps_step_keeps_users_fps(env, monkeypatch, user_value):
+    """利用者の FPS が旧と同じ 30 でも消さない（fps 手順は始まっていない）。"""
+    real_collect = L.collect
+    req = env.request()
+
+    def collect_then_change(*a, **k):
+        out = real_collect(*a, **k)
+        catalog_mod.set_fps(env.catalog, env.target, user_value)
+        return out
+    monkeypatch.setattr(L, "collect", collect_then_change)
+    with pytest.raises(L.LegacyImportError) as e:
+        env.apply(req)
+    assert code_of(e) == "TARGET_CHANGED" and e.value.state == "rolled_back"
+    assert env.row(env.target)["fps"] == user_value
+    rec = env.record()
+    assert not rec["steps"][0].get("started") and rec["undo"]["warnings"] == []
+    # 取消でも触らない
+    with pytest.raises(L.LegacyImportError):
+        env.revert()  # rolled_back は取り消せる取込がない
+    assert env.row(env.target)["fps"] == user_value
+
+
+def test_final_save_failure_does_not_leave_applied_with_error(env, monkeypatch):
+    real = L._save
+
+    def fail_applied(roots, record):
+        if record["state"] == "applied":
+            raise OSError("disk full")
+        return real(roots, record)
+    monkeypatch.setattr(L, "_save", fail_applied)
+    with pytest.raises(L.LegacyImportError) as e:
+        env.apply()
+    assert code_of(e) == "APPLY_FAILED" and e.value.state == "rolled_back"
+    rec = env.record()
+    assert rec["state"] == "rolled_back" and rec["error"]["type"] == "OSError"
+    assert_clean(env, "rolled_back")
+
+
+def test_fps_kept_warning_when_done_save_failed_and_user_changed(env, monkeypatch):
+    """set_fps の直後に記録の保存だけ失敗し、そのあと利用者が FPS を変えた: 警告が出る（started で判定）。"""
+    real = L._save
+    state = {"fired": False}
+
+    def flaky(roots, record):
+        if not state["fired"] and record["steps"][0].get("started") and record["steps"][0]["status"] == "done":
+            state["fired"] = True
+            catalog_mod.set_fps(env.catalog, env.target, 24)
+            raise OSError("save failed after set_fps")
+        return real(roots, record)
+    monkeypatch.setattr(L, "_save", flaky)
+    with pytest.raises(L.LegacyImportError) as e:
+        env.apply()
+    assert e.value.state == "rolled_back"
+    assert env.row(env.target)["fps"] == 24
+    assert [w["code"] for w in env.record()["undo"]["warnings"]] == ["FPS_KEPT_USER_CHANGE"]

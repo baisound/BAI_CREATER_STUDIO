@@ -571,13 +571,16 @@ def _run_step(roots, record, step, assets, expected_fps):
     if kind == "fps":
         with studio_project_catalog.LOCK:
             if _current_fps(roots, pid) != expected_fps:
-                raise _TargetChanged("fps changed")
+                raise _TargetChanged("fps changed")  # started を付ける前なので、打ち消しは何も触らない
+            step["started"] = True
+            _save(roots, record)
             studio_project_catalog.set_fps(roots.catalog, pid, step["after"])
     elif kind == "scene_add":
         before = studio_v05_scene_instances.read(roots.scene, roots.legacy, roots.catalog, pid)
         pre = [i["id"] for i in before["instances"]]
         step["pre_ids"] = pre
-        _save(roots, record)  # 直前に pre_ids を残す（止まったとき相手を特定するため）
+        step["started"] = True
+        _save(roots, record)  # 直前に pre_ids と started を残す（止まったとき相手を特定するため）
         after = studio_v05_scene_instances.mutate(
             roots.scene, roots.legacy, roots.catalog, pid, action="add", revision=before["revision"],
             assets=assets, asset_id=step["asset_id"], transform=step["transform"])
@@ -589,6 +592,7 @@ def _run_step(roots, record, step, assets, expected_fps):
         before = studio_v05_arrangement.read(roots.arr, roots.catalog, pid)
         pre = [c["id"] for c in before["clips"]]
         step["pre_ids"] = pre
+        step["started"] = True
         _save(roots, record)
         result = studio_v05_arrangement.place(
             roots.arr, roots.catalog, pid, step["asset_id"], step["track"], step["start"], step["duration"],
@@ -730,6 +734,7 @@ def apply(data_root, request, assets, manifest, asset_path):
                 _save(roots, record)
             except Exception as exc:  # noqa: BLE001 - 記録が最終化できなければ打ち消す
                 failure = exc
+                record["state"] = "applying"  # applied のまま error を付けて打ち消さない
         if failure is None:
             event("v05_legacy_import_apply", project_id=pid, state="applied", steps=len(record["steps"]),
                   duration_ms=int((time.monotonic() - started) * 1000))
@@ -824,6 +829,8 @@ def _undo_scene_add(roots, pid, step, assets):
 
 def _undo_fps(roots, record, step):
     pid = record["project_id"]
+    if step["status"] == "pending" and not step.get("started"):
+        return "undone", None  # 始まっていない: 何も変えていない
     with studio_project_catalog.LOCK:
         cur = _current_fps(roots, pid)
         before = step["before"]
@@ -835,7 +842,7 @@ def _undo_fps(roots, record, step):
             else:
                 studio_project_catalog.set_fps(roots.catalog, pid, before["value"])
             return "undone", None
-    if step["status"] != "pending":  # 届いていない手順（pending）の FPS は、もともと利用者の値
+    if step.get("started"):  # 始まっていない手順の FPS は、もともと利用者の値
         record["undo"]["warnings"].append(
             {"code": "FPS_KEPT_USER_CHANGE", "message": MESSAGES["FPS_KEPT_USER_CHANGE"]})
     return "undone", None  # いまの値は利用者の変更。戻さない
@@ -850,6 +857,11 @@ def undo_journal(data_root, record, assets):
         if step["status"] == "undone":
             continue
         kind = step["kind"]
+        if step["status"] == "pending" and not step.get("started"):
+            # 始まる直前の保存（started）が無い手順は、何も書いていない。探すと利用者が足した物を消しかねない
+            step["status"] = "undone"
+            _save(roots, record)
+            continue
         pid = record["project_id"]
         try:
             if kind in ("playhead", "clip_assign", "clip_source"):
