@@ -462,8 +462,8 @@ def render_ja(r):
                   f"- 画像：{', '.join(ui.get('shots', []))}"]
     if r.get("l8a"):
         lines += l8a_lines(r["l8a"])
-    lines += ["", "## 未検証", ""] + [f"- {u}" for u in r["unverified"]] + [
-        "- 見た目の大きさの一致（WP-L8a）。旧画面と v0.5 では、モデルの正規化の仕方が違う",
+    lines += ["", "## 未検証", ""] + [f"- {u}" for u in r["unverified"]] + (
+        [] if r.get("l8a") else ["- 見た目の大きさの一致（WP-L8a）。画面での判定（L1〜L5）を行っていない"]) + [
         "- カメラの動き（WP-L8b）。v0.5 に時刻付きカメラの保存先が無いため保管だけ",
         "- 見た目の判定は、開発側が画像を見て docs/v05 の証拠文書に記録する"]
     return "\n".join(lines) + "\n"

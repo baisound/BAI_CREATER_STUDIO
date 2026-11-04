@@ -1151,7 +1151,8 @@ def _undo_scene_add(roots, pid, step, assets):
     def once():
         scene = studio_v05_scene_instances.read(roots.scene, roots.legacy, roots.catalog, pid)
         kind, inst = _find_target(scene["instances"], step, "instance_id",
-                                  lambda i: i["asset_id"] == step["asset_id"])
+                                  lambda i: i["asset_id"] == step["asset_id"]
+                                  and i.get("units") == step.get("units"))
         if kind == "none":
             return "undone", None
         if kind == "many":
