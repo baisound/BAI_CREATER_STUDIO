@@ -1,20 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T00:01:42+00:00",
+  "updated_at": "2026-11-04T00:27:07+00:00",
   "updated_by": "claude-code",
   "branch": "claude/project-thread-8gcwq2",
-  "head_at_update": "1df3174",
+  "head_at_update": "2c2748d",
   "current": {
     "task": "Issue #187: 合成比較ゲートを製品APIと出力へ接続（ロードマップ順4）",
-    "status": "in_progress",
+    "status": "done",
     "step": "設計確認と最小限の設計追記",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "Phase E（カメラ）の実装に進む。所有者の承認順に従う"
+    "Owner判断待ち: SRT由来口形の開始/終了の値の跳びは30fps VMDで再現できず拒否される。境界1F傾斜・許容差の扱いを決める",
+    "実PMX・実長尺VMDで合成候補を作り、元VMDとの顔・身体、MP4を比較（実データのある環境で）",
+    "開始0秒以外のクリップ・非整数FPSへの対応はOwner承認後"
   ],
   "unverified": [
-    "P2 全体の未検証は docs/roadmap/P2_PORT_STATUS.json の p2_overall_unverified（U1〜U16）に集約。実GPU・Windows一括0fail・実Ollama・Blender実変換・実PMX/VRMの見た目は未検証"
+    "実PMX/実長尺VMDでの合成候補、PMX表示比較、最終MP4、実歌音声SRT境界、WebMCP/標準MCP、Windows",
+    "既存失敗（変更前から）: pytest test_v05_timeline_drag_static 1件、node-all 10件（動画・MP4・タイムライン系のChrome試験）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -31,6 +34,13 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T00:27:07+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "2c2748d",
+      "text": "Issue #187: 合成比較ゲートを作品の元VMDクリップ・採用口形・手動表情キーへ接続し、別名合成VMD候補API（POST /api/studio/v05/lip/composite-candidate、GET .../file）とSRT欄の『合成候補を作る』を追加。全キー読み直し、失効409・不連続/範囲外422、取得時の再照合。設計§4.1追記（5ff689e）、実装 2c2748d"
+    },
     {
       "at": "2026-11-04T00:01:42+00:00",
       "by": "claude-code",
@@ -233,13 +243,6 @@
       "event": "start",
       "head": "0d1d96d",
       "text": "Issue #187: v0.5から別名モーフVMD候補を出力: 確定MorphMap選択・dry-run・候補生成・ダウンロードをSRT画面へ接続し実Chromeで確認する"
-    },
-    {
-      "at": "2026-10-25T02:22:42+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8cf3869",
-      "text": "Issue #187: 全発話の確定読み・下書き・登録PMX MorphMapを照合して別名モーフVMD候補を保存/ダウンロード。関連Python13/13、実PMX名のバイナリ再読込と原本不変。"
     }
   ]
 }
