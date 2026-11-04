@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T13:00:14+09:00",
+  "updated_at": "2026-11-04T13:03:33+09:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-next",
-  "head_at_update": "0fa106a",
+  "head_at_update": "d1a113c",
   "current": {
     "task": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる",
     "status": "done",
@@ -11,7 +11,7 @@
     "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "§8手順2：§4.1（場面インスタンスの印 units）と§6.1 U1〜U8"
+    "§8手順3：§4.2 取込（M3・M4に印、UNIT_SEMANTICS_DIFFERの文言と付け方、_run_stepで印を渡す、逆変換のUNITS_CHANGED）と既存試験の直し・§5の往復試験"
   ],
   "unverified": [
     "床の高さ（L3）は外接箱からは分からない。§6.4で floorProbe により測る"
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T13:03:33+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "d1a113c",
+      "text": "WP-L8a §8手順2：§4.1 場面インスタンスの印 units（UNITS_LEGACY・_ROW_KEYS、_check_recordの検査、mutateのunits引数はaddで'legacy'だけ）と§6.1 U1〜U8"
+    },
     {
       "at": "2026-11-04T13:00:14+09:00",
       "by": "claude-code",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "5649df6",
       "text": "Issue #63/#69: 旧保存→v0.5作品IDの可逆対応の設計書を追加（比較・対応表M1〜M10・取込記録・WP-L1〜L9・所有者判断Q1〜Q6）。コードは未変更"
-    },
-    {
-      "at": "2026-11-04T00:29:57+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "acdb339",
-      "text": "Issue #63/#69: 旧Studio保存状態をv0.5作品IDへ可逆に対応させる設計: 旧保存とv0.5保存の比較調査"
     }
   ]
 }
