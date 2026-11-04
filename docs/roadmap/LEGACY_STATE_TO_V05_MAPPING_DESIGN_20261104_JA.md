@@ -522,6 +522,8 @@ flowchart LR
   - `archive_record` のあと、history に同じ内容のファイルが1つでき、元の場所には無い。
   - 一時ファイルが残らない。
 
+**実装済み（2026-11-04）**：`studio_v05_legacy_import_record.py`（`read_record`・`write_record`・`validate_record`・`archive_record`・`RecordInvalid`）、`tests/test_studio_v05_legacy_import_record.py`。試験 35 件合格（skip なし）。pytest 全体は 679 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：呼び出し元が無い（WP-L3 以降）。実装で補った点：形の検査の失敗は `RecordInvalid`（`ValueError`）、作品IDは小文字UUIDだけ許す（パス混入防止）、history の同名は `-2` 以降を付けて上書きしない、`items`・`steps` は §4 の必須項目の存在のみ検査し手順ごとの追加項目は通す、6MB超の既存ファイルは `RECORD_UNREADABLE`。
+
 ### WP-L3 適用・打ち消し・取消
 
 - `studio_v05_legacy_import.py` に `collect`、`apply(data_root, request, assets, manifest, asset_path)`、`undo_journal(data_root, record, assets)`、`revert(data_root, request, assets)` を足す。`studio_project_catalog.py` に `clear_fps` を足す（§5.3）。
