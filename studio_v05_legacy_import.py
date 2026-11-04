@@ -960,3 +960,160 @@ def revert(data_root, request, assets):
             err.state = "undo_failed"
             raise err
         return {"record": record, "project": _project_row(roots, pid)}
+
+
+# ======================================================================================
+# WP-L4: 試験専用の逆変換（設計 §5.6）。HTTP・MCP・画面には出さない。何も書かない。
+# 「黙って捨てていない」ことを試験で確かめる判定役。v0.5のいまの状態から旧形式の bundle を組み直す。
+# ======================================================================================
+_POS_LIMIT, _ROT_LIMIT = 1000, 360
+_SCALE_MIN, _SCALE_MAX = 0.01, 100
+
+
+def _placement_back(cur, visible, orig, base, unrep, changed):
+    """v0.5の transform を旧の配置 {position, rotation, scale(数1つ)} に戻す。
+
+    orig は元の配置（dict）か、元が absent・null のときの None。None を返すのは、元が None で
+    いまも既定値のまま（または表せない）とき＝presence どおりに戻すとき。
+    """
+    fields, fallback = {}, False
+    if visible is False:
+        unrep.append({"pointer": base + "/visible", "reason": "INSTANCE_HIDDEN"})
+
+    def numbers(key, limit, reason):
+        nonlocal fallback
+        vals = list(cur[key])
+        if any(abs(v) > limit for v in vals):
+            unrep.append({"pointer": base + "/" + key, "reason": reason})
+            if orig is None:
+                fallback = True
+            else:
+                fields[key] = list(orig[key])
+            return
+        if orig is not None and all(c == round(o, 6) for c, o in zip(vals, orig[key])):
+            fields[key] = list(orig[key])
+        else:
+            fields[key] = vals
+
+    numbers("position", _POS_LIMIT, "POSITION_OUT_OF_RANGE")
+    numbers("rotation", _ROT_LIMIT, "ROTATION_OUT_OF_RANGE")
+    scale = list(cur["scale"])
+    if not (scale[0] == scale[1] == scale[2]):
+        unrep.append({"pointer": base + "/scale", "reason": "SCALE_NOT_UNIFORM"})
+        reason_bad = True
+    elif not _SCALE_MIN <= scale[0] <= _SCALE_MAX:
+        unrep.append({"pointer": base + "/scale", "reason": "SCALE_OUT_OF_RANGE"})
+        reason_bad = True
+    else:
+        reason_bad = False
+    if reason_bad:
+        if orig is None:
+            fallback = True
+        else:
+            fields["scale"] = orig["scale"]
+    elif orig is not None and scale[0] == round(orig["scale"], 6):
+        fields["scale"] = orig["scale"]
+    else:
+        fields["scale"] = scale[0]
+
+    if orig is None:
+        same = (not fallback and fields["position"] == [0, 0, 0] and fields["rotation"] == [0, 0, 0]
+                and fields["scale"] == 1)
+        if same or fallback:
+            return None
+        changed.append(base)
+        return fields
+    for key in ("position", "rotation", "scale"):
+        if fields[key] != orig[key]:
+            changed.append(base + "/" + key)
+    return fields
+
+
+def _export_legacy_for_test(record, current):
+    """取込記録と v0.5 のいまの状態から、旧形式の bundle を組み直す（試験専用）。
+
+    current は collect() の target と同じ形（fps・scene・scene_model・arrangement）に
+    `playhead`（{"seconds": 秒}）を足したもの。素材原本の確認用に任意の `asset_sha256`
+    （{素材ID: SHA-256 または None}）を渡せる。
+    戻り値: {bundle, changed, unrepresentable, asset_hash_changed}。結果は validate_bundle を通す（通らなければ例外）。
+    """
+    src = record["source"]
+    bundle = copy.deepcopy(src["bundle"])
+    presence = src["presence"]
+    changed, unrep = [], []
+    steps = record["steps"]
+    instances = {i["id"]: i for i in current["scene"]["instances"]}
+    by_id = {}  # 記録の scene_add 手順の instance_id（持つものだけ）
+    for s in steps:
+        if s["kind"] == "scene_add" and s.get("instance_id"):
+            by_id[s["instance_id"]] = s
+    step_of = lambda role: next((s for s in steps if s["kind"] == "scene_add" and s.get("role") == role
+                                 and s.get("instance_id")), None)  # noqa: E731
+
+    camera = bundle["camera"]
+    legacy_fps = camera["fps"]
+    cur_fps = current["fps"]
+    if cur_fps.get("presence") != "value" or float(cur_fps["value"]) != float(legacy_fps):
+        unrep.append({"pointer": "/camera/fps", "reason": "FPS_CHANGED"})
+
+    if any(iid not in by_id for iid in instances):
+        unrep.append({"pointer": "/workspace", "reason": "EXTRA_INSTANCE"})
+
+    if presence.get("/workspace") == "value":
+        ws = bundle["workspace"]
+        orig_ws = src["bundle"]["workspace"]
+
+        def asset_ok(step, inst, pointer):
+            if inst["asset_id"] != step["asset_id"]:
+                unrep.append({"pointer": pointer, "reason": "ASSET_CHANGED"})
+
+        # キャラクター
+        step = step_of("character")
+        if step is not None:
+            inst = instances.get(step["instance_id"])
+            if inst is None:
+                ws["asset"], ws["clip"] = "", None
+                ws.pop("character", None)
+                changed += ["/workspace/asset", "/workspace/clip", "/workspace/character"]
+            else:
+                asset_ok(step, inst, "/workspace/asset")
+                placed = _placement_back(inst["transform"], inst["visible"], orig_ws.get("character"),
+                                         "/workspace/character", unrep, changed)
+                if placed is not None:
+                    ws["character"] = placed
+                elif presence.get("/workspace/character") == "null":
+                    ws["character"] = None
+                else:
+                    ws.pop("character", None)
+        # ステージ
+        step = step_of("stage")
+        if step is not None:
+            inst = instances.get(step["instance_id"])
+            if inst is None:
+                ws["stage"] = None
+                changed.append("/workspace/stage")
+            else:
+                asset_ok(step, inst, "/workspace/stage/asset")
+                placed = _placement_back(inst["transform"], inst["visible"], orig_ws["stage"],
+                                         "/workspace/stage", unrep, changed)
+                ws["stage"] = {"asset": orig_ws["stage"]["asset"], **placed}
+        # 再生位置
+        play = next((s for s in steps if s["kind"] == "playhead"), None)
+        if play is not None:
+            now = current["playhead"]["seconds"]
+            if now != play["seconds"]:
+                frame = round(now * legacy_fps)
+                if frame > camera["duration"]:
+                    unrep.append({"pointer": "/workspace/frame", "reason": "FRAME_EXCEEDS_DURATION"})
+                elif frame != orig_ws["frame"]:
+                    ws["frame"] = frame
+                    changed.append("/workspace/frame")
+    else:
+        bundle.pop("workspace", None)
+
+    hashes = current.get("asset_sha256") or {}
+    asset_hash_changed = [a["asset_id"] for a in record["assets"]
+                          if a.get("sha256") is not None and a["asset_id"] in hashes
+                          and hashes[a["asset_id"]] != a["sha256"]]
+    return {"bundle": validate_bundle(bundle), "changed": list(dict.fromkeys(changed)),
+            "unrepresentable": unrep, "asset_hash_changed": asset_hash_changed}
