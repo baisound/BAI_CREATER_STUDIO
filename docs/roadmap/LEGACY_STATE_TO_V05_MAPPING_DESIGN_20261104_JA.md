@@ -105,9 +105,9 @@ WP-L8a より前は、写した結果に警告 `UNIT_SEMANTICS_DIFFER` を付け
 |---|---|---|---|---|
 | S1 | `model_id` | 場面インスタンス | null なら手順なし。正規化後のIDが M3 の `asset_id` と同じならM3のインスタンスを共有し、手順を作らない。違えば、既定の transform で別のインスタンス（役割 `dance_model`）を追加する | 追加したときは警告 `PLACED_AT_ORIGIN`。素材の扱いはM3と同じ |
 | S2 | `audio_id`、`audio_start_frame`、`audio_source_frame` | `music` または `audio` トラックのクリップ | トラックは `studio_v05_arrangement.classify(素材)` の結果（`music` か `audio`）。元の長さ `src` は `studio_v05_media_render.media_info()` の `duration_seconds`（`studio_v05_media_render.py:217-239`）。`start = audio_start_frame/30`、`source_start = audio_source_frame/30`、`duration = src − source_start`。 | 長さを得られなければ `DURATION_UNKNOWN`。`duration ≤ 0`（元区間の開始が曲の長さ以上）は `OUT_OF_RANGE` で保管。分類が音声でなければ `ASSET_UNSUPPORTED` |
-| S3 | `motion_id`、`motion_start_frame` | `motion` トラックのクリップ | 素材の形式が VMD のときだけ。長さ = `(VMDの最終キーのフレーム + 1) / 30`（§5.8 の `vmd_last_frame`）。`start = motion_start_frame/30` | FBX・GLB動作は長さを読めないので `DURATION_UNKNOWN` で保管 |
+| S3 | `motion_id`、`motion_start_frame` | `motion` トラックのクリップ | 素材の形式が VMD か GLB のとき（2026-11-04 所有者決定「GLBも写す」で GLB を追加）。VMD の長さ = `(VMDの最終キーのフレーム + 1) / 30`（§5.8 の `vmd_last_frame`）。GLB の長さ = 先頭のアニメーションのキー時刻の最大値（秒。`glb_first_clip_seconds`、下の WP-L7a 補足）。`start = motion_start_frame/30`。変換はしない | FBX動作は長さを読めないので `DURATION_UNKNOWN` で保管。GLB でもチャンネルの読み飛ばし・アニメーションなし・長さ0・読めないときは `DURATION_UNKNOWN` |
 | S4 | `motion_source_frame` | なし | 0 でなければ S3 を作らず保管する。v0.5は動作クリップの元区間を持てない（`studio_v05_arrangement.py:58-67`） | `SOURCE_OFFSET_NOT_SUPPORTED` |
-| S5 | S3 の対象 | S3 のクリップの `target_scene_instance_id` | 対象は S1 のインスタンス、S1 が無ければ M3 のインスタンス。`studio_v05_motion_plan.compatible(モデル形式, 動作形式)`（`studio_v05_motion_plan.py:12-18`）が真のときだけ割り当てる | 割り当てられなければ警告 `MOTION_TARGET_UNSET`（クリップは置く） |
+| S5 | S3 の対象 | S3 のクリップの `target_scene_instance_id` | 対象は S1 のインスタンス、S1 が無ければ M3 のインスタンス。`studio_v05_motion_plan.compatible(モデル形式, 動作形式)`（`studio_v05_motion_plan.py:12-18`）が真のときだけ割り当てる。GLB 動作は PMX・GLB・VRM・FBX のどのモデルにも真（`studio_v05_motion_plan.py:15-18`）。旧タイムライン編集（T2）の動作と同じインスタンス・重なる時刻になるときは割り当てない（WP-L7a 補足） | 割り当てられなければ警告 `MOTION_TARGET_UNSET`（クリップは置く） |
 | S6 | `head_frame`、`fps` | なし | 保管。再生位置は M2 を使う | `NO_V05_FIELD` |
 
 ### 3.3 旧タイムライン編集（利用者がチェックを入れたときだけ。WP-L7b）
@@ -583,6 +583,30 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
   - チェックなし（`include` が空）なら、SCR-10 のファイルを読まない（ファイルを壊れたJSONにしても拒否されない）。
 
 **実装済み（2026-11-04）**：`studio_v05_legacy_import.py` の `plan`（S1〜S6、`_plan_music_dance`）、`collect`（`_read_music_dance`、`_music_dance_media`）、`apply`（record の `source.live`）、`tests/test_studio_v05_legacy_import_music_dance.py`、fixture 3本。試験 58 件合格（skip なし）。legacy_import 全体 212 件合格、pytest 全体は 821 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`）・HTTP/MCP・画面・実データ・実 ffprobe での曲の長さ（試験は `media_info` を差し替え）。設計の穴を次のように解釈した：(1) `durations` は秒（VMD は `(最終フレーム+1)/30`）。曲の音声の有無（`place` の `source_has_audio` 用）は `inputs["audio_flags"]` に別に入れ、`clip_place` 手順の `source_has_audio` に写す。(2) 時刻は `round(フレーム/30, 4)`（クリップの保存桁と同じ）。(3) `start + duration` が 24 時間を超える曲・ダンスは `OUT_OF_RANGE` で保管（超えると `place` が失敗して取込全体が巻き戻るため）。(4) `model_id` が指定されているのに置けない（`ASSET_MISSING`・`ASSET_UNSUPPORTED`）ときは、ダンスの対象をキャラクターへ代用せず `MOTION_TARGET_UNSET`。`model_id` が null のときだけキャラクターのインスタンスを対象にする。(5) S1 がキャラクターと共有のときも、items に S1（`mapped`、手順なし、警告なし）を残す。(6) S4（`motion_source_frame ≠ 0`）は素材の状態に関係なく先に判定し、items の id は `S4`（表示名は S3 と同じ）。(7) S6 は SCR-10 が有効なとき常に1件保管する。ラベルは §3.5 に補足した。(8) SCR-10 のファイルが検査に通らない・64KiB を超える・読めないときは item `S0`（`LIVE_SOURCE_INVALID`、ポインタ空）で保管し、他の取込は続ける。`legacy_value`・record の `live.music_dance.value` は全文（64KiB 超は `null`）。(9) `plan` の入力 `live.music_dance` は `{sha256, value, updated_at, invalid?}`。`source_info.music_dance_updated` はファイルの更新日時（`updated_at`）。(10) `collect` はチェックなし（`include` に無い）ときファイルも素材も読まない。ファイルが無ければ `None`（拒否しない）。(11) `clip_source`・`clip_assign`・`playhead` の手順にも、始める直前に `started` の印を保存する（打ち消しは何もしない手順なので動作は変わらない）。(12) 曲のトラックは `classify` の `music`/`audio`、手順の `role` は曲 `music`・ダンス `dance`・追加モデル `dance_model`。
+
+**補足：GLB 動作のダンス（2026-11-04、所有者決定「GLBも写す」）**
+
+所有者がカードで「GLB動作も開始時刻ごと、③のキャラクターのダンスとして置く。取込の設計を少し広げてから作る」を選んだ。実データ（[実データ確認](../v05/LEGACY_IMPORT_REAL_DATA_20261104_JA.md)）のダンスは GLB 動作「Dance of October 9 #1」（`integrated:cef762b38713abf09354.glb`、51骨・153トラック・60.034秒、[記録](AUDIO_DANCE_SYNC_20261021_JA.md)）で、モデルは実 PMX。
+
+調べた既存の仕組み：
+
+- 割り当ての検査は `studio_v05_multi_motion.assign`（`studio_v05_multi_motion.py:58-92`）で、形式の判定は `compatible()`（`studio_v05_motion_plan.py:12-18`）。GLB 動作は PMX・GLB・VRM・FBX のどれにも真。VMD だけが PMX 限定。
+- ③の再生は PMX には `createPmxGlbPreview`、それ以外には `createGenericGlbPreview` で、どちらも `animations[0]` を使う（`studio/v05/js/actual-motion-loader-v22.js:78-81`、`studio/v05/js/multi-model-ui-v58.js:402-405`）。旧の SCR-10 も同じ関数・同じ `animations[0]`（`studio/js/features/music-dance-view.js:293-296`）。再生器の長さは three.js の AnimationClip の長さ（`studio/js/motion/pmx-glb-preview.js:77`）。
+- GLB→VMD 変換（`studio_v05_glb_vmd.convert`、`studio_v05_glb_vmd.py:75-152`）は Blender を呼び、`data/mmd/vmd/` に別名 VMD を作り `mmd_assets.json` に行を足す。統合ライブラリの GLB 動作と mmd の PMX だけが対象。
+- GLB のキーを読むだけの既存の公開関数 `motion_interchange.glb_channels`（`motion_interchange.py:5-36`）がある。平行移動・回転・拡大の LINEAR/STEP だけを返し、重み・CUBICSPLINE は読み飛ばす（`motion_interchange.py:30-32`）。
+
+判断：**実データの組み合わせ（GLB 動作 × 実 PMX）は、既存の仕組みだけで「そのまま置いて割り当てる」が成り立つ**。`compatible("PMX","GLB")` は真で、`assign` も③の再生も PMX＋GLB を扱う。足りないのは長さだけで、長さは既存の `glb_channels` で読める。よって (a) GLB→VMD 変換を取込の中で呼ぶ方式は採らない（Blender が要る、生成物が `data/mmd/vmd/` と `mmd_assets.json` に残り取消で消す仕組みが新たに要る、元の SCR-10 も変換せずに GLB のまま再生していた）。新しい変換・新しい機能は足さない。GLB 動作で割り当てられない組み合わせは、形式の上では無い（モデルが置けない・無いときは従来どおり `MOTION_TARGET_UNSET`）。
+
+規則：
+
+1. `collect` は、ダンスの素材が GLB 動作（`classify` が `motion`、形式 GLB、`motion_source_frame == 0`）のとき原本を読み、`glb_first_clip_seconds(raw)`（`studio_v05_legacy_import.py:794`）で長さを得る。`glb_channels` が全アニメーションの全チャンネルを読めたとき（読み飛ばしが無いとき）だけ、先頭のアニメーションのチャンネルのキー時刻の最大値を秒で返す。これは③の再生器の `animations[0]` の長さと同じ値。読み飛ばしがある（重み・CUBICSPLINE）、アニメーションが無い、長さが 0 以下、読めないときは例外で、`durations` に入れない（`DURATION_UNKNOWN`、`studio_v05_legacy_import.py:831-845`）。
+2. `plan` は S3 の形式の条件を `DANCE_FORMATS = ("VMD","GLB")`（`studio_v05_legacy_import.py:42,338`）にする。長さは VMD と違い `+1` しない秒のまま。それ以外（開始 `motion_start_frame/30`、24時間の上限、S4、S5）は VMD と同じ。
+3. 重なりの扱い（S5 の補足）：③は1体に同時に1つの動作しか再生せず、重なると両方が `overlapping_motion` になって再生されない（`studio_v05_multi_motion.py:39-52`）。所有者の実データでは、旧タイムライン編集の FBX 動作7件（0〜21秒）がダンスと同じ実 PMX を相手にする（§3.3 T2 の対象は S1 の結果）。ダンスと T2 が同じインスタンスで時刻が重なるときは、ダンスのクリップは置くが割り当てない（`MOTION_TARGET_UNSET`、`_drop_overlapping_dance_assign`、`studio_v05_legacy_import.py:426-446,614`）。旧の2画面は別々に再生していたので、既に実データで「ready 7件」と確かめた T2 を壊さないほうを選んだ。VMD のダンスにも同じ規則が掛かる（以前は割り当てて、両方が再生されない状態になっていた）。端が接するだけ（前の終わり＝次の始まり）は重なりにしない（`multi_motion.plan` と同じ許容 1e-8）。
+4. データの安全：変換しないので生成物は無い。書き込みは既存の `clip_place`・`clip_assign` の手順だけで、`started` の印、revision の単調増加、取消での打ち消し（公開関数だけ）、利用者が後から足したクリップを消さない、はすべて従来の手順のまま。GLB の原本は読むだけで、記録の `assets` に SHA-256 が入る。
+
+所有者の実データで写るかどうか：素材の形式・割り当ての条件は満たす（S1 で実 PMX のインスタンスを足し、S5 で `compatible("PMX","GLB")` が真）。長さは、記録上「153トラック」（51骨×平行移動・回転・拡大）なので `glb_channels` で読み飛ばし無く読める見込みだが、**この作業では実データを読んでいない（未検証）**。また、旧タイムライン編集も取り込むときにダンスが 0〜21 秒の FBX 動作と重なれば、ダンスは置くが割り当てない（規則3）。所有者の `motion_start_frame` もこの作業では確かめていない。
+
+試験（`tests/test_studio_v05_legacy_import_music_dance.py` の末尾 GLB の節、`tests/test_studio_v05_legacy_import_timeline_editor.py` の重なりの2件）：先頭アニメーションの長さ、読み飛ばし・アニメーションなし・長さ0・壊れたバイト列で例外、GLB×キャラクターPMX で置いて割り当てて `multi_motion.plan` が `ready`、実データの形（キャラクターなし・別PMX）、GLB×GLBモデル、読み飛ばしのある GLB と壊れた GLB は `DURATION_UNKNOWN`、途中開始は GLB を読まない、生成物を作らない、`started` の印、割り当て失敗で巻き戻し、取消で利用者のクリップを残し revision が増え原本が不変、往復一致、plan 単体、T2 と重なるダンスは割り当てず T2 は `ready`、接するだけなら割り当てる。
 
 ### WP-L7b 旧タイムライン編集を写す
 

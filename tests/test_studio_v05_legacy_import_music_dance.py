@@ -696,3 +696,201 @@ def test_bundle_b_without_character_placement_still_imports_dance(env):
     assert s3["codes"] == ["MOTION_TARGET_UNSET"]  # GLB に VMD は割り当てない
     env.apply(include=INC)
     assert set(env.clips()) == {MUSIC_ID, MOTION_ID}
+
+
+# ---- GLB 動作のダンス（所有者決定 2026-11-04「GLBも写す」。設計 §3.2 S3・WP-L7a の補足） -------------
+GLB_MOTION = "integrated:dance_motion.glb"
+
+
+def make_glb(animations, weights=False):
+    """dense FLOAT のキーだけを持つ最小の GLB を組む。animations は [(名前, [キー時刻…]), …]。
+    weights=True なら先頭のアニメーションに重みのチャンネル（glb_channels が読み飛ばすもの）を足す。"""
+    import struct
+    binary, views, accessors, anims = b"", [], [], []
+    for name, times in animations:
+        t = struct.pack("<%df" % len(times), *times)
+        v = struct.pack("<%df" % (3 * len(times)), *([0.0, 1.0, 2.0] * len(times)))
+        for blob, kind in ((t, "SCALAR"), (v, "VEC3")):
+            views.append({"buffer": 0, "byteOffset": len(binary), "byteLength": len(blob)})
+            accessors.append({"bufferView": len(views) - 1, "componentType": 5126, "count": len(times),
+                              "type": kind})
+            binary += blob
+        channels = [{"sampler": 0, "target": {"node": 0, "path": "translation"}}]
+        if weights and not anims:
+            channels.append({"sampler": 0, "target": {"node": 0, "path": "weights"}})
+        anims.append({"name": name, "samplers": [{"input": len(accessors) - 2, "output": len(accessors) - 1}],
+                      "channels": channels})
+    doc = {"nodes": [{"name": "Hips"}], "buffers": [{"byteLength": len(binary)}], "bufferViews": views,
+           "accessors": accessors, "animations": anims}
+    j = json.dumps(doc).encode()
+    j += b" " * ((-len(j)) % 4)
+    binary += b"\x00" * ((-len(binary)) % 4)
+    return (b"glTF" + struct.pack("<II", 2, 12 + 8 + len(j) + 8 + len(binary)) + struct.pack("<II", len(j), 0x4E4F534A)
+            + j + struct.pack("<II", len(binary), 0x004E4942) + binary)
+
+
+@pytest.fixture
+def glb_env(env):
+    """GLB 動作（統合ライブラリの motion、所有者の実データと同じ種類）をダンスにした SCR-10 の保存。"""
+    env.assets.append({"id": GLB_MOTION, "name": "Dance of October 9 #1_motion.glb",
+                       "filename": "dance_motion.glb", "format": "GLB", "kind": "motion", "source": "integrated",
+                       "available": True})
+    path = env.data / "originals" / "dance_motion.glb"
+    path.write_bytes(make_glb([("Dance", [0.0, 1.5, 4.25])]))
+    env.files[GLB_MOTION] = path
+    env.glb_path = path
+    env.write_md({**md_fixture("music_dance_full"), "motion_id": GLB_MOTION})
+    return env
+
+
+def mm_plan(env):
+    return studio_v05_multi_motion.plan(env.dirs["arrangements"], env.dirs["scene_instances"],
+                                        env.dirs["scene_models"], env.catalog, env.target, env.assets)
+
+
+def test_glb_first_clip_seconds_reads_the_first_animation():
+    assert L.glb_first_clip_seconds(make_glb([("A", [0.0, 2.5])])) == 2.5
+    # ③の再生器は animations[0] を使う。2本目が長くても先頭の長さ
+    assert L.glb_first_clip_seconds(make_glb([("A", [0.0, 2.5]), ("B", [0.0, 9.0])])) == 2.5
+
+
+@pytest.mark.parametrize("raw", [
+    make_glb([("A", [0.0, 2.5])], weights=True),  # 重みのチャンネルを読み飛ばす → 長さが③と一致しない恐れ
+    make_glb([]),                                  # アニメーションなし
+    make_glb([("A", [0.0])]),                      # 長さ 0
+    b"not a glb",
+])
+def test_glb_first_clip_seconds_fails_closed(raw):
+    with pytest.raises(Exception):
+        L.glb_first_clip_seconds(raw)
+
+
+def test_glb_dance_is_placed_and_assigned_to_the_pmx_character(glb_env):
+    env = glb_env
+    pv = env.preview(include=INC)
+    s3 = next(i for i in pv["items"] if i["id"] == "S3")
+    assert s3["status"] == "mapped" and s3["codes"] == []
+    assert [s["kind"] for s in pv["steps"]] == [
+        "fps", "scene_add", "scene_add", "clip_place", "clip_source", "clip_place", "clip_assign", "playhead"]
+    env.apply(include=INC)
+    dance = env.clips()[GLB_MOTION]
+    assert dance["track"] == "motion" and dance["start"] == 2.0 and dance["duration"] == 4.25
+    assert round(dance["start"] * 30) == md_fixture("music_dance_full")["motion_start_frame"]
+    char = env.inst(CHAR_ID)[0]
+    assert dance["target_scene_instance_id"] == char["id"]
+    row = next(r for r in mm_plan(env)["rows"] if r["asset_id"] == GLB_MOTION)
+    assert row["status"] == "ready" and row["model_format"] == "PMX" and row["motion_format"] == "GLB"
+    assert env.record()["state"] == "applied"
+
+
+def test_glb_dance_on_another_pmx_like_the_owners_real_data(glb_env):
+    """所有者の実データの形：ダンスのモデルは実PMX（キャラクター欄は空）、ダンスは GLB 動作。"""
+    env = glb_env
+    env.resnap("bundle_b")
+    env.write_md({**md_fixture("music_dance_other_model"), "motion_id": GLB_MOTION})
+    env.apply(include=INC)
+    dance = env.clips()[GLB_MOTION]
+    other = env.inst(OTHER_PMX)
+    assert len(other) == 1 and dance["target_scene_instance_id"] == other[0]["id"]
+    assert next(r for r in mm_plan(env)["rows"] if r["asset_id"] == GLB_MOTION)["status"] == "ready"
+
+
+def test_glb_dance_on_a_glb_model_is_assigned_too(glb_env):
+    env = glb_env
+    env.write_md({**md_fixture("music_dance_full"), "motion_id": GLB_MOTION, "model_id": "integrated:foo.glb"})
+    env.apply(include=INC)
+    assert env.clips()[GLB_MOTION]["target_scene_instance_id"] == env.inst("integrated:foo.glb")[0]["id"]
+
+
+def test_glb_dance_with_skipped_channels_is_duration_unknown(glb_env):
+    env = glb_env
+    env.glb_path.write_bytes(make_glb([("Dance", [0.0, 4.25])], weights=True))
+    env.write_md({**md_fixture("music_dance_full"), "motion_id": GLB_MOTION})
+    pv = env.preview(include=INC)
+    s3 = next(i for i in pv["items"] if i["id"] == "S3")
+    assert s3["status"] == "kept" and s3["codes"] == ["DURATION_UNKNOWN"]
+    env.apply(include=INC)
+    assert list(env.clips()) == [MUSIC_ID]
+
+
+def test_unreadable_glb_dance_is_duration_unknown(glb_env):
+    env = glb_env
+    env.glb_path.write_bytes(b"broken")
+    env.write_md({**md_fixture("music_dance_full"), "motion_id": GLB_MOTION})
+    assert next(i for i in env.preview(include=INC)["items"] if i["id"] == "S3")["codes"] == ["DURATION_UNKNOWN"]
+
+
+def test_glb_dance_with_source_offset_is_kept(glb_env, monkeypatch):
+    env = glb_env
+    env.write_md({**md_fixture("music_dance_offset"), "motion_id": GLB_MOTION})
+    read = []
+    monkeypatch.setattr(L, "glb_first_clip_seconds", lambda raw: read.append(1) or 1.0)
+    pv = env.preview(include=INC)
+    assert next(i for i in pv["items"] if i["id"] == "S4")["codes"] == ["SOURCE_OFFSET_NOT_SUPPORTED"]
+    assert read == []  # 途中開始は置かないので GLB を読まない
+
+
+def test_glb_dance_makes_no_generated_file(glb_env):
+    """変換しない：生成 VMD も mmd_assets.json の行も作らない（取消で消す生成物が無い）。"""
+    env = glb_env
+    env.apply(include=INC)
+    assert not (env.data / "mmd" / "vmd").exists()
+    assert (env.data / "mmd_assets.json").read_bytes() == b"legacy mmd_assets.json"
+    assert {a["asset_id"] for a in env.record()["assets"]} >= {GLB_MOTION}
+
+
+def test_glb_dance_steps_carry_started_mark(glb_env):
+    env = glb_env
+    env.apply(include=INC)
+    assert all(s.get("started") is True for s in env.record()["steps"] if s["kind"] != "fps")
+
+
+def test_glb_dance_assign_failure_rolls_back(glb_env, monkeypatch):
+    env = glb_env
+
+    def boom(*a, **k):
+        raise studio_v05_multi_motion.MultiMotionError("injected")
+    monkeypatch.setattr(studio_v05_multi_motion, "assign", boom)
+    with pytest.raises(L.LegacyImportError) as e:
+        env.apply(include=INC)
+    assert e.value.state == "rolled_back"
+    assert_clean(env)
+
+
+def test_glb_dance_revert_keeps_users_clips_and_raises_revisions(glb_env):
+    env = glb_env
+    env.apply(include=INC)
+    mine = arrangement.place(env.dirs["arrangements"], env.catalog, env.target, GLB_MOTION, "motion", 30.0, 1.0,
+                             env.arr()["revision"], env.assets)["clip"]["id"]
+    arr_rev, scene_rev = env.arr()["revision"], env.scene()["revision"]
+    md_sha, glb_sha = sha(env.md_path), sha(env.glb_path)
+    out = env.revert()
+    assert out["record"]["state"] == "reverted"
+    assert [c["id"] for c in env.arr()["clips"]] == [mine]
+    assert env.scene()["instances"] == []
+    assert env.arr()["revision"] > arr_rev and env.scene()["revision"] > scene_rev
+    assert sha(env.md_path) == md_sha and sha(env.glb_path) == glb_sha
+
+
+def test_glb_dance_round_trip_export(glb_env):
+    env = glb_env
+    env.apply(include=INC)
+    cur = dict(env.collect(INC)["target"])
+    cur["playhead"] = {"seconds": env.ph()["seconds"]}
+    out = L._export_legacy_for_test(env.record(), cur)
+    assert out["bundle"] == load_bundle("bundle_a")
+    assert out["changed"] == [] and out["unrepresentable"] == []
+
+
+def test_plan_maps_glb_when_duration_is_given():
+    assets = make_assets() + [{"id": GLB_MOTION, "name": "d.glb", "filename": "dance_motion.glb", "format": "GLB",
+                               "kind": "motion", "source": "integrated", "available": True}]
+    md = {**md_fixture("music_dance_full"), "motion_id": GLB_MOTION}
+    inputs = make_inputs(load_bundle("bundle_a"), assets=assets,
+                         live={"music_dance": {"sha256": "ab" * 32, "value": md}, "timeline_editor": None})
+    inputs["durations"] = {GLB_MOTION: 4.25, "library:00112233445566778899aabb": 10.0}
+    r = L.plan(inputs, include=INC)
+    s3 = next(i for i in r["items"] if i["id"] == "S3")
+    assert s3["status"] == "mapped" and s3["codes"] == []
+    dance = next(s for s in r["steps"] if s.get("role") == "dance")
+    assert dance["duration"] == 4.25 and dance["start"] == 2.0

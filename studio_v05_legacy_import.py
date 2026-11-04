@@ -41,6 +41,7 @@ COMBINATION_KNOWN = ("history", "cursor", "title", "selected", "playbackSpeed", 
 DEFAULT_TRANSFORM = {"position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1]}
 LEGACY_UNITS = studio_v05_scene_instances.UNITS_LEGACY  # M3・M4 の印（WP-L8a）
 MUSIC_DANCE_FPS = 30  # SCR-10 は 30fps 固定（music_dance_project.py:32-33）。秒 = フレーム ÷ 30
+DANCE_FORMATS = ("VMD", "GLB")  # S3 で長さを読める動作の形式。FBX は読めないので保管（DURATION_UNKNOWN）
 TIMELINE_MAX_SECONDS = 86400  # studio_v05_arrangement.place / edit_clip の上限
 TIMELINE_EDITOR_FPS = 30  # 旧タイムライン編集は 30fps 固定のフレーム。秒 = フレーム ÷ 30
 
@@ -336,7 +337,7 @@ def _plan_music_dance(v, index, durations, audio_flags, items, scene_steps, clip
             kept("S3", "/motion_id", "S3", "ASSET_MISSING", legacy, name=name)
         elif classify(entry) != "motion":
             kept("S3", "/motion_id", "S3", "ASSET_UNSUPPORTED", legacy, name=name)
-        elif str(entry.get("format") or "").upper() != "VMD" or motion_id not in durations:
+        elif str(entry.get("format") or "").upper() not in DANCE_FORMATS or motion_id not in durations:
             kept("S3", "/motion_id", "S3", "DURATION_UNKNOWN", legacy, name=name)
         else:
             start = round(v["motion_start_frame"] / MUSIC_DANCE_FPS, 4)
@@ -422,6 +423,28 @@ def _plan_timeline_editor(v, index, manifest, target, items, clip_steps, assets_
     # T4 更新日時は保管（表示に使う）
     if "updatedAt" in v:
         kept("T4", "/updatedAt", "T4", "NO_V05_FIELD", v["updatedAt"])
+
+
+def _drop_overlapping_dance_assign(items, clip_steps):
+    """S5 の補足：ダンス（S3）と旧タイムライン編集の動作（T2）を同じインスタンスへ割り当て、時刻が重なるときは
+    ダンスを割り当てない（クリップは置き、MOTION_TARGET_UNSET）。③は1体に同時に1つの動作しか再生せず、
+    重なると両方が overlapping_motion になって再生されない（studio_v05_multi_motion.py:39-52）。
+    旧の2画面は別々に再生していたので、T2（旧タイムライン編集の並び）を残し、ダンスを利用者の選択に回す。"""
+    def span(place):
+        return place["start"], place["start"] + place["duration"]
+
+    def overlaps(a, b):  # multi_motion.plan と同じ許容 1e-8
+        (s1, e1), (s2, e2) = span(a), span(b)
+        return s1 < e2 - 1e-8 and s2 < e1 - 1e-8
+
+    assigns = [s for s in clip_steps if s.get("kind") == "clip_assign"]
+    for dance in [s for s in assigns if s["_clip"].get("role") == "dance"]:
+        others = [s for s in assigns if s["_clip"].get("role") == "timeline" and s["_inst"] is dance["_inst"]]
+        if any(overlaps(dance["_clip"], o["_clip"]) for o in others):
+            clip_steps.remove(dance)
+            item = next(i for i in items if i.get("_step") is dance["_clip"])
+            item["codes"] = ["MOTION_TARGET_UNSET"]
+            item["messages"] = [MESSAGES["MOTION_TARGET_UNSET"]]
 
 
 def plan(inputs, *, include=(), fps_policy="keep_if_same"):
@@ -591,6 +614,8 @@ def plan(inputs, *, include=(), fps_policy="keep_if_same"):
         else:
             _plan_timeline_editor(te["value"], index, inputs.get("manifest"), motion_target, items, clip_steps,
                                   assets_out, add, kept)
+
+    _drop_overlapping_dance_assign(items, clip_steps)
 
     # 手順の順番は「fps → scene_add → clip_*（曲、ダンス、旧タイムライン）→ playhead」。ここで番号を振る。
     steps = ([fps_step] if fps_step else []) + scene_steps + clip_steps + play_steps
@@ -770,9 +795,31 @@ def _read_timeline_editor(roots):
                 "updated_at": updated}
 
 
+def glb_first_clip_seconds(raw: bytes) -> float:
+    """GLB 動作の最初のアニメーション（③の再生器が使う animations[0]）の長さ（秒）。
+
+    読むのは既存の motion_interchange.glb_channels（読むだけ）。③の再生器（three.js の AnimationClip）の長さは
+    そのアニメーションの全チャンネルのキー時刻の最大値なので、glb_channels が全アニメーションの全チャンネルを
+    読めたとき（重み・CUBICSPLINE などの読み飛ばしが無いとき）だけ、先頭のアニメーションのチャンネルから最大値を取る。
+    読み飛ばしがある・アニメーションが無い・長さが 0 以下なら ValueError（呼び出し側で DURATION_UNKNOWN）。"""
+    from motion_interchange import glb_channels
+    result = glb_channels(raw)
+    size = struct.unpack_from("<I", raw, 12)[0]
+    doc = json.loads(raw[20:20 + size])
+    animations = doc.get("animations") or []
+    counts = [len(a.get("channels") or []) if isinstance(a, dict) else 0 for a in animations]
+    if not counts or counts[0] <= 0 or sum(counts) != result["channel_count"]:
+        raise ValueError("GLB animation channels are not all readable")
+    times = [k["time"] for ch in result["channels"][:counts[0]] for k in ch["keys"]]
+    seconds = max(times, default=0.0)
+    if not seconds > 0:
+        raise ValueError("GLB animation has no length")
+    return float(seconds)
+
+
 def _music_dance_media(data_root, value, assets, asset_path):
-    """S2 の曲の長さ（media_info）と S3 の VMD の長さ（vmd_last_frame）を得る（§5.1 の4）。得られなければ入れない。
-    durations は秒（VMD は (最終フレーム+1)/30）。audio_flags は曲の音声の有無（place の source_has_audio 用）。"""
+    """S2 の曲の長さ（media_info）と S3 の VMD・GLB 動作の長さを得る（§5.1 の4）。得られなければ入れない。
+    durations は秒（VMD は (最終フレーム+1)/30、GLB は glb_first_clip_seconds）。audio_flags は曲の音声の有無（place の source_has_audio 用）。"""
     index = {a["id"]: a for a in assets if isinstance(a, dict) and isinstance(a.get("id"), str)}
     durations, flags = {}, {}
     aid = value["audio_id"]
@@ -787,13 +834,17 @@ def _music_dance_media(data_root, value, assets, asset_path):
             pass
     mid = value["motion_id"]
     entry = index.get(mid) if mid else None
+    fmt = str((entry or {}).get("format") or "").upper()
     if (entry and entry.get("available") and value["motion_source_frame"] == 0 and classify(entry) == "motion"
-            and str(entry.get("format") or "").upper() == "VMD"):
+            and fmt in DANCE_FORMATS):
         try:
             path = asset_path(mid)
             raw = Path(path).read_bytes()
-            durations[mid] = (vmd_last_frame(raw) + 1) / MUSIC_DANCE_FPS
-        except Exception:  # noqa: BLE001
+            if fmt == "VMD":
+                durations[mid] = (vmd_last_frame(raw) + 1) / MUSIC_DANCE_FPS
+            else:  # GLB 動作は秒のまま（③の再生器の長さと同じ）。変換はしない
+                durations[mid] = glb_first_clip_seconds(raw)
+        except Exception:  # noqa: BLE001 - 読めない・読み飛ばしがある GLB は DURATION_UNKNOWN
             pass
     return durations, flags
 
