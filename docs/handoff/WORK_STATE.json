@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T03:20:44+00:00",
+  "updated_at": "2026-11-04T03:30:08+00:00",
   "updated_by": "claude-code",
   "branch": "claude/l8a-design",
-  "head_at_update": "9c15d43",
+  "head_at_update": "92f6afe",
   "current": {
     "task": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）",
-    "status": "in_progress",
+    "status": "done",
     "step": "①②③の正規化の調査と詳細設計の執筆",
     "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "所有者の判断待ち：曲とダンスのGLB動作を写すか（S3の設計変更）、WP-L8a（ステージの見た目の大きさ）"
+    "WP-L8a の実装（標準モデル。docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md §8 の順。最初に §6.3 の試験が変更前に失敗することを確かめる）",
+    "所有者の判断待ち：曲とダンスのGLB動作を写すか（S3の設計変更）"
   ],
   "unverified": [
-    "WP-L8a/L8b、GLB動作のダンス、取込後のMP4、標準MCP・WebMCPからの取込、Linux",
+    "WP-L8a は設計のみ（コード・試験は未作成）。WP-L8b、GLB動作のダンス、取込後のMP4、標準MCP・WebMCPからの取込、Linux",
     "既存の失敗：test_v05_timeline_drag_static"
   ],
   "blockers": [],
@@ -29,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T03:30:08+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "92f6afe",
+      "text": "WP-L8a の詳細設計を書いた（実装なし）。案(a)：取込で置くM3・M4の場面インスタンスにだけ印 units:legacy を付け、③は印のときだけ旧と同じ式（単位の換算だけ）で置く。しきい値 ε=0.00001×(1+D) m"
+    },
     {
       "at": "2026-11-04T03:20:44+00:00",
       "by": "claude-code",
@@ -231,13 +239,6 @@
       "event": "done",
       "head": "745d6f1",
       "text": "P2-WP-08c: 足IKタブのAIポーズ案（aiPosePanel）実装・テスト"
-    },
-    {
-      "at": "2026-11-03T23:23:35+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "745d6f1",
-      "text": "P2-WP-08c: 足IKタブのAIポーズ案: aiPosePanel 実装・テスト"
     }
   ]
 }
