@@ -1,22 +1,24 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T16:27:37+00:00",
+  "updated_at": "2026-11-04T16:34:47+00:00",
   "updated_by": "claude-code",
   "branch": "claude/r5-glb-vmd-design",
-  "head_at_update": "87ba6b9",
+  "head_at_update": "3b91b03",
   "current": {
     "task": "順5（#102）GLB→VMDとモーション編集の詳細設計",
-    "status": "in_progress",
+    "status": "done",
     "step": "現状調査と設計書作成（実装前）",
     "design_doc": "docs/roadmap/R5_GLB_VMD_MOTION_EDIT_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "所有者の回答待ち：設計§10（旧②の大きさを優先か、S1がS01の上に立って見える置き方を優先か。既定は前者でL1までを合否に使う）"
+    "順5に着手する時は WP-R5-1（安全修正と理由コード）から。設計書 docs/roadmap/R5_GLB_VMD_MOTION_EDIT_DETAILED_DESIGN_20261104_JA.md",
+    "所有者の回答待ち：WP-L8a 設計§10（旧②の大きさを優先か。既定は前者でL1までを合否に使う）"
   ],
   "unverified": [
+    "順5設計の§1.2（初期姿勢・付与・足IKの問題）はコードからの推定で、実GLB/PMX・Blenderでは未測定",
+    "順5設計の批評は別エージェントを起動できず同一作成者の3観点レビュー（独立レビューではない）",
     "L8a はL4・L5不合格のため未完了。DATA-008は要検証のまま（L8bも残る）",
-    "既存の失敗：test_v05_timeline_drag_static、studio-v05-pane-layout（mainでも失敗）",
-    "MCP・WebMCPからの取込、Linux"
+    "既存の失敗：test_v05_timeline_drag_static、studio-v05-pane-layout（mainでも失敗）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -30,6 +32,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T16:34:47+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "3b91b03",
+      "text": "順5（#102）の詳細設計を作成（未実装）。現状の根拠、7つのWP、理由コード、所有者質問Q1〜Q3、自己批評3回と判定を記録"
+    },
     {
       "at": "2026-11-04T16:27:37+00:00",
       "by": "claude-code",
@@ -232,13 +241,6 @@
       "event": "done",
       "head": "1643329",
       "text": "WP-L2 取込記録のストア studio_v05_legacy_import_record.py と試験35件"
-    },
-    {
-      "at": "2026-11-04T01:13:04+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "1643329",
-      "text": "WP-L2 取込記録のストア: studio_v05_legacy_import_record.py と試験"
     }
   ]
 }
