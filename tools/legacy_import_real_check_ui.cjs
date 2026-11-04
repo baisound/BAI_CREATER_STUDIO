@@ -33,6 +33,21 @@ async function main() {
     const shot = async (name, target = page) => { const file = path.join(config.out, name); await target.screenshot({ path: file }); shots.push(name); };
     const api = async route => { const res = await fetch(config.base + route); if (!res.ok) throw Error(`${route}: HTTP ${res.status}`); return res.json(); };
 
+    // WP-L8a §6.0：取込の前に、同じ隔離サーバー（旧保存の複製）の② SCR-06 で、旧の置き方の外接箱を測る
+    const legacyWorkspace = config.legacyStageAsset ?? null;
+    await page.goto(`${config.base}/workspace/06`);
+    await page.waitForSelector('[data-feature="sceneViewport"]');
+    await page.waitForFunction(() => window.baiStudio.project.getState().status === 'ready' && window.baiStudio.assets.getState().status === 'ready',
+      null, { timeout: 60000 });
+    if (legacyWorkspace) {
+      await page.waitForFunction(() => Boolean(window.baiStudio.viewport.getState().stage?.assetId), null, { timeout: 180000 });
+    }
+    await page.waitForTimeout(500);
+    const scr06State = await page.evaluate(() => window.baiStudio.viewport.getState());
+    const scr06 = { stageAssetId: scr06State.stage?.assetId || null, characterAssetId: scr06State.character?.assetId || null,
+      bounds: scr06State.bounds };
+    await shot('00_scr06_legacy.png');
+
     await page.goto(`${config.base}/studio/v05/index.html`);
     await page.evaluate(() => window.baiGo('projects'));
     const card = page.locator('#baiProjectList .baiCard', { has: page.locator('h3', { hasText: config.projectName }) });
@@ -108,7 +123,7 @@ async function main() {
     process.stdout.write(JSON.stringify({ status, timelineClips, sceneLoaded: scene.loaded, motionLoaded: scene.motion?.loadedClips?.length ?? null,
       motionIssues: scene.motion?.issues || [], motionWait, planReady: plan.ready_count,
       planRows: (plan.rows || []).map(row => ({ clip: row.clip_id, status: row.status, reason: row.reason || null })),
-      placedClips, bounds, renderer, shots, pageErrors: errors }) + '\n');
+      placedClips, bounds, scr06, renderer, shots, pageErrors: errors }) + '\n');
   } finally {
     await browser.close();
   }

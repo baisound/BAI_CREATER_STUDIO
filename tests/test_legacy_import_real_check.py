@@ -52,3 +52,18 @@ def test_render_ja_marks_each_requirement(tmp_path):
     assert "総合：**不合格**" in text
     assert "| R1 元を壊さない | 合格 |" in text and "| R2 往復一致 | 不合格 |" in text and "| R4 編集後の逆変換 | 判定なし |" in text
     assert "- 画面" in text
+
+
+def test_scr06_line_with_and_without_bounds(tmp_path):
+    """WP-L8a §6.0：旧 SCR-06 の外接箱の1行（測れたとき・測れなかったとき）と、旧保存のステージ素材の読み取り。"""
+    line = check.scr06_line({"stageAssetId": "library:s", "characterAssetId": None,
+                             "bounds": {"min": [-10.5, -0.25, -8], "max": [10.5, 6.75, 8]}})
+    assert line == ("- 旧 SCR-06 の外接箱：最小 [-10.5, -0.25, -8]、最大 [10.5, 6.75, 8]、大きさ [21.0, 7.0, 16]"
+                    "（ステージ library:s、キャラクター なし）")
+    assert check.scr06_line(None).startswith("- 旧 SCR-06 の外接箱：測れていない")
+    assert check.scr06_line({"bounds": None}).startswith("- 旧 SCR-06 の外接箱：測れていない")
+    (tmp_path / "project_state.workspace.json").write_text(json.dumps({"asset": "", "stage": {"asset": "library:s"}}), encoding="utf-8")
+    assert check.legacy_stage_asset(tmp_path) == "library:s"
+    (tmp_path / "project_state.workspace.json").write_text(json.dumps({"asset": "", "stage": None}), encoding="utf-8")
+    assert check.legacy_stage_asset(tmp_path) is None
+    assert check.legacy_stage_asset(tmp_path / "missing") is None

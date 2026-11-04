@@ -92,6 +92,30 @@ def referenced_files(data):
     return sorted(r for r in rel if (data / r).is_file()), sorted(ids)
 
 
+def legacy_stage_asset(data):
+    """旧保存の workspace.stage.asset（値でなければ None）。② SCR-06 でステージの読込を待つかに使う。"""
+    path = Path(data) / "project_state.workspace.json"
+    if not path.is_file():
+        return None
+    ws = read_json(path)
+    ws = ws.get("workspace", ws) if isinstance(ws, dict) else {}
+    stage = ws.get("stage") if isinstance(ws, dict) else None
+    if not isinstance(stage, dict):
+        return None
+    return stage.get("asset") or None
+
+
+def scr06_line(scr06):
+    """報告の1行：旧 SCR-06 の外接箱（WP-L8a §6.0）。"""
+    bounds = (scr06 or {}).get("bounds")
+    if not bounds:
+        return "- 旧 SCR-06 の外接箱：測れていない（画面を使わなかったか、場面が空）"
+    mn, mx = bounds["min"], bounds["max"]
+    size = [round(b - a, 4) for a, b in zip(mn, mx)]
+    return (f"- 旧 SCR-06 の外接箱：最小 {[round(v, 4) for v in mn]}、最大 {[round(v, 4) for v in mx]}、大きさ {size}"
+            f"（ステージ {scr06.get('stageAssetId') or 'なし'}、キャラクター {scr06.get('characterAssetId') or 'なし'}）")
+
+
 # ---- 隔離サーバー ----------------------------------------------------------------------------
 def free_port():
     with socket.socket() as s:
@@ -232,7 +256,7 @@ def run(args):
             node = shutil.which("node")
             if chromium and node and not args.no_browser:
                 config = {"base": server.base, "projectId": pid, "projectName": PROJECT_NAME, "out": str(out),
-                          "chromium": chromium, "realGpu": not args.swiftshader}
+                          "chromium": chromium, "realGpu": not args.swiftshader, "legacyStageAsset": legacy_stage_asset(work)}
                 proc = subprocess.run([node, str(ROOT / "tools" / "legacy_import_real_check_ui.cjs"), json.dumps(config, ensure_ascii=False)],
                                       cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=900)
                 if proc.returncode:
@@ -356,7 +380,8 @@ def render_ja(r):
     ui = r.get("ui")
     lines += ["", "## 画面と画像", ""]
     if ui:
-        lines += [f"- 描画器：{ui.get('renderer')}", f"- 取込の結果の行：{ui.get('status')}",
+        lines += [scr06_line(ui.get("scr06")),
+                  f"- 描画器：{ui.get('renderer')}", f"- 取込の結果の行：{ui.get('status')}",
                   f"- タイムラインのクリップ数（画面／API）：{ui.get('timelineClips')}／{len(applied.get('clips', []))}",
                   f"- 3D場面の読込数：{ui.get('sceneLoaded')}",
                   f"- 3D場面の動作：読込 {ui.get('motionLoaded')} 件／計画で ready {ui.get('planReady')} 件（待ちの結果：{ui.get('motionWait')}、理由：{ui.get('motionIssues') or 'なし'}）",
