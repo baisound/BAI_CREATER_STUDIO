@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T11:59:57+09:00",
+  "updated_at": "2026-11-04T03:20:44+00:00",
   "updated_by": "claude-code",
-  "branch": "claude/v05-next",
-  "head_at_update": "4dd08b2",
+  "branch": "claude/l8a-design",
+  "head_at_update": "9c15d43",
   "current": {
-    "task": "WP-L9：旧保存→v0.5取込の実データ確認（1コマンドの台本、実GPU、R1〜R4）",
-    "status": "done",
-    "step": "台本の作成と実データでの実行",
-    "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
+    "task": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）",
+    "status": "in_progress",
+    "step": "①②③の正規化の調査と詳細設計の執筆",
+    "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
     "所有者の判断待ち：曲とダンスのGLB動作を写すか（S3の設計変更）、WP-L8a（ステージの見た目の大きさ）"
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T03:20:44+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "9c15d43",
+      "text": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）: ①②③の正規化の調査と詳細設計の執筆"
+    },
     {
       "at": "2026-11-04T11:59:57+09:00",
       "by": "claude-code",
@@ -231,13 +238,6 @@
       "event": "start",
       "head": "745d6f1",
       "text": "P2-WP-08c: 足IKタブのAIポーズ案: aiPosePanel 実装・テスト"
-    },
-    {
-      "at": "2026-11-03T23:23:30+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "9beba42",
-      "text": "P2-WP-08b: SCR-19 AI管理カード（aiManager）実装・テスト"
     }
   ]
 }
