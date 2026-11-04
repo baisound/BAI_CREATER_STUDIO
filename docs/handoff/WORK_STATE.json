@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T16:05:10+09:00",
+  "updated_at": "2026-11-04T16:27:37+00:00",
   "updated_by": "claude-code",
-  "branch": "claude/v05-next",
-  "head_at_update": "9dcf613",
+  "branch": "claude/r5-glb-vmd-design",
+  "head_at_update": "87ba6b9",
   "current": {
-    "task": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる",
-    "status": "done",
-    "step": "§6.0 所有者のS01の元の外接箱をSCR-06で測る（実装前）",
-    "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
+    "task": "順5（#102）GLB→VMDとモーション編集の詳細設計",
+    "status": "in_progress",
+    "step": "現状調査と設計書作成（実装前）",
+    "design_doc": "docs/roadmap/R5_GLB_VMD_MOTION_EDIT_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
     "所有者の回答待ち：設計§10（旧②の大きさを優先か、S1がS01の上に立って見える置き方を優先か。既定は前者でL1までを合否に使う）"
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T16:27:37+00:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "87ba6b9",
+      "text": "順5（#102）GLB→VMDとモーション編集の詳細設計: 現状調査と設計書作成（実装前）"
+    },
     {
       "at": "2026-11-04T16:05:10+09:00",
       "by": "claude-code",
@@ -232,13 +239,6 @@
       "event": "start",
       "head": "1643329",
       "text": "WP-L2 取込記録のストア: studio_v05_legacy_import_record.py と試験"
-    },
-    {
-      "at": "2026-11-04T01:11:44+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "e1600f3",
-      "text": "WP-L1 完了: studio_v05_legacy_import.plan()・vmd_last_frame・固定fixture・試験36件"
     }
   ]
 }
