@@ -1,28 +1,31 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T16:05:10+09:00",
+  "updated_at": "2026-11-04T16:42:42+00:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-next",
-  "head_at_update": "9dcf613",
+  "head_at_update": "470ca8d",
   "current": {
-    "task": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる",
+    "task": "Codexへの引継ぎ（2026-11-05）",
     "status": "done",
-    "step": "§6.0 所有者のS01の元の外接箱をSCR-06で測る（実装前）",
-    "design_doc": "docs/roadmap/WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md"
+    "step": "引継ぎ文書の作成",
+    "design_doc": "docs/handoff/CODEX_HANDOFF_20261105_JA.md"
   },
   "next_steps": [
-    "所有者の回答待ち：設計§10（旧②の大きさを優先か、S1がS01の上に立って見える置き方を優先か。既定は前者でL1までを合否に使う）"
+    "まず docs/handoff/CODEX_HANDOFF_20261105_JA.md を読む",
+    "ロードマップの次の実施順3の残り（動画内音声、300F超の3D出力、音画1F以内、同名完成物の版管理、保存カメラ無しの自動構図、縦長の欄、出力のMCP）から、まだ残っている項目を確かめて着手する",
+    "次に順4（#187）の残り（開始0秒以外・整数でないFPS、LIPのMCP。実PMX・完成MP4・実歌声SRTは所有者のPC）",
+    "順5の詳細設計（docs/roadmap/R5_GLB_VMD_MOTION_EDIT_DETAILED_DESIGN_20261104_JA.md）は草案。§8 の独立批評を反映し判定を受け直してから実装する"
   ],
   "unverified": [
-    "L8a はL4・L5不合格のため未完了。DATA-008は要検証のまま（L8bも残る）",
-    "既存の失敗：test_v05_timeline_drag_static、studio-v05-pane-layout（mainでも失敗）",
-    "MCP・WebMCPからの取込、Linux"
+    "DATA-008は要検証のまま（WP-L8bが残る）。WebMCP・標準MCPからの取込と登録、Linux、取込後のMP4は未検証",
+    "既知の失敗：test_v05_timeline_drag_static、studio-v05-pane-layout（mainでも失敗）、実VMD試験のunknown char code。接続の時間切れなど不安定な試験は引継ぎ文書の§4"
   ],
   "blockers": [],
   "owner_questions": [
-    "Q1 旧カメラの動き（キー）を順6まで保管だけにしてよいか（既定：保管だけ。時刻付きの取込はWP-L8b。返事が無くても既定で進める）"
+    "旧ダンスと旧タイムラインの動きが同じキャラで重なったときの優先（既定：タイムライン優先、ダンスは置くが割り当てない。カードで質問中）"
   ],
   "read_first": [
+    "docs/handoff/CODEX_HANDOFF_20261105_JA.md",
     "AGENTS.md",
     "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md",
     "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md",
@@ -30,6 +33,27 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T16:42:42+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "470ca8d",
+      "text": "引継ぎ文書を直した：次の作業はロードマップ順3・4の残り、順5の設計は独立批評を受けた草案（§8）として main に入れる"
+    },
+    {
+      "at": "2026-11-05T01:41:22+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "87ba6b9",
+      "text": "Codexへの引継ぎ文書 docs/handoff/CODEX_HANDOFF_20261105_JA.md を作成。main 87ba6b9（#226）までの状態、終わったこと、順6・WP-L8bへの申し送り、このPCでの試験の実行方法・既知の失敗、動いているローカルサーバー、守ることをまとめた。WP-L8aは所有者の回答「旧の大きさ」で完了済み"
+    },
+    {
+      "at": "2026-11-05T01:41:20+09:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "87ba6b9",
+      "text": "Codexへの引継ぎ（2026-11-05）: 引継ぎ文書の作成"
+    },
     {
       "at": "2026-11-04T16:05:10+09:00",
       "by": "claude-code",
@@ -218,27 +242,6 @@
       "event": "start",
       "head": "a260038",
       "text": "WP-L3 適用・打ち消し・取消(collect/apply/undo_journal/revert, clear_fps): studio_v05_legacy_import.py に収集・適用・取消、catalog.clear_fps、試験"
-    },
-    {
-      "at": "2026-11-04T01:14:48+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "1643329",
-      "text": "WP-L2 取込記録のストア studio_v05_legacy_import_record.py と試験35件"
-    },
-    {
-      "at": "2026-11-04T01:13:04+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "1643329",
-      "text": "WP-L2 取込記録のストア: studio_v05_legacy_import_record.py と試験"
-    },
-    {
-      "at": "2026-11-04T01:11:44+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "e1600f3",
-      "text": "WP-L1 完了: studio_v05_legacy_import.plan()・vmd_last_frame・固定fixture・試験36件"
     }
   ]
 }
