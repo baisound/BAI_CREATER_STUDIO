@@ -1,20 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T03:54:19+00:00",
+  "updated_at": "2026-11-04T06:27:03+00:00",
   "updated_by": "claude-code",
   "branch": "claude/legacy-s3-glb",
-  "head_at_update": "9c15d43",
+  "head_at_update": "6a84d1f",
   "current": {
     "task": "WP-L7a 補足：曲とダンスのGLB動作を③のダンスとして写す（所有者決定 2026-11-04「GLBも写す」）",
-    "status": "in_progress",
+    "status": "done",
     "step": "設計の追記・実装・試験",
     "design_doc": "docs/roadmap/LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "所有者の判断待ち：曲とダンスのGLB動作を写すか（S3の設計変更）、WP-L8a（ステージの見た目の大きさ）"
+    "実データで台本 tools/legacy_import_real_check.py を再実行し、GLBダンスが置かれ割り当てられるか確かめる（所有者のPC）",
+    "WP-L8a（ステージの見た目の大きさ）の所有者判断"
   ],
   "unverified": [
-    "WP-L8a/L8b、GLB動作のダンス、取込後のMP4、標準MCP・WebMCPからの取込、Linux",
+    "所有者の実GLB（Dance of October 9 #1）が読み飛ばし無く読めるか、所有者の motion_start_frame と旧タイムライン編集の重なり",
+    "GLBダンスの③3D・MP4での見た目、サーバー経由、Linux、WP-L8a/L8b",
     "既存の失敗：test_v05_timeline_drag_static"
   ],
   "blockers": [],
@@ -29,6 +31,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T06:27:03+00:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "6a84d1f",
+      "text": "WP-L7a 補足：曲とダンスのGLB動作のダンスを変換せずに開始時刻ごと置いて割り当てる（glb_channels で長さ、旧タイムライン編集と重なるときは割り当てない）"
+    },
     {
       "at": "2026-11-04T03:54:19+00:00",
       "by": "claude-code",
@@ -231,13 +240,6 @@
       "event": "done",
       "head": "745d6f1",
       "text": "P2-WP-08c: 足IKタブのAIポーズ案（aiPosePanel）実装・テスト"
-    },
-    {
-      "at": "2026-11-03T23:23:35+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "745d6f1",
-      "text": "P2-WP-08c: 足IKタブのAIポーズ案: aiPosePanel 実装・テスト"
     }
   ]
 }

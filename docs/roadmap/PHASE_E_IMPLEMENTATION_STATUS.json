@@ -380,6 +380,15 @@
       "commit": "WP-L9 コミット（Git履歴で「WP-L9」を検索）",
       "tests": "所有者のPCの実GPU（RTX 4070 SUPER/D3D11）で台本を4回実行し R1〜R4 すべて合格（元の160ファイルのhash一致、往復一致、取消、編集後の逆変換）。tests/test_legacy_import_real_check.py 2件、pytest 全体 938 pass・既存失敗1件（test_v05_timeline_drag_static）・skip 0、npm run typecheck 成功、tests/studio-v05-legacy-import-ui.test.cjs と -3d 11/11 passed",
       "unverified": "DATA-008 は要検証のまま（WP-L8a/L8b が残る）。実データでは S01ステージが2mに縮みキャラクターを内側に隠す（L8a の差）。所有者のSCR-10のダンスはGLB動作のため保管（S3の規則）。取込後のMP4、標準MCP・WebMCPからの取込、Linux は未確認"
+    },
+    {
+      "item": "Issue #63/#69 旧保存→v0.5取込 WP-L7a 補足（曲とダンス SCR-10 の GLB 動作のダンスを③のモーション行へ開始時刻ごと置き、ダンスのモデルへ割り当てる。長さは既存の motion_interchange.glb_channels で先頭アニメーションのキー時刻の最大値。変換・生成物なし。旧タイムライン編集の動作と同じインスタンスで重なるときはダンスを割り当てない）",
+      "phase_e_wp": "（DATA-008、再構築ロードマップ 次の実施順2。所有者決定 2026-11-04「GLBも写す」）",
+      "planned_in": "LEGACY-IMPORT-WP-L7a",
+      "status": "done",
+      "commit": "WP-L7a GLB コミット（Git履歴で「WP-L7a 補足」を検索）",
+      "tests": "tests/test_studio_v05_legacy_import_music_dance.py 75件・legacy_import 全体 319件 passed（skipなし）。pytest 全体 936 pass・既存失敗1件（test_v05_timeline_drag_static）・skip 21（BAI_REAL_MMD_DATA など環境依存の既存分）。npm run typecheck 成功。JS・サーバー未変更",
+      "unverified": "DATA-008 は要検証のまま（WP-L8a/L8b が残る）。所有者の実 GLB（Dance of October 9 #1）を glb_channels で読み飛ばし無く読めるか、所有者の motion_start_frame と旧タイムライン編集の重なり、③の3D・MP4での GLB ダンスの見た目は未確認。サーバー経由・画面・Linux も未確認"
     }
   ]
 }
