@@ -1,22 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T09:39:42+09:00",
+  "updated_at": "2026-11-04T10:20:29+09:00",
   "updated_by": "claude-code",
   "branch": "claude/v05-next",
-  "head_at_update": "82630a0",
+  "head_at_update": "1593248",
   "current": {
-    "task": "DATA-016: FBXモデル見本の黒い影絵と容量「不明」の修正、続いてロードマップ次の実施順3の調査（#39/#63/#81）",
+    "task": "ロードマップ次の実施順3：共通の制作状態からの出力（#39/#63/#81）",
     "status": "done",
-    "step": "画面呼称（①②③）の記録修正とFBX見本の原因調査",
+    "step": "作品・シーン・時計と保存カメラ/ステージ位置のプレビュー・レンダー受け渡しの調査",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
-    "ロードマップ次の実施順3：作品・シーン・時計と保存カメラ/ステージ位置のプレビュー・レンダーへの受け渡しを調査表にまとめる"
+    "所有者の回答待ち：③へのVRM・FBX・GLB動作の直接登録と3D見本（A/B/C）",
+    "CAM-015：①の旧カメラのショット列をMP4へ使うかの設計判断（所有者）"
   ],
   "unverified": [
-    "②の/workspace/08がSwiftShaderで時々起動途中に止まる（stage-thumbnail.jsのERR_CONNECTION_TIMED_OUT、原因未特定）",
-    "Exo Grayの見本とMixamo公式画像の突き合わせ、他のFBXモデル",
-    "test_v05_timeline_drag_static と実VMD試験の既存の失敗"
+    "保存カメラが無い作品の自動構図の一致、16:9より縦長のプレビュー欄、時間で動くカメラ、半透明3Dの色の差",
+    "既存の失敗：arm-ik-geometry-real・full-pmx-dance・vmd-constant-real・test_v05_timeline_drag_static・実VMD試験（unknown char code）",
+    "②の/workspace/08がSwiftShaderで時々起動途中に止まる（stage-thumbnail.jsの接続時間切れ）"
   ],
   "blockers": [],
   "owner_questions": [
@@ -33,6 +34,20 @@
     "docs/ui/NEW_UI_FLOW_AUDIT_20261020_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-04T10:20:29+09:00",
+      "by": "claude-code",
+      "event": "done",
+      "head": "1593248",
+      "text": "ロードマップ次の実施順3：共通の制作状態からの出力を調査表にまとめ、保存ステージ位置と保存カメラのプレビュー・MP4構図一致を修正（③のプレビューに16:9の出力枠）。実PMX・実S01の試験を追加"
+    },
+    {
+      "at": "2026-11-04T09:40:02+09:00",
+      "by": "claude-code",
+      "event": "start",
+      "head": "1593248",
+      "text": "ロードマップ次の実施順3：共通の制作状態からの出力（#39/#63/#81）: 作品・シーン・時計と保存カメラ/ステージ位置のプレビュー・レンダー受け渡しの調査"
+    },
     {
       "at": "2026-11-04T09:39:42+09:00",
       "by": "claude-code",
@@ -228,20 +243,6 @@
       "event": "start",
       "head": "0ed0217",
       "text": "Issue #187: 口形VMD候補の製品内採用契約: 既存モーション・手動表情を保持する明示採用の保存/解除と競合条件を調べ、最小APIを接続する"
-    },
-    {
-      "at": "2026-10-25T02:37:04+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b87f6d6",
-      "text": "LIP-001の別名口形VMD出力前検査を発話別・原因別の一覧へ拡張。隔離Python実PMX含む11件、隔離Chrome実PMX1件、typecheck/構文/差分検査成功。Issue #187。"
-    },
-    {
-      "at": "2026-10-25T02:30:39+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3925d8d",
-      "text": "Issue #187: 口形VMD出力不能箇所を一覧化: 未確定発話・警告・欠落モーフ・フレーム衝突を発話別に返しv0.5画面で修正対象を示す"
     }
   ]
 }
