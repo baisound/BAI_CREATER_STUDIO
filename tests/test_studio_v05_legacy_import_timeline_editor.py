@@ -365,7 +365,8 @@ def test_glb_character_accepts_fbx_motion(env):
 
 
 def test_dance_model_from_music_dance_is_the_target_when_both_are_included(env):
-    env.write_md("music_dance_other_model")
+    # ダンス（2.0〜3.033秒）が旧タイムラインの Run（1.0〜4.0秒）と重ならないよう、ダンスを 10 秒へずらす
+    env.write_md({**md_fixture("music_dance_other_model"), "motion_start_frame": 300})
     pv = env.preview(include=BOTH)
     assert pv["ok"]
     env.apply(include=BOTH)
@@ -373,6 +374,41 @@ def test_dance_model_from_music_dance_is_the_target_when_both_are_included(env):
     assert len(env.scene()["instances"]) == 3
     assert all(c["target_scene_instance_id"] == other["id"] for c in env.motion_clips())
     assert len(env.motion_clips()) == 3  # ダンス1 + 旧タイムライン2
+
+
+def mm_rows(env):
+    return studio_v05_multi_motion.plan(env.dirs["arrangements"], env.dirs["scene_instances"],
+                                        env.dirs["scene_models"], env.catalog, env.target, env.assets)["rows"]
+
+
+def test_dance_overlapping_timeline_motion_is_left_unassigned(env):
+    """同じインスタンスで時刻が重なると③は両方を再生しない（overlapping_motion）。ダンスを割り当てず、旧タイムラインを残す。"""
+    env.write_md("music_dance_other_model")  # ダンス 2.0〜3.033 秒、Run 1.0〜4.0 秒
+    pv = env.preview(include=BOTH)
+    s3 = next(i for i in pv["items"] if i["id"] == "S3")
+    assert s3["status"] == "mapped" and s3["codes"] == ["MOTION_TARGET_UNSET"]
+    assert s3["messages"] == [L.MESSAGES["MOTION_TARGET_UNSET"]]
+    dance_n = s3["step"]
+    assert not [s for s in pv["steps"] if s["kind"] == "clip_assign" and s["clip_step"] == dance_n]
+    assert [s["kind"] for s in pv["steps"]].count("clip_assign") == 2
+    env.apply(include=BOTH)
+    other = env.inst(OTHER_PMX)[0]
+    by_asset = {}
+    for c in env.motion_clips():
+        by_asset.setdefault(c["asset_id"], []).append(c)
+    assert "target_scene_instance_id" not in by_asset[MOTION_ID][0]
+    timeline = [c for c in env.motion_clips() if c["asset_id"] != MOTION_ID]
+    assert len(timeline) == 2 and all(c["target_scene_instance_id"] == other["id"] for c in timeline)
+    assert {r["status"] for r in mm_rows(env) if r["asset_id"] != MOTION_ID} == {"ready"}
+    assert env.record()["state"] == "applied"
+
+
+def test_dance_touching_but_not_overlapping_timeline_motion_is_assigned(env):
+    # Walk は 5.0〜6.5 秒。ダンス（長さ 31/30 秒）を 6.5 秒ちょうどから始めると重ならない
+    env.write_md({**md_fixture("music_dance_other_model"), "motion_start_frame": 195})
+    pv = env.preview(include=BOTH)
+    s3 = next(i for i in pv["items"] if i["id"] == "S3")
+    assert s3["codes"] == [] and [s["kind"] for s in pv["steps"]].count("clip_assign") == 3
 
 
 def test_unplaceable_dance_model_does_not_fall_back_to_the_character(env):
