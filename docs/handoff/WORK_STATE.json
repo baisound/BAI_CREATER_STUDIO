@@ -11,7 +11,10 @@
     "design_doc": "docs/handoff/CODEX_HANDOFF_20261105_JA.md"
   },
   "next_steps": [
-    "Codex は D:\\BAI\\BAI_CREATER_STUDIO\\_codex_work で作業する。まず docs/handoff/CODEX_HANDOFF_20261105_JA.md の §0 と次にやることを読む"
+    "Codex は D:\\BAI\\BAI_CREATER_STUDIO\\_codex_work（ブランチ codex/next）で作業する。まず docs/handoff/CODEX_HANDOFF_20261105_JA.md の §0 と次にやることを読む",
+    "ロードマップの次の実施順3の残り（動画内音声、300F超の3D出力、音画1F以内、同名完成物の版管理、保存カメラ無しの自動構図、縦長の欄、出力のMCP）から、まだ残っている項目を確かめて着手する",
+    "次に順4（#187）の残り（開始0秒以外・整数でないFPS、LIPのMCP。実PMX・完成MP4・実歌声SRTは所有者のPC）",
+    "順5の詳細設計（docs/roadmap/R5_GLB_VMD_MOTION_EDIT_DETAILED_DESIGN_20261104_JA.md）は草案。§8 の独立批評を反映し判定を受け直してから実装する"
   ],
   "unverified": [
     "DATA-008は要検証のまま（WP-L8bが残る）。WebMCP・標準MCPからの取込と登録、Linux、取込後のMP4は未検証",
