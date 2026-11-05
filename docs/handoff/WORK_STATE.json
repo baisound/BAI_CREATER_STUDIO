@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T01:08:31+09:00",
+  "updated_at": "2026-11-06T01:09:57+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "f5d9690",
+  "head_at_update": "2ccfb4c",
   "current": {
     "task": "Issue #234 Python配置移動の実データ確認",
-    "status": "in_progress",
+    "status": "done",
     "step": "実旧作品の隔離APIとChrome取込を検証して未確認範囲を記録する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
-    "Issue #234の下書きPRを作成し、移動対応表と未検証を引き継ぐ",
-    "Issue #39の保存Outによるプレビュー途中停止を別コミットで修正・検証する"
+    "PR #235の追加検証コミットをpushし、PR #233・#236との統合順を確認する",
+    "WP-L8aの巨大ステージで人物が見えない構図不良をIssue #63で継続する"
   ],
   "unverified": [
-    "Node全件はChrome指定で444成功・55スキップ・5失敗。旧import1件修正後の対象試験は成功、UIタイムアウト2件は単独成功、8811番は別開発プロセス占有、ペイン配置は既知失敗",
-    "Ubuntu Python全件は接続リセット1件で未完走。該当3件は単独成功。実GPU・外部Blender・全CLI実入力は未検証"
+    "実GPU・外部Blender・全CLI実入力、Node全件の無失敗完走、Ubuntu全件の安定完走は未確認",
+    "WP-L8aのL4不合格・L5見えない、動作GLBの適用先未指定1件が残る"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T01:09:57+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2ccfb4c",
+      "text": "PR #235で実旧作品の隔離HTTP・Chrome取込を確認。R1〜R4合格、原本160ファイル不変。検証文書に結果を記録"
+    },
     {
       "at": "2026-11-06T01:08:31+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "start",
       "head": "e0847b9",
       "text": "順4：開始0秒以外・整数でないFPSの口形合成候補: 作品時刻から元VMD時刻への写像と全フレーム比較器の拡張"
-    },
-    {
-      "at": "2026-11-05T12:53:10+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "655d4e2",
-      "text": "限定MP4出力を標準MCP・WebMCPの9ツールで共通APIへ接続し、隔離1F MP4・同名置換・旧版復元・原本不変を両入口で確認"
     }
   ]
 }
