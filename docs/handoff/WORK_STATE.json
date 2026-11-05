@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T22:06:11+09:00",
+  "updated_at": "2026-11-05T22:09:38+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "13477c8",
+  "head_at_update": "74b14fc",
   "current": {
     "task": "順4 LIP-001標準MCPの実stdioセッションを検証",
-    "status": "in_progress",
+    "status": "done",
     "step": "initializeからtools/list・実歌声SRT取込・読み保存・再読込を隔離HTTPサーバーで通す",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "順4 #187: Ownerが54発話の読み・無音を確認した範囲で実曲VMDとの口形合成と出力を試験。独立して可能なMCP実クライアント・ブラウザ呼出し、Linux等のゲートを確認する"
+    "順4 #187: WebMCP対応ブラウザのネイティブ呼出し可否を実環境で確認。Owner確認後、実歌声SRTの読み・無音を確定した範囲で合成と出力を試験"
   ],
   "unverified": [
-    "全54発話の実歌声に対する読み・明示無音のOwner確定、口形採用、自然さ、歌声入り長尺MP4は未検証",
-    "実GPU、WebMCP対応ブラウザのネイティブ呼出し、実MCPクライアント、Linux、別PMXは未検証"
+    "利用者の標準MCPクライアント設定、WebMCPのブラウザネイティブ呼出し、Ownerによる54発話の読み・無音確定、歌声入り長尺MP4は未検証",
+    "実GPU、Linux、別PMXと口形の自然さは未検証"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T22:09:38+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "74b14fc",
+      "text": "MCP 2024-11-05の継続stdioセッションでinitialize/一覧/実歌声SRT54発話取込/再読込/#1仮読みproposedを隔離作品へ保存。HTTP読直しと原本hashを照合し、試験1件成功。"
+    },
     {
       "at": "2026-11-05T22:06:11+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "b29ad15",
       "text": "順3：300Fを超える3D出力を隔離実測して制限を拡張: 3D連番キャッシュ・時間制限・UI表示の照合"
-    },
-    {
-      "at": "2026-11-05T12:00:28+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "6acccfa",
-      "text": "動画内音声を元区間・作品時刻で限定MP4へ混合し、隔離Chrome/FFmpegと関連ルート試験で確認"
     }
   ]
 }
