@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T22:38:41+09:00",
+  "updated_at": "2026-11-06T00:28:33+09:00",
   "updated_by": "codex",
-  "branch": "codex/next",
-  "head_at_update": "5008733",
+  "branch": "codex/preview-full-timeline-20261106",
+  "head_at_update": "7f94872",
   "current": {
-    "task": "順5 GLB→VMD詳細設計の批評反映",
-    "status": "done",
-    "step": "独立批評§8の停止級と範囲・試験条件を本文へ反映し、再判定できる状態にする",
-    "design_doc": "docs/roadmap/R5_GLB_VMD_MOTION_EDIT_DETAILED_DESIGN_20261104_JA.md"
+    "task": "Issue #39 書き出しOutでプレビューが途中停止する不具合",
+    "status": "in_progress",
+    "step": "保存クリップ終端と書き出し範囲を分離し、実ブラウザと稼働データの読取で検証する",
+    "design_doc": "docs/v05/PREVIEW_FULL_TIMELINE_20261106_JA.md"
   },
   "next_steps": [
     "順3・4の残件を優先し、Ownerの実歌声SRT54発話の読み・無音回答を受けてLIP実曲検証を続ける",
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T00:28:33+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "7f94872",
+      "text": "Issue #39 書き出しOutでプレビューが途中停止する不具合: 保存クリップ終端と書き出し範囲を分離し、実ブラウザと稼働データの読取で検証する"
+    },
     {
       "at": "2026-11-05T22:38:41+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "4216e64",
       "text": "保存カメラなしの実PMX＋S01 GLBステージでプレビューと720p MP4のF0自動構図を照合（IoU 0.892、重心差0.0028、原本不変）"
-    },
-    {
-      "at": "2026-11-05T12:35:06+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "20f4636",
-      "text": "順3：保存カメラ未設定時の自動構図をプレビューとMP4で照合: 実PMX・GLBステージの隔離描画と構図比較"
     }
   ]
 }
