@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T01:59:11+09:00",
+  "updated_at": "2026-11-06T02:14:31+09:00",
   "updated_by": "codex",
-  "branch": "codex/python-layout-20261105",
-  "head_at_update": "1c4bee1",
+  "branch": "codex/next",
+  "head_at_update": "8cc3101",
   "current": {
-    "task": "Issue #234 Python移動後の現行文書参照",
-    "status": "done",
-    "step": "旧作品取込とGLB→VMDの現行設計で移動前Python参照を対応表に従って更新する",
-    "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
+    "task": "PR #235統合後の引継ぎ更新",
+    "status": "in_progress",
+    "step": "codex/nextの作業位置と8765番サーバー復旧・worktree整理を記録する",
+    "design_doc": "docs/handoff/CODEX_HANDOFF_20261105_JA.md"
   },
   "next_steps": [
     "PR #235はNode全件5失敗を明記した下書きとしてレビューし、統合判断を進める",
@@ -30,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T02:14:31+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8cc3101",
+      "text": "PR #235統合後の引継ぎ更新: codex/nextの作業位置と8765番サーバー復旧・worktree整理を記録する"
+    },
     {
       "at": "2026-11-06T01:59:11+09:00",
       "by": "codex",
@@ -232,13 +239,6 @@
       "event": "done",
       "head": "450057c",
       "text": "実歌声SRT54発話・最終228.365秒と同曲VMD骨351951/口形4760キー・最終230秒を原本不変で検査。空モデル名の入力互換性を限定修正し、実素材含む17件とLIP合成回帰22件が成功。"
-    },
-    {
-      "at": "2026-11-05T13:59:24+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "729c06b",
-      "text": "順4 LIP-001実歌声SRTと実楽曲VMDの互換性を隔離検証: 空のモデル名を持つ実VMDの非破壊読取とSRT境界を点検する"
     }
   ]
 }
