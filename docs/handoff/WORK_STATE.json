@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T04:53:00+09:00",
+  "updated_at": "2026-11-06T04:55:55+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-mixed-audio-fps-20261106",
-  "head_at_update": "b901eb6",
+  "branch": "codex/v05-moving-clock-stage-20261106",
+  "head_at_update": "b847043",
   "current": {
-    "task": "Issue #39/#81 実素材由来の音声重なりとFPS検証",
-    "status": "done",
-    "step": "実動画と実WAVから隔離試験入力を作り44.1/48kHzの混合・24/29.97/60fps・非0開始を完成MP4で確認",
-    "design_doc": "docs/v05/MIXED_AUDIO_FPS_20261106_JA.md"
+    "task": "Issue #39/#63/#81 動く3Dの時計と実ステージ長尺保存カメラ",
+    "status": "in_progress",
+    "step": "移動するGLBの映像指標と音声を照合し、実PMX/VMD/曲/ステージ/保存カメラの長尺MP4を検証",
+    "design_doc": "docs/v05/MOVING_CLOCK_STAGE_LONG_20261106_JA.md"
   },
   "next_steps": [
     "PR241を開発ブランチへ統合し、動く3Dと音声の時計・実ステージと長尺保存カメラを検証する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T04:55:55+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "b847043",
+      "text": "Issue #39/#63/#81 動く3Dの時計と実ステージ長尺保存カメラ: 移動するGLBの映像指標と音声を照合し、実PMX/VMD/曲/ステージ/保存カメラの長尺MP4を検証"
+    },
     {
       "at": "2026-11-06T04:53:00+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "010705a",
       "text": "順5 GLB→VMD詳細設計の批評反映: 独立批評§8の停止級と範囲・試験条件を本文へ反映し、再判定できる状態にする"
-    },
-    {
-      "at": "2026-11-05T22:18:50+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a6dc996",
-      "text": "Ubuntu WSLで実歌声SRT/同曲VMDの対象Python39件、継続stdio標準MCP1件、実PMX/SRT/VMD隔離HTTP1件が成功。原本SRT/VMDと共有dataの前後hash一致。Linuxブラウザー/MP4は未実施。"
     }
   ]
 }
