@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T01:09:57+09:00",
+  "updated_at": "2026-11-06T01:20:40+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "2ccfb4c",
+  "head_at_update": "cd99227",
   "current": {
-    "task": "Issue #234 Python配置移動の実データ確認",
-    "status": "done",
-    "step": "実旧作品の隔離APIとChrome取込を検証して未確認範囲を記録する",
+    "task": "Issue #234 Python配置整理の基点更新",
+    "status": "in_progress",
+    "step": "codex/nextのPR #236統合後差分を取り込み、競合と試験を確認する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T01:20:40+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cd99227",
+      "text": "Issue #234 Python配置整理の基点更新: codex/nextのPR #236統合後差分を取り込み、競合と試験を確認する"
+    },
     {
       "at": "2026-11-06T01:09:57+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "fd84351",
       "text": "順4 LIP-001: 開始0秒以外と非整数FPSの元VMD口形合成候補を作品時刻から局所30fpsへ写し、開始1秒・29.97fpsの隔離HTTPと実VMD単体22件、隔離Chrome4件を確認"
-    },
-    {
-      "at": "2026-11-05T12:56:49+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e0847b9",
-      "text": "順4：開始0秒以外・整数でないFPSの口形合成候補: 作品時刻から元VMD時刻への写像と全フレーム比較器の拡張"
     }
   ]
 }
