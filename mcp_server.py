@@ -87,6 +87,8 @@ def run(name,a):
     if name=='bai_studio_playhead_set':return api('/api/studio/v05/playhead',a)
     if name=='bai_studio_timeline_view':return api('/api/studio/v05/timeline/view?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_arrangement_get':return api('/api/studio/v05/arrangement?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_lip_adoptions_get':return api('/api/studio/v05/lip/adoptions?project_id='+urllib.parse.quote(a['project_id'],safe='')+'&instance_id='+urllib.parse.quote(a['instance_id'],safe=''))
+    if name=='bai_studio_lip_composite_candidate_create':return api('/api/studio/v05/lip/composite-candidate',a)
     if name=='bai_studio_render_capabilities':return api('/api/studio/v05/render/capabilities')
     if name=='bai_studio_render_range_get':return api('/api/studio/v05/timeline/range?id='+urllib.parse.quote(a['project_id'],safe=''))
     if name=='bai_studio_render_range_set':return api('/api/studio/v05/timeline/range',a)
@@ -239,6 +241,8 @@ TOOLS=[
 ('bai_studio_playhead_set','Set saved edit cursor, revision guarded; no engine seek.',S({'project_id':STR,'seconds':{'type':'number'},'revision':{'type':'integer'}},['project_id','seconds','revision'])),
 ('bai_studio_timeline_view','Read deterministic track-grouped per-project timeline projection; read-only.',S({'project_id':STR},['project_id'])),
 ('bai_studio_arrangement_get','Read v0.5 per-project clip arrangement; does not change legacy engine.',S({'project_id':STR},['project_id'])),
+('bai_studio_lip_adoptions_get','Read the adopted lip track and revision for one saved scene instance.',S({'project_id':STR,'instance_id':STR},['project_id','instance_id'])),
+('bai_studio_lip_composite_candidate_create','Compare the saved VMD clip, adopted lip and manual face keys; dry_run checks without writing, otherwise creates a distinct review-only VMD. Download revalidates project inputs.',S({'project_id':STR,'instance_id':STR,'clip_id':STR,'adoption_revision':INT,'scene_revision':INT,'arrangement_revision':INT,'dry_run':{'type':'boolean'}},['project_id','instance_id','clip_id','adoption_revision','scene_revision','arrangement_revision','dry_run'])),
 ('bai_studio_render_capabilities','Read tested local MP4 encoder and 3D capture limits.',S()),
 ('bai_studio_render_range_get','Read the saved In/Out range, FPS, and revisions.',S({'project_id':STR},['project_id'])),
 ('bai_studio_render_range_set','Save integer In/Out frames using both range and arrangement revisions.',S({'project_id':STR,'revision':INT,'arrangement_revision':INT,'in_frame':{'type':['integer','null']},'out_frame':{'type':['integer','null']}},['project_id','revision','arrangement_revision','in_frame','out_frame'])),

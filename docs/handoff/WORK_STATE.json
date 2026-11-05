@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T13:20:11+09:00",
+  "updated_at": "2026-11-05T13:25:08+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "a288c22",
+  "head_at_update": "62ca232",
   "current": {
     "task": "順4 LIP-001口形合成候補の標準MCP・WebMCP接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存の合成候補APIとMCP契約を照合し、同一APIへ最小のツールを追加",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "順4 #187: LIP合成候補の標準MCP・WebMCPを接続し、実PMXの見た目・採用口形入り完成MP4・実歌声SRTを検証する"
+    "順4 #187: 合成候補以外のLIP操作のMCP範囲を設計・接続し、実PMXの見た目・採用口形入り完成MP4・実歌声SRTを検証する"
   ],
   "unverified": [
-    "実PMXの顔/身体の見た目、採用口形を含む完成MP4、実歌声SRT、Linux、LIPの両MCPは未検証",
-    "順3のWebMCP対応ブラウザのネイティブ呼出し、実MCPクライアント設定、実素材長尺・3DのMCP出力、Linuxは未検証"
+    "WebMCP対応ブラウザのネイティブ呼出し、実MCPクライアント設定、Linux、実PMXの顔/身体の見た目、採用口形入り完成MP4、実歌声SRTは未検証",
+    "SRT取込・読み・下書き・採用など合成候補以外のLIP操作はMCP未接続"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T13:25:08+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "62ca232",
+      "text": "LIP-001合成候補の標準MCP・WebMCPを既存保存APIへ接続。採用revision取得、dry-run、別名VMD取得が画面と同じSHA-256/バイト。隔離Chrome 1件と既存出力MCP回帰1件成功"
+    },
     {
       "at": "2026-11-05T13:20:11+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "6ffaa1e",
       "text": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる: §6.0 所有者のS01の元の外接箱をSCR-06で測る（実装前）"
-    },
-    {
-      "at": "2026-11-04T03:53:38+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "f94f114",
-      "text": "WP-L8a 詳細設計を3人の批評で改訂（採否は設計書 §11）。所有者の症状（S1がS01に隠れる）を完了条件 L2〜L5 に加え、実装前に S01 の元の外接箱を SCR-06 で測る §6.0 を足した。スキン付きの試験素材（ケースK）と実PMX（ケースR）、εにRₚ/sの項、UNIT_SEMANTICS_DIFFER は character が無いときだけ残す、古い版で開いたときの範囲、試験の穴（skip防止 BAI_REQUIRE_3D、測ってから判定、対照の手順など）を直した。実装なし"
     }
   ]
 }

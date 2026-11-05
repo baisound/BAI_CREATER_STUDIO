@@ -72,3 +72,5 @@ WebMCP の **imperative API** `document.modelContext.registerTool()` を利用�
 ## 追補（2026-11-05）：v0.5の限定MP4出力
 
 現行の制作画面 /studio/v05/index.html でも webmcp.js を読み込む。この画面では bai_studio_ のツールだけを登録し、旧トップ画面は従来のツール群を維持する。完成MP4のIn/Out、能力確認、版名確認、ジョブ開始・進行、旧版復元、リンク取得を同じ保存APIへ接続した。ツール名・引数・試験範囲は [v0.5の出力MCP記録](docs/v05/RENDER_MCP_20261105_JA.md)。WebMCP対応ブラウザでのネイティブ呼出しは未検証。
+
+LIP-001の元VMD合成候補に `bai_studio_lip_adoptions_get` と `bai_studio_lip_composite_candidate_create` を追加した。標準MCPと同じ保存API・revision・拒否理由を使う。[呼出し順と試験](docs/v05/LIP001_COMPOSITE_MCP_20261105_JA.md)。WebMCP対応ブラウザでのネイティブ呼出しは未検証。
