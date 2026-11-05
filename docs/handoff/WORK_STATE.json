@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:08:33+09:00",
+  "updated_at": "2026-11-05T12:09:19+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "e864ab8",
+  "head_at_update": "4748ac1",
   "current": {
-    "task": "順3：300Fを超える3D出力を隔離実測して制限を拡張",
-    "status": "done",
-    "step": "3D連番キャッシュ・時間制限・UI表示の照合",
+    "task": "順3：全区間の音画同期を1F以内で測定・修正",
+    "status": "in_progress",
+    "step": "既存のFFmpeg時刻グラフと長尺試験入力を設計",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:09:19+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4748ac1",
+      "text": "順3：全区間の音画同期を1F以内で測定・修正: 既存のFFmpeg時刻グラフと長尺試験入力を設計"
+    },
     {
       "at": "2026-11-05T12:08:33+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "549cb41",
       "text": "WP-L7a 曲とダンス(SCR-10)の取込を実装（plan S1〜S6・collect・clip手順、試験58件）"
-    },
-    {
-      "at": "2026-11-04T01:37:19+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "3aa7216",
-      "text": "WP-L7a 曲とダンス(SCR-10)の配置と開始時刻の取込: studio_v05_legacy_import.py の plan/apply に S 手順と clip_* を足す"
     }
   ]
 }
