@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T04:53:00+09:00",
+  "updated_at": "2026-11-06T05:14:55+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-mixed-audio-fps-20261106",
-  "head_at_update": "b901eb6",
+  "branch": "codex/v05-moving-clock-stage-20261106",
+  "head_at_update": "c35edbb",
   "current": {
-    "task": "Issue #39/#81 実素材由来の音声重なりとFPS検証",
+    "task": "Issue #39/#63/#81 動く3Dの時計と実ステージ長尺保存カメラ",
     "status": "done",
-    "step": "実動画と実WAVから隔離試験入力を作り44.1/48kHzの混合・24/29.97/60fps・非0開始を完成MP4で確認",
-    "design_doc": "docs/v05/MIXED_AUDIO_FPS_20261106_JA.md"
+    "step": "移動するGLBの映像指標と音声を照合し、実PMX/VMD/曲/ステージ/保存カメラの長尺MP4を検証",
+    "design_doc": "docs/v05/MOVING_CLOCK_STAGE_LONG_20261106_JA.md"
   },
   "next_steps": [
-    "PR241を開発ブランチへ統合し、動く3Dと音声の時計・実ステージと長尺保存カメラを検証する"
+    "順3の上限36000F/10分/2GiBと停止復旧・Linux/実MCP、元から音声を持つ実動画と長尺混合の残件を検証する",
+    "今回の検証PRを開発ブランチへ統合し、順3の残件を受入条件と照合する。時刻付きカメラ/CAM019は順6へ保持する"
   ],
   "unverified": [
-    "動く3Dの時計、実ステージ長尺保存カメラ、元からの実動画内音声、長尺音声混合、上限容量・Linux/実MCP・強制終了回収は未確認"
+    "全フレームの物理/外観・全モデル・他ステージ/FPS、時刻付きカメラ、元からの実動画内音声・長尺混合、容量上限・サーバー強制終了回収・Linux/実MCPは未確認"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +28,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T05:14:55+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "c35edbb",
+      "text": "PR240/241をレビュー修正後にcodex/nextへ統合・ローカル同期。動くGLBと独立WAVの1140F/15指標は差0F。実PMX/VMD/WAV＋実ステージ＋保存カメラ230秒13800Fを実GPUで確認、画像3点MAE0.1671/0.1944/0.2283、PCM3点差0、原本保持"
+    },
+    {
+      "at": "2026-11-06T04:55:55+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "b847043",
+      "text": "Issue #39/#63/#81 動く3Dの時計と実ステージ長尺保存カメラ: 移動するGLBの映像指標と音声を照合し、実PMX/VMD/曲/ステージ/保存カメラの長尺MP4を検証"
+    },
     {
       "at": "2026-11-06T04:53:00+09:00",
       "by": "codex",
@@ -222,20 +237,6 @@
       "event": "done",
       "head": "5008733",
       "text": "順5詳細設計へ独立批評§8の停止級と主要指摘を反映。評価順、台帳保護、試験専用測定、残件とOwner判断を改訂草案に整理。リンクとgit diff --checkを確認"
-    },
-    {
-      "at": "2026-11-05T22:26:23+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "010705a",
-      "text": "順5 GLB→VMD詳細設計の批評反映: 独立批評§8の停止級と範囲・試験条件を本文へ反映し、再判定できる状態にする"
-    },
-    {
-      "at": "2026-11-05T22:18:50+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a6dc996",
-      "text": "Ubuntu WSLで実歌声SRT/同曲VMDの対象Python39件、継続stdio標準MCP1件、実PMX/SRT/VMD隔離HTTP1件が成功。原本SRT/VMDと共有dataの前後hash一致。Linuxブラウザー/MP4は未実施。"
     }
   ]
 }
