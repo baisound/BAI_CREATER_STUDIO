@@ -52,7 +52,7 @@ def _sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
-def _setup(tmp_path, monkeypatch, original_vmd):
+def _setup(tmp_path, monkeypatch, original_vmd, fps=30):
     """Project with a 1.0-2.0 s SRT cue adopted as A, a 0-3 s source VMD clip and HTTP API."""
     data = tmp_path / 'data'
     model = data / 'mmd' / 'A' / 'tiny.pmx'
@@ -64,7 +64,7 @@ def _setup(tmp_path, monkeypatch, original_vmd):
     motion.write_bytes(original_vmd)
     catalog = data / 'studio_v05_catalog.json'
     project_id = create(catalog, '口形合成VMD')['id']
-    set_fps(catalog, project_id, 30)
+    set_fps(catalog, project_id, fps)
     pmx = {'id': 'mmd:A:tiny.pmx', 'source': 'mmd', 'kind': 'A', 'format': 'PMX',
            'name': 'tiny.pmx', 'available': True}
     vmd = {'id': 'mmd:vmd:source dance.vmd', 'source': 'mmd', 'kind': 'vmd', 'format': 'VMD',
@@ -84,7 +84,7 @@ def _setup(tmp_path, monkeypatch, original_vmd):
                 project_id, 0, source['id'], source['sha256'], 1, 'confirmed', 'あ', False)
     save_draft(data/'studio_v05_lip_drafts', catalog, data/'studio_v05_srt_sources',
                data/'studio_v05_lip_readings', project_id, 0, source['id'], source['sha256'],
-               1, 1, 30, [{'startFrame': 30, 'endFrame': 60, 'mouthShape': 'A', 'weight': 1}])
+               1, 1, fps, [{'startFrame': 30, 'endFrame': 60, 'mouthShape': 'A', 'weight': 1}])
     analysis = inspect(pmx['id'], assets, source_for)
     entry = {'morph_id': 0, 'morph_name': 'あ', 'weight': .8}
     mutate_map(data/'studio_v05_morph_maps', catalog, project_id, 0, 'set', assets, source_for,
@@ -215,11 +215,14 @@ def test_composite_candidate_http_full_key_readback_and_rejections(tmp_path, mon
         assert code == 422 and [i['code'] for i in outside['issues']] == ['manual_key_outside_clip']
         face('face-remove', {'instance_id': INSTANCE, 'morph_name': 'あ', 'time': 3.5})
 
-        # Clip not starting at 0 is unsupported in this stage.
+        # A moved clip is checked in project time. Existing manual keys still
+        # belong to the project and may create a real discontinuity.
         edit_clip(arrangement_root, catalog, project_id, clip['id'], 2, 'update',
                   start=1, duration=3, track='motion', lane=1, source_start=0)
+        assert request('/composite-candidate/file', {'project_id': project_id,
+            'candidate_id': made['candidateId']})[0] == 409
         code, moved = request('/composite-candidate', body=body(arrangement_revision=3))
-        assert code == 422 and moved['issues'][0]['code'] == 'clip_start_not_zero'
+        assert code == 422 and moved['issues'][0]['code'] == 'discontinuity'
         edit_clip(arrangement_root, catalog, project_id, clip['id'], 3, 'update',
                   start=0, duration=3, track='motion', lane=1, source_start=0)
 
@@ -267,6 +270,34 @@ def test_composite_candidate_succeeds_when_srt_start_opens_a_closed_source_mouth
         assert code == 422 and rejected['issues'][0]['code'] == 'discontinuity'
         folder = ctx.data / 'studio_v05_lip_composite_candidates' / ctx.project_id
         assert len(list(folder.glob('*.vmd'))) == 1
+    finally:
+        ctx.api.shutdown()
+        ctx.api.server_close()
+        ctx.thread.join(timeout=5)
+
+
+def test_moved_clip_writes_clip_local_candidate_without_changing_source(tmp_path, monkeypatch):
+    original_vmd = _vmd([('あ', 0, 0.), ('あ', 90, 0.),
+                         ('まばたき', 10, 1.), ('まばたき', 20, 0.)])
+    ctx = _setup(tmp_path, monkeypatch, original_vmd, fps=29.97)
+    try:
+        edit_clip(ctx.arrangement_root, ctx.catalog, ctx.project_id,
+                  ctx.clip['id'], 2, 'update', start=1, duration=3,
+                  track='motion', lane=1, source_start=0)
+        code, made = ctx.request('/composite-candidate', body=ctx.body(
+            arrangement_revision=3, dry_run=False))
+        assert code == 200, made
+        assert made['clipStart'] == 1 and made['clipDuration'] == 3
+        assert made['projectFps'] == 29.97
+        assert made['comparison']['worst']['difference'] < 1e-6
+        code, raw = ctx.request('/composite-candidate/file', {
+            'project_id': ctx.project_id, 'candidate_id': made['candidateId']}, binary=True)
+        assert code == 200 and _sha(raw) == made['sha256']
+        mouth = {row['frame']: row['weight'] for row in inspect_morph_section(raw)['rows']
+                 if row['name'] == 'あ'}
+        assert abs(mouth[0] - .8) < 1e-6 and 0 < mouth[29] < .8
+        assert mouth[30] == 0
+        assert ctx.motion.read_bytes() == original_vmd
     finally:
         ctx.api.shutdown()
         ctx.api.server_close()

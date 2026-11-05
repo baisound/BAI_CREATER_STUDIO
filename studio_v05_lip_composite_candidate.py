@@ -92,16 +92,11 @@ def _inputs(data_root, assets, source_for, project_id, instance_id, clip_id, rev
         raise LipCompositeError('Adoption, scene or arrangement revision changed', 409)
     issues = []
     fps, start, duration = context['fps'], context['start'], context['duration']
-    if not float(fps).is_integer():
-        issues.append({'code': 'fps_not_integer', 'projectFps': fps,
-                       'message': '作品FPSが整数ではないため、元VMDとの合成比較に未対応です'})
-    if abs(start) > 1e-9:
-        issues.append({'code': 'clip_start_not_zero', 'clipStart': start,
-                       'message': '元VMDクリップの開始が0秒ではありません（開始0のクリップだけ合成できます）'})
-    fps = int(fps)
-    frames = math.floor(duration * fps + 1e-7)
+    first_frame = math.ceil(start * fps - 1e-8)
+    end_exclusive = math.ceil((start + duration) * fps - 1e-8)
+    frames = end_exclusive - first_frame
     if frames < 1:
-        issues.append({'code': 'clip_too_short', 'message': '元VMDクリップが1フレームより短いです'})
+        issues.append({'code': 'clip_too_short', 'message': '元VMDクリップが1作品フレームより短いです'})
     track = next((row for row in adoptions['tracks'] if row['instanceId'] == instance_id), None)
     if track is not None and track['status'] != 'ready':
         raise LipCompositeError('Adopted lip candidate is stale', 409, [
@@ -109,18 +104,17 @@ def _inputs(data_root, assets, source_for, project_id, instance_id, clip_id, rev
              'reason': track.get('issue'),
              'message': '採用した口形候補が失効しています。読み・下書き・口形対応を確認して作り直してください'}])
     cue_tracks = track['cueTracks'] if track else []
-    limit_ms = math.ceil(frames * 1000 / fps) if frames >= 1 else 0
     for cue in cue_tracks:
-        if cue['endMs'] > limit_ms:
+        if cue['startMs'] / 1000 < start - 1e-9 or cue['endMs'] / 1000 > start + duration + 1e-9:
             issues.append({'code': 'cue_outside_clip', 'srtIndex': cue.get('srtIndex'),
                            'startMs': cue['startMs'], 'endMs': cue['endMs'],
-                           'message': '採用口形の発話区間が元VMDクリップの範囲を超えています'})
+                           'message': '採用口形の発話区間が元VMDクリップの範囲外です'})
     face_keys = [row for row in scene['face_keys'] if row.get('instance_id') == instance_id]
     for row in face_keys:
-        if row['time'] > frames / fps + 1e-9:
+        if row['time'] < start - 1e-9 or row['time'] > start + duration + 1e-9:
             issues.append({'code': 'manual_key_outside_clip', 'morphName': row['morph_name'],
                            'time': row['time'],
-                           'message': '手動表情キーが元VMDクリップの範囲より後にあります'})
+                           'message': '手動表情キーが元VMDクリップの範囲外です'})
     if not cue_tracks and not face_keys:
         issues.append({'code': 'nothing_to_compose',
                        'message': '採用口形も手動表情キーもないため、合成するキーがありません'})
@@ -137,7 +131,8 @@ def _inputs(data_root, assets, source_for, project_id, instance_id, clip_id, rev
     if _sha(raw) != context['motion_sha256']:
         raise LipCompositeError('Source VMD changed during composition', 409)
     return {'raw': raw, 'sourceName': source.name, 'context': context, 'fps': fps,
-            'frames': frames, 'cueTracks': cue_tracks, 'faceKeys': face_keys,
+            'frames': frames, 'clipStart': start, 'clipDuration': duration,
+            'cueTracks': cue_tracks, 'faceKeys': face_keys,
             'adoption': ({'candidateId': track['candidateId'], 'sha256': track['sha256']}
                          if track else None),
             'revisions': current}
@@ -146,7 +141,8 @@ def _inputs(data_root, assets, source_for, project_id, instance_id, clip_id, rev
 def _compose(found, instance_id):
     try:
         return compose_morph_vmd(found['raw'], found['cueTracks'], found['faceKeys'],
-                                 instance_id, found['fps'], found['frames'])
+                                 instance_id, found['fps'], found['frames'],
+                                 clip_start=found['clipStart'], clip_duration=found['clipDuration'])
     except CompositeVmdError as exc:
         report = exc.report
         issues = []
@@ -208,7 +204,9 @@ def create(data_root, assets, source_for, project_id, instance_id, clip_id,
                          'arrangement': arrangement_revision})
         raw, report = _compose(found, instance_id)
         names, expected = expected_morph_rows(found['raw'], found['cueTracks'], found['faceKeys'],
-                                              instance_id, found['fps'], found['frames'])
+                                              instance_id, found['fps'], found['frames'],
+                                              clip_start=found['clipStart'],
+                                              clip_duration=found['clipDuration'])
         try:
             readback = verify_candidate(found['raw'], raw, names, expected)
         except ValueError as exc:
@@ -223,7 +221,8 @@ def create(data_root, assets, source_for, project_id, instance_id, clip_id,
                     'faceKeyCount': len(found['faceKeys']),
                     'faceKeysSha256': _face_hash(found['faceKeys']),
                     'revisions': found['revisions'], 'projectFps': found['fps'],
-                    'projectFrames': found['frames'], 'sha256': _sha(raw),
+                    'projectFrames': found['frames'], 'clipStart': found['clipStart'],
+                    'clipDuration': found['clipDuration'], 'sha256': _sha(raw),
                     'comparison': report, 'readback': readback, 'status': STATUS,
                     'candidateOnly': True, 'placedInProject': False}
         if dry_run:
@@ -288,6 +287,8 @@ def candidate_file(data_root, assets, source_for, project_id, candidate_id):
             or context['model_sha256'] != metadata['modelSha256']
             or found['adoption'] != metadata['adoption']
             or _face_hash(found['faceKeys']) != metadata['faceKeysSha256']
+            or metadata.get('clipStart', 0.) != context['start']
+            or ('clipDuration' in metadata and metadata['clipDuration'] != context['duration'])
             or _sha(current) != metadata['sha256']):
         raise LipCompositeError('Composite candidate is stale: project inputs changed', 409)
     return raw, metadata

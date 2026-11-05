@@ -34,7 +34,7 @@ def test_smooth_adoption_preserves_body_and_passes_all_project_and_mid_frames():
     before, after = inspect_morph_section(source), inspect_morph_section(output)
     assert before['prefix'] == after['prefix'] and before['tail'] == after['tail']
     assert report['status'] == 'sampled_binary_candidate_requires_real_pmx_validation'
-    assert report['checkedValues'] == 181 and report['worst']['difference'] < 1e-6
+    assert report['checkedValues'] == 182 and report['worst']['difference'] < 1e-6
     assert report['binary']['sourceBoneKeys'] == 1
     assert [(row['frame'], round(row['weight'], 3)) for row in after['rows'] if row['name'] == 'あ'][30:32] == [
         (30, .8), (31, .78)]
@@ -128,12 +128,14 @@ import {evaluateFaceKeys} from './studio/v05/js/pmx-face-keys-v96.js';
 let raw=''; for await (const chunk of process.stdin) raw+=chunk;
 const input=JSON.parse(raw);
 const keys=input.source;
-const source=frame=>{
+const sourceRaw=frame=>{
   if(frame<=keys[0][0])return keys[0][1];
   for(let i=0;i<keys.length-1;i++){const [fa,a]=keys[i],[fb,b]=keys[i+1];
     if(frame<=fb)return a+(b-a)*(frame-fa)/(fb-fa);}
   return keys.at(-1)[1];
 };
+const source=frame=>frame<input.clipStart*30-1e-9||
+  frame>=(input.clipStart+input.clipDuration)*30-1e-9?0:sourceRaw(frame-input.clipStart*30);
 const values=input.seconds.map(seconds=>{
   const lip=evaluateLipCueTracks(input.cues,seconds,(name,frame)=>source(frame)).get('あ');
   const face=evaluateFaceKeys(input.manual,'model-1',seconds).get('あ');
@@ -143,10 +145,13 @@ process.stdout.write(JSON.stringify(values));
 """
 
 
-def _browser_values(seconds, cue_tracks, manual, source_keys):
+def _browser_values(seconds, cue_tracks, manual, source_keys,
+                    clip_start=0, clip_duration=1e12):
     result = subprocess.run(['node', '--input-type=module', '-e', BROWSER_SCRIPT],
                             input=json.dumps({'seconds': seconds, 'cues': cue_tracks,
-                                              'manual': manual, 'source': source_keys},
+                                              'manual': manual, 'source': source_keys,
+                                              'clipStart': clip_start,
+                                              'clipDuration': clip_duration},
                                              ensure_ascii=False),
                             text=True, encoding='utf-8', capture_output=True, check=True,
                             cwd=Path(__file__).resolve().parents[1])
@@ -179,9 +184,12 @@ def test_ramped_boundary_curve_is_identical_in_python_browser_and_candidate_vmd(
     seconds = sorted({frame / fps for frame in range(frames + 1)}
                      | {(frame + .5) / 30 for frame in range(60)}
                      | {(frame + .25) / 30 for frame in range(25, 62)})
-    browser_values = _browser_values(seconds, cue_tracks, [], source_keys)
+    seconds = [second for second in seconds if second < 2 - 1e-8]
+    browser_values = _browser_values(seconds, cue_tracks, [], source_keys,
+                                     clip_duration=2)
     cues, face, _ = _inputs(cue_tracks, [], 'model-1', fps, frames)
-    local_values = [_desired({'あ': source_keys}, cues, face, 'あ', time) for time in seconds]
+    local_values = [_desired({'あ': source_keys}, cues, face, 'あ', time,
+                             clip_duration=2) for time in seconds]
     assert local_values == pytest.approx(browser_values, abs=1e-12)
     baked = sorted((row['frame'], row['weight']) for row in inspect_morph_section(output)['rows']
                    if row['name'] == 'あ')
@@ -191,6 +199,64 @@ def test_ramped_boundary_curve_is_identical_in_python_browser_and_candidate_vmd(
     # Mid-ramp value: source at VMD frame 29 to the adopted .8 at frame 30.
     assert _desired({'あ': source_keys}, cues, face, 'あ', 29.5 / 30) == pytest.approx(
         ((.2 + .4 * 29 / 60) + .8) / 2)
+
+
+@pytest.mark.parametrize('fps', [23.976, 29.97, 59.94])
+def test_shifted_clip_and_fractional_fps_match_browser_and_local_vmd(fps):
+    clip_start, duration = 1., 2.
+    source_keys = [(0, .2), (60, .6)]
+    cue_tracks = [{'startMs': 1500, 'endMs': 2000, 'records': [
+        {'name': 'あ', 'frame': 45, 'weight': .8},
+        {'name': 'あ', 'frame': 59, 'weight': .8}]}]
+    output, report = compose_morph_vmd(
+        _source(source_keys), cue_tracks, [], 'model-1', fps,
+        round(duration * fps), clip_start=clip_start, clip_duration=duration)
+    assert report['worst']['difference'] < 1e-6
+    assert report['clipStart'] == clip_start and report['projectFps'] == fps
+    from studio_v05_lip_vmd_composite import _curve
+    baked = sorted((row['frame'], row['weight'])
+                   for row in inspect_morph_section(output)['rows'] if row['name'] == 'あ')
+    seconds = [clip_start + fraction / 30 for fraction in (0, 14.5, 15, 29.5, 30, 45)]
+    browser = _browser_values(seconds, cue_tracks, [], source_keys,
+                              clip_start, duration)
+    candidate = [_curve(baked, (second - clip_start) * 30) for second in seconds]
+    assert candidate == pytest.approx(browser, abs=1e-6)
+
+
+def test_unrepresentable_shifted_cue_boundary_is_rejected():
+    # The project cue ramp begins between the local VMD grid points.
+    cue = [{'startMs': 1500, 'endMs': 2000, 'records': [
+        {'name': 'あ', 'frame': 45, 'weight': .8},
+        {'name': 'あ', 'frame': 59, 'weight': .8}]}]
+    with pytest.raises(CompositeVmdError, match='cannot reproduce') as raised:
+        compose_morph_vmd(_source(), cue, [], 'model-1', 29.97, 60,
+                          clip_start=1.01, clip_duration=2.)
+    assert raised.value.report['worst']['difference'] > 1e-4
+
+
+def test_cue_ending_at_clip_end_uses_the_browser_source_reset():
+    clip_start, duration = 1., 1.
+    source_keys = [(0, .2), (30, .2)]
+    cue = [{'startMs': 1500, 'endMs': 2000, 'records': [
+        {'name': 'あ', 'frame': 45, 'weight': .8},
+        {'name': 'あ', 'frame': 59, 'weight': .8}]}]
+    output, report = compose_morph_vmd(
+        _source(source_keys), cue, [], 'model-1', 30, 30,
+        clip_start=clip_start, clip_duration=duration)
+    assert report['worst']['difference'] < 1e-6
+    from studio_v05_lip_vmd_composite import _curve
+    baked = sorted((row['frame'], row['weight'])
+                   for row in inspect_morph_section(output)['rows'] if row['name'] == 'あ')
+    seconds = [1.95, 1.97, 1.98, 1.99]
+    browser = _browser_values(seconds, cue, [], source_keys, clip_start, duration)
+    candidate = [_curve(baked, (second - clip_start) * 30) for second in seconds]
+    assert candidate == pytest.approx(browser, abs=1e-6)
+    assert _curve(baked, 30) == 0
+
+
+def test_invalid_fractional_fps_reports_composite_error():
+    with pytest.raises(CompositeVmdError, match='inputs invalid'):
+        compose_morph_vmd(_source(), _cue(), [], 'model-1', 0, 60)
 
 
 def test_real_long_vmd_binary_preservation_with_safe_constant_manual_key():
@@ -207,5 +273,5 @@ def test_real_long_vmd_binary_preservation_with_safe_constant_manual_key():
     before, after = inspect_morph_section(source), inspect_morph_section(output)
     assert before['prefix'] == after['prefix'] and before['tail'] == after['tail']
     assert all(abs(row['weight'] - .25) < 1e-7 for row in after['rows'] if row['name'] == 'あ')
-    assert report['checkedValues'] == 18001 and report['worst']['difference'] < 1e-7
+    assert report['checkedValues'] == 18002 and report['worst']['difference'] < 1e-7
     assert hashlib.sha256(path.read_bytes()).hexdigest() == source_hash

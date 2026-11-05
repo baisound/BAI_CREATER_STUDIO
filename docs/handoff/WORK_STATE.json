@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:56:49+09:00",
+  "updated_at": "2026-11-05T13:16:49+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "e0847b9",
+  "head_at_update": "fd84351",
   "current": {
     "task": "順4：開始0秒以外・整数でないFPSの口形合成候補",
-    "status": "in_progress",
+    "status": "done",
     "step": "作品時刻から元VMD時刻への写像と全フレーム比較器の拡張",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "順4（#187）の残件：開始0秒以外のクリップと整数でないFPSの口形合成を確認する"
+    "順4 #187: LIP合成候補の標準MCP・WebMCPを接続し、実PMXの見た目・採用口形入り完成MP4・実歌声SRTを検証する"
   ],
   "unverified": [
-    "WebMCP対応ブラウザのネイティブ呼出し、実MCPクライアント設定、実素材長尺・3DのMCP出力、Linuxは未検証"
+    "実PMXの顔/身体の見た目、採用口形を含む完成MP4、実歌声SRT、Linux、LIPの両MCPは未検証",
+    "順3のWebMCP対応ブラウザのネイティブ呼出し、実MCPクライアント設定、実素材長尺・3DのMCP出力、Linuxは未検証"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T13:16:49+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "fd84351",
+      "text": "順4 LIP-001: 開始0秒以外と非整数FPSの元VMD口形合成候補を作品時刻から局所30fpsへ写し、開始1秒・29.97fpsの隔離HTTPと実VMD単体22件、隔離Chrome4件を確認"
+    },
     {
       "at": "2026-11-05T12:56:49+09:00",
       "by": "codex",
@@ -229,13 +237,6 @@
       "event": "start",
       "head": "c149e02",
       "text": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）: 3人の批評の採否を決め、詳細設計を改訂する"
-    },
-    {
-      "at": "2026-11-04T03:30:08+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "92f6afe",
-      "text": "WP-L8a の詳細設計を書いた（実装なし）。案(a)：取込で置くM3・M4の場面インスタンスにだけ印 units:legacy を付け、③は印のときだけ旧と同じ式（単位の換算だけ）で置く。しきい値 ε=0.00001×(1+D) m"
     }
   ]
 }
