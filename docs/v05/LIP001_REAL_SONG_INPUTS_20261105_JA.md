@@ -35,6 +35,10 @@
 
 [両MCPの操作記録](LIP001_WORKFLOW_MCP_20261105_JA.md#実srtの継続stdioセッション2026-11-05)に実歌声SRTのstdioセッション試験を追加した。隔離作品で54発話の取込・再読込と#1の `proposed` 保存を確認し、Ownerの確定・採用は行っていない。
 
+## Ubuntu WSLの限定検証
+
+Ubuntu WSL（Python 3.12.3、pytest 7.4.4、Node 26.4.0）で、実SRT/VMDを読み取り専用に指定し、`python3 -m pytest -q tests/test_studio_v05_lip_real_song_inputs.py tests/test_studio_v05_vmd_morph_rewrite.py tests/test_studio_v05_vmd_rewrite.py tests/test_studio_v05_lip_composite_candidate.py tests/test_studio_v05_lip_vmd_composite.py` を実行。39件成功、失敗0、スキップ0。さらに `node tests/run-guarded.cjs tests/studio-v05-lip-real-song-stdio.test.cjs` と `tests/studio-v05-lip-real-song-api.test.cjs` を各1件実行し、両方成功、失敗0、スキップ0。各ガードで共有 `data/` 5ファイルと `exports/` の前後ハッシュ一致を確認し、実SRT/VMD原本のSHA-256もWindows側の記録と一致した。これはLinuxの計算・HTTP・標準MCP入口の限定確認であり、Linuxのブラウザー/GPU/MP4出力、他のMCP機能は未検証。
+
 ## 未検証と次のゲート
 
 ここまでで**入力・隔離作品への保存・実VMD単体の表示と1フレーム出力**を確認した。実SRTの歌詞には漢字があり、読みの確定や明示無音を行っていない。作品内の採用、実歌声SRTに合わせた口形と元VMDの合成、実曲と歌声を含む長尺MP4、歌声に対する境界の自然さは未検証。実PMXと元VMD単体の3D表示および1フレームMP4は上記の範囲で確認済み。実SRTの全発話を自動で確定扱いにしない。次は所有者が確認する読み・無音の判断を発話ごとに確定した範囲で、採用口形と実曲VMDの合成、歌声に合わせた表示と出力を検証する。

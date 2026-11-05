@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T22:15:51+09:00",
+  "updated_at": "2026-11-05T22:18:50+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "d908ca2",
+  "head_at_update": "a6dc996",
   "current": {
     "task": "順4 LIP-001のLinux側Python回帰を確認",
-    "status": "in_progress",
+    "status": "done",
     "step": "WSL Ubuntuで実曲SRT/VMD読取と口形合成の対象pytestを実行し、Windows側の原本hashを保持",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "順4 #187: Ownerの54発話の読み・無音回答を受け、確認済み範囲の合成と出力を実施。WebMCPネイティブ呼出しは対応ブラウザが利用可能になったとき再検証"
+    "順4 #187: Ownerの仮読み54発話と明示無音の回答を受け、確定した範囲で実曲VMDとの口形合成と歌声付き出力を検証。WebMCPネイティブは対応ブラウザで再検証"
   ],
   "unverified": [
-    "WebMCP対応ブラウザのネイティブ呼出し、利用者MCPクライアント設定、Ownerによる読み・無音確定、歌声入り長尺MP4は未検証",
-    "実GPU、Linux、別PMXと口形の自然さは未検証"
+    "Ownerによる54発話の読み・無音確定、実歌声に合わせた口形採用・自然さ・歌声入り長尺MP4は未検証",
+    "Linuxブラウザー/GPU/MP4と全MCP機能、WebMCPネイティブ呼出し、利用者MCPクライアント設定、別PMXは未検証"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T22:18:50+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a6dc996",
+      "text": "Ubuntu WSLで実歌声SRT/同曲VMDの対象Python39件、継続stdio標準MCP1件、実PMX/SRT/VMD隔離HTTP1件が成功。原本SRT/VMDと共有dataの前後hash一致。Linuxブラウザー/MP4は未実施。"
+    },
     {
       "at": "2026-11-05T22:15:51+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "562ee03",
       "text": "順3：同名完成物の版名・明示置換・旧版復元: 既存ジョブID保存と出力UIから非破壊の版管理を設計"
-    },
-    {
-      "at": "2026-11-05T12:15:27+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "e6330fe",
-      "text": "合成600Fの動画内音声+3D完成MP4を復号し、F0からF590の60地点で音画差1F以内を確認"
     }
   ]
 }

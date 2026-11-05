@@ -94,6 +94,10 @@ v0.5素材管理から②の `/workspace/08`（モデル・動作の登録）を
 
 原本から隔離複製した実PMX・テクスチャ・実曲VMDで、Chrome/SwiftShaderのv0.5画面を開いた。0秒と4秒で全身7骨の姿勢と画面画像が変わり、「あ」口モーフは0秒から90秒で変化。製品出力APIのF240・1フレームMP4をH.264/AACで再読込し、57,152点の表示画素を確認。原本と共有dataの前後ハッシュが一致する隔離試験1件が成功。[実画面と出力の記録](../v05/LIP001_REAL_SONG_INPUTS_20261105_JA.md)。歌詞に合わせた採用口形と歌声入り長尺MP4、自然さ、実GPUは未検証。
 
+### 2026-11-05 LIPのUbuntu WSL限定検証（順4、#187）
+
+Ubuntu WSLで実SRT/VMDを含むPythonの対象39件、実SRTの継続stdio MCP 1件、実PMX/SRT/VMDの隔離HTTP 1件が成功。原本と共有dataの前後hashは一致。[対象と未検証範囲](../v05/LIP001_REAL_SONG_INPUTS_20261105_JA.md#ubuntu-wslの限定検証)。Linuxブラウザー/GPU/MP4は未検証。
+
 ### 2026-11-05 WebMCPネイティブ環境の確認（順4、#187）
 
 Chrome 156.0.8078.80の通常ヘッドレス環境では `document.modelContext` と `registerTool` がともに `undefined`。現行の隔離Chrome試験は試験ページへAPIを注入しており、ネイティブ呼出しの実測ではない。[環境記録](../v05/LIP001_WORKFLOW_MCP_20261105_JA.md#ネイティブwebmcpの環境確認2026-11-05)。対応ブラウザでの検証を残す。
