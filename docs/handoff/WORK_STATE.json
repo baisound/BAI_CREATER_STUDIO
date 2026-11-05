@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T07:41:13+09:00",
+  "updated_at": "2026-11-06T08:51:58+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-native-mcp-20261106",
-  "head_at_update": "115286d",
+  "branch": "codex/v05-video-formats-vfr-20261106",
+  "head_at_update": "c286805",
   "current": {
-    "task": "Issue #81 順3の公式MCPクライアントとネイティブWebMCP",
-    "status": "done",
-    "step": "実クライアントの初期化/登録/呼出しと同じ作品の出力・同名版管理・保存再読込を検証",
-    "design_doc": "docs/v05/NATIVE_MCP_RENDER_20261106_JA.md"
+    "task": "Issue #37/#81 順3の動画形式とVFR",
+    "status": "in_progress",
+    "step": "WebM/OGVと可変フレームレートの登録・保存元位置・ブラウザ再生・限定MP4を形式別に確認し不足を修正",
+    "design_doc": "docs/v05/VIDEO_FORMATS_VFR_20261106_JA.md"
   },
   "next_steps": [
     "今回のMCP実機PRをレビューして開発ブランチへ統合し、_codex_workでnpm ciして新しい開発依存を反映する。順3の対応形式（WebM/OGV等）・VFRなど残る受入れ条件を照合する",
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T08:51:58+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "c286805",
+      "text": "Issue #37/#81 順3の動画形式とVFR: WebM/OGVと可変フレームレートの登録・保存元位置・ブラウザ再生・限定MP4を形式別に確認し不足を修正"
+    },
     {
       "at": "2026-11-06T07:41:13+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "cd99227",
       "text": "Issue #234 Python配置整理の基点更新: codex/nextのPR #236統合後差分を取り込み、競合と試験を確認する"
-    },
-    {
-      "at": "2026-11-06T01:09:57+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2ccfb4c",
-      "text": "PR #235で実旧作品の隔離HTTP・Chrome取込を確認。R1〜R4合格、原本160ファイル不変。検証文書に結果を記録"
     }
   ]
 }
