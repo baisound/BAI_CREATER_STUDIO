@@ -17,7 +17,7 @@
   git merge --ff-only origin/main
   ```
   早送りできない（自分のコミットがある）ときは `git merge origin/main` で取り込み、force-push はしない。
-- 所有者のチェックアウト `D:\BAI\BAI_CREATER_STUDIO\BAI_Creator_Studio` では、**作業も pull もしない**。あれは所有者が使うフォルダで、古い版（`7935400`）のまま、未コミットの `data/` の変更がある。
+- 所有者のチェックアウト `D:\BAI\BAI_CREATER_STUDIO\BAI_Creator_Studio` では、**作業も pull もしない**。あれは所有者が動作確認に使うフォルダで、未コミットの `data/` の変更がある。**所有者の指示（2026-11-05）：main へマージしたら、このフォルダを毎回最新の main にそろえる。** 手順は [同期と確認の手順](MAIN_SYNC_AFTER_MERGE_JA.md)。main ブランチで `git pull --ff-only origin main` だけを使い、stash・reset・clean はしない。前後で `data/` の全ファイルの SHA-256 と、未コミット・未追跡の一覧が同じことを確かめる。
 - このフォルダは、所有者のチェックアウトの `.git` を共有する worktree。ほかの worktree（`_claude_v05_work`・`_preview_new_ui`・`worktrees\*`）は別の作業者のものなので触らない。
 - **データ：** 所有者の素材は `D:\BAI\BAI_CREATER_STUDIO\BAI_Creator_Studio\data`。読み取り専用として扱う。
   - 試験は `BAI_REAL_MMD_DATA` にこのパスを渡し、隔離サーバーへ複製して使う（§4）。
@@ -97,9 +97,9 @@
   - プログラムは `D:\BAI\BAI_CREATER_STUDIO\_preview_new_ui`（`87ba6b9` に合わせた作業用の木）。
   - データは所有者の data（`BAI_DATA_DIR` で指定）。
   - 所有者がブラウザで使うためのもの。止めるときは所有者に確かめてください。
-- **所有者のチェックアウト** `D:\BAI\BAI_CREATER_STUDIO\BAI_Creator_Studio` は、`7935400` のままです（main より約80コミット古い）。
+- **所有者のチェックアウト** `D:\BAI\BAI_CREATER_STUDIO\BAI_Creator_Studio` は、2026-11-05 に最新の main（`53da7d1`）へ早送りしました。data の495ファイルは前後で一致しています。以後、マージのたびに最新へそろえます（§0）。
   - 未コミットの `data/` の変更や未追跡のファイルがあります。
-  - 許可なく更新・変更しないでください。`data/` は読み取りだけです。
+  - 最新の main へ早送りする以外は、許可なく変更しないでください。`data/` は読み取りだけです。
 
 ## 6. 守ること（AGENTS.md の要点）
 
