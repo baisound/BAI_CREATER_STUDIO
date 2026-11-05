@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:31:20+09:00",
+  "updated_at": "2026-11-05T12:35:06+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "366d64f",
+  "head_at_update": "20f4636",
   "current": {
-    "task": "順3：同名完成物の版名・明示置換・旧版復元",
-    "status": "done",
-    "step": "既存ジョブID保存と出力UIから非破壊の版管理を設計",
-    "design_doc": "docs/roadmap/FEATURE_DETAIL_JA.md"
+    "task": "順3：保存カメラ未設定時の自動構図をプレビューとMP4で照合",
+    "status": "in_progress",
+    "step": "実PMX・GLBステージの隔離描画と構図比較",
+    "design_doc": "docs/v05/SHARED_STATE_OUTPUT_AUDIT_20261104_JA.md"
   },
   "next_steps": [
     "順3の次の残件：保存カメラが無い場合の自動構図をプレビューとMP4で一致させる"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:35:06+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "20f4636",
+      "text": "順3：保存カメラ未設定時の自動構図をプレビューとMP4で照合: 実PMX・GLBステージの隔離描画と構図比較"
+    },
     {
       "at": "2026-11-05T12:31:20+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "1652bf1",
       "text": "WP-L5 HTTP窓口4本とMCP/WebMCP道具4本を実装"
-    },
-    {
-      "at": "2026-11-04T01:55:20+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "6c41381",
-      "text": "WP-L5 旧保存取込のHTTPとMCP: server.py に4 API、mcp_server.py・webmcp.js に4道具、試験2本を足す"
     }
   ]
 }
