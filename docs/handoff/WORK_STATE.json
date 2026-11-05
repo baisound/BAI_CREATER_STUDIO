@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T13:44:01+09:00",
+  "updated_at": "2026-11-05T13:46:06+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "a0f517a",
+  "head_at_update": "cbfc2c0",
   "current": {
-    "task": "順4 LIP-001実PMXで元VMD合成候補と見た目を照合",
-    "status": "done",
-    "step": "実PMX隔離試験に合成候補の全キー読込と表示値比較を追加",
+    "task": "順4 LIP-001のSRT・読み・下書き・採用を両MCPへ接続",
+    "status": "in_progress",
+    "step": "既存APIと画面操作を照合して安全なツール契約を定める",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T13:46:06+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cbfc2c0",
+      "text": "順4 LIP-001のSRT・読み・下書き・採用を両MCPへ接続: 既存APIと画面操作を照合して安全なツール契約を定める"
+    },
     {
       "at": "2026-11-05T13:44:01+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "d1a113c",
       "text": "WP-L8a §8手順2：§4.1 場面インスタンスの印 units（UNITS_LEGACY・_ROW_KEYS、_check_recordの検査、mutateのunits引数はaddで'legacy'だけ）と§6.1 U1〜U8"
-    },
-    {
-      "at": "2026-11-04T13:00:14+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "0fa106a",
-      "text": "WP-L8a §8手順1：§6.3の試験を変更前のコードで実行（BAI_REQUIRE_3D=1、SwiftShader）。L8A_RESULT：S ステージ 旧(-6.5,-0.75,-20)〜(2.5,5.25,-5) ③(-1.25,0,-5.75)〜(3.25,3,1.75) 差14.25／G キャラクター 差1.09375・場面全体 差14.25／F 差3.88／A 差0.875 で不合格。K（スキン付き）と P（最小PMX）は変更前から差0（試験素材が高さ2.0mで中心が原点、最小PMXの最小yが0のため、③の正規化が偶然何もしない。これらは大きさの差を検出できず、スキン・PMXの道の確認として使う。感度は実PMXのケースRで補う）。対照の③の値は計算上の値と一致（ステージ・GLBキャラクター）、旧との差は14.25・1.09375で100ε以上。基準画面の手計算との差は最大6e-8で合格。印・注釈・floorProbe は未実装のため不合格"
     }
   ]
 }
