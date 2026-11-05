@@ -1,22 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T00:28:33+09:00",
+  "updated_at": "2026-11-06T00:32:07+09:00",
   "updated_by": "codex",
   "branch": "codex/preview-full-timeline-20261106",
-  "head_at_update": "7f94872",
+  "head_at_update": "efe1136",
   "current": {
     "task": "Issue #39 書き出しOutでプレビューが途中停止する不具合",
-    "status": "in_progress",
+    "status": "done",
     "step": "保存クリップ終端と書き出し範囲を分離し、実ブラウザと稼働データの読取で検証する",
     "design_doc": "docs/v05/PREVIEW_FULL_TIMELINE_20261106_JA.md"
   },
   "next_steps": [
-    "順3・4の残件を優先し、Ownerの実歌声SRT54発話の読み・無音回答を受けてLIP実曲検証を続ける",
-    "順5設計は実コード・実PMX・three評価順との再照合と独立再判定を受けるまで実装しない"
+    "Issue #39の限定修正PRをcodex/nextへ作成し、実曲・実PMXの長尺プレビューは既存残件として続ける",
+    "Issue #234の下書きPR #235はNode/Ubuntu全件の残る環境失敗を追跡する"
   ],
   "unverified": [
-    "順5設計の独立再判定、実GLB→VMD/実PMXの測定・実装試験は未実施",
-    "LIP実歌声SRT54発話のOwner確定、歌声入り長尺MP4、WebMCPネイティブ呼出しは未検証"
+    "稼働中の作品を新コードで再生する確認、実楽曲・実PMX長尺、Linux/実GPU、Issue #39全体の音画1F以内は未確認"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T00:32:07+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "efe1136",
+      "text": "Issue #39の限定修正: 保存済み書き出しOutと作品プレビュー終端を分離し、F59の出力範囲を保持したままF190超の再生を隔離Chromeで確認"
+    },
     {
       "at": "2026-11-06T00:28:33+09:00",
       "by": "codex",
@@ -231,13 +237,6 @@
       "event": "start",
       "head": "4d89dae",
       "text": "順3：16:9より縦長の欄でプレビューとMP4の構図を照合: 狭い画面の実素材隔離試験"
-    },
-    {
-      "at": "2026-11-05T12:37:57+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4216e64",
-      "text": "保存カメラなしの実PMX＋S01 GLBステージでプレビューと720p MP4のF0自動構図を照合（IoU 0.892、重心差0.0028、原本不変）"
     }
   ]
 }
