@@ -10,8 +10,8 @@ from http.server import ThreadingHTTPServer
 import pytest
 
 import server
-from studio_project_catalog import create
-from studio_v05_srt_sources import SrtSourceError, parse, read
+from bai_studio.projects.catalog import create
+from bai_studio.v05.lip.srt_sources import SrtSourceError, parse, read
 
 
 def test_srt_parser_encoding_timing_and_invalid_cues():

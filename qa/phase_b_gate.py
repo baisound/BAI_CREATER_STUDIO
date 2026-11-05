@@ -5,13 +5,15 @@ BVH->VMD export, and binary readback. Does not modify original inputs.
 """
 import hashlib
 import json
+import sys
 import tempfile
 from pathlib import Path
 
-from bvh_foot_world import sample_bvh_foot_world
-from dual_foot_plan import propose_dual_foot
-from motion_vmd_bridge import convert
-from vmd_readback import read_vmd_bones
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from bai_studio.motion.bvh_foot_world import sample_bvh_foot_world
+from bai_studio.motion.dual_foot_plan import propose_dual_foot
+from bai_studio.motion.motion_vmd_bridge import convert
+from bai_studio.motion.vmd_readback import read_vmd_bones
 
 REMAINING = [
     'FBX/GLB/VRM/PMX joint transforms and bind-pose correction not exercised by this BVH gate',

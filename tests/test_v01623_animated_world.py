@@ -1,5 +1,5 @@
 import json, struct, unittest
-from animated_world_preview import preview
+from bai_studio.retarget.animated_world_preview import preview
 
 def pack(name='arm', anim=True):
     nodes=[{'name':name,'rotation':[0,0,0,1]}]

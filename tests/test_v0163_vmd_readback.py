@@ -1,8 +1,8 @@
 import sys, tempfile, unittest, struct
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from motion_vmd_bridge import convert
-from vmd_readback import read_vmd_bones, compare_vmd_bones
+from bai_studio.motion.motion_vmd_bridge import convert
+from bai_studio.motion.vmd_readback import read_vmd_bones, compare_vmd_bones
 
 BVH = '''HIERARCHY
 ROOT Hips

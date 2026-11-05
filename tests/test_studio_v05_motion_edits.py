@@ -4,9 +4,9 @@ import uuid
 from pathlib import Path
 
 import pytest
-import studio_v05_motion_edits as edits
+import bai_studio.v05.motion.motion_edits as edits
 
-from studio_v05_motion_edits import MotionEditError, read, _record, _settings, _key
+from bai_studio.v05.motion.motion_edits import MotionEditError, read, _record, _settings, _key
 
 
 def project(tmp_path):

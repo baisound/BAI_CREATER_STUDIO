@@ -8,7 +8,7 @@ def paired_fixture():
     return struct.pack("<4sII",b"glTF",2,12+len(body))+body
 
 from tests.test_v01625_interpolation import fixture
-from vrm_local_transfer import transfer,quality
+from bai_studio.retarget.vrm_local_transfer import transfer,quality
 
 class TransferGateTests(unittest.TestCase):
     def test_explicit_consent(self):

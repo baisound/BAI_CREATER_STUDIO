@@ -13,12 +13,12 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent))
-import music_dance_project
-import studio_v05_arrangement as arrangement
-import studio_v05_legacy_import as L
-import studio_v05_media_render
-import studio_v05_multi_motion
-import studio_v05_scene_instances as scene
+import bai_studio.motion.music_dance_project as music_dance_project
+import bai_studio.v05.timeline.arrangement as arrangement
+import bai_studio.v05.imports.legacy_import as L
+import bai_studio.v05.render.media_render as studio_v05_media_render
+import bai_studio.v05.motion.multi_motion as studio_v05_multi_motion
+import bai_studio.v05.timeline.scene_instances as scene
 from legacy_import_fixtures import FIXTURE_DIR, load_bundle
 from test_studio_v05_legacy_import_apply import (CHAR_ID, MOTION_ID, MUSIC_ID, STAGE_ID, Env, code_of,
                                                  make_assets, sha)

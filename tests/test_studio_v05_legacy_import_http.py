@@ -15,11 +15,11 @@ from pathlib import Path
 import pytest
 
 import server
-import studio_project_catalog as catalog_mod
-import studio_project_snapshots as snapshots
-import studio_v05_legacy_import as L
-import studio_v05_playhead as playhead
-import studio_v05_scene_instances as scene
+import bai_studio.projects.catalog as catalog_mod
+import bai_studio.projects.snapshots as snapshots
+import bai_studio.v05.imports.legacy_import as L
+import bai_studio.v05.timeline.playhead as playhead
+import bai_studio.v05.timeline.scene_instances as scene
 from legacy_import_fixtures import load_bundle
 
 CHAR_ID = "mmd:A:test.pmx"

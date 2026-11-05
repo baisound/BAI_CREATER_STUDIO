@@ -7,7 +7,7 @@ import urllib.request
 from http.server import ThreadingHTTPServer
 
 import server
-from studio_project_catalog import create, set_fps
+from bai_studio.projects.catalog import create, set_fps
 
 
 def test_lip_draft_http_edit_reload_and_stale_guards(tmp_path, monkeypatch):

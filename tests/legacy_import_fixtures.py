@@ -7,8 +7,8 @@ import copy
 import json
 from pathlib import Path
 
-import bai_camera
-from project_state_bundle import validate_bundle
+import bai_studio.camera.project as bai_camera
+from bai_studio.projects.state_bundle import validate_bundle
 
 FIXTURE_DIR = Path(__file__).parent / "fixtures" / "legacy_import"
 

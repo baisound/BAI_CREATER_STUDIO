@@ -1,5 +1,7 @@
 # 順5 GLB→VMDとモーション編集 — 詳細設計（2026-11-04）
 
+> 2026-11-06、Issue #234 の配置整理に合わせて Python の参照先パスを更新した。行番号と設計上の判定は再評価していないため、実装時には現行コードで確認する。対応表は [Python移動表](PYTHON_PACKAGE_FILE_MAP_20261106.csv)。
+
 > 2026-11-05 改訂草案。§8 の停止級を本文へ反映した。実コード・実PMXとの再照合と独立した再判定は未実施であり、以下の WP を実装の確定指示として扱わない。
 
 対象は[再構築ロードマップ](V05_REBUILT_ROADMAP_20261102_JA.md)の順5「GLB→VMD・骨編集」（`MOTION-003/004/005/006/007/010`）と [Issue #102](https://github.com/baisound/BAI_CREATER_STUDIO/issues/102)。画面は③（`/studio/v05`）だけを扱う。この文書は設計であり、実装・試験・完成の証拠ではない。既存の[変換記録](../v05/GLB_TO_VMD_20261024_JA.md)と[MOTION-010詳細設計](MOTION010_V05_DETAILED_DESIGN_20261024_JA.md)を前提にし、重ねて実装しない。
@@ -27,12 +29,12 @@
 
 | 機能 | 根拠 |
 |---|---|
-| 候補一覧（登録GLB動作×作品に置いたPMX） | `studio_v05_glb_vmd.py:45-57`、`server.py:517-526` |
-| 骨対応の表示・保存（改訂番号付き、PMXハッシュ＋GLB骨構造で識別、破損ファイルは初期化しない） | `studio_v05_glb_vmd_map.py:103-182`、`server.py:527-537,1068-1083` |
-| Blender変換（30fps標本化、単一アクション、別名 `mmd/vmd/glb_v05_<uuid>.vmd`、入力ハッシュ照合、台帳に `needs_visual_validation`） | `studio_v05_glb_vmd.py:75-152`、`tools/glb_to_vmd_candidate.py:41-142` |
+| 候補一覧（登録GLB動作×作品に置いたPMX） | `bai_studio/v05/motion/glb_vmd.py:45-57`、`server.py:517-526` |
+| 骨対応の表示・保存（改訂番号付き、PMXハッシュ＋GLB骨構造で識別、破損ファイルは初期化しない） | `bai_studio/v05/motion/glb_vmd_map.py:103-182`、`server.py:527-537,1068-1083` |
+| Blender変換（30fps標本化、単一アクション、別名 `mmd/vmd/glb_v05_<uuid>.vmd`、入力ハッシュ照合、台帳に `needs_visual_validation`） | `bai_studio/v05/motion/glb_vmd.py:75-152`、`tools/glb_to_vmd_candidate.py:41-142` |
 | 画面：素材欄「GLBダンス → PMX用VMD」、骨対応表、変換→作品のモーション行へ配置→PMXインスタンスへ結合 | `studio/v05/js/glb-vmd-ui-v102.js:1-108` |
 | 足接地の読み取り診断（2秒、つま先骨） | `multi-model-ui-v58.js:1364-`（`sampleFootContact`）、`server.py:1793` |
-| MOTION-010：作品別補正キー・レイヤー・FK/IK・別名VMD候補（whole/interval/legacy_sparse）・ブラウザ実PMX検査・採用・復元 | `studio_v05_motion_edits.py`、`studio_v05_vmd_candidate.py:42-115`、`studio_v05_vmd_adoption.py:126-239`、`multi-model-ui-v58.js:2009-2120`、`pmx-vmd-candidate-validation-v120.js:60-` |
+| MOTION-010：作品別補正キー・レイヤー・FK/IK・別名VMD候補（whole/interval/legacy_sparse）・ブラウザ実PMX検査・採用・復元 | `bai_studio/v05/motion/motion_edits.py`、`bai_studio/v05/motion/vmd_candidate.py:42-115`、`bai_studio/v05/motion/vmd_adoption.py:126-239`、`multi-model-ui-v58.js:2009-2120`、`pmx-vmd-candidate-validation-v120.js:60-` |
 | WebMCP（③内 `document.modelContext`）：プレビュー、FK補正の取得・変更、候補作成 | `multi-model-ui-v58.js:2565-2632` |
 | 標準MCP：FK補正の取得・変更、候補作成 | `mcp_server.py:68-70,208-210` |
 | 試験：骨対応3件（pytest、1件は実データ）、実GLB/PMXのブラウザ1件 | `tests/test_studio_v05_glb_vmd_map.py`、`tests/studio-v05-glb-vmd-real.test.cjs` |
@@ -44,12 +46,12 @@
 | 番号 | 問題 | 根拠 |
 |---|---|---|
 | P1 | **初期姿勢の差を補正しない。** PMXの各骨の世界回転を「GLBの今の世界回転 × GLBの初期世界回転の逆」で作る。GLBがTポーズ、PMXがAポーズなら、腕は最初から最後まで約30〜40°ずれる。 | `tools/glb_to_vmd_candidate.py:80-81,114-117` |
-| P2 | **付与（grant）を無視する。** 既定の対応では `左足` と `左足D` の両方へ同じ回転を書く。③は `MMDAnimationHelper({pmxAnimation:true})` で `_animatePMXMesh` / `updateOne` を使い、変形階層順に付与とIKを評価する。`足D` が `足` から付与率1を受けるPMXでは回転が重なる可能性がある。`腰キャンセル`（付与率−1）も親の世界回転の計算に入っていない。最終的なずれは実PMXで測る。 | `studio_v05_glb_vmd_map.py:19-20`、`glb_to_vmd_candidate.py:107-119`、`player.js:74`、three r160 `MMDAnimationHelper.js:542-549,979-1030` |
+| P2 | **付与（grant）を無視する。** 既定の対応では `左足` と `左足D` の両方へ同じ回転を書く。③は `MMDAnimationHelper({pmxAnimation:true})` で `_animatePMXMesh` / `updateOne` を使い、変形階層順に付与とIKを評価する。`足D` が `足` から付与率1を受けるPMXでは回転が重なる可能性がある。`腰キャンセル`（付与率−1）も親の世界回転の計算に入っていない。最終的なずれは実PMXで測る。 | `bai_studio/v05/motion/glb_vmd_map.py:19-20`、`glb_to_vmd_candidate.py:107-119`、`player.js:74`、three r160 `MMDAnimationHelper.js:542-549,979-1030` |
 | P3 | **足IKのターゲットにキーを書かない。** ③の再生はIKを常に解く（`studio/js/motion/player.js:48-49,69-75`）。`足ＩＫ`・`つま先ＩＫ` は初期位置のままなので、脚のFKキーはIKに上書きされうる。VMDの「IKのON/OFF」区画で切る方法は、three r160 の VMD 読込（`mmdparser.module.js` の `parseVmd`）がこの区画を読まないため、③では効かない。 | `glb_to_vmd_candidate.py:30-34,131-133` |
 | P4 | 身長の比が、PMXの全骨（髪・装飾を含む）のY幅から作られる。上下の移動量が過大・過小になりうる。上下の基準も先頭フレームの腰なので、しゃがんだ姿勢で始まる動作では床から浮く。 | `glb_to_vmd_candidate.py:82-88,121-124` |
-| P5 | **MMD台帳の破損時に一覧を消しうる。** `read_mmd()` は読めないとき空の一覧を返す。HTTPでは候補取得が先に失敗する場合もあるが、Blender実行中の台帳破損や `vmd` が dict になった場合、変換は1件だけの一覧で置換しうる。採用処理には厳格な読込が既にある。 | `server.py:169-174`、`studio_v05_glb_vmd.py:133-141`、比較 `studio_v05_vmd_adoption.py:84-93` |
-| P6 | 骨名が Mixamo 系でないGLBでは、骨対応表そのものが開けない。表示前の `inspect` が最小骨数の検証で例外になるため、手で直す機会がない。 | `studio_v05_glb_vmd_map.py:131-132,150-161` |
-| P7 | 変換結果の `unmapped`（対応なし骨）をサーバーが捨て、画面にも出ない。出力VMDの読み戻し検査（骨名・キー数・長さ）もない。台帳の `needs_visual_validation` は画面に出ない。 | `studio_v05_glb_vmd.py:114-121,145-152`、`glb-vmd-ui-v102.js:103` |
+| P5 | **MMD台帳の破損時に一覧を消しうる。** `read_mmd()` は読めないとき空の一覧を返す。HTTPでは候補取得が先に失敗する場合もあるが、Blender実行中の台帳破損や `vmd` が dict になった場合、変換は1件だけの一覧で置換しうる。採用処理には厳格な読込が既にある。 | `server.py:169-174`、`bai_studio/v05/motion/glb_vmd.py:133-141`、比較 `bai_studio/v05/motion/vmd_adoption.py:84-93` |
+| P6 | 骨名が Mixamo 系でないGLBでは、骨対応表そのものが開けない。表示前の `inspect` が最小骨数の検証で例外になるため、手で直す機会がない。 | `bai_studio/v05/motion/glb_vmd_map.py:131-132,150-161` |
+| P7 | 変換結果の `unmapped`（対応なし骨）をサーバーが捨て、画面にも出ない。出力VMDの読み戻し検査（骨名・キー数・長さ）もない。台帳の `needs_visual_validation` は画面に出ない。 | `bai_studio/v05/motion/glb_vmd.py:114-121,145-152`、`glb-vmd-ui-v102.js:103` |
 | P8 | 標準MCPの `api()` は12秒で打ち切る。Blender変換（実GLB60秒で数分）を呼べない。MCPにGLB→VMDの道具が無い。MOTION-010の標準MCPの道具は `arm-set`・`keys`・`position`・`solo`・候補の `mode` を欠き、採用・復元も無い。 | `mcp_server.py:11-17,209-210`、比較 `multi-model-ui-v58.js:2576-2614`、`server.py:1130-1146` |
 
 ### 1.3 実行環境の制約（この設計を書いた環境）
@@ -98,14 +100,14 @@
 
 変更：
 
-1. `studio_v05_glb_vmd.py`
+1. `bai_studio/v05/motion/glb_vmd.py`
    - `ConversionError.__init__(self, message, status=400, code=None)`。`self.code = code`。既存の全 `raise` に §4 のコードを付ける。
    - `convert()` の引数 `read_mmd` を `mmd_index_path`（`Path`）に置き換え、中で新関数 `read_mmd_strict(path)` を呼ぶ。判定は `studio_v05_vmd_adoption._registry` と同じ（無ければ `{'A':[],'B':[],'vmd':[]}`、読めない・`vmd` が list でなければ `ConversionError(..., 422, 'mmd_registry_unreadable')`）。変換前に厳格に読み、変換ロック内の登録直前にも再読込する。実際の破損経路は、Blender 実行中の台帳破損または `vmd` が dict の場合。HTTP では候補外なら先に `target_not_in_project` で拒否される。`server.py:1102-1104` の呼出しを `MMD_META` を渡す形へ変える。`write_mmd` はそのまま。既存の `tests/test_studio_v05_glb_vmd_map.py::test_missing_blender_keeps_real_inputs` も新しい引数に合わせる。
    - `inspect()` が `valid:false` でも、変換 API は必ず Blender 起動前に現在の profile revision と骨対応の `validate()` を再実行し、`map_required_bones_missing` 等で拒否する。画面のボタン無効化だけを保護としない。
    - `convert()` に `blender_argv=None`（与えたときは `shutil.which` を使わずこの配列を実行ファイルとして使う。試験用）と `timeout_seconds=600` を足す。
    - `server.py:1084-1111` の既存の拒否にもコードを付ける：候補に無いGLB/PMXは `target_not_in_project`、`CONVERT_LOCK` が取れないときは `conversion_busy`。
    - 返り値に `unmapped`（Blenderの結果から）、`output_name`、`converter_version` を加える。台帳の行にも `unmapped` を残す。Blender 台本は既知の入力・計算エラーを `BAI_GLB_VMD_ERROR:{"code":"...","message":"..."}` の1行と終了コード2で返す。サーバーは許可済みコードだけを 422 へ写し、未知の行・異常終了・タイムアウトはそれぞれ `blender_result_invalid` / `blender_failed` / `blender_timeout` とする。標準出力の任意文字列を HTTP の理由コードとして採用しない。
-2. `studio_v05_glb_vmd_map.py`
+2. `bai_studio/v05/motion/glb_vmd_map.py`
    - `MappingError` に `code` を足す。`source_skeleton` の各 `raise` を §4 のコードにする。
    - `validate()` はそのまま例外を出す。新関数 `check(overrides, source_names, target_names)` は `(effective_or_partial, problem)` を返し、例外を出さない。`problem` は `None` か `{'code':..., 'message':...}`。
    - `inspect()` は `check()` を使い、返り値に `valid: bool` と `problem` を加える。`effective` は不足でも作れる範囲を返す。`save()` は従来どおり `validate()` で拒否する。
@@ -134,7 +136,7 @@
 
 要件：`MOTION-006/007`、Issue #102「骨キー・長さ・元GLBとの対応を検査」。
 
-変更（`studio_v05_glb_vmd.py`）：
+変更（`bai_studio/v05/motion/glb_vmd.py`）：
 
 - Blender結果の必須項目を増やす：`keyed_bones`（VMDに書いた骨名の配列。WP-R5-3以降はIK骨を含む）、`frames`、`source_duration_seconds`（GLBアクションの長さ）。
 - 新関数 `verify_output(path, result, target_names) -> dict`。`vmd_readback.read_vmd_bones(path)` で読み、次をすべて満たさなければ `ConversionError(..., 422, 'vmd_output_invalid')`：
@@ -182,7 +184,7 @@
 - 参照を `job['reference_output']` に JSON で書く：`{"schema":1,"converter_version":2,"fps":30,"coordinate":"three_pmx_model_space","samples":[{"t":秒,"frame":VMDフレーム,"directions":{"左腕>左ひじ":[x,y,z],...},"positions":{"左足首":[x,y,z],...}}]}`。
 - 結果に `converter_version`、`keyed_bones`、`ik_baked`、`ik_unbaked`、`aligned_bones`、`grant_compensated`、`scale`、`scale_method`、`center_reference`、`source_duration_seconds` を足す。`ik_unbaked` は `[{"name":"左足ＩＫ","reason":"ik_order_dependent"}]` の形で理由を必須にする。空配列は全対象IKを焼けた場合だけ。
 
-`studio_v05_glb_vmd.py` の変更：
+`bai_studio/v05/motion/glb_vmd.py` の変更：
 
 - `convert(..., converter_version=2)`。ジョブに `converter_version` と `reference_output` を渡す。成功時、参照を `data/studio_v05_glb_vmd_reports/<VMD名>.reference.json` へ移す（既存なら `vmd_output_invalid`、出力は捨てる）。
 - 台帳の行（`mmd_assets.json` の `vmd` 配列に追記、既存行は変えない）：
@@ -227,7 +229,7 @@
 
 ### WP-R5-5 骨対応プロファイルの取消・やり直し・共有（MOTION-005）
 
-変更（`studio_v05_glb_vmd_map.py`、`studio_v05_glb_vmd.py`、`server.py`、`glb-vmd-ui-v102.js`）：
+変更（`bai_studio/v05/motion/glb_vmd_map.py`、`bai_studio/v05/motion/glb_vmd.py`、`server.py`、`glb-vmd-ui-v102.js`）：
 
 - プロファイル行に `history`（以前の `overrides` の配列、最大50、古いものから落とす）と `redo`（配列）を足す。古い行（無い）は空として読む。`save` と `import` は変更前の `overrides` を `history` の末尾へ積み、`redo` を空にする。`undo` は `history` の末尾を取り出して今の値にし、変更前の値を `redo` の末尾へ積む。`redo` はその逆。どれも1操作＝1 revision。
 - `POST /api/studio/v05/motion/glb-vmd/map` に任意の `action`：`save`（既定）・`undo`・`redo`・`import`。どれも `revision` が今の値と一致しなければ 409 `map_revision_conflict`。成功で `revision+1`。積むものが無ければ 409 `map_history_empty`。

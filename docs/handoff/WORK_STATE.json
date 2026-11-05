@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T01:19:39+09:00",
+  "updated_at": "2026-11-06T01:59:11+09:00",
   "updated_by": "codex",
-  "branch": "codex/next",
-  "head_at_update": "cee625e",
+  "branch": "codex/python-layout-20261105",
+  "head_at_update": "1c4bee1",
   "current": {
-    "task": "Issue #39 書き出しOutでプレビューが途中停止する不具合",
+    "task": "Issue #234 Python移動後の現行文書参照",
     "status": "done",
-    "step": "保存クリップ終端と書き出し範囲を分離し、実ブラウザと稼働データの読取で検証する",
-    "design_doc": "docs/v05/PREVIEW_FULL_TIMELINE_20261106_JA.md"
+    "step": "旧作品取込とGLB→VMDの現行設計で移動前Python参照を対応表に従って更新する",
+    "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
-    "PR #235のPython配置整理はNode全件とUbuntu全件の残る失敗を再確認し、codex/next更新後の差分と統合可否を判定する",
-    "順1〜3の同一作品IDでの縦断実データ試験とIssue #63の構図残件を続ける"
+    "PR #235はNode全件5失敗を明記した下書きとしてレビューし、統合判断を進める",
+    "順1〜3の同一作品ID縦断実データ試験とIssue #63 WP-L8aの巨大ステージ構図を続ける"
   ],
   "unverified": [
-    "Issue #39の実楽曲・実PMX長尺、音画1F以内、Linux・実GPUは未確認",
-    "Issue #234のNode全件無失敗完走・Ubuntu全件安定完走・実GPU・外部Blender・全CLI実入力は未確認",
-    "Issue #63 WP-L8aは巨大ステージのL4不合格・L5人物見えない"
+    "引用行番号の技術内容の再評価、順5設計の独立再判定は未実施",
+    "Node全件の無失敗完走、実GPU・外部Blender・全CLI実入力は未確認",
+    "Issue #63 WP-L8aのL4不合格・L5人物見えない、動作GLBの適用先未指定1件が残る"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -31,25 +31,102 @@
   ],
   "history": [
     {
-      "at": "2026-11-06T01:19:39+09:00",
+      "at": "2026-11-06T01:59:11+09:00",
       "by": "codex",
       "event": "done",
-      "head": "cee625e",
-      "text": "PR #236をChrome4件成功・型検査成功・原本ハッシュ一致で再検証し、codex/nextへマージした（cee625e）"
+      "head": "1c4bee1",
+      "text": "Issue #234で現行2設計書の移動前Python参照98箇所を新パスへ更新。実在・引用行の範囲・差分形式を確認"
     },
     {
-      "at": "2026-11-06T00:32:07+09:00",
+      "at": "2026-11-06T01:55:37+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "871c619",
+      "text": "Issue #234 Python移動後の現行文書参照: 旧作品取込とGLB→VMDの現行設計で移動前Python参照を対応表に従って更新する"
+    },
+    {
+      "at": "2026-11-06T01:53:24+09:00",
       "by": "codex",
       "event": "done",
-      "head": "efe1136",
-      "text": "Issue #39の限定修正: 保存済み書き出しOutと作品プレビュー終端を分離し、F59の出力範囲を保持したままF190超の再生を隔離Chromeで確認"
+      "head": "6ac687d",
+      "text": "基点更新後のUbuntu WSL Python全件が965成功・22スキップ・失敗0で完走。隔離データと原本ハッシュ検査を含む"
     },
     {
-      "at": "2026-11-06T00:28:33+09:00",
+      "at": "2026-11-06T01:49:44+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8e3a551",
+      "text": "Issue #234 Python配置整理のUbuntu全件ゲート: 基点更新後のWSL Python全件を再実行し、接続リセットの再現性と原本保護を確認する"
+    },
+    {
+      "at": "2026-11-06T01:44:02+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "d412e67",
+      "text": "PR #235の基点更新後Node全件は505件中445成功・55スキップ・5失敗。3失敗項目は単独で成功、別の3D待機は単独でも失敗。原本ハッシュ一致"
+    },
+    {
+      "at": "2026-11-06T01:32:19+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4c60b3d",
+      "text": "Issue #234 Python配置整理のNode全件ゲート: 基点更新後のNode全件を再実行し、残る失敗の原因を特定する"
+    },
+    {
+      "at": "2026-11-06T01:23:10+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ffe6621",
+      "text": "PR #236をcodex/nextへ統合後、#235へ新基点を取り込んだ。競合はWORK_STATEだけで解消。結合後Chrome4件・型検査・原本ハッシュ一致"
+    },
+    {
+      "at": "2026-11-06T01:20:40+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cd99227",
+      "text": "Issue #234 Python配置整理の基点更新: codex/nextのPR #236統合後差分を取り込み、競合と試験を確認する"
+    },
+    {
+      "at": "2026-11-06T01:09:57+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2ccfb4c",
+      "text": "PR #235で実旧作品の隔離HTTP・Chrome取込を確認。R1〜R4合格、原本160ファイル不変。検証文書に結果を記録"
+    },
+    {
+      "at": "2026-11-06T01:08:31+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f5d9690",
+      "text": "Issue #234 Python配置移動の実データ確認: 実旧作品の隔離APIとChrome取込を検証して未確認範囲を記録する"
+    },
+    {
+      "at": "2026-11-06T00:25:24+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ededbf0",
+      "text": "Issue #234: Python実装97件と試験57件を移動、起動と主要回帰を確認。Windows Python全件965成功、Ubuntuは接続リセット1件を単独再試験で解消"
+    },
+    {
+      "at": "2026-11-05T23:36:41+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "77d8f0f",
+      "text": "Issue #234 Pythonファイルの役割別パッケージ整理: 実装モジュールと直下テストを移動し、import・パス・起動を修正して回帰検証する"
+    },
+    {
+      "at": "2026-11-05T23:36:19+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a4c322a",
+      "text": "Issue #234のPythonパッケージ構成と互換・試験契約を設計。直下157件、985テスト収集、基準955成功/8失敗/22スキップを記録"
+    },
+    {
+      "at": "2026-11-05T23:30:26+09:00",
       "by": "codex",
       "event": "start",
       "head": "7f94872",
-      "text": "Issue #39 書き出しOutでプレビューが途中停止する不具合: 保存クリップ終端と書き出し範囲を分離し、実ブラウザと稼働データの読取で検証する"
+      "text": "Issue #234 Pythonファイルの役割別パッケージ整理: 既存の起動・import・試験契約を調べ、移動対象と互換方針を設計する"
     },
     {
       "at": "2026-11-05T22:38:41+09:00",
@@ -162,83 +239,6 @@
       "event": "start",
       "head": "729c06b",
       "text": "順4 LIP-001実歌声SRTと実楽曲VMDの互換性を隔離検証: 空のモデル名を持つ実VMDの非破壊読取とSRT境界を点検する"
-    },
-    {
-      "at": "2026-11-05T13:54:33+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "baa71d8",
-      "text": "LIP-001のSRT取込、読み、候補、下書き、別名モーフVMD、明示採用/解除/Undo/Redoを標準MCP・WebMCPへ接続。隔離Chromeの新規1件と既存回帰2件成功。"
-    },
-    {
-      "at": "2026-11-05T13:46:06+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cbfc2c0",
-      "text": "順4 LIP-001のSRT・読み・下書き・採用を両MCPへ接続: 既存APIと画面操作を照合して安全なツール契約を定める"
-    },
-    {
-      "at": "2026-11-05T13:44:01+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a0f517a",
-      "text": "LIP-001実PMX隔離試験を修正・完了。作品60fpsのF60で採用口形あり/Undo後の1F MP4に2366画素差。合成VMD242キーと実PMXプレビュー値一致、原本ハッシュ保持。"
-    },
-    {
-      "at": "2026-11-05T13:29:15+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e4a916a",
-      "text": "順4 LIP-001実PMXで元VMD合成候補と見た目を照合: 実PMX隔離試験に合成候補の全キー読込と表示値比較を追加"
-    },
-    {
-      "at": "2026-11-05T13:25:08+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "62ca232",
-      "text": "LIP-001合成候補の標準MCP・WebMCPを既存保存APIへ接続。採用revision取得、dry-run、別名VMD取得が画面と同じSHA-256/バイト。隔離Chrome 1件と既存出力MCP回帰1件成功"
-    },
-    {
-      "at": "2026-11-05T13:20:11+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "a288c22",
-      "text": "順4 LIP-001口形合成候補の標準MCP・WebMCP接続: 既存の合成候補APIとMCP契約を照合し、同一APIへ最小のツールを追加"
-    },
-    {
-      "at": "2026-11-05T13:16:49+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "fd84351",
-      "text": "順4 LIP-001: 開始0秒以外と非整数FPSの元VMD口形合成候補を作品時刻から局所30fpsへ写し、開始1秒・29.97fpsの隔離HTTPと実VMD単体22件、隔離Chrome4件を確認"
-    },
-    {
-      "at": "2026-11-05T12:56:49+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e0847b9",
-      "text": "順4：開始0秒以外・整数でないFPSの口形合成候補: 作品時刻から元VMD時刻への写像と全フレーム比較器の拡張"
-    },
-    {
-      "at": "2026-11-05T12:53:10+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "655d4e2",
-      "text": "限定MP4出力を標準MCP・WebMCPの9ツールで共通APIへ接続し、隔離1F MP4・同名置換・旧版復元・原本不変を両入口で確認"
-    },
-    {
-      "at": "2026-11-05T12:44:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "609204a",
-      "text": "順3：v0.5完成MP4出力をWebMCP・標準MCPから操作: 既存の保存範囲・版名・ジョブAPIへ両MCPを接続"
-    },
-    {
-      "at": "2026-11-05T12:41:56+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "057d980",
-      "text": "縦長600×700の欄で保存カメラなしの実PMX＋S01 GLBのF0構図をMP4と照合（IoU 0.898、重心差0.0035、原本不変）"
     }
   ]
 }

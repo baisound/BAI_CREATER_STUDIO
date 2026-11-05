@@ -1,7 +1,7 @@
 import unittest,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from dual_foot_plan import propose_dual_foot
+from bai_studio.motion.dual_foot_plan import propose_dual_foot
 
 def samples(xs):return [{'frame':i,'position':[float(x),0.0,0.0]} for i,x in enumerate(xs)]
 class DualFootTests(unittest.TestCase):

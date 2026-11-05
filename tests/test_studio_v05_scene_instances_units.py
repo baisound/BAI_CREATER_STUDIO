@@ -14,8 +14,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import server  # noqa: E402
-import studio_project_catalog as catalog_mod  # noqa: E402
-from studio_v05_scene_instances import SceneInstancesError, mutate, read  # noqa: E402
+import bai_studio.projects.catalog as catalog_mod  # noqa: E402
+from bai_studio.v05.timeline.scene_instances import SceneInstancesError, mutate, read  # noqa: E402
 
 ASSET = {"id": "integrated:model.glb", "source": "integrated", "kind": "model", "format": "GLB",
          "filename": "model.glb", "available": True, "name": "Character"}

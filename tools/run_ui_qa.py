@@ -2,7 +2,7 @@
 import sys, json, time, traceback
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from qa_capture import ROOT,settings,cleanup
+from bai_studio.qa.capture import ROOT,settings,cleanup
 from urllib.request import urlopen
 
 def main():

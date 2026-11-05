@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from studio_v05_vmd_morph_rewrite import inspect_morph_section, rewrite_morph_section
+from bai_studio.v05.motion.vmd_morph_rewrite import inspect_morph_section, rewrite_morph_section
 
 
 def _source():

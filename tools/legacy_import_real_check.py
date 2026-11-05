@@ -50,7 +50,7 @@ def read_json(path):
 # ---- 参照している素材の原本を探す ------------------------------------------------------------
 def referenced_files(data):
     """旧保存（ワークスペース・SCR-10・旧タイムライン編集）が参照する素材の、data からの相対パスの一覧。"""
-    import studio_v05_legacy_import as L
+    import bai_studio.v05.imports.legacy_import as L
     rel = set()
     ids = set()
     ws_path = data / "project_state.workspace.json"
@@ -238,12 +238,12 @@ def state_of(server, pid):
 
 def export_current(work, pid, record, files_by_id):
     """設計 §5.6 の current（collect の target と同じ形＋playhead）を一時データから作り、逆変換する。"""
-    import studio_v05_legacy_import as L
+    import bai_studio.v05.imports.legacy_import as L
     roots = L._Roots(work)
     row = L._project_row(roots, pid)
     scene = L._read_scene(roots, pid)
-    arr = __import__("studio_v05_arrangement").read(roots.arr, roots.catalog, pid)
-    ph = __import__("studio_v05_playhead").read(roots.playhead, roots.catalog, pid)
+    arr = __import__('bai_studio.v05.timeline.arrangement', fromlist=['*']).read(roots.arr, roots.catalog, pid)
+    ph = __import__('bai_studio.v05.timeline.playhead', fromlist=['*']).read(roots.playhead, roots.catalog, pid)
     current = {
         "fps": {"presence": "value", "value": row["fps"]} if "fps" in row else {"presence": "absent"},
         "scene": {"revision": scene["revision"], "instances": scene["instances"], "camera": scene["camera"],
@@ -257,7 +257,7 @@ def export_current(work, pid, record, files_by_id):
 
 
 def files_for_ids(work, ids):
-    import studio_v05_legacy_import as L  # noqa: F401 （import 経路の確認）
+    import bai_studio.v05.imports.legacy_import as L  # noqa: F401 （import 経路の確認）
     library = read_json(work / "library_assets" / "index.json")["items"] if (work / "library_assets" / "index.json").exists() else []
     out = {}
     for aid in ids:
@@ -344,7 +344,7 @@ def run(args):
             }
 
             # 5. R2：編集せずに逆変換すると元の bundle と等しい
-            from project_state_bundle import validate_bundle
+            from bai_studio.projects.state_bundle import validate_bundle
             files_by_id = files_for_ids(work, asset_ids)
             r2 = export_current(work, pid, record, files_by_id)
             expected_bundle = validate_bundle(copy.deepcopy(record["source"]["bundle"]))

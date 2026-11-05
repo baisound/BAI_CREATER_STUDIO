@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from morph_vmd_codec import encode_morph_vmd
-from vmd_readback import read_vmd_morphs, compare_vmd_morphs
+from bai_studio.motion.morph_vmd_codec import encode_morph_vmd
+from bai_studio.motion.vmd_readback import read_vmd_morphs, compare_vmd_morphs
 
 
 def test_morph_only_vmd_roundtrip_with_independent_parser(tmp_path):

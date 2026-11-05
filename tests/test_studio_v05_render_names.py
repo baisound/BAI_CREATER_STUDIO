@@ -5,8 +5,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import studio_v05_render_names as names
-import studio_v05_media_render as render
+import bai_studio.v05.render.render_names as names
+import bai_studio.v05.render.media_render as render
 
 
 class RenderNamesSafetyTest(unittest.TestCase):

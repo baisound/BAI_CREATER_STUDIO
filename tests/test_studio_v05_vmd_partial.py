@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from studio_v05_vmd_partial import partial_replacements
-from studio_v05_vmd_rewrite import LINEAR_INTERPOLATION, _sections, rewrite_bone_section
+from bai_studio.v05.motion.vmd_partial import partial_replacements
+from bai_studio.v05.motion.vmd_rewrite import LINEAR_INTERPOLATION, _sections, rewrite_bone_section
 
 
 def _source(frames=(0, 90, 240, 300)):

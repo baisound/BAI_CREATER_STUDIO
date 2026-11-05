@@ -1,7 +1,7 @@
 import sys,unittest,math
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from retarget_pose import qnorm,mul,conj,shortest_arc,transform_samples
+from bai_studio.retarget.pose import qnorm,mul,conj,shortest_arc,transform_samples
 class TestPose(unittest.TestCase):
  def test_identity(self):
   self.assertEqual(shortest_arc([1,0,0],[1,0,0]),[0,0,0,1])

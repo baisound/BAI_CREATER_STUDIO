@@ -1,7 +1,7 @@
 import unittest,os,tempfile,json
 from pathlib import Path
 from unittest.mock import patch
-import diagnostic_logging as l
+import bai_studio.core.diagnostic_logging as l
 class Tests(unittest.TestCase):
  def test_secrets(self):
   x=l.scrub({'token':'secret','message':'Bearer abcdef','number':1})

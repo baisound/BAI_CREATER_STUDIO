@@ -1,7 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
-from phase_b_release_gate import REQUIRED, evaluate, assess_review, write_report
+from bai_studio.core.release_gate import REQUIRED, evaluate, assess_review, write_report
 
 class GateTests(unittest.TestCase):
     def test_zero_evidence_is_blocked(self):

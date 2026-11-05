@@ -11,10 +11,10 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent))
-import studio_v05_legacy_import as L
-import studio_v05_scene_instances as scene
+import bai_studio.v05.imports.legacy_import as L
+import bai_studio.v05.timeline.scene_instances as scene
 from legacy_import_fixtures import load_bundle
-from project_state_bundle import validate_bundle
+from bai_studio.projects.state_bundle import validate_bundle
 from test_studio_v05_legacy_import_apply import CHAR_ID, STAGE_ID, Env, sha
 
 FBX_ID = "fbx:0123456789abcdef01234567"
@@ -208,7 +208,7 @@ def test_r4_extra_instance(make_env):
 def test_r4_project_fps_change(make_env):
     env = make_env("bundle_a")
     env.apply()
-    import studio_project_catalog as cat
+    import bai_studio.projects.catalog as cat
     cat.set_fps(env.catalog, env.target, 60)
     out = export(env)
     assert out["unrepresentable"] == [{"pointer": "/camera/fps", "reason": "FPS_CHANGED"}]
@@ -235,7 +235,7 @@ def test_r4_playhead_beyond_duration(make_env):
 
 
 def _move_playhead(env, seconds):
-    import studio_v05_playhead as ph
+    import bai_studio.v05.timeline.playhead as ph
     ph.update(env.dirs["playheads"], env.catalog, env.target, seconds, env.ph()["revision"])
 
 

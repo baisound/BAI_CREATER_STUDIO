@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent))
-import studio_v05_legacy_import as L
+import bai_studio.v05.imports.legacy_import as L
 from legacy_import_fixtures import FIXTURE_DIR, load_bundle
 
 PID = "11111111-1111-4111-8111-111111111111"
@@ -422,7 +422,7 @@ def test_every_item_code_has_message_and_known_kind():
 
 
 def test_expected_includes_live_hash_only_for_included():
-    import music_dance_project
+    import bai_studio.motion.music_dance_project as music_dance_project
     live = {"music_dance": {"sha256": "cd" * 32, "value": dict(music_dance_project.DEFAULT)}, "timeline_editor": {"sha256": "ef" * 32, "value": {}}}
     r = run("bundle_a", live=live, include=("music_dance",))
     assert r["expected"]["live_sha256"] == {"music_dance": "cd" * 32, "timeline_editor": None}

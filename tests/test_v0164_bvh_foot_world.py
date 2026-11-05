@@ -1,6 +1,6 @@
 import unittest
-from bvh_foot_world import sample_bvh_foot_world
-from foot_contact import diagnose
+from bai_studio.motion.bvh_foot_world import sample_bvh_foot_world
+from bai_studio.motion.foot_contact import diagnose
 
 BVH='''HIERARCHY
 ROOT Hips

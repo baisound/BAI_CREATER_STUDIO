@@ -41,7 +41,7 @@ python -m pytest -q
 npm run test:evidence
 ```
 
-これらは全変更に機械的に実行する一覧ではない。機能別設計が指定するゲートを満たす。特に `test:p2-e2e` は結果を `tools/record_e2e_main.mjs` で記録する。画面の `real` 表示に紐付く証拠試験は `test:evidence` で確認する。Pythonの全件試験にはリポジトリ直下の `test_*.py` と `tests/` を含める。
+これらは全変更に機械的に実行する一覧ではない。機能別設計が指定するゲートを満たす。特に `test:p2-e2e` は結果を `tools/record_e2e_main.mjs` で記録する。画面の `real` 表示に紐付く証拠試験は `test:evidence` で確認する。2026-11-05の Python 構成整理以後、Python の試験は `tests/` に集め、ルートの `conftest.py` による実データ隔離は維持する。Windows の cp932 既定環境で UTF-8 ソースの静的読取試験を実行する場合は `python -X utf8 -m pytest -q` を使い、実行した文字コードを結果に記録する。
 
 ブラウザ試験でPlaywrightの既定ブラウザが無い場合は、インストール済みChrome/Chromiumの実行ファイルを `CHROMIUM_PATH` に指定し、そのパスとバージョンを結果に記録する。Windowsでソケット不足が出たときだけ `BAI_TEST_CONCURRENCY=1` に下げて隔離再実行し、元の一括ゲートは未完走として残す。
 

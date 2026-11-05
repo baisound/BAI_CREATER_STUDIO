@@ -1,6 +1,6 @@
 import unittest
 from pathlib import Path
-from retarget_review_bundle import build
+from bai_studio.retarget.review_bundle import build
 from tests.test_v01626_28_local_transfer import paired_fixture
 class ReviewTests(unittest.TestCase):
  def test_no_confirmation(self):

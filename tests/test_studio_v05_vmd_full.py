@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from studio_v05_vmd_full import full_frame_replacements
-from studio_v05_vmd_rewrite import _sections, RECORD_SIZE, rewrite_bone_section
+from bai_studio.v05.motion.vmd_full import full_frame_replacements
+from bai_studio.v05.motion.vmd_rewrite import _sections, RECORD_SIZE, rewrite_bone_section
 from test_studio_v05_vmd_rewrite import record
 
 

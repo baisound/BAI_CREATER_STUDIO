@@ -8,7 +8,7 @@ import urllib.request
 from http.server import ThreadingHTTPServer
 
 import server
-from studio_project_catalog import create
+from bai_studio.projects.catalog import create
 
 
 def test_reading_http_revision_hash_and_original_separation(tmp_path, monkeypatch):
