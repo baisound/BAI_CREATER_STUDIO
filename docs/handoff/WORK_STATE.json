@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T22:13:12+09:00",
+  "updated_at": "2026-11-05T22:15:51+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "9230c0c",
+  "head_at_update": "d908ca2",
   "current": {
-    "task": "順4 LIP-001 WebMCPネイティブ呼出し環境を確認",
-    "status": "done",
-    "step": "インストール済みChromeのdocument.modelContext公開状況を確認して検証可能範囲を記録",
-    "design_doc": "docs/v05/LIP001_WORKFLOW_MCP_20261105_JA.md"
+    "task": "順4 LIP-001のLinux側Python回帰を確認",
+    "status": "in_progress",
+    "step": "WSL Ubuntuで実曲SRT/VMD読取と口形合成の対象pytestを実行し、Windows側の原本hashを保持",
+    "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
     "順4 #187: Ownerの54発話の読み・無音回答を受け、確認済み範囲の合成と出力を実施。WebMCPネイティブ呼出しは対応ブラウザが利用可能になったとき再検証"
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T22:15:51+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "d908ca2",
+      "text": "順4 LIP-001のLinux側Python回帰を確認: WSL Ubuntuで実曲SRT/VMD読取と口形合成の対象pytestを実行し、Windows側の原本hashを保持"
+    },
     {
       "at": "2026-11-05T22:13:12+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "e6330fe",
       "text": "合成600Fの動画内音声+3D完成MP4を復号し、F0からF590の60地点で音画差1F以内を確認"
-    },
-    {
-      "at": "2026-11-05T12:09:19+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4748ac1",
-      "text": "順3：全区間の音画同期を1F以内で測定・修正: 既存のFFmpeg時刻グラフと長尺試験入力を設計"
     }
   ]
 }
