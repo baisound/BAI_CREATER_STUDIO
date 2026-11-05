@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T02:33:14+09:00",
+  "updated_at": "2026-11-06T02:38:28+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-render-real-20261106",
-  "head_at_update": "20d2bd8",
+  "branch": "codex/next",
+  "head_at_update": "8b5e528",
   "current": {
-    "task": "Issue #39/#81 順3の実PMX・実曲600F出力",
-    "status": "done",
-    "step": "実PMX・同曲VMDとWAVを隔離作品へ置き、600Fのプレビュー・MP4・音声・原本保持を検証する",
+    "task": "PR #237統合後の開発ブランチ引継ぎ",
+    "status": "in_progress",
+    "step": "codex/nextの作業位置を順3の実曲600F検証後へ更新し、残る長尺条件を引き継ぐ",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T02:38:28+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8b5e528",
+      "text": "PR #237統合後の開発ブランチ引継ぎ: codex/nextの作業位置を順3の実曲600F検証後へ更新し、残る長尺条件を引き継ぐ"
+    },
     {
       "at": "2026-11-06T02:33:14+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "b2b91e7",
       "text": "実曲VMD39MB・実PMX・登録テクスチャを隔離Chrome/SwiftShaderで読み、0/4秒の全身7骨と画面差、90秒の口モーフ変化を確認。製品APIのF240・1F MP4をH.264/AACで再読込し表示画素57152点と頭姿勢を確認。原本/共有dataハッシュ一致、試験1件成功。"
-    },
-    {
-      "at": "2026-11-05T14:14:29+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9743e5f",
-      "text": "順4 LIP-001実PMX・実曲VMDの3D表示と短い出力を検証: 原本を隔離複製し、実VMDの再生時刻差・口モーフ値・短いMP4を照合"
     }
   ]
 }
