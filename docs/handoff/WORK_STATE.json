@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T02:23:28+09:00",
+  "updated_at": "2026-11-06T02:33:14+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-render-real-20261106",
-  "head_at_update": "f6c5bd7",
+  "head_at_update": "20d2bd8",
   "current": {
     "task": "Issue #39/#81 順3の実PMX・実曲600F出力",
-    "status": "in_progress",
+    "status": "done",
     "step": "実PMX・同曲VMDとWAVを隔離作品へ置き、600Fのプレビュー・MP4・音声・原本保持を検証する",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
-    "PR #233は下書きのまま、順3の残る実素材長尺3D・音画同期・保存カメラと出力の受け入れ条件を現在の台帳で照合して進める",
-    "Issue #63の巨大ステージ内の初期構図は順6で扱う。WP-L8bの時刻付きカメラも順6の保存先ができるまで保管する"
+    "順3の実曲全体230秒と600F超3Dを、安全な分割描画方式・容量制約・停止時復旧の設計と実測で進める",
+    "動画内音声と独立音声の実素材重なり、保存カメラ長尺、異なるFPS・サンプルレートを順3の受入条件に沿って確認する"
   ],
   "unverified": [
-    "Node全件5失敗、実GPU・外部Blender・全CLI実入力は#235の未検証として維持する",
-    "実PMXと実曲の長尺MP4、時刻付きカメラ・字幕、全形式の同一作品縦断は未確認"
+    "実曲全体230秒、600F超3D、実動画音声、異なるFPS・音声サンプルレート、先頭無音、素材欠損、保存カメラ長尺、Linux・実MCPは未確認",
+    "Node全件5失敗と#235の実GPU・外部Blender・全CLI実入力の未確認は別件として維持する"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T02:33:14+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "20d2bd8",
+      "text": "Issue #39/#81: 実PMX・同曲VMD/WAVの600Fを実GPUでプレビュー・保存再読込・H.264/AAC出力。画素3点変化、音声1/5/9秒位置差0サンプル、原本hash一致"
+    },
     {
       "at": "2026-11-06T02:23:28+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "start",
       "head": "9743e5f",
       "text": "順4 LIP-001実PMX・実曲VMDの3D表示と短い出力を検証: 原本を隔離複製し、実VMDの再生時刻差・口モーフ値・短いMP4を照合"
-    },
-    {
-      "at": "2026-11-05T14:13:24+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "94166db",
-      "text": "実PMX・実歌声SRT54発話・同曲VMDを隔離作品へ登録し、SRT保存再読込と54件の読み未確定拒否、VMD割当ready、原本・共有data前後ハッシュ一致をHTTP試験1件で確認。"
     }
   ]
 }
