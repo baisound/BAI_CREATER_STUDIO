@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T02:38:28+09:00",
+  "updated_at": "2026-11-06T02:40:00+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "8b5e528",
+  "head_at_update": "4c6ee39",
   "current": {
     "task": "PR #237統合後の開発ブランチ引継ぎ",
-    "status": "in_progress",
+    "status": "done",
     "step": "codex/nextの作業位置を順3の実曲600F検証後へ更新し、残る長尺条件を引き継ぐ",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
-    "順3の実曲全体230秒と600F超3Dを、安全な分割描画方式・容量制約・停止時復旧の設計と実測で進める",
-    "動画内音声と独立音声の実素材重なり、保存カメラ長尺、異なるFPS・サンプルレートを順3の受入条件に沿って確認する"
+    "順3の実曲全体230秒・600F超3Dへ向け、分割描画と容量・停止時復旧の設計を実測付きで進める",
+    "実動画内音声と独立音声の重なり、保存カメラ長尺、異なるFPS/サンプルレートを順3の受入条件で確認する"
   ],
   "unverified": [
-    "実曲全体230秒、600F超3D、実動画音声、異なるFPS・音声サンプルレート、先頭無音、素材欠損、保存カメラ長尺、Linux・実MCPは未確認",
-    "Node全件5失敗と#235の実GPU・外部Blender・全CLI実入力の未確認は別件として維持する"
+    "実曲全体230秒、600F超3D、実動画音声、異なるFPS/サンプルレート、先頭無音、素材欠損、保存カメラ長尺、Linux・実MCPは未確認",
+    "Node全件5失敗と#235の外部Blender・全CLI実入力の未確認は維持する。実GPUの今回確認は実曲600Fに限る"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T02:40:00+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4c6ee39",
+      "text": "PR #237をcodex/nextへ統合。実PMX・同曲VMD/WAVの600F実GPUプレビュー・MP4と音声3点を確認し、Issue #39/#81・PR #233へ結果を反映"
+    },
     {
       "at": "2026-11-06T02:38:28+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "start",
       "head": "3dcc4b6",
       "text": "順4 LIP-001実歌声SRT54発話の読み確認表を準備: 原本SRTを変えずに発話番号別の仮読みと曖昧語を整理し、Owner確認待ちを明示"
-    },
-    {
-      "at": "2026-11-05T21:58:11+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b2b91e7",
-      "text": "実曲VMD39MB・実PMX・登録テクスチャを隔離Chrome/SwiftShaderで読み、0/4秒の全身7骨と画面差、90秒の口モーフ変化を確認。製品APIのF240・1F MP4をH.264/AACで再読込し表示画素57152点と頭姿勢を確認。原本/共有dataハッシュ一致、試験1件成功。"
     }
   ]
 }
