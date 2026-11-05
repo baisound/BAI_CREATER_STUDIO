@@ -18,12 +18,12 @@ MAX_SOURCE_BYTES = 256 * 1024 * 1024
 LINEAR_INTERPOLATION = bytes([20, 20, 107, 107]) * 16
 
 
-def _name(raw: bytes, label: str) -> str:
+def _name(raw: bytes, label: str, allow_empty: bool = False) -> str:
     try:
         name = raw.split(b'\0', 1)[0].decode('cp932', errors='strict')
     except UnicodeDecodeError as exc:
         raise ValueError(f'Invalid {label} CP932 name') from exc
-    if not name:
+    if not name and not allow_empty:
         raise ValueError(f'Empty {label} name')
     return name
 
@@ -31,7 +31,8 @@ def _name(raw: bytes, label: str) -> str:
 def _sections(raw: bytes):
     if len(raw) < 54 or raw[:30].rstrip(b'\0') != b'Vocaloid Motion Data 0002':
         raise ValueError('Not a VMD 0002 file')
-    _name(raw[30:50], 'model')
+    # Some valid source motions leave the fixed-width model label empty. Preserve it.
+    _name(raw[30:50], 'model', allow_empty=True)
     count = struct.unpack_from('<I', raw, 50)[0]
     if count > MAX_BONE_KEYS or 54 + count * RECORD_SIZE > len(raw):
         raise ValueError('Invalid or truncated VMD bone section')

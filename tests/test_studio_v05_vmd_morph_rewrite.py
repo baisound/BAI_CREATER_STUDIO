@@ -46,6 +46,16 @@ def test_preserves_bones_and_all_later_sections_while_rewriting_morphs():
         rewrite_morph_section(source, [], [('い', 1)])
 
 
+def test_empty_source_model_label_remains_empty_after_morph_rewrite():
+    source = _source()[:30] + bytes(20) + _source()[50:]
+    before = inspect_morph_section(source)
+    rewritten, report = rewrite_morph_section(source,
+        [{'name': 'あ', 'frame': 30, 'weight': .8}])
+    after = inspect_morph_section(rewritten)
+    assert before['prefix'] == after['prefix'] and rewritten[:50] == source[:50]
+    assert report['added'] == 1 and len(after['rows']) == 3
+
+
 def test_existing_morph_only_candidate_extra_zero_is_preserved():
     source = _source()
     before = inspect_morph_section(source)

@@ -44,6 +44,15 @@ def test_rewrite_keeps_unedited_bones_and_non_bone_suffix(tmp_path):
     assert parsed['records'][0]['position'][0] == 1
 
 
+def test_empty_source_model_label_is_preserved_without_weakening_bone_names():
+    source = fixture()[:30] + bytes(20) + fixture()[50:]
+    rewritten, _ = rewrite_bone_section(source, [sample('頭', 0, 1)])
+    assert rewritten[:50] == source[:50] and rewritten != source
+    malformed = source[:54] + bytes(15) + source[69:]
+    with pytest.raises(ValueError, match='Empty bone name'):
+        rewrite_bone_section(malformed, [sample('頭', 0, 1)])
+
+
 def test_distinct_exclusive_destination_and_source_hash(tmp_path):
     source, output = tmp_path / 'source.vmd', tmp_path / 'candidate.vmd'
     source.write_bytes(fixture())
