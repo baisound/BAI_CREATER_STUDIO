@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T22:12:05+09:00",
+  "updated_at": "2026-11-05T22:13:12+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "58e66e4",
+  "head_at_update": "9230c0c",
   "current": {
     "task": "順4 LIP-001 WebMCPネイティブ呼出し環境を確認",
-    "status": "in_progress",
+    "status": "done",
     "step": "インストール済みChromeのdocument.modelContext公開状況を確認して検証可能範囲を記録",
     "design_doc": "docs/v05/LIP001_WORKFLOW_MCP_20261105_JA.md"
   },
   "next_steps": [
-    "順4 #187: WebMCP対応ブラウザのネイティブ呼出し可否を実環境で確認。Owner確認後、実歌声SRTの読み・無音を確定した範囲で合成と出力を試験"
+    "順4 #187: Ownerの54発話の読み・無音回答を受け、確認済み範囲の合成と出力を実施。WebMCPネイティブ呼出しは対応ブラウザが利用可能になったとき再検証"
   ],
   "unverified": [
-    "利用者の標準MCPクライアント設定、WebMCPのブラウザネイティブ呼出し、Ownerによる54発話の読み・無音確定、歌声入り長尺MP4は未検証",
+    "WebMCP対応ブラウザのネイティブ呼出し、利用者MCPクライアント設定、Ownerによる読み・無音確定、歌声入り長尺MP4は未検証",
     "実GPU、Linux、別PMXと口形の自然さは未検証"
   ],
   "blockers": [],
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T22:13:12+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9230c0c",
+      "text": "Chrome 156.0.8078.80の通常ヘッドレス環境でdocument.modelContext/registerToolがundefinedと実測。WebMCP隔離試験はAPI注入による契約確認で、ネイティブ呼出し合格とは区別して記録。"
+    },
     {
       "at": "2026-11-05T22:12:05+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "4748ac1",
       "text": "順3：全区間の音画同期を1F以内で測定・修正: 既存のFFmpeg時刻グラフと長尺試験入力を設計"
-    },
-    {
-      "at": "2026-11-05T12:08:33+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "e864ab8",
-      "text": "720p合成GLBの600F実描画を完成MP4と先頭末尾画素で検証し、601FをAPI/画面で拒否"
     }
   ]
 }

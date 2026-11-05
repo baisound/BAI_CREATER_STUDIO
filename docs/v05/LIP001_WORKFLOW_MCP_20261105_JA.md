@@ -25,6 +25,10 @@
 
 `node tests/run-guarded.cjs tests/studio-v05-lip-real-song-stdio.test.cjs` を `BAI_REAL_LIP_SRT` に原本を指定して実行。隔離作品と実際の `mcp_server.py` 子プロセスを作り、MCP 2024-11-05 の `initialize`、`notifications/initialized`、`ping`、`tools/list`、`tools/call` を同じstdioセッションで往復した。127ツール中、SRT/読みの対象5ツールが一意に登録された。実SRT原本バイトをBase64で取り込み、54発話と最終228.365秒をMCPから再読込し、HTTP保存状態と一致。発話#1の仮読みを `proposed` として保存し、候補も `proposed` の7区間で、確定・採用はしていない。隔離試験1件成功、失敗0、スキップ0。原本SRTと共有 `data/` の前後SHA-256は一致。利用者のMCPクライアントに登録した設定での呼出しは未検証。
 
+## ネイティブWebMCPの環境確認（2026-11-05）
+
+インストール済みのChrome 156.0.8078.80をPlaywrightから通常のヘッドレス設定で起動し、`about:blank` で `typeof document.modelContext` と `typeof document.modelContext?.registerTool` を読み取った。両方 `undefined`。したがって、このChrome環境ではWebMCPのネイティブ登録・クライアントからの呼出しは実測できない。上記の隔離Chrome試験は `modelContext` を試験ページへ明示的に注入した登録・実行契約の確認であり、ネイティブ機能の合格とは区別する。対応ブラウザが用意されたときに同じ保存APIとの往復を再確認する。
+
 ## 残る範囲
 
 WebMCP対応ブラウザのネイティブ呼出し、利用者の標準MCPクライアント設定、Linux、実歌声SRTを使う両MCPの全操作・実曲元VMDと採用口形の合成・歌声入り長尺MP4、別PMXの自然な口形は未検証。AIの操作結果は保存値・バイナリの検査であり、表情の自然さやOwner採用を示さない。LIP-001全体は部分実装のまま。
