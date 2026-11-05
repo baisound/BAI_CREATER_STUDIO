@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T04:02:41+09:00",
+  "updated_at": "2026-11-06T04:06:57+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-scene-stream-20261106",
-  "head_at_update": "7df900d",
+  "head_at_update": "adf347e",
   "current": {
-    "task": "Issue #39/#81 順3の長尺3D出力",
-    "status": "done",
-    "step": "PNG全量保存を透過可逆動画への逐次書込みへ変更し600F超を検証",
+    "task": "PR #239レビューと停止時のChrome回収修正",
+    "status": "in_progress",
+    "step": "タイムアウト時に描画プロセス配下を終了し、実プロセス試験と720F回帰後にcodex/nextへ統合",
     "design_doc": "docs/v05/SCENE_STREAM_CAPTURE_20261106_JA.md"
   },
   "next_steps": [
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T04:06:57+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "adf347e",
+      "text": "PR #239レビューと停止時のChrome回収修正: タイムアウト時に描画プロセス配下を終了し、実プロセス試験と720F回帰後にcodex/nextへ統合"
+    },
     {
       "at": "2026-11-06T04:02:41+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "74b14fc",
       "text": "MCP 2024-11-05の継続stdioセッションでinitialize/一覧/実歌声SRT54発話取込/再読込/#1仮読みproposedを隔離作品へ保存。HTTP読直しと原本hashを照合し、試験1件成功。"
-    },
-    {
-      "at": "2026-11-05T22:06:11+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "13477c8",
-      "text": "順4 LIP-001標準MCPの実stdioセッションを検証: initializeからtools/list・実歌声SRT取込・読み保存・再読込を隔離HTTPサーバーで通す"
     }
   ]
 }
