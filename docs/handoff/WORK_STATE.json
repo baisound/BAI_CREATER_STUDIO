@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T22:04:27+09:00",
+  "updated_at": "2026-11-05T22:06:11+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "48887df",
+  "head_at_update": "13477c8",
   "current": {
-    "task": "順4 LIP-001実歌声SRT54発話の読み確認表を準備",
-    "status": "done",
-    "step": "原本SRTを変えずに発話番号別の仮読みと曖昧語を整理し、Owner確認待ちを明示",
+    "task": "順4 LIP-001標準MCPの実stdioセッションを検証",
+    "status": "in_progress",
+    "step": "initializeからtools/list・実歌声SRT取込・読み保存・再読込を隔離HTTPサーバーで通す",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T22:06:11+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "13477c8",
+      "text": "順4 LIP-001標準MCPの実stdioセッションを検証: initializeからtools/list・実歌声SRT取込・読み保存・再読込を隔離HTTPサーバーで通す"
+    },
     {
       "at": "2026-11-05T22:04:27+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "6acccfa",
       "text": "動画内音声を元区間・作品時刻で限定MP4へ混合し、隔離Chrome/FFmpegと関連ルート試験で確認"
-    },
-    {
-      "at": "2026-11-05T11:46:20+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3013135",
-      "text": "順3：動画内音声を作品時刻でMP4へ多重化する: 既存出力の音声経路と受け入れ条件を照合"
     }
   ]
 }
