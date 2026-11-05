@@ -1,21 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T22:26:23+09:00",
+  "updated_at": "2026-11-05T22:38:41+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "010705a",
+  "head_at_update": "5008733",
   "current": {
     "task": "順5 GLB→VMD詳細設計の批評反映",
-    "status": "in_progress",
+    "status": "done",
     "step": "独立批評§8の停止級と範囲・試験条件を本文へ反映し、再判定できる状態にする",
     "design_doc": "docs/roadmap/R5_GLB_VMD_MOTION_EDIT_DETAILED_DESIGN_20261104_JA.md"
   },
   "next_steps": [
-    "順4 #187: Ownerの仮読み54発話と明示無音の回答を受け、確定した範囲で実曲VMDとの口形合成と歌声付き出力を検証。WebMCPネイティブは対応ブラウザで再検証"
+    "順3・4の残件を優先し、Ownerの実歌声SRT54発話の読み・無音回答を受けてLIP実曲検証を続ける",
+    "順5設計は実コード・実PMX・three評価順との再照合と独立再判定を受けるまで実装しない"
   ],
   "unverified": [
-    "Ownerによる54発話の読み・無音確定、実歌声に合わせた口形採用・自然さ・歌声入り長尺MP4は未検証",
-    "Linuxブラウザー/GPU/MP4と全MCP機能、WebMCPネイティブ呼出し、利用者MCPクライアント設定、別PMXは未検証"
+    "順5設計の独立再判定、実GLB→VMD/実PMXの測定・実装試験は未実施",
+    "LIP実歌声SRT54発話のOwner確定、歌声入り長尺MP4、WebMCPネイティブ呼出しは未検証"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T22:38:41+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "5008733",
+      "text": "順5詳細設計へ独立批評§8の停止級と主要指摘を反映。評価順、台帳保護、試験専用測定、残件とOwner判断を改訂草案に整理。リンクとgit diff --checkを確認"
+    },
     {
       "at": "2026-11-05T22:26:23+09:00",
       "by": "codex",
@@ -230,13 +238,6 @@
       "event": "start",
       "head": "20f4636",
       "text": "順3：保存カメラ未設定時の自動構図をプレビューとMP4で照合: 実PMX・GLBステージの隔離描画と構図比較"
-    },
-    {
-      "at": "2026-11-05T12:31:20+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "366d64f",
-      "text": "同名完成物の版名候補・明示置換・旧版保持/復元を隔離MP4と画面で確認し、書込失敗・改変・中断復旧を検証"
     }
   ]
 }
