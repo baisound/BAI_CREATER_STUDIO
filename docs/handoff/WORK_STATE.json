@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:41:56+09:00",
+  "updated_at": "2026-11-05T12:44:22+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "057d980",
+  "head_at_update": "609204a",
   "current": {
-    "task": "順3：16:9より縦長の欄でプレビューとMP4の構図を照合",
-    "status": "done",
-    "step": "狭い画面の実素材隔離試験",
-    "design_doc": "docs/v05/SHARED_STATE_OUTPUT_AUDIT_20261104_JA.md"
+    "task": "順3：v0.5完成MP4出力をWebMCP・標準MCPから操作",
+    "status": "in_progress",
+    "step": "既存の保存範囲・版名・ジョブAPIへ両MCPを接続",
+    "design_doc": "docs/roadmap/FEATURE_DETAIL_JA.md"
   },
   "next_steps": [
     "順3の次の残件：出力の標準MCP・WebMCPを共通APIと保存結果で確認・接続する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:44:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "609204a",
+      "text": "順3：v0.5完成MP4出力をWebMCP・標準MCPから操作: 既存の保存範囲・版名・ジョブAPIへ両MCPを接続"
+    },
     {
       "at": "2026-11-05T12:41:56+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "4dd08b2",
       "text": "WP-L9：旧保存→v0.5取込の実データ確認。台本 tools/legacy_import_real_check.py（＋画面部分 _ui.cjs）を作り、所有者のPCの実GPUで実行してR1〜R4すべて合格。取込の製品コードに不具合なし。台帳・設計書・証拠文書を同期（DATA-008は要検証のまま）"
-    },
-    {
-      "at": "2026-11-04T11:47:31+09:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "4dd08b2",
-      "text": "WP-L9：旧保存→v0.5取込の実データ確認（1コマンドの台本、実GPU、R1〜R4）: 台本の作成と実データでの実行"
     }
   ]
 }
