@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:00:28+09:00",
+  "updated_at": "2026-11-05T12:01:52+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "6acccfa",
+  "head_at_update": "b29ad15",
   "current": {
-    "task": "順3：動画内音声を作品時刻でMP4へ多重化する",
-    "status": "done",
-    "step": "既存出力の音声経路と受け入れ条件を照合",
+    "task": "順3：300Fを超える3D出力を隔離実測して制限を拡張",
+    "status": "in_progress",
+    "step": "3D連番キャッシュ・時間制限・UI表示の照合",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:01:52+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "b29ad15",
+      "text": "順3：300Fを超える3D出力を隔離実測して制限を拡張: 3D連番キャッシュ・時間制限・UI表示の照合"
+    },
     {
       "at": "2026-11-05T12:00:28+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "8e11890",
       "text": "WP-L4 試験専用の逆変換 _export_legacy_for_test と往復試験(R2/R4)32件"
-    },
-    {
-      "at": "2026-11-04T01:33:42+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "8e11890",
-      "text": "WP-L4 試験専用の逆変換と往復試験(R2/R4): studio_v05_legacy_import.py に _export_legacy_for_test と往復試験"
     }
   ]
 }
