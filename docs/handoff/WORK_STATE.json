@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T23:36:19+09:00",
+  "updated_at": "2026-11-05T23:36:41+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "a4c322a",
+  "head_at_update": "77d8f0f",
   "current": {
     "task": "Issue #234 Pythonファイルの役割別パッケージ整理",
-    "status": "done",
-    "step": "既存の起動・import・試験契約を調べ、移動対象と互換方針を設計する",
+    "status": "in_progress",
+    "step": "実装モジュールと直下テストを移動し、import・パス・起動を修正して回帰検証する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T23:36:41+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "77d8f0f",
+      "text": "Issue #234 Pythonファイルの役割別パッケージ整理: 実装モジュールと直下テストを移動し、import・パス・起動を修正して回帰検証する"
+    },
     {
       "at": "2026-11-05T23:36:19+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "057d980",
       "text": "縦長600×700の欄で保存カメラなしの実PMX＋S01 GLBのF0構図をMP4と照合（IoU 0.898、重心差0.0035、原本不変）"
-    },
-    {
-      "at": "2026-11-05T12:38:49+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4d89dae",
-      "text": "順3：16:9より縦長の欄でプレビューとMP4の構図を照合: 狭い画面の実素材隔離試験"
     }
   ]
 }
