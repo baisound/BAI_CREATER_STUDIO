@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T04:19:23+09:00",
+  "updated_at": "2026-11-06T04:24:27+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-mixed-audio-fps-20261106",
-  "head_at_update": "61414b0",
+  "head_at_update": "ddcd0fd",
   "current": {
     "task": "Issue #39/#81 実素材由来の音声重なりとFPS検証",
-    "status": "in_progress",
+    "status": "done",
     "step": "実動画と実WAVから隔離試験入力を作り44.1/48kHzの混合・24/29.97/60fps・非0開始を完成MP4で確認",
     "design_doc": "docs/v05/MIXED_AUDIO_FPS_20261106_JA.md"
   },
   "next_steps": [
-    "PR239をcodex/nextへ統合し、順3の長尺全区間音画同期を検証する"
+    "順3の動く3Dと音声の時計・実ステージと長尺保存カメラを検証する",
+    "音声を元から持つ実動画と長尺混合、上限容量・停止復旧・Linux/実MCPを確認する。PR240と今回の検証PRは開発ブランチへの統合待ち"
   ],
   "unverified": [
-    "Linux・サーバー強制終了時の回収、36000F/10分/2GiB境界、全区間音画差と他FPS/サンプルレートは未確認"
+    "元からの実動画内音声、長尺混合、動く3Dの時刻、長尺保存カメラ、36000F/10分/2GiB境界、Linux/実MCP・サーバー強制終了時の回収は未確認。CAM019は設計別ブランチで実装未着手"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T04:24:27+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ddcd0fd",
+      "text": "実動画(音声なし)と実WAV由来の隔離派生入力で44.1kHz内包音声＋48kHz独立WAVを混合。24/29.97/60fps・元位置切出し・非0開始の15地点でPCM差0サンプル。Node1成功(内部3条件)、原本保持。製品修正不要"
+    },
     {
       "at": "2026-11-06T04:19:23+09:00",
       "by": "codex",
@@ -229,13 +237,6 @@
       "event": "start",
       "head": "d908ca2",
       "text": "順4 LIP-001のLinux側Python回帰を確認: WSL Ubuntuで実曲SRT/VMD読取と口形合成の対象pytestを実行し、Windows側の原本hashを保持"
-    },
-    {
-      "at": "2026-11-05T22:13:12+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9230c0c",
-      "text": "Chrome 156.0.8078.80の通常ヘッドレス環境でdocument.modelContext/registerToolがundefinedと実測。WebMCP隔離試験はAPI注入による契約確認で、ネイティブ呼出し合格とは区別して記録。"
     }
   ]
 }
