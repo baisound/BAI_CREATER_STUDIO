@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T13:25:08+09:00",
+  "updated_at": "2026-11-05T13:29:15+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "62ca232",
+  "head_at_update": "e4a916a",
   "current": {
-    "task": "順4 LIP-001口形合成候補の標準MCP・WebMCP接続",
-    "status": "done",
-    "step": "既存の合成候補APIとMCP契約を照合し、同一APIへ最小のツールを追加",
+    "task": "順4 LIP-001実PMXで元VMD合成候補と見た目を照合",
+    "status": "in_progress",
+    "step": "実PMX隔離試験に合成候補の全キー読込と表示値比較を追加",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T13:29:15+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e4a916a",
+      "text": "順4 LIP-001実PMXで元VMD合成候補と見た目を照合: 実PMX隔離試験に合成候補の全キー読込と表示値比較を追加"
+    },
     {
       "at": "2026-11-05T13:25:08+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "6ffaa1e",
       "text": "WP-L8a §6.0：所有者のS01の元の外接箱を② SCR-06で測った（製品コードは変更前）。最小(-50,-50,-50)・最大(50,50,50)、大きさ100m立方（外殻が支配）。判定(a)原点の真上がXZの内側=真、(b)初期カメラ(2,1.6,4.5)が内側=真、(c)最小y=-50≦0.02=真。すべて真のため§8の手順1へ進む。画像 _Claude確認画像/20261104-l8a/step0_before/00_scr06_legacy.png（スタジオ内部・床・壁・照明が元の大きさで見える）"
-    },
-    {
-      "at": "2026-11-04T12:55:17+09:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "6ffaa1e",
-      "text": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる: §6.0 所有者のS01の元の外接箱をSCR-06で測る（実装前）"
     }
   ]
 }
