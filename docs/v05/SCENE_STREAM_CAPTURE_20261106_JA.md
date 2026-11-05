@@ -30,3 +30,7 @@
 実行: `BAI_REAL_RENDER_FRAMES=13800`、既存の `BAI_REAL_MMD_DATA`/`BAI_REAL_LIP_VMD`/`CHROMIUM_PATH` を指定し `node tests/run-guarded.cjs tests/studio-v05-real-song-600f.test.cjs`。実機結果はこの一つのPMX/VMD/WAV・60fps・720pに限定する。
 
 モデル区分: 標準モデルで実装・結合試験・文書更新。根拠: [FFV1公式仕様の可逆RGBとアルファ](https://ffmpeg.org/~michael/ffv1.html)。
+
+## PR #239の停止処理レビュー
+
+タイムアウト時のNode強制停止だけではChromeが残り得るため、Windowsは所有する描画PID配下をtaskkill /Tで回収し、POSIXはPlaywrightのSIGTERM処理でブラウザを閉じる方式に修正した。Windowsの実親子プロセスを起動するpytestが1成功。720F出力と途中編集時の停止・旧完成物保持も再試験する。Linuxとサーバー自体の強制終了からの回収は未検証のまま。

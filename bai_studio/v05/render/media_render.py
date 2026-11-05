@@ -141,6 +141,27 @@ def _run(args: list[str], timeout: int = 30) -> subprocess.CompletedProcess:
                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), check=False)
 
 
+def _stop_capture(process: subprocess.Popen) -> None:
+    """Stop the private Node worker together with its Chromium descendants."""
+    if process.poll() is None:
+        if os.name == "nt":
+            # TerminateProcess/kill() skips Node's finally block on Windows.
+            subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                           stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL, timeout=15,
+                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        else:
+            # Playwright handles SIGTERM by closing its browser before exit.
+            process.terminate()
+        try:
+            process.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+    else:
+        process.wait()
+
+
 def _scene_capture_available() -> bool:
     browser_candidates = [os.environ.get("CHROMIUM_PATH"), os.environ.get("CHROMIUM"),
                           r"C:\Program Files\Google\Chrome\Application\chrome.exe",
@@ -497,6 +518,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                         "-f", "matroska", "-n", str(scene_video)], stdin=subprocess.PIPE,
                         stdout=subprocess.DEVNULL, stderr=eerr,
                         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+
                     capture = subprocess.Popen([node, str(script_path), str(config_path)],
                         stdin=subprocess.DEVNULL, stdout=encoder.stdin, stderr=cerr,
                         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
@@ -518,13 +540,17 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                     if scene_video.stat().st_size > MAX_SCENE_BYTES:
                         raise RenderError("3D可逆動画の作業領域が2GiBを超えました")
             finally:
-                for child in (capture, encoder):
-                    if child is not None:
-                        if child.stdin is not None and not child.stdin.closed:
-                            child.stdin.close()
-                        if child.poll() is None:
-                            child.kill()
-                        child.wait()
+                try:
+                    if capture is not None:
+                        _stop_capture(capture)
+                finally:
+                    for child in (capture, encoder):
+                        if child is not None:
+                            if child.stdin is not None and not child.stdin.closed:
+                                child.stdin.close()
+                            if child.poll() is None:
+                                child.kill()
+                            child.wait()
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             if manifest.get("frame_count") != job["frame_count"] or len(manifest.get("frame_sha256", [])) != job["frame_count"]:
                 raise RenderError("3D連番が保存範囲と一致しません")
