@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:15:27+09:00",
+  "updated_at": "2026-11-05T12:17:34+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "e6330fe",
+  "head_at_update": "562ee03",
   "current": {
-    "task": "順3：全区間の音画同期を1F以内で測定・修正",
-    "status": "done",
-    "step": "既存のFFmpeg時刻グラフと長尺試験入力を設計",
-    "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
+    "task": "順3：同名完成物の版名・明示置換・旧版復元",
+    "status": "in_progress",
+    "step": "既存ジョブID保存と出力UIから非破壊の版管理を設計",
+    "design_doc": "docs/roadmap/FEATURE_DETAIL_JA.md"
   },
   "next_steps": [
     "順3の次の残件：同名完成物の版管理と明示置換時の旧版退避"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:17:34+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "562ee03",
+      "text": "順3：同名完成物の版名・明示置換・旧版復元: 既存ジョブID保存と出力UIから非破壊の版管理を設計"
+    },
     {
       "at": "2026-11-05T12:15:27+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "1d1b6fe",
       "text": "WP-L7b 旧タイムライン編集の開始時刻の取込（plan T1〜T4、collect、試験67件）"
-    },
-    {
-      "at": "2026-11-04T01:46:56+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "55c8662",
-      "text": "WP-L7b 旧タイムライン編集(timeline_editor)の開始時刻の取込: studio_v05_legacy_import.py の plan/collect に T1〜T4 を足す"
     }
   ]
 }
