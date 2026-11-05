@@ -7,8 +7,8 @@ import urllib.request
 from http.server import ThreadingHTTPServer
 
 import server
-from studio_project_catalog import create, set_fps
-from studio_v05_lip_candidates import segments, _frame
+from bai_studio.projects.catalog import create, set_fps
+from bai_studio.v05.lip.lip_candidates import segments, _frame
 
 
 def test_mora_splits_long_sokuon_nasal_and_project_frame_rounding():

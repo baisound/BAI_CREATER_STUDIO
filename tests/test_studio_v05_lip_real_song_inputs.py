@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from studio_v05_srt_sources import parse
-from studio_v05_vmd_morph_rewrite import inspect_morph_section, rewrite_morph_section
+from bai_studio.v05.lip.srt_sources import parse
+from bai_studio.v05.motion.vmd_morph_rewrite import inspect_morph_section, rewrite_morph_section
 
 
 def test_real_vocal_srt_and_motion_share_time_axis_without_changing_originals():

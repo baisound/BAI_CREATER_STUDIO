@@ -1,7 +1,7 @@
 import tempfile, unittest
 from pathlib import Path
-from studio_project_catalog import create
-from studio_v05_arrangement import place, timeline_view, ArrangementError
+from bai_studio.projects.catalog import create
+from bai_studio.v05.timeline.arrangement import place, timeline_view, ArrangementError
 
 class TimelineViewTests(unittest.TestCase):
  def setUp(self):

@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from studio_v05_lip_vmd_composite import CompositeVmdError, _desired, _inputs, compose_morph_vmd
-from studio_v05_vmd_morph_rewrite import inspect_morph_section
+from bai_studio.v05.lip.lip_vmd_composite import CompositeVmdError, _desired, _inputs, compose_morph_vmd
+from bai_studio.v05.motion.vmd_morph_rewrite import inspect_morph_section
 
 
 def _source(keys=((0, .2), (60, .2))):
@@ -193,7 +193,7 @@ def test_ramped_boundary_curve_is_identical_in_python_browser_and_candidate_vmd(
     assert local_values == pytest.approx(browser_values, abs=1e-12)
     baked = sorted((row['frame'], row['weight']) for row in inspect_morph_section(output)['rows']
                    if row['name'] == 'あ')
-    from studio_v05_lip_vmd_composite import _curve
+    from bai_studio.v05.lip.lip_vmd_composite import _curve
     vmd_values = [_curve(baked, time * 30) for time in seconds]
     assert vmd_values == pytest.approx(local_values, abs=1e-6)
     # Mid-ramp value: source at VMD frame 29 to the adopted .8 at frame 30.
@@ -213,7 +213,7 @@ def test_shifted_clip_and_fractional_fps_match_browser_and_local_vmd(fps):
         round(duration * fps), clip_start=clip_start, clip_duration=duration)
     assert report['worst']['difference'] < 1e-6
     assert report['clipStart'] == clip_start and report['projectFps'] == fps
-    from studio_v05_lip_vmd_composite import _curve
+    from bai_studio.v05.lip.lip_vmd_composite import _curve
     baked = sorted((row['frame'], row['weight'])
                    for row in inspect_morph_section(output)['rows'] if row['name'] == 'あ')
     seconds = [clip_start + fraction / 30 for fraction in (0, 14.5, 15, 29.5, 30, 45)]
@@ -244,7 +244,7 @@ def test_cue_ending_at_clip_end_uses_the_browser_source_reset():
         _source(source_keys), cue, [], 'model-1', 30, 30,
         clip_start=clip_start, clip_duration=duration)
     assert report['worst']['difference'] < 1e-6
-    from studio_v05_lip_vmd_composite import _curve
+    from bai_studio.v05.lip.lip_vmd_composite import _curve
     baked = sorted((row['frame'], row['weight'])
                    for row in inspect_morph_section(output)['rows'] if row['name'] == 'あ')
     seconds = [1.95, 1.97, 1.98, 1.99]

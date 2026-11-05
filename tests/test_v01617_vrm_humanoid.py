@@ -1,7 +1,7 @@
 import json,struct,sys,unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from vrm_humanoid_preview import compare_vrm_humanoid
+from bai_studio.retarget.vrm_humanoid_preview import compare_vrm_humanoid
 
 def glb(roles):
  nodes=[{'name':r,'translation':[i,0,0]} for i,r in enumerate(roles)]

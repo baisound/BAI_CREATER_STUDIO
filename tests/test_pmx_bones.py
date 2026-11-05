@@ -1,8 +1,8 @@
 import os,struct,unittest,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from pmx_bones import parse
-from retarget_analysis import inspect
+from bai_studio.motion.pmx_bones import parse
+from bai_studio.retarget.analysis import inspect
 
 def i(n):return struct.pack('<i',n)
 def t(s):

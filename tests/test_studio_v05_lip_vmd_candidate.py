@@ -12,17 +12,17 @@ from pathlib import Path
 import pytest
 
 import server
-from studio_project_catalog import create, set_fps
-from studio_v05_lip_readings import set_reading
-from studio_v05_lip_drafts import save as save_draft
-from studio_v05_morph_maps import mutate
-from studio_v05_pmx_analysis import inspect
-from studio_v05_scene_model import set_model
-from studio_v05_scene_instances import mutate as mutate_scene
-from studio_v05_srt_sources import register
+from bai_studio.projects.catalog import create, set_fps
+from bai_studio.v05.lip.lip_readings import set_reading
+from bai_studio.v05.lip.lip_drafts import save as save_draft
+from bai_studio.v05.assets.morph_maps import mutate
+from bai_studio.v05.assets.pmx_analysis import inspect
+from bai_studio.v05.timeline.scene_model import set_model
+from bai_studio.v05.timeline.scene_instances import mutate as mutate_scene
+from bai_studio.v05.lip.srt_sources import register
 from tools.make_test_pmx import build_pmx
-from vmd_readback import read_vmd_morphs
-from studio_v05_lip_vmd_candidate import create as create_candidate, candidate_file, LipVmdError
+from bai_studio.motion.vmd_readback import read_vmd_morphs
+from bai_studio.v05.lip.lip_vmd_candidate import create as create_candidate, candidate_file, LipVmdError
 
 
 def test_candidate_http_roundtrip_and_all_failure_gates(tmp_path, monkeypatch):

@@ -1,10 +1,10 @@
 import tempfile, unittest, json
 from pathlib import Path
-from studio_project_catalog import create
-from studio_project_snapshots import save
-from studio_project_activation import preview,activate,ActivationConflict
-from project_state_bundle import save_bundle,read_bundle,bundle_revision
-from bai_camera import DEFAULT
+from bai_studio.projects.catalog import create
+from bai_studio.projects.snapshots import save
+from bai_studio.projects.activation import preview,activate,ActivationConflict
+from bai_studio.projects.state_bundle import save_bundle,read_bundle,bundle_revision
+from bai_studio.camera.project import DEFAULT
 class ActivationTests(unittest.TestCase):
  def setUp(self):
   self.t=tempfile.TemporaryDirectory();self.r=Path(self.t.name);self.c=self.r/'catalog.json';self.id=create(self.c,'Test')['id'];self.live=self.r/'live.json';self.cam=self.r/'camera.json';self.snap=self.r/'snap';self.back=self.r/'backup'

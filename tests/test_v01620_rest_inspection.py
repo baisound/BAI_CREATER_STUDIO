@@ -1,5 +1,5 @@
 import json,struct,unittest
-from rest_pose_inspection import compare
+from bai_studio.retarget.rest_pose_inspection import compare
 
 def pack(nodes,human):
     doc={'asset':{'version':'2.0'},'nodes':nodes,'skins':[{'joints':list(range(len(nodes)))}],'extensions':{'VRMC_vrm':{'humanoid':{'humanBones':{k:{'node':v} for k,v in human.items()}}}}}

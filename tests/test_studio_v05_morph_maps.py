@@ -12,9 +12,9 @@ from pathlib import Path
 import pytest
 
 import server
-from studio_project_catalog import create
-from studio_v05_morph_maps import read, mutate
-from studio_v05_pmx_analysis import inspect
+from bai_studio.projects.catalog import create
+from bai_studio.v05.assets.morph_maps import read, mutate
+from bai_studio.v05.assets.pmx_analysis import inspect
 from tools.make_test_pmx import build_pmx
 
 

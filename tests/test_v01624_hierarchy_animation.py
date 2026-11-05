@@ -1,5 +1,5 @@
 import unittest, math, json, struct
-from animated_hierarchy_preview import preview
+from bai_studio.retarget.animated_hierarchy_preview import preview
 
 def fixture(missing_parent=False):
     buf=struct.pack('<ff',0,1)+struct.pack('<ffffffff',0,0,0,1,0,0,.707106781,.707106781)

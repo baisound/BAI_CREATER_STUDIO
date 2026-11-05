@@ -1,6 +1,6 @@
 import tempfile, unittest, json
 from pathlib import Path
-from studio_v05_focus_reports import read,save,FocusReportError
+from bai_studio.v05.timeline.focus_reports import read,save,FocusReportError
 class TestReports(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.catalog=self.root/'catalog.json'

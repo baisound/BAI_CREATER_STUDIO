@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from studio_v05_vmd_temporal import temporal_replacements
-from studio_v05_vmd_rewrite import LINEAR_INTERPOLATION, rewrite_bone_section
+from bai_studio.v05.motion.vmd_temporal import temporal_replacements
+from bai_studio.v05.motion.vmd_rewrite import LINEAR_INTERPOLATION, rewrite_bone_section
 from test_studio_v05_vmd_rewrite import fixture
 
 

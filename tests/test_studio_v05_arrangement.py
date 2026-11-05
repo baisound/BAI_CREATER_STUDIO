@@ -1,8 +1,8 @@
 import tempfile,unittest,json
 from pathlib import Path
-from studio_project_catalog import create
-from studio_v05_arrangement import inventory,place,read,edit_clip,split_clip,timeline_view,ArrangementError,TRACKS
-from studio_v05_track_layout import add_image_lane,remove_image_lane,set_flags,set_label,update as update_layout,get as get_layout
+from bai_studio.projects.catalog import create
+from bai_studio.v05.timeline.arrangement import inventory,place,read,edit_clip,split_clip,timeline_view,ArrangementError,TRACKS
+from bai_studio.v05.timeline.track_layout import add_image_lane,remove_image_lane,set_flags,set_label,update as update_layout,get as get_layout
 class Tests(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.cat=self.root/'catalog.json';self.project=create(self.cat,'Demo');self.items=[{'id':'lib:abc','name':'Dance.vmd','kind':'motions','available':True,'source':'library'},{'id':'lib:missing','name':'Camera.vmd','available':False}]

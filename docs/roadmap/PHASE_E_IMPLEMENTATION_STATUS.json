@@ -9,7 +9,7 @@
       "id": "CAM-001",
       "name": "カメラVMDの読込・分割・登録",
       "evidence_paths": [
-        "camera_vmd_codec.py",
+        "bai_studio/camera/vmd_codec.py",
         "camera_vmd_local.js"
       ],
       "implementation_assessment": "部分実装・統合未検証",
@@ -60,7 +60,7 @@
         "camera.html",
         "camera.js",
         "camera_3d.js",
-        "camera_focus.py",
+        "bai_studio/camera/focus.py",
         "camera_lens.js",
         "test_camera_lens.cjs"
       ],
@@ -180,8 +180,8 @@
       "id": "CAM-016",
       "name": "MMDカメラVMD書出し",
       "evidence_paths": [
-        "camera_vmd_codec.py",
-        "test_camera_vmd_codec.py"
+        "bai_studio/camera/vmd_codec.py",
+        "tests/test_camera_vmd_codec.py"
       ],
       "implementation_assessment": "部分実装・統合未検証",
       "ui_api_webmcp_stdio_mcp_verified": false,

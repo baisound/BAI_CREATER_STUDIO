@@ -1,21 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T23:36:41+09:00",
+  "updated_at": "2026-11-06T00:25:24+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "77d8f0f",
+  "head_at_update": "ededbf0",
   "current": {
     "task": "Issue #234 Pythonファイルの役割別パッケージ整理",
-    "status": "in_progress",
+    "status": "done",
     "step": "実装モジュールと直下テストを移動し、import・パス・起動を修正して回帰検証する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
-    "Issue #234: Python実装を機能別bai_studioパッケージへ、直下テストをtestsへ移し、importとパスを修正して検証する",
-    "Issue #39: タイムライン途中停止を保存区間と再生終端から調査・修正し、両作業の合格後に版とタグを判断する"
+    "Issue #234の下書きPRを作成し、移動対応表と未検証を引き継ぐ",
+    "Issue #39の保存Outによるプレビュー途中停止を別コミットで修正・検証する"
   ],
   "unverified": [
-    "Python構成移動、タイムライン不具合の修正、実機回帰、版・タグは未実施"
+    "Node全件はChrome指定で444成功・55スキップ・5失敗。旧import1件修正後の対象試験は成功、UIタイムアウト2件は単独成功、8811番は別開発プロセス占有、ペイン配置は既知失敗",
+    "Ubuntu Python全件は接続リセット1件で未完走。該当3件は単独成功。実GPU・外部Blender・全CLI実入力は未検証"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T00:25:24+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ededbf0",
+      "text": "Issue #234: Python実装97件と試験57件を移動、起動と主要回帰を確認。Windows Python全件965成功、Ubuntuは接続リセット1件を単独再試験で解消"
+    },
     {
       "at": "2026-11-05T23:36:41+09:00",
       "by": "codex",
@@ -230,13 +238,6 @@
       "event": "start",
       "head": "609204a",
       "text": "順3：v0.5完成MP4出力をWebMCP・標準MCPから操作: 既存の保存範囲・版名・ジョブAPIへ両MCPを接続"
-    },
-    {
-      "at": "2026-11-05T12:41:56+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "057d980",
-      "text": "縦長600×700の欄で保存カメラなしの実PMX＋S01 GLBのF0構図をMP4と照合（IoU 0.898、重心差0.0035、原本不変）"
     }
   ]
 }

@@ -1,7 +1,7 @@
 import sys, unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from studio_routes import resolve, STUDIO_DIR
+from bai_studio.projects.routes import resolve, STUDIO_DIR
 
 
 class StudioRoutesTest(unittest.TestCase):

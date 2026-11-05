@@ -1,6 +1,6 @@
 import json, tempfile, unittest
 from pathlib import Path
-from studio_project_catalog import create,rename,list_projects,CatalogError
+from bai_studio.projects.catalog import create,rename,list_projects,CatalogError
 class TestCatalog(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.path=Path(self.tmp.name)/'catalog.json'

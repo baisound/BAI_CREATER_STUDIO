@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 import server
-from studio_v05_vrm_expressions import analyze, inspect, VrmExpressionError
+from bai_studio.v05.assets.vrm_expressions import analyze, inspect, VrmExpressionError
 
 
 def glb(document):

@@ -310,7 +310,7 @@ test('ai settings save only the two legacy fields', harness.skip3d(), async () =
     const cfg = JSON.parse(fs.readFileSync(path.join(server.dataDir, 'bai_ai_config.json'), 'utf8'));
     assert.equal(cfg.enabled, true);
     assert.equal(cfg.default_llm, 'qwen3.5:9b');
-    const defaults = JSON.parse(require('node:child_process').execFileSync('python3', ['-c', 'import json,bai_ai_manager as m;print(json.dumps(m.DEFAULTS))'], { cwd: path.join(__dirname, '..') }).toString());
+    const defaults = JSON.parse(require('node:child_process').execFileSync('python3', ['-c', 'import json,bai_studio.integrations.ai_manager as m;print(json.dumps(m.DEFAULTS))'], { cwd: path.join(__dirname, '..') }).toString());
     for (const [k, v] of Object.entries(defaults)) if (k !== 'enabled' && k !== 'default_llm') assert.deepEqual(cfg[k], v, `${k} は既定値のまま`);
   }, { seed: { 'bai_ai_config.json': AI_OFF } });
 });

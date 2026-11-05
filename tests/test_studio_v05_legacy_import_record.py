@@ -10,9 +10,9 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent))
-import studio_v05_legacy_import_record as R
+import bai_studio.v05.imports.legacy_import_record as R
 from legacy_import_fixtures import load_bundle
-from studio_v05_legacy_import import LegacyImportError
+from bai_studio.v05.imports.legacy_import import LegacyImportError
 
 PID = "11111111-1111-4111-8111-111111111111"
 OTHER = "22222222-2222-4222-8222-222222222222"

@@ -1,7 +1,7 @@
 import unittest,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from vrm_humanoid_preview import suggest_humanoid_mapping
+from bai_studio.retarget.vrm_humanoid_preview import suggest_humanoid_mapping
 from test_v01617_vrm_humanoid import glb
 
 class RoleUITests(unittest.TestCase):

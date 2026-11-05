@@ -14,19 +14,19 @@ import urllib.request
 from http.server import ThreadingHTTPServer
 
 import server
-from studio_project_catalog import create, set_fps
-from studio_v05_arrangement import place, edit_clip
-from studio_v05_lip_drafts import save as save_draft
-from studio_v05_lip_readings import set_reading
-from studio_v05_lip_vmd_candidate import create as create_lip_candidate
-from studio_v05_lip_adoptions import mutate as mutate_adoption
-from studio_v05_morph_maps import mutate as mutate_map
-from studio_v05_multi_motion import assign
-from studio_v05_pmx_analysis import inspect
-from studio_v05_scene_instances import mutate as mutate_scene, read as read_scene
-from studio_v05_scene_model import set_model
-from studio_v05_srt_sources import register
-from studio_v05_vmd_morph_rewrite import inspect_morph_section
+from bai_studio.projects.catalog import create, set_fps
+from bai_studio.v05.timeline.arrangement import place, edit_clip
+from bai_studio.v05.lip.lip_drafts import save as save_draft
+from bai_studio.v05.lip.lip_readings import set_reading
+from bai_studio.v05.lip.lip_vmd_candidate import create as create_lip_candidate
+from bai_studio.v05.lip.lip_adoptions import mutate as mutate_adoption
+from bai_studio.v05.assets.morph_maps import mutate as mutate_map
+from bai_studio.v05.motion.multi_motion import assign
+from bai_studio.v05.assets.pmx_analysis import inspect
+from bai_studio.v05.timeline.scene_instances import mutate as mutate_scene, read as read_scene
+from bai_studio.v05.timeline.scene_model import set_model
+from bai_studio.v05.lip.srt_sources import register
+from bai_studio.v05.motion.vmd_morph_rewrite import inspect_morph_section
 from tools.make_test_pmx import build_pmx
 
 INSTANCE = 'legacy-primary'

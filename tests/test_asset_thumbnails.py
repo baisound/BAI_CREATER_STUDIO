@@ -8,7 +8,7 @@ import urllib.request
 import zlib
 from http.server import ThreadingHTTPServer
 
-import asset_thumbnails
+import bai_studio.assets.asset_thumbnails as asset_thumbnails
 import server
 
 

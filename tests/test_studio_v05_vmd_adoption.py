@@ -6,9 +6,9 @@ import uuid
 
 import pytest
 
-import studio_v05_vmd_adoption as adoption
-import studio_v05_motion_edits as edits
-from studio_v05_motion_edits import MotionEditError
+import bai_studio.v05.motion.vmd_adoption as adoption
+import bai_studio.v05.motion.motion_edits as edits
+from bai_studio.v05.motion.motion_edits import MotionEditError
 
 
 def _sha(raw):

@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from studio_v05_vmd_rewrite import RECORD_SIZE, rewrite_bone_section, write_distinct_vmd
-from vmd_readback import read_vmd_bones
+from bai_studio.v05.motion.vmd_rewrite import RECORD_SIZE, rewrite_bone_section, write_distinct_vmd
+from bai_studio.motion.vmd_readback import read_vmd_bones
 
 
 def record(name, frame, x):

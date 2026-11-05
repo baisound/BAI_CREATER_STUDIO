@@ -16,17 +16,17 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent))
-import studio_project_catalog as catalog_mod
-import studio_project_snapshots as snapshots
-import studio_v05_arrangement as arrangement
-import studio_v05_legacy_import as L
-import studio_v05_legacy_import_record as R
-import studio_v05_multi_motion
-import studio_v05_playhead as playhead
-import studio_v05_render_range
-import studio_v05_scene_instances as scene
-import studio_v05_scene_model
-import studio_v05_track_layout as layout
+import bai_studio.projects.catalog as catalog_mod
+import bai_studio.projects.snapshots as snapshots
+import bai_studio.v05.timeline.arrangement as arrangement
+import bai_studio.v05.imports.legacy_import as L
+import bai_studio.v05.imports.legacy_import_record as R
+import bai_studio.v05.motion.multi_motion as studio_v05_multi_motion
+import bai_studio.v05.timeline.playhead as playhead
+import bai_studio.v05.render.render_range as studio_v05_render_range
+import bai_studio.v05.timeline.scene_instances as scene
+import bai_studio.v05.timeline.scene_model as studio_v05_scene_model
+import bai_studio.v05.timeline.track_layout as layout
 from legacy_import_fixtures import load_bundle
 
 STAGE_ID = "library:0123456789abcdef01234567"
@@ -702,7 +702,7 @@ def test_rejections_write_no_event(env, events):
 
 
 def test_real_event_function_never_raises(monkeypatch):
-    import diagnostic_logging
+    import bai_studio.core.diagnostic_logging as diagnostic_logging
     monkeypatch.setattr(diagnostic_logging, "event", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("x")))
     L.event("v05_legacy_import_apply", state="x")
 

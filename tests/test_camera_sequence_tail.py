@@ -4,8 +4,8 @@ import copy
 
 import pytest
 
-from bai_camera import DEFAULT
-from camera_sequence_api import evaluate
+from bai_studio.camera.project import DEFAULT
+from bai_studio.camera.sequence_api import evaluate
 
 
 def test_camera_end_hold_reuses_final_pose_without_modifying_project():

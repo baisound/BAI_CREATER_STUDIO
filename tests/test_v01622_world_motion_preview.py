@@ -1,5 +1,5 @@
 import unittest, math
-from world_rest_motion_preview import preview
+from bai_studio.retarget.world_rest_motion_preview import preview
 from tests.test_v01620_rest_inspection import pack
 
 class WorldMotionPreview(unittest.TestCase):

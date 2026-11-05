@@ -2,7 +2,7 @@
 
 ## 目的と境界
 
-Owner は直下に混在する Python ファイルを、役割が分かるフォルダで管理するよう指定した。現状は直下に `.py` 157件（テスト56件、起動入口と pytest 設定3件、その他98件）がある。API、保存形式、UI、素材、モデル、利用中のサーバーの動作は変えない。既存の `python server.py 8765`、`python mcp_server.py`、`python tools/*.py` は入口として維持する。実装を `bai_studio/` の機能別パッケージへ、直下のテストを `tests/` へ移す。`server.py`、`mcp_server.py`、`conftest.py` は互換入口・データ隔離設定として直下に残す。
+Owner は直下に混在する Python ファイルを、役割が分かるフォルダで管理するよう指定した。変更前は直下に `.py` 157件（`test_*.py` 56件、`tests_calibration.py` 1件、起動入口と pytest 設定3件、実装97件）があった。API、保存形式、UI、素材、モデル、利用中のサーバーの動作は変えない。既存の `python server.py 8765`、`python mcp_server.py`、`python tools/*.py` は入口として維持する。実装を `bai_studio/` の機能別パッケージへ、直下のテストを `tests/` へ移す。`server.py`、`mcp_server.py`、`conftest.py` は互換入口・データ隔離設定として直下に残す。
 
 | パッケージ | 所有する責務 | 元のファイル群 |
 |---|---|---|
@@ -35,3 +35,12 @@ Owner は直下に混在する Python ファイルを、役割が分かるフォ
 Owner の追加依頼で、タイムラインが途中で止まる事象を別途調査・修正する。画面の目盛り30秒と作品の再生区間は別なので、保存クリップ・再生終端・シークを実データで照合する。両作業を検証した後にコミット、版名とタグを決める。既存の `package.json` は `0.0.0-recovery`、画面は v0.5、旧タグは v0.16 系で一致しないため、既存タグ・GitHub Release と公開手順を確認して衝突しない版名にする。合格していない段階に完成タグを付けない。
 
 モデル区分：構成と互換境界の設計は高性能モデル、機械的な移動・import修正は標準モデル、ファイル一覧と静的照合は軽量作業。
+
+## 実施結果（2026-11-06、Issue #234）
+
+- [移動前後の対応表](PYTHON_PACKAGE_FILE_MAP_20261106.csv)に154件を記録した。実装97件は `bai_studio/`、試験57件は `tests/` へ移動した。直下の `.py` は入口とpytest設定の3件だけ。パッケージの案内は [`bai_studio/README.md`](../../bai_studio/README.md)。
+- リポジトリ内のPython importと動的 `__import__`、直接実行する `tools/` と `qa/phase_b_gate.py`、`__file__` からのルート解決を更新した。ルートの旧名を import する参照は、`tests/` 内の試験間 import 1件を除き0件。公開HTTP/MCP名、保存形式、素材は変更していない。
+- Windows Python 3.12・UTF-8指定で `python -X utf8 -m pytest -q --tb=short`: **965成功、22スキップ、64 subtests成功**。移動前からのタイムライン静的検査の旧引数数は、現行の保存呼出しに合わせて修正した。`compileall`、`npm run typecheck`、隔離データでの `python server.py` の作品一覧GETと `python mcp_server.py` の initialize、`python qa/phase_b_gate.py --help` は成功。
+- Windows Node 22.16.0・Chrome 156の `npm run test:node-all`: **504件中444成功、55スキップ、5失敗**。うち1件は移動したAI設定モジュールの旧名参照で修正し、対象試験15件が成功。素材画面33件・動作画面20件は単独で成功し、一括時の各1件タイムアウトは再現しなかった。カメラ試験の8811番は別の開発用Pythonプロセスが占有し、単独でも1件未実行。ペイン配置1件は移動前からの既知失敗。実 `data/` 5ファイルと `exports/` なしの前後ハッシュは一括ゲートと対象再試験で一致。
+- Ubuntu WSL Python 3.12.3・Node 26.4.0の全件は、初回にNodeの廃止されたオプションで1件失敗したため試験呼出しを修正した。再実行は接続リセットで1件失敗、**964成功・22スキップ**。当該隔離HTTP試験3件と修正したNode呼出し試験2件は個別に成功。Linux全件の安定完走は未確認。
+- 使用中8765番サーバーと共有データは変更していない。実GPU、外部Blender、全CLIの実入力、全Node一括ゲートの無失敗完走は未確認。これらをパッケージ移動の合格と混同しない。

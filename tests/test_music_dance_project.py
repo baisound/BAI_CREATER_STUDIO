@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import music_dance_project as dance
+import bai_studio.motion.music_dance_project as dance
 import server
 
 
