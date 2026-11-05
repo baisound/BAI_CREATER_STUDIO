@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T06:23:44+09:00",
+  "updated_at": "2026-11-06T07:12:17+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-long-mixed-audio-20261106",
-  "head_at_update": "f08c04a",
+  "branch": "codex/v05-native-mcp-20261106",
+  "head_at_update": "f433eff",
   "current": {
-    "task": "Issue #39/#81 順3の長尺混合音声",
-    "status": "done",
-    "step": "実曲由来の動画内音声と独立音声を長尺で重ね、保存再読込・複数FPS・完成MP4の音声配置を検証",
-    "design_doc": "docs/v05/LONG_MIXED_AUDIO_20261106_JA.md"
+    "task": "Issue #81 順3の公式MCPクライアントとネイティブWebMCP",
+    "status": "in_progress",
+    "step": "実クライアントの初期化/登録/呼出しと同じ作品の出力・同名版管理・保存再読込を検証",
+    "design_doc": "docs/v05/NATIVE_MCP_RENDER_20261106_JA.md"
   },
   "next_steps": [
     "今回の長尺混合/FFmpeg互換PRをレビューして開発ブランチへ統合する。順3の実MCP/ネイティブWebMCP、同名完成物の実制作/大容量、他codec/VFRの残りを受入条件と照合する",
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T07:12:17+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f433eff",
+      "text": "Issue #81 順3の公式MCPクライアントとネイティブWebMCP: 実クライアントの初期化/登録/呼出しと同じ作品の出力・同名版管理・保存再読込を検証"
+    },
     {
       "at": "2026-11-06T06:23:44+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "f5d9690",
       "text": "Issue #234 Python配置移動の実データ確認: 実旧作品の隔離APIとChrome取込を検証して未確認範囲を記録する"
-    },
-    {
-      "at": "2026-11-06T00:25:24+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ededbf0",
-      "text": "Issue #234: Python実装97件と試験57件を移動、起動と主要回帰を確認。Windows Python全件965成功、Ubuntuは接続リセット1件を単独再試験で解消"
     }
   ]
 }
