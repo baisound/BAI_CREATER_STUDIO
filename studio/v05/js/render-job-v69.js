@@ -22,6 +22,7 @@
   resolution.value = '720p';
   fpsSelect.title = '保存済み作品のFPSで書き出します';
   settings.insertAdjacentHTML('beforeend', '<p id="v69status" role="status" class="baiTiny">作品の書き出し条件を確認中…</p><p class="baiTiny">画像・動画（内包音声を含む）・独立音声は10分以内。保存済み3Dシーンと適用済み動作を含む作品は720p・最大600フレーム、連番作業領域256MiB以内の実描画に対応します。3Dの保存カメラがあれば同じ視点を使い、未保存なら自動配置します。字幕などの未接続内容は出力へ反映されません。保存済みの未対応クリップは欠落を避けるため拒否します。</p>');
+  settings.querySelector('#v69status').insertAdjacentHTML('beforebegin', '<label>完成物の名前 <input id="v69name" type="text" maxlength="84" autocomplete="off" aria-describedby="v69nameHint"></label><label>同じ名前があるとき <select id="v69nameMode"><option value="version">新しい版名で保存</option><option value="replace">この名前の完成物を置換（旧版を保存）</option></select></label><p id="v69nameHint" role="status" class="baiTiny">名前を確認中…</p>');
   const result = document.createElement('div');
   result.id = 'v69result';
   result.hidden = true;
@@ -30,7 +31,8 @@
   const preview = page.querySelector('.baiPreview');
   const sample = preview.querySelector('img');
   const $ = id => document.getElementById(id);
-  let context = null, requestSeq = 0, timer = 0, selectedJobId = null;
+  let context = null, requestSeq = 0, timer = 0, selectedJobId = null, nameProjectId = '';
+  const nameInput = $('v69name'), nameMode = $('v69nameMode'), nameHint = $('v69nameHint');
   const activeProject = () => $('v06project')?.value || '';
   const status = text => { $('v69status').textContent = text; };
   const hint = value => { button.dataset.i18nOriginalTitle = value; button.title = value; };
@@ -40,6 +42,22 @@
     if (!response.ok) throw Error(data.error || `HTTP ${response.status}`);
     return data;
   };
+  async function previewName() {
+    const projectId = activeProject(), name = nameInput.value.trim();
+    if (!projectId || !name) { nameHint.textContent = '完成物の名前を入力してください。'; return null; }
+    try {
+      const info = await get(`/api/studio/v05/render/name?project_id=${encodeURIComponent(projectId)}&name=${encodeURIComponent(name)}`);
+      if (projectId !== activeProject() || name !== nameInput.value.trim()) return null;
+      nameMode.options[1].disabled = !info.exists;
+      if (!info.exists) nameMode.value = 'version';
+      nameHint.textContent = info.exists
+        ? `同名の完成物があります。新しい版名の候補: ${info.suggested_name}。置換した場合も旧版を復元できます。`
+        : `保存名: ${info.requested_name}`;
+      return info;
+    } catch (error) { nameHint.textContent = `名前を確認できません: ${error.message}`; return null; }
+  }
+  nameInput.addEventListener('change', () => { void previewName(); });
+  nameMode.addEventListener('change', () => { void previewName(); });
   function showVideo(job, manual = false) {
     if (!job || job.status !== 'succeeded' || job.project_id !== activeProject()) return;
     const url = `/api/studio/v05/render/file?id=${encodeURIComponent(job.id)}`;
@@ -57,7 +75,9 @@
     video.hidden = false;
     if (manual) selectedJobId = job.id;
     $('v69download').href = url;
-    $('v69download').download = `BAI-${job.project_id}-${job.id.slice(0, 8)}.mp4`;
+    const filename = job.download_name || `BAI-${job.project_id}-${job.id.slice(0, 8)}.mp4`;
+    $('v69download').download = job.delivery_state === 'archived'
+      ? filename.replace(/\.mp4$/i, `-旧版-${job.id.slice(0, 8)}.mp4`) : filename;
     $('v69resultInfo').textContent = `${job.probe?.width || '?'}×${job.probe?.height || '?'} / ${job.probe?.frames || '?'}F / ${job.bytes || 0} bytes`;
     result.hidden = false;
   }
@@ -81,7 +101,7 @@
       const row = document.createElement('div');
       row.className = 'v69job';
       const label = document.createElement('span');
-      label.textContent = `${job.id.slice(0, 8)} / ${job.status} / ${job.progress_percent || 0}% / F${job.range_start_frame}〜${job.range_end_exclusive - 1}`;
+      label.textContent = `${job.download_name || job.id.slice(0, 8)}${job.delivery_state === 'archived' ? '（旧版）' : ''} / ${job.status} / ${job.progress_percent || 0}% / F${job.range_start_frame}〜${job.range_end_exclusive - 1}`;
       row.append(label);
       if (job.status === 'succeeded') {
         const open = document.createElement('button');
@@ -89,6 +109,30 @@
         open.textContent = '完成映像を確認';
         open.addEventListener('click', () => showVideo(job, true));
         row.append(open);
+        if (job.delivery_state === 'archived') {
+          const restoreButton = document.createElement('button');
+          restoreButton.type = 'button';
+          restoreButton.textContent = 'この旧版を復元';
+          restoreButton.addEventListener('click', async () => {
+            restoreButton.disabled = true;
+            try {
+              const info = await get(`/api/studio/v05/render/name?project_id=${encodeURIComponent(job.project_id)}&name=${encodeURIComponent(job.download_name)}`);
+              if (!window.confirm(`${job.download_name} の旧版 ${job.id.slice(0, 8)} を現行版へ復元しますか？ 現行版も旧版として残ります。`)) return;
+              const response = await fetch('/api/studio/v05/render/restore', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ project_id: job.project_id, name: job.download_name,
+                  job_id: job.id, revision: info.revision, current_job_id: info.current_job_id }),
+              });
+              const restored = await response.json();
+              if (!response.ok) throw Error(restored.error || `HTTP ${response.status}`);
+              status(`${restored.name} の旧版を復元しました。`);
+              await jobs(job.project_id);
+              void previewName();
+            } catch (error) { status(`旧版を復元できません: ${error.message}`); }
+            finally { restoreButton.disabled = false; }
+          });
+          row.append(restoreButton);
+        }
       }
       if (job.error) {
         const error = document.createElement('small');
@@ -120,6 +164,7 @@
         await jobs(projectId);
         if (!['queued', 'running'].includes(job.status)) {
           stopPolling();
+          void previewName();
           if (context?.projectId === projectId) {
             button.disabled = false;
             hint('保存済み作品の範囲から別名MP4を生成します');
@@ -137,6 +182,13 @@
     clearVideo();
     stopPolling();
     if (!projectId) { status('作品を選択してください。'); hint('作品を選択してください'); queue.textContent = '作品を選択してください。'; return; }
+    if (nameProjectId !== projectId) {
+      nameProjectId = projectId;
+      const projectLabel = $('v06project')?.selectedOptions?.[0]?.textContent?.trim() || projectId;
+      nameInput.value = `BAI-${projectLabel.replace(/[\\/<>:"|?*]/g, '-')}`.slice(0, 80);
+      nameMode.value = 'version';
+    }
+    void previewName();
     status('保存済み作品とencoderを確認中…');
     try {
       const encoded = encodeURIComponent(projectId);
@@ -190,10 +242,19 @@
     status('保存済み範囲のMP4ジョブを作成中…');
     let created = false;
     try {
+      const nameInfo = await previewName();
+      if (!nameInfo) throw Error('完成物の名前を確認してください');
+      const replacing = nameMode.value === 'replace' && nameInfo.exists;
+      if (replacing && !window.confirm(`${nameInfo.requested_name} を置換しますか？ 現行完成物は旧版として保存し、あとから復元できます。`)) {
+        status('置換を取りやめました。');
+        return;
+      }
       const response = await fetch('/api/studio/v05/render/jobs', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ project_id: context.projectId, range_revision: context.range.revision,
           arrangement_revision: context.arrangement.revision, resolution: resolution.value,
+          name: nameInfo.requested_name, collision_mode: replacing ? 'replace' : 'version',
+          ...(replacing ? { replace_job_id: nameInfo.current_job_id } : {}),
           ...(context.sceneRevision === null ? {} : { scene_revision: context.sceneRevision }) }),
       });
       const job = await response.json();

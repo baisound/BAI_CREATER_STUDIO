@@ -57,7 +57,7 @@ def _job_file(root: Path, job_id: str) -> Path:
 
 
 def _public(job: dict) -> dict:
-    return {key: value for key, value in job.items() if key not in {"source_paths", "command"}}
+    return {key: value for key, value in job.items() if key not in {"source_paths", "command", "delivery_plan", "pending_output"}}
 
 
 def _save(root: Path, job: dict) -> None:
@@ -87,17 +87,37 @@ def status(root: Path, job_id: str) -> dict:
                 raise RenderError("Saved render job is invalid", 422) from exc
         if job.get("id") != job_id:
             raise RenderError("Saved render job is invalid", 422)
-        if job.get("status") in {"queued", "running"} and job_id not in ACTIVE:
-            job = {**job, "status": "interrupted", "error": "サーバー再起動で処理が中断されました。原本と以前の出力は保持しています。"}
+        interrupted = job.get("status") in {"queued", "running"} and job_id not in ACTIVE
+    if interrupted:
+        pending = job.get("pending_output")
+        if isinstance(pending, dict) and job.get("download_name"):
+            from studio_v05_render_names import state as name_state
+            final = root / "files" / f"{job_id}.mp4"
+            try:
+                indexed = name_state(root, job["project_id"], job["download_name"], job_id)
+                if (indexed in {"current", "archived"} and final.is_file() and
+                        final.stat().st_size == pending.get("bytes") and
+                        _sha(final) == pending.get("sha256")):
+                    job.update(status="succeeded", completed_at=time.time(), progress_percent=100,
+                               bytes=pending["bytes"], sha256=pending["sha256"],
+                               probe=pending["probe"], error=None)
+                    job.pop("pending_output", None)
+                    _save(root, job)
+                    return _public(job)
+            except (OSError, ValueError, KeyError):
+                pass
+        job = {**job, "status": "interrupted", "error": "サーバー再起動で処理が中断されました。原本と以前の出力は保持しています。"}
     return _public(job)
 
 
 def list_jobs(root: Path, project_id: str, limit: int = 20) -> dict:
+    from studio_v05_render_names import state as name_state
     jobs = []
     for path in (root / "jobs").glob("*.json"):
         try:
             item = status(root, path.stem)
             if item.get("project_id") == project_id:
+                item["delivery_state"] = name_state(root, project_id, item.get("download_name"), item["id"])
                 jobs.append(item)
         except RenderError:
             continue
@@ -531,14 +551,22 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             if item["path"].stat().st_size != item["bytes"] or _sha(item["path"]) != item["sha256"]:
                 raise RenderError("原素材が出力中に変わりました。完成物は確定しません")
         info = _verify(ffprobe, temp, frames, duration, width, height, fps)
-        if final.exists():
-            raise RenderError("同名完成物が既にあります。原本を保持します")
         digest = _sha(temp)
-        os.replace(temp, final)
+        job["pending_output"] = {"bytes": temp.stat().st_size, "sha256": digest, "probe": info}
+        _save(root, job)
+        if job.get("delivery_plan"):
+            from studio_v05_render_names import finalize
+            finalize(root, job["project_id"], job["delivery_plan"], job_id, temp, final)
+        else:
+            if final.exists():
+                raise RenderError("同名完成物が既にあります。原本を保持します")
+            os.replace(temp, final)
         job.update(status="succeeded", progress_percent=100, completed_at=time.time(),
                    bytes=final.stat().st_size, sha256=digest, probe=info, error=None)
+        job.pop("pending_output", None)
     except Exception as exc:
         job.update(status="failed", completed_at=time.time(), error=str(exc)[:1200])
+        job.pop("pending_output", None)
         try:
             if temp.exists(): temp.unlink()
         except OSError:
@@ -555,7 +583,8 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
 
 def start(data_root: Path, project_id: str, range_revision: int, arrangement_revision: int,
           resolution: str, inventory: list[dict], scene_revision: int | None = None,
-          server_port: int | None = None) -> dict:
+          server_port: int | None = None, name: str | None = None,
+          collision_mode: str = "version", replace_job_id: str | None = None) -> dict:
     root = data_root / "studio_v05_media_renders"
     ffmpeg = shutil.which("ffmpeg")
     ffprobe = shutil.which("ffprobe")
@@ -581,6 +610,15 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
                                     arrangement_revision, resolution, inventory, ffprobe, motion_ids)
     if scene_inputs is not None and render_range["frame_count"] > MAX_SCENE_FRAMES:
         raise RenderError(f"3Dを含む限定MP4は現在{MAX_SCENE_FRAMES}フレーム以内です")
+    delivery_plan = None
+    if name is not None:
+        from studio_v05_render_names import plan, NameError
+        try:
+            delivery_plan = plan(root, project_id, name, collision_mode, replace_job_id)
+        except NameError as exc:
+            raise RenderError(str(exc), exc.status) from exc
+    elif collision_mode != "version" or replace_job_id is not None:
+        raise RenderError("完成物の名前が必要です", 400)
     with LOCK:
         if ACTIVE:
             raise RenderError("別の動画書き出しが実行中です。完了後に再試行してください", 429)
@@ -596,6 +634,8 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
                "range_end_exclusive": render_range["range_end_exclusive"],
                "frame_count": render_range["frame_count"], "fps": render_range["fps"],
                "resolution": resolution, "preset": "mp4_h264_aac", "inputs": [],
+               "download_name": delivery_plan["download_name"] if delivery_plan else None,
+               "delivery_plan": delivery_plan,
                "scene_revision": scene_revision, "phase": "queued",
                "progress_percent": 0, "error": None, "bytes": None, "sha256": None,
                "probe": None}

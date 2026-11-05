@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:17:34+09:00",
+  "updated_at": "2026-11-05T12:31:20+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "562ee03",
+  "head_at_update": "366d64f",
   "current": {
     "task": "順3：同名完成物の版名・明示置換・旧版復元",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存ジョブID保存と出力UIから非破壊の版管理を設計",
     "design_doc": "docs/roadmap/FEATURE_DETAIL_JA.md"
   },
   "next_steps": [
-    "順3の次の残件：同名完成物の版管理と明示置換時の旧版退避"
+    "順3の次の残件：保存カメラが無い場合の自動構図をプレビューとMP4で一致させる"
   ],
   "unverified": [
-    "実曲・実動画と独立音声の長尺、VFR、実GPU、Linux、WebMCP/標準MCPは未検証"
+    "大容量・多数版の実制作、Linux、WebMCP/標準MCPは未検証"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:31:20+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "366d64f",
+      "text": "同名完成物の版名候補・明示置換・旧版保持/復元を隔離MP4と画面で確認し、書込失敗・改変・中断復旧を検証"
+    },
     {
       "at": "2026-11-05T12:17:34+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "6c41381",
       "text": "WP-L5 旧保存取込のHTTPとMCP: server.py に4 API、mcp_server.py・webmcp.js に4道具、試験2本を足す"
-    },
-    {
-      "at": "2026-11-04T01:53:47+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "1d1b6fe",
-      "text": "WP-L7b 旧タイムライン編集の開始時刻の取込（plan T1〜T4、collect、試験67件）"
     }
   ]
 }

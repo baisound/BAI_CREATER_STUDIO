@@ -576,6 +576,19 @@ class Handler(BaseHTTPRequestHandler):
         if urlsplit(self.path).path=='/api/studio/v05/render/capabilities':
             from studio_v05_media_render import capabilities
             self.send(200,json.dumps(capabilities(probe_root=DATA/'studio_v05_media_renders'/'probe'),ensure_ascii=False).encode());return
+        if urlsplit(self.path).path=='/api/studio/v05/render/name':
+            from studio_v05_render_names import preview, NameError
+            from studio_project_catalog import load
+            q=parse_qs(urlsplit(self.path).query)
+            try:
+                project_id=q.get('project_id',[''])[0]
+                if not any(p['id']==project_id for p in load(DATA/'studio_v05_catalog.json')['projects']):
+                    return self.bad(404,'Unknown project ID')
+                result=preview(DATA/'studio_v05_media_renders',project_id,q.get('name',[''])[0])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except NameError as exc:self.bad(exc.status,str(exc))
+            except (ValueError,KeyError,OSError):self.bad(422,'Cannot read render names')
+            return
         if urlsplit(self.path).path in ('/api/studio/v05/render/jobs','/api/studio/v05/render/file'):
             from studio_v05_media_render import status, list_jobs, output_file, RenderError
             path=urlsplit(self.path).path
@@ -1374,7 +1387,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not 0<length<=8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
                 required={'project_id','range_revision','arrangement_revision','resolution'}
-                if not isinstance(body,dict) or not required.issubset(body) or set(body)-required-{'scene_revision'}:
+                if not isinstance(body,dict) or not required.issubset(body) or set(body)-required-{'scene_revision','name','collision_mode','replace_job_id'}:
                     return self.bad(400,'Invalid render request')
                 result=start(DATA,inventory=unified_assets(),server_port=self.server.server_port,**body)
                 event('v05_render_started',project_id=body['project_id'],job_id=result['id'])
@@ -1382,6 +1395,24 @@ class Handler(BaseHTTPRequestHandler):
             except RenderError as exc:self.bad(exc.status,str(exc))
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid render request')
             except OSError:self.bad(500,'Render job could not start')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/render/restore':
+            from studio_v05_render_names import restore, NameError
+            from studio_project_catalog import load
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','name','job_id','revision','current_job_id'}:
+                    return self.bad(400,'Invalid render restore request')
+                if not any(p['id']==body['project_id'] for p in load(DATA/'studio_v05_catalog.json')['projects']):
+                    return self.bad(404,'Unknown project ID')
+                result=restore(DATA/'studio_v05_media_renders',**body)
+                event('v05_render_restored',project_id=body['project_id'],job_id=body['job_id'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except NameError as exc:self.bad(exc.status,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid render restore request')
+            except OSError:self.bad(500,'Render restore failed; previous version retained')
             return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/layout':
             from studio_v05_track_layout import update, ArrangementError
