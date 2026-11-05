@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T00:25:24+09:00",
+  "updated_at": "2026-11-06T01:08:31+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "ededbf0",
+  "head_at_update": "f5d9690",
   "current": {
-    "task": "Issue #234 Pythonファイルの役割別パッケージ整理",
-    "status": "done",
-    "step": "実装モジュールと直下テストを移動し、import・パス・起動を修正して回帰検証する",
+    "task": "Issue #234 Python配置移動の実データ確認",
+    "status": "in_progress",
+    "step": "実旧作品の隔離APIとChrome取込を検証して未確認範囲を記録する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T01:08:31+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f5d9690",
+      "text": "Issue #234 Python配置移動の実データ確認: 実旧作品の隔離APIとChrome取込を検証して未確認範囲を記録する"
+    },
     {
       "at": "2026-11-06T00:25:24+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "655d4e2",
       "text": "限定MP4出力を標準MCP・WebMCPの9ツールで共通APIへ接続し、隔離1F MP4・同名置換・旧版復元・原本不変を両入口で確認"
-    },
-    {
-      "at": "2026-11-05T12:44:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "609204a",
-      "text": "順3：v0.5完成MP4出力をWebMCP・標準MCPから操作: 既存の保存範囲・版名・ジョブAPIへ両MCPを接続"
     }
   ]
 }
