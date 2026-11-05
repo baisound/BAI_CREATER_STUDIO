@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:44:22+09:00",
+  "updated_at": "2026-11-05T12:53:10+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "609204a",
+  "head_at_update": "655d4e2",
   "current": {
     "task": "順3：v0.5完成MP4出力をWebMCP・標準MCPから操作",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存の保存範囲・版名・ジョブAPIへ両MCPを接続",
     "design_doc": "docs/roadmap/FEATURE_DETAIL_JA.md"
   },
   "next_steps": [
-    "順3の次の残件：出力の標準MCP・WebMCPを共通APIと保存結果で確認・接続する"
+    "順4（#187）の残件：開始0秒以外のクリップと整数でないFPSの口形合成を確認する"
   ],
   "unverified": [
-    "スマートフォン既定レイアウト・タッチ操作、長尺、Linux、MCPは未検証"
+    "WebMCP対応ブラウザのネイティブ呼出し、実MCPクライアント設定、実素材長尺・3DのMCP出力、Linuxは未検証"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:53:10+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "655d4e2",
+      "text": "限定MP4出力を標準MCP・WebMCPの9ツールで共通APIへ接続し、隔離1F MP4・同名置換・旧版復元・原本不変を両入口で確認"
+    },
     {
       "at": "2026-11-05T12:44:22+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "9c15d43",
       "text": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）: ①②③の正規化の調査と詳細設計の執筆"
-    },
-    {
-      "at": "2026-11-04T11:59:57+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "4dd08b2",
-      "text": "WP-L9：旧保存→v0.5取込の実データ確認。台本 tools/legacy_import_real_check.py（＋画面部分 _ui.cjs）を作り、所有者のPCの実GPUで実行してR1〜R4すべて合格。取込の製品コードに不具合なし。台帳・設計書・証拠文書を同期（DATA-008は要検証のまま）"
     }
   ]
 }

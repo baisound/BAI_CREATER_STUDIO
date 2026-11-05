@@ -57,3 +57,8 @@ Windowsなら `command = "python"`、`args = ["C:\\...\\mcp_server.py"]` など�
 - `MOTION_CATALOG_50.json` は50件の参考データ。現行UIの全82件を保証しない。
 - WebMCP未対応ブラウザでも標準MCPツールは動作可能。
 - ローカルサーバーを閉じるとMCPからのAPI呼び出しは接続エラーになる。
+
+
+## 追補（2026-11-05）：v0.5の限定MP4出力
+
+mcp_server.py に bai_studio_render_ で始まる完成MP4用ツールを追加した。標準MCPクライアントはMIXAMO_VIEWER_URLで接続先を指定できる（既定は127.0.0.1:8765、localhostのみ）。In/Outのrevision、配置のrevision、3Dを含める場合のscene_revisionを確かめてからジョブを開始する。ジョブIDで完了を確認し、成功後にfile_linkのURLからMP4を取得する。詳しい呼出し順と検証範囲は [v0.5の出力MCP記録](docs/v05/RENDER_MCP_20261105_JA.md)。

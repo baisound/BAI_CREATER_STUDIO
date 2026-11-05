@@ -87,6 +87,20 @@ def run(name,a):
     if name=='bai_studio_playhead_set':return api('/api/studio/v05/playhead',a)
     if name=='bai_studio_timeline_view':return api('/api/studio/v05/timeline/view?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_arrangement_get':return api('/api/studio/v05/arrangement?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_render_capabilities':return api('/api/studio/v05/render/capabilities')
+    if name=='bai_studio_render_range_get':return api('/api/studio/v05/timeline/range?id='+urllib.parse.quote(a['project_id'],safe=''))
+    if name=='bai_studio_render_range_set':return api('/api/studio/v05/timeline/range',a)
+    if name=='bai_studio_render_name_preview':return api('/api/studio/v05/render/name?project_id='+urllib.parse.quote(a['project_id'],safe='')+'&name='+urllib.parse.quote(a['name'],safe=''))
+    if name=='bai_studio_render_jobs_list':return api('/api/studio/v05/render/jobs?project_id='+urllib.parse.quote(a['project_id'],safe=''))
+    if name=='bai_studio_render_job_get':return api('/api/studio/v05/render/jobs?id='+urllib.parse.quote(a['job_id'],safe=''))
+    if name=='bai_studio_render_job_start':return api('/api/studio/v05/render/jobs',a)
+    if name=='bai_studio_render_restore':return api('/api/studio/v05/render/restore',a)
+    if name=='bai_studio_render_file_link':
+        job=api('/api/studio/v05/render/jobs?id='+urllib.parse.quote(a['job_id'],safe=''))
+        if job.get('status')!='succeeded':raise ValueError('Completed MP4 not available')
+        return {'job_id':job['id'],'project_id':job['project_id'],'download_name':job.get('download_name'),
+                'url':HOST+'/api/studio/v05/render/file?id='+urllib.parse.quote(job['id'],safe=''),
+                'note':'The file endpoint validates the completed MP4 when downloaded.'}
     if name=='bai_studio_batch_move':return api('/api/studio/v05/arrangement/batch-move',a)
     if name=='bai_studio_batch_undo':return api('/api/studio/v05/arrangement/undo',a)
     if name=='bai_studio_track_flags_set':return api('/api/studio/v05/timeline/flags',a)
@@ -225,6 +239,15 @@ TOOLS=[
 ('bai_studio_playhead_set','Set saved edit cursor, revision guarded; no engine seek.',S({'project_id':STR,'seconds':{'type':'number'},'revision':{'type':'integer'}},['project_id','seconds','revision'])),
 ('bai_studio_timeline_view','Read deterministic track-grouped per-project timeline projection; read-only.',S({'project_id':STR},['project_id'])),
 ('bai_studio_arrangement_get','Read v0.5 per-project clip arrangement; does not change legacy engine.',S({'project_id':STR},['project_id'])),
+('bai_studio_render_capabilities','Read tested local MP4 encoder and 3D capture limits.',S()),
+('bai_studio_render_range_get','Read the saved In/Out range, FPS, and revisions.',S({'project_id':STR},['project_id'])),
+('bai_studio_render_range_set','Save integer In/Out frames using both range and arrangement revisions.',S({'project_id':STR,'revision':INT,'arrangement_revision':INT,'in_frame':{'type':['integer','null']},'out_frame':{'type':['integer','null']}},['project_id','revision','arrangement_revision','in_frame','out_frame'])),
+('bai_studio_render_name_preview','Read current finished-MP4 name and proposed new version before starting or restoring.',S({'project_id':STR,'name':STR},['project_id','name'])),
+('bai_studio_render_jobs_list','List saved MP4 jobs for one project.',S({'project_id':STR},['project_id'])),
+('bai_studio_render_job_get','Read one MP4 job status and output metadata.',S({'job_id':STR},['job_id'])),
+('bai_studio_render_job_start','Start a bounded MP4 from the saved project, range, arrangement, and optional 3D scene revisions. Use name preview before replacement.',S({'project_id':STR,'range_revision':INT,'arrangement_revision':INT,'resolution':{'type':'string','enum':['720p','1080p']},'scene_revision':{'type':['integer','null']},'name':STR,'collision_mode':{'type':'string','enum':['version','replace']},'replace_job_id':{'type':['string','null']}},['project_id','range_revision','arrangement_revision','resolution'])),
+('bai_studio_render_restore','Restore an archived finished MP4 by exact job and name revision; retain the displaced version.',S({'project_id':STR,'name':STR,'job_id':STR,'revision':INT,'current_job_id':STR},['project_id','name','job_id','revision','current_job_id'])),
+('bai_studio_render_file_link','Get the loopback download URL for a succeeded MP4; the file endpoint validates its bytes.',S({'job_id':STR},['job_id'])),
 ('bai_studio_batch_move','Atomically move multiple saved clips.',S({'project_id':STR,'revision':INT,'edits':{'type':'array','items':{'type':'object'}}},['project_id','revision','edits'])),
 ('bai_studio_batch_undo','Undo previous atomic batch move.',S({'project_id':STR,'revision':INT},['project_id','revision'])),
 ('bai_studio_track_flags_set','Set track locks and mutes.',S({'project_id':STR,'revision':INT,'locked':{'type':'array','items':STR},'muted':{'type':'array','items':STR}},['project_id','revision','locked','muted'])),
