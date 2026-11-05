@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T05:14:55+09:00",
+  "updated_at": "2026-11-06T05:20:38+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-moving-clock-stage-20261106",
-  "head_at_update": "c35edbb",
+  "branch": "codex/v05-render-limits-recovery-20261106",
+  "head_at_update": "e5cc23a",
   "current": {
-    "task": "Issue #39/#63/#81 動く3Dの時計と実ステージ長尺保存カメラ",
-    "status": "done",
-    "step": "移動するGLBの映像指標と音声を照合し、実PMX/VMD/曲/ステージ/保存カメラの長尺MP4を検証",
-    "design_doc": "docs/v05/MOVING_CLOCK_STAGE_LONG_20261106_JA.md"
+    "task": "Issue #81 順3の容量上限と停止復旧",
+    "status": "in_progress",
+    "step": "描画プロセスの所有権・強制終了後の一時領域回収・容量境界と旧完成物保持を検証",
+    "design_doc": "docs/v05/RENDER_LIMITS_RECOVERY_20261106_JA.md"
   },
   "next_steps": [
     "順3の上限36000F/10分/2GiBと停止復旧・Linux/実MCP、元から音声を持つ実動画と長尺混合の残件を検証する",
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T05:20:38+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e5cc23a",
+      "text": "Issue #81 順3の容量上限と停止復旧: 描画プロセスの所有権・強制終了後の一時領域回収・容量境界と旧完成物保持を検証"
+    },
     {
       "at": "2026-11-06T05:14:55+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "7f94872",
       "text": "Issue #234 Pythonファイルの役割別パッケージ整理: 既存の起動・import・試験契約を調べ、移動対象と互換方針を設計する"
-    },
-    {
-      "at": "2026-11-05T22:38:41+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "5008733",
-      "text": "順5詳細設計へ独立批評§8の停止級と主要指摘を反映。評価順、台帳保護、試験専用測定、残件とOwner判断を改訂草案に整理。リンクとgit diff --checkを確認"
     }
   ]
 }
