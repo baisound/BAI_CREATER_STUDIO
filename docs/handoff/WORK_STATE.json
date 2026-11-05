@@ -1,22 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T23:30:26+09:00",
+  "updated_at": "2026-11-05T23:36:19+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "7f94872",
+  "head_at_update": "a4c322a",
   "current": {
     "task": "Issue #234 Pythonファイルの役割別パッケージ整理",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存の起動・import・試験契約を調べ、移動対象と互換方針を設計する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
-    "順3・4の残件を優先し、Ownerの実歌声SRT54発話の読み・無音回答を受けてLIP実曲検証を続ける",
-    "順5設計は実コード・実PMX・three評価順との再照合と独立再判定を受けるまで実装しない"
+    "Issue #234: Python実装を機能別bai_studioパッケージへ、直下テストをtestsへ移し、importとパスを修正して検証する",
+    "Issue #39: タイムライン途中停止を保存区間と再生終端から調査・修正し、両作業の合格後に版とタグを判断する"
   ],
   "unverified": [
-    "順5設計の独立再判定、実GLB→VMD/実PMXの測定・実装試験は未実施",
-    "LIP実歌声SRT54発話のOwner確定、歌声入り長尺MP4、WebMCPネイティブ呼出しは未検証"
+    "Python構成移動、タイムライン不具合の修正、実機回帰、版・タグは未実施"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T23:36:19+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a4c322a",
+      "text": "Issue #234のPythonパッケージ構成と互換・試験契約を設計。直下157件、985テスト収集、基準955成功/8失敗/22スキップを記録"
+    },
     {
       "at": "2026-11-05T23:30:26+09:00",
       "by": "codex",
@@ -231,13 +237,6 @@
       "event": "start",
       "head": "4d89dae",
       "text": "順3：16:9より縦長の欄でプレビューとMP4の構図を照合: 狭い画面の実素材隔離試験"
-    },
-    {
-      "at": "2026-11-05T12:37:57+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4216e64",
-      "text": "保存カメラなしの実PMX＋S01 GLBステージでプレビューと720p MP4のF0自動構図を照合（IoU 0.892、重心差0.0028、原本不変）"
     }
   ]
 }
