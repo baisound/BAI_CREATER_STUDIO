@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T14:06:33+09:00",
+  "updated_at": "2026-11-05T14:13:24+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "0cdb751",
+  "head_at_update": "94166db",
   "current": {
     "task": "順4 LIP-001実歌声SRT・実曲VMDの隔離作品経路を検証",
-    "status": "in_progress",
+    "status": "done",
     "step": "実SRT取込と未確定読み拒否、実VMD動作割当をAPIで確認",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "順4 #187: 実歌声SRTを隔離作品へ登録し未確定読みの拒否を確認。読みを確定した範囲で実PMX・実曲VMDの合成と長尺MP4を検証する"
+    "順4 #187: 実PMXと同曲VMDの3D実描画・短い出力を隔離環境で確認し、読み確定後に採用口形と実曲長尺MP4を検証する"
   ],
   "unverified": [
-    "実歌詞の読み確定、実PMXでの同曲VMDと採用口形の表示、歌声との境界の自然さ、長尺完成MP4は未検証",
+    "実PMXと同曲VMDの3D実描画、実歌声SRTの読み確定、採用口形と元VMDの合成、長尺MP4、歌声に対する口形の自然さは未検証",
     "WebMCP対応ブラウザのネイティブ呼出し、実MCPクライアント設定、Linux、別PMXは未検証"
   ],
   "blockers": [],
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T14:13:24+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "94166db",
+      "text": "実PMX・実歌声SRT54発話・同曲VMDを隔離作品へ登録し、SRT保存再読込と54件の読み未確定拒否、VMD割当ready、原本・共有data前後ハッシュ一致をHTTP試験1件で確認。"
+    },
     {
       "at": "2026-11-05T14:06:33+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "87ba6b9",
       "text": "Codexへの引継ぎ（2026-11-05）: 引継ぎ文書の作成"
-    },
-    {
-      "at": "2026-11-04T16:05:10+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "9dcf613",
-      "text": "WP-L8a §8手順6・7：説明書（取り込んだキャラクター・ステージの大きさ）、台帳・設計書、実データ確認。台本に§6.4のL1〜L5と--l5/--relabelを足した。所有者の実データ（実GPU）で L1 合格（SCR-06と③の差0）、L2 合格、L3 合格（足と床の差0.132m）、L4 不合格（③の自動の構図のカメラが(105,70,234)でS01の外殻の外）、L5 不合格（S1が見えない、開発側の目視）。ケースR合格（差4.4e-16）。設計§6.4の8により完了にせず、§10の質問を所有者に出す"
     }
   ]
 }
