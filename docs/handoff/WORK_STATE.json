@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T04:24:27+09:00",
+  "updated_at": "2026-11-06T04:53:00+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-mixed-audio-fps-20261106",
-  "head_at_update": "ddcd0fd",
+  "head_at_update": "b901eb6",
   "current": {
     "task": "Issue #39/#81 実素材由来の音声重なりとFPS検証",
     "status": "done",
@@ -11,11 +11,10 @@
     "design_doc": "docs/v05/MIXED_AUDIO_FPS_20261106_JA.md"
   },
   "next_steps": [
-    "順3の動く3Dと音声の時計・実ステージと長尺保存カメラを検証する",
-    "音声を元から持つ実動画と長尺混合、上限容量・停止復旧・Linux/実MCPを確認する。PR240と今回の検証PRは開発ブランチへの統合待ち"
+    "PR241を開発ブランチへ統合し、動く3Dと音声の時計・実ステージと長尺保存カメラを検証する"
   ],
   "unverified": [
-    "元からの実動画内音声、長尺混合、動く3Dの時刻、長尺保存カメラ、36000F/10分/2GiB境界、Linux/実MCP・サーバー強制終了時の回収は未確認。CAM019は設計別ブランチで実装未着手"
+    "動く3Dの時計、実ステージ長尺保存カメラ、元からの実動画内音声、長尺音声混合、上限容量・Linux/実MCP・強制終了回収は未確認"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T04:53:00+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b901eb6",
+      "text": "PR240をレビューしてcodex/nextへ統合(7f23009)。PR241は検証記録を両方保持して競合解消し、PCM全長が出力より1F超短くない検査を追加。24/29.97/60fpsを再実行1成功、原本保持"
+    },
     {
       "at": "2026-11-06T04:24:27+09:00",
       "by": "codex",
@@ -230,13 +236,6 @@
       "event": "done",
       "head": "a6dc996",
       "text": "Ubuntu WSLで実歌声SRT/同曲VMDの対象Python39件、継続stdio標準MCP1件、実PMX/SRT/VMD隔離HTTP1件が成功。原本SRT/VMDと共有dataの前後hash一致。Linuxブラウザー/MP4は未実施。"
-    },
-    {
-      "at": "2026-11-05T22:15:51+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "d908ca2",
-      "text": "順4 LIP-001のLinux側Python回帰を確認: WSL Ubuntuで実曲SRT/VMD読取と口形合成の対象pytestを実行し、Windows側の原本hashを保持"
     }
   ]
 }

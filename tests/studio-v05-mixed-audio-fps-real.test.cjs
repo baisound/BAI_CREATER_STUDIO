@@ -115,6 +115,8 @@ test('real-source video/audio copies mix 44.1/48kHz with trims and nonzero In at
         const outputPath = path.join(server.dataDir, `mixed-${fps}.mp4`);
         fs.writeFileSync(outputPath, Buffer.from(await (await fetch(`${server.base}/api/studio/v05/render/file?id=${started.id}`)).arrayBuffer()));
         const output = pcm(outputPath), results = [];
+        assert.ok(output.length >= Math.floor((outFrame - startFrame + 1) / fps * 8000) - Math.ceil(8000 / fps),
+          `decoded output audio ended more than one frame early: ${output.length} samples`);
         for (const projectTime of [0.7, 1.6, 4, 8.9, 10]) {
           const outputStart = Math.round((projectTime - startFrame / fps) * 8000);
           const expected = Array.from({ length: 2400 }, (_, i) => {
