@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T22:09:38+09:00",
+  "updated_at": "2026-11-05T22:12:05+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "74b14fc",
+  "head_at_update": "58e66e4",
   "current": {
-    "task": "順4 LIP-001標準MCPの実stdioセッションを検証",
-    "status": "done",
-    "step": "initializeからtools/list・実歌声SRT取込・読み保存・再読込を隔離HTTPサーバーで通す",
-    "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
+    "task": "順4 LIP-001 WebMCPネイティブ呼出し環境を確認",
+    "status": "in_progress",
+    "step": "インストール済みChromeのdocument.modelContext公開状況を確認して検証可能範囲を記録",
+    "design_doc": "docs/v05/LIP001_WORKFLOW_MCP_20261105_JA.md"
   },
   "next_steps": [
     "順4 #187: WebMCP対応ブラウザのネイティブ呼出し可否を実環境で確認。Owner確認後、実歌声SRTの読み・無音を確定した範囲で合成と出力を試験"
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T22:12:05+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "58e66e4",
+      "text": "順4 LIP-001 WebMCPネイティブ呼出し環境を確認: インストール済みChromeのdocument.modelContext公開状況を確認して検証可能範囲を記録"
+    },
     {
       "at": "2026-11-05T22:09:38+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "e864ab8",
       "text": "720p合成GLBの600F実描画を完成MP4と先頭末尾画素で検証し、601FをAPI/画面で拒否"
-    },
-    {
-      "at": "2026-11-05T12:01:52+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "b29ad15",
-      "text": "順3：300Fを超える3D出力を隔離実測して制限を拡張: 3D連番キャッシュ・時間制限・UI表示の照合"
     }
   ]
 }
