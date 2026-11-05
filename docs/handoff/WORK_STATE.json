@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:37:57+09:00",
+  "updated_at": "2026-11-05T12:38:49+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "4216e64",
+  "head_at_update": "4d89dae",
   "current": {
-    "task": "順3：保存カメラ未設定時の自動構図をプレビューとMP4で照合",
-    "status": "done",
-    "step": "実PMX・GLBステージの隔離描画と構図比較",
+    "task": "順3：16:9より縦長の欄でプレビューとMP4の構図を照合",
+    "status": "in_progress",
+    "step": "狭い画面の実素材隔離試験",
     "design_doc": "docs/v05/SHARED_STATE_OUTPUT_AUDIT_20261104_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:38:49+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4d89dae",
+      "text": "順3：16:9より縦長の欄でプレビューとMP4の構図を照合: 狭い画面の実素材隔離試験"
+    },
     {
       "at": "2026-11-05T12:37:57+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "69d0415",
       "text": "WP-L6 v0.5の画面（作品カードのボタン1つ、確認・取消の対話画面、操作説明、隔離Chromeの試験）"
-    },
-    {
-      "at": "2026-11-04T02:23:00+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "81f4c07",
-      "text": "WP-L6 v0.5の画面（旧保存取込の作品カードのボタンと確認・取消の対話画面）: workspaces-v05.js にボタン1つ、legacy-import-ui-v188.js、index.html、操作説明書、隔離Chrome試験を足す"
     }
   ]
 }
