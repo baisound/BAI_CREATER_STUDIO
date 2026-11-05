@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T01:44:02+09:00",
+  "updated_at": "2026-11-06T01:49:44+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "d412e67",
+  "head_at_update": "8e3a551",
   "current": {
-    "task": "Issue #234 Python配置整理のNode全件ゲート",
-    "status": "done",
-    "step": "基点更新後のNode全件を再実行し、残る失敗の原因を特定する",
+    "task": "Issue #234 Python配置整理のUbuntu全件ゲート",
+    "status": "in_progress",
+    "step": "基点更新後のWSL Python全件を再実行し、接続リセットの再現性と原本保護を確認する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T01:49:44+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8e3a551",
+      "text": "Issue #234 Python配置整理のUbuntu全件ゲート: 基点更新後のWSL Python全件を再実行し、接続リセットの再現性と原本保護を確認する"
+    },
     {
       "at": "2026-11-06T01:44:02+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "a0f517a",
       "text": "LIP-001実PMX隔離試験を修正・完了。作品60fpsのF60で採用口形あり/Undo後の1F MP4に2366画素差。合成VMD242キーと実PMXプレビュー値一致、原本ハッシュ保持。"
-    },
-    {
-      "at": "2026-11-05T13:29:15+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e4a916a",
-      "text": "順4 LIP-001実PMXで元VMD合成候補と見た目を照合: 実PMX隔離試験に合成候補の全キー読込と表示値比較を追加"
     }
   ]
 }
