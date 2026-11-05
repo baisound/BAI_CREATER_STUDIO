@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:38:49+09:00",
+  "updated_at": "2026-11-05T12:41:56+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "4d89dae",
+  "head_at_update": "057d980",
   "current": {
     "task": "順3：16:9より縦長の欄でプレビューとMP4の構図を照合",
-    "status": "in_progress",
+    "status": "done",
     "step": "狭い画面の実素材隔離試験",
     "design_doc": "docs/v05/SHARED_STATE_OUTPUT_AUDIT_20261104_JA.md"
   },
   "next_steps": [
-    "順3の次の残件：16:9より縦長のプレビュー欄で構図一致を実測する"
+    "順3の次の残件：出力の標準MCP・WebMCPを共通APIと保存結果で確認・接続する"
   ],
   "unverified": [
-    "長尺・時間変化、Linux、WebMCP/標準MCPは未検証。大きなステージでキャラが小さい初期構図は順6へ"
+    "スマートフォン既定レイアウト・タッチ操作、長尺、Linux、MCPは未検証"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:41:56+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "057d980",
+      "text": "縦長600×700の欄で保存カメラなしの実PMX＋S01 GLBのF0構図をMP4と照合（IoU 0.898、重心差0.0035、原本不変）"
+    },
     {
       "at": "2026-11-05T12:38:49+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "4dd08b2",
       "text": "WP-L9：旧保存→v0.5取込の実データ確認（1コマンドの台本、実GPU、R1〜R4）: 台本の作成と実データでの実行"
-    },
-    {
-      "at": "2026-11-04T02:42:30+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "69d0415",
-      "text": "WP-L6 v0.5の画面（作品カードのボタン1つ、確認・取消の対話画面、操作説明、隔離Chromeの試験）"
     }
   ]
 }
