@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T01:53:24+09:00",
+  "updated_at": "2026-11-06T01:55:37+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "6ac687d",
+  "head_at_update": "871c619",
   "current": {
-    "task": "Issue #234 Python配置整理のUbuntu全件ゲート",
-    "status": "done",
-    "step": "基点更新後のWSL Python全件を再実行し、接続リセットの再現性と原本保護を確認する",
+    "task": "Issue #234 Python移動後の現行文書参照",
+    "status": "in_progress",
+    "step": "旧作品取込とGLB→VMDの現行設計で移動前Python参照を対応表に従って更新する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T01:55:37+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "871c619",
+      "text": "Issue #234 Python移動後の現行文書参照: 旧作品取込とGLB→VMDの現行設計で移動前Python参照を対応表に従って更新する"
+    },
     {
       "at": "2026-11-06T01:53:24+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "baa71d8",
       "text": "LIP-001のSRT取込、読み、候補、下書き、別名モーフVMD、明示採用/解除/Undo/Redoを標準MCP・WebMCPへ接続。隔離Chromeの新規1件と既存回帰2件成功。"
-    },
-    {
-      "at": "2026-11-05T13:46:06+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cbfc2c0",
-      "text": "順4 LIP-001のSRT・読み・下書き・採用を両MCPへ接続: 既存APIと画面操作を照合して安全なツール契約を定める"
     }
   ]
 }
