@@ -24,7 +24,7 @@ async function main() {
   if (required.some(key => !Object.hasOwn(config, key)) ||
       !Number.isInteger(config.port) || config.port < 1 || config.port > 65535 ||
       !Number.isInteger(config.startFrame) || config.startFrame < 0 ||
-      !Number.isInteger(config.frameCount) || config.frameCount < 1 || config.frameCount > 300 ||
+      !Number.isInteger(config.frameCount) || config.frameCount < 1 || config.frameCount > 600 ||
       !Number.isFinite(config.fps) || config.fps < 1 || config.fps > 240 ||
       !Number.isInteger(config.width) || !Number.isInteger(config.height) ||
       config.width !== 1280 || config.height !== 720 ||

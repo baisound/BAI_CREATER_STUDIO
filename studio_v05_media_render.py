@@ -27,7 +27,7 @@ ACTIVE: set[str] = set()
 JOB_ID = re.compile(r"[0-9a-f]{32}\Z")
 MAX_SECONDS = 600  # bounded first MP4 preset; longer projects remain unconnected
 MAX_CLIPS = 80
-MAX_SCENE_FRAMES = 300  # bounded browser WebGL capture preset
+MAX_SCENE_FRAMES = 600  # bounded browser WebGL capture preset; frame cache remains 256 MiB
 RESOLUTIONS = {"720p": (1280, 720), "1080p": (1920, 1080)}
 IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 VIDEO_EXT = {".mp4", ".webm", ".ogv"}
@@ -580,7 +580,7 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
     render_range, clips = _snapshot(data_root, project_id, range_revision,
                                     arrangement_revision, resolution, inventory, ffprobe, motion_ids)
     if scene_inputs is not None and render_range["frame_count"] > MAX_SCENE_FRAMES:
-        raise RenderError("3Dを含む限定MP4は現在300フレーム以内です")
+        raise RenderError(f"3Dを含む限定MP4は現在{MAX_SCENE_FRAMES}フレーム以内です")
     with LOCK:
         if ACTIVE:
             raise RenderError("別の動画書き出しが実行中です。完了後に再試行してください", 429)
