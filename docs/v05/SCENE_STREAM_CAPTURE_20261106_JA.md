@@ -1,5 +1,7 @@
 # 長尺3Dの逐次キャプチャ（2026-11-06）
 
+> 後続の容量境界・サーバー強制終了後の回収・長尺再読込の修正は[停止復旧の記録](RENDER_LIMITS_RECOVERY_20261106_JA.md)を参照。この文書の未検証は当初の実施時点の記録。
+
 対象: v0.5順3、Issue [#81](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81)/[#39](https://github.com/baisound/BAI_CREATER_STUDIO/issues/39)、`RENDER-001/006`、`AUDIO-001`。
 
 ## 設計と制約

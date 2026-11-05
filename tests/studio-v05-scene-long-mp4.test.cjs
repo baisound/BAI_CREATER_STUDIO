@@ -6,6 +6,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const harness = require('./helpers/studio-harness.cjs');
+const frameCount = Number(process.env.BAI_SCENE_BOUND_FRAMES || 720);
+assert.ok(Number.isInteger(frameCount) && frameCount >= 720 && frameCount <= 36000);
 
 async function json(response, status = 200) {
   const body = await response.text();
@@ -15,7 +17,7 @@ async function json(response, status = 200) {
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 async function waitJob(base, id) {
   let job;
-  const deadline = Date.now() + 300000;
+  const deadline = Date.now() + Math.max(300000, frameCount * 40);
   do {
     await new Promise(resolve => setTimeout(resolve, 700));
     job = await json(await fetch(`${base}/api/studio/v05/render/jobs?id=${id}`));
@@ -38,7 +40,7 @@ function difference(a, b) {
   return count;
 }
 
-test('720 saved 3D frames stream lossless alpha beyond the former 600F bound', async () => {
+test(`${frameCount} saved 3D frames stream lossless alpha within capacity bounds`, async () => {
   const server = await harness.startServer({ port: 8992 });
   let browser, page;
   try {
@@ -59,14 +61,14 @@ test('720 saved 3D frames stream lossless alpha beyond the former 600F bound', a
     const arrangement = await json(await fetch(`${server.base}/api/studio/v05/arrangement/place`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ project_id: id, asset_id: image.item.id,
-        track: 'image', start: 0, duration: 15, revision: 0 }),
+        track: 'image', start: 0, duration: (frameCount + 60) / 60 + 1, revision: 0 }),
     }));
     const range = await json(await fetch(`${server.base}/api/studio/v05/timeline/range`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ project_id: id, revision: 0, arrangement_revision: arrangement.revision,
-        in_frame: 60, out_frame: 779 }),
+        in_frame: 60, out_frame: frameCount + 59 }),
     }));
-    assert.equal(range.frame_count, 720);
+    assert.equal(range.frame_count, frameCount);
     const start = async body => json(await fetch(`${server.base}/api/studio/v05/render/jobs`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
     }), 202);
@@ -89,14 +91,14 @@ test('720 saved 3D frames stream lossless alpha beyond the former 600F bound', a
     assert.match(await page.locator('#v69status').textContent(), /3D実描画720p/);
     const started = await start({ ...body, scene_revision: scene.revision });
     const completed = await waitJob(server.base, started.id);
-    assert.equal(completed.scene_capture.frames, 720);
-    assert.equal(completed.probe.frames, 720);
+    assert.equal(completed.scene_capture.frames, frameCount);
+    assert.equal(completed.probe.frames, frameCount);
     assert.equal(completed.probe.video_codec, 'h264');
     assert.equal(completed.probe.audio_codec, 'aac');
     assert.ok(completed.inputs.some(input => input.asset_id === glb.item.id && input.sha256 === sha(glbBytes)));
     const longMp4 = Buffer.from(await (await fetch(`${server.base}/api/studio/v05/render/file?id=${started.id}`)).arrayBuffer());
     assert.ok(difference(pixels(flatMp4, 0.05), pixels(longMp4, 0.05)) > 200);
-    assert.ok(difference(pixels(flatMp4, 11.95), pixels(longMp4, 11.95)) > 200);
+    assert.ok(difference(pixels(flatMp4, frameCount / 60 - 0.05), pixels(longMp4, frameCount / 60 - 0.05)) > 200);
     assert.equal(sha(glbBytes), sha(fs.readFileSync(path.join(__dirname, 'fixtures', 'synthetic_test_model.glb'))));
     assert.equal(fs.existsSync(path.join(server.dataDir, 'studio_v05_media_renders', 'jobs', `${started.id}.frames`)), false);
     assert.equal(completed.scene_capture.storage, 'ffv1_bgra_stream');

@@ -21,6 +21,7 @@ from pathlib import Path
 from bai_studio.projects.catalog import _atomic
 from bai_studio.v05.timeline.arrangement import read as read_arrangement
 from bai_studio.v05.render.render_range import read as read_range
+from bai_studio.v05.render.process_scope import RenderProcessScope
 
 LOCK = threading.RLock()
 ACTIVE: set[str] = set()
@@ -72,6 +73,29 @@ def _save(root: Path, job: dict) -> None:
                 time.sleep(0.04 * (attempt + 1))
 
 
+def _cleanup_temporary(root: Path, job_id: str) -> bool:
+    """Only UUID-owned work paths; never inputs or completed/archived MP4s."""
+    _job_file(root, job_id)
+    complete = True
+    for parent, name, directory in [(root / "jobs", f"{job_id}.frames", True),
+                                    (root / "files", f"{job_id}.part.mp4", False)]:
+        target = parent / name
+        try:
+            # Resolve before deleting, including Windows junction/reparse paths.
+            if target.resolve() != parent.resolve() / name:
+                complete = False
+                continue
+            if directory and target.is_dir():
+                shutil.rmtree(target)
+            elif directory and target.exists():
+                complete = False
+            elif not directory and target.exists():
+                target.unlink()
+        except OSError:
+            complete = False  # a closing child may hold the file; retry on next status
+    return complete
+
+
 def status(root: Path, job_id: str) -> dict:
     path = _job_file(root, job_id)
     if not path.is_file():
@@ -88,7 +112,8 @@ def status(root: Path, job_id: str) -> dict:
                 raise RenderError("Saved render job is invalid", 422) from exc
         if job.get("id") != job_id:
             raise RenderError("Saved render job is invalid", 422)
-        interrupted = job.get("status") in {"queued", "running"} and job_id not in ACTIVE
+        interrupted = (job.get("status") in {"queued", "running"} or
+                       (job.get("status") == "interrupted" and job.get("temporary_cleanup") != "complete")) and job_id not in ACTIVE
     if interrupted:
         pending = job.get("pending_output")
         if isinstance(pending, dict) and job.get("download_name"):
@@ -107,7 +132,15 @@ def status(root: Path, job_id: str) -> dict:
                     return _public(job)
             except (OSError, ValueError, KeyError):
                 pass
-        job = {**job, "status": "interrupted", "error": "サーバー再起動で処理が中断されました。原本と以前の出力は保持しています。"}
+        cleaned = _cleanup_temporary(root, job_id)
+        job = {**job, "status": "interrupted", "temporary_cleanup": "complete" if cleaned else "pending",
+               "error": "サーバー再起動で処理が中断されました。原本と以前の出力は保持しています。" +
+                        ("一時ファイルを回収しました。" if cleaned else "一時ファイルの回収は次回再試行します。")}
+        job.pop("pending_output", None)
+        _save(root, job)
+    elif job.get("temporary_cleanup") == "pending" and job_id not in ACTIVE:
+        job["temporary_cleanup"] = "complete" if _cleanup_temporary(root, job_id) else "pending"
+        _save(root, job)
     return _public(job)
 
 
@@ -440,10 +473,12 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
     return ";".join(graph + audio), end_exclusive - start_frame, duration
 
 
-def _verify(ffprobe: str, path: Path, frames: int, duration: float, width: int, height: int, fps: float) -> dict:
-    result = _run([ffprobe, "-v", "error", "-count_frames", "-show_entries",
+def _verify(ffprobe: str, path: Path, frames: int, duration: float, width: int, height: int, fps: float,
+            process_scope: RenderProcessScope | None = None) -> dict:
+    run = process_scope.run if process_scope is not None else _run
+    result = run([ffprobe, "-v", "error", "-count_frames", "-show_entries",
                    "stream=codec_name,codec_type,width,height,nb_read_frames,duration:format=duration",
-                   "-of", "json", str(path)], 60)
+                   "-of", "json", str(path)], max(60, min(1200, duration * 2)))
     if result.returncode:
         raise RenderError("完成MP4を再読込できません")
     try:
@@ -462,6 +497,11 @@ def _verify(ffprobe: str, path: Path, frames: int, duration: float, width: int, 
             "duration_seconds": actual_duration, "width": width, "height": height}
 
 
+def _check_scene_capacity(size: int) -> None:
+    if size > MAX_SCENE_BYTES:
+        raise RenderError("3D可逆動画の作業領域が2GiBを超えました")
+
+
 def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             scene_inputs: list[dict] | None = None, server_port: int | None = None) -> None:
     job_id = job["id"]
@@ -470,7 +510,9 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
     progress = root / "jobs" / f"{job_id}.progress"
     log = root / "jobs" / f"{job_id}.log"
     frames_dir = root / "jobs" / f"{job_id}.frames"
+    process_scope = None
     try:
+        process_scope = RenderProcessScope()
         job["status"] = "running"
         job["started_at"] = time.time()
         _save(root, job)
@@ -512,14 +554,14 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             encoder = capture = None
             try:
                 with capture_log.open("w", encoding="utf-8") as cerr, encode_log.open("w", encoding="utf-8") as eerr:
-                    encoder = subprocess.Popen([ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error",
+                    encoder = process_scope.spawn([ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error",
                         "-f", "image2pipe", "-framerate", _num(fps), "-c:v", "png", "-i", "pipe:0",
                         "-an", "-c:v", "ffv1", "-level", "3", "-pix_fmt", "bgra", "-threads", "2",
                         "-f", "matroska", "-n", str(scene_video)], stdin=subprocess.PIPE,
                         stdout=subprocess.DEVNULL, stderr=eerr,
                         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
 
-                    capture = subprocess.Popen([node, str(script_path), str(config_path)],
+                    capture = process_scope.spawn([node, str(script_path), str(config_path)],
                         stdin=subprocess.DEVNULL, stdout=encoder.stdin, stderr=cerr,
                         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
                     encoder.stdin.close()
@@ -527,8 +569,8 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                     while capture.poll() is None:
                         if time.monotonic() > deadline:
                             raise RenderError("3D実描画が制限時間を超えました")
-                        if scene_video.exists() and scene_video.stat().st_size > MAX_SCENE_BYTES:
-                            raise RenderError("3D可逆動画の作業領域が2GiBを超えました")
+                        if scene_video.exists():
+                            _check_scene_capacity(scene_video.stat().st_size)
                         if encoder.poll() is not None:
                             raise RenderError("3D可逆動画のエンコードが途中で停止しました")
                         time.sleep(0.2)
@@ -537,8 +579,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                     encoder.wait(timeout=60)
                     if encoder.returncode:
                         raise RenderError("3D可逆動画に失敗: " + encode_log.read_text(encoding="utf-8")[-900:])
-                    if scene_video.stat().st_size > MAX_SCENE_BYTES:
-                        raise RenderError("3D可逆動画の作業領域が2GiBを超えました")
+                    _check_scene_capacity(scene_video.stat().st_size)
             finally:
                 try:
                     if capture is not None:
@@ -556,8 +597,9 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                 raise RenderError("3D連番が保存範囲と一致しません")
             if type(manifest.get("motion_edits_revision")) is not int or manifest["motion_edits_revision"] < 0:
                 raise RenderError("FK補正revisionを検証できません")
-            probe = _run([ffprobe, "-v", "error", "-count_frames", "-select_streams", "v:0",
-                          "-show_entries", "stream=codec_name,pix_fmt,nb_read_frames,width,height", "-of", "json", str(scene_video)], 120)
+            probe = process_scope.run([ffprobe, "-v", "error", "-count_frames", "-select_streams", "v:0",
+                          "-show_entries", "stream=codec_name,pix_fmt,nb_read_frames,width,height", "-of", "json", str(scene_video)],
+                          max(120, min(1200, job["frame_count"] / fps * 2)))
             if probe.returncode:
                 raise RenderError("3D可逆動画を再読込できません")
             stream = json.loads(probe.stdout)["streams"][0]
@@ -596,8 +638,10 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                 "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
                 "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart",
                 "-frames:v", str(frames), "-t", _num(duration), "-f", "mp4", "-n", str(temp)]
+        job["phase"] = "encoding"
+        _save(root, job)
         with log.open("w", encoding="utf-8") as err:
-            process = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+            process = process_scope.spawn(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                                        stderr=err, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
             deadline = time.monotonic() + max(120, min(3600, duration * 12))
             last_progress = -1
@@ -624,7 +668,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
         for item in all_inputs:
             if item["path"].stat().st_size != item["bytes"] or _sha(item["path"]) != item["sha256"]:
                 raise RenderError("原素材が出力中に変わりました。完成物は確定しません")
-        info = _verify(ffprobe, temp, frames, duration, width, height, fps)
+        info = _verify(ffprobe, temp, frames, duration, width, height, fps, process_scope)
         digest = _sha(temp)
         job["pending_output"] = {"bytes": temp.stat().st_size, "sha256": digest, "probe": info}
         _save(root, job)
@@ -641,15 +685,10 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
     except Exception as exc:
         job.update(status="failed", completed_at=time.time(), error=str(exc)[:1200])
         job.pop("pending_output", None)
-        try:
-            if temp.exists(): temp.unlink()
-        except OSError:
-            pass
     finally:
-        if scene_inputs is not None and frames_dir.is_dir():
-            # The directory is a UUID-named child of this job root, never an
-            # input asset or an existing deliverable.
-            shutil.rmtree(frames_dir, ignore_errors=True)
+        if process_scope is not None:
+            process_scope.close()
+        job["temporary_cleanup"] = "complete" if _cleanup_temporary(root, job_id) else "pending"
         try: _save(root, job)
         finally:
             with LOCK: ACTIVE.discard(job_id)
