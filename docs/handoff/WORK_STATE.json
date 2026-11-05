@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T02:56:27+09:00",
+  "updated_at": "2026-11-06T03:03:02+09:00",
   "updated_by": "codex",
   "branch": "codex/cinemaoperator-addon-design-20261106",
-  "head_at_update": "1ef546a",
+  "head_at_update": "da506fb",
   "current": {
     "task": "CinemaOperatorアドオン取込の設計とロードマップ追加",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存CAM要件とBlender連携を照合し、設計書と実施順を更新",
     "design_doc": "docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md"
   },
   "next_steps": [
-    "順3の実曲全体230秒・600F超3Dへ向け、分割描画と容量・停止時復旧の設計を実測付きで進める",
-    "実動画内音声と独立音声の重なり、保存カメラ長尺、異なるFPS/サンプルレートを順3の受入条件で確認する"
+    "既存ロードマップの順3〜5を継続し、順6でCAM-015のカメラ源・カットを接続してからCAM-019のA〜Dゲートを実装する",
+    "GitHub Issue登録を再試行する（連携は403、CLI認証切れ。公開するのは設計要約のみ）"
   ],
   "unverified": [
-    "実曲全体230秒、600F超3D、実動画音声、異なるFPS/サンプルレート、先頭無音、素材欠損、保存カメラ長尺、Linux・実MCPは未確認",
-    "Node全件5失敗と#235の外部Blender・全CLI実入力の未確認は維持する。実GPUの今回確認は実曲600Fに限る"
+    "CinemaOperatorのBlender実起動・Bake・Studio往復・実GPU/MP4一致、Windows/Linux、両MCPは未検証",
+    "Issue未登録：GitHub連携の書込権限403とgh認証切れ。設計コミットとIssueを後で紐付ける"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T03:03:02+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "da506fb",
+      "text": "CAM-019のBlenderアドオン取込とCinemaOperator撮影結果連携を設計し、機能台帳・詳細・トレーサビリティ・v0.5順6へ追加。文書/台帳構文のみ検証"
+    },
     {
       "at": "2026-11-06T02:56:27+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "start",
       "head": "13477c8",
       "text": "順4 LIP-001標準MCPの実stdioセッションを検証: initializeからtools/list・実歌声SRT取込・読み保存・再読込を隔離HTTPサーバーで通す"
-    },
-    {
-      "at": "2026-11-05T22:04:27+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "48887df",
-      "text": "実歌声SRT54発話の仮読み確認表を作成。原本SRTの時刻・SHA-256と54行を照合し、全仮読みが製品のproposedかな入力規則を満たすことを確認。全行Owner未確認で作品は未変更。"
     }
   ]
 }

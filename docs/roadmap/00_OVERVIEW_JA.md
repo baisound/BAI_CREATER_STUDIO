@@ -2,7 +2,7 @@
 
 **対象:** v0.11.0-standalone を起点に、2026-10-20 の追加決定を反映
 
-最初の v0.11.0-standalone では118個の機能IDを整理した。その後の OBS・UX・REVIEW などと、2026-10-20に所有者が独立管理を承認した歌音声配置 `AUDIO-001`、2026-10-21に最優先とした素材取り込み `DATA-016` を含め、2026-11-02時点の現行台帳は **151個（重複IDなし）**。件数と状態の正本は `FEATURE_REGISTER.json`。
+最初の v0.11.0-standalone では118個の機能IDを整理した。その後の OBS・UX・REVIEW などと、2026-10-20に所有者が独立管理を承認した歌音声配置 `AUDIO-001`、2026-10-21に最優先とした素材取り込み `DATA-016` を含め、2026-11-02時点の台帳は **151個（重複IDなし）**。2026-11-06に`CAM-019`を追加して **152個**。件数と状態の正本は `FEATURE_REGISTER.json`。
 
 ## 読み方
 
@@ -148,6 +148,7 @@
 - **[CAM-016](FEATURE_DETAIL_JA.md#cam-016)** MMDカメラVMD書出し
 - **[CAM-017](FEATURE_DETAIL_JA.md#cam-017)** カメラ衝突回避・構図品質
 - **[CAM-018](FEATURE_DETAIL_JA.md#cam-018)** 自動ディレクターとショット選択
+- **[CAM-019](FEATURE_DETAIL_JA.md#cam-019)** Blenderアドオン取込・CinemaOperator撮影結果連携（[設計](CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md)）
 
 ## Phase 07 / RENDER — レンダリング・エフェクト
 

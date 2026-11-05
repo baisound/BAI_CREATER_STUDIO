@@ -34,6 +34,7 @@
 | ポーズ、時間変更、レイヤー、非破壊、比較 | DATA-003〜007, MOTION-010, MOTION-014〜020 | モーションスタック |
 | 20追加提案（未選択すべて） | DATA, MOTION, DANCE, LIP, CAM, RENDER, LYRIC | 全件登録、詳細台帳に吸収 |
 | 撮影用途プリセット、カメラ自動ディレクター | CAM-013〜018 | カメラテンプレート統合 |
+| BlenderアドオンをStudioへプラグインのように読み込み、実アドオンをそのまま使う。CinemaOperatorを先行対象とし、Bake済み撮影結果を同じ作品へ取り込む（2026-11-06 Owner直接指定） | CAM-019、CAM-015/005、RENDER-001 | [アドオン取込・撮影結果連携設計](CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md)。v0.5順6へ追加。アドオンのWeb画面複製や任意アドオンの自動互換は含めない。実装・実機試験は未着手 |
 | 監査、素材重複、クラッシュ復元、ポータブルZIP | DATA-010, DATA-012〜015, RENDER-009 | 横断基盤 |
 | ステージ・小物・材質・エフェクト・音声・動画・画像を制作の入口から取り込み、メタタイトル・実見本・波形・再生・詳細を確認（2026-10-21 所有者指定） | DATA-016、REVIEW-010 | [Issue #37](https://github.com/baisound/BAI_CREATER_STUDIO/issues/37)を最優先。素材管理・保存API・出典記録。演出への適用は既存の個別要件に残す |
 | 提供S01 GLBを原点で配置し、室内表示・XYZ調整・保存再読込（2026-10-21 所有者指定） | NF-014、DATA-016 | [Issue #40](https://github.com/baisound/BAI_CREATER_STUDIO/issues/40)、[実装・検証記録](STAGE_LIGHT_RIG_20261021_JA.md)。原本GLBは保持 |

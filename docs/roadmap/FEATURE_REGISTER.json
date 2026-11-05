@@ -840,6 +840,15 @@
       "dependency": "DATA,MOTION"
     },
     {
+      "id": "CAM-019",
+      "group": "CAM",
+      "phase": 6,
+      "name": "Blenderアドオン取込・CinemaOperator撮影結果連携",
+      "detail": "ZIP登録から実Blenderでアドオンを使用し、Bake済みカメラを別名候補として同じ作品へ取り込む。初期アダプターはCinemaOperator。汎用アドオン実行は保証しない",
+      "status": "計画・未検証",
+      "dependency": "CORE,DATA,MOTION,CAM-015"
+    },
+    {
       "id": "RENDER-001",
       "group": "RENDER",
       "phase": 7,
