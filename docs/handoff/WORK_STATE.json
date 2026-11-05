@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T14:14:29+09:00",
+  "updated_at": "2026-11-05T21:58:11+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "9743e5f",
+  "head_at_update": "b2b91e7",
   "current": {
     "task": "順4 LIP-001実PMX・実曲VMDの3D表示と短い出力を検証",
-    "status": "in_progress",
+    "status": "done",
     "step": "原本を隔離複製し、実VMDの再生時刻差・口モーフ値・短いMP4を照合",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "順4 #187: 実PMXと同曲VMDの3D実描画・短い出力を隔離環境で確認し、読み確定後に採用口形と実曲長尺MP4を検証する"
+    "順4 #187: 実歌声SRT54発話の読みと明示無音をOwnerが確認できる形に整理し、確定済み範囲で実曲VMDとの口形合成と出力を検証する"
   ],
   "unverified": [
-    "実PMXと同曲VMDの3D実描画、実歌声SRTの読み確定、採用口形と元VMDの合成、長尺MP4、歌声に対する口形の自然さは未検証",
-    "WebMCP対応ブラウザのネイティブ呼出し、実MCPクライアント設定、Linux、別PMXは未検証"
+    "54発話の読みと無音のOwner確定、実歌声に合わせた採用口形と元VMDの合成、歌声入り長尺MP4、境界と強度の自然さは未検証",
+    "3フレーム試行は試験側の待機上限で未完走。実GPU、WebMCP対応ブラウザのネイティブ呼出し、実MCPクライアント、Linux、別PMXは未検証"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T21:58:11+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b2b91e7",
+      "text": "実曲VMD39MB・実PMX・登録テクスチャを隔離Chrome/SwiftShaderで読み、0/4秒の全身7骨と画面差、90秒の口モーフ変化を確認。製品APIのF240・1F MP4をH.264/AACで再読込し表示画素57152点と頭姿勢を確認。原本/共有dataハッシュ一致、試験1件成功。"
+    },
     {
       "at": "2026-11-05T14:14:29+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "470ca8d",
       "text": "引継ぎ文書を直した：次の作業はロードマップ順3・4の残り、順5の設計は独立批評を受けた草案（§8）として main に入れる"
-    },
-    {
-      "at": "2026-11-05T01:41:22+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "87ba6b9",
-      "text": "Codexへの引継ぎ文書 docs/handoff/CODEX_HANDOFF_20261105_JA.md を作成。main 87ba6b9（#226）までの状態、終わったこと、順6・WP-L8bへの申し送り、このPCでの試験の実行方法・既知の失敗、動いているローカルサーバー、守ることをまとめた。WP-L8aは所有者の回答「旧の大きさ」で完了済み"
     }
   ]
 }
