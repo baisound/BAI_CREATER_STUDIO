@@ -78,3 +78,12 @@ LIP-001の元VMD合成候補に `bai_studio_lip_adoptions_get` と `bai_studio_l
 ## 追補（2026-11-05）：LIP-001のSRTから採用まで
 
 SRT原本のBase64バイト取込、読み、候補、下書き、別名モーフVMD作成、明示採用/解除/Undo/Redoを `bai_studio_` ツールでv0.5の保存APIへ接続した。任意のローカルパスは受け取らない。ツール名・revisionの呼出し順・試験と未検証は [LIP-001 MCP記録](docs/v05/LIP001_WORKFLOW_MCP_20261105_JA.md)。
+
+
+## 2026-11-06 v0.5のネイティブ確認
+
+Chrome 156.0.8078.80の専用試験プロファイルでWebMCPTestingを有効にし、実v0.5ページの63ツールがネイティブの`registerTool/getTools/executeTool`で登録・発見・実行できることを確認した。利用者のChrome設定は変更していない。未対応ブラウザーで通常UIを維持する動作も変えない。
+
+`bai_studio_clip_edit`へ`source_start`と`lane`、`bai_studio_clip_place`へ`lane`を追加し、手動UIと同じAPIへ渡す。日本語の作品名/完成物名、保存元位置、約102MBの長尺出力、別版・置換・旧版復元、古い条件の拒否を公式STDIOクライアントと照合した。63ツールすべての処理や、自然文のAI選択精度を合格にした意味ではない。
+
+[入力・結果・残る範囲](docs/v05/NATIVE_MCP_RENDER_20261106_JA.md)。Chromeの現行APIの根拠は[公式Imperative API](https://developer.chrome.com/docs/ai/webmcp/imperative-api)。

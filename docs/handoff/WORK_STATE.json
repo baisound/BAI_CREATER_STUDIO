@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T07:12:17+09:00",
+  "updated_at": "2026-11-06T07:41:13+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-native-mcp-20261106",
-  "head_at_update": "f433eff",
+  "head_at_update": "115286d",
   "current": {
     "task": "Issue #81 順3の公式MCPクライアントとネイティブWebMCP",
-    "status": "in_progress",
+    "status": "done",
     "step": "実クライアントの初期化/登録/呼出しと同じ作品の出力・同名版管理・保存再読込を検証",
     "design_doc": "docs/v05/NATIVE_MCP_RENDER_20261106_JA.md"
   },
   "next_steps": [
-    "今回の長尺混合/FFmpeg互換PRをレビューして開発ブランチへ統合する。順3の実MCP/ネイティブWebMCP、同名完成物の実制作/大容量、他codec/VFRの残りを受入条件と照合する",
-    "承認済み順序で順4の実PMX/歌声SRTを含む長尺とLIPのMCP、続いて順5の設計批評反映へ進む。時刻付きカメラ/CAM019は順6へ保持"
+    "今回のMCP実機PRをレビューして開発ブランチへ統合し、_codex_workでnpm ciして新しい開発依存を反映する。順3の対応形式（WebM/OGV等）・VFRなど残る受入れ条件を照合する",
+    "続いて承認済み順序で順4の実PMX/実歌声SRTを含む長尺とLIPのネイティブMCP、順5の設計批評反映へ進む。時刻付きカメラ/CAM019は順6へ保持"
   ],
   "unverified": [
-    "4K原本の直接登録/4K出力、他の実動画/codec/VFR、全フレームの意味的な音画同期、プレビュー音量/ミュート/ミキサー/端の聴感、Linux3D/実ブラウザー/強制終了回収、実MCP/ネイティブWebMCPは未検証。順3全体の完成ではない"
+    "利用者のCodex/Claude設定・自然文AIによるツール選択、他SDK/ブラウザ、全ツールのネイティブ処理、画像行の増設/削除、Linuxブラウザ/3D、約102MBを超える完成物版管理、他codec/VFRは未検証。順3全体の完成ではない"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T07:41:13+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "115286d",
+      "text": "PR244をcodex/nextへ統合。公式MCP SDK127/Chrome156ネイティブ63ツールで同じ作品の6879F/102MB出力・3版保持/置換/復元を確認。元位置/行入力の不足とCP932日本語接続切れを修正。Windows Node4成功、Ubuntu SDK長尺1成功/ブラウザ1skip、pytest8＋5subtests。原本hash保持"
+    },
     {
       "at": "2026-11-06T07:12:17+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "2ccfb4c",
       "text": "PR #235で実旧作品の隔離HTTP・Chrome取込を確認。R1〜R4合格、原本160ファイル不変。検証文書に結果を記録"
-    },
-    {
-      "at": "2026-11-06T01:08:31+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f5d9690",
-      "text": "Issue #234 Python配置移動の実データ確認: 実旧作品の隔離APIとChrome取込を検証して未確認範囲を記録する"
     }
   ]
 }

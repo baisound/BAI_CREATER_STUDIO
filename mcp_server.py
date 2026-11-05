@@ -290,8 +290,8 @@ TOOLS=[
 ('bai_studio_batch_undo','Undo previous atomic batch move.',S({'project_id':STR,'revision':INT},['project_id','revision'])),
 ('bai_studio_track_flags_set','Set track locks and mutes.',S({'project_id':STR,'revision':INT,'locked':{'type':'array','items':STR},'muted':{'type':'array','items':STR}},['project_id','revision','locked','muted'])),
 ('bai_studio_clip_target_set','Set or clear a motion clip target model with revision check.',S({'project_id':STR,'clip_id':STR,'revision':INT,'target_model_id':{'type':['string','null']}},['project_id','clip_id','revision','target_model_id'])),
-('bai_studio_clip_edit','Update or delete saved v0.5 clip metadata by ID with revision check; legacy engine unchanged.',S({'project_id':STR,'clip_id':STR,'revision':INT,'action':{'type':'string','enum':['update','delete']},'start':{'type':'number'},'duration':{'type':'number'},'track':STR},['project_id','clip_id','revision','action'])),
-('bai_studio_clip_place','Place registered asset into v0.5 clip arrangement with optimistic revision.',S({'project_id':STR,'asset_id':STR,'track':STR,'start':{'type':'number'},'duration':{'type':'number'},'revision':INT},['project_id','asset_id','track','start','duration','revision'])),
+('bai_studio_clip_edit','Update or delete saved v0.5 clip metadata and original media window by ID with revision check; legacy engine unchanged.',S({'project_id':STR,'clip_id':STR,'revision':INT,'action':{'type':'string','enum':['update','delete']},'start':{'type':'number'},'duration':{'type':'number'},'track':STR,'source_start':{'type':'number','minimum':0,'description':'Start offset in the original video/audio in seconds, independent of timeline start.'},'lane':{'type':'integer','minimum':1,'description':'Existing image lane ID; use 1 for other tracks.'}},['project_id','clip_id','revision','action'])),
+('bai_studio_clip_place','Place registered asset into v0.5 clip arrangement with optimistic revision.',S({'project_id':STR,'asset_id':STR,'track':STR,'start':{'type':'number'},'duration':{'type':'number'},'revision':INT,'lane':{'type':'integer','minimum':1,'description':'Existing image lane ID; use 1 for other tracks.'}},['project_id','asset_id','track','start','duration','revision'])),
 ('bai_studio_focus_reports_get','Read saved project focus interval reports.',S({'project_id':STR},['project_id'])),
 ('bai_studio_focus_reports_save','Save completed focus interval report.',S({'project_id':STR,'revision':INT,'report':{'type':'object'}},['project_id','revision','report'])),
 ('bai_studio_focus_target_get','Read saved focus target selection.',S({'project_id':STR},['project_id'])),
@@ -381,6 +381,11 @@ def process(m):
         return {'jsonrpc':'2.0','id':ident,'error':{'code':-32602,'message':str(e)}}
 
 def main():
+    # The MCP wire is UTF-8, independent of a Windows client's locale or
+    # PYTHONIOENCODING. Configure before reading any request containing Japanese.
+    sys.stdin.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(encoding='utf-8',newline='\n')
+    sys.stderr.reconfigure(encoding='utf-8',errors='backslashreplace')
     for line in sys.stdin:
         try:
             message=json.loads(line);response=process(message)

@@ -19,6 +19,7 @@
     "test:evidence": "node tools/run_evidence_tests.mjs"
   },
   "devDependencies": {
+    "@modelcontextprotocol/client": "2.4.0",
     "browser-sync": "^3.0.4",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.10",
