@@ -1,5 +1,7 @@
 # 旧Studioの保存状態をv0.5の作品IDへ取り込む設計（2026-11-04、批評反映版）
 
+> 2026-11-06、Issue #234 の配置整理に合わせて Python の参照先パスを更新した。行番号と設計上の判定は再評価していないため、実装時には現行コードで確認する。対応表は [Python移動表](PYTHON_PACKAGE_FILE_MAP_20261106.csv)。
+
 対象: Issue [#63](https://github.com/baisound/BAI_CREATER_STUDIO/issues/63) と [#69](https://github.com/baisound/BAI_CREATER_STUDIO/issues/69) の未チェック項目「旧作品とv0.5作品を同じ作品IDと保存状態で開き、編集・復元できるようにする」。[再構築ロードマップ](V05_REBUILT_ROADMAP_20261102_JA.md)の「次の実施順2」と、[最短制作経路](V05_MINIMUM_WORKFLOW_20261023_JA.md)の順2の終了条件（旧作品からの復元後も参照・位置・**開始時刻**が一致する）に当たる。
 
 要件ID: 主は `DATA-008`（制作プロジェクトの保存・読み込み）。HTTP・MCP・画面で同じ操作をそろえる部分に `CORE-004`・`UX-007`、操作ログに `OBS-004` を添える。初版にあった `DATA-003` は台帳では「補間・ブレンドカーブ」なので外した（`FEATURE_REGISTER.json` で確認）。
@@ -25,8 +27,8 @@
 
 | 用語 | 意味 |
 |---|---|
-| 旧保存 | `data/project_state.json`（コンビネーション）、`data/camera_project.json`（カメラ）、`data/project_state.workspace.json`（作業状態。`project_state_bundle.py:154,169` の `with_suffix`）の3つで1組。パソコン全体で1つ |
-| スナップショット | 旧保存の1組を検証して書いた `data/studio_v05_snapshots/<作品ID>.json`（`studio_project_snapshots.py:14-27`）。作品IDごとに最新1件 |
+| 旧保存 | `data/project_state.json`（コンビネーション）、`data/camera_project.json`（カメラ）、`data/project_state.workspace.json`（作業状態。`bai_studio/projects/state_bundle.py:154,169` の `with_suffix`）の3つで1組。パソコン全体で1つ |
+| スナップショット | 旧保存の1組を検証して書いた `data/studio_v05_snapshots/<作品ID>.json`（`bai_studio/projects/snapshots.py:14-27`）。作品IDごとに最新1件 |
 | 旧の別保存 | 全体保存にもスナップショットにも入らない2つ。`data/music_dance_project.json`（SCR-10。`server.py:74`）と `data/timeline_editor.json`（旧タイムライン編集。`server.py:75`） |
 | v0.5の保存 | `studio_v05_catalog.json`（作品一覧とFPS）、`studio_v05_arrangements/<ID>.json`（クリップ）、`studio_v05_scene_instances/<ID>.json`（3D場面）、`studio_v05_scene_models/<ID>.json`（旧1体枠）、`studio_v05_playheads/<ID>.json`（再生位置）、`studio_v05_render_ranges/`、`studio_v05_track_layouts/` |
 | 取込記録 | この設計で新しく作る `data/studio_v05_legacy_imports/<作品ID>.json`。元データの複製と、取込の手順ごとの日誌を持つ（§4） |
@@ -41,25 +43,25 @@
 
 | 観点 | 旧保存 | v0.5 |
 |---|---|---|
-| 保存の単位 | パソコン全体で1組。`server.py:64`（`PROJECT=DATA/'project_state.json'`） | 作品IDごとにファイルを分ける。`studio_v05_arrangement.py:44-50`、`studio_v05_scene_instances.py:164-188` |
-| 作品の識別 | 作品IDは無い。`combination.title` は表示用 | UUID。`studio_project_catalog.py:19-28` |
-| 版（競合検出） | 内容のハッシュ。`project_state_bundle.py:237-239`、`server.py:2184-2206`（`If-Match`） | 整数の `revision` をストアごとに持ち、書くたびに1増える。`studio_v05_arrangement.py:92`、`studio_v05_scene_instances.py:362-366`、`studio_v05_playhead.py:22-24`。**カタログ（FPS）には revision が無い**（`studio_project_catalog.py:38-49`） |
-| 一括保存 | 3ファイルを順に置き換え、失敗したら戻す。停電には耐えない（`project_state_bundle.py:160-234`） | ストアごとに原子置換（`studio_project_catalog.py:51-59`）。ストアをまたぐ一括保存は無い |
-| v0.5への橋 | スナップショットの保存・読込（`studio_project_snapshots.py:14-37`、`server.py:1493-1511`）、旧の現行状態への適用（`studio_project_activation.py:14-43`、`server.py:1476-1492`） | スナップショットからv0.5の各ストアへ写す処理は**無い** |
+| 保存の単位 | パソコン全体で1組。`server.py:64`（`PROJECT=DATA/'project_state.json'`） | 作品IDごとにファイルを分ける。`bai_studio/v05/timeline/arrangement.py:44-50`、`bai_studio/v05/timeline/scene_instances.py:164-188` |
+| 作品の識別 | 作品IDは無い。`combination.title` は表示用 | UUID。`bai_studio/projects/catalog.py:19-28` |
+| 版（競合検出） | 内容のハッシュ。`bai_studio/projects/state_bundle.py:237-239`、`server.py:2184-2206`（`If-Match`） | 整数の `revision` をストアごとに持ち、書くたびに1増える。`bai_studio/v05/timeline/arrangement.py:92`、`bai_studio/v05/timeline/scene_instances.py:362-366`、`bai_studio/v05/timeline/playhead.py:22-24`。**カタログ（FPS）には revision が無い**（`bai_studio/projects/catalog.py:38-49`） |
+| 一括保存 | 3ファイルを順に置き換え、失敗したら戻す。停電には耐えない（`bai_studio/projects/state_bundle.py:160-234`） | ストアごとに原子置換（`bai_studio/projects/catalog.py:51-59`）。ストアをまたぐ一括保存は無い |
+| v0.5への橋 | スナップショットの保存・読込（`bai_studio/projects/snapshots.py:14-37`、`server.py:1493-1511`）、旧の現行状態への適用（`bai_studio/projects/activation.py:14-43`、`server.py:1476-1492`） | スナップショットからv0.5の各ストアへ写す処理は**無い** |
 
 ### 2.2 項目ごとの比較
 
 | 対象 | 旧保存の形 | v0.5の形 | 差 |
 |---|---|---|---|
-| 素材参照（キャラクター） | `workspace.asset`。値は `integrated:<名>`、`mmd:A:<名>.pmx`、`mmd:B:…`、`fbx:<ID>`、または**接頭辞の無い** `<名>.glb/.vrm`（`project_state_bundle.py:72-87`）。空文字はモデルなし。画面側の正規化は `studio/js/viewport/character-placement.js:11`（接頭辞が無ければ `integrated:` を付ける） | `instances[].asset_id`。値の空間は同じ（`server.py:118-153` の `unified_assets()`）。置ける素材は `studio_v05_scene_model.py:17-25` の `supported_model()` | 違いは接頭辞の無い旧形式だけ。元の綴りを記録する |
-| 素材参照（ステージ） | `workspace.stage.asset`。`library:` は24桁の16進（`project_state_bundle.py:37,54-69`） | 同じく `instances[].asset_id`。`library` のGLBは `kind` が `stage`/`prop` のときだけ（`studio_v05_scene_model.py:22`） | `supported_model()` で拒否されるものは写せない |
-| 配置 | `workspace.character = {position[m], rotation[度], scale(数1つ)}`。範囲は ±1000、±360、0.01〜100（`project_state_bundle.py:89-104`）。`stage` も同じ形 | `transform = {position[3], rotation[3](度), scale[3]}`。範囲は ±100000、±360000、0.000001〜10000（`studio_v05_scene_instances.py:104-114`）。**値は小数点以下6桁に丸めて保存**（`studio_v05_scene_model.py:59`） | scale は3成分にそろえる。見た目の大きさの意味が違う（§2.3） |
-| presence | `workspace` 自体、`workspace.stage`・`lights`・`character` は、`absent`・`null`・`value` の3通りがありうる（`project_state_bundle.py:127-132`。stage は項目があるときだけ結果に入る） | 区別なし | 記録の `presence` で区別して残す |
-| カメラ | `camera_project.json`。`fps`（1〜120の整数、`bai_camera.py:14-15`）、`duration`、`keys[]`、`easingPresets`、`custom_presets`、`sequence`、`rig`、`focus_tracking`、`bone_follow`（`bai_camera.py:12-59`）。知らない項目はスナップショットの時点で落ちる | 時刻を持たない視点が1つだけ（`studio_v05_scene_instances.py:117-130`）。`camera` トラックへカメラVMD素材は置ける（`studio_v05_arrangement.py:7`） | キー列の保存先がv0.5に無い |
+| 素材参照（キャラクター） | `workspace.asset`。値は `integrated:<名>`、`mmd:A:<名>.pmx`、`mmd:B:…`、`fbx:<ID>`、または**接頭辞の無い** `<名>.glb/.vrm`（`bai_studio/projects/state_bundle.py:72-87`）。空文字はモデルなし。画面側の正規化は `studio/js/viewport/character-placement.js:11`（接頭辞が無ければ `integrated:` を付ける） | `instances[].asset_id`。値の空間は同じ（`server.py:118-153` の `unified_assets()`）。置ける素材は `bai_studio/v05/timeline/scene_model.py:17-25` の `supported_model()` | 違いは接頭辞の無い旧形式だけ。元の綴りを記録する |
+| 素材参照（ステージ） | `workspace.stage.asset`。`library:` は24桁の16進（`bai_studio/projects/state_bundle.py:37,54-69`） | 同じく `instances[].asset_id`。`library` のGLBは `kind` が `stage`/`prop` のときだけ（`bai_studio/v05/timeline/scene_model.py:22`） | `supported_model()` で拒否されるものは写せない |
+| 配置 | `workspace.character = {position[m], rotation[度], scale(数1つ)}`。範囲は ±1000、±360、0.01〜100（`bai_studio/projects/state_bundle.py:89-104`）。`stage` も同じ形 | `transform = {position[3], rotation[3](度), scale[3]}`。範囲は ±100000、±360000、0.000001〜10000（`bai_studio/v05/timeline/scene_instances.py:104-114`）。**値は小数点以下6桁に丸めて保存**（`bai_studio/v05/timeline/scene_model.py:59`） | scale は3成分にそろえる。見た目の大きさの意味が違う（§2.3） |
+| presence | `workspace` 自体、`workspace.stage`・`lights`・`character` は、`absent`・`null`・`value` の3通りがありうる（`bai_studio/projects/state_bundle.py:127-132`。stage は項目があるときだけ結果に入る） | 区別なし | 記録の `presence` で区別して残す |
+| カメラ | `camera_project.json`。`fps`（1〜120の整数、`bai_studio/camera/project.py:14-15`）、`duration`、`keys[]`、`easingPresets`、`custom_presets`、`sequence`、`rig`、`focus_tracking`、`bone_follow`（`bai_studio/camera/project.py:12-59`）。知らない項目はスナップショットの時点で落ちる | 時刻を持たない視点が1つだけ（`bai_studio/v05/timeline/scene_instances.py:117-130`）。`camera` トラックへカメラVMD素材は置ける（`bai_studio/v05/timeline/arrangement.py:7`） | キー列の保存先がv0.5に無い |
 | 照明・GLB内蔵アニメ | `workspace.lights`、`workspace.clip` | 保存先なし | 写せない |
-| コンビネーション | `combination.timeline` は名前の列だけで、**開始時刻も長さも無い**。他に `history`、`cursor`、`title`、`selected`、`playbackSpeed`、`updatedAt`。`validate_combination` は他の項目も素通しする（`project_state_bundle.py:16-34`、34行で入力をそのまま返す） | `clips[]`（`studio_v05_arrangement.py:69-95`） | 時刻を推測しない限り置けない（[11/02の監査](../v05/FORMAT_IMPORT_LEGACY_AUDIT_20261102_JA.md)で「推測して配置しない」と決定済み） |
-| 時刻とFPS | フレーム単位。FPSはカメラの `fps`。現在位置は `workspace.frame`（0〜1000000、`camera.duration` 以下、`project_state_bundle.py:144-145`） | クリップは秒。作品FPSは任意項目 `catalog.projects[].fps`（1〜240、小数可）。**未設定なら出力範囲は60fpsとして計算される**（`studio_v05_render_range.py:24`）。再生位置は秒（0〜86400、`studio_v05_playhead.py:19`） | `秒 = フレーム ÷ fps` |
-| 曲とダンス（SCR-10） | `music_dance_project.json` = `{schema, fps:30固定, model_id, motion_id, audio_id, motion_start_frame, motion_source_frame, audio_start_frame, audio_source_frame, head_frame}`。IDは `unified_assets()` の素材ID。フレームは0〜216000（`music_dance_project.py:11-43`） | `motion` トラックと `music`/`audio` トラックのクリップ、動作の対象インスタンス（`studio_v05_multi_motion.py:58-91`） | IDと開始時刻があるので写せる。作品とは結び付いていない |
+| コンビネーション | `combination.timeline` は名前の列だけで、**開始時刻も長さも無い**。他に `history`、`cursor`、`title`、`selected`、`playbackSpeed`、`updatedAt`。`validate_combination` は他の項目も素通しする（`bai_studio/projects/state_bundle.py:16-34`、34行で入力をそのまま返す） | `clips[]`（`bai_studio/v05/timeline/arrangement.py:69-95`） | 時刻を推測しない限り置けない（[11/02の監査](../v05/FORMAT_IMPORT_LEGACY_AUDIT_20261102_JA.md)で「推測して配置しない」と決定済み） |
+| 時刻とFPS | フレーム単位。FPSはカメラの `fps`。現在位置は `workspace.frame`（0〜1000000、`camera.duration` 以下、`bai_studio/projects/state_bundle.py:144-145`） | クリップは秒。作品FPSは任意項目 `catalog.projects[].fps`（1〜240、小数可）。**未設定なら出力範囲は60fpsとして計算される**（`bai_studio/v05/render/render_range.py:24`）。再生位置は秒（0〜86400、`bai_studio/v05/timeline/playhead.py:19`） | `秒 = フレーム ÷ fps` |
+| 曲とダンス（SCR-10） | `music_dance_project.json` = `{schema, fps:30固定, model_id, motion_id, audio_id, motion_start_frame, motion_source_frame, audio_start_frame, audio_source_frame, head_frame}`。IDは `unified_assets()` の素材ID。フレームは0〜216000（`bai_studio/motion/music_dance_project.py:11-43`） | `motion` トラックと `music`/`audio` トラックのクリップ、動作の対象インスタンス（`bai_studio/v05/motion/multi_motion.py:58-91`） | IDと開始時刻があるので写せる。作品とは結び付いていない |
 | 旧タイムライン編集 | `timeline_editor.json` = `{schema:1, clips:[{name, start, duration, speed, blend}], updatedAt}`。30fps固定のフレーム。検査は `server.py:1921-1934` | `motion` トラックのクリップ | 素材は**名前**で持つので、素材IDへの解決が要る（§3 T1） |
 
 ### 2.3 見た目の大きさの差（重要）
@@ -95,19 +97,19 @@ WP-L8a より前は、写した結果に警告 `UNIT_SEMANTICS_DIFFER` を付け
 | M10 | `/combination` の既知の6項目 `history`、`cursor`、`title`、`selected`、`playbackSpeed`、`updatedAt`（`schema` は除く） | なし | 存在するものだけ1項目ずつ保管。作品名は変えない | `NO_V05_FIELD` |
 | M11 | `/combination` の上記以外の項目（`schema`・`timeline` も除く） | なし | 1項目ずつ保管 | `UNKNOWN_FIELD` |
 
-`UNKNOWN_FIELD` が付くのは M11 だけ。`workspace` は未知の項目を検査で拒否し（`project_state_bundle.py:113-114`）、カメラは知らない項目をスナップショットの時点で落とす（§11）ので、対象にならない。
+`UNKNOWN_FIELD` が付くのは M11 だけ。`workspace` は未知の項目を検査で拒否し（`bai_studio/projects/state_bundle.py:113-114`）、カメラは知らない項目をスナップショットの時点で落とす（§11）ので、対象にならない。
 
 ### 3.2 曲とダンス（SCR-10、利用者がチェックを入れたときだけ。WP-L7a）
 
-時刻はすべて `秒 = フレーム ÷ 30`（SCR-10は30fps固定、`music_dance_project.py:32-33`）。作品FPSに関係しない。
+時刻はすべて `秒 = フレーム ÷ 30`（SCR-10は30fps固定、`bai_studio/motion/music_dance_project.py:32-33`）。作品FPSに関係しない。
 
 | # | 旧の位置 | 写し先 | 変換と判定 | 状態と理由 |
 |---|---|---|---|---|
 | S1 | `model_id` | 場面インスタンス | null なら手順なし。正規化後のIDが M3 の `asset_id` と同じならM3のインスタンスを共有し、手順を作らない。違えば、既定の transform で別のインスタンス（役割 `dance_model`）を追加する | 追加したときは警告 `PLACED_AT_ORIGIN`。素材の扱いはM3と同じ |
-| S2 | `audio_id`、`audio_start_frame`、`audio_source_frame` | `music` または `audio` トラックのクリップ | トラックは `studio_v05_arrangement.classify(素材)` の結果（`music` か `audio`）。元の長さ `src` は `studio_v05_media_render.media_info()` の `duration_seconds`（`studio_v05_media_render.py:217-239`）。`start = audio_start_frame/30`、`source_start = audio_source_frame/30`、`duration = src − source_start`。 | 長さを得られなければ `DURATION_UNKNOWN`。`duration ≤ 0`（元区間の開始が曲の長さ以上）は `OUT_OF_RANGE` で保管。分類が音声でなければ `ASSET_UNSUPPORTED` |
+| S2 | `audio_id`、`audio_start_frame`、`audio_source_frame` | `music` または `audio` トラックのクリップ | トラックは `studio_v05_arrangement.classify(素材)` の結果（`music` か `audio`）。元の長さ `src` は `studio_v05_media_render.media_info()` の `duration_seconds`（`bai_studio/v05/render/media_render.py:217-239`）。`start = audio_start_frame/30`、`source_start = audio_source_frame/30`、`duration = src − source_start`。 | 長さを得られなければ `DURATION_UNKNOWN`。`duration ≤ 0`（元区間の開始が曲の長さ以上）は `OUT_OF_RANGE` で保管。分類が音声でなければ `ASSET_UNSUPPORTED` |
 | S3 | `motion_id`、`motion_start_frame` | `motion` トラックのクリップ | 素材の形式が VMD か GLB のとき（2026-11-04 所有者決定「GLBも写す」で GLB を追加）。VMD の長さ = `(VMDの最終キーのフレーム + 1) / 30`（§5.8 の `vmd_last_frame`）。GLB の長さ = 先頭のアニメーションのキー時刻の最大値（秒。`glb_first_clip_seconds`、下の WP-L7a 補足）。`start = motion_start_frame/30`。変換はしない | FBX動作は長さを読めないので `DURATION_UNKNOWN` で保管。GLB でもチャンネルの読み飛ばし・アニメーションなし・長さ0・読めないときは `DURATION_UNKNOWN` |
-| S4 | `motion_source_frame` | なし | 0 でなければ S3 を作らず保管する。v0.5は動作クリップの元区間を持てない（`studio_v05_arrangement.py:58-67`） | `SOURCE_OFFSET_NOT_SUPPORTED` |
-| S5 | S3 の対象 | S3 のクリップの `target_scene_instance_id` | 対象は S1 のインスタンス、S1 が無ければ M3 のインスタンス。`studio_v05_motion_plan.compatible(モデル形式, 動作形式)`（`studio_v05_motion_plan.py:12-18`）が真のときだけ割り当てる。GLB 動作は PMX・GLB・VRM・FBX のどのモデルにも真（`studio_v05_motion_plan.py:15-18`）。旧タイムライン編集（T2）の動作と同じインスタンス・重なる時刻になるときは割り当てない（WP-L7a 補足） | 割り当てられなければ警告 `MOTION_TARGET_UNSET`（クリップは置く） |
+| S4 | `motion_source_frame` | なし | 0 でなければ S3 を作らず保管する。v0.5は動作クリップの元区間を持てない（`bai_studio/v05/timeline/arrangement.py:58-67`） | `SOURCE_OFFSET_NOT_SUPPORTED` |
+| S5 | S3 の対象 | S3 のクリップの `target_scene_instance_id` | 対象は S1 のインスタンス、S1 が無ければ M3 のインスタンス。`studio_v05_motion_plan.compatible(モデル形式, 動作形式)`（`bai_studio/v05/motion/motion_plan.py:12-18`）が真のときだけ割り当てる。GLB 動作は PMX・GLB・VRM・FBX のどのモデルにも真（`bai_studio/v05/motion/motion_plan.py:15-18`）。旧タイムライン編集（T2）の動作と同じインスタンス・重なる時刻になるときは割り当てない（WP-L7a 補足） | 割り当てられなければ警告 `MOTION_TARGET_UNSET`（クリップは置く） |
 | S6 | `head_frame`、`fps` | なし | 保管。再生位置は M2 を使う | `NO_V05_FIELD` |
 
 ### 3.3 旧タイムライン編集（利用者がチェックを入れたときだけ。WP-L7b）
@@ -119,7 +121,7 @@ WP-L8a より前は、写した結果に警告 `UNIT_SEMANTICS_DIFFER` を付け
 | T3 | `clips[i].blend` | なし | 0 でなければ値を記録して、クリップは置く | 警告 `BLEND_DROPPED` |
 | T4 | `updatedAt` | なし | 保管（表示に使う） | `NO_V05_FIELD` |
 
-`timeline_editor.json` が `server.py:1921-1934` と同じ検査を通らないときは、ファイル全体を `LIVE_SOURCE_INVALID` で保管し、他の取込は続ける。`music_dance_project.json` は `music_dance_project.read()`（`music_dance_project.py:52-61`）が例外を出したとき同じ扱いにする。
+`timeline_editor.json` が `server.py:1921-1934` と同じ検査を通らないときは、ファイル全体を `LIVE_SOURCE_INVALID` で保管し、他の取込は続ける。`music_dance_project.json` は `music_dance_project.read()`（`bai_studio/motion/music_dance_project.py:52-61`）が例外を出したとき同じ扱いにする。
 
 ### 3.4 理由コードと画面の文
 
@@ -198,7 +200,7 @@ WP-L8a より前は、写した結果に警告 `UNIT_SEMANTICS_DIFFER` を付け
 
 ## 4. 取込記録（保存形式）
 
-保存先は `data/studio_v05_legacy_imports/<作品ID>.json`。書き込みは `studio_project_catalog._atomic`（`studio_project_catalog.py:51-59`）を使う。大きさの上限は6MB（スナップショットの上限4MB＋旧の別保存の上限 64KiB・256KiB＋日誌）。v0.5の保存ファイルのバイト列は**持たない**。
+保存先は `data/studio_v05_legacy_imports/<作品ID>.json`。書き込みは `studio_project_catalog._atomic`（`bai_studio/projects/catalog.py:51-59`）を使う。大きさの上限は6MB（スナップショットの上限4MB＋旧の別保存の上限 64KiB・256KiB＋日誌）。v0.5の保存ファイルのバイト列は**持たない**。
 
 ```json
 {
@@ -332,10 +334,10 @@ flowchart LR
 | kind | 呼ぶ関数（すべて既存の公開関数。`studio_project_catalog.clear_fps` だけ新設） | 新しいIDの取り方 |
 |---|---|---|
 | `fps` | `with studio_project_catalog.LOCK:` の中で、カタログの対象作品の `fps` の有り方が `expected.fps` と同じか確かめ（違えば `TARGET_CHANGED` として打ち消しへ）、`set_fps(path, id, after)` | — |
-| `scene_add` | `before = read(...)`。`mutate(scene_root, legacy_root, catalog, id, action="add", revision=before["revision"], assets=assets, asset_id=..., transform=...)`（`studio_v05_scene_instances.py:190-192,319-331`） | 戻り値の `instances` のIDの集合から、`pre_ids` の集合を引く。**ちょうど1件でなければ例外**（「最後の要素」と決め打ちしない） |
-| `clip_place` | `before = studio_v05_arrangement.read(...)`。`place(arr_root, catalog, id, asset_id, track, start, duration, before["revision"], assets, layout_root=layouts, source_duration=...)`（`studio_v05_arrangement.py:69-95`。音声では `server.py:1469` と同じく `source_duration` と `source_has_audio` を渡す） | 戻り値の `clip["id"]` |
-| `clip_source` | `edit_clip(..., clip_id, revision, "update", start=..., duration=..., track=..., source_start=...)`（`studio_v05_arrangement.py:108-142`）。`source_start` が0なら手順を作らない | — |
-| `clip_assign` | `studio_v05_multi_motion.assign(arr_root, scene_root, legacy_root, catalog, id, clip_id, revision, instance_id, assets, layout_root=layouts)`（`studio_v05_multi_motion.py:58-91`） | — |
+| `scene_add` | `before = read(...)`。`mutate(scene_root, legacy_root, catalog, id, action="add", revision=before["revision"], assets=assets, asset_id=..., transform=...)`（`bai_studio/v05/timeline/scene_instances.py:190-192,319-331`） | 戻り値の `instances` のIDの集合から、`pre_ids` の集合を引く。**ちょうど1件でなければ例外**（「最後の要素」と決め打ちしない） |
+| `clip_place` | `before = studio_v05_arrangement.read(...)`。`place(arr_root, catalog, id, asset_id, track, start, duration, before["revision"], assets, layout_root=layouts, source_duration=...)`（`bai_studio/v05/timeline/arrangement.py:69-95`。音声では `server.py:1469` と同じく `source_duration` と `source_has_audio` を渡す） | 戻り値の `clip["id"]` |
+| `clip_source` | `edit_clip(..., clip_id, revision, "update", start=..., duration=..., track=..., source_start=...)`（`bai_studio/v05/timeline/arrangement.py:108-142`）。`source_start` が0なら手順を作らない | — |
+| `clip_assign` | `studio_v05_multi_motion.assign(arr_root, scene_root, legacy_root, catalog, id, clip_id, revision, instance_id, assets, layout_root=layouts)`（`bai_studio/v05/motion/multi_motion.py:58-91`） | — |
 | `playhead` | `cur = studio_v05_playhead.read(...)`。`update(root, catalog, id, seconds, cur["revision"])` | — |
 
 6. どれかの手順で例外が起きたら、その例外の型と文を `error` に書き、§5.3 の `undo_journal` を実行する。全部打ち消せたら `state: "rolled_back"`、1つでも打ち消せなければ `state: "undo_failed"`。応答は500 `APPLY_FAILED`。ただし手順5の `TARGET_CHANGED` と、各関数の「Revision conflict」は409 `TARGET_CHANGED`（同時編集による競合で、打ち消しは同じく行う）。
@@ -350,7 +352,7 @@ flowchart LR
 | `playhead` | **何もしない**（`undone` にする）。再生位置は画面が位置を動かすたびに保存される（`asset-workflow-v06.js:72`）ので、照合も復元もしない |
 | `clip_assign`・`clip_source` | 何もしない。そのクリップは `clip_place` の打ち消しで消える |
 | `clip_place` | 相手のID = `clip_id`。`clip_id` が `None` なら、いまのクリップのうち `pre_ids` に無く、`asset_id`・`track`・`start` が手順と同じものを探す。0件なら打ち消し済み。2件以上なら `undo_failed`。相手があれば `edit_clip(..., action="delete", revision=いまのrevision)` |
-| `scene_add` | 相手のID = `instance_id`。`None` なら `clip_place` と同じ探し方（`asset_id` で照合）。相手があれば `mutate(action="remove", instance_id=..., revision=いまのrevision)`（`studio_v05_scene_instances.py:342-348`） |
+| `scene_add` | 相手のID = `instance_id`。`None` なら `clip_place` と同じ探し方（`asset_id` で照合）。相手があれば `mutate(action="remove", instance_id=..., revision=いまのrevision)`（`bai_studio/v05/timeline/scene_instances.py:342-348`） |
 | `fps` | `with studio_project_catalog.LOCK:` の中で、いまの対象作品の `fps` が `after` と等しければ元へ戻す。`before` が `absent` なら `clear_fps(path, id)`、`value` なら `set_fps(path, id, before.value)`。等しくなければ戻さず、`undo.warnings` に `FPS_KEPT_USER_CHANGE` を足す |
 
 - 「いまのrevision」は、呼ぶ直前に `read()` で読む。呼んだ関数が「Revision conflict」を出したら読み直して最大3回やり直す。3回とも失敗したら、その手順を `undo_failed` にして `undo.failures` に `{n, kind, label, reason}` を足し、次の手順へ進む（止めない）。
@@ -376,8 +378,8 @@ flowchart LR
 
 - 取込と取消は、それぞれ1つの操作単位で、既存のUndoの対象外。取り込んだものを戻すときは［取込を取消］を使う。
 - 既存の関数の性質で、次のことが起きる。どちらも既存の動作で、この設計では変えない。画面の取消の確認文に書く。
-  - インスタンスの削除（取消）は、表情キーのUndo履歴を空にする（`studio_v05_scene_instances.py:348`）。
-  - 動作の対象の割り当て（取込）は、タイムラインの一括移動のUndoを空にする（`studio_v05_multi_motion.py:88`）。
+  - インスタンスの削除（取消）は、表情キーのUndo履歴を空にする（`bai_studio/v05/timeline/scene_instances.py:348`）。
+  - 動作の対象の割り当て（取込）は、タイムラインの一括移動のUndoを空にする（`bai_studio/v05/motion/multi_motion.py:88`）。
 
 ### 5.6 試験専用の逆変換（`_export_legacy_for_test`）
 
@@ -485,7 +487,7 @@ flowchart LR
 
 ### WP-L1 確認の純関数
 
-- 新しいファイル `studio_v05_legacy_import.py`。中身は `class LegacyImportError(ValueError)`（属性 `code`、`status`、`message`）、`MESSAGES`（§3.4 の表をそのまま写した `{コード: 文}` の辞書）、`LABELS`（§3.5）、`plan(inputs, *, include=(), fps_policy="keep_if_same") -> dict`、`vmd_last_frame(raw) -> int`。この段階では `collect` は作らない。
+- 新しいファイル `bai_studio/v05/imports/legacy_import.py`。中身は `class LegacyImportError(ValueError)`（属性 `code`、`status`、`message`）、`MESSAGES`（§3.4 の表をそのまま写した `{コード: 文}` の辞書）、`LABELS`（§3.5）、`plan(inputs, *, include=(), fps_policy="keep_if_same") -> dict`、`vmd_last_frame(raw) -> int`。この段階では `collect` は作らない。
 - 実装する範囲は §3.1 の M1〜M11 と §5.1 の判定・出力。S・T は WP-L7a・L7b で足す。
 - fixture は `tests/fixtures/legacy_import/` に固定のJSONで置く。カメラは長いので、各ファイルは `camera_overrides` だけを持ち、読み込み関数 `tests/legacy_import_fixtures.py` の `load_bundle(name)` が `copy.deepcopy(bai_camera.DEFAULT)` に上書きしてから `validate_bundle()` を通す。
 
@@ -518,22 +520,22 @@ flowchart LR
   - 実行の前後で fixture ディレクトリのファイルとSHA-256が変わらない。
   - `vmd_last_frame` が `tests/fixtures/minimal.vmd` で正の整数を返し、30バイトに切ったバイト列で `ValueError`。
 
-**実装済み（2026-11-04）**：`studio_v05_legacy_import.py`（`plan`・`vmd_last_frame`・`MESSAGES`・`LABELS`）、`tests/legacy_import_fixtures.py`、`tests/fixtures/legacy_import/bundle_a〜j.json`、`tests/test_studio_v05_legacy_import_plan.py`。試験 36 件合格（skip なし）。pytest 全体は 644 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし、`npm run test:node-all` は fail 11（既知10＋1件、JS・サーバー未変更のため未特定）。未検証：`collect`・適用・取消・HTTP/MCP・画面・実データ（WP-L2 以降）。実装で補った点：`plan` の出力に `presence`・`assets`、各 `items` に整形済みの `messages`、拒否の `reject.params` を足した（§5.1 の出力に項目が無いが、§4 と §7.2 が必要とするため）。
+**実装済み（2026-11-04）**：`bai_studio/v05/imports/legacy_import.py`（`plan`・`vmd_last_frame`・`MESSAGES`・`LABELS`）、`tests/legacy_import_fixtures.py`、`tests/fixtures/legacy_import/bundle_a〜j.json`、`tests/test_studio_v05_legacy_import_plan.py`。試験 36 件合格（skip なし）。pytest 全体は 644 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし、`npm run test:node-all` は fail 11（既知10＋1件、JS・サーバー未変更のため未特定）。未検証：`collect`・適用・取消・HTTP/MCP・画面・実データ（WP-L2 以降）。実装で補った点：`plan` の出力に `presence`・`assets`、各 `items` に整形済みの `messages`、拒否の `reject.params` を足した（§5.1 の出力に項目が無いが、§4 と §7.2 が必要とするため）。
 
 ### WP-L2 取込記録のストア
 
-- 新しいファイル `studio_v05_legacy_import_record.py`：`read_record(root, project_id) -> dict | None`、`write_record(root, project_id, record)`、`validate_record(record, project_id)`、`archive_record(root, project_id, now)`（history へ移す）。§4 の形を検査する。壊れたファイルは上書きせず `RECORD_UNREADABLE` の例外（`studio_v05_scene_instances.py:46-50` と同じ方針）。6MBを超えたら `RECORD_TOO_LARGE` で書かない。
+- 新しいファイル `bai_studio/v05/imports/legacy_import_record.py`：`read_record(root, project_id) -> dict | None`、`write_record(root, project_id, record)`、`validate_record(record, project_id)`、`archive_record(root, project_id, now)`（history へ移す）。§4 の形を検査する。壊れたファイルは上書きせず `RECORD_UNREADABLE` の例外（`bai_studio/v05/timeline/scene_instances.py:46-50` と同じ方針）。6MBを超えたら `RECORD_TOO_LARGE` で書かない。
 - 受け入れ試験 `tests/test_studio_v05_legacy_import_record.py`
   - 保存して読み直すと等しい。無ければ `None`。
   - 項目の欠け、余分な項目、`project_id` の不一致、`state` や `steps[].kind`・`status` の不正な値、6MB超えを、それぞれ拒否する。どの場合も元のファイルのバイト列は変わらない。
   - `archive_record` のあと、history に同じ内容のファイルが1つでき、元の場所には無い。
   - 一時ファイルが残らない。
 
-**実装済み（2026-11-04）**：`studio_v05_legacy_import_record.py`（`read_record`・`write_record`・`validate_record`・`archive_record`・`RecordInvalid`）、`tests/test_studio_v05_legacy_import_record.py`。試験 35 件合格（skip なし）。pytest 全体は 679 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：呼び出し元が無い（WP-L3 以降）。実装で補った点：形の検査の失敗は `RecordInvalid`（`ValueError`）、作品IDは小文字UUIDだけ許す（パス混入防止）、history の同名は `-2` 以降を付けて上書きしない、`items`・`steps` は §4 の必須項目の存在のみ検査し手順ごとの追加項目は通す、6MB超の既存ファイルは `RECORD_UNREADABLE`。
+**実装済み（2026-11-04）**：`bai_studio/v05/imports/legacy_import_record.py`（`read_record`・`write_record`・`validate_record`・`archive_record`・`RecordInvalid`）、`tests/test_studio_v05_legacy_import_record.py`。試験 35 件合格（skip なし）。pytest 全体は 679 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：呼び出し元が無い（WP-L3 以降）。実装で補った点：形の検査の失敗は `RecordInvalid`（`ValueError`）、作品IDは小文字UUIDだけ許す（パス混入防止）、history の同名は `-2` 以降を付けて上書きしない、`items`・`steps` は §4 の必須項目の存在のみ検査し手順ごとの追加項目は通す、6MB超の既存ファイルは `RECORD_UNREADABLE`。
 
 ### WP-L3 適用・打ち消し・取消
 
-- `studio_v05_legacy_import.py` に `collect`、`apply(data_root, request, assets, manifest, asset_path)`、`undo_journal(data_root, record, assets)`、`revert(data_root, request, assets)` を足す。`studio_project_catalog.py` に `clear_fps` を足す（§5.3）。
+- `bai_studio/v05/imports/legacy_import.py` に `collect`、`apply(data_root, request, assets, manifest, asset_path)`、`undo_journal(data_root, record, assets)`、`revert(data_root, request, assets)` を足す。`bai_studio/projects/catalog.py` に `clear_fps` を足す（§5.3）。
 - 受け入れ試験 `tests/test_studio_v05_legacy_import_apply.py`（`tmp_path` の下に data を作る。カタログには対象作品と**他の作品1件**を入れる）
   - 正常系：bundle_a で、インスタンス2件、作品FPS 30、再生位置4.0秒、`state: "applied"`、全手順 `done`。
   - 失敗の注入（monkeypatch）：`playhead.update` で例外 → `rolled_back`、インスタンス0件、FPS項目なし、他の作品の行が等しい。2件目の `scene_add` で例外 → 同じ。
@@ -549,13 +551,13 @@ flowchart LR
   - ログ：`studio_v05_legacy_import.event` を monkeypatch で受け取り、成功・失敗・取消で1回ずつ呼ばれ、`state` が入っている。
   - R1：§5.7 のファイル群のSHA-256が、全試験の前後で一致する。
 
-**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` に `collect`・`apply`・`undo_journal`・`revert`・`event`、`studio_project_catalog.clear_fps`、`tests/test_studio_v05_legacy_import_apply.py`。試験 51 件合格（skip なし）。pytest 全体は 730 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`、WP-L5）・HTTP/MCP・画面・実データ。`clip_*` 手順は plan がまだ作らないため、手で組んだ手順で実行・打ち消しだけ確認（WP-L7a で plan が作る）。設計の穴を次のように解釈した：(1) `apply` の拒否順は「記録の状態（`ALREADY_IMPORTED`/`IMPORT_INTERRUPTED`）→ expected の食い違い（`SOURCE_CHANGED`/`TARGET_CHANGED`）→ その他の plan の拒否」（§5.2 の2と試験が両立するため）。(2) 適用が失敗して `undo_failed` になった記録を再び取り消すと `rolled_back`（`error` を持つ記録は取込が完成しなかったとみなす。適用済みの取消が失敗した記録は `reverted`）。`applying` の記録に `error` が無ければ印 `ImportInterrupted` を足す。(3) 届いていない（`pending`）`fps` 手順は、いまの値が違っても `FPS_KEPT_USER_CHANGE` を出さない。(4) `collect` は L7a・L7b まで `live` を読まず `live=None`・`durations={}`。(5) `undo.warnings` は `{code, message}`。(6) 拒否だけの操作は `event` を出さない。(7) `LegacyImportError.state` を足した。(8) 読めないストア（`SceneInstancesError` の旧1体枠以外）は元の例外のまま伝わる（何も書かない）。
+**実装済み（2026-11-04）**：`bai_studio/v05/imports/legacy_import.py` に `collect`・`apply`・`undo_journal`・`revert`・`event`、`studio_project_catalog.clear_fps`、`tests/test_studio_v05_legacy_import_apply.py`。試験 51 件合格（skip なし）。pytest 全体は 730 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`、WP-L5）・HTTP/MCP・画面・実データ。`clip_*` 手順は plan がまだ作らないため、手で組んだ手順で実行・打ち消しだけ確認（WP-L7a で plan が作る）。設計の穴を次のように解釈した：(1) `apply` の拒否順は「記録の状態（`ALREADY_IMPORTED`/`IMPORT_INTERRUPTED`）→ expected の食い違い（`SOURCE_CHANGED`/`TARGET_CHANGED`）→ その他の plan の拒否」（§5.2 の2と試験が両立するため）。(2) 適用が失敗して `undo_failed` になった記録を再び取り消すと `rolled_back`（`error` を持つ記録は取込が完成しなかったとみなす。適用済みの取消が失敗した記録は `reverted`）。`applying` の記録に `error` が無ければ印 `ImportInterrupted` を足す。(3) 届いていない（`pending`）`fps` 手順は、いまの値が違っても `FPS_KEPT_USER_CHANGE` を出さない。(4) `collect` は L7a・L7b まで `live` を読まず `live=None`・`durations={}`。(5) `undo.warnings` は `{code, message}`。(6) 拒否だけの操作は `event` を出さない。(7) `LegacyImportError.state` を足した。(8) 読めないストア（`SceneInstancesError` の旧1体枠以外）は元の例外のまま伝わる（何も書かない）。
 
 **WP-L3 追記（レビュー反映）**：(a) **started の印**：`fps`・`scene_add`・`clip_place` は、始める直前の保存で `started: true`（と `pre_ids`）を書く。`undo_journal` は `pending` で `started` の無い手順を何も探さず `undone` にする（plan が全手順に `pre_ids: []` を入れるため、探すと利用者が足した同じ素材のインスタンス・クリップや、利用者の FPS を消すおそれがあるため）。`FPS_KEPT_USER_CHANGE` は `started` の手順にだけ出す。`fps` の照合（`TARGET_CHANGED`）は `started` を書く前に行う。(b) **拒否の順番**：記録の状態 → expected の食い違い → その他の plan の拒否（レビューで妥当と判定）。(c) **`rolled_back` と `reverted` の使い分け**：`error` を持つ記録（取込が完成しなかった）は `rolled_back`、完成した取込（`applied` から）の取消は `reverted`（同じく妥当）。最終保存（`applied`）に失敗したときは `state` を `applying` に戻してから打ち消す。(d) **WP-L5 の受け入れ条件**：HTTP 側は `with PROJECT_LOCK:` で囲む。他の編集 API が `PROJECT_LOCK` を取らないため、取消の事前点検と打ち消しの間に入った変更は守られない、という時間差が残る（各関数の revision 照合で競合は検出するが、事前点検の対象は保証しない）。この時間差を操作説明書と Issue #69 に記録する。
 
 ### WP-L4 試験専用の逆変換と往復試験
 
-- `studio_v05_legacy_import.py` に `_export_legacy_for_test(record, current)` を足す（§5.6）。HTTP・MCP・画面からは呼ばない。
+- `bai_studio/v05/imports/legacy_import.py` に `_export_legacy_for_test(record, current)` を足す（§5.6）。HTTP・MCP・画面からは呼ばない。
 - 受け入れ試験 `tests/test_studio_v05_legacy_import_roundtrip.py`
   - R2：bundle_a〜j の全部で、取込→逆変換が元と深く等しく、`changed`・`unrepresentable` が空（j は再生位置を写さないので frame は元の値）。
   - R4：ステージの位置を変える → `workspace.stage.position` に出て `changed` に入る。scale を `[1,2,1]` → `unrepresentable`、元の scale。回転400度 → `unrepresentable`。`visible: false` → `unrepresentable`。インスタンスを1件足す → `EXTRA_INSTANCE`。作品FPSを60へ変える → `FPS_CHANGED`、`camera.fps` は元の30。再生位置を `camera.duration` より後ろへ → `FRAME_EXCEEDS_DURATION`。
@@ -563,7 +565,7 @@ flowchart LR
   - 素材原本を書き換える → `asset_hash_changed` に出る。
   - どの結果も `validate_bundle` を通る。
 
-**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` に `_export_legacy_for_test(record, current)`、`tests/test_studio_v05_legacy_import_roundtrip.py`（試験 32 件、skip なし）。R2 は bundle_a〜j の全部で合格、R4 は設計の全項目を試験化。試験結果の全体は WORK_STATE.json と `PHASE_E_IMPLEMENTATION_STATUS.json` に記録。HTTP・MCP・画面からは呼ばない（`server.py` に名前が無いことも試験）。設計の穴の解釈：(1) `current` は `collect` の target に `playhead` と任意の `asset_sha256` を足した形。(2) `unrepresentable` の `pointer` は項目単位（`/workspace/stage/scale`、`/workspace/stage/visible` など）で、理由は `SCALE_NOT_UNIFORM`・`SCALE_OUT_OF_RANGE`・`POSITION_OUT_OF_RANGE`・`ROTATION_OUT_OF_RANGE`・`INSTANCE_HIDDEN`・`EXTRA_INSTANCE`・`FPS_CHANGED`・`FRAME_EXCEEDS_DURATION`・`ASSET_CHANGED`（取込後にインスタンスの素材が記録と違う場合。設計に無い理由で、黙って値を変えない方針による）。(3) 元が `absent`・`null` の character が既定値のままなら presence どおり、変えたら `value` で出して `changed` は `/workspace/character`。表せない変更を含むときは presence どおりに戻して `unrepresentable` に出す。(4) 再生位置は記録に `playhead` 手順がある（j は無い）ときだけ逆変換し、取込時の秒と同じなら元のフレーム。(5) `asset_hash_changed` は記録の `sha256` が null の素材と `current` に無い素材を比べない。(6) 数値は成分ごとでなく項目（position・rotation・scale）単位で、1成分でも範囲外なら項目全体が元の値。未検証：サーバー経由・HTTP/MCP・画面・実データ（WP-L5 以降）。
+**実装済み（2026-11-04）**：`bai_studio/v05/imports/legacy_import.py` に `_export_legacy_for_test(record, current)`、`tests/test_studio_v05_legacy_import_roundtrip.py`（試験 32 件、skip なし）。R2 は bundle_a〜j の全部で合格、R4 は設計の全項目を試験化。試験結果の全体は WORK_STATE.json と `PHASE_E_IMPLEMENTATION_STATUS.json` に記録。HTTP・MCP・画面からは呼ばない（`server.py` に名前が無いことも試験）。設計の穴の解釈：(1) `current` は `collect` の target に `playhead` と任意の `asset_sha256` を足した形。(2) `unrepresentable` の `pointer` は項目単位（`/workspace/stage/scale`、`/workspace/stage/visible` など）で、理由は `SCALE_NOT_UNIFORM`・`SCALE_OUT_OF_RANGE`・`POSITION_OUT_OF_RANGE`・`ROTATION_OUT_OF_RANGE`・`INSTANCE_HIDDEN`・`EXTRA_INSTANCE`・`FPS_CHANGED`・`FRAME_EXCEEDS_DURATION`・`ASSET_CHANGED`（取込後にインスタンスの素材が記録と違う場合。設計に無い理由で、黙って値を変えない方針による）。(3) 元が `absent`・`null` の character が既定値のままなら presence どおり、変えたら `value` で出して `changed` は `/workspace/character`。表せない変更を含むときは presence どおりに戻して `unrepresentable` に出す。(4) 再生位置は記録に `playhead` 手順がある（j は無い）ときだけ逆変換し、取込時の秒と同じなら元のフレーム。(5) `asset_hash_changed` は記録の `sha256` が null の素材と `current` に無い素材を比べない。(6) 数値は成分ごとでなく項目（position・rotation・scale）単位で、1成分でも範囲外なら項目全体が元の値。未検証：サーバー経由・HTTP/MCP・画面・実データ（WP-L5 以降）。
 
 ### WP-L7a 曲とダンス（SCR-10）を写す
 
@@ -582,7 +584,7 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
   - 取消で、クリップ2件とインスタンスが消え、`music_dance_project.json` のSHA-256が変わらない。
   - チェックなし（`include` が空）なら、SCR-10 のファイルを読まない（ファイルを壊れたJSONにしても拒否されない）。
 
-**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` の `plan`（S1〜S6、`_plan_music_dance`）、`collect`（`_read_music_dance`、`_music_dance_media`）、`apply`（record の `source.live`）、`tests/test_studio_v05_legacy_import_music_dance.py`、fixture 3本。試験 58 件合格（skip なし）。legacy_import 全体 212 件合格、pytest 全体は 821 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`）・HTTP/MCP・画面・実データ・実 ffprobe での曲の長さ（試験は `media_info` を差し替え）。設計の穴を次のように解釈した：(1) `durations` は秒（VMD は `(最終フレーム+1)/30`）。曲の音声の有無（`place` の `source_has_audio` 用）は `inputs["audio_flags"]` に別に入れ、`clip_place` 手順の `source_has_audio` に写す。(2) 時刻は `round(フレーム/30, 4)`（クリップの保存桁と同じ）。(3) `start + duration` が 24 時間を超える曲・ダンスは `OUT_OF_RANGE` で保管（超えると `place` が失敗して取込全体が巻き戻るため）。(4) `model_id` が指定されているのに置けない（`ASSET_MISSING`・`ASSET_UNSUPPORTED`）ときは、ダンスの対象をキャラクターへ代用せず `MOTION_TARGET_UNSET`。`model_id` が null のときだけキャラクターのインスタンスを対象にする。(5) S1 がキャラクターと共有のときも、items に S1（`mapped`、手順なし、警告なし）を残す。(6) S4（`motion_source_frame ≠ 0`）は素材の状態に関係なく先に判定し、items の id は `S4`（表示名は S3 と同じ）。(7) S6 は SCR-10 が有効なとき常に1件保管する。ラベルは §3.5 に補足した。(8) SCR-10 のファイルが検査に通らない・64KiB を超える・読めないときは item `S0`（`LIVE_SOURCE_INVALID`、ポインタ空）で保管し、他の取込は続ける。`legacy_value`・record の `live.music_dance.value` は全文（64KiB 超は `null`）。(9) `plan` の入力 `live.music_dance` は `{sha256, value, updated_at, invalid?}`。`source_info.music_dance_updated` はファイルの更新日時（`updated_at`）。(10) `collect` はチェックなし（`include` に無い）ときファイルも素材も読まない。ファイルが無ければ `None`（拒否しない）。(11) `clip_source`・`clip_assign`・`playhead` の手順にも、始める直前に `started` の印を保存する（打ち消しは何もしない手順なので動作は変わらない）。(12) 曲のトラックは `classify` の `music`/`audio`、手順の `role` は曲 `music`・ダンス `dance`・追加モデル `dance_model`。
+**実装済み（2026-11-04）**：`bai_studio/v05/imports/legacy_import.py` の `plan`（S1〜S6、`_plan_music_dance`）、`collect`（`_read_music_dance`、`_music_dance_media`）、`apply`（record の `source.live`）、`tests/test_studio_v05_legacy_import_music_dance.py`、fixture 3本。試験 58 件合格（skip なし）。legacy_import 全体 212 件合格、pytest 全体は 821 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`）・HTTP/MCP・画面・実データ・実 ffprobe での曲の長さ（試験は `media_info` を差し替え）。設計の穴を次のように解釈した：(1) `durations` は秒（VMD は `(最終フレーム+1)/30`）。曲の音声の有無（`place` の `source_has_audio` 用）は `inputs["audio_flags"]` に別に入れ、`clip_place` 手順の `source_has_audio` に写す。(2) 時刻は `round(フレーム/30, 4)`（クリップの保存桁と同じ）。(3) `start + duration` が 24 時間を超える曲・ダンスは `OUT_OF_RANGE` で保管（超えると `place` が失敗して取込全体が巻き戻るため）。(4) `model_id` が指定されているのに置けない（`ASSET_MISSING`・`ASSET_UNSUPPORTED`）ときは、ダンスの対象をキャラクターへ代用せず `MOTION_TARGET_UNSET`。`model_id` が null のときだけキャラクターのインスタンスを対象にする。(5) S1 がキャラクターと共有のときも、items に S1（`mapped`、手順なし、警告なし）を残す。(6) S4（`motion_source_frame ≠ 0`）は素材の状態に関係なく先に判定し、items の id は `S4`（表示名は S3 と同じ）。(7) S6 は SCR-10 が有効なとき常に1件保管する。ラベルは §3.5 に補足した。(8) SCR-10 のファイルが検査に通らない・64KiB を超える・読めないときは item `S0`（`LIVE_SOURCE_INVALID`、ポインタ空）で保管し、他の取込は続ける。`legacy_value`・record の `live.music_dance.value` は全文（64KiB 超は `null`）。(9) `plan` の入力 `live.music_dance` は `{sha256, value, updated_at, invalid?}`。`source_info.music_dance_updated` はファイルの更新日時（`updated_at`）。(10) `collect` はチェックなし（`include` に無い）ときファイルも素材も読まない。ファイルが無ければ `None`（拒否しない）。(11) `clip_source`・`clip_assign`・`playhead` の手順にも、始める直前に `started` の印を保存する（打ち消しは何もしない手順なので動作は変わらない）。(12) 曲のトラックは `classify` の `music`/`audio`、手順の `role` は曲 `music`・ダンス `dance`・追加モデル `dance_model`。
 
 **補足：GLB 動作のダンス（2026-11-04、所有者決定「GLBも写す」）**
 
@@ -590,18 +592,18 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
 
 調べた既存の仕組み：
 
-- 割り当ての検査は `studio_v05_multi_motion.assign`（`studio_v05_multi_motion.py:58-92`）で、形式の判定は `compatible()`（`studio_v05_motion_plan.py:12-18`）。GLB 動作は PMX・GLB・VRM・FBX のどれにも真。VMD だけが PMX 限定。
+- 割り当ての検査は `studio_v05_multi_motion.assign`（`bai_studio/v05/motion/multi_motion.py:58-92`）で、形式の判定は `compatible()`（`bai_studio/v05/motion/motion_plan.py:12-18`）。GLB 動作は PMX・GLB・VRM・FBX のどれにも真。VMD だけが PMX 限定。
 - ③の再生は PMX には `createPmxGlbPreview`、それ以外には `createGenericGlbPreview` で、どちらも `animations[0]` を使う（`studio/v05/js/actual-motion-loader-v22.js:78-81`、`studio/v05/js/multi-model-ui-v58.js:402-405`）。旧の SCR-10 も同じ関数・同じ `animations[0]`（`studio/js/features/music-dance-view.js:293-296`）。再生器の長さは three.js の AnimationClip の長さ（`studio/js/motion/pmx-glb-preview.js:77`）。
-- GLB→VMD 変換（`studio_v05_glb_vmd.convert`、`studio_v05_glb_vmd.py:75-152`）は Blender を呼び、`data/mmd/vmd/` に別名 VMD を作り `mmd_assets.json` に行を足す。統合ライブラリの GLB 動作と mmd の PMX だけが対象。
-- GLB のキーを読むだけの既存の公開関数 `motion_interchange.glb_channels`（`motion_interchange.py:5-36`）がある。平行移動・回転・拡大の LINEAR/STEP だけを返し、重み・CUBICSPLINE は読み飛ばす（`motion_interchange.py:30-32`）。
+- GLB→VMD 変換（`studio_v05_glb_vmd.convert`、`bai_studio/v05/motion/glb_vmd.py:75-152`）は Blender を呼び、`data/mmd/vmd/` に別名 VMD を作り `mmd_assets.json` に行を足す。統合ライブラリの GLB 動作と mmd の PMX だけが対象。
+- GLB のキーを読むだけの既存の公開関数 `motion_interchange.glb_channels`（`bai_studio/motion/motion_interchange.py:5-36`）がある。平行移動・回転・拡大の LINEAR/STEP だけを返し、重み・CUBICSPLINE は読み飛ばす（`bai_studio/motion/motion_interchange.py:30-32`）。
 
 判断：**実データの組み合わせ（GLB 動作 × 実 PMX）は、既存の仕組みだけで「そのまま置いて割り当てる」が成り立つ**。`compatible("PMX","GLB")` は真で、`assign` も③の再生も PMX＋GLB を扱う。足りないのは長さだけで、長さは既存の `glb_channels` で読める。よって (a) GLB→VMD 変換を取込の中で呼ぶ方式は採らない（Blender が要る、生成物が `data/mmd/vmd/` と `mmd_assets.json` に残り取消で消す仕組みが新たに要る、元の SCR-10 も変換せずに GLB のまま再生していた）。新しい変換・新しい機能は足さない。GLB 動作で割り当てられない組み合わせは、形式の上では無い（モデルが置けない・無いときは従来どおり `MOTION_TARGET_UNSET`）。
 
 規則：
 
-1. `collect` は、ダンスの素材が GLB 動作（`classify` が `motion`、形式 GLB、`motion_source_frame == 0`）のとき原本を読み、`glb_first_clip_seconds(raw)`（`studio_v05_legacy_import.py:794`）で長さを得る。`glb_channels` が全アニメーションの全チャンネルを読めたとき（読み飛ばしが無いとき）だけ、先頭のアニメーションのチャンネルのキー時刻の最大値を秒で返す。これは③の再生器の `animations[0]` の長さと同じ値。読み飛ばしがある（重み・CUBICSPLINE）、アニメーションが無い、長さが 0 以下、読めないときは例外で、`durations` に入れない（`DURATION_UNKNOWN`、`studio_v05_legacy_import.py:831-845`）。
-2. `plan` は S3 の形式の条件を `DANCE_FORMATS = ("VMD","GLB")`（`studio_v05_legacy_import.py:42,338`）にする。長さは VMD と違い `+1` しない秒のまま。それ以外（開始 `motion_start_frame/30`、24時間の上限、S4、S5）は VMD と同じ。
-3. 重なりの扱い（S5 の補足）：③は1体に同時に1つの動作しか再生せず、重なると両方が `overlapping_motion` になって再生されない（`studio_v05_multi_motion.py:39-52`）。所有者の実データでは、旧タイムライン編集の FBX 動作7件（0〜21秒）がダンスと同じ実 PMX を相手にする（§3.3 T2 の対象は S1 の結果）。ダンスと T2 が同じインスタンスで時刻が重なるときは、ダンスのクリップは置くが割り当てない（`MOTION_TARGET_UNSET`、`_drop_overlapping_dance_assign`、`studio_v05_legacy_import.py:426-446,614`）。旧の2画面は別々に再生していたので、既に実データで「ready 7件」と確かめた T2 を壊さないほうを選んだ。VMD のダンスにも同じ規則が掛かる（以前は割り当てて、両方が再生されない状態になっていた）。端が接するだけ（前の終わり＝次の始まり）は重なりにしない（`multi_motion.plan` と同じ許容 1e-8）。
+1. `collect` は、ダンスの素材が GLB 動作（`classify` が `motion`、形式 GLB、`motion_source_frame == 0`）のとき原本を読み、`glb_first_clip_seconds(raw)`（`bai_studio/v05/imports/legacy_import.py:794`）で長さを得る。`glb_channels` が全アニメーションの全チャンネルを読めたとき（読み飛ばしが無いとき）だけ、先頭のアニメーションのチャンネルのキー時刻の最大値を秒で返す。これは③の再生器の `animations[0]` の長さと同じ値。読み飛ばしがある（重み・CUBICSPLINE）、アニメーションが無い、長さが 0 以下、読めないときは例外で、`durations` に入れない（`DURATION_UNKNOWN`、`bai_studio/v05/imports/legacy_import.py:831-845`）。
+2. `plan` は S3 の形式の条件を `DANCE_FORMATS = ("VMD","GLB")`（`bai_studio/v05/imports/legacy_import.py:42,338`）にする。長さは VMD と違い `+1` しない秒のまま。それ以外（開始 `motion_start_frame/30`、24時間の上限、S4、S5）は VMD と同じ。
+3. 重なりの扱い（S5 の補足）：③は1体に同時に1つの動作しか再生せず、重なると両方が `overlapping_motion` になって再生されない（`bai_studio/v05/motion/multi_motion.py:39-52`）。所有者の実データでは、旧タイムライン編集の FBX 動作7件（0〜21秒）がダンスと同じ実 PMX を相手にする（§3.3 T2 の対象は S1 の結果）。ダンスと T2 が同じインスタンスで時刻が重なるときは、ダンスのクリップは置くが割り当てない（`MOTION_TARGET_UNSET`、`_drop_overlapping_dance_assign`、`bai_studio/v05/imports/legacy_import.py:426-446,614`）。旧の2画面は別々に再生していたので、既に実データで「ready 7件」と確かめた T2 を壊さないほうを選んだ。VMD のダンスにも同じ規則が掛かる（以前は割り当てて、両方が再生されない状態になっていた）。端が接するだけ（前の終わり＝次の始まり）は重なりにしない（`multi_motion.plan` と同じ許容 1e-8）。
 4. データの安全：変換しないので生成物は無い。書き込みは既存の `clip_place`・`clip_assign` の手順だけで、`started` の印、revision の単調増加、取消での打ち消し（公開関数だけ）、利用者が後から足したクリップを消さない、はすべて従来の手順のまま。GLB の原本は読むだけで、記録の `assets` に SHA-256 が入る。
 
 所有者の実データで写るかどうか：素材の形式・割り当ての条件は満たす（S1 で実 PMX のインスタンスを足し、S5 で `compatible("PMX","GLB")` が真）。長さは、記録上「153トラック」（51骨×平行移動・回転・拡大）なので `glb_channels` で読み飛ばし無く読める見込みだが、**この作業では実データを読んでいない（未検証）**。また、旧タイムライン編集も取り込むときにダンスが 0〜21 秒の FBX 動作と重なれば、ダンスは置くが割り当てない（規則3）。所有者の `motion_start_frame` もこの作業では確かめていない。
@@ -618,7 +620,7 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
   - 形の壊れたファイル → `LIVE_SOURCE_INVALID`、ほかは取り込まれる。
   - 取消でクリップが消える。
 
-**実装済み（2026-11-04）**：`studio_v05_legacy_import.py` の `plan`（T1〜T4、`_plan_timeline_editor`、`_norm_name`）、`collect`（`_read_timeline_editor`、`_validate_timeline_editor`）、`tests/test_studio_v05_legacy_import_timeline_editor.py`、fixture 2本。試験 67 件合格（skip なし）。legacy_import 全体 279 件合格、pytest 全体は 896 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`）・HTTP/MCP・画面・実データ（試験の manifest は試験内で組んだもの）。設計の穴を次のように解釈した：(1) `mapping` の値が空文字・文字列以外のときは「自動一致」（旧画面の `manual[x] || norm(x)` と同じ）。空でない値で候補が0件のときは旧画面の自動一致へ戻らず `NAME_UNRESOLVED`（別の素材を黙って置かない）。(2) 1クリップ1項目。T1（解決できず保管：`NAME_UNRESOLVED`・`ASSET_MISSING`・`ASSET_UNSUPPORTED`）、T2（置いた、または速度で保管）。T3 の `BLEND_DROPPED` と T1 の `NAME_DUPLICATE_LAST_WINS`、S5 の `MOTION_TARGET_UNSET` は、置いたクリップの T2 項目の `codes` に載せる（別項目にしない）。つなぎの値は項目の `legacy_value`（クリップ全体）に残る。(3) 解決した素材が `classify` で `motion` でなければ `ASSET_UNSUPPORTED`（モデル枠以外の FBX モデルなど）。判定の順は 解決 → 素材の有無 → 形式 → 速度。(4) 動かす相手は、`music_dance` が有効で `model_id` があるときはその結果（置けなければ未設定）、それ以外は M3 のキャラクター。`compatible()` が偽、または相手が無いときは `MOTION_TARGET_UNSET`。(5) ファイルの検査は `server.py` の POST と同じ（`int()`・`float()` で変換、欠けた項目は開始0・長さ90・速度1・つなぎ6）。保存する値は変換後。`updatedAt` があるときだけ T4 を保管。(6) 上限は 256KiB。超える・検査に通らない・読めないときは item `T0`（`LIVE_SOURCE_INVALID`、ポインタ空）。`legacy_value`・record の `live.timeline_editor.value` は全文（256KiB 超は `null`、JSON でないときは元の文字列）。(7) 同じ素材を複数のクリップが使うときも、record の `assets` には1行だけ入れる（原本の SHA-256 を何度も計算しない）。(8) 手順の `role` は `timeline`。時刻は `round(フレーム/30, 4)`。(9) 24時間の上限は旧画面の入力上限（開始100万フレーム＋長さ10万フレーム）から超えないため、`OUT_OF_RANGE` の判定は足していない。(10) `source_info.timeline_editor_updated` はファイルの更新日時。(11) §7.2 の画面の「{n}件」は `value.clips` の件数。Issue #69 へのコメント（共通の完了条件4）は外部への書き込みのため行っていない。
+**実装済み（2026-11-04）**：`bai_studio/v05/imports/legacy_import.py` の `plan`（T1〜T4、`_plan_timeline_editor`、`_norm_name`）、`collect`（`_read_timeline_editor`、`_validate_timeline_editor`）、`tests/test_studio_v05_legacy_import_timeline_editor.py`、fixture 2本。試験 67 件合格（skip なし）。legacy_import 全体 279 件合格、pytest 全体は 896 合格・既存失敗 1 件（`test_v05_timeline_drag_static`）、`npm run typecheck` 出力なし。JS・サーバー未変更のため node 試験は未実行。未検証：サーバー経由（外側の `PROJECT_LOCK`）・HTTP/MCP・画面・実データ（試験の manifest は試験内で組んだもの）。設計の穴を次のように解釈した：(1) `mapping` の値が空文字・文字列以外のときは「自動一致」（旧画面の `manual[x] || norm(x)` と同じ）。空でない値で候補が0件のときは旧画面の自動一致へ戻らず `NAME_UNRESOLVED`（別の素材を黙って置かない）。(2) 1クリップ1項目。T1（解決できず保管：`NAME_UNRESOLVED`・`ASSET_MISSING`・`ASSET_UNSUPPORTED`）、T2（置いた、または速度で保管）。T3 の `BLEND_DROPPED` と T1 の `NAME_DUPLICATE_LAST_WINS`、S5 の `MOTION_TARGET_UNSET` は、置いたクリップの T2 項目の `codes` に載せる（別項目にしない）。つなぎの値は項目の `legacy_value`（クリップ全体）に残る。(3) 解決した素材が `classify` で `motion` でなければ `ASSET_UNSUPPORTED`（モデル枠以外の FBX モデルなど）。判定の順は 解決 → 素材の有無 → 形式 → 速度。(4) 動かす相手は、`music_dance` が有効で `model_id` があるときはその結果（置けなければ未設定）、それ以外は M3 のキャラクター。`compatible()` が偽、または相手が無いときは `MOTION_TARGET_UNSET`。(5) ファイルの検査は `server.py` の POST と同じ（`int()`・`float()` で変換、欠けた項目は開始0・長さ90・速度1・つなぎ6）。保存する値は変換後。`updatedAt` があるときだけ T4 を保管。(6) 上限は 256KiB。超える・検査に通らない・読めないときは item `T0`（`LIVE_SOURCE_INVALID`、ポインタ空）。`legacy_value`・record の `live.timeline_editor.value` は全文（256KiB 超は `null`、JSON でないときは元の文字列）。(7) 同じ素材を複数のクリップが使うときも、record の `assets` には1行だけ入れる（原本の SHA-256 を何度も計算しない）。(8) 手順の `role` は `timeline`。時刻は `round(フレーム/30, 4)`。(9) 24時間の上限は旧画面の入力上限（開始100万フレーム＋長さ10万フレーム）から超えないため、`OUT_OF_RANGE` の判定は足していない。(10) `source_info.timeline_editor_updated` はファイルの更新日時。(11) §7.2 の画面の「{n}件」は `value.clips` の件数。Issue #69 へのコメント（共通の完了条件4）は外部への書き込みのため行っていない。
 
 ### WP-L5 HTTP と MCP
 
@@ -688,7 +690,7 @@ Issue #63 の「曲とダンスの画面で保存した配置も、現在の撮�
 
 **順序。** L1 → L2 → L3 → L4 → L7a → L7b → L5 → L6 → L9。L8a は「次の実施順3」の完了後、L8b は順6で時刻付きカメラの保存先ができた後。L7a・L7b を L5・L6 より前に置くのは、HTTP・画面を最初から曲とダンスのチェック付きで作り、作り直しを避けるため。
 
-L1〜L7b と L9 は、カメラ・ステージの出力系のファイル（`camera*.js`、`camera_*.py`、`studio/v05/js/camera-render-*.js`、`shared-scene-v57.js`、`multi-model-*.js`、`spatial-*.js`、`studio_v05_media_render.py`）を**変えない**。`studio_v05_media_render.media_info()` は呼ぶだけ。L5・L6 は `server.py`、`mcp_server.py`、`webmcp.js`、`studio/v05/index.html` という共有ファイルを触るので、作業の前に `git fetch origin main` で並行ブランチの変更を取り込み、衝突を最小にする。WP-L8a だけは、§2.3 の差を直すために `studio/v05/js/multi-model-runtime-v58.js`・`multi-model-ui-v58.js` と `studio_v05_scene_instances.py` を変え、`studio/v05/js/instance-units-v189.mjs` を新しく作る（[WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md) §4）。
+L1〜L7b と L9 は、カメラ・ステージの出力系のファイル（`camera*.js`、`camera_*.py`、`studio/v05/js/camera-render-*.js`、`shared-scene-v57.js`、`multi-model-*.js`、`spatial-*.js`、`bai_studio/v05/render/media_render.py`）を**変えない**。`studio_v05_media_render.media_info()` は呼ぶだけ。L5・L6 は `server.py`、`mcp_server.py`、`webmcp.js`、`studio/v05/index.html` という共有ファイルを触るので、作業の前に `git fetch origin main` で並行ブランチの変更を取り込み、衝突を最小にする。WP-L8a だけは、§2.3 の差を直すために `studio/v05/js/multi-model-runtime-v58.js`・`multi-model-ui-v58.js` と `bai_studio/v05/timeline/scene_instances.py` を変え、`studio/v05/js/instance-units-v189.mjs` を新しく作る（[WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md) §4）。
 
 ## 9. 完了判定
 
@@ -713,7 +715,7 @@ L1〜L7b と L9 は、カメラ・ステージの出力系のファイル（`cam
 | Q3 動作の並びをタイムラインへ | 置かない（`NO_TIMING`）。名前の解決もしない | 11/02の監査で「推測して配置へ書かない」と決めている。並びには時刻が無い |
 | Q4 SCR-10 と旧タイムライン編集 | 取り込む（WP-L7a・L7b）。利用者がチェックを入れたときだけ | Issue #63 本文の困りごとと、順2の終了条件（開始時刻の一致）に含まれる承認済みの範囲。時刻を持つ旧データはこの2つだけ |
 | Q5 空でない作品への取込 | 許さない（`TARGET_NOT_EMPTY`） | 非破壊の原則に沿う安全な既定。足し込む取込は新しい機能になる |
-| Q6 旧の現行状態への書き戻し | 作らない。逆変換も試験専用に縮める | 旧へ戻す経路は既存の［適用］（`studio_project_activation.py`）がある。書き戻しや逆変換の公開は所有者が求めていない |
+| Q6 旧の現行状態への書き戻し | 作らない。逆変換も試験専用に縮める | 旧へ戻す経路は既存の［適用］（`bai_studio/projects/activation.py`）がある。書き戻しや逆変換の公開は所有者が求めていない |
 | 取消の範囲 | 取り込んだものを、あとで動かした分ごと削除できる。再生位置は戻さない。表情キーなど、あとから加えた内容が消える場合は止める | 再生位置は頻繁に保存されるので、照合すると実質取り消せない。所有者が「確かめてから戻す」ことができるようにする |
 | FPSが違うとき | 拒否し、［作品のFPSを○fpsに変えて取り込む］を出す | 対象は空の作品なので、FPSを変えても失うものが無い。取消で元に戻る |
 
@@ -727,7 +729,7 @@ L1〜L7b と L9 は、カメラ・ステージの出力系のファイル（`cam
 
 - この文書はコードも試験も含まない。§8 の試験は、まだ1本も実行していない。
 - 見た目の一致（§2.3）は WP-L8a まで、カメラの動きは WP-L8b まで保証しない。WP-L8a の詳細設計は [WP-L8a 詳細設計](WP_L8A_VISUAL_SCALE_DETAILED_DESIGN_20261104_JA.md)（未実装）。
-- カメラの保存は、スナップショットを作る時点で `bai_camera.validate` が正規化する（既定値を足す、知らない項目を落とす。`bai_camera.py:12-59`）。この設計の「元」は正規化後の bundle で、正規化前の生ファイルとの差は扱わない。
+- カメラの保存は、スナップショットを作る時点で `bai_camera.validate` が正規化する（既定値を足す、知らない項目を落とす。`bai_studio/camera/project.py:12-59`）。この設計の「元」は正規化後の bundle で、正規化前の生ファイルとの差は扱わない。
 - 旧①の2体表示（`modelA`/`modelB` のFBX、`index.html:233`）は、全体保存にもスナップショットにも入っていない。対象外。
 - MCP・WebMCP から取り込んだときは、開いている画面へは知らせない（§7.3 の5）。
 - WebMCP、標準MCPの実クライアント、Windows/Linuxの差、実GPUでの表示は、各WPの実施時に確認する。確認できなかった範囲は未検証として記録する。
@@ -743,20 +745,20 @@ L1〜L7b と L9 は、カメラ・ステージの出力系のファイル（`cam
 | 元のファイルが無かったときの扱いが無い（安全 I2、試験 4） | 採用（不要化） | バイト列で戻さないので、ファイルの削除は起きない |
 | applying で止まったときの取消が定義と両立しない。途中のIDが残らない（安全 I3、試験 3） | 採用 | 手順ごとの日誌、`pre_ids` による相手の特定、途中停止用の取消、`IMPORT_INTERRUPTED` を追加（§4、§5.3、§5.4）。コード名は `IMPORT_INCOMPLETE` 案ではなく `IMPORT_INTERRUPTED` にそろえた |
 | 巻き戻し自体の失敗の状態が無い（安全 M6） | 採用 | `undo_failed` を追加し、取消のやり直しを許す。名前は `rollback_failed` ではなく、取消の失敗にも使うため `undo_failed` |
-| FPS に競合検出が無く、取消で利用者の変更を戻す（安全 I4、試験 4） | 採用（一部変更） | カタログに revision が無いことを確認（`studio_project_catalog.py:38-49`）。適用時は `LOCK` の中で照合し `TARGET_CHANGED`。取消は、いまの値が取込で設定した値のときだけ戻す。違うときは409にせず、いまの値を残して `FPS_KEPT_USER_CHANGE` を出す（あとで変えたFPSは利用者の意図なので、取消全体を止めない）。「項目が無い」状態へ戻す公開関数が無いので `clear_fps` を新設 |
+| FPS に競合検出が無く、取消で利用者の変更を戻す（安全 I4、試験 4） | 採用（一部変更） | カタログに revision が無いことを確認（`bai_studio/projects/catalog.py:38-49`）。適用時は `LOCK` の中で照合し `TARGET_CHANGED`。取消は、いまの値が取込で設定した値のときだけ戻す。違うときは409にせず、いまの値を残して `FPS_KEPT_USER_CHANGE` を出す（あとで変えたFPSは利用者の意図なので、取消全体を止めない）。「項目が無い」状態へ戻す公開関数が無いので `clear_fps` を新設 |
 | 再生位置は頻繁に保存されるので、取消が実質できない（安全 I5、試験 1） | 採用 | `asset-workflow-v06.js:72` で確認。再生位置は照合も復元もしない（§5.3）。あわせて、位置を直したあとでも取消せるようにした（§5.4 の5） |
-| 往復一致が満たせない（6桁丸め、項目なしとnull、stage 項目なし）（安全 I6） | 採用 | `studio_v05_scene_model.py:59` の丸めと `project_state_bundle.py:127-132` を確認。`presence`、丸めの規則、fixture g・h・i を追加（§3.1、§5.6、WP-L1） |
-| 逆変換で422になる経路が `unrepresentable` から漏れている（安全 I7） | 採用 | `project_state_bundle.py:122-123,144-145`、`bai_camera.py:14-15` を確認。削除時の `clip` の扱い、FPS変更、duration 超え、非表示を追加（§5.6、WP-L4） |
+| 往復一致が満たせない（6桁丸め、項目なしとnull、stage 項目なし）（安全 I6） | 採用 | `bai_studio/v05/timeline/scene_model.py:59` の丸めと `bai_studio/projects/state_bundle.py:127-132` を確認。`presence`、丸めの規則、fixture g・h・i を追加（§3.1、§5.6、WP-L1） |
+| 逆変換で422になる経路が `unrepresentable` から漏れている（安全 I7） | 採用 | `bai_studio/projects/state_bundle.py:122-123,144-145`、`bai_studio/camera/project.py:14-15` を確認。削除時の `clip` の扱い、FPS変更、duration 超え、非表示を追加（§5.6、WP-L4） |
 | R1 の範囲が狭い（安全 I8） | 採用 | §5.7 R1 に列挙 |
 | M10 と `UNKNOWN_FIELD` が矛盾（安全 I9） | 採用 | M10 を既知の6項目に限り、それ以外を M11 `UNKNOWN_FIELD` に。timeline の要素内の項目は、配列ごと保管するので個別のコードを付けない（§3.1） |
 | `plan` の `target` の形、`mutate` の呼び方と新IDの取り方（安全 軽微1・2） | 採用 | §5.1、§5.2 の表 |
 | 手動対応表の値は素材IDではない（安全 軽微3） | 採用 | `index.html:235-238` で、`manual[name]` を `clips.get` に渡し、`clips` のキーが `norm(entry.name)` であることを確認。T1 に規則と試験を書いた |
 | スナップショットのハッシュと内容を別々に読むと食い違う（安全 軽微4） | 採用 | §5.1 の1 |
 | カタログ全体を記録に持つと上限を圧迫（安全 軽微5） | 採用（不要化） | バイト列を持たない |
-| 旧1体枠の変化で読込が例外になる（安全 軽微7） | 採用 | `studio_v05_scene_instances.py:174-175` を確認。`LEGACY_SLOT_CHANGED`（409） |
+| 旧1体枠の変化で読込が例外になる（安全 軽微7） | 採用 | `bai_studio/v05/timeline/scene_instances.py:174-175` を確認。`LEGACY_SLOT_CHANGED`（409） |
 | 逆変換を許す状態が無い（安全 軽微8） | 不採用（不要化） | 逆変換を試験専用にしたため、状態による制限は要らない |
 | 素材のSHA-256を毎回計算すると重い（安全 軽微9） | 採用 | 確認では計算せず、適用時に写す素材だけ計算（§5.1、§5.2 の3） |
-| 引用行のずれ、PMX の1.8m（安全 照合結果） | 採用 | `camera_3d.js:303-311`、`normalize.fork.js:5`、`project_state_bundle.py:154,169` に直した（§1、§2.3） |
+| 引用行のずれ、PMX の1.8m（安全 照合結果） | 採用 | `camera_3d.js:303-311`、`normalize.fork.js:5`、`bai_studio/projects/state_bundle.py:154,169` に直した（§1、§2.3） |
 | 逆変換の HTTP・MCP・画面公開は計画外（計画 1） | 採用 | 所有者の要求は「v0.5で開き、編集・復元できる」で、旧形式の取り出しではない。試験専用の内部関数に縮めた（§5.6）。窓口は4本、カードのボタンは1つ |
 | SCR-10 の取込を承認待ちにするのは誤り（計画 2、試験 2） | 採用（順序は変更） | Issue #63 本文に「曲とダンスの画面で保存した配置も、現在の撮影画面と同じ時刻で再生されません」、最短制作経路の順2に「旧作品からの復元後も…開始時刻が一致」とあることを確認した。承認済みの範囲として WP-L7a・L7b に。順序は「L6 の後」ではなく L4 の後・L5 の前にした。HTTPと画面を最初からチェック付きで作り、作り直しを避けるため |
 | 完了判定が無い（計画 3） | 採用 | §9 |

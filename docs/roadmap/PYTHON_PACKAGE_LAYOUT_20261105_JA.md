@@ -64,3 +64,7 @@ Windows Node 22.16.0 / Chrome 156 で `CHROMIUM_PATH` を指定し `npm run test
 ## Ubuntu全件の再実行（基点更新後、2026-11-06）
 
 Ubuntu WSL、Python 3.12.3で `wsl -d Ubuntu --cd /mnt/d/BAI/BAI_CREATER_STUDIO/_codex_work -- python3 -X utf8 -m pytest -q --tb=short` を実行し、**965成功・22スキップ・失敗0**（95.83秒）。前回の隔離HTTP接続リセットは再現しなかった。ルート `conftest.py` の隔離と実 `data/`・`exports/` 前後ハッシュ検査を含むセッションが終了コード0で完走した。Linuxの実GPU・外部Blender・全CLI実入力は未確認。Node全件の5失敗と混同しない。
+
+## 現行設計の参照先更新（2026-11-06）
+
+旧作品取込設計 `LEGACY_STATE_TO_V05_MAPPING_DESIGN_20261104_JA.md` の81箇所と、順5草案 `R5_GLB_VMD_MOTION_EDIT_DETAILED_DESIGN_20261104_JA.md` の17箇所で、移動前Pythonファイル名を対応表の新パスへ更新した。新パスの実在と引用行番号のファイル内範囲、`git diff --check` を確認した。行番号が同じ実装判断を指すか、順5設計の技術判定は再評価していない。過去の実施記録や台帳の歴史的ファイル名は一括書換えしていない。

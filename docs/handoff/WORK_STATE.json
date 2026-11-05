@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T01:55:37+09:00",
+  "updated_at": "2026-11-06T01:59:11+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "871c619",
+  "head_at_update": "1c4bee1",
   "current": {
     "task": "Issue #234 Python移動後の現行文書参照",
-    "status": "in_progress",
+    "status": "done",
     "step": "旧作品取込とGLB→VMDの現行設計で移動前Python参照を対応表に従って更新する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
-    "Issue #234の現行設計・引継ぎ文書でPython移動前の参照を点検し、必要な移行案内を更新する",
-    "PR #235はNode全件5失敗の原因と既存基準との差を維持し、下書きのままレビューする"
+    "PR #235はNode全件5失敗を明記した下書きとしてレビューし、統合判断を進める",
+    "順1〜3の同一作品ID縦断実データ試験とIssue #63 WP-L8aの巨大ステージ構図を続ける"
   ],
   "unverified": [
+    "引用行番号の技術内容の再評価、順5設計の独立再判定は未実施",
     "Node全件の無失敗完走、実GPU・外部Blender・全CLI実入力は未確認",
     "Issue #63 WP-L8aのL4不合格・L5人物見えない、動作GLBの適用先未指定1件が残る"
   ],
@@ -29,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T01:59:11+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "1c4bee1",
+      "text": "Issue #234で現行2設計書の移動前Python参照98箇所を新パスへ更新。実在・引用行の範囲・差分形式を確認"
+    },
     {
       "at": "2026-11-06T01:55:37+09:00",
       "by": "codex",
@@ -231,13 +239,6 @@
       "event": "start",
       "head": "729c06b",
       "text": "順4 LIP-001実歌声SRTと実楽曲VMDの互換性を隔離検証: 空のモデル名を持つ実VMDの非破壊読取とSRT境界を点検する"
-    },
-    {
-      "at": "2026-11-05T13:54:33+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "baa71d8",
-      "text": "LIP-001のSRT取込、読み、候補、下書き、別名モーフVMD、明示採用/解除/Undo/Redoを標準MCP・WebMCPへ接続。隔離Chromeの新規1件と既存回帰2件成功。"
     }
   ]
 }
