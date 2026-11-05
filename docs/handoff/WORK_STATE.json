@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:35:06+09:00",
+  "updated_at": "2026-11-05T12:37:57+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "20f4636",
+  "head_at_update": "4216e64",
   "current": {
     "task": "順3：保存カメラ未設定時の自動構図をプレビューとMP4で照合",
-    "status": "in_progress",
+    "status": "done",
     "step": "実PMX・GLBステージの隔離描画と構図比較",
     "design_doc": "docs/v05/SHARED_STATE_OUTPUT_AUDIT_20261104_JA.md"
   },
   "next_steps": [
-    "順3の次の残件：保存カメラが無い場合の自動構図をプレビューとMP4で一致させる"
+    "順3の次の残件：16:9より縦長のプレビュー欄で構図一致を実測する"
   ],
   "unverified": [
-    "大容量・多数版の実制作、Linux、WebMCP/標準MCPは未検証"
+    "長尺・時間変化、Linux、WebMCP/標準MCPは未検証。大きなステージでキャラが小さい初期構図は順6へ"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:37:57+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4216e64",
+      "text": "保存カメラなしの実PMX＋S01 GLBステージでプレビューと720p MP4のF0自動構図を照合（IoU 0.892、重心差0.0028、原本不変）"
+    },
     {
       "at": "2026-11-05T12:35:06+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "81f4c07",
       "text": "WP-L6 v0.5の画面（旧保存取込の作品カードのボタンと確認・取消の対話画面）: workspaces-v05.js にボタン1つ、legacy-import-ui-v188.js、index.html、操作説明書、隔離Chrome試験を足す"
-    },
-    {
-      "at": "2026-11-04T02:21:01+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "1652bf1",
-      "text": "WP-L5 HTTP窓口4本とMCP/WebMCP道具4本を実装"
     }
   ]
 }
