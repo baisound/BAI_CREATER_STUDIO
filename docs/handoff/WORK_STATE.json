@@ -12,11 +12,11 @@
   },
   "next_steps": [
     "既存ロードマップの順3〜5を継続し、順6でCAM-015のカメラ源・カットを接続してからCAM-019のA〜Dゲートを実装する",
-    "GitHub Issue登録を再試行する（連携は403、CLI認証切れ。公開するのは設計要約のみ）"
+    "Issue #238へ設計とコミットを記録済み。以後の実装・検証を同Issueへ紐付ける"
   ],
   "unverified": [
     "CinemaOperatorのBlender実起動・Bake・Studio往復・実GPU/MP4一致、Windows/Linux、両MCPは未検証",
-    "Issue未登録：GitHub連携の書込権限403とgh認証切れ。設計コミットとIssueを後で紐付ける"
+    "GitHub連携アプリの403は未解消。CLIは通信制限のない環境で認証正常と確認し、Issue #238を作成済み。以前のCLI認証切れ判定を訂正"
   ],
   "blockers": [],
   "owner_questions": [],

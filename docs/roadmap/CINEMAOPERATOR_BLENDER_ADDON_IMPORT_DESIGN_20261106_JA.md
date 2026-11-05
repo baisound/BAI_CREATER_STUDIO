@@ -1,5 +1,7 @@
 # BlenderアドオンのStudio取込とCinemaOperator撮影連携 — 設計（2026-11-06）
 
+追跡Issue: [#238](https://github.com/baisound/BAI_CREATER_STUDIO/issues/238)。設計コミット: `145a54d`。
+
 ## 0. Owner指定と位置
 
 Ownerは、Blenderアドオンの機能を模倣せず、Studioへプラグインを読み込むような操作で**実アドオンをそのまま利用**したい。最初の対象はTOKUGAWA ELECTRONICSのCinemaOperator 0.7.183。要件IDは新規 `CAM-019` とし、既存のカメラ連結・カット・時刻同期 `CAM-015`、レンズ・DOF `CAM-005`、撮影プレビュー/出力 `RENDER-001` を利用する。v0.5の順6「ステージ・撮影」に入れ、順1〜5の実施順は変更しない。本書は設計であり、実装・アドオン実行・映像品質の合格ではない。
