@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T14:13:24+09:00",
+  "updated_at": "2026-11-05T14:14:29+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "94166db",
+  "head_at_update": "9743e5f",
   "current": {
-    "task": "順4 LIP-001実歌声SRT・実曲VMDの隔離作品経路を検証",
-    "status": "done",
-    "step": "実SRT取込と未確定読み拒否、実VMD動作割当をAPIで確認",
+    "task": "順4 LIP-001実PMX・実曲VMDの3D表示と短い出力を検証",
+    "status": "in_progress",
+    "step": "原本を隔離複製し、実VMDの再生時刻差・口モーフ値・短いMP4を照合",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T14:14:29+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9743e5f",
+      "text": "順4 LIP-001実PMX・実曲VMDの3D表示と短い出力を検証: 原本を隔離複製し、実VMDの再生時刻差・口モーフ値・短いMP4を照合"
+    },
     {
       "at": "2026-11-05T14:13:24+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "87ba6b9",
       "text": "Codexへの引継ぎ文書 docs/handoff/CODEX_HANDOFF_20261105_JA.md を作成。main 87ba6b9（#226）までの状態、終わったこと、順6・WP-L8bへの申し送り、このPCでの試験の実行方法・既知の失敗、動いているローカルサーバー、守ることをまとめた。WP-L8aは所有者の回答「旧の大きさ」で完了済み"
-    },
-    {
-      "at": "2026-11-05T01:41:20+09:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "87ba6b9",
-      "text": "Codexへの引継ぎ（2026-11-05）: 引継ぎ文書の作成"
     }
   ]
 }
