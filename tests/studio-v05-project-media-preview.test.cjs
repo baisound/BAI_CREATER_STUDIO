@@ -102,3 +102,44 @@ test('saved v0.5 image, WAV and MP4 clips share the selected project frame in re
     assert.equal((await page.evaluate(() => window.BAIStudioMediaPreviewV68.status())).mediaCount, 3);
   } finally { await page?.close(); await browser?.close(); await server.stop(); }
 });
+
+test('preview reaches the saved clip end even when export Out is earlier', async () => {
+  const server = await harness.startServer({ port: 8891 });
+  let browser, page;
+  try {
+    const image = await json(await fetch(`${server.base}/api/library-assets/upload?kind=image&name=long.png`, {
+      method: 'POST', body: IMAGE,
+    }));
+    const project = await json(await fetch(`${server.base}/api/studio/v05/projects`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: '書き出し範囲より先のプレビュー', kind: 'empty' }),
+    }));
+    const id = project.project.id;
+    const placement = await json(await fetch(`${server.base}/api/studio/v05/arrangement/place`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project_id: id, asset_id: image.item.id, track: 'image', start: 0, duration: 6, revision: 0 }),
+    }));
+    const exportRange = await json(await fetch(`${server.base}/api/studio/v05/timeline/range`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project_id: id, revision: 0, arrangement_revision: placement.revision, in_frame: 0, out_frame: 59 }),
+    }));
+    assert.equal(exportRange.final_frame, 359);
+    browser = await server.launchBrowser();
+    page = await server.newPage(browser);
+    await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.locator('#v06project').selectOption(id);
+    await page.waitForFunction(projectId => window.BAIStudioMediaPreviewV68?.status().ready &&
+      window.BAIStudioMediaPreviewV68.status().projectId === projectId, id);
+    await page.locator('#nav [data-workspace="edit"]').click();
+    assert.equal(await page.locator('#v68frame').getAttribute('max'), '359');
+    await page.locator('#v68frame').fill('180');
+    await page.locator('#v68seek').click();
+    await page.waitForFunction(() => window.BAIStudioMediaPreviewV68.status().frame === 180);
+    await page.locator('#v68play').click();
+    await page.waitForFunction(() => window.BAIStudioMediaPreviewV68.status().frame > 190);
+    await page.locator('#v68pause').click();
+    const savedRange = await json(await fetch(`${server.base}/api/studio/v05/timeline/range?id=${encodeURIComponent(id)}`));
+    assert.equal(savedRange.out_frame, 59);
+    assert.equal(savedRange.final_frame, 359);
+  } finally { await page?.close(); await browser?.close(); await server.stop(); }
+});

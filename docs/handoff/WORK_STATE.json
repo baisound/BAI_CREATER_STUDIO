@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T01:20:40+09:00",
+  "updated_at": "2026-11-06T01:23:10+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "cd99227",
+  "head_at_update": "ffe6621",
   "current": {
     "task": "Issue #234 Python配置整理の基点更新",
-    "status": "in_progress",
+    "status": "done",
     "step": "codex/nextのPR #236統合後差分を取り込み、競合と試験を確認する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
-    "PR #235の追加検証コミットをpushし、PR #233・#236との統合順を確認する",
-    "WP-L8aの巨大ステージで人物が見えない構図不良をIssue #63で継続する"
+    "Issue #234のNode全件・Ubuntu全件の残る環境失敗を調べ、#235のレビュー準備を進める",
+    "順1〜3の同一作品ID縦断試験とIssue #63 WP-L8aの巨大ステージ構図を続ける"
   ],
   "unverified": [
-    "実GPU・外部Blender・全CLI実入力、Node全件の無失敗完走、Ubuntu全件の安定完走は未確認",
-    "WP-L8aのL4不合格・L5見えない、動作GLBの適用先未指定1件が残る"
+    "Node全件・Ubuntu全件の基点更新後の安定完走、実GPU・外部Blender・全CLI実入力は未確認",
+    "Issue #63 WP-L8aのL4不合格・L5人物見えない、動作GLBの適用先未指定1件が残る"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T01:23:10+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ffe6621",
+      "text": "PR #236をcodex/nextへ統合後、#235へ新基点を取り込んだ。競合はWORK_STATEだけで解消。結合後Chrome4件・型検査・原本ハッシュ一致"
+    },
     {
       "at": "2026-11-06T01:20:40+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "start",
       "head": "a288c22",
       "text": "順4 LIP-001口形合成候補の標準MCP・WebMCP接続: 既存の合成候補APIとMCP契約を照合し、同一APIへ最小のツールを追加"
-    },
-    {
-      "at": "2026-11-05T13:16:49+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "fd84351",
-      "text": "順4 LIP-001: 開始0秒以外と非整数FPSの元VMD口形合成候補を作品時刻から局所30fpsへ写し、開始1秒・29.97fpsの隔離HTTPと実VMD単体22件、隔離Chrome4件を確認"
     }
   ]
 }

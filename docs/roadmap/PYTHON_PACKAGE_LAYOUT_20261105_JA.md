@@ -50,3 +50,7 @@ Owner の追加依頼で、タイムラインが途中で止まる事象を別�
 `codex/python-layout-20261105` の配置移動後に、Owner の現行 `data/` を読取専用入力として `python -X utf8 tools/legacy_import_real_check.py` を実行した。隔離した一時データとサーバーで、HTTP 適用と Chrome 156 / SwiftShader の取込画面からの適用をそれぞれ確認した。両実行とも R1（原本不変）・R2（取込直後の逆変換）・R3（取消）・R4（ステージ編集後の逆変換）が合格し、原本160ファイル（117.3 MiB）の前後 SHA-256 は一致した。Chrome 実行では取込ダイアログ、タイムライン9クリップ、3D場面2モデルを確認し、ページエラーは0件だった。結果と画像は `D:/BAI/BAI_CREATER_STUDIO/_Claude確認画像/2026-11-06-python-layout-ui/`、HTTP結果は同階層の `2026-11-06-python-layout/` に保存した。
 
 この試験は旧作品取込の一経路とパッケージ移動後の起動を実証する。SwiftShader であり実GPUは未確認。画面の人物は見えず、WP-L8a の L4（カメラ位置）は不合格、L5（人物が見えるか）は「見えない」と目視記録した。巨大なステージの構図に関する #63 の残件であり、Python配置移動の合格に含めない。動作GLBの適用先が未指定の1件も継続して記録した。
+
+## 開発基点更新後の結合確認（2026-11-06）
+
+PR #236（プレビュー終端修正）を取り込んだ `codex/next` を #235 にマージした。競合は `docs/handoff/WORK_STATE.json` のみで、#235 の進行中の作業位置を保持した。統合状態で `npm run typecheck` 成功、隔離Chromeのプレビュー・書き出し範囲試験4件成功（失敗0、スキップ0）。`tests/run-guarded.cjs` の実 `data/` 5ファイル・`exports/` 無しの前後ハッシュは一致。Python全件・Node全件・Ubuntu全件の再完走は、この基点更新後には未実施。

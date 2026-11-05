@@ -161,10 +161,12 @@
       if (![assetsResponse, rangeResponse, headResponse].every(response => response.ok)) throw Error('素材・範囲・再生位置を取得できません');
       const [inventory, range, head] = await Promise.all([assetsResponse.json(), rangeResponse.json(), headResponse.json()]);
       if (generation !== state.generation) return;
-      if (!Array.isArray(inventory.items) || !range.valid || !Number.isFinite(range.fps) || range.fps <= 0) throw Error(range.error || '保存済み作品の情報が不正です');
+      if (!Array.isArray(inventory.items) || !Number.isFinite(range.fps) || range.fps <= 0 ||
+          !Number.isInteger(range.final_frame) || range.final_frame < 0) throw Error(range.error || '保存済み作品の情報が不正です');
       state.fps = range.fps;
-      state.inFrame = range.effective_in_frame;
-      state.outFrame = range.effective_out_frame;
+      // Render In/Out markers belong to export. Preview traverses the full saved arrangement.
+      state.inFrame = 0;
+      state.outFrame = range.final_frame;
       $('v68frame').max = String(state.outFrame);
       const byId = new Map(inventory.items.map(item => [item.id, item]));
       for (const clip of state.clips) {
