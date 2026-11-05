@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T03:52:57+09:00",
+  "updated_at": "2026-11-06T04:02:41+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-scene-stream-20261106",
-  "head_at_update": "1ef546a",
+  "head_at_update": "7df900d",
   "current": {
     "task": "Issue #39/#81 順3の長尺3D出力",
-    "status": "in_progress",
+    "status": "done",
     "step": "PNG全量保存を透過可逆動画への逐次書込みへ変更し600F超を検証",
     "design_doc": "docs/v05/SCENE_STREAM_CAPTURE_20261106_JA.md"
   },
   "next_steps": [
-    "順3の実曲全体230秒・600F超3Dへ向け、分割描画と容量・停止時復旧の設計を実測付きで進める",
-    "実動画内音声と独立音声の重なり、保存カメラ長尺、異なるFPS/サンプルレートを順3の受入条件で確認する"
+    "順3で全区間の音画1F以内を時刻付き映像指標とPCMで検証し、実動画音声・独立音声の重なりと異なるFPS/サンプルレートを確認する",
+    "順3の保存カメラ・実ステージ長尺、上限2GiB境界・停止復旧・Linux/MCPを順次確認する"
   ],
   "unverified": [
-    "実曲全体230秒、600F超3D、実動画音声、異なるFPS/サンプルレート、先頭無音、素材欠損、保存カメラ長尺、Linux・実MCPは未確認",
-    "Node全件5失敗と#235の外部Blender・全CLI実入力の未確認は維持する。実GPUの今回確認は実曲600Fに限る"
+    "36,000F/10分・2GiB境界、全区間音画差、異なるFPS/音声サンプルレート、長尺保存カメラ、Linux、実MCP、サーバー強制終了時の作業領域回収は未確認",
+    "Node全件の既知5失敗、順4/5の未完了とCAM-019の未実装は維持する"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T04:02:41+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "7df900d",
+      "text": "RENDER-001/006の3D描画を透過FFV1逐次書込みへ変更。合成720F・失敗時保持と、実PMX/VMD/WAV230秒13800Fの実GPU完成MP4を確認。全区間音画同期と上限全体は未確認"
+    },
     {
       "at": "2026-11-06T03:52:57+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "start",
       "head": "13477c8",
       "text": "順4 LIP-001標準MCPの実stdioセッションを検証: initializeからtools/list・実歌声SRT取込・読み保存・再読込を隔離HTTPサーバーで通す"
-    },
-    {
-      "at": "2026-11-05T22:04:27+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "48887df",
-      "text": "実歌声SRT54発話の仮読み確認表を作成。原本SRTの時刻・SHA-256と54行を照合し、全仮読みが製品のproposedかな入力規則を満たすことを確認。全行Owner未確認で作品は未変更。"
     }
   ]
 }

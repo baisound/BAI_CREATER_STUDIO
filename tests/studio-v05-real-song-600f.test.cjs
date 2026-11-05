@@ -7,6 +7,10 @@ const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const harness = require('./helpers/studio-harness.cjs');
 
+const frameCount = Number(process.env.BAI_REAL_RENDER_FRAMES || 600);
+assert.ok(Number.isInteger(frameCount) && frameCount >= 600 && frameCount <= 13800);
+const seconds = frameCount / 60;
+const sampleFrames = [0, Math.floor(frameCount / 2), frameCount - 1];
 const root = process.env.BAI_REAL_MMD_DATA;
 const motionPath = process.env.BAI_REAL_LIP_VMD;
 const modelName = 'Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx';
@@ -43,7 +47,7 @@ function ffmpeg(input, args, maxBuffer = 1024 * 1024) {
   return result.stdout;
 }
 function frameSamples(mp4) {
-  const raw = ffmpeg(mp4, ['-vf', 'select=eq(n\\,0)+eq(n\\,300)+eq(n\\,599),scale=160:90',
+  const raw = ffmpeg(mp4, ['-vf', `select=${sampleFrames.map(frame => `eq(n\\,${frame})`).join('+')},scale=160:90`,
     '-fps_mode', 'passthrough', '-pix_fmt', 'rgb24', '-f', 'rawvideo', 'pipe:1']);
   const frameSize = 160 * 90 * 3;
   assert.equal(raw.length, frameSize * 3);
@@ -56,7 +60,7 @@ function changedPixels(a, b) {
   return count;
 }
 function audioPcm(bytes) {
-  return ffmpeg(bytes, ['-t', '10', '-ac', '1', '-ar', '8000', '-f', 's16le', 'pipe:1'], 256 * 1024);
+  return ffmpeg(bytes, ['-t', String(seconds), '-ac', '1', '-ar', '8000', '-f', 's16le', 'pipe:1'], 4 * 1024 * 1024);
 }
 function audioLag(source, rendered, second) {
   const start = Math.round(second * 8000);
@@ -80,7 +84,7 @@ function poseDelta(a, b) {
     ...a.position.map((value, index) => Math.abs(value - b.position[index])));
 }
 
-test('real PMX/VMD and registered song WAV render all 600 frames with aligned audio',
+test(`real PMX/VMD and registered song WAV render all ${frameCount} frames with aligned audio`,
   { skip: !available && 'BAI_REAL_MMD_DATA と BAI_REAL_LIP_VMD が必要', timeout: 1200000 }, async () => {
     const audioIndex = JSON.parse(fs.readFileSync(audioIndexPath, 'utf8'));
     const audioEntry = audioIndex.items.find(row => row.id === audioId);
@@ -110,7 +114,7 @@ test('real PMX/VMD and registered song WAV render all 600 frames with aligned au
     let browser, page;
     try {
       const project = await json(await post(server, '/api/studio/v05/projects',
-        { name: '実曲600F隔離確認', kind: 'empty' }));
+        { name: `実曲${frameCount}F隔離確認`, kind: 'empty' }));
       const id = project.project.id;
       const scene = await json(await post(server, '/api/studio/v05/scene/instances', {
         project_id: id, action: 'add', revision: 0, asset_id: `mmd:A:${modelName}`,
@@ -122,7 +126,7 @@ test('real PMX/VMD and registered song WAV render all 600 frames with aligned au
       }));
       const audio = await json(await post(server, '/api/studio/v05/arrangement/place', {
         project_id: id, asset_id: audioId, track: 'audio', start: 0,
-        duration: 10, revision: motion.revision,
+        duration: seconds, revision: motion.revision,
       }));
       const assigned = await json(await post(server, '/api/studio/v05/scene/motion-target', {
         project_id: id, clip_id: motion.clip.id, revision: audio.revision,
@@ -146,7 +150,7 @@ test('real PMX/VMD and registered song WAV render all 600 frames with aligned au
       null, { timeout: 180000 });
       const bones = ['センター', '上半身', '頭', '右腕', '左腕'];
       const preview = [];
-      for (const frame of [0, 300, 599]) {
+      for (const frame of sampleFrames) {
         await page.evaluate(target => window.BAIStudioMediaPreviewV68.seek(target), frame);
         await page.waitForFunction(target => Math.abs(
           document.querySelector('#v68layers audio')?.currentTime - target / 60) < 0.15,
@@ -175,18 +179,18 @@ test('real PMX/VMD and registered song WAV render all 600 frames with aligned au
       await page.close(); await browser.close(); page = browser = null;
       const range = await json(await post(server, '/api/studio/v05/timeline/range', {
         project_id: id, revision: 0, arrangement_revision: assigned.revision,
-        in_frame: 0, out_frame: 599,
+        in_frame: 0, out_frame: frameCount - 1,
       }));
-      assert.equal(range.frame_count, 600);
+      assert.equal(range.frame_count, frameCount);
       const started = await json(await post(server, '/api/studio/v05/render/jobs', {
         project_id: id, arrangement_revision: assigned.revision,
         range_revision: range.revision, scene_revision: scene.revision, resolution: '720p',
       }), 202);
       const job = await waitJob(server.base, started.id);
-      assert.equal(job.probe.frames, 600);
+      assert.equal(job.probe.frames, frameCount);
       assert.equal(job.probe.video_codec, 'h264');
       assert.equal(job.probe.audio_codec, 'aac');
-      assert.equal(job.scene_capture.frames, 600);
+      assert.equal(job.scene_capture.frames, frameCount);
       assert.equal(job.scene_capture.motion_clips, 1);
       for (const [assetId, expected] of [[`mmd:A:${modelName}`, before.model],
         [`mmd:vmd:${motionName}`, before.motion], [audioId, before.audio]])
@@ -197,8 +201,8 @@ test('real PMX/VMD and registered song WAV render all 600 frames with aligned au
       assert.ok(differences.every(value => value > 200), `motion frames are unchanged: ${differences}`);
       const sourcePcm = audioPcm(fs.readFileSync(audioPath));
       const renderedPcm = audioPcm(mp4);
-      assert.ok(sourcePcm.length >= 10 * 8000 * 2 && renderedPcm.length >= 10 * 8000 * 2);
-      const lags = [1, 5, 9].map(second => ({ second, ...audioLag(sourcePcm, renderedPcm, second) }));
+      assert.ok(sourcePcm.length >= seconds * 8000 * 2 && renderedPcm.length >= seconds * 8000 * 2);
+      const lags = [1, seconds / 2, seconds - 1].map(second => ({ second, ...audioLag(sourcePcm, renderedPcm, second) }));
       assert.ok(lags.every(row => row.correlation > 0.75 && Math.abs(row.lag) <= 8000 / 60),
         `実曲の音声時刻が1Fを超えてずれています: ${JSON.stringify(lags)}`);
       assert.equal(fs.existsSync(path.join(server.dataDir, 'studio_v05_media_renders', 'jobs',

@@ -24,7 +24,7 @@ async function main() {
   if (required.some(key => !Object.hasOwn(config, key)) ||
       !Number.isInteger(config.port) || config.port < 1 || config.port > 65535 ||
       !Number.isInteger(config.startFrame) || config.startFrame < 0 ||
-      !Number.isInteger(config.frameCount) || config.frameCount < 1 || config.frameCount > 600 ||
+      !Number.isInteger(config.frameCount) || config.frameCount < 1 || config.frameCount > 36000 ||
       !Number.isFinite(config.fps) || config.fps < 1 || config.fps > 240 ||
       !Number.isInteger(config.width) || !Number.isInteger(config.height) ||
       config.width !== 1280 || config.height !== 720 ||
@@ -106,10 +106,8 @@ async function main() {
           buffer.readUInt32BE(16) !== config.width || buffer.readUInt32BE(20) !== config.height)
         throw Error(`Wrong capture pixels at F${frame}`);
       totalBytes += buffer.length;
-      if (totalBytes > 256 * 1024 * 1024)
-        throw Error('The bounded 3D frame cache exceeded 256 MiB');
-      const name = `frame_${String(index + 1).padStart(6, '0')}.png`;
-      fs.writeFileSync(path.join(config.directory, name), buffer, { flag: 'wx' });
+      // Await the pipe write: only one PNG is pending, independent of duration.
+      await new Promise((resolve, reject) => process.stdout.write(buffer, error => error ? reject(error) : resolve()));
       hashes.push(crypto.createHash('sha256').update(buffer).digest('hex'));
       if (index === 0 && checked.sampleInstanceId) {
         poseSample = await page.evaluate(({ instanceId, frame }) => {
@@ -131,7 +129,7 @@ async function main() {
       renderer: checked.renderer, loaded: checked.loaded, motion_clips: checked.motionClips,
       frame_sha256: hashes, captured_bytes: totalBytes, pose_sample: poseSample };
     fs.writeFileSync(config.manifest, JSON.stringify(manifest), { flag: 'wx' });
-    process.stdout.write(JSON.stringify({ frames: hashes.length, renderer: checked.renderer }) + '\n');
+
   } finally { await browser.close(); }
 }
 main().catch(error => { process.stderr.write(String(error?.stack || error) + '\n'); process.exitCode = 1; });

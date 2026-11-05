@@ -21,7 +21,7 @@
   resolution.disabled = false;
   resolution.value = '720p';
   fpsSelect.title = '保存済み作品のFPSで書き出します';
-  settings.insertAdjacentHTML('beforeend', '<p id="v69status" role="status" class="baiTiny">作品の書き出し条件を確認中…</p><p class="baiTiny">画像・動画（内包音声を含む）・独立音声は10分以内。保存済み3Dシーンと適用済み動作を含む作品は720p・最大600フレーム、連番作業領域256MiB以内の実描画に対応します。3Dの保存カメラがあれば同じ視点を使い、未保存なら自動配置します。字幕などの未接続内容は出力へ反映されません。保存済みの未対応クリップは欠落を避けるため拒否します。</p>');
+  settings.insertAdjacentHTML('beforeend', '<p id="v69status" role="status" class="baiTiny">作品の書き出し条件を確認中…</p><p class="baiTiny">画像・動画（内包音声を含む）・独立音声は10分以内。保存済み3Dシーンと適用済み動作を含む作品は720p・最大36000フレーム・10分以内、可逆動画の作業領域2GiB以内の実描画に対応します。3Dの保存カメラがあれば同じ視点を使い、未保存なら自動配置します。字幕などの未接続内容は出力へ反映されません。保存済みの未対応クリップは欠落を避けるため拒否します。</p>');
   settings.querySelector('#v69status').insertAdjacentHTML('beforebegin', '<label>完成物の名前 <input id="v69name" type="text" maxlength="84" autocomplete="off" aria-describedby="v69nameHint"></label><label>同じ名前があるとき <select id="v69nameMode"><option value="version">新しい版名で保存</option><option value="replace">この名前の完成物を置換（旧版を保存）</option></select></label><p id="v69nameHint" role="status" class="baiTiny">名前を確認中…</p>');
   const result = document.createElement('div');
   result.id = 'v69result';
@@ -216,7 +216,7 @@
       for (const option of resolution.options) if (option.value === '1080p') option.disabled = hasScene;
       const reason = !caps.available ? caps.reason : !range.valid ? range.error :
         !range.has_clips ? '保存済みクリップがありません' :
-          hasScene && !caps.scene_capture_available ? '3D書き出し用のChrome/Edge・Node.js・Playwright・Three.jsがありません' :
+          hasScene && !caps.scene_capture_available ? '3D書き出し用のChrome/Edge・Node.js・Playwright・Three.js・FFV1の環境を確認してください' :
           hasScene && scene.instances.some(instance => !instance.available) ? '登録済み3Dモデルの原本が見つかりません' :
           hasScene && range.frame_count > caps.max_scene_frames ? `3Dを含む限定MP4は${caps.max_scene_frames}フレーム以内です。In/Outを短くしてください` :
           unreadyMotion ? `${unreadyMotion.name} の3D動作は未割当または読込不能です` :
