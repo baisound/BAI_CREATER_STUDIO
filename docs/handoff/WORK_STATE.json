@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T22:01:25+09:00",
+  "updated_at": "2026-11-05T22:04:27+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "3dcc4b6",
+  "head_at_update": "48887df",
   "current": {
     "task": "順4 LIP-001実歌声SRT54発話の読み確認表を準備",
-    "status": "in_progress",
+    "status": "done",
     "step": "原本SRTを変えずに発話番号別の仮読みと曖昧語を整理し、Owner確認待ちを明示",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
-    "順4 #187: 実歌声SRT54発話の読みと明示無音をOwnerが確認できる形に整理し、確定済み範囲で実曲VMDとの口形合成と出力を検証する"
+    "順4 #187: Ownerが54発話の読み・無音を確認した範囲で実曲VMDとの口形合成と出力を試験。独立して可能なMCP実クライアント・ブラウザ呼出し、Linux等のゲートを確認する"
   ],
   "unverified": [
-    "54発話の読みと無音のOwner確定、実歌声に合わせた採用口形と元VMDの合成、歌声入り長尺MP4、境界と強度の自然さは未検証",
-    "3フレーム試行は試験側の待機上限で未完走。実GPU、WebMCP対応ブラウザのネイティブ呼出し、実MCPクライアント、Linux、別PMXは未検証"
+    "全54発話の実歌声に対する読み・明示無音のOwner確定、口形採用、自然さ、歌声入り長尺MP4は未検証",
+    "実GPU、WebMCP対応ブラウザのネイティブ呼出し、実MCPクライアント、Linux、別PMXは未検証"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T22:04:27+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "48887df",
+      "text": "実歌声SRT54発話の仮読み確認表を作成。原本SRTの時刻・SHA-256と54行を照合し、全仮読みが製品のproposedかな入力規則を満たすことを確認。全行Owner未確認で作品は未変更。"
+    },
     {
       "at": "2026-11-05T22:01:25+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "3013135",
       "text": "順3：動画内音声を作品時刻でMP4へ多重化する: 既存出力の音声経路と受け入れ条件を照合"
-    },
-    {
-      "at": "2026-11-05T10:32:18+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "35b34c1",
-      "text": "Codexの作業フォルダ D:\\BAI\\BAI_CREATER_STUDIO\\_codex_work（ブランチ codex/next、origin/main 35b34c1 から作成、npm ci 済み）を用意し、引継ぎ文書の冒頭に「作業フォルダ」節を追加"
     }
   ]
 }
