@@ -1,23 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T02:14:31+09:00",
+  "updated_at": "2026-11-06T02:16:44+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "8cc3101",
+  "head_at_update": "dfdfee1",
   "current": {
     "task": "PR #235統合後の引継ぎ更新",
-    "status": "in_progress",
+    "status": "done",
     "step": "codex/nextの作業位置と8765番サーバー復旧・worktree整理を記録する",
     "design_doc": "docs/handoff/CODEX_HANDOFF_20261105_JA.md"
   },
   "next_steps": [
-    "PR #235はNode全件5失敗を明記した下書きとしてレビューし、統合判断を進める",
-    "順1〜3の同一作品ID縦断実データ試験とIssue #63 WP-L8aの巨大ステージ構図を続ける"
+    "PR #233は下書きのまま、順3の残る実素材長尺3D・音画同期・保存カメラと出力の受け入れ条件を現在の台帳で照合して進める",
+    "Issue #63の巨大ステージ内の初期構図は順6で扱う。WP-L8bの時刻付きカメラも順6の保存先ができるまで保管する"
   ],
   "unverified": [
-    "引用行番号の技術内容の再評価、順5設計の独立再判定は未実施",
-    "Node全件の無失敗完走、実GPU・外部Blender・全CLI実入力は未確認",
-    "Issue #63 WP-L8aのL4不合格・L5人物見えない、動作GLBの適用先未指定1件が残る"
+    "Node全件5失敗、実GPU・外部Blender・全CLI実入力は#235の未検証として維持する",
+    "実PMXと実曲の長尺MP4、時刻付きカメラ・字幕、全形式の同一作品縦断は未確認"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -30,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T02:16:44+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "dfdfee1",
+      "text": "PR #236・#235をcodex/nextへ統合。完了済みworktree6件を保全付き削除し、8765番のv0.5配信をmainから復旧。main/data 503ファイルの前後ハッシュ一致"
+    },
     {
       "at": "2026-11-06T02:14:31+09:00",
       "by": "codex",
@@ -232,13 +238,6 @@
       "event": "start",
       "head": "0cdb751",
       "text": "順4 LIP-001実歌声SRT・実曲VMDの隔離作品経路を検証: 実SRT取込と未確定読み拒否、実VMD動作割当をAPIで確認"
-    },
-    {
-      "at": "2026-11-05T14:05:18+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "450057c",
-      "text": "実歌声SRT54発話・最終228.365秒と同曲VMD骨351951/口形4760キー・最終230秒を原本不変で検査。空モデル名の入力互換性を限定修正し、実素材含む17件とLIP合成回帰22件が成功。"
     }
   ]
 }
