@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T02:16:44+09:00",
+  "updated_at": "2026-11-06T02:23:28+09:00",
   "updated_by": "codex",
-  "branch": "codex/next",
-  "head_at_update": "dfdfee1",
+  "branch": "codex/v05-render-real-20261106",
+  "head_at_update": "f6c5bd7",
   "current": {
-    "task": "PR #235統合後の引継ぎ更新",
-    "status": "done",
-    "step": "codex/nextの作業位置と8765番サーバー復旧・worktree整理を記録する",
-    "design_doc": "docs/handoff/CODEX_HANDOFF_20261105_JA.md"
+    "task": "Issue #39/#81 順3の実PMX・実曲600F出力",
+    "status": "in_progress",
+    "step": "実PMX・同曲VMDとWAVを隔離作品へ置き、600Fのプレビュー・MP4・音声・原本保持を検証する",
+    "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
     "PR #233は下書きのまま、順3の残る実素材長尺3D・音画同期・保存カメラと出力の受け入れ条件を現在の台帳で照合して進める",
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T02:23:28+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f6c5bd7",
+      "text": "Issue #39/#81 順3の実PMX・実曲600F出力: 実PMX・同曲VMDとWAVを隔離作品へ置き、600Fのプレビュー・MP4・音声・原本保持を検証する"
+    },
     {
       "at": "2026-11-06T02:16:44+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "94166db",
       "text": "実PMX・実歌声SRT54発話・同曲VMDを隔離作品へ登録し、SRT保存再読込と54件の読み未確定拒否、VMD割当ready、原本・共有data前後ハッシュ一致をHTTP試験1件で確認。"
-    },
-    {
-      "at": "2026-11-05T14:06:33+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0cdb751",
-      "text": "順4 LIP-001実歌声SRT・実曲VMDの隔離作品経路を検証: 実SRT取込と未確定読み拒否、実VMD動作割当をAPIで確認"
     }
   ]
 }
