@@ -37,7 +37,7 @@
     if (state.sceneOverlay) $('v68stageNote').hidden = true;
     const sceneLoaded = state.sceneOverlay && window.BAIStudioMultiScenePreview?.status?.().loaded > 0;
     $('v68play').disabled = !state.ready || (!state.entries.length && !sceneLoaded);
-    if (state.ready) message(`${state.entries.length}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : state.sceneOverlay ? '3Dを同じ画面に重ねて表示。限定MP4は出力画面で条件を確認。' : '3Dは別画面、動画内音声は未接続。限定MP4は出力画面に接続。'}`);
+    if (state.ready) message(`${state.entries.length}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : state.sceneOverlay ? '3Dを同じ画面に重ねて表示。限定MP4は出力画面で条件を確認。' : '動画内音声も動画とともに再生。限定MP4は出力画面に接続。'}`);
   }
   function release() {
     cancelAnimationFrame(state.raf);
@@ -176,7 +176,7 @@
         const element = document.createElement(kind === 'image' ? 'img' : kind === 'video' ? 'video' : 'audio');
         element.src = url;
         element.preload = kind === 'image' ? 'auto' : 'metadata';
-        if (kind === 'video') { element.muted = true; element.playsInline = true; }
+        if (kind === 'video') { element.playsInline = true; }
         if (kind !== 'audio') { element.hidden = true; element.className = 'v68visual'; layers.append(element); }
         else { element.hidden = true; layers.append(element); }
         if (kind === 'image') element.addEventListener('load', () => { if (generation === state.generation) setFrame(state.frame, state.playing); });

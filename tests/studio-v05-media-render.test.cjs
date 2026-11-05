@@ -6,9 +6,9 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const harness = require('./helpers/studio-harness.cjs');
 
-function wav() {
+function wav(leadSamples = 0) {
   const samples = 16000, data = Buffer.alloc(samples * 4), head = Buffer.alloc(44);
-  for (let i = 0; i < samples; i++) {
+  for (let i = leadSamples; i < samples; i++) {
     const sample = Math.round(Math.sin(i * Math.PI / 16) * 5000);
     data.writeInt16LE(sample, i * 4); data.writeInt16LE(sample, i * 4 + 2);
   }
@@ -143,10 +143,10 @@ test('v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D', asyn
     assert.equal(Buffer.compare(Buffer.from(await reread.arrayBuffer()), output), 0);
 
     const withAudio = spawnSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-i',
-      path.join(__dirname, 'fixtures', 'media_preview.mp4'), '-f', 'lavfi', '-i',
-      'sine=frequency=400:duration=2', '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy',
-      '-c:a', 'aac', '-shortest', '-movflags', 'frag_keyframe+empty_moov', '-f', 'mp4', 'pipe:1'],
-    { maxBuffer: 16 * 1024 * 1024 });
+      path.join(__dirname, 'fixtures', 'media_preview.mp4'), '-f', 'wav', '-i', 'pipe:0',
+      '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'aac', '-shortest',
+      '-movflags', 'frag_keyframe+empty_moov', '-f', 'mp4', 'pipe:1'],
+    { input: wav(4000), maxBuffer: 16 * 1024 * 1024 });
     assert.equal(withAudio.status, 0, withAudio.stderr.toString());
     const audioVideo = await ok(await fetch(`${server.base}/api/library-assets/upload?kind=video&name=embedded.mp4`, {
       method: 'POST', body: withAudio.stdout,
@@ -159,14 +159,57 @@ test('v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D', asyn
     const embedded = await ok(await fetch(`${server.base}/api/studio/v05/arrangement/place`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ project_id: secondId, asset_id: audioVideo.item.id,
-        track: 'video', start: 0, duration: 1, revision: 0 }),
+        track: 'video', start: 0.5, duration: 0.8, revision: 0 }),
     }));
-    const omittedAudio = await fetch(`${server.base}/api/studio/v05/render/jobs`, {
+    const embeddedSaved = await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${secondId}`));
+    const embeddedTrimmed = await ok(await fetch(`${server.base}/api/studio/v05/arrangement/clip/edit`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ project_id: secondId, arrangement_revision: embedded.revision,
+      body: JSON.stringify({ project_id: secondId, clip_id: embeddedSaved.clips[0].id,
+        revision: embedded.revision, action: 'update', track: 'video', lane: 1,
+        start: 0.5, duration: 0.8, source_start: 1 }),
+    }));
+    const embeddedReloaded = await ok(await fetch(`${server.base}/api/studio/v05/arrangement?id=${secondId}`));
+    assert.equal(embeddedReloaded.clips[0].source_start, 1);
+    const embeddedStart = await ok(await fetch(`${server.base}/api/studio/v05/render/jobs`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project_id: secondId, arrangement_revision: embeddedTrimmed.revision,
         range_revision: 0, resolution: '720p' }),
-    });
-    assert.equal(omittedAudio.status, 422);
-    assert.match((await omittedAudio.json()).error, /動画内音声/);
+    }), 202);
+    let embeddedJob;
+    const embeddedDeadline = Date.now() + 60000;
+    do {
+      await new Promise(resolve => setTimeout(resolve, 350));
+      embeddedJob = await ok(await fetch(`${server.base}/api/studio/v05/render/jobs?id=${embeddedStart.id}`));
+    } while (['queued', 'running'].includes(embeddedJob.status) && Date.now() < embeddedDeadline);
+    assert.equal(embeddedJob.status, 'succeeded', embeddedJob.error);
+    assert.equal(embeddedJob.probe.frames, 78);
+    const embeddedFile = await fetch(`${server.base}/api/studio/v05/render/file?id=${embeddedStart.id}`);
+    assert.equal(embeddedFile.status, 200);
+    const embeddedOutput = Buffer.from(await embeddedFile.arrayBuffer());
+    const embeddedPcm = seconds => {
+      const result = spawnSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-i', 'pipe:0',
+        '-ss', String(seconds), '-t', '0.1', '-map', '0:a:0', '-ac', '1', '-ar', '8000', '-f', 's16le', 'pipe:1'],
+      { input: embeddedOutput, maxBuffer: 8 * 1024 * 1024 });
+      assert.equal(result.status, 0, result.stderr.toString());
+      let sum = 0;
+      for (let i = 0; i + 1 < result.stdout.length; i += 2) { const v = result.stdout.readInt16LE(i); sum += v * v; }
+      return Math.sqrt(sum / Math.max(1, result.stdout.length / 2));
+    };
+    assert.ok(embeddedPcm(0.1) < 80, 'embedded audio must be silent before the video starts');
+    const atSixTenths = embeddedPcm(0.6);
+    const sourceRmsAt = seconds => {
+      const result = spawnSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-i', 'pipe:0', '-ss', String(seconds),
+        '-t', '0.1', '-map', '0:a:0', '-ac', '1', '-ar', '8000', '-f', 's16le', 'pipe:1'],
+      { input: withAudio.stdout, maxBuffer: 8 * 1024 * 1024 });
+      assert.equal(result.status, 0, result.stderr.toString());
+      let sum = 0; for (let i = 0; i + 1 < result.stdout.length; i += 2) { const v = result.stdout.readInt16LE(i); sum += v * v; }
+      return Math.sqrt(sum / Math.max(1, result.stdout.length / 2));
+    };
+    assert.ok(sourceRmsAt(0.6) < 80 && sourceRmsAt(1.1) > 200, 'fixture must contain lead silence and later tone');
+    assert.ok(atSixTenths > 200, `embedded audio must follow the trimmed source and video start: RMS ${atSixTenths}`);
+    await page.reload();
+    await page.locator('#v06project').selectOption(secondId);
+    await page.waitForFunction(() => !!document.querySelector('#v68layers video'));
+    assert.equal(await page.locator('#v68layers video').evaluate(video => video.muted), false);
   } finally { await page?.close(); await browser?.close(); await server.stop(); }
 });

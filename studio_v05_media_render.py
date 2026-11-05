@@ -1,7 +1,7 @@
 """Revision-guarded, non-overwriting MP4 jobs for saved v0.5 media clips.
 
-Only supported registered sources are accepted. Camera, effects and embedded
-video audio are not silently omitted from a claimed render.
+Only supported registered sources are accepted. Camera and effects are not
+silently omitted from a claimed render.
 """
 from __future__ import annotations
 
@@ -277,13 +277,16 @@ def _snapshot(data_root: Path, project_id: str, range_revision: int, arrangement
         allowed = {"image": IMAGE_EXT, "video": VIDEO_EXT, "audio": AUDIO_EXT}[kind]
         if not path or path.suffix.lower() not in allowed:
             raise RenderError(f"{clip.get('name', 'Clip')}: この形式または登録元はMP4出力へ未接続です")
+        has_audio = False
         if kind in {"video", "audio"}:
             info = _media_info(ffprobe, path)
             if info["duration"] + 0.02 < clip.get("source_start", 0) + clip["duration"]:
                 raise RenderError(f"{clip.get('name', 'Clip')}: 配置時間が元素材より長いため出力できません")
-            if kind == "video" and info["audio"]:
-                raise RenderError(f"{clip.get('name', 'Clip')}: 動画内音声はこのMP4プリセットへ未接続です。欠落を避けるため出力を停止します")
+            has_audio = info["audio"]
+            if kind == "audio" and not has_audio:
+                raise RenderError(f"{clip.get('name', 'Clip')}: 音声トラックが見つかりません")
         resolved.append({"clip": dict(clip), "kind": kind, "path": path,
+                         "has_audio": has_audio,
                          "asset_id": clip["asset_id"], "bytes": path.stat().st_size,
                          "registered_sha256": entry.get("sha256")})
     resolved.sort(key=lambda item: (item["clip"].get("lane", 1), item["clip"]["start"], item["clip"]["id"]))
@@ -371,7 +374,7 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
             graph.append(f"[{base}][{label}]overlay=0:0:eof_action=pass:shortest=0:"
                          f"enable='gte(t,{_num(cstart)})*lt(t,{_num(cend)})'[{next_base}]")
             base = next_base
-        else:
+        if item["kind"] in {"audio", "video"} and item.get("has_audio"):
             label = f"audio{order}"
             delay = round(cstart * 1000)
             audio.append(f"[{idx}:a]atrim=start={_num(source_start)}:duration={_num(length)},asetpts=PTS-STARTPTS,"

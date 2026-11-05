@@ -21,7 +21,7 @@
   resolution.disabled = false;
   resolution.value = '720p';
   fpsSelect.title = '保存済み作品のFPSで書き出します';
-  settings.insertAdjacentHTML('beforeend', '<p id="v69status" role="status" class="baiTiny">作品の書き出し条件を確認中…</p><p class="baiTiny">画像・動画・独立音声は10分以内。保存済み3Dシーンと適用済み動作を含む作品は720p・300フレーム以内の実描画に対応します。3Dの保存カメラがあれば同じ視点を使い、未保存なら自動配置します。字幕・動画内音声などの未接続内容は出力へ反映されません。保存済みの未対応クリップは欠落を避けるため拒否します。</p>');
+  settings.insertAdjacentHTML('beforeend', '<p id="v69status" role="status" class="baiTiny">作品の書き出し条件を確認中…</p><p class="baiTiny">画像・動画（内包音声を含む）・独立音声は10分以内。保存済み3Dシーンと適用済み動作を含む作品は720p・300フレーム以内の実描画に対応します。3Dの保存カメラがあれば同じ視点を使い、未保存なら自動配置します。字幕などの未接続内容は出力へ反映されません。保存済みの未対応クリップは欠落を避けるため拒否します。</p>');
   const result = document.createElement('div');
   result.id = 'v69result';
   result.hidden = true;
