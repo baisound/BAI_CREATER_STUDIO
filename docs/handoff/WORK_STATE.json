@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T13:54:33+09:00",
+  "updated_at": "2026-11-05T13:59:24+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "baa71d8",
+  "head_at_update": "729c06b",
   "current": {
-    "task": "順4 LIP-001のSRT・読み・下書き・採用を両MCPへ接続",
-    "status": "done",
-    "step": "既存APIと画面操作を照合して安全なツール契約を定める",
+    "task": "順4 LIP-001実歌声SRTと実楽曲VMDの互換性を隔離検証",
+    "status": "in_progress",
+    "step": "空のモデル名を持つ実VMDの非破壊読取とSRT境界を点検する",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T13:59:24+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "729c06b",
+      "text": "順4 LIP-001実歌声SRTと実楽曲VMDの互換性を隔離検証: 空のモデル名を持つ実VMDの非破壊読取とSRT境界を点検する"
+    },
     {
       "at": "2026-11-05T13:54:33+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "7827460",
       "text": "WP-L8a §8手順4：§4.3〜4.5 ③の読込（instance-units-v189.mjs の placeInstanceObject、実行部で units を渡し・違えば読み直し、選択欄の「（旧の大きさ）」注釈、floorProbe）と§6.2（N1〜N7、test_v05_multi_model_v58.cjs に2件）。成功"
-    },
-    {
-      "at": "2026-11-04T15:31:43+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "680188e",
-      "text": "WP-L8a §8手順3：§4.2 取込（M3・M4の手順に units:legacy、UNIT_SEMANTICS_DIFFERはM3でcharacterが無い・nullのときだけ・新しい文言、_run_stepで印を渡す、逆変換で印が違えばUNITS_CHANGEDで旧の値のまま）。§6.1の既存試験の直しと§5の往復試験3件を追加。取込・場面インスタンスの試験309件成功"
     }
   ]
 }
