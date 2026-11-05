@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T04:16:04+09:00",
+  "updated_at": "2026-11-06T04:53:00+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-av-sync-long-20261106",
-  "head_at_update": "36aa124",
+  "branch": "codex/v05-mixed-audio-fps-20261106",
+  "head_at_update": "b901eb6",
   "current": {
-    "task": "Issue #39/#81 順3の長尺全区間音画同期",
+    "task": "Issue #39/#81 実素材由来の音声重なりとFPS検証",
     "status": "done",
-    "step": "全区間に映像フラッシュと音声パルスを置き230秒の完成MP4から時刻差を測る",
-    "design_doc": "docs/v05/AV_SYNC_LONG_20261106_JA.md"
+    "step": "実動画と実WAVから隔離試験入力を作り44.1/48kHzの混合・24/29.97/60fps・非0開始を完成MP4で確認",
+    "design_doc": "docs/v05/MIXED_AUDIO_FPS_20261106_JA.md"
   },
   "next_steps": [
-    "順3の実動画内音声と独立音声の重なり・他FPS/サンプルレート・動く3Dの時計を検証する",
-    "順3の長尺保存カメラ・実ステージ、上限容量・停止復旧・Linux/実MCPを確認する"
+    "PR241を開発ブランチへ統合し、動く3Dと音声の時計・実ステージと長尺保存カメラを検証する"
   ],
   "unverified": [
-    "実素材の音声重なり、他FPS/サンプルレート、動く3D、長尺保存カメラ、36000F/10分/2GiB境界、Linux/実MCP・サーバー強制終了時の回収は未確認。CAM019設計は別ブランチに保存済みで実装未着手"
+    "動く3Dの時計、実ステージ長尺保存カメラ、元からの実動画内音声、長尺音声混合、上限容量・Linux/実MCP・強制終了回収は未確認"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,18 +28,25 @@
   ],
   "history": [
     {
-      "at": "2026-11-06T04:16:04+09:00",
+      "at": "2026-11-06T04:53:00+09:00",
       "by": "codex",
       "event": "done",
-      "head": "36aa124",
-      "text": "PR239をレビュー修正後にcodex/nextへ統合(61414b0)、ローカル開発作業コピーも早送り。続く230秒13800Fの合成AV試験は1380地点で差0F、原本保持。実素材全体の同期保証ではない"
+      "head": "b901eb6",
+      "text": "PR240をレビューしてcodex/nextへ統合(7f23009)。PR241は検証記録を両方保持して競合解消し、PCM全長が出力より1F超短くない検査を追加。24/29.97/60fpsを再実行1成功、原本保持"
     },
     {
-      "at": "2026-11-06T04:11:17+09:00",
+      "at": "2026-11-06T04:24:27+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ddcd0fd",
+      "text": "実動画(音声なし)と実WAV由来の隔離派生入力で44.1kHz内包音声＋48kHz独立WAVを混合。24/29.97/60fps・元位置切出し・非0開始の15地点でPCM差0サンプル。Node1成功(内部3条件)、原本保持。製品修正不要"
+    },
+    {
+      "at": "2026-11-06T04:19:23+09:00",
       "by": "codex",
       "event": "start",
       "head": "61414b0",
-      "text": "Issue #39/#81 順3の長尺全区間音画同期: 全区間に映像フラッシュと音声パルスを置き230秒の完成MP4から時刻差を測る"
+      "text": "Issue #39/#81 実素材由来の音声重なりとFPS検証: 実動画と実WAVから隔離試験入力を作り44.1/48kHzの混合・24/29.97/60fps・非0開始を完成MP4で確認"
     },
     {
       "at": "2026-11-06T04:09:25+09:00",
@@ -230,13 +236,6 @@
       "event": "done",
       "head": "a6dc996",
       "text": "Ubuntu WSLで実歌声SRT/同曲VMDの対象Python39件、継続stdio標準MCP1件、実PMX/SRT/VMD隔離HTTP1件が成功。原本SRT/VMDと共有dataの前後hash一致。Linuxブラウザー/MP4は未実施。"
-    },
-    {
-      "at": "2026-11-05T22:15:51+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "d908ca2",
-      "text": "順4 LIP-001のLinux側Python回帰を確認: WSL Ubuntuで実曲SRT/VMD読取と口形合成の対象pytestを実行し、Windows側の原本hashを保持"
     }
   ]
 }
