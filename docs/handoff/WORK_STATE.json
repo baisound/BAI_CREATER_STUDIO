@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T01:23:10+09:00",
+  "updated_at": "2026-11-06T01:32:19+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "ffe6621",
+  "head_at_update": "4c60b3d",
   "current": {
-    "task": "Issue #234 Python配置整理の基点更新",
-    "status": "done",
-    "step": "codex/nextのPR #236統合後差分を取り込み、競合と試験を確認する",
+    "task": "Issue #234 Python配置整理のNode全件ゲート",
+    "status": "in_progress",
+    "step": "基点更新後のNode全件を再実行し、残る失敗の原因を特定する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T01:32:19+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4c60b3d",
+      "text": "Issue #234 Python配置整理のNode全件ゲート: 基点更新後のNode全件を再実行し、残る失敗の原因を特定する"
+    },
     {
       "at": "2026-11-06T01:23:10+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "62ca232",
       "text": "LIP-001合成候補の標準MCP・WebMCPを既存保存APIへ接続。採用revision取得、dry-run、別名VMD取得が画面と同じSHA-256/バイト。隔離Chrome 1件と既存出力MCP回帰1件成功"
-    },
-    {
-      "at": "2026-11-05T13:20:11+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "a288c22",
-      "text": "順4 LIP-001口形合成候補の標準MCP・WebMCP接続: 既存の合成候補APIとMCP契約を照合し、同一APIへ最小のツールを追加"
     }
   ]
 }
