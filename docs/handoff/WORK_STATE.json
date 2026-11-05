@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T04:09:25+09:00",
+  "updated_at": "2026-11-06T04:19:23+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-scene-stream-20261106",
-  "head_at_update": "4b65dc2",
+  "branch": "codex/v05-mixed-audio-fps-20261106",
+  "head_at_update": "61414b0",
   "current": {
-    "task": "PR #239レビューと停止時のChrome回収修正",
-    "status": "done",
-    "step": "タイムアウト時に描画プロセス配下を終了し、実プロセス試験と720F回帰後にcodex/nextへ統合",
-    "design_doc": "docs/v05/SCENE_STREAM_CAPTURE_20261106_JA.md"
+    "task": "Issue #39/#81 実素材由来の音声重なりとFPS検証",
+    "status": "in_progress",
+    "step": "実動画と実WAVから隔離試験入力を作り44.1/48kHzの混合・24/29.97/60fps・非0開始を完成MP4で確認",
+    "design_doc": "docs/v05/MIXED_AUDIO_FPS_20261106_JA.md"
   },
   "next_steps": [
     "PR239をcodex/nextへ統合し、順3の長尺全区間音画同期を検証する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T04:19:23+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "61414b0",
+      "text": "Issue #39/#81 実素材由来の音声重なりとFPS検証: 実動画と実WAVから隔離試験入力を作り44.1/48kHzの混合・24/29.97/60fps・非0開始を完成MP4で確認"
+    },
     {
       "at": "2026-11-06T04:09:25+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "9230c0c",
       "text": "Chrome 156.0.8078.80の通常ヘッドレス環境でdocument.modelContext/registerToolがundefinedと実測。WebMCP隔離試験はAPI注入による契約確認で、ネイティブ呼出し合格とは区別して記録。"
-    },
-    {
-      "at": "2026-11-05T22:12:05+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "58e66e4",
-      "text": "順4 LIP-001 WebMCPネイティブ呼出し環境を確認: インストール済みChromeのdocument.modelContext公開状況を確認して検証可能範囲を記録"
     }
   ]
 }
