@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T01:49:44+09:00",
+  "updated_at": "2026-11-06T01:53:24+09:00",
   "updated_by": "codex",
   "branch": "codex/python-layout-20261105",
-  "head_at_update": "8e3a551",
+  "head_at_update": "6ac687d",
   "current": {
     "task": "Issue #234 Python配置整理のUbuntu全件ゲート",
-    "status": "in_progress",
+    "status": "done",
     "step": "基点更新後のWSL Python全件を再実行し、接続リセットの再現性と原本保護を確認する",
     "design_doc": "docs/roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md"
   },
   "next_steps": [
-    "PR #235は8811番占有・共通ペイン配置・画面待機の不安定さを残し、下書きのままレビューとUbuntu全件の安定完走を進める",
-    "順1〜3の同一作品ID縦断試験とIssue #63 WP-L8aの巨大ステージ構図を続ける"
+    "Issue #234の現行設計・引継ぎ文書でPython移動前の参照を点検し、必要な移行案内を更新する",
+    "PR #235はNode全件5失敗の原因と既存基準との差を維持し、下書きのままレビューする"
   ],
   "unverified": [
-    "Node全件の無失敗完走、Ubuntu全件の安定完走、実GPU・外部Blender・全CLI実入力は未確認",
+    "Node全件の無失敗完走、実GPU・外部Blender・全CLI実入力は未確認",
     "Issue #63 WP-L8aのL4不合格・L5人物見えない、動作GLBの適用先未指定1件が残る"
   ],
   "blockers": [],
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T01:53:24+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6ac687d",
+      "text": "基点更新後のUbuntu WSL Python全件が965成功・22スキップ・失敗0で完走。隔離データと原本ハッシュ検査を含む"
+    },
     {
       "at": "2026-11-06T01:49:44+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "start",
       "head": "cbfc2c0",
       "text": "順4 LIP-001のSRT・読み・下書き・採用を両MCPへ接続: 既存APIと画面操作を照合して安全なツール契約を定める"
-    },
-    {
-      "at": "2026-11-05T13:44:01+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a0f517a",
-      "text": "LIP-001実PMX隔離試験を修正・完了。作品60fpsのF60で採用口形あり/Undo後の1F MP4に2366画素差。合成VMD242キーと実PMXプレビュー値一致、原本ハッシュ保持。"
     }
   ]
 }
