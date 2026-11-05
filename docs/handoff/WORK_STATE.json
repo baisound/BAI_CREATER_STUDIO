@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T10:32:18+09:00",
-  "updated_by": "claude-code",
-  "branch": "claude/v05-next",
-  "head_at_update": "35b34c1",
+  "updated_at": "2026-11-05T11:46:20+09:00",
+  "updated_by": "codex",
+  "branch": "codex/next",
+  "head_at_update": "3013135",
   "current": {
-    "task": "Codexへの引継ぎ（2026-11-05）",
-    "status": "done",
-    "step": "引継ぎ文書の作成",
-    "design_doc": "docs/handoff/CODEX_HANDOFF_20261105_JA.md"
+    "task": "順3：動画内音声を作品時刻でMP4へ多重化する",
+    "status": "in_progress",
+    "step": "既存出力の音声経路と受け入れ条件を照合",
+    "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
     "Codex は D:\\BAI\\BAI_CREATER_STUDIO\\_codex_work（ブランチ codex/next）で作業する。まず docs/handoff/CODEX_HANDOFF_20261105_JA.md の §0 と次にやることを読む",
@@ -31,6 +31,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T11:46:20+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3013135",
+      "text": "順3：動画内音声を作品時刻でMP4へ多重化する: 既存出力の音声経路と受け入れ条件を照合"
+    },
     {
       "at": "2026-11-05T10:32:18+09:00",
       "by": "claude-code",
@@ -233,13 +240,6 @@
       "event": "done",
       "head": "933bee4",
       "text": "WP-L3 レビュー反映(started の印ほか)、試験51件"
-    },
-    {
-      "at": "2026-11-04T01:24:38+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "af4b03e",
-      "text": "WP-L3 collect・apply・undo_journal・revert と clear_fps、試験45件"
     }
   ]
 }
