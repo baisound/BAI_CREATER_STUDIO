@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Dependency-free MCP STDIO bridge to Mixamo local HTTP API (MCP 2024-11-05)."""
-import json, sys, os, urllib.request, urllib.error, urllib.parse
+import base64, binascii, json, sys, os, urllib.request, urllib.error, urllib.parse
 from pathlib import Path
 
 BASE=Path(__file__).resolve().parent
@@ -8,13 +8,29 @@ HOST=os.environ.get('MIXAMO_VIEWER_URL','http://127.0.0.1:8765').rstrip('/')
 if not (HOST.startswith('http://127.0.0.1:') or HOST.startswith('http://localhost:')):
     raise SystemExit('Only loopback endpoints are accepted')
 
-def api(path, payload=None):
-    body=None if payload is None else json.dumps(payload,ensure_ascii=False).encode()
-    req=urllib.request.Request(HOST+path,data=body,headers={'Content-Type':'application/json'} if body is not None else {},method='POST' if body is not None else 'GET')
+def api(path, payload=None, raw=None):
+    if raw is not None and payload is not None:raise ValueError('Choose JSON or raw body')
+    body=(raw if raw is not None else None if payload is None
+          else json.dumps(payload,ensure_ascii=False).encode())
+    headers=({'Content-Type':'application/octet-stream'} if raw is not None else
+             {'Content-Type':'application/json'} if body is not None else {})
+    req=urllib.request.Request(HOST+path,data=body,headers=headers,
+                               method='POST' if body is not None else 'GET')
     try:
-        with urllib.request.urlopen(req,timeout=12) as res:return json.loads(res.read())
+        with urllib.request.urlopen(req,timeout=30 if raw is not None else 12) as res:return json.loads(res.read())
     except urllib.error.HTTPError as exc:raise ValueError(f'HTTP {exc.code}: {exc.read(600).decode(errors="replace")}')
     except urllib.error.URLError as exc:raise ConnectionError('Mixamo viewer is not running. Start 起動.bat / start.sh first: '+str(exc.reason))
+
+def upload_srt(a):
+    encoded=a['content_base64']
+    if not isinstance(encoded,str) or not 4<=len(encoded)<=((8*1024*1024+2)//3)*4:
+        raise ValueError('SRT base64 must encode 1 byte to 8 MiB')
+    try:data=base64.b64decode(encoded,validate=True)
+    except (binascii.Error,ValueError) as exc:raise ValueError('Invalid SRT base64') from exc
+    if not 0<len(data)<=8*1024*1024 or base64.b64encode(data).decode('ascii')!=encoded:
+        raise ValueError('SRT base64 must be canonical and 1 byte to 8 MiB')
+    query=urllib.parse.urlencode({key:a[key] for key in ('project_id','revision','name','encoding')})
+    return api('/api/studio/v05/srt/import?'+query,raw=data)
 
 def catalog():
     p=BASE/'MOTION_CATALOG_50.json'
@@ -87,6 +103,15 @@ def run(name,a):
     if name=='bai_studio_playhead_set':return api('/api/studio/v05/playhead',a)
     if name=='bai_studio_timeline_view':return api('/api/studio/v05/timeline/view?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_arrangement_get':return api('/api/studio/v05/arrangement?id='+urllib.parse.quote(a['project_id']))
+    if name=='bai_studio_srt_sources_get':return api('/api/studio/v05/srt/sources?project_id='+urllib.parse.quote(a['project_id'],safe=''))
+    if name=='bai_studio_srt_import':return upload_srt(a)
+    if name=='bai_studio_lip_readings_get':return api('/api/studio/v05/lip/readings?project_id='+urllib.parse.quote(a['project_id'],safe=''))
+    if name=='bai_studio_lip_reading_set':return api('/api/studio/v05/lip/readings',a)
+    if name=='bai_studio_lip_candidate_propose':return api('/api/studio/v05/lip/candidates?'+urllib.parse.urlencode({key:a[key] for key in ('project_id','source_id','srt_index')}))
+    if name=='bai_studio_lip_drafts_get':return api('/api/studio/v05/lip/drafts?project_id='+urllib.parse.quote(a['project_id'],safe=''))
+    if name=='bai_studio_lip_draft_save':return api('/api/studio/v05/lip/drafts',a)
+    if name=='bai_studio_lip_vmd_candidate_create':return api('/api/studio/v05/lip/vmd-candidate',a)
+    if name=='bai_studio_lip_adoption_mutate':return api('/api/studio/v05/lip/adoptions',a)
     if name=='bai_studio_lip_adoptions_get':return api('/api/studio/v05/lip/adoptions?project_id='+urllib.parse.quote(a['project_id'],safe='')+'&instance_id='+urllib.parse.quote(a['instance_id'],safe=''))
     if name=='bai_studio_lip_composite_candidate_create':return api('/api/studio/v05/lip/composite-candidate',a)
     if name=='bai_studio_render_capabilities':return api('/api/studio/v05/render/capabilities')
@@ -241,6 +266,15 @@ TOOLS=[
 ('bai_studio_playhead_set','Set saved edit cursor, revision guarded; no engine seek.',S({'project_id':STR,'seconds':{'type':'number'},'revision':{'type':'integer'}},['project_id','seconds','revision'])),
 ('bai_studio_timeline_view','Read deterministic track-grouped per-project timeline projection; read-only.',S({'project_id':STR},['project_id'])),
 ('bai_studio_arrangement_get','Read v0.5 per-project clip arrangement; does not change legacy engine.',S({'project_id':STR},['project_id'])),
+('bai_studio_srt_sources_get','Read saved SRT sources, hashes, cue times, and revision for one project.',S({'project_id':STR},['project_id'])),
+('bai_studio_srt_import','Import 1 byte to 8 MiB of SRT bytes encoded as canonical base64. No local path access; uses the same revision-guarded upload as the UI.',S({'project_id':STR,'revision':INT,'name':STR,'encoding':{'type':'string','enum':['utf-8','utf-8-bom','cp932']},'content_base64':STR},['project_id','revision','name','encoding','content_base64'])),
+('bai_studio_lip_readings_get','Read saved SRT pronunciation decisions and revision.',S({'project_id':STR},['project_id'])),
+('bai_studio_lip_reading_set','Save one reading decision or explicit silence with the current revision and source hash.',S({'project_id':STR,'revision':INT,'source_id':STR,'source_hash':STR,'srt_index':INT,'reading_state':{'type':'string','enum':['unresolved','proposed','confirmed']},'reading_kana':{'type':['string','null']},'explicit_silence':{'type':'boolean'}},['project_id','revision','source_id','source_hash','srt_index','reading_state','reading_kana','explicit_silence'])),
+('bai_studio_lip_candidate_propose','Calculate unadopted SRT mouth segments for one saved reading.',S({'project_id':STR,'source_id':STR,'srt_index':INT},['project_id','source_id','srt_index'])),
+('bai_studio_lip_drafts_get','Read saved lip segment drafts and revision.',S({'project_id':STR},['project_id'])),
+('bai_studio_lip_draft_save','Save explicitly edited mouth segments; source, reading, FPS, and revision must still match.',S({'project_id':STR,'revision':INT,'source_id':STR,'source_hash':STR,'srt_index':INT,'pronunciation_version':INT,'project_fps':{'type':'number'},'segments':{'type':'array','items':S({'startFrame':INT,'endFrame':INT,'mouthShape':{'type':'string','enum':['A','I','U','E','O','Closed','Rest']},'weight':{'type':'number'}},['startFrame','endFrame','mouthShape','weight'])}},['project_id','revision','source_id','source_hash','srt_index','pronunciation_version','project_fps','segments'])),
+('bai_studio_lip_vmd_candidate_create','Check (dry_run=true) or create a distinct morph-only VMD from saved SRT, readings, drafts, and PMX map. No automatic adoption.',S({'project_id':STR,'source_id':STR,'model_asset_id':STR,'source_revision':INT,'reading_revision':INT,'draft_revision':INT,'map_revision':INT,'dry_run':{'type':'boolean'}},['project_id','source_id','model_asset_id','source_revision','reading_revision','draft_revision','map_revision','dry_run'])),
+('bai_studio_lip_adoption_mutate','Explicitly adopt, remove, undo, or redo a VMD candidate for a scene instance with revision protection.',S({'project_id':STR,'revision':INT,'action':{'type':'string','enum':['adopt','remove','undo','redo']},'instance_id':STR,'candidate_id':STR},['project_id','revision','action'])),
 ('bai_studio_lip_adoptions_get','Read the adopted lip track and revision for one saved scene instance.',S({'project_id':STR,'instance_id':STR},['project_id','instance_id'])),
 ('bai_studio_lip_composite_candidate_create','Compare the saved VMD clip, adopted lip and manual face keys; dry_run checks without writing, otherwise creates a distinct review-only VMD. Download revalidates project inputs.',S({'project_id':STR,'instance_id':STR,'clip_id':STR,'adoption_revision':INT,'scene_revision':INT,'arrangement_revision':INT,'dry_run':{'type':'boolean'}},['project_id','instance_id','clip_id','adoption_revision','scene_revision','arrangement_revision','dry_run'])),
 ('bai_studio_render_capabilities','Read tested local MP4 encoder and 3D capture limits.',S()),

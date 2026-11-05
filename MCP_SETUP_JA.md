@@ -64,3 +64,7 @@ Windowsなら `command = "python"`、`args = ["C:\\...\\mcp_server.py"]` など�
 mcp_server.py に bai_studio_render_ で始まる完成MP4用ツールを追加した。標準MCPクライアントはMIXAMO_VIEWER_URLで接続先を指定できる（既定は127.0.0.1:8765、localhostのみ）。In/Outのrevision、配置のrevision、3Dを含める場合のscene_revisionを確かめてからジョブを開始する。ジョブIDで完了を確認し、成功後にfile_linkのURLからMP4を取得する。詳しい呼出し順と検証範囲は [v0.5の出力MCP記録](docs/v05/RENDER_MCP_20261105_JA.md)。
 
 LIP-001の元VMD合成候補は `bai_studio_lip_adoptions_get` で採用revisionを読み、既存の場面・動作計画ツールで取得したrevisionとともに `bai_studio_lip_composite_candidate_create` へ渡す。`dry_run` はファイルを作らない。結果の `downloadUrl` は取得時に再照合される。呼出し順と未検証範囲は [合成候補MCP記録](docs/v05/LIP001_COMPOSITE_MCP_20261105_JA.md)。
+
+## 追補（2026-11-05）：LIP-001のSRTから採用まで
+
+SRT原本のBase64バイト取込、読み、候補、下書き、別名モーフVMD作成、明示採用/解除/Undo/Redoを `bai_studio_` ツールでv0.5の保存APIへ接続した。任意のローカルパスは受け取らない。ツール名・revisionの呼出し順・試験と未検証は [LIP-001 MCP記録](docs/v05/LIP001_WORKFLOW_MCP_20261105_JA.md)。

@@ -5,6 +5,18 @@
  const schema=(properties={},required=[])=>({type:'object',properties,required,additionalProperties:false});
  const str={type:'string'}, integer={type:'integer'};
  const validIndex=n=>Number.isInteger(n)&&n>=1&&n<=rows.length;
+ function srtBytes(encoded){
+  const max=8*1024*1024;
+  if(typeof encoded!=='string'||encoded.length<4||encoded.length>Math.ceil(max/3)*4)
+   throw Error('SRT base64 must encode 1 byte to 8 MiB');
+  let binary;
+  try{binary=atob(encoded);}catch{throw Error('Invalid SRT base64');}
+  if(!binary.length||binary.length>max||btoa(binary)!==encoded)
+   throw Error('SRT base64 must be canonical and 1 byte to 8 MiB');
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+  return bytes;
+ }
  const toolSpecs=[];
  function def(name,description,inputSchema,handler,readOnly=false){toolSpecs.push({name,description,inputSchema,handler,readOnly});}
  def('bai_studio_project_activation_preview','Preview project changes and obtain expected revision.',schema({id:str},['id']),async a=>await request('/api/studio/v05/project/activation-preview?id='+encodeURIComponent(a.id)),true);
@@ -35,6 +47,18 @@
  def('bai_studio_playhead_set','Set saved edit cursor (no engine seek).',schema({project_id:str,seconds:{type:'number'},revision:{type:'integer'}},['project_id','seconds','revision']),async a=>await request('/api/studio/v05/playhead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}));
  def('bai_studio_timeline_view','Read-only project timeline grouped by track.',schema({project_id:str},['project_id']),async a=>await request('/api/studio/v05/timeline/view?id='+encodeURIComponent(a.project_id)),true);
  def('bai_studio_arrangement_get','Read saved project clip arrangement.',schema({project_id:str},['project_id']),async a=>await request('/api/studio/v05/arrangement?id='+encodeURIComponent(a.project_id)),true);
+ def('bai_studio_srt_sources_get','Read saved SRT sources, hashes, cue times, and revision.',schema({project_id:str},['project_id']),async a=>await request('/api/studio/v05/srt/sources?project_id='+encodeURIComponent(a.project_id)),true);
+ def('bai_studio_srt_import','Import SRT bytes as canonical base64, with revision check and no local path access.',schema({project_id:str,revision:integer,name:str,encoding:{type:'string',enum:['utf-8','utf-8-bom','cp932']},content_base64:str},['project_id','revision','name','encoding','content_base64']),async a=>{
+  const query=new URLSearchParams({project_id:a.project_id,revision:String(a.revision),name:a.name,encoding:a.encoding});
+  return await request('/api/studio/v05/srt/import?'+query,{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:srtBytes(a.content_base64)});
+ });
+ def('bai_studio_lip_readings_get','Read saved reading decisions and revision.',schema({project_id:str},['project_id']),async a=>await request('/api/studio/v05/lip/readings?project_id='+encodeURIComponent(a.project_id)),true);
+ def('bai_studio_lip_reading_set','Save one reading or explicit silence with the current source hash and revision.',schema({project_id:str,revision:integer,source_id:str,source_hash:str,srt_index:integer,reading_state:{type:'string',enum:['unresolved','proposed','confirmed']},reading_kana:{type:['string','null']},explicit_silence:{type:'boolean'}},['project_id','revision','source_id','source_hash','srt_index','reading_state','reading_kana','explicit_silence']),async a=>await request('/api/studio/v05/lip/readings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}));
+ def('bai_studio_lip_candidate_propose','Calculate unadopted mouth segments for a saved SRT reading.',schema({project_id:str,source_id:str,srt_index:integer},['project_id','source_id','srt_index']),async a=>await request('/api/studio/v05/lip/candidates?'+new URLSearchParams({project_id:a.project_id,source_id:a.source_id,srt_index:String(a.srt_index)})),true);
+ def('bai_studio_lip_drafts_get','Read saved lip drafts and revision.',schema({project_id:str},['project_id']),async a=>await request('/api/studio/v05/lip/drafts?project_id='+encodeURIComponent(a.project_id)),true);
+ def('bai_studio_lip_draft_save','Save edited lip segments with source, reading, FPS, and revision checks.',schema({project_id:str,revision:integer,source_id:str,source_hash:str,srt_index:integer,pronunciation_version:integer,project_fps:{type:'number'},segments:{type:'array',items:schema({startFrame:integer,endFrame:integer,mouthShape:{type:'string',enum:['A','I','U','E','O','Closed','Rest']},weight:{type:'number'}},['startFrame','endFrame','mouthShape','weight'])}},['project_id','revision','source_id','source_hash','srt_index','pronunciation_version','project_fps','segments']),async a=>await request('/api/studio/v05/lip/drafts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}));
+ def('bai_studio_lip_vmd_candidate_create','Check or create a distinct morph-only VMD; never adopts it automatically.',schema({project_id:str,source_id:str,model_asset_id:str,source_revision:integer,reading_revision:integer,draft_revision:integer,map_revision:integer,dry_run:{type:'boolean'}},['project_id','source_id','model_asset_id','source_revision','reading_revision','draft_revision','map_revision','dry_run']),async a=>await request('/api/studio/v05/lip/vmd-candidate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}));
+ def('bai_studio_lip_adoption_mutate','Explicitly adopt, remove, undo, or redo a candidate for a scene model.',schema({project_id:str,revision:integer,action:{type:'string',enum:['adopt','remove','undo','redo']},instance_id:str,candidate_id:str},['project_id','revision','action']),async a=>await request('/api/studio/v05/lip/adoptions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}));
  def('bai_studio_lip_adoptions_get','Read adopted lip tracks and revision for one scene instance.',schema({project_id:str,instance_id:str},['project_id','instance_id']),async a=>await request('/api/studio/v05/lip/adoptions?project_id='+encodeURIComponent(a.project_id)+'&instance_id='+encodeURIComponent(a.instance_id)),true);
  def('bai_studio_lip_composite_candidate_create','Compare saved VMD, adopted lip and manual keys; dry_run writes nothing, otherwise creates a review-only VMD whose download revalidates inputs.',schema({project_id:str,instance_id:str,clip_id:str,adoption_revision:integer,scene_revision:integer,arrangement_revision:integer,dry_run:{type:'boolean'}},['project_id','instance_id','clip_id','adoption_revision','scene_revision','arrangement_revision','dry_run']),async a=>await request('/api/studio/v05/lip/composite-candidate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}));
  def('bai_studio_render_capabilities','Read tested local MP4 encoder and 3D capture limits.',schema(),async()=>await request('/api/studio/v05/render/capabilities'),true);
