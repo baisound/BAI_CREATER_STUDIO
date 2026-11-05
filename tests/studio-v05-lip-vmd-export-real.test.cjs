@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const crypto=require('node:crypto');
+const {spawnSync}=require('node:child_process');
 const harness=require('./helpers/studio-harness.cjs');
 
 const root=process.env.BAI_REAL_MMD_DATA;
@@ -12,6 +13,23 @@ const modelPath=root&&path.join(root,'mmd','A',modelName);
 const available=Boolean(modelPath&&fs.existsSync(modelPath));
 const sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 async function json(response,status=200){const raw=await response.text();assert.equal(response.status,status,raw);return JSON.parse(raw);}
+async function waitJob(base,id){
+  const deadline=Date.now()+180000;
+  let job;
+  do{
+    await new Promise(resolve=>setTimeout(resolve,500));
+    job=await json(await fetch(`${base}/api/studio/v05/render/jobs?id=${id}`));
+  }while(['queued','running'].includes(job.status)&&Date.now()<deadline);
+  assert.equal(job.status,'succeeded',job.error);
+  return job;
+}
+function mp4Pixels(mp4){
+  const result=spawnSync('ffmpeg',['-hide_banner','-loglevel','error','-i','pipe:0',
+    '-frames:v','1','-pix_fmt','rgb24','-f','rawvideo','pipe:1'],
+  {input:mp4,maxBuffer:4*1024*1024});
+  assert.equal(result.status,0,result.stderr.toString());
+  return result.stdout;
+}
 
 test('v0.5 SRT UI adopts lip VMD over original motion while keeping manual face keys',
   {skip:!available&&'BAI_REAL_MMD_DATA に実PMXがありません'},async()=>{
@@ -126,6 +144,20 @@ test('v0.5 SRT UI adopts lip VMD over original motion while keeping manual face 
     assert.equal(adopted.tracks[0].status,'ready');
     const detail=await json(await fetch(`${server.base}/api/studio/v05/lip/adoptions?project_id=${projectId}&instance_id=${instanceId}`));
     assert.equal(detail.tracks[0].cueTracks.length,1);
+    const compositeScene=await json(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${projectId}`));
+    const compositeArrangement=await json(await fetch(`${server.base}/api/studio/v05/arrangement?id=${projectId}`));
+    const composed=await json(await fetch(`${server.base}/api/studio/v05/lip/composite-candidate`,{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        project_id:projectId,instance_id:instanceId,clip_id:placed.clip.id,
+        adoption_revision:detail.revision,scene_revision:compositeScene.revision,
+        arrangement_revision:compositeArrangement.revision,dry_run:false})}));
+    assert.equal(composed.readback.status,'passed_full_key_readback');
+    assert.ok(composed.comparison.worst.difference<1e-6);
+    const composedBytes=Buffer.from(await(await fetch(server.base+composed.downloadUrl)).arrayBuffer());
+    assert.equal(sha(composedBytes),composed.sha256);
+    const composedMotion=new MMDParser.Parser().parseVmd(composedBytes.buffer.slice(
+      composedBytes.byteOffset,composedBytes.byteOffset+composedBytes.byteLength),false);
+    const compositeMouth=new Map(composedMotion.morphs.map(row=>[`${row.morphName}:${row.frameNum}`,row.weight]));
     await page.reload();
     await page.locator('#v06project').selectOption(projectId);
     await page.locator('#nav [data-workspace="edit"]').click();
@@ -147,7 +179,27 @@ test('v0.5 SRT UI adopts lip VMD over original motion while keeping manual face 
     assert.ok(Math.abs(at60.morphs['あ'])<.01&&Math.abs(at60.morphs['い']-.35)<.01,
       `F60 A/I=${at60.morphs['あ']}/${at60.morphs['い']}`);
     assert.ok(Math.abs(at90.morphs['あ']-.2)<.01,`F90 original A=${at90.morphs['あ']}`);
+    for(const [name,frame,value] of [['あ',0,at0.morphs['あ']],['あ',30,at30.morphs['あ']],
+      ['い',60,at60.morphs['い']],['あ',90,at90.morphs['あ']]])
+      assert.ok(Math.abs(compositeMouth.get(`${name}:${frame}`)-value)<.01,
+        `合成VMDと実PMX表示が一致しません: ${name} F${frame}`);
     assert.notEqual(sha(at30.pixels),sha(at60.pixels),'実PMXの口形切替が描画に現れません');
+    const range=await json(await fetch(`${server.base}/api/studio/v05/timeline/range`,{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        project_id:projectId,revision:0,arrangement_revision:compositeArrangement.revision,
+        in_frame:60,out_frame:60})}));
+    async function renderFace(sceneRevision){
+      const started=await json(await fetch(`${server.base}/api/studio/v05/render/jobs`,{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          project_id:projectId,arrangement_revision:compositeArrangement.revision,
+          range_revision:range.revision,scene_revision:sceneRevision,resolution:'720p'})}),202);
+      const job=await waitJob(server.base,started.id);
+      const bytes=Buffer.from(await(await fetch(`${server.base}/api/studio/v05/render/file?id=${started.id}`)).arrayBuffer());
+      return {job,pixels:mp4Pixels(bytes)};
+    }
+    const adoptedMovie=await renderFace(compositeScene.revision);
+    assert.equal(adoptedMovie.job.probe.frames,1);
+    assert.equal(adoptedMovie.pixels.length,1280*720*3);
     let sceneState=await json(await fetch(`${server.base}/api/studio/v05/scene/instances?id=${projectId}`));
     const faceKey={instance_id:instanceId,morph_name:'あ',time:1,value:0,track:'lip'};
     sceneState=await json(await fetch(`${server.base}/api/studio/v05/scene/instances`,{method:'POST',
@@ -165,6 +217,13 @@ test('v0.5 SRT UI adopts lip VMD over original motion while keeping manual face 
     await page.locator('#v199-undo').click();assert.equal((await response).status(),200);
     await page.waitForFunction(()=>document.querySelector('#v199-adoption-status')?.textContent.includes('採用済みの口形候補はありません'));
     assert.ok(Math.abs((await read(30)).morphs['あ']-.2)<.01,'Undoで元VMDの値へ戻る');
+    const plainMovie=await renderFace(sceneState.revision);
+    let changedPixels=0;
+    assert.equal(adoptedMovie.pixels.length,plainMovie.pixels.length);
+    for(let i=0;i<plainMovie.pixels.length;i+=3)
+      if(Math.max(...[0,1,2].map(j=>Math.abs(plainMovie.pixels[i+j]-adoptedMovie.pixels[i+j])))>5)
+        changedPixels++;
+    assert.ok(changedPixels>100,`採用口形が完成MP4の画素に現れません (${changedPixels})`);
     response=page.waitForResponse(r=>r.url().endsWith('/lip/adoptions')&&r.request().method()==='POST');
     await page.locator('#v199-redo').click();assert.equal((await response).status(),200);
     await page.waitForFunction(()=>document.querySelector('#v199-adoption-status')?.textContent.includes('採用中'));
@@ -192,6 +251,8 @@ test('v0.5 SRT UI adopts lip VMD over original motion while keeping manual face 
     assert.equal(sha(originalModel),originalHash);
     harness.assertNoErrors(page);
     console.log(JSON.stringify({modelHash:originalHash,vmdHash:made.sha256,originalMotionHash,
+      compositeHash:composed.sha256,compositeMorphKeys:composed.readback.touchedKeys,
+      adoptedMp4ChangedPixels:changedPixels,
       morphKeys:made.morphKeys,frames:[0,30,60,90],values:[at0.morphs['あ'],at30.morphs['あ'],
         at60.morphs['い'],at90.morphs['あ']]}));
   }finally{await page?.close();await browser?.close();await server.stop();
