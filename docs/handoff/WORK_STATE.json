@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T14:05:18+09:00",
+  "updated_at": "2026-11-05T14:06:33+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "450057c",
+  "head_at_update": "0cdb751",
   "current": {
-    "task": "順4 LIP-001実歌声SRTと実楽曲VMDの互換性を隔離検証",
-    "status": "done",
-    "step": "空のモデル名を持つ実VMDの非破壊読取とSRT境界を点検する",
+    "task": "順4 LIP-001実歌声SRT・実曲VMDの隔離作品経路を検証",
+    "status": "in_progress",
+    "step": "実SRT取込と未確定読み拒否、実VMD動作割当をAPIで確認",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T14:06:33+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0cdb751",
+      "text": "順4 LIP-001実歌声SRT・実曲VMDの隔離作品経路を検証: 実SRT取込と未確定読み拒否、実VMD動作割当をAPIで確認"
+    },
     {
       "at": "2026-11-05T14:05:18+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "9dcf613",
       "text": "WP-L8a §8手順6・7：説明書（取り込んだキャラクター・ステージの大きさ）、台帳・設計書、実データ確認。台本に§6.4のL1〜L5と--l5/--relabelを足した。所有者の実データ（実GPU）で L1 合格（SCR-06と③の差0）、L2 合格、L3 合格（足と床の差0.132m）、L4 不合格（③の自動の構図のカメラが(105,70,234)でS01の外殻の外）、L5 不合格（S1が見えない、開発側の目視）。ケースR合格（差4.4e-16）。設計§6.4の8により完了にせず、§10の質問を所有者に出す"
-    },
-    {
-      "at": "2026-11-04T15:38:44+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "566fe7d",
-      "text": "WP-L8a §8手順5：§6.3 を BAI_REQUIRE_3D=1・BAI_REQUIRE_REAL=1 で実行し 2/2 合格・skip 0（S・G・K・P・F・A の全対が差0、床5.25、対照は差14.25・1.09375で感度あり、ケースR 実PMX は差4.4e-16）。§6.5：legacy-import-ui/-3d・composite-scene-preview・scene-mp4・real-stage・p2-normalize-parity の17件中16件成功・skip 0、失敗1件（p2-normalize-parity）は②の画面が起動途中で止まる既知の不安定さで、単独再実行2/2成功。saved-composition（実GPU）は IoU 0.886・重心0.005 で順3の記録と同じ"
     }
   ]
 }
