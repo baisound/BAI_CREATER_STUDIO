@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:09:19+09:00",
+  "updated_at": "2026-11-05T12:15:27+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "4748ac1",
+  "head_at_update": "e6330fe",
   "current": {
     "task": "順3：全区間の音画同期を1F以内で測定・修正",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存のFFmpeg時刻グラフと長尺試験入力を設計",
     "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
   },
   "next_steps": [
-    "順3の次の残件：全区間で音と画の差を1フレーム以内にする計測と修正"
+    "順3の次の残件：同名完成物の版管理と明示置換時の旧版退避"
   ],
   "unverified": [
-    "実PMX/VMDの600F、密な場面の256MiB制限、実GPU、Linux、WebMCP/標準MCPは未検証"
+    "実曲・実動画と独立音声の長尺、VFR、実GPU、Linux、WebMCP/標準MCPは未検証"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:15:27+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "e6330fe",
+      "text": "合成600Fの動画内音声+3D完成MP4を復号し、F0からF590の60地点で音画差1F以内を確認"
+    },
     {
       "at": "2026-11-05T12:09:19+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "55c8662",
       "text": "WP-L7b 旧タイムライン編集(timeline_editor)の開始時刻の取込: studio_v05_legacy_import.py の plan/collect に T1〜T4 を足す"
-    },
-    {
-      "at": "2026-11-04T01:44:46+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "549cb41",
-      "text": "WP-L7a 曲とダンス(SCR-10)の取込を実装（plan S1〜S6・collect・clip手順、試験58件）"
     }
   ]
 }
