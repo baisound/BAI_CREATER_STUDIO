@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T12:53:10+09:00",
+  "updated_at": "2026-11-05T12:56:49+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "655d4e2",
+  "head_at_update": "e0847b9",
   "current": {
-    "task": "順3：v0.5完成MP4出力をWebMCP・標準MCPから操作",
-    "status": "done",
-    "step": "既存の保存範囲・版名・ジョブAPIへ両MCPを接続",
-    "design_doc": "docs/roadmap/FEATURE_DETAIL_JA.md"
+    "task": "順4：開始0秒以外・整数でないFPSの口形合成候補",
+    "status": "in_progress",
+    "step": "作品時刻から元VMD時刻への写像と全フレーム比較器の拡張",
+    "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
     "順4（#187）の残件：開始0秒以外のクリップと整数でないFPSの口形合成を確認する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T12:56:49+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e0847b9",
+      "text": "順4：開始0秒以外・整数でないFPSの口形合成候補: 作品時刻から元VMD時刻への写像と全フレーム比較器の拡張"
+    },
     {
       "at": "2026-11-05T12:53:10+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "92f6afe",
       "text": "WP-L8a の詳細設計を書いた（実装なし）。案(a)：取込で置くM3・M4の場面インスタンスにだけ印 units:legacy を付け、③は印のときだけ旧と同じ式（単位の換算だけ）で置く。しきい値 ε=0.00001×(1+D) m"
-    },
-    {
-      "at": "2026-11-04T03:20:44+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "9c15d43",
-      "text": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）: ①②③の正規化の調査と詳細設計の執筆"
     }
   ]
 }
