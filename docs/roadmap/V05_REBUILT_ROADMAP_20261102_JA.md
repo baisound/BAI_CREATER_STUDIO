@@ -20,6 +20,8 @@
 
 表の「確認」はリンク先に記された素材・時間・ブラウザ・出力に限定する。機能台帳の広いIDを完成としない。特に旧[#96](https://github.com/baisound/BAI_CREATER_STUDIO/issues/96)と[#106](https://github.com/baisound/BAI_CREATER_STUDIO/issues/106)が閉じていても、PMX顔や骨編集の全受け入れ条件が終わった意味ではない。
 
+2026-11-06、順2の限定修正（#39、`AUDIO-001`）：書き出し用の保存済みOutを作品プレビューの終端に流用していたため、クリップ終端より前に再生が止まった。プレビューはクリップの最終Fまで、書き出しは保存In/Outのまま扱うよう分離した。隔離Chromeの4件と実データの前後ハッシュを確認。[原因・試験](../v05/PREVIEW_FULL_TIMELINE_20261106_JA.md)。実楽曲・実PMXの長尺同期とIssue #39全体は未検証。
+
 ## 次の実施順と各ゲート
 
 1. **最短縦断の再現試験を固定する（順1〜3、[#37](https://github.com/baisound/BAI_CREATER_STUDIO/issues/37)/[#63](https://github.com/baisound/BAI_CREATER_STUDIO/issues/63)/[#69](https://github.com/baisound/BAI_CREATER_STUDIO/issues/69)）。** 既存登録PMX＋VMD＋WAVと、新しく登録した画像を一つの隔離作品に置く。実ID、原本hash、作品FPS、配置F、モデル割当、In/Outを保存・再読込する。開始・中間・終了の3点で3D/画像/音を同じ時計で観測し、短い3D入りMP4を別名出力してフレーム数・画素・PCM・原本不変を確認する。既存試験の寄せ集めで済ませず、最初から最後まで同一作品IDの一つの試験で通す。ここで不足が出た既存要件だけを修正する。

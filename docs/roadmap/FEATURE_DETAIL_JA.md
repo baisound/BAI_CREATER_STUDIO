@@ -899,6 +899,8 @@ Issues #63/#69（2026-11-04）：旧Studioの保存状態をv0.5の作品IDへ�
 
 2026-10-22の直接指定でダンス素材はGLBに加えてVMD/FBXを選べる。VMDはPMXに適用し、FBXは対応する人体骨へプレビュー中だけ写す。BVHは[Issue #55](https://github.com/baisound/BAI_CREATER_STUDIO/issues/55)に延期。[Issue #39](https://github.com/baisound/BAI_CREATER_STUDIO/issues/39)・[追加形式の検証](AUDIO_DANCE_SYNC_20261021_JA.md)。
 
+**2026-11-06 作品プレビューの終端修正（Issue #39）:** 書き出し用In/Outとは独立して、保存済みクリップの最終Fまでシーク・再生する。6秒クリップと書き出しOut=F59の隔離ChromeでF180シーク・F190超の連続再生を確認し、出力側のOut保持を再読込した。[原因・試験](../v05/PREVIEW_FULL_TIMELINE_20261106_JA.md)。実曲・実PMXの長尺同期、Linux、実GPUは未確認で、`AUDIO-001` の確認状態は維持する。
+
 **目的・要求:** 歌音声を素材として非破壊で取り込み、実波形を表示し、開始フレームと原音声のサンプル頭出しを別々に調整する。映像・口形・VMDと同じ時刻で試聴し、保存・再起動後に位置と参照を復元する。音声欠損・デコード失敗は明示する。EQ・ミキサー・効果音編集はこのIDに含めない。
 
 **実装チェック:** 手動UI・共通API・WebMCP・標準MCPで同じ素材ID、開始フレーム、サンプルオフセット、revisionを扱う。原本音声を変更せず、Undo/Redo、権限・診断ログ、Windows/Linuxを検証する。
