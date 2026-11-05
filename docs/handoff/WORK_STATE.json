@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T13:16:49+09:00",
+  "updated_at": "2026-11-05T13:20:11+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "fd84351",
+  "head_at_update": "a288c22",
   "current": {
-    "task": "順4：開始0秒以外・整数でないFPSの口形合成候補",
-    "status": "done",
-    "step": "作品時刻から元VMD時刻への写像と全フレーム比較器の拡張",
+    "task": "順4 LIP-001口形合成候補の標準MCP・WebMCP接続",
+    "status": "in_progress",
+    "step": "既存の合成候補APIとMCP契約を照合し、同一APIへ最小のツールを追加",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T13:20:11+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "a288c22",
+      "text": "順4 LIP-001口形合成候補の標準MCP・WebMCP接続: 既存の合成候補APIとMCP契約を照合し、同一APIへ最小のツールを追加"
+    },
     {
       "at": "2026-11-05T13:16:49+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "f94f114",
       "text": "WP-L8a 詳細設計を3人の批評で改訂（採否は設計書 §11）。所有者の症状（S1がS01に隠れる）を完了条件 L2〜L5 に加え、実装前に S01 の元の外接箱を SCR-06 で測る §6.0 を足した。スキン付きの試験素材（ケースK）と実PMX（ケースR）、εにRₚ/sの項、UNIT_SEMANTICS_DIFFER は character が無いときだけ残す、古い版で開いたときの範囲、試験の穴（skip防止 BAI_REQUIRE_3D、測ってから判定、対照の手順など）を直した。実装なし"
-    },
-    {
-      "at": "2026-11-04T03:46:54+00:00",
-      "by": "claude-code",
-      "event": "start",
-      "head": "c149e02",
-      "text": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）: 3人の批評の採否を決め、詳細設計を改訂する"
     }
   ]
 }
