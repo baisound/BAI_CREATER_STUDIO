@@ -27,7 +27,8 @@ ACTIVE: set[str] = set()
 JOB_ID = re.compile(r"[0-9a-f]{32}\Z")
 MAX_SECONDS = 600  # bounded first MP4 preset; longer projects remain unconnected
 MAX_CLIPS = 80
-MAX_SCENE_FRAMES = 600  # bounded browser WebGL capture preset; frame cache remains 256 MiB
+MAX_SCENE_FRAMES = 36000  # 10 minutes at 60fps; bounded lossless intermediate
+MAX_SCENE_BYTES = 2 * 1024 * 1024 * 1024
 RESOLUTIONS = {"720p": (1280, 720), "1080p": (1920, 1080)}
 IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 VIDEO_EXT = {".mp4", ".webm", ".ogv"}
@@ -140,6 +141,27 @@ def _run(args: list[str], timeout: int = 30) -> subprocess.CompletedProcess:
                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), check=False)
 
 
+def _stop_capture(process: subprocess.Popen) -> None:
+    """Stop the private Node worker together with its Chromium descendants."""
+    if process.poll() is None:
+        if os.name == "nt":
+            # TerminateProcess/kill() skips Node's finally block on Windows.
+            subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                           stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL, timeout=15,
+                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        else:
+            # Playwright handles SIGTERM by closing its browser before exit.
+            process.terminate()
+        try:
+            process.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+    else:
+        process.wait()
+
+
 def _scene_capture_available() -> bool:
     browser_candidates = [os.environ.get("CHROMIUM_PATH"), os.environ.get("CHROMIUM"),
                           r"C:\Program Files\Google\Chrome\Application\chrome.exe",
@@ -163,11 +185,12 @@ def capabilities(ffmpeg: str | None = None, ffprobe: str | None = None,
         return {"available": False, "reason": "FFmpegまたはffprobeを読み込めません", "presets": []}
     with LOCK:
         if _CAP_KEY == key and _CAP_CACHE is not None:
-            return {**_CAP_CACHE, "scene_capture_available": _scene_capture_available()}
+            return {**_CAP_CACHE, "scene_capture_available": bool(_CAP_CACHE.get("scene_stream_available")) and _scene_capture_available()}
     try:
         encoders = _run([ffmpeg, "-hide_banner", "-encoders"], 15)
         if encoders.returncode or not re.search(r"\blibx264\b", encoders.stdout) or not re.search(r"\baac\b", encoders.stdout):
             return {"available": False, "reason": "H.264とAACのencoderを利用できません", "presets": []}
+        scene_stream_available = bool(re.search(r"\bffv1\b", encoders.stdout))
         if probe_root is not None: probe_root.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=probe_root) as folder:
             sample = Path(folder) / "encoder-test.mp4"
@@ -187,7 +210,9 @@ def capabilities(ffmpeg: str | None = None, ffprobe: str | None = None,
         return {"available": False, "reason": "FFmpegのencoderを確認できません", "presets": []}
     result = {"available": True, "reason": None, "presets": ["mp4_h264_aac"],
               "resolutions": sorted(RESOLUTIONS), "max_duration_seconds": MAX_SECONDS,
-              "scene_capture_available": _scene_capture_available(), "max_scene_frames": MAX_SCENE_FRAMES}
+              "scene_stream_available": scene_stream_available,
+              "scene_capture_available": scene_stream_available and _scene_capture_available(),
+              "max_scene_frames": MAX_SCENE_FRAMES, "max_scene_bytes": MAX_SCENE_BYTES}
     with LOCK:
         _CAP_KEY, _CAP_CACHE = key, result
     return dict(result)
@@ -403,7 +428,7 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
     graph.append(f"[{base}]trim=start={_num(start_seconds)}:end={_num(end_seconds)},"
                  f"setpts=PTS-STARTPTS,fps={_num(fps)}[{'vflat' if scene_input_index is not None else 'vout'}]")
     if scene_input_index is not None:
-        graph.append(f"[{scene_input_index}:v]format=rgba,setpts=PTS-STARTPTS[vscene]")
+        graph.append(f"[{scene_input_index}:v]format=rgba,settb=AVTB,setpts=N/({_num(fps)}*TB)[vscene]")
         graph.append("[vflat][vscene]overlay=0:0:shortest=1:format=auto[vout]")
     if len(audio_labels) > 1:
         audio.append("".join(f"[{label}]" for label in audio_labels) +
@@ -478,26 +503,75 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             config_path.write_text(json.dumps(config, ensure_ascii=False), encoding="utf-8")
             job["phase"] = "capturing_3d"
             _save(root, job)
-            capture = subprocess.run([node, str(script_path), str(config_path)], stdin=subprocess.DEVNULL,
-                                     capture_output=True, text=True, errors="replace",
-                                     timeout=max(180, min(1800, job["frame_count"] * 10)),
-                                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-            if capture.returncode:
-                raise RenderError("3D実描画に失敗: " + capture.stderr[-900:])
+            frames_dir.mkdir(parents=True, exist_ok=False)
+            scene_video = frames_dir / "scene.mkv"
+            # Both children belong to this worker. Kill and reap both on timeout,
+            # encoding error, or capture failure; never leave an orphan encoder.
+            capture_log = root / "jobs" / f"{job_id}.capture.log"
+            encode_log = root / "jobs" / f"{job_id}.scene-encode.log"
+            encoder = capture = None
+            try:
+                with capture_log.open("w", encoding="utf-8") as cerr, encode_log.open("w", encoding="utf-8") as eerr:
+                    encoder = subprocess.Popen([ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error",
+                        "-f", "image2pipe", "-framerate", _num(fps), "-c:v", "png", "-i", "pipe:0",
+                        "-an", "-c:v", "ffv1", "-level", "3", "-pix_fmt", "bgra", "-threads", "2",
+                        "-f", "matroska", "-n", str(scene_video)], stdin=subprocess.PIPE,
+                        stdout=subprocess.DEVNULL, stderr=eerr,
+                        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+
+                    capture = subprocess.Popen([node, str(script_path), str(config_path)],
+                        stdin=subprocess.DEVNULL, stdout=encoder.stdin, stderr=cerr,
+                        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+                    encoder.stdin.close()
+                    deadline = time.monotonic() + max(180, min(3600, job["frame_count"] * 2))
+                    while capture.poll() is None:
+                        if time.monotonic() > deadline:
+                            raise RenderError("3D実描画が制限時間を超えました")
+                        if scene_video.exists() and scene_video.stat().st_size > MAX_SCENE_BYTES:
+                            raise RenderError("3D可逆動画の作業領域が2GiBを超えました")
+                        if encoder.poll() is not None:
+                            raise RenderError("3D可逆動画のエンコードが途中で停止しました")
+                        time.sleep(0.2)
+                    if capture.returncode:
+                        raise RenderError("3D実描画に失敗: " + capture_log.read_text(encoding="utf-8")[-900:])
+                    encoder.wait(timeout=60)
+                    if encoder.returncode:
+                        raise RenderError("3D可逆動画に失敗: " + encode_log.read_text(encoding="utf-8")[-900:])
+                    if scene_video.stat().st_size > MAX_SCENE_BYTES:
+                        raise RenderError("3D可逆動画の作業領域が2GiBを超えました")
+            finally:
+                try:
+                    if capture is not None:
+                        _stop_capture(capture)
+                finally:
+                    for child in (capture, encoder):
+                        if child is not None:
+                            if child.stdin is not None and not child.stdin.closed:
+                                child.stdin.close()
+                            if child.poll() is None:
+                                child.kill()
+                            child.wait()
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             if manifest.get("frame_count") != job["frame_count"] or len(manifest.get("frame_sha256", [])) != job["frame_count"]:
                 raise RenderError("3D連番が保存範囲と一致しません")
             if type(manifest.get("motion_edits_revision")) is not int or manifest["motion_edits_revision"] < 0:
                 raise RenderError("FK補正revisionを検証できません")
-            for i, digest in enumerate(manifest["frame_sha256"], 1):
-                path = frames_dir / f"frame_{i:06d}.png"
-                if not path.is_file() or _sha(path) != digest:
-                    raise RenderError("3D連番が描画後に変わりました")
+            probe = _run([ffprobe, "-v", "error", "-count_frames", "-select_streams", "v:0",
+                          "-show_entries", "stream=codec_name,pix_fmt,nb_read_frames,width,height", "-of", "json", str(scene_video)], 120)
+            if probe.returncode:
+                raise RenderError("3D可逆動画を再読込できません")
+            stream = json.loads(probe.stdout)["streams"][0]
+            if (stream.get("codec_name") != "ffv1" or stream.get("pix_fmt") != "bgra" or
+                    int(stream.get("nb_read_frames", 0)) != job["frame_count"] or
+                    stream.get("width") != width or stream.get("height") != height):
+                raise RenderError("3D可逆動画のフレーム数・透過形式が一致しません")
             job["scene_capture"] = {"frames": job["frame_count"], "renderer": manifest.get("renderer"),
                                     "motion_clips": manifest.get("motion_clips"),
                                     "motion_edits_revision": manifest["motion_edits_revision"],
                                     "pose_sample": manifest.get("pose_sample"),
-                                    "manifest_sha256": _sha(manifest_path)}
+                                    "manifest_sha256": _sha(manifest_path),
+                                    "intermediate_sha256": _sha(scene_video), "intermediate_bytes": scene_video.stat().st_size,
+                                    "storage": "ffv1_bgra_stream"}
             scene_index = 2 + len(clips)
             job["phase"] = "encoding"
             _save(root, job)
@@ -517,8 +591,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             else:
                 cmd += ["-i", str(item["path"])]
         if scene_index is not None:
-            cmd += ["-framerate", _num(fps), "-start_number", "1", "-i",
-                    str(frames_dir / "frame_%06d.png")]
+            cmd += ["-i", str(scene_video)]
         cmd += ["-/filter_complex", str(script), "-map", "[vout]", "-map", "[aout]",
                 "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
                 "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart",
@@ -531,6 +604,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             while process.poll() is None:
                 if time.monotonic() > deadline:
                     process.kill()
+                    process.wait()
                     raise RenderError("FFmpeg timed out")
                 try:
                     content = progress.read_text(encoding="utf-8", errors="replace")

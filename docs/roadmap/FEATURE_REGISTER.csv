@@ -92,7 +92,7 @@ CAM-015,CAM,6,カメラ連結・カット・時間同期,最終姿勢継承と�
 CAM-016,CAM,6,MMDカメラVMD書出し,FOV・位置・距離・回転・補間,計画・未検証,"DATA,MOTION"
 CAM-017,CAM,6,カメラ衝突回避・構図品質,ステージ/被写体との衝突,計画・未検証,"DATA,MOTION"
 CAM-018,CAM,6,自動ディレクターとショット選択,動作/主役交代に追従,計画・未検証,"DATA,MOTION"
-RENDER-001,RENDER,7,MMD無し動画書出し,v0.5の720p・最大600F・連番256MiB以内の3D固定時刻描画を部分接続。実素材長尺は未検証,計画・未検証,"CORE,DATA,CAM"
+RENDER-001,RENDER,7,MMD無し動画書出し,v0.5の720p・最大36000F/10分・可逆動画2GiB以内の逐次3D描画へ拡張。合成720Fと実PMX/VMD/WAV230秒13800Fを実GPUで確認。上限実測と全区間音画差は未検証,計画・未検証,"CORE,DATA,CAM"
 RENDER-002,RENDER,7,背景色/クロマキー/アルファ,グリーン・ブルー・任意色・透過。初期透過出力はRGBA PNG連番,計画・未検証,"CORE,DATA,CAM"
 RENDER-003,RENDER,7,解像度・縦横比・FPS,720p/1080p/4K/縦/24-120fps,計画・未検証,"CORE,DATA,CAM"
 RENDER-004,RENDER,7,動画コーデック設定,H264等を環境別の試験エンコード・再読込で選択可否判定,計画・未検証,"CORE,DATA,CAM"
