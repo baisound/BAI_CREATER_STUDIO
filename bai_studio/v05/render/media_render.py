@@ -226,22 +226,33 @@ def capabilities(ffmpeg: str | None = None, ffprobe: str | None = None,
         scene_stream_available = bool(re.search(r"\bffv1\b", encoders.stdout))
         if probe_root is not None: probe_root.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=probe_root) as folder:
-            sample = Path(folder) / "encoder-test.mp4"
-            attempt = _run([ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error",
-                            "-f", "lavfi", "-i", "color=c=black:s=16x16:r=30:d=0.1",
-                            "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo:d=0.1",
-                            "-frames:v", "2", "-t", "0.1", "-c:v", "libx264", "-c:a", "aac",
-                            "-f", "mp4", str(sample)], 30)
-            if attempt.returncode or not sample.is_file():
-                return {"available": False, "reason": "H.264/AACの短い試験エンコードに失敗しました", "presets": []}
-            probe = _run([ffprobe, "-v", "error", "-show_entries", "stream=codec_name",
-                          "-of", "json", str(sample)], 15)
-            codecs = {stream.get("codec_name") for stream in json.loads(probe.stdout).get("streams", [])}
-            if probe.returncode or not {"h264", "aac"}.issubset(codecs):
-                return {"available": False, "reason": "試験MP4の映像・音声を再読込できません", "presets": []}
+            script = Path(folder) / "encoder-test.filter"
+            script.write_text("[0:v]null[vout];[1:a]anull[aout]", encoding="utf-8")
+            filter_complex_option = None
+            # New builds can remove the legacy option; FFmpeg 6.x lacks the
+            # slash syntax. Probe actual file loading rather than version text.
+            for index, option in enumerate(("-/filter_complex", "-filter_complex_script")):
+                sample = Path(folder) / f"encoder-test-{index}.mp4"
+                attempt = _run([ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error",
+                                "-f", "lavfi", "-i", "color=c=black:s=16x16:r=30:d=0.1",
+                                "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo:d=0.1",
+                                option, str(script), "-map", "[vout]", "-map", "[aout]",
+                                "-frames:v", "2", "-t", "0.1", "-c:v", "libx264", "-c:a", "aac",
+                                "-f", "mp4", str(sample)], 30)
+                if attempt.returncode or not sample.is_file():
+                    continue
+                probe = _run([ffprobe, "-v", "error", "-show_entries", "stream=codec_name",
+                              "-of", "json", str(sample)], 15)
+                codecs = {stream.get("codec_name") for stream in json.loads(probe.stdout).get("streams", [])}
+                if not probe.returncode and {"h264", "aac"}.issubset(codecs):
+                    filter_complex_option = option
+                    break
+            if filter_complex_option is None:
+                return {"available": False, "reason": "フィルター定義の読込とH.264/AACの試験出力に失敗しました", "presets": []}
     except (OSError, ValueError, subprocess.TimeoutExpired):
         return {"available": False, "reason": "FFmpegのencoderを確認できません", "presets": []}
     result = {"available": True, "reason": None, "presets": ["mp4_h264_aac"],
+              "filter_complex_option": filter_complex_option,
               "resolutions": sorted(RESOLUTIONS), "max_duration_seconds": MAX_SECONDS,
               "scene_stream_available": scene_stream_available,
               "scene_capture_available": scene_stream_available and _scene_capture_available(),
@@ -458,8 +469,12 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
             audio.append(f"[{idx}:a]atrim=start={_num(source_start)}:duration={_num(length)},asetpts=PTS-STARTPTS,"
                          f"aresample=48000,aformat=channel_layouts=stereo,adelay={delay}|{delay}[{label}]")
             audio_labels.append(label)
-    graph.append(f"[{base}]trim=start={_num(start_seconds)}:end={_num(end_seconds)},"
-                 f"setpts=PTS-STARTPTS,fps={_num(fps)}[{'vflat' if scene_input_index is not None else 'vout'}]")
+    # Older overlay/fps pipelines end at the last frame's PTS, rather than its
+    # full display interval. A guard frame lets fps retain that final frame;
+    # the exact frame trim removes the guard before delivery.
+    graph.append(f"[{base}]tpad=stop_mode=clone:stop=1,fps={_num(fps)},"
+                 f"trim=start_frame={start_frame}:end_frame={end_exclusive},"
+                 f"setpts=PTS-STARTPTS[{'vflat' if scene_input_index is not None else 'vout'}]")
     if scene_input_index is not None:
         graph.append(f"[{scene_input_index}:v]format=rgba,settb=AVTB,setpts=N/({_num(fps)}*TB)[vscene]")
         graph.append("[vflat][vscene]overlay=0:0:shortest=1:format=auto[vout]")
@@ -492,7 +507,8 @@ def _verify(ffprobe: str, path: Path, frames: int, duration: float, width: int, 
     if video["codec_name"] != "h264" or audio["codec_name"] != "aac" or video["width"] != width or video["height"] != height:
         raise RenderError("完成MP4のcodecまたは解像度が要求と違います")
     if actual_frames != frames or abs(actual_duration - duration) > max(0.1, 2 / fps):
-        raise RenderError("完成MP4のフレーム数または長さが要求と違います")
+        raise RenderError(f"完成MP4のフレーム数または長さが要求と違います。"
+                          f"実際 {actual_frames}F/{_num(actual_duration)}秒、要求 {frames}F/{_num(duration)}秒")
     return {"video_codec": "h264", "audio_codec": "aac", "frames": actual_frames,
             "duration_seconds": actual_duration, "width": width, "height": height}
 
@@ -503,7 +519,8 @@ def _check_scene_capacity(size: int) -> None:
 
 
 def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
-            scene_inputs: list[dict] | None = None, server_port: int | None = None) -> None:
+            scene_inputs: list[dict] | None = None, server_port: int | None = None,
+            filter_complex_option: str = "-/filter_complex") -> None:
     job_id = job["id"]
     temp = root / "files" / f"{job_id}.part.mp4"
     final = root / "files" / f"{job_id}.mp4"
@@ -634,7 +651,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                 cmd += ["-i", str(item["path"])]
         if scene_index is not None:
             cmd += ["-i", str(scene_video)]
-        cmd += ["-/filter_complex", str(script), "-map", "[vout]", "-map", "[aout]",
+        cmd += [filter_complex_option, str(script), "-map", "[vout]", "-map", "[aout]",
                 "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
                 "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart",
                 "-frames:v", str(frames), "-t", _num(duration), "-f", "mp4", "-n", str(temp)]
@@ -755,6 +772,7 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
         _save(root, job)
         ACTIVE.add(job_id)
         thread = threading.Thread(target=_worker,
-                                  args=(root, job, clips, ffmpeg, ffprobe, scene_inputs, server_port), daemon=True)
+                                  args=(root, job, clips, ffmpeg, ffprobe, scene_inputs, server_port,
+                                        caps["filter_complex_option"]), daemon=True)
         thread.start()
     return _public(job)

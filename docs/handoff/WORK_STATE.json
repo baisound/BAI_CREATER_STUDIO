@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T05:53:11+09:00",
+  "updated_at": "2026-11-06T06:23:44+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-long-mixed-audio-20261106",
-  "head_at_update": "bf06bfb",
+  "head_at_update": "f08c04a",
   "current": {
     "task": "Issue #39/#81 順3の長尺混合音声",
-    "status": "in_progress",
+    "status": "done",
     "step": "実曲由来の動画内音声と独立音声を長尺で重ね、保存再読込・複数FPS・完成MP4の音声配置を検証",
     "design_doc": "docs/v05/LONG_MIXED_AUDIO_20261106_JA.md"
   },
   "next_steps": [
-    "今回の停止復旧PRをレビューして開発ブランチへ統合する。順3の元から音声を持つ実動画と長尺混合、Linux/実MCP等の残りを受入条件と照合する",
-    "順4の非0開始/非整数FPSとLIPの実MCP、順5の設計批評反映を承認済み順序で進める。時刻付きカメラ/CAM019は順6へ保持"
+    "今回の長尺混合/FFmpeg互換PRをレビューして開発ブランチへ統合する。順3の実MCP/ネイティブWebMCP、同名完成物の実制作/大容量、他codec/VFRの残りを受入条件と照合する",
+    "承認済み順序で順4の実PMX/歌声SRTを含む長尺とLIPのMCP、続いて順5の設計批評反映へ進む。時刻付きカメラ/CAM019は順6へ保持"
   ],
   "unverified": [
-    "全停止時点・Job Object所属前の瞬間・電源断/OSクラッシュ/ディスク不足・Linux強制終了後の子孫回収、実MCP、元から音声を持つ実動画の長尺混合、全モデルの物理/外観は未検証。順3全体の完成ではない"
+    "4K原本の直接登録/4K出力、他の実動画/codec/VFR、全フレームの意味的な音画同期、プレビュー音量/ミュート/ミキサー/端の聴感、Linux3D/実ブラウザー/強制終了回収、実MCP/ネイティブWebMCPは未検証。順3全体の完成ではない"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T06:23:44+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "f08c04a",
+      "text": "PR243をcodex/nextへ統合。実動画AACを保持した480pコピー＋別実曲の長尺をWindows3FPS/Ubuntu29.97で確認。派生入力と計940窓でPCM差0。FFmpeg6.1互換と合成末尾1F欠落を修正。Windows pytest25＋5subtests、Ubuntu23成功2skip、Windows Node6/Ubuntu2成功。4K原本hash保持"
+    },
     {
       "at": "2026-11-06T05:53:11+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "ededbf0",
       "text": "Issue #234: Python実装97件と試験57件を移動、起動と主要回帰を確認。Windows Python全件965成功、Ubuntuは接続リセット1件を単独再試験で解消"
-    },
-    {
-      "at": "2026-11-05T23:36:41+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "77d8f0f",
-      "text": "Issue #234 Pythonファイルの役割別パッケージ整理: 実装モジュールと直下テストを移動し、import・パス・起動を修正して回帰検証する"
     }
   ]
 }
