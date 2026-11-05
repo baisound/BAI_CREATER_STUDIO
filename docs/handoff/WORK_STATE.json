@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T02:40:00+09:00",
+  "updated_at": "2026-11-06T03:52:57+09:00",
   "updated_by": "codex",
-  "branch": "codex/next",
-  "head_at_update": "4c6ee39",
+  "branch": "codex/v05-scene-stream-20261106",
+  "head_at_update": "1ef546a",
   "current": {
-    "task": "PR #237統合後の開発ブランチ引継ぎ",
-    "status": "done",
-    "step": "codex/nextの作業位置を順3の実曲600F検証後へ更新し、残る長尺条件を引き継ぐ",
-    "design_doc": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
+    "task": "Issue #39/#81 順3の長尺3D出力",
+    "status": "in_progress",
+    "step": "PNG全量保存を透過可逆動画への逐次書込みへ変更し600F超を検証",
+    "design_doc": "docs/v05/SCENE_STREAM_CAPTURE_20261106_JA.md"
   },
   "next_steps": [
     "順3の実曲全体230秒・600F超3Dへ向け、分割描画と容量・停止時復旧の設計を実測付きで進める",
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T03:52:57+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1ef546a",
+      "text": "Issue #39/#81 順3の長尺3D出力: PNG全量保存を透過可逆動画への逐次書込みへ変更し600F超を検証"
+    },
     {
       "at": "2026-11-06T02:40:00+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "48887df",
       "text": "実歌声SRT54発話の仮読み確認表を作成。原本SRTの時刻・SHA-256と54行を照合し、全仮読みが製品のproposedかな入力規則を満たすことを確認。全行Owner未確認で作品は未変更。"
-    },
-    {
-      "at": "2026-11-05T22:01:25+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3dcc4b6",
-      "text": "順4 LIP-001実歌声SRT54発話の読み確認表を準備: 原本SRTを変えずに発話番号別の仮読みと曖昧語を整理し、Owner確認待ちを明示"
     }
   ]
 }
