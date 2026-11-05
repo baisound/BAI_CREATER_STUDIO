@@ -2,6 +2,28 @@
 
 所有者の依頼「切りの良いところでコーデックスへの引継ぎを作成してください」による。基準は main `87ba6b9`（PR #226 まで）。画面の呼び方は、①が `/` と `camera.html`、②が `/workspace/NN`、③が v0.5（`/studio/v05`）。いまの制作画面は③です。
 
+## 0. 作業フォルダ（最初に必ず読む）
+
+| 項目 | 値 |
+|---|---|
+| Codex が作業するフォルダ | `D:\BAI\BAI_CREATER_STUDIO\_codex_work` |
+| ブランチ | `codex/next`（2026-11-05 に origin/main `35b34c1` から作成） |
+| リポジトリ | `https://github.com/baisound/BAI_CREATER_STUDIO.git`（remote 名 `origin`） |
+| 依存（node_modules） | このフォルダで `npm ci` 済み（three・playwright を含む） |
+
+- `git fetch`・`git pull`・コミット・push は、**すべて `D:\BAI\BAI_CREATER_STUDIO\_codex_work` で**行う。最新の main を取り込むときは、このフォルダで次を実行する。
+  ```
+  git fetch origin
+  git merge --ff-only origin/main
+  ```
+  早送りできない（自分のコミットがある）ときは `git merge origin/main` で取り込み、force-push はしない。
+- 所有者のチェックアウト `D:\BAI\BAI_CREATER_STUDIO\BAI_Creator_Studio` では、**作業も pull もしない**。あれは所有者が使うフォルダで、古い版（`7935400`）のまま、未コミットの `data/` の変更がある。
+- このフォルダは、所有者のチェックアウトの `.git` を共有する worktree。ほかの worktree（`_claude_v05_work`・`_preview_new_ui`・`worktrees\*`）は別の作業者のものなので触らない。
+- **データ：** 所有者の素材は `D:\BAI\BAI_CREATER_STUDIO\BAI_Creator_Studio\data`。読み取り専用として扱う。
+  - 試験は `BAI_REAL_MMD_DATA` にこのパスを渡し、隔離サーバーへ複製して使う（§4）。
+  - 所有者のデータを `BAI_DATA_DIR` にしてサーバーを開くと、画面で保存したときに書き込まれる。所有者の許可なくそうしない。
+- **ポート：** `8765` では、所有者用のローカルサーバー（`_preview_new_ui` から起動）が動いている。Codex がサーバーを起動するときは別のポートを使う。
+
 最初に [AGENTS.md](../../AGENTS.md)、`python tools/work_state.py show`、[再構築ロードマップ](../roadmap/V05_REBUILT_ROADMAP_20261102_JA.md)（正本）、[共通試験手順](TESTING_GUIDE_JA.md)を読んでください。
 
 ## 1. いまの位置
