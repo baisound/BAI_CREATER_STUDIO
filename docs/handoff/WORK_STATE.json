@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T21:58:11+09:00",
+  "updated_at": "2026-11-05T22:01:25+09:00",
   "updated_by": "codex",
   "branch": "codex/next",
-  "head_at_update": "b2b91e7",
+  "head_at_update": "3dcc4b6",
   "current": {
-    "task": "順4 LIP-001実PMX・実曲VMDの3D表示と短い出力を検証",
-    "status": "done",
-    "step": "原本を隔離複製し、実VMDの再生時刻差・口モーフ値・短いMP4を照合",
+    "task": "順4 LIP-001実歌声SRT54発話の読み確認表を準備",
+    "status": "in_progress",
+    "step": "原本SRTを変えずに発話番号別の仮読みと曖昧語を整理し、Owner確認待ちを明示",
     "design_doc": "docs/specs/A1_LIP_IMPLEMENTATION_DESIGN_JA.md"
   },
   "next_steps": [
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-05T22:01:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3dcc4b6",
+      "text": "順4 LIP-001実歌声SRT54発話の読み確認表を準備: 原本SRTを変えずに発話番号別の仮読みと曖昧語を整理し、Owner確認待ちを明示"
+    },
     {
       "at": "2026-11-05T21:58:11+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "35b34c1",
       "text": "Codexの作業フォルダ D:\\BAI\\BAI_CREATER_STUDIO\\_codex_work（ブランチ codex/next、origin/main 35b34c1 から作成、npm ci 済み）を用意し、引継ぎ文書の冒頭に「作業フォルダ」節を追加"
-    },
-    {
-      "at": "2026-11-04T16:42:42+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "470ca8d",
-      "text": "引継ぎ文書を直した：次の作業はロードマップ順3・4の残り、順5の設計は独立批評を受けた草案（§8）として main に入れる"
     }
   ]
 }
