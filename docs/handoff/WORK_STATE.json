@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T00:32:07+09:00",
+  "updated_at": "2026-11-06T01:19:39+09:00",
   "updated_by": "codex",
-  "branch": "codex/preview-full-timeline-20261106",
-  "head_at_update": "efe1136",
+  "branch": "codex/next",
+  "head_at_update": "cee625e",
   "current": {
     "task": "Issue #39 書き出しOutでプレビューが途中停止する不具合",
     "status": "done",
@@ -11,11 +11,13 @@
     "design_doc": "docs/v05/PREVIEW_FULL_TIMELINE_20261106_JA.md"
   },
   "next_steps": [
-    "Issue #39の限定修正PRをcodex/nextへ作成し、実曲・実PMXの長尺プレビューは既存残件として続ける",
-    "Issue #234の下書きPR #235はNode/Ubuntu全件の残る環境失敗を追跡する"
+    "PR #235のPython配置整理はNode全件とUbuntu全件の残る失敗を再確認し、codex/next更新後の差分と統合可否を判定する",
+    "順1〜3の同一作品IDでの縦断実データ試験とIssue #63の構図残件を続ける"
   ],
   "unverified": [
-    "稼働中の作品を新コードで再生する確認、実楽曲・実PMX長尺、Linux/実GPU、Issue #39全体の音画1F以内は未確認"
+    "Issue #39の実楽曲・実PMX長尺、音画1F以内、Linux・実GPUは未確認",
+    "Issue #234のNode全件無失敗完走・Ubuntu全件安定完走・実GPU・外部Blender・全CLI実入力は未確認",
+    "Issue #63 WP-L8aは巨大ステージのL4不合格・L5人物見えない"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +30,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T01:19:39+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "cee625e",
+      "text": "PR #236をChrome4件成功・型検査成功・原本ハッシュ一致で再検証し、codex/nextへマージした（cee625e）"
+    },
     {
       "at": "2026-11-06T00:32:07+09:00",
       "by": "codex",
@@ -230,13 +239,6 @@
       "event": "done",
       "head": "057d980",
       "text": "縦長600×700の欄で保存カメラなしの実PMX＋S01 GLBのF0構図をMP4と照合（IoU 0.898、重心差0.0035、原本不変）"
-    },
-    {
-      "at": "2026-11-05T12:38:49+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4d89dae",
-      "text": "順3：16:9より縦長の欄でプレビューとMP4の構図を照合: 狭い画面の実素材隔離試験"
     }
   ]
 }
