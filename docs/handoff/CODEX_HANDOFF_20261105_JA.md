@@ -138,3 +138,12 @@ Ownerの直接指定により、検証済みPRは随時mainまで統合する。
 - 手元main・開発codex/nextと8765番を同期。利用者515ファイルと変更一覧は不変。v0.5 HTML/2スクリプトの実バイト一致、Chrome読込、Issue #187の画像表示/hashまで確認済み。
 - 通常納品先 `D:/BAI/BAI_CREATER_STUDIO/_Claude確認画像/2026-11-06-lip-tail-four-candidate/` の候補は `KYOKAI_TAIL51-54_CANDIDATE_b1dc33ace3d3.vmd`、長尺は `tail-four-candidate-real-vocal-29.97fps.mp4`。既存作品への自動割当はしていない。
 - 4発話の候補の最終採用、全54件の読み一括確定、全語の自然さ、全モデル/物理/Linux長尺GPUは別判定。順4全体や順5入口を完了にしない。[結果と再実行](../v05/LIP001_TAIL_FOUR_CANDIDATE_20261106_JA.md)、[同期数値](../../qa/lip-tail-four-main-sync-20261106.json)。
+
+## 2026-11-06 最新追補：順3の音声ミュートを試聴とMP4へ接続
+
+- Ownerの「承認済みロードマップの次の未完成項目を進める」指定により、#81/#39の保存ミュート未接続を修正した。実装 `a50c566`、PR #260をmain `93bb508`へ統合。音声・楽曲・動画内音声だけを対象とし、画像/3D/動作の表示制御や新ミキサーは追加していない。
+- UI保存は即時、外部API/両MCPは約2秒周期で試聴へ反映。映像と再生時計を維持し、ジョブは開始時設定を固定して完成物一覧へ表示する。処理中の設定変更は次の出力から。ミュート原本もhash等の検査へ通し、混音の入力数を保って別音源を増幅しない。
+- Windows：手動UI/公式SDK/Chrome156ネイティブWebMCPと実曲長尺のNode2成功、対象Python28成功＋5 subtests、既存回帰3成功。Ubuntu：SDK/FFmpeg Node2成功、Python28成功。3音源6本・実曲230.2秒/29.97fps6935Fのミュート/解除を確認。全ミュートPCM0、解除後46窓の時刻差最大0.25ms。元曲/索引とクリップを保持。先行UI待機/作品一覧不足・既知NO_BUFFER_SPACE失敗も記録済み。
+- 手元main/codex-nextへ同期し、処理中ジョブ0と管理PIDを確認後8765を最新mainで非表示再起動。変更スクリプト4件/HTMLのbyte一致とChrome新設定読込を確認。利用者515ファイルと変更一覧は不変。Issue #81の画面画像は実表示/hash確認済み。
+- [操作・試験・再実行・未検証](../v05/TRACK_AUDIO_MUTE_20261106_JA.md)、[同期数値](../../qa/track-audio-mute-main-sync-20261106.json)。確認動画/画像は `D:/BAI/BAI_CREATER_STUDIO/_Claude確認画像/2026-11-06-track-audio-mute/`、Linuxはそのlinux/。
+- 次は順3 #81の形式別/複数行/混音音量・保存等の未完受入れ条件を照合して進める。実スピーカー聴感、Linuxブラウザー、全codec/全作品、混音音量の全体一致/ミキサー/行全体Undoは未検証。順4の54件読み/自然さ/候補最終採用と、未判定の順5を保持し、この限定修正を段階全体の完成にしない。
