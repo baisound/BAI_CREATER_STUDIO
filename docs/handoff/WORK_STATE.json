@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T09:08:15+09:00",
+  "updated_at": "2026-11-06T09:12:26+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-video-formats-vfr-20261106",
-  "head_at_update": "b52ea95",
+  "head_at_update": "7b5c4e1",
   "current": {
-    "task": "Issue #37/#81 順3の動画形式とVFR",
-    "status": "done",
-    "step": "WebM/OGVと可変フレームレートの登録・保存元位置・ブラウザ再生・限定MP4を形式別に確認し不足を修正",
-    "design_doc": "docs/v05/VIDEO_FORMATS_VFR_20261106_JA.md"
+    "task": "Issue #33 検証済みPRのmain統合と手元同期",
+    "status": "in_progress",
+    "step": "PR246とPR233の最終確認、継続mainマージ方針の記録、統合試験、利用者mainと8765番の非破壊同期",
+    "design_doc": "docs/handoff/MAIN_SYNC_AFTER_MERGE_JA.md"
   },
   "next_steps": [
     "今回の形式/VFR修正PRを確認し開発ブランチへ統合する。順3の残る形式別・行操作等の受入れ条件を照合する",
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T09:12:26+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "7b5c4e1",
+      "text": "Issue #33 検証済みPRのmain統合と手元同期: PR246とPR233の最終確認、継続mainマージ方針の記録、統合試験、利用者mainと8765番の非破壊同期"
+    },
     {
       "at": "2026-11-06T09:08:15+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "4c60b3d",
       "text": "Issue #234 Python配置整理のNode全件ゲート: 基点更新後のNode全件を再実行し、残る失敗の原因を特定する"
-    },
-    {
-      "at": "2026-11-06T01:23:10+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ffe6621",
-      "text": "PR #236をcodex/nextへ統合後、#235へ新基点を取り込んだ。競合はWORK_STATEだけで解消。結合後Chrome4件・型検査・原本ハッシュ一致"
     }
   ]
 }
