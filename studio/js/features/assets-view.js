@@ -296,11 +296,27 @@ export const assetDetail = (ctx) => {
   boot(ctx);
   const root = h('div', { class: 'asset-detail', dataset: { feature: 'assetDetail' } });
   /** @type {{dispose: () => void}|null} */ let currentPreview = null;
+  let mediaSignature = '';
   ctx.onCleanup(() => currentPreview?.dispose());
   watch(ctx, () => {
-    currentPreview?.dispose(); currentPreview = null;
     const st = assets.get();
     const l = lib.get();
+    const selected = st.status === 'ready' && l.sel ? st.items.find((x) => x.id === l.sel) : null;
+    const media = selected?.source === 'library' && ['video', 'audio'].includes(selected.kind);
+    const signature = media ? JSON.stringify({ ...selected, thumbnailUrl: null, thumbnailKey: null }) : '';
+    if (media && currentPreview && signature === mediaSignature) {
+      // Background thumbnail updates must not rebuild a playing media element.
+      // A source/selection/status change still takes the normal disposal path.
+      const video = /** @type {HTMLVideoElement|null} */ (root.querySelector('[data-role="video-media"]'));
+      const waveform = /** @type {HTMLImageElement|null} */ (root.querySelector('[data-role="audio-waveform"]'));
+      if (selected.thumbnailUrl) {
+        if (video) video.poster = selected.thumbnailUrl;
+        if (waveform) waveform.src = selected.thumbnailUrl;
+      }
+      return;
+    }
+    mediaSignature = signature;
+    currentPreview?.dispose(); currentPreview = null;
     if (st.status !== 'ready') {
       root.replaceChildren(stateBox({ kind: st.status === 'error' ? 'error' : 'loading', title: st.status === 'error' ? '読み込めません' : '読込中…', message: st.error ? st.error.message : '', retry: st.status === 'error' ? () => { void loadAssets(); } : undefined }));
       return;

@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T12:06:12+09:00",
+  "updated_at": "2026-11-06T12:21:27+09:00",
   "updated_by": "codex",
   "branch": "codex/asset-media-readability-20261106",
-  "head_at_update": "04a2491",
+  "head_at_update": "31690d7",
   "current": {
     "task": "Issue #37/#81 動画素材詳細の再生可否と見本",
-    "status": "in_progress",
+    "status": "done",
     "step": "③と②の素材詳細で映像を復号できないOGVを理由表示し、見本を誤生成しない。切替時停止と再読込・対応動画/音声の回帰を実機確認する",
     "design_doc": "docs/v05/ASSET_MEDIA_READABILITY_20261106_JA.md"
   },
   "next_steps": [
-    "承認済み順3の形式・行操作とOGV素材詳細の残件を維持し、順4の実歌詞・採用口形・長尺とネイティブMCPへ続く。段階が終わるごとに工数見積もりを更新する"
+    "検証済み素材詳細PRをmainへ統合・手元と8765へ非破壊同期し、順3複数行と順4ネイティブLIP MCPへ続く"
   ],
   "unverified": [
-    "他ブラウザ/Linuxブラウザ/今回一覧のネイティブWebMCP/極端な大量履歴は未検証。既知証拠ゲート2失敗と開発依存監査3件を維持。工数は前提付きの粗い作業量でAI稼働時間や納期ではない"
+    "実動画全codec・他ブラウザー/Linux・③動画見本生成・MCP詳細は未検証。関連一括39件中1件はERR_NO_BUFFER_SPACE、単独4成功。既存の証拠ゲート2失敗と開発依存監査3件を維持。日単位の見積もりは変更なし"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T12:21:27+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "31690d7",
+      "text": "DATA-016/UX-004の③②素材詳細でOGV理由表示・空見本防止・切替停止・見本更新の再生維持を修正。Chrome対象1成功、関連39件38成功1ソケット不足、単独4成功。型・入力hash保持"
+    },
     {
       "at": "2026-11-06T12:06:12+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "dfdfee1",
       "text": "PR #236・#235をcodex/nextへ統合。完了済みworktree6件を保全付き削除し、8765番のv0.5配信をmainから復旧。main/data 503ファイルの前後ハッシュ一致"
-    },
-    {
-      "at": "2026-11-06T02:14:31+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "8cc3101",
-      "text": "PR #235統合後の引継ぎ更新: codex/nextの作業位置と8765番サーバー復旧・worktree整理を記録する"
     }
   ]
 }
