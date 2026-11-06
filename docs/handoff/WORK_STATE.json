@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T13:06:25+09:00",
+  "updated_at": "2026-11-06T13:09:08+09:00",
   "updated_by": "codex",
-  "branch": "codex/lip-real-long-20261106",
-  "head_at_update": "ea456d7",
+  "branch": "codex/lip-existing-mouth-long-20261106",
+  "head_at_update": "dc88958",
   "current": {
-    "task": "Issue #187/#81 実歌声と口形を含む長尺MP4",
-    "status": "done",
-    "step": "実歌声・実曲VMD/PMXを隔離複製し全区間の口形と音声配置を測定。既存口形の212秒終端と末尾4発話欠落を記録し、採用検証層の長尺保存/再読込/出力を確認する",
+    "task": "Issue #187 Owner選択の既存VMD口形と実歌声の長尺",
+    "status": "in_progress",
+    "step": "選択された既存口形を変えず、実歌声全区間と29.97fps/非0開始の保存・プレビュー・約231秒MP4を確認する。検証用SRT/採用層はこのケースに作らない",
     "design_doc": "docs/v05/LIP001_REAL_VOCAL_LONG_20261106_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T13:09:08+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "dc88958",
+      "text": "Issue #187 Owner選択の既存VMD口形と実歌声の長尺: 選択された既存口形を変えず、実歌声全区間と29.97fps/非0開始の保存・プレビュー・約231秒MP4を確認する。検証用SRT/採用層はこのケースに作らない"
+    },
     {
       "at": "2026-11-06T13:06:25+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "61414b0",
       "text": "Issue #39/#81 実素材由来の音声重なりとFPS検証: 実動画と実WAVから隔離試験入力を作り44.1/48kHzの混合・24/29.97/60fps・非0開始を完成MP4で確認"
-    },
-    {
-      "at": "2026-11-06T04:09:25+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4b65dc2",
-      "text": "PR239レビューでWindows描画PID配下のChrome回収を修正。実親子プロセスpytest1成功、720Fと途中編集失敗・旧MP4保持のNode1成功。CI設定によるチェックはPRに無し"
     }
   ]
 }
