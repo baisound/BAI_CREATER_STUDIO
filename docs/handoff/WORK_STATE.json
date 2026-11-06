@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T10:00:06+09:00",
+  "updated_at": "2026-11-06T12:06:12+09:00",
   "updated_by": "codex",
-  "branch": "codex/roadmap-media-detail-20261106",
-  "head_at_update": "2b25713",
+  "branch": "codex/asset-media-readability-20261106",
+  "head_at_update": "04a2491",
   "current": {
-    "task": "Issue #69 全体ロードマップ整理と#248完成動画の一覧ダウンロード",
-    "status": "done",
-    "step": "全体の現在地と残工数を記録し、完成物の直接ダウンロード・作品選択・古い履歴・出力準備と独立した一覧を実装検証する。OGV素材詳細は最新Owner依頼の後へ保持",
-    "design_doc": "docs/v05/RENDER_DOWNLOAD_LIST_20261106_JA.md"
+    "task": "Issue #37/#81 動画素材詳細の再生可否と見本",
+    "status": "in_progress",
+    "step": "③と②の素材詳細で映像を復号できないOGVを理由表示し、見本を誤生成しない。切替時停止と再読込・対応動画/音声の回帰を実機確認する",
+    "design_doc": "docs/v05/ASSET_MEDIA_READABILITY_20261106_JA.md"
   },
   "next_steps": [
     "承認済み順3の形式・行操作とOGV素材詳細の残件を維持し、順4の実歌詞・採用口形・長尺とネイティブMCPへ続く。段階が終わるごとに工数見積もりを更新する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T12:06:12+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "04a2491",
+      "text": "Issue #37/#81 動画素材詳細の再生可否と見本: ③と②の素材詳細で映像を復号できないOGVを理由表示し、見本を誤生成しない。切替時停止と再読込・対応動画/音声の回帰を実機確認する"
+    },
     {
       "at": "2026-11-06T10:00:06+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "8cc3101",
       "text": "PR #235統合後の引継ぎ更新: codex/nextの作業位置と8765番サーバー復旧・worktree整理を記録する"
-    },
-    {
-      "at": "2026-11-06T01:59:11+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "1c4bee1",
-      "text": "Issue #234で現行2設計書の移動前Python参照98箇所を新パスへ更新。実在・引用行の範囲・差分形式を確認"
     }
   ]
 }
