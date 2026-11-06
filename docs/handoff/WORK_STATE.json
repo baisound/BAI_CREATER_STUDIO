@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T09:26:23+09:00",
+  "updated_at": "2026-11-06T09:51:54+09:00",
   "updated_by": "codex",
-  "branch": "codex/main-sync-record-20261106",
-  "head_at_update": "b994cef",
+  "branch": "codex/roadmap-media-detail-20261106",
+  "head_at_update": "dccb86a",
   "current": {
-    "task": "Issue #33 検証済みPRのmain統合と手元同期",
+    "task": "Issue #69 全体ロードマップ整理と#248完成動画の一覧ダウンロード",
     "status": "done",
-    "step": "PR246とPR233の最終確認、継続mainマージ方針の記録、統合試験、利用者mainと8765番の非破壊同期",
-    "design_doc": "docs/handoff/MAIN_SYNC_AFTER_MERGE_JA.md"
+    "step": "全体の現在地と残工数を記録し、完成物の直接ダウンロード・作品選択・古い履歴・出力準備と独立した一覧を実装検証する。OGV素材詳細は最新Owner依頼の後へ保持",
+    "design_doc": "docs/v05/RENDER_DOWNLOAD_LIST_20261106_JA.md"
   },
   "next_steps": [
-    "承認済み順3の残る形式・行操作等の受入れ条件を照合し、順4の実歌声SRT/採用口形と長尺/LIPネイティブMCPへ続く。順5再判定、CAM019順6を維持"
+    "検証済みの全体整理/完成動画DLのPRをmainへ随時統合し、利用者mainと8765の同期を確認する",
+    "承認済み順3の形式・行操作とOGV素材詳細の残件を維持し、順4の実歌詞・採用口形・長尺とネイティブMCPへ続く"
   ],
   "unverified": [
-    "証拠ゲートの音楽配置タイムアウト1件は単独非再現、8811番占有1件は未実行。既存Node全件5失敗を保持。実素材VFR/長尺/全codec、採用口形長尺、全モデル物理、Linuxブラウザ等は未検証。同期時に利用者データを書き換える実画面操作はしていない",
-    "npm ci後の監査は開発依存3件（high1/moderate2）、omit=devは0件。依存の更新は未実施"
+    "実素材VFR/長尺/全codec、採用口形長尺、Linuxブラウザ/今回一覧のネイティブMCPは未検証。既知証拠ゲート2失敗と開発依存監査3件を維持。工数は測定済み時間やAI納期ではなく粗い計画見積もり"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +28,27 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T09:51:54+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "dccb86a",
+      "text": "全体の現在地と前提付き残工数を簡単な言葉で整理。#248完成物一覧・直接DL・作品切替・旧版・ページ・出力準備と独立した取得を接続。Chrome実DL4回hash一致、対象Node6成功1skip、Windows15成功/Ubuntu5成功、型成功"
+    },
+    {
+      "at": "2026-11-06T09:37:54+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9dc11fa",
+      "text": "Issue #69 全体ロードマップ整理と#248完成動画の一覧ダウンロード: 全体の現在地と残工数を記録し、完成物の直接ダウンロード・作品選択・古い履歴・出力準備と独立した一覧を実装検証する。OGV素材詳細は最新Owner依頼の後へ保持"
+    },
+    {
+      "at": "2026-11-06T09:34:36+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "b2416a7",
+      "text": "Issue #69 全体位置と残工数の整理、#37動画詳細の再生不可表示: 簡単な言葉で全体と優先7段階の到達点・残工数を記録し、OGV映像不可の素材詳細/見本の残件を実機修正・検証する"
+    },
     {
       "at": "2026-11-06T09:26:23+09:00",
       "by": "codex",
@@ -216,27 +237,6 @@
       "event": "start",
       "head": "871c619",
       "text": "Issue #234 Python移動後の現行文書参照: 旧作品取込とGLB→VMDの現行設計で移動前Python参照を対応表に従って更新する"
-    },
-    {
-      "at": "2026-11-06T01:53:24+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "6ac687d",
-      "text": "基点更新後のUbuntu WSL Python全件が965成功・22スキップ・失敗0で完走。隔離データと原本ハッシュ検査を含む"
-    },
-    {
-      "at": "2026-11-06T01:49:44+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "8e3a551",
-      "text": "Issue #234 Python配置整理のUbuntu全件ゲート: 基点更新後のWSL Python全件を再実行し、接続リセットの再現性と原本保護を確認する"
-    },
-    {
-      "at": "2026-11-06T01:44:02+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d412e67",
-      "text": "PR #235の基点更新後Node全件は505件中445成功・55スキップ・5失敗。3失敗項目は単独で成功、別の3D待機は単独でも失敗。原本ハッシュ一致"
     }
   ]
 }

@@ -10,6 +10,34 @@ import bai_studio.v05.render.media_render as render
 
 
 class RenderNamesSafetyTest(unittest.TestCase):
+    def test_completed_history_pages_keep_other_projects_and_missing_files_separate(self):
+        for number in range(25):
+            job_id = f"{number:032x}"
+            self.completed(job_id, b"verified fixture bytes")
+            job_path = self.root / "jobs" / f"{job_id}.json"
+            job = json.loads(job_path.read_text(encoding="utf-8"))
+            job["created_at"] = number
+            if number == 24:
+                job["project_id"] = "other-project"
+            elif number == 23:
+                job["status"] = "failed"
+            job_path.write_text(json.dumps(job), encoding="utf-8")
+        (self.root / "files" / f"{0:032x}.mp4").unlink()
+        before = {p.relative_to(self.root).as_posix(): p.read_bytes()
+                  for p in self.root.rglob("*") if p.is_file()}
+        first = render.list_jobs(self.root, self.project, completed_only=True)
+        second = render.list_jobs(self.root, self.project, completed_only=True, offset=20)
+        self.assertEqual((first["total"], len(first["jobs"]), first["has_more"]), (23, 20, True))
+        self.assertEqual((second["total"], len(second["jobs"]), second["has_more"]), (23, 3, False))
+        self.assertEqual(first["jobs"][0]["id"], f"{22:032x}")
+        self.assertFalse(second["jobs"][-1]["file_available"])
+        self.assertTrue(all(row["file_available"] for row in first["jobs"]))
+        self.assertEqual(before, {p.relative_to(self.root).as_posix(): p.read_bytes()
+                                 for p in self.root.rglob("*") if p.is_file()})
+        for values in [(0, 0), (101, 0), (True, 0), (20, -1)]:
+            with self.assertRaises(render.RenderError):
+                render.list_jobs(self.root, self.project, values[0], offset=values[1])
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

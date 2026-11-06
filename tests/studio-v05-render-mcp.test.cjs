@@ -129,6 +129,13 @@ test('standard MCP and WebMCP render the same saved project and retain both MP4 
     });
     await waitJob(server.base, replacement.id);
     const jobs = standard(server.base, names[4], { project_id: id }).jobs;
+    const pageArgs = { project_id: id, completed_only: true, limit: 1, offset: 1 };
+    const completedPage = standard(server.base, names[4], pageArgs);
+    assert.equal(completedPage.total, 2);
+    assert.equal(completedPage.jobs.length, 1);
+    assert.equal(completedPage.jobs[0].id, first.id);
+    assert.equal(completedPage.jobs[0].file_available, true);
+    assert.deepEqual(await web(page, names[4], pageArgs), completedPage);
     assert.equal(jobs.find(job => job.id === first.id).delivery_state, 'archived');
     assert.equal(jobs.find(job => job.id === replacement.id).delivery_state, 'current');
     const oldLink = standard(server.base, names[8], { job_id: first.id });

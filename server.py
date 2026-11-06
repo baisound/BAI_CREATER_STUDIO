@@ -603,7 +603,14 @@ class Handler(BaseHTTPRequestHandler):
                     from bai_studio.projects.catalog import load
                     if not any(p['id']==project_id for p in load(DATA/'studio_v05_catalog.json')['projects']):
                         raise RenderError('Unknown project ID',404)
-                    self.send(200,json.dumps(list_jobs(DATA/'studio_v05_media_renders',project_id),ensure_ascii=False).encode())
+                    page_limit=q.get('limit',['20'])[0]
+                    page_offset=q.get('offset',['0'])[0]
+                    completed=q.get('completed',['0'])[0]
+                    if (not re.fullmatch(r'[0-9]{1,7}',page_limit) or
+                            not re.fullmatch(r'[0-9]{1,7}',page_offset) or completed not in ('0','1')):
+                        raise RenderError('Invalid render history page',400)
+                    self.send(200,json.dumps(list_jobs(DATA/'studio_v05_media_renders',project_id,
+                        int(page_limit),offset=int(page_offset),completed_only=completed=='1'),ensure_ascii=False).encode())
             except RenderError as exc:self.bad(exc.status,str(exc))
             except (ValueError,KeyError,OSError) as exc:self.bad(422,'Cannot read render job')
             return

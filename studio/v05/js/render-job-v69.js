@@ -26,14 +26,38 @@
   const result = document.createElement('div');
   result.id = 'v69result';
   result.hidden = true;
-  result.innerHTML = '<strong>完成MP4</strong><div class="v69resultActions"><a id="v69download" download>MP4を保存</a><span id="v69resultInfo"></span></div>';
+  result.innerHTML = '<strong>選択中の完成動画</strong><div class="v69resultActions"><a id="v69download" class="v69download" download>動画をダウンロード</a><span id="v69resultInfo"></span></div>';
   page.querySelector('.baiPreview').after(result);
   const preview = page.querySelector('.baiPreview');
   const sample = preview.querySelector('img');
   const $ = id => document.getElementById(id);
   let context = null, requestSeq = 0, timer = 0, selectedJobId = null, nameProjectId = '';
+  let completedOffset = 0, historyProjectId = '', historySeq = 0;
+  const historyCard = queue.closest('.baiCard');
+  historyCard.id = 'v69historyCard';
+  historyCard.querySelector('h2').textContent = '書き出した動画をダウンロード';
+  const historyControls = document.createElement('div');
+  historyControls.className = 'v69historyControls';
+  historyControls.innerHTML = '<label for="v69historyProject">作品 <select id="v69historyProject"></select></label><button type="button" id="v69refreshHistory">一覧を更新</button><p class="baiTiny">完成した動画の「ダウンロード」からパソコンへ保存できます。旧版も選べます。</p>';
+  queue.before(historyControls);
   const nameInput = $('v69name'), nameMode = $('v69nameMode'), nameHint = $('v69nameHint');
   const activeProject = () => $('v06project')?.value || '';
+  const downloadName = job => {
+    const filename = job.download_name || `BAI-${job.project_id}-${job.id.slice(0, 8)}.mp4`;
+    return job.delivery_state === 'archived' ? filename.replace(/\.mp4$/i, `-旧版-${job.id.slice(0, 8)}.mp4`) : filename;
+  };
+  const sizeLabel = bytes => Number.isFinite(bytes) ? `${(bytes / 1024 / 1024).toFixed(2)} MB` : '容量不明';
+  const dateLabel = value => Number.isFinite(value) ? new Date(value * 1000).toLocaleString('ja-JP') : '日時不明';
+  function syncHistoryProject() {
+    const source = $('v06project');
+    $('v69historyProject').replaceChildren(...[...source.options].map(option => option.cloneNode(true)));
+    $('v69historyProject').value = source.value;
+  }
+  $('v69historyProject').addEventListener('change', () => {
+    $('v06project').value = $('v69historyProject').value;
+    $('v06project').dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  $('v69refreshHistory').addEventListener('click', () => { void jobs(activeProject()); });
   const status = text => { $('v69status').textContent = text; };
   const hint = value => { button.dataset.i18nOriginalTitle = value; button.title = value; };
   const get = async url => {
@@ -59,7 +83,7 @@
   nameInput.addEventListener('change', () => { void previewName(); });
   nameMode.addEventListener('change', () => { void previewName(); });
   function showVideo(job, manual = false) {
-    if (!job || job.status !== 'succeeded' || job.project_id !== activeProject()) return;
+    if (!job || job.status !== 'succeeded' || job.file_available === false || job.project_id !== activeProject()) return;
     const url = `/api/studio/v05/render/file?id=${encodeURIComponent(job.id)}`;
     sample.hidden = true;
     let video = preview.querySelector('#v69video');
@@ -75,9 +99,8 @@
     video.hidden = false;
     if (manual) selectedJobId = job.id;
     $('v69download').href = url;
-    const filename = job.download_name || `BAI-${job.project_id}-${job.id.slice(0, 8)}.mp4`;
-    $('v69download').download = job.delivery_state === 'archived'
-      ? filename.replace(/\.mp4$/i, `-旧版-${job.id.slice(0, 8)}.mp4`) : filename;
+    $('v69download').download = downloadName(job);
+    result.querySelector('strong').textContent = downloadName(job);
     $('v69resultInfo').textContent = `${job.probe?.width || '?'}×${job.probe?.height || '?'} / ${job.probe?.frames || '?'}F / ${job.bytes || 0} bytes`;
     result.hidden = false;
   }
@@ -88,27 +111,68 @@
     if (video) { video.pause(); video.removeAttribute('src'); video.load(); video.remove(); }
     result.hidden = true;
   }
-  function renderJobs(items) {
+  function renderJobs(items, completed) {
     queue.replaceChildren();
-    if (!items.length) {
+    const heading = document.createElement('h3');
+    heading.textContent = `完成した動画（${completed.total}件）`;
+    queue.append(heading);
+    const finished = document.createElement('div');
+    finished.id = 'v69completed';
+    queue.append(finished);
+    if (!completed.jobs.length) {
       const empty = document.createElement('span');
       empty.className = 'baiTiny';
-      empty.textContent = 'この作品のMP4書き出し履歴はありません。';
-      queue.append(empty);
-      return;
+      empty.textContent = 'この作品には完成した動画がありません。書き出しが終わるとここに表示されます。';
+      finished.append(empty);
     }
-    for (const job of items) {
+    const attempts = document.createElement('details');
+    attempts.id = 'v69attempts';
+    const attemptHeading = document.createElement('summary');
+    attemptHeading.textContent = '処理中・失敗した履歴（最新20件まで）';
+    attempts.append(attemptHeading);
+    const pending = items.filter(job => job.status !== 'succeeded');
+    attempts.open = pending.some(job => ['queued', 'running'].includes(job.status));
+    if (pending.length) queue.append(attempts);
+    const states = { succeeded: '完成', queued: '順番待ち', running: '書き出し中', failed: '失敗', interrupted: '中断' };
+    for (const job of [...completed.jobs, ...pending]) {
       const row = document.createElement('div');
       row.className = 'v69job';
+      row.dataset.jobId = job.id;
+      row.dataset.status = job.status;
       const label = document.createElement('span');
-      label.textContent = `${job.download_name || job.id.slice(0, 8)}${job.delivery_state === 'archived' ? '（旧版）' : ''} / ${job.status} / ${job.progress_percent || 0}% / F${job.range_start_frame}〜${job.range_end_exclusive - 1}`;
+      label.className = 'v69filename';
+      label.textContent = `${job.download_name || job.id.slice(0, 8)}${job.delivery_state === 'archived' ? '（旧版）' : ''}`;
       row.append(label);
+      const info = document.createElement('span');
+      info.className = 'baiTiny';
+      info.textContent = job.status === 'succeeded'
+        ? `${dateLabel(job.completed_at || job.created_at)} / ${sizeLabel(job.bytes)} / ${job.probe?.width || '?'}×${job.probe?.height || '?'}`
+        : `${states[job.status] || job.status} / ${job.progress_percent || 0}%`;
+      row.append(info);
       if (job.status === 'succeeded') {
+        if (job.file_available === false) {
+          const missing = document.createElement('small');
+          missing.textContent = '完成ファイルが見つからないか、容量が変わっています。';
+          row.append(missing);
+          finished.append(row);
+          continue;
+        }
+        const actions = document.createElement('div');
+        actions.className = 'v69rowActions';
+        row.append(actions);
+        const download = document.createElement('a');
+        download.className = 'v69download';
+        download.dataset.action = 'download';
+        download.href = `/api/studio/v05/render/file?id=${encodeURIComponent(job.id)}`;
+        download.download = downloadName(job);
+        download.textContent = 'ダウンロード';
+        download.setAttribute('aria-label', `${downloadName(job)}をダウンロード`);
+        actions.append(download);
         const open = document.createElement('button');
         open.type = 'button';
         open.textContent = '完成映像を確認';
         open.addEventListener('click', () => showVideo(job, true));
-        row.append(open);
+        actions.append(open);
         if (job.delivery_state === 'archived') {
           const restoreButton = document.createElement('button');
           restoreButton.type = 'button';
@@ -131,7 +195,7 @@
             } catch (error) { status(`旧版を復元できません: ${error.message}`); }
             finally { restoreButton.disabled = false; }
           });
-          row.append(restoreButton);
+          actions.append(restoreButton);
         }
       }
       if (job.error) {
@@ -139,17 +203,41 @@
         error.textContent = job.error;
         row.append(error);
       }
-      queue.append(row);
+      (job.status === 'succeeded' ? finished : attempts).append(row);
     }
-    const newest = items.find(job => job.status === 'succeeded');
-    const selected = selectedJobId && items.find(job => job.id === selectedJobId && job.status === 'succeeded');
+    const pager = document.createElement('div');
+    pager.className = 'v69historyPager';
+    for (const [text, offset, disabled] of [
+      ['前の20件', Math.max(0, completedOffset - 20), completedOffset === 0],
+      ['次の20件', completedOffset + 20, !completed.has_more],
+    ]) {
+      const pageButton = document.createElement('button');
+      pageButton.type = 'button'; pageButton.textContent = text; pageButton.disabled = disabled;
+      pageButton.addEventListener('click', () => { completedOffset = offset; void jobs(activeProject()); });
+      pager.append(pageButton);
+    }
+    const count = document.createElement('span');
+    count.textContent = completed.total ? `${completedOffset + 1}〜${completedOffset + completed.jobs.length} / ${completed.total}件` : '0件';
+    pager.append(count);
+    if (completed.total > 20) finished.append(pager);
+    const newest = completed.jobs.find(job => job.file_available !== false);
+    const selected = selectedJobId && completed.jobs.find(job => job.id === selectedJobId && job.file_available !== false);
     const wanted = selected || newest;
     if (wanted && preview.querySelector('#v69video')?.dataset.jobId !== wanted.id) showVideo(wanted);
   }
   async function jobs(projectId) {
-    const data = await get(`/api/studio/v05/render/jobs?project_id=${encodeURIComponent(projectId)}`);
-    if (activeProject() === projectId) renderJobs(data.jobs);
-    return data.jobs;
+    if (!projectId) return [];
+    if (historyProjectId !== projectId) { historyProjectId = projectId; completedOffset = 0; }
+    const seq = ++historySeq, offset = completedOffset;
+    try {
+      const url = `/api/studio/v05/render/jobs?project_id=${encodeURIComponent(projectId)}`;
+      const [data, completed] = await Promise.all([get(url), get(`${url}&completed=1&offset=${offset}`)]);
+      if (activeProject() === projectId && seq === historySeq) renderJobs(data.jobs, completed);
+      return data.jobs;
+    } catch (error) {
+      if (activeProject() === projectId && seq === historySeq) queue.textContent = `一覧を読み込めません: ${error.message}。「一覧を更新」で再試行してください。`;
+      return [];
+    }
   }
   function stopPolling() { if (timer) { clearInterval(timer); timer = 0; } }
   function watch(jobId, projectId) {
@@ -176,12 +264,15 @@
   async function refresh() {
     const seq = ++requestSeq;
     const projectId = activeProject();
+    syncHistoryProject();
     context = null;
     button.disabled = true;
     hint('書き出し条件を確認中');
     clearVideo();
     stopPolling();
     if (!projectId) { status('作品を選択してください。'); hint('作品を選択してください'); queue.textContent = '作品を選択してください。'; return; }
+    // Existing completed files remain usable even if new render preparation fails.
+    const history = jobs(projectId);
     if (nameProjectId !== projectId) {
       nameProjectId = projectId;
       const projectLabel = $('v06project')?.selectedOptions?.[0]?.textContent?.trim() || projectId;
@@ -227,11 +318,11 @@
       button.disabled = Boolean(reason);
       button.textContent = '実MP4を書き出す';
       hint(reason || '保存済み作品の範囲から別名MP4を生成します');
-      const recent = await jobs(projectId);
+      const recent = await history;
       const active = recent.find(job => ['queued', 'running'].includes(job.status));
       if (active) { button.disabled = true; hint('この作品のMP4を書き出し中'); watch(active.id, projectId); }
     } catch (error) {
-      if (seq === requestSeq) { status(`書き出し準備に失敗: ${error.message}`); hint('書き出し条件を取得できません'); queue.textContent = '書き出し履歴を読み込めません。'; }
+      if (seq === requestSeq) { status(`書き出し準備に失敗: ${error.message}`); hint('書き出し条件を取得できません'); }
     }
   }
   button.addEventListener('click', async () => {

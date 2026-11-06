@@ -193,3 +193,5 @@
 - **Phase 00の最初の実装はログ出力・ログローテーション**：[仕様](PHASE_00_LOGGING_FIRST_JA.md)。手動UI/WebMCP/標準MCPすべて対応し、実機診断ZIPを用意する。
 
 - **2026-11-06 順3の形式別確認**：WebM/OGVの登録・出力とVFR途中切出しを検証し、時刻保持と③編集の再生不可表示を修正。[記録](../v05/VIDEO_FORMATS_VFR_20261106_JA.md)。実素材VFR・全codec等は未検証。
+
+- 2026-11-06: [全体の現在地・残工数の簡単な説明](CURRENT_POSITION_AND_EFFORT_20261106_JA.md)を追加。Owner依頼 #248 の[完成動画一覧と直接ダウンロード](../v05/RENDER_DOWNLOAD_LIST_20261106_JA.md)を順3へ統合。

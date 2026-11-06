@@ -118,7 +118,12 @@ def run(name,a):
     if name=='bai_studio_render_range_get':return api('/api/studio/v05/timeline/range?id='+urllib.parse.quote(a['project_id'],safe=''))
     if name=='bai_studio_render_range_set':return api('/api/studio/v05/timeline/range',a)
     if name=='bai_studio_render_name_preview':return api('/api/studio/v05/render/name?project_id='+urllib.parse.quote(a['project_id'],safe='')+'&name='+urllib.parse.quote(a['name'],safe=''))
-    if name=='bai_studio_render_jobs_list':return api('/api/studio/v05/render/jobs?project_id='+urllib.parse.quote(a['project_id'],safe=''))
+    if name=='bai_studio_render_jobs_list':
+        query={key:a[key] for key in ('project_id','limit','offset') if key in a}
+        if 'completed_only' in a:
+            if type(a['completed_only']) is not bool:raise ValueError('completed_only must be boolean')
+            query['completed']=int(a['completed_only'])
+        return api('/api/studio/v05/render/jobs?'+urllib.parse.urlencode(query))
     if name=='bai_studio_render_job_get':return api('/api/studio/v05/render/jobs?id='+urllib.parse.quote(a['job_id'],safe=''))
     if name=='bai_studio_render_job_start':return api('/api/studio/v05/render/jobs',a)
     if name=='bai_studio_render_restore':return api('/api/studio/v05/render/restore',a)
@@ -281,7 +286,7 @@ TOOLS=[
 ('bai_studio_render_range_get','Read the saved In/Out range, FPS, and revisions.',S({'project_id':STR},['project_id'])),
 ('bai_studio_render_range_set','Save integer In/Out frames using both range and arrangement revisions.',S({'project_id':STR,'revision':INT,'arrangement_revision':INT,'in_frame':{'type':['integer','null']},'out_frame':{'type':['integer','null']}},['project_id','revision','arrangement_revision','in_frame','out_frame'])),
 ('bai_studio_render_name_preview','Read current finished-MP4 name and proposed new version before starting or restoring.',S({'project_id':STR,'name':STR},['project_id','name'])),
-('bai_studio_render_jobs_list','List saved MP4 jobs for one project.',S({'project_id':STR},['project_id'])),
+('bai_studio_render_jobs_list','List saved MP4 jobs for one project; filter completed videos and page older downloads.',S({'project_id':STR,'completed_only':{'type':'boolean'},'limit':{'type':'integer','minimum':1,'maximum':100},'offset':{'type':'integer','minimum':0}},['project_id'])),
 ('bai_studio_render_job_get','Read one MP4 job status and output metadata.',S({'job_id':STR},['job_id'])),
 ('bai_studio_render_job_start','Start a bounded MP4 from the saved project, range, arrangement, and optional 3D scene revisions. Use name preview before replacement.',S({'project_id':STR,'range_revision':INT,'arrangement_revision':INT,'resolution':{'type':'string','enum':['720p','1080p']},'scene_revision':{'type':['integer','null']},'name':STR,'collision_mode':{'type':'string','enum':['version','replace']},'replace_job_id':{'type':['string','null']}},['project_id','range_revision','arrangement_revision','resolution'])),
 ('bai_studio_render_restore','Restore an archived finished MP4 by exact job and name revision; retain the displaced version.',S({'project_id':STR,'name':STR,'job_id':STR,'revision':INT,'current_job_id':STR},['project_id','name','job_id','revision','current_job_id'])),
