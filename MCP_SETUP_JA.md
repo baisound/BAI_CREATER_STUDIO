@@ -57,3 +57,23 @@ Windowsなら `command = "python"`、`args = ["C:\\...\\mcp_server.py"]` など�
 - `MOTION_CATALOG_50.json` は50件の参考データ。現行UIの全82件を保証しない。
 - WebMCP未対応ブラウザでも標準MCPツールは動作可能。
 - ローカルサーバーを閉じるとMCPからのAPI呼び出しは接続エラーになる。
+
+
+## 追補（2026-11-05）：v0.5の限定MP4出力
+
+mcp_server.py に bai_studio_render_ で始まる完成MP4用ツールを追加した。標準MCPクライアントはMIXAMO_VIEWER_URLで接続先を指定できる（既定は127.0.0.1:8765、localhostのみ）。In/Outのrevision、配置のrevision、3Dを含める場合のscene_revisionを確かめてからジョブを開始する。ジョブIDで完了を確認し、成功後にfile_linkのURLからMP4を取得する。詳しい呼出し順と検証範囲は [v0.5の出力MCP記録](docs/v05/RENDER_MCP_20261105_JA.md)。
+
+LIP-001の元VMD合成候補は `bai_studio_lip_adoptions_get` で採用revisionを読み、既存の場面・動作計画ツールで取得したrevisionとともに `bai_studio_lip_composite_candidate_create` へ渡す。`dry_run` はファイルを作らない。結果の `downloadUrl` は取得時に再照合される。呼出し順と未検証範囲は [合成候補MCP記録](docs/v05/LIP001_COMPOSITE_MCP_20261105_JA.md)。
+
+## 追補（2026-11-05）：LIP-001のSRTから採用まで
+
+SRT原本のBase64バイト取込、読み、候補、下書き、別名モーフVMD作成、明示採用/解除/Undo/Redoを `bai_studio_` ツールでv0.5の保存APIへ接続した。任意のローカルパスは受け取らない。ツール名・revisionの呼出し順・試験と未検証は [LIP-001 MCP記録](docs/v05/LIP001_WORKFLOW_MCP_20261105_JA.md)。
+
+
+## 2026-11-06 v0.5の実クライアント検証
+
+公式`@modelcontextprotocol/client` 2.4.0のSTDIOクライアントと、Chrome 156のネイティブWebMCPから、同じ作品の約229.53秒・102MBのMP4出力と、別版作成/明示置換/旧版復元を確認した。標準MCPの接続設定例はそのまま使える。サーバーが通信をUTF-8へ設定するため、PythonをCP932で起動しても日本語名を受け渡せる。
+
+`bai_studio_clip_edit`は`source_start`（元動画/音声内の秒位置）と`lane`（既存画像行ID）、`bai_studio_clip_place`は`lane`を受け取る。これらは任意指定で、元素材尺・実在行・revisionの拒否は手動UIと同じHTTP APIが行う。
+
+開発検証では新しいdevDependencyを入れるため`npm ci`を実行する。MCPサーバー自体は引き続きPython標準ライブラリのみで動く。試験コマンド・入力hash・実機範囲は[実クライアント検証](docs/v05/NATIVE_MCP_RENDER_20261106_JA.md)。利用者のクライアント設定やAIによる自然文のツール選択は、この試験で変更/検証していない。

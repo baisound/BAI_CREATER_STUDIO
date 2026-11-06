@@ -13,15 +13,15 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent))
-import studio_v05_arrangement as arrangement
-import studio_v05_legacy_import as L
-import studio_v05_multi_motion
+import bai_studio.v05.timeline.arrangement as arrangement
+import bai_studio.v05.imports.legacy_import as L
+import bai_studio.v05.motion.multi_motion as studio_v05_multi_motion
 from legacy_import_fixtures import FIXTURE_DIR, load_bundle
 from test_studio_v05_legacy_import_apply import CHAR_ID, MOTION_ID, MUSIC_ID, Env, code_of, make_assets, sha
 from test_studio_v05_legacy_import_music_dance import OTHER_PMX, SONG_SECONDS, md_fixture
 from test_studio_v05_legacy_import_plan import make_inputs
 
-import studio_v05_media_render
+import bai_studio.v05.render.media_render as studio_v05_media_render
 
 INC = ("timeline_editor",)
 BOTH = ("music_dance", "timeline_editor")

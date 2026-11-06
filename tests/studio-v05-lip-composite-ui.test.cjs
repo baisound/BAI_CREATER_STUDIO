@@ -6,13 +6,32 @@ const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
 const crypto=require('node:crypto');
-const {execFileSync}=require('node:child_process');
+const {execFileSync,spawnSync}=require('node:child_process');
 const harness=require('./helpers/studio-harness.cjs');
 
 const sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 async function json(response,status=200){const raw=await response.text();assert.equal(response.status,status,raw);return JSON.parse(raw);}
 const post=(server,route,body)=>fetch(server.base+route,{method:'POST',
   headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+function standard(base,name,args={}){
+  const req={jsonrpc:'2.0',id:1,method:'tools/call',params:{name,arguments:args}};
+  const run=spawnSync(process.env.PYTHON||'python',[path.join(__dirname,'..','mcp_server.py')],{
+    input:JSON.stringify(req)+'\n',encoding:'utf8',timeout:30000,
+    env:{...process.env,MIXAMO_VIEWER_URL:base,PYTHONUTF8:'1',PYTHONDONTWRITEBYTECODE:'1'}});
+  assert.equal(run.status,0,run.stderr);
+  const response=JSON.parse(run.stdout.trim());
+  assert.equal(response.result?.isError,undefined,JSON.stringify(response.result));
+  return JSON.parse(response.result.content[0].text);
+}
+async function web(page,name,args={}){
+  const response=await page.evaluate(async input=>{
+    const tool=window.__mcpTools.find(row=>row.name===input.name);
+    if(!tool)throw Error('WebMCP tool missing: '+input.name);
+    return tool.execute(input.args);
+  },{name,args});
+  assert.equal(response.isError,undefined,JSON.stringify(response));
+  return JSON.parse(response.content[0].text);
+}
 
 function sourceVmd(){
   // VMD 0002 (header+model name+zero bone count = 54 bytes), no bones, morph あ (CP932 82 A0) at F0/F30=0.8, F60/F90=0, then 4 empty tails.
@@ -106,6 +125,38 @@ test('v0.5 SRT panel writes a source VMD composite candidate and rejects discont
     const mouth=new Map(parsed.morphs.filter(row=>row.morphName==='あ').map(row=>[row.frameNum,row.weight]));
     assert.equal(mouth.size,91);
     assert.ok(Math.abs(mouth.get(45)-.4)<1e-6&&Math.abs(mouth.get(90)-.5)<1e-6);
+
+    // Both MCP surfaces use the same revision-guarded HTTP service as the UI.
+    const mcpNames=['bai_studio_lip_adoptions_get','bai_studio_lip_composite_candidate_create'];
+    const listed=spawnSync(process.env.PYTHON||'python',[path.join(__dirname,'..','mcp_server.py')],{
+      input:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/list',params:{}})+'\n',
+      encoding:'utf8',timeout:30000,env:{...process.env,PYTHONUTF8:'1'}});
+    assert.equal(listed.status,0,listed.stderr);
+    const stdNames=JSON.parse(listed.stdout.trim()).result.tools.map(row=>row.name);
+    for(const name of mcpNames)assert.equal(stdNames.filter(value=>value===name).length,1,name);
+    await page.evaluate(()=>{
+      window.__mcpTools=[];
+      Object.defineProperty(document,'modelContext',{configurable:true,
+        value:{registerTool:async tool=>{window.__mcpTools.push(tool);}}});
+    });
+    await page.addScriptTag({path:path.join(__dirname,'..','webmcp.js')});
+    await page.waitForFunction(()=>window.__mcpTools?.some(row=>row.name==='bai_studio_lip_composite_candidate_create'));
+    for(const name of mcpNames)
+      assert.equal(await page.evaluate(n=>window.__mcpTools.filter(t=>t.name===n).length,name),1,name);
+    const standardAdoption=standard(server.base,mcpNames[0],{project_id:projectId,instance_id:instanceId});
+    const webAdoption=await web(page,mcpNames[0],{project_id:projectId,instance_id:instanceId});
+    assert.deepEqual(webAdoption,standardAdoption);
+    const mcpBody={project_id:projectId,instance_id:instanceId,clip_id:placed.clip.id,
+      adoption_revision:standardAdoption.revision,scene_revision:sceneState.revision,
+      arrangement_revision:2,dry_run:true};
+    const checked=standard(server.base,mcpNames[1],mcpBody);
+    const webChecked=await web(page,mcpNames[1],mcpBody);
+    assert.equal(checked.sha256,made.sha256);
+    assert.deepEqual(webChecked,checked);
+    assert.equal(checked.candidateId,null);
+    const webMade=await web(page,mcpNames[1],{...mcpBody,dry_run:false});
+    assert.equal(webMade.readback.status,'passed_full_key_readback');
+    assert.deepEqual(Buffer.from(await(await fetch(server.base+webMade.downloadUrl)).arrayBuffer()),downloaded);
 
     // A manual key that steps between VMD frames is rejected and listed in the panel.
     sceneState=await json(await post(server,'/api/studio/v05/scene/instances',{project_id:projectId,

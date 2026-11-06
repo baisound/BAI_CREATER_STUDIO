@@ -1,5 +1,5 @@
 import math, unittest
-from rest_hierarchy_inspection import inspect
+from bai_studio.retarget.rest_hierarchy_inspection import inspect
 from tests.test_v01620_rest_inspection import pack
 
 class HierarchyInspection(unittest.TestCase):

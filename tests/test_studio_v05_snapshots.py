@@ -1,9 +1,9 @@
 import tempfile,unittest,json
 from pathlib import Path
-from studio_project_catalog import create
-from studio_project_snapshots import save,read
-from project_state_bundle import validate_bundle
-from bai_camera import DEFAULT
+from bai_studio.projects.catalog import create
+from bai_studio.projects.snapshots import save,read
+from bai_studio.projects.state_bundle import validate_bundle
+from bai_studio.camera.project import DEFAULT
 class Tests(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.catalog=self.root/'catalog.json';self.project=create(self.catalog,'Hello')

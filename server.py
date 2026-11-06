@@ -1,43 +1,43 @@
 # Python 3.9+ standard library only. Binds to loopback, not LAN.
 import hashlib, json, math, mimetypes, os, re, sys, threading, shutil, subprocess, time, zipfile, io, posixpath
 from pathlib import Path
-from bai_camera import read as camera_read, save as camera_save, sample as camera_sample, read_project as camera_read_project, reset_project as camera_reset_project, CameraProjectInvalid
-from camera_project_revision import revision as camera_revision
-from camera_focus import diagnose as focus_diagnose, diagnose_range as focus_diagnose_range
-from camera_vmd_inspect import inspect_camera_vmd
-from camera_vmd_codec import decode_camera_track, encode_camera_track
-from camera_vmd_playback import sample_native_camera
+from bai_studio.camera.project import read as camera_read, save as camera_save, sample as camera_sample, read_project as camera_read_project, reset_project as camera_reset_project, CameraProjectInvalid
+from bai_studio.camera.project_revision import revision as camera_revision
+from bai_studio.camera.focus import diagnose as focus_diagnose, diagnose_range as focus_diagnose_range
+from bai_studio.camera.vmd_inspect import inspect_camera_vmd
+from bai_studio.camera.vmd_codec import decode_camera_track, encode_camera_track
+from bai_studio.camera.vmd_playback import sample_native_camera
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit, parse_qs, quote, unquote as path_unquote
-from bai_paths import data_dir
-import library_assets
-import asset_thumbnails
-import music_dance_project
-from diagnostic_logging import event, recent
-from qa_capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
-from operation_diagnostics import record_ui_action, diagnostics_archive
-from retarget_analysis import inspect, compare
-from retarget_calibration import calibrate
-from retarget_pose import propose_pose
-from vrm_humanoid_preview import compare_vrm_humanoid, suggest_humanoid_mapping
-from rest_rotation_transfer import preview as explicit_rest_preview
-from rest_pose_inspection import compare as inspect_rest_pairs
-from rest_hierarchy_inspection import inspect as inspect_rest_hierarchy
-from world_rest_motion_preview import preview as world_rest_motion_preview
-from animated_world_preview import preview as animated_world_preview
-from animated_hierarchy_preview import preview as animated_hierarchy_preview
-from vrm_local_transfer import transfer as vrm_local_transfer, quality as vrm_transfer_quality
-from retarget_review_bundle import build as build_review_bundle
-from retarget_keyframe_review import build_keyframe_review
-from retarget_mapping_preview import preview as mapping_preview
-from pose_ik import validate_pose
-from ai_ik_preview import preview as ai_ik_preview
-from retarget_root import convert_root_samples
-from motion_interchange import analyze_motion
-from foot_contact import diagnose, root_offset_proposal
-from dual_foot_plan import propose_dual_foot
-from bvh_foot_world import sample_bvh_foot_world
-from bai_ai_manager import read_config as ai_read_config, save_config as ai_save_config, status as ai_status, interpret_pose as ai_interpret_pose, AIUnavailable
+from bai_studio.core.paths import data_dir
+import bai_studio.assets.library_assets as library_assets
+import bai_studio.assets.asset_thumbnails as asset_thumbnails
+import bai_studio.motion.music_dance_project as music_dance_project
+from bai_studio.core.diagnostic_logging import event, recent
+from bai_studio.qa.capture import settings as qa_settings, update as qa_update, cleanup as qa_cleanup
+from bai_studio.core.operation_diagnostics import record_ui_action, diagnostics_archive
+from bai_studio.retarget.analysis import inspect, compare
+from bai_studio.retarget.calibration import calibrate
+from bai_studio.retarget.pose import propose_pose
+from bai_studio.retarget.vrm_humanoid_preview import compare_vrm_humanoid, suggest_humanoid_mapping
+from bai_studio.retarget.rest_rotation_transfer import preview as explicit_rest_preview
+from bai_studio.retarget.rest_pose_inspection import compare as inspect_rest_pairs
+from bai_studio.retarget.rest_hierarchy_inspection import inspect as inspect_rest_hierarchy
+from bai_studio.retarget.world_rest_motion_preview import preview as world_rest_motion_preview
+from bai_studio.retarget.animated_world_preview import preview as animated_world_preview
+from bai_studio.retarget.animated_hierarchy_preview import preview as animated_hierarchy_preview
+from bai_studio.retarget.vrm_local_transfer import transfer as vrm_local_transfer, quality as vrm_transfer_quality
+from bai_studio.retarget.review_bundle import build as build_review_bundle
+from bai_studio.retarget.keyframe_review import build_keyframe_review
+from bai_studio.retarget.mapping_preview import preview as mapping_preview
+from bai_studio.motion.pose_ik import validate_pose
+from bai_studio.retarget.ai_ik_preview import preview as ai_ik_preview
+from bai_studio.retarget.root import convert_root_samples
+from bai_studio.motion.motion_interchange import analyze_motion
+from bai_studio.motion.foot_contact import diagnose, root_offset_proposal
+from bai_studio.motion.dual_foot_plan import propose_dual_foot
+from bai_studio.motion.bvh_foot_world import sample_bvh_foot_world
+from bai_studio.integrations.ai_manager import read_config as ai_read_config, save_config as ai_save_config, status as ai_status, interpret_pose as ai_interpret_pose, AIUnavailable
 RETARGET_FILE=data_dir()/'retarget_profiles.json'
 RETARGET_LOCK=threading.RLock()
 def retarget_read():
@@ -149,7 +149,7 @@ def unified_assets():
             mmd_path=MMD_DIR/slot/name;available=mmd_path.is_file()
             result.append({'id':'mmd:'+slot+':'+name,'name':name,'format':fmt,'kind':slot,'source':'mmd','available':available,'bytes':mmd_path.stat().st_size if available else None,'previewable':True})
     with LIBRARY_LOCK:result.extend(library_assets.public_items(LIBRARY_ROOT))
-    from studio_v05_asset_sources import listing as v05_sources_listing
+    from bai_studio.v05.assets.asset_sources import listing as v05_sources_listing
     result.extend(v05_sources_listing(V05_SOURCE_ROOT,V05_INBOX_ROOT)['items'])
     for entry in result:
         source=character_source(entry)
@@ -255,7 +255,7 @@ class Handler(BaseHTTPRequestHandler):
         self.bad(500,'旧保存の取込の処理を完了できませんでした。診断ZIPを保存して開発者に渡してください。','INTERNAL_ERROR')
     def do_GET(self):
         if urlsplit(self.path).path == '/api/studio/v05/lip/vmd-candidate/file':
-            from studio_v05_lip_vmd_candidate import candidate_file, LipVmdError
+            from bai_studio.v05.lip.lip_vmd_candidate import candidate_file, LipVmdError
 
             query = parse_qs(urlsplit(self.path).query)
             if (set(query) != {'project_id', 'candidate_id'}
@@ -271,7 +271,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, 'Lip VMD candidate unreadable')
             return
         if urlsplit(self.path).path == '/api/studio/v05/lip/composite-candidate/file':
-            from studio_v05_lip_composite_candidate import candidate_file, LipCompositeError
+            from bai_studio.v05.lip.lip_composite_candidate import candidate_file, LipCompositeError
 
             query = parse_qs(urlsplit(self.path).query)
             if (set(query) != {'project_id', 'candidate_id'}
@@ -288,8 +288,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, 'Lip composite candidate unreadable')
             return
         if urlsplit(self.path).path == '/api/studio/v05/motion/vmd-candidate/file':
-            from studio_v05_vmd_candidate import candidate_file
-            from studio_v05_motion_edits import MotionEditError
+            from bai_studio.v05.motion.vmd_candidate import candidate_file
+            from bai_studio.v05.motion.motion_edits import MotionEditError
 
             try:
                 query = parse_qs(urlsplit(self.path).query)
@@ -302,7 +302,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(500, 'VMD candidate read failed')
             return
         if urlsplit(self.path).path == '/api/studio/v05/motion-edits':
-            from studio_v05_motion_edits import view, MotionEditError
+            from bai_studio.v05.motion.motion_edits import view, MotionEditError
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 result=view(DATA/'studio_v05_motion_edits',DATA,DATA/'studio_v05_scene_instances',
@@ -312,7 +312,7 @@ class Handler(BaseHTTPRequestHandler):
             except (MotionEditError,ValueError,OSError) as exc:self.bad(422,str(exc))
             return
         if urlsplit(self.path).path == '/api/studio/v05/scene/instances':
-            from studio_v05_scene_instances import read as instance_read, SceneInstancesError
+            from bai_studio.v05.timeline.scene_instances import read as instance_read, SceneInstancesError
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 result=instance_read(DATA/'studio_v05_scene_instances', DATA/'studio_v05_scene_models',
@@ -322,7 +322,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(409 if 'reconcile' in str(exc).lower() else 422,str(exc))
             return
         if urlsplit(self.path).path == '/api/studio/v05/pmx/morph-analysis':
-            from studio_v05_pmx_analysis import inspect as inspect_pmx_morphs, PmxAnalysisError
+            from bai_studio.v05.assets.pmx_analysis import inspect as inspect_pmx_morphs, PmxAnalysisError
             query = parse_qs(urlsplit(self.path).query)
             if (set(query) - {'asset_id', 'model_hash'} or len(query.get('asset_id', [])) != 1
                     or len(query.get('model_hash', [])) > 1):
@@ -335,7 +335,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(exc.status, str(exc))
             return
         if urlsplit(self.path).path == '/api/studio/v05/vrm/expressions':
-            from studio_v05_vrm_expressions import inspect as inspect_vrm_expressions, VrmExpressionError
+            from bai_studio.v05.assets.vrm_expressions import inspect as inspect_vrm_expressions, VrmExpressionError
             query = parse_qs(urlsplit(self.path).query)
             if (set(query) - {'asset_id', 'model_hash'} or len(query.get('asset_id', [])) != 1
                     or len(query.get('model_hash', [])) > 1):
@@ -348,7 +348,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(exc.status, str(exc))
             return
         if urlsplit(self.path).path == '/api/studio/v05/vrm/expression-map':
-            from studio_v05_vrm_maps import read as read_vrm_maps, VrmMapError
+            from bai_studio.v05.assets.vrm_maps import read as read_vrm_maps, VrmMapError
             query = parse_qs(urlsplit(self.path).query)
             if set(query) != {'project_id'} or len(query['project_id']) != 1:
                 return self.bad(400, 'Invalid VRM map query')
@@ -363,7 +363,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, 'VRM map read failed; original retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/pmx/morph-map':
-            from studio_v05_morph_maps import read as read_morph_maps, MorphMapError
+            from bai_studio.v05.assets.morph_maps import read as read_morph_maps, MorphMapError
             query = parse_qs(urlsplit(self.path).query)
             if set(query) != {'project_id'} or len(query['project_id']) != 1:
                 return self.bad(400, 'Invalid morph map query')
@@ -378,7 +378,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, 'Morph map read failed; original retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/srt/sources':
-            from studio_v05_srt_sources import read as read_srt_sources, SrtSourceError
+            from bai_studio.v05.lip.srt_sources import read as read_srt_sources, SrtSourceError
 
             query = parse_qs(urlsplit(self.path).query)
             if set(query) != {'project_id'} or len(query['project_id']) != 1:
@@ -393,7 +393,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, 'SRT source read failed; originals retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/lip/readings':
-            from studio_v05_lip_readings import read as read_lip_readings, LipReadingError
+            from bai_studio.v05.lip.lip_readings import read as read_lip_readings, LipReadingError
 
             query = parse_qs(urlsplit(self.path).query)
             if set(query) != {'project_id'} or len(query['project_id']) != 1:
@@ -408,7 +408,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, 'Lip reading store unreadable; originals retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/lip/candidates':
-            from studio_v05_lip_candidates import propose, LipCandidateError
+            from bai_studio.v05.lip.lip_candidates import propose, LipCandidateError
 
             query = parse_qs(urlsplit(self.path).query)
             if (set(query) != {'project_id', 'source_id', 'srt_index'}
@@ -426,7 +426,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, 'Lip candidate calculation failed; originals retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/lip/drafts':
-            from studio_v05_lip_drafts import read as read_lip_drafts, LipDraftError
+            from bai_studio.v05.lip.lip_drafts import read as read_lip_drafts, LipDraftError
 
             query = parse_qs(urlsplit(self.path).query)
             if set(query) != {'project_id'} or len(query['project_id']) != 1:
@@ -441,7 +441,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, 'Lip draft store unreadable; originals retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/lip/adoptions':
-            from studio_v05_lip_adoptions import read as read_lip_adoptions, LipAdoptionError
+            from bai_studio.v05.lip.lip_adoptions import read as read_lip_adoptions, LipAdoptionError
 
             query = parse_qs(urlsplit(self.path).query)
             if (set(query) - {'project_id', 'instance_id'}
@@ -458,7 +458,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, 'Lip adoption store unreadable; originals retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/scene/multi-motion-plan':
-            from studio_v05_multi_motion import plan, MultiMotionError
+            from bai_studio.v05.motion.multi_motion import plan, MultiMotionError
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 result=plan(DATA/'studio_v05_arrangements',DATA/'studio_v05_scene_instances',
@@ -467,9 +467,9 @@ class Handler(BaseHTTPRequestHandler):
             except (MultiMotionError,ValueError,OSError) as exc:self.bad(422,str(exc))
             return
         if urlsplit(self.path).path == '/api/studio/v05/scene/motion-plan':
-            from studio_v05_motion_plan import plan
-            from studio_v05_arrangement import ArrangementError
-            from studio_v05_scene_model import SceneModelError
+            from bai_studio.v05.motion.motion_plan import plan
+            from bai_studio.v05.timeline.arrangement import ArrangementError
+            from bai_studio.v05.timeline.scene_model import SceneModelError
             try:
                 project_id = parse_qs(urlsplit(self.path).query).get('id', [''])[0]
                 result = plan(DATA/'studio_v05_scene_models', DATA/'studio_v05_arrangements',
@@ -479,7 +479,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, str(exc))
             return
         if urlsplit(self.path).path in ('/api/studio/v05/scene/model','/api/studio/v05/scene/model-candidates'):
-            from studio_v05_scene_model import read as scene_read, choices, SceneModelError
+            from bai_studio.v05.timeline.scene_model import read as scene_read, choices, SceneModelError
             try:
                 inventory=unified_assets()
                 if urlsplit(self.path).path.endswith('/model-candidates'):
@@ -491,14 +491,14 @@ class Handler(BaseHTTPRequestHandler):
             except (SceneModelError,ValueError,OSError) as exc:self.bad(422,str(exc))
             return
         if urlsplit(self.path).path=='/api/studio/v05/asset-sources':
-            from studio_v05_asset_sources import listing, AssetSourceError
+            from bai_studio.v05.assets.asset_sources import listing, AssetSourceError
             try:
                 result=listing(V05_SOURCE_ROOT,V05_INBOX_ROOT)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except (AssetSourceError,ValueError,OSError) as exc:self.bad(422,str(exc))
             return
         if urlsplit(self.path).path.startswith('/api/studio/v05/asset-source/file/'):
-            from studio_v05_asset_sources import file_for
+            from bai_studio.v05.assets.asset_sources import file_for
             from urllib.parse import unquote
             asset_id=unquote(urlsplit(self.path).path.split('/file/',1)[1])
             found=file_for(V05_SOURCE_ROOT,V05_INBOX_ROOT,asset_id)
@@ -506,17 +506,17 @@ class Handler(BaseHTTPRequestHandler):
             self.send_library_file(*found)
             return
         if urlsplit(self.path).path=='/api/studio/v05/assets/capabilities':
-            from studio_v05_asset_categories import capabilities
+            from bai_studio.v05.assets.asset_categories import capabilities
             self.send(200,json.dumps(capabilities(),ensure_ascii=False).encode());return
         if urlsplit(self.path).path=='/api/studio/v05/assets':
-            from studio_v05_arrangement import inventory, ArrangementError
+            from bai_studio.v05.timeline.arrangement import inventory, ArrangementError
             q=parse_qs(urlsplit(self.path).query)
             try:self.send(200,json.dumps(inventory(unified_assets(),q.get('category',['all'])[0],q.get('query',[''])[0]),ensure_ascii=False).encode())
             except ArrangementError as exc:self.bad(400,str(exc))
             return
         if urlsplit(self.path).path=='/api/studio/v05/motion/glb-vmd/candidates':
-            from studio_v05_glb_vmd import candidates
-            from studio_v05_scene_instances import SceneInstancesError
+            from bai_studio.v05.motion.glb_vmd import candidates
+            from bai_studio.v05.timeline.scene_instances import SceneInstancesError
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 result=candidates(DATA,unified_assets(),project_id,DATA/'studio_v05_scene_instances',DATA/'studio_v05_catalog.json')
@@ -525,8 +525,8 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Cannot read GLB/PMX candidates')
             return
         if urlsplit(self.path).path=='/api/studio/v05/motion/glb-vmd/map':
-            from studio_v05_glb_vmd import inspect_profile, ConversionError
-            from studio_v05_glb_vmd_map import MappingError
+            from bai_studio.v05.motion.glb_vmd import inspect_profile, ConversionError
+            from bai_studio.v05.motion.glb_vmd_map import MappingError
             try:
                 query=parse_qs(urlsplit(self.path).query)
                 result=inspect_profile(DATA,query.get('source_id',[''])[0],query.get('target_id',[''])[0],unified_assets())
@@ -536,7 +536,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Cannot read GLB/PMX mapping')
             return
         if urlsplit(self.path).path=='/api/studio/v05/media-info':
-            from studio_v05_media_render import media_info, RenderError
+            from bai_studio.v05.render.media_render import media_info, RenderError
             try:
                 asset_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 self.send(200,json.dumps(media_info(DATA,asset_id,unified_assets()),ensure_ascii=False).encode())
@@ -544,28 +544,28 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError,ValueError,KeyError):self.bad(422,'Cannot probe registered media')
             return
         if urlsplit(self.path).path=='/api/studio/v05/playhead':
-            from studio_v05_playhead import read, PlayheadError
+            from bai_studio.v05.timeline.playhead import read, PlayheadError
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 self.send(200,json.dumps(read(DATA/'studio_v05_playheads',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
             except (PlayheadError,ValueError,KeyError,OSError):self.bad(422,'Cannot read playhead')
             return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/layout':
-            from studio_v05_track_layout import get
+            from bai_studio.v05.timeline.track_layout import get
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 self.send(200,json.dumps(get(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
             except (ValueError,KeyError,OSError):self.bad(422,'Cannot read track layout')
             return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/view':
-            from studio_v05_arrangement import timeline_view, ArrangementError
+            from bai_studio.v05.timeline.arrangement import timeline_view, ArrangementError
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 self.send(200,json.dumps(timeline_view(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
             except (ArrangementError,ValueError,KeyError,OSError):self.bad(422,'Cannot read project timeline')
             return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/range':
-            from studio_v05_render_range import read, RenderRangeError
+            from bai_studio.v05.render.render_range import read, RenderRangeError
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 result=read(DATA/'studio_v05_render_ranges',DATA/'studio_v05_arrangements',
@@ -574,10 +574,23 @@ class Handler(BaseHTTPRequestHandler):
             except (RenderRangeError,ValueError,KeyError,OSError) as exc:self.bad(422,str(exc))
             return
         if urlsplit(self.path).path=='/api/studio/v05/render/capabilities':
-            from studio_v05_media_render import capabilities
+            from bai_studio.v05.render.media_render import capabilities
             self.send(200,json.dumps(capabilities(probe_root=DATA/'studio_v05_media_renders'/'probe'),ensure_ascii=False).encode());return
+        if urlsplit(self.path).path=='/api/studio/v05/render/name':
+            from bai_studio.v05.render.render_names import preview, NameError
+            from bai_studio.projects.catalog import load
+            q=parse_qs(urlsplit(self.path).query)
+            try:
+                project_id=q.get('project_id',[''])[0]
+                if not any(p['id']==project_id for p in load(DATA/'studio_v05_catalog.json')['projects']):
+                    return self.bad(404,'Unknown project ID')
+                result=preview(DATA/'studio_v05_media_renders',project_id,q.get('name',[''])[0])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except NameError as exc:self.bad(exc.status,str(exc))
+            except (ValueError,KeyError,OSError):self.bad(422,'Cannot read render names')
+            return
         if urlsplit(self.path).path in ('/api/studio/v05/render/jobs','/api/studio/v05/render/file'):
-            from studio_v05_media_render import status, list_jobs, output_file, RenderError
+            from bai_studio.v05.render.media_render import status, list_jobs, output_file, RenderError
             path=urlsplit(self.path).path
             q=parse_qs(urlsplit(self.path).query)
             try:
@@ -587,7 +600,7 @@ class Handler(BaseHTTPRequestHandler):
                     self.send(200,json.dumps(status(DATA/'studio_v05_media_renders',q['id'][0]),ensure_ascii=False).encode())
                 else:
                     project_id=q.get('project_id',[''])[0]
-                    from studio_project_catalog import load
+                    from bai_studio.projects.catalog import load
                     if not any(p['id']==project_id for p in load(DATA/'studio_v05_catalog.json')['projects']):
                         raise RenderError('Unknown project ID',404)
                     self.send(200,json.dumps(list_jobs(DATA/'studio_v05_media_renders',project_id),ensure_ascii=False).encode())
@@ -595,28 +608,28 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError,KeyError,OSError) as exc:self.bad(422,'Cannot read render job')
             return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement':
-            from studio_v05_arrangement import read, ArrangementError
+            from bai_studio.v05.timeline.arrangement import read, ArrangementError
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 self.send(200,json.dumps(read(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
             except (ArrangementError,ValueError,KeyError,OSError):self.bad(422,'Cannot read project arrangement')
             return
         if urlsplit(self.path).path=='/api/studio/v05/focus-reports':
-            from studio_v05_focus_reports import read, FocusReportError
+            from bai_studio.v05.timeline.focus_reports import read, FocusReportError
             try:
                 pid=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 self.send(200,json.dumps(read(DATA/'studio_v05_focus_reports',DATA/'studio_v05_catalog.json',pid),ensure_ascii=False).encode())
             except (FocusReportError,ValueError,KeyError,OSError) as exc:self.bad(422,str(exc))
             return
         if urlsplit(self.path).path=='/api/studio/v05/focus-target':
-            from studio_v05_focus_target import read, FocusTargetError
+            from bai_studio.v05.timeline.focus_target import read, FocusTargetError
             try:
                 pid=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 self.send(200,json.dumps(read(DATA/'studio_v05_focus_targets',DATA/'studio_v05_catalog.json',pid),ensure_ascii=False).encode())
             except (FocusTargetError,ValueError,KeyError,OSError) as exc:self.bad(422,str(exc))
             return
         if urlsplit(self.path).path=='/api/studio/v05/project/fps':
-            from studio_project_catalog import list_projects, CatalogError
+            from bai_studio.projects.catalog import list_projects, CatalogError
             try:
                 pid=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 catalog=list_projects(DATA/'studio_v05_catalog.json')
@@ -626,12 +639,12 @@ class Handler(BaseHTTPRequestHandler):
             except (CatalogError,ValueError,OSError) as exc:self.bad(422,str(exc))
             return
         if urlsplit(self.path).path=='/api/studio/v05/projects':
-            from studio_project_catalog import list_projects, CatalogError
+            from bai_studio.projects.catalog import list_projects, CatalogError
             try:self.send(200,json.dumps(list_projects(DATA/'studio_v05_catalog.json'),ensure_ascii=False).encode())
             except (ValueError,OSError):self.bad(422,'プロジェクト一覧を読めません。元ファイルは保護されます。')
             return
         if urlsplit(self.path).path=='/api/studio/v05/project/activation-preview':
-            from studio_project_activation import preview, ActivationConflict
+            from bai_studio.projects.activation import preview, ActivationConflict
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 with PROJECT_LOCK: result=preview(DATA/'studio_v05_snapshots',DATA/'studio_v05_catalog.json',project_id,PROJECT,DATA/'camera_project.json')
@@ -641,8 +654,8 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError,TypeError,KeyError,OSError):return self.bad(422,'復元プレビューを作成できません')
             return
         if urlsplit(self.path).path=='/api/studio/v05/project/snapshot':
-            from studio_project_snapshots import read
-            from studio_project_catalog import CatalogError
+            from bai_studio.projects.snapshots import read
+            from bai_studio.projects.catalog import CatalogError
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 payload=read(DATA/'studio_v05_snapshots',DATA/'studio_v05_catalog.json',project_id)
@@ -651,7 +664,7 @@ class Handler(BaseHTTPRequestHandler):
             except (CatalogError,ValueError,KeyError,OSError):return self.bad(422,'スナップショットの読み込みに失敗しました')
             return
         if urlsplit(self.path).path=='/api/studio/v05/project/legacy-import-preview':
-            import studio_v05_legacy_import as legacy_import
+            import bai_studio.v05.imports.legacy_import as legacy_import
             try:
                 query=parse_qs(urlsplit(self.path).query)
                 include=[x for value in query.get('include',[]) for x in value.split(',') if x]
@@ -663,8 +676,8 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as exc:return self.legacy_import_unexpected('v05_legacy_import_preview',exc)
             return
         if urlsplit(self.path).path=='/api/studio/v05/project/legacy-import':
-            import studio_v05_legacy_import as legacy_import, studio_v05_legacy_import_record as legacy_record
-            from studio_project_catalog import load as catalog_load
+            import bai_studio.v05.imports.legacy_import as legacy_import; import bai_studio.v05.imports.legacy_import_record as legacy_record
+            from bai_studio.projects.catalog import load as catalog_load
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
                 with PROJECT_LOCK:
@@ -679,7 +692,7 @@ class Handler(BaseHTTPRequestHandler):
         if path in ("/camera.html", "/camera.css", "/camera.js", "/camera_3d.js", "/camera_vmd_local.js", "/camera_rig.js", "/camera_follow_config.js", "/camera_follow_smoothing.js", "/camera_framing.js", "/camera_lens.js", "/camera_dof.js", "/camera_focus_tracking.js", "/camera_focus_consistency.js", "/camera_bundle_core.js", "/camera_project_bundle_ui.js", "/camera_sequence_playback.js"):
             file=BASE/path[1:];self.send(200,file.read_bytes(),"text/css" if path.endswith(".css") else "text/javascript" if path.endswith(".js") else "text/html; charset=utf-8");return
         if path=="/api/project/bundle":
-            from project_state_bundle import read_bundle, bundle_revision
+            from bai_studio.projects.state_bundle import read_bundle, bundle_revision
             try:
                 with PROJECT_LOCK:
                     payload=read_bundle(PROJECT, DATA/'camera_project.json', strict=True)
@@ -706,7 +719,7 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError,TypeError,OverflowError) as exc:return self.bad(400,str(exc))
         if path=="/api/camera/sequence/evaluate":
             try:
-                from camera_sequence_api import evaluate
+                from bai_studio.camera.sequence_api import evaluate
                 args=parse_qs(urlsplit(self.path).query)
                 overflow=args.get('overflow',['error'])[0]
                 if overflow not in ('error','hold'):raise ValueError('Invalid camera overflow mode')
@@ -764,7 +777,7 @@ class Handler(BaseHTTPRequestHandler):
         if path in ('/','/index.html'):
             self.send(200,(BASE/'index.html').read_bytes(),'text/html; charset=utf-8');return
         if path.startswith('/workspace') or path.startswith('/studio/'):
-            from studio_routes import resolve as studio_resolve
+            from bai_studio.projects.routes import resolve as studio_resolve
             found=studio_resolve(path)
             if found:
                 self.send(200,found[0].read_bytes(),found[1]);return
@@ -925,7 +938,7 @@ class Handler(BaseHTTPRequestHandler):
         self.bad(404,'not found')
     def do_POST(self):
         if urlsplit(self.path).path == '/api/studio/v05/lip/adoptions':
-            from studio_v05_lip_adoptions import mutate as mutate_lip_adoption, LipAdoptionError
+            from bai_studio.v05.lip.lip_adoptions import mutate as mutate_lip_adoption, LipAdoptionError
 
             try:
                 length = int(self.headers.get('Content-Length', '-1'))
@@ -946,7 +959,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, 'Lip adoption update failed; originals retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/lip/vmd-candidate':
-            from studio_v05_lip_vmd_candidate import create as create_lip_vmd, LipVmdError
+            from bai_studio.v05.lip.lip_vmd_candidate import create as create_lip_vmd, LipVmdError
 
             try:
                 length = int(self.headers.get('Content-Length', '-1'))
@@ -971,7 +984,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(500, 'Lip VMD candidate write failed; originals retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/lip/composite-candidate':
-            from studio_v05_lip_composite_candidate import create as create_lip_composite, LipCompositeError
+            from bai_studio.v05.lip.lip_composite_candidate import create as create_lip_composite, LipCompositeError
 
             try:
                 length = int(self.headers.get('Content-Length', '-1'))
@@ -997,7 +1010,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(500, 'Lip composite candidate write failed; originals retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/lip/drafts':
-            from studio_v05_lip_drafts import save as save_lip_draft, LipDraftError
+            from bai_studio.v05.lip.lip_drafts import save as save_lip_draft, LipDraftError
 
             try:
                 length = int(self.headers.get('Content-Length', '-1'))
@@ -1019,7 +1032,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(500, 'Lip draft write failed; originals retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/lip/readings':
-            from studio_v05_lip_readings import set_reading, LipReadingError
+            from bai_studio.v05.lip.lip_readings import set_reading, LipReadingError
 
             try:
                 length = int(self.headers.get('Content-Length', '-1'))
@@ -1041,7 +1054,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(500, 'Lip reading write failed; original retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/srt/import':
-            from studio_v05_srt_sources import register as register_srt_source, SrtSourceError, MAX_BYTES
+            from bai_studio.v05.lip.srt_sources import register as register_srt_source, SrtSourceError, MAX_BYTES
 
             query = parse_qs(urlsplit(self.path).query, keep_blank_values=True)
             if set(query) != {'project_id', 'revision', 'name', 'encoding'} or any(len(v) != 1 for v in query.values()):
@@ -1066,8 +1079,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(500, 'SRT import failed; original upload retained by client')
             return
         if urlsplit(self.path).path == '/api/studio/v05/motion/glb-vmd/map':
-            from studio_v05_glb_vmd import save_profile, ConversionError
-            from studio_v05_glb_vmd_map import MappingError
+            from bai_studio.v05.motion.glb_vmd import save_profile, ConversionError
+            from bai_studio.v05.motion.glb_vmd_map import MappingError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=16384:return self.bad(413,'Request too large')
@@ -1082,9 +1095,9 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Mapping save failed')
             return
         if urlsplit(self.path).path == '/api/studio/v05/motion/glb-vmd':
-            from studio_v05_glb_vmd import candidates, convert, ConversionError
-            from studio_v05_glb_vmd_map import MappingError
-            from studio_v05_scene_instances import SceneInstancesError
+            from bai_studio.v05.motion.glb_vmd import candidates, convert, ConversionError
+            from bai_studio.v05.motion.glb_vmd_map import MappingError
+            from bai_studio.v05.timeline.scene_instances import SceneInstancesError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1110,7 +1123,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'GLB/VMD conversion failed')
             return
         if urlsplit(self.path).path == '/api/studio/v05/scene/motion-target':
-            from studio_v05_multi_motion import assign, MultiMotionError
+            from bai_studio.v05.motion.multi_motion import assign, MultiMotionError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1128,8 +1141,8 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Motion binding write failed')
             return
         if urlsplit(self.path).path == '/api/studio/v05/motion/vmd-candidate':
-            from studio_v05_vmd_candidate import create_candidate
-            from studio_v05_motion_edits import MotionEditError
+            from bai_studio.v05.motion.vmd_candidate import create_candidate
+            from bai_studio.v05.motion.motion_edits import MotionEditError
 
             try:
                 length = int(self.headers.get('Content-Length', '0'))
@@ -1156,10 +1169,10 @@ class Handler(BaseHTTPRequestHandler):
             return
         if urlsplit(self.path).path in ('/api/studio/v05/motion/vmd-candidate/adopt',
                                        '/api/studio/v05/motion/vmd-candidate/restore'):
-            from studio_v05_vmd_adoption import adopt, restore, AdoptionError
-            from studio_v05_motion_edits import MotionEditError
-            from studio_v05_arrangement import ArrangementError
-            from studio_v05_scene_instances import SceneInstancesError
+            from bai_studio.v05.motion.vmd_adoption import adopt, restore, AdoptionError
+            from bai_studio.v05.motion.motion_edits import MotionEditError
+            from bai_studio.v05.timeline.arrangement import ArrangementError
+            from bai_studio.v05.timeline.scene_instances import SceneInstancesError
             try:
                 length = int(self.headers.get('Content-Length', '0'))
                 if not 0 < length <= 8192:
@@ -1192,7 +1205,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(500, 'VMD placement failed; originals retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/motion-edits':
-            from studio_v05_motion_edits import mutate as edit_motion, MotionEditError
+            from bai_studio.v05.motion.motion_edits import mutate as edit_motion, MotionEditError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1213,8 +1226,8 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Motion edit write failed; original retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/scene/instances':
-            from studio_v05_scene_instances import mutate, SceneInstancesError
-            from studio_v05_pmx_morphs import names as pmx_morph_names
+            from bai_studio.v05.timeline.scene_instances import mutate, SceneInstancesError
+            from bai_studio.v05.assets.pmx_morphs import names as pmx_morph_names
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0 < length <= 8192:return self.bad(413,'Request too large')
@@ -1234,7 +1247,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Scene instances write failed; original retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/pmx/morph-map':
-            from studio_v05_morph_maps import mutate as mutate_morph_map, MorphMapError
+            from bai_studio.v05.assets.morph_maps import mutate as mutate_morph_map, MorphMapError
             try:
                 length = int(self.headers.get('Content-Length', '0'))
                 if not 0 < length <= 8192:
@@ -1257,7 +1270,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(500, 'Morph map write failed; original retained')
             return
         if urlsplit(self.path).path == '/api/studio/v05/vrm/expression-map':
-            from studio_v05_vrm_maps import mutate as mutate_vrm_map, VrmMapError
+            from bai_studio.v05.assets.vrm_maps import mutate as mutate_vrm_map, VrmMapError
             try:
                 length = int(self.headers.get('Content-Length', '0'))
                 if not 0 < length <= 8192:
@@ -1280,7 +1293,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(500, 'VRM map write failed; original retained')
             return
         if urlsplit(self.path).path=='/api/studio/v05/scene/model':
-            from studio_v05_scene_model import set_model,SceneModelError
+            from bai_studio.v05.timeline.scene_model import set_model,SceneModelError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1296,7 +1309,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         if urlsplit(self.path).path in ('/api/studio/v05/asset-sources/register',
                                        '/api/studio/v05/asset-sources/relink'):
-            from studio_v05_asset_sources import register,relink,AssetSourceError
+            from bai_studio.v05.assets.asset_sources import register,relink,AssetSourceError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1316,7 +1329,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Asset source operation failed; original files preserved')
             return
         if urlsplit(self.path).path=='/api/studio/v05/playhead':
-            from studio_v05_playhead import update, PlayheadError
+            from bai_studio.v05.timeline.playhead import update, PlayheadError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=4096:return self.bad(413,'Request too large')
@@ -1335,15 +1348,15 @@ class Handler(BaseHTTPRequestHandler):
                 body=json.loads(self.rfile.read(length))
                 if not isinstance(body,dict):return self.bad(400,'Invalid payload')
                 if path.endswith('/batch-move'):
-                    from studio_v05_arrangement import batch_move
+                    from bai_studio.v05.timeline.arrangement import batch_move
                     if set(body)!={'project_id','revision','edits'}:return self.bad(400,'Invalid fields')
                     result=batch_move(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',layout_root=DATA/'studio_v05_track_layouts',**body)
                 elif path.endswith('/undo'):
-                    from studio_v05_arrangement import undo_batch
+                    from bai_studio.v05.timeline.arrangement import undo_batch
                     if set(body)!={'project_id','revision'}:return self.bad(400,'Invalid fields')
                     result=undo_batch(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',**body)
                 else:
-                    from studio_v05_track_layout import set_flags
+                    from bai_studio.v05.timeline.track_layout import set_flags
                     if set(body)!={'project_id','revision','locked','muted'}:return self.bad(400,'Invalid fields')
                     result=set_flags(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',**body)
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
@@ -1351,7 +1364,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/range':
-            from studio_v05_render_range import save, RenderRangeError
+            from bai_studio.v05.render.render_range import save, RenderRangeError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1368,13 +1381,13 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Render range write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/render/jobs':
-            from studio_v05_media_render import start, RenderError
+            from bai_studio.v05.render.media_render import start, RenderError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
                 required={'project_id','range_revision','arrangement_revision','resolution'}
-                if not isinstance(body,dict) or not required.issubset(body) or set(body)-required-{'scene_revision'}:
+                if not isinstance(body,dict) or not required.issubset(body) or set(body)-required-{'scene_revision','name','collision_mode','replace_job_id'}:
                     return self.bad(400,'Invalid render request')
                 result=start(DATA,inventory=unified_assets(),server_port=self.server.server_port,**body)
                 event('v05_render_started',project_id=body['project_id'],job_id=result['id'])
@@ -1383,8 +1396,26 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid render request')
             except OSError:self.bad(500,'Render job could not start')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/render/restore':
+            from bai_studio.v05.render.render_names import restore, NameError
+            from bai_studio.projects.catalog import load
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','name','job_id','revision','current_job_id'}:
+                    return self.bad(400,'Invalid render restore request')
+                if not any(p['id']==body['project_id'] for p in load(DATA/'studio_v05_catalog.json')['projects']):
+                    return self.bad(404,'Unknown project ID')
+                result=restore(DATA/'studio_v05_media_renders',**body)
+                event('v05_render_restored',project_id=body['project_id'],job_id=body['job_id'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except NameError as exc:self.bad(exc.status,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid render restore request')
+            except OSError:self.bad(500,'Render restore failed; previous version retained')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/layout':
-            from studio_v05_track_layout import update, ArrangementError
+            from bai_studio.v05.timeline.track_layout import update, ArrangementError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1397,7 +1428,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Track layout write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/image-lanes':
-            from studio_v05_track_layout import add_image_lane, ArrangementError
+            from bai_studio.v05.timeline.track_layout import add_image_lane, ArrangementError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1410,7 +1441,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Image lane write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/labels':
-            from studio_v05_track_layout import set_label, ArrangementError
+            from bai_studio.v05.timeline.track_layout import set_label, ArrangementError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1423,7 +1454,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Track label write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/image-lanes/remove':
-            from studio_v05_track_layout import remove_image_lane, ArrangementError
+            from bai_studio.v05.timeline.track_layout import remove_image_lane, ArrangementError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1436,7 +1467,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Image lane write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/target':
-            from studio_v05_arrangement import set_clip_target, ArrangementError
+            from bai_studio.v05.timeline.arrangement import set_clip_target, ArrangementError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1449,8 +1480,8 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Target binding write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/split':
-            from studio_v05_arrangement import split_clip, read as read_arrangement, ArrangementError
-            from studio_v05_media_render import media_info, RenderError
+            from bai_studio.v05.timeline.arrangement import split_clip, read as read_arrangement, ArrangementError
+            from bai_studio.v05.render.media_render import media_info, RenderError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1469,8 +1500,8 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Clip split failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/edit':
-            from studio_v05_arrangement import edit_clip, ArrangementError
-            from studio_v05_media_render import media_info, RenderError
+            from bai_studio.v05.timeline.arrangement import edit_clip, ArrangementError
+            from bai_studio.v05.render.media_render import media_info, RenderError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1481,7 +1512,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not expected<=set(body) or set(body)-expected-({'lane','source_start'} if body.get('action')=='update' else set()):return self.bad(400,'Invalid clip edit fields')
                 args={k:body[k] for k in ('start','duration','track','lane','source_start') if k in body}
                 if body['action']=='update':
-                    from studio_v05_arrangement import read as read_arrangement
+                    from bai_studio.v05.timeline.arrangement import read as read_arrangement
                     current=read_arrangement(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'])
                     clip=next((c for c in current['clips'] if c.get('id')==body['clip_id']),None)
                     if clip and clip.get('category') in ('video','audio','music'):
@@ -1494,8 +1525,8 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Clip update failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement/place':
-            from studio_v05_arrangement import place, ArrangementError
-            from studio_v05_media_render import media_info, RenderError
+            from bai_studio.v05.timeline.arrangement import place, ArrangementError
+            from bai_studio.v05.render.media_render import media_info, RenderError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1503,7 +1534,7 @@ class Handler(BaseHTTPRequestHandler):
                 required={'project_id','asset_id','track','start','duration','revision'}
                 if not isinstance(body,dict) or not required<=set(body) or set(body)-required-{'lane'}:return self.bad(400,'Invalid arrangement request')
                 items=unified_assets()
-                from studio_v05_arrangement import classify
+                from bai_studio.v05.timeline.arrangement import classify
                 entry=next((a for a in items if a.get('id')==body['asset_id'] and a.get('available')),None)
                 media=media_info(DATA,body['asset_id'],items) if entry and classify(entry) in ('video','audio','music') else None
                 result=place(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['asset_id'],body['track'],body['start'],body['duration'],body['revision'],items,layout_root=DATA/'studio_v05_track_layouts',lane=body.get('lane',1),source_duration=media['duration_seconds'] if media else None,source_has_audio=media['has_audio'] if media else None)
@@ -1514,7 +1545,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Arrangement write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/project/activate':
-            from studio_project_activation import activate, ActivationConflict
+            from bai_studio.projects.activation import activate, ActivationConflict
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1531,9 +1562,9 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:return self.bad(500,'復元中にファイル操作が失敗しました。バックアップを確認してください')
             return
         if urlsplit(self.path).path=='/api/studio/v05/project/snapshot':
-            from studio_project_snapshots import save
-            from studio_project_catalog import CatalogError
-            from project_state_bundle import read_bundle
+            from bai_studio.projects.snapshots import save
+            from bai_studio.projects.catalog import CatalogError
+            from bai_studio.projects.state_bundle import read_bundle
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1549,7 +1580,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:return self.bad(500,'Snapshot save failed')
             return
         if urlsplit(self.path).path in ('/api/studio/v05/project/legacy-import/apply','/api/studio/v05/project/legacy-import/revert'):
-            import studio_v05_legacy_import as legacy_import
+            import bai_studio.v05.imports.legacy_import as legacy_import
             applying=urlsplit(self.path).path.endswith('/apply')
             try:
                 try:length=int(self.headers.get('Content-Length','0'))
@@ -1577,7 +1608,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Diagnostic log write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/focus-reports':
-            from studio_v05_focus_reports import save, FocusReportError
+            from bai_studio.v05.timeline.focus_reports import save, FocusReportError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=262144:return self.bad(413,'Request too large')
@@ -1589,7 +1620,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Focus report write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/focus-target':
-            from studio_v05_focus_target import save, FocusTargetError
+            from bai_studio.v05.timeline.focus_target import save, FocusTargetError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1602,7 +1633,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Focus target save failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/project/fps':
-            from studio_project_catalog import set_fps, CatalogError
+            from bai_studio.projects.catalog import set_fps, CatalogError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1615,7 +1646,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Failed to save project FPS')
             return
         if urlsplit(self.path).path in ('/api/studio/v05/projects','/api/studio/v05/projects/rename'):
-            from studio_project_catalog import create, rename, CatalogError
+            from bai_studio.projects.catalog import create, rename, CatalogError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=8192:return self.bad(413,'Request too large')
@@ -1654,7 +1685,7 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=4*1024*1024:return self.bad(413,'bundle too large')
-                from project_state_bundle import save_bundle, read_bundle, bundle_revision
+                from bai_studio.projects.state_bundle import save_bundle, read_bundle, bundle_revision
                 data=json.loads(self.rfile.read(length))
                 with PROJECT_LOCK:
                     expected=self.headers.get('If-Match')
@@ -1674,7 +1705,7 @@ class Handler(BaseHTTPRequestHandler):
                 n=int(self.headers.get('Content-Length','0'))
                 if not 0<n<=16*1024*1024:return self.bad(413,'camera track too large')
                 request=json.loads(self.rfile.read(n))
-                from camera_vmd_bridge import preview_pose
+                from bai_studio.camera.vmd_bridge import preview_pose
                 result=preview_pose(request['track'],request['frame'])
                 self.send(200,json.dumps(result,ensure_ascii=False).encode());return
             except (ValueError,TypeError,KeyError,OverflowError) as exc:return self.bad(400,str(exc))
@@ -1712,7 +1743,7 @@ class Handler(BaseHTTPRequestHandler):
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0 < length <= 65536:return self.bad(413,'sequence edit too large')
                 request=json.loads(self.rfile.read(length))
-                from camera_sequence_edit import edit
+                from bai_studio.camera.sequence_edit import edit
                 with PROJECT_LOCK:
                     path=DATA/'camera_project.json'
                     updated=edit(camera_read_project(path)[0],request)

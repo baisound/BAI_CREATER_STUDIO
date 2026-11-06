@@ -1,24 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T10:32:18+09:00",
-  "updated_by": "claude-code",
-  "branch": "claude/v05-next",
-  "head_at_update": "35b34c1",
+  "updated_at": "2026-11-06T09:12:26+09:00",
+  "updated_by": "codex",
+  "branch": "codex/v05-video-formats-vfr-20261106",
+  "head_at_update": "7b5c4e1",
   "current": {
-    "task": "Codexへの引継ぎ（2026-11-05）",
-    "status": "done",
-    "step": "引継ぎ文書の作成",
-    "design_doc": "docs/handoff/CODEX_HANDOFF_20261105_JA.md"
+    "task": "Issue #33 検証済みPRのmain統合と手元同期",
+    "status": "in_progress",
+    "step": "PR246とPR233の最終確認、継続mainマージ方針の記録、統合試験、利用者mainと8765番の非破壊同期",
+    "design_doc": "docs/handoff/MAIN_SYNC_AFTER_MERGE_JA.md"
   },
   "next_steps": [
-    "Codex は D:\\BAI\\BAI_CREATER_STUDIO\\_codex_work（ブランチ codex/next）で作業する。まず docs/handoff/CODEX_HANDOFF_20261105_JA.md の §0 と次にやることを読む",
-    "ロードマップの次の実施順3の残り（動画内音声、300F超の3D出力、音画1F以内、同名完成物の版管理、保存カメラ無しの自動構図、縦長の欄、出力のMCP）から、まだ残っている項目を確かめて着手する",
-    "次に順4（#187）の残り（開始0秒以外・整数でないFPS、LIPのMCP。実PMX・完成MP4・実歌声SRTは所有者のPC）",
-    "順5の詳細設計（docs/roadmap/R5_GLB_VMD_MOTION_EDIT_DETAILED_DESIGN_20261104_JA.md）は草案。§8 の独立批評を反映し判定を受け直してから実装する"
+    "今回の形式/VFR修正PRを確認し開発ブランチへ統合する。順3の残る形式別・行操作等の受入れ条件を照合する",
+    "承認順序で順4の実歌声SRT・採用口形合成/長尺とLIPネイティブMCPへ進む。順5は設計批評反映後、時刻付きカメラ/CAM019は順6を維持"
   ],
   "unverified": [
-    "DATA-008は要検証のまま（WP-L8bが残る）。WebMCP・標準MCPからの取込と登録、Linux、取込後のMP4は未検証",
-    "既知の失敗：test_v05_timeline_drag_static、studio-v05-pane-layout（mainでも失敗）、実VMD試験のunknown char code。接続の時間切れなど不安定な試験は引継ぎ文書の§4"
+    "実素材WebM/OGV/VFR、長尺VFR・動画重ね、全codec/色忠実度/聴感、今回の形式のネイティブMCP、実GPU/Linuxブラウザと素材詳細の再生不可表示は未検証。複数FPS一括試験の通信拒否1回は単独で非再現。順3全体は未完成"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -32,214 +29,214 @@
   ],
   "history": [
     {
-      "at": "2026-11-05T10:32:18+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "35b34c1",
-      "text": "Codexの作業フォルダ D:\\BAI\\BAI_CREATER_STUDIO\\_codex_work（ブランチ codex/next、origin/main 35b34c1 から作成、npm ci 済み）を用意し、引継ぎ文書の冒頭に「作業フォルダ」節を追加"
-    },
-    {
-      "at": "2026-11-04T16:42:42+00:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "470ca8d",
-      "text": "引継ぎ文書を直した：次の作業はロードマップ順3・4の残り、順5の設計は独立批評を受けた草案（§8）として main に入れる"
-    },
-    {
-      "at": "2026-11-05T01:41:22+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "87ba6b9",
-      "text": "Codexへの引継ぎ文書 docs/handoff/CODEX_HANDOFF_20261105_JA.md を作成。main 87ba6b9（#226）までの状態、終わったこと、順6・WP-L8bへの申し送り、このPCでの試験の実行方法・既知の失敗、動いているローカルサーバー、守ることをまとめた。WP-L8aは所有者の回答「旧の大きさ」で完了済み"
-    },
-    {
-      "at": "2026-11-05T01:41:20+09:00",
-      "by": "claude-code",
+      "at": "2026-11-06T09:12:26+09:00",
+      "by": "codex",
       "event": "start",
-      "head": "87ba6b9",
-      "text": "Codexへの引継ぎ（2026-11-05）: 引継ぎ文書の作成"
+      "head": "7b5c4e1",
+      "text": "Issue #33 検証済みPRのmain統合と手元同期: PR246とPR233の最終確認、継続mainマージ方針の記録、統合試験、利用者mainと8765番の非破壊同期"
     },
     {
-      "at": "2026-11-04T16:05:10+09:00",
-      "by": "claude-code",
+      "at": "2026-11-06T09:08:15+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "9dcf613",
-      "text": "WP-L8a §8手順6・7：説明書（取り込んだキャラクター・ステージの大きさ）、台帳・設計書、実データ確認。台本に§6.4のL1〜L5と--l5/--relabelを足した。所有者の実データ（実GPU）で L1 合格（SCR-06と③の差0）、L2 合格、L3 合格（足と床の差0.132m）、L4 不合格（③の自動の構図のカメラが(105,70,234)でS01の外殻の外）、L5 不合格（S1が見えない、開発側の目視）。ケースR合格（差4.4e-16）。設計§6.4の8により完了にせず、§10の質問を所有者に出す"
+      "head": "b52ea95",
+      "text": "WebM/OGV登録とVFR切出しを検証し元PTS保持・OGV映像不可表示を修正。4条件403F、PCM12窓1F以内。Node対象5件、Windows Python20件、Ubuntu10件、型検査成功。実データ不変"
     },
     {
-      "at": "2026-11-04T15:38:44+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "566fe7d",
-      "text": "WP-L8a §8手順5：§6.3 を BAI_REQUIRE_3D=1・BAI_REQUIRE_REAL=1 で実行し 2/2 合格・skip 0（S・G・K・P・F・A の全対が差0、床5.25、対照は差14.25・1.09375で感度あり、ケースR 実PMX は差4.4e-16）。§6.5：legacy-import-ui/-3d・composite-scene-preview・scene-mp4・real-stage・p2-normalize-parity の17件中16件成功・skip 0、失敗1件（p2-normalize-parity）は②の画面が起動途中で止まる既知の不安定さで、単独再実行2/2成功。saved-composition（実GPU）は IoU 0.886・重心0.005 で順3の記録と同じ"
-    },
-    {
-      "at": "2026-11-04T15:33:55+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "7827460",
-      "text": "WP-L8a §8手順4：§4.3〜4.5 ③の読込（instance-units-v189.mjs の placeInstanceObject、実行部で units を渡し・違えば読み直し、選択欄の「（旧の大きさ）」注釈、floorProbe）と§6.2（N1〜N7、test_v05_multi_model_v58.cjs に2件）。成功"
-    },
-    {
-      "at": "2026-11-04T15:31:43+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "680188e",
-      "text": "WP-L8a §8手順3：§4.2 取込（M3・M4の手順に units:legacy、UNIT_SEMANTICS_DIFFERはM3でcharacterが無い・nullのときだけ・新しい文言、_run_stepで印を渡す、逆変換で印が違えばUNITS_CHANGEDで旧の値のまま）。§6.1の既存試験の直しと§5の往復試験3件を追加。取込・場面インスタンスの試験309件成功"
-    },
-    {
-      "at": "2026-11-04T13:03:33+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "d1a113c",
-      "text": "WP-L8a §8手順2：§4.1 場面インスタンスの印 units（UNITS_LEGACY・_ROW_KEYS、_check_recordの検査、mutateのunits引数はaddで'legacy'だけ）と§6.1 U1〜U8"
-    },
-    {
-      "at": "2026-11-04T13:00:14+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "0fa106a",
-      "text": "WP-L8a §8手順1：§6.3の試験を変更前のコードで実行（BAI_REQUIRE_3D=1、SwiftShader）。L8A_RESULT：S ステージ 旧(-6.5,-0.75,-20)〜(2.5,5.25,-5) ③(-1.25,0,-5.75)〜(3.25,3,1.75) 差14.25／G キャラクター 差1.09375・場面全体 差14.25／F 差3.88／A 差0.875 で不合格。K（スキン付き）と P（最小PMX）は変更前から差0（試験素材が高さ2.0mで中心が原点、最小PMXの最小yが0のため、③の正規化が偶然何もしない。これらは大きさの差を検出できず、スキン・PMXの道の確認として使う。感度は実PMXのケースRで補う）。対照の③の値は計算上の値と一致（ステージ・GLBキャラクター）、旧との差は14.25・1.09375で100ε以上。基準画面の手計算との差は最大6e-8で合格。印・注釈・floorProbe は未実装のため不合格"
-    },
-    {
-      "at": "2026-11-04T12:56:58+09:00",
-      "by": "claude-code",
-      "event": "done",
-      "head": "6ffaa1e",
-      "text": "WP-L8a §6.0：所有者のS01の元の外接箱を② SCR-06で測った（製品コードは変更前）。最小(-50,-50,-50)・最大(50,50,50)、大きさ100m立方（外殻が支配）。判定(a)原点の真上がXZの内側=真、(b)初期カメラ(2,1.6,4.5)が内側=真、(c)最小y=-50≦0.02=真。すべて真のため§8の手順1へ進む。画像 _Claude確認画像/20261104-l8a/step0_before/00_scr06_legacy.png（スタジオ内部・床・壁・照明が元の大きさで見える）"
-    },
-    {
-      "at": "2026-11-04T12:55:17+09:00",
-      "by": "claude-code",
+      "at": "2026-11-06T08:51:58+09:00",
+      "by": "codex",
       "event": "start",
-      "head": "6ffaa1e",
-      "text": "WP-L8a：取込で置いたものの見た目の大きさを旧画面と合わせる: §6.0 所有者のS01の元の外接箱をSCR-06で測る（実装前）"
+      "head": "c286805",
+      "text": "Issue #37/#81 順3の動画形式とVFR: WebM/OGVと可変フレームレートの登録・保存元位置・ブラウザ再生・限定MP4を形式別に確認し不足を修正"
     },
     {
-      "at": "2026-11-04T03:53:38+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T07:41:13+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "f94f114",
-      "text": "WP-L8a 詳細設計を3人の批評で改訂（採否は設計書 §11）。所有者の症状（S1がS01に隠れる）を完了条件 L2〜L5 に加え、実装前に S01 の元の外接箱を SCR-06 で測る §6.0 を足した。スキン付きの試験素材（ケースK）と実PMX（ケースR）、εにRₚ/sの項、UNIT_SEMANTICS_DIFFER は character が無いときだけ残す、古い版で開いたときの範囲、試験の穴（skip防止 BAI_REQUIRE_3D、測ってから判定、対照の手順など）を直した。実装なし"
+      "head": "115286d",
+      "text": "PR244をcodex/nextへ統合。公式MCP SDK127/Chrome156ネイティブ63ツールで同じ作品の6879F/102MB出力・3版保持/置換/復元を確認。元位置/行入力の不足とCP932日本語接続切れを修正。Windows Node4成功、Ubuntu SDK長尺1成功/ブラウザ1skip、pytest8＋5subtests。原本hash保持"
     },
     {
-      "at": "2026-11-04T03:46:54+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T07:12:17+09:00",
+      "by": "codex",
       "event": "start",
-      "head": "c149e02",
-      "text": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）: 3人の批評の採否を決め、詳細設計を改訂する"
+      "head": "f433eff",
+      "text": "Issue #81 順3の公式MCPクライアントとネイティブWebMCP: 実クライアントの初期化/登録/呼出しと同じ作品の出力・同名版管理・保存再読込を検証"
     },
     {
-      "at": "2026-11-04T03:30:08+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T06:23:44+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "92f6afe",
-      "text": "WP-L8a の詳細設計を書いた（実装なし）。案(a)：取込で置くM3・M4の場面インスタンスにだけ印 units:legacy を付け、③は印のときだけ旧と同じ式（単位の換算だけ）で置く。しきい値 ε=0.00001×(1+D) m"
+      "head": "f08c04a",
+      "text": "PR243をcodex/nextへ統合。実動画AACを保持した480pコピー＋別実曲の長尺をWindows3FPS/Ubuntu29.97で確認。派生入力と計940窓でPCM差0。FFmpeg6.1互換と合成末尾1F欠落を修正。Windows pytest25＋5subtests、Ubuntu23成功2skip、Windows Node6/Ubuntu2成功。4K原本hash保持"
     },
     {
-      "at": "2026-11-04T03:20:44+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T05:53:11+09:00",
+      "by": "codex",
       "event": "start",
-      "head": "9c15d43",
-      "text": "WP-L8a：見た目の大きさの換算の詳細設計（実装なし）: ①②③の正規化の調査と詳細設計の執筆"
+      "head": "bf06bfb",
+      "text": "Issue #39/#81 順3の長尺混合音声: 実曲由来の動画内音声と独立音声を長尺で重ね、保存再読込・複数FPS・完成MP4の音声配置を検証"
     },
     {
-      "at": "2026-11-04T11:59:57+09:00",
-      "by": "claude-code",
+      "at": "2026-11-06T05:49:27+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "4dd08b2",
-      "text": "WP-L9：旧保存→v0.5取込の実データ確認。台本 tools/legacy_import_real_check.py（＋画面部分 _ui.cjs）を作り、所有者のPCの実GPUで実行してR1〜R4すべて合格。取込の製品コードに不具合なし。台帳・設計書・証拠文書を同期（DATA-008は要検証のまま）"
+      "head": "25a6586",
+      "text": "PR242を開発ブランチへ統合。Windowsの描画/エンコード強制終了からの回収・旧MP4保持・画面表示・再試行を確認。実2GiB超過停止と合成GLB36000F/600秒の実GPU出力を確認し、再読込時間切れを修正。Windows pytest15＋5subtests、Ubuntu13成功2skip、Node3成功"
     },
     {
-      "at": "2026-11-04T11:47:31+09:00",
-      "by": "claude-code",
+      "at": "2026-11-06T05:20:38+09:00",
+      "by": "codex",
       "event": "start",
-      "head": "4dd08b2",
-      "text": "WP-L9：旧保存→v0.5取込の実データ確認（1コマンドの台本、実GPU、R1〜R4）: 台本の作成と実データでの実行"
+      "head": "e5cc23a",
+      "text": "Issue #81 順3の容量上限と停止復旧: 描画プロセスの所有権・強制終了後の一時領域回収・容量境界と旧完成物保持を検証"
     },
     {
-      "at": "2026-11-04T02:42:30+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T05:14:55+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "69d0415",
-      "text": "WP-L6 v0.5の画面（作品カードのボタン1つ、確認・取消の対話画面、操作説明、隔離Chromeの試験）"
+      "head": "c35edbb",
+      "text": "PR240/241をレビュー修正後にcodex/nextへ統合・ローカル同期。動くGLBと独立WAVの1140F/15指標は差0F。実PMX/VMD/WAV＋実ステージ＋保存カメラ230秒13800Fを実GPUで確認、画像3点MAE0.1671/0.1944/0.2283、PCM3点差0、原本保持"
     },
     {
-      "at": "2026-11-04T02:23:00+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T04:55:55+09:00",
+      "by": "codex",
       "event": "start",
-      "head": "81f4c07",
-      "text": "WP-L6 v0.5の画面（旧保存取込の作品カードのボタンと確認・取消の対話画面）: workspaces-v05.js にボタン1つ、legacy-import-ui-v188.js、index.html、操作説明書、隔離Chrome試験を足す"
+      "head": "b847043",
+      "text": "Issue #39/#63/#81 動く3Dの時計と実ステージ長尺保存カメラ: 移動するGLBの映像指標と音声を照合し、実PMX/VMD/曲/ステージ/保存カメラの長尺MP4を検証"
     },
     {
-      "at": "2026-11-04T02:21:01+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T04:53:00+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "1652bf1",
-      "text": "WP-L5 HTTP窓口4本とMCP/WebMCP道具4本を実装"
+      "head": "b901eb6",
+      "text": "PR240をレビューしてcodex/nextへ統合(7f23009)。PR241は検証記録を両方保持して競合解消し、PCM全長が出力より1F超短くない検査を追加。24/29.97/60fpsを再実行1成功、原本保持"
     },
     {
-      "at": "2026-11-04T01:55:20+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T04:24:27+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ddcd0fd",
+      "text": "実動画(音声なし)と実WAV由来の隔離派生入力で44.1kHz内包音声＋48kHz独立WAVを混合。24/29.97/60fps・元位置切出し・非0開始の15地点でPCM差0サンプル。Node1成功(内部3条件)、原本保持。製品修正不要"
+    },
+    {
+      "at": "2026-11-06T04:19:23+09:00",
+      "by": "codex",
       "event": "start",
-      "head": "6c41381",
-      "text": "WP-L5 旧保存取込のHTTPとMCP: server.py に4 API、mcp_server.py・webmcp.js に4道具、試験2本を足す"
+      "head": "61414b0",
+      "text": "Issue #39/#81 実素材由来の音声重なりとFPS検証: 実動画と実WAVから隔離試験入力を作り44.1/48kHzの混合・24/29.97/60fps・非0開始を完成MP4で確認"
     },
     {
-      "at": "2026-11-04T01:53:47+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T04:09:25+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "1d1b6fe",
-      "text": "WP-L7b 旧タイムライン編集の開始時刻の取込（plan T1〜T4、collect、試験67件）"
+      "head": "4b65dc2",
+      "text": "PR239レビューでWindows描画PID配下のChrome回収を修正。実親子プロセスpytest1成功、720Fと途中編集失敗・旧MP4保持のNode1成功。CI設定によるチェックはPRに無し"
     },
     {
-      "at": "2026-11-04T01:46:56+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T04:06:57+09:00",
+      "by": "codex",
       "event": "start",
-      "head": "55c8662",
-      "text": "WP-L7b 旧タイムライン編集(timeline_editor)の開始時刻の取込: studio_v05_legacy_import.py の plan/collect に T1〜T4 を足す"
+      "head": "adf347e",
+      "text": "PR #239レビューと停止時のChrome回収修正: タイムアウト時に描画プロセス配下を終了し、実プロセス試験と720F回帰後にcodex/nextへ統合"
     },
     {
-      "at": "2026-11-04T01:44:46+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T04:02:41+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "549cb41",
-      "text": "WP-L7a 曲とダンス(SCR-10)の取込を実装（plan S1〜S6・collect・clip手順、試験58件）"
+      "head": "7df900d",
+      "text": "RENDER-001/006の3D描画を透過FFV1逐次書込みへ変更。合成720F・失敗時保持と、実PMX/VMD/WAV230秒13800Fの実GPU完成MP4を確認。全区間音画同期と上限全体は未確認"
     },
     {
-      "at": "2026-11-04T01:37:19+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T03:52:57+09:00",
+      "by": "codex",
       "event": "start",
-      "head": "3aa7216",
-      "text": "WP-L7a 曲とダンス(SCR-10)の配置と開始時刻の取込: studio_v05_legacy_import.py の plan/apply に S 手順と clip_* を足す"
+      "head": "1ef546a",
+      "text": "Issue #39/#81 順3の長尺3D出力: PNG全量保存を透過可逆動画への逐次書込みへ変更し600F超を検証"
     },
     {
-      "at": "2026-11-04T01:36:11+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T02:40:00+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "8e11890",
-      "text": "WP-L4 試験専用の逆変換 _export_legacy_for_test と往復試験(R2/R4)32件"
+      "head": "4c6ee39",
+      "text": "PR #237をcodex/nextへ統合。実PMX・同曲VMD/WAVの600F実GPUプレビュー・MP4と音声3点を確認し、Issue #39/#81・PR #233へ結果を反映"
     },
     {
-      "at": "2026-11-04T01:33:42+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T02:38:28+09:00",
+      "by": "codex",
       "event": "start",
-      "head": "8e11890",
-      "text": "WP-L4 試験専用の逆変換と往復試験(R2/R4): studio_v05_legacy_import.py に _export_legacy_for_test と往復試験"
+      "head": "8b5e528",
+      "text": "PR #237統合後の開発ブランチ引継ぎ: codex/nextの作業位置を順3の実曲600F検証後へ更新し、残る長尺条件を引き継ぐ"
     },
     {
-      "at": "2026-11-04T01:31:03+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T02:33:14+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "933bee4",
-      "text": "WP-L3 レビュー反映(started の印ほか)、試験51件"
+      "head": "20d2bd8",
+      "text": "Issue #39/#81: 実PMX・同曲VMD/WAVの600Fを実GPUでプレビュー・保存再読込・H.264/AAC出力。画素3点変化、音声1/5/9秒位置差0サンプル、原本hash一致"
     },
     {
-      "at": "2026-11-04T01:24:38+00:00",
-      "by": "claude-code",
+      "at": "2026-11-06T02:23:28+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f6c5bd7",
+      "text": "Issue #39/#81 順3の実PMX・実曲600F出力: 実PMX・同曲VMDとWAVを隔離作品へ置き、600Fのプレビュー・MP4・音声・原本保持を検証する"
+    },
+    {
+      "at": "2026-11-06T02:16:44+09:00",
+      "by": "codex",
       "event": "done",
-      "head": "af4b03e",
-      "text": "WP-L3 collect・apply・undo_journal・revert と clear_fps、試験45件"
+      "head": "dfdfee1",
+      "text": "PR #236・#235をcodex/nextへ統合。完了済みworktree6件を保全付き削除し、8765番のv0.5配信をmainから復旧。main/data 503ファイルの前後ハッシュ一致"
+    },
+    {
+      "at": "2026-11-06T02:14:31+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8cc3101",
+      "text": "PR #235統合後の引継ぎ更新: codex/nextの作業位置と8765番サーバー復旧・worktree整理を記録する"
+    },
+    {
+      "at": "2026-11-06T01:59:11+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "1c4bee1",
+      "text": "Issue #234で現行2設計書の移動前Python参照98箇所を新パスへ更新。実在・引用行の範囲・差分形式を確認"
+    },
+    {
+      "at": "2026-11-06T01:55:37+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "871c619",
+      "text": "Issue #234 Python移動後の現行文書参照: 旧作品取込とGLB→VMDの現行設計で移動前Python参照を対応表に従って更新する"
+    },
+    {
+      "at": "2026-11-06T01:53:24+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6ac687d",
+      "text": "基点更新後のUbuntu WSL Python全件が965成功・22スキップ・失敗0で完走。隔離データと原本ハッシュ検査を含む"
+    },
+    {
+      "at": "2026-11-06T01:49:44+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8e3a551",
+      "text": "Issue #234 Python配置整理のUbuntu全件ゲート: 基点更新後のWSL Python全件を再実行し、接続リセットの再現性と原本保護を確認する"
+    },
+    {
+      "at": "2026-11-06T01:44:02+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "d412e67",
+      "text": "PR #235の基点更新後Node全件は505件中445成功・55スキップ・5失敗。3失敗項目は単独で成功、別の3D待機は単独でも失敗。原本ハッシュ一致"
+    },
+    {
+      "at": "2026-11-06T01:32:19+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4c60b3d",
+      "text": "Issue #234 Python配置整理のNode全件ゲート: 基点更新後のNode全件を再実行し、残る失敗の原因を特定する"
     }
   ]
 }

@@ -15,10 +15,10 @@ from http.server import ThreadingHTTPServer
 import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
-import bai_camera
-import project_state_bundle
+import bai_studio.camera.project as bai_camera
+import bai_studio.projects.state_bundle as project_state_bundle
 import server
-from camera_project_revision import revision as camera_revision
+from bai_studio.camera.project_revision import revision as camera_revision
 
 BROKEN = b'{"broken":'
 BACKUP_RE = re.compile(r'^camera_project\.invalid-[0-9a-f]{8}-\d{8}T\d{6}Z\.json$')

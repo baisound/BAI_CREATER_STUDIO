@@ -1,7 +1,7 @@
 import unittest,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from retarget_root import convert_root_samples
+from bai_studio.retarget.root import convert_root_samples
 class TestRoot(unittest.TestCase):
  def test_scale(self):self.assertEqual(convert_root_samples([{'frame':1,'position':[1,2,3]}],2)[0]['position'],[2.0,4.0,6.0])
  def test_yaw(self):

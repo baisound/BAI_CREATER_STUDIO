@@ -1,8 +1,8 @@
 import json,struct,sys,tempfile,unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from model_rest_skeleton import parse
-from retarget_analysis import inspect
+from bai_studio.retarget.model_rest_skeleton import parse
+from bai_studio.retarget.analysis import inspect
 
 def glb(doc):
  raw=json.dumps(doc).encode();raw+=b' ' * ((-len(raw))%4)

@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from studio_v05_vmd_constant import constant_replacements
-from studio_v05_vmd_rewrite import rewrite_bone_section
-from vmd_readback import read_vmd_bones
+from bai_studio.v05.motion.vmd_constant import constant_replacements
+from bai_studio.v05.motion.vmd_rewrite import rewrite_bone_section
+from bai_studio.motion.vmd_readback import read_vmd_bones
 from test_studio_v05_vmd_rewrite import fixture
 
 

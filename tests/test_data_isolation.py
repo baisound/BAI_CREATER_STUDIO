@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-import bai_paths  # noqa: E402
+import bai_studio.core.paths as bai_paths  # noqa: E402
 
 # conftest.py が import 前に設定した値（セッション開始時点で記録）
 SESSION_DIR = os.environ.get('BAI_DATA_DIR')
@@ -46,8 +46,8 @@ def test_default_is_repo_data(monkeypatch):
 
 def test_modules_resolve_from_data_dir():
     import server
-    import diagnostic_logging
-    import qa_capture
+    import bai_studio.core.diagnostic_logging as diagnostic_logging
+    import bai_studio.qa.capture as qa_capture
     base = bai_paths.data_dir()
     assert server.DATA == base
     assert server.RETARGET_FILE == base / 'retarget_profiles.json'

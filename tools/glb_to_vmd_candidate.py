@@ -12,8 +12,8 @@ import bpy
 from mathutils import Quaternion, Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from pmx_bones import parse as parse_pmx
-from studio_v05_glb_vmd_map import BODY, validate as validate_mapping
+from bai_studio.motion.pmx_bones import parse as parse_pmx
+from bai_studio.v05.motion.glb_vmd_map import BODY, validate as validate_mapping
 
 
 def field(value, length):

@@ -2,7 +2,7 @@
 import argparse, json, sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from phase_b_release_gate import evaluate, write_report
+from bai_studio.core.release_gate import evaluate, write_report
 
 p=argparse.ArgumentParser(description='Create blocked-by-default Phase B readiness report')
 p.add_argument('--evidence',type=Path,help='JSON dictionary of manually verified test evidence')

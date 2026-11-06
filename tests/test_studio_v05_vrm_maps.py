@@ -8,8 +8,8 @@ import urllib.request
 from http.server import ThreadingHTTPServer
 
 import server
-from studio_project_catalog import create
-from studio_v05_vrm_expressions import inspect
+from bai_studio.projects.catalog import create
+from bai_studio.v05.assets.vrm_expressions import inspect
 from tests.test_studio_v05_vrm_expressions import glb
 
 

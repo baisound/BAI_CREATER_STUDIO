@@ -10,7 +10,7 @@ from http.server import ThreadingHTTPServer
 import pytest
 
 import server
-from studio_v05_pmx_analysis import inspect, PmxAnalysisError
+from bai_studio.v05.assets.pmx_analysis import inspect, PmxAnalysisError
 from tools.make_test_pmx import build_pmx
 
 

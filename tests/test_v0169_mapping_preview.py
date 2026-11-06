@@ -1,7 +1,7 @@
 import sys, unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from retarget_mapping_preview import preview
+from bai_studio.retarget.mapping_preview import preview
 class MappingPreviewTests(unittest.TestCase):
  def test_transfer_names_only(self):
   r=preview({'LeftArm':'左腕'},[{'bone':'LeftArm','frame':2,'rotation_xyzw':[0,0,0,2]}],['LeftArm'],['左腕'])

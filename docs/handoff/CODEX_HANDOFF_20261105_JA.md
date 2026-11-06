@@ -2,6 +2,11 @@
 
 所有者の依頼「切りの良いところでコーデックスへの引継ぎを作成してください」による。基準は main `87ba6b9`（PR #226 まで）。画面の呼び方は、①が `/` と `camera.html`、②が `/workspace/NN`、③が v0.5（`/studio/v05`）。いまの制作画面は③です。
 
+## 2026-11-06 追補：Python整理の統合と作業環境
+
+- PR #236（プレビュー終端）と PR #235（Python配置整理）を、この順に開発ブランチ `codex/next` へ統合した。#235のマージコミットは `8cc3101`。mainは `3013135` のまま、PR #233は下書き。Windows/UbuntuのPython全件は各965成功・22スキップ。Node全件の5失敗と実GPU・外部Blender等の未検証は [配置整理の記録](../roadmap/PYTHON_PACKAGE_LAYOUT_20261105_JA.md) に残す。
+- Ownerの直接指示により、完了済み6つのGit worktree（`_claude_v05_work`、`_preview_new_ui`、`worktrees/music-dance`、`worktrees/pr-integration`、`worktrees/specs`、`worktrees/v05-direct-timeline`）を解除してローカルから削除した。固有のサンプル原本6件はmainの `data/sample_imports_20261021/`、プレビュー用データ9件は `data/backups/archived_worktree_preview_new_ui_20261106/` にSHA-256を照合して保全した。未コミット変更のある `worktrees/v05-integration` と `worktrees/workflow`、開発中の `_codex_work` は維持した。
+- 削除前に動いていた8765番の旧Pythonサーバーは `_preview_new_ui` のコードから静的画面を配信していた。作業ツリー解除後、APIは200だが `/studio/v05/index.html` が404になったため、旧プロセスを停止し、mainの `server.py` を `BAI_DATA_DIR=<main>/data` で非表示起動した。切替後は `/api/server-version`、作品一覧、v0.5画面がすべて200。mainの `data/` 503ファイル（`data/logs/` を除く）の前後SHA-256集約値 `8079e2113119b48b85e41d55e87684a6853ce28ad0397275f0891601e98746ab` は一致した。以前の「8765番は `_preview_new_ui` から起動」の記述はこの時点では古い。
 ## 0. 作業フォルダ（最初に必ず読む）
 
 | 項目 | 値 |

@@ -1,7 +1,7 @@
 import unittest,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from retarget_pose import shortest_arc,propose_pose,transform_samples
+from bai_studio.retarget.pose import shortest_arc,propose_pose,transform_samples
 
 def doc(fmt,coords):
     return {'filename':'test.'+fmt.lower(),'format':fmt,'suggested_mapping':{k:k for k in coords},'metadata':{'bones_detail':[{'name':k,'position' if fmt=='PMX' else 'head_local':v} for k,v in coords.items()]},'warnings':[]}

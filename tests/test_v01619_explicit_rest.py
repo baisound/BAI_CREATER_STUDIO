@@ -1,5 +1,5 @@
 import math, unittest
-from rest_rotation_transfer import preview
+from bai_studio.retarget.rest_rotation_transfer import preview
 
 class TestExplicitRest(unittest.TestCase):
     def sample(self,source=[0,0,0,1],target=[0,0,0,1],delta=[0,0,0,1]):

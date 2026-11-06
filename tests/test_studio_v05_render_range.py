@@ -3,9 +3,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from studio_project_catalog import create, set_fps
-from studio_v05_arrangement import place, edit_clip, read as read_arrangement
-from studio_v05_render_range import read, save, RenderRangeError
+from bai_studio.projects.catalog import create, set_fps
+from bai_studio.v05.timeline.arrangement import place, edit_clip, read as read_arrangement
+from bai_studio.v05.render.render_range import read, save, RenderRangeError
 
 
 class RenderRangeTests(unittest.TestCase):

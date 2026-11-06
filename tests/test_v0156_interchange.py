@@ -1,7 +1,7 @@
 import unittest,sys,struct,json
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from motion_interchange import glb_channels,bvh_channels
+from bai_studio.motion.motion_interchange import glb_channels,bvh_channels
 class TestInterchange(unittest.TestCase):
  def test_bvh(self):
   data=b'HIERARCHY\nROOT Hips\n{\n OFFSET 0 0 0\n CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation\n}\nMOTION\nFrames: 2\nFrame Time: 0.0333333\n0 0 0 0 0 0\n2 0 0 30 0 0\n'

@@ -1,5 +1,5 @@
 import json, math, struct, unittest
-from animated_hierarchy_preview import preview
+from bai_studio.retarget.animated_hierarchy_preview import preview
 
 
 def fixture(interpolation='LINEAR'):

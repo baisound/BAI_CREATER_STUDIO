@@ -1,6 +1,6 @@
 import unittest
 from pathlib import Path
-from retarget_keyframe_review import build_keyframe_review
+from bai_studio.retarget.keyframe_review import build_keyframe_review
 ROOT=Path(__file__).resolve().parents[1]
 def fixture():
  return {'kind':'unverified_rotation_review_bundle','suitable_for_vmd_export':False,'animation_applied':False,'fps':30,'warnings':[{'issue':'unverified'}], 'samples':[{'frame':0,'role':'leftUpperArm','target_node':3,'local_rotation_xyzw':[0,0,0,2]},{'frame':2,'role':'leftUpperArm','target_node':3,'local_rotation_xyzw':[0,0,0,1]}]}

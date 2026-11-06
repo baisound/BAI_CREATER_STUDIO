@@ -1,8 +1,8 @@
 import sys, unittest, tempfile
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from bvh_skeleton import parse_bvh_skeleton
-from retarget_analysis import inspect
+from bai_studio.motion.bvh_skeleton import parse_bvh_skeleton
+from bai_studio.retarget.analysis import inspect
 
 SAMPLE=b'''HIERARCHY
 ROOT Hips

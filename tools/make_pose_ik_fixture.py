@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from pose_ik import validate_pose  # noqa: E402
+from bai_studio.motion.pose_ik import validate_pose  # noqa: E402
 
 # pose_ik_ui.js:4 の template と同じ値
 TEMPLATE = {

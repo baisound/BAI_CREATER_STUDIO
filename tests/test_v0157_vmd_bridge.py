@@ -1,7 +1,7 @@
 import sys,unittest,tempfile,struct
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from motion_vmd_bridge import euler_channels_to_quat,convert
+from bai_studio.motion.motion_vmd_bridge import euler_channels_to_quat,convert
 
 class TestBridge(unittest.TestCase):
  def test_identity(self):self.assertEqual(euler_channels_to_quat([('Xrotation',0),('Yrotation',0)]),(1.,0.,0.,0.))

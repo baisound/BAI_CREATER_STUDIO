@@ -6,8 +6,8 @@ import threading
 from pathlib import Path
 import pytest
 
-from studio_v05_glb_vmd_map import BODY, MappingError, _read, validate
-from studio_v05_glb_vmd import ConversionError, convert
+from bai_studio.v05.motion.glb_vmd_map import BODY, MappingError, _read, validate
+from bai_studio.v05.motion.glb_vmd import ConversionError, convert
 
 
 def names():

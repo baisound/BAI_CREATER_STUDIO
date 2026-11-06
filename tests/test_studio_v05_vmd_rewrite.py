@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from studio_v05_vmd_rewrite import RECORD_SIZE, rewrite_bone_section, write_distinct_vmd
-from vmd_readback import read_vmd_bones
+from bai_studio.v05.motion.vmd_rewrite import RECORD_SIZE, rewrite_bone_section, write_distinct_vmd
+from bai_studio.motion.vmd_readback import read_vmd_bones
 
 
 def record(name, frame, x):
@@ -42,6 +42,15 @@ def test_rewrite_keeps_unedited_bones_and_non_bone_suffix(tmp_path):
     assert [(row['bone'], row['frame']) for row in parsed['records']] == [
         ('頭', 0), ('センター', 4), ('左足ＩＫ', 5)]
     assert parsed['records'][0]['position'][0] == 1
+
+
+def test_empty_source_model_label_is_preserved_without_weakening_bone_names():
+    source = fixture()[:30] + bytes(20) + fixture()[50:]
+    rewritten, _ = rewrite_bone_section(source, [sample('頭', 0, 1)])
+    assert rewritten[:50] == source[:50] and rewritten != source
+    malformed = source[:54] + bytes(15) + source[69:]
+    with pytest.raises(ValueError, match='Empty bone name'):
+        rewrite_bone_section(malformed, [sample('頭', 0, 1)])
 
 
 def test_distinct_exclusive_destination_and_source_hash(tmp_path):

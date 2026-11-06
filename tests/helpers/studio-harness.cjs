@@ -167,6 +167,27 @@ async function startServer({ port, seed = {} } = {}) {
     if (removeDir(dataDir)) liveDirs.delete(dataDir);
     else console.warn(`[harness] 警告: 一時ディレクトリを削除できませんでした。手で消してください: ${dataDir}`);
   }
+  async function launch() {
+    exited.done = false; exited.code = null; exited.chunks = [];
+    child = spawn(python, ['server.py', String(port)], {
+      cwd: root, stdio: ['ignore', 'ignore', 'pipe'], env: { ...process.env, BAI_DATA_DIR: dataDir },
+    });
+    child.stderr.on('data', (d) => exited.chunks.push(d));
+    liveChildren.add(child);
+    child.on('exit', (code) => { exited.done = true; exited.code = code; liveChildren.delete(child); });
+    child.on('error', (e) => { exited.done = true; exited.chunks.push(Buffer.from(String(e))); });
+    await waitForServer(base, child, exited);
+  }
+  async function crash() {
+    if (!child || exited.done) return;
+    const gone = new Promise(resolve => child.once('exit', resolve));
+    child.kill('SIGKILL');
+    await gone;
+  }
+  async function restart() {
+    if (!exited.done) throw new Error('Crash the owned test server before restarting');
+    await launch();
+  }
   try {
     fs.mkdirSync(path.join(dataDir, 'integrated_v02'), { recursive: true });
     fs.writeFileSync(path.join(dataDir, 'integrated_v02', 'catalog.json'), JSON.stringify({ models: [], motions: [] }));
@@ -176,14 +197,7 @@ async function startServer({ port, seed = {} } = {}) {
       fs.mkdirSync(path.dirname(f), { recursive: true });
       fs.writeFileSync(f, content);
     }
-    child = spawn(python, ['server.py', String(port)], {
-      cwd: root, stdio: ['ignore', 'ignore', 'pipe'], env: { ...process.env, BAI_DATA_DIR: dataDir },
-    });
-    child.stderr.on('data', (d) => exited.chunks.push(d));
-    liveChildren.add(child);
-    child.on('exit', (code) => { exited.done = true; exited.code = code; liveChildren.delete(child); });
-    child.on('error', (e) => { exited.done = true; exited.chunks.push(Buffer.from(String(e))); });
-    await waitForServer(base, child, exited);
+    await launch();
   } catch (e) {
     await stop();
     throw e;
@@ -202,7 +216,7 @@ async function startServer({ port, seed = {} } = {}) {
     return page;
   }
 
-  return { base, dataDir, stop, launchBrowser, newPage };
+  return { base, dataDir, stop, crash, restart, launchBrowser, newPage };
 }
 
 module.exports = {

@@ -1,7 +1,7 @@
 import unittest,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from foot_contact import diagnose,root_offset_proposal
+from bai_studio.motion.foot_contact import diagnose,root_offset_proposal
 class FootTests(unittest.TestCase):
  def test_contact_and_sliding(self):
   a=[{'frame':i,'position':[x,.01,0]} for i,x in enumerate([0,.01,.25,.28])]

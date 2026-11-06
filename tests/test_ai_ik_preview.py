@@ -1,8 +1,8 @@
 import unittest,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from ai_ik_preview import preview
-from bai_ai_manager import status
+from bai_studio.retarget.ai_ik_preview import preview
+from bai_studio.integrations.ai_manager import status
 
 BASE={'frame':42,'limbs':{'rightArm':{'base':[0,0],'target':[0.5,0.3],'upper':0.4,'lower':0.4,'bend':1},'leftLeg':{'base':[0,0],'target':[0.25,0.65],'upper':0.5,'lower':0.5,'bend':-1}}}
 class PreviewTests(unittest.TestCase):
