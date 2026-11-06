@@ -1,0 +1,62 @@
+{
+  "implementationCommit": "2df1393d6ff1f95ea99f59d760410940a379c5ac",
+  "pullRequest": 262,
+  "mergedMain": "cba7fc964a21d29af838db15bb5b2038b49d8dc6",
+  "oldPid": 31492,
+  "newPid": 79028,
+  "activeSavedJobsBeforeRestart": 0,
+  "hiddenRestart": true,
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80"
+    },
+    "studio/v05/js/asset-workflow-v06.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "3dbb0edae9254da2d028adfd4ae2e878f19b3a1330257ad652945e9674e23111"
+    },
+    "studio/v05/js/project-media-preview-v68.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "e786fd713246f8895128cfdf20f807e178201ba365bf423178ac5cedf94b0246"
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "dcf63788596c2a2de587b27e2fc7ec357d261a3c09af642fb117a4063027adb7"
+    }
+  },
+  "chrome": {
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "videoTools": true,
+    "addText": "＋ 動画トラック",
+    "removeText": "空の動画行を削除",
+    "videoLaneIds": [
+      1
+    ],
+    "nextVideoLaneId": 2,
+    "layoutRevision": 1
+  },
+  "issueComment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6682867972",
+  "issueImage": {
+    "complete": true,
+    "width": 1440,
+    "height": 900,
+    "visible": true,
+    "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/2df1393/qa/video-lanes-ui-20261106.png",
+    "sha256": "135f5cb5706b23178b68bcbfbbf422bf1faae0c571a4a473bddb04b91e482997"
+  },
+  "localMainSame": true,
+  "codexNextSame": true,
+  "protectedFileCount": 515,
+  "protectedAggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+  "protectedFilesAndDirtyListUnchanged": true,
+  "githubChecksRegistered": false,
+  "verificationAttempts": {
+    "githubImageInitialHydrationDetach": 1,
+    "githubImageScrollBeforeVisible": 1,
+    "finalReadOnlyChromePassed": true
+  }
+}
