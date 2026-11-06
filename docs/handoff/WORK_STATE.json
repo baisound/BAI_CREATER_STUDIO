@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T09:51:54+09:00",
+  "updated_at": "2026-11-06T10:00:06+09:00",
   "updated_by": "codex",
   "branch": "codex/roadmap-media-detail-20261106",
-  "head_at_update": "dccb86a",
+  "head_at_update": "2b25713",
   "current": {
     "task": "Issue #69 全体ロードマップ整理と#248完成動画の一覧ダウンロード",
     "status": "done",
@@ -11,11 +11,10 @@
     "design_doc": "docs/v05/RENDER_DOWNLOAD_LIST_20261106_JA.md"
   },
   "next_steps": [
-    "検証済みの全体整理/完成動画DLのPRをmainへ随時統合し、利用者mainと8765の同期を確認する",
-    "承認済み順3の形式・行操作とOGV素材詳細の残件を維持し、順4の実歌詞・採用口形・長尺とネイティブMCPへ続く"
+    "承認済み順3の形式・行操作とOGV素材詳細の残件を維持し、順4の実歌詞・採用口形・長尺とネイティブMCPへ続く。段階が終わるごとに工数見積もりを更新する"
   ],
   "unverified": [
-    "実素材VFR/長尺/全codec、採用口形長尺、Linuxブラウザ/今回一覧のネイティブMCPは未検証。既知証拠ゲート2失敗と開発依存監査3件を維持。工数は測定済み時間やAI納期ではなく粗い計画見積もり"
+    "他ブラウザ/Linuxブラウザ/今回一覧のネイティブWebMCP/極端な大量履歴は未検証。既知証拠ゲート2失敗と開発依存監査3件を維持。工数は前提付きの粗い作業量でAI稼働時間や納期ではない"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T10:00:06+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2b25713",
+      "text": "PR249をmain2b25713へマージし利用者main・開発ブランチ・8765へ同期。既存完成物4件を新一覧APIで確認。515ファイルと変更一覧は不変。全体現在地と工数の整理、DL4回hash一致、対象Node6成功1skip・Win15/Ubuntu5成功を記録"
+    },
     {
       "at": "2026-11-06T09:51:54+09:00",
       "by": "codex",
@@ -230,13 +236,6 @@
       "event": "done",
       "head": "1c4bee1",
       "text": "Issue #234で現行2設計書の移動前Python参照98箇所を新パスへ更新。実在・引用行の範囲・差分形式を確認"
-    },
-    {
-      "at": "2026-11-06T01:55:37+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "871c619",
-      "text": "Issue #234 Python移動後の現行文書参照: 旧作品取込とGLB→VMDの現行設計で移動前Python参照を対応表に従って更新する"
     }
   ]
 }
