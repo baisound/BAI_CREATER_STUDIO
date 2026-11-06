@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T12:44:45+09:00",
+  "updated_at": "2026-11-06T12:50:56+09:00",
   "updated_by": "codex",
-  "branch": "codex/lip-native-composite-20261106",
-  "head_at_update": "d01b7d8",
+  "branch": "codex/lip-real-long-20261106",
+  "head_at_update": "e688caf",
   "current": {
-    "task": "Issue #187 合成VMD候補の公式SDKとネイティブWebMCP",
-    "status": "done",
-    "step": "既存の画面合成候補試験を公式SDKと実Chromeネイティブ呼出しへ拡張し、全キー再読込・バイト同一・不連続と失効拒否を照合する",
-    "design_doc": "docs/v05/LIP001_NATIVE_COMPOSITE_20261106_JA.md"
+    "task": "Issue #187/#81 実歌声と口形を含む長尺MP4",
+    "status": "in_progress",
+    "step": "実歌声・実曲VMD/PMXを隔離複製し全区間の口形と音声配置を測定。既存口形の212秒終端と末尾4発話欠落を記録し、採用検証層の長尺保存/再読込/出力を確認する",
+    "design_doc": "docs/v05/LIP001_REAL_VOCAL_LONG_20261106_JA.md"
   },
   "next_steps": [
     "順4の実歌声読み・採用口形・実曲元VMDの長尺MP4へ進む。実歌詞54発話はOwner未確認/未採用を維持し、自動確定しない。順3の実形式・Linuxブラウザー等の残件、順5再判定と順6を維持。日単位の工数44〜88作業日は段階終了時に再見積もり"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T12:50:56+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e688caf",
+      "text": "Issue #187/#81 実歌声と口形を含む長尺MP4: 実歌声・実曲VMD/PMXを隔離複製し全区間の口形と音声配置を測定。既存口形の212秒終端と末尾4発話欠落を記録し、採用検証層の長尺保存/再読込/出力を確認する"
+    },
     {
       "at": "2026-11-06T12:44:45+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "adf347e",
       "text": "PR #239レビューと停止時のChrome回収修正: タイムアウト時に描画プロセス配下を終了し、実プロセス試験と720F回帰後にcodex/nextへ統合"
-    },
-    {
-      "at": "2026-11-06T04:02:41+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "7df900d",
-      "text": "RENDER-001/006の3D描画を透過FFV1逐次書込みへ変更。合成720F・失敗時保持と、実PMX/VMD/WAV230秒13800Fの実GPU完成MP4を確認。全区間音画同期と上限全体は未確認"
     }
   ]
 }
