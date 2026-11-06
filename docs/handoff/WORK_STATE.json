@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T21:53:39+09:00",
+  "updated_at": "2026-11-06T21:59:21+09:00",
   "updated_by": "codex",
-  "branch": "codex/mp3-timeline-20261106",
-  "head_at_update": "0befb84",
+  "branch": "codex/mp3-timeline-sync-20261106",
+  "head_at_update": "7e63b5c",
   "current": {
-    "task": "Issue #81 順3のMP3元区間と長尺同期",
-    "status": "done",
-    "step": "登録MP3と実曲由来MP3の実尺・先頭/中間/末尾・分割移動/再伸長・保存復元をプレビュー/MP4と照合し、必要な時刻修正を行う",
+    "task": "Issue #81 MP3元区間のmain/制作画面同期を引き継ぐ",
+    "status": "in_progress",
+    "step": "main7e63b5c・手元/開発木・8765再起動/実尺/両MCP・515ファイル不変・Issue画像実表示を正本へ記録",
     "design_doc": "docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T21:59:21+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "7e63b5c",
+      "text": "Issue #81 MP3元区間のmain/制作画面同期を引き継ぐ: main7e63b5c・手元/開発木・8765再起動/実尺/両MCP・515ファイル不変・Issue画像実表示を正本へ記録"
+    },
     {
       "at": "2026-11-06T21:53:39+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "dccb86a",
       "text": "全体の現在地と前提付き残工数を簡単な言葉で整理。#248完成物一覧・直接DL・作品切替・旧版・ページ・出力準備と独立した取得を接続。Chrome実DL4回hash一致、対象Node6成功1skip、Windows15成功/Ubuntu5成功、型成功"
-    },
-    {
-      "at": "2026-11-06T09:37:54+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9dc11fa",
-      "text": "Issue #69 全体ロードマップ整理と#248完成動画の一覧ダウンロード: 全体の現在地と残工数を記録し、完成物の直接ダウンロード・作品選択・古い履歴・出力準備と独立した一覧を実装検証する。OGV素材詳細は最新Owner依頼の後へ保持"
     }
   ]
 }
