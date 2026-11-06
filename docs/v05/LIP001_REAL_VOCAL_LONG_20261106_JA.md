@@ -88,3 +88,9 @@ WindowsとUbuntuの入力/原本区画保持は各17成功。最初のWindows実
 [既存口形長尺の機械可読証拠](../../qa/lip-existing-mouth-long-2997fps-20261106.json)に、作品/モデル/ジョブID、配置・In/Out、カメラ、入力hash、9地点、190音声窓を記録した。原本PMX/VMD/SRT/歌声/reportと全モデル/テクスチャ、ガードdata5件は前後不変。構図修正後の途中1回はブラウザーERR_CONNECTION_TIMED_OUTで失敗し、成功件数へ含めない。リクエスト失敗URLを残して隔離再実行し、最終は成功。意図したページ再読込でのERR_ABORTEDと、実際のconsoleエラー監視は分けて扱う。
 
 ローカルの選択口形の確認動画は `D:/BAI/BAI_CREATER_STUDIO/_Claude確認画像/2026-11-06-lip-real-vocal-long/existing-vmd-mouth-real-vocal-29.97fps.mp4`。同じフォルダーに証拠JSONと確認画像を保存する。Eagleへの登録・原本素材のGit追加は行わない。
+
+## main反映・手元同期（実施済み）
+
+PR #255をmain `dc88958`、Owner選択の既存口形のPR #256をmain `a13d16d`へ反映した。利用者mainと開発codex/nextはfast-forward済み。8765番のv0.5ページ・JSをmainとバイト照合し、利用者515ファイルと変更一覧は前後不変（集約SHA-256 `89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d`）。製品コードは今回変更しておらず、確認動画のために利用者の作品を変更する画面操作もしていない。
+
+代表画像は[Issue #187の結果コメント](https://github.com/baisound/BAI_CREATER_STUDIO/issues/187#issuecomment-6676918555)へ画像として添付した。公開JPEGとローカル画像のhash一致、実Chrome上での960×180画像の読込・表示を確認済み。原歌詞・アカウント情報・ローカルパスの写り込みはない。後続の文書反映は、この同期記録と作業位置を更新するだけで製品実装を変えない。
