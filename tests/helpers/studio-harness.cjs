@@ -219,7 +219,30 @@ async function startServer({ port, seed = {} } = {}) {
   return { base, dataDir, stop, crash, restart, launchBrowser, newPage };
 }
 
+// Playwright 1.56 page.waitForFunction treats an async predicate's Promise as
+// truthy before it resolves. Await evaluate on the Node side before polling.
+async function waitForAsync(page, predicate, arg, { timeout = 30000, interval = 50 } = {}) {
+  const deadline = timeout === 0 ? Infinity : Date.now() + timeout;
+  for (;;) {
+    if (Date.now() >= deadline) throw new Error('Asynchronous browser condition did not become true');
+    let timer;
+    let result;
+    try {
+      const pending = page.evaluate(predicate, arg);
+      result = timeout === 0 ? await pending : await Promise.race([
+        pending, new Promise((_, reject) => {
+          timer = setTimeout(() => reject(new Error('Asynchronous browser condition did not become true')), Math.max(1, deadline - Date.now()));
+        }),
+      ]);
+    } finally { clearTimeout(timer); }
+    if (result) return result;
+    if (Date.now() >= deadline) throw new Error('Asynchronous browser condition did not become true');
+    await new Promise(resolve => setTimeout(resolve, interval));
+  }
+}
+
 module.exports = {
+  waitForAsync,
   startServer, expectErrors, assertNoErrors, launchBrowser, webglRenderer, chromiumPath, routeThree,
   haveThree, threeDir, skip3d, THREE_SKIP_REASON, GUARDED_POSTS, removeDir, root, python,
 };

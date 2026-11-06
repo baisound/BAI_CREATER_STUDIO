@@ -487,7 +487,9 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
                          f"fps={_num(fps)}:start_time=0:round=up,trim=duration={_num(length)},"
                          f"scale={width}:{height}:force_original_aspect_ratio=decrease,"
                          f"pad={width}:{height}:(ow-iw)/2:(oh-ih)/2:color=black@0,"
-                         f"format=yuva420p,setpts=PTS+{_num(cstart)}/TB[{label}]")
+                         # fps resets the timebase. Restore microseconds before
+                         # adding the saved start, or 1s at 29.97fps floors to 29F.
+                         f"format=yuva420p,settb=AVTB,setpts=PTS+{_num(cstart)}/TB[{label}]")
             next_base = f"overlay{order}"
             graph.append(f"[{base}][{label}]overlay=0:0:eof_action=pass:shortest=0:"
                          f"enable='gte(t,{_num(cstart)})*lt(t,{_num(cend)})'[{next_base}]")

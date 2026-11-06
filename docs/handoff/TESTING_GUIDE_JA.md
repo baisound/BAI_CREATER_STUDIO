@@ -121,3 +121,8 @@ P2 は既存機能を新UI（`/workspace/NN`）へ移した段階である。主
 | test_project_envelope.py ほか（`npm run test:p2-py`） | POST /api/project の版・壊れたファイル、カメラ保存の不正値、実 data/ の隔離 |
 
 画面の `real` 表示の証拠は `npm run test:evidence`、新UIの画面操作は `npm run test:studio` と `npm run test:node-all`、サーバーは `python -m pytest -q`。
+
+
+## 2026-11-06 非同期のブラウザー待機（#61）
+
+この環境のPlaywright1.56.1では `page.waitForFunction(async () => ...)` のPromiseがtruthyとして先に通る実装を、偽条件と実コードで確認した。非同期条件は `harness.waitForAsync(page, predicate, arg, {timeout})` を使い、Node側でevaluateの完了値を待つ。DOMだけなら同期のwaitForFunction/locatorを使う。[公式のtruthy契約](https://playwright.dev/docs/api/class-page#page-wait-for-function)と[実測・対象4試験・回帰](../v05/VIDEO_LANES_20261106_JA.md#試験待機の依存修正61)を参照。以前の直接assertまで一括で取り消さず、観測条件を個別に照合する。

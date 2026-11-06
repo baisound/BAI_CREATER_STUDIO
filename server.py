@@ -1361,7 +1361,7 @@ class Handler(BaseHTTPRequestHandler):
                 elif path.endswith('/undo'):
                     from bai_studio.v05.timeline.arrangement import undo_batch
                     if set(body)!={'project_id','revision'}:return self.bad(400,'Invalid fields')
-                    result=undo_batch(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',**body)
+                    result=undo_batch(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',layout_root=DATA/'studio_v05_track_layouts',**body)
                 else:
                     from bai_studio.v05.timeline.track_layout import set_flags
                     if set(body)!={'project_id','revision','locked','muted'}:return self.bad(400,'Invalid fields')
@@ -1447,6 +1447,19 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid image lane request')
             except OSError:self.bad(500,'Image lane write failed')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/timeline/video-lanes':
+            from bai_studio.v05.timeline.track_layout import add_video_lane, ArrangementError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','revision'}:return self.bad(400,'Invalid video lane request')
+                result=add_video_lane(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',body['project_id'],body['revision'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid video lane request')
+            except OSError:self.bad(500,'Video lane write failed')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/labels':
             from bai_studio.v05.timeline.track_layout import set_label, ArrangementError
             try:
@@ -1472,6 +1485,19 @@ class Handler(BaseHTTPRequestHandler):
             except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid image lane removal request')
             except OSError:self.bad(500,'Image lane write failed')
+            return
+        if urlsplit(self.path).path=='/api/studio/v05/timeline/video-lanes/remove':
+            from bai_studio.v05.timeline.track_layout import remove_video_lane, ArrangementError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','revision','lane'}:return self.bad(400,'Invalid video lane removal request')
+                result=remove_video_lane(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',DATA/'studio_v05_arrangements',body['project_id'],body['revision'],body['lane'])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid video lane removal request')
+            except OSError:self.bad(500,'Video lane write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement/clip/target':
             from bai_studio.v05.timeline.arrangement import set_clip_target, ArrangementError

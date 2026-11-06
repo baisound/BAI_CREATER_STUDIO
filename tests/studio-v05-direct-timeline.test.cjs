@@ -42,7 +42,7 @@ test('drag registered image to saved timeline, move/resize, add lane, then reloa
     await page.mouse.down();
     await page.mouse.move(rect.x + rect.width - 4 + 72, rect.y + rect.height / 2, { steps: 8 });
     await page.mouse.up();
-    await page.waitForFunction(async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips[0].duration >= 7.9, id);
+    await harness.waitForAsync(page, async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips[0].duration >= 7.9, id);
     await page.waitForFunction(() => document.querySelector('#v07timeline [data-clip-id]')?.title.includes('13秒'));
     data = await json(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`));
     assert.equal(data.clips[0].duration, 8);
@@ -51,15 +51,15 @@ test('drag registered image to saved timeline, move/resize, add lane, then reloa
     await page.mouse.down();
     await page.mouse.move(rect.x + rect.width / 2 + 48, rect.y + rect.height / 2, { steps: 8 });
     await page.mouse.up();
-    await page.waitForFunction(async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips[0].start >= 6.9, id);
+    await harness.waitForAsync(page, async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips[0].start >= 6.9, id);
     await page.waitForFunction(() => Number(document.querySelector('#v07timeline [data-clip-id]')?.title.match(/\/ ([\d.]+)秒/)?.[1]) >= 6.9);
     await source.dragTo(lane1, { targetPosition: { x: 480, y: 15 } });
-    await page.waitForFunction(async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips.length === 2, id);
+    await harness.waitForAsync(page, async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips.length === 2, id);
     await page.getByRole('button', { name: '＋ 画像トラック' }).click();
     const lane2 = page.locator('#v07timeline [data-track="image"][data-lane="2"]');
     await lane2.waitFor();
     await source.dragTo(lane2, { targetPosition: { x: 0, y: 15 } });
-    await page.waitForFunction(async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips.length === 3, id);
+    await harness.waitForAsync(page, async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips.length === 3, id);
     await page.reload();
     await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="edit"]').click();
@@ -83,7 +83,7 @@ test('drag registered image to saved timeline, move/resize, add lane, then reloa
     await page.locator(`#v07timeline [data-clip-id="${lane2Clip.id}"]`).dblclick();
     await page.locator('#v77EditLane').selectOption('3');
     await page.locator('#v08save').click();
-    await page.waitForFunction(async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips.some(c => c.lane === 3), id);
+    await harness.waitForAsync(page, async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips.some(c => c.lane === 3), id);
     await page.locator('#v80RemoveLane').selectOption('2');
     await page.getByRole('button', { name: '空の画像行を削除' }).click();
     await page.waitForFunction(() => !document.querySelector('#v07timeline [data-track="image"][data-lane="2"]'));

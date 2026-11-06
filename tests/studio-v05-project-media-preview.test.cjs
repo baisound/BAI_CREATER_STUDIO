@@ -62,7 +62,7 @@ test('saved v0.5 image, WAV and MP4 clips share the selected project frame in re
     await page.locator('#v68frame').fill('60');
     await page.locator('#v68seek').click();
     await page.waitForFunction(() => window.BAIStudioMediaPreviewV68.status().frame === 60);
-    await page.waitForFunction(async projectId => {
+    await harness.waitForAsync(page, async projectId => {
       const response = await fetch(`/api/studio/v05/playhead?id=${encodeURIComponent(projectId)}`);
       return response.ok && (await response.json()).seconds === 1;
     }, id);

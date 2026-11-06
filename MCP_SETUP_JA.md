@@ -89,3 +89,8 @@ SRT原本のBase64バイト取込、読み、候補、下書き、別名モー�
 ### 2026-11-06 音声トラックのミュート
 
 既存 `bai_studio_track_flags_set` の `muted` にある `audio` / `music` / `video` は、その行の音だけをプレビューと次のMP4へ反映する。動画の映像と元時刻は保持。最新revisionは `bai_studio_track_layout_get` から取得する。処理中の変更は次の出力へ適用し、各ジョブの `audio_settings` は開始時設定を記録する。[実行・未検証](docs/v05/TRACK_AUDIO_MUTE_20261106_JA.md)。
+
+
+### 2026-11-06 動画行の追加・空行削除
+
+既存 `bai_studio_track_layout_set` に `action: "add_video_lane" / "remove_video_lane"` を追加。project_id/revision、削除時laneを指定する。getで安定video_lane_ids/next_video_lane_idを読む。動画1は旧保存互換、最大16、削除番号非再利用、占有/最後の行/古いrevisionは拒否。既存画像action/省略更新は維持。[操作・実測・未検証](docs/v05/VIDEO_LANES_20261106_JA.md)。
