@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T13:32:36+09:00",
+  "updated_at": "2026-11-06T16:37:52+09:00",
   "updated_by": "codex",
-  "branch": "codex/lip-existing-mouth-long-20261106",
-  "head_at_update": "a13d16d",
+  "branch": "codex/lip-tail-four-candidate-20261106",
+  "head_at_update": "9fa1601",
   "current": {
-    "task": "Issue #187 Owner選択の既存VMD口形と実歌声の長尺",
-    "status": "done",
-    "step": "選択された既存口形を変えず、実歌声全区間と29.97fps/非0開始の保存・プレビュー・約231秒MP4を確認する。検証用SRT/採用層はこのケースに作らない",
-    "design_doc": "docs/v05/LIP001_REAL_VOCAL_LONG_20261106_JA.md"
+    "task": "Issue #187/#81 末尾4発話の口形を別名候補へ補完",
+    "status": "in_progress",
+    "step": "最新Owner指定で発話51〜54だけを補完し、原VMDの全キー/骨/末尾区画を保持。実歌声の境界と母音時刻、実PMX再読込と長尺MP4を検証する",
+    "design_doc": "docs/v05/LIP001_TAIL_FOUR_CANDIDATE_20261106_JA.md"
   },
   "next_steps": [
     "選択された既存口形の長尺技術確認は完了。元VMDの末尾4発話不足、実歌詞54件の未確定/自然さ/新規口形採用は未達として保持し、口形を無断補完しない。承認済み残件の順序を保ち、順5の再判定を完了扱いにしない"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T16:37:52+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9fa1601",
+      "text": "Issue #187/#81 末尾4発話の口形を別名候補へ補完: 最新Owner指定で発話51〜54だけを補完し、原VMDの全キー/骨/末尾区画を保持。実歌声の境界と母音時刻、実PMX再読込と長尺MP4を検証する"
+    },
     {
       "at": "2026-11-06T13:32:36+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "b847043",
       "text": "Issue #39/#63/#81 動く3Dの時計と実ステージ長尺保存カメラ: 移動するGLBの映像指標と音声を照合し、実PMX/VMD/曲/ステージ/保存カメラの長尺MP4を検証"
-    },
-    {
-      "at": "2026-11-06T04:53:00+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b901eb6",
-      "text": "PR240をレビューしてcodex/nextへ統合(7f23009)。PR241は検証記録を両方保持して競合解消し、PCM全長が出力より1F超短くない検査を追加。24/29.97/60fpsを再実行1成功、原本保持"
     }
   ]
 }
