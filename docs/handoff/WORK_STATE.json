@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T12:21:27+09:00",
+  "updated_at": "2026-11-06T12:24:35+09:00",
   "updated_by": "codex",
-  "branch": "codex/asset-media-readability-20261106",
-  "head_at_update": "31690d7",
+  "branch": "codex/image-lanes-native-mcp-20261106",
+  "head_at_update": "bcac4c0",
   "current": {
-    "task": "Issue #37/#81 動画素材詳細の再生可否と見本",
-    "status": "done",
-    "step": "③と②の素材詳細で映像を復号できないOGVを理由表示し、見本を誤生成しない。切替時停止と再読込・対応動画/音声の回帰を実機確認する",
-    "design_doc": "docs/v05/ASSET_MEDIA_READABILITY_20261106_JA.md"
+    "task": "Issue #80/#81 画像の複数行とネイティブMCP・出力",
+    "status": "in_progress",
+    "step": "画像行追加・空行削除を両MCPから既存APIへ接続し、安定行ID・移動・保存再読込・重なり順を完成MP4で検証する",
+    "design_doc": "docs/v05/IMAGE_LANES_NATIVE_MCP_20261106_JA.md"
   },
   "next_steps": [
     "検証済み素材詳細PRをmainへ統合・手元と8765へ非破壊同期し、順3複数行と順4ネイティブLIP MCPへ続く"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T12:24:35+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "bcac4c0",
+      "text": "Issue #80/#81 画像の複数行とネイティブMCP・出力: 画像行追加・空行削除を両MCPから既存APIへ接続し、安定行ID・移動・保存再読込・重なり順を完成MP4で検証する"
+    },
     {
       "at": "2026-11-06T12:21:27+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "f6c5bd7",
       "text": "Issue #39/#81 順3の実PMX・実曲600F出力: 実PMX・同曲VMDとWAVを隔離作品へ置き、600Fのプレビュー・MP4・音声・原本保持を検証する"
-    },
-    {
-      "at": "2026-11-06T02:16:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "dfdfee1",
-      "text": "PR #236・#235をcodex/nextへ統合。完了済みworktree6件を保全付き削除し、8765番のv0.5配信をmainから復旧。main/data 503ファイルの前後ハッシュ一致"
     }
   ]
 }
