@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T19:34:57+09:00",
+  "updated_at": "2026-11-06T19:40:07+09:00",
   "updated_by": "codex",
-  "branch": "codex/video-lanes-20261106",
-  "head_at_update": "505843e",
+  "branch": "codex/video-lanes-sync-20261106",
+  "head_at_update": "cba7fc9",
   "current": {
-    "task": "Issue #81 順3の複数動画行と重なり出力",
-    "status": "done",
-    "step": "動画行の安定ID追加・空行削除・元区間保持をUI/API/両MCPへ接続し、重なり/切替の画素と内包音声・再読込を隔離検証する",
+    "task": "Issue #81 複数動画行のmainと制作画面同期を引き継ぐ",
+    "status": "in_progress",
+    "step": "main cba7fc9・手元/開発木・8765再起動と新UI/Chrome・515ファイル不変・Issue画像実表示を正本へ記録",
     "design_doc": "docs/v05/VIDEO_LANES_20261106_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T19:40:07+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cba7fc9",
+      "text": "Issue #81 複数動画行のmainと制作画面同期を引き継ぐ: main cba7fc9・手元/開発木・8765再起動と新UI/Chrome・515ファイル不変・Issue画像実表示を正本へ記録"
+    },
     {
       "at": "2026-11-06T19:34:57+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "7b5c4e1",
       "text": "Issue #33 検証済みPRのmain統合と手元同期: PR246とPR233の最終確認、継続mainマージ方針の記録、統合試験、利用者mainと8765番の非破壊同期"
-    },
-    {
-      "at": "2026-11-06T09:08:15+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b52ea95",
-      "text": "WebM/OGV登録とVFR切出しを検証し元PTS保持・OGV映像不可表示を修正。4条件403F、PCM12窓1F以内。Node対象5件、Windows Python20件、Ubuntu10件、型検査成功。実データ不変"
     }
   ]
 }
