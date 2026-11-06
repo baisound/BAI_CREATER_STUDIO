@@ -1,0 +1,60 @@
+{
+  "implementationCommit": "a50c5662b48803bace2d90968e6bdc5dbc194ea0",
+  "pullRequest": 260,
+  "mergedMain": "93bb5081574343a624b8a8750cebb33378981375",
+  "localMainSame": true,
+  "codexNextSame": true,
+  "protectedFileCount": 515,
+  "protectedAggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+  "protectedFilesAndDirtyListUnchanged": true,
+  "server": {
+    "oldPid": 51268,
+    "newPid": 31492,
+    "entryPoint": "main/server.py 8765",
+    "activeSavedJobsBeforeRestart": 0,
+    "hiddenRestart": true
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80"
+    },
+    "studio/v05/js/project-media-preview-v68.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "69202287580acd7a4967045a295270619af08da04a3f3ee1496b40ddae73bdc0"
+    },
+    "studio/v05/js/asset-workflow-v06.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "e49976b57357078ac92d322257c9a1e1139a9a7173ddeff3c3ce871cad521e40"
+    },
+    "studio/v05/js/render-job-v69.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "6a122feeff2eb01e2cb18aa3bb9530f04c5161d00f67f2e774e7341b69878be9"
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "147d2bbcd78ac9c275fca89153582394026de57d84b20a5c1c858b609063d3ba"
+    }
+  },
+  "chrome": {
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "audioSettingsReady": true,
+    "layoutRevision": 1,
+    "mutedAudioTracks": []
+  },
+  "issueComment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6681376162",
+  "issueImage": {
+    "complete": true,
+    "width": 1440,
+    "height": 900,
+    "visible": true,
+    "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/a50c5662b48803bace2d90968e6bdc5dbc194ea0/qa/track-audio-mute-ui-20261106.png",
+    "sha256": "e9ea462106e0717f1acce7811a14f0a7163e8ef917562e1ece4f6e4392837800"
+  },
+  "githubChecksRegistered": false
+}

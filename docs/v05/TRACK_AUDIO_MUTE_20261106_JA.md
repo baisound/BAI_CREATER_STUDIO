@@ -47,3 +47,11 @@ Ubuntu：同じ実曲dataの読み取りパスと `BAI_MUTE_API_ONLY=1` を指�
 既存 `bai_studio_track_layout_get` / `bai_studio_track_flags_set` と既存POST `/timeline/flags` を使い、入力形式は変えない。ジョブの公開結果へ `audio_settings.layout_revision` と `audio_settings.muted_tracks` を追加した。処理中の変更は次の出力から使う。ミュートした音源も従来どおり存在/尺/形式/hashを検査し、欠損を隠さない。
 
 今回の合格は音のON/OFFと保存・時刻保持。スピーカー実音のloopback/聴感、Linuxブラウザー/ネイティブWebMCP、全codec/全実作品は未検証。従来のブラウザーとMP4の混音音量の一致、音量フェーダー、ミキサー、行操作全体のUndo/Redo、複数動画/音声行の増設は未完了。画像/3D/動作行に残るmuted値は変更せず、この音声ミュートの作用対象には含めない。順3全体と広いIDを完成にしない。
+
+## mainと制作画面の同期
+
+実装・試験 `a50c566`、[PR #260](https://github.com/baisound/BAI_CREATER_STUDIO/pull/260)、mainマージ `93bb508`。手元mainと開発codex/nextをfast-forwardした。利用者515ファイルの集約SHA-256 `89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d` と変更一覧は前後一致。
+
+管理下のmain/server.pyの8765番PID51268と処理中ジョブ0件を確認し、最新mainのPythonで非表示再起動（PID31492）。HTMLと変更した4スクリプトの全バイトがmainと一致し、Chromeでも新しい `audioSettingsReady` と保存revisionの読込を確認。利用者作品に試験用ミュートを保存する操作はしていない。
+
+[Issue #81の結果と画面画像](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6681376162)は実Chromeで1440×900pxの表示と画像hash一致まで確認済み。画像は隔離生成の赤動画/トーン素材のみ、秘密・個人情報・実曲/歌詞・EXIFなし。GitHubの書込み連携403は既存認証CLIで記録し、自動checksの登録が無いこともローカル検証と区別する。[同期の数値](../../qa/track-audio-mute-main-sync-20261106.json)。

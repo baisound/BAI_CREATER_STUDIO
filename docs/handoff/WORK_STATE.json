@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T18:06:52+09:00",
+  "updated_at": "2026-11-06T18:13:58+09:00",
   "updated_by": "codex",
-  "branch": "codex/track-audio-mute-20261106",
-  "head_at_update": "8811494",
+  "branch": "codex/track-audio-mute-sync-20261106",
+  "head_at_update": "f09ce26",
   "current": {
-    "task": "Issue #81/#39 音声トラックの保存ミュートをプレビューとMP4へ接続",
+    "task": "Issue #81 音声ミュートのmain/制作画面同期を引き継ぐ",
     "status": "done",
-    "step": "既存音声/楽曲/動画の音だけを対象に保存ミュートを反映し、解除・再読込・処理中競合・両MCPとPCMを隔離検証する",
+    "step": "main93bb508・手元/開発ブランチ・8765再起動と変更JS/Chrome、515ファイル不変、Issue画像表示を正本へ記録",
     "design_doc": "docs/v05/TRACK_AUDIO_MUTE_20261106_JA.md"
   },
   "next_steps": [
-    "検証済みミュート修正をmainへ統合し、利用者515ファイルを保持して8765を更新・同期する。順3の残件と順4未確定/自然さを維持する"
+    "順3 #81の残り（形式別/複数行/混音音量・保存）を現行証拠と照合して次の未完成受入れ条件へ進める。順4の54件読み/自然さ/候補最終採用と未判定の順5は維持する"
   ],
   "unverified": [
-    "実スピーカー聴感/loopback、Linuxブラウザー・ネイティブWebMCP、全codec/全実作品、混音音量一致/音量ミキサー/行操作全体Undoは未検証。先行UI試験の待機/一覧不足と既知NO_BUFFER_SPACE失敗は記録保持"
+    "実スピーカーの聴感/loopback・Linuxブラウザー/ネイティブWebMCP・全codec/全実作品・混音音量全体/ミキサー/行全体Undoは未検証。既知証拠ゲート2失敗/開発依存監査3件と通信失敗ログも保持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T18:13:58+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "f09ce26",
+      "text": "PR260をmain93bb508へ統合し手元/開発ブランチ/8765を同期。非表示再起動と変更JS/Chrome新設定、515ファイル不変、Issue画像表示/hashを記録"
+    },
+    {
+      "at": "2026-11-06T18:12:43+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "93bb508",
+      "text": "Issue #81 音声ミュートのmain/制作画面同期を引き継ぐ: main93bb508・手元/開発ブランチ・8765再起動と変更JS/Chrome、515ファイル不変、Issue画像表示を正本へ記録"
+    },
     {
       "at": "2026-11-06T18:06:52+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "done",
       "head": "115286d",
       "text": "PR244をcodex/nextへ統合。公式MCP SDK127/Chrome156ネイティブ63ツールで同じ作品の6879F/102MB出力・3版保持/置換/復元を確認。元位置/行入力の不足とCP932日本語接続切れを修正。Windows Node4成功、Ubuntu SDK長尺1成功/ブラウザ1skip、pytest8＋5subtests。原本hash保持"
-    },
-    {
-      "at": "2026-11-06T07:12:17+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f433eff",
-      "text": "Issue #81 順3の公式MCPクライアントとネイティブWebMCP: 実クライアントの初期化/登録/呼出しと同じ作品の出力・同名版管理・保存再読込を検証"
-    },
-    {
-      "at": "2026-11-06T06:23:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "f08c04a",
-      "text": "PR243をcodex/nextへ統合。実動画AACを保持した480pコピー＋別実曲の長尺をWindows3FPS/Ubuntu29.97で確認。派生入力と計940窓でPCM差0。FFmpeg6.1互換と合成末尾1F欠落を修正。Windows pytest25＋5subtests、Ubuntu23成功2skip、Windows Node6/Ubuntu2成功。4K原本hash保持"
     }
   ]
 }
