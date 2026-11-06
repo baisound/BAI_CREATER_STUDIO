@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T12:21:27+09:00",
+  "updated_at": "2026-11-06T12:31:34+09:00",
   "updated_by": "codex",
-  "branch": "codex/asset-media-readability-20261106",
-  "head_at_update": "31690d7",
+  "branch": "codex/image-lanes-native-mcp-20261106",
+  "head_at_update": "56f4db5",
   "current": {
-    "task": "Issue #37/#81 動画素材詳細の再生可否と見本",
+    "task": "Issue #80/#81 画像の複数行とネイティブMCP・出力",
     "status": "done",
-    "step": "③と②の素材詳細で映像を復号できないOGVを理由表示し、見本を誤生成しない。切替時停止と再読込・対応動画/音声の回帰を実機確認する",
-    "design_doc": "docs/v05/ASSET_MEDIA_READABILITY_20261106_JA.md"
+    "step": "画像行追加・空行削除を両MCPから既存APIへ接続し、安定行ID・移動・保存再読込・重なり順を完成MP4で検証する",
+    "design_doc": "docs/v05/IMAGE_LANES_NATIVE_MCP_20261106_JA.md"
   },
   "next_steps": [
-    "検証済み素材詳細PRをmainへ統合・手元と8765へ非破壊同期し、順3複数行と順4ネイティブLIP MCPへ続く"
+    "画像行MCPの検証済みPRをmainへ統合・手元と8765へ非破壊同期する。その後は順4のLIP公式SDK/ネイティブWebMCPへ進み、実歌声の読み54発話は未採用のまま保持する"
   ],
   "unverified": [
-    "実動画全codec・他ブラウザー/Linux・③動画見本生成・MCP詳細は未検証。関連一括39件中1件はERR_NO_BUFFER_SPACE、単独4成功。既存の証拠ゲート2失敗と開発依存監査3件を維持。日単位の見積もりは変更なし"
+    "実ユーザー作品・全媒体行操作・全Undo/Redo・Linuxブラウザー/ネイティブ・利用者MCP設定は未検証。既存の証拠ゲート2失敗と開発依存監査3件を維持。粗い残工数44〜88作業日は変更なし"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T12:31:34+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "56f4db5",
+      "text": "DATA-002の画像行追加/空行削除を両MCPへ接続。公式SDK/Chromeネイティブ2成功、手動UI/出力MCP2成功、Python20成功。Ubuntu SDK/MP4 1成功1browser skip・Python20成功。ID[1,3,4]/次5とMP4/プレビュー5時刻の重ね順、拒否後不変、原本hash一致"
+    },
+    {
+      "at": "2026-11-06T12:24:35+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "bcac4c0",
+      "text": "Issue #80/#81 画像の複数行とネイティブMCP・出力: 画像行追加・空行削除を両MCPから既存APIへ接続し、安定行ID・移動・保存再読込・重なり順を完成MP4で検証する"
+    },
     {
       "at": "2026-11-06T12:21:27+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "done",
       "head": "20d2bd8",
       "text": "Issue #39/#81: 実PMX・同曲VMD/WAVの600Fを実GPUでプレビュー・保存再読込・H.264/AAC出力。画素3点変化、音声1/5/9秒位置差0サンプル、原本hash一致"
-    },
-    {
-      "at": "2026-11-06T02:23:28+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f6c5bd7",
-      "text": "Issue #39/#81 順3の実PMX・実曲600F出力: 実PMX・同曲VMDとWAVを隔離作品へ置き、600Fのプレビュー・MP4・音声・原本保持を検証する"
-    },
-    {
-      "at": "2026-11-06T02:16:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "dfdfee1",
-      "text": "PR #236・#235をcodex/nextへ統合。完了済みworktree6件を保全付き削除し、8765番のv0.5配信をmainから復旧。main/data 503ファイルの前後ハッシュ一致"
     }
   ]
 }

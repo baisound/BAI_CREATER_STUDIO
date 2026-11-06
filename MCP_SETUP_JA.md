@@ -81,3 +81,7 @@ SRT原本のBase64バイト取込、読み、候補、下書き、別名モー�
 ## 2026-11-06 完成物一覧のページ指定
 
 `bai_studio_render_jobs_list` は任意の `completed_only`（boolean）、`limit`（1〜100）、`offset`（0以上）を受け取る。完成物を絞り込み、過去のページも取得できる。返却の `total`/`has_more`/`file_available` と `bai_studio_render_file_link` を使う。[操作・検証](docs/v05/RENDER_DOWNLOAD_LIST_20261106_JA.md)。
+
+## v0.5画像行の追加・空行削除（2026-11-06、#80）
+
+既存の `bai_studio_track_layout_set` は `action: "add_image_lane"` / `"remove_image_lane"`（後者は `lane` も指定）に対応する。共通入力は作品の `project_id` と最新 `revision`。従来の `order`/`heights` だけの更新も維持する。[操作・安全条件・実測と未検証](docs/v05/IMAGE_LANES_NATIVE_MCP_20261106_JA.md)。

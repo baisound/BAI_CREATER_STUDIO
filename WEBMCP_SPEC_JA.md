@@ -89,3 +89,7 @@ Chrome 156.0.8078.80の専用試験プロファイルでWebMCPTestingを有効�
 [入力・結果・残る範囲](docs/v05/NATIVE_MCP_RENDER_20261106_JA.md)。Chromeの現行APIの根拠は[公式Imperative API](https://developer.chrome.com/docs/ai/webmcp/imperative-api)。
 
 2026-11-06: `bai_studio_render_jobs_list` に `completed_only`/`limit`/`offset` を追加。手動UI・標準MCPと同じ一覧APIで、完成物の選択と過去ページ取得を行う。[契約と限定試験](docs/v05/RENDER_DOWNLOAD_LIST_20261106_JA.md)。
+
+## v0.5画像行の追加・空行削除（2026-11-06、#80）
+
+既存の `bai_studio_track_layout_set` は `action: "add_image_lane"` / `"remove_image_lane"`（後者は `lane` も指定）に対応する。共通入力は作品の `project_id` と最新 `revision`。従来の `order`/`heights` だけの更新も維持する。[操作・安全条件・実測と未検証](docs/v05/IMAGE_LANES_NATIVE_MCP_20261106_JA.md)。

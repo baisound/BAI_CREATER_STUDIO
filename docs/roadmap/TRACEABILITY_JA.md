@@ -8,6 +8,7 @@
 | 最初の50、次の50、82パターン、Mixamo英語名、3/4連続、Kip Up | MOTION-001, DANCE-010〜011 | モーションカタログ/チェイン |
 | HTML 2D/3D、FBX/PMX読込・復元、BAT/SH | CORE-006, MOTION-002, MOTION-009 | 基本ビューワー |
 | 登録済みモーションから右サイドで編集、タブ、お気に入り・タグ | DATA-002, DATA-011 | 編集＋テンプレートライブラリ |
+| v0.5の画像行追加・移動・空行削除と共通出力（#80/#81、順3の既存残件） | DATA-002, CORE-004, RENDER-001/006 | 手動UI/APIの安定行IDを両MCPへ接続。[同じ作品の保存・プレビュー・MP4照合](../v05/IMAGE_LANES_NATIVE_MCP_20261106_JA.md)。他媒体の行追加は範囲外 |
 | 素材一覧で動くグレーマン、キャラクター正面画像、ステージ内部の自動撮影（2026-10-21 Owner指定） | MOTION-016, DATA-016 | 原本を保持し、再生見本と版付きPNGを既存素材管理へ統合。実装・未検証は[素材見本の記録](ASSET_VISUAL_PREVIEWS_20261021_JA.md) |
 | 制作状態保存/読み込み、履歴・復元、ローカルGit/タグ | DATA-008〜010, CORE-008 | プロジェクト保存とコード管理は別 |
 | 全キャラクター配置面でGLB/VRM/PMX/FBXを選ぶ（2026-10-21 Owner直接指定、Issue #50） | DATA-008、P2-WP-04/05/06/07 | 既存の`workspace.asset`と任意の`workspace.character`へ統合し、形式別に保存できないモーションは明示。[実装・検証](CHARACTER_PLACEMENT_ALL_FORMATS_20261021_JA.md) |
