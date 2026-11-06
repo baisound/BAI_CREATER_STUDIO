@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T18:13:58+09:00",
+  "updated_at": "2026-11-06T19:01:27+09:00",
   "updated_by": "codex",
-  "branch": "codex/track-audio-mute-sync-20261106",
-  "head_at_update": "f09ce26",
+  "branch": "codex/video-lanes-20261106",
+  "head_at_update": "0dcfa33",
   "current": {
-    "task": "Issue #81 音声ミュートのmain/制作画面同期を引き継ぐ",
-    "status": "done",
-    "step": "main93bb508・手元/開発ブランチ・8765再起動と変更JS/Chrome、515ファイル不変、Issue画像表示を正本へ記録",
-    "design_doc": "docs/v05/TRACK_AUDIO_MUTE_20261106_JA.md"
+    "task": "Issue #81 順3の複数動画行と重なり出力",
+    "status": "in_progress",
+    "step": "動画行の安定ID追加・空行削除・元区間保持をUI/API/両MCPへ接続し、重なり/切替の画素と内包音声・再読込を隔離検証する",
+    "design_doc": "docs/v05/VIDEO_LANES_20261106_JA.md"
   },
   "next_steps": [
     "順3 #81の残り（形式別/複数行/混音音量・保存）を現行証拠と照合して次の未完成受入れ条件へ進める。順4の54件読み/自然さ/候補最終採用と未判定の順5は維持する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T19:01:27+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0dcfa33",
+      "text": "Issue #81 順3の複数動画行と重なり出力: 動画行の安定ID追加・空行削除・元区間保持をUI/API/両MCPへ接続し、重なり/切替の画素と内包音声・再読込を隔離検証する"
+    },
     {
       "at": "2026-11-06T18:13:58+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "c286805",
       "text": "Issue #37/#81 順3の動画形式とVFR: WebM/OGVと可変フレームレートの登録・保存元位置・ブラウザ再生・限定MP4を形式別に確認し不足を修正"
-    },
-    {
-      "at": "2026-11-06T07:41:13+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "115286d",
-      "text": "PR244をcodex/nextへ統合。公式MCP SDK127/Chrome156ネイティブ63ツールで同じ作品の6879F/102MB出力・3版保持/置換/復元を確認。元位置/行入力の不足とCP932日本語接続切れを修正。Windows Node4成功、Ubuntu SDK長尺1成功/ブラウザ1skip、pytest8＋5subtests。原本hash保持"
     }
   ]
 }
