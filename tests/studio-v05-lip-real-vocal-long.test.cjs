@@ -1,5 +1,6 @@
 'use strict';
-// Engineering adoption is confined to a separate synthetic SRT in an isolated project.
+// Tail completion is a distinct, hash-pinned candidate in an isolated project.
+// Optional engineering adoption uses a separate synthetic SRT.
 // The owner's 54 real lyric readings remain missing/unconfirmed.
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -14,10 +15,11 @@ const srtPath = process.env.BAI_REAL_LIP_SRT;
 const vocalPath = process.env.BAI_REAL_LIP_VOCAL;
 const reportPath = process.env.BAI_REAL_LIP_REPORT;
 const fps = Number(process.env.BAI_LIP_LONG_FPS || 30);
-const sourceMouth = process.env.BAI_LIP_LONG_MOUTH === 'source';
+const candidatePath = process.env.BAI_LIP_TAIL_CANDIDATE;
+const sourceMouth = !!candidatePath || process.env.BAI_LIP_LONG_MOUTH === 'source';
 const modelName = 'Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx';
 const modelPath = root && path.join(root, 'mmd/A', modelName);
-const files = [modelPath, motionPath, srtPath, vocalPath, reportPath];
+const files = [modelPath, motionPath, srtPath, vocalPath, reportPath, ...(candidatePath ? [candidatePath] : [])];
 const available = files.every(p => p && fs.existsSync(p));
 const sha = b => crypto.createHash('sha256').update(b).digest('hex');
 const digest = p => sha(fs.readFileSync(p));
@@ -71,7 +73,7 @@ async function waitJob(server, id) {
   } while (['queued', 'running'].includes(job.status) && Date.now() < deadline);
   assert.equal(job.status, 'succeeded', job.error); return job;
 }
-test(`real 229s vocal and 230s body VMD preserve ${sourceMouth ? 'owner-selected existing mouth' : 'engineering lip adoption'} through a full saved MP4`,
+test(`real 229s vocal and 230s body VMD preserve ${candidatePath ? 'four-cue mouth candidate' : sourceMouth ? 'owner-selected existing mouth' : 'engineering lip adoption'} through a full saved MP4`,
   { skip: !available && 'Explicit real PMX/VMD/SRT/vocal/report inputs required', timeout: 1500000 }, async () => {
     assert.ok([30, 29.97, 60].includes(fps));
     const before = files.map(digest), rawMotion = fs.readFileSync(motionPath), rawSrt = fs.readFileSync(srtPath);
@@ -89,9 +91,21 @@ test(`real 229s vocal and 230s body VMD preserve ${sourceMouth ? 'owner-selected
     const modelFiles = metadata.A.filter(r => r.name === modelName || r.name.startsWith('tex/'));
     const protectedTextures = modelFiles.map(r => path.join(root, 'mmd/A', ...r.name.split('/')));
     const textureHashes = protectedTextures.map(digest);
-    const motionName = path.basename(motionPath);
-    const seed = { 'mmd_assets.json': JSON.stringify({ A: modelFiles, B: [], vmd: [{ name: motionName, size: rawMotion.length }] }),
-      [`mmd/vmd/${motionName}`]: rawMotion };
+    const candidateRaw = candidatePath ? fs.readFileSync(candidatePath) : null;
+    const candidateRows = candidateRaw ? morphRows(candidateRaw) : null;
+    if (candidateRaw) {
+      assert.equal(sha(candidateRaw), 'b1dc33ace3d3802246423da644794c8e726404f3aab3ffa6c4ab1c6accefe0f7');
+      assert.equal(candidateRows.length, 7465);
+      const offset = 54 + rawMotion.readUInt32LE(50)*111;
+      assert.deepEqual(candidateRaw.subarray(0,offset),rawMotion.subarray(0,offset));
+      assert.deepEqual(candidateRaw.subarray(offset+4+7465*23),rawMotion.subarray(offset+4+4760*23));
+      for (const row of originalRows) assert.deepEqual(candidateRows.find(r => r.name===row.name && r.frame===row.frame),row);
+    }
+    const playbackRows = candidateRows || originalRows;
+    const motionName = path.basename(candidatePath || motionPath);
+    const seed = { 'mmd_assets.json': JSON.stringify({ A: modelFiles, B: [], vmd: [{ name: motionName, size: (candidateRaw || rawMotion).length }] }),
+      [`mmd/vmd/${motionName}`]: candidateRaw || rawMotion };
+    if (candidatePath) { const name = path.basename(motionPath); const meta = JSON.parse(seed['mmd_assets.json']); meta.vmd.push({name,size:rawMotion.length}); seed['mmd_assets.json']=JSON.stringify(meta); seed[`mmd/vmd/${name}`]=rawMotion; }
     for (const row of modelFiles) seed[`mmd/A/${row.name}`] = fs.readFileSync(path.join(root, 'mmd/A', ...row.name.split('/')));
     const server = await harness.startServer({ port: fps === 30 ? 9136 : 9137, seed }); let browser, page;
     try {
@@ -157,13 +171,14 @@ test(`real 229s vocal and 230s body VMD preserve ${sourceMouth ? 'owner-selected
         args: process.env.BAI_REAL_GPU === '1' ? ['--use-angle=d3d11', '--ignore-gpu-blocklist'] : ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
       page = await server.newPage(browser);
       page.on('requestfailed', request => console.log(JSON.stringify({ requestFailed: request.url(), reason: request.failure()?.errorText })));
-      const open = async () => {
-        await page.goto(server.base + '/studio/v05/index.html?scene_capture=1'); await page.locator('#v06project').selectOption(id);
+      const open = async (project = id, media = true) => {
+        await page.goto(server.base + '/studio/v05/index.html?scene_capture=1'); await page.locator('#v06project').selectOption(project);
         await page.locator('#nav [data-workspace="edit"]').click(); await page.locator('#v70sceneOpen').click();
-        await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().ready && window.BAIStudioMultiScenePreview.status().motion?.loadedClips.length === 1 && window.BAIStudioMediaPreviewV68?.status().mediaCount === 1, null, { timeout: 180000 });
+        await page.waitForFunction(media => window.BAIStudioMultiScenePreview?.status().ready && window.BAIStudioMultiScenePreview.status().motion?.loadedClips.length === 1 && (!media || window.BAIStudioMediaPreviewV68?.status().mediaCount === 1), media, { timeout: 180000 });
       };
       await open();
-      const sampleTimes = windows.map(([a]) => a + 0.5).concat([1.5, 120.5, 226.5, 229.5]);
+      const tailTimes = candidateRows ? [213.8,217.6,222.2,228.1,216.1,220.4,226.7,230.2] : [];
+      const sampleTimes = windows.map(([a]) => a + 0.5).concat([1.5, 120.5, 226.5, 229.5], tailTimes);
       let camera, cameraFitSamples;
       if (sourceMouth) {
         const fitTimes = [...new Set(sampleTimes.concat(Array.from({ length: 47 }, (_,i) => i*5)))];
@@ -198,11 +213,12 @@ test(`real 229s vocal and 230s body VMD preserve ${sourceMouth ? 'owner-selected
       scene = await json(await post(server, '/api/studio/v05/scene/instances', { project_id: id, action: 'camera', revision: scene.revision, camera }));
       await open();
       const sampleFrames = [...new Set(sampleTimes.map(t => Math.round(t*fps)))].sort((a,b) => a-b);
-      const capture = async frame => {
+      const capture = async (frame, probeInstance = instance) => {
         const data = await page.evaluate(({ frame, fps }) => window.BAIStudioMultiScenePreview.captureFrame(frame, fps, 1280, 720), { frame, fps });
         const raw = ff(['-i', 'pipe:0', '-vf', 'scale=320:180', '-pix_fmt', 'rgb24', '-f', 'rawvideo', 'pipe:1'], Buffer.from(data.split(',')[1], 'base64'));
-        const morphs = await page.evaluate(id => window.BAIStudioMultiScenePreview.morphProbe(id).morphs, instance);
-        return { raw, morphs };
+        const morphs = await page.evaluate(id => window.BAIStudioMultiScenePreview.morphProbe(id).morphs, probeInstance);
+        const pose = await page.evaluate(id => window.BAIStudioMultiScenePreview.poseProbe(id, ['頭','センター','左腕','右腕','左足','右足','上半身']).bones, probeInstance);
+        return { raw, morphs, pose, png: Buffer.from(data.split(',')[1], 'base64') };
       };
       const references = [];
       for (const frame of sampleFrames) references.push({ frame, ...(await capture(frame)) });
@@ -225,8 +241,42 @@ test(`real 229s vocal and 230s body VMD preserve ${sourceMouth ? 'owner-selected
         adoption = await json(await post(server, '/api/studio/v05/lip/adoptions', { project_id: id, revision: adoption.revision, action: 'redo' }));
       } else {
         for (const ref of references) for (const name of ['あ','い','う','え','お'])
-          assert.ok(Math.abs(ref.morphs[name]-sample(originalRows,name,(ref.frame/fps-1)*30))<0.002, `existing ${name} F${ref.frame}`);
-        assert.ok(references.filter(r => r.frame/fps>213).every(r => ['あ','い','う','え','お'].every(name => r.morphs[name]===0)));
+          assert.ok(Math.abs(ref.morphs[name]-sample(playbackRows,name,(ref.frame/fps-1)*30))<0.002, `existing ${name} F${ref.frame}`);
+        if (!candidateRows) assert.ok(references.filter(r => r.frame/fps>213).every(r => ['あ','い','う','え','お'].every(name => r.morphs[name]===0)));
+      }
+      const tailComparisons = [], earlyPixelErrors = [];
+      if (candidateRows) {
+        const originalId = (await json(await post(server,'/api/studio/v05/projects',{name:'原本比較専用',kind:'empty'}))).project.id;
+        await json(await post(server,'/api/studio/v05/project/fps',{project_id:originalId,fps}));
+        let originalScene = await json(await post(server,'/api/studio/v05/scene/instances',{project_id:originalId,action:'add',revision:0,asset_id:asset,transform:{position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]}}));
+        const originalInstance = originalScene.instances[0].id;
+        const placed = await json(await post(server,'/api/studio/v05/arrangement/place',{project_id:originalId,revision:0,asset_id:`mmd:vmd:${path.basename(motionPath)}`,track:'motion',start:1,duration:230}));
+        await json(await post(server,'/api/studio/v05/scene/motion-target',{project_id:originalId,revision:placed.revision,clip_id:placed.clip.id,instance_id:originalInstance}));
+        originalScene = await json(await post(server,'/api/studio/v05/scene/instances',{project_id:originalId,action:'camera',revision:originalScene.revision,camera}));
+        await open(originalId,false);
+        for (const ref of references) {
+          const plain = await capture(ref.frame,originalInstance);
+          assert.deepEqual(plain.pose,ref.pose,'Body pose must remain identical');
+          if (ref.frame/fps < 213) { assert.deepEqual(plain.morphs,ref.morphs); const maxPixelDifference = plain.raw.reduce((m,x,i)=>Math.max(m,Math.abs(x-ref.raw[i])),0); const meanPixelDifference = plain.raw.reduce((sum,x,i)=>sum+Math.abs(x-ref.raw[i]),0)/plain.raw.length; earlyPixelErrors.push({frame:ref.frame,max:maxPixelDifference,mean:meanPixelDifference}); assert.ok(meanPixelDifference<.01,`Unchanged early pose mean pixel difference ${meanPixelDifference} max ${maxPixelDifference}`); }
+          else for (const name of ['あ','い','う','え','お']) assert.equal(plain.morphs[name],0);
+        }
+        // Close-up comparisons at each final utterance, with identical saved cameras.
+        for (let n=0;n<4;n++) {
+          const seconds = tailTimes[n], frame = Math.round(seconds*fps);
+          await open(); const current = await capture(frame);
+          const head = current.pose['頭'].world.slice(12,15);
+          const closeCamera = {position:[head[0],head[1],head[2]+.7],target:head,fov:45};
+          scene = await json(await post(server,'/api/studio/v05/scene/instances',{project_id:id,action:'camera',revision:scene.revision,camera:closeCamera}));
+          await open(); const completed = await capture(frame);
+          originalScene = await json(await post(server,'/api/studio/v05/scene/instances',{project_id:originalId,action:'camera',revision:originalScene.revision,camera:closeCamera}));
+          await open(originalId,false); const plain = await capture(frame,originalInstance);
+          const pixels = plain.raw.reduce((sum,x,i)=>sum+(Math.abs(x-completed.raw[i])>5),0);
+          assert.ok(pixels>10,`Tail cue ${n+51} has no visible articulation: ${pixels}`);
+          assert.ok(Math.max(...['あ','い','う','え','お'].map(k=>completed.morphs[k]))>.1);
+          tailComparisons.push({cue:n+51,frame,changedChannels:pixels,morphs:completed.morphs,bodyPoseIdentical:true});
+          if(process.env.BAI_LIP_LONG_OUT) { fs.mkdirSync(process.env.BAI_LIP_LONG_OUT,{recursive:true}); fs.writeFileSync(path.join(process.env.BAI_LIP_LONG_OUT,`tail-${n+51}-candidate.png`),completed.png); fs.writeFileSync(path.join(process.env.BAI_LIP_LONG_OUT,`tail-${n+51}-original.png`),plain.png); }
+        }
+        scene = await json(await post(server,'/api/studio/v05/scene/instances',{project_id:id,action:'camera',revision:scene.revision,camera}));
       }
       await open(); assert.deepEqual((await json(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`))).clips, saved.clips);
       const reread = await json(await fetch(`${server.base}/api/studio/v05/lip/adoptions?project_id=${id}&instance_id=${instance}`));
@@ -251,14 +301,14 @@ test(`real 229s vocal and 230s body VMD preserve ${sourceMouth ? 'owner-selected
       assert.ok(outputPcm.length >= frames/fps*8000*2-16000/fps);
       const audioLags = Array.from({length:228},(_,i) => lagAt(referencePcm,outputPcm,i+2)).filter(Boolean);
       assert.ok(audioLags.length > 50); assert.ok(audioLags.every(r => Math.abs(r.lag) <= 8000/fps && r.correlation > 0.9), JSON.stringify(audioLags.filter(r => Math.abs(r.lag)>8000/fps||r.correlation<=0.9)));
-      const result = { projectId: id, instanceId: instance, renderJobId: job.id, savedClips: saved.clips, renderRange: range, camera, cameraFitSamples, mouthMode: sourceMouth ? 'existing_vmd' : 'engineering_adoption', fps, frames, bytes: movie.length, outputSha256: job.sha256, renderer: job.scene_capture.renderer,
+      const result = { projectId: id, instanceId: instance, renderJobId: job.id, savedClips: saved.clips, renderRange: range, camera, cameraFitSamples, mouthMode: candidateRows ? 'tail_four_candidate' : sourceMouth ? 'existing_vmd' : 'engineering_adoption', fps, frames, bytes: movie.length, outputSha256: job.sha256, renderer: job.scene_capture.renderer,
         originalHashes: Object.fromEntries(['model','motion','realSrt','vocal','report'].map((k,i) => [k,before[i]])),
         inputAudit: { boneKeys: rawMotion.readUInt32LE(50), morphKeys: originalRows.length, morphLastFrame: 6359, excludedCues, vocalDuration },
-        syntheticAdoptionOnly: !sourceMouth, realReadingsUnconfirmed: 54, adoptionCandidateId: lip?.candidateId || null, adoptionPixelDelta: changed,
+        tailCandidateSha256: candidateRaw ? sha(candidateRaw) : null, tailComparisons, earlyPixelErrors, syntheticAdoptionOnly: !sourceMouth, realReadingsUnconfirmed: 54, adoptionCandidateId: lip?.candidateId || null, adoptionPixelDelta: changed,
         samples: references.map((r,i) => ({ frame: r.frame, morphs: Object.fromEntries(['あ','い','う','え','お'].map(n => [n,r.morphs[n]])), imageMAE: imageErrors[i] })), audioLags };
       if (process.env.BAI_LIP_LONG_OUT) {
         const out = path.resolve(process.env.BAI_LIP_LONG_OUT); fs.mkdirSync(out, { recursive: true });
-        fs.writeFileSync(path.join(out, `${sourceMouth?'existing-vmd-mouth':'engineering-vowels'}-real-vocal-${fps}fps.mp4`), movie);
+        fs.writeFileSync(path.join(out, `${candidateRows?'tail-four-candidate':sourceMouth?'existing-vmd-mouth':'engineering-vowels'}-real-vocal-${fps}fps.mp4`), movie);
         fs.writeFileSync(path.join(out, `evidence-${fps}fps.json`), JSON.stringify(result,null,2)+'\n');
       }
       console.log(JSON.stringify({ ...result, samples: result.samples, audioLags: { windows: audioLags.length, maximumLag: Math.max(...audioLags.map(r => Math.abs(r.lag))), minimumCorrelation: Math.min(...audioLags.map(r => r.correlation)) } }));
