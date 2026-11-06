@@ -59,6 +59,7 @@ async function scenario({ native, long }) {
     assert.ok(edit.inputSchema.properties.source_start, 'official MCP schema must expose original media start');
     assert.ok(edit.inputSchema.properties.lane, 'official MCP schema must expose image lane');
     assert.ok(listed.find(t => t.name === 'bai_studio_clip_place').inputSchema.properties.lane);
+    assert.equal(listed.find(t => t.name === 'bai_studio_render_jobs_list').inputSchema.properties.completed_only.type, 'boolean');
     const caps = await standard('bai_studio_render_capabilities'); assert.equal(caps.available, true, caps.reason);
     const upload = async (kind, name, file) => json(await fetch(`${server.base}/api/library-assets/upload?kind=${kind}&name=${name}`,
       { method: 'POST', body: fs.readFileSync(file) }));
@@ -176,6 +177,12 @@ async function scenario({ native, long }) {
     assert.equal(staleRestore.isError, true);
     const jobs = (await standard('bai_studio_render_jobs_list', { project_id: id })).jobs;
     assert.equal(jobs.length, 3);
+    const completedPage = await standard('bai_studio_render_jobs_list', {
+      project_id: id, completed_only: true, limit: 1, offset: 1 });
+    assert.equal(completedPage.total, 3);
+    assert.equal(completedPage.jobs.length, 1);
+    assert.equal(completedPage.jobs[0].id, jobs[1].id);
+    assert.equal(completedPage.jobs[0].file_available, true);
     for (const [job, state] of [[first, 'current'], [version, 'current'], [replacement, 'archived']])
       assert.equal(jobs.find(j => j.id === job.id).delivery_state, state);
     assert.deepEqual(await fileDigest(server.base, await standard('bai_studio_render_file_link', { job_id: first.id })), firstDigest);

@@ -87,3 +87,5 @@ Chrome 156.0.8078.80の専用試験プロファイルでWebMCPTestingを有効�
 `bai_studio_clip_edit`へ`source_start`と`lane`、`bai_studio_clip_place`へ`lane`を追加し、手動UIと同じAPIへ渡す。日本語の作品名/完成物名、保存元位置、約102MBの長尺出力、別版・置換・旧版復元、古い条件の拒否を公式STDIOクライアントと照合した。63ツールすべての処理や、自然文のAI選択精度を合格にした意味ではない。
 
 [入力・結果・残る範囲](docs/v05/NATIVE_MCP_RENDER_20261106_JA.md)。Chromeの現行APIの根拠は[公式Imperative API](https://developer.chrome.com/docs/ai/webmcp/imperative-api)。
+
+2026-11-06: `bai_studio_render_jobs_list` に `completed_only`/`limit`/`offset` を追加。手動UI・標準MCPと同じ一覧APIで、完成物の選択と過去ページ取得を行う。[契約と限定試験](docs/v05/RENDER_DOWNLOAD_LIST_20261106_JA.md)。

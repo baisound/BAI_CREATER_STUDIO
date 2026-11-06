@@ -95,7 +95,7 @@ test('capacity rejection and forced restart during capture/encoding retain old M
         await page.locator('#v06project').selectOption(id);
         await page.locator('#nav [data-workspace="export"]').click();
         await page.waitForFunction(() => document.querySelector('#baiRenderQueue')?.textContent.includes('一時ファイルを回収しました'));
-        assert.equal(await page.locator('#baiRenderQueue .v69job').filter({ hasText: 'interrupted' }).count(), 2);
+        assert.equal(await page.locator('#baiRenderQueue .v69job[data-status="interrupted"]').filter({ hasText: '中断' }).count(), 2);
         harness.assertNoErrors(page);
       } finally { await browser.close(); }
       const retained = Buffer.from(await (await fetch(`${server.base}/api/studio/v05/render/file?id=${old.id}`)).arrayBuffer());

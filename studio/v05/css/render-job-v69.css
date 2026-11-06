@@ -6,3 +6,16 @@
 #v69download{color:#9bd7ff;text-decoration:underline}
 #v69video{width:100%;height:100%;object-fit:contain}
 #v69video[hidden],.baiPreview img[hidden]{display:none}
+.v69historyControls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.v69historyControls label{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%}
+.v69historyControls select{min-width:0;max-width:100%}
+.v69historyControls p{flex-basis:100%;margin:0}
+#v69completed{display:grid;gap:10px;max-height:56vh;overflow:auto;min-width:0;padding:2px}
+.v69filename{font-size:14px;font-weight:700;overflow-wrap:anywhere}
+.v69rowActions,.v69historyPager{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.v69download{display:inline-flex;align-items:center;justify-content:center;padding:9px 13px;border:1px solid #9bd7ff;border-radius:6px;color:#e6f4ff;background:#214b65;text-decoration:none;font-weight:700}
+.v69download:hover{background:#2d627f}
+.v69download:focus-visible{outline:3px solid #9bd7ff;outline-offset:3px}
+#v69attempts{margin-top:14px;min-width:0}
+#v69attempts .v69job{margin-top:8px}
+@media(max-width:640px){.v69rowActions>*{flex:1 1 auto}.v69historyControls label{flex:1 1 100%}#v69completed{max-height:65vh}}

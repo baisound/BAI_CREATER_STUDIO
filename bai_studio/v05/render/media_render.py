@@ -144,19 +144,26 @@ def status(root: Path, job_id: str) -> dict:
     return _public(job)
 
 
-def list_jobs(root: Path, project_id: str, limit: int = 20) -> dict:
+def list_jobs(root: Path, project_id: str, limit: int = 20, *, offset: int = 0,
+              completed_only: bool = False) -> dict:
     from bai_studio.v05.render.render_names import state as name_state
+    if type(limit) is not int or not 1 <= limit <= 100 or type(offset) is not int or offset < 0:
+        raise RenderError("Invalid render history page", 400)
     jobs = []
     for path in (root / "jobs").glob("*.json"):
         try:
             item = status(root, path.stem)
-            if item.get("project_id") == project_id:
+            if item.get("project_id") == project_id and (not completed_only or item.get("status") == "succeeded"):
                 item["delivery_state"] = name_state(root, project_id, item.get("download_name"), item["id"])
+                if item.get("status") == "succeeded":
+                    output = root / "files" / f"{item['id']}.mp4"
+                    item["file_available"] = output.is_file() and output.stat().st_size == item.get("bytes")
                 jobs.append(item)
         except RenderError:
             continue
     jobs.sort(key=lambda item: item.get("created_at", 0), reverse=True)
-    return {"jobs": jobs[:limit], "project_id": project_id}
+    return {"jobs": jobs[offset:offset + limit], "project_id": project_id,
+            "total": len(jobs), "offset": offset, "has_more": offset + limit < len(jobs)}
 
 
 def output_file(root: Path, job_id: str) -> Path:

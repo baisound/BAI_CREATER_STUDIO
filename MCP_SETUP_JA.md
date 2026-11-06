@@ -77,3 +77,7 @@ SRT原本のBase64バイト取込、読み、候補、下書き、別名モー�
 `bai_studio_clip_edit`は`source_start`（元動画/音声内の秒位置）と`lane`（既存画像行ID）、`bai_studio_clip_place`は`lane`を受け取る。これらは任意指定で、元素材尺・実在行・revisionの拒否は手動UIと同じHTTP APIが行う。
 
 開発検証では新しいdevDependencyを入れるため`npm ci`を実行する。MCPサーバー自体は引き続きPython標準ライブラリのみで動く。試験コマンド・入力hash・実機範囲は[実クライアント検証](docs/v05/NATIVE_MCP_RENDER_20261106_JA.md)。利用者のクライアント設定やAIによる自然文のツール選択は、この試験で変更/検証していない。
+
+## 2026-11-06 完成物一覧のページ指定
+
+`bai_studio_render_jobs_list` は任意の `completed_only`（boolean）、`limit`（1〜100）、`offset`（0以上）を受け取る。完成物を絞り込み、過去のページも取得できる。返却の `total`/`has_more`/`file_available` と `bai_studio_render_file_link` を使う。[操作・検証](docs/v05/RENDER_DOWNLOAD_LIST_20261106_JA.md)。
