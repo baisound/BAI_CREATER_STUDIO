@@ -31,22 +31,30 @@
     {
       "index": 51,
       "start_seconds": 212.485,
-      "end_seconds": 215.78
+      "end_seconds": 215.78,
+      "vocal_rms_int16": 1960.227,
+      "vocal_rms_dbfs": -24.463
     },
     {
       "index": 52,
       "start_seconds": 216.14,
-      "end_seconds": 219.1
+      "end_seconds": 219.1,
+      "vocal_rms_int16": 2358.433,
+      "vocal_rms_dbfs": -22.857
     },
     {
       "index": 53,
       "start_seconds": 219.376,
-      "end_seconds": 224.32
+      "end_seconds": 224.32,
+      "vocal_rms_int16": 2660.629,
+      "vocal_rms_dbfs": -21.809
     },
     {
       "index": 54,
       "start_seconds": 226.15,
-      "end_seconds": 228.365
+      "end_seconds": 228.365,
+      "vocal_rms_int16": 1758.142,
+      "vocal_rms_dbfs": -25.408
     }
   ],
   "original_vocal": {
@@ -68,6 +76,7 @@
   "originals_modified": false,
   "limitations": [
     "Coverage is audited; acoustic and visual naturalness are not certified.",
-    "This is an existing input cutoff, not evidence that Studio removed the last cues."
+    "This is an existing input cutoff, not evidence that Studio removed the last cues.",
+    "RMS shows signal energy in the excluded cue windows; it does not certify lyric reading or lip naturalness."
   ]
 }

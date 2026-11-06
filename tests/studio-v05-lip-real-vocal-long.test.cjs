@@ -14,6 +14,7 @@ const srtPath = process.env.BAI_REAL_LIP_SRT;
 const vocalPath = process.env.BAI_REAL_LIP_VOCAL;
 const reportPath = process.env.BAI_REAL_LIP_REPORT;
 const fps = Number(process.env.BAI_LIP_LONG_FPS || 30);
+const sourceMouth = process.env.BAI_LIP_LONG_MOUTH === 'source';
 const modelName = 'Baisound-New-V5.0.0-B_新狐面差替_紐鈴物理_調整v6.pmx';
 const modelPath = root && path.join(root, 'mmd/A', modelName);
 const files = [modelPath, motionPath, srtPath, vocalPath, reportPath];
@@ -70,7 +71,7 @@ async function waitJob(server, id) {
   } while (['queued', 'running'].includes(job.status) && Date.now() < deadline);
   assert.equal(job.status, 'succeeded', job.error); return job;
 }
-test('real 229s vocal and 230s body VMD preserve engineering lip adoption through a full saved MP4',
+test(`real 229s vocal and 230s body VMD preserve ${sourceMouth ? 'owner-selected existing mouth' : 'engineering lip adoption'} through a full saved MP4`,
   { skip: !available && 'Explicit real PMX/VMD/SRT/vocal/report inputs required', timeout: 1500000 }, async () => {
     assert.ok([30, 29.97, 60].includes(fps));
     const before = files.map(digest), rawMotion = fs.readFileSync(motionPath), rawSrt = fs.readFileSync(srtPath);
@@ -94,7 +95,7 @@ test('real 229s vocal and 230s body VMD preserve engineering lip adoption throug
     for (const row of modelFiles) seed[`mmd/A/${row.name}`] = fs.readFileSync(path.join(root, 'mmd/A', ...row.name.split('/')));
     const server = await harness.startServer({ port: fps === 30 ? 9136 : 9137, seed }); let browser, page;
     try {
-      const id = (await json(await post(server, '/api/studio/v05/projects', { name: '実歌声長尺・検証母音採用（歌詞未採用）', kind: 'empty' }))).project.id;
+      const id = (await json(await post(server, '/api/studio/v05/projects', { name: sourceMouth ? '実歌声長尺・Owner選択の既存VMD口形' : '実歌声長尺・検証母音採用（歌詞未採用）', kind: 'empty' }))).project.id;
       await json(await post(server, '/api/studio/v05/project/fps', { project_id: id, fps }));
       let scene = await json(await post(server, '/api/studio/v05/scene/instances', { project_id: id, action: 'add', revision: 0, asset_id: `mmd:A:${modelName}`,
         transform: { position: [0,0,0], rotation: [0,0,0], scale: [1,1,1] } }));
@@ -112,42 +113,50 @@ test('real 229s vocal and 230s body VMD preserve engineering lip adoption throug
       assert.equal(imported.sources[0].entries.length, 54);
       const realSource = imported.sources[0];
       const windows = [[5,9,'あい'], [56,60,'うえ'], [112,116,'おあ'], [170,174,'いう'], [224,228,'えお']];
-      const stamp = seconds => `00:${String(Math.floor(seconds / 60)).padStart(2,'0')}:${String(seconds % 60).padStart(2,'0')},000`;
-      const synthetic = Buffer.from(windows.map(([a,b,kana], n) => `${n+1}\n${stamp(a)} --> ${stamp(b)}\n${kana}\n`).join('\n'));
-      const sources = await json(await fetch(`${server.base}/api/studio/v05/srt/import?${new URLSearchParams({ project_id: id, revision: String(imported.revision), name: 'ENGINEERING-VOWELS-NOT-REAL-LYRICS.srt', encoding: 'utf-8' })}`,
-        { method: 'POST', body: synthetic }));
-      const source = sources.sources.find(s => s.sha256 === sha(synthetic)); assert.ok(source);
+      let sources = imported;
       let reading = await json(await fetch(`${server.base}/api/studio/v05/lip/readings?project_id=${id}`));
       let draft = await json(await fetch(`${server.base}/api/studio/v05/lip/drafts?project_id=${id}`));
-      for (let i = 0; i < windows.length; i++) {
-        reading = await json(await post(server, '/api/studio/v05/lip/readings', { project_id: id, revision: reading.revision, source_id: source.id, source_hash: source.sha256,
-          srt_index: i+1, reading_state: 'confirmed', reading_kana: windows[i][2], explicit_silence: false }));
-        const candidate = await json(await fetch(`${server.base}/api/studio/v05/lip/candidates?${new URLSearchParams({ project_id: id, source_id: source.id, srt_index: String(i+1) })}`));
-        draft = await json(await post(server, '/api/studio/v05/lip/drafts', { project_id: id, revision: draft.revision, source_id: source.id, source_hash: source.sha256,
-          srt_index: i+1, pronunciation_version: candidate.pronunciationVersion, project_fps: fps,
-          segments: candidate.segments.map(r => ({ startFrame: r.startFrame, endFrame: r.endFrame, mouthShape: r.mouthShape, weight: 1 })) }));
+      let lip = null, adoptedRows = [];
+      if (!sourceMouth) {
+        const stamp = seconds => `00:${String(Math.floor(seconds / 60)).padStart(2,'0')}:${String(seconds % 60).padStart(2,'0')},000`;
+        const synthetic = Buffer.from(windows.map(([a,b,kana], n) => `${n+1}\n${stamp(a)} --> ${stamp(b)}\n${kana}\n`).join('\n'));
+        sources = await json(await fetch(`${server.base}/api/studio/v05/srt/import?${new URLSearchParams({ project_id: id, revision: String(imported.revision), name: 'ENGINEERING-VOWELS-NOT-REAL-LYRICS.srt', encoding: 'utf-8' })}`,
+          { method: 'POST', body: synthetic }));
+        const source = sources.sources.find(s => s.sha256 === sha(synthetic)); assert.ok(source);
+        for (let i = 0; i < windows.length; i++) {
+          reading = await json(await post(server, '/api/studio/v05/lip/readings', { project_id: id, revision: reading.revision, source_id: source.id, source_hash: source.sha256,
+            srt_index: i+1, reading_state: 'confirmed', reading_kana: windows[i][2], explicit_silence: false }));
+          const candidate = await json(await fetch(`${server.base}/api/studio/v05/lip/candidates?${new URLSearchParams({ project_id: id, source_id: source.id, srt_index: String(i+1) })}`));
+          draft = await json(await post(server, '/api/studio/v05/lip/drafts', { project_id: id, revision: draft.revision, source_id: source.id, source_hash: source.sha256,
+            srt_index: i+1, pronunciation_version: candidate.pronunciationVersion, project_fps: fps,
+            segments: candidate.segments.map(r => ({ startFrame: r.startFrame, endFrame: r.endFrame, mouthShape: r.mouthShape, weight: 1 })) }));
+        }
+        lip = await json(await post(server, '/api/studio/v05/lip/vmd-candidate', { project_id: id, source_id: source.id, model_asset_id: asset,
+          source_revision: sources.revision, reading_revision: reading.revision, draft_revision: draft.revision, map_revision: map.revision, dry_run: false }));
+        const lipBytes = Buffer.from(await (await fetch(server.base + lip.downloadUrl)).arrayBuffer());
+        assert.equal(sha(lipBytes), lip.sha256); adoptedRows = morphRows(lipBytes);
       }
       assert.equal(reading.utterances.some(r => r.srtSourceId === realSource.id), false);
-      const vmdBody = { project_id: id, source_id: source.id, model_asset_id: asset, source_revision: sources.revision, reading_revision: reading.revision,
-        draft_revision: draft.revision, map_revision: map.revision, dry_run: false };
-      const rejected = await json(await post(server, '/api/studio/v05/lip/vmd-candidate', { ...vmdBody, source_id: realSource.id, dry_run: true }), 422);
+      if (sourceMouth) { assert.equal(reading.utterances.length, 0); assert.equal(draft.drafts.length, 0); assert.equal(sources.sources.length, 1); }
+      const rejected = await json(await post(server, '/api/studio/v05/lip/vmd-candidate', { project_id: id, source_id: realSource.id, model_asset_id: asset,
+        source_revision: sources.revision, reading_revision: reading.revision, draft_revision: draft.revision, map_revision: map.revision, dry_run: true }), 422);
       assert.equal(rejected.issues.length, 54); assert.ok(rejected.issues.every(r => r.code === 'reading_missing'));
-      const lip = await json(await post(server, '/api/studio/v05/lip/vmd-candidate', vmdBody));
-      const lipBytes = Buffer.from(await (await fetch(server.base + lip.downloadUrl)).arrayBuffer());
-      assert.equal(sha(lipBytes), lip.sha256);
-      const adoptedRows = morphRows(lipBytes);
       const motion = await json(await post(server, '/api/studio/v05/arrangement/place', { project_id: id, revision: 0, asset_id: `mmd:vmd:${motionName}`, track: 'motion', start: 1, duration: 230 }));
       const uploaded = await json(await fetch(`${server.base}/api/library-assets/upload?kind=audio&name=real-separated-vocal.wav`, { method: 'POST', body: fs.readFileSync(vocalPath) }));
       assert.equal(uploaded.item.sha256, before[3]);
       const audio = await json(await post(server, '/api/studio/v05/arrangement/place', { project_id: id, revision: motion.revision, asset_id: uploaded.item.id,
         track: 'audio', start: 1 + 5/30, duration: vocalDuration }));
       const assigned = await json(await post(server, '/api/studio/v05/scene/motion-target', { project_id: id, clip_id: motion.clip.id, revision: audio.revision, instance_id: instance }));
-      let adoption = await json(await post(server, '/api/studio/v05/lip/adoptions', { project_id: id, revision: 0, action: 'adopt', instance_id: instance, candidate_id: lip.candidateId }));
-      assert.equal(adoption.tracks[0].status, 'ready');
+      let adoption;
+      if (lip) {
+        adoption = await json(await post(server, '/api/studio/v05/lip/adoptions', { project_id: id, revision: 0, action: 'adopt', instance_id: instance, candidate_id: lip.candidateId }));
+        assert.equal(adoption.tracks[0].status, 'ready');
+      }
       const saved = await json(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`));
       browser = await require('playwright').chromium.launch({ executablePath: process.env.CHROMIUM_PATH || harness.chromiumPath(), headless: true,
         args: process.env.BAI_REAL_GPU === '1' ? ['--use-angle=d3d11', '--ignore-gpu-blocklist'] : ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
       page = await server.newPage(browser);
+      page.on('requestfailed', request => console.log(JSON.stringify({ requestFailed: request.url(), reason: request.failure()?.errorText })));
       const open = async () => {
         await page.goto(server.base + '/studio/v05/index.html?scene_capture=1'); await page.locator('#v06project').selectOption(id);
         await page.locator('#nav [data-workspace="edit"]').click(); await page.locator('#v70sceneOpen').click();
@@ -155,15 +164,37 @@ test('real 229s vocal and 230s body VMD preserve engineering lip adoption throug
       };
       await open();
       const sampleTimes = windows.map(([a]) => a + 0.5).concat([1.5, 120.5, 226.5, 229.5]);
-      const heads = [];
-      for (const seconds of sampleTimes) {
-        await page.evaluate(t => window.BAIStudioTimeline.seek(t, 'long-lip-head-fit'), seconds);
-        const bone = await page.evaluate(id => window.BAIStudioMultiScenePreview.poseProbe(id, ['頭']).bones['頭'], instance);
-        heads.push(bone.world.slice(12,15));
+      let camera, cameraFitSamples;
+      if (sourceMouth) {
+        const fitTimes = [...new Set(sampleTimes.concat(Array.from({ length: 47 }, (_,i) => i*5)))];
+        const bounds = [];
+        for (const seconds of fitTimes) {
+          const box = await page.evaluate(({ seconds, fps, instance }) => {
+            // Capture evaluates the exact pose synchronously. An edit-cursor event
+            // can still have an asynchronous preview seek in flight.
+            window.BAIStudioMultiScenePreview.captureFrame(Math.round(seconds*fps), fps, 16, 16);
+            return window.BAIStudioMultiScenePreview.frameProbe(instance).precise;
+          }, { seconds, fps, instance });
+          assert.ok(box); bounds.push(box);
+        }
+        const lo = [0,1,2].map(i => Math.min(...bounds.map(b => b.min[i]))), hi = [0,1,2].map(i => Math.max(...bounds.map(b => b.max[i])));
+        const target = lo.map((x,i) => (x+hi[i])/2);
+        const distance = Math.max((hi[1]-lo[1])/2, (hi[0]-lo[0])/(2*16/9))/Math.tan(Math.PI/8)*1.25;
+        camera = { position: [target[0], target[1], hi[2]+distance], target, fov: 45 };
+        cameraFitSamples = fitTimes.length;
+      } else {
+        // Keep the framing used by the already-recorded engineering baseline.
+        const heads = [];
+        for (const seconds of sampleTimes) {
+          await page.evaluate(t => window.BAIStudioTimeline.seek(t, 'long-lip-head-fit'), seconds);
+          const bone = await page.evaluate(id => window.BAIStudioMultiScenePreview.poseProbe(id, ['頭']).bones['頭'], instance);
+          heads.push(bone.world.slice(12,15));
+        }
+        const lo = [0,1,2].map(i => Math.min(...heads.map(p => p[i]))), hi = [0,1,2].map(i => Math.max(...heads.map(p => p[i])));
+        const target = lo.map((x,i) => (x+hi[i])/2), distance = Math.max(1.2, ...hi.map((x,i) => (x-lo[i])*1.8));
+        camera = { position: [target[0], target[1], hi[2]+distance], target, fov: 45 };
+        cameraFitSamples = sampleTimes.length;
       }
-      const lo = [0,1,2].map(i => Math.min(...heads.map(p => p[i]))), hi = [0,1,2].map(i => Math.max(...heads.map(p => p[i])));
-      const target = lo.map((x,i) => (x+hi[i])/2), distance = Math.max(1.2, ...hi.map((x,i) => (x-lo[i])*1.8));
-      const camera = { position: [target[0], target[1], hi[2]+distance], target, fov: 45 };
       scene = await json(await post(server, '/api/studio/v05/scene/instances', { project_id: id, action: 'camera', revision: scene.revision, camera }));
       await open();
       const sampleFrames = [...new Set(sampleTimes.map(t => Math.round(t*fps)))].sort((a,b) => a-b);
@@ -175,30 +206,38 @@ test('real 229s vocal and 230s body VMD preserve engineering lip adoption throug
       };
       const references = [];
       for (const frame of sampleFrames) references.push({ frame, ...(await capture(frame)) });
-      for (const [start,,kana] of windows) {
-        const ref = references.find(r => r.frame === Math.round((start+0.5)*fps)), name = ({ 'あ':'あ','う':'う','お':'お','い':'い','え':'え' })[kana[0]];
-        const expected = sample(adoptedRows, name, ref.frame/fps*30);
-        assert.ok(expected > 0.5);
-        assert.ok(Math.abs(ref.morphs[name] - expected) < 1e-5, `adopted ${name} F${ref.frame}=${ref.morphs[name]}, expected ${expected}`);
+      let changed = 0;
+      if (lip) {
+        for (const [start,,kana] of windows) {
+          const ref = references.find(r => r.frame === Math.round((start+0.5)*fps)), name = kana[0];
+          const expected = sample(adoptedRows, name, ref.frame/fps*30);
+          assert.ok(expected > 0.5);
+          assert.ok(Math.abs(ref.morphs[name] - expected) < 1e-5, `adopted ${name} F${ref.frame}=${ref.morphs[name]}, expected ${expected}`);
+        }
+        adoption = await json(await post(server, '/api/studio/v05/lip/adoptions', { project_id: id, revision: adoption.revision, action: 'undo' }));
+        await open();
+        for (const [start] of windows) {
+          const frame = Math.round((start+0.5)*fps), plain = await capture(frame), adopted = references.find(r => r.frame === frame);
+          for (const name of ['あ','い','う','え','お']) assert.ok(Math.abs(plain.morphs[name] - sample(originalRows, name, (frame/fps-1)*30)) < 0.002, `original ${name} F${frame}`);
+          changed += plain.raw.reduce((n,x,i) => n+(Math.abs(x-adopted.raw[i])>5),0);
+        }
+        assert.ok(changed > 30, `adopted morphs not visible: ${changed}`);
+        adoption = await json(await post(server, '/api/studio/v05/lip/adoptions', { project_id: id, revision: adoption.revision, action: 'redo' }));
+      } else {
+        for (const ref of references) for (const name of ['あ','い','う','え','お'])
+          assert.ok(Math.abs(ref.morphs[name]-sample(originalRows,name,(ref.frame/fps-1)*30))<0.002, `existing ${name} F${ref.frame}`);
+        assert.ok(references.filter(r => r.frame/fps>213).every(r => ['あ','い','う','え','お'].every(name => r.morphs[name]===0)));
       }
-      adoption = await json(await post(server, '/api/studio/v05/lip/adoptions', { project_id: id, revision: adoption.revision, action: 'undo' }));
-      await open(); let changed = 0;
-      for (const [start,,kana] of windows) {
-        const frame = Math.round((start+0.5)*fps), plain = await capture(frame), adopted = references.find(r => r.frame === frame);
-        for (const name of ['あ','い','う','え','お']) assert.ok(Math.abs(plain.morphs[name] - sample(originalRows, name, (frame/fps-1)*30)) < 0.002, `original ${name} F${frame}`);
-        const delta = plain.raw.reduce((n,x,i) => n+(Math.abs(x-adopted.raw[i])>5),0); changed += delta;
-      }
-      assert.ok(changed > 30, `adopted morphs not visible: ${changed}`);
-      adoption = await json(await post(server, '/api/studio/v05/lip/adoptions', { project_id: id, revision: adoption.revision, action: 'redo' }));
       await open(); assert.deepEqual((await json(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`))).clips, saved.clips);
       const reread = await json(await fetch(`${server.base}/api/studio/v05/lip/adoptions?project_id=${id}&instance_id=${instance}`));
-      assert.equal(reread.tracks[0].candidateId, lip.candidateId); assert.equal(reread.tracks[0].status, 'ready');
+      if (lip) { assert.equal(reread.tracks[0].candidateId, lip.candidateId); assert.equal(reread.tracks[0].status, 'ready'); }
+      else { assert.deepEqual(reread.tracks, []); assert.equal(reread.revision, 0); }
       for (const ref of references) assert.deepEqual((await capture(ref.frame)).morphs, ref.morphs);
       harness.assertNoErrors(page); await page.close(); await browser.close(); page = browser = null;
       const frames = Math.ceil(Math.max(...saved.clips.map(c => c.start+c.duration))*fps-1e-7);
       const range = await json(await post(server, '/api/studio/v05/timeline/range', { project_id: id, revision: 0, arrangement_revision: assigned.revision, in_frame: 0, out_frame: frames-1 }));
       const started = await json(await post(server, '/api/studio/v05/render/jobs', { project_id: id, arrangement_revision: assigned.revision,
-        range_revision: range.revision, scene_revision: scene.revision, resolution: '720p', name: `検証母音と実歌声_${fps}fps` }), 202);
+        range_revision: range.revision, scene_revision: scene.revision, resolution: '720p', name: `${sourceMouth?'既存VMD口形':'検証母音'}と実歌声_${fps}fps.mp4` }), 202);
       const job = await waitJob(server, started.id); assert.equal(job.probe.frames, frames); assert.equal(job.scene_capture.frames, frames);
       const movie = Buffer.from(await (await fetch(`${server.base}/api/studio/v05/render/file?id=${job.id}`)).arrayBuffer()); assert.equal(sha(movie), job.sha256);
       const raw = ff(['-i','pipe:0','-vf',`select=${sampleFrames.map(f => `eq(n\\,${f})`).join('+')},scale=320:180`,'-fps_mode','passthrough','-pix_fmt','rgb24','-f','rawvideo','pipe:1'], movie);
@@ -212,14 +251,14 @@ test('real 229s vocal and 230s body VMD preserve engineering lip adoption throug
       assert.ok(outputPcm.length >= frames/fps*8000*2-16000/fps);
       const audioLags = Array.from({length:228},(_,i) => lagAt(referencePcm,outputPcm,i+2)).filter(Boolean);
       assert.ok(audioLags.length > 50); assert.ok(audioLags.every(r => Math.abs(r.lag) <= 8000/fps && r.correlation > 0.9), JSON.stringify(audioLags.filter(r => Math.abs(r.lag)>8000/fps||r.correlation<=0.9)));
-      const result = { fps, frames, bytes: movie.length, outputSha256: job.sha256, renderer: job.scene_capture.renderer,
+      const result = { projectId: id, instanceId: instance, renderJobId: job.id, savedClips: saved.clips, renderRange: range, camera, cameraFitSamples, mouthMode: sourceMouth ? 'existing_vmd' : 'engineering_adoption', fps, frames, bytes: movie.length, outputSha256: job.sha256, renderer: job.scene_capture.renderer,
         originalHashes: Object.fromEntries(['model','motion','realSrt','vocal','report'].map((k,i) => [k,before[i]])),
         inputAudit: { boneKeys: rawMotion.readUInt32LE(50), morphKeys: originalRows.length, morphLastFrame: 6359, excludedCues, vocalDuration },
-        syntheticAdoptionOnly: true, realReadingsUnconfirmed: 54, adoptionPixelDelta: changed,
+        syntheticAdoptionOnly: !sourceMouth, realReadingsUnconfirmed: 54, adoptionCandidateId: lip?.candidateId || null, adoptionPixelDelta: changed,
         samples: references.map((r,i) => ({ frame: r.frame, morphs: Object.fromEntries(['あ','い','う','え','お'].map(n => [n,r.morphs[n]])), imageMAE: imageErrors[i] })), audioLags };
       if (process.env.BAI_LIP_LONG_OUT) {
         const out = path.resolve(process.env.BAI_LIP_LONG_OUT); fs.mkdirSync(out, { recursive: true });
-        fs.writeFileSync(path.join(out, `engineering-vowels-real-vocal-${fps}fps.mp4`), movie);
+        fs.writeFileSync(path.join(out, `${sourceMouth?'existing-vmd-mouth':'engineering-vowels'}-real-vocal-${fps}fps.mp4`), movie);
         fs.writeFileSync(path.join(out, `evidence-${fps}fps.json`), JSON.stringify(result,null,2)+'\n');
       }
       console.log(JSON.stringify({ ...result, samples: result.samples, audioLags: { windows: audioLags.length, maximumLag: Math.max(...audioLags.map(r => Math.abs(r.lag))), minimumCorrelation: Math.min(...audioLags.map(r => r.correlation)) } }));
