@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T12:50:56+09:00",
+  "updated_at": "2026-11-06T13:06:25+09:00",
   "updated_by": "codex",
   "branch": "codex/lip-real-long-20261106",
-  "head_at_update": "e688caf",
+  "head_at_update": "ea456d7",
   "current": {
     "task": "Issue #187/#81 実歌声と口形を含む長尺MP4",
-    "status": "in_progress",
+    "status": "done",
     "step": "実歌声・実曲VMD/PMXを隔離複製し全区間の口形と音声配置を測定。既存口形の212秒終端と末尾4発話欠落を記録し、採用検証層の長尺保存/再読込/出力を確認する",
     "design_doc": "docs/v05/LIP001_REAL_VOCAL_LONG_20261106_JA.md"
   },
   "next_steps": [
-    "順4の実歌声読み・採用口形・実曲元VMDの長尺MP4へ進む。実歌詞54発話はOwner未確認/未採用を維持し、自動確定しない。順3の実形式・Linuxブラウザー等の残件、順5再判定と順6を維持。日単位の工数44〜88作業日は段階終了時に再見積もり"
+    "Ownerが選んだ既存VMD口形を変更せず、29.97fps・非0開始の実歌声長尺で確認し、検証済みPRをmain・手元8765へ同期する。実歌詞54件の自動確定/欠落口形の無断補完をしない"
   ],
   "unverified": [
-    "実歌詞54発話の読み/自然さ/Owner採用・実曲元VMDとの合成長尺MP4・他クライアント/ブラウザー・Linux合成UI/GPUは未検証。初回ERR_NO_BUFFER_SPACEは失敗として保持、最終対象2成功。既知証拠ゲート2失敗と開発依存監査3件も維持"
+    "30fps長尺は別SRTの検証用母音の採用層であり、実歌詞由来の採用・自然さではない。既存口形終端212秒/発話51〜54欠落、実歌詞未確定54件、他モデル/物理/Linux長尺GPUは未解決。既知証拠ゲート2失敗・開発依存監査3件を維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T13:06:25+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ea456d7",
+      "text": "実歌声229.84秒と実PMX/VMD・隔離検証用採用母音を実GPU30fps/6931F MP4で確認。9画素比較/190有音窓PCM差最大2sample・UndoRedo/再読込・原本保持。Win/Ubuntu入力17成功ずつ。既存口形が212秒で終わり発話51〜54欠落を監査。Ownerは既存VMD口形を選択"
+    },
     {
       "at": "2026-11-06T12:50:56+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "4b65dc2",
       "text": "PR239レビューでWindows描画PID配下のChrome回収を修正。実親子プロセスpytest1成功、720Fと途中編集失敗・旧MP4保持のNode1成功。CI設定によるチェックはPRに無し"
-    },
-    {
-      "at": "2026-11-06T04:06:57+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "adf347e",
-      "text": "PR #239レビューと停止時のChrome回収修正: タイムアウト時に描画プロセス配下を終了し、実プロセス試験と720F回帰後にcodex/nextへ統合"
     }
   ]
 }
