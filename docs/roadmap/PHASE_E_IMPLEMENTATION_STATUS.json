@@ -407,6 +407,15 @@
       "commit": "2df1393（PR #262、main cba7fc9）",
       "tests": "Windows Python53、手動UI/公式SDK/ChromeネイティブWebMCP1、実AAC保持480p長尺1、関連回帰25・プレビュー2、型検査成功。Ubuntu Python43、SDK/FFmpeg1、実動画長尺1。180Fの12境界画素と全動画ミュートPCM0、6421F長尺9音窓差0sample。原本hash不変。詳細 docs/v05/VIDEO_LANES_20261106_JA.md",
       "unverified": "広い要件ID/順3全体は未完成。全codec/実作品・原4K直接・Linuxブラウザー・聴感・混音音量一致/ミキサー・音声行増設・行全体Undo/Redo等。先行P2待機/通信不足/起動権限失敗も記録"
+    },
+    {
+      "item": "Issue #81/#82 MP3の実尺と元区間/分割・両MCP・長尺同期",
+      "phase_e_wp": "AUDIO-001・DATA-002/008・RENDER-006、再構築ロードマップ順3",
+      "planned_in": "V05-MP3-TIMELINE-20261106",
+      "status": "partial_verified",
+      "commit": "本記録を含む「MP3の実尺と分割MCPを同期」コミット（Git履歴参照）",
+      "tests": "Windows/Ubuntu各Python38・Node3成功。Windowsは手動UI/公式SDK/Chromeネイティブ、Ubuntu SDK/FFmpeg。登録原MP3約14秒＋実WAV230.2秒由来44.1/48kHz MP3の3FPS出力7本/各OS733窓でPCM差最大1sample/48kHz。旧保存元尺超過の拒否と原本不変、既存MCP回帰2成功、型/構文成功。docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md",
+      "unverified": "全MP3/全実曲原MP3・破損/裸MP3/全VBR・24時間性能・Linuxブラウザー/ネイティブ・スピーカー聴感・音量一致/ミキサー/音声行増設・全Undo・新分割ツールの全媒体/クライアント。先行試験作成/参照PCM/通常権限失敗も保持。順3全体は未完成"
     }
   ]
 }

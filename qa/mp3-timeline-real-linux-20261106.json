@@ -1,0 +1,4640 @@
+{
+  "apiOnly": true,
+  "native": false,
+  "originalHashes": [
+    "ddfabb6bbb635f62ee4606d754da12cb49c4f51545cee945f15a5379dd259ac7",
+    "f00671c794ccbfd33da7d03bfabd407c83b2f47c5215007967ce053bfa0a9f0e"
+  ],
+  "inputsUnchanged": true,
+  "results": [
+    {
+      "kind": "registered",
+      "rate": 48000,
+      "fps": 29.97,
+      "duration": 14.1365,
+      "sourceSha256": "ddfabb6bbb635f62ee4606d754da12cb49c4f51545cee945f15a5379dd259ac7",
+      "frames": 485,
+      "bytes": 402126,
+      "outputSha256": "fed0ebc205fa5fc48976f14a937afa8ea125e084f0f876e9ccafc263c954ed55",
+      "savedClips": [
+        {
+          "id": "a1681ed8-eafd-491f-b0c4-94f0137f36da",
+          "asset_id": "library:1fc7ba4cffc95b88c61df02f",
+          "name": "Kenney UI Audio Preview",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 0.75,
+          "duration": 6,
+          "source_start": 0,
+          "source_duration": 14.1365,
+          "source_has_audio": true
+        },
+        {
+          "id": "7b02cfa0-2bb7-4607-94c0-5c29da05fd99",
+          "asset_id": "library:1fc7ba4cffc95b88c61df02f",
+          "name": "Kenney UI Audio Preview",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 7.65,
+          "duration": 8.3865,
+          "source_start": 5.75,
+          "source_duration": 14.1365,
+          "source_has_audio": true
+        }
+      ],
+      "previewSeeks": [],
+      "pcmChecks": [
+        {
+          "time": 0.5,
+          "quietRms": 0
+        },
+        {
+          "time": 1,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9914640757986231
+        },
+        {
+          "time": 2,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9920271463795661
+        },
+        {
+          "time": 3,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9920324611005279
+        },
+        {
+          "time": 5,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9960289152086234
+        },
+        {
+          "time": 7,
+          "quietRms": 0
+        },
+        {
+          "time": 9,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9983058045026754
+        },
+        {
+          "time": 11,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9957812789553337
+        },
+        {
+          "time": 13,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9923955514396715
+        },
+        {
+          "time": 6.95,
+          "quietRms": 0
+        },
+        {
+          "time": 7.7,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9973818837942727
+        },
+        {
+          "time": 15.6865,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9994008642066167
+        },
+        {
+          "time": 16.1365,
+          "quietRms": 0
+        }
+      ]
+    },
+    {
+      "kind": "real-wave-derived",
+      "rate": 44100,
+      "fps": 24,
+      "duration": 230.65,
+      "sourceSha256": "4a36a0db1cc0a7a65a6f048b18833d840d3ed1052bb08bc943d3b9c6b086425d",
+      "frames": 5585,
+      "bytes": 5974595,
+      "outputSha256": "5c7278a98494d393101e7c1aab28e8b1e6268d24a9cba537fc5ad4db1750736b",
+      "savedClips": [
+        {
+          "id": "928f759d-bd62-47b1-9e0f-bb0018a7f3b7",
+          "asset_id": "library:003e5a8da3ae36dbf956054b",
+          "name": "mp3-real-wave-derived-44100",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 0.75,
+          "duration": 115.5,
+          "source_start": 0,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        },
+        {
+          "id": "6c67c407-08b5-4e16-8970-db626499317e",
+          "asset_id": "library:003e5a8da3ae36dbf956054b",
+          "name": "mp3-real-wave-derived-44100",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 117.15,
+          "duration": 115.4,
+          "source_start": 115.25,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        }
+      ],
+      "previewSeeks": [],
+      "pcmChecks": [
+        {
+          "time": 0.5,
+          "quietRms": 0
+        },
+        {
+          "time": 1,
+          "quietRms": 0.010206207261596576
+        },
+        {
+          "time": 2,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997319733207731
+        },
+        {
+          "time": 3,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999668805361112
+        },
+        {
+          "time": 5,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9991434003284427
+        },
+        {
+          "time": 7,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9969430748977305
+        },
+        {
+          "time": 9,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9994228286227123
+        },
+        {
+          "time": 11,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999239510436145
+        },
+        {
+          "time": 13,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9996339030932472
+        },
+        {
+          "time": 15,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999270288003844
+        },
+        {
+          "time": 17,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9998217417817051
+        },
+        {
+          "time": 19,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9996669881990206
+        },
+        {
+          "time": 21,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990106740249268
+        },
+        {
+          "time": 23,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9958813494127862
+        },
+        {
+          "time": 25,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9983756562748725
+        },
+        {
+          "time": 27,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9964276352100824
+        },
+        {
+          "time": 29,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9980571713454776
+        },
+        {
+          "time": 31,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9980954552661156
+        },
+        {
+          "time": 33,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9967650054698298
+        },
+        {
+          "time": 35,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998690004607188
+        },
+        {
+          "time": 37,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9915656076896016
+        },
+        {
+          "time": 39,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992639062075164
+        },
+        {
+          "time": 41,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990278438668917
+        },
+        {
+          "time": 43,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998952980831836
+        },
+        {
+          "time": 45,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9982786808268037
+        },
+        {
+          "time": 47,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9991107399292106
+        },
+        {
+          "time": 49,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.995208004222271
+        },
+        {
+          "time": 51,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992702809632363
+        },
+        {
+          "time": 53,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9989324107097508
+        },
+        {
+          "time": 55,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998417862870258
+        },
+        {
+          "time": 57,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988710198945999
+        },
+        {
+          "time": 59,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9991394552299472
+        },
+        {
+          "time": 61,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9973120951365104
+        },
+        {
+          "time": 63,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9971990734814321
+        },
+        {
+          "time": 65,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9989411654906344
+        },
+        {
+          "time": 67,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988414412847713
+        },
+        {
+          "time": 69,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997392509366915
+        },
+        {
+          "time": 71,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988640000314016
+        },
+        {
+          "time": 73,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9989310593561599
+        },
+        {
+          "time": 75,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9974951379862479
+        },
+        {
+          "time": 77,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9989268177420279
+        },
+        {
+          "time": 79,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990845435229067
+        },
+        {
+          "time": 81,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998346032969382
+        },
+        {
+          "time": 83,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976981114971895
+        },
+        {
+          "time": 85,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9972526007904047
+        },
+        {
+          "time": 87,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9983497568427881
+        },
+        {
+          "time": 89,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9985603793897655
+        },
+        {
+          "time": 91,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9985161766598193
+        },
+        {
+          "time": 93,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9953634410171308
+        },
+        {
+          "time": 95,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9984664232097674
+        },
+        {
+          "time": 97,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998197742209211
+        },
+        {
+          "time": 99,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9989265356319338
+        },
+        {
+          "time": 101,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987339166398868
+        },
+        {
+          "time": 103,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990899516005292
+        },
+        {
+          "time": 105,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9978184456194857
+        },
+        {
+          "time": 107,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.997025727631993
+        },
+        {
+          "time": 109,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990973101821667
+        },
+        {
+          "time": 111,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.999976121928153
+        },
+        {
+          "time": 113,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997344558997673
+        },
+        {
+          "time": 115,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992124199490485
+        },
+        {
+          "time": 119,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983097461480238
+        },
+        {
+          "time": 121,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9990001814472468
+        },
+        {
+          "time": 123,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991047526342208
+        },
+        {
+          "time": 125,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9975921469581245
+        },
+        {
+          "time": 127,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980359258012564
+        },
+        {
+          "time": 129,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993902310150764
+        },
+        {
+          "time": 131,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.997116447925517
+        },
+        {
+          "time": 133,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9996439125931943
+        },
+        {
+          "time": 135,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9978269202308604
+        },
+        {
+          "time": 137,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992515408685777
+        },
+        {
+          "time": 139,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987433512531884
+        },
+        {
+          "time": 141,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994466586570295
+        },
+        {
+          "time": 143,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9990521462385068
+        },
+        {
+          "time": 145,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993573882787425
+        },
+        {
+          "time": 147,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988479203808857
+        },
+        {
+          "time": 149,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.999069520612629
+        },
+        {
+          "time": 151,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983161854877278
+        },
+        {
+          "time": 153,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991248740711367
+        },
+        {
+          "time": 155,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9955110125988484
+        },
+        {
+          "time": 157,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9973017402577158
+        },
+        {
+          "time": 159,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9998892591132482
+        },
+        {
+          "time": 161,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995254840756216
+        },
+        {
+          "time": 163,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984588072152445
+        },
+        {
+          "time": 165,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988241341959492
+        },
+        {
+          "time": 167,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998803860490161
+        },
+        {
+          "time": 169,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988607777183317
+        },
+        {
+          "time": 171,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994827987699607
+        },
+        {
+          "time": 173,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992649804591474
+        },
+        {
+          "time": 175,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986176994358251
+        },
+        {
+          "time": 177,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9976283141348985
+        },
+        {
+          "time": 179,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991941713769075
+        },
+        {
+          "time": 181,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9977173222085449
+        },
+        {
+          "time": 183,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985315765463857
+        },
+        {
+          "time": 185,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998912995192638
+        },
+        {
+          "time": 187,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987274771198191
+        },
+        {
+          "time": 189,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.999069256513205
+        },
+        {
+          "time": 191,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985455136399969
+        },
+        {
+          "time": 193,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983244826004859
+        },
+        {
+          "time": 195,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992490091940193
+        },
+        {
+          "time": 197,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985530902771164
+        },
+        {
+          "time": 199,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994644140713402
+        },
+        {
+          "time": 201,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9997838444069302
+        },
+        {
+          "time": 203,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984699822484143
+        },
+        {
+          "time": 205,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980766112024361
+        },
+        {
+          "time": 207,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993149303225547
+        },
+        {
+          "time": 209,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986506853406274
+        },
+        {
+          "time": 211,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991037496123034
+        },
+        {
+          "time": 213,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984229576804807
+        },
+        {
+          "time": 215,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9976416573411417
+        },
+        {
+          "time": 217,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991507654685864
+        },
+        {
+          "time": 219,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9996325385795
+        },
+        {
+          "time": 221,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995064064158001
+        },
+        {
+          "time": 223,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9998082646842626
+        },
+        {
+          "time": 225,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995082575223481
+        },
+        {
+          "time": 227,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999480058837058
+        },
+        {
+          "time": 229,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9953344726863237
+        },
+        {
+          "time": 116.45,
+          "quietRms": 0
+        },
+        {
+          "time": 117.2,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9979779382755332
+        },
+        {
+          "time": 232.20000000000002,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999109256526301
+        },
+        {
+          "time": 232.65,
+          "quietRms": 0
+        }
+      ]
+    },
+    {
+      "kind": "real-wave-derived",
+      "rate": 44100,
+      "fps": 29.97,
+      "duration": 230.65,
+      "sourceSha256": "4a36a0db1cc0a7a65a6f048b18833d840d3ed1052bb08bc943d3b9c6b086425d",
+      "frames": 6974,
+      "bytes": 6120376,
+      "outputSha256": "f91ad981dddd47731d80b0813ed981d59eea37be62bdcc15c9d6862990cb46a2",
+      "savedClips": [
+        {
+          "id": "d277fb98-4fc1-4fe4-b956-ecdf81d31e2f",
+          "asset_id": "library:003e5a8da3ae36dbf956054b",
+          "name": "mp3-real-wave-derived-44100",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 0.75,
+          "duration": 115.5,
+          "source_start": 0,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        },
+        {
+          "id": "0304b970-a100-4ee1-b9f6-51832b0f1fef",
+          "asset_id": "library:003e5a8da3ae36dbf956054b",
+          "name": "mp3-real-wave-derived-44100",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 117.15,
+          "duration": 115.4,
+          "source_start": 115.25,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        }
+      ],
+      "previewSeeks": [],
+      "pcmChecks": [
+        {
+          "time": 0.5,
+          "quietRms": 0
+        },
+        {
+          "time": 1,
+          "quietRms": 0.017677669529663688
+        },
+        {
+          "time": 2,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997286235068961
+        },
+        {
+          "time": 3,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999573048917619
+        },
+        {
+          "time": 5,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.986010968511483
+        },
+        {
+          "time": 7,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9900162988864339
+        },
+        {
+          "time": 9,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9989237886114802
+        },
+        {
+          "time": 11,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9996025463081922
+        },
+        {
+          "time": 13,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9994338778408773
+        },
+        {
+          "time": 15,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9993654253389805
+        },
+        {
+          "time": 17,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9991572060844078
+        },
+        {
+          "time": 19,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987261861392758
+        },
+        {
+          "time": 21,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9981635692609547
+        },
+        {
+          "time": 23,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9933912040203794
+        },
+        {
+          "time": 25,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976027483146431
+        },
+        {
+          "time": 27,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9956188583118073
+        },
+        {
+          "time": 29,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976070749362039
+        },
+        {
+          "time": 31,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9968659223406908
+        },
+        {
+          "time": 33,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9958988716679057
+        },
+        {
+          "time": 35,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9973378368429291
+        },
+        {
+          "time": 37,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.994726910748918
+        },
+        {
+          "time": 39,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9984901176210608
+        },
+        {
+          "time": 41,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9956886372291872
+        },
+        {
+          "time": 43,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987016799081281
+        },
+        {
+          "time": 45,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9953449162033154
+        },
+        {
+          "time": 47,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9983398816510302
+        },
+        {
+          "time": 49,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.993527992019902
+        },
+        {
+          "time": 51,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9977771398860023
+        },
+        {
+          "time": 53,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9980498793494091
+        },
+        {
+          "time": 55,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9966301121423504
+        },
+        {
+          "time": 57,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9974481456321904
+        },
+        {
+          "time": 59,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9980797897714454
+        },
+        {
+          "time": 61,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9946309739746797
+        },
+        {
+          "time": 63,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9958711306063901
+        },
+        {
+          "time": 65,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9963524328947776
+        },
+        {
+          "time": 67,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9978176431896411
+        },
+        {
+          "time": 69,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9993358184662332
+        },
+        {
+          "time": 71,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9979296024681659
+        },
+        {
+          "time": 73,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9986358734611772
+        },
+        {
+          "time": 75,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9966234212231492
+        },
+        {
+          "time": 77,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9975553446862281
+        },
+        {
+          "time": 79,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9980970809370356
+        },
+        {
+          "time": 81,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9967210885600845
+        },
+        {
+          "time": 83,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9960570848664855
+        },
+        {
+          "time": 85,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9952287918638091
+        },
+        {
+          "time": 87,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9972300327027889
+        },
+        {
+          "time": 89,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976929837957859
+        },
+        {
+          "time": 91,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9973091798371113
+        },
+        {
+          "time": 93,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9935560902273235
+        },
+        {
+          "time": 95,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9980259642452484
+        },
+        {
+          "time": 97,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9967610168351664
+        },
+        {
+          "time": 99,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9979648184046727
+        },
+        {
+          "time": 101,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.99755786462782
+        },
+        {
+          "time": 103,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9973075864931888
+        },
+        {
+          "time": 105,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9960313367804469
+        },
+        {
+          "time": 107,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9957703734538533
+        },
+        {
+          "time": 109,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9984303523421574
+        },
+        {
+          "time": 111,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9994868762912267
+        },
+        {
+          "time": 113,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9996147463843027
+        },
+        {
+          "time": 115,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987833402983742
+        },
+        {
+          "time": 119,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9970761269023928
+        },
+        {
+          "time": 121,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9975603720793824
+        },
+        {
+          "time": 123,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980110382218519
+        },
+        {
+          "time": 125,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988208213371643
+        },
+        {
+          "time": 127,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9963718777522778
+        },
+        {
+          "time": 129,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983619429773161
+        },
+        {
+          "time": 131,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9904532730540708
+        },
+        {
+          "time": 133,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993162364218647
+        },
+        {
+          "time": 135,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9960981429216601
+        },
+        {
+          "time": 137,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9982232034954749
+        },
+        {
+          "time": 139,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9971476634052103
+        },
+        {
+          "time": 141,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998686910291394
+        },
+        {
+          "time": 143,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986255934191105
+        },
+        {
+          "time": 145,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987272151173701
+        },
+        {
+          "time": 147,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9975243229121119
+        },
+        {
+          "time": 149,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9982576034266513
+        },
+        {
+          "time": 151,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9968026472198961
+        },
+        {
+          "time": 153,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985047488983683
+        },
+        {
+          "time": 155,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9952035323598925
+        },
+        {
+          "time": 157,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9972421500301573
+        },
+        {
+          "time": 159,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999459168325003
+        },
+        {
+          "time": 161,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983401272260664
+        },
+        {
+          "time": 163,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9968880693072134
+        },
+        {
+          "time": 165,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998146907793203
+        },
+        {
+          "time": 167,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9979717758173224
+        },
+        {
+          "time": 169,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980412403420779
+        },
+        {
+          "time": 171,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987320118293685
+        },
+        {
+          "time": 173,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983296001336888
+        },
+        {
+          "time": 175,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9979169188173955
+        },
+        {
+          "time": 177,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9955004090642889
+        },
+        {
+          "time": 179,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983155053345898
+        },
+        {
+          "time": 181,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9945059948425125
+        },
+        {
+          "time": 183,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9973748821928191
+        },
+        {
+          "time": 185,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980732303337452
+        },
+        {
+          "time": 187,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9976797642603868
+        },
+        {
+          "time": 189,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988070907119029
+        },
+        {
+          "time": 191,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9973136828070125
+        },
+        {
+          "time": 193,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.997406446305687
+        },
+        {
+          "time": 195,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986372238144461
+        },
+        {
+          "time": 197,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9972942354882508
+        },
+        {
+          "time": 199,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987318325704042
+        },
+        {
+          "time": 201,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.999057971825657
+        },
+        {
+          "time": 203,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9975736282692429
+        },
+        {
+          "time": 205,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9968274510988043
+        },
+        {
+          "time": 207,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987279989082455
+        },
+        {
+          "time": 209,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9977627758336326
+        },
+        {
+          "time": 211,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986218140989266
+        },
+        {
+          "time": 213,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.996992976393255
+        },
+        {
+          "time": 215,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9942861430752626
+        },
+        {
+          "time": 217,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9981777252247027
+        },
+        {
+          "time": 219,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991244379917534
+        },
+        {
+          "time": 221,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984733749367629
+        },
+        {
+          "time": 223,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995142969799042
+        },
+        {
+          "time": 225,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998836491138551
+        },
+        {
+          "time": 227,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9990401604928254
+        },
+        {
+          "time": 229,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.995479685682068
+        },
+        {
+          "time": 116.45,
+          "quietRms": 0
+        },
+        {
+          "time": 117.2,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9950696191322859
+        },
+        {
+          "time": 232.20000000000002,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999108506661301
+        },
+        {
+          "time": 232.65,
+          "quietRms": 0
+        }
+      ]
+    },
+    {
+      "kind": "real-wave-derived",
+      "rate": 44100,
+      "fps": 60,
+      "duration": 230.65,
+      "sourceSha256": "4a36a0db1cc0a7a65a6f048b18833d840d3ed1052bb08bc943d3b9c6b086425d",
+      "frames": 13963,
+      "bytes": 6506411,
+      "outputSha256": "9108ae940ddffb5bcacd1ceb7cd74644d39799304b5a342e38a91921b4463605",
+      "savedClips": [
+        {
+          "id": "7507c964-b8c2-435b-96ac-1425f6bf5636",
+          "asset_id": "library:003e5a8da3ae36dbf956054b",
+          "name": "mp3-real-wave-derived-44100",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 0.75,
+          "duration": 115.5,
+          "source_start": 0,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        },
+        {
+          "id": "243e8fdc-1903-4c1a-972e-71d1dd604002",
+          "asset_id": "library:003e5a8da3ae36dbf956054b",
+          "name": "mp3-real-wave-derived-44100",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 117.15,
+          "duration": 115.4,
+          "source_start": 115.25,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        }
+      ],
+      "previewSeeks": [],
+      "pcmChecks": [
+        {
+          "time": 0.5,
+          "quietRms": 0
+        },
+        {
+          "time": 1,
+          "quietRms": 0.010206207261596576
+        },
+        {
+          "time": 2,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997319733207731
+        },
+        {
+          "time": 3,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999668805361112
+        },
+        {
+          "time": 5,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9991434003284427
+        },
+        {
+          "time": 7,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9969430748977305
+        },
+        {
+          "time": 9,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9994228286227123
+        },
+        {
+          "time": 11,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999239510436145
+        },
+        {
+          "time": 13,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9996339030932472
+        },
+        {
+          "time": 15,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999270288003844
+        },
+        {
+          "time": 17,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9998217417817051
+        },
+        {
+          "time": 19,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9996669881990206
+        },
+        {
+          "time": 21,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990106740249268
+        },
+        {
+          "time": 23,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9958813494127862
+        },
+        {
+          "time": 25,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9983756562748725
+        },
+        {
+          "time": 27,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9964276352100824
+        },
+        {
+          "time": 29,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9980571713454776
+        },
+        {
+          "time": 31,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9980954552661156
+        },
+        {
+          "time": 33,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9967650054698298
+        },
+        {
+          "time": 35,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998690004607188
+        },
+        {
+          "time": 37,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9915656076896016
+        },
+        {
+          "time": 39,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992639062075164
+        },
+        {
+          "time": 41,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990278438668917
+        },
+        {
+          "time": 43,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998952980831836
+        },
+        {
+          "time": 45,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9982786808268037
+        },
+        {
+          "time": 47,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9991107399292106
+        },
+        {
+          "time": 49,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.995208004222271
+        },
+        {
+          "time": 51,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992702809632363
+        },
+        {
+          "time": 53,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9989324107097508
+        },
+        {
+          "time": 55,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998417862870258
+        },
+        {
+          "time": 57,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988710198945999
+        },
+        {
+          "time": 59,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9991394552299472
+        },
+        {
+          "time": 61,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9973120951365104
+        },
+        {
+          "time": 63,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9971990734814321
+        },
+        {
+          "time": 65,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9989411654906344
+        },
+        {
+          "time": 67,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988414412847713
+        },
+        {
+          "time": 69,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997392509366915
+        },
+        {
+          "time": 71,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988640000314016
+        },
+        {
+          "time": 73,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9989310593561599
+        },
+        {
+          "time": 75,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9974951379862479
+        },
+        {
+          "time": 77,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9989268177420279
+        },
+        {
+          "time": 79,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990845435229067
+        },
+        {
+          "time": 81,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998346032969382
+        },
+        {
+          "time": 83,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976981114971895
+        },
+        {
+          "time": 85,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9972526007904047
+        },
+        {
+          "time": 87,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9983497568427881
+        },
+        {
+          "time": 89,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9985603793897655
+        },
+        {
+          "time": 91,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9985161766598193
+        },
+        {
+          "time": 93,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9953634410171308
+        },
+        {
+          "time": 95,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9984664232097674
+        },
+        {
+          "time": 97,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998197742209211
+        },
+        {
+          "time": 99,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9989265356319338
+        },
+        {
+          "time": 101,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987339166398868
+        },
+        {
+          "time": 103,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990899516005292
+        },
+        {
+          "time": 105,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9978184456194857
+        },
+        {
+          "time": 107,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.997025727631993
+        },
+        {
+          "time": 109,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990973101821667
+        },
+        {
+          "time": 111,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.999976121928153
+        },
+        {
+          "time": 113,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997344558997673
+        },
+        {
+          "time": 115,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992124199490485
+        },
+        {
+          "time": 119,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983097461480238
+        },
+        {
+          "time": 121,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9990001814472468
+        },
+        {
+          "time": 123,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991047526342208
+        },
+        {
+          "time": 125,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9975921469581245
+        },
+        {
+          "time": 127,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980359258012564
+        },
+        {
+          "time": 129,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993902310150764
+        },
+        {
+          "time": 131,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.997116447925517
+        },
+        {
+          "time": 133,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9996439125931943
+        },
+        {
+          "time": 135,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9978269202308604
+        },
+        {
+          "time": 137,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992515408685777
+        },
+        {
+          "time": 139,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987433512531884
+        },
+        {
+          "time": 141,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994466586570295
+        },
+        {
+          "time": 143,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9990521462385068
+        },
+        {
+          "time": 145,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993573882787425
+        },
+        {
+          "time": 147,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988479203808857
+        },
+        {
+          "time": 149,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.999069520612629
+        },
+        {
+          "time": 151,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983161854877278
+        },
+        {
+          "time": 153,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991248740711367
+        },
+        {
+          "time": 155,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9955110125988484
+        },
+        {
+          "time": 157,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9973017402577158
+        },
+        {
+          "time": 159,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9998892591132482
+        },
+        {
+          "time": 161,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995254840756216
+        },
+        {
+          "time": 163,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984588072152445
+        },
+        {
+          "time": 165,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988241341959492
+        },
+        {
+          "time": 167,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998803860490161
+        },
+        {
+          "time": 169,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988607777183317
+        },
+        {
+          "time": 171,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994827987699607
+        },
+        {
+          "time": 173,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992649804591474
+        },
+        {
+          "time": 175,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986176994358251
+        },
+        {
+          "time": 177,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9976283141348985
+        },
+        {
+          "time": 179,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991941713769075
+        },
+        {
+          "time": 181,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9977173222085449
+        },
+        {
+          "time": 183,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985315765463857
+        },
+        {
+          "time": 185,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998912995192638
+        },
+        {
+          "time": 187,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987274771198191
+        },
+        {
+          "time": 189,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.999069256513205
+        },
+        {
+          "time": 191,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985455136399969
+        },
+        {
+          "time": 193,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983244826004859
+        },
+        {
+          "time": 195,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992490091940193
+        },
+        {
+          "time": 197,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985530902771164
+        },
+        {
+          "time": 199,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994644140713402
+        },
+        {
+          "time": 201,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9997838444069302
+        },
+        {
+          "time": 203,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984699822484143
+        },
+        {
+          "time": 205,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980766112024361
+        },
+        {
+          "time": 207,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993149303225547
+        },
+        {
+          "time": 209,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986506853406274
+        },
+        {
+          "time": 211,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991037496123034
+        },
+        {
+          "time": 213,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984229576804807
+        },
+        {
+          "time": 215,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9976416573411417
+        },
+        {
+          "time": 217,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991507654685864
+        },
+        {
+          "time": 219,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9996325385795
+        },
+        {
+          "time": 221,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995064064158001
+        },
+        {
+          "time": 223,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9998082646842626
+        },
+        {
+          "time": 225,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995082575223481
+        },
+        {
+          "time": 227,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999480058837058
+        },
+        {
+          "time": 229,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9953344726863237
+        },
+        {
+          "time": 116.45,
+          "quietRms": 0
+        },
+        {
+          "time": 117.2,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9979779382755332
+        },
+        {
+          "time": 232.20000000000002,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999109256526301
+        },
+        {
+          "time": 232.65,
+          "quietRms": 0
+        }
+      ]
+    },
+    {
+      "kind": "real-wave-derived",
+      "rate": 48000,
+      "fps": 24,
+      "duration": 230.65,
+      "sourceSha256": "c25796a5fdd4502305eb22eabb77b3789fed05e2790046816f4bd412f2da1a06",
+      "frames": 5585,
+      "bytes": 5973221,
+      "outputSha256": "e2a8feb79561a215e62164cacd50b3c8fe093385b11229fb46dbb8ad242fa513",
+      "savedClips": [
+        {
+          "id": "32df6c74-3c85-4531-9c1a-b0d6a9033c0f",
+          "asset_id": "library:3fb931fd99dc00b80ae8997b",
+          "name": "mp3-real-wave-derived-48000",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 0.75,
+          "duration": 115.5,
+          "source_start": 0,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        },
+        {
+          "id": "b7e6aa06-bd62-4965-a766-5ad06869ab5e",
+          "asset_id": "library:3fb931fd99dc00b80ae8997b",
+          "name": "mp3-real-wave-derived-48000",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 117.15,
+          "duration": 115.4,
+          "source_start": 115.25,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        }
+      ],
+      "previewSeeks": [],
+      "pcmChecks": [
+        {
+          "time": 0.5,
+          "quietRms": 0
+        },
+        {
+          "time": 1,
+          "quietRms": 0.010206207261596576
+        },
+        {
+          "time": 2,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997735569373161
+        },
+        {
+          "time": 3,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999629863112969
+        },
+        {
+          "time": 5,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990799252677983
+        },
+        {
+          "time": 7,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9970344448914211
+        },
+        {
+          "time": 9,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.999430600005213
+        },
+        {
+          "time": 11,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999100831820696
+        },
+        {
+          "time": 13,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997227928517729
+        },
+        {
+          "time": 15,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999480491462389
+        },
+        {
+          "time": 17,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9996974201705562
+        },
+        {
+          "time": 19,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992478538392532
+        },
+        {
+          "time": 21,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998909155994737
+        },
+        {
+          "time": 23,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9948087269895354
+        },
+        {
+          "time": 25,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9980492522161649
+        },
+        {
+          "time": 27,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9967454223499986
+        },
+        {
+          "time": 29,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9981979355339047
+        },
+        {
+          "time": 31,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9954965225122827
+        },
+        {
+          "time": 33,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976801677109286
+        },
+        {
+          "time": 35,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987752802267091
+        },
+        {
+          "time": 37,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9960163853616917
+        },
+        {
+          "time": 39,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.99921950530309
+        },
+        {
+          "time": 41,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9985740394456352
+        },
+        {
+          "time": 43,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992630712347864
+        },
+        {
+          "time": 45,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9981276744499575
+        },
+        {
+          "time": 47,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.999277131019767
+        },
+        {
+          "time": 49,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9953068927078471
+        },
+        {
+          "time": 51,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992734849299071
+        },
+        {
+          "time": 53,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988813931290147
+        },
+        {
+          "time": 55,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9978707847746235
+        },
+        {
+          "time": 57,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988442945615169
+        },
+        {
+          "time": 59,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990585956005107
+        },
+        {
+          "time": 61,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9970286658971584
+        },
+        {
+          "time": 63,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9966453291142295
+        },
+        {
+          "time": 65,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987041883052411
+        },
+        {
+          "time": 67,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987435925878868
+        },
+        {
+          "time": 69,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997550392581144
+        },
+        {
+          "time": 71,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988770352348032
+        },
+        {
+          "time": 73,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992168188816053
+        },
+        {
+          "time": 75,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976273002656411
+        },
+        {
+          "time": 77,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990019529609051
+        },
+        {
+          "time": 79,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9991518294715631
+        },
+        {
+          "time": 81,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998260942199311
+        },
+        {
+          "time": 83,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9975682759067772
+        },
+        {
+          "time": 85,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9971915319127527
+        },
+        {
+          "time": 87,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9981364972023528
+        },
+        {
+          "time": 89,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987130308470914
+        },
+        {
+          "time": 91,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9984160703378544
+        },
+        {
+          "time": 93,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9968364355630475
+        },
+        {
+          "time": 95,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998717365485981
+        },
+        {
+          "time": 97,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9984899128123821
+        },
+        {
+          "time": 99,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9985518673581509
+        },
+        {
+          "time": 101,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9986634529037911
+        },
+        {
+          "time": 103,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987252253697863
+        },
+        {
+          "time": 105,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976319868963515
+        },
+        {
+          "time": 107,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9972634766715146
+        },
+        {
+          "time": 109,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992732107660977
+        },
+        {
+          "time": 111,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999761782104274
+        },
+        {
+          "time": 113,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9996820394841749
+        },
+        {
+          "time": 115,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9993295550019258
+        },
+        {
+          "time": 119,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9976858004141288
+        },
+        {
+          "time": 121,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9957308812995964
+        },
+        {
+          "time": 123,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9990761128524689
+        },
+        {
+          "time": 125,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994887592884089
+        },
+        {
+          "time": 127,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984523470655291
+        },
+        {
+          "time": 129,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993402726049222
+        },
+        {
+          "time": 131,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.996796298645717
+        },
+        {
+          "time": 133,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995673705383503
+        },
+        {
+          "time": 135,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9974279021376072
+        },
+        {
+          "time": 137,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991638733931661
+        },
+        {
+          "time": 139,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987476826518733
+        },
+        {
+          "time": 141,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995178741131977
+        },
+        {
+          "time": 143,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992013902259071
+        },
+        {
+          "time": 145,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993357359821747
+        },
+        {
+          "time": 147,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988558828379811
+        },
+        {
+          "time": 149,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991744157948254
+        },
+        {
+          "time": 151,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984166507613876
+        },
+        {
+          "time": 153,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9990843294230952
+        },
+        {
+          "time": 155,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983205601920893
+        },
+        {
+          "time": 157,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9982910360934837
+        },
+        {
+          "time": 159,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999731286852602
+        },
+        {
+          "time": 161,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995491377526259
+        },
+        {
+          "time": 163,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984861720330762
+        },
+        {
+          "time": 165,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985752920277126
+        },
+        {
+          "time": 167,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988085584749065
+        },
+        {
+          "time": 169,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987988676840144
+        },
+        {
+          "time": 171,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995227836854275
+        },
+        {
+          "time": 173,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991469202840997
+        },
+        {
+          "time": 175,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998416407015328
+        },
+        {
+          "time": 177,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9977798532067091
+        },
+        {
+          "time": 179,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992836195231587
+        },
+        {
+          "time": 181,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9979147657646595
+        },
+        {
+          "time": 183,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985970802583957
+        },
+        {
+          "time": 185,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988568491198146
+        },
+        {
+          "time": 187,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986872152173695
+        },
+        {
+          "time": 189,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992568391338641
+        },
+        {
+          "time": 191,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985344606272358
+        },
+        {
+          "time": 193,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987322139599297
+        },
+        {
+          "time": 195,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993082224805375
+        },
+        {
+          "time": 197,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9981741528009196
+        },
+        {
+          "time": 199,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993846319204026
+        },
+        {
+          "time": 201,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.999789031381512
+        },
+        {
+          "time": 203,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984134247126399
+        },
+        {
+          "time": 205,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980407821864649
+        },
+        {
+          "time": 207,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992749586667328
+        },
+        {
+          "time": 209,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.99872623970173
+        },
+        {
+          "time": 211,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991331380624486
+        },
+        {
+          "time": 213,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980845547178776
+        },
+        {
+          "time": 215,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9974726638271789
+        },
+        {
+          "time": 217,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9989486388396831
+        },
+        {
+          "time": 219,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9996297765602905
+        },
+        {
+          "time": 221,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994483386059582
+        },
+        {
+          "time": 223,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9998062322625293
+        },
+        {
+          "time": 225,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994487850887207
+        },
+        {
+          "time": 227,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999416162899302
+        },
+        {
+          "time": 229,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986741363039152
+        },
+        {
+          "time": 116.45,
+          "quietRms": 0
+        },
+        {
+          "time": 117.2,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9968965804763007
+        },
+        {
+          "time": 232.20000000000002,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999055839435878
+        },
+        {
+          "time": 232.65,
+          "quietRms": 0
+        }
+      ]
+    },
+    {
+      "kind": "real-wave-derived",
+      "rate": 48000,
+      "fps": 29.97,
+      "duration": 230.65,
+      "sourceSha256": "c25796a5fdd4502305eb22eabb77b3789fed05e2790046816f4bd412f2da1a06",
+      "frames": 6974,
+      "bytes": 6118825,
+      "outputSha256": "56195d14bae8b41cf0c058c43a26479d3a8dada69f1b1c6bdd4bdca1e8a8c781",
+      "savedClips": [
+        {
+          "id": "15342e84-62fc-4e24-bd9d-ee6c93ed2140",
+          "asset_id": "library:3fb931fd99dc00b80ae8997b",
+          "name": "mp3-real-wave-derived-48000",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 0.75,
+          "duration": 115.5,
+          "source_start": 0,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        },
+        {
+          "id": "4b6ef334-8391-441a-8e61-23de45551f0a",
+          "asset_id": "library:3fb931fd99dc00b80ae8997b",
+          "name": "mp3-real-wave-derived-48000",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 117.15,
+          "duration": 115.4,
+          "source_start": 115.25,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        }
+      ],
+      "previewSeeks": [],
+      "pcmChecks": [
+        {
+          "time": 0.5,
+          "quietRms": 0
+        },
+        {
+          "time": 1,
+          "quietRms": 0.017677669529663688
+        },
+        {
+          "time": 2,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.999743667166152
+        },
+        {
+          "time": 3,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.999963354903592
+        },
+        {
+          "time": 5,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9958668999885124
+        },
+        {
+          "time": 7,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9875122027294719
+        },
+        {
+          "time": 9,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988778194964851
+        },
+        {
+          "time": 11,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.999600050258557
+        },
+        {
+          "time": 13,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9994701919418593
+        },
+        {
+          "time": 15,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9993446997678844
+        },
+        {
+          "time": 17,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9991535350679508
+        },
+        {
+          "time": 19,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998451141475839
+        },
+        {
+          "time": 21,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9982240497319705
+        },
+        {
+          "time": 23,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9941823362036943
+        },
+        {
+          "time": 25,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976374131267264
+        },
+        {
+          "time": 27,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9954925597445982
+        },
+        {
+          "time": 29,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9977536945319231
+        },
+        {
+          "time": 31,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9966107239546216
+        },
+        {
+          "time": 33,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9956364765360949
+        },
+        {
+          "time": 35,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9957691802033267
+        },
+        {
+          "time": 37,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9947035847278816
+        },
+        {
+          "time": 39,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9981991673479211
+        },
+        {
+          "time": 41,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9957842266338621
+        },
+        {
+          "time": 43,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9970491580632641
+        },
+        {
+          "time": 45,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9957488497012766
+        },
+        {
+          "time": 47,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9979494835042496
+        },
+        {
+          "time": 49,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.991480967696104
+        },
+        {
+          "time": 51,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9979527546409174
+        },
+        {
+          "time": 53,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9979597994094841
+        },
+        {
+          "time": 55,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9964852652676147
+        },
+        {
+          "time": 57,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9974776764538916
+        },
+        {
+          "time": 59,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9982688833159257
+        },
+        {
+          "time": 61,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9945075666001554
+        },
+        {
+          "time": 63,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9961972964950254
+        },
+        {
+          "time": 65,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9963127181508084
+        },
+        {
+          "time": 67,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9978846102810226
+        },
+        {
+          "time": 69,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9993741027535329
+        },
+        {
+          "time": 71,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9973927157253566
+        },
+        {
+          "time": 73,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998585909100806
+        },
+        {
+          "time": 75,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9969150582347314
+        },
+        {
+          "time": 77,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976923157166696
+        },
+        {
+          "time": 79,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9983001151947931
+        },
+        {
+          "time": 81,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9969412717109474
+        },
+        {
+          "time": 83,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9959161584592854
+        },
+        {
+          "time": 85,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9948815486489097
+        },
+        {
+          "time": 87,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9968695934180788
+        },
+        {
+          "time": 89,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9975118086760474
+        },
+        {
+          "time": 91,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9972752867060559
+        },
+        {
+          "time": 93,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9942310776097883
+        },
+        {
+          "time": 95,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9977659115441497
+        },
+        {
+          "time": 97,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9966101100960132
+        },
+        {
+          "time": 99,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976325991453935
+        },
+        {
+          "time": 101,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.997313522397851
+        },
+        {
+          "time": 103,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9975279632038252
+        },
+        {
+          "time": 105,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9957597432982315
+        },
+        {
+          "time": 107,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9953708445498018
+        },
+        {
+          "time": 109,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9984996862197236
+        },
+        {
+          "time": 111,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9994663705946307
+        },
+        {
+          "time": 113,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9996517993358425
+        },
+        {
+          "time": 115,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987517579712485
+        },
+        {
+          "time": 119,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.996853249939478
+        },
+        {
+          "time": 121,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9977149179983542
+        },
+        {
+          "time": 123,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985327350674288
+        },
+        {
+          "time": 125,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988069734740307
+        },
+        {
+          "time": 127,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9968953886373007
+        },
+        {
+          "time": 129,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.99855148421439
+        },
+        {
+          "time": 131,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.990900359350134
+        },
+        {
+          "time": 133,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992554726328045
+        },
+        {
+          "time": 135,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9955485593050832
+        },
+        {
+          "time": 137,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9982714851863682
+        },
+        {
+          "time": 139,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9969172993801937
+        },
+        {
+          "time": 141,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9989455855511309
+        },
+        {
+          "time": 143,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987677568143681
+        },
+        {
+          "time": 145,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987256825224292
+        },
+        {
+          "time": 147,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9975461281181267
+        },
+        {
+          "time": 149,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984071933338982
+        },
+        {
+          "time": 151,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9965674420667799
+        },
+        {
+          "time": 153,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998422063789823
+        },
+        {
+          "time": 155,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9978851867233586
+        },
+        {
+          "time": 157,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9975825487791442
+        },
+        {
+          "time": 159,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999535963884888
+        },
+        {
+          "time": 161,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9982994931877978
+        },
+        {
+          "time": 163,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9970073482904164
+        },
+        {
+          "time": 165,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.997950543560589
+        },
+        {
+          "time": 167,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998116596788624
+        },
+        {
+          "time": 169,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9979854841290512
+        },
+        {
+          "time": 171,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9989562617614073
+        },
+        {
+          "time": 173,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984232606886997
+        },
+        {
+          "time": 175,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9975706409804656
+        },
+        {
+          "time": 177,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9955323140346822
+        },
+        {
+          "time": 179,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983766642398476
+        },
+        {
+          "time": 181,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9949698660492731
+        },
+        {
+          "time": 183,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9974707647417843
+        },
+        {
+          "time": 185,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9981393739030632
+        },
+        {
+          "time": 187,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9974770001994802
+        },
+        {
+          "time": 189,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998787785997652
+        },
+        {
+          "time": 191,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9972529447217232
+        },
+        {
+          "time": 193,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9976947816399503
+        },
+        {
+          "time": 195,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986308060817793
+        },
+        {
+          "time": 197,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.997022318619936
+        },
+        {
+          "time": 199,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986629033025675
+        },
+        {
+          "time": 201,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991181449638787
+        },
+        {
+          "time": 203,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9974447417973394
+        },
+        {
+          "time": 205,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9964861639487334
+        },
+        {
+          "time": 207,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986146570805995
+        },
+        {
+          "time": 209,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9978052728316017
+        },
+        {
+          "time": 211,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984011736645698
+        },
+        {
+          "time": 213,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9978586266512506
+        },
+        {
+          "time": 215,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.994183329832511
+        },
+        {
+          "time": 217,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980466923436829
+        },
+        {
+          "time": 219,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988909668149096
+        },
+        {
+          "time": 221,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983265669048185
+        },
+        {
+          "time": 223,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995194856686195
+        },
+        {
+          "time": 225,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988995050827437
+        },
+        {
+          "time": 227,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9990171065543954
+        },
+        {
+          "time": 229,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9962301063343493
+        },
+        {
+          "time": 116.45,
+          "quietRms": 0
+        },
+        {
+          "time": 117.2,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9948813787728525
+        },
+        {
+          "time": 232.20000000000002,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999192005710358
+        },
+        {
+          "time": 232.65,
+          "quietRms": 0
+        }
+      ]
+    },
+    {
+      "kind": "real-wave-derived",
+      "rate": 48000,
+      "fps": 60,
+      "duration": 230.65,
+      "sourceSha256": "c25796a5fdd4502305eb22eabb77b3789fed05e2790046816f4bd412f2da1a06",
+      "frames": 13963,
+      "bytes": 6505037,
+      "outputSha256": "66dcc4ad0fa9f7a0da317a3cb5b70981df298e0b06543d9c7521ae2ea89531d1",
+      "savedClips": [
+        {
+          "id": "66308b33-12bb-4ffe-959c-6f53eb5265b7",
+          "asset_id": "library:3fb931fd99dc00b80ae8997b",
+          "name": "mp3-real-wave-derived-48000",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 0.75,
+          "duration": 115.5,
+          "source_start": 0,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        },
+        {
+          "id": "148bd027-b571-41a8-91ca-12cdf95d7f01",
+          "asset_id": "library:3fb931fd99dc00b80ae8997b",
+          "name": "mp3-real-wave-derived-48000",
+          "category": "audio",
+          "track": "audio",
+          "lane": 1,
+          "start": 117.15,
+          "duration": 115.4,
+          "source_start": 115.25,
+          "source_duration": 230.65,
+          "source_has_audio": true
+        }
+      ],
+      "previewSeeks": [],
+      "pcmChecks": [
+        {
+          "time": 0.5,
+          "quietRms": 0
+        },
+        {
+          "time": 1,
+          "quietRms": 0.010206207261596576
+        },
+        {
+          "time": 2,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997735569373161
+        },
+        {
+          "time": 3,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999629863112969
+        },
+        {
+          "time": 5,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990799252677983
+        },
+        {
+          "time": 7,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9970344448914211
+        },
+        {
+          "time": 9,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.999430600005213
+        },
+        {
+          "time": 11,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999100831820696
+        },
+        {
+          "time": 13,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997227928517729
+        },
+        {
+          "time": 15,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999480491462389
+        },
+        {
+          "time": 17,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9996974201705562
+        },
+        {
+          "time": 19,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992478538392532
+        },
+        {
+          "time": 21,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998909155994737
+        },
+        {
+          "time": 23,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9948087269895354
+        },
+        {
+          "time": 25,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9980492522161649
+        },
+        {
+          "time": 27,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9967454223499986
+        },
+        {
+          "time": 29,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9981979355339047
+        },
+        {
+          "time": 31,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9954965225122827
+        },
+        {
+          "time": 33,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976801677109286
+        },
+        {
+          "time": 35,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987752802267091
+        },
+        {
+          "time": 37,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9960163853616917
+        },
+        {
+          "time": 39,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.99921950530309
+        },
+        {
+          "time": 41,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9985740394456352
+        },
+        {
+          "time": 43,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992630712347864
+        },
+        {
+          "time": 45,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9981276744499575
+        },
+        {
+          "time": 47,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.999277131019767
+        },
+        {
+          "time": 49,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9953068927078471
+        },
+        {
+          "time": 51,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992734849299071
+        },
+        {
+          "time": 53,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988813931290147
+        },
+        {
+          "time": 55,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9978707847746235
+        },
+        {
+          "time": 57,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988442945615169
+        },
+        {
+          "time": 59,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990585956005107
+        },
+        {
+          "time": 61,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9970286658971584
+        },
+        {
+          "time": 63,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9966453291142295
+        },
+        {
+          "time": 65,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987041883052411
+        },
+        {
+          "time": 67,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987435925878868
+        },
+        {
+          "time": 69,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9997550392581144
+        },
+        {
+          "time": 71,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9988770352348032
+        },
+        {
+          "time": 73,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992168188816053
+        },
+        {
+          "time": 75,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976273002656411
+        },
+        {
+          "time": 77,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9990019529609051
+        },
+        {
+          "time": 79,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9991518294715631
+        },
+        {
+          "time": 81,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998260942199311
+        },
+        {
+          "time": 83,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9975682759067772
+        },
+        {
+          "time": 85,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9971915319127527
+        },
+        {
+          "time": 87,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9981364972023528
+        },
+        {
+          "time": 89,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987130308470914
+        },
+        {
+          "time": 91,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9984160703378544
+        },
+        {
+          "time": 93,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9968364355630475
+        },
+        {
+          "time": 95,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.998717365485981
+        },
+        {
+          "time": 97,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9984899128123821
+        },
+        {
+          "time": 99,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9985518673581509
+        },
+        {
+          "time": 101,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9986634529037911
+        },
+        {
+          "time": 103,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9987252253697863
+        },
+        {
+          "time": 105,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9976319868963515
+        },
+        {
+          "time": 107,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9972634766715146
+        },
+        {
+          "time": 109,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9992732107660977
+        },
+        {
+          "time": 111,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9999761782104274
+        },
+        {
+          "time": 113,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9996820394841749
+        },
+        {
+          "time": 115,
+          "sampleRate": 48000,
+          "lagSamples": 0,
+          "correlation": 0.9993295550019258
+        },
+        {
+          "time": 119,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9976858004141288
+        },
+        {
+          "time": 121,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9957308812995964
+        },
+        {
+          "time": 123,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9990761128524689
+        },
+        {
+          "time": 125,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994887592884089
+        },
+        {
+          "time": 127,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984523470655291
+        },
+        {
+          "time": 129,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993402726049222
+        },
+        {
+          "time": 131,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.996796298645717
+        },
+        {
+          "time": 133,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995673705383503
+        },
+        {
+          "time": 135,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9974279021376072
+        },
+        {
+          "time": 137,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991638733931661
+        },
+        {
+          "time": 139,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987476826518733
+        },
+        {
+          "time": 141,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995178741131977
+        },
+        {
+          "time": 143,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992013902259071
+        },
+        {
+          "time": 145,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993357359821747
+        },
+        {
+          "time": 147,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988558828379811
+        },
+        {
+          "time": 149,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991744157948254
+        },
+        {
+          "time": 151,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984166507613876
+        },
+        {
+          "time": 153,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9990843294230952
+        },
+        {
+          "time": 155,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9983205601920893
+        },
+        {
+          "time": 157,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9982910360934837
+        },
+        {
+          "time": 159,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999731286852602
+        },
+        {
+          "time": 161,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995491377526259
+        },
+        {
+          "time": 163,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984861720330762
+        },
+        {
+          "time": 165,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985752920277126
+        },
+        {
+          "time": 167,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988085584749065
+        },
+        {
+          "time": 169,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987988676840144
+        },
+        {
+          "time": 171,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9995227836854275
+        },
+        {
+          "time": 173,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991469202840997
+        },
+        {
+          "time": 175,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.998416407015328
+        },
+        {
+          "time": 177,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9977798532067091
+        },
+        {
+          "time": 179,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992836195231587
+        },
+        {
+          "time": 181,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9979147657646595
+        },
+        {
+          "time": 183,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985970802583957
+        },
+        {
+          "time": 185,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9988568491198146
+        },
+        {
+          "time": 187,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986872152173695
+        },
+        {
+          "time": 189,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992568391338641
+        },
+        {
+          "time": 191,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9985344606272358
+        },
+        {
+          "time": 193,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9987322139599297
+        },
+        {
+          "time": 195,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993082224805375
+        },
+        {
+          "time": 197,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9981741528009196
+        },
+        {
+          "time": 199,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9993846319204026
+        },
+        {
+          "time": 201,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.999789031381512
+        },
+        {
+          "time": 203,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9984134247126399
+        },
+        {
+          "time": 205,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980407821864649
+        },
+        {
+          "time": 207,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9992749586667328
+        },
+        {
+          "time": 209,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.99872623970173
+        },
+        {
+          "time": 211,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9991331380624486
+        },
+        {
+          "time": 213,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9980845547178776
+        },
+        {
+          "time": 215,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9974726638271789
+        },
+        {
+          "time": 217,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9989486388396831
+        },
+        {
+          "time": 219,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9996297765602905
+        },
+        {
+          "time": 221,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994483386059582
+        },
+        {
+          "time": 223,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9998062322625293
+        },
+        {
+          "time": 225,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9994487850887207
+        },
+        {
+          "time": 227,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999416162899302
+        },
+        {
+          "time": 229,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9986741363039152
+        },
+        {
+          "time": 116.45,
+          "quietRms": 0
+        },
+        {
+          "time": 117.2,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9968965804763007
+        },
+        {
+          "time": 232.20000000000002,
+          "sampleRate": 48000,
+          "lagSamples": -1,
+          "correlation": 0.9999055839435878
+        },
+        {
+          "time": 232.65,
+          "quietRms": 0
+        }
+      ]
+    }
+  ]
+}

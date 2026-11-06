@@ -1,0 +1,119 @@
+{
+  "native": true,
+  "apiOnly": false,
+  "legacyOversizeRejectedWithoutRewriting": true,
+  "fixtures": [
+    {
+      "hz": 8000,
+      "duration": 3.083125,
+      "chrome": {
+        "htmlDuration": 3.083125,
+        "decodedDuration": 3.083125,
+        "samples": 24665
+      },
+      "sha256": "a825fd602bc29bcdf972c828a413771544b53a4952306b04ce9a92e2a4b466f5"
+    },
+    {
+      "hz": 44100,
+      "duration": 3.0170068027210886,
+      "chrome": {
+        "htmlDuration": 3.017007,
+        "decodedDuration": 3.0170068027210886,
+        "samples": 133050
+      },
+      "sha256": "9ed9053329e1456b15f5430f71d7ec4db583e56b985b268d4c255ec4c7d54200"
+    },
+    {
+      "hz": 48000,
+      "duration": 3.017,
+      "chrome": {
+        "htmlDuration": 3.017,
+        "decodedDuration": 3.017,
+        "samples": 144816
+      },
+      "sha256": "f9e45d0ff6feef61394fa0d2ad04e9ac52e986e87760029934b06a468855cf08"
+    }
+  ],
+  "savedClips": [
+    {
+      "id": "d78597a6-4ccc-4f44-b7da-363d7bc8616b",
+      "asset_id": "library:1291ebae06ec7306dfeaa0af",
+      "name": "marker-44100",
+      "category": "audio",
+      "track": "audio",
+      "lane": 1,
+      "start": 1,
+      "duration": 1,
+      "source_start": 0.25,
+      "source_duration": 3.017,
+      "source_has_audio": true
+    },
+    {
+      "id": "ee1f5c43-96a8-4313-8608-baf913cba495",
+      "asset_id": "library:1291ebae06ec7306dfeaa0af",
+      "name": "marker-44100",
+      "category": "audio",
+      "track": "audio",
+      "lane": 1,
+      "start": 3.5,
+      "duration": 1.5,
+      "source_start": 0.75,
+      "source_duration": 3.017,
+      "source_has_audio": true
+    }
+  ],
+  "previewSeeks": [
+    {
+      "frame": 36,
+      "expectedSource": 0.4512012012012012
+    },
+    {
+      "frame": 54,
+      "expectedSource": 1.051801801801802
+    },
+    {
+      "frame": 114,
+      "expectedSource": 1.0538038038038042
+    },
+    {
+      "frame": 144,
+      "expectedSource": 2.054804804804805
+    }
+  ],
+  "pcmChecks": [
+    {
+      "time": 0.2,
+      "quietRms": 0
+    },
+    {
+      "time": 1.2,
+      "lag": 0,
+      "correlation": 0.9999999227787947
+    },
+    {
+      "time": 1.7,
+      "lag": 0,
+      "correlation": 0.9999999198747997
+    },
+    {
+      "time": 2.6,
+      "quietRms": 0
+    },
+    {
+      "time": 3.7,
+      "lag": 0,
+      "correlation": 0.9999999635262297
+    },
+    {
+      "time": 4.5,
+      "lag": 0,
+      "correlation": 0.9999999548254569
+    },
+    {
+      "time": 5.5,
+      "quietRms": 0
+    }
+  ],
+  "frames": 180,
+  "outputSha256": "4265b22b890c06161d67b332765c8611cc280308c3cd35e6e6e7c2218a8234b8"
+}

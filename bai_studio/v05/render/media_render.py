@@ -297,16 +297,39 @@ def _source(entry: dict, library_root: Path, source_root: Path, inbox_root: Path
 def _media_info(ffprobe: str, path: Path) -> dict:
     try:
         result = _run([ffprobe, "-v", "error", "-show_entries",
-                       "stream=codec_type:format=duration", "-of", "json", str(path)], 30)
+                       "stream=codec_type,sample_rate:format=duration", "-of", "json", str(path)], 30)
         if result.returncode:
             raise ValueError("ffprobe returned an error")
         info = json.loads(result.stdout)
         duration = float(info["format"]["duration"])
+        if path.suffix.lower() == ".mp3":
+            # Older demuxers include encoder delay/padding in format.duration.
+            # Count decoded samples so source windows use the same playable
+            # clock as the browser, without subtracting padding twice on newer
+            # FFmpeg versions. Do not rewrite an existing saved clip to fit.
+            audio = next(stream for stream in info.get("streams", [])
+                         if stream.get("codec_type") == "audio")
+            rate = int(audio["sample_rate"])
+            if not 0 < rate <= 192000:
+                raise ValueError("invalid MP3 sample rate")
+            decoded = _run([ffprobe, "-v", "error", "-select_streams", "a:0",
+                            "-show_entries", "frame=nb_samples", "-of", "csv=p=0", str(path)], 30)
+            if decoded.returncode or decoded.stderr.strip():
+                raise ValueError("MP3 decode failed")
+            samples = 0
+            for line in decoded.stdout.splitlines():
+                if not line.strip():
+                    continue
+                count = int(line)
+                if not 0 < count <= 1152:
+                    raise ValueError("invalid MP3 sample count")
+                samples += count
+            duration = samples / rate
         if not 0 < duration <= 86400:
             raise ValueError("invalid media duration")
         return {"duration": duration,
                 "audio": any(stream.get("codec_type") == "audio" for stream in info.get("streams", []))}
-    except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as exc:
+    except (OSError, ValueError, KeyError, TypeError, StopIteration, subprocess.TimeoutExpired) as exc:
         raise RenderError(f"{path.name}: 元素材を動画・音声として読めません") from exc
 
 

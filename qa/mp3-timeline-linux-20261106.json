@@ -1,0 +1,87 @@
+{
+  "native": false,
+  "apiOnly": true,
+  "legacyOversizeRejectedWithoutRewriting": true,
+  "fixtures": [
+    {
+      "hz": 8000,
+      "duration": 3.017,
+      "sha256": "d6e8fc9360257567fd9cd588ac9d4fe968be588efb3967be67a792810b230976"
+    },
+    {
+      "hz": 44100,
+      "duration": 3.0170068027210886,
+      "sha256": "37fcebd3e7ba8862662a17755f8a09f19e4204e8b055fb5c85d3d024b1642a7a"
+    },
+    {
+      "hz": 48000,
+      "duration": 3.017,
+      "sha256": "53e3adaada5106790f0bc3989855c4bcce3af0502495ce51db94f72aa1438f92"
+    }
+  ],
+  "savedClips": [
+    {
+      "id": "08a828af-dca4-4645-b5b1-c99c24b3715b",
+      "asset_id": "library:a356ac5345f2a29cdef6e458",
+      "name": "marker-44100",
+      "category": "audio",
+      "track": "audio",
+      "lane": 1,
+      "start": 1,
+      "duration": 1,
+      "source_start": 0.25,
+      "source_duration": 3.017,
+      "source_has_audio": true
+    },
+    {
+      "id": "2349e7d5-5741-468e-a60a-8bbeac7c8087",
+      "asset_id": "library:a356ac5345f2a29cdef6e458",
+      "name": "marker-44100",
+      "category": "audio",
+      "track": "audio",
+      "lane": 1,
+      "start": 3.5,
+      "duration": 1.5,
+      "source_start": 0.75,
+      "source_duration": 3.017,
+      "source_has_audio": true
+    }
+  ],
+  "previewSeeks": [],
+  "pcmChecks": [
+    {
+      "time": 0.2,
+      "quietRms": 0
+    },
+    {
+      "time": 1.2,
+      "lag": 0,
+      "correlation": 0.9999950833798232
+    },
+    {
+      "time": 1.7,
+      "lag": 0,
+      "correlation": 0.9999947533270073
+    },
+    {
+      "time": 2.6,
+      "quietRms": 0
+    },
+    {
+      "time": 3.7,
+      "lag": 0,
+      "correlation": 0.9999968915432796
+    },
+    {
+      "time": 4.5,
+      "lag": 0,
+      "correlation": 0.9999984543321736
+    },
+    {
+      "time": 5.5,
+      "quietRms": 0
+    }
+  ],
+  "frames": 180,
+  "outputSha256": "528915c5ce60870a38c0ecd17d73dff95a604206b5126f484e8e139b58b0bef0"
+}

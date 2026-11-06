@@ -107,8 +107,8 @@ async function scenario({ native, long }) {
       const diagnostics = await page.evaluate(() => ({ supported: window.mixamoWebMcpDiagnostics.supported,
         registered: window.mixamoWebMcpDiagnostics.registered, errors: window.mixamoWebMcpDiagnostics.errors }));
       assert.equal(diagnostics.supported, true); assert.deepEqual(diagnostics.errors, []);
-      assert.equal(diagnostics.registered.length, 63);
-      assert.equal(new Set(diagnostics.registered).size, 63);
+      assert.equal(diagnostics.registered.length, 64);
+      assert.equal(new Set(diagnostics.registered).size, 64);
       const nativeSchema = await page.evaluate(async () => (await document.modelContext.getTools())
         .find(t => t.name === 'bai_studio_clip_edit').inputSchema);
       assert.ok(nativeSchema.properties.source_start); assert.ok(nativeSchema.properties.lane);
@@ -207,7 +207,7 @@ async function scenario({ native, long }) {
     }
     assert.equal(stderr, '');
     console.log(JSON.stringify({ native, long, sdk: '2.4.0', tools: listed.length,
-      nativeTools: native ? 63 : null, frames: completed.probe.frames, bytes: completed.bytes,
+      nativeTools: native ? 64 : null, frames: completed.probe.frames, bytes: completed.bytes,
       versions: 3, restoredOriginal: true, staleRejected: true, projectId: id }));
   } finally {
     await client.close(); await page?.close(); await browser?.close(); await server.stop();
