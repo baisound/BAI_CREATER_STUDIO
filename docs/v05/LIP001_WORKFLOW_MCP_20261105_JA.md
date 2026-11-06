@@ -31,10 +31,12 @@
 
 ## ネイティブWebMCPの環境確認（2026-11-05）
 
-インストール済みのChrome 156.0.8078.80をPlaywrightから通常のヘッドレス設定で起動し、`about:blank` で `typeof document.modelContext` と `typeof document.modelContext?.registerTool` を読み取った。両方 `undefined`。したがって、このChrome環境ではWebMCPのネイティブ登録・クライアントからの呼出しは実測できない。上記の隔離Chrome試験は `modelContext` を試験ページへ明示的に注入した登録・実行契約の確認であり、ネイティブ機能の合格とは区別する。対応ブラウザが用意されたときに同じ保存APIとの往復を再確認する。
+インストール済みのChrome 156.0.8078.80をPlaywrightから通常のヘッドレス設定で起動し、`about:blank` で `typeof document.modelContext` と `typeof document.modelContext?.registerTool` を読み取った。両方 `undefined`。当時はWebMCPを有効化するフラグを使わず、この実行ではネイティブ登録・呼出しは未実施だった。上記の隔離Chrome試験は `modelContext` を試験ページへ明示的に注入した登録・実行契約の確認であり、ネイティブ機能の合格とは区別する。2026-11-06にWebMCPTestingフラグで9操作をネイティブ検証した結果は[後続記録](LIP001_NATIVE_MCP_20261106_JA.md)を参照する。
 
 ## 残る範囲
 
-WebMCP対応ブラウザのネイティブ呼出し、利用者の標準MCPクライアント設定、Linuxブラウザー/GPU/MP4と全MCP機能、実歌声SRTを使う両MCPの全操作・実曲元VMDと採用口形の合成・歌声入り長尺MP4、別PMXの自然な口形は未検証。AIの操作結果は保存値・バイナリの検査であり、表情の自然さやOwner採用を示さない。LIP-001全体は部分実装のまま。
+9操作以外のネイティブ呼出し、利用者の標準MCPクライアント設定、Linuxブラウザー/GPU/MP4と全MCP機能、実歌声SRTを使う両MCPの全操作・実曲元VMDと採用口形の合成・歌声入り長尺MP4、別PMXの自然な口形は未検証。AIの操作結果は保存値・バイナリの検査であり、表情の自然さやOwner採用を示さない。LIP-001全体は部分実装のまま。
 
 モデル区分: 既存APIの照合・実装・隔離試験は標準モデル。
+
+2026-11-06追記：上記9操作は公式SDKの継続セッションとChromeネイティブ呼出しで検証した。実歌声・元VMDとの合成・長尺は引き続き未検証。[範囲と結果](LIP001_NATIVE_MCP_20261106_JA.md)。
