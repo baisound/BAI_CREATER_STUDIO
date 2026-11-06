@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T12:37:55+09:00",
+  "updated_at": "2026-11-06T12:41:29+09:00",
   "updated_by": "codex",
-  "branch": "codex/lip-native-mcp-20261106",
-  "head_at_update": "6cca466",
+  "branch": "codex/lip-native-composite-20261106",
+  "head_at_update": "32ad26b",
   "current": {
-    "task": "Issue #187 LIPの公式SDKとネイティブWebMCP",
-    "status": "done",
-    "step": "既存のSRTから読み・下書き・候補・採用操作を公式SDKと実ChromeネイティブWebMCPで照合し、保存再読込と拒否時不変を検証する",
-    "design_doc": "docs/v05/LIP001_NATIVE_MCP_20261106_JA.md"
+    "task": "Issue #187 合成VMD候補の公式SDKとネイティブWebMCP",
+    "status": "in_progress",
+    "step": "既存の画面合成候補試験を公式SDKと実Chromeネイティブ呼出しへ拡張し、全キー再読込・バイト同一・不連続と失効拒否を照合する",
+    "design_doc": "docs/v05/LIP001_NATIVE_COMPOSITE_20261106_JA.md"
   },
   "next_steps": [
     "LIPネイティブ検証PRをmainへ反映・手元同期し、順4の合成候補ネイティブ・実歌声読みと採用口形の長尺MP4、順3に残る実形式を保持。実歌詞54発話を自動確定しない。順5の再判定と順6を繰り上げない"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T12:41:29+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "32ad26b",
+      "text": "Issue #187 合成VMD候補の公式SDKとネイティブWebMCP: 既存の画面合成候補試験を公式SDKと実Chromeネイティブ呼出しへ拡張し、全キー再読込・バイト同一・不連続と失効拒否を照合する"
+    },
     {
       "at": "2026-11-06T12:37:55+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "1ef546a",
       "text": "Issue #39/#81 順3の長尺3D出力: PNG全量保存を透過可逆動画への逐次書込みへ変更し600F超を検証"
-    },
-    {
-      "at": "2026-11-06T02:40:00+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4c6ee39",
-      "text": "PR #237をcodex/nextへ統合。実PMX・同曲VMD/WAVの600F実GPUプレビュー・MP4と音声3点を確認し、Issue #39/#81・PR #233へ結果を反映"
     }
   ]
 }
