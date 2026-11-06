@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T12:31:34+09:00",
+  "updated_at": "2026-11-06T12:33:31+09:00",
   "updated_by": "codex",
-  "branch": "codex/image-lanes-native-mcp-20261106",
-  "head_at_update": "56f4db5",
+  "branch": "codex/lip-native-mcp-20261106",
+  "head_at_update": "7a62d20",
   "current": {
-    "task": "Issue #80/#81 画像の複数行とネイティブMCP・出力",
-    "status": "done",
-    "step": "画像行追加・空行削除を両MCPから既存APIへ接続し、安定行ID・移動・保存再読込・重なり順を完成MP4で検証する",
-    "design_doc": "docs/v05/IMAGE_LANES_NATIVE_MCP_20261106_JA.md"
+    "task": "Issue #187 LIPの公式SDKとネイティブWebMCP",
+    "status": "in_progress",
+    "step": "既存のSRTから読み・下書き・候補・採用操作を公式SDKと実ChromeネイティブWebMCPで照合し、保存再読込と拒否時不変を検証する",
+    "design_doc": "docs/v05/LIP001_NATIVE_MCP_20261106_JA.md"
   },
   "next_steps": [
     "画像行MCPの検証済みPRをmainへ統合・手元と8765へ非破壊同期する。その後は順4のLIP公式SDK/ネイティブWebMCPへ進み、実歌声の読み54発話は未採用のまま保持する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T12:33:31+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "7a62d20",
+      "text": "Issue #187 LIPの公式SDKとネイティブWebMCP: 既存のSRTから読み・下書き・候補・採用操作を公式SDKと実ChromeネイティブWebMCPで照合し、保存再読込と拒否時不変を検証する"
+    },
     {
       "at": "2026-11-06T12:31:34+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "8b5e528",
       "text": "PR #237統合後の開発ブランチ引継ぎ: codex/nextの作業位置を順3の実曲600F検証後へ更新し、残る長尺条件を引き継ぐ"
-    },
-    {
-      "at": "2026-11-06T02:33:14+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "20d2bd8",
-      "text": "Issue #39/#81: 実PMX・同曲VMD/WAVの600Fを実GPUでプレビュー・保存再読込・H.264/AAC出力。画素3点変化、音声1/5/9秒位置差0サンプル、原本hash一致"
     }
   ]
 }
