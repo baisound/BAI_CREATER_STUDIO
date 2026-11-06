@@ -8,6 +8,7 @@
 - [`ROADMAP_JA.md`](ROADMAP_JA.md) — 推奨開発順序・依存性
 - [`V05_MINIMUM_WORKFLOW_20261023_JA.md`](V05_MINIMUM_WORKFLOW_20261023_JA.md) — 2026-10-23 Owner指定のv0.5最短制作経路と確認ゲート
 - [`V05_REBUILT_ROADMAP_20261102_JA.md`](V05_REBUILT_ROADMAP_20261102_JA.md) — 上記指定を維持した現在の実施順・欠落・次の縦断ゲート
+- [`CURRENT_POSITION_AND_EFFORT_20261106_JA.md`](CURRENT_POSITION_AND_EFFORT_20261106_JA.md) — 全体の現在地と残り作業量を簡単な言葉で説明した見積もり
 - [`TRACEABILITY_JA.md`](TRACEABILITY_JA.md) — 会話要求とIDの対応表
 - [`IMPLEMENTATION_AUDIT_JA.md`](IMPLEMENTATION_AUDIT_JA.md) — 検証・実装状態の基準
 - [`../specs/SPEC_PROGRESS_JA.md`](../specs/SPEC_PROGRESS_JA.md) — 承認済みバックログの仕様・UIモック進捗と未検証点
