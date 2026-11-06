@@ -37,6 +37,40 @@
   let queuedRefresh = null;
   let importOpen = false;
   let loadFailed = false;
+  let mediaGeneration = 0;
+
+  function pauseDetailMedia(release = false) {
+    if (release) mediaGeneration++;
+    detail.querySelectorAll('video,audio').forEach((media) => {
+      media.pause();
+      if (release) {
+        media.onerror = null; media.onloadeddata = null;
+        media.removeAttribute('src'); media.load();
+      }
+    });
+  }
+
+  function watchDetailMedia() {
+    const media = detail.querySelector('video,audio');
+    if (!media) return;
+    const generation = mediaGeneration;
+    const note = document.createElement('p');
+    note.className = 'baiTiny'; note.role = 'status'; note.dataset.role = 'asset-media-status';
+    note.textContent = media.tagName === 'AUDIO' ? '再生ボタンで音声を確認してください。' : 'このブラウザーでの再生を確認中…';
+    media.after(note);
+    const fail = () => {
+      if (generation !== mediaGeneration || !media.isConnected) return;
+      media.pause(); media.controls = false; media.hidden = true;
+      note.textContent = '登録済みですが、このブラウザーでは再生できません。対応する形式へ変換してください。';
+    };
+    const loaded = () => {
+      if (generation !== mediaGeneration || !media.isConnected) return;
+      if (media.tagName === 'VIDEO' && (!media.videoWidth || !media.videoHeight)) { fail(); return; }
+      note.textContent = media.tagName === 'VIDEO' ? '映像を表示できます。再生ボタンで確認してください。' : '音声を読み込みました。';
+    };
+    media.onerror = fail; media.onloadeddata = loaded;
+    if (media.error) fail(); else if (media.readyState >= 2) loaded();
+  }
 
   function fileUrl(item) {
     if (!item.available) return null;
@@ -109,6 +143,7 @@
   }
 
   function showDetail(item) {
+    pauseDetailMedia(true);
     modelImport()?.disposeDetail();
     importOpen = false;
     selectedId = item.id;
@@ -123,11 +158,12 @@
       <dt>容量</dt><dd>${bytes(item.bytes)}</dd>
       <dt>登録元</dt><dd>${esc(item.source || '不明')}</dd>
       <dt>表示名の出典</dt><dd>${titleSource}</dd>
-      <dt>利用状態</dt><dd>${item.available ? '登録済み・利用可能' : '元ファイルが見つかりません'}</dd></dl>
+      <dt>利用状態</dt><dd>${item.available ? '登録済み（元ファイルあり）' : '元ファイルが見つかりません'}</dd></dl>
       ${supports3d(item) ? '<div id="baiDetail3d"></div>' : is3d ? '<p class="baiTiny">3D回転表示と実動作はこの詳細欄へ未接続です。</p>' : ''}
       ${item.available ? '<button type="button" id="baiPlaceSelected">この素材をタイムラインで選ぶ</button>' : ''}
       <p class="baiTiny">原本は変更しません。配置後の実再生は素材形式ごとに確認が必要です。</p>`;
     if (supports3d(item)) modelImport().mountDetail($('baiDetail3d'), item, items);
+    watchDetailMedia();
     detail.querySelectorAll('[data-v188-thumb]').forEach(fillThumbnail); // the selected item, not only when scrolled into view
     $('baiPlaceSelected')?.addEventListener('click', () => {
       window.baiGo?.('edit');
@@ -165,11 +201,12 @@
       const selected = items.find((item) => item.id === preferId);
       if (!showSelected) { /* the import form stays open */ }
       else if (selected) showDetail(selected);
-      else if (selectedId) { selectedId = null; detail.innerHTML = '<h2>登録素材の詳細</h2><p>一覧から素材を選んでください。</p>'; }
+      else if (selectedId) { selectedId = null; pauseDetailMedia(true); detail.innerHTML = '<h2>登録素材の詳細</h2><p>一覧から素材を選んでください。</p>'; }
     } catch (error) {
       items = [];
       loadFailed = true;
       selectedId = null;
+      pauseDetailMedia(true);
       grid.innerHTML = `<p role="alert">素材一覧を読み込めません。原本は保持されています。${esc(error.message)}</p>`;
       $('baiAssetCount').textContent = '取得失敗';
       detail.innerHTML = '<h2>登録素材の詳細</h2><p>一覧の取得後に表示します。</p>';
@@ -200,6 +237,7 @@
   }
 
   function showImport() {
+    pauseDetailMedia(true);
     modelImport()?.disposeDetail();
     importOpen = true;
     detail.innerHTML = `<h2>素材を追加</h2>
@@ -316,6 +354,11 @@
     const target = event.target.closest?.('[data-go],[data-page],[data-workspace]');
     if (target && !target.closest('#bai-library') && target.dataset.go !== 'library' && target.dataset.page !== 'library') modelImport()?.disposeDetail();
   });
+  const libraryPage = detail.closest('.baiPage');
+  if (libraryPage) new MutationObserver(() => {
+    if (!libraryPage.classList.contains('active')) pauseDetailMedia();
+  }).observe(libraryPage, { attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('pagehide', () => pauseDetailMedia(true), { once: true });
   window.BAIStudioV05Library = { refresh };
   refresh();
 })();

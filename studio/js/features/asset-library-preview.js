@@ -70,13 +70,18 @@ async function videoFrame(item) {
       video.onloadeddata = () => { clearTimeout(timer); resolve(undefined); };
       video.onerror = () => { clearTimeout(timer); reject(new Error('動画を再生できません')); };
     });
+    // Some browsers decode the audio in OGV while exposing no video frame.
+    // Never save the resulting empty canvas as a successful video sample.
+    if (!video.videoWidth || !video.videoHeight) throw new Error('動画の映像を再生できません');
     if (Number.isFinite(video.duration) && video.duration > 1) {
       video.currentTime = Math.min(1, video.duration * 0.1);
       await new Promise((resolve) => { video.onseeked = () => resolve(undefined); setTimeout(resolve, 3000); });
     }
     const canvas = document.createElement('canvas');
     canvas.width = 640; canvas.height = Math.max(32, Math.min(640, Math.round(640 * video.videoHeight / Math.max(1, video.videoWidth))));
-    canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const context = canvas.getContext('2d');
+    if (!context) return null;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
     return await saveThumbnail(item, canvas);
   } finally { video.removeAttribute('src'); video.load(); }
 }
@@ -174,9 +179,19 @@ function mediaControls(media, root) {
 export function mountLibraryPreview(root, item) {
   const url = libraryFileUrl(item);
   let alive = true;
+  let mediaFailed = false;
   /** @type {(() => void)|null} */ let cleanup = null;
   const status = h('p', { class: 'section-note', role: 'status', dataset: { role: 'library-preview-status' } }, '見本を読み込み中…');
   const showError = (error) => { if (alive) status.textContent = `見本を表示できません：${loadErrorText(error)}`; };
+  /** @param {HTMLMediaElement} media */
+  const mediaError = (media) => {
+    if (!alive) return;
+    mediaFailed = true; media.pause(); media.hidden = true;
+    root.querySelectorAll('.asset-media-controls button,.asset-media-controls input').forEach((node) => {
+      /** @type {HTMLButtonElement | HTMLInputElement} */ (node).disabled = true;
+    });
+    status.textContent = '登録済みですが、このブラウザーでは再生できません。対応する形式へ変換してください。';
+  };
   if (item.format === 'GLB') {
     const stage = h('div', { class: 'asset-motion-stage viewport vp3d', dataset: { role: 'library-3d' } });
     root.append(stage, status);
@@ -208,12 +223,19 @@ export function mountLibraryPreview(root, item) {
     const media = /** @type {HTMLAudioElement} */ (h('audio', { preload: 'metadata', src: url, dataset: { role: 'audio-media' } }));
     root.append(img, media, status);
     cleanup = mediaControls(media, root);
-    void libraryThumbnail(item).then((thumb) => { if (!alive) return; if (thumb) { img.src = thumb; status.textContent = '波形を表示しています。'; } else status.textContent = '音声を再生できます。大きいファイルや非対応の形式では波形を作れません。'; });
+    media.addEventListener('error', () => mediaError(media));
+    void libraryThumbnail(item).then((thumb) => { if (!alive || mediaFailed) return; if (thumb) { img.src = thumb; status.textContent = '波形を表示しています。'; } else status.textContent = '音声を再生できます。大きいファイルや非対応の形式では波形を作れません。'; });
   } else if (item.kind === 'video') {
     const media = /** @type {HTMLVideoElement} */ (h('video', { preload: 'metadata', playsinline: true, src: url, poster: item.thumbnailUrl || '', dataset: { role: 'video-media' } }));
     root.append(media, status);
     cleanup = mediaControls(media, root);
-    void libraryThumbnail(item).then((thumb) => { if (!alive) return; if (thumb) { media.poster = thumb; status.textContent = '動画の見本を表示しています。'; } else status.textContent = 'このブラウザーで再生できるコーデックなら再生できます。'; });
+    media.addEventListener('loadeddata', () => {
+      if (!alive) return;
+      if (!media.videoWidth || !media.videoHeight) mediaError(media);
+      else if (!mediaFailed) status.textContent = '映像を表示できます。再生ボタンで確認してください。';
+    });
+    media.addEventListener('error', () => mediaError(media));
+    void libraryThumbnail(item).then((thumb) => { if (!alive || mediaFailed) return; if (thumb) { media.poster = thumb; status.textContent = '動画の見本を表示しています。'; } else status.textContent = 'このブラウザーで再生できるコーデックなら再生できます。'; });
   } else {
     const img = h('img', { src: url, alt: `${item.name}の画像`, dataset: { role: 'image-media' }, onload: () => { status.textContent = '登録した画像を表示しています。'; }, onerror: () => { status.textContent = '画像を表示できません。'; } });
     root.append(img, status);
