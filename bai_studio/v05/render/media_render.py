@@ -445,6 +445,22 @@ def _num(value: float) -> str:
     return f"{value:.6f}".rstrip("0").rstrip(".") or "0"
 
 
+def _audio_settings(data_root: Path, project_id: str) -> dict:
+    from bai_studio.v05.timeline.track_layout import get as get_layout
+    from bai_studio.v05.timeline.arrangement import TRACKS
+    try:
+        layout = get_layout(data_root / "studio_v05_track_layouts",
+                            data_root / "studio_v05_catalog.json", project_id)
+        muted = layout.get("muted", [])
+        if (not isinstance(muted, list) or any(type(t) is not str or t not in TRACKS for t in muted)
+                or len(set(muted)) != len(muted)):
+            raise ValueError("Invalid muted tracks")
+        return {"layout_revision": layout["revision"],
+                "muted_tracks": sorted(set(muted) & {"audio", "music", "video"})}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise RenderError("保存済みの音声ミュート設定を読めません。再読込して確認してください") from exc
+
+
 def _graph(clips: list[dict], fps: float, width: int, height: int,
            start_frame: int, end_exclusive: int, scene_input_index: int | None = None) -> tuple[str, int, float]:
     end_seconds = end_exclusive / fps
@@ -479,8 +495,11 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
         if item["kind"] in {"audio", "video"} and item.get("has_audio"):
             label = f"audio{order}"
             delay = round(cstart * 1000)
+            # Keep the mixer input count stable: muting one track must not
+            # increase the gain of the remaining tracks through amix normalization.
+            mute = "volume=0," if item.get("audio_muted") else ""
             audio.append(f"[{idx}:a]atrim=start={_num(source_start)}:duration={_num(length)},asetpts=PTS-STARTPTS,"
-                         f"aresample=48000,aformat=channel_layouts=stereo,adelay={delay}|{delay}[{label}]")
+                         f"aresample=48000,aformat=channel_layouts=stereo,{mute}adelay={delay}|{delay}[{label}]")
             audio_labels.append(label)
     # Older overlay/fps pipelines end at the last frame's PTS, rather than its
     # full display interval. A guard frame lets fps retain that final frame;
@@ -751,6 +770,10 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
             raise RenderError("保存済み3Dシーンがあります。scene_revisionを指定し、3Dを含めて書き出してください")
     render_range, clips = _snapshot(data_root, project_id, range_revision,
                                     arrangement_revision, resolution, inventory, ffprobe, motion_ids)
+    audio_settings = _audio_settings(data_root, project_id)
+    # Job-local copies freeze the saved state. Later track changes affect the next job.
+    clips = [{**item, "audio_muted": item["clip"]["track"] in audio_settings["muted_tracks"]}
+             for item in clips]
     if scene_inputs is not None and render_range["frame_count"] > MAX_SCENE_FRAMES:
         raise RenderError(f"3Dを含む限定MP4は現在{MAX_SCENE_FRAMES}フレーム以内です")
     delivery_plan = None
@@ -773,6 +796,7 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
         job = {"schema": 1, "id": job_id, "project_id": project_id, "status": "queued",
                "created_at": time.time(), "started_at": None, "completed_at": None,
                "arrangement_revision": arrangement_revision, "range_revision": range_revision,
+               "audio_settings": audio_settings,
                "range_start_frame": render_range["range_start_frame"],
                "range_end_exclusive": render_range["range_end_exclusive"],
                "frame_count": render_range["frame_count"], "fps": render_range["fps"],
