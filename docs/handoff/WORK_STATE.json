@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T18:06:52+09:00",
+  "updated_at": "2026-11-06T18:12:43+09:00",
   "updated_by": "codex",
-  "branch": "codex/track-audio-mute-20261106",
-  "head_at_update": "8811494",
+  "branch": "codex/track-audio-mute-sync-20261106",
+  "head_at_update": "93bb508",
   "current": {
-    "task": "Issue #81/#39 音声トラックの保存ミュートをプレビューとMP4へ接続",
-    "status": "done",
-    "step": "既存音声/楽曲/動画の音だけを対象に保存ミュートを反映し、解除・再読込・処理中競合・両MCPとPCMを隔離検証する",
+    "task": "Issue #81 音声ミュートのmain/制作画面同期を引き継ぐ",
+    "status": "in_progress",
+    "step": "main93bb508・手元/開発ブランチ・8765再起動と変更JS/Chrome、515ファイル不変、Issue画像表示を正本へ記録",
     "design_doc": "docs/v05/TRACK_AUDIO_MUTE_20261106_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T18:12:43+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "93bb508",
+      "text": "Issue #81 音声ミュートのmain/制作画面同期を引き継ぐ: main93bb508・手元/開発ブランチ・8765再起動と変更JS/Chrome、515ファイル不変、Issue画像表示を正本へ記録"
+    },
     {
       "at": "2026-11-06T18:06:52+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "f433eff",
       "text": "Issue #81 順3の公式MCPクライアントとネイティブWebMCP: 実クライアントの初期化/登録/呼出しと同じ作品の出力・同名版管理・保存再読込を検証"
-    },
-    {
-      "at": "2026-11-06T06:23:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "f08c04a",
-      "text": "PR243をcodex/nextへ統合。実動画AACを保持した480pコピー＋別実曲の長尺をWindows3FPS/Ubuntu29.97で確認。派生入力と計940窓でPCM差0。FFmpeg6.1互換と合成末尾1F欠落を修正。Windows pytest25＋5subtests、Ubuntu23成功2skip、Windows Node6/Ubuntu2成功。4K原本hash保持"
     }
   ]
 }
