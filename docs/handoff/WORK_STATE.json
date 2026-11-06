@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T17:01:10+09:00",
+  "updated_at": "2026-11-06T17:09:59+09:00",
   "updated_by": "codex",
-  "branch": "codex/lip-tail-four-candidate-20261106",
-  "head_at_update": "ac4837d",
+  "branch": "codex/lip-tail-main-sync-20261106",
+  "head_at_update": "651c121",
   "current": {
-    "task": "Issue #187/#81 末尾4発話の口形を別名候補へ補完",
+    "task": "Issue #187 末尾4発話候補のmain同期と引き継ぎ記録",
     "status": "done",
-    "step": "最新Owner指定で発話51〜54だけを補完し、原VMDの全キー/骨/末尾区画を保持。実歌声の境界と母音時刻、実PMX再読込と長尺MP4を検証する",
+    "step": "PR258のmain/利用者515ファイル/8765実バイト/Chrome/Issue画像表示を正本へ記録し、残る最終採用と自然さを分ける",
     "design_doc": "docs/v05/LIP001_TAIL_FOUR_CANDIDATE_20261106_JA.md"
   },
   "next_steps": [
-    "検証した限定補完をPR/mainへ統合し、利用者main/8765と開発codex/nextを原本保持で同期する。その後も自然さ/最終採用/54件未確定と承認済み残件を区別する"
+    "末尾4発話の別名候補と長尺技術確認は完了。候補の最終採用・全54件読み確定/自然さは別判定のまま維持し、承認済み残件の順序へ戻る。順5再判定を完了にしない"
   ],
   "unverified": [
-    "候補最終採用・全54件の読み確定・全語の自然さ・全モデル/物理・Linux長尺GPUは未検証。接続タイムアウトの失敗試行と既知証拠ゲート2失敗/開発依存監査3件は記録保持"
+    "候補のOwner最終採用・全54件の読み確定/全語の自然さ・全モデル/物理・Linux長尺GPUは未検証。既知証拠ゲート2失敗/依存監査3件と接続失敗ログを維持。既存作品へ候補の自動割当はしない"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T17:09:59+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "651c121",
+      "text": "PR258をmain8b7429dへ統合、手元main/codex-next/8765の実バイト・Chrome同期、515ファイル不変、Issue画像表示/hashを確認して引き継ぎへ記録"
+    },
+    {
+      "at": "2026-11-06T17:09:02+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8b7429d",
+      "text": "Issue #187 末尾4発話候補のmain同期と引き継ぎ記録: PR258のmain/利用者515ファイル/8765実バイト/Chrome/Issue画像表示を正本へ記録し、残る最終採用と自然さを分ける"
+    },
     {
       "at": "2026-11-06T17:01:10+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "done",
       "head": "25a6586",
       "text": "PR242を開発ブランチへ統合。Windowsの描画/エンコード強制終了からの回収・旧MP4保持・画面表示・再試行を確認。実2GiB超過停止と合成GLB36000F/600秒の実GPU出力を確認し、再読込時間切れを修正。Windows pytest15＋5subtests、Ubuntu13成功2skip、Node3成功"
-    },
-    {
-      "at": "2026-11-06T05:20:38+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "e5cc23a",
-      "text": "Issue #81 順3の容量上限と停止復旧: 描画プロセスの所有権・強制終了後の一時領域回収・容量境界と旧完成物保持を検証"
-    },
-    {
-      "at": "2026-11-06T05:14:55+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "c35edbb",
-      "text": "PR240/241をレビュー修正後にcodex/nextへ統合・ローカル同期。動くGLBと独立WAVの1140F/15指標は差0F。実PMX/VMD/WAV＋実ステージ＋保存カメラ230秒13800Fを実GPUで確認、画像3点MAE0.1671/0.1944/0.2283、PCM3点差0、原本保持"
     }
   ]
 }

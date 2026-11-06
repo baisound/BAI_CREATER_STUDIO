@@ -1,0 +1,40 @@
+{
+  "implementationCommit": "3542a52ad6653e13031f853fc94efe3593d22511",
+  "pullRequest": 258,
+  "mergedMain": "8b7429d041818c431c741b8edf562a6fb78262bc",
+  "localMainSame": true,
+  "codexNextSame": true,
+  "protectedFileCount": 515,
+  "protectedAggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+  "protectedFilesAndDirtyListUnchanged": true,
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80",
+      "sameAsMain": true
+    },
+    "studio/v05/js/multi-model-motion-v59.js": {
+      "status": 200,
+      "sha256": "31267268061a36a1dac7e1c8f76eb02b9962d0625d7943ea257dac80685dcae7",
+      "sameAsMain": true
+    },
+    "studio/v05/js/scene-media-bridge-v70.js": {
+      "status": 200,
+      "sha256": "2dec90bc4434462fec06f1f7f2b42c64d3ea23ad50d5a545b75add0efb133973",
+      "sameAsMain": true
+    }
+  },
+  "chromeV05Loaded": true,
+  "issueComment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/187#issuecomment-6680281961",
+  "issueImage": {
+    "visible": true,
+    "complete": true,
+    "width": 680,
+    "height": 1150,
+    "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/3542a52ad6653e13031f853fc94efe3593d22511/qa/lip-tail-four-comparison-20261106.jpg",
+    "sha256": "ef9f518842a6f6ca5480474f531e4063dfdd6066739ad29bf58c88845eea655b"
+  },
+  "githubChecksRegistered": false,
+  "runtimeServerRestartRequired": false,
+  "scope": "CLI/tests/docs only; runtime Python and UI files unchanged; candidate is separate local deliverable, existing user projects unchanged"
+}
