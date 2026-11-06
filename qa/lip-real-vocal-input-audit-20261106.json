@@ -1,0 +1,73 @@
+{
+  "checked_on": "2026-11-06",
+  "issue": 187,
+  "status": "existing_input_has_no_lip_keys_for_last_four_cues",
+  "source_hashes": {
+    "motion": "61ce920e647c38e30d3f9738259e9d56b3bcf2f165243a4ec08770c35f896939",
+    "srt": "6f6015eb7bfaf74f386f2cfea187ce2d2084034bce107195e874e1e76cf46e27",
+    "report": "c69e39960dcac243e385e52e2226b7671e00d49bed5bf5cf2740e49c57b358b9"
+  },
+  "bone_keys": 351951,
+  "morph_keys": 4760,
+  "morph_last_frame_30fps": 6359,
+  "morph_last_seconds": 211.96666666666667,
+  "last_weights": {
+    "あ": 0.0,
+    "い": 0.0,
+    "う": 0.0,
+    "え": 0.0,
+    "お": 0.0,
+    "まばたき": 0.0
+  },
+  "srt_cues": 54,
+  "srt_last_seconds": 228.365,
+  "report_excluded_cues": [
+    51,
+    52,
+    53,
+    54
+  ],
+  "excluded_cue_windows": [
+    {
+      "index": 51,
+      "start_seconds": 212.485,
+      "end_seconds": 215.78
+    },
+    {
+      "index": 52,
+      "start_seconds": 216.14,
+      "end_seconds": 219.1
+    },
+    {
+      "index": 53,
+      "start_seconds": 219.376,
+      "end_seconds": 224.32
+    },
+    {
+      "index": 54,
+      "start_seconds": 226.15,
+      "end_seconds": 228.365
+    }
+  ],
+  "original_vocal": {
+    "name": "0 Lead Vocals.wav",
+    "sha256": "8a48e67e947dce8c1af4f53260b4cb6a5dcf47867f18e85a26d3ba2e8a034e8e",
+    "seconds": 229.84175,
+    "sample_rate": 48000,
+    "channels": 2
+  },
+  "previous_aligned_vocal": {
+    "name": "KYOKAI_LEAD_VOCAL_PV_ALIGNED_16K_MONO.wav",
+    "sha256": "9aebd41d420f4b744121ca5cfda5ab9dbd96d36c3f877121e532faf0eaf70102",
+    "seconds": 212.0,
+    "sample_rate": 16000,
+    "channels": 1
+  },
+  "reported_pv_offset_seconds": 0.16666666666666666,
+  "real_readings_owner_confirmed": false,
+  "originals_modified": false,
+  "limitations": [
+    "Coverage is audited; acoustic and visual naturalness are not certified.",
+    "This is an existing input cutoff, not evidence that Studio removed the last cues."
+  ]
+}
