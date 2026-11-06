@@ -1,0 +1,73 @@
+{
+  "implementationCommit": "638fb307dec9e9c76b3a27c9c904a61866a98ae0",
+  "pullRequest": 264,
+  "mergedMain": "7e63b5c36c96223d15f9b035e8674f1f12d6b3ef",
+  "server": {
+    "oldPid": 79028,
+    "newPid": 78316,
+    "activeSavedJobsBeforeRestart": 0,
+    "hiddenRestart": true
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80"
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "b63160135b486e089161e52a3689c3aca186709054675e3f0785254e782aa851"
+    }
+  },
+  "registeredMp3ReadOnlyProbe": {
+    "asset_id": "library:018ad32843c0cbe62f409231",
+    "kind": "audio",
+    "duration_seconds": 14.1365,
+    "has_audio": true
+  },
+  "chrome": {
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "native": true,
+    "registeredCount": 64,
+    "totalNativeTools": 69,
+    "otherNativeTools": [
+      "bai_studio_multi_preview_open",
+      "bai_studio_multi_preview_status",
+      "bai_studio_pmx_fk_edits_get",
+      "bai_studio_pmx_fk_edits_mutate",
+      "bai_studio_pmx_vmd_candidate_create"
+    ],
+    "splitTool": "bai_studio_clip_split",
+    "required": [
+      "project_id",
+      "clip_id",
+      "revision",
+      "split_at"
+    ]
+  },
+  "standardMcp": {
+    "tools": 128,
+    "splitToolRegistered": true
+  },
+  "issueComment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6685300061",
+  "issueImage": {
+    "complete": true,
+    "width": 1440,
+    "height": 900,
+    "visible": true,
+    "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/638fb30/qa/mp3-timeline-ui-20261106.png",
+    "sha256": "d42ce047ce30c36fac71e4c14494f8e3403bc81a0331b1192985ceb3f7f60eb6"
+  },
+  "localMainSame": true,
+  "codexNextSame": true,
+  "protectedFileCount": 515,
+  "protectedAggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+  "protectedFilesAndDirtyListUnchanged": true,
+  "githubChecksRegistered": false,
+  "verificationAttempts": {
+    "initialSdkImportPathFailed": true,
+    "initialCountIncludedFiveExistingModuleTools": true,
+    "finalReadOnlyVerificationPassed": true
+  }
+}

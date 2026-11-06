@@ -55,3 +55,12 @@ Pythonは両OSで `python -X utf8 -m pytest -q tests/test_v05_mp3_duration.py te
 [Windowsの手動UI/両MCP](../../qa/mp3-timeline-chrome-20261106.json)、[UbuntuのSDK/API](../../qa/mp3-timeline-linux-20261106.json)、[Windows長尺](../../qa/mp3-timeline-real-win-20261106.json)、[Ubuntu長尺](../../qa/mp3-timeline-real-linux-20261106.json)、[同一MP3のWindows尺](../../qa/mp3-duration-shared-win-20261106.json)、[Ubuntu尺](../../qa/mp3-duration-shared-linux-20261106.json)、[生成見本だけの編集画面](../../qa/mp3-timeline-ui-20261106.png)。動画・画像・ログの通常納品先は `D:/BAI/BAI_CREATER_STUDIO/_Claude確認画像/2026-11-06-mp3-timeline/`、Ubuntuはそのlinux/。Eagleへ自動登録しない。
 
 手動操作は従来の配置/ハサミ/クリップ編集を使う。「開始（秒）」は作品内の配置、「元素材の開始（秒）」は原MP3の位置。MP3の長さは復号サンプルから確認する。古い保存が元尺を超える場合、原保存を残して理由を表示するため、明示して長さを直してから出力する。既に起動中の標準MCPクライアントは再接続で新ツールを認識する。DATA/AUDIO/RENDERの広いIDや順3全体は未完了で、順4/5の判断も維持する。
+
+
+## mainと制作画面の同期
+
+実装・試験 `638fb30`、[PR #264](https://github.com/baisound/BAI_CREATER_STUDIO/pull/264)、mainマージ `7e63b5c`。手元main/開発codex-nextをfast-forwardしてpushした。利用者data/exports/studio.zipの515ファイルと変更一覧は前後一致（集約SHA-256 `89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d`）。台帳JSON/CSVの以前からの差は保持し、今回の4IDの追加文だけは同値を確認した。
+
+8765番の管理PID79028の絶対起動元と処理中出力0件を確認し、更新後main/server.pyで非表示再起動（PID78316）。HTML/webmcp.jsの全バイト一致、登録済みMP3の実尺14.1365秒、標準MCP128定義とChrome本体64定義の新しい分割ツールを、利用者作品へ書き込まず確認した。実画面では既存multi-model-ui-v58側の3D/FK用5定義もあるため全体は69。初回の確認スクリプトでSDKの絶対参照と総数の見方を直し、本体64と別モジュール5を名前で分けて最終確認した。
+
+[Issue #81の画像と結果](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6685300061)は、1440×900の実表示と画像hashを確認済み。画像は生成音/青一色画像だけで、実曲・秘密・個人情報を含まない。[同期数値](../../qa/mp3-timeline-main-sync-20261106.json)。GitHub自動checksの登録は無く、実行したローカル検証と区別する。

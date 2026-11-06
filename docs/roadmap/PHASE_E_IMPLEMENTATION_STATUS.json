@@ -413,7 +413,7 @@
       "phase_e_wp": "AUDIO-001・DATA-002/008・RENDER-006、再構築ロードマップ順3",
       "planned_in": "V05-MP3-TIMELINE-20261106",
       "status": "partial_verified",
-      "commit": "本記録を含む「MP3の実尺と分割MCPを同期」コミット（Git履歴参照）",
+      "commit": "638fb30（PR #264、main7e63b5c）",
       "tests": "Windows/Ubuntu各Python38・Node3成功。Windowsは手動UI/公式SDK/Chromeネイティブ、Ubuntu SDK/FFmpeg。登録原MP3約14秒＋実WAV230.2秒由来44.1/48kHz MP3の3FPS出力7本/各OS733窓でPCM差最大1sample/48kHz。旧保存元尺超過の拒否と原本不変、既存MCP回帰2成功、型/構文成功。docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md",
       "unverified": "全MP3/全実曲原MP3・破損/裸MP3/全VBR・24時間性能・Linuxブラウザー/ネイティブ・スピーカー聴感・音量一致/ミキサー/音声行増設・全Undo・新分割ツールの全媒体/クライアント。先行試験作成/参照PCM/通常権限失敗も保持。順3全体は未完成"
     }
