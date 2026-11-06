@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T17:09:59+09:00",
+  "updated_at": "2026-11-06T18:06:52+09:00",
   "updated_by": "codex",
-  "branch": "codex/lip-tail-main-sync-20261106",
-  "head_at_update": "651c121",
+  "branch": "codex/track-audio-mute-20261106",
+  "head_at_update": "8811494",
   "current": {
-    "task": "Issue #187 末尾4発話候補のmain同期と引き継ぎ記録",
+    "task": "Issue #81/#39 音声トラックの保存ミュートをプレビューとMP4へ接続",
     "status": "done",
-    "step": "PR258のmain/利用者515ファイル/8765実バイト/Chrome/Issue画像表示を正本へ記録し、残る最終採用と自然さを分ける",
-    "design_doc": "docs/v05/LIP001_TAIL_FOUR_CANDIDATE_20261106_JA.md"
+    "step": "既存音声/楽曲/動画の音だけを対象に保存ミュートを反映し、解除・再読込・処理中競合・両MCPとPCMを隔離検証する",
+    "design_doc": "docs/v05/TRACK_AUDIO_MUTE_20261106_JA.md"
   },
   "next_steps": [
-    "末尾4発話の別名候補と長尺技術確認は完了。候補の最終採用・全54件読み確定/自然さは別判定のまま維持し、承認済み残件の順序へ戻る。順5再判定を完了にしない"
+    "検証済みミュート修正をmainへ統合し、利用者515ファイルを保持して8765を更新・同期する。順3の残件と順4未確定/自然さを維持する"
   ],
   "unverified": [
-    "候補のOwner最終採用・全54件の読み確定/全語の自然さ・全モデル/物理・Linux長尺GPUは未検証。既知証拠ゲート2失敗/依存監査3件と接続失敗ログを維持。既存作品へ候補の自動割当はしない"
+    "実スピーカー聴感/loopback、Linuxブラウザー・ネイティブWebMCP、全codec/全実作品、混音音量一致/音量ミキサー/行操作全体Undoは未検証。先行UI試験の待機/一覧不足と既知NO_BUFFER_SPACE失敗は記録保持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T18:06:52+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8811494",
+      "text": "保存ミュートを試聴/MP4とジョブ開始設定へ接続。Windows両MCP/Chrome・UbuntuSDK、3音源6出力と実曲230秒を各Node2成功/Python28成功、回帰3成功"
+    },
+    {
+      "at": "2026-11-06T17:47:04+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3df7573",
+      "text": "Issue #81/#39 音声トラックの保存ミュートをプレビューとMP4へ接続: 既存音声/楽曲/動画の音だけを対象に保存ミュートを反映し、解除・再読込・処理中競合・両MCPとPCMを隔離検証する"
+    },
     {
       "at": "2026-11-06T17:09:59+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "done",
       "head": "f08c04a",
       "text": "PR243をcodex/nextへ統合。実動画AACを保持した480pコピー＋別実曲の長尺をWindows3FPS/Ubuntu29.97で確認。派生入力と計940窓でPCM差0。FFmpeg6.1互換と合成末尾1F欠落を修正。Windows pytest25＋5subtests、Ubuntu23成功2skip、Windows Node6/Ubuntu2成功。4K原本hash保持"
-    },
-    {
-      "at": "2026-11-06T05:53:11+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "bf06bfb",
-      "text": "Issue #39/#81 順3の長尺混合音声: 実曲由来の動画内音声と独立音声を長尺で重ね、保存再読込・複数FPS・完成MP4の音声配置を検証"
-    },
-    {
-      "at": "2026-11-06T05:49:27+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "25a6586",
-      "text": "PR242を開発ブランチへ統合。Windowsの描画/エンコード強制終了からの回収・旧MP4保持・画面表示・再試行を確認。実2GiB超過停止と合成GLB36000F/600秒の実GPU出力を確認し、再読込時間切れを修正。Windows pytest15＋5subtests、Ubuntu13成功2skip、Node3成功"
     }
   ]
 }

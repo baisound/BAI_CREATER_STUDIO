@@ -1,0 +1,113 @@
+{
+  "native": false,
+  "apiOnly": true,
+  "projectId": "e175acd5-fea7-459c-992a-390a7ca0df37",
+  "fps": 29.97,
+  "sourceStart": 0.25,
+  "sourceHashes": [
+    "5e24d956d5f5ce7dd4e83d59ad8f8086a60e9d951dd78a800871216444981fa0",
+    "a0e0c2440db09c57b7963d185096b5ee0774fd085bca9a47898dff6efb739951",
+    "d73ca7be9efe0b9c9cd740ff285fe62b496aaa4269071e940c0a561b45704b13"
+  ],
+  "outputs": [
+    {
+      "id": "ba6b7e82a26a417a9a7fe98a13040aa7",
+      "sha256": "e5c71c2ca1def6ed356388486dfdb9b74e3021256bf63c1b33c38f5893c78da5",
+      "audioSettings": {
+        "layout_revision": 0,
+        "muted_tracks": []
+      },
+      "frames": 105,
+      "amplitudes": [
+        723.1769597049043,
+        723.3699774861097,
+        723.4741109707248
+      ]
+    },
+    {
+      "id": "7ecf0f913bb7429eb75cc9556a46f0dd",
+      "sha256": "a5d08d6c963edf3bc0e81674e6b3de9b016a418e3a7f9b7e7399bdcac575a3eb",
+      "audioSettings": {
+        "layout_revision": 1,
+        "muted_tracks": [
+          "audio",
+          "music",
+          "video"
+        ]
+      },
+      "frames": 105,
+      "amplitudes": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "fa49e54a6929486993ff84dadb4bf179",
+      "sha256": "1062fb616a3af3ef6a524aac6787bda8b31a48c5262b37366187add02ee3960f",
+      "audioSettings": {
+        "layout_revision": 3,
+        "muted_tracks": [
+          "audio"
+        ]
+      },
+      "frames": 105,
+      "amplitudes": [
+        723.1842573556156,
+        0.005653432244231811,
+        723.4503632515268
+      ]
+    },
+    {
+      "id": "df21e33e290b43c3bfa4f0eb4d56b593",
+      "sha256": "40027ef0f7c7e0a49b45e576b93b854d950c2d417ef7ad6a1fd4ec2a2895255c",
+      "audioSettings": {
+        "layout_revision": 4,
+        "muted_tracks": [
+          "video"
+        ]
+      },
+      "frames": 105,
+      "amplitudes": [
+        0.00630388077049371,
+        723.2513797718467,
+        723.4828977726157
+      ]
+    },
+    {
+      "id": "6f4d0ac48ecf448e87f829b6459204f6",
+      "sha256": "8f54abf9bfc4c1b5dffe17f062649b3e185b2dfc1e7d515292f6634da5000563",
+      "audioSettings": {
+        "layout_revision": 5,
+        "muted_tracks": [
+          "music"
+        ]
+      },
+      "frames": 105,
+      "amplitudes": [
+        723.1830528613334,
+        723.263751189013,
+        0.007343644129319008
+      ]
+    },
+    {
+      "id": "1e24ebb5160b4aa6a594221d8bf5340e",
+      "sha256": "e5c71c2ca1def6ed356388486dfdb9b74e3021256bf63c1b33c38f5893c78da5",
+      "audioSettings": {
+        "layout_revision": 6,
+        "muted_tracks": []
+      },
+      "frames": 105,
+      "amplitudes": [
+        723.1769597049043,
+        723.3699774861097,
+        723.4741109707248
+      ]
+    }
+  ],
+  "savedClipsPreserved": true,
+  "staleAndInvalidRejected": true,
+  "frozenJobVerified": true,
+  "otherTrackGainPreserved": true,
+  "stderr": ""
+}

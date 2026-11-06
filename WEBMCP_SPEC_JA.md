@@ -93,3 +93,7 @@ Chrome 156.0.8078.80の専用試験プロファイルでWebMCPTestingを有効�
 ## v0.5画像行の追加・空行削除（2026-11-06、#80）
 
 既存の `bai_studio_track_layout_set` は `action: "add_image_lane"` / `"remove_image_lane"`（後者は `lane` も指定）に対応する。共通入力は作品の `project_id` と最新 `revision`。従来の `order`/`heights` だけの更新も維持する。[操作・安全条件・実測と未検証](docs/v05/IMAGE_LANES_NATIVE_MCP_20261106_JA.md)。
+
+### 2026-11-06 音声トラックのミュート
+
+既存 `bai_studio_track_flags_set` の `muted` にある `audio` / `music` / `video` は、その行の音だけをプレビューと次のMP4へ反映する。動画の映像と元時刻は保持。最新revisionは `bai_studio_track_layout_get` から取得する。処理中の変更は次の出力へ適用し、各ジョブの `audio_settings` は開始時設定を記録する。[実行・未検証](docs/v05/TRACK_AUDIO_MUTE_20261106_JA.md)。

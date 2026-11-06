@@ -149,6 +149,12 @@
         ? `${dateLabel(job.completed_at || job.created_at)} / ${sizeLabel(job.bytes)} / ${job.probe?.width || '?'}×${job.probe?.height || '?'}`
         : `${states[job.status] || job.status} / ${job.progress_percent || 0}%`;
       row.append(info);
+      if (job.audio_settings) {
+        const audio = document.createElement('small');
+        const names = { audio: '音声', music: '楽曲', video: '動画内音声' };
+        audio.textContent = `開始時の音声ミュート: ${job.audio_settings.muted_tracks.map(t => names[t] || t).join('・') || 'なし'}`;
+        row.append(audio);
+      }
       if (job.status === 'succeeded') {
         if (job.file_available === false) {
           const missing = document.createElement('small');
