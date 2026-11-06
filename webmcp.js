@@ -42,7 +42,13 @@
  def('bai_studio_asset_source_relink','Relink a referenced asset only when SHA-256 and size match.',schema({asset_id:str,relative_path:str,revision:integer},['asset_id','relative_path','revision']),async a=>await request('/api/studio/v05/asset-sources/relink',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}));
  def('bai_studio_assets_search','Filter registered assets by category and name.',schema({category:str,query:str}),async a=>await request('/api/studio/v05/assets?category='+encodeURIComponent(a.category||'all')+'&query='+encodeURIComponent(a.query||'')),true);
  def('bai_studio_track_layout_get','Get track order and row heights.',schema({project_id:str},['project_id']),async a=>await request('/api/studio/v05/timeline/layout?id='+encodeURIComponent(a.project_id)),true);
- def('bai_studio_track_layout_set','Save track order and row heights.',schema({project_id:str,revision:{type:'integer'},order:{type:'array',items:str},heights:{type:'object'}},['project_id','revision','order','heights']),async a=>await request('/api/studio/v05/timeline/layout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}),true);
+ def('bai_studio_track_layout_set','Update track order/heights (default action=update; requires order and heights), add an image lane, or remove an empty image lane (requires lane). Uses stable lane IDs and revision guards.',schema({project_id:str,revision:{type:'integer'},action:{type:'string',enum:['update','add_image_lane','remove_image_lane']},lane:{type:'integer',minimum:1},order:{type:'array',items:str},heights:{type:'object',additionalProperties:{type:'integer'}}},['project_id','revision']),async a=>{
+  const routes={update:'layout',add_image_lane:'image-lanes',remove_image_lane:'image-lanes/remove'};
+  const action=a.action===undefined?'update':a.action;
+  if(!Object.hasOwn(routes,action))throw new Error('Invalid track layout action');
+  const {action:_,...body}=a;
+  return await request('/api/studio/v05/timeline/'+routes[action],{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+ });
  def('bai_studio_playhead_get','Read saved edit cursor; not engine playback.',schema({project_id:str},['project_id']),async a=>await request('/api/studio/v05/playhead?id='+encodeURIComponent(a.project_id)),true);
  def('bai_studio_playhead_set','Set saved edit cursor (no engine seek).',schema({project_id:str,seconds:{type:'number'},revision:{type:'integer'}},['project_id','seconds','revision']),async a=>await request('/api/studio/v05/playhead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}));
  def('bai_studio_timeline_view','Read-only project timeline grouped by track.',schema({project_id:str},['project_id']),async a=>await request('/api/studio/v05/timeline/view?id='+encodeURIComponent(a.project_id)),true);
