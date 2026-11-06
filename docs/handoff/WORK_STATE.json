@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T19:34:57+09:00",
+  "updated_at": "2026-11-06T19:41:03+09:00",
   "updated_by": "codex",
-  "branch": "codex/video-lanes-20261106",
-  "head_at_update": "505843e",
+  "branch": "codex/video-lanes-sync-20261106",
+  "head_at_update": "576fe42",
   "current": {
-    "task": "Issue #81 順3の複数動画行と重なり出力",
+    "task": "Issue #81 複数動画行のmainと制作画面同期を引き継ぐ",
     "status": "done",
-    "step": "動画行の安定ID追加・空行削除・元区間保持をUI/API/両MCPへ接続し、重なり/切替の画素と内包音声・再読込を隔離検証する",
+    "step": "main cba7fc9・手元/開発木・8765再起動と新UI/Chrome・515ファイル不変・Issue画像実表示を正本へ記録",
     "design_doc": "docs/v05/VIDEO_LANES_20261106_JA.md"
   },
   "next_steps": [
-    "実装PRをmainへマージし、利用者data515ファイル/変更一覧の不変を照合して手元main・開発木・8765制作画面を同期する"
+    "順3 #81の残り（音声形式別・複数音声/楽曲行・混音音量/保存等）を既存証拠と照合し次の未完成受入れ条件へ進める。順4の54件読み/自然さ/候補採用と未判定の順5は維持する"
   ],
   "unverified": [
-    "全codec/全実作品・原4K直接・Linuxブラウザー/ネイティブWebMCP・実スピーカー・混音音量一致/ミキサー/音声行増設/行全体Undoは未完了。順4の54件読み/自然さ/候補採用と未判定の順5は保持"
+    "全codec/実作品・原4K直接・Linuxブラウザー/ネイティブ・聴感・混音音量一致/ミキサー・音声行増設・行全体Undoは未完了。既知の証拠ゲート2失敗と依存監査3件を維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T19:41:03+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "576fe42",
+      "text": "main cba7fc9・手元/開発木・8765非表示再起動と新動画行UI/Chrome・515ファイル不変・Issue画像実表示を正本へ記録"
+    },
+    {
+      "at": "2026-11-06T19:40:07+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cba7fc9",
+      "text": "Issue #81 複数動画行のmainと制作画面同期を引き継ぐ: main cba7fc9・手元/開発木・8765再起動と新UI/Chrome・515ファイル不変・Issue画像実表示を正本へ記録"
+    },
     {
       "at": "2026-11-06T19:34:57+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "done",
       "head": "b994cef",
       "text": "PR246を開発へ、PR233をmainへマージ。main b994cefへ安全同期し8765を同じmainで再起動。504ファイルと変更一覧は不変。Python986成功22skip、対象Chrome7成功1skip、証拠167中163成功2失敗2skipを記録"
-    },
-    {
-      "at": "2026-11-06T09:12:26+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7b5c4e1",
-      "text": "Issue #33 検証済みPRのmain統合と手元同期: PR246とPR233の最終確認、継続mainマージ方針の記録、統合試験、利用者mainと8765番の非破壊同期"
-    },
-    {
-      "at": "2026-11-06T09:08:15+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b52ea95",
-      "text": "WebM/OGV登録とVFR切出しを検証し元PTS保持・OGV映像不可表示を修正。4条件403F、PCM12窓1F以内。Node対象5件、Windows Python20件、Ubuntu10件、型検査成功。実データ不変"
     }
   ]
 }

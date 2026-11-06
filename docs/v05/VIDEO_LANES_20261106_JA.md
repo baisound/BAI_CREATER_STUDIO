@@ -39,7 +39,7 @@ Windowsは対象Python53成功、型検査成功。手動UI・公式MCP SDK 2.4�
 
 ## 証拠・再実行
 
-[Windows両MCP/Chrome](../../qa/video-lanes-chrome-20261106.json)、[Ubuntu SDK/FFmpeg](../../qa/video-lanes-linux-20261106.json)、[Windows長尺](../../qa/video-lanes-real-win-20261106.json)、[Ubuntu長尺](../../qa/video-lanes-real-linux-20261106.json)、[生成色動画だけの実画面](../../qa/video-lanes-ui-20261106.png)。動画・12フレーム画像の通常納品先は `D:/BAI/BAI_CREATER_STUDIO/_Claude確認画像/2026-11-06-video-lanes/`。Linux成果物はそのlinux/。Eagleへ自動登録しない。
+[Windows両MCP/Chrome](../../qa/video-lanes-chrome-20261106.json)、[Ubuntu SDK/FFmpeg](../../qa/video-lanes-linux-20261106.json)、[Windows長尺](../../qa/video-lanes-real-win-20261106.json)、[Ubuntu長尺](../../qa/video-lanes-real-linux-20261106.json)、[生成色動画だけの実画面](../../qa/video-lanes-ui-20261106.png)。動画・12フレーム画像の通常納品先は `D:/BAI/BAI_CREATER_STUDIO/_Claude確認画像/2026-11-06-video-lanes/`。Linux成果物はそのlinux/、成功/失敗試行のログはlogs/。Eagleへ自動登録しない。
 
 Windows: CHROMIUM_PATHを実Chromeへ、BAI_NATIVE_WEBMCP=1、BAI_TEST_CONCURRENCY=1、BAI_VIDEO_LANES_OUTを通常確認先へ指定し、`node tests/run-guarded.cjs tests/studio-v05-video-lanes.test.cjs`。長尺はBAI_VIDEO_LANES_REALを上記AAC保持コピーへ指定し、`node tests/run-guarded.cjs tests/studio-v05-video-lanes-long-real.test.cjs`。入力指定なしの長尺はskipなので成功として数えない。Ubuntuは同じ試験へ/mnt側のパスとBAI_VIDEO_LANES_API_ONLY=1を指定する。
 
@@ -52,3 +52,12 @@ Python: `python -X utf8 -m pytest -q tests/test_v05_video_lanes.py tests/test_v0
 APIはPOST `/api/studio/v05/timeline/video-lanes`、`/video-lanes/remove`。標準MCP/WebMCPは既存 `bai_studio_track_layout_set` の `action: add_video_lane/remove_video_lane`、共通入力project_id/revision、削除時laneを使う。最新revisionとvideo_lane_ids/next_video_lane_idは `bai_studio_track_layout_get`。既存の省略更新・画像行actionは後方互換。
 
 全形式/codec・任意の実作品、原4K直接、Linuxブラウザー/ネイティブWebMCP、実スピーカー聴感、プレビュー/MP4混音音量一致、音声/楽曲行増設、ミキサー、行操作全体のUndo/Redoは未完了。既存の分割/元区間/バッチUndoは対象範囲で検査した。DATA-002/008、RENDER-001/006、順3全体は完了へ変更しない。順4の54件読み・自然さ・末尾候補の最終採用、順5の再判定も維持する。
+
+
+## mainと手元制作画面の同期
+
+実装・試験 `2df1393`、[PR #262](https://github.com/baisound/BAI_CREATER_STUDIO/pull/262)、mainマージ `cba7fc9`。利用者mainと開発codex/nextをfast-forwardしpushした。data/exports/studio.zipの515ファイルと利用者の変更一覧は前後一致（集約SHA-256 `89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d`）。既存のJSON/CSV台帳間には以前から詳細の差があり、今回追加した4IDの追補だけは同値を確認し、無関係な差は変更していない。
+
+8765番の管理PID31492の絶対起動元と処理中出力0件を確認し、更新後main/server.pyで非表示再起動（PID79028）。HTMLと変更した2スクリプト・webmcp.jsの全バイトがmainと一致し、実Chromeで［動画の行］の追加/空行削除と新保存項目video_lane_ids/next_video_lane_idを確認した。利用者作品への保存要求は遮断して読み取りのみ。利用者data不変を再照合した。
+
+[Issue #81の結果と画像](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6682867972)は1440×900の実表示とsha256を照合済み。画像は隔離した生成色動画だけで、秘密・個人情報・実曲/映像原本を含まない。GitHub初期描画での要素差替えとスクロール直後の未表示は確認スクリプトの停止として残し、実画像の完了/表示を待った最終確認は成功。[同期数値](../../qa/video-lanes-main-sync-20261106.json)。自動GitHub checksの登録は無く、ローカル試験と区別する。

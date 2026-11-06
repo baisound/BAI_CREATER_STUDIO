@@ -404,7 +404,7 @@
       "phase_e_wp": "DATA-002/008・RENDER-001/006、再構築ロードマップ順3",
       "planned_in": "V05-VIDEO-LANES-20261106",
       "status": "partial_verified",
-      "commit": "本記録を含む「複数動画行の保存と重なり出力を接続」コミット（Git履歴参照）",
+      "commit": "2df1393（PR #262、main cba7fc9）",
       "tests": "Windows Python53、手動UI/公式SDK/ChromeネイティブWebMCP1、実AAC保持480p長尺1、関連回帰25・プレビュー2、型検査成功。Ubuntu Python43、SDK/FFmpeg1、実動画長尺1。180Fの12境界画素と全動画ミュートPCM0、6421F長尺9音窓差0sample。原本hash不変。詳細 docs/v05/VIDEO_LANES_20261106_JA.md",
       "unverified": "広い要件ID/順3全体は未完成。全codec/実作品・原4K直接・Linuxブラウザー・聴感・混音音量一致/ミキサー・音声行増設・行全体Undo/Redo等。先行P2待機/通信不足/起動権限失敗も記録"
     }
