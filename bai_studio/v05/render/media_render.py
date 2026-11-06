@@ -455,7 +455,13 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
         source_start = float(clip.get("source_start", 0)) if item["kind"] != "image" else 0.0
         if item["kind"] in {"image", "video"}:
             label = f"visual{order}"
-            graph.append(f"[{idx}:v]trim=start={_num(source_start)}:duration={_num(length)},setpts=PTS-STARTPTS,fps={_num(fps)},"
+            # Keep the frame held across source_start. Trimming VFR first drops
+            # it and rebases the next frame (possibly hundreds of ms later) to
+            # zero. Shift the original clock, then sample at the output grid.
+            # A microsecond timebase avoids quantizing the cut to the input FPS;
+            # rounding up keeps a future source frame from appearing early.
+            graph.append(f"[{idx}:v]settb=AVTB,setpts=PTS-{_num(source_start)}/TB,"
+                         f"fps={_num(fps)}:start_time=0:round=up,trim=duration={_num(length)},"
                          f"scale={width}:{height}:force_original_aspect_ratio=decrease,"
                          f"pad={width}:{height}:(ow-iw)/2:(oh-ih)/2:color=black@0,"
                          f"format=yuva420p,setpts=PTS+{_num(cstart)}/TB[{label}]")

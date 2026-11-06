@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T08:51:58+09:00",
+  "updated_at": "2026-11-06T09:08:15+09:00",
   "updated_by": "codex",
   "branch": "codex/v05-video-formats-vfr-20261106",
-  "head_at_update": "c286805",
+  "head_at_update": "b52ea95",
   "current": {
     "task": "Issue #37/#81 順3の動画形式とVFR",
-    "status": "in_progress",
+    "status": "done",
     "step": "WebM/OGVと可変フレームレートの登録・保存元位置・ブラウザ再生・限定MP4を形式別に確認し不足を修正",
     "design_doc": "docs/v05/VIDEO_FORMATS_VFR_20261106_JA.md"
   },
   "next_steps": [
-    "今回のMCP実機PRをレビューして開発ブランチへ統合し、_codex_workでnpm ciして新しい開発依存を反映する。順3の対応形式（WebM/OGV等）・VFRなど残る受入れ条件を照合する",
-    "続いて承認済み順序で順4の実PMX/実歌声SRTを含む長尺とLIPのネイティブMCP、順5の設計批評反映へ進む。時刻付きカメラ/CAM019は順6へ保持"
+    "今回の形式/VFR修正PRを確認し開発ブランチへ統合する。順3の残る形式別・行操作等の受入れ条件を照合する",
+    "承認順序で順4の実歌声SRT・採用口形合成/長尺とLIPネイティブMCPへ進む。順5は設計批評反映後、時刻付きカメラ/CAM019は順6を維持"
   ],
   "unverified": [
-    "利用者のCodex/Claude設定・自然文AIによるツール選択、他SDK/ブラウザ、全ツールのネイティブ処理、画像行の増設/削除、Linuxブラウザ/3D、約102MBを超える完成物版管理、他codec/VFRは未検証。順3全体の完成ではない"
+    "実素材WebM/OGV/VFR、長尺VFR・動画重ね、全codec/色忠実度/聴感、今回の形式のネイティブMCP、実GPU/Linuxブラウザと素材詳細の再生不可表示は未検証。複数FPS一括試験の通信拒否1回は単独で非再現。順3全体は未完成"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T09:08:15+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b52ea95",
+      "text": "WebM/OGV登録とVFR切出しを検証し元PTS保持・OGV映像不可表示を修正。4条件403F、PCM12窓1F以内。Node対象5件、Windows Python20件、Ubuntu10件、型検査成功。実データ不変"
+    },
     {
       "at": "2026-11-06T08:51:58+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "ffe6621",
       "text": "PR #236をcodex/nextへ統合後、#235へ新基点を取り込んだ。競合はWORK_STATEだけで解消。結合後Chrome4件・型検査・原本ハッシュ一致"
-    },
-    {
-      "at": "2026-11-06T01:20:40+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cd99227",
-      "text": "Issue #234 Python配置整理の基点更新: codex/nextのPR #236統合後差分を取り込み、競合と試験を確認する"
     }
   ]
 }
