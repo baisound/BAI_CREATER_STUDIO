@@ -36,8 +36,9 @@
     stage.hidden = !state.clips.length && !state.sceneOverlay;
     if (state.sceneOverlay) $('v68stageNote').hidden = true;
     const sceneLoaded = state.sceneOverlay && window.BAIStudioMultiScenePreview?.status?.().loaded > 0;
-    $('v68play').disabled = !state.ready || (!state.entries.length && !sceneLoaded);
-    if (state.ready) message(`${state.entries.length}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : state.sceneOverlay ? '3Dを同じ画面に重ねて表示。限定MP4は出力画面で条件を確認。' : '動画内音声も動画とともに再生。限定MP4は出力画面に接続。'}`);
+    const playable = state.entries.filter(entry => !entry.failed).length;
+    $('v68play').disabled = state.playing || !state.ready || (!playable && !sceneLoaded);
+    if (state.ready) message(`${playable}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : state.sceneOverlay ? '3Dを同じ画面に重ねて表示。限定MP4は出力画面で条件を確認。' : '動画内音声も動画とともに再生。限定MP4は出力画面に接続。'}`);
   }
   function release() {
     cancelAnimationFrame(state.raf);
@@ -61,6 +62,7 @@
     let visible = 0, sounding = 0, sourceEnded = 0;
     for (const entry of state.entries) {
       const { clip, element, kind } = entry;
+      if (entry.failed) { element.hidden = true; pauseElement(element); continue; }
       const active = activeAt(clip, seconds);
       if (kind === 'image') { element.hidden = !active; if (active && element.complete && element.naturalWidth > 0) visible++; continue; }
       if (!active) { if (kind === 'video') element.hidden = true; pauseElement(element); continue; }
@@ -95,6 +97,7 @@
     $('v68play').disabled = !state.ready;
     $('v68pause').disabled = true;
     setFrame(current);
+    refreshStage();
     if (commit) void saveHead();
   }
   async function saveHead() {
@@ -111,6 +114,7 @@
       $('v68play').disabled = !state.ready;
       $('v68pause').disabled = true;
       setFrame(state.outFrame);
+      refreshStage();
       void saveHead();
       return;
     }
@@ -126,7 +130,7 @@
   }
   function play() {
     const scene = window.BAIStudioMultiScenePreview?.status?.();
-    if (!state.ready || (!state.entries.length && !(scene?.opened && scene.loaded > 0))) return;
+    if (!state.ready || (!state.entries.some(entry => !entry.failed) && !(scene?.opened && scene.loaded > 0))) return;
     delete $('v68frame').dataset.dirty;
     if (state.frame >= state.outFrame) setFrame(state.inFrame);
     state.startFrame = state.frame;
@@ -176,16 +180,30 @@
         if (!url) { state.issues.push(`${clip.name}: 元メディアを読み込めません`); continue; }
         const kind = clip.category === 'music' ? 'audio' : clip.category;
         const element = document.createElement(kind === 'image' ? 'img' : kind === 'video' ? 'video' : 'audio');
+        const entry = { clip, kind, element, failed: false };
+        const fail = reason => {
+          if (generation !== state.generation || entry.failed) return;
+          entry.failed = true;
+          state.issues.push(`${clip.name}: ${reason}`);
+          if (kind !== 'image') pauseElement(element);
+          setFrame(state.frame, state.playing);
+          refreshStage();
+        };
         element.src = url;
         element.preload = kind === 'image' ? 'auto' : 'metadata';
         if (kind === 'video') { element.playsInline = true; }
         if (kind !== 'audio') { element.hidden = true; element.className = 'v68visual'; layers.append(element); }
         else { element.hidden = true; layers.append(element); }
         if (kind === 'image') element.addEventListener('load', () => { if (generation === state.generation) setFrame(state.frame, state.playing); });
-        if (kind === 'video') element.addEventListener('loadeddata', () => { if (generation === state.generation) setFrame(state.frame, state.playing); });
-        if (kind === 'image') element.onerror = () => message(`${clip.name}の画像を表示できません`);
-        else element.onerror = () => message(`${clip.name}のメディアを再生できません`);
-        state.entries.push({ clip, kind, element });
+        if (kind === 'video') element.addEventListener('loadeddata', () => {
+          if (generation !== state.generation) return;
+          // A browser can decode only the audio stream of an OGV and still
+          // report HAVE_CURRENT_DATA. Do not claim an empty video is playable.
+          if (!element.videoWidth || !element.videoHeight) fail('動画の映像を再生できません。このブラウザーが対応する形式へ変換してください');
+          else setFrame(state.frame, state.playing);
+        });
+        element.onerror = () => fail(kind === 'image' ? '画像を表示できません' : 'メディアを再生できません。このブラウザーが対応する形式へ変換してください');
+        state.entries.push(entry);
       }
       state.entries.sort((a, b) => (a.clip.lane || 1) - (b.clip.lane || 1) || a.clip.start - b.clip.start || a.clip.id.localeCompare(b.clip.id));
       for (const entry of state.entries) if (entry.kind !== 'audio') layers.append(entry.element);
