@@ -6,31 +6,28 @@ const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
 const crypto=require('node:crypto');
-const {execFileSync,spawnSync}=require('node:child_process');
+const {execFileSync}=require('node:child_process');
+const {Client}=require('@modelcontextprotocol/client');
+const {StdioClientTransport}=require('@modelcontextprotocol/client/stdio');
 const harness=require('./helpers/studio-harness.cjs');
 
 const sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 async function json(response,status=200){const raw=await response.text();assert.equal(response.status,status,raw);return JSON.parse(raw);}
 const post=(server,route,body)=>fetch(server.base+route,{method:'POST',
   headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-function standard(base,name,args={}){
-  const req={jsonrpc:'2.0',id:1,method:'tools/call',params:{name,arguments:args}};
-  const run=spawnSync(process.env.PYTHON||'python',[path.join(__dirname,'..','mcp_server.py')],{
-    input:JSON.stringify(req)+'\n',encoding:'utf8',timeout:30000,
-    env:{...process.env,MIXAMO_VIEWER_URL:base,PYTHONUTF8:'1',PYTHONDONTWRITEBYTECODE:'1'}});
-  assert.equal(run.status,0,run.stderr);
-  const response=JSON.parse(run.stdout.trim());
-  assert.equal(response.result?.isError,undefined,JSON.stringify(response.result));
-  return JSON.parse(response.result.content[0].text);
+function value(response,error=false){
+  if(typeof response==='string')response=JSON.parse(response);
+  assert.equal(response.isError===true,error,JSON.stringify(response));
+  return error?response:JSON.parse(response.content[0].text);
 }
-async function web(page,name,args={}){
+async function web(page,name,args={},error=false){
   const response=await page.evaluate(async input=>{
-    const tool=window.__mcpTools.find(row=>row.name===input.name);
+    const tools=window.__nativeCompositeMcp?await document.modelContext.getTools():window.__mcpTools;
+    const tool=tools.find(row=>row.name===input.name);
     if(!tool)throw Error('WebMCP tool missing: '+input.name);
-    return tool.execute(input.args);
+    return window.__nativeCompositeMcp?document.modelContext.executeTool(tool,input.args):tool.execute(input.args);
   },{name,args});
-  assert.equal(response.isError,undefined,JSON.stringify(response));
-  return JSON.parse(response.content[0].text);
+  return value(response,error);
 }
 
 function sourceVmd(){
@@ -43,17 +40,23 @@ function sourceVmd(){
   return Buffer.concat([header,morphs,Buffer.alloc(16)]);
 }
 
-test('v0.5 SRT panel writes a source VMD composite candidate and rejects discontinuities',async()=>{
+async function scenario(native){
   const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'lip-composite-'));
   const pmxFile=path.join(tmp,'tiny.pmx');
   execFileSync(process.env.PYTHON||'python3',[path.join(__dirname,'..','tools','make_test_pmx.py'),pmxFile]);
   const pmx=fs.readFileSync(pmxFile),vmd=sourceVmd();
   const vmdName='source-face.vmd';
-  const server=await harness.startServer({port:8957,seed:{
+  const server=await harness.startServer({port:native?9135:9134,seed:{
     'mmd_assets.json':JSON.stringify({A:[{name:'tiny.pmx',size:pmx.length}],B:[],vmd:[{name:vmdName,size:vmd.length}]}),
     'mmd/A/tiny.pmx':pmx,[`mmd/vmd/${vmdName}`]:vmd}});
-  let browser,page;
+  const transport=new StdioClientTransport({command:process.env.PYTHON||(process.platform==='win32'?'python':'python3'),
+    args:['-B',path.join(__dirname,'..','mcp_server.py')],cwd:path.resolve(__dirname,'..'),
+    env:{...process.env,MIXAMO_VIEWER_URL:server.base,PYTHONUTF8:'0',PYTHONIOENCODING:'cp932'},stderr:'pipe'});
+  const client=new Client({name:'bai-lip-composite-acceptance',version:'1.0.0'});
+  const standard=async (_base,name,args={})=>value(await client.callTool({name,arguments:args}));
+  let browser,page,stderr='';transport.stderr?.on('data',b=>{stderr+=b;});
   try{
+    await client.connect(transport);
     const projectId=(await json(await post(server,'/api/studio/v05/projects',{name:'合成VMD画面',kind:'empty'}))).project.id;
     const assetId='mmd:A:tiny.pmx';
     const scene=await json(await post(server,'/api/studio/v05/scene/instances',{project_id:projectId,action:'add',
@@ -73,7 +76,8 @@ test('v0.5 SRT panel writes a source VMD composite candidate and rejects discont
       sceneState=await json(await post(server,'/api/studio/v05/scene/instances',{project_id:projectId,
         action:'face-set',revision:sceneState.revision,face_key:{instance_id:instanceId,morph_name:'あ',time,value,track:'expression'}}));
 
-    browser=await server.launchBrowser();page=await server.newPage(browser);
+    browser=native?await require('playwright').chromium.launch({executablePath:harness.chromiumPath(),
+      args:['--enable-features=WebMCPTesting','--no-sandbox']}):await server.launchBrowser();page=await server.newPage(browser);
     await page.goto(`${server.base}/studio/v05/index.html`);
     await page.locator('#v06project').selectOption(projectId);
     await page.locator('#nav [data-workspace="edit"]').click();
@@ -128,34 +132,41 @@ test('v0.5 SRT panel writes a source VMD composite candidate and rejects discont
 
     // Both MCP surfaces use the same revision-guarded HTTP service as the UI.
     const mcpNames=['bai_studio_lip_adoptions_get','bai_studio_lip_composite_candidate_create'];
-    const listed=spawnSync(process.env.PYTHON||'python',[path.join(__dirname,'..','mcp_server.py')],{
-      input:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/list',params:{}})+'\n',
-      encoding:'utf8',timeout:30000,env:{...process.env,PYTHONUTF8:'1'}});
-    assert.equal(listed.status,0,listed.stderr);
-    const stdNames=JSON.parse(listed.stdout.trim()).result.tools.map(row=>row.name);
+    const stdNames=(await client.listTools()).tools.map(row=>row.name);
     for(const name of mcpNames)assert.equal(stdNames.filter(value=>value===name).length,1,name);
-    await page.evaluate(()=>{
-      window.__mcpTools=[];
-      Object.defineProperty(document,'modelContext',{configurable:true,
-        value:{registerTool:async tool=>{window.__mcpTools.push(tool);}}});
-    });
-    await page.addScriptTag({path:path.join(__dirname,'..','webmcp.js')});
-    await page.waitForFunction(()=>window.__mcpTools?.some(row=>row.name==='bai_studio_lip_composite_candidate_create'));
+    if(native){
+      assert.equal(await page.evaluate(()=>String(document.modelContext?.registerTool).includes('[native code]')),true);
+      await page.waitForFunction(()=>{const d=window.mixamoWebMcpDiagnostics;return d&&d.registered.length+d.errors.length===d.tools.length;});
+      assert.deepEqual(await page.evaluate(()=>window.mixamoWebMcpDiagnostics.errors),[]);
+      await page.evaluate(()=>{window.__nativeCompositeMcp=true;});
+    }else{
+      await page.evaluate(()=>{
+        window.__mcpTools=[];
+        Object.defineProperty(document,'modelContext',{configurable:true,
+          value:{registerTool:async tool=>{window.__mcpTools.push(tool);}}});
+      });
+      await page.addScriptTag({path:path.join(__dirname,'..','webmcp.js')});
+      await page.waitForFunction(()=>window.__mcpTools?.some(row=>row.name==='bai_studio_lip_composite_candidate_create'));
+    }
     for(const name of mcpNames)
-      assert.equal(await page.evaluate(n=>window.__mcpTools.filter(t=>t.name===n).length,name),1,name);
-    const standardAdoption=standard(server.base,mcpNames[0],{project_id:projectId,instance_id:instanceId});
+      assert.equal(await page.evaluate(async n=>(window.__nativeCompositeMcp?await document.modelContext.getTools():window.__mcpTools).filter(t=>t.name===n).length,name),1,name);
+    const standardAdoption=await standard(server.base,mcpNames[0],{project_id:projectId,instance_id:instanceId});
     const webAdoption=await web(page,mcpNames[0],{project_id:projectId,instance_id:instanceId});
     assert.deepEqual(webAdoption,standardAdoption);
     const mcpBody={project_id:projectId,instance_id:instanceId,clip_id:placed.clip.id,
       adoption_revision:standardAdoption.revision,scene_revision:sceneState.revision,
       arrangement_revision:2,dry_run:true};
-    const checked=standard(server.base,mcpNames[1],mcpBody);
+    const checked=await standard(server.base,mcpNames[1],mcpBody);
     const webChecked=await web(page,mcpNames[1],mcpBody);
     assert.equal(checked.sha256,made.sha256);
     assert.deepEqual(webChecked,checked);
     assert.equal(checked.candidateId,null);
     const webMade=await web(page,mcpNames[1],{...mcpBody,dry_run:false});
     assert.equal(webMade.readback.status,'passed_full_key_readback');
+    assert.deepEqual(Buffer.from(await(await fetch(server.base+webMade.downloadUrl)).arrayBuffer()),downloaded);
+    harness.expectErrors(page,[/Failed to load resource: the server responded with a status of 409/]);
+    const stale=await web(page,mcpNames[1],{...mcpBody,scene_revision:mcpBody.scene_revision-1},true);
+    assert.equal(stale.isError,true);
     assert.deepEqual(Buffer.from(await(await fetch(server.base+webMade.downloadUrl)).arrayBuffer()),downloaded);
 
     // A manual key that steps between VMD frames is rejected and listed in the panel.
@@ -169,8 +180,22 @@ test('v0.5 SRT panel writes a source VMD composite candidate and rejects discont
     assert.match(await page.locator('#v240-composite-status').textContent(),/合成候補を作れません/);
     assert.equal(await page.locator('#v240-composite-download').isHidden(),true);
     assert.equal((await fetch(server.base+made.downloadUrl)).status,409,'入力が変わった候補は取得不可');
+    const rejected=await web(page,mcpNames[1],{...mcpBody,scene_revision:sceneState.revision,dry_run:false},true);
+    assert.equal(rejected.isError,true);
+    assert.equal(page.__monitor.errors.filter(e=>/status of 409/.test(e)).length,1);
+    assert.equal(page.__monitor.errors.filter(e=>/status of 422/.test(e)).length,2);
     assert.deepEqual(fs.readFileSync(path.join(server.dataDir,'mmd','vmd',vmdName)),vmd);
     assert.deepEqual(fs.readFileSync(path.join(server.dataDir,'mmd','A','tiny.pmx')),pmx);
-    harness.assertNoErrors(page);
-  }finally{await page?.close();await browser?.close();await server.stop();fs.rmSync(tmp,{recursive:true,force:true});}
-});
+    harness.assertNoErrors(page);assert.equal(stderr,'');
+    console.log(JSON.stringify({native,sdk:'2.4.0',tools:stdNames.length,fullReadback:made.readback.status,
+      morphKeys:mouth.size,uiSdkWebBytesIdentical:true,staleAndDiscontinuityRejected:true,originalBytesPreserved:true}));
+  }finally{
+    await client.close();await page?.close();await browser?.close();await server.stop();
+    assert.equal(path.dirname(path.resolve(tmp)),path.resolve(os.tmpdir()));assert.ok(path.basename(tmp).startsWith('lip-composite-'));
+    fs.rmSync(tmp,{recursive:true,force:true});
+  }
+}
+test('v0.5 SRT panel and official SDK write identical composite VMD candidates and reject discontinuities',
+  {timeout:180000},()=>scenario(false));
+test('native WebMCP composite candidates match UI and official SDK bytes and reject stale inputs',
+  {skip:process.env.BAI_NATIVE_WEBMCP!=='1'&&'Opt in with BAI_NATIVE_WEBMCP=1 and supported Chrome',timeout:180000},()=>scenario(true));

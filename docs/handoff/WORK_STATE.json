@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T12:37:55+09:00",
+  "updated_at": "2026-11-06T12:44:45+09:00",
   "updated_by": "codex",
-  "branch": "codex/lip-native-mcp-20261106",
-  "head_at_update": "6cca466",
+  "branch": "codex/lip-native-composite-20261106",
+  "head_at_update": "d01b7d8",
   "current": {
-    "task": "Issue #187 LIPの公式SDKとネイティブWebMCP",
+    "task": "Issue #187 合成VMD候補の公式SDKとネイティブWebMCP",
     "status": "done",
-    "step": "既存のSRTから読み・下書き・候補・採用操作を公式SDKと実ChromeネイティブWebMCPで照合し、保存再読込と拒否時不変を検証する",
-    "design_doc": "docs/v05/LIP001_NATIVE_MCP_20261106_JA.md"
+    "step": "既存の画面合成候補試験を公式SDKと実Chromeネイティブ呼出しへ拡張し、全キー再読込・バイト同一・不連続と失効拒否を照合する",
+    "design_doc": "docs/v05/LIP001_NATIVE_COMPOSITE_20261106_JA.md"
   },
   "next_steps": [
-    "LIPネイティブ検証PRをmainへ反映・手元同期し、順4の合成候補ネイティブ・実歌声読みと採用口形の長尺MP4、順3に残る実形式を保持。実歌詞54発話を自動確定しない。順5の再判定と順6を繰り上げない"
+    "順4の実歌声読み・採用口形・実曲元VMDの長尺MP4へ進む。実歌詞54発話はOwner未確認/未採用を維持し、自動確定しない。順3の実形式・Linuxブラウザー等の残件、順5再判定と順6を維持。日単位の工数44〜88作業日は段階終了時に再見積もり"
   ],
   "unverified": [
-    "実歌詞54発話は未確認/未採用。自然さ・実曲元VMDとの合成長尺MP4・合成候補APIネイティブ・他クライアント/ブラウザー・Linuxブラウザー/GPUは未検証。既知証拠ゲート2失敗と開発依存監査3件を維持。粗い残工数44〜88作業日は変更なし"
+    "実歌詞54発話の読み/自然さ/Owner採用・実曲元VMDとの合成長尺MP4・他クライアント/ブラウザー・Linux合成UI/GPUは未検証。初回ERR_NO_BUFFER_SPACEは失敗として保持、最終対象2成功。既知証拠ゲート2失敗と開発依存監査3件も維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T12:44:45+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "d01b7d8",
+      "text": "LIP-001合成候補も公式SDK/Chromeネイティブへ試験拡張。画面/SDK/WebMCP候補が全バイト同一、91モーフキーと全キー読戻し、古いrevision/不連続/失効の拒否を確認。初回Chrome通信不足1失敗、隔離再実行Windows2成功。原本とdata hash一致、型成功。製品コード変更なし"
+    },
+    {
+      "at": "2026-11-06T12:41:29+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "32ad26b",
+      "text": "Issue #187 合成VMD候補の公式SDKとネイティブWebMCP: 既存の画面合成候補試験を公式SDKと実Chromeネイティブ呼出しへ拡張し、全キー再読込・バイト同一・不連続と失効拒否を照合する"
+    },
     {
       "at": "2026-11-06T12:37:55+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "done",
       "head": "7df900d",
       "text": "RENDER-001/006の3D描画を透過FFV1逐次書込みへ変更。合成720F・失敗時保持と、実PMX/VMD/WAV230秒13800Fの実GPU完成MP4を確認。全区間音画同期と上限全体は未確認"
-    },
-    {
-      "at": "2026-11-06T03:52:57+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1ef546a",
-      "text": "Issue #39/#81 順3の長尺3D出力: PNG全量保存を透過可逆動画への逐次書込みへ変更し600F超を検証"
-    },
-    {
-      "at": "2026-11-06T02:40:00+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4c6ee39",
-      "text": "PR #237をcodex/nextへ統合。実PMX・同曲VMD/WAVの600F実GPUプレビュー・MP4と音声3点を確認し、Issue #39/#81・PR #233へ結果を反映"
     }
   ]
 }
