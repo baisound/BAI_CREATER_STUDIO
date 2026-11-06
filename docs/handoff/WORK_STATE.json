@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T09:26:23+09:00",
+  "updated_at": "2026-11-06T09:34:36+09:00",
   "updated_by": "codex",
-  "branch": "codex/main-sync-record-20261106",
-  "head_at_update": "b994cef",
+  "branch": "codex/roadmap-media-detail-20261106",
+  "head_at_update": "b2416a7",
   "current": {
-    "task": "Issue #33 検証済みPRのmain統合と手元同期",
-    "status": "done",
-    "step": "PR246とPR233の最終確認、継続mainマージ方針の記録、統合試験、利用者mainと8765番の非破壊同期",
-    "design_doc": "docs/handoff/MAIN_SYNC_AFTER_MERGE_JA.md"
+    "task": "Issue #69 全体位置と残工数の整理、#37動画詳細の再生不可表示",
+    "status": "in_progress",
+    "step": "簡単な言葉で全体と優先7段階の到達点・残工数を記録し、OGV映像不可の素材詳細/見本の残件を実機修正・検証する",
+    "design_doc": "docs/roadmap/CURRENT_POSITION_AND_EFFORT_20261106_JA.md"
   },
   "next_steps": [
     "承認済み順3の残る形式・行操作等の受入れ条件を照合し、順4の実歌声SRT/採用口形と長尺/LIPネイティブMCPへ続く。順5再判定、CAM019順6を維持"
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T09:34:36+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "b2416a7",
+      "text": "Issue #69 全体位置と残工数の整理、#37動画詳細の再生不可表示: 簡単な言葉で全体と優先7段階の到達点・残工数を記録し、OGV映像不可の素材詳細/見本の残件を実機修正・検証する"
+    },
     {
       "at": "2026-11-06T09:26:23+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "8e3a551",
       "text": "Issue #234 Python配置整理のUbuntu全件ゲート: 基点更新後のWSL Python全件を再実行し、接続リセットの再現性と原本保護を確認する"
-    },
-    {
-      "at": "2026-11-06T01:44:02+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d412e67",
-      "text": "PR #235の基点更新後Node全件は505件中445成功・55スキップ・5失敗。3失敗項目は単独で成功、別の3D待機は単独でも失敗。原本ハッシュ一致"
     }
   ]
 }
