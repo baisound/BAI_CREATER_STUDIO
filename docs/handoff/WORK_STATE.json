@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T19:41:03+09:00",
+  "updated_at": "2026-11-06T21:20:42+09:00",
   "updated_by": "codex",
-  "branch": "codex/video-lanes-sync-20261106",
-  "head_at_update": "576fe42",
+  "branch": "codex/mp3-timeline-20261106",
+  "head_at_update": "f25e101",
   "current": {
-    "task": "Issue #81 複数動画行のmainと制作画面同期を引き継ぐ",
-    "status": "done",
-    "step": "main cba7fc9・手元/開発木・8765再起動と新UI/Chrome・515ファイル不変・Issue画像実表示を正本へ記録",
-    "design_doc": "docs/v05/VIDEO_LANES_20261106_JA.md"
+    "task": "Issue #81 順3のMP3元区間と長尺同期",
+    "status": "in_progress",
+    "step": "登録MP3と実曲由来MP3の実尺・先頭/中間/末尾・分割移動/再伸長・保存復元をプレビュー/MP4と照合し、必要な時刻修正を行う",
+    "design_doc": "docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md"
   },
   "next_steps": [
     "順3 #81の残り（音声形式別・複数音声/楽曲行・混音音量/保存等）を既存証拠と照合し次の未完成受入れ条件へ進める。順4の54件読み/自然さ/候補採用と未判定の順5は維持する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T21:20:42+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f25e101",
+      "text": "Issue #81 順3のMP3元区間と長尺同期: 登録MP3と実曲由来MP3の実尺・先頭/中間/末尾・分割移動/再伸長・保存復元をプレビュー/MP4と照合し、必要な時刻修正を行う"
+    },
     {
       "at": "2026-11-06T19:41:03+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "b2416a7",
       "text": "Issue #69 全体位置と残工数の整理、#37動画詳細の再生不可表示: 簡単な言葉で全体と優先7段階の到達点・残工数を記録し、OGV映像不可の素材詳細/見本の残件を実機修正・検証する"
-    },
-    {
-      "at": "2026-11-06T09:26:23+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b994cef",
-      "text": "PR246を開発へ、PR233をmainへマージ。main b994cefへ安全同期し8765を同じmainで再起動。504ファイルと変更一覧は不変。Python986成功22skip、対象Chrome7成功1skip、証拠167中163成功2失敗2skipを記録"
     }
   ]
 }
