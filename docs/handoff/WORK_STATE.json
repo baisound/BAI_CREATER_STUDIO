@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T09:34:36+09:00",
+  "updated_at": "2026-11-06T09:37:54+09:00",
   "updated_by": "codex",
   "branch": "codex/roadmap-media-detail-20261106",
-  "head_at_update": "b2416a7",
+  "head_at_update": "9dc11fa",
   "current": {
-    "task": "Issue #69 全体位置と残工数の整理、#37動画詳細の再生不可表示",
+    "task": "Issue #69 全体ロードマップ整理と#248完成動画の一覧ダウンロード",
     "status": "in_progress",
-    "step": "簡単な言葉で全体と優先7段階の到達点・残工数を記録し、OGV映像不可の素材詳細/見本の残件を実機修正・検証する",
-    "design_doc": "docs/roadmap/CURRENT_POSITION_AND_EFFORT_20261106_JA.md"
+    "step": "全体の現在地と残工数を記録し、完成物の直接ダウンロード・作品選択・古い履歴・出力準備と独立した一覧を実装検証する。OGV素材詳細は最新Owner依頼の後へ保持",
+    "design_doc": "docs/v05/RENDER_DOWNLOAD_LIST_20261106_JA.md"
   },
   "next_steps": [
     "承認済み順3の残る形式・行操作等の受入れ条件を照合し、順4の実歌声SRT/採用口形と長尺/LIPネイティブMCPへ続く。順5再判定、CAM019順6を維持"
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T09:37:54+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9dc11fa",
+      "text": "Issue #69 全体ロードマップ整理と#248完成動画の一覧ダウンロード: 全体の現在地と残工数を記録し、完成物の直接ダウンロード・作品選択・古い履歴・出力準備と独立した一覧を実装検証する。OGV素材詳細は最新Owner依頼の後へ保持"
+    },
     {
       "at": "2026-11-06T09:34:36+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "6ac687d",
       "text": "基点更新後のUbuntu WSL Python全件が965成功・22スキップ・失敗0で完走。隔離データと原本ハッシュ検査を含む"
-    },
-    {
-      "at": "2026-11-06T01:49:44+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "8e3a551",
-      "text": "Issue #234 Python配置整理のUbuntu全件ゲート: 基点更新後のWSL Python全件を再実行し、接続リセットの再現性と原本保護を確認する"
     }
   ]
 }
