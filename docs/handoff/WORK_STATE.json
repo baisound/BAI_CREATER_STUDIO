@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T09:12:26+09:00",
+  "updated_at": "2026-11-06T09:26:23+09:00",
   "updated_by": "codex",
-  "branch": "codex/v05-video-formats-vfr-20261106",
-  "head_at_update": "7b5c4e1",
+  "branch": "codex/main-sync-record-20261106",
+  "head_at_update": "b994cef",
   "current": {
     "task": "Issue #33 検証済みPRのmain統合と手元同期",
-    "status": "in_progress",
+    "status": "done",
     "step": "PR246とPR233の最終確認、継続mainマージ方針の記録、統合試験、利用者mainと8765番の非破壊同期",
     "design_doc": "docs/handoff/MAIN_SYNC_AFTER_MERGE_JA.md"
   },
   "next_steps": [
-    "今回の形式/VFR修正PRを確認し開発ブランチへ統合する。順3の残る形式別・行操作等の受入れ条件を照合する",
-    "承認順序で順4の実歌声SRT・採用口形合成/長尺とLIPネイティブMCPへ進む。順5は設計批評反映後、時刻付きカメラ/CAM019は順6を維持"
+    "承認済み順3の残る形式・行操作等の受入れ条件を照合し、順4の実歌声SRT/採用口形と長尺/LIPネイティブMCPへ続く。順5再判定、CAM019順6を維持"
   ],
   "unverified": [
-    "実素材WebM/OGV/VFR、長尺VFR・動画重ね、全codec/色忠実度/聴感、今回の形式のネイティブMCP、実GPU/Linuxブラウザと素材詳細の再生不可表示は未検証。複数FPS一括試験の通信拒否1回は単独で非再現。順3全体は未完成"
+    "証拠ゲートの音楽配置タイムアウト1件は単独非再現、8811番占有1件は未実行。既存Node全件5失敗を保持。実素材VFR/長尺/全codec、採用口形長尺、全モデル物理、Linuxブラウザ等は未検証。同期時に利用者データを書き換える実画面操作はしていない",
+    "npm ci後の監査は開発依存3件（high1/moderate2）、omit=devは0件。依存の更新は未実施"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T09:26:23+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b994cef",
+      "text": "PR246を開発へ、PR233をmainへマージ。main b994cefへ安全同期し8765を同じmainで再起動。504ファイルと変更一覧は不変。Python986成功22skip、対象Chrome7成功1skip、証拠167中163成功2失敗2skipを記録"
+    },
     {
       "at": "2026-11-06T09:12:26+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "done",
       "head": "d412e67",
       "text": "PR #235の基点更新後Node全件は505件中445成功・55スキップ・5失敗。3失敗項目は単独で成功、別の3D待機は単独でも失敗。原本ハッシュ一致"
-    },
-    {
-      "at": "2026-11-06T01:32:19+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "4c60b3d",
-      "text": "Issue #234 Python配置整理のNode全件ゲート: 基点更新後のNode全件を再実行し、残る失敗の原因を特定する"
     }
   ]
 }
