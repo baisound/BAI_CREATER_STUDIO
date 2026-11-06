@@ -207,3 +207,8 @@ GLB→VMDとモーション編集の残りを[順5詳細設計](R5_GLB_VMD_MOTIO
 ### 2026-11-06 複数動画行と重なり出力（順3、#81/#63）
 
 2026-11-06、#81の複数動画行（最大16、安定ID/削除番号非再利用）を手動UI/API/両MCPへ接続し、元区間・保存再読込・重なり順/内包音声を限定確認。29.97fpsの切替1F早まりとシーク注記を修正。Windows対象Python53・Chrome/SDK/長尺/回帰、Ubuntu Python43・SDK/長尺成功。実AAC保持480pコピーの6421F/約214秒・PCM9地点差0。全codec/実作品、Linuxブラウザー、混音音量一致/ミキサー/行全体Undo等は未完了。docs/v05/VIDEO_LANES_20261106_JA.md
+
+
+### 2026-11-06 MP3の実尺・分割と長尺同期（順3、#81/#82）
+
+2026-11-06、#81/#82のMP3元区間と長尺同期を限定検証。MP3の実尺を復号サンプル数から求め、旧FFmpegの圧縮余白による尺超過を修正。旧保存を無断トリムしない。既存分割をbai_studio_clip_splitで両MCPへ接続。Windows/Ubuntu各Python38・Node3成功、Windows既存MCP回帰2成功。各OS7本・733窓のPCM差は最大1sample/48kHz。長尺は実WAV由来MP3、登録原MP3は約14秒見本。全MP3/聴感/Linuxブラウザー・音量一致/ミキサー等は未完了。docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md

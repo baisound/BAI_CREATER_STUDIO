@@ -1,0 +1,24 @@
+{
+  "platform": "win32",
+  "sameWindowsEncodedInputs": true,
+  "results": [
+    {
+      "rate": 8000,
+      "filename": "tone-8000.mp3",
+      "formatDuration": 3.083125,
+      "playableDuration": 3.083125
+    },
+    {
+      "rate": 44100,
+      "filename": "tone-44100.mp3",
+      "formatDuration": 3.017007,
+      "playableDuration": 3.0170068027210886
+    },
+    {
+      "rate": 48000,
+      "filename": "tone-48000.mp3",
+      "formatDuration": 3.017,
+      "playableDuration": 3.017
+    }
+  ]
+}

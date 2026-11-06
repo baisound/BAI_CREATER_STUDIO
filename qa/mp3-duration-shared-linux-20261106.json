@@ -1,0 +1,24 @@
+{
+  "platform": "linux",
+  "sameWindowsEncodedInputs": true,
+  "results": [
+    {
+      "rate": 8000,
+      "filename": "tone-8000.mp3",
+      "formatDuration": 3.168,
+      "playableDuration": 3.083125
+    },
+    {
+      "rate": 44100,
+      "filename": "tone-44100.mp3",
+      "formatDuration": 3.056327,
+      "playableDuration": 3.0170068027210886
+    },
+    {
+      "rate": 48000,
+      "filename": "tone-48000.mp3",
+      "formatDuration": 3.048,
+      "playableDuration": 3.017
+    }
+  ]
+}

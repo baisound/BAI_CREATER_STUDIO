@@ -94,3 +94,8 @@ SRT原本のBase64バイト取込、読み、候補、下書き、別名モー�
 ### 2026-11-06 動画行の追加・空行削除
 
 既存 `bai_studio_track_layout_set` に `action: "add_video_lane" / "remove_video_lane"` を追加。project_id/revision、削除時laneを指定する。getで安定video_lane_ids/next_video_lane_idを読む。動画1は旧保存互換、最大16、削除番号非再利用、占有/最後の行/古いrevisionは拒否。既存画像action/省略更新は維持。[操作・実測・未検証](docs/v05/VIDEO_LANES_20261106_JA.md)。
+
+
+### 2026-11-06 保存済み動画・音声のハサミ分割
+
+`bai_studio_clip_split` を標準MCP/WebMCPへ追加。入力は `project_id`、`clip_id`、最新の `revision`、作品内の秒 `split_at`。元ファイルを保ち、右片の元素材開始位置を分割分だけ進める。既存の手動ハサミと同じAPI `/api/studio/v05/arrangement/clip/split` を使い、動画/音声/楽曲だけが対象。両片0.1秒以上、ロック/古いrevision/元尺超過は拒否する。後続の位置変更と再伸長は既存clip_edit。MP3は実際に復号されるサンプル数の尺で検査する。既存の保存とツール入力は保持する。[契約・再実行・未検証](docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md)。

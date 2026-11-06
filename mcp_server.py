@@ -141,6 +141,7 @@ def run(name,a):
     if name=='bai_studio_track_flags_set':return api('/api/studio/v05/timeline/flags',a)
     if name=='bai_studio_clip_target_set':return api('/api/studio/v05/arrangement/clip/target',a)
     if name=='bai_studio_clip_edit':return api('/api/studio/v05/arrangement/clip/edit',a)
+    if name=='bai_studio_clip_split':return api('/api/studio/v05/arrangement/clip/split',a)
     if name=='bai_studio_clip_place':return api('/api/studio/v05/arrangement/place',a)
     if name=='bai_studio_focus_reports_get':return api('/api/studio/v05/focus-reports?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_focus_reports_save':return api('/api/studio/v05/focus-reports',a)
@@ -300,6 +301,7 @@ TOOLS=[
 ('bai_studio_clip_target_set','Set or clear a motion clip target model with revision check.',S({'project_id':STR,'clip_id':STR,'revision':INT,'target_model_id':{'type':['string','null']}},['project_id','clip_id','revision','target_model_id'])),
 ('bai_studio_clip_edit','Update or delete saved v0.5 clip metadata and original media window by ID with revision check; legacy engine unchanged.',S({'project_id':STR,'clip_id':STR,'revision':INT,'action':{'type':'string','enum':['update','delete']},'start':{'type':'number'},'duration':{'type':'number'},'track':STR,'source_start':{'type':'number','minimum':0,'description':'Start offset in the original video/audio in seconds, independent of timeline start.'},'lane':{'type':'integer','minimum':1,'description':'Existing image lane ID; use 1 for other tracks.'}},['project_id','clip_id','revision','action'])),
 ('bai_studio_clip_place','Place registered asset into v0.5 clip arrangement with optimistic revision.',S({'project_id':STR,'asset_id':STR,'track':STR,'start':{'type':'number'},'duration':{'type':'number'},'revision':INT,'lane':{'type':'integer','minimum':1,'description':'Existing image lane ID; use 1 for other tracks.'}},['project_id','asset_id','track','start','duration','revision'])),
+('bai_studio_clip_split','Split a saved video/audio/music clip at a project time in seconds, keeping original source windows. Revision and lock guarded; source file is retained.',S({'project_id':STR,'clip_id':STR,'revision':INT,'split_at':{'type':'number','minimum':0}},['project_id','clip_id','revision','split_at'])),
 ('bai_studio_focus_reports_get','Read saved project focus interval reports.',S({'project_id':STR},['project_id'])),
 ('bai_studio_focus_reports_save','Save completed focus interval report.',S({'project_id':STR,'revision':INT,'report':{'type':'object'}},['project_id','revision','report'])),
 ('bai_studio_focus_target_get','Read saved focus target selection.',S({'project_id':STR},['project_id'])),

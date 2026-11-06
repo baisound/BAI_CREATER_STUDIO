@@ -102,3 +102,8 @@ Chrome 156.0.8078.80の専用試験プロファイルでWebMCPTestingを有効�
 ### 2026-11-06 動画行の追加・空行削除
 
 既存 `bai_studio_track_layout_set` に `action: "add_video_lane" / "remove_video_lane"` を追加。project_id/revision、削除時laneを指定。手動UIと共通API。Chrome156ネイティブ呼出しと公式SDKで保存結果を照合。画像行action/従来更新は互換。[安全条件・試験](docs/v05/VIDEO_LANES_20261106_JA.md)。
+
+
+### 2026-11-06 保存済み動画・音声のハサミ分割
+
+`bai_studio_clip_split` を標準MCP/WebMCPへ追加。入力は `project_id`、`clip_id`、最新の `revision`、作品内の秒 `split_at`。元ファイルを保ち、右片の元素材開始位置を分割分だけ進める。既存の手動ハサミと同じAPI `/api/studio/v05/arrangement/clip/split` を使い、動画/音声/楽曲だけが対象。両片0.1秒以上、ロック/古いrevision/元尺超過は拒否する。後続の位置変更と再伸長は既存clip_edit。MP3は実際に復号されるサンプル数の尺で検査する。既存の保存とツール入力は保持する。[契約・再実行・未検証](docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md)。
