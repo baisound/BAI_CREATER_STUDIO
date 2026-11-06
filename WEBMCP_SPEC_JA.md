@@ -97,3 +97,8 @@ Chrome 156.0.8078.80の専用試験プロファイルでWebMCPTestingを有効�
 ### 2026-11-06 音声トラックのミュート
 
 既存 `bai_studio_track_flags_set` の `muted` にある `audio` / `music` / `video` は、その行の音だけをプレビューと次のMP4へ反映する。動画の映像と元時刻は保持。最新revisionは `bai_studio_track_layout_get` から取得する。処理中の変更は次の出力へ適用し、各ジョブの `audio_settings` は開始時設定を記録する。[実行・未検証](docs/v05/TRACK_AUDIO_MUTE_20261106_JA.md)。
+
+
+### 2026-11-06 動画行の追加・空行削除
+
+既存 `bai_studio_track_layout_set` に `action: "add_video_lane" / "remove_video_lane"` を追加。project_id/revision、削除時laneを指定。手動UIと共通API。Chrome156ネイティブ呼出しと公式SDKで保存結果を照合。画像行action/従来更新は互換。[安全条件・試験](docs/v05/VIDEO_LANES_20261106_JA.md)。

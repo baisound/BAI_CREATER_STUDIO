@@ -211,6 +211,11 @@
           if (!element.videoWidth || !element.videoHeight) fail('動画の映像を再生できません。このブラウザーが対応する形式へ変換してください');
           else setFrame(state.frame, state.playing);
         });
+        if (kind === 'video') for (const event of ['seeked', 'canplay']) element.addEventListener(event, () => {
+          // A saved playhead event can run while a seek temporarily lowers
+          // readyState. Recompute the overlay once the sought frame is ready.
+          if (generation === state.generation) setFrame(state.frame, state.playing);
+        });
         element.onerror = () => fail(kind === 'image' ? '画像を表示できません' : 'メディアを再生できません。このブラウザーが対応する形式へ変換してください');
         state.entries.push(entry);
       }

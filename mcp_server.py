@@ -99,7 +99,7 @@ def run(name,a):
     if name=='bai_studio_assets_search':return api('/api/studio/v05/assets?category='+urllib.parse.quote(a.get('category','all'))+'&query='+urllib.parse.quote(a.get('query','')))
     if name=='bai_studio_track_layout_get':return api('/api/studio/v05/timeline/layout?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_track_layout_set':
-        route={'update':'layout','add_image_lane':'image-lanes','remove_image_lane':'image-lanes/remove'}.get(a.get('action','update'))
+        route={'update':'layout','add_image_lane':'image-lanes','remove_image_lane':'image-lanes/remove','add_video_lane':'video-lanes','remove_video_lane':'video-lanes/remove'}.get(a.get('action','update'))
         if route is None:raise ValueError('Invalid track layout action')
         return api('/api/studio/v05/timeline/'+route,{k:v for k,v in a.items() if k!='action'})
     if name=='bai_studio_playhead_get':return api('/api/studio/v05/playhead?id='+urllib.parse.quote(a['project_id']))
@@ -269,7 +269,7 @@ TOOLS=[
 ('bai_studio_asset_source_relink','Relink an existing reference to identical content in the approved inbox.',S({'asset_id':STR,'relative_path':STR,'revision':INT},['asset_id','relative_path','revision'])),
 ('bai_studio_assets_search','Search registered local assets by category and text.',S({'category':STR,'query':STR})),
 ('bai_studio_track_layout_get','Read project track order and heights.',S({'project_id':STR},['project_id'])),
-('bai_studio_track_layout_set','Update track order/heights (default action=update; requires order and heights), add an image lane, or remove an empty image lane (requires lane). Uses stable lane IDs and revision guards.',S({'project_id':STR,'revision':{'type':'integer'},'action':{'type':'string','enum':['update','add_image_lane','remove_image_lane']},'lane':{'type':'integer','minimum':1},'order':{'type':'array','items':STR},'heights':{'type':'object','additionalProperties':{'type':'integer'}}},['project_id','revision'])),
+('bai_studio_track_layout_set','Update track order/heights (default action=update; requires order and heights), add an image/video lane, or remove an empty image/video lane (requires lane). Uses stable lane IDs and revision guards.',S({'project_id':STR,'revision':{'type':'integer'},'action':{'type':'string','enum':['update','add_image_lane','remove_image_lane','add_video_lane','remove_video_lane']},'lane':{'type':'integer','minimum':1},'order':{'type':'array','items':STR},'heights':{'type':'object','additionalProperties':{'type':'integer'}}},['project_id','revision'])),
 ('bai_studio_playhead_get','Read saved edit cursor; not engine playback.',S({'project_id':STR},['project_id'])),
 ('bai_studio_playhead_set','Set saved edit cursor, revision guarded; no engine seek.',S({'project_id':STR,'seconds':{'type':'number'},'revision':{'type':'integer'}},['project_id','seconds','revision'])),
 ('bai_studio_timeline_view','Read deterministic track-grouped per-project timeline projection; read-only.',S({'project_id':STR},['project_id'])),

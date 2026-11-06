@@ -88,7 +88,7 @@ test('HOME shows JST seconds and live preview playhead follows the timeline thro
     await page.locator('#v89PlayheadInput').fill('2');
     await page.getByRole('button', { name: '指定秒へ移動' }).click();
     await page.waitForFunction(() => window.BAIStudioMediaPreviewV68.status().frame === 120);
-    await page.waitForFunction(async projectId =>
+    await harness.waitForAsync(page, async projectId =>
       (await (await fetch(`/api/studio/v05/playhead?id=${encodeURIComponent(projectId)}`)).json()).seconds === 2, id);
     await page.reload();
     await page.locator('#v06project').selectOption(id);

@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T19:01:27+09:00",
+  "updated_at": "2026-11-06T19:34:57+09:00",
   "updated_by": "codex",
   "branch": "codex/video-lanes-20261106",
-  "head_at_update": "0dcfa33",
+  "head_at_update": "505843e",
   "current": {
     "task": "Issue #81 順3の複数動画行と重なり出力",
-    "status": "in_progress",
+    "status": "done",
     "step": "動画行の安定ID追加・空行削除・元区間保持をUI/API/両MCPへ接続し、重なり/切替の画素と内包音声・再読込を隔離検証する",
     "design_doc": "docs/v05/VIDEO_LANES_20261106_JA.md"
   },
   "next_steps": [
-    "順3 #81の残り（形式別/複数行/混音音量・保存）を現行証拠と照合して次の未完成受入れ条件へ進める。順4の54件読み/自然さ/候補最終採用と未判定の順5は維持する"
+    "実装PRをmainへマージし、利用者data515ファイル/変更一覧の不変を照合して手元main・開発木・8765制作画面を同期する"
   ],
   "unverified": [
-    "実スピーカーの聴感/loopback・Linuxブラウザー/ネイティブWebMCP・全codec/全実作品・混音音量全体/ミキサー/行全体Undoは未検証。既知証拠ゲート2失敗/開発依存監査3件と通信失敗ログも保持"
+    "全codec/全実作品・原4K直接・Linuxブラウザー/ネイティブWebMCP・実スピーカー・混音音量一致/ミキサー/音声行増設/行全体Undoは未完了。順4の54件読み/自然さ/候補採用と未判定の順5は保持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-06T19:34:57+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "505843e",
+      "text": "複数動画行をUI/API/両MCPと出力へ接続。Windows53/Ubuntu43のPython、Chrome/SDK・6421F実AAC長尺・回帰成功を記録。境界1F/シーク注記/非同期待機も修正"
+    },
     {
       "at": "2026-11-06T19:01:27+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "b52ea95",
       "text": "WebM/OGV登録とVFR切出しを検証し元PTS保持・OGV映像不可表示を修正。4条件403F、PCM12窓1F以内。Node対象5件、Windows Python20件、Ubuntu10件、型検査成功。実データ不変"
-    },
-    {
-      "at": "2026-11-06T08:51:58+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "c286805",
-      "text": "Issue #37/#81 順3の動画形式とVFR: WebM/OGVと可変フレームレートの登録・保存元位置・ブラウザ再生・限定MP4を形式別に確認し不足を修正"
     }
   ]
 }

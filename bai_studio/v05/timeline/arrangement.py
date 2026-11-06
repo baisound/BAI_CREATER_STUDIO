@@ -51,8 +51,9 @@ def read(root,catalog,project_id):
 
 def _lane(lane,track,layout):
     if type(lane) is not int or lane<1:raise ArrangementError('Invalid lane')
-    if track!='image' and lane!=1:raise ArrangementError('Only image tracks support multiple lanes')
+    if track not in {'image','video'} and lane!=1:raise ArrangementError('Only image and video tracks support multiple lanes')
     if track=='image' and lane not in layout.get('image_lane_ids',range(1,layout.get('image_lanes',1)+1)):raise ArrangementError('Image lane does not exist')
+    if track=='video' and lane not in layout.get('video_lane_ids',[1]):raise ArrangementError('Video lane does not exist')
     return lane
 
 def _source_window(category, source_start, duration, source_duration):
@@ -125,14 +126,14 @@ def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,durat
             locked=set(layout.get('locked',[]))
             if clip['track'] in locked or (action=='update' and track in locked):raise ArrangementError('Track locked')
         if action=='update':
-            _lane(clip.get('lane',1) if lane is None and track=='image' else (1 if lane is None else lane),track,layout)
+            _lane(clip.get('lane',1) if lane is None and track in {'image','video'} and track==clip['track'] else (1 if lane is None else lane),track,layout)
             effective_source=clip.get('source_start',0) if source_start is None else source_start
             effective_duration=clip.get('source_duration') if source_duration is None else source_duration
             _source_window(clip.get('category'),effective_source,duration,effective_duration)
         before=dict(clip)
         if action=='delete':data['clips'].remove(clip)
         else:
-            clip.update(start=round(start,4),duration=round(duration,4),track=track,lane=clip.get('lane',1) if lane is None and track=='image' else (1 if lane is None else lane))
+            clip.update(start=round(start,4),duration=round(duration,4),track=track,lane=clip.get('lane',1) if lane is None and track in {'image','video'} and track==clip['track'] else (1 if lane is None else lane))
             if clip.get('category') in {'video','audio','music'}:
                 clip['source_start']=round(effective_source,4)
                 if effective_duration is not None:clip['source_duration']=round(effective_duration,4)
@@ -193,22 +194,38 @@ def batch_move(root,catalog,project_id,revision,edits,*,layout_root=None):
         if any(i not in mapping for i in ids):raise ArrangementError('Clip not found')
         if layout_root is not None:
             from bai_studio.v05.timeline.track_layout import get as get_layout
-            locked=set(get_layout(layout_root,catalog,project_id).get('locked',[]))
+            layout=get_layout(layout_root,catalog,project_id)
+            locked=set(layout.get('locked',[]))
+            for e in edits:
+                previous=mapping[e['clip_id']]
+                target_lane=previous.get('lane',1) if e['track']==previous['track'] else 1
+                _lane(target_lane,e['track'],layout)
             if any(mapping[e['clip_id']]['track'] in locked or e['track'] in locked for e in edits):raise ArrangementError('Track locked')
         before=[dict(c) for c in data['clips']]
-        for e in edits:mapping[e['clip_id']].update(start=round(e['start'],4),duration=round(e['duration'],4),track=e['track'])
+        for e in edits:
+            c=mapping[e['clip_id']]
+            c.update(start=round(e['start'],4),duration=round(e['duration'],4),lane=c.get('lane',1) if e['track']==c['track'] else 1,track=e['track'])
         data['revision']+=1
         data['undo']={'from_revision':data['revision'],'clips':before}
         _atomic(Path(root)/(project_id+'.json'),data)
         return {'revision':data['revision'],'updated':len(edits),'legacy_engine_unchanged':True}
 
-def undo_batch(root,catalog,project_id,revision):
+def undo_batch(root,catalog,project_id,revision,*,layout_root=None):
     if type(revision) is not int or revision<0:raise ArrangementError('Invalid revision')
     with LOCK:
         data=read(root,catalog,project_id)
         if data['revision']!=revision:raise ArrangementError('Revision conflict')
         undo=data.get('undo')
         if not isinstance(undo,dict) or undo.get('from_revision')!=revision or not isinstance(undo.get('clips'),list):raise ArrangementError('No undo available')
+        if layout_root is not None:
+            from bai_studio.v05.timeline.track_layout import get as get_layout
+            layout=get_layout(layout_root,catalog,project_id)
+            current={c['id']:c for c in data['clips']}
+            locked=set(layout.get('locked',[]))
+            if any(current.get(c['id'])!=c and
+                   (c['track'] in locked or current.get(c['id'],{}).get('track') in locked)
+                   for c in undo['clips']):raise ArrangementError('Track locked')
+            for c in undo['clips']:_lane(c.get('lane',1),c['track'],layout)
         data['clips']=undo['clips'];data['revision']+=1;data.pop('undo',None)
         _atomic(Path(root)/(project_id+'.json'),data)
         return {'revision':data['revision'],'undone':True,'legacy_engine_unchanged':True}

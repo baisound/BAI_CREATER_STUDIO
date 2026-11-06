@@ -211,7 +211,7 @@ test('pending timeline edit is saved when leaving SCR13', harness.skip3d(), asyn
     await page.evaluate(() => window.baiStudio.navigate('08'));
     await page.waitForURL(/\/workspace\/08/);
     const saved = path.join(server.dataDir, 'timeline_editor.json');
-    await page.waitForFunction(async () => {
+    await harness.waitForAsync(page, async () => {
       const r = await fetch('/api/timeline-editor');
       return r.ok && (await r.json()).clips?.[0]?.duration === 121;
     }, null, { timeout: 12000 });

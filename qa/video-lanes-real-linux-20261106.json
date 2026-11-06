@@ -1,0 +1,125 @@
+{
+  "projectId": "cbce1dbd-4434-49e4-aabf-64659b405c4b",
+  "sourceSha256": "c895d1da79dfddb4c93210b778b74d727be225ac5c07a2c5d6c5a399093f89d6",
+  "overlaySha256": "8bf03f337667d36ae87cb6d881135593eceae05dfe7d46ba114fc7f0980058bb",
+  "fps": 29.97,
+  "frames": 6421,
+  "bytes": 99563581,
+  "outputSha256": "46668c94f78c2060b5ab54ee246e04c7c1f4b342f320abc32b587a15e6c305f2",
+  "savedClips": [
+    {
+      "id": "f6bc713c-f5fa-4426-b2be-1a76b0702472",
+      "asset_id": "library:a50e4562d206602a02376992",
+      "name": "native-preserved-aac",
+      "category": "video",
+      "track": "video",
+      "lane": 1,
+      "start": 1.37,
+      "duration": 212.85,
+      "source_start": 1.1,
+      "source_duration": 214,
+      "source_has_audio": true
+    },
+    {
+      "id": "53399506-8515-469d-9218-c0a809e87419",
+      "asset_id": "library:178993f2ab250d5c1f5672ac",
+      "name": "yellow-marker",
+      "category": "video",
+      "track": "video",
+      "lane": 2,
+      "start": 10,
+      "duration": 2,
+      "source_start": 0.25,
+      "source_duration": 4,
+      "source_has_audio": true
+    },
+    {
+      "id": "ef23b46e-350e-4e4d-9a9c-4d3a8663dae3",
+      "asset_id": "library:178993f2ab250d5c1f5672ac",
+      "name": "yellow-marker",
+      "category": "video",
+      "track": "video",
+      "lane": 2,
+      "start": 109,
+      "duration": 2,
+      "source_start": 0.25,
+      "source_duration": 4,
+      "source_has_audio": true
+    },
+    {
+      "id": "3ae8f3c3-ccc6-497e-9e1e-b52523f80f3e",
+      "asset_id": "library:178993f2ab250d5c1f5672ac",
+      "name": "yellow-marker",
+      "category": "video",
+      "track": "video",
+      "lane": 2,
+      "start": 209,
+      "duration": 2,
+      "source_start": 0.25,
+      "source_duration": 4,
+      "source_has_audio": true
+    }
+  ],
+  "audio": [
+    {
+      "second": 5,
+      "lag": 0,
+      "correlation": 0.99971640692007
+    },
+    {
+      "second": 10.5,
+      "lag": 0,
+      "correlation": 0.9999551752011218
+    },
+    {
+      "second": 12.5,
+      "lag": 0,
+      "correlation": 0.9999500019220301
+    },
+    {
+      "second": 100,
+      "lag": 0,
+      "correlation": 0.999636665188951
+    },
+    {
+      "second": 109.5,
+      "lag": 0,
+      "correlation": 0.9995666078455496
+    },
+    {
+      "second": 111.5,
+      "lag": 0,
+      "correlation": 0.9983648833082891
+    },
+    {
+      "second": 200,
+      "lag": 0,
+      "correlation": 0.9997163585444544
+    },
+    {
+      "second": 209.5,
+      "lag": 0,
+      "correlation": 0.9995410148374779
+    },
+    {
+      "second": 211.5,
+      "lag": 0,
+      "correlation": 0.999748240863534
+    }
+  ],
+  "markers": [
+    {
+      "frame": 315,
+      "matched": true
+    },
+    {
+      "frame": 3282,
+      "matched": true
+    },
+    {
+      "frame": 6279,
+      "matched": true
+    }
+  ],
+  "inputsUnchanged": true
+}
