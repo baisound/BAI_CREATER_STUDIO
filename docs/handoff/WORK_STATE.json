@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T01:22:51+09:00",
+  "updated_at": "2026-11-08T01:24:28+09:00",
   "updated_by": "codex",
   "branch": "codex/audio-mix-level-sync-20261108",
-  "head_at_update": "3cfae54",
+  "head_at_update": "95f5f9f",
   "current": {
     "task": "Issue #81 混音音量一致のmainと制作画面同期を記録",
-    "status": "in_progress",
+    "status": "done",
     "step": "main3cfae54・8765非表示再起動・同一ソース/読み取りChrome・515ファイル保持を正本へ記録",
     "design_doc": "docs/v05/AUDIO_MIX_LEVEL_20261108_JA.md"
   },
   "next_steps": [
-    "検証済みPRをmainへ統合し利用者main/開発木/8765と515ファイル保持を確認する"
+    "順3 #81のOGG/FLAC/M4A等の形式別対応/拒否・切替境界品質など既存受入れ条件を照合し次の未完成項目へ進める。AUDIO-001対象外ミキサーを無断追加しない。順4/5は維持"
   ],
   "unverified": [
-    "切替直後AAC過渡・聴感/Linuxブラウザー/全形式・非クリップ保証/行別音量とミキサー/全Undo・順3全体は未完了。順4/5と証拠ゲート/依存監査を維持"
+    "切替直後AAC過渡/聴感/Linuxブラウザー/全形式/非クリップ保証/行別音量・ミキサー/全Undo・順3全体は未完了。証拠ゲート2失敗/依存監査3件を維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T01:24:28+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "95f5f9f",
+      "text": "main3cfae54・利用者/開発木・8765非表示再起動/新混音グラフと読み取りChrome・515ファイル不変を正本へ記録"
+    },
     {
       "at": "2026-11-08T01:22:51+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "d01b7d8",
       "text": "LIP-001合成候補も公式SDK/Chromeネイティブへ試験拡張。画面/SDK/WebMCP候補が全バイト同一、91モーフキーと全キー読戻し、古いrevision/不連続/失効の拒否を確認。初回Chrome通信不足1失敗、隔離再実行Windows2成功。原本とdata hash一致、型成功。製品コード変更なし"
-    },
-    {
-      "at": "2026-11-06T12:41:29+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "32ad26b",
-      "text": "Issue #187 合成VMD候補の公式SDKとネイティブWebMCP: 既存の画面合成候補試験を公式SDKと実Chromeネイティブ呼出しへ拡張し、全キー再読込・バイト同一・不連続と失効拒否を照合する"
     }
   ]
 }

@@ -1,0 +1,48 @@
+{
+  "implementationCommit": "3fbbbf5300353f3a1531b1597f60014a7e3d3b76",
+  "pullRequest": 268,
+  "mergedMain": "3cfae54c8a1b4514dcb52003daaf44d012a03a41",
+  "server": {
+    "oldPid": 79656,
+    "newPid": 56912,
+    "hiddenRestart": true,
+    "activeSavedJobsBeforeRestart": 0
+  },
+  "mainRenderModule": {
+    "path": "D:\\BAI\\BAI_CREATER_STUDIO\\BAI_Creator_Studio\\bai_studio\\v05\\render\\media_render.py",
+    "sha256": "8ad08ad7bac9c1cfdd7e2ac2e6df6e3c032f7e860e9a8e28a3e6736c3a09237d",
+    "normalizeDisabled": true
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80"
+    },
+    "studio/v05/js/project-media-preview-v68.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "e786fd713246f8895128cfdf20f807e178201ba365bf423178ac5cedf94b0246"
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "7116e0fcab8d8aa89585a506cbc428fc30709bc693de1fcfc55dd1498fd5643d"
+    }
+  },
+  "chrome": {
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "mediaPreviewReady": true,
+    "renderJobToolRegistered": true,
+    "native": true,
+    "registeredTools": 64,
+    "mediaVolumes": []
+  },
+  "dataGuard": {
+    "files": 515,
+    "aggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "dirtyListUnchanged": true,
+    "excludes": "data/logs"
+  }
+}
