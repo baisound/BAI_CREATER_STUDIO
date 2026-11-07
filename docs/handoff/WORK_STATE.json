@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T01:06:57+09:00",
+  "updated_at": "2026-11-08T01:20:37+09:00",
   "updated_by": "codex",
   "branch": "codex/audio-mix-level-20261108",
-  "head_at_update": "fd67648",
+  "head_at_update": "4a76c31",
   "current": {
     "task": "Issue #81 順3のプレビューとMP4混音音量一致",
-    "status": "in_progress",
+    "status": "done",
     "step": "FFmpeg暗黙正規化とHTML既定音量の差を実PCMで再現し、時刻/ミュート/出力範囲を保って一致させる",
     "design_doc": "docs/v05/AUDIO_MIX_LEVEL_20261108_JA.md"
   },
   "next_steps": [
-    "順3 #81に残る混音音量一致/音量調整・ミキサー等を既存受入れ条件と照合し次の未完成項目へ進める。順4の54件読み/自然さ/候補最終採用と順5判定は維持"
+    "検証済みPRをmainへ統合し利用者main/開発木/8765と515ファイル保持を確認する"
   ],
   "unverified": [
-    "Linuxブラウザー/聴感/全形式・混音音量一致/行別ミキサー・全Undo・一般外部編集自動同期・順3全体は未完了。証拠ゲート2失敗/依存監査3件を保持"
+    "切替直後AAC過渡・聴感/Linuxブラウザー/全形式・非クリップ保証/行別音量とミキサー/全Undo・順3全体は未完了。順4/5と証拠ゲート/依存監査を維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T01:20:37+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4a76c31",
+      "text": "MP4の暗黙正規化を外してプレビュー元音量加算へ一致。Windows/Ubuntu各Python28・Node2、実再生PCM/長尺117窓・旧完成物保持、回帰3成功2skipを記録"
+    },
     {
       "at": "2026-11-08T01:06:57+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "6cca466",
       "text": "LIP-001の9操作を公式SDK2.4とChrome156ネイティブWebMCPで検証。29.97fps/非0開始SRTの保存・別名VMD候補hash・採用解除UndoRedo・再読込がWindows2成功。Ubuntu SDK1成功1browser skip。原本とdata hash一致、型成功。製品コード変更なし"
-    },
-    {
-      "at": "2026-11-06T12:33:31+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7a62d20",
-      "text": "Issue #187 LIPの公式SDKとネイティブWebMCP: 既存のSRTから読み・下書き・候補・採用操作を公式SDKと実ChromeネイティブWebMCPで照合し、保存再読込と拒否時不変を検証する"
     }
   ]
 }
