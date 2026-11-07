@@ -520,8 +520,8 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
         if item["kind"] in {"audio", "video"} and item.get("has_audio"):
             label = f"audio{order}"
             delay = round(cstart * 1000)
-            # Keep the mixer input count stable: muting one track must not
-            # increase the gain of the remaining tracks through amix normalization.
+            # Match the preview's unity-gain media elements. Muting an input
+            # must not change the gain of the other clips.
             mute = "volume=0," if item.get("audio_muted") else ""
             audio.append(f"[{idx}:a]atrim=start={_num(source_start)}:duration={_num(length)},asetpts=PTS-STARTPTS,"
                          f"aresample=48000,aformat=channel_layouts=stereo,{mute}adelay={delay}|{delay}[{label}]")
@@ -537,7 +537,7 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
         graph.append("[vflat][vscene]overlay=0:0:shortest=1:format=auto[vout]")
     if len(audio_labels) > 1:
         audio.append("".join(f"[{label}]" for label in audio_labels) +
-                     f"amix=inputs={len(audio_labels)}:duration=longest:dropout_transition=0[amixed]")
+                     f"amix=inputs={len(audio_labels)}:duration=longest:dropout_transition=0:normalize=0[amixed]")
         source = "amixed"
     else:
         source = "asilence"
