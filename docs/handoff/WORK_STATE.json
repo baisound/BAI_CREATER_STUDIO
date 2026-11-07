@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-06T22:00:26+09:00",
+  "updated_at": "2026-11-07T09:06:17+09:00",
   "updated_by": "codex",
-  "branch": "codex/mp3-timeline-sync-20261106",
-  "head_at_update": "24d5c6a",
+  "branch": "codex/audio-music-lanes-20261107",
+  "head_at_update": "c87aa95",
   "current": {
-    "task": "Issue #81 MP3元区間のmain/制作画面同期を引き継ぐ",
-    "status": "done",
-    "step": "main7e63b5c・手元/開発木・8765再起動/実尺/両MCP・515ファイル不変・Issue画像実表示を正本へ記録",
-    "design_doc": "docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md"
+    "task": "Issue #81 順3の複数音声・楽曲行",
+    "status": "in_progress",
+    "step": "安定した音声/楽曲行の追加・空行削除・元区間/名前保存をUI/API/両MCPへ接続し、重なりPCMと再読込を隔離検証する",
+    "design_doc": "docs/v05/AUDIO_MUSIC_LANES_20261107_JA.md"
   },
   "next_steps": [
     "順3 #81の残り（音声形式別・複数音声/楽曲行・混音音量/保存等）を現行証拠と照合して次の未完成受入れ条件へ進める。順4の54件読み/自然さ/候補採用と未判定の順5を維持する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-07T09:06:17+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "c87aa95",
+      "text": "Issue #81 順3の複数音声・楽曲行: 安定した音声/楽曲行の追加・空行削除・元区間/名前保存をUI/API/両MCPへ接続し、重なりPCMと再読込を隔離検証する"
+    },
     {
       "at": "2026-11-06T22:00:26+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "04a2491",
       "text": "Issue #37/#81 動画素材詳細の再生可否と見本: ③と②の素材詳細で映像を復号できないOGVを理由表示し、見本を誤生成しない。切替時停止と再読込・対応動画/音声の回帰を実機確認する"
-    },
-    {
-      "at": "2026-11-06T10:00:06+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2b25713",
-      "text": "PR249をmain2b25713へマージし利用者main・開発ブランチ・8765へ同期。既存完成物4件を新一覧APIで確認。515ファイルと変更一覧は不変。全体現在地と工数の整理、DL4回hash一致、対象Node6成功1skip・Win15/Ubuntu5成功を記録"
     }
   ]
 }
