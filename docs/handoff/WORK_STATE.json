@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-07T09:29:55+09:00",
+  "updated_at": "2026-11-07T09:33:02+09:00",
   "updated_by": "codex",
-  "branch": "codex/audio-music-lanes-20261107",
-  "head_at_update": "62d738c",
+  "branch": "codex/audio-music-lanes-sync-20261107",
+  "head_at_update": "cefc0cc",
   "current": {
-    "task": "Issue #81 順3の複数音声・楽曲行",
-    "status": "done",
-    "step": "安定した音声/楽曲行の追加・空行削除・元区間/名前保存をUI/API/両MCPへ接続し、重なりPCMと再読込を隔離検証する",
+    "task": "Issue #81 複数音声・楽曲行のmainと制作画面同期を引き継ぐ",
+    "status": "in_progress",
+    "step": "main cefc0cc・手元/開発木・8765非表示起動と新UI/両MCP・515ファイル不変・Issue画像表示を正本へ記録",
     "design_doc": "docs/v05/AUDIO_MUSIC_LANES_20261107_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-07T09:33:02+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cefc0cc",
+      "text": "Issue #81 複数音声・楽曲行のmainと制作画面同期を引き継ぐ: main cefc0cc・手元/開発木・8765非表示起動と新UI/両MCP・515ファイル不変・Issue画像表示を正本へ記録"
+    },
     {
       "at": "2026-11-07T09:29:55+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "bcac4c0",
       "text": "Issue #80/#81 画像の複数行とネイティブMCP・出力: 画像行追加・空行削除を両MCPから既存APIへ接続し、安定行ID・移動・保存再読込・重なり順を完成MP4で検証する"
-    },
-    {
-      "at": "2026-11-06T12:21:27+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "31690d7",
-      "text": "DATA-016/UX-004の③②素材詳細でOGV理由表示・空見本防止・切替停止・見本更新の再生維持を修正。Chrome対象1成功、関連39件38成功1ソケット不足、単独4成功。型・入力hash保持"
     }
   ]
 }
