@@ -99,3 +99,10 @@ SRT原本のBase64バイト取込、読み、候補、下書き、別名モー�
 ### 2026-11-06 保存済み動画・音声のハサミ分割
 
 `bai_studio_clip_split` を標準MCP/WebMCPへ追加。入力は `project_id`、`clip_id`、最新の `revision`、作品内の秒 `split_at`。元ファイルを保ち、右片の元素材開始位置を分割分だけ進める。既存の手動ハサミと同じAPI `/api/studio/v05/arrangement/clip/split` を使い、動画/音声/楽曲だけが対象。両片0.1秒以上、ロック/古いrevision/元尺超過は拒否する。後続の位置変更と再伸長は既存clip_edit。MP3は実際に復号されるサンプル数の尺で検査する。既存の保存とツール入力は保持する。[契約・再実行・未検証](docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md)。
+
+
+## 2026-11-07 音声・楽曲の複数行
+
+`bai_studio_track_layout_set` の既存5actionへ `add_audio_lane` / `remove_audio_lane` / `add_music_lane` / `remove_music_lane` を追加。追加はproject_id/revision/action、削除はlaneも必須。各種最大16行、削除は空行だけ、最後の行は残す。削除番号は再使用しない。行IDはlayout_getのaudio_lane_ids/music_lane_idsを読み、clip_place/editのlaneへ指定する。同種editでlaneを省略すると元行を保持する。ロック/ミュートは音声全行または楽曲全行に作用する。旧5action/省略updateとツール数（標準128、共通Web64）は維持。
+
+手動UIと同じ保存APIを使う。外部MCP編集を試験した後は作品を明示的に読み直した。画面の一般的な自動同期・行別音量/ミキサーの完成を示さない。[仕様・操作・試験](docs/v05/AUDIO_MUSIC_LANES_20261107_JA.md)。

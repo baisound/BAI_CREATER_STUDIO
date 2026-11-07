@@ -38,7 +38,7 @@ async function scenario(native) {
     await client.connect(transport);
     const tools = (await client.listTools()).tools;
     const layoutSchema = tools.find(t => t.name === 'bai_studio_track_layout_set').inputSchema;
-    assert.deepEqual(layoutSchema.properties.action.enum, ['update', 'add_image_lane', 'remove_image_lane', 'add_video_lane', 'remove_video_lane']);
+    assert.deepEqual(layoutSchema.properties.action.enum, ['update', 'add_image_lane', 'remove_image_lane', 'add_video_lane', 'remove_video_lane', 'add_audio_lane', 'remove_audio_lane', 'add_music_lane', 'remove_music_lane']);
     assert.deepEqual(layoutSchema.required, ['project_id', 'revision']);
     const id = (await sdk('bai_studio_project_create', { name: '画像行の保存と重ね順', kind: 'empty' })).project.id;
     await sdk('bai_studio_project_fps_set', { project_id: id, fps: 30 });
