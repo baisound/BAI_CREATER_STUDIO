@@ -1,0 +1,99 @@
+{
+  "implementationCommit": "1f4719f6bf953640b0c2eafdaca3857961165413",
+  "pullRequest": 266,
+  "mergedMain": "cefc0cc9e18755fa30a35f1a9f0ace39024c8d32",
+  "server": {
+    "previousRecordedPid": 78316,
+    "newPid": 79656,
+    "previousServerAbsentAtSync": true,
+    "activeSavedJobsBeforeStart": 0,
+    "hiddenStart": true
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80"
+    },
+    "studio/v05/js/asset-workflow-v06.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "2ca7adde51c30a6b3454be3e7a01449d321eaacfe3ffec2da1f0d131fd87ee9d"
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "7116e0fcab8d8aa89585a506cbc428fc30709bc693de1fcfc55dd1498fd5643d"
+    }
+  },
+  "readOnlyLayout": {
+    "revision": 1,
+    "audio_lanes": 1,
+    "audio_lane_ids": [
+      1
+    ],
+    "next_audio_lane_id": 2,
+    "music_lanes": 1,
+    "music_lane_ids": [
+      1
+    ],
+    "next_music_lane_id": 2
+  },
+  "chrome": {
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "native": true,
+    "registeredCount": 64,
+    "totalNativeTools": 69,
+    "actions": [
+      "update",
+      "add_image_lane",
+      "remove_image_lane",
+      "add_video_lane",
+      "remove_video_lane",
+      "add_audio_lane",
+      "remove_audio_lane",
+      "add_music_lane",
+      "remove_music_lane"
+    ],
+    "audioAdd": "＋ 音声の行",
+    "musicAdd": "＋ 楽曲の行",
+    "audioRemove": "空の音声行を削除",
+    "musicRemove": "空の楽曲行を削除",
+    "audioLaneIds": [
+      1
+    ],
+    "musicLaneIds": [
+      1
+    ]
+  },
+  "standardMcp": {
+    "tools": 128,
+    "actions": [
+      "update",
+      "add_image_lane",
+      "remove_image_lane",
+      "add_video_lane",
+      "remove_video_lane",
+      "add_audio_lane",
+      "remove_audio_lane",
+      "add_music_lane",
+      "remove_music_lane"
+    ]
+  },
+  "issueComment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6699626502",
+  "issueImage": {
+    "complete": true,
+    "width": 1440,
+    "height": 900,
+    "visible": true,
+    "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/1f4719f6bf953640b0c2eafdaca3857961165413/qa/audio-music-lanes-ui-20261107.png",
+    "sha256": "016a52ebd2f73f75227ba783736cf01b3d83dbcaa545c2ac97def71b7d0f79c1"
+  },
+  "dataGuard": {
+    "files": 515,
+    "aggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "dirtyListUnchanged": true,
+    "excludes": "data/logs"
+  }
+}

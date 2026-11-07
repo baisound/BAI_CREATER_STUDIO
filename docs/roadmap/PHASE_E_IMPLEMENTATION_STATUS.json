@@ -422,7 +422,7 @@
       "phase_e_wp": "AUDIO-001・DATA-002/008・RENDER-006、再構築ロードマップ順3",
       "planned_in": "V05-AUDIO-MUSIC-LANES-20261107",
       "status": "partial_verified",
-      "commit": "本項を追加する実装コミット（複数音声と楽曲行を保存と出力へ接続）。main同期記録で確定hashを追記",
+      "commit": "1f4719f（PR #266、main cefc0cc）",
       "tests": "2026-11-07、#81の複数音声・楽曲行（各最大16・安定ID・空行のみ削除）を手動UI/API/両MCPへ接続。旧保存/名前互換、元区間・分割/移動・保存再読込、種類ごとの全行ミュートと混音を限定確認。Windows/Ubuntu各Python58・Node2成功、Windows関連回帰6成功2実データskip。実曲WAVと登録MP3を重ねた29.97fps/6924Fの完成MP4で各119窓（有音117）のPCM時刻差0/8kHz。Linuxブラウザー/聴感/混音音量一致/行別ミキサー/全Undoは未完了。docs/v05/AUDIO_MUSIC_LANES_20261107_JA.md",
       "unverified": "Linuxブラウザー/ネイティブ・スピーカー聴感・全音声形式・混音音量一致/行別ミキサー・全Undo・24時間性能。外部MCP編集後の画面一般自動同期は今回完成に含めない。順3全体は未完成。順4の54件読み/自然さ/候補最終採用と順5判定を維持"
     }
