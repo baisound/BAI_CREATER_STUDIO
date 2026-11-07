@@ -51,9 +51,10 @@ def read(root,catalog,project_id):
 
 def _lane(lane,track,layout):
     if type(lane) is not int or lane<1:raise ArrangementError('Invalid lane')
-    if track not in {'image','video'} and lane!=1:raise ArrangementError('Only image and video tracks support multiple lanes')
+    if track not in {'image','video','audio','music'} and lane!=1:raise ArrangementError('This track does not support multiple lanes')
     if track=='image' and lane not in layout.get('image_lane_ids',range(1,layout.get('image_lanes',1)+1)):raise ArrangementError('Image lane does not exist')
     if track=='video' and lane not in layout.get('video_lane_ids',[1]):raise ArrangementError('Video lane does not exist')
+    if track in {'audio','music'} and lane not in layout.get(track+'_lane_ids',[1]):raise ArrangementError('Audio lane does not exist')
     return lane
 
 def _source_window(category, source_start, duration, source_duration):
@@ -126,14 +127,14 @@ def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,durat
             locked=set(layout.get('locked',[]))
             if clip['track'] in locked or (action=='update' and track in locked):raise ArrangementError('Track locked')
         if action=='update':
-            _lane(clip.get('lane',1) if lane is None and track in {'image','video'} and track==clip['track'] else (1 if lane is None else lane),track,layout)
+            _lane(clip.get('lane',1) if lane is None and track in {'image','video','audio','music'} and track==clip['track'] else (1 if lane is None else lane),track,layout)
             effective_source=clip.get('source_start',0) if source_start is None else source_start
             effective_duration=clip.get('source_duration') if source_duration is None else source_duration
             _source_window(clip.get('category'),effective_source,duration,effective_duration)
         before=dict(clip)
         if action=='delete':data['clips'].remove(clip)
         else:
-            clip.update(start=round(start,4),duration=round(duration,4),track=track,lane=clip.get('lane',1) if lane is None and track in {'image','video'} and track==clip['track'] else (1 if lane is None else lane))
+            clip.update(start=round(start,4),duration=round(duration,4),track=track,lane=clip.get('lane',1) if lane is None and track in {'image','video','audio','music'} and track==clip['track'] else (1 if lane is None else lane))
             if clip.get('category') in {'video','audio','music'}:
                 clip['source_start']=round(effective_source,4)
                 if effective_duration is not None:clip['source_duration']=round(effective_duration,4)

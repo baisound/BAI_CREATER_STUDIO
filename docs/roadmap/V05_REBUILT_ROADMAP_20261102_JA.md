@@ -212,3 +212,8 @@ GLB→VMDとモーション編集の残りを[順5詳細設計](R5_GLB_VMD_MOTIO
 ### 2026-11-06 MP3の実尺・分割と長尺同期（順3、#81/#82）
 
 2026-11-06、#81/#82のMP3元区間と長尺同期を限定検証。MP3の実尺を復号サンプル数から求め、旧FFmpegの圧縮余白による尺超過を修正。旧保存を無断トリムしない。既存分割をbai_studio_clip_splitで両MCPへ接続。Windows/Ubuntu各Python38・Node3成功、Windows既存MCP回帰2成功。各OS7本・733窓のPCM差は最大1sample/48kHz。長尺は実WAV由来MP3、登録原MP3は約14秒見本。全MP3/聴感/Linuxブラウザー・音量一致/ミキサー等は未完了。docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md
+
+
+### 2026-11-07 複数音声・楽曲行（順3）
+
+2026-11-07、#81の複数音声・楽曲行（各最大16・安定ID・空行のみ削除）を手動UI/API/両MCPへ接続。旧保存/名前互換、元区間・分割/移動・保存再読込、種類ごとの全行ミュートと混音を限定確認。Windows/Ubuntu各Python58・Node2成功、Windows関連回帰6成功2実データskip。実曲WAVと登録MP3を重ねた29.97fps/6924Fの完成MP4で各119窓（有音117）のPCM時刻差0/8kHz。Linuxブラウザー/聴感/混音音量一致/行別ミキサー/全Undoは未完了。docs/v05/AUDIO_MUSIC_LANES_20261107_JA.md

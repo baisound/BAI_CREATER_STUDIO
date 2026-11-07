@@ -1,0 +1,349 @@
+{
+  "native": false,
+  "apiOnly": true,
+  "layout": {
+    "project_id": "a08a9fa0-1885-4444-a0d6-5bd4242934be",
+    "revision": 14,
+    "order": [
+      "audio",
+      "music",
+      "camera",
+      "effect",
+      "expression",
+      "image",
+      "light",
+      "lip",
+      "model",
+      "motion",
+      "video"
+    ],
+    "heights": {},
+    "locked": [],
+    "muted": [],
+    "image_lanes": 1,
+    "image_lane_ids": [
+      1
+    ],
+    "next_image_lane_id": 2,
+    "labels": {
+      "audio": "旧音声名",
+      "music": "旧楽曲名"
+    },
+    "video_lanes": 1,
+    "video_lane_ids": [
+      1
+    ],
+    "next_video_lane_id": 2,
+    "audio_lanes": 3,
+    "audio_lane_ids": [
+      1,
+      3,
+      4
+    ],
+    "next_audio_lane_id": 5,
+    "music_lanes": 3,
+    "music_lane_ids": [
+      1,
+      3,
+      4
+    ],
+    "next_music_lane_id": 5
+  },
+  "savedClips": [
+    {
+      "id": "215b3005-9509-456c-843a-8230adce3dbf",
+      "asset_id": "library:ceb25ba3cedd3b0daf0ee4d8",
+      "name": "voice-440",
+      "category": "audio",
+      "track": "audio",
+      "lane": 1,
+      "start": 0,
+      "duration": 8,
+      "source_start": 0,
+      "source_duration": 8,
+      "source_has_audio": true
+    },
+    {
+      "id": "c9426462-08a5-4735-a6e5-1747dc1a7bcc",
+      "asset_id": "library:608af5606d3ed840a7c0f376",
+      "name": "voice-660",
+      "category": "audio",
+      "track": "audio",
+      "lane": 3,
+      "start": 1,
+      "duration": 4,
+      "source_start": 0.5,
+      "source_duration": 8,
+      "source_has_audio": true
+    },
+    {
+      "id": "69d95efd-f102-4c6e-b3ce-bc96847c8a7b",
+      "asset_id": "library:9636762efd8cc544794f3c6a",
+      "name": "voice-880",
+      "category": "audio",
+      "track": "music",
+      "lane": 3,
+      "start": 2,
+      "duration": 2,
+      "source_start": 0.25,
+      "source_duration": 8,
+      "source_has_audio": true
+    },
+    {
+      "id": "db2b22a6-2fd3-45ca-9fa1-6187bbece772",
+      "asset_id": "library:eb17b2a4824998a448e4c90b",
+      "name": "blue",
+      "category": "image",
+      "track": "image",
+      "lane": 1,
+      "start": 0,
+      "duration": 8
+    }
+  ],
+  "outputs": [
+    {
+      "muted": [],
+      "sha256": "485dfcabdfcf74a0aeec9905f2fbd2f316cd031b0bbd06e4ad88996c92a70b0a",
+      "frames": 180,
+      "checks": [
+        {
+          "time": 0.2,
+          "amps": [
+            722.9974388675748,
+            0.007494383103188836,
+            0.008932866592278892
+          ]
+        },
+        {
+          "time": 1.2,
+          "amps": [
+            723.2210972911163,
+            687.0488533432117,
+            0.013558758481760146
+          ]
+        },
+        {
+          "time": 2.2,
+          "amps": [
+            723.3723529083417,
+            686.9386769897458,
+            723.2608421673305
+          ]
+        },
+        {
+          "time": 4.2,
+          "amps": [
+            964.4056088872533,
+            915.6758925791208,
+            0.012553828022453287
+          ]
+        },
+        {
+          "time": 5.2,
+          "amps": [
+            1447.5785023751096,
+            0.006637676014058294,
+            0.006299771300358436
+          ]
+        }
+      ]
+    },
+    {
+      "muted": [
+        "audio"
+      ],
+      "sha256": "ff495504c6758bed62e7baff99f03053f14a7303bdb09ed1303b46623012435e",
+      "frames": 180,
+      "checks": [
+        {
+          "time": 0.2,
+          "amps": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "time": 1.2,
+          "amps": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "time": 2.2,
+          "amps": [
+            0.007850393771752583,
+            0.011570373322282236,
+            723.1310019410839
+          ]
+        },
+        {
+          "time": 4.2,
+          "amps": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "time": 5.2,
+          "amps": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "muted": [
+        "music"
+      ],
+      "sha256": "ded7b914f777c743057e777005a5db70126bdcf7826d0dd555dcabd19540fe8f",
+      "frames": 180,
+      "checks": [
+        {
+          "time": 0.2,
+          "amps": [
+            722.9974388675748,
+            0.007494383103188836,
+            0.008932866592278892
+          ]
+        },
+        {
+          "time": 1.2,
+          "amps": [
+            723.2210972911163,
+            687.0488533432117,
+            0.013558758481760146
+          ]
+        },
+        {
+          "time": 2.2,
+          "amps": [
+            723.353795435708,
+            686.9129300205628,
+            0.0012481064976317762
+          ]
+        },
+        {
+          "time": 4.2,
+          "amps": [
+            964.4056931210754,
+            915.6747682692213,
+            0.012861706806526296
+          ]
+        },
+        {
+          "time": 5.2,
+          "amps": [
+            1447.5785023751096,
+            0.006637676014058294,
+            0.006299771300358436
+          ]
+        }
+      ]
+    },
+    {
+      "muted": [
+        "audio",
+        "music"
+      ],
+      "sha256": "611c72e6cbabd9d9ec2a1d3021e5944ccaebdda9fc8adb7d524125af8c84c7c4",
+      "frames": 180,
+      "checks": [
+        {
+          "time": 0.2,
+          "amps": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "time": 1.2,
+          "amps": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "time": 2.2,
+          "amps": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "time": 4.2,
+          "amps": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "time": 5.2,
+          "amps": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "muted": [],
+      "sha256": "485dfcabdfcf74a0aeec9905f2fbd2f316cd031b0bbd06e4ad88996c92a70b0a",
+      "frames": 180,
+      "checks": [
+        {
+          "time": 0.2,
+          "amps": [
+            722.9974388675748,
+            0.007494383103188836,
+            0.008932866592278892
+          ]
+        },
+        {
+          "time": 1.2,
+          "amps": [
+            723.2210972911163,
+            687.0488533432117,
+            0.013558758481760146
+          ]
+        },
+        {
+          "time": 2.2,
+          "amps": [
+            723.3723529083417,
+            686.9386769897458,
+            723.2608421673305
+          ]
+        },
+        {
+          "time": 4.2,
+          "amps": [
+            964.4056088872533,
+            915.6758925791208,
+            0.012553828022453287
+          ]
+        },
+        {
+          "time": 5.2,
+          "amps": [
+            1447.5785023751096,
+            0.006637676014058294,
+            0.006299771300358436
+          ]
+        }
+      ]
+    }
+  ],
+  "inputsUnchanged": true,
+  "refusalsPreserveState": true
+}

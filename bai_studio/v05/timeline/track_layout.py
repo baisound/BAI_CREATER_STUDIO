@@ -11,26 +11,28 @@ def _label_text(label):
         raise ArrangementError('Emoji or control characters are not allowed in track labels')
     return label
 
-def _label_key(key,ids,video_ids=()):
-    if type(key) is not str or key not in (TRACKS-{'image'})|{'image:'+str(i) for i in ids}|{'video:'+str(i) for i in video_ids}:
+def _label_key(key,ids,video_ids=(),audio_ids=(),music_ids=()):
+    lane_keys={track+':'+str(i) for track,lanes in [('image',ids),('video',video_ids),('audio',audio_ids),('music',music_ids)] for i in lanes}
+    if type(key) is not str or key not in (TRACKS-{'image'})|lane_keys:
         raise ArrangementError('Invalid track label key')
     return key
 
-def _video_lanes(d):
-    count=d.get('video_lanes',1)
-    ids=d.get('video_lane_ids',list(range(1,count+1)) if type(count) is int and 1<=count<=16 else [])
-    if (type(count) is not int or not 1<=count<=16 or not isinstance(ids,list) or len(ids)!=count or
-        any(type(i) is not int or not 1<=i<=2147483646 for i in ids) or ids!=sorted(set(ids))):
-        raise ArrangementError('Invalid video lane IDs')
-    next_id=d.get('next_video_lane_id',max(ids)+1)
-    if type(next_id) is not int or not max(ids)<next_id<=2147483647:raise ArrangementError('Invalid next video lane ID')
-    d.update(video_lanes=count,video_lane_ids=ids,next_video_lane_id=next_id)
+def _media_lanes(d):
+    for track in ('video','audio','music'):
+        count=d.get(track+'_lanes',1)
+        ids=d.get(track+'_lane_ids',list(range(1,count+1)) if type(count) is int and 1<=count<=16 else [])
+        if (type(count) is not int or not 1<=count<=16 or not isinstance(ids,list) or len(ids)!=count or
+            any(type(i) is not int or not 1<=i<=2147483646 for i in ids) or ids!=sorted(set(ids))):
+            raise ArrangementError('Invalid '+track+' lane IDs')
+        next_id=d.get('next_'+track+'_lane_id',max(ids)+1)
+        if type(next_id) is not int or not max(ids)<next_id<=2147483647:raise ArrangementError('Invalid next '+track+' lane ID')
+        d.update({track+'_lanes':count,track+'_lane_ids':ids,'next_'+track+'_lane_id':next_id})
     return d
 
 def get(root,catalog,project_id):
     _project(catalog,project_id)
     p=Path(root)/(project_id+'.json')
-    if not p.exists():return _video_lanes({'project_id':project_id,'revision':0,'order':sorted(TRACKS),'heights':{},'locked':[],'muted':[],'image_lanes':1,'image_lane_ids':[1],'next_image_lane_id':2,'labels':{}})
+    if not p.exists():return _media_lanes({'project_id':project_id,'revision':0,'order':sorted(TRACKS),'heights':{},'locked':[],'muted':[],'image_lanes':1,'image_lane_ids':[1],'next_image_lane_id':2,'labels':{}})
     d=json.loads(p.read_text(encoding='utf-8'))
     if d.get('project_id')!=project_id or type(d.get('revision')) is not int or not isinstance(d.get('order'),list) or set(d['order'])!=TRACKS or len(d['order'])!=len(TRACKS) or not isinstance(d.get('heights'),dict):raise ArrangementError('Invalid track layout')
     if any(k not in TRACKS or type(v) is not int or not 28<=v<=160 for k,v in d['heights'].items()):raise ArrangementError('Invalid track heights')
@@ -46,8 +48,8 @@ def get(root,catalog,project_id):
     d['image_lane_ids']=ids;d['next_image_lane_id']=next_id
     labels=d.get('labels',{})
     if not isinstance(labels,dict):raise ArrangementError('Invalid track labels')
-    _video_lanes(d)
-    for key,label in labels.items():_label_key(key,ids,d['video_lane_ids']);_label_text(label)
+    _media_lanes(d)
+    for key,label in labels.items():_label_key(key,ids,d['video_lane_ids'],d['audio_lane_ids'],d['music_lane_ids']);_label_text(label)
     d['labels']=labels
     return d
 def update(root,catalog,project_id,revision,order,heights):
@@ -101,8 +103,8 @@ def set_label(root,catalog,project_id,revision,key,label):
     with LOCK:
         d=get(root,catalog,project_id)
         if d['revision']!=revision:raise ArrangementError('Revision conflict')
-        _label_key(key,d['image_lane_ids'],d['video_lane_ids'])
-        if key=='video:1':d['labels'].pop('video',None)  # explicit edit consumes the legacy row-1 alias
+        _label_key(key,d['image_lane_ids'],d['video_lane_ids'],d['audio_lane_ids'],d['music_lane_ids'])
+        if key in {'video:1','audio:1','music:1'}:d['labels'].pop(key.split(':')[0],None)  # explicit edit consumes the legacy row-1 alias
         if label is None:d['labels'].pop(key,None)
         else:d['labels'][key]=_label_text(label)
         d['revision']+=1
@@ -148,5 +150,38 @@ def remove_video_lane(root,catalog,arrangement_root,project_id,revision,lane):
             raise ArrangementError('Move or remove clips before removing this video lane')
         d['video_lane_ids'].remove(lane);d['video_lanes']=len(d['video_lane_ids'])
         d['labels'].pop('video:'+str(lane),None);d['revision']+=1
+        _atomic(Path(root)/(project_id+'.json'),d)
+        return d
+
+
+def add_audio_music_lane(root,catalog,project_id,revision,track):
+    if track not in {'audio','music'}:raise ArrangementError('Invalid audio lane track')
+    if type(revision) is not int or revision<0:raise ArrangementError('Invalid revision')
+    with LOCK:
+        d=get(root,catalog,project_id)
+        if d['revision']!=revision:raise ArrangementError('Revision conflict')
+        if d[track+'_lanes']>=16:raise ArrangementError('Audio lane limit reached')
+        if d['next_'+track+'_lane_id']>2147483646:raise ArrangementError('Audio lane ID limit reached')
+        d[track+'_lane_ids'].append(d['next_'+track+'_lane_id'])
+        d['next_'+track+'_lane_id']+=1;d[track+'_lanes']+=1;d['revision']+=1
+        _atomic(Path(root)/(project_id+'.json'),d)
+        return d
+
+
+def remove_audio_music_lane(root,catalog,arrangement_root,project_id,revision,lane,track):
+    if track not in {'audio','music'}:raise ArrangementError('Invalid audio lane track')
+    if type(revision) is not int or revision<0:raise ArrangementError('Invalid revision')
+    if type(lane) is not int or lane<1:raise ArrangementError('Invalid lane')
+    from bai_studio.v05.timeline.arrangement import LOCK as ARRANGEMENT_LOCK, read as read_arrangement
+    with ARRANGEMENT_LOCK, LOCK:
+        d=get(root,catalog,project_id)
+        if d['revision']!=revision:raise ArrangementError('Revision conflict')
+        if lane not in d[track+'_lane_ids']:raise ArrangementError('Audio lane does not exist')
+        if d[track+'_lanes']==1:raise ArrangementError('Cannot remove the last audio lane')
+        arrangement=read_arrangement(arrangement_root,catalog,project_id)
+        if any(c.get('track')==track and c.get('lane',1)==lane for c in arrangement['clips']):
+            raise ArrangementError('Move or remove clips before removing this audio lane')
+        d[track+'_lane_ids'].remove(lane);d[track+'_lanes']=len(d[track+'_lane_ids'])
+        d['labels'].pop(track+':'+str(lane),None);d['revision']+=1
         _atomic(Path(root)/(project_id+'.json'),d)
         return d

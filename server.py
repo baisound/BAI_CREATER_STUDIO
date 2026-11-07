@@ -1447,6 +1447,30 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError,TypeError,KeyError):self.bad(400,'Invalid image lane request')
             except OSError:self.bad(500,'Image lane write failed')
             return
+        audio_lane_routes={
+            '/api/studio/v05/timeline/audio-lanes':('audio',False),
+            '/api/studio/v05/timeline/music-lanes':('music',False),
+            '/api/studio/v05/timeline/audio-lanes/remove':('audio',True),
+            '/api/studio/v05/timeline/music-lanes/remove':('music',True),
+        }
+        if urlsplit(self.path).path in audio_lane_routes:
+            from bai_studio.v05.timeline.track_layout import add_audio_music_lane, remove_audio_music_lane, ArrangementError
+            try:
+                track,remove=audio_lane_routes[urlsplit(self.path).path]
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=8192:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                fields={'project_id','revision','lane'} if remove else {'project_id','revision'}
+                if not isinstance(body,dict) or set(body)!=fields:return self.bad(400,'Invalid audio lane request')
+                if remove:
+                    result=remove_audio_music_lane(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',DATA/'studio_v05_arrangements',body['project_id'],body['revision'],body['lane'],track)
+                else:
+                    result=add_audio_music_lane(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',body['project_id'],body['revision'],track)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
+            except (ValueError,TypeError,KeyError):self.bad(400,'Invalid audio lane request')
+            except OSError:self.bad(500,'Audio lane write failed')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/timeline/video-lanes':
             from bai_studio.v05.timeline.track_layout import add_video_lane, ArrangementError
             try:

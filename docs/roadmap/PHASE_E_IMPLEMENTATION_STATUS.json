@@ -416,6 +416,15 @@
       "commit": "638fb30（PR #264、main7e63b5c）",
       "tests": "Windows/Ubuntu各Python38・Node3成功。Windowsは手動UI/公式SDK/Chromeネイティブ、Ubuntu SDK/FFmpeg。登録原MP3約14秒＋実WAV230.2秒由来44.1/48kHz MP3の3FPS出力7本/各OS733窓でPCM差最大1sample/48kHz。旧保存元尺超過の拒否と原本不変、既存MCP回帰2成功、型/構文成功。docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md",
       "unverified": "全MP3/全実曲原MP3・破損/裸MP3/全VBR・24時間性能・Linuxブラウザー/ネイティブ・スピーカー聴感・音量一致/ミキサー/音声行増設・全Undo・新分割ツールの全媒体/クライアント。先行試験作成/参照PCM/通常権限失敗も保持。順3全体は未完成"
+    },
+    {
+      "item": "Issue #81 複数音声・楽曲行と重なり出力",
+      "phase_e_wp": "AUDIO-001・DATA-002/008・RENDER-006、再構築ロードマップ順3",
+      "planned_in": "V05-AUDIO-MUSIC-LANES-20261107",
+      "status": "partial_verified",
+      "commit": "本項を追加する実装コミット（複数音声と楽曲行を保存と出力へ接続）。main同期記録で確定hashを追記",
+      "tests": "2026-11-07、#81の複数音声・楽曲行（各最大16・安定ID・空行のみ削除）を手動UI/API/両MCPへ接続。旧保存/名前互換、元区間・分割/移動・保存再読込、種類ごとの全行ミュートと混音を限定確認。Windows/Ubuntu各Python58・Node2成功、Windows関連回帰6成功2実データskip。実曲WAVと登録MP3を重ねた29.97fps/6924Fの完成MP4で各119窓（有音117）のPCM時刻差0/8kHz。Linuxブラウザー/聴感/混音音量一致/行別ミキサー/全Undoは未完了。docs/v05/AUDIO_MUSIC_LANES_20261107_JA.md",
+      "unverified": "Linuxブラウザー/ネイティブ・スピーカー聴感・全音声形式・混音音量一致/行別ミキサー・全Undo・24時間性能。外部MCP編集後の画面一般自動同期は今回完成に含めない。順3全体は未完成。順4の54件読み/自然さ/候補最終採用と順5判定を維持"
     }
   ]
 }

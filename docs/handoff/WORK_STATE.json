@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-07T09:06:17+09:00",
+  "updated_at": "2026-11-07T09:29:55+09:00",
   "updated_by": "codex",
   "branch": "codex/audio-music-lanes-20261107",
-  "head_at_update": "c87aa95",
+  "head_at_update": "62d738c",
   "current": {
     "task": "Issue #81 順3の複数音声・楽曲行",
-    "status": "in_progress",
+    "status": "done",
     "step": "安定した音声/楽曲行の追加・空行削除・元区間/名前保存をUI/API/両MCPへ接続し、重なりPCMと再読込を隔離検証する",
     "design_doc": "docs/v05/AUDIO_MUSIC_LANES_20261107_JA.md"
   },
   "next_steps": [
-    "順3 #81の残り（音声形式別・複数音声/楽曲行・混音音量/保存等）を現行証拠と照合して次の未完成受入れ条件へ進める。順4の54件読み/自然さ/候補採用と未判定の順5を維持する"
+    "検証済み差分をPR/mainへ統合し手元main/開発木/8765と利用者515ファイル保持を確認する"
   ],
   "unverified": [
-    "全MP3/全実曲原MP3・裸/破損/全VBR・24時間性能・Linuxブラウザー/ネイティブ・聴感・音量一致/ミキサー/音声行増設/全Undo・新分割MCPの全媒体は未検証。既知の証拠ゲート2失敗と依存監査3件を保持"
+    "Linuxブラウザー/聴感/全形式・混音音量一致/行別ミキサー・全Undo・外部MCP後の一般画面自動同期・順3全体は未完了。順4の54件読み/自然さ/候補最終採用と順5判定を維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-07T09:29:55+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "62d738c",
+      "text": "複数音声/楽曲行をUI/API/両MCPへ接続。Windows/Ubuntu各Python58・Node2、6924F長尺/119窓PCM差0、旧保存不変、関連回帰6成功2skipを記録"
+    },
     {
       "at": "2026-11-07T09:06:17+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "31690d7",
       "text": "DATA-016/UX-004の③②素材詳細でOGV理由表示・空見本防止・切替停止・見本更新の再生維持を修正。Chrome対象1成功、関連39件38成功1ソケット不足、単独4成功。型・入力hash保持"
-    },
-    {
-      "at": "2026-11-06T12:06:12+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "04a2491",
-      "text": "Issue #37/#81 動画素材詳細の再生可否と見本: ③と②の素材詳細で映像を復号できないOGVを理由表示し、見本を誤生成しない。切替時停止と再読込・対応動画/音声の回帰を実機確認する"
     }
   ]
 }
