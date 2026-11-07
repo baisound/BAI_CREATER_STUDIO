@@ -36,3 +36,7 @@
 `python -X utf8 -m pytest -q tests/test_v05_track_audio_mute.py tests/test_v05_render_fractional_fps.py tests/test_studio_v05_render_range.py tests/test_studio_v05_render_names.py`、`node tests/run-guarded.cjs tests/studio-v05-audio-mix-level.test.cjs`（`BAI_REAL_MMD_DATA` で実登録data、`BAI_MIX_OUT` で確認先、Linuxは `BAI_MIX_API_ONLY=1`）。WindowsのChromeは `CHROMIUM_PATH` で指定。変更前再現は修正前HEADで `BAI_MIX_BASELINE=1` を指定。
 
 修正後に作る出力は、従来の自動減衰されたMP4より大きくなる場合がある。原音量の重ね合わせを保持する修正であり、非クリップ保証や音量自動調整ではない。既存の完成MP4は変更しない。切替直後のAAC過渡/実スピーカー聴感/全形式・全作品/Linuxブラウザー/行別音量・ミキサー/全Undoは未完了。順3全体、順4の54件読み/自然さ/候補最終採用、未判定の順5と従来ゲート/依存監査は維持する。
+
+## mainと制作画面の同期
+
+実装3fbbbf5をPR #268でmain3cfae54へ統合し、利用者main・開発木codex/nextをfast-forwardしてpush。8765の管理対象PID79656の起動元が利用者mainであることと実行中保存ジョブ0を確認し、更新後Pythonコードを使うため非表示再起動（PID56912）した。HTML/プレビューJS/WebMCPのHTTP実バイトはmainと一致。利用者mainから新規importしたグラフでnormalize=0とモジュールhashを確認。読み取りChromeで制作プレビュー準備完了/ネイティブWebMCPの出力入口を確認した。初期選択作品にはメディア要素がなく、利用者作品への試験音声配置/出力はしていない。音量の実PCM検証は隔離作品で行った上記結果。利用者515ファイル（data/logs除外）と変更一覧は更新前後不変。正本 `qa/audio-mix-level-main-sync-20261108.json`。

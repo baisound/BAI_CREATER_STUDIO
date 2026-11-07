@@ -431,7 +431,7 @@
       "phase_e_wp": "AUDIO-001・RENDER-006・DATA-002/008、再構築ロードマップ順3",
       "planned_in": "V05-AUDIO-MIX-LEVEL-20261108",
       "status": "partial_verified",
-      "commit": "本項を追加する実装コミット（MP4の混音音量をプレビューへ合わせる）。main同期で確定hashを追記",
+      "commit": "3fbbbf5（PR #268、main3cfae54）",
       "tests": "2026-11-08、#81の混音音量一致を限定修正。MP4のamix暗黙正規化を外し、既存HTMLプレビューの元音量加算へ一致させた。変更前は入力数/終端で約1/4→1/3→1/2、修正後の合成PCM音量比はWin0.9992〜1.0001/Linux0.9962〜1.0016。Chrome実再生のWebAudio採取は約1倍。Windows/Ubuntu各Node2成功、Python各28（Win追加subtests5）、回帰3成功2任意実データskip。実WAV+登録MP3の6924F/各117安定窓は音量比±3%・時刻差0sample/48kHz。切替直後AAC過渡/OSスピーカー聴感/全素材/ミキサーは未完了。既存完成物は保持。docs/v05/AUDIO_MIX_LEVEL_20261108_JA.md",
       "unverified": "切替直後/全サンプルのAAC歪み・実スピーカー聴感・Linuxブラウザー/ネイティブ・任意素材の非クリップ保証・行別音量/ミキサー・全Undo。順3全体/順4の54件読みと候補最終採用/順5判定は維持"
     }
