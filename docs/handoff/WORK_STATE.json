@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-07T09:29:55+09:00",
+  "updated_at": "2026-11-07T09:34:38+09:00",
   "updated_by": "codex",
-  "branch": "codex/audio-music-lanes-20261107",
-  "head_at_update": "62d738c",
+  "branch": "codex/audio-music-lanes-sync-20261107",
+  "head_at_update": "a3f155d",
   "current": {
-    "task": "Issue #81 順3の複数音声・楽曲行",
+    "task": "Issue #81 複数音声・楽曲行のmainと制作画面同期を引き継ぐ",
     "status": "done",
-    "step": "安定した音声/楽曲行の追加・空行削除・元区間/名前保存をUI/API/両MCPへ接続し、重なりPCMと再読込を隔離検証する",
+    "step": "main cefc0cc・手元/開発木・8765非表示起動と新UI/両MCP・515ファイル不変・Issue画像表示を正本へ記録",
     "design_doc": "docs/v05/AUDIO_MUSIC_LANES_20261107_JA.md"
   },
   "next_steps": [
-    "検証済み差分をPR/mainへ統合し手元main/開発木/8765と利用者515ファイル保持を確認する"
+    "順3 #81に残る混音音量一致/音量調整・ミキサー等を既存受入れ条件と照合し次の未完成項目へ進める。順4の54件読み/自然さ/候補最終採用と順5判定は維持"
   ],
   "unverified": [
-    "Linuxブラウザー/聴感/全形式・混音音量一致/行別ミキサー・全Undo・外部MCP後の一般画面自動同期・順3全体は未完了。順4の54件読み/自然さ/候補最終採用と順5判定を維持"
+    "Linuxブラウザー/聴感/全形式・混音音量一致/行別ミキサー・全Undo・一般外部編集自動同期・順3全体は未完了。証拠ゲート2失敗/依存監査3件を保持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-07T09:34:38+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a3f155d",
+      "text": "main cefc0ccと手元/開発木・8765非表示起動/新行UI/両MCP9action・515ファイル不変・Issue画像実表示を正本へ記録"
+    },
+    {
+      "at": "2026-11-07T09:33:02+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cefc0cc",
+      "text": "Issue #81 複数音声・楽曲行のmainと制作画面同期を引き継ぐ: main cefc0cc・手元/開発木・8765非表示起動と新UI/両MCP・515ファイル不変・Issue画像表示を正本へ記録"
+    },
     {
       "at": "2026-11-07T09:29:55+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "done",
       "head": "56f4db5",
       "text": "DATA-002の画像行追加/空行削除を両MCPへ接続。公式SDK/Chromeネイティブ2成功、手動UI/出力MCP2成功、Python20成功。Ubuntu SDK/MP4 1成功1browser skip・Python20成功。ID[1,3,4]/次5とMP4/プレビュー5時刻の重ね順、拒否後不変、原本hash一致"
-    },
-    {
-      "at": "2026-11-06T12:24:35+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "bcac4c0",
-      "text": "Issue #80/#81 画像の複数行とネイティブMCP・出力: 画像行追加・空行削除を両MCPから既存APIへ接続し、安定行ID・移動・保存再読込・重なり順を完成MP4で検証する"
-    },
-    {
-      "at": "2026-11-06T12:21:27+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "31690d7",
-      "text": "DATA-016/UX-004の③②素材詳細でOGV理由表示・空見本防止・切替停止・見本更新の再生維持を修正。Chrome対象1成功、関連39件38成功1ソケット不足、単独4成功。型・入力hash保持"
     }
   ]
 }
