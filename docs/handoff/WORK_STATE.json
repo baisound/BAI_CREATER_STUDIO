@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T19:52:06+09:00",
+  "updated_at": "2026-11-08T20:07:11+09:00",
   "updated_by": "codex",
-  "branch": "codex/audio-formats-sync-20261108",
-  "head_at_update": "cb157ef",
+  "branch": "codex/image-formats-20261108",
+  "head_at_update": "f14bd25",
   "current": {
-    "task": "Issue #81 音声形式対応のmainと表示中ブラウザーを同期",
-    "status": "done",
-    "step": "main0c04ed3・8765再起動/新形式capability/変更JS・515ファイル・Chrome表示とIssue画像を正本へ記録",
-    "design_doc": "docs/v05/AUDIO_FORMATS_20261108_JA.md"
+    "task": "Issue #81 順3の静止画像形式別プレビューと出力",
+    "status": "in_progress",
+    "step": "既存登録画像と新規PNG/JPEG/WebP/BMPを同じ作品で保存・表示/MP4比較し、非対応画像の理由表示を接続する",
+    "design_doc": "docs/v05/IMAGE_FORMATS_20261108_JA.md"
   },
   "next_steps": [
     "順3 #81の画像/動画等の形式別対応・拒否と切替境界品質など既存受入れ条件を照合し、次の未完成項目へ進める。順4/5とAUDIO-001対象外ミキサーの境界は維持"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T20:07:11+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f14bd25",
+      "text": "Issue #81 順3の静止画像形式別プレビューと出力: 既存登録画像と新規PNG/JPEG/WebP/BMPを同じ作品で保存・表示/MP4比較し、非対応画像の理由表示を接続する"
+    },
     {
       "at": "2026-11-08T19:52:06+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "a13d16d",
       "text": "PR255/256をmain a13d16dへ反映し利用者main/開発/8765を同期、515ファイルと変更一覧は不変。Owner選択の既存口形29.97fps/6924F・231秒は実GPU確認済み。Issue187へ代表画像添付・実Chrome960x180表示確認。今回の実装変更なし、検証と証拠を反映"
-    },
-    {
-      "at": "2026-11-06T13:27:05+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "6948652",
-      "text": "Owner選択の既存VMD口形を実歌声全区間/29.97fps/非0開始の6924F・231.031秒MP4で確認。9口モーフ/画素MAE0.139〜0.291、190音声窓最大2sample、再読込と原本保持。56時刻の境界で確認構図を修正・3時刻目視。途中接続タイムアウト1失敗、最終1成功。実歌詞54件は未確定/採用層0"
     }
   ]
 }
