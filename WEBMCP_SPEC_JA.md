@@ -119,3 +119,8 @@ Chrome 156.0.8078.80の専用試験プロファイルでWebMCPTestingを有効�
 ## 2026-11-08 OGG・FLAC・M4A
 
 既存の素材登録/参照、clip_place/edit/split、render_job_startへOGG(Vorbis/Opus)・FLAC・M4A(AAC)を接続。ツール名・数・保存形式は変更しない。capabilitiesのupload_formatsと共通の登録検査が正本。新形式の実尺もmedia-infoで確認し、種類/偽装/破損・元尺超過は理由付き拒否。全codec/ブラウザー/クライアントの保証ではない。[契約と試験](docs/v05/AUDIO_FORMATS_20261108_JA.md)。
+
+
+## 2026-11-08 静止画像の出力可否
+
+既存assets/capabilitiesの `mp4_image_formats` はMP4画像形式の読取専用一覧（出力側IMAGE_EXTを正本とする）。素材詳細は登録/プレビューと出力可否を区別する。GIF/AVIF/EXR等を含む保存作品の出力は、欠落させず理由付き拒否。標準MCPとネイティブWebMCPの拒否を確認した。WebMCPのrender_job_startだけはサーバーのerror文字列（最大600文字）をHTTP状態へ添え、非JSONはHTTP状態だけを維持する。他ツールとツール数/入力schemaは変更しない。[仕様・試験](docs/v05/IMAGE_FORMATS_20261108_JA.md)。

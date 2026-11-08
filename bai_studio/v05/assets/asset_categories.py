@@ -2,9 +2,11 @@
 from pathlib import Path
 from bai_studio.assets.library_assets import FORMATS, MAX_UPLOAD, MAX_STAGE_UPLOAD
 from bai_studio.v05.timeline.arrangement import CATEGORIES
+from bai_studio.v05.render.media_render import IMAGE_EXT
 
 def capabilities():
     return {'schema':1,'search_categories':sorted(CATEGORIES),
+            'mp4_image_formats':sorted(ext.lstrip('.') for ext in IMAGE_EXT),
             'upload_formats':{ext:sorted(kinds) for ext,kinds in sorted(FORMATS.items())},
             'max_upload_bytes':MAX_UPLOAD,'max_stage_bytes':MAX_STAGE_UPLOAD,
             'upload_endpoint':'/api/library-assets/upload',

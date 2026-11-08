@@ -92,3 +92,8 @@
 ### 2026-11-08 音声の形式別経路（順3）
 
 2026-11-08、#81/#37のOGG(Vorbis/Opus)・FLAC・M4A(AAC)を登録/実尺/元区間・分割/Chromeプレビュー/MP4へ接続。署名/MIME/共通取込判定・音声波形の形式制限を同期。Vorbisの切出し約139sample/48kHz差を独立音声の事前時刻正規化で修正し、動画内音声の相対時計は保持。Windows/Ubuntu各Python50・Node2成功、関連回帰24成功1実データskip。899F/818Fの各30窓は差0sample、実曲由来4代表codecの5619F/各92窓は最大1sample/48kHz。全codec/聴感/Linuxブラウザー・AAC再圧縮品質などは未完了。docs/v05/AUDIO_FORMATS_20261108_JA.md
+
+
+### 2026-11-08 静止画像の形式別表示・出力（順3）
+
+2026-11-08、#81/#37の代表静止画像を限定検証。既存登録CC0 WebPと新規PNG/JPEG/WebP/BMP、EXIF向き6・透過・縦長・重なりを同じ作品で保存再読込/450F・非0In390Fへ出力。撮影枠内の暗青色とMP4黒の差を修正し、21時刻のChrome/MP4比較は最大MAE5.159/255、透明部/余白は黒一致。MP4画像形式を既存capabilityから素材詳細へ渡し、GIF/AVIF/旧登録を模した実EXRは理由付き拒否し旧完成物を保持。WebMCP書出しのHTTP番号だけになる拒否理由も限定修正。Windows/Ubuntu各Python29・Node2成功、回帰7成功。全画像/ICC・HDR/全EXIF/Linuxブラウザー・動的画像出力/全Undo/順3全体は未完了。docs/v05/IMAGE_FORMATS_20261108_JA.md

@@ -1,0 +1,121 @@
+{
+  "apiOnly": false,
+  "cap": {
+    "schema": 1,
+    "search_categories": [
+      "audio",
+      "camera",
+      "effect",
+      "expression",
+      "image",
+      "light",
+      "lip",
+      "model",
+      "motion",
+      "music",
+      "other",
+      "video"
+    ],
+    "mp4_image_formats": [
+      "bmp",
+      "jpeg",
+      "jpg",
+      "png",
+      "webp"
+    ],
+    "upload_formats": {
+      "avif": [
+        "fx",
+        "image",
+        "material"
+      ],
+      "bmp": [
+        "image",
+        "material"
+      ],
+      "flac": [
+        "audio"
+      ],
+      "gif": [
+        "fx",
+        "image"
+      ],
+      "glb": [
+        "fx",
+        "prop",
+        "stage"
+      ],
+      "jpeg": [
+        "fx",
+        "image",
+        "material"
+      ],
+      "jpg": [
+        "fx",
+        "image",
+        "material"
+      ],
+      "m4a": [
+        "audio"
+      ],
+      "mp3": [
+        "audio"
+      ],
+      "mp4": [
+        "video"
+      ],
+      "ogg": [
+        "audio"
+      ],
+      "ogv": [
+        "video"
+      ],
+      "png": [
+        "fx",
+        "image",
+        "material"
+      ],
+      "wav": [
+        "audio"
+      ],
+      "webm": [
+        "video"
+      ],
+      "webp": [
+        "fx",
+        "image",
+        "material"
+      ]
+    },
+    "max_upload_bytes": 419430400,
+    "max_stage_bytes": 1073741824,
+    "upload_endpoint": "/api/library-assets/upload",
+    "source_modes": [
+      "reference",
+      "copy"
+    ],
+    "source_inbox": "data/asset_inbox (server-side relative paths only)",
+    "reference_endpoint": "/api/studio/v05/asset-sources/register",
+    "note": "Uploads require actual file bytes; MCP/WebMCP expose capabilities and search, not arbitrary local file reads."
+  },
+  "refusals": [
+    {
+      "format": "GIF",
+      "rejected": true,
+      "preservedOldOutput": true
+    },
+    {
+      "format": "AVIF",
+      "rejected": true,
+      "preservedOldOutput": true
+    },
+    {
+      "format": "EXR",
+      "rejected": true,
+      "preservedOldOutput": true
+    }
+  ],
+  "oldOutputHash": "5e97831d672a2f480864ecded332f67197b12fede207f9b6d8c36bf87ff5ba76",
+  "indexUnchanged": true,
+  "missingCapabilityKeepsLibrary": true
+}

@@ -38,6 +38,15 @@
   let importOpen = false;
   let loadFailed = false;
   let mediaGeneration = 0;
+  let imageOutputFormats = null;
+
+  function imageOutputNote(item) {
+    if (item.category !== 'image') return '';
+    if (!imageOutputFormats) return '<p class="baiTiny" data-image-output-status="unknown">MP4の画像対応形式を確認できません。書き出し画面で条件を確認してください。</p>';
+    const format = String(item.format || item.filename?.split('.').pop() || '').toLowerCase();
+    const supported = imageOutputFormats.includes(format);
+    return `<p class="baiTiny" data-image-output-status="${supported ? 'supported' : 'unsupported'}">${supported ? 'MP4の対応画像形式です。実ファイルは書き出し時にも検査します。' : 'この画像形式はMP4書き出しに未対応です。対応形式へ別名で変換して登録してください。'} 対応形式: ${esc(imageOutputFormats.map(ext => ext.toUpperCase()).join(' / '))}</p>`;
+  }
 
   function pauseDetailMedia(release = false) {
     if (release) mediaGeneration++;
@@ -160,6 +169,7 @@
       <dt>表示名の出典</dt><dd>${titleSource}</dd>
       <dt>利用状態</dt><dd>${item.available ? '登録済み（元ファイルあり）' : '元ファイルが見つかりません'}</dd></dl>
       ${supports3d(item) ? '<div id="baiDetail3d"></div>' : is3d ? '<p class="baiTiny">3D回転表示と実動作はこの詳細欄へ未接続です。</p>' : ''}
+      ${imageOutputNote(item)}
       ${item.available ? '<button type="button" id="baiPlaceSelected">この素材をタイムラインで選ぶ</button>' : ''}
       <p class="baiTiny">原本は変更しません。配置後の実再生は素材形式ごとに確認が必要です。</p>`;
     if (supports3d(item)) modelImport().mountDetail($('baiDetail3d'), item, items);
@@ -189,6 +199,13 @@
       ]);
       if (!fullResponse.ok || !inventoryResponse.ok) throw new Error(`HTTP ${fullResponse.status}/${inventoryResponse.status}`);
       const [full, inventory] = await Promise.all([fullResponse.json(), inventoryResponse.json()]);
+      // Capability lookup must not hide an otherwise readable asset library.
+      imageOutputFormats = null;
+      try {
+        const response = await fetch('/api/studio/v05/assets/capabilities', { cache: 'no-store' });
+        const cap = response.ok ? await response.json() : null;
+        if (Array.isArray(cap?.mp4_image_formats) && cap.mp4_image_formats.length && cap.mp4_image_formats.every(ext => typeof ext === 'string' && /^[a-z0-9]+$/.test(ext))) imageOutputFormats = cap.mp4_image_formats;
+      } catch (_) { /* Show unknown output support; keep the inventory usable. */ }
       if (!Array.isArray(full.items) || !Array.isArray(inventory.items)) throw new Error('素材索引の形式が不正です');
       const categories = new Map(inventory.items.map((item) => [item.id, item.category]));
       loadFailed = false;
