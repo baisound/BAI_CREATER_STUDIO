@@ -1,0 +1,78 @@
+{
+  "implementationCommit": "95fcbd2ae6c3dfce6b045fc0a9253c954117fb08",
+  "pullRequest": 270,
+  "mergedMain": "0c04ed30285879e75bc22e173f9088545b994c34",
+  "server": {
+    "initialStartedPid": 40440,
+    "newPid": 59796,
+    "hiddenRestart": true,
+    "activeSavedJobsBeforeRestart": 0
+  },
+  "visibleBrowser": {
+    "browser": "Chrome",
+    "tabId": "1055945512",
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "createdAndKeptOpen": true,
+    "reloadedAfterMainSync": true,
+    "observedTitle": "BAI Creator Studio | Unified 3D Editor Mock v0.5"
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80"
+    },
+    "studio/v05/js/asset-library-v62.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "74e3e5f3c09230609039b9c96ef83e51a2085c96d60d0ddcd8ce465aba839613"
+    },
+    "studio/v05/js/audio-workspace-v65.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "11e1145c3b4fffcc7dcc7864e5f609d68203e2f09fc0a9738a85c5ab169ee0b7"
+    },
+    "studio/js/features/import-rules.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "58812f563fda01b6d85b4bd1d231723e2bc4ac6f01cda97e37d9daff0b97d951"
+    }
+  },
+  "registeredAudioFormats": {
+    "wav": [
+      "audio"
+    ],
+    "mp3": [
+      "audio"
+    ],
+    "ogg": [
+      "audio"
+    ],
+    "flac": [
+      "audio"
+    ],
+    "m4a": [
+      "audio"
+    ]
+  },
+  "readOnlyMainChrome": {
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "audioAccept": ".wav,.mp3,.ogg,.flac,.m4a",
+    "audioHint": "対応する音声形式: WAV / MP3 / OGG（Vorbis・Opus）/ FLAC / M4A（AAC）。コーデックによりブラウザーで再生できない場合があります。"
+  },
+  "issueComment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6720541485",
+  "issueImage": {
+    "width": 1440,
+    "height": 900,
+    "visible": true,
+    "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/95fcbd2ae6c3dfce6b045fc0a9253c954117fb08/qa/audio-formats-ui-20261108.png",
+    "sha256": "8c54e28878adadbf0d92df3b0e25e1f1735227bcb1e1b76e6234099abe54aef6"
+  },
+  "dataGuard": {
+    "files": 515,
+    "aggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "dirtyListUnchanged": true,
+    "excludes": "data/logs"
+  }
+}

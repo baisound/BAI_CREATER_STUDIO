@@ -440,7 +440,7 @@
       "phase_e_wp": "DATA-016・AUDIO-001・DATA-002/008・RENDER-006、再構築ロードマップ順3",
       "planned_in": "V05-AUDIO-FORMATS-20261108",
       "status": "partial_verified",
-      "commit": "本項を加える実装コミット（OGG・FLAC・M4Aを制作経路へ接続）。main同期で実hash追記",
+      "commit": "95fcbd2（PR #270、main0c04ed3）",
       "tests": "2026-11-08、#81/#37のOGG(Vorbis/Opus)・FLAC・M4A(AAC)を登録/実尺/元区間・分割/Chromeプレビュー/MP4へ接続。署名/MIME/共通取込判定・音声波形の形式制限を同期。Vorbisの切出し約139sample/48kHz差を独立音声の事前時刻正規化で修正し、動画内音声の相対時計は保持。Windows/Ubuntu各Python50・Node2成功、関連回帰24成功1実データskip。899F/818Fの各30窓は差0sample、実曲由来4代表codecの5619F/各92窓は最大1sample/48kHz。全codec/聴感/Linuxブラウザー・AAC再圧縮品質などは未完了。docs/v05/AUDIO_FORMATS_20261108_JA.md",
       "unverified": "全codec（ALAC等）/全実作品・ブラウザー実スピーカー聴感・Linuxブラウザー/ネイティブ・高サンプルレート/24時間性能・全破損検出・AAC再圧縮品質/音量完全一致・ミキサー/全Undo。順3全体/順4の54件読みと候補採用/順5判定は維持"
     }

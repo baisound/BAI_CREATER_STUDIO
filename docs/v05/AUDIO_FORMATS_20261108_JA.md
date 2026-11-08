@@ -42,3 +42,9 @@ Linux実ブラウザー/聴感/全codec・全実作品・任意破損の完全�
 `qa/audio-formats-{chrome,linux,real-win,real-linux}-20261108.json`、代表画像 `qa/audio-formats-ui-20261108.png`。通常納品先は `D:/BAI/BAI_CREATER_STUDIO/_Claude確認画像/2026-11-08-audio-formats/`（入力・MP4・ログ）。実音声はGitへ追加しない。
 
 Python: `python -X utf8 -m pytest -q tests/test_v05_audio_formats.py tests/test_library_assets.py tests/test_v05_asset_import_v53.py tests/test_v05_asset_sources_v54.py tests/test_v05_mp3_duration.py tests/test_v05_track_audio_mute.py`。Node: `node tests/run-guarded.cjs tests/studio-v05-audio-formats.test.cjs`。`BAI_REAL_MMD_DATA` は既存登録dataの読取先、`BAI_FORMATS_OUT` は確認先、Linuxは `BAI_FORMATS_API_ONLY=1`、Windowsは `CHROMIUM_PATH` を指定。
+
+## main・制作画面とブラウザーの同期
+
+実装95fcbd2をPR #270でmain0c04ed3へ統合。利用者mainと開発木codex/nextをfast-forwardしてpushした。依頼時に8765は停止していたため利用者mainからPID40440で非表示起動し、Chromeの新タブ（1055945512）に制作画面を表示・保持。マージ後は起動元の所有コマンドと保存中ジョブ0を確認し、更新後mainで非表示再起動（PID59796）。表示中タブを読み直し、制作画面の表示を確認した。
+
+8765のHTML/asset-library-v62.js/audio-workspace-v65.js/共通import-rules.jsはmain実バイトと一致し、assets/capabilitiesに新しい3拡張子/audioがある。別の読み取りChromeでも新形式accept/案内を確認。Issue #81の合成画像1440×900は可視表示と配信hash一致を確認し、#37にも同じ画像を結んだ。利用者515ファイル（data/logs除外）とGit変更一覧は更新前後不変。利用者作品への試験素材登録や試験出力はしていない。証拠 `qa/audio-formats-main-sync-20261108.json`。
