@@ -48,3 +48,12 @@ Linuxブラウザー/ネイティブ・実GPU、全codec/VFR・原4K/長尺・�
 ## 関連回帰
 
 Windowsで既存studio-v05-video-formats-vfr（24/29.97/60fps・内部4条件）、studio-v05-image-formats（2件）、studio-v05-render-mcp（1件）の計4件成功0skip。計403FのVFR代表明暗/12PCM窓、画像透過/拒否とMCP版管理を再確認した。型検査も成功。配信バイト照合追加後は、新試験だけWindows/Ubuntuで再実行し、各2成功0skip、登録・原本の同一SHA-256を確認した。
+
+
+## mainと表示中制作画面の同期
+
+実装75a517f、PR #274、maincaac129。利用者main/開発木をfast-forwardし、所有コマンドと保存実行中ジョブ0を確認した8765だけを非表示再起動（PID6164→62952）。HTML/素材管理JS/WebMCPのHTTP実バイトがmainと一致し、既存APIがmp4_video_formats=mp4/ogv/webmを返す。mainのプローブも別の合成音声MP4でvideo=falseを確認。利用者作品へ試験登録・出力せず、data/exports/studio.zipの515ファイルhash・変更一覧は不変（data/logs除外）。
+
+開いていたChromeタブ1055945512のホームを確認後、再読込して既存2作品とホームの表示を確認し、同じURLを保持。ローカル確認画像logs/video-policy-studio-synced-20261108.pngを通常確認先にも保存した。Issue #81コメント6721777867の合成画像3枚は実表示・1440×900・原画像hash一致。同期証拠qa/video-policy-main-sync-20261108.json。文書のみの同期PR後は不要な再起動を増やさず、最終mainと応答・保持を再照合する。
+
+台帳の機械的記録でCSVの既存BOMを読み落とし、一度中断。utf-8-sigで保持して追記した。全JSON/CSV一致の追加確認は既存12IDのdetail差異で不一致となったため、変更前と差異IDが同じことを確認し、今回の5IDへ同じ追記を行った事実と区別した。151件のID数と証拠JSONの読戻しを確認し、差異の全件解消とは扱わない。

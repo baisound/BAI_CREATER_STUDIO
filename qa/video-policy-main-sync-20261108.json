@@ -1,0 +1,96 @@
+{
+  "implementationCommit": "75a517fd68abccba1db0f5a75f32758a98153ee8",
+  "pullRequest": 274,
+  "mergedMain": "caac129763e8287efa665daf29a2dfc3982cb7a3",
+  "server": {
+    "previousPid": 6164,
+    "newPid": 62952,
+    "hiddenRestart": true,
+    "activeSavedJobsBeforeRestart": 0
+  },
+  "visibleBrowser": {
+    "browser": "Chrome",
+    "tabId": "1055945512",
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "keptOpen": true,
+    "reloadedAfterMainSync": true,
+    "observedTitle": "BAI Creator Studio | Unified 3D Editor Mock v0.5",
+    "screenshot": "D:/BAI/BAI_CREATER_STUDIO/BAI_Creator_Studio/logs/video-policy-studio-synced-20261108.png"
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80"
+    },
+    "studio/v05/js/asset-library-v62.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "dc25efa7f306cc812c5f1e03dc5ec025ea8244f1f4628265478c6059cb6096fa"
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "78f246e81e7abfc5219f2c775bfa41a2f4a54caebe219c24bd13b3ef27ac2a53"
+    }
+  },
+  "mp4VideoFormats": [
+    "mp4",
+    "ogv",
+    "webm"
+  ],
+  "mainProbe": {
+    "moduleSha256": "598ff3545be03d9a64541497919ef52423d1f9a38d709be2fba94ad124cc15f1",
+    "audioOnlyVideoFlag": false
+  },
+  "issueComment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6721777867",
+  "issueImages": [
+    {
+      "width": 1440,
+      "height": 900,
+      "visible": true,
+      "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/75a517fd68abccba1db0f5a75f32758a98153ee8/qa/video-formats-supported-20261108.png",
+      "sha256": "3052601e14dc78697a7c7d0f20335d22548551cf0affc80ab399ef78bbc7145b"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "visible": true,
+      "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/75a517fd68abccba1db0f5a75f32758a98153ee8/qa/video-formats-unsupported-20261108.png",
+      "sha256": "e43bfa9a84efef377362c278dc678a453aef3b0b4c18da63fc6e899ac8f22788"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "visible": true,
+      "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/75a517fd68abccba1db0f5a75f32758a98153ee8/qa/video-no-picture-refusal-20261108.png",
+      "sha256": "77f4c7b22b1120638157107360b434563a22b8e7001b57b77caaf98cf3e8ab1c"
+    }
+  ],
+  "dataGuard": {
+    "files": 515,
+    "aggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "dirtyListUnchanged": true,
+    "excludes": "data/logs"
+  },
+  "registerCheck": {
+    "jsonRows": 151,
+    "csvRows": 151,
+    "preexistingDetailDifferences": [
+      "DATA-008",
+      "MOTION-006",
+      "MOTION-010",
+      "MOTION-016",
+      "AUDIO-001",
+      "LIP-004",
+      "LIP-009",
+      "CAM-015",
+      "RENDER-001",
+      "RENDER-004",
+      "RENDER-005",
+      "VIEW-001"
+    ],
+    "differenceIdsUnchanged": true
+  }
+}
