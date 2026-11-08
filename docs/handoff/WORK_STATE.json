@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T21:55:49+09:00",
+  "updated_at": "2026-11-08T22:01:42+09:00",
   "updated_by": "codex",
-  "branch": "codex/video-format-policy-20261108",
-  "head_at_update": "1a0fdff",
+  "branch": "codex/video-format-sync-20261108",
+  "head_at_update": "855e9a6",
   "current": {
-    "task": "Issue #81 順3の動画形式と映像なし素材の拒否",
+    "task": "Issue #81 動画形式対応のmainと表示中画面を同期",
     "status": "done",
-    "step": "MP4/WebM/OGVと旧MOVを形式別に確認し、対応案内・映像なし拒否を共通APIと保存/プレビュー/MP4へ接続する",
+    "step": "mainの動画capability/プローブと8765を更新し、515ファイル保持・ChromeとIssue画像3枚を正本へ記録",
     "design_doc": "docs/v05/VIDEO_FORMAT_POLICY_20261108_JA.md"
   },
   "next_steps": [
-    "検証済み動画形式PRをmainへ統合し、手元/開発木/8765・表示中Chrome・515ファイル保持を同期記録する"
+    "順3 #81の切替直後AAC品質・他codec/長尺VFR等の既存受け入れ条件と未検証記録を照合して次へ進める"
   ],
   "unverified": [
-    "全codec/VFR/原4K/長尺・回転/色空間/多重ストリーム・全破損検出・Linuxブラウザー/実GPU/聴感・全Undo・実ユーザー旧MOV/順3全体は未完了。順4/5と既存ゲート/依存監査は維持"
+    "全codec/VFR/原4K/長尺・回転/色空間/多重ストリーム・Linuxブラウザー/実GPU/聴感/全Undo・Owner実旧MOV/順3全体は未完了。順4/5と既存ゲート2失敗/依存監査3件を維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T22:01:42+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "855e9a6",
+      "text": "maincaac129・手元/開発木・8765再起動と動画capability/mainプローブ・表示中Chrome再読込、515ファイル不変、Issue画像3枚を正本へ記録"
+    },
+    {
+      "at": "2026-11-08T21:58:19+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "caac129",
+      "text": "Issue #81 動画形式対応のmainと表示中画面を同期: mainの動画capability/プローブと8765を更新し、515ファイル保持・ChromeとIssue画像3枚を正本へ記録"
+    },
     {
       "at": "2026-11-08T21:55:49+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "start",
       "head": "93bb508",
       "text": "Issue #81 音声ミュートのmain/制作画面同期を引き継ぐ: main93bb508・手元/開発ブランチ・8765再起動と変更JS/Chrome、515ファイル不変、Issue画像表示を正本へ記録"
-    },
-    {
-      "at": "2026-11-06T18:06:52+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "8811494",
-      "text": "保存ミュートを試聴/MP4とジョブ開始設定へ接続。Windows両MCP/Chrome・UbuntuSDK、3音源6出力と実曲230秒を各Node2成功/Python28成功、回帰3成功"
-    },
-    {
-      "at": "2026-11-06T17:47:04+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3df7573",
-      "text": "Issue #81/#39 音声トラックの保存ミュートをプレビューとMP4へ接続: 既存音声/楽曲/動画の音だけを対象に保存ミュートを反映し、解除・再読込・処理中競合・両MCPとPCMを隔離検証する"
     }
   ]
 }
