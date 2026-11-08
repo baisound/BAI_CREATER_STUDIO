@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T03:28:30+09:00",
+  "updated_at": "2026-11-09T03:31:02+09:00",
   "updated_by": "codex",
-  "branch": "codex/aac-input-levels-20261109",
-  "head_at_update": "9b7f5cf",
+  "branch": "codex/aac-320k-sync-20261109",
+  "head_at_update": "c1f5f8b",
   "current": {
-    "task": "順3 G3-A3：音量を保つAAC320kの実MP4境界修正",
-    "status": "done",
-    "step": "新規ジョブAAC320k固定/画面案内を接続し、既知210秒を含む54境界窓と117安定窓・両MCP/ミュートと原本保持を検証",
+    "task": "AAC320k修正のmainと表示中制作画面を同期",
+    "status": "in_progress",
+    "step": "main/開発木をffし、8765の新しい目標320000とJS・Chrome再読込・515ファイル保持/Issue画像を記録",
     "design_doc": "docs/v05/AAC_320K_BOUNDARY_FIX_20261109_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-09T03:31:02+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "c1f5f8b",
+      "text": "AAC320k修正のmainと表示中制作画面を同期: main/開発木をffし、8765の新しい目標320000とJS・Chrome再読込・515ファイル保持/Issue画像を記録"
+    },
     {
       "at": "2026-11-09T03:28:30+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "24d5c6a",
       "text": "main7e63b5c・手元/開発木・8765非表示再起動/実尺/両MCP・515ファイル不変・Issue画像実表示を正本へ記録"
-    },
-    {
-      "at": "2026-11-06T21:59:21+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7e63b5c",
-      "text": "Issue #81 MP3元区間のmain/制作画面同期を引き継ぐ: main7e63b5c・手元/開発木・8765再起動/実尺/両MCP・515ファイル不変・Issue画像実表示を正本へ記録"
     }
   ]
 }
