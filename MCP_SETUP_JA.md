@@ -116,3 +116,8 @@ SRT原本のBase64バイト取込、読み、候補、下書き、別名モー�
 ## 2026-11-08 静止画像の出力可否
 
 既存assets/capabilitiesの `mp4_image_formats` はMP4画像形式の読取専用一覧（出力側IMAGE_EXTを正本とする）。素材詳細は登録/プレビューと出力可否を区別する。GIF/AVIF/EXR等を含む保存作品の出力は、欠落させず理由付き拒否。標準MCPとネイティブWebMCPの拒否を確認した。WebMCPのrender_job_startだけはサーバーのerror文字列（最大600文字）をHTTP状態へ添え、非JSONはHTTP状態だけを維持する。他ツールとツール数/入力schemaは変更しない。[仕様・試験](docs/v05/IMAGE_FORMATS_20261108_JA.md)。
+
+
+## 2026-11-08 既存素材capabilityと動画配置理由
+
+既存assets/capabilitiesへ読取専用mp4_video_formatsを追加（正本は出力VIDEO_EXT）。UIはブラウザー再生と出力対応を分けて案内する。ツール数・引数・登録形式は増やさない。動画映像のない素材/カバー画像だけのMP4は共通media-info/配置/出力サービスで拒否。既存WebMCP bai_studio_clip_placeのみ、出力ジョブと同じ限定error本文処理でHTTP番号に理由を加える。SDK/ネイティブ/手動UIで保存不変を確認。旧MOV出力は未対応を明示。詳細 docs/v05/VIDEO_FORMAT_POLICY_20261108_JA.md。
