@@ -87,3 +87,8 @@
 - `npm run typecheck`、取り込み規則・一覧ロジック21件、Python保存API3件、CC0実素材のブラウザー1件は合格。
 - 素材管理ブラウザー回帰31件中30件が初回合格。1件は検索結果0件の文言を旧表示のままにする修正で解消し、該当する検索と空分類の2件を再実行して合格。全31件を修正後に再通しする必要はないと判断した。
 - Chrome/SwiftShaderでの確認。実GPU、Windows以外、全形式のデコーダー、WebM/OGV/AVIFの実ファイル、WebMメタタイトルは未検証。
+
+
+### 2026-11-08 音声の形式別経路（順3）
+
+2026-11-08、#81/#37のOGG(Vorbis/Opus)・FLAC・M4A(AAC)を登録/実尺/元区間・分割/Chromeプレビュー/MP4へ接続。署名/MIME/共通取込判定・音声波形の形式制限を同期。Vorbisの切出し約139sample/48kHz差を独立音声の事前時刻正規化で修正し、動画内音声の相対時計は保持。Windows/Ubuntu各Python50・Node2成功、関連回帰24成功1実データskip。899F/818Fの各30窓は差0sample、実曲由来4代表codecの5619F/各92窓は最大1sample/48kHz。全codec/聴感/Linuxブラウザー・AAC再圧縮品質などは未完了。docs/v05/AUDIO_FORMATS_20261108_JA.md

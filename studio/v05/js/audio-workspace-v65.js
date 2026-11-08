@@ -95,7 +95,7 @@ function tick() {
 }
 async function play() {
   if (playing) return;
-  if (!decoded || !placement) { say('登録したWAV/MP3を選択してください。', true); return; }
+  if (!decoded || !placement) { say('登録した音声を選択してください。', true); return; }
   if (!context) context = new AudioContext();
   try { await context.resume(); }
   catch { say('音声を開始できません。ブラウザの音声設定を確認してください。', true); return; }
@@ -138,7 +138,7 @@ async function loadAudio() {
     if (!context) context = new AudioContext();
     let buffer;
     try { buffer = await context.decodeAudioData(bytes); }
-    catch { throw new Error('このWAV/MP3をデコードできません。ファイルと形式を確認してください。'); }
+    catch { throw new Error('この音声をデコードできません。ファイルと形式を確認してください。'); }
     if (mine !== loadSeq) return;
     decoded = buffer; rebuildPeaks();
     canvas = document.createElement('canvas');
@@ -177,7 +177,7 @@ async function load() {
     }
     placement = projectData.project; revision = projectData.revision;
     const audio = assetsData.items.filter((item) => item.source === 'library' &&
-      item.kind === 'audio' && item.available && ['WAV', 'MP3'].includes(item.format));
+      item.kind === 'audio' && item.available && ['WAV', 'MP3', 'OGG', 'FLAC', 'M4A'].includes(item.format));
     select.replaceChildren(new Option('音声を選択', ''),
       ...audio.map((item) => new Option(item.name, item.id)));
     if (placement.audio_id && !audio.some((item) => item.id === placement.audio_id)) {

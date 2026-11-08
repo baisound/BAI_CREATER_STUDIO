@@ -10,7 +10,7 @@ import { fbxLabel } from './assets-model.js';
 /** @typedef {{name: string, route: Route, kind: string}} ImportEntry */
 
 export { MAX_UPLOAD_BYTES, MAX_STAGE_UPLOAD_BYTES };
-export const IMPORT_ACCEPT = '.glb,.vrm,.zip,.vmd,.fbx,.wav,.mp3,.mp4,.webm,.ogv,.png,.jpg,.jpeg,.gif,.webp,.avif,.bmp';
+export const IMPORT_ACCEPT = '.glb,.vrm,.zip,.vmd,.fbx,.wav,.mp3,.ogg,.flac,.m4a,.mp4,.webm,.ogv,.png,.jpg,.jpeg,.gif,.webp,.avif,.bmp';
 
 /** コードポイントの数（サーバーの Python len と同じ。UTF-16 の単位ではない）。 @param {string} s */
 const cpLen = (s) => [...s].length;
@@ -27,7 +27,7 @@ const BAD_NAME_INTEGRATED = '名前は180文字以内で、/ と \\ を含めら
 export function classifyImport(name, size) {
   const m = /\.([^.]*)$/.exec(name);
   const ext = m ? m[1].toLowerCase() : '';
-  if (!['glb', 'vrm', 'zip', 'vmd', 'fbx', 'wav', 'mp3', 'mp4', 'webm', 'ogv', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'bmp'].includes(ext)) return { ok: false, error: BAD_UNSUPPORTED };
+  if (!['glb', 'vrm', 'zip', 'vmd', 'fbx', 'wav', 'mp3', 'ogg', 'flac', 'm4a', 'mp4', 'webm', 'ogv', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'bmp'].includes(ext)) return { ok: false, error: BAD_UNSUPPORTED };
   if (size > (ext === 'glb' ? MAX_STAGE_UPLOAD_BYTES : MAX_UPLOAD_BYTES)) return { ok: false, error: ext === 'glb' ? '1GB を超える GLB ステージは登録できません。' : '400MB を超えるファイルは登録できません。' };
   if (size === 0) return { ok: false, error: '空のファイルです。' };
   /** @type {string[]} */
@@ -53,11 +53,11 @@ export function classifyImport(name, size) {
     }
     return { ok: true, route: 'vmd', label: 'VMD モーション', kinds: [], defaultKind: '', warnings };
   }
-  if (['wav', 'mp3', 'mp4', 'webm', 'ogv', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'bmp'].includes(ext)) {
+  if (['wav', 'mp3', 'ogg', 'flac', 'm4a', 'mp4', 'webm', 'ogv', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'bmp'].includes(ext)) {
     if (cpLen(name) > 180 || name.includes('/') || name.includes('\\') || name.startsWith('.') || [...name].some((c) => c.charCodeAt(0) < 32)) {
       return { ok: false, error: BAD_NAME_INTEGRATED };
     }
-    if (['wav', 'mp3'].includes(ext)) return { ok: true, route: 'library', label: 'オーディオ', kinds: [], defaultKind: 'audio', warnings };
+    if (['wav', 'mp3', 'ogg', 'flac', 'm4a'].includes(ext)) return { ok: true, route: 'library', label: 'オーディオ', kinds: [], defaultKind: 'audio', warnings };
     if (['mp4', 'webm', 'ogv'].includes(ext)) return { ok: true, route: 'library', label: '動画', kinds: [], defaultKind: 'video', warnings };
     const choices = ['gif'].includes(ext)
       ? [{ value: 'image', label: '画像' }, { value: 'fx', label: 'エフェクト素材' }]
