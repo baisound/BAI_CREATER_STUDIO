@@ -33,3 +33,10 @@
 `python -X utf8 -m pytest -q tests/test_library_assets.py tests/test_v05_asset_import_v53.py tests/test_v05_asset_sources_v54.py tests/test_studio_v05_arrangement.py`。`node tests/run-guarded.cjs tests/studio-v05-image-formats.test.cjs`（BAI_REAL_MMD_DATAに既存data、BAI_IMAGE_OUTに確認先、WindowsはCHROMIUM_PATH、LinuxはBAI_IMAGE_API_ONLY=1）。変更前の計測は修正前HEADでBAI_IMAGE_BASELINE=1。
 
 順3全体と広い機能ID、順4の読み/自然さ/最終候補採用、順5判定と既存ゲート2失敗/依存監査3件は維持する。
+
+
+## mainと表示中の制作画面の同期
+
+実装e5393d4、PR #272、main1ab7d08。利用者main・開発木をfast-forwardし、所有コマンドと実行中ジョブ0を確認して8765を非表示再起動（PID59796→6164）。HTML・素材管理JS・撮影枠CSS・WebMCPのHTTP実バイトがmainと一致、新しいmp4_image_formatsが5拡張子を返す。読取専用Chromeで撮影枠背景rgb(0,0,0)を確認。利用者の開いていたChromeタブ1055945512も再読込し、ホームと既存2作品の表示を確認、同じURLで保持した。利用者作品への試験登録/出力は行わず、data/exports/studio.zipの515ファイルhashと変更一覧は不変（data/logs除外）。
+
+Issue #81の結果コメント6720895960で合成画像2枚が実表示され、1440×900と原画像hashが一致した。証拠はqa/image-formats-main-sync-20261108.json。表示中画面の確認画像はローカルlogs/image-formats-studio-synced-20261108.png、通常確認先にも複製。同期用スクリプトの初回はGIF/AVIFがimageだけに登録できるとの誤期待で失敗し、既存fx/material等を保つimage包含へ修正して成功（製品の変更なし）。文書のみの同期PR後は再起動を増やさず、最終mainと応答を照合する。

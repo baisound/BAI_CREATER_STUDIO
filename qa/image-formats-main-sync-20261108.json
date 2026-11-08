@@ -1,0 +1,79 @@
+{
+  "implementationCommit": "e5393d4247b00fbe5d176a9b5c215164a1d1e975",
+  "pullRequest": 272,
+  "mergedMain": "1ab7d08ed94c5e7bdfb093b8ff81506ada5c118c",
+  "server": {
+    "previousPid": 59796,
+    "newPid": 6164,
+    "hiddenRestart": true,
+    "activeSavedJobsBeforeRestart": 0
+  },
+  "visibleBrowser": {
+    "browser": "Chrome",
+    "tabId": "1055945512",
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "keptOpen": true,
+    "reloadedAfterMainSync": true,
+    "observedTitle": "BAI Creator Studio | Unified 3D Editor Mock v0.5",
+    "screenshot": "D:/BAI/BAI_CREATER_STUDIO/BAI_Creator_Studio/logs/image-formats-studio-synced-20261108.png"
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80"
+    },
+    "studio/v05/js/asset-library-v62.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "1adfee6e598a99db1a7c6d7bfb9cccafc889320e09f786dd34babddef3dc2133"
+    },
+    "studio/v05/css/project-media-preview-v68.css": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "034e3d3c53bd3fd648e56d0900bba305b52004d6f3ab73092293402a38c85000"
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "317f836ec1d7ca19932a9cf3a96c27e51a3cba6a4e2244f64bd32b63a44062b4"
+    }
+  },
+  "mp4ImageFormats": [
+    "bmp",
+    "jpeg",
+    "jpg",
+    "png",
+    "webp"
+  ],
+  "readOnlyMainChrome": {
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "imageOutputFrameBackground": "rgb(0, 0, 0)",
+    "mainWritesBlocked": true
+  },
+  "issueComment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6720895960",
+  "issueImages": [
+    {
+      "width": 1440,
+      "height": 900,
+      "visible": true,
+      "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/e5393d4247b00fbe5d176a9b5c215164a1d1e975/qa/image-formats-preview-20261108.png",
+      "sha256": "efe74eae6480a543588487c064d55f46b3bcd081918e8fa476b55bcdb8f4c275"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "visible": true,
+      "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/e5393d4247b00fbe5d176a9b5c215164a1d1e975/qa/image-formats-unsupported-20261108.png",
+      "sha256": "33c7f3cdc1d6b889c040bdda7d220c42fc77effa6064e00574400f80b5a9302e"
+    }
+  ],
+  "dataGuard": {
+    "files": 515,
+    "aggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "dirtyListUnchanged": true,
+    "excludes": "data/logs"
+  },
+  "syncCheckCorrection": "同期確認スクリプト初回はGIF/AVIFの登録種類をimageだけと誤期待。既存はfx/material等にも対応するためimage包含へ修正して成功。製品変更なし。"
+}

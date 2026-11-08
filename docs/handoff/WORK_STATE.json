@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T20:27:52+09:00",
+  "updated_at": "2026-11-08T20:32:33+09:00",
   "updated_by": "codex",
   "branch": "codex/image-formats-sync-20261108",
-  "head_at_update": "1ab7d08",
+  "head_at_update": "eb39b45",
   "current": {
     "task": "Issue #81 画像形式対応のmainと表示中画面を同期",
-    "status": "in_progress",
+    "status": "done",
     "step": "main1ab7d08・8765再起動/新画像capabilityとCSS・515ファイル・ChromeとIssue画像を正本へ記録",
     "design_doc": "docs/v05/IMAGE_FORMATS_20261108_JA.md"
   },
   "next_steps": [
-    "検証済みPRをmainへ統合し利用者main/開発木/8765・開いているChromeと515ファイル保持を確認する"
+    "順3 #81の動画等の形式別対応/拒否・切替境界品質を既存受入れ条件へ照合し次の未完成項目へ進める"
   ],
   "unverified": [
-    "Linuxブラウザー/実GPU/全画像・ICC/HDR/全EXIF/アニメーション画像出力/実ユーザー旧EXR/全Undo/順3全体は未完了。順4/5と既存ゲート/依存監査を維持"
+    "Linuxブラウザー/実GPU/全画像・ICC/HDR/全EXIF/大画像・アニメーション画像出力/実ユーザー旧EXR/全Undo/順3全体は未完了。順4/5と既存ゲート2失敗/依存監査3件を維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T20:32:33+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "eb39b45",
+      "text": "main1ab7d08・手元/開発木・8765再起動と画像capability/黒背景・表示中Chrome再読込、515ファイル不変、Issue画像2枚を正本へ記録"
+    },
     {
       "at": "2026-11-08T20:27:52+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "8b7429d",
       "text": "Issue #187 末尾4発話候補のmain同期と引き継ぎ記録: PR258のmain/利用者515ファイル/8765実バイト/Chrome/Issue画像表示を正本へ記録し、残る最終採用と自然さを分ける"
-    },
-    {
-      "at": "2026-11-06T17:01:10+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ac4837d",
-      "text": "末尾4発話の別名候補と実歌声29.97fps長尺を検証。原キー/骨/末尾保持、32モーラ、再読込、6924F MP4、Windows/Ubuntu各20成功"
     }
   ]
 }
