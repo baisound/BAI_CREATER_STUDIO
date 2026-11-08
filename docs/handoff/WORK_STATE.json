@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T22:01:42+09:00",
+  "updated_at": "2026-11-08T22:07:15+09:00",
   "updated_by": "codex",
-  "branch": "codex/video-format-sync-20261108",
-  "head_at_update": "855e9a6",
+  "branch": "codex/roadmap-boundary-audit-20261108",
+  "head_at_update": "252f34a",
   "current": {
-    "task": "Issue #81 動画形式対応のmainと表示中画面を同期",
-    "status": "done",
-    "step": "mainの動画capability/プローブと8765を更新し、515ファイル保持・ChromeとIssue画像3枚を正本へ記録",
-    "design_doc": "docs/v05/VIDEO_FORMAT_POLICY_20261108_JA.md"
+    "task": "ロードマップ現在地と順3細分化・AAC境界の診断に着手",
+    "status": "in_progress",
+    "step": "7段階と順3の終了条件を証拠へ照合し、既存出力のAAC切替前後PCMを再解析して原因を分ける",
+    "design_doc": "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md"
   },
   "next_steps": [
     "順3 #81の切替直後AAC品質・他codec/長尺VFR等の既存受け入れ条件と未検証記録を照合して次へ進める"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T22:07:15+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "252f34a",
+      "text": "ロードマップ現在地と順3細分化・AAC境界の診断に着手: 7段階と順3の終了条件を証拠へ照合し、既存出力のAAC切替前後PCMを再解析して原因を分ける"
+    },
     {
       "at": "2026-11-08T22:01:42+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "f09ce26",
       "text": "PR260をmain93bb508へ統合し手元/開発ブランチ/8765を同期。非表示再起動と変更JS/Chrome新設定、515ファイル不変、Issue画像表示/hashを記録"
-    },
-    {
-      "at": "2026-11-06T18:12:43+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "93bb508",
-      "text": "Issue #81 音声ミュートのmain/制作画面同期を引き継ぐ: main93bb508・手元/開発ブランチ・8765再起動と変更JS/Chrome、515ファイル不変、Issue画像表示を正本へ記録"
     }
   ]
 }
