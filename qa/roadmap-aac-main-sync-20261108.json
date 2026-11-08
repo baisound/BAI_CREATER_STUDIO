@@ -1,0 +1,41 @@
+{
+  "implementationCommit": "1a4829f6cf1c497a2e91c90717b11be4aaef99e1",
+  "pullRequest": 276,
+  "mergedMain": "f7a15eab45933729568f3a2c76b759b848c27aea",
+  "server": {
+    "pid": 62952,
+    "sameOwnedMainServer": true,
+    "restartNeeded": false
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80"
+    },
+    "studio/v05/js/asset-library-v62.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "dc25efa7f306cc812c5f1e03dc5ec025ea8244f1f4628265478c6059cb6096fa"
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "78f246e81e7abfc5219f2c775bfa41a2f4a54caebe219c24bd13b3ef27ac2a53"
+    },
+    "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md": {
+      "status": 404,
+      "servedByProductionServer": false,
+      "localCanonicalFilePresent": true
+    }
+  },
+  "productionUiFilesUnchangedFromPriorVerifiedMain": true,
+  "browserScope": "今回の製品UIファイルは前回検証済みmainと同一。8765の配信バイトを確認。今回の再読込/新規ブラウザー操作は実施していない",
+  "dataGuard": {
+    "files": 515,
+    "aggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "dirtyListUnchanged": true,
+    "excludes": "data/logs"
+  }
+}
