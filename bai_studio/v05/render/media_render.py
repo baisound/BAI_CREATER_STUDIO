@@ -407,6 +407,9 @@ def _snapshot(data_root: Path, project_id: str, range_revision: int, arrangement
         kind = "audio" if clip["category"] == "music" else clip["category"]
         allowed = {"image": IMAGE_EXT, "video": VIDEO_EXT, "audio": AUDIO_EXT}[kind]
         if not path or path.suffix.lower() not in allowed:
+            if kind == "image":
+                formats = " / ".join(ext[1:].upper() for ext in sorted(IMAGE_EXT))
+                raise RenderError(f"{clip.get('name', 'Clip')}: この画像形式または登録元はMP4書き出しへ未対応です。対応形式: {formats}")
             raise RenderError(f"{clip.get('name', 'Clip')}: この形式または登録元はMP4出力へ未接続です")
         has_audio = False
         if kind in {"video", "audio"}:

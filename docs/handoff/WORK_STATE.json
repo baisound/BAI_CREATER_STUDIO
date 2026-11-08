@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T20:07:11+09:00",
+  "updated_at": "2026-11-08T20:23:30+09:00",
   "updated_by": "codex",
   "branch": "codex/image-formats-20261108",
-  "head_at_update": "f14bd25",
+  "head_at_update": "86dfbe7",
   "current": {
     "task": "Issue #81 順3の静止画像形式別プレビューと出力",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存登録画像と新規PNG/JPEG/WebP/BMPを同じ作品で保存・表示/MP4比較し、非対応画像の理由表示を接続する",
     "design_doc": "docs/v05/IMAGE_FORMATS_20261108_JA.md"
   },
   "next_steps": [
-    "順3 #81の画像/動画等の形式別対応・拒否と切替境界品質など既存受入れ条件を照合し、次の未完成項目へ進める。順4/5とAUDIO-001対象外ミキサーの境界は維持"
+    "検証済みPRをmainへ統合し利用者main/開発木/8765・開いているChromeと515ファイル保持を確認する"
   ],
   "unverified": [
-    "全codec/聴感/Linuxブラウザー/全実作品・AAC再圧縮品質/音量完全一致・全Undo/ミキサーと順3全体は未完了。既存証拠ゲート2失敗/依存監査3件を維持"
+    "Linuxブラウザー/実GPU/全画像・ICC/HDR/全EXIF/アニメーション画像出力/実ユーザー旧EXR/全Undo/順3全体は未完了。順4/5と既存ゲート/依存監査を維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T20:23:30+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "86dfbe7",
+      "text": "代表画像4形式/EXIF/透過/重なりを確認し撮影枠背景と出力理由を修正。Windows/Ubuntu各Python29・Node2、関連7成功、旧MP4/原本保持を記録"
+    },
     {
       "at": "2026-11-08T20:07:11+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "9fa1601",
       "text": "Issue #187/#81 末尾4発話の口形を別名候補へ補完: 最新Owner指定で発話51〜54だけを補完し、原VMDの全キー/骨/末尾区画を保持。実歌声の境界と母音時刻、実PMX再読込と長尺MP4を検証する"
-    },
-    {
-      "at": "2026-11-06T13:32:36+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a13d16d",
-      "text": "PR255/256をmain a13d16dへ反映し利用者main/開発/8765を同期、515ファイルと変更一覧は不変。Owner選択の既存口形29.97fps/6924F・231秒は実GPU確認済み。Issue187へ代表画像添付・実Chrome960x180表示確認。今回の実装変更なし、検証と証拠を反映"
     }
   ]
 }

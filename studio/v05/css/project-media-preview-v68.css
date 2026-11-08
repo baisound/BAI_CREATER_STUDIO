@@ -3,6 +3,7 @@
 /* The output frame: the MP4 is always 16:9 with media contained in it, so the
    preview shows the same 16:9 box (images and the 3D overlay) centred in the pane. */
 #v68layers,#v68stage>.v68frame{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100cqw,calc(100cqh * 16 / 9));height:min(100cqh,calc(100cqw * 9 / 16))}
+#v68layers{background:#000}
 .v68visual{position:absolute;inset:0;width:100%;height:100%}
 .v68visual{object-fit:contain;background:transparent}
 .v68visual[hidden]{display:none}
