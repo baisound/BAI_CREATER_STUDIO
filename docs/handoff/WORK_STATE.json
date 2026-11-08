@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T01:24:28+09:00",
+  "updated_at": "2026-11-08T19:29:03+09:00",
   "updated_by": "codex",
-  "branch": "codex/audio-mix-level-sync-20261108",
-  "head_at_update": "95f5f9f",
+  "branch": "codex/audio-formats-20261108",
+  "head_at_update": "37d76e0",
   "current": {
-    "task": "Issue #81 混音音量一致のmainと制作画面同期を記録",
-    "status": "done",
-    "step": "main3cfae54・8765非表示再起動・同一ソース/読み取りChrome・515ファイル保持を正本へ記録",
-    "design_doc": "docs/v05/AUDIO_MIX_LEVEL_20261108_JA.md"
+    "task": "Issue #81 順3のOGG・FLAC・M4A形式別の縦断経路",
+    "status": "in_progress",
+    "step": "非破壊登録と実尺/元区間・プレビュー・MP4を接続し、代表codecと明確な拒否をWindows/Linuxで検証する",
+    "design_doc": "docs/v05/AUDIO_FORMATS_20261108_JA.md"
   },
   "next_steps": [
     "順3 #81のOGG/FLAC/M4A等の形式別対応/拒否・切替境界品質など既存受入れ条件を照合し次の未完成項目へ進める。AUDIO-001対象外ミキサーを無断追加しない。順4/5は維持"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T19:29:03+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "37d76e0",
+      "text": "Issue #81 順3のOGG・FLAC・M4A形式別の縦断経路: 非破壊登録と実尺/元区間・プレビュー・MP4を接続し、代表codecと明確な拒否をWindows/Linuxで検証する"
+    },
     {
       "at": "2026-11-08T01:24:28+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "e688caf",
       "text": "Issue #187/#81 実歌声と口形を含む長尺MP4: 実歌声・実曲VMD/PMXを隔離複製し全区間の口形と音声配置を測定。既存口形の212秒終端と末尾4発話欠落を記録し、採用検証層の長尺保存/再読込/出力を確認する"
-    },
-    {
-      "at": "2026-11-06T12:44:45+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d01b7d8",
-      "text": "LIP-001合成候補も公式SDK/Chromeネイティブへ試験拡張。画面/SDK/WebMCP候補が全バイト同一、91モーフキーと全キー読戻し、古いrevision/不連続/失効の拒否を確認。初回Chrome通信不足1失敗、隔離再実行Windows2成功。原本とdata hash一致、型成功。製品コード変更なし"
     }
   ]
 }
