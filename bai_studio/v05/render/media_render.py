@@ -28,6 +28,7 @@ ACTIVE: set[str] = set()
 JOB_ID = re.compile(r"[0-9a-f]{32}\Z")
 MAX_SECONDS = 600  # bounded first MP4 preset; longer projects remain unconnected
 MAX_CLIPS = 80
+AAC_BITRATE = 320000  # preserve unity gain while reducing measured AAC boundary loss
 MAX_SCENE_FRAMES = 36000  # 10 minutes at 60fps; bounded lossless intermediate
 MAX_SCENE_BYTES = 2 * 1024 * 1024 * 1024
 RESOLUTIONS = {"720p": (1280, 720), "1080p": (1920, 1080)}
@@ -259,6 +260,7 @@ def capabilities(ffmpeg: str | None = None, ffprobe: str | None = None,
     except (OSError, ValueError, subprocess.TimeoutExpired):
         return {"available": False, "reason": "FFmpegのencoderを確認できません", "presets": []}
     result = {"available": True, "reason": None, "presets": ["mp4_h264_aac"],
+              "audio_bitrate": AAC_BITRATE,
               "filter_complex_option": filter_complex_option,
               "resolutions": sorted(RESOLUTIONS), "max_duration_seconds": MAX_SECONDS,
               "scene_stream_available": scene_stream_available,
@@ -740,7 +742,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             cmd += ["-i", str(scene_video)]
         cmd += [filter_complex_option, str(script), "-map", "[vout]", "-map", "[aout]",
                 "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
-                "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart",
+                "-c:a", "aac", "-b:a", str(job.get("audio_bitrate", AAC_BITRATE)), "-movflags", "+faststart",
                 "-frames:v", str(frames), "-t", _num(duration), "-f", "mp4", "-n", str(temp)]
         job["phase"] = "encoding"
         _save(root, job)
@@ -852,6 +854,7 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
                "created_at": time.time(), "started_at": None, "completed_at": None,
                "arrangement_revision": arrangement_revision, "range_revision": range_revision,
                "audio_settings": audio_settings,
+               "audio_bitrate": AAC_BITRATE,
                "range_start_frame": render_range["range_start_frame"],
                "range_end_exclusive": render_range["range_end_exclusive"],
                "frame_count": render_range["frame_count"], "fps": render_range["fps"],

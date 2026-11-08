@@ -41,6 +41,7 @@
   historyControls.innerHTML = '<label for="v69historyProject">作品 <select id="v69historyProject"></select></label><button type="button" id="v69refreshHistory">一覧を更新</button><p class="baiTiny">完成した動画の「ダウンロード」からパソコンへ保存できます。旧版も選べます。</p>';
   queue.before(historyControls);
   const nameInput = $('v69name'), nameMode = $('v69nameMode'), nameHint = $('v69nameHint');
+  $('v69status').insertAdjacentHTML('beforebegin', '<p id="v69audioQuality" class="baiTiny"></p>');
   const activeProject = () => $('v06project')?.value || '';
   const downloadName = job => {
     const filename = job.download_name || `BAI-${job.project_id}-${job.id.slice(0, 8)}.mp4`;
@@ -101,7 +102,7 @@
     $('v69download').href = url;
     $('v69download').download = downloadName(job);
     result.querySelector('strong').textContent = downloadName(job);
-    $('v69resultInfo').textContent = `${job.probe?.width || '?'}×${job.probe?.height || '?'} / ${job.probe?.frames || '?'}F / ${job.bytes || 0} bytes`;
+    $('v69resultInfo').textContent = `${job.probe?.width || '?'}×${job.probe?.height || '?'} / ${job.probe?.frames || '?'}F / ${job.bytes || 0} bytes${Number.isInteger(job.audio_bitrate) && job.audio_bitrate > 0 ? ` / AAC ${job.audio_bitrate / 1000} kb/s` : ''}`;
     result.hidden = false;
   }
   function clearVideo() {
@@ -297,6 +298,9 @@
         get(`/api/studio/v05/scene/multi-motion-plan?id=${encoded}`),
       ]);
       if (seq !== requestSeq || projectId !== activeProject()) return;
+      $('v69audioQuality').textContent = Number.isInteger(caps.audio_bitrate) && caps.audio_bitrate > 0
+        ? `音声: AAC ${caps.audio_bitrate / 1000} kb/s。入力音量を保って圧縮します。320 kb/sの出力は従来の192 kb/sより音声の容量が増えます。以前の完成物は保持します。`
+        : '';
       const hasScene = scene.instances.some(instance => instance.visible);
       context = { projectId, range, arrangement, sceneRevision: hasScene ? scene.revision : null };
       const selectedFps = [...fpsSelect.options].find(option => option.textContent.trim().startsWith(String(range.fps)));

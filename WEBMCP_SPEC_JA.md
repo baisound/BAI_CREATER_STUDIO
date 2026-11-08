@@ -129,3 +129,8 @@ Chrome 156.0.8078.80の専用試験プロファイルでWebMCPTestingを有効�
 ## 2026-11-08 既存素材capabilityと動画配置理由
 
 既存assets/capabilitiesへ読取専用mp4_video_formatsを追加（正本は出力VIDEO_EXT）。UIはブラウザー再生と出力対応を分けて案内する。ツール数・引数・登録形式は増やさない。動画映像のない素材/カバー画像だけのMP4は共通media-info/配置/出力サービスで拒否。既存WebMCP bai_studio_clip_placeのみ、出力ジョブと同じ限定error本文処理でHTTP番号に理由を加える。SDK/ネイティブ/手動UIで保存不変を確認。旧MOV出力は未対応を明示。詳細 docs/v05/VIDEO_FORMAT_POLICY_20261108_JA.md。
+
+
+## 2026-11-09 新規MP4のAAC目標値
+
+既存render_capabilitiesのaudio_bitrate=320000、新規render_jobのaudio_bitrateへ開始時の値を固定し、UI/標準MCP/WebMCPは同じ既存APIで使用する。新しいツール/引数/音量操作は追加しない。旧履歴にフィールドが無い場合は旧値を推測で表示しない。元音量と時計を保持し新規出力だけ作用する。詳細 docs/v05/AAC_320K_BOUNDARY_FIX_20261109_JA.md。
