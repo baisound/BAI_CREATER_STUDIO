@@ -6,7 +6,7 @@ const { spawnSync } = require('node:child_process');
 const rate = 48000, channels = 2;
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 function ff(args, input) {
-  const r = spawnSync(process.env.FFMPEG || 'ffmpeg', ['-hide_banner', '-loglevel', 'error', ...args], { input, maxBuffer: 200 * 1024 * 1024 });
+  const r = spawnSync(process.env.FFMPEG || 'ffmpeg', ['-hide_banner', '-loglevel', 'error', ...args], { input, maxBuffer: 200 * 1024 * 1024, timeout: 120000 });
   assert.equal(r.status, 0, r.stderr?.toString() || String(r.error)); return r.stdout;
 }
 function decode(file) {
@@ -84,4 +84,5 @@ function main() {
   fs.writeFileSync(path.join(options.out, 'aac-boundary-diagnostic.json'), JSON.stringify(result, null, 2));
   console.log(JSON.stringify({ ffmpeg: version, referencePeak: peak, overRange, targets: records.map(r => ({ label: r.label, ...r.target210 })) }));
 }
+module.exports = { ff, decode, mono, fit, sha, rate, channels };
 if (require.main === module) main();

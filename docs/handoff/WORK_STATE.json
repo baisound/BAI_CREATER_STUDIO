@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T03:10:22+09:00",
+  "updated_at": "2026-11-09T03:20:43+09:00",
   "updated_by": "codex",
   "branch": "codex/aac-input-levels-20261109",
-  "head_at_update": "38389c7",
+  "head_at_update": "4e10965",
   "current": {
     "task": "順3 G3-A2：入力振幅とAAC境界差の寄与を分離",
-    "status": "in_progress",
+    "status": "done",
     "step": "同一参照PCMの振幅1/0.75/0.5・クリップ対照をWindows/Ubuntuで比較し、過大入力とAAC圧縮の影響を分ける",
     "design_doc": "docs/v05/AAC_INPUT_LEVEL_DIAGNOSTIC_20261109_JA.md"
   },
   "next_steps": [
-    "G3-A2：同じ参照PCMの入力振幅を変えたAAC対照で、過大入力とAAC過渡の寄与を分け、必要な既存経路の修正または品質制限の扱いを確定する"
+    "G3-A3：音量/時計を保って新規MP4のAAC320kb/sを実装し、既知210秒/全54境界窓・既存117安定窓・両MCPと旧完成物保持を検証"
   ],
   "unverified": [
-    "G3-A2/既知3%未達の解決・主観聴感、G3-B〜F/順3全体、順4の読み54件・自然さ/採用、順5判定と既存ゲート2失敗/依存監査3件。ブラウザー再操作は今回未実施"
+    "製品320kの実MP4、20/50ms短窓品質・聴感/任意素材非クリップ/Win384、G3-A/順3全体。順4/5と既存ゲート/依存監査を維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-09T03:20:43+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4e10965",
+      "text": "G3-A2の振幅/クリップ対照とビットレート比較を確認。320k対照は両OS54窓3%以内、原本保持。Win384未完走と診断上限を記録"
+    },
     {
       "at": "2026-11-09T03:10:22+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "f25e101",
       "text": "Issue #81 順3のMP3元区間と長尺同期: 登録MP3と実曲由来MP3の実尺・先頭/中間/末尾・分割移動/再伸長・保存復元をプレビュー/MP4と照合し、必要な時刻修正を行う"
-    },
-    {
-      "at": "2026-11-06T19:41:03+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "576fe42",
-      "text": "main cba7fc9・手元/開発木・8765非表示再起動と新動画行UI/Chrome・515ファイル不変・Issue画像実表示を正本へ記録"
     }
   ]
 }
