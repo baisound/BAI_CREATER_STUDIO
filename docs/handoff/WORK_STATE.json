@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T03:28:30+09:00",
+  "updated_at": "2026-11-09T03:34:45+09:00",
   "updated_by": "codex",
-  "branch": "codex/aac-input-levels-20261109",
-  "head_at_update": "9b7f5cf",
+  "branch": "codex/aac-320k-sync-20261109",
+  "head_at_update": "a105d65",
   "current": {
-    "task": "順3 G3-A3：音量を保つAAC320kの実MP4境界修正",
+    "task": "AAC320k修正のmainと表示中制作画面を同期",
     "status": "done",
-    "step": "新規ジョブAAC320k固定/画面案内を接続し、既知210秒を含む54境界窓と117安定窓・両MCP/ミュートと原本保持を検証",
+    "step": "main/開発木をffし、8765の新しい目標320000とJS・Chrome再読込・515ファイル保持/Issue画像を記録",
     "design_doc": "docs/v05/AAC_320K_BOUNDARY_FIX_20261109_JA.md"
   },
   "next_steps": [
-    "検証済みA2/A3をmainへ統合し利用者main/開発木/8765と表示中Chromeを同期。その後G3-B1の形式/長尺/FPS/OS証拠表へ進む"
+    "G3-B1：形式/長尺/FPS/codec/OSと操作入口の既存証拠表を整理し、旧192k条件を区別して次の欠測タスクを確定する"
   ],
   "unverified": [
     "短窓/聴感・全codec/全作品/非クリップ保証・Linuxブラウザー/Win384、G3-A/順3全体、順4/5と既存ゲート2失敗/依存監査3件は維持"
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-09T03:34:45+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a105d65",
+      "text": "mainc1f5f8bと手元/開発木・8765新cap320000/HTTP一致・現在のChrome再読込を確認。515ファイル保持/Issue画像を正本へ記録"
+    },
+    {
+      "at": "2026-11-09T03:31:02+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "c1f5f8b",
+      "text": "AAC320k修正のmainと表示中制作画面を同期: main/開発木をffし、8765の新しい目標320000とJS・Chrome再読込・515ファイル保持/Issue画像を記録"
+    },
     {
       "at": "2026-11-09T03:28:30+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "start",
       "head": "c87aa95",
       "text": "Issue #81 順3の複数音声・楽曲行: 安定した音声/楽曲行の追加・空行削除・元区間/名前保存をUI/API/両MCPへ接続し、重なりPCMと再読込を隔離検証する"
-    },
-    {
-      "at": "2026-11-06T22:00:26+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "24d5c6a",
-      "text": "main7e63b5c・手元/開発木・8765非表示再起動/実尺/両MCP・515ファイル不変・Issue画像実表示を正本へ記録"
-    },
-    {
-      "at": "2026-11-06T21:59:21+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7e63b5c",
-      "text": "Issue #81 MP3元区間のmain/制作画面同期を引き継ぐ: main7e63b5c・手元/開発木・8765再起動/実尺/両MCP・515ファイル不変・Issue画像実表示を正本へ記録"
     }
   ]
 }

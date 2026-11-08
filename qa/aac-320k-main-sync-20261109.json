@@ -1,0 +1,63 @@
+{
+  "implementationCommit": "d0b4665f31f139067d3d5026560c3f78949ea8ab",
+  "diagnosticCommit": "9470ee3",
+  "pullRequest": 278,
+  "mergedMain": "c1f5f8b6e0d20ef14d779b8b9e6f8e02926deca5",
+  "server": {
+    "previousPid": 62952,
+    "newPid": 75076,
+    "hiddenRestart": true,
+    "activeSavedJobsBeforeRestart": 0
+  },
+  "visibleBrowser": {
+    "browser": "Chrome",
+    "previousRecordedTabId": "1055945512",
+    "currentTabId": "1055945654",
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "keptOpen": true,
+    "reloadedAfterMainSync": true,
+    "observedTitle": "BAI Creator Studio | Unified 3D Editor Mock v0.5",
+    "newAudioNoteElementPresent": true,
+    "homeRetained": true,
+    "screenshot": "D:/BAI/BAI_CREATER_STUDIO/BAI_Creator_Studio/logs/aac-320k-studio-synced-20261109.png"
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80"
+    },
+    "studio/v05/js/render-job-v69.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "e0b371d58600c5a15d46ffa791a6780182294688101a544b779d48a4f23da337"
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sameAsMain": true,
+      "sha256": "78f246e81e7abfc5219f2c775bfa41a2f4a54caebe219c24bd13b3ef27ac2a53"
+    }
+  },
+  "renderCapabilities": {
+    "available": true,
+    "audio_bitrate": 320000,
+    "presets": [
+      "mp4_h264_aac"
+    ]
+  },
+  "issueComment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6725379382",
+  "issueImage": {
+    "width": 1440,
+    "height": 900,
+    "visible": true,
+    "src": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/d0b4665f31f139067d3d5026560c3f78949ea8ab/qa/aac-320k-output-20261109.png",
+    "sha256": "80946497d8b3026ab4380511216b897c9e7f1d81ad5452e2894b1e7358197282"
+  },
+  "dataGuard": {
+    "files": 515,
+    "aggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "dirtyListUnchanged": true,
+    "excludes": "data/logs"
+  }
+}

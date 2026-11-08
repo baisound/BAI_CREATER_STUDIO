@@ -35,3 +35,12 @@ G3-A3の既知200ms境界差と安定窓は限定修正/検証済み。AACは可
 qa/aac-320k-{mix,mix-real}-{chrome,linux}-20261109.json、qa/aac-320k-output-20261109.png。MP4/ログはD:/BAI/BAI_CREATER_STUDIO/_Claude確認画像/2026-11-09-aac-320k/とlinux/。実音声はGitへ追加しない。
 
 node tests/run-guarded.cjs tests/studio-v05-audio-mix-level.test.cjs。BAI_REAL_MMD_DATAは実dataの読取元、BAI_OLD_MIX_OUTは2026-11-08-audio-mix-level、BAI_MIX_OUTは新規確認先。WindowsはCHROMIUM_PATH、UbuntuはBAI_MIX_API_ONLY=1。Pythonはtest_v05_track_audio_mute/test_v05_render_fractional_fps/test_studio_v05_render_range/test_studio_v05_render_namesの4ファイルを-X utf8で実行した。
+
+
+## mainと表示中画面の同期
+
+A2診断9470ee3、A3実装d0b4665、PR #278、mainc1f5f8b。利用者main/既存開発木をfast-forward。所有コマンドと保存実行中ジョブ0を確認した8765を非表示再起動（62952→75076）。HTTPのHTML/出力JS/WebMCP実バイトがmainと一致し、稼働中APIのaudio_bitrate=320000を確認。data/exports/studio.zipの515ファイルhashと変更一覧は不変（data/logs除外）。
+
+前回タブ1055945512は存在せず、現在のChrome一覧から同URLの開いているタブ1055945654を確認。ホーム/既存作品の状態を確認して再読込し、ホームの表示と新しい音声案内要素の生成を確認、同URLで保持。ホーム上の案内本文は出力タブを準備するまで空であり、320の可視案内は隔離Chromeの製品試験で確認したものと区別する。利用者作品へ試験出力・登録は行っていない。ローカル確認画像logs/aac-320k-studio-synced-20261109.pngを通常確認先へも保存した。
+
+Issue #81コメント6725379382の合成出力画面画像は実表示・1440×900・原画像hash一致。正本qa/aac-320k-main-sync-20261109.json。文書のみの同期PR後は不要な再起動を増やさず最終mainと応答・保全を確認する。
