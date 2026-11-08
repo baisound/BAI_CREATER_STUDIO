@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T03:20:43+09:00",
+  "updated_at": "2026-11-09T03:21:14+09:00",
   "updated_by": "codex",
   "branch": "codex/aac-input-levels-20261109",
-  "head_at_update": "4e10965",
+  "head_at_update": "9470ee3",
   "current": {
-    "task": "順3 G3-A2：入力振幅とAAC境界差の寄与を分離",
-    "status": "done",
-    "step": "同一参照PCMの振幅1/0.75/0.5・クリップ対照をWindows/Ubuntuで比較し、過大入力とAAC圧縮の影響を分ける",
-    "design_doc": "docs/v05/AAC_INPUT_LEVEL_DIAGNOSTIC_20261109_JA.md"
+    "task": "順3 G3-A3：音量を保つAAC320kの実MP4境界修正",
+    "status": "in_progress",
+    "step": "新規ジョブAAC320k固定/画面案内を接続し、既知210秒を含む54境界窓と117安定窓・両MCP/ミュートと原本保持を検証",
+    "design_doc": "docs/v05/AAC_320K_BOUNDARY_FIX_20261109_JA.md"
   },
   "next_steps": [
     "G3-A3：音量/時計を保って新規MP4のAAC320kb/sを実装し、既知210秒/全54境界窓・既存117安定窓・両MCPと旧完成物保持を検証"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-09T03:21:14+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9470ee3",
+      "text": "順3 G3-A3：音量を保つAAC320kの実MP4境界修正: 新規ジョブAAC320k固定/画面案内を接続し、既知210秒を含む54境界窓と117安定窓・両MCP/ミュートと原本保持を検証"
+    },
     {
       "at": "2026-11-09T03:20:43+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "0befb84",
       "text": "MP3の実尺差を修正し既存分割を両MCPへ接続。Windows/Ubuntu各38件Python・Node3、7本/733窓PCM差最大1sample、原本保持と既存MCP回帰2を記録"
-    },
-    {
-      "at": "2026-11-06T21:20:42+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f25e101",
-      "text": "Issue #81 順3のMP3元区間と長尺同期: 登録MP3と実曲由来MP3の実尺・先頭/中間/末尾・分割移動/再伸長・保存復元をプレビュー/MP4と照合し、必要な時刻修正を行う"
     }
   ]
 }
