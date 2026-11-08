@@ -485,7 +485,7 @@
       "phase_e_wp": "AUDIO-001・RENDER-004/006・DATA-002/008、#81/#39/#63",
       "planned_in": "V05-AAC-320K-BOUNDARY-20261109",
       "status": "partial_verified",
-      "commit": "本項を含む製品修正コミット。main同期で実hashを追記",
+      "commit": "d0b4665f31f139067d3d5026560c3f78949ea8ab / PR #278 / main c1f5f8b6e0d20ef14d779b8b9e6f8e02926deca5 / qa/aac-320k-main-sync-20261109.json",
       "tests": "2026-11-09、G3-A3の新規MP4をAAC320kb/sへ変更し元音量/時計を保持。目標値をジョブに固定しcapability/出力画面/完成物へ案内。実曲+登録MP3の6924F/29.97fpsで165固有200ms窓（既存117安定+54境界、6重複）を確認。音量差3%以内、時刻差0sample、最小比Win0.974190/Linux0.971968。旧192k完成物2本・原本/index/配置は不変。Windows/Ubuntu各Node2・Python28成功、Win追加5subtests。関連MCP/版管理2成功、DLは初回ソケット不足失敗後に単独1成功、型成功。短窓/全素材/聴感・G3-A/順3全体は未完。docs/v05/AAC_320K_BOUNDARY_FIX_20261109_JA.md",
       "unverified": "短窓/実スピーカー聴感・全codec/全作品/任意素材の非クリップ保証・Linuxブラウザー・G3-A/順3全体。順4/5と既存ゲート2失敗/依存監査3件を維持"
     }
