@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T19:49:26+09:00",
+  "updated_at": "2026-11-08T19:52:06+09:00",
   "updated_by": "codex",
   "branch": "codex/audio-formats-sync-20261108",
-  "head_at_update": "0c04ed3",
+  "head_at_update": "cb157ef",
   "current": {
     "task": "Issue #81 音声形式対応のmainと表示中ブラウザーを同期",
-    "status": "in_progress",
+    "status": "done",
     "step": "main0c04ed3・8765再起動/新形式capability/変更JS・515ファイル・Chrome表示とIssue画像を正本へ記録",
     "design_doc": "docs/v05/AUDIO_FORMATS_20261108_JA.md"
   },
   "next_steps": [
-    "検証済みPRをmainへ統合し利用者main/開発木/8765と開いているChromeを同期。515ファイル保持とIssue画像の表示を確認"
+    "順3 #81の画像/動画等の形式別対応・拒否と切替境界品質など既存受入れ条件を照合し、次の未完成項目へ進める。順4/5とAUDIO-001対象外ミキサーの境界は維持"
   ],
   "unverified": [
-    "全codec/全実作品/聴感/Linuxブラウザー・AAC再圧縮品質と音量完全一致・ミキサー/全Undo/順3全体は未完了。順4/5と既存ゲート/依存監査を維持"
+    "全codec/聴感/Linuxブラウザー/全実作品・AAC再圧縮品質/音量完全一致・全Undo/ミキサーと順3全体は未完了。既存証拠ゲート2失敗/依存監査3件を維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T19:52:06+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "cb157ef",
+      "text": "main0c04ed3・手元/開発木・8765再起動と表示中Chrome再読込、新形式API/案内・515ファイル不変・Issue画像表示を正本へ記録"
+    },
     {
       "at": "2026-11-08T19:49:26+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "6948652",
       "text": "Owner選択の既存VMD口形を実歌声全区間/29.97fps/非0開始の6924F・231.031秒MP4で確認。9口モーフ/画素MAE0.139〜0.291、190音声窓最大2sample、再読込と原本保持。56時刻の境界で確認構図を修正・3時刻目視。途中接続タイムアウト1失敗、最終1成功。実歌詞54件は未確定/採用層0"
-    },
-    {
-      "at": "2026-11-06T13:09:08+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "dc88958",
-      "text": "Issue #187 Owner選択の既存VMD口形と実歌声の長尺: 選択された既存口形を変えず、実歌声全区間と29.97fps/非0開始の保存・プレビュー・約231秒MP4を確認する。検証用SRT/採用層はこのケースに作らない"
     }
   ]
 }
