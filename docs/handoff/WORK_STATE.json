@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T03:21:14+09:00",
+  "updated_at": "2026-11-09T03:28:30+09:00",
   "updated_by": "codex",
   "branch": "codex/aac-input-levels-20261109",
-  "head_at_update": "9470ee3",
+  "head_at_update": "9b7f5cf",
   "current": {
     "task": "順3 G3-A3：音量を保つAAC320kの実MP4境界修正",
-    "status": "in_progress",
+    "status": "done",
     "step": "新規ジョブAAC320k固定/画面案内を接続し、既知210秒を含む54境界窓と117安定窓・両MCP/ミュートと原本保持を検証",
     "design_doc": "docs/v05/AAC_320K_BOUNDARY_FIX_20261109_JA.md"
   },
   "next_steps": [
-    "G3-A3：音量/時計を保って新規MP4のAAC320kb/sを実装し、既知210秒/全54境界窓・既存117安定窓・両MCPと旧完成物保持を検証"
+    "検証済みA2/A3をmainへ統合し利用者main/開発木/8765と表示中Chromeを同期。その後G3-B1の形式/長尺/FPS/OS証拠表へ進む"
   ],
   "unverified": [
-    "製品320kの実MP4、20/50ms短窓品質・聴感/任意素材非クリップ/Win384、G3-A/順3全体。順4/5と既存ゲート/依存監査を維持"
+    "短窓/聴感・全codec/全作品/非クリップ保証・Linuxブラウザー/Win384、G3-A/順3全体、順4/5と既存ゲート2失敗/依存監査3件は維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-09T03:28:30+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9b7f5cf",
+      "text": "AAC320kを新規MP4へ固定し画面案内。両OS165窓/54境界の差3%以内・lag0、Node各2/Python各28、関連最終3成功。旧出力/原本保持と途中失敗を記録"
+    },
     {
       "at": "2026-11-09T03:21:14+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "7e63b5c",
       "text": "Issue #81 MP3元区間のmain/制作画面同期を引き継ぐ: main7e63b5c・手元/開発木・8765再起動/実尺/両MCP・515ファイル不変・Issue画像実表示を正本へ記録"
-    },
-    {
-      "at": "2026-11-06T21:53:39+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "0befb84",
-      "text": "MP3の実尺差を修正し既存分割を両MCPへ接続。Windows/Ubuntu各38件Python・Node3、7本/733窓PCM差最大1sample、原本保持と既存MCP回帰2を記録"
     }
   ]
 }
