@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T20:23:30+09:00",
+  "updated_at": "2026-11-08T20:27:52+09:00",
   "updated_by": "codex",
-  "branch": "codex/image-formats-20261108",
-  "head_at_update": "86dfbe7",
+  "branch": "codex/image-formats-sync-20261108",
+  "head_at_update": "1ab7d08",
   "current": {
-    "task": "Issue #81 順3の静止画像形式別プレビューと出力",
-    "status": "done",
-    "step": "既存登録画像と新規PNG/JPEG/WebP/BMPを同じ作品で保存・表示/MP4比較し、非対応画像の理由表示を接続する",
+    "task": "Issue #81 画像形式対応のmainと表示中画面を同期",
+    "status": "in_progress",
+    "step": "main1ab7d08・8765再起動/新画像capabilityとCSS・515ファイル・ChromeとIssue画像を正本へ記録",
     "design_doc": "docs/v05/IMAGE_FORMATS_20261108_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T20:27:52+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1ab7d08",
+      "text": "Issue #81 画像形式対応のmainと表示中画面を同期: main1ab7d08・8765再起動/新画像capabilityとCSS・515ファイル・ChromeとIssue画像を正本へ記録"
+    },
     {
       "at": "2026-11-08T20:23:30+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "ac4837d",
       "text": "末尾4発話の別名候補と実歌声29.97fps長尺を検証。原キー/骨/末尾保持、32モーラ、再読込、6924F MP4、Windows/Ubuntu各20成功"
-    },
-    {
-      "at": "2026-11-06T16:37:52+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9fa1601",
-      "text": "Issue #187/#81 末尾4発話の口形を別名候補へ補完: 最新Owner指定で発話51〜54だけを補完し、原VMDの全キー/骨/末尾区画を保持。実歌声の境界と母音時刻、実PMX再読込と長尺MP4を検証する"
     }
   ]
 }
