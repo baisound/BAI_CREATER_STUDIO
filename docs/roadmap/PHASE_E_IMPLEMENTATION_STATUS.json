@@ -461,6 +461,15 @@
       "commit": "75a517fd68abccba1db0f5a75f32758a98153ee8 / PR #274 / main caac129763e8287efa665daf29a2dfc3982cb7a3 / qa/video-policy-main-sync-20261108.json",
       "tests": "2026-11-08、#81/#37の動画形式を限定検証。既存登録MP4と新規MP4/WebM/OGVを同じ作品で保存復元し、225F/非0In215F、VFR元時刻/空白・代表画素と内包音声を照合。MP4出力対応形式を素材詳細へ表示し、旧MOVは形式と理由を明示して拒否。音声のみ/カバー画像のみの動画は配置・旧保存からの出力を拒否し、作品/原本/indexと以前の完成物を保持。Windows/Ubuntu各Python47・Node2成功0skip、既存VFR/画像/出力MCP回帰4成功・型成功。全codec/VFR/長尺/Linuxブラウザー/全Undoと順3全体は未完了。docs/v05/VIDEO_FORMAT_POLICY_20261108_JA.md",
       "unverified": "Linuxブラウザー/ネイティブ・実GPU、全codec/VFR/原4K/長尺・回転/色空間/多重ストリーム・全破損検出・聴感/全Undo・Owner実旧MOV。順3全体/順4の54件読み・最終候補採用/順5判定を維持"
+    },
+    {
+      "item": "順3 G3-A1：既存AAC境界差の原因切り分け",
+      "phase_e_wp": "AUDIO-001・RENDER-006、#81/#39/#63",
+      "planned_in": "V05-AAC-BOUNDARY-DIAGNOSTIC-20261108",
+      "status": "diagnostic_verified_requirement_open",
+      "commit": "本項を含む診断・ロードマップ整理コミット。main同期時に実hashを追記",
+      "tests": "2026-11-08、順3の細分化G3-A1としてAAC境界差を既存出力で再解析。210秒200ms窓はWindows0.970141/Ubuntu0.959620。両OSの直接AAC対照が各自の完成MP4と162/162窓の波形hash一致し、配置/加算を外しても差が再現。参照peak1.282292と48チャンネルサンプルの範囲超過を記録。診断・原本/索引/旧完成物不変を確認。製品設定/時計/音量/合否条件は変更せず、G3-A全体/順3全体は未完了。docs/v05/AAC_BOUNDARY_DIAGNOSTIC_20261108_JA.md",
+      "unverified": "G3-A2の過大入力/AAC過渡の分離・実聴感/任意素材の品質・3%未達の解決・G3-A/順3全体。順4/5、証拠ゲート2失敗/依存監査3件を維持"
     }
   ]
 }
