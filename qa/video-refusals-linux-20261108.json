@@ -1,0 +1,133 @@
+{
+  "apiOnly": true,
+  "cap": {
+    "schema": 1,
+    "search_categories": [
+      "audio",
+      "camera",
+      "effect",
+      "expression",
+      "image",
+      "light",
+      "lip",
+      "model",
+      "motion",
+      "music",
+      "other",
+      "video"
+    ],
+    "mp4_image_formats": [
+      "bmp",
+      "jpeg",
+      "jpg",
+      "png",
+      "webp"
+    ],
+    "mp4_video_formats": [
+      "mp4",
+      "ogv",
+      "webm"
+    ],
+    "upload_formats": {
+      "avif": [
+        "fx",
+        "image",
+        "material"
+      ],
+      "bmp": [
+        "image",
+        "material"
+      ],
+      "flac": [
+        "audio"
+      ],
+      "gif": [
+        "fx",
+        "image"
+      ],
+      "glb": [
+        "fx",
+        "prop",
+        "stage"
+      ],
+      "jpeg": [
+        "fx",
+        "image",
+        "material"
+      ],
+      "jpg": [
+        "fx",
+        "image",
+        "material"
+      ],
+      "m4a": [
+        "audio"
+      ],
+      "mp3": [
+        "audio"
+      ],
+      "mp4": [
+        "video"
+      ],
+      "ogg": [
+        "audio"
+      ],
+      "ogv": [
+        "video"
+      ],
+      "png": [
+        "fx",
+        "image",
+        "material"
+      ],
+      "wav": [
+        "audio"
+      ],
+      "webm": [
+        "video"
+      ],
+      "webp": [
+        "fx",
+        "image",
+        "material"
+      ]
+    },
+    "max_upload_bytes": 419430400,
+    "max_stage_bytes": 1073741824,
+    "upload_endpoint": "/api/library-assets/upload",
+    "source_modes": [
+      "reference",
+      "copy"
+    ],
+    "source_inbox": "data/asset_inbox (server-side relative paths only)",
+    "reference_endpoint": "/api/studio/v05/asset-sources/register",
+    "note": "Uploads require actual file bytes; MCP/WebMCP expose capabilities and search, not arbitrary local file reads."
+  },
+  "refusals": [
+    {
+      "format": "MP4",
+      "placementRefused": true,
+      "renderRefused": true
+    },
+    {
+      "format": "WEBM",
+      "placementRefused": true,
+      "renderRefused": true
+    },
+    {
+      "format": "OGV",
+      "placementRefused": true,
+      "renderRefused": true
+    },
+    {
+      "format": "MP4",
+      "placementRefused": true,
+      "renderRefused": true
+    }
+  ],
+  "legacyMovRenderRefused": true,
+  "legacyMovUploadRefused": true,
+  "indexUnchanged": true,
+  "oldOutputHash": "b63928a4cc2dac54d750bd7cb145dbf7043776d3c1efaf8fc51279bb7da60ad0",
+  "completedOutputUnchanged": true
+}

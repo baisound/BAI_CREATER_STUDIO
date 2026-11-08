@@ -1,0 +1,125 @@
+{
+  "apiOnly": true,
+  "existingId": "library:e1d28fe47744328e3d66fe54",
+  "existingHash": "c974470c51c5148dea84f5f961f2b4135d496ac5f214e5e67c70b311f502ef77",
+  "inputHashes": [
+    {
+      "id": "library:e1d28fe47744328e3d66fe54",
+      "hash": "c974470c51c5148dea84f5f961f2b4135d496ac5f214e5e67c70b311f502ef77"
+    },
+    {
+      "id": "library:53d738669624154bc6792cf8",
+      "hash": "a3bd0f55e0ea39f32275281049bc39dd0df4904f9f8709d8273c94b53b772232"
+    },
+    {
+      "id": "library:a3503632e073b93ef3405b18",
+      "hash": "cc0cf0d46d2a093929516463f97779553eec24d1a99ee078de31d853b64f997b"
+    },
+    {
+      "id": "library:f69b5ac5244aa3cfb997ddcc",
+      "hash": "3772da739f95ee1286bcce2d71d36aa52e8e15ab095d56dc764a184d40d6fe52"
+    }
+  ],
+  "savedClips": [
+    {
+      "id": "eb731c55-909f-4912-a4a7-82d4e2192872",
+      "asset_id": "library:e1d28fe47744328e3d66fe54",
+      "name": "Kenney Platformer Demo",
+      "category": "video",
+      "track": "video",
+      "lane": 1,
+      "start": 0,
+      "duration": 1.5,
+      "source_start": 0.25,
+      "source_duration": 3,
+      "source_has_audio": false
+    },
+    {
+      "id": "e0c427c3-2a80-4195-ad2a-05aba3eb323b",
+      "asset_id": "library:53d738669624154bc6792cf8",
+      "name": "clock",
+      "category": "video",
+      "track": "video",
+      "lane": 1,
+      "start": 2,
+      "duration": 1.5,
+      "source_start": 0.25,
+      "source_duration": 3,
+      "source_has_audio": true
+    },
+    {
+      "id": "29a775e3-e545-49d8-b998-8470ab25d341",
+      "asset_id": "library:a3503632e073b93ef3405b18",
+      "name": "clock",
+      "category": "video",
+      "track": "video",
+      "lane": 1,
+      "start": 4,
+      "duration": 1.5,
+      "source_start": 0.25,
+      "source_duration": 3.008,
+      "source_has_audio": true
+    },
+    {
+      "id": "2f974be6-2bed-4f91-bae4-a873aaca1a8c",
+      "asset_id": "library:f69b5ac5244aa3cfb997ddcc",
+      "name": "clock",
+      "category": "video",
+      "track": "video",
+      "lane": 1,
+      "start": 6,
+      "duration": 1.5,
+      "source_start": 0.25,
+      "source_duration": 3,
+      "source_has_audio": true
+    }
+  ],
+  "fullFrames": 225,
+  "cutFrames": 215,
+  "checks": [
+    {
+      "format": "mp4",
+      "audio": [
+        {
+          "lag": 0,
+          "correlation": 0.9999992256914211
+        },
+        {
+          "lag": 0,
+          "correlation": 0.9999992045731307
+        }
+      ],
+      "browser": null
+    },
+    {
+      "format": "webm",
+      "audio": [
+        {
+          "lag": 56,
+          "correlation": 0.9999990613577415
+        },
+        {
+          "lag": 56,
+          "correlation": 0.9999992914651032
+        }
+      ],
+      "browser": null
+    },
+    {
+      "format": "ogv",
+      "audio": [
+        {
+          "lag": 0,
+          "correlation": 0.9999991714303375
+        },
+        {
+          "lag": 0,
+          "correlation": 0.9999991398794884
+        }
+      ],
+      "browser": null
+    }
+  ],
+  "originalsUnchanged": true,
+  "registeredBytesUnchanged": true
+}

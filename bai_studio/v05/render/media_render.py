@@ -297,7 +297,7 @@ def _source(entry: dict, library_root: Path, source_root: Path, inbox_root: Path
 def _media_info(ffprobe: str, path: Path) -> dict:
     try:
         result = _run([ffprobe, "-v", "error", "-show_entries",
-                       "stream=codec_type,sample_rate:stream_disposition=attached_pic:format=duration", "-of", "json", str(path)], 30)
+                       "stream=codec_type,sample_rate,width,height:stream_disposition=attached_pic:format=duration", "-of", "json", str(path)], 30)
         if result.returncode:
             raise ValueError("ffprobe returned an error")
         info = json.loads(result.stdout)
@@ -336,6 +336,10 @@ def _media_info(ffprobe: str, path: Path) -> dict:
         if not 0 < duration <= 86400:
             raise ValueError("invalid media duration")
         return {"duration": duration,
+                "video": any(stream.get("codec_type") == "video" and
+                             not stream.get("disposition", {}).get("attached_pic") and
+                             stream.get("width", 0) > 0 and stream.get("height", 0) > 0
+                             for stream in info.get("streams", [])),
                 "audio": any(stream.get("codec_type") == "audio" for stream in info.get("streams", []))}
     except RenderError:
         raise
@@ -362,6 +366,8 @@ def media_info(data_root: Path, asset_id: str, inventory: list[dict]) -> dict:
     if not ffprobe:
         raise RenderError("ffprobeが見つからないため動画・音声の長さを確認できません")
     info = _media_info(ffprobe, path)
+    if kind == "video" and not info["video"]:
+        raise RenderError("動画の映像トラックが見つかりません。音声のみの素材は音声として登録してください")
     if kind in {"audio", "music"} and not info["audio"]:
         raise RenderError("音声トラックが見つかりません。音声素材を確認してください")
     return {"asset_id": asset_id, "kind": kind, "duration_seconds": round(info["duration"], 4),
@@ -410,10 +416,15 @@ def _snapshot(data_root: Path, project_id: str, range_revision: int, arrangement
             if kind == "image":
                 formats = " / ".join(ext[1:].upper() for ext in sorted(IMAGE_EXT))
                 raise RenderError(f"{clip.get('name', 'Clip')}: この画像形式または登録元はMP4書き出しへ未対応です。対応形式: {formats}")
+            if kind == "video":
+                formats = " / ".join(ext[1:].upper() for ext in sorted(VIDEO_EXT))
+                raise RenderError(f"{clip.get('name', 'Clip')}: この動画形式または登録元はMP4書き出しへ未対応です。対応形式: {formats}")
             raise RenderError(f"{clip.get('name', 'Clip')}: この形式または登録元はMP4出力へ未接続です")
         has_audio = False
         if kind in {"video", "audio"}:
             info = _media_info(ffprobe, path)
+            if kind == "video" and not info["video"]:
+                raise RenderError(f"{clip.get('name', 'Clip')}: 動画の映像トラックが見つかりません。音声のみの素材は音声として登録してください")
             if info["duration"] + 0.02 < clip.get("source_start", 0) + clip["duration"]:
                 raise RenderError(f"{clip.get('name', 'Clip')}: 配置時間が元素材より長いため出力できません")
             has_audio = info["audio"]
