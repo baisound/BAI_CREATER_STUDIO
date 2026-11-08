@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T22:20:45+09:00",
+  "updated_at": "2026-11-09T03:10:22+09:00",
   "updated_by": "codex",
-  "branch": "codex/roadmap-aac-sync-20261108",
-  "head_at_update": "0f57ebc",
+  "branch": "codex/aac-input-levels-20261109",
+  "head_at_update": "38389c7",
   "current": {
-    "task": "ロードマップとAAC診断のmain同期・次工程を記録",
-    "status": "done",
-    "step": "手元/開発木のfast-forward・8765配信と515ファイル保持を確認し、G3-A1診断済み/次G3-A2を正本へ記録",
-    "design_doc": "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md"
+    "task": "順3 G3-A2：入力振幅とAAC境界差の寄与を分離",
+    "status": "in_progress",
+    "step": "同一参照PCMの振幅1/0.75/0.5・クリップ対照をWindows/Ubuntuで比較し、過大入力とAAC圧縮の影響を分ける",
+    "design_doc": "docs/v05/AAC_INPUT_LEVEL_DIAGNOSTIC_20261109_JA.md"
   },
   "next_steps": [
     "G3-A2：同じ参照PCMの入力振幅を変えたAAC対照で、過大入力とAAC過渡の寄与を分け、必要な既存経路の修正または品質制限の扱いを確定する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-09T03:10:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "38389c7",
+      "text": "順3 G3-A2：入力振幅とAAC境界差の寄与を分離: 同一参照PCMの振幅1/0.75/0.5・クリップ対照をWindows/Ubuntuで比較し、過大入力とAAC圧縮の影響を分ける"
+    },
     {
       "at": "2026-11-08T22:20:45+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "576fe42",
       "text": "main cba7fc9・手元/開発木・8765非表示再起動と新動画行UI/Chrome・515ファイル不変・Issue画像実表示を正本へ記録"
-    },
-    {
-      "at": "2026-11-06T19:40:07+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cba7fc9",
-      "text": "Issue #81 複数動画行のmainと制作画面同期を引き継ぐ: main cba7fc9・手元/開発木・8765再起動と新UI/Chrome・515ファイル不変・Issue画像実表示を正本へ記録"
     }
   ]
 }
