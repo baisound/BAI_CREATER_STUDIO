@@ -114,3 +114,8 @@ Chrome 156.0.8078.80の専用試験プロファイルでWebMCPTestingを有効�
 `bai_studio_track_layout_set` の既存5actionへ `add_audio_lane` / `remove_audio_lane` / `add_music_lane` / `remove_music_lane` を追加。追加はproject_id/revision/action、削除はlaneも必須。各種最大16行、削除は空行だけ、最後の行は残す。削除番号は再使用しない。行IDはlayout_getのaudio_lane_ids/music_lane_idsを読み、clip_place/editのlaneへ指定する。同種editでlaneを省略すると元行を保持する。ロック/ミュートは音声全行または楽曲全行に作用する。旧5action/省略updateとツール数（標準128、共通Web64）は維持。
 
 手動UIと同じ保存APIを使う。外部MCP編集を試験した後は作品を明示的に読み直した。画面の一般的な自動同期・行別音量/ミキサーの完成を示さない。[仕様・操作・試験](docs/v05/AUDIO_MUSIC_LANES_20261107_JA.md)。
+
+
+## 2026-11-08 OGG・FLAC・M4A
+
+既存の素材登録/参照、clip_place/edit/split、render_job_startへOGG(Vorbis/Opus)・FLAC・M4A(AAC)を接続。ツール名・数・保存形式は変更しない。capabilitiesのupload_formatsと共通の登録検査が正本。新形式の実尺もmedia-infoで確認し、種類/偽装/破損・元尺超過は理由付き拒否。全codec/ブラウザー/クライアントの保証ではない。[契約と試験](docs/v05/AUDIO_FORMATS_20261108_JA.md)。

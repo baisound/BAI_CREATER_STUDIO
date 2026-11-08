@@ -16,7 +16,7 @@
   const uploadFormats = {
     stage: ['glb'], prop: ['glb'], material: ['png', 'jpg', 'jpeg', 'webp', 'avif', 'bmp'],
     fx: ['glb', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif'],
-    audio: ['wav', 'mp3'], video: ['mp4', 'webm', 'ogv'],
+    audio: ['wav', 'mp3', 'ogg', 'flac', 'm4a'], video: ['mp4', 'webm', 'ogv'],
     image: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'bmp'],
     // Registered through model-motion-import-v188.js with the same routes as /workspace/08.
     vrm: ['vrm'], fbxModelA: ['fbx'], fbxModelB: ['fbx'], fbxMotion: ['fbx'], glbMotion: ['glb'],
@@ -249,6 +249,7 @@
         <option value="fbxModelB">FBXモデルB（置き換え）</option><option value="fbxMotion">FBX動作</option><option value="glbMotion">GLB動作</option></optgroup>
       </select></label>
       <label>ファイル <input id="baiUploadFiles" type="file" multiple></label>
+      <p id="baiUploadAudioFormats" class="baiTiny" hidden>対応する音声形式: WAV / MP3 / OGG（Vorbis・Opus）/ FLAC / M4A（AAC）。コーデックによりブラウザーで再生できない場合があります。</p>
       <button type="button" id="baiUploadSubmit">選んだファイルを登録</button>
       <p id="baiUploadStatus" role="status">種類とファイルを選んでください。GLBステージは最大1 GiB、その他は最大400 MiBです。</p>
       <div id="baiUploadConfirm"></div>
@@ -257,7 +258,10 @@
     const files = $('baiUploadFiles');
     const button = $('baiUploadSubmit');
     const status = $('baiUploadStatus');
-    kind.addEventListener('change', () => { files.accept = uploadFormats[kind.value].map((ext) => `.${ext}`).join(','); });
+    kind.addEventListener('change', () => {
+      files.accept = uploadFormats[kind.value].map((ext) => `.${ext}`).join(',');
+      $('baiUploadAudioFormats').hidden = kind.value !== 'audio';
+    });
     kind.dispatchEvent(new Event('change'));
     button.addEventListener('click', async () => {
       const chosen = Array.from(files.files || []);

@@ -89,3 +89,8 @@ Ownerの「次の未完成項目を進め、検証済みをmain/制作画面へ�
 ### 2026-11-08 混音の音量一致（順3）
 
 2026-11-08、#81の混音音量一致を限定修正。MP4のamix暗黙正規化を外し、既存HTMLプレビューの元音量加算へ一致させた。変更前は入力数/終端で約1/4→1/3→1/2、修正後の合成PCM音量比はWin0.9992〜1.0001/Linux0.9962〜1.0016。Chrome実再生のWebAudio採取は約1倍。Windows/Ubuntu各Node2成功、Python各28（Win追加subtests5）、回帰3成功2任意実データskip。実WAV+登録MP3の6924F/各117安定窓は音量比±3%・時刻差0sample/48kHz。切替直後AAC過渡/OSスピーカー聴感/全素材/ミキサーは未完了。既存完成物は保持。docs/v05/AUDIO_MIX_LEVEL_20261108_JA.md
+
+
+### 2026-11-08 音声の形式別経路（順3）
+
+2026-11-08、#81/#37のOGG(Vorbis/Opus)・FLAC・M4A(AAC)を登録/実尺/元区間・分割/Chromeプレビュー/MP4へ接続。署名/MIME/共通取込判定・音声波形の形式制限を同期。Vorbisの切出し約139sample/48kHz差を独立音声の事前時刻正規化で修正し、動画内音声の相対時計は保持。Windows/Ubuntu各Python50・Node2成功、関連回帰24成功1実データskip。899F/818Fの各30窓は差0sample、実曲由来4代表codecの5619F/各92窓は最大1sample/48kHz。全codec/聴感/Linuxブラウザー・AAC再圧縮品質などは未完了。docs/v05/AUDIO_FORMATS_20261108_JA.md

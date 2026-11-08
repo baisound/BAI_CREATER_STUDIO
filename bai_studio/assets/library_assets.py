@@ -26,14 +26,14 @@ FORMATS = {
     'webp': {'material', 'fx', 'image'},
     'avif': {'material', 'fx', 'image'},
     'bmp': {'material', 'image'},
-    'wav': {'audio'}, 'mp3': {'audio'},
+    'wav': {'audio'}, 'mp3': {'audio'}, 'ogg': {'audio'}, 'flac': {'audio'}, 'm4a': {'audio'},
     'mp4': {'video'}, 'webm': {'video'}, 'ogv': {'video'},
 }
 MIME = {
     'glb': 'model/gltf-binary', 'png': 'image/png', 'jpg': 'image/jpeg',
     'jpeg': 'image/jpeg', 'gif': 'image/gif', 'webp': 'image/webp',
     'avif': 'image/avif', 'bmp': 'image/bmp', 'wav': 'audio/wav',
-    'mp3': 'audio/mpeg', 'mp4': 'video/mp4', 'webm': 'video/webm',
+    'mp3': 'audio/mpeg', 'ogg': 'audio/ogg', 'flac': 'audio/flac', 'm4a': 'audio/mp4', 'mp4': 'video/mp4', 'webm': 'video/webm',
     'ogv': 'video/ogg',
 }
 
@@ -62,7 +62,9 @@ def valid_signature(ext: str, head: bytes) -> bool:
     if ext == 'bmp': return head.startswith(b'BM')
     if ext == 'wav': return head[:4] == b'RIFF' and head[8:12] == b'WAVE'
     if ext == 'mp3': return head.startswith(b'ID3') or (len(head) >= 2 and head[0] == 0xff and head[1] & 0xe0 == 0xe0)
-    if ext == 'mp4': return head[4:8] == b'ftyp'
+    if ext == 'ogg': return head.startswith(b'OggS') and (b'\x01vorbis' in head[27:] or b'OpusHead' in head[27:])
+    if ext == 'flac': return head.startswith(b'fLaC')
+    if ext in ('mp4', 'm4a'): return head[4:8] == b'ftyp'
     if ext == 'webm': return head.startswith(b'\x1a\x45\xdf\xa3')
     if ext == 'ogv': return head.startswith(b'OggS')
     return False
@@ -251,7 +253,7 @@ def inspect_file(path: Path, ext: str, original_name: str) -> dict:
         elif ext == 'wav': info.update(_wav_meta(path))
         elif ext == 'png': info.update(_png_meta(path))
         elif ext in ('jpg', 'jpeg'): info.update(_jpeg_meta(path))
-        elif ext == 'mp4': info['tagTitle'] = _mp4_title(path)
+        elif ext in ('mp4', 'm4a'): info['tagTitle'] = _mp4_title(path)
         elif ext == 'webm': info['tagTitle'] = _webm_title(path)
         elif ext == 'gif':
             with path.open('rb') as f:

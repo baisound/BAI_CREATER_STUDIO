@@ -49,6 +49,12 @@ test('new library kinds and routes', () => {
   assert.equal(effectiveRoute('integrated', 'stage'), 'library');
   assert.equal(effectiveRoute('integrated', 'model'), 'integrated');
   assert.equal(classifyImport('scene.wav', 1).defaultKind, 'audio');
+  for (const ext of ['ogg', 'flac', 'm4a']) {
+    const audio = classifyImport('scene.' + ext, 100);
+    assert.equal(audio.ok, true);
+    assert.equal(audio.route, 'library');
+    assert.equal(audio.defaultKind, 'audio');
+  }
   assert.equal(classifyImport('clip.mp4', 1).defaultKind, 'video');
   assert.deepEqual(classifyImport('effect.gif', 1).kinds.map((k) => k.value), ['image', 'fx']);
   assert.deepEqual(classifyImport('texture.png', 1).kinds.map((k) => k.value), ['image', 'material', 'fx']);

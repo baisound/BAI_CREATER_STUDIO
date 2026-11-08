@@ -33,7 +33,7 @@ MAX_SCENE_BYTES = 2 * 1024 * 1024 * 1024
 RESOLUTIONS = {"720p": (1280, 720), "1080p": (1920, 1080)}
 IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 VIDEO_EXT = {".mp4", ".webm", ".ogv"}
-AUDIO_EXT = {".wav", ".mp3"}
+AUDIO_EXT = {".wav", ".mp3", ".ogg", ".flac", ".m4a"}
 _CAP_CACHE: dict | None = None
 _CAP_KEY: tuple | None = None
 
@@ -297,12 +297,16 @@ def _source(entry: dict, library_root: Path, source_root: Path, inbox_root: Path
 def _media_info(ffprobe: str, path: Path) -> dict:
     try:
         result = _run([ffprobe, "-v", "error", "-show_entries",
-                       "stream=codec_type,sample_rate:format=duration", "-of", "json", str(path)], 30)
+                       "stream=codec_type,sample_rate:stream_disposition=attached_pic:format=duration", "-of", "json", str(path)], 30)
         if result.returncode:
             raise ValueError("ffprobe returned an error")
         info = json.loads(result.stdout)
         duration = float(info["format"]["duration"])
-        if path.suffix.lower() == ".mp3":
+        ext = path.suffix.lower()
+        if ext == ".m4a" and any(stream.get("codec_type") == "video" and
+                not stream.get("disposition", {}).get("attached_pic") for stream in info.get("streams", [])):
+            raise RenderError("M4Aに映像が含まれています。元ファイルを動画形式で登録してください")
+        if ext in {".mp3", ".ogg", ".flac", ".m4a"}:
             # Older demuxers include encoder delay/padding in format.duration.
             # Count decoded samples so source windows use the same playable
             # clock as the browser, without subtracting padding twice on newer
@@ -311,24 +315,30 @@ def _media_info(ffprobe: str, path: Path) -> dict:
                          if stream.get("codec_type") == "audio")
             rate = int(audio["sample_rate"])
             if not 0 < rate <= 192000:
-                raise ValueError("invalid MP3 sample rate")
+                raise ValueError("invalid audio sample rate")
             decoded = _run([ffprobe, "-v", "error", "-select_streams", "a:0",
                             "-show_entries", "frame=nb_samples", "-of", "csv=p=0", str(path)], 30)
             if decoded.returncode or decoded.stderr.strip():
-                raise ValueError("MP3 decode failed")
+                raise ValueError("Audio decode failed")
             samples = 0
             for line in decoded.stdout.splitlines():
                 if not line.strip():
                     continue
                 count = int(line)
-                if not 0 < count <= 1152:
-                    raise ValueError("invalid MP3 sample count")
+                if not 0 < count <= (1152 if ext == ".mp3" else 192000):
+                    raise ValueError("invalid audio sample count")
                 samples += count
-            duration = samples / rate
+            if not samples:
+                raise ValueError("No decoded audio samples")
+            # Opus may include pre-skip in the container clock; AAC may decode
+            # a padded last frame. Use only the common playable interval.
+            duration = samples / rate if ext == ".mp3" else min(duration, samples / rate)
         if not 0 < duration <= 86400:
             raise ValueError("invalid media duration")
         return {"duration": duration,
                 "audio": any(stream.get("codec_type") == "audio" for stream in info.get("streams", []))}
+    except RenderError:
+        raise
     except (OSError, ValueError, KeyError, TypeError, StopIteration, subprocess.TimeoutExpired) as exc:
         raise RenderError(f"{path.name}: 元素材を動画・音声として読めません") from exc
 
@@ -352,6 +362,8 @@ def media_info(data_root: Path, asset_id: str, inventory: list[dict]) -> dict:
     if not ffprobe:
         raise RenderError("ffprobeが見つからないため動画・音声の長さを確認できません")
     info = _media_info(ffprobe, path)
+    if kind in {"audio", "music"} and not info["audio"]:
+        raise RenderError("音声トラックが見つかりません。音声素材を確認してください")
     return {"asset_id": asset_id, "kind": kind, "duration_seconds": round(info["duration"], 4),
             "has_audio": info["audio"]}
 
@@ -523,7 +535,11 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
             # Match the preview's unity-gain media elements. Muting an input
             # must not change the gain of the other clips.
             mute = "volume=0," if item.get("audio_muted") else ""
-            audio.append(f"[{idx}:a]atrim=start={_num(source_start)}:duration={_num(length)},asetpts=PTS-STARTPTS,"
+            # Standalone audio starts at its first playable sample, as in the
+            # browser. Vorbis can have a nonzero initial decoded timestamp.
+            # Video audio retains its original clock relative to the picture.
+            clock = "asetpts=PTS-STARTPTS," if item["kind"] == "audio" else ""
+            audio.append(f"[{idx}:a]{clock}atrim=start={_num(source_start)}:duration={_num(length)},asetpts=PTS-STARTPTS,"
                          f"aresample=48000,aformat=channel_layouts=stereo,{mute}adelay={delay}|{delay}[{label}]")
             audio_labels.append(label)
     # Older overlay/fps pipelines end at the last frame's PTS, rather than its
