@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T22:17:28+09:00",
+  "updated_at": "2026-11-08T22:18:44+09:00",
   "updated_by": "codex",
-  "branch": "codex/roadmap-boundary-audit-20261108",
-  "head_at_update": "a0f9aa6",
+  "branch": "codex/roadmap-aac-sync-20261108",
+  "head_at_update": "f7a15ea",
   "current": {
-    "task": "ロードマップ現在地と順3細分化・AAC境界の診断に着手",
-    "status": "done",
-    "step": "7段階と順3の終了条件を証拠へ照合し、既存出力のAAC切替前後PCMを再解析して原因を分ける",
+    "task": "ロードマップとAAC診断のmain同期・次工程を記録",
+    "status": "in_progress",
+    "step": "手元/開発木のfast-forward・8765配信と515ファイル保持を確認し、G3-A1診断済み/次G3-A2を正本へ記録",
     "design_doc": "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T22:18:44+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f7a15ea",
+      "text": "ロードマップとAAC診断のmain同期・次工程を記録: 手元/開発木のfast-forward・8765配信と515ファイル保持を確認し、G3-A1診断済み/次G3-A2を正本へ記録"
+    },
     {
       "at": "2026-11-08T22:17:28+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "505843e",
       "text": "複数動画行をUI/API/両MCPと出力へ接続。Windows53/Ubuntu43のPython、Chrome/SDK・6421F実AAC長尺・回帰成功を記録。境界1F/シーク注記/非同期待機も修正"
-    },
-    {
-      "at": "2026-11-06T19:01:27+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0dcfa33",
-      "text": "Issue #81 順3の複数動画行と重なり出力: 動画行の安定ID追加・空行削除・元区間保持をUI/API/両MCPへ接続し、重なり/切替の画素と内包音声・再読込を隔離検証する"
     }
   ]
 }
