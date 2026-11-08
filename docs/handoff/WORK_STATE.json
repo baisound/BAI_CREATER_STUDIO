@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T20:32:33+09:00",
+  "updated_at": "2026-11-08T21:44:48+09:00",
   "updated_by": "codex",
-  "branch": "codex/image-formats-sync-20261108",
-  "head_at_update": "eb39b45",
+  "branch": "codex/video-format-policy-20261108",
+  "head_at_update": "0ec6446",
   "current": {
-    "task": "Issue #81 画像形式対応のmainと表示中画面を同期",
-    "status": "done",
-    "step": "main1ab7d08・8765再起動/新画像capabilityとCSS・515ファイル・ChromeとIssue画像を正本へ記録",
-    "design_doc": "docs/v05/IMAGE_FORMATS_20261108_JA.md"
+    "task": "Issue #81 順3の動画形式と映像なし素材の拒否",
+    "status": "in_progress",
+    "step": "MP4/WebM/OGVと旧MOVを形式別に確認し、対応案内・映像なし拒否を共通APIと保存/プレビュー/MP4へ接続する",
+    "design_doc": "docs/v05/VIDEO_FORMAT_POLICY_20261108_JA.md"
   },
   "next_steps": [
     "順3 #81の動画等の形式別対応/拒否・切替境界品質を既存受入れ条件へ照合し次の未完成項目へ進める"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T21:44:48+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0ec6446",
+      "text": "Issue #81 順3の動画形式と映像なし素材の拒否: MP4/WebM/OGVと旧MOVを形式別に確認し、対応案内・映像なし拒否を共通APIと保存/プレビュー/MP4へ接続する"
+    },
     {
       "at": "2026-11-08T20:32:33+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "651c121",
       "text": "PR258をmain8b7429dへ統合、手元main/codex-next/8765の実バイト・Chrome同期、515ファイル不変、Issue画像表示/hashを確認して引き継ぎへ記録"
-    },
-    {
-      "at": "2026-11-06T17:09:02+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "8b7429d",
-      "text": "Issue #187 末尾4発話候補のmain同期と引き継ぎ記録: PR258のmain/利用者515ファイル/8765実バイト/Chrome/Issue画像表示を正本へ記録し、残る最終採用と自然さを分ける"
     }
   ]
 }
