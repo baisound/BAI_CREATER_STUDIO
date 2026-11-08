@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T19:46:52+09:00",
+  "updated_at": "2026-11-08T19:49:26+09:00",
   "updated_by": "codex",
-  "branch": "codex/audio-formats-20261108",
-  "head_at_update": "fdc9384",
+  "branch": "codex/audio-formats-sync-20261108",
+  "head_at_update": "0c04ed3",
   "current": {
-    "task": "Issue #81 順3のOGG・FLAC・M4A形式別の縦断経路",
-    "status": "done",
-    "step": "非破壊登録と実尺/元区間・プレビュー・MP4を接続し、代表codecと明確な拒否をWindows/Linuxで検証する",
+    "task": "Issue #81 音声形式対応のmainと表示中ブラウザーを同期",
+    "status": "in_progress",
+    "step": "main0c04ed3・8765再起動/新形式capability/変更JS・515ファイル・Chrome表示とIssue画像を正本へ記録",
     "design_doc": "docs/v05/AUDIO_FORMATS_20261108_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-08T19:49:26+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0c04ed3",
+      "text": "Issue #81 音声形式対応のmainと表示中ブラウザーを同期: main0c04ed3・8765再起動/新形式capability/変更JS・515ファイル・Chrome表示とIssue画像を正本へ記録"
+    },
     {
       "at": "2026-11-08T19:46:52+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "dc88958",
       "text": "Issue #187 Owner選択の既存VMD口形と実歌声の長尺: 選択された既存口形を変えず、実歌声全区間と29.97fps/非0開始の保存・プレビュー・約231秒MP4を確認する。検証用SRT/採用層はこのケースに作らない"
-    },
-    {
-      "at": "2026-11-06T13:06:25+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ea456d7",
-      "text": "実歌声229.84秒と実PMX/VMD・隔離検証用採用母音を実GPU30fps/6931F MP4で確認。9画素比較/190有音窓PCM差最大2sample・UndoRedo/再読込・原本保持。Win/Ubuntu入力17成功ずつ。既存口形が212秒で終わり発話51〜54欠落を監査。Ownerは既存VMD口形を選択"
     }
   ]
 }
