@@ -1,0 +1,89 @@
+{
+  "pullRequest": 280,
+  "evidenceCommit": "2ce37c4b0e6810b561817e53a1c3ebe58d4ecb43",
+  "mergedMain": "2637f34225d9c9d595c4cd198b859a3bbb53faaf",
+  "main": "2637f34225d9c9d595c4cd198b859a3bbb53faaf",
+  "development": "2637f34225d9c9d595c4cd198b859a3bbb53faaf",
+  "server": {
+    "pid": 75076,
+    "source": "D:\\BAI\\BAI_CREATER_STUDIO\\BAI_Creator_Studio\\server.py",
+    "restarted": false,
+    "reason": "製品Python/JS/HTML変更なし、静的文書と試験/証拠のみ更新"
+  },
+  "visibleBrowser": {
+    "browser": "Chrome",
+    "id": "1055945654",
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "observedHome": true,
+    "existingTwoProjectsObserved": true,
+    "reloaded": false,
+    "reason": "表示中の製品ソースに変更なし。未保存編集へ干渉せず表示継続を確認"
+  },
+  "dataPreservation": {
+    "files": 515,
+    "aggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "dirtyListUnchanged": true
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80",
+      "sameAsMain": true
+    },
+    "studio/v05/js/render-job-v69.js": {
+      "status": 200,
+      "sha256": "e0b371d58600c5a15d46ffa791a6780182294688101a544b779d48a4f23da337",
+      "sameAsMain": true
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sha256": "78f246e81e7abfc5219f2c775bfa41a2f4a54caebe219c24bd13b3ef27ac2a53",
+      "sameAsMain": true
+    }
+  },
+  "documentUrl": {
+    "status": 404,
+    "sameAsMainClaim": false,
+    "note": "文書はローカル正本/GitHubで参照。8765上の文書URLは404だったためIssueの初回記載を訂正"
+  },
+  "capability": {
+    "available": true,
+    "audio_bitrate": 320000
+  },
+  "issueComment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6740056657",
+  "issueImages": {
+    "renderedImgTags": 4,
+    "images": [
+      {
+        "label": "audio-formats-ui",
+        "githubRenderedImageSrc": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/2637f34225d9c9d595c4cd198b859a3bbb53faaf/qa/media-evidence-audio-formats-ui-20261109.png",
+        "sha256": "8c54e28878adadbf0d92df3b0e25e1f1735227bcb1e1b76e6234099abe54aef6",
+        "sameAsLocallyInspectedSafePng": true,
+        "status": 200
+      },
+      {
+        "label": "video-formats-supported",
+        "githubRenderedImageSrc": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/2637f34225d9c9d595c4cd198b859a3bbb53faaf/qa/media-evidence-video-formats-supported-20261109.png",
+        "sha256": "3052601e14dc78697a7c7d0f20335d22548551cf0affc80ab399ef78bbc7145b",
+        "sameAsLocallyInspectedSafePng": true,
+        "status": 200
+      },
+      {
+        "label": "video-formats-unsupported",
+        "githubRenderedImageSrc": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/2637f34225d9c9d595c4cd198b859a3bbb53faaf/qa/media-evidence-video-formats-unsupported-20261109.png",
+        "sha256": "1e2c77e6f4b1e1f0c73b10c2b3a9f829c34dde28e52c9bc15f725e9b83538384",
+        "sameAsLocallyInspectedSafePng": true,
+        "status": 200
+      },
+      {
+        "label": "video-no-picture-refusal",
+        "githubRenderedImageSrc": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/2637f34225d9c9d595c4cd198b859a3bbb53faaf/qa/media-evidence-video-no-picture-refusal-20261109.png",
+        "sha256": "e9206ee2ccbdf5b2737581609fbacc510c621dcd79269ab09c50ba1cf51c2bfa",
+        "sameAsLocallyInspectedSafePng": true,
+        "status": 200
+      }
+    ],
+    "verification": "GitHub HTML API img elements and served image bytes compared with locally inspected safe PNGs; no browser-rendered layout claim"
+  }
+}
