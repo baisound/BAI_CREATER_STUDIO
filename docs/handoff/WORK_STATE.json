@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T21:24:47+09:00",
+  "updated_at": "2026-11-09T21:29:12+09:00",
   "updated_by": "codex",
-  "branch": "codex/media-evidence-matrix-20261109",
-  "head_at_update": "2ce37c4",
+  "branch": "codex/media-evidence-sync-20261109",
+  "head_at_update": "2637f34",
   "current": {
-    "task": "G3-B1：媒体形式・長尺・FPS・OS別の既存証拠と欠測を確定",
-    "status": "done",
-    "step": "旧192kと新320kの測定条件・操作入口を分け、形式別の正本表と次の代表試験を作る",
-    "design_doc": "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md"
+    "task": "G3-B1のmain同期と正確なIssue/画像参照を記録",
+    "status": "in_progress",
+    "step": "PR280/main2637f34・8765とChrome表示・515ファイル保持・文書URL404訂正と画像配信一致を正本へ保存",
+    "design_doc": "docs/v05/MEDIA_FORMAT_EVIDENCE_20261109_JA.md"
   },
   "next_steps": [
     "G3-B2：実214秒映像由来の隔離VFR MP4＋元AAC/別実曲、29.97fps/320kで元PTS/画素/PCM/元区間/分割を検証。自然発生実VFRと区別"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-09T21:29:12+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "2637f34",
+      "text": "G3-B1のmain同期と正確なIssue/画像参照を記録: PR280/main2637f34・8765とChrome表示・515ファイル保持・文書URL404訂正と画像配信一致を正本へ保存"
+    },
     {
       "at": "2026-11-09T21:24:47+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "fd67648",
       "text": "Issue #81 順3のプレビューとMP4混音音量一致: FFmpeg暗黙正規化とHTML既定音量の差を実PCMで再現し、時刻/ミュート/出力範囲を保って一致させる"
-    },
-    {
-      "at": "2026-11-07T09:34:38+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a3f155d",
-      "text": "main cefc0ccと手元/開発木・8765非表示起動/新行UI/両MCP9action・515ファイル不変・Issue画像実表示を正本へ記録"
     }
   ]
 }
