@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T03:34:45+09:00",
+  "updated_at": "2026-11-09T21:11:13+09:00",
   "updated_by": "codex",
-  "branch": "codex/aac-320k-sync-20261109",
-  "head_at_update": "a105d65",
+  "branch": "codex/media-evidence-matrix-20261109",
+  "head_at_update": "d64f71a",
   "current": {
-    "task": "AAC320k修正のmainと表示中制作画面を同期",
-    "status": "done",
-    "step": "main/開発木をffし、8765の新しい目標320000とJS・Chrome再読込・515ファイル保持/Issue画像を記録",
-    "design_doc": "docs/v05/AAC_320K_BOUNDARY_FIX_20261109_JA.md"
+    "task": "G3-B1：媒体形式・長尺・FPS・OS別の既存証拠と欠測を確定",
+    "status": "in_progress",
+    "step": "旧192kと新320kの測定条件・操作入口を分け、形式別の正本表と次の代表試験を作る",
+    "design_doc": "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md"
   },
   "next_steps": [
     "G3-B1：形式/長尺/FPS/codec/OSと操作入口の既存証拠表を整理し、旧192k条件を区別して次の欠測タスクを確定する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-09T21:11:13+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "d64f71a",
+      "text": "G3-B1：媒体形式・長尺・FPS・OS別の既存証拠と欠測を確定: 旧192kと新320kの測定条件・操作入口を分け、形式別の正本表と次の代表試験を作る"
+    },
     {
       "at": "2026-11-09T03:34:45+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "62d738c",
       "text": "複数音声/楽曲行をUI/API/両MCPへ接続。Windows/Ubuntu各Python58・Node2、6924F長尺/119窓PCM差0、旧保存不変、関連回帰6成功2skipを記録"
-    },
-    {
-      "at": "2026-11-07T09:06:17+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "c87aa95",
-      "text": "Issue #81 順3の複数音声・楽曲行: 安定した音声/楽曲行の追加・空行削除・元区間/名前保存をUI/API/両MCPへ接続し、重なりPCMと再読込を隔離検証する"
     }
   ]
 }
