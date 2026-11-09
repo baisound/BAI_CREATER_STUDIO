@@ -46,6 +46,7 @@ async function movie(s, id, a, first, last, name) {
   const end = Date.now() + 180000;
   do { await new Promise(r => setTimeout(r, 150)); job = await s.sdk('bai_studio_render_job_get', { job_id: started.id }); } while (['queued', 'running'].includes(job.status) && Date.now() < end);
   assert.equal(job.status, 'succeeded', job.error); assert.equal(job.probe.frames, last - first + 1);
+  assert.equal(job.audio_bitrate, 320000, 'new format evidence must use the current AAC target');
   const bytes = Buffer.from(await (await fetch(s.server.base + '/api/studio/v05/render/file?id=' + job.id)).arrayBuffer()); assert.equal(sha(bytes), job.sha256);
   const file = path.join(s.server.dataDir, name + '.mp4'); fs.writeFileSync(file, bytes);
   if (out) { fs.mkdirSync(out, { recursive: true }); fs.copyFileSync(file, path.join(out, name + '.mp4')); }
@@ -136,7 +137,7 @@ test('existing MP4 and new MP4/WebM/OGV retain saved source windows in one proje
       assert.equal(sha(Buffer.from(await (await fetch(s.server.base + '/api/library-assets/file/' + encodeURIComponent(row.item.id))).arrayBuffer())), row.hash);
     }
     assert.deepEqual(fs.readFileSync(indexFile), indexBytes);
-    save(`video-formats-${apiOnly ? 'linux' : 'chrome'}.json`, { apiOnly, existingId: entry.id, existingHash: hash, inputHashes: all.map(r => ({ id: r.item.id, hash: r.hash })), savedClips: saved, fullFrames: 225, cutFrames: 215, checks, originalsUnchanged: true, registeredBytesUnchanged: true });
+    save(`video-formats-${apiOnly ? 'linux' : 'chrome'}.json`, { apiOnly, audioBitrate: full.job.audio_bitrate, outputs: [full, cut].map(m => ({ frames: m.job.probe.frames, audioBitrate: m.job.audio_bitrate, sha256: m.job.sha256 })), existingId: entry.id, existingHash: hash, inputHashes: all.map(r => ({ id: r.item.id, hash: r.hash })), savedClips: saved, fullFrames: 225, cutFrames: 215, checks, originalsUnchanged: true, registeredBytesUnchanged: true });
     await s.close();
   } catch (e) { await s.close(false); throw e; }
 });

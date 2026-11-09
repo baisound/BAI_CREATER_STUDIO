@@ -1,0 +1,16 @@
+{
+  "sha256": "c895d1da79dfddb4c93210b778b74d727be225ac5c07a2c5d6c5a399093f89d6",
+  "bytes": 64275577,
+  "frames": 6420,
+  "firstPts": 0.0,
+  "lastPts": 213.966667,
+  "minDelta": 0.033333,
+  "maxDelta": 0.033334,
+  "distinctDeltas": [
+    0.033333,
+    0.033334
+  ],
+  "classification": "CFR30fps",
+  "method": "ffprobe all best_effort_timestamp_time, rounded delta to 6 decimal places; no write to source",
+  "previousCopyHashMatched": true
+}

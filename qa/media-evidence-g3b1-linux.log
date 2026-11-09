@@ -1,0 +1,13 @@
+✔ OGG Vorbis/Opus, FLAC and M4A share registration, source edits, browser decode and completed PCM (31596.317375ms)
+✔ real song derivatives in four formats survive a long saved mixed export (55197.255239ms)
+✔ existing MP4 and new MP4/WebM/OGV retain saved source windows in one project (11358.147061ms)
+✔ audio-only containers and legacy MOV refuse without altering saved work or completed output (9659.175801ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 122935.639096
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

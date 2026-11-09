@@ -1,0 +1,283 @@
+{
+  "apiOnly": true,
+  "native": false,
+  "durations": [
+    6.35,
+    6.35,
+    6.35,
+    6.35
+  ],
+  "browser": [],
+  "outputs": [
+    {
+      "frames": 899,
+      "audioBitrate": 320000,
+      "sha256": "305bdf5af8ae6e9b5c6aa9ed6c35d7da89c25bf1f1d962ddb63158ef937ec097",
+      "checks": [
+        {
+          "time": 0.1,
+          "silent": true,
+          "peak": 0
+        },
+        {
+          "time": 1.02,
+          "silent": true,
+          "peak": 0
+        },
+        {
+          "time": 1.6,
+          "lag": 0,
+          "corr": 0.9999984127956515,
+          "gain": 0.9995272199262023
+        },
+        {
+          "time": 4,
+          "lag": 0,
+          "corr": 0.9999977153713812,
+          "gain": 0.9991480275326107
+        },
+        {
+          "time": 6.5,
+          "lag": 0,
+          "corr": 0.9999975186951284,
+          "gain": 0.9998232960833678
+        },
+        {
+          "time": 8.6,
+          "lag": 0,
+          "corr": 0.9999986389401424,
+          "gain": 1.0005222964027038
+        },
+        {
+          "time": 11,
+          "lag": 0,
+          "corr": 0.9999971536301367,
+          "gain": 1.0000998765560065
+        },
+        {
+          "time": 13.5,
+          "lag": 0,
+          "corr": 0.9999978236112248,
+          "gain": 0.998696423294439
+        },
+        {
+          "time": 15.6,
+          "lag": 0,
+          "corr": 0.999998328876001,
+          "gain": 0.9998642512147976
+        },
+        {
+          "time": 18,
+          "lag": 0,
+          "corr": 0.9999971428147456,
+          "gain": 0.9995861782396571
+        },
+        {
+          "time": 20.5,
+          "lag": 0,
+          "corr": 0.9999979299336511,
+          "gain": 0.9991560698192244
+        },
+        {
+          "time": 22.6,
+          "lag": 0,
+          "corr": 0.9999982406914245,
+          "gain": 0.9994482005570761
+        },
+        {
+          "time": 24,
+          "lag": 0,
+          "corr": 0.9999982361551494,
+          "gain": 1.0000782189255173
+        },
+        {
+          "time": 25.8,
+          "lag": 0,
+          "corr": 0.9999973865763266,
+          "gain": 0.999770912917399
+        },
+        {
+          "time": 27,
+          "lag": 0,
+          "corr": 0.999998253656607,
+          "gain": 0.999832306375512
+        },
+        {
+          "time": 28.3,
+          "lag": 0,
+          "corr": 0.9999988601059887,
+          "gain": 1.000218696206057
+        },
+        {
+          "time": 29,
+          "silent": true,
+          "peak": 0
+        }
+      ]
+    },
+    {
+      "frames": 818,
+      "audioBitrate": 320000,
+      "sha256": "972fc77b77ae13da4997a1c66886a97304787f12ca240fc212db94f4674ebb21",
+      "checks": [
+        {
+          "time": 1.6,
+          "lag": 0,
+          "corr": 0.9999976738061417,
+          "gain": 0.999709076088406
+        },
+        {
+          "time": 4,
+          "lag": 0,
+          "corr": 0.9999968014851178,
+          "gain": 0.9997304671788563
+        },
+        {
+          "time": 6.5,
+          "lag": 0,
+          "corr": 0.9999984328528507,
+          "gain": 0.9995680840155214
+        },
+        {
+          "time": 8.6,
+          "lag": 0,
+          "corr": 0.9999982647453303,
+          "gain": 1.0005587849340825
+        },
+        {
+          "time": 11,
+          "lag": 0,
+          "corr": 0.9999974013820779,
+          "gain": 0.9991289603807643
+        },
+        {
+          "time": 13.5,
+          "lag": 0,
+          "corr": 0.9999975930164788,
+          "gain": 0.9993751348180696
+        },
+        {
+          "time": 15.6,
+          "lag": 0,
+          "corr": 0.9999970724748817,
+          "gain": 0.9995165971917336
+        },
+        {
+          "time": 18,
+          "lag": 0,
+          "corr": 0.9999972759794822,
+          "gain": 0.9988304708552386
+        },
+        {
+          "time": 20.5,
+          "lag": 0,
+          "corr": 0.9999968801810416,
+          "gain": 0.9999105231972018
+        },
+        {
+          "time": 22.6,
+          "lag": 0,
+          "corr": 0.9999974228943018,
+          "gain": 0.9993840976638458
+        },
+        {
+          "time": 24,
+          "lag": 0,
+          "corr": 0.999997803253799,
+          "gain": 0.9990762028403694
+        },
+        {
+          "time": 25.8,
+          "lag": 0,
+          "corr": 0.999998402312128,
+          "gain": 1.000092852197747
+        },
+        {
+          "time": 27,
+          "lag": 0,
+          "corr": 0.9999980682085203,
+          "gain": 0.9996564616238938
+        }
+      ]
+    }
+  ],
+  "savedClips": [
+    {
+      "id": "1a0365f5-4949-4bf3-9769-500f7ba46075",
+      "asset_id": "library:713613bc828296fafeb51d9e",
+      "name": "vorbis",
+      "category": "audio",
+      "track": "audio",
+      "lane": 1,
+      "start": 1,
+      "duration": 6,
+      "source_start": 0.25,
+      "source_duration": 6.35,
+      "source_has_audio": true
+    },
+    {
+      "id": "e917d400-9274-4100-b50f-78d502eb7f42",
+      "asset_id": "library:c5fb1f8f82b1927c683b6281",
+      "name": "opus",
+      "category": "audio",
+      "track": "audio",
+      "lane": 1,
+      "start": 8,
+      "duration": 6,
+      "source_start": 0.25,
+      "source_duration": 6.35,
+      "source_has_audio": true
+    },
+    {
+      "id": "b06853a7-8112-4455-bb15-8887c9caf234",
+      "asset_id": "library:22cb484969ed97cfc8318259",
+      "name": "lossless",
+      "category": "audio",
+      "track": "audio",
+      "lane": 1,
+      "start": 15,
+      "duration": 6,
+      "source_start": 0.25,
+      "source_duration": 6.35,
+      "source_has_audio": true
+    },
+    {
+      "id": "76dd629d-2396-4e6e-8937-b9b801c0e8b9",
+      "asset_id": "library:f438ce9a8e1e8807ac8d720b",
+      "name": "aac",
+      "category": "audio",
+      "track": "audio",
+      "lane": 1,
+      "start": 22,
+      "duration": 3,
+      "source_start": 0.25,
+      "source_duration": 6.35,
+      "source_has_audio": true
+    },
+    {
+      "id": "b1602ef9-5232-4636-be30-83f701611605",
+      "asset_id": "library:f438ce9a8e1e8807ac8d720b",
+      "name": "aac",
+      "category": "audio",
+      "track": "audio",
+      "lane": 1,
+      "start": 25.5,
+      "duration": 3.1,
+      "source_start": 3.25,
+      "source_duration": 6.35,
+      "source_has_audio": true
+    },
+    {
+      "id": "d21dc890-dc40-4549-9d3b-a9abc70703f7",
+      "asset_id": "library:76c50e5b117b60c3277098ed",
+      "name": "blue",
+      "category": "image",
+      "track": "image",
+      "lane": 1,
+      "start": 0,
+      "duration": 30
+    }
+  ],
+  "inputsUnchanged": true,
+  "refusalsPreserveClips": true
+}
