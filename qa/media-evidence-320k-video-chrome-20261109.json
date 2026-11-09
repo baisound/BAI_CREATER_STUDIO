@@ -1,0 +1,147 @@
+{
+  "apiOnly": false,
+  "audioBitrate": 320000,
+  "outputs": [
+    {
+      "frames": 225,
+      "audioBitrate": 320000,
+      "sha256": "a1bf102fa0da257355f5308bb806468ff7c9d38ed1ad696e99a3c555c9469c12"
+    },
+    {
+      "frames": 215,
+      "audioBitrate": 320000,
+      "sha256": "7045301298074f7467dd81c34b253c8df8afcca8280c8768c6ce95fd5394aea6"
+    }
+  ],
+  "existingId": "library:e1d28fe47744328e3d66fe54",
+  "existingHash": "c974470c51c5148dea84f5f961f2b4135d496ac5f214e5e67c70b311f502ef77",
+  "inputHashes": [
+    {
+      "id": "library:e1d28fe47744328e3d66fe54",
+      "hash": "c974470c51c5148dea84f5f961f2b4135d496ac5f214e5e67c70b311f502ef77"
+    },
+    {
+      "id": "library:a1cdc90010c4b389c712096e",
+      "hash": "c6457789ad01da7d20b10957d820546abec274adea8be02ee5aa7a216024201d"
+    },
+    {
+      "id": "library:aaca81a155956a1a0efe029e",
+      "hash": "78010b321be6e80d99ad91ac9cb67f2009745559bf73e63408975e454fcef61a"
+    },
+    {
+      "id": "library:3a216be3f204902e8931afbc",
+      "hash": "e205a83738e6dd6a11f2c429ac2363f0dce74756da1168f6d20f5df907324f23"
+    }
+  ],
+  "savedClips": [
+    {
+      "id": "8e2b4c86-41e3-438d-8689-1fca7392c065",
+      "asset_id": "library:e1d28fe47744328e3d66fe54",
+      "name": "Kenney Platformer Demo",
+      "category": "video",
+      "track": "video",
+      "lane": 1,
+      "start": 0,
+      "duration": 1.5,
+      "source_start": 0.25,
+      "source_duration": 3,
+      "source_has_audio": false
+    },
+    {
+      "id": "b371c676-bf00-467e-b3fd-38a13be18eec",
+      "asset_id": "library:a1cdc90010c4b389c712096e",
+      "name": "clock",
+      "category": "video",
+      "track": "video",
+      "lane": 1,
+      "start": 2,
+      "duration": 1.5,
+      "source_start": 0.25,
+      "source_duration": 3,
+      "source_has_audio": true
+    },
+    {
+      "id": "78c81b88-b4f7-4352-99af-33c95f644fa1",
+      "asset_id": "library:aaca81a155956a1a0efe029e",
+      "name": "clock",
+      "category": "video",
+      "track": "video",
+      "lane": 1,
+      "start": 4,
+      "duration": 1.5,
+      "source_start": 0.25,
+      "source_duration": 3.008,
+      "source_has_audio": true
+    },
+    {
+      "id": "372b0002-3549-404f-af0d-c089984cb571",
+      "asset_id": "library:3a216be3f204902e8931afbc",
+      "name": "clock",
+      "category": "video",
+      "track": "video",
+      "lane": 1,
+      "start": 6,
+      "duration": 1.5,
+      "source_start": 0.25,
+      "source_duration": 3.0027,
+      "source_has_audio": true
+    }
+  ],
+  "fullFrames": 225,
+  "cutFrames": 215,
+  "checks": [
+    {
+      "format": "mp4",
+      "audio": [
+        {
+          "lag": 0,
+          "correlation": 0.9999999883872991
+        },
+        {
+          "lag": 0,
+          "correlation": 0.9999999881228113
+        }
+      ],
+      "browser": {
+        "width": 160,
+        "error": 0
+      }
+    },
+    {
+      "format": "webm",
+      "audio": [
+        {
+          "lag": 0,
+          "correlation": 0.9999999880739199
+        },
+        {
+          "lag": 0,
+          "correlation": 0.9999999878195254
+        }
+      ],
+      "browser": {
+        "width": 160,
+        "error": 0
+      }
+    },
+    {
+      "format": "ogv",
+      "audio": [
+        {
+          "lag": 21,
+          "correlation": 0.9886323642215186
+        },
+        {
+          "lag": 32,
+          "correlation": 0.9860187709447434
+        }
+      ],
+      "browser": {
+        "width": 0,
+        "error": 0
+      }
+    }
+  ],
+  "originalsUnchanged": true,
+  "registeredBytesUnchanged": true
+}

@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T21:11:13+09:00",
+  "updated_at": "2026-11-09T21:22:49+09:00",
   "updated_by": "codex",
   "branch": "codex/media-evidence-matrix-20261109",
-  "head_at_update": "d64f71a",
+  "head_at_update": "d0719c9",
   "current": {
     "task": "G3-B1：媒体形式・長尺・FPS・OS別の既存証拠と欠測を確定",
-    "status": "in_progress",
+    "status": "done",
     "step": "旧192kと新320kの測定条件・操作入口を分け、形式別の正本表と次の代表試験を作る",
     "design_doc": "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md"
   },
   "next_steps": [
-    "G3-B1：形式/長尺/FPS/codec/OSと操作入口の既存証拠表を整理し、旧192k条件を区別して次の欠測タスクを確定する"
+    "G3-B2：実214秒映像由来の隔離VFR MP4＋元AAC/別実曲、29.97fps/320kで元PTS/画素/PCM/元区間/分割を検証。自然発生実VFRと区別"
   ],
   "unverified": [
-    "短窓/聴感・全codec/全作品/非クリップ保証・Linuxブラウザー/Win384、G3-A/順3全体、順4/5と既存ゲート2失敗/依存監査3件は維持"
+    "音声4codec長尺91.4秒はWin0.955042/Ubuntu0.950106（7%条件内、3%一般化は未達・原因未診断）。長尺VFR/全codec/Linuxブラウザー/聴感、G3-A残り/C〜Fと順3全体、順4/5・既存ゲート2失敗/依存監査3件を維持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-09T21:22:49+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "d0719c9",
+      "text": "G3-B1の11行を証拠hashで照合。現行320kの動画3形式/音声4codecは各OS4固有ケース成功、Win初回音声1失敗と待機修正を保持。長尺実コピーの全PTSはCFR30fps。全媒体の完成には昇格しない"
+    },
     {
       "at": "2026-11-09T21:11:13+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "cefc0cc",
       "text": "Issue #81 複数音声・楽曲行のmainと制作画面同期を引き継ぐ: main cefc0cc・手元/開発木・8765非表示起動と新UI/両MCP・515ファイル不変・Issue画像表示を正本へ記録"
-    },
-    {
-      "at": "2026-11-07T09:29:55+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "62d738c",
-      "text": "複数音声/楽曲行をUI/API/両MCPへ接続。Windows/Ubuntu各Python58・Node2、6924F長尺/119窓PCM差0、旧保存不変、関連回帰6成功2skipを記録"
     }
   ]
 }
