@@ -4,7 +4,7 @@ Issue [#81](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81)/[#37](http
 
 **短尺VFRと長尺CFRは確認済みだが、長尺VFRを通した証拠はない。** 今回、動画3形式の短尺と音声4codecの短尺/長尺を現行320kb/sで確認した。G3-B1の証拠整理は完了、G3-Bと順3全体は未完了。次はG3-B2の長尺VFRと元区間を検証する。
 
-[機械可読の11行の表](../../qa/media-format-evidence-matrix-20261109.json)には、各行の入力由来・長さ・FPS・出力音声目標値・環境・操作入口・観測値・未確認範囲と、参照ファイルのSHA-256を持たせた。以下の成功は記載した入力/操作の範囲に限る。空欄を成功で埋めず、拒否を形式対応へ読み替えない。
+[機械可読の11行の表](../../qa/media-format-evidence-matrix-20261109.json)には、各行の入力由来・長さ・FPS・出力音声目標値・環境・操作入口・観測値・未確認範囲と、参照ファイルのGit保存内容（LF）のSHA-256を持たせた。Windows作業ツリーのCRLFをLFへ正規化して照合する。以下の成功は記載した入力/操作の範囲に限る。空欄を成功で埋めず、拒否を形式対応へ読み替えない。
 
 ## 形式と長さ
 
@@ -72,3 +72,5 @@ UbuntuはLinuxのNode/FFmpegを使い、`BAI_VIDEO_API_ONLY=1`・`BAI_FORMATS_AP
 自然発生した長尺実VFR、長尺WebM/OGV、現行320kの他FPS・複数動画行、Linuxブラウザー/実GPU/全codec、G3-A短窓/聴感とG3-C〜Fは残る。順4の54発話/候補最終採用、順5判定、既存証拠ゲート2失敗/依存監査3件も維持する。要件や優先順位は変更していない。
 
 モデル区分：高性能（証拠照合・試験・判定）、サブエージェントなし。
+
+証拠/試験コミット `2ce37c4`、[PR #280](https://github.com/baisound/BAI_CREATER_STUDIO/pull/280)。元PTSの[測定値と現存コピーhash](../../qa/media-evidence-native-pts-20261109.json)も正本へ保存した。型/構文・151ID順/既存12差異保持・11行の参照/hash・各出力/PCM/保持を検査成功。

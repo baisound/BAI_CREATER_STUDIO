@@ -27,7 +27,7 @@
       "evidence": [
         {
           "path": "docs/v05/VIDEO_FORMATS_VFR_20261106_JA.md",
-          "sha256": "d65641911b1457cb1e64abc5b9e3c45f6c7a3b318f779d8f75d294522e11a005"
+          "sha256": "94116cc9d97436157c72af38c46a7a06edee54bd2ef4dadf9a371a17c47f8356"
         },
         {
           "path": "tests/studio-v05-video-formats-vfr.test.cjs",
@@ -116,15 +116,15 @@
       "evidence": [
         {
           "path": "docs/v05/LONG_MIXED_AUDIO_20261106_JA.md",
-          "sha256": "4f669a443548afae30d393334a9a5ca95c416aa09496a120b87d44662d7d162b"
+          "sha256": "ca62d289ff6d766314e7a7d3759cb00937a3fa61b6732e32ee99ec4847ac0727"
         },
         {
           "path": "tests/studio-v05-long-mixed-audio-real.test.cjs",
-          "sha256": "3b4e06857169234adf2240737d33c0a5b14406a5df3790de65ac41d1862a5bef"
+          "sha256": "76a96e2107ec55cb430f78eaffcb900e1ef60d3c6f0092777e9c31b455004605"
         },
         {
           "path": "qa/media-evidence-native-pts-20261109.json",
-          "sha256": "4b764e2f6572981f39ee15d0178c2bed05db260bf7b3c6476c31661f5a256f18"
+          "sha256": "78d51670467f0baaac5a47fa4db02b0fee9a05a0798e75d6991a4903bc981279"
         }
       ],
       "unverified": "CFR入力。VFR/320kの実動画長尺/元4Kの直接登録・出力はこの証拠で未検証。",
@@ -157,7 +157,7 @@
         },
         {
           "path": "docs/v05/VIDEO_LANES_20261106_JA.md",
-          "sha256": "f8b773dbb0937f44c30c5dee2f43f5867131de0c0123f36f78c374f5a068772a"
+          "sha256": "e24c4f8c08d383c20caa1e94dc9b6ad76e5db2189648d109f09c7a26f6a1c7f6"
         }
       ],
       "unverified": "長尺VFR/全重なり/現行320kの同じ動画行構成は未検証。",
@@ -192,7 +192,7 @@
         },
         {
           "path": "docs/v05/MP3_TIMELINE_SYNC_20261106_JA.md",
-          "sha256": "f5c1fcf7dac35119e3d954532c1e7893825d03c4f5b8ae5203624a6493df3a2a"
+          "sha256": "d761c27e8b31694d72e4367850be5c8431679adfa86a1caf540f59d0115fc99c"
         }
       ],
       "unverified": "現行320kの同一分割構成・全MP3エンコーダー/聴感は未検証。",
@@ -217,19 +217,19 @@
       "evidence": [
         {
           "path": "qa/audio-formats-chrome-20261108.json",
-          "sha256": "48597025b020cbdb36ebcff7ed81fe1a1363945b3a996602cdaf17a349b2a358"
+          "sha256": "e904709cfb5dd64288ab0417f29c4f0b90c03af46af1a3748ee26320823c5b73"
         },
         {
           "path": "qa/audio-formats-linux-20261108.json",
-          "sha256": "e4efc0ca47ffc94526410eee6187a3b2e3ca4388b894975839a8905358fb9aac"
+          "sha256": "1725eba121f7da67e2e35ca1b0e4495b3afc1ae83b3a371a6cf6b5c05e69f0e4"
         },
         {
           "path": "qa/audio-formats-real-win-20261108.json",
-          "sha256": "2ecf4aa6353d787355e08f6ad77f8e526947a2e7b4f4e8d81d74c4c4b28e85fa"
+          "sha256": "c0427cba62b97c80e0efac7903ae9a97309c6fe5e023cc0b205766d3da8e3caa"
         },
         {
           "path": "qa/audio-formats-real-linux-20261108.json",
-          "sha256": "ca50c6c373b0f3690673a144c9385a68bfd29312bb2eb3a3cf351ade4fd7764d"
+          "sha256": "e81233850b314d274b6c7f78b9eb032281816d66a88e2954d2187136bfcba496"
         }
       ],
       "unverified": "長尺入力は各codecの原録音ではなく派生。Linuxブラウザー/全codec/全Undo/聴感は未検証。",
@@ -329,15 +329,15 @@
       "evidence": [
         {
           "path": "qa/image-formats-chrome-20261108.json",
-          "sha256": "850ea7a15a6a0dfb8d12ec9c40120760d9cdec50a92ea6ee1358bdd01f391136"
+          "sha256": "549f537bd0dadaec7ecaef986df01d3e233d9adc279462396630f147663dc6a5"
         },
         {
           "path": "qa/image-formats-linux-20261108.json",
-          "sha256": "f38d2978a0522925cfc33337b93967a8b4196047da8688eec94d45cc375cfd57"
+          "sha256": "facc7e6bb84464cb781d8e75436ae75bcd9ce31f6defc9763376d978c36a2d39"
         },
         {
           "path": "docs/v05/IMAGE_FORMATS_20261108_JA.md",
-          "sha256": "495e3423efb66e3c42ae25cfecff9d8dac74d946837974252abef5ad14d3220e"
+          "sha256": "1f35959f378baf943b3c1e2c291353c6b24f15ca521dee82c6faa90b2049d9ba"
         }
       ],
       "unverified": "画像の画素証拠は保持。320kの同一画像構成を再出力した証拠ではない。色管理/全画像/アニメーション画像出力は未検証。",
@@ -373,11 +373,11 @@
         },
         {
           "path": "qa/image-formats-refusals-win-20261108.json",
-          "sha256": "f335e4a5c7dd5a540011cf3287a91ad9fe267b346c5cd85d52c6297a57aa90c4"
+          "sha256": "79dba124683e049b89c63ed971a889b4e8db9b52af49260374f032d4705e0aca"
         },
         {
           "path": "qa/image-formats-refusals-linux-20261108.json",
-          "sha256": "00fc745f21afea1e0917b52850590605ff68cc494c78bfaec4b3636915781642"
+          "sha256": "b650a834b33f769d4c85fe49057bba3e217bb74590dcf89d48313f76062d5b52"
         }
       ],
       "unverified": "拒否成功は新規形式の対応成功ではない。Ownerの実旧MOV/EXRそのものは未検証。",
@@ -465,5 +465,8 @@
     "existingFormatTestMaxGainError": 0.07,
     "g3aScopedMaxGainError": 0.03,
     "status": "形式試験7%以内、G3-Aの3%を全codecで確認した意味ではない。原因は未診断"
-  }
+  },
+  "evidenceCommit": "2ce37c4b0e6810b561817e53a1c3ebe58d4ecb43",
+  "pullRequest": 280,
+  "evidenceHashScope": "sha256 is over the committed Git blob bytes (LF text); working-tree CRLF is normalized before comparison"
 }

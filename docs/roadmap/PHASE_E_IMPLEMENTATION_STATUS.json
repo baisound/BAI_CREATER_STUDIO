@@ -494,7 +494,7 @@
       "phase_e_wp": "DATA-016/002/008・AUDIO-001・RENDER-001/006、#81/#37/#39/#63",
       "planned_in": "V05-MEDIA-FORMAT-EVIDENCE-20261109",
       "status": "evidence_audited_requirement_open",
-      "commit": "開始d0719c9に続く本記録のGit履歴を参照",
+      "commit": "2ce37c4（証拠/試験、PR #280）",
       "tests": "2026-11-09 G3-B1、形式/長尺/FPS/codec/OS/操作入口の11行を証拠hash付きで照合。旧AAC192kと現行320kを区別し、動画MP4/WebM/OGV短尺30fps・音声OGG Vorbis/Opus/FLAC/M4A短尺と5619F長尺29.97fpsをWin/Ubuntu各4固有ケースで確認（Win初回1失敗は保持、音声待機修正後2成功）。実214秒動画はPTSでCFR30fpsを確認、長尺VFRの証拠なし。次G3-B2は実映像由来の隔離VFR MP4＋元AAC/別曲を29.97fps/320kで検証。全codec/聴感/Linuxブラウザー・G3-B/順3全体は未完了。docs/v05/MEDIA_FORMAT_EVIDENCE_20261109_JA.md",
       "unverified": "音声4codec長尺91.4秒は音量比Win0.955042/Ubuntu0.950106で、既存7%条件内だがG3-Aの3%一般化は未達・原因未診断。自然発生した実VFR/長尺VFR・長尺WebM/OGV・現行320kの実動画長尺/他FPS/複数動画行・Linuxブラウザー/実GPU/聴感・G3-A残り/C〜F。順3全体と順4/5・既存ゲート2失敗/依存監査3件を維持"
     }

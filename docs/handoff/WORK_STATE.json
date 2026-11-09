@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T21:22:49+09:00",
+  "updated_at": "2026-11-09T21:24:47+09:00",
   "updated_by": "codex",
   "branch": "codex/media-evidence-matrix-20261109",
-  "head_at_update": "d0719c9",
+  "head_at_update": "2ce37c4",
   "current": {
     "task": "G3-B1：媒体形式・長尺・FPS・OS別の既存証拠と欠測を確定",
     "status": "done",
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-09T21:24:47+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2ce37c4",
+      "text": "G3-B1を2ce37c4/PR280へ記録。証拠11行はGit保存内容LFのhashで可搬照合。現行320k代表のWin/Ubuntu各4固有ケース成功と初回1失敗/約5%音量差を区別、次B2の終了条件を確定"
+    },
     {
       "at": "2026-11-09T21:22:49+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "a3f155d",
       "text": "main cefc0ccと手元/開発木・8765非表示起動/新行UI/両MCP9action・515ファイル不変・Issue画像実表示を正本へ記録"
-    },
-    {
-      "at": "2026-11-07T09:33:02+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "cefc0cc",
-      "text": "Issue #81 複数音声・楽曲行のmainと制作画面同期を引き継ぐ: main cefc0cc・手元/開発木・8765非表示起動と新UI/両MCP・515ファイル不変・Issue画像表示を正本へ記録"
     }
   ]
 }
