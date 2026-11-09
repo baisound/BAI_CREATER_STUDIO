@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T21:29:12+09:00",
+  "updated_at": "2026-11-09T21:30:05+09:00",
   "updated_by": "codex",
   "branch": "codex/media-evidence-sync-20261109",
-  "head_at_update": "2637f34",
+  "head_at_update": "3c30893",
   "current": {
     "task": "G3-B1のmain同期と正確なIssue/画像参照を記録",
-    "status": "in_progress",
+    "status": "done",
     "step": "PR280/main2637f34・8765とChrome表示・515ファイル保持・文書URL404訂正と画像配信一致を正本へ保存",
     "design_doc": "docs/v05/MEDIA_FORMAT_EVIDENCE_20261109_JA.md"
   },
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-09T21:30:05+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "3c30893",
+      "text": "G3-B1はPR280/main2637f34へ統合しmain/codex-next/8765・Chrome表示・515ファイル不変を確認。文書URL404の誤記訂正とIssue4画像の参照/PNG一致を正本へ保存"
+    },
     {
       "at": "2026-11-09T21:29:12+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "4a76c31",
       "text": "MP4の暗黙正規化を外してプレビュー元音量加算へ一致。Windows/Ubuntu各Python28・Node2、実再生PCM/長尺117窓・旧完成物保持、回帰3成功2skipを記録"
-    },
-    {
-      "at": "2026-11-08T01:06:57+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "fd67648",
-      "text": "Issue #81 順3のプレビューとMP4混音音量一致: FFmpeg暗黙正規化とHTML既定音量の差を実PCMで再現し、時刻/ミュート/出力範囲を保って一致させる"
     }
   ]
 }

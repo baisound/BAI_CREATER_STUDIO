@@ -74,3 +74,10 @@ UbuntuはLinuxのNode/FFmpegを使い、`BAI_VIDEO_API_ONLY=1`・`BAI_FORMATS_AP
 モデル区分：高性能（証拠照合・試験・判定）、サブエージェントなし。
 
 証拠/試験コミット `2ce37c4`、[PR #280](https://github.com/baisound/BAI_CREATER_STUDIO/pull/280)。元PTSの[測定値と現存コピーhash](../../qa/media-evidence-native-pts-20261109.json)も正本へ保存した。型/構文・151ID順/既存12差異保持・11行の参照/hash・各出力/PCM/保持を検査成功。
+
+
+## G3-B1のmain・制作画面同期
+
+PR #280をmain2637f34へ統合。手元main/codex-next/作業木をffし、8765のPID75076の起動元、HTML/render-job-v69.js/webmcp.jsの全バイト一致・音声目標320000を確認。製品Python/JS/HTMLの変更はないため再起動/制作画面再読込なし。CUAで既存Chromeタブ1055945654のホームと2作品表示を確認し保持。利用者data/exports/studio.zipの515ファイルと変更一覧は前後一致（集約hash89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d）。
+
+[同期数値](../../qa/media-evidence-main-sync-20261109.json)。[Issue結果](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6740056657)の4枚はGitHub HTMLのimg要素と配信PNGのhash一致を確認（ブラウザー上のGitHubレイアウト検査ではない）。8765の文書URLは404だったため、初回Issue投稿の「文書も全バイト一致」を「制作画面HTML/JSの一致」へ訂正した。文書はローカル正本/GitHubで参照する。自動checksの登録はなく、ローカル試験と区別する。次は上記G3-B2、約5%の音量差・順3全体/順4/5の残件を保持。

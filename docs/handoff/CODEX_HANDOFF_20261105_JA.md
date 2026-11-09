@@ -247,3 +247,10 @@ main/開発木・8765を同期し、所有サーバーを非表示再起動PID75
 [11行の証拠表と次の受入れ条件](../v05/MEDIA_FORMAT_EVIDENCE_20261109_JA.md)。G3-B1は証拠照合の終了であり、G3-B/順3全体は未完了。製品仕様と承認済み順序は変更しない。モデル区分：高性能（照合・試験・判定）。
 
 音声4codec長尺91.4秒は音量比Win0.955042/Ubuntu0.950106で、既存7%条件内だがG3-Aの3%一般化は未達・原因未診断。
+
+
+## G3-B1のmain・制作画面同期
+
+PR #280をmain2637f34へ統合。手元main/codex-next/作業木をffし、8765のPID75076の起動元、HTML/render-job-v69.js/webmcp.jsの全バイト一致・音声目標320000を確認。製品Python/JS/HTMLの変更はないため再起動/制作画面再読込なし。CUAで既存Chromeタブ1055945654のホームと2作品表示を確認し保持。利用者data/exports/studio.zipの515ファイルと変更一覧は前後一致（集約hash89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d）。
+
+[同期数値](../../qa/media-evidence-main-sync-20261109.json)。[Issue結果](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6740056657)の4枚はGitHub HTMLのimg要素と配信PNGのhash一致を確認（ブラウザー上のGitHubレイアウト検査ではない）。8765の文書URLは404だったため、初回Issue投稿の「文書も全バイト一致」を「制作画面HTML/JSの一致」へ訂正した。文書はローカル正本/GitHubで参照する。自動checksの登録はなく、ローカル試験と区別する。次は上記G3-B2、約5%の音量差・順3全体/順4/5の残件を保持。
