@@ -1,0 +1,116 @@
+{
+  "input": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 854,
+        "height": 480
+      },
+      {
+        "codec_name": "aac"
+      }
+    ]
+  },
+  "output": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "codec_name": "aac"
+      }
+    ]
+  },
+  "frames": [
+    {
+      "pixelFormat": "rgb24",
+      "outputFrame": 3981,
+      "outputProjectTime": 133.33333333333334,
+      "expectedSourceTime": 130.83333333333334,
+      "nearbySourceMatches": [
+        {
+          "pts": 130.8,
+          "mae": 0.7991898148148148
+        },
+        {
+          "pts": 130.833333,
+          "mae": 13.567708333333334
+        },
+        {
+          "pts": 130.433333,
+          "mae": 38.401041666666664
+        },
+        {
+          "pts": 130.4,
+          "mae": 40.235532407407405
+        },
+        {
+          "pts": 131.6,
+          "mae": 45.460648148148145
+        }
+      ]
+    },
+    {
+      "pixelFormat": "gray",
+      "outputFrame": 3981,
+      "outputProjectTime": 133.33333333333334,
+      "expectedSourceTime": 130.83333333333334,
+      "nearbySourceMatches": [
+        {
+          "pts": 130.8,
+          "mae": 0.8003472222222222
+        },
+        {
+          "pts": 130.833333,
+          "mae": 13.442708333333334
+        },
+        {
+          "pts": 130.433333,
+          "mae": 37.989583333333336
+        },
+        {
+          "pts": 130.4,
+          "mae": 39.802083333333336
+        },
+        {
+          "pts": 131.6,
+          "mae": 44.85243055555556
+        }
+      ]
+    },
+    {
+      "pixelFormat": "yuv420p",
+      "outputFrame": 3981,
+      "outputProjectTime": 133.33333333333334,
+      "expectedSourceTime": 130.83333333333334,
+      "nearbySourceMatches": [
+        {
+          "pts": 130.8,
+          "mae": 0.7604166666666666
+        },
+        {
+          "pts": 130.833333,
+          "mae": 11.53125
+        },
+        {
+          "pts": 130.433333,
+          "mae": 32.592013888888886
+        },
+        {
+          "pts": 130.4,
+          "mae": 34.11631944444444
+        },
+        {
+          "pts": 131.6,
+          "mae": 38.489583333333336
+        }
+      ]
+    }
+  ]
+}

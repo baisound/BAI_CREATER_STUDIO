@@ -382,6 +382,43 @@
       ],
       "unverified": "拒否成功は新規形式の対応成功ではない。Ownerの実旧MOV/EXRそのものは未検証。",
       "status": "representative_verified_requirement_open"
+    },
+    {
+      "id": "B2-VIDEO-LONG-VFR-320",
+      "media": "video+audio",
+      "inputOrigin": "実214秒CFRコピーから隔離生成したVFR、元AAC保持＋別実曲（自然発生VFRではない）",
+      "inputFormats": "MP4 H264/AAC48kHz + WAV",
+      "length": "入力214秒/1071F、出力229.52953秒/6879F",
+      "projectFps": [
+        29.97
+      ],
+      "outputAudioTarget": 320000,
+      "environments": [
+        "Windows Chrome156/公式SDK/ネイティブ",
+        "Ubuntu WSL FFmpeg6.1.1 SDK/APIのみ"
+      ],
+      "operations": "登録/非0元位置/非0配置/動画と曲の分割/右片移動/保存再読込/シーク/非0In/旧MP4保持",
+      "measurement": "元AAC10033packet/PTS一致、全6879Fの低解像度署名±1F/最大MAE1.337385、各OSの有音149窓は差0sample/静かな4窓はRMS、Winプレビュー10時刻/再生",
+      "evidence": [
+        {
+          "path": "tests/studio-v05-long-vfr-real.test.cjs",
+          "sha256": "1a39cdd839cc118bf4a19aac5f03c60bd5727eb82028d327835cdec75c748580"
+        },
+        {
+          "path": "qa/long-vfr-windows-20261111.json",
+          "sha256": "afbf02b2a21b685fdbb9e35c912bc1330a458c456f8419e5cebc8f39b598b519"
+        },
+        {
+          "path": "qa/long-vfr-linux-20261111.json",
+          "sha256": "3998bfb07088c15e75734fa0649035b7df25a6a059105c3ba19cf97d74063d6c"
+        },
+        {
+          "path": "qa/long-vfr-pixel-diagnostic-20261111.json",
+          "sha256": "5480440af55a47b8e0b6047ac4ced66e266f9f907c0c75b66cbf7f5dc9750680"
+        }
+      ],
+      "unverified": "自然発生VFR/長尺WebM・OGV/他FPS・全codec/全解像度色管理/聴感/Linuxブラウザー/並行負荷SDK時間切れ",
+      "status": "representative_verified_requirement_open"
     }
   ],
   "actualInputPtsProbe": {
@@ -421,38 +458,26 @@
     "normalDelivery": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\2026-11-09-media-evidence"
   },
   "nextTask": {
-    "id": "G3-B2",
-    "title": "長尺VFRの元PTS・映像/内包音声・元区間を現行320kで確認",
-    "firstCase": "既存214秒CFRコピーを読み取り専用入力にし、実映像由来のVFR MP4を隔離生成。元AACパケット/PTSはコピー保持して差分署名を照合する。自然発生した実VFR素材とは区別。",
-    "fps": [
-      29.97
-    ],
-    "outputAudioTarget": 320000,
+    "id": "G3-B2-WebM",
+    "title": "実映像由来の長尺WebM VP9/Opus、元PTS/元区間/分割/画素/PCM/非0Inと保持を検証",
     "environments": [
       "Windows Chrome/SDK/native",
       "Ubuntu SDK/API"
     ],
-    "acceptance": [
-      "生成後の全映像PTSと異なる表示間隔を検査（avg/r FPSだけでVFR判定しない）",
-      "元0以外・作品0以外、分割/移動・保存再読込・非0Inで200秒以上を出力",
-      "元PTSと実フレームの画素参照で先頭/中間/末尾/切替境界を±1Fで比較",
-      "動画内音声と独立実曲の時刻差1F以内、出力全F数/無音窓/元区間を検査",
-      "原本/index/旧完成物hash保持、失敗/未確認を区別して記録"
+    "fps": [
+      29.97
     ],
-    "notClaimed": [
-      "自然発生した実VFRの合格",
-      "全形式/FPSの網羅",
-      "順3全体の完成"
-    ]
+    "outputAudioTarget": 320000,
+    "note": "AAC→Opus変換のためAACpacket同一性を合格条件へ流用しない。自然発生VFR/OGV・全codecやG3-B/順3全体の未完了は維持"
   },
   "remaining": [
     "音声4codec長尺91.4秒の約4.50%/4.99%音量差：3%条件の一般化は未達、原因未診断",
     "G3-A短窓/聴感",
     "自然発生した長尺実VFR/長尺WebM・OGV",
-    "現行320kの実動画長尺・複数動画行",
     "Linuxブラウザー/実GPU/任意codec",
     "G3-C/D/E/F",
-    "順4の54発話/候補採用、順5判定、既存証拠ゲート2失敗/依存監査3件"
+    "順4の54発話/候補採用、順5判定、既存証拠ゲート2失敗/依存監査3件",
+    "現行320kの長尺MP4 VFR代表は検証済み、複数動画行/他FPS・長尺WebM/OGVは残る。並行負荷時SDK時間切れ原因未確定"
   ],
   "modelCategory": "高性能（証拠照合・試験・判定）、サブエージェントなし",
   "formatAudioQualityResidual": {
@@ -468,5 +493,7 @@
   },
   "evidenceCommit": "2ce37c4b0e6810b561817e53a1c3ebe58d4ecb43",
   "pullRequest": 280,
-  "evidenceHashScope": "sha256 is over the committed Git blob bytes (LF text); working-tree CRLF is normalized before comparison"
+  "evidenceHashScope": "sha256 is over the committed Git blob bytes (LF text); working-tree CRLF is normalized before comparison",
+  "lastUpdated": "2026-11-11",
+  "g3b1HistoricalEvidenceCommit": "2ce37c4b0e6810b561817e53a1c3ebe58d4ecb43"
 }

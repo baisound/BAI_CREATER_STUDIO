@@ -1,0 +1,11 @@
+{"frames":6879,"videoMaxMae":1.3373842592592593,"pcmWindows":153,"maxLag":0,"apiOnly":true,"sourceAndAacPreserved":true}
+✔ long real-video-derived VFR retains original AAC, split source windows and saved output clocks (86586.882487ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 95901.200044
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）
