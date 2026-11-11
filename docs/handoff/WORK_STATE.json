@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-11T14:16:00+09:00",
+  "updated_at": "2026-11-11T14:21:27+09:00",
   "updated_by": "codex",
   "branch": "codex/long-vfr-source-windows-20261111",
-  "head_at_update": "0b21686",
+  "head_at_update": "3414f8c",
   "current": {
     "task": "順3 G3-B2：長尺VFRと元区間・分割境界の同期検証",
     "status": "done",
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-11T14:21:27+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "3414f8c",
+      "text": "長尺VFR代表の実測/試験3414f8cとPR282を正本へ結合。両OS6879F/有音149窓差0+静かな4窓、AAC末尾表現差は破棄余白を引いて4表一致を確認"
+    },
     {
       "at": "2026-11-11T14:16:00+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "37d76e0",
       "text": "Issue #81 順3のOGG・FLAC・M4A形式別の縦断経路: 非破壊登録と実尺/元区間・プレビュー・MP4を接続し、代表codecと明確な拒否をWindows/Linuxで検証する"
-    },
-    {
-      "at": "2026-11-08T01:24:28+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "95f5f9f",
-      "text": "main3cfae54・利用者/開発木・8765非表示再起動/新混音グラフと読み取りChrome・515ファイル不変を正本へ記録"
     }
   ]
 }

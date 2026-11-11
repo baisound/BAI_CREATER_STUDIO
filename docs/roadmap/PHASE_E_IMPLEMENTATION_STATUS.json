@@ -503,7 +503,7 @@
       "phase_e_wp": "DATA-016/002/008・AUDIO-001・RENDER-001/006、#81/#37/#63/#39",
       "planned_in": "V05-LONG-VFR-SOURCE-WINDOWS-20261111",
       "status": "partial_verified",
-      "commit": "開始0b21686に続く本記録のGit履歴を参照",
+      "commit": "3414f8c0b7782c5c15fc413ac88ddfc2349ef45f / PR #282",
       "tests": "2026-11-11 G3-B2、実214秒CFRコピー由来のVFR MP4（1071F/33〜367ms、元AAC10033packet/PTS保持）と別実WAVを同じ作品で分割/移動/保存し、29.97fps/320kの非0In出力6879F/229.52953秒をWin/Ubuntuで確認。全出力Fの32x18署名は元PTS±1F候補と最大MAE1.337385、PCM153窓中有音149窓は差0sample、静かな4窓はRMS。Windows実Chrome/SDK/ネイティブ、Ubuntu SDK/API、各Node1/Python10成功。測定器の先行失敗と並行時SDK時間切れを保持、製品コード変更なし。自然発生VFR/他codec/聴感/順3全体は未完。docs/v05/LONG_VFR_SOURCE_WINDOWS_20261111_JA.md",
       "unverified": "自然発生VFR/長尺WebM・OGV/他FPS・全codec/複数動画行・色/実GPU/Linuxブラウザー・全Undo/競合、並行負荷時SDK時間切れの原因、G3-A短窓/聴感・4codec約5%音量差、G3-C〜F/順3全体。順4の54発話と候補採用/順5判定・既存ゲート2失敗/依存監査3件を保持"
     }

@@ -415,6 +415,10 @@
         {
           "path": "qa/long-vfr-pixel-diagnostic-20261111.json",
           "sha256": "5480440af55a47b8e0b6047ac4ced66e266f9f907c0c75b66cbf7f5dc9750680"
+        },
+        {
+          "path": "qa/long-vfr-aac-normalized-20261111.json",
+          "sha256": "e4d12e80eb2b3f93097554771782cfab7d055effa768d6d42fc48aa57c21c889"
         }
       ],
       "unverified": "自然発生VFR/長尺WebM・OGV/他FPS・全codec/全解像度色管理/聴感/Linuxブラウザー/並行負荷SDK時間切れ",
@@ -491,9 +495,10 @@
     "g3aScopedMaxGainError": 0.03,
     "status": "形式試験7%以内、G3-Aの3%を全codecで確認した意味ではない。原因は未診断"
   },
-  "evidenceCommit": "2ce37c4b0e6810b561817e53a1c3ebe58d4ecb43",
+  "evidenceCommit": "3414f8c0b7782c5c15fc413ac88ddfc2349ef45f",
   "pullRequest": 280,
   "evidenceHashScope": "sha256 is over the committed Git blob bytes (LF text); working-tree CRLF is normalized before comparison",
   "lastUpdated": "2026-11-11",
-  "g3b1HistoricalEvidenceCommit": "2ce37c4b0e6810b561817e53a1c3ebe58d4ecb43"
+  "g3b1HistoricalEvidenceCommit": "2ce37c4b0e6810b561817e53a1c3ebe58d4ecb43",
+  "latestPullRequest": 282
 }
