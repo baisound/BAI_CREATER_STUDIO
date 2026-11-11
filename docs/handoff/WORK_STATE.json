@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-12T05:52:20+09:00",
+  "updated_at": "2026-11-12T06:22:23+09:00",
   "updated_by": "codex",
-  "branch": "codex/long-webm-main-sync-20261112",
-  "head_at_update": "d6dfcb8",
+  "branch": "codex/timeline-edit-history-20261112",
+  "head_at_update": "69db20f",
   "current": {
-    "task": "長尺WebM修正のmainと制作画面の同期を記録",
-    "status": "done",
-    "step": "PR284/main3af3fe1を利用者mainへ反映済み、8765の旧Pythonを所有確認して再起動し表示と保持を確認",
-    "design_doc": "docs/v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md"
+    "task": "順3 G3-C 編集の取消・再実行と保存復元",
+    "status": "in_progress",
+    "step": "Owner指定で長尺OGVを低優先へ戻し、既存クリップ編集のUndo/Redo不足を同一API・保存・出力まで補う",
+    "design_doc": "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md"
   },
   "next_steps": [
     "G3-B2の次の代表：実映像由来の長尺OGV Theora/Vorbisを29.97fps/320kで元PTS/元区間/分割/保存/画素/PCM/非0In・保持まで検証"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-12T06:22:23+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "69db20f",
+      "text": "順3 G3-C 編集の取消・再実行と保存復元: Owner指定で長尺OGVを低優先へ戻し、既存クリップ編集のUndo/Redo不足を同一API・保存・出力まで補う"
+    },
     {
       "at": "2026-11-12T05:52:20+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "0ec6446",
       "text": "Issue #81 順3の動画形式と映像なし素材の拒否: MP4/WebM/OGVと旧MOVを形式別に確認し、対応案内・映像なし拒否を共通APIと保存/プレビュー/MP4へ接続する"
-    },
-    {
-      "at": "2026-11-08T20:32:33+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "eb39b45",
-      "text": "main1ab7d08・手元/開発木・8765再起動と画像capability/黒背景・表示中Chrome再読込、515ファイル不変、Issue画像2枚を正本へ記録"
     }
   ]
 }
