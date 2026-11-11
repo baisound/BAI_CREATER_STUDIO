@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-12T05:32:26+09:00",
+  "updated_at": "2026-11-12T05:40:16+09:00",
   "updated_by": "codex",
   "branch": "codex/long-webm-sync-20261112",
-  "head_at_update": "3facd74",
+  "head_at_update": "e2be423",
   "current": {
-    "task": "順3 G3-B2 長尺WebM VP9/Opusの元区間と同期",
+    "task": "順3 G3-B2 長尺WebMの入力時計補正",
     "status": "in_progress",
-    "step": "実映像由来入力の生成とWin/Ubuntu隔離試験・元PTS/画素/PCM/保存保持",
+    "step": "Ubuntu FFmpegで負の開始時刻を持つWebMの切出しが7ms前倒しになる再現を保持し、入力PTSを保存して両OS再検証",
     "design_doc": "docs/v05/LONG_VFR_SOURCE_WINDOWS_20261111_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-12T05:40:16+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "e2be423",
+      "text": "順3 G3-B2 長尺WebMの入力時計補正: Ubuntu FFmpegで負の開始時刻を持つWebMの切出しが7ms前倒しになる再現を保持し、入力PTSを保存して両OS再検証"
+    },
     {
       "at": "2026-11-12T05:32:26+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "f14bd25",
       "text": "Issue #81 順3の静止画像形式別プレビューと出力: 既存登録画像と新規PNG/JPEG/WebP/BMPを同じ作品で保存・表示/MP4比較し、非対応画像の理由表示を接続する"
-    },
-    {
-      "at": "2026-11-08T19:52:06+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "cb157ef",
-      "text": "main0c04ed3・手元/開発木・8765再起動と表示中Chrome再読込、新形式API/案内・515ファイル不変・Issue画像表示を正本へ記録"
     }
   ]
 }
