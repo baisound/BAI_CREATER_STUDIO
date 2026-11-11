@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-12T05:40:16+09:00",
+  "updated_at": "2026-11-12T05:48:03+09:00",
   "updated_by": "codex",
   "branch": "codex/long-webm-sync-20261112",
-  "head_at_update": "e2be423",
+  "head_at_update": "7634275",
   "current": {
     "task": "順3 G3-B2 長尺WebMの入力時計補正",
-    "status": "in_progress",
+    "status": "done",
     "step": "Ubuntu FFmpegで負の開始時刻を持つWebMの切出しが7ms前倒しになる再現を保持し、入力PTSを保存して両OS再検証",
     "design_doc": "docs/v05/LONG_VFR_SOURCE_WINDOWS_20261111_JA.md"
   },
   "next_steps": [
-    "G3-B2の次の代表：実映像由来の長尺WebM VP9/Opusを29.97fps/320kで元PTS/分割/保存/画素/PCM/非0In・保持まで検証"
+    "検証済み長尺WebM修正をPR/mainへ統合し利用者main/8765/開いている制作画面を同期"
   ],
   "unverified": [
-    "自然発生VFR/長尺WebM・OGV/他FPS・全codec/複数動画行・色/実GPU/Linuxブラウザー・全Undo/競合、並行時SDK時間切れ原因。G3-A短窓/聴感・4codec約5%音量差、G3-C〜F/順3全体、順4/5・既存ゲート2失敗/依存監査3件を保持"
+    "自然発生VFR/長尺OGV/他FPS・全codec/複数動画行・色/実GPU/Linuxブラウザー/全Undo・競合/並行SDK時間切れ原因/Chrome音量採取初回失敗原因、G3-A短窓/聴感・別4codec約5%音量差、G3-C〜F/順3全体。順4/5・既存ゲート2失敗/依存監査3件を保持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-12T05:48:03+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "7634275",
+      "text": "長尺WebMの7ms入力時計差を修正しWin/Ubuntu各6879F・149有音窓差0sampleを確認。各Python31と既存形式/MCP対象成功。Chrome音量一括1失敗は同一コード単独成功、原因未確定として保持。"
+    },
     {
       "at": "2026-11-12T05:40:16+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "86dfbe7",
       "text": "代表画像4形式/EXIF/透過/重なりを確認し撮影枠背景と出力理由を修正。Windows/Ubuntu各Python29・Node2、関連7成功、旧MP4/原本保持を記録"
-    },
-    {
-      "at": "2026-11-08T20:07:11+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f14bd25",
-      "text": "Issue #81 順3の静止画像形式別プレビューと出力: 既存登録画像と新規PNG/JPEG/WebP/BMPを同じ作品で保存・表示/MP4比較し、非対応画像の理由表示を接続する"
     }
   ]
 }

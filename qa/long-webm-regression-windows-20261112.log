@@ -1,0 +1,64 @@
+[run-guarded] 警告: 開発用サーバー（127.0.0.1:8765）が動いています。実データに書き込むとハッシュの確認が失敗します
+TAP version 13
+# Subtest: OGG Vorbis/Opus, FLAC and M4A share registration, source edits, browser decode and completed PCM
+ok 1 - OGG Vorbis/Opus, FLAC and M4A share registration, source edits, browser decode and completed PCM
+  ---
+  duration_ms: 30692.1466
+  type: 'test'
+  ...
+# Subtest: real song derivatives in four formats survive a long saved mixed export
+ok 2 - real song derivatives in four formats survive a long saved mixed export # SKIP BAI_REAL_MMD_DATA required
+  ---
+  duration_ms: 0.6944
+  type: 'test'
+  ...
+# Subtest: preview media PCM and MP4 keep original mixed levels before, during and after overlap
+not ok 3 - preview media PCM and MP4 keep original mixed levels before, during and after overlap
+  ---
+  duration_ms: 18582.1511
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-audio-mix-level.test.cjs:20:1'
+  failureType: 'testCodeFailure'
+  error: '{"time":3.2,"preview":[0.11224448231986767,0.004109254764077933,0.09366172104526041],"expected":[0.12498374418974378,0,0.12497303776150434]}'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-audio-mix-level.test.cjs:25:400)
+    runNextTicks (node:internal/process/task_queues:65:5)
+    process.processImmediate (node:internal/timers:453:9)
+    process.callbackTrampoline (node:internal/async_hooks:130:17)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: real song and MP3 retain unity gain across full length and overlap
+ok 4 - real song and MP3 retain unity gain across full length and overlap # SKIP BAI_REAL_MMD_DATA required
+  ---
+  duration_ms: 1.8633
+  type: 'test'
+  ...
+# Subtest: standard MCP and WebMCP render the same saved project and retain both MP4 versions
+ok 5 - standard MCP and WebMCP render the same saved project and retain both MP4 versions
+  ---
+  duration_ms: 8553.2059
+  type: 'test'
+  ...
+# [{"ext":"mp4","vfr":true,"fps":24,"inputFrames":20,"browserError":0,"videoWidth":160,"outputFrames":67,"audioResults":[{"lag":0,"correlation":0.9999995945227282},{"lag":0,"correlation":0.9999999864852116},{"lag":0,"correlation":0.9999999889224263}],"sha256":"ccffd2eff084596c4ffc113de801ce24ac8430dbf573b959323e8940248d1541"},{"ext":"webm","vfr":true,"fps":29.97,"inputFrames":20,"browserError":0,"videoWidth":160,"outputFrames":84,"audioResults":[{"lag":0,"correlation":0.9999986468512402},{"lag":0,"correlation":0.9999971063460689},{"lag":0,"correlation":0.9999943899793728}],"sha256":"275ff42030d7fb696d2b69470248619ca7348b8fea2c759c20bb668c8e708711"},{"ext":"mp4","vfr":true,"fps":60,"inputFrames":20,"browserError":0,"videoWidth":160,"outputFrames":168,"audioResults":[{"lag":0,"correlation":0.9999977964833733},{"lag":0,"correlation":0.9999920693574317},{"lag":0,"correlation":0.9999087356905707}],"sha256":"ccffd2eff084596c4ffc113de801ce24ac8430dbf573b959323e8940248d1541"},{"ext":"ogv","vfr":false,"fps":30,"inputFrames":80,"browserError":0,"videoWidth":0,"outputFrames":84,"audioResults":[{"lag":0,"correlation":0.99999979921005},{"lag":0,"correlation":0.9999999874415152},{"lag":0,"correlation":0.999999987882567}],"sha256":"fc9fe5d0c658317ca31270b1dfcdcefffc18ab7c462266793c3eb8c4e40aa6cc"}]
+# Subtest: WebM/OGV registration and VFR timestamp trims survive saved preview and MP4
+ok 6 - WebM/OGV registration and VFR timestamp trims survive saved preview and MP4
+  ---
+  duration_ms: 22605.3414
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 3
+# fail 1
+# cancelled 0
+# skipped 2
+# todo 0
+# duration_ms 101148.8786
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

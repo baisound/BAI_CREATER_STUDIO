@@ -1,0 +1,24 @@
+[run-guarded] 警告: 開発用サーバー（127.0.0.1:8765）が動いています。実データに書き込むとハッシュの確認が失敗します
+TAP version 13
+# Subtest: preview media PCM and MP4 keep original mixed levels before, during and after overlap
+ok 1 - preview media PCM and MP4 keep original mixed levels before, during and after overlap
+  ---
+  duration_ms: 24706.3733
+  type: 'test'
+  ...
+# Subtest: real song and MP3 retain unity gain across full length and overlap
+ok 2 - real song and MP3 retain unity gain across full length and overlap # SKIP BAI_REAL_MMD_DATA required
+  ---
+  duration_ms: 0.874
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 1
+# todo 0
+# duration_ms 29922.5153
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）
