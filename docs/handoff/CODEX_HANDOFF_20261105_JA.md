@@ -277,3 +277,10 @@ PR #282はmain f4dbe44へ統合済み。手元main/codex-next/作業木をffし�
 2026-11-12 G3-B2、実214秒CFRコピー由来WebM VP9/Opus（1071F・元PTS最大丸め0.333ms）と別実WAVを分割/移動/保存再読込し、非0In・29.97fps/320kの6879FをWin/Ubuntuで確認。Ubuntu旧FFmpegの負の開始時刻による7ms前倒しを-copytsで修正。全F署名±1F・PCM153窓中有音149窓差0sample/静かな4窓RMS、入力Opus変換106窓も差0sample。Win実Chrome/公式SDK/ネイティブ、Ubuntu SDK/API。自然発生VFR・OGV・全codec/聴感/順3全体は未完。docs/v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md
 
 [測定・不具合・再実行](../v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md)。次はG3-B2の長尺OGV Theora/Vorbis。元の未完と承認順を維持。モデル区分：高性能（診断・実装・検証）、サブエージェントなし。
+
+
+## mainと制作画面の同期
+
+[PR #284](https://github.com/baisound/BAI_CREATER_STUDIO/pull/284)はmain `3af3fe1`へ統合済み。利用者main/既存codex-nextをfast-forwardし、所有パスを確認した8765番のPythonをPID75076から21332へ非表示再起動して、製品の入力PTS保持修正を読み込ませた。HTML/render-job-v69.js/webmcp.jsはmainと全バイト一致、出力capabilityの320000目標値も確認。
+
+Chrome既存タブ1055945654のホームと既存2作品を確認し開いたまま保持。HTML/JS変更がないため画面の強制再読込は不要。利用者data/exports/studio.zipの515ファイルと変更一覧は前後一致（集約hash `89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d`）。[同期数値](../../qa/long-webm-main-sync-20261112.json)。GitHubの自動check登録はなく、ローカル検証と区別。次は長尺OGV。順3全体と他の既存未確認は維持する。
