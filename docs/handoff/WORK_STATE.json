@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-12T06:46:44+09:00",
+  "updated_at": "2026-11-12T06:48:51+09:00",
   "updated_by": "codex",
-  "branch": "codex/timeline-edit-history-20261112",
-  "head_at_update": "a9ae727",
+  "branch": "codex/clip-history-main-sync-20261112",
+  "head_at_update": "078c1b6",
   "current": {
-    "task": "順3 G3-C 編集の取消・再実行と保存復元",
-    "status": "done",
-    "step": "Owner指定で長尺OGVを低優先へ戻し、既存クリップ編集のUndo/Redo不足を同一API・保存・出力まで補う",
-    "design_doc": "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md"
+    "task": "素材編集履歴のmain・制作画面同期を記録",
+    "status": "in_progress",
+    "step": "PR286を利用者mainへ反映し8765のPythonと開いている画面を更新・保持証拠を保存",
+    "design_doc": "docs/v05/CLIP_EDIT_HISTORY_20261112_JA.md"
   },
   "next_steps": [
     "検証済み編集履歴をmainへ統合し、利用者main/8765/開いている制作画面へ同期する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-12T06:48:51+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "078c1b6",
+      "text": "素材編集履歴のmain・制作画面同期を記録: PR286を利用者mainへ反映し8765のPythonと開いている画面を更新・保持証拠を保存"
+    },
     {
       "at": "2026-11-12T06:46:44+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "caac129",
       "text": "Issue #81 動画形式対応のmainと表示中画面を同期: mainの動画capability/プローブと8765を更新し、515ファイル保持・ChromeとIssue画像3枚を正本へ記録"
-    },
-    {
-      "at": "2026-11-08T21:55:49+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "1a0fdff",
-      "text": "動画形式を案内し映像なし/カバー画像だけの素材と旧MOV出力を理由付き拒否。既存MP4+新3形式の同一作品225F/215F、Windows/Ubuntu各Python47・Node2と回帰4成功を記録"
     }
   ]
 }
