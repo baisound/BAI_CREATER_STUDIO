@@ -1,0 +1,43 @@
+[run-guarded] 警告: 開発用サーバー（127.0.0.1:8765）が動いています。実データに書き込むとハッシュの確認が失敗します
+TAP version 13
+# {"status":"passed","apiOnly":false,"scope":"clip metadata only, not track layout/mutes/face or application-wide history","browser":"156.0.8078.80","inputKind":"existing_real_video_read_only_plus_generated_wav_image","frames":240,"originalAndRestoredDecodedVideo":"a3ef58e933a360d033036cf44171a4c62bd8c825ca43509c34330f72b1cb87fb","originalAndRestoredPcm":"7684a8d205a810217c2d36659153b644162ca02ce63d18545f1fa650cd94ed56","redoneDecodedVideo":"cd7351ff96358913696ac3f0cc50040be263e28700df945c80b39cdd1cdb31dc","redonePcm":"3184fc787a9a66d2a15aef868a7991a1c39bdc9bdd4f4617a201321aa956256c","reopenedClips":[{"id":"7a612c76-5f74-43a6-a53e-1ed02484d051","asset_id":"library:948c33a4ad2aee3277f59a19","name":"blue","category":"image","track":"image","lane":1,"start":0,"duration":8},{"id":"af28bfad-3b9a-4063-afc5-9869b23a47d1","asset_id":"library:1b773b521ccbbfcb92d81409","name":"native-audio-480p","category":"video","track":"video","lane":1,"start":1.1,"duration":2,"source_start":0.5,"source_duration":214,"source_has_audio":true},{"id":"a5de2721-3134-464b-b465-a21bf9a0c3f9","asset_id":"library:1b773b521ccbbfcb92d81409","name":"native-audio-480p","category":"video","track":"video","lane":1,"start":5,"duration":2,"source_start":2.5,"source_duration":214,"source_has_audio":true},{"id":"46908e13-2ed5-4901-b664-156f5b974d52","asset_id":"library:a0da85d0e10a83e888a53468","name":"sound","category":"audio","track":"audio","lane":1,"start":2,"duration":3,"source_start":0.7,"source_duration":6,"source_has_audio":true}],"history":{"undo_count":8,"redo_count":0},"rejectedWritesUnchanged":true,"inputsAndPriorOutputUnchanged":true,"inputHashes":[{"kind":"video","hash":"c895d1da79dfddb4c93210b778b74d727be225ac5c07a2c5d6c5a399093f89d6"},{"kind":"audio","hash":"0d8d906e49bfbb2f758bbda4d90e6eb3ad4090be1187129e4d4678e8a7539c97"},{"kind":"image","hash":"3cbcb3424d559fd71e41c6d47459035b28eb4d19a5537a4d207abc6c5268b345"}],"native":true}
+# Subtest: clip Undo/Redo persists exact split windows through UI, SDK/native MCP and decoded MP4
+ok 1 - clip Undo/Redo persists exact split windows through UI, SDK/native MCP and decoded MP4
+  ---
+  duration_ms: 11708.7846
+  type: 'test'
+  ...
+# Subtest: drag registered image to saved timeline, move/resize, add lane, then reload
+ok 2 - drag registered image to saved timeline, move/resize, add lane, then reload
+  ---
+  duration_ms: 4691.834
+  type: 'test'
+  ...
+# Subtest: video/audio drag uses source length, left trim stores source offset, preview and MP4 read the same audio window
+ok 3 - video/audio drag uses source length, left trim stores source offset, preview and MP4 read the same audio window
+  ---
+  duration_ms: 5031.0574
+  type: 'test'
+  ...
+# Subtest: standard MCP and WebMCP render the same saved project and retain both MP4 versions
+ok 4 - standard MCP and WebMCP render the same saved project and retain both MP4 versions
+  ---
+  duration_ms: 4149.0149
+  type: 'test'
+  ...
+# Subtest: scissors split keeps source windows, separated pieces move/extend, snap and track labels persist
+ok 5 - scissors split keeps source windows, separated pieces move/extend, snap and track labels persist
+  ---
+  duration_ms: 7520.7896
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 58449.7269
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

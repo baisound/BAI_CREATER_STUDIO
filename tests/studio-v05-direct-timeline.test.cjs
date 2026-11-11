@@ -85,8 +85,13 @@ test('drag registered image to saved timeline, move/resize, add lane, then reloa
     await page.locator('#v08save').click();
     await harness.waitForAsync(page, async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips.some(c => c.lane === 3), id);
     await page.locator('#v80RemoveLane').selectOption('2');
+    const beforeRefresh=await page.locator('#v80RemoveLane').elementHandle();
+    await page.evaluate(projectId=>window.dispatchEvent(new CustomEvent('bai:v05-arrangement-refresh',{detail:{projectId}})),id);
+    await page.waitForFunction(element=>!element.isConnected,beforeRefresh);await beforeRefresh.dispose();
+    assert.equal(await page.locator('#v80RemoveLane').inputValue(),'2','redraw must retain the selected removal lane');
     await page.getByRole('button', { name: '空の画像行を削除' }).click();
-    await page.waitForFunction(() => !document.querySelector('#v07timeline [data-track="image"][data-lane="2"]'));
+    try { await page.waitForFunction(() => !document.querySelector('#v07timeline [data-track="image"][data-lane="2"]')); }
+    catch (error) { throw new Error(`${error.message}; status=${await page.locator('#v06status').innerText()}; selected=${await page.locator('#v80RemoveLane').inputValue()}; layout=${JSON.stringify(await json(await fetch(`${server.base}/api/studio/v05/timeline/layout?id=${id}`)))}; clips=${JSON.stringify((await json(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`))).clips)}`); }
     assert.equal(await page.locator('#v07timeline [data-track="image"][data-lane="3"]').count(), 1);
     await page.getByRole('button', { name: '＋ 画像トラック' }).click();
     await page.locator('#v07timeline [data-track="image"][data-lane="4"]').waitFor();

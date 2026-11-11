@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "apiOnly": true,
+  "scope": "clip metadata only, not track layout/mutes/face or application-wide history",
+  "frames": 240,
+  "originalAndRestoredDecodedVideo": "e669d581b5ce42cc260db0b47f2bbd09e52c3f433a24375e1127bbe0b8aaf805",
+  "originalAndRestoredPcm": "4f2248e7cd1058567b66d6ba1b46efa5536b40e758e2eac07d8d09a7ce3c238d",
+  "redoneDecodedVideo": "4a4bdd0b36f72aae9b7e01445ac51c8e0dc1afd1f77ebc74d81c3a6dc211767f",
+  "redonePcm": "b7f51dd98932c58b3cc399179d453e82e175ad9fd12124e1902cfd67af98c27d",
+  "reopenedClips": [
+    {
+      "id": "46afc461-27af-4479-a473-5793f2fa92d3",
+      "asset_id": "library:a23370337e5ceab231a7a743",
+      "name": "blue",
+      "category": "image",
+      "track": "image",
+      "lane": 1,
+      "start": 0,
+      "duration": 8
+    },
+    {
+      "id": "f7783a70-4ed5-49a1-beab-53a5e96ae2f1",
+      "asset_id": "library:a18af5bf24f709e90af9687e",
+      "name": "clock",
+      "category": "video",
+      "track": "video",
+      "lane": 1,
+      "start": 1.1,
+      "duration": 2,
+      "source_start": 0.5,
+      "source_duration": 6,
+      "source_has_audio": true
+    },
+    {
+      "id": "58f039ed-e3ca-4b8a-b746-2ed9ac601400",
+      "asset_id": "library:a18af5bf24f709e90af9687e",
+      "name": "clock",
+      "category": "video",
+      "track": "video",
+      "lane": 1,
+      "start": 5,
+      "duration": 2,
+      "source_start": 2.5,
+      "source_duration": 6,
+      "source_has_audio": true
+    },
+    {
+      "id": "81900131-16a8-4719-9097-eca5c9597b6f",
+      "asset_id": "library:f21637665fb2e38f87301932",
+      "name": "sound",
+      "category": "audio",
+      "track": "audio",
+      "lane": 1,
+      "start": 2,
+      "duration": 3,
+      "source_start": 0.7,
+      "source_duration": 6,
+      "source_has_audio": true
+    }
+  ],
+  "history": {
+    "undo_count": 8,
+    "redo_count": 0
+  },
+  "rejectedWritesUnchanged": true,
+  "inputsAndPriorOutputUnchanged": true,
+  "native": false
+}

@@ -138,6 +138,8 @@ def run(name,a):
                 'note':'The file endpoint validates the completed MP4 when downloaded.'}
     if name=='bai_studio_batch_move':return api('/api/studio/v05/arrangement/batch-move',a)
     if name=='bai_studio_batch_undo':return api('/api/studio/v05/arrangement/undo',a)
+    if name=='bai_studio_clip_undo':return api('/api/studio/v05/arrangement/history/undo',a)
+    if name=='bai_studio_clip_redo':return api('/api/studio/v05/arrangement/history/redo',a)
     if name=='bai_studio_track_flags_set':return api('/api/studio/v05/timeline/flags',a)
     if name=='bai_studio_clip_target_set':return api('/api/studio/v05/arrangement/clip/target',a)
     if name=='bai_studio_clip_edit':return api('/api/studio/v05/arrangement/clip/edit',a)
@@ -297,6 +299,8 @@ TOOLS=[
 ('bai_studio_render_file_link','Get the loopback download URL for a succeeded MP4; the file endpoint validates its bytes.',S({'job_id':STR},['job_id'])),
 ('bai_studio_batch_move','Atomically move multiple saved clips.',S({'project_id':STR,'revision':INT,'edits':{'type':'array','items':{'type':'object'}}},['project_id','revision','edits'])),
 ('bai_studio_batch_undo','Undo previous atomic batch move.',S({'project_id':STR,'revision':INT},['project_id','revision'])),
+('bai_studio_clip_undo','Undo the latest saved clip edit. Revision, lock and lane guarded; retains source files.',S({'project_id':STR,'revision':INT},['project_id','revision'])),
+('bai_studio_clip_redo','Redo a saved clip edit undone through clip history. New edits clear redo.',S({'project_id':STR,'revision':INT},['project_id','revision'])),
 ('bai_studio_track_flags_set','Set track locks and saved audio mutes; audio/music/video mutes affect preview and the next MP4.',S({'project_id':STR,'revision':INT,'locked':{'type':'array','items':STR},'muted':{'type':'array','items':STR}},['project_id','revision','locked','muted'])),
 ('bai_studio_clip_target_set','Set or clear a motion clip target model with revision check.',S({'project_id':STR,'clip_id':STR,'revision':INT,'target_model_id':{'type':['string','null']}},['project_id','clip_id','revision','target_model_id'])),
 ('bai_studio_clip_edit','Update or delete saved v0.5 clip metadata and original media window by ID with revision check; legacy engine unchanged.',S({'project_id':STR,'clip_id':STR,'revision':INT,'action':{'type':'string','enum':['update','delete']},'start':{'type':'number'},'duration':{'type':'number'},'track':STR,'source_start':{'type':'number','minimum':0,'description':'Start offset in the original video/audio in seconds, independent of timeline start.'},'lane':{'type':'integer','minimum':1,'description':'Existing image/video/audio/music lane ID; use 1 for other tracks.'}},['project_id','clip_id','revision','action'])),

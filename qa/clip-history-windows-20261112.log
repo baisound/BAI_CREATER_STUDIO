@@ -1,0 +1,19 @@
+[run-guarded] 警告: 開発用サーバー（127.0.0.1:8765）が動いています。実データに書き込むとハッシュの確認が失敗します
+TAP version 13
+# {"status":"passed","apiOnly":false,"scope":"clip metadata only, not track layout/mutes/face or application-wide history","browser":"156.0.8078.80","frames":240,"originalAndRestoredDecodedVideo":"147f8e922b315d86952becc15c59aa483457edde3bd1d1dbbee82d063d44fd91","originalAndRestoredPcm":"aa93e54a912a18dfcf4c04bae44597d22abfc7ade50c79afd08e75f5c9abe1fe","redoneDecodedVideo":"275e95321a3b5ec2f0066888b30cbbf1153d214ad8b70207dbde5ba94808e7ad","redonePcm":"1df991d4bfe04ac0beddb99cad3cfda2214da4b3e728f04658296690703286d5","reopenedClips":[{"id":"77779fb2-30c0-4595-9291-8bea70a2a0f3","asset_id":"library:948c33a4ad2aee3277f59a19","name":"blue","category":"image","track":"image","lane":1,"start":0,"duration":8},{"id":"f4adba21-3d00-45f4-9d4d-2792f009214b","asset_id":"library:97db6fc1c81b6f49ebea4571","name":"clock","category":"video","track":"video","lane":1,"start":1.1,"duration":2,"source_start":0.5,"source_duration":6,"source_has_audio":true},{"id":"7a6b02c5-04ce-4f5b-966d-667dd0d7f731","asset_id":"library:97db6fc1c81b6f49ebea4571","name":"clock","category":"video","track":"video","lane":1,"start":5,"duration":2,"source_start":2.5,"source_duration":6,"source_has_audio":true},{"id":"fb87dd36-c3e6-4bf6-8b5e-3d07d6bdb4f8","asset_id":"library:a0da85d0e10a83e888a53468","name":"sound","category":"audio","track":"audio","lane":1,"start":2,"duration":3,"source_start":0.7,"source_duration":6,"source_has_audio":true}],"history":{"undo_count":8,"redo_count":0},"rejectedWritesUnchanged":true,"inputsAndPriorOutputUnchanged":true,"native":true}
+# Subtest: clip Undo/Redo persists exact split windows through UI, SDK/native MCP and decoded MP4
+ok 1 - clip Undo/Redo persists exact split windows through UI, SDK/native MCP and decoded MP4
+  ---
+  duration_ms: 9964.1077
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 15159.7193
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

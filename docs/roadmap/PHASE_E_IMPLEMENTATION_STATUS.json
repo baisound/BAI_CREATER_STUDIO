@@ -515,6 +515,15 @@
       "commit": "e2f2abe7511373e1e4f556de72885b105fc30e8c / PR #284 / main 3af3fe17b6038a7874b735c4d9dc5e4c5ffd1e23 / qa/long-webm-main-sync-20261112.json",
       "tests": "2026-11-12 G3-B2、実214秒CFRコピー由来WebM VP9/Opus（1071F・元PTS最大丸め0.333ms）と別実WAVを分割/移動/保存再読込し、非0In・29.97fps/320kの6879FをWin/Ubuntuで確認。Ubuntu旧FFmpegの負の開始時刻による7ms前倒しを-copytsで修正。全F署名±1F・PCM153窓中有音149窓差0sample/静かな4窓RMS、入力Opus変換106窓も差0sample。Win実Chrome/公式SDK/ネイティブ、Ubuntu SDK/API。自然発生VFR・OGV・全codec/聴感/順3全体は未完。docs/v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md",
       "unverified": "自然発生VFR/長尺OGV/他FPS・全codec/複数動画行・色/実GPU/Linuxブラウザー/全Undo・競合/並行SDK時間切れ原因、G3-A短窓・聴感・4codec約5%音量差、G3-C〜F/順3全体、順4の54発話/順5判定・既存ゲート2失敗/依存監査3件"
+    },
+    {
+      "item": "順3 G3-C：素材クリップの保存Undo/Redo",
+      "phase_e_wp": "DATA-002/008・CORE-004/012・RENDER-001/006、#81/#63/#82",
+      "planned_in": "V05-CLIP-EDIT-HISTORY-20261112",
+      "status": "partial_verified",
+      "commit": "開始a9ae727に続く本変更のGit履歴",
+      "tests": "2026-11-12 G3-C、素材クリップの配置/単体編集/分割/削除/一括移動/従来の対象モデル指定に最大32操作・8MiBの保存Undo/Redoを接続。手動UI/API/公式SDK/ネイティブWebMCP、revision/ロック/削除済み行/異常履歴/書込失敗拒否を検証。Win/Ubuntu各240FのUndo後の復号画素署名・PCMが操作前と一致しRedo後は編集後へ戻る。合成素材と同じ実録画由来MP4の短区間を各OSで確認。行削除選択の再描画リセットも修正。OGV長尺はOwner指定で低優先。G3-C/順3全体は未完。docs/v05/CLIP_EDIT_HISTORY_20261112_JA.md",
+      "unverified": "行配置/行追加削除/ミュート/PMX表情・口/カメラは別履歴。アプリ全体Undo、任意実作品/実GPU/Linuxブラウザー・全競合/全媒体、G3-AとG3-C〜F/順3全体。長尺OGVは低優先の互換性残件であり必須の次作業にしない。既存ゲート/依存監査と順4/5も維持"
     }
   ]
 }

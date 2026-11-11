@@ -615,10 +615,10 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError,KeyError,OSError) as exc:self.bad(422,'Cannot read render job')
             return
         if urlsplit(self.path).path=='/api/studio/v05/arrangement':
-            from bai_studio.v05.timeline.arrangement import read, ArrangementError
+            from bai_studio.v05.timeline.arrangement import public_read, ArrangementError
             try:
                 project_id=parse_qs(urlsplit(self.path).query).get('id',[''])[0]
-                self.send(200,json.dumps(read(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
+                self.send(200,json.dumps(public_read(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',project_id),ensure_ascii=False).encode())
             except (ArrangementError,ValueError,KeyError,OSError):self.bad(422,'Cannot read project arrangement')
             return
         if urlsplit(self.path).path=='/api/studio/v05/focus-reports':
@@ -1347,14 +1347,18 @@ class Handler(BaseHTTPRequestHandler):
             except (PlayheadError,ValueError,TypeError,KeyError) as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
             except OSError:self.bad(500,'Write failed')
             return
-        if urlsplit(self.path).path in ('/api/studio/v05/arrangement/batch-move','/api/studio/v05/arrangement/undo','/api/studio/v05/timeline/flags'):
+        if urlsplit(self.path).path in ('/api/studio/v05/arrangement/batch-move','/api/studio/v05/arrangement/undo','/api/studio/v05/timeline/flags','/api/studio/v05/arrangement/history/undo','/api/studio/v05/arrangement/history/redo'):
             path=urlsplit(self.path).path
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=32768:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
                 if not isinstance(body,dict):return self.bad(400,'Invalid payload')
-                if path.endswith('/batch-move'):
+                if '/history/' in path:
+                    from bai_studio.v05.timeline.arrangement import edit_history
+                    if set(body)!={'project_id','revision'}:return self.bad(400,'Invalid fields')
+                    result=edit_history(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',action=path.rsplit('/',1)[1],layout_root=DATA/'studio_v05_track_layouts',**body)
+                elif path.endswith('/batch-move'):
                     from bai_studio.v05.timeline.arrangement import batch_move
                     if set(body)!={'project_id','revision','edits'}:return self.bad(400,'Invalid fields')
                     result=batch_move(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',layout_root=DATA/'studio_v05_track_layouts',**body)
