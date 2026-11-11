@@ -129,6 +129,7 @@
    if($('v06project').value!==id)return;
    const faceEnd=Math.max(0,...(faceScene?.face_keys||[]).map(key=>key.time+1));
    const scale=timelineZoom,duration=Math.max(30,Math.ceil(Math.max(d.duration,faceEnd)/10)*10),width=Math.ceil(duration*scale);
+   const imageLaneToRemove=previousProject===id?Number($('v80RemoveLane')?.value):null;
    el.replaceChildren();
    const header=document.createElement('div');header.style.cssText='background:#18283a;padding:6px';header.textContent='保存済みタイムライン — '+d.clip_count+'件（画像・動画・音声はプレビューへ部分接続）';el.append(header);
    const toolbar=document.createElement('div');toolbar.style.cssText='display:flex;gap:10px;align-items:center;flex-wrap:wrap';
@@ -142,7 +143,16 @@
    const help=document.createElement('p');help.textContent='画像・動画・音声を対応行へドラッグ。↖で移動・端調整、✂で動画/音声をクリック位置で分割。吸着オフなら細かく動かせます。表示グリッド '+gridStep()+'秒。';help.style.cssText='font-size:11px;color:#c7d8ed';el.append(help);
    const tracks=(trackLayout?.order||allTracks).flatMap(track=>{const base=d.tracks.find(t=>t.track===track)||{track,clips:[]};return ['image','video','audio','music'].includes(track)?laneIds(track).map(lane=>({...base,lane,clips:base.clips.filter(c=>(c.lane||1)===lane)})):[{...base,lane:1}]});
  const actions=document.createElement('div');actions.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin:4px 0';
-   const batchUndo=document.createElement('button');batchUndo.textContent='直前の一括移動を戻す';batchUndo.addEventListener('click',async()=>{try{await request('/api/studio/v05/arrangement/undo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,revision})});status('一括移動を取り消しました');await arrangement()}catch(e){status('Undo失敗: '+e.message)}});actions.append(batchUndo);
+   const clipHistoryBar=document.createElement('div');clipHistoryBar.style.cssText='display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:5;background:#18283a;padding:6px';el.prepend(clipHistoryBar);
+   for(const [action,label] of [['undo','素材編集を戻す'],['redo','素材編集をやり直す']]){
+     const button=document.createElement('button');button.type='button';button.textContent=label;button.id=action==='undo'?'vClipUndo':'vClipRedo';
+     button.disabled=!(d.edit_history?.[action+'_count']);button.title='この作品の素材の配置・移動・長さ変更・分割・削除を'+(action==='undo'?'取り消します':'やり直します')+'。保存して開き直した後も使えます。';
+     button.addEventListener('click',async()=>{
+       button.disabled=true;
+       try{await request('/api/studio/v05/arrangement/history/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,revision:d.revision})});status(label+'：保存しました');await arrangement()}
+       catch(e){status(label+'に失敗: '+e.message);await arrangement()}
+     });clipHistoryBar.append(button);
+   }
    for(const [action,label,stack] of [['face-undo','表情キーを戻す','undo'],['face-redo','表情キーをやり直す','redo']]){
      const button=document.createElement('button');button.type='button';button.textContent=label;
      button.id=stack==='undo'?'v99FaceUndo':'v99FaceRedo';
@@ -163,7 +173,7 @@
    async function toggleFlag(track,flag){if(!trackLayout)return;const locked=new Set(trackLayout.locked||[]),muted=new Set(trackLayout.muted||[]);const target=flag==='locked'?locked:muted;target.has(track)?target.delete(track):target.add(track);try{trackLayout=await request('/api/studio/v05/timeline/flags',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,revision:trackLayout.revision,locked:[...locked],muted:[...muted]})});window.dispatchEvent(new CustomEvent('bai:v05-track-layout-changed',{detail:trackLayout}));await drawTimeline()}catch(e){status('変更失敗: '+e.message);await loadLayout();await drawTimeline()}}
  const undo=document.createElement('button');undo.textContent='トラック配置を戻す';undo.disabled=!layoutHistory.length;undo.addEventListener('click',async()=>{const prev=layoutHistory.pop();if(prev)await saveLayout(prev.order,prev.heights)});toolbar.append(undo);
    const addImage=document.createElement('button');addImage.type='button';addImage.textContent='＋ 画像トラック';addImage.disabled=imageLaneIds().length>=16;addImage.addEventListener('click',async()=>{try{trackLayout=await request('/api/studio/v05/timeline/image-lanes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,revision:trackLayout.revision})});const newest=imageLaneIds().at(-1);refreshPlaceLanes($('v06track').value==='image'?newest:1);await drawTimeline();status('画像 '+newest+' を追加・保存しました')}catch(e){status('画像トラック追加失敗: '+e.message)}});toolbar.append(addImage);
-   const removeLabel=document.createElement('label');removeLabel.textContent='削除する画像行 ';const removeSelect=document.createElement('select');removeSelect.id='v80RemoveLane';for(const lane of imageLaneIds()){const option=document.createElement('option');option.value=String(lane);option.textContent='画像 '+lane;removeSelect.append(option)}removeSelect.value=imageLaneIds().includes(Number($('v77PlaceLane').value))?$('v77PlaceLane').value:String(imageLaneIds()[0]);removeLabel.append(removeSelect);toolbar.append(removeLabel);
+   const removeLabel=document.createElement('label');removeLabel.textContent='削除する画像行 ';const removeSelect=document.createElement('select');removeSelect.id='v80RemoveLane';for(const lane of imageLaneIds()){const option=document.createElement('option');option.value=String(lane);option.textContent='画像 '+lane;removeSelect.append(option)}removeSelect.value=imageLaneIds().includes(imageLaneToRemove)?String(imageLaneToRemove):(imageLaneIds().includes(Number($('v77PlaceLane').value))?$('v77PlaceLane').value:String(imageLaneIds()[0]));removeLabel.append(removeSelect);toolbar.append(removeLabel);
    const removeImage=document.createElement('button');removeImage.type='button';removeImage.textContent='空の画像行を削除';removeImage.disabled=imageLaneIds().length===1;removeImage.title='クリップがある行は削除できません。先にクリップを移動してください。';removeImage.addEventListener('click',async()=>{const lane=Number(removeSelect.value);try{trackLayout=await request('/api/studio/v05/timeline/image-lanes/remove',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,revision:trackLayout.revision,lane})});refreshPlaceLanes(Number($('v77PlaceLane').value));await drawTimeline();status('画像 '+lane+' を削除しました。ほかの画像行の番号とクリップは保持します')}catch(e){status('画像 '+lane+' を削除できません: '+e.message);await loadLayout();await drawTimeline()}});toolbar.append(removeImage);
    const videoTools=document.createElement('details');videoTools.id='vVideoLanes';videoTools.open=videoToolsOpen;
    const videoSummary=document.createElement('summary');videoSummary.textContent='動画の行';videoTools.append(videoSummary);

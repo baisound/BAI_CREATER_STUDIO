@@ -1,0 +1,27 @@
+[run-guarded] 警告: 開発用サーバー（127.0.0.1:8765）が動いています。実データに書き込むとハッシュの確認が失敗します
+TAP version 13
+# Subtest: drag registered image to saved timeline, move/resize, add lane, then reload
+not ok 1 - drag registered image to saved timeline, move/resize, add lane, then reload
+  ---
+  duration_ms: 33613.0424
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-direct-timeline.test.cjs:10:1'
+  failureType: 'testCodeFailure'
+  error: 'page.waitForFunction: Timeout 30000ms exceeded.; status=画像 1 を削除できません: Move or remove clips before removing this image lane; selected=1; layout={"project_id":"db273f1f-8a9a-4cb5-9edc-c42ccd067907","revision":2,"order":["audio","camera","effect","expression","image","light","lip","model","motion","music","video"],"heights":{},"locked":[],"muted":[],"image_lanes":3,"image_lane_ids":[1,2,3],"next_image_lane_id":4,"labels":{},"video_lanes":1,"video_lane_ids":[1],"next_video_lane_id":2,"audio_lanes":1,"audio_lane_ids":[1],"next_audio_lane_id":2,"music_lanes":1,"music_lane_ids":[1],"next_music_lane_id":2}; clips=[{"id":"5720e6c8-0150-4950-8a2a-e05c750cf5dd","asset_id":"library:8b39096e6f9f5bf80e2a65c3","name":"platformer","category":"image","track":"image","lane":1,"start":7,"duration":8},{"id":"97c3b704-854b-4ecb-bdba-28a49a4528d7","asset_id":"library:8b39096e6f9f5bf80e2a65c3","name":"platformer","category":"image","track":"image","lane":1,"start":20,"duration":5},{"id":"b90c860d-dc13-4bdc-a42f-83b75f492064","asset_id":"library:8b39096e6f9f5bf80e2a65c3","name":"platformer","category":"image","track":"image","lane":3,"start":0,"duration":5}]'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-direct-timeline.test.cjs:90:27)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 38671.9921
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

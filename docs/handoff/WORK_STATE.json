@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-12T06:22:23+09:00",
+  "updated_at": "2026-11-12T06:46:44+09:00",
   "updated_by": "codex",
   "branch": "codex/timeline-edit-history-20261112",
-  "head_at_update": "69db20f",
+  "head_at_update": "a9ae727",
   "current": {
     "task": "順3 G3-C 編集の取消・再実行と保存復元",
-    "status": "in_progress",
+    "status": "done",
     "step": "Owner指定で長尺OGVを低優先へ戻し、既存クリップ編集のUndo/Redo不足を同一API・保存・出力まで補う",
     "design_doc": "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md"
   },
   "next_steps": [
-    "G3-B2の次の代表：実映像由来の長尺OGV Theora/Vorbisを29.97fps/320kで元PTS/元区間/分割/保存/画素/PCM/非0In・保持まで検証"
+    "検証済み編集履歴をmainへ統合し、利用者main/8765/開いている制作画面へ同期する"
   ],
   "unverified": [
-    "自然発生VFR/長尺OGV/他FPS・全codec/複数動画行・色/実GPU/Linuxブラウザー/全Undo・競合/並行SDK時間切れ原因/Chrome音量採取初回失敗原因、G3-A短窓/聴感・別4codec約5%音量差、G3-C〜F/順3全体。順4/5・既存ゲート2失敗/依存監査3件を保持"
+    "アプリ全体Undo、別保存の行/ミュート/表情/カメラ、任意実作品/実GPU/Linuxブラウザー・全競合、G3-A/C〜Fと順3全体。長尺OGVはOwner指定で低優先。既存ゲート/依存監査と順4/5を保持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-12T06:46:44+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "a9ae727",
+      "text": "素材クリップの保存Undo/Redoを手動UI/両MCPとWin/Ubuntuの240F画素・PCMで検証。各Python141＋追加1、既存Chrome回帰5成功。画像行削除の選択リセットも修正。"
+    },
     {
       "at": "2026-11-12T06:22:23+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "1a0fdff",
       "text": "動画形式を案内し映像なし/カバー画像だけの素材と旧MOV出力を理由付き拒否。既存MP4+新3形式の同一作品225F/215F、Windows/Ubuntu各Python47・Node2と回帰4成功を記録"
-    },
-    {
-      "at": "2026-11-08T21:44:48+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0ec6446",
-      "text": "Issue #81 順3の動画形式と映像なし素材の拒否: MP4/WebM/OGVと旧MOVを形式別に確認し、対応案内・映像なし拒否を共通APIと保存/プレビュー/MP4へ接続する"
     }
   ]
 }

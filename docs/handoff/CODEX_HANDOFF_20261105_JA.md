@@ -284,3 +284,12 @@ PR #282はmain f4dbe44へ統合済み。手元main/codex-next/作業木をffし�
 [PR #284](https://github.com/baisound/BAI_CREATER_STUDIO/pull/284)はmain `3af3fe1`へ統合済み。利用者main/既存codex-nextをfast-forwardし、所有パスを確認した8765番のPythonをPID75076から21332へ非表示再起動して、製品の入力PTS保持修正を読み込ませた。HTML/render-job-v69.js/webmcp.jsはmainと全バイト一致、出力capabilityの320000目標値も確認。
 
 Chrome既存タブ1055945654のホームと既存2作品を確認し開いたまま保持。HTML/JS変更がないため画面の強制再読込は不要。利用者data/exports/studio.zipの515ファイルと変更一覧は前後一致（集約hash `89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d`）。[同期数値](../../qa/long-webm-main-sync-20261112.json)。GitHubの自動check登録はなく、ローカル検証と区別。次は長尺OGV。順3全体と他の既存未確認は維持する。
+
+
+## 2026-11-12 優先度の修正とG3-Cの編集履歴
+
+Owner後続指定：長尺OGVを必須の次作業にしたのはAgentの判断だった。Ownerは要望していない/優先度低いとして次へ指示。互換性残件として残し、当面は実制作の編集・保存・書出し復旧を優先する。7段階・既存要件は削除しない。
+
+2026-11-12 G3-C、素材クリップの配置/単体編集/分割/削除/一括移動/従来の対象モデル指定に最大32操作・8MiBの保存Undo/Redoを接続。手動UI/API/公式SDK/ネイティブWebMCP、revision/ロック/削除済み行/異常履歴/書込失敗拒否を検証。Win/Ubuntu各240FのUndo後の復号画素署名・PCMが操作前と一致しRedo後は編集後へ戻る。合成素材と同じ実録画由来MP4の短区間を各OSで確認。行削除選択の再描画リセットも修正。OGV長尺はOwner指定で低優先。G3-C/順3全体は未完。docs/v05/CLIP_EDIT_HISTORY_20261112_JA.md
+
+[操作と境界・検証](../v05/CLIP_EDIT_HISTORY_20261112_JA.md)。G3-C全体・アプリ全体Undoの完了ではない。次はG3-Dの出力失敗/再開・既存完成物保持の欠測を既存証拠から絞る。モデル区分：高性能、サブエージェントなし。

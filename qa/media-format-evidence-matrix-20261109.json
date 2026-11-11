@@ -509,13 +509,9 @@
     "normalDelivery": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\2026-11-09-media-evidence"
   },
   "nextTask": {
-    "id": "G3-B2-OGV",
-    "title": "実映像由来の長尺OGV Theora/Vorbisの元PTS/区間/分割/画素/PCM/非0Inと保持",
-    "fps": [
-      29.97
-    ],
-    "outputAudioTarget": 320000,
-    "note": "自然発生VFR/全codec・G3-B/順3全体は未完了を維持"
+    "id": "G3-D1",
+    "title": "既存の出力失敗・中断/再開・旧完成物保持の証拠を整理し、実制作に影響する欠測を選ぶ",
+    "note": "G3-Cの素材クリップ履歴は限定検証済み。OGV長尺は低優先。形式総当りを必須の次作業にしない。"
   },
   "remaining": [
     "音声4codec長尺91.4秒の約4.50%/4.99%音量差：3%条件の一般化は未達、原因未診断",
@@ -544,5 +540,10 @@
   "evidenceHashScope": "sha256 is over the committed Git blob bytes (LF text); working-tree CRLF is normalized before comparison",
   "lastUpdated": "2026-11-12",
   "g3b1HistoricalEvidenceCommit": "2ce37c4b0e6810b561817e53a1c3ebe58d4ecb43",
-  "latestPullRequest": 282
+  "latestPullRequest": 282,
+  "priorityCorrection": {
+    "ownerDecision": "OGVは要望していない・優先度低い・次へ",
+    "decision": "Owner後続指定：長尺OGVを必須の次作業にしたのはAgentの判断だった。Ownerは要望していない/優先度低いとして次へ指示。互換性残件として残し、当面は実制作の編集・保存・書出し復旧を優先する。7段階・既存要件は削除しない。",
+    "source": "docs/v05/CLIP_EDIT_HISTORY_20261112_JA.md"
+  }
 }

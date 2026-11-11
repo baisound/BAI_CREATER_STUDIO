@@ -1,0 +1,11 @@
+{"status":"passed","apiOnly":true,"scope":"clip metadata only, not track layout/mutes/face or application-wide history","inputKind":"existing_real_video_read_only_plus_generated_wav_image","frames":240,"originalAndRestoredDecodedVideo":"dc9f1dbafa3e54d5e05fe9e6f07fe61c867b7fbb4bf16fc6ea4a314ba5364607","originalAndRestoredPcm":"8bd60a6537e6c854d106a5421ccc674f9b856d7d3a19dd2f7a4bf481073bd312","redoneDecodedVideo":"cc72eeb8438e33b5d62613481417d8f55175e5c3077e105de517946b2367ef50","redonePcm":"c0e91abeac5fc2a6a6618d7f24cdf0478240cd233259d44d368143e29a511cfb","reopenedClips":[{"id":"8a79c1d1-ce7b-43a9-a2fd-5c40a2e4d7a0","asset_id":"library:a23370337e5ceab231a7a743","name":"blue","category":"image","track":"image","lane":1,"start":0,"duration":8},{"id":"d1b38831-8378-448b-9b9a-e44f1dd087be","asset_id":"library:1b773b521ccbbfcb92d81409","name":"native-audio-480p","category":"video","track":"video","lane":1,"start":1.1,"duration":2,"source_start":0.5,"source_duration":214,"source_has_audio":true},{"id":"656b2f7f-08aa-4ef6-8b05-71d804312ca9","asset_id":"library:1b773b521ccbbfcb92d81409","name":"native-audio-480p","category":"video","track":"video","lane":1,"start":5,"duration":2,"source_start":2.5,"source_duration":214,"source_has_audio":true},{"id":"ef5f1d3f-40da-4745-a79e-fbc534a01f83","asset_id":"library:f21637665fb2e38f87301932","name":"sound","category":"audio","track":"audio","lane":1,"start":2,"duration":3,"source_start":0.7,"source_duration":6,"source_has_audio":true}],"history":{"undo_count":8,"redo_count":0},"rejectedWritesUnchanged":true,"inputsAndPriorOutputUnchanged":true,"inputHashes":[{"kind":"video","hash":"c895d1da79dfddb4c93210b778b74d727be225ac5c07a2c5d6c5a399093f89d6"},{"kind":"audio","hash":"073557f2276c5099015a9b4634e0755eb7ef6373b679cf78d60211db7f63f08d"},{"kind":"image","hash":"ea6d8e2f8361a6569eec7b0095bc40ed1b1a05f7750cf279f9032642994349a6"}],"native":false}
+✔ clip Undo/Redo persists exact split windows through UI, SDK/native MCP and decoded MP4 (9053.36784ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15002.47804
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

@@ -1,0 +1,107 @@
+{
+  "status": "passed_limited_scope",
+  "baseline": "69db20fcaf6ee339e83554e550dc033ef682808a",
+  "ids": [
+    "DATA-002",
+    "DATA-008",
+    "CORE-004",
+    "CORE-012",
+    "RENDER-001",
+    "RENDER-006"
+  ],
+  "ownerPriorityCorrection": "Owner後続指定：長尺OGVを必須の次作業にしたのはAgentの判断だった。Ownerは要望していない/優先度低いとして次へ指示。互換性残件として残し、当面は実制作の編集・保存・書出し復旧を優先する。7段階・既存要件は削除しない。",
+  "python": {
+    "windowsRegression": {
+      "passed": 141,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 24.59
+    },
+    "linuxRegression": {
+      "passed": 141,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 21.53
+    },
+    "additionalTargetSetEachOs": {
+      "passed": 17,
+      "overlapWithRegression": 16,
+      "note": "追加の対象モデルUndo1件を含む17件再実行。回帰141件と重複あり。"
+    }
+  },
+  "node": {
+    "windowsRealAndRelatedRegression": {
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0
+    },
+    "windowsFinalLayoutAndGenerated": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "linuxGenerated": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "linuxReal": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "typecheck": "passed",
+  "syntax": "passed",
+  "historyLimits": {
+    "steps": 32,
+    "bytes": 8388608
+  },
+  "sourceHashes": [
+    {
+      "path": "bai_studio/v05/timeline/arrangement.py",
+      "sha256": "f0827e20ce72c992151192444f72e69686b8c2aef41b156bdc58d125e678a445"
+    },
+    {
+      "path": "server.py",
+      "sha256": "40d9e7ab25e299e804655dd39ceb82035c1d3c97352f0da1fedddb4ac44af2d2"
+    },
+    {
+      "path": "mcp_server.py",
+      "sha256": "b711fdd1a2b3dc56df5a2c4fea402d2e0509cd7ed17d0dd33cfbefcef0e947ec"
+    },
+    {
+      "path": "webmcp.js",
+      "sha256": "fd73f8190265688228fa94785c1e8adc1fdb92f12229864958111b1f9afc2e92"
+    },
+    {
+      "path": "studio/v05/js/asset-workflow-v06.js",
+      "sha256": "7ecbc51c248164e52809d3c1a137dfbd6ac121e79457d6dbf05f5645045f9021"
+    },
+    {
+      "path": "tests/test_v05_clip_edit_history.py",
+      "sha256": "455b52272e2d18101ac8b503b94cb512851ca3b12f4b5bfa07ab774e0ea30b5c"
+    },
+    {
+      "path": "tests/studio-v05-clip-edit-history.test.cjs",
+      "sha256": "9cc6643f4ceb8ff1682537a30328333351a945ddae4834fa6ca80817ae5ff8e3"
+    },
+    {
+      "path": "tests/studio-v05-direct-timeline.test.cjs",
+      "sha256": "294b9683c43c11f35990ff92e959c67878357e0b7467eee1a3eed2b9a2d1a37d"
+    }
+  ],
+  "retainedFailures": [
+    "Windows制限環境のHTTP16失敗/通常環境の同一141件は成功",
+    "新試験初回のbeforeスコープ渡し忘れ。引数渡し修正後成功",
+    "画像行選択が1へ戻る初回/単独/診断失敗。未変更mainで1成功。選択保持修正後成功",
+    "direct-fixedログは修正文字列挿入失敗後の中間コードでの実行結果。最終根拠にしない"
+  ],
+  "unverified": [
+    "アプリ全体Undo",
+    "別保存の行配置/ミュート/表情・カメラ履歴",
+    "任意実作品/実GPU/Linuxブラウザー",
+    "G3-C/順3全体",
+    "既存ゲート/依存監査"
+  ]
+}
