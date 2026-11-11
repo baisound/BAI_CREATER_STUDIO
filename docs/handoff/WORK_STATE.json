@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T21:30:05+09:00",
+  "updated_at": "2026-11-11T14:21:27+09:00",
   "updated_by": "codex",
-  "branch": "codex/media-evidence-sync-20261109",
-  "head_at_update": "3c30893",
+  "branch": "codex/long-vfr-source-windows-20261111",
+  "head_at_update": "3414f8c",
   "current": {
-    "task": "G3-B1のmain同期と正確なIssue/画像参照を記録",
+    "task": "順3 G3-B2：長尺VFRと元区間・分割境界の同期検証",
     "status": "done",
-    "step": "PR280/main2637f34・8765とChrome表示・515ファイル保持・文書URL404訂正と画像配信一致を正本へ保存",
+    "step": "214秒実映像由来VFRと元AAC保持を隔離生成し、29.97fps/320kの保存・分割移動・元PTS/画素/PCMをWinとUbuntuで検証",
     "design_doc": "docs/v05/MEDIA_FORMAT_EVIDENCE_20261109_JA.md"
   },
   "next_steps": [
-    "G3-B2：実214秒映像由来の隔離VFR MP4＋元AAC/別実曲、29.97fps/320kで元PTS/画素/PCM/元区間/分割を検証。自然発生実VFRと区別"
+    "G3-B2の次の代表：実映像由来の長尺WebM VP9/Opusを29.97fps/320kで元PTS/分割/保存/画素/PCM/非0In・保持まで検証"
   ],
   "unverified": [
-    "音声4codec長尺91.4秒はWin0.955042/Ubuntu0.950106（7%条件内、3%一般化は未達・原因未診断）。長尺VFR/全codec/Linuxブラウザー/聴感、G3-A残り/C〜Fと順3全体、順4/5・既存ゲート2失敗/依存監査3件を維持"
+    "自然発生VFR/長尺WebM・OGV/他FPS・全codec/複数動画行・色/実GPU/Linuxブラウザー・全Undo/競合、並行時SDK時間切れ原因。G3-A短窓/聴感・4codec約5%音量差、G3-C〜F/順3全体、順4/5・既存ゲート2失敗/依存監査3件を保持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,27 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-11T14:21:27+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "3414f8c",
+      "text": "長尺VFR代表の実測/試験3414f8cとPR282を正本へ結合。両OS6879F/有音149窓差0+静かな4窓、AAC末尾表現差は破棄余白を引いて4表一致を確認"
+    },
+    {
+      "at": "2026-11-11T14:16:00+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "0b21686",
+      "text": "G3-B2の長尺MP4 VFR代表は両OS成功：6879F・有音149窓差0/静かな4窓RMS、元AAC10033packet/PTS保持。測定器3失敗と並行SDK時間切れを区別し製品コード変更なし"
+    },
+    {
+      "at": "2026-11-11T13:59:38+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3639dc7",
+      "text": "順3 G3-B2：長尺VFRと元区間・分割境界の同期検証: 214秒実映像由来VFRと元AAC保持を隔離生成し、29.97fps/320kの保存・分割移動・元PTS/画素/PCMをWinとUbuntuで検証"
+    },
     {
       "at": "2026-11-09T21:30:05+09:00",
       "by": "codex",
@@ -215,27 +236,6 @@
       "event": "start",
       "head": "37d76e0",
       "text": "Issue #81 順3のOGG・FLAC・M4A形式別の縦断経路: 非破壊登録と実尺/元区間・プレビュー・MP4を接続し、代表codecと明確な拒否をWindows/Linuxで検証する"
-    },
-    {
-      "at": "2026-11-08T01:24:28+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "95f5f9f",
-      "text": "main3cfae54・利用者/開発木・8765非表示再起動/新混音グラフと読み取りChrome・515ファイル不変を正本へ記録"
-    },
-    {
-      "at": "2026-11-08T01:22:51+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3cfae54",
-      "text": "Issue #81 混音音量一致のmainと制作画面同期を記録: main3cfae54・8765非表示再起動・同一ソース/読み取りChrome・515ファイル保持を正本へ記録"
-    },
-    {
-      "at": "2026-11-08T01:20:37+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4a76c31",
-      "text": "MP4の暗黙正規化を外してプレビュー元音量加算へ一致。Windows/Ubuntu各Python28・Node2、実再生PCM/長尺117窓・旧完成物保持、回帰3成功2skipを記録"
     }
   ]
 }

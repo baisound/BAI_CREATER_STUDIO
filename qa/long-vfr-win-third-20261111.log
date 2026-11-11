@@ -1,0 +1,31 @@
+[run-guarded] 警告: 開発用サーバー（127.0.0.1:8765）が動いています。実データに書き込むとハッシュの確認が失敗します
+TAP version 13
+# Subtest: long real-video-derived VFR retains original AAC, split source windows and saved output clocks
+not ok 1 - long real-video-derived VFR retains original AAC, split source windows and saved output clocks
+  ---
+  duration_ms: 52022.2362
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-long-vfr-real.test.cjs:70:1'
+  failureType: 'testCodeFailure'
+  error: '{"outputFrame":3981,"time":133.33333333333334,"error":13.567708333333334,"errors":[38.401041666666664,13.567708333333334,13.567708333333334]}'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-long-vfr-real.test.cjs:221:16)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 56948.1433
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

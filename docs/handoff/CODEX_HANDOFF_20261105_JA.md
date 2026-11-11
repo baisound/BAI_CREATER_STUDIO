@@ -254,3 +254,12 @@ main/開発木・8765を同期し、所有サーバーを非表示再起動PID75
 PR #280をmain2637f34へ統合。手元main/codex-next/作業木をffし、8765のPID75076の起動元、HTML/render-job-v69.js/webmcp.jsの全バイト一致・音声目標320000を確認。製品Python/JS/HTMLの変更はないため再起動/制作画面再読込なし。CUAで既存Chromeタブ1055945654のホームと2作品表示を確認し保持。利用者data/exports/studio.zipの515ファイルと変更一覧は前後一致（集約hash89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d）。
 
 [同期数値](../../qa/media-evidence-main-sync-20261109.json)。[Issue結果](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6740056657)の4枚はGitHub HTMLのimg要素と配信PNGのhash一致を確認（ブラウザー上のGitHubレイアウト検査ではない）。8765の文書URLは404だったため、初回Issue投稿の「文書も全バイト一致」を「制作画面HTML/JSの一致」へ訂正した。文書はローカル正本/GitHubで参照する。自動checksの登録はなく、ローカル試験と区別する。次は上記G3-B2、約5%の音量差・順3全体/順4/5の残件を保持。
+
+
+## 2026-11-11 G3-B2と次の位置
+
+2026-11-11 G3-B2、実214秒CFRコピー由来のVFR MP4（1071F/33〜367ms、元AAC10033packet/PTS保持）と別実WAVを同じ作品で分割/移動/保存し、29.97fps/320kの非0In出力6879F/229.52953秒をWin/Ubuntuで確認。全出力Fの32x18署名は元PTS±1F候補と最大MAE1.337385、PCM153窓中有音149窓は差0sample、静かな4窓はRMS。Windows実Chrome/SDK/ネイティブ、Ubuntu SDK/API、各Node1/Python10成功。測定器の先行失敗と並行時SDK時間切れを保持、製品コード変更なし。自然発生VFR/他codec/聴感/順3全体は未完。docs/v05/LONG_VFR_SOURCE_WINDOWS_20261111_JA.md
+
+[入力/操作/測定と先行失敗](../v05/LONG_VFR_SOURCE_WINDOWS_20261111_JA.md)。次は実映像由来の長尺WebM VP9/Opusを同じ時刻/保存/出力契約で検証。G3-B/順3全体・約5%音量差/聴感、順4/5と既存ゲート/依存監査は未完了を維持。モデル区分：高性能（設計・試験実装・検証）。
+
+証拠/試験コミット `3414f8c`、[PR #282](https://github.com/baisound/BAI_CREATER_STUDIO/pull/282)。12行の証拠はこのGit保存内容のSHA-256で照合。AAC末尾は両OSでdurationの報告形が異なるが、破棄余白を引いた4表は一致。

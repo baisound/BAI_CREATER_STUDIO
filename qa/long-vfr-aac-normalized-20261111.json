@@ -1,0 +1,53 @@
+{
+  "columns": [
+    "pts",
+    "dts",
+    "duration",
+    "size",
+    "data_hash"
+  ],
+  "rows": 10033,
+  "allFourTablesEqual": false,
+  "sourceAndVfrEqualPerOs": true,
+  "tables": [
+    "windows-source",
+    "windows-vfr",
+    "ubuntu-source",
+    "ubuntu-vfr"
+  ],
+  "normalizedSignaturesSha256": [
+    "25c4d527c811b6de943eabce3cfa78921d948a2ce546a2473f0c3b037ae2d4b2",
+    "25c4d527c811b6de943eabce3cfa78921d948a2ce546a2473f0c3b037ae2d4b2",
+    "54a0dd76b4d6e738d8aaf3739f3caad29ad0e3da06495e1116c32558b38ba205",
+    "54a0dd76b4d6e738d8aaf3739f3caad29ad0e3da06495e1116c32558b38ba205"
+  ],
+  "rawJsonDifferenceExamples": [
+    {
+      "windows": {
+        "pts": 10271744,
+        "dts": 10271744,
+        "duration": 1024,
+        "size": "7",
+        "data_hash": "SHA256:1a626391f9abd9245b9d545c96b88a18ece85618d7d3cb0347d72ea40256487b",
+        "side_data_list": [
+          {
+            "side_data_type": "Skip Samples",
+            "skip_samples": 0,
+            "discard_padding": 768,
+            "skip_reason": 0,
+            "discard_reason": 0
+          }
+        ]
+      },
+      "ubuntu": {
+        "pts": 10271744,
+        "dts": 10271744,
+        "duration": 256,
+        "size": "7",
+        "data_hash": "SHA256:1a626391f9abd9245b9d545c96b88a18ece85618d7d3cb0347d72ea40256487b"
+      }
+    }
+  ],
+  "durationMinusDiscardPaddingEqualAcrossAllFour": true,
+  "effectiveSignatureSha256": "54a0dd76b4d6e738d8aaf3739f3caad29ad0e3da06495e1116c32558b38ba205"
+}
