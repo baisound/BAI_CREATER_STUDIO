@@ -1857,3 +1857,10 @@ Ownerの直接指定により、実曲VMDの不足する発話51〜54だけを�
 2026-11-11 G3-B2、実214秒CFRコピー由来のVFR MP4（1071F/33〜367ms、元AAC10033packet/PTS保持）と別実WAVを同じ作品で分割/移動/保存し、29.97fps/320kの非0In出力6879F/229.52953秒をWin/Ubuntuで確認。全出力Fの32x18署名は元PTS±1F候補と最大MAE1.337385、PCM153窓中有音149窓は差0sample、静かな4窓はRMS。Windows実Chrome/SDK/ネイティブ、Ubuntu SDK/API、各Node1/Python10成功。測定器の先行失敗と並行時SDK時間切れを保持、製品コード変更なし。自然発生VFR/他codec/聴感/順3全体は未完。docs/v05/LONG_VFR_SOURCE_WINDOWS_20261111_JA.md
 
 [入力/操作/測定と先行失敗](../v05/LONG_VFR_SOURCE_WINDOWS_20261111_JA.md)。次は実映像由来の長尺WebM VP9/Opusを同じ時刻/保存/出力契約で検証。G3-B/順3全体・約5%音量差/聴感、順4/5と既存ゲート/依存監査は未完了を維持。モデル区分：高性能（設計・試験実装・検証）。
+
+
+## 2026-11-12 G3-B2：長尺WebM代表と入力時計修正
+
+2026-11-12 G3-B2、実214秒CFRコピー由来WebM VP9/Opus（1071F・元PTS最大丸め0.333ms）と別実WAVを分割/移動/保存再読込し、非0In・29.97fps/320kの6879FをWin/Ubuntuで確認。Ubuntu旧FFmpegの負の開始時刻による7ms前倒しを-copytsで修正。全F署名±1F・PCM153窓中有音149窓差0sample/静かな4窓RMS、入力Opus変換106窓も差0sample。Win実Chrome/公式SDK/ネイティブ、Ubuntu SDK/API。自然発生VFR・OGV・全codec/聴感/順3全体は未完。docs/v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md
+
+[測定・不具合・再実行](../v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md)。次はG3-B2の長尺OGV Theora/Vorbis。元の未完と承認順を維持。モデル区分：高性能（診断・実装・検証）、サブエージェントなし。

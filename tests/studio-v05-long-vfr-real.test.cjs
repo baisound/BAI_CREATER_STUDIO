@@ -8,6 +8,8 @@ const harness = require('./helpers/studio-harness.cjs');
 const root = path.resolve(__dirname, '..'), data = process.env.BAI_REAL_MMD_DATA;
 const nativeVideo = process.env.BAI_NATIVE_MIXED_VIDEO, suppliedVfr = process.env.BAI_VFR_INPUT;
 const out = process.env.BAI_VFR_OUT, apiOnly = process.env.BAI_VFR_API_ONLY === '1';
+const webm = process.env.BAI_LONG_VIDEO_FORMAT === 'webm';
+const caseName = webm ? 'long-webm' : 'long-vfr';
 const fps = 29.97, rate = 8000, width = 32, height = 18, frameBytes = width * height * 3;
 const sha = b => crypto.createHash('sha256').update(b).digest('hex');
 async function digest(file) {
@@ -73,11 +75,12 @@ function correlate(expected, actual, offset) {
 }
 const round = n => Math.round(n * 1e6) / 1e6;
 
-test('long real-video-derived VFR retains original AAC, split source windows and saved output clocks',
+test(`long real-video-derived ${webm ? 'VP9/Opus WebM' : 'VFR MP4 with original AAC'} retains split source windows and saved output clocks`,
   { skip: (!data || !nativeVideo) && 'BAI_REAL_MMD_DATA and BAI_NATIVE_MIXED_VIDEO required', timeout: 1200000 }, async () => {
     const report = { status: 'in_progress', apiOnly, fps, audioBitrate: 320000, inputKind: 'real_CFR_video_derived_VFR_not_native_VFR',
+      format: webm ? 'WebM_VP9_Opus' : 'MP4_H264_AAC_copy',
       observations: {}, unverified: ['native-recorded VFR', 'other codecs/fps', 'Linux browser', 'subjective audio quality'] };
-    const save = () => { if (out) { fs.mkdirSync(out, { recursive: true }); fs.writeFileSync(path.join(out, 'long-vfr.json'), JSON.stringify(report, null, 2)); } };
+    const save = () => { if (out) { fs.mkdirSync(out, { recursive: true }); fs.writeFileSync(path.join(out, caseName + '.json'), JSON.stringify(report, null, 2)); } };
     const indexFile = path.join(data, 'library_assets/index.json'), indexBytes = fs.readFileSync(indexFile);
     const song = JSON.parse(indexBytes).items.find(i => i.sha256 === '201f379be031b89245b4c5dbca039c1b29adb85d80307cb91e08dee66ccfdd0c');
     assert.ok(song, 'the previously verified independent real song must exist');
@@ -108,25 +111,56 @@ test('long real-video-derived VFR retains original AAC, split source windows and
       const caps = await sdk('bai_studio_render_capabilities'); assert.equal(caps.audio_bitrate, 320000); assert.equal(caps.available, true);
       report.filterComplexOption = caps.filter_complex_option;
       report.ffmpeg = command('ffmpeg', ['-version']).toString().split('\n')[0].trim();
-      const vfr = suppliedVfr || path.join(server.dataDir, 'real-derived-long-vfr.mp4');
+      const vfr = suppliedVfr || path.join(server.dataDir, `real-derived-${caseName}.${webm ? 'webm' : 'mp4'}`);
       if (!suppliedVfr) ff(['-i', nativeVideo, '-map', '0:v:0', '-map', '0:a:0', '-vf', "select='eq(mod(n,12),0)+eq(mod(n,12),1)+eq(n,6419)'",
-        '-fps_mode', 'vfr', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18', '-c:a', 'copy', '-y', vfr]);
+        '-fps_mode', 'vfr', ...(webm ? ['-c:v', 'libvpx-vp9', '-deadline', 'realtime', '-cpu-used', '6', '-crf', '24', '-b:v', '0', '-c:a', 'libopus', '-b:a', '192k'] :
+          ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18', '-c:a', 'copy']), '-y', vfr]);
       const originalPackets = packets(nativeVideo), vfrPackets = packets(vfr);
-      assert.equal(originalPackets.length, 10033); assert.deepEqual(vfrPackets, originalPackets, 'AAC packet payloads/PTS/DTS/duration must be unchanged');
+      assert.equal(originalPackets.length, 10033);
+      if (!webm) assert.deepEqual(vfrPackets, originalPackets, 'AAC packet payloads/PTS/DTS/duration must be unchanged');
+      const streams = JSON.parse(command('ffprobe', ['-v', 'error', '-show_streams', '-of', 'json', vfr])).streams;
+      assert.equal(streams.find(s => s.codec_type === 'video').codec_name, webm ? 'vp9' : 'h264');
+      assert.equal(streams.find(s => s.codec_type === 'audio').codec_name, webm ? 'opus' : 'aac');
       const times = pts(vfr), intervals = times.slice(1).map((t, i) => round(t - times[i]));
       assert.ok(times.length > 1000 && Math.min(...intervals) < .04 && Math.max(...intervals) > .35, 'all actual PTS must demonstrate VFR');
+      if (webm) {
+        const selected = pts(nativeVideo).filter((_, i) => i % 12 === 0 || i % 12 === 1 || i === 6419);
+        assert.equal(times.length, selected.length);
+        const maxPtsDifference = Math.max(...times.map((t, i) => Math.abs(t - selected[i])));
+        // WebM uses millisecond timestamps. Opus encoder delay is represented
+        // separately by negative audio packet PTS, not by shifting video time.
+        assert.ok(maxPtsDifference <= .001, `WebM video PTS difference ${maxPtsDifference}`);
+        const originalPcm = pcm(nativeVideo), opusPcm = pcm(vfr), checks = [];
+        for (let t = 1; t < 213; t += 2) {
+          const offset = t * rate, expected = originalPcm.slice(offset, offset + 1600);
+          const rms = Math.sqrt(expected.reduce((s, n) => s + n * n, 0) / expected.length);
+          if (rms < 20) {
+            const quiet = opusPcm.slice(offset, offset + expected.length);
+            assert.equal(quiet.length, expected.length);
+            const quietRms = Math.sqrt(quiet.reduce((s, n) => s + n * n, 0) / quiet.length);
+            assert.ok(quietRms < 80); checks.push({ time: t, quietRms });
+          } else {
+            const r = correlate(expected, opusPcm, offset);
+            assert.ok(r.correlation > .97 && Math.abs(r.lag) <= rate / fps, JSON.stringify({ inputTime: t, ...r }));
+            checks.push({ time: t, ...r });
+          }
+        }
+        report.opusConversion = { maxVideoPtsDifferenceSeconds: maxPtsDifference, sampleRate: rate, windowSamples: 1600,
+          checks, packetCopyRequired: false, streams: streams.map(({ codec_type, codec_name, time_base, start_time, duration }) => ({ codec_type, codec_name, time_base, start_time, duration })) };
+      }
       const videoHash = await digest(vfr), sourcePixels = pixels(vfr); assert.equal(sourcePixels.length, times.length * frameBytes);
       report.input = { sourceSha256: before[0], vfrSha256: videoHash, vfrBytes: fs.statSync(vfr).size, frames: times.length,
         firstPts: times[0], lastPts: times.at(-1), minInterval: Math.min(...intervals), maxInterval: Math.max(...intervals),
-        pts: times, aacPackets: vfrPackets.length, aacPayloadAndClockUnchanged: true, packetSignature: sha(Buffer.from(JSON.stringify(vfrPackets))) };
+        pts: times, audioPackets: vfrPackets.length, ...(!webm ? { aacPackets: vfrPackets.length } : {}),
+        aacPayloadAndClockUnchanged: !webm, packetSignature: sha(Buffer.from(JSON.stringify(vfrPackets))) };
       save();
-      if (out && !suppliedVfr) fs.copyFileSync(vfr, path.join(out, 'real-derived-long-vfr.mp4'));
+      if (out && !suppliedVfr) fs.copyFileSync(vfr, path.join(out, path.basename(vfr)));
       const upload = async (kind, name, file) => {
         const r = await fetch(server.base + '/api/library-assets/upload?kind=' + kind + '&name=' + name, { method: 'POST', body: fs.readFileSync(file) });
         assert.equal(r.status, 200, await r.clone().text()); return (await r.json()).item;
       };
       const blue = path.join(server.dataDir, 'blue.png'); ff(['-f', 'lavfi', '-i', 'color=blue:s=160x90', '-frames:v', '1', '-y', blue]);
-      const video = await upload('video', 'long-vfr.mp4', vfr), audio = await upload('audio', 'independent-real.wav', songFile), image = await upload('image', 'blue.png', blue);
+      const video = await upload('video', `${caseName}.${webm ? 'webm' : 'mp4'}`, vfr), audio = await upload('audio', 'independent-real.wav', songFile), image = await upload('image', 'blue.png', blue);
       const id = (await sdk('bai_studio_project_create', { name: '長尺VFR 元区間と分割境界', kind: 'empty' })).project.id;
       await sdk('bai_studio_project_fps_set', { project_id: id, fps });
       let a = await sdk('bai_studio_clip_place', { project_id: id, revision: 0, asset_id: image.id, track: 'image', start: 0, duration: 232 });
@@ -211,7 +245,7 @@ test('long real-video-derived VFR retains original AAC, split source windows and
       const first = 15, last = Math.ceil(230 * fps) - 1;
       const completed = await render(first, last, 'long-vfr-split-nonzero-in');
       assert.equal(completed.job.probe.frames, 6879);
-      if (out) fs.copyFileSync(completed.file, path.join(out, 'long-vfr-split-nonzero-in.mp4'));
+      if (out) fs.copyFileSync(completed.file, path.join(out, caseName + '-split-nonzero-in.mp4'));
       const outputPixels = pixels(completed.file), background = pixels(blue);
       assert.equal(background.length, frameBytes); assert.equal(outputPixels.length, completed.job.probe.frames * frameBytes);
       const videos = clips.filter(c => c.category === 'video');
@@ -275,7 +309,7 @@ test('long real-video-derived VFR retains original AAC, split source windows and
         audioBitrate: completed.job.audio_bitrate, preservedOldOutputSha256: old.job.sha256 };
       report.inputsIndexPreviousOutputUnchanged = true; report.registeredBytesUnchanged = true; report.status = 'passed'; save();
       console.log(JSON.stringify({ frames: report.completed.frames, videoMaxMae: maxError, pcmWindows: audioChecks.length,
-        maxLag: Math.max(...audioChecks.map(r => Math.abs(r.lag || 0))), apiOnly, sourceAndAacPreserved: true }));
+        maxLag: Math.max(...audioChecks.filter(r => Number.isFinite(r.lag)).map(r => Math.abs(r.lag))), apiOnly, sourcesPreserved: true, aacPacketCopy: !webm }));
     } catch (e) { report.status = 'failed'; report.error = e.stack; save(); throw e; }
     finally {
       await client.close(); await page?.close(); await browser?.close(); await server.stop();

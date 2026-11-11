@@ -1,0 +1,71 @@
+{
+  "platform": "win32",
+  "ffmpeg": "ffmpeg version N-125994-gf944afd040-20260808 Copyright (c) 2000-2026 the FFmpeg developers",
+  "audioFirstFrame": {
+    "media_type": "audio",
+    "stream_index": 1,
+    "key_frame": 1,
+    "pts": 0,
+    "pts_time": "0.000000",
+    "pkt_dts": 0,
+    "pkt_dts_time": "0.000000",
+    "best_effort_timestamp": 0,
+    "best_effort_timestamp_time": "0.000000",
+    "duration": 13,
+    "duration_time": "0.013000",
+    "pkt_pos": "782",
+    "pkt_size": "890",
+    "sample_fmt": "fltp",
+    "nb_samples": 648,
+    "channels": 2,
+    "channel_layout": "stereo"
+  },
+  "trimChecks": [
+    {
+      "options": [],
+      "start": 1.1,
+      "correlation": 1.0,
+      "sourceSampleOffset": 0
+    },
+    {
+      "options": [],
+      "start": 113.3,
+      "correlation": 1.0,
+      "sourceSampleOffset": 0
+    },
+    {
+      "options": [
+        "-copyts"
+      ],
+      "start": 1.1,
+      "correlation": 1.0,
+      "sourceSampleOffset": 0
+    },
+    {
+      "options": [
+        "-copyts"
+      ],
+      "start": 113.3,
+      "correlation": 1.0,
+      "sourceSampleOffset": 0
+    },
+    {
+      "options": [
+        "-copyts",
+        "-start_at_zero"
+      ],
+      "start": 1.1,
+      "correlation": 1.0,
+      "sourceSampleOffset": 0
+    },
+    {
+      "options": [
+        "-copyts",
+        "-start_at_zero"
+      ],
+      "start": 113.3,
+      "correlation": 1.0,
+      "sourceSampleOffset": 0
+    }
+  ]
+}

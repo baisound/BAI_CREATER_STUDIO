@@ -1,0 +1,11 @@
+{"frames":6879,"videoMaxMae":1.3049768518518519,"pcmWindows":153,"maxLag":0,"apiOnly":true,"sourcesPreserved":true,"aacPacketCopy":false}
+✔ long real-video-derived VP9/Opus WebM retains split source windows and saved output clocks (109603.429594ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 115814.292748
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

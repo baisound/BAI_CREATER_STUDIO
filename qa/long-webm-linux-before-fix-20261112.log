@@ -1,0 +1,27 @@
+✖ long real-video-derived VP9/Opus WebM retains split source windows and saved output clocks (86374.83212ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 94183.574943
+
+✖ failing tests:
+
+test at tests/studio-v05-long-vfr-real.test.cjs:78:1
+✖ long real-video-derived VP9/Opus WebM retains split source windows and saved output clocks (86374.83212ms)
+  AssertionError [ERR_ASSERTION]: {"t":3.08,"lag":0,"correlation":0.9310306724188895,"gain":0.9247846735934849}
+      at TestContext.<anonymous> (/mnt/d/BAI/BAI_CREATER_STUDIO/worktrees/v05-render-real/tests/studio-v05-long-vfr-real.test.cjs:296:18)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

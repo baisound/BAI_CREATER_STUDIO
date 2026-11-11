@@ -402,7 +402,9 @@
       "evidence": [
         {
           "path": "tests/studio-v05-long-vfr-real.test.cjs",
-          "sha256": "1a39cdd839cc118bf4a19aac5f03c60bd5727eb82028d327835cdec75c748580"
+          "sha256": "1a39cdd839cc118bf4a19aac5f03c60bd5727eb82028d327835cdec75c748580",
+          "gitCommit": "3414f8c0b7782c5c15fc413ac88ddfc2349ef45f",
+          "note": "前回検証した試験の原版。hashはgit show <gitCommit>:<path>のLFバイトで照合する。現行版のWebM対応と区別。"
         },
         {
           "path": "qa/long-vfr-windows-20261111.json",
@@ -422,6 +424,51 @@
         }
       ],
       "unverified": "自然発生VFR/長尺WebM・OGV/他FPS・全codec/全解像度色管理/聴感/Linuxブラウザー/並行負荷SDK時間切れ",
+      "status": "representative_verified_requirement_open"
+    },
+    {
+      "id": "B2-VIDEO-LONG-WEBM-320",
+      "media": "video+audio",
+      "inputOrigin": "実214秒CFRコピーから隔離生成したVFR WebM（自然発生VFRではない）＋別実曲",
+      "inputFormats": "WebM VP9/Opus48kHz + WAV",
+      "length": "入力214秒/1071F、出力229.52953秒/6879F",
+      "projectFps": [
+        29.97
+      ],
+      "outputAudioTarget": 320000,
+      "environments": [
+        "Windows Chrome156/公式SDK/ネイティブ",
+        "Ubuntu WSL FFmpeg6.1.1 SDK/APIのみ"
+      ],
+      "operations": "登録/非0元位置/配置/分割/右片移動/保存再読込/Winシーク再生/非0In/旧MP4保持",
+      "measurement": "元動画→Opus106窓差0sample、全6879Fの署名±1F、各OS有音149窓差0sample/静かな4窓RMS。7ms前倒しを入力PTS保存で修正",
+      "evidence": [
+        {
+          "path": "tests/studio-v05-long-vfr-real.test.cjs",
+          "sha256": "1bba8979b68b06a686dc088b893dee19176289243d7bb1e6a71e907edf9471f7"
+        },
+        {
+          "path": "bai_studio/v05/render/media_render.py",
+          "sha256": "dafa61e264545d6fe156c0e34e426b52d25c92a8a79e1372ffe381e7264c1d1b"
+        },
+        {
+          "path": "qa/long-webm-windows-20261112.json",
+          "sha256": "33b7a85c9c6b3a8aeba9202a7922da12d2a8c1089789353177e65d9c171e789f"
+        },
+        {
+          "path": "qa/long-webm-linux-20261112.json",
+          "sha256": "307bb24032e1e069823f1d8d4fb200f07a8cb843395933964297fed236f469f7"
+        },
+        {
+          "path": "qa/long-webm-clock-linux-20261112.json",
+          "sha256": "14a076c52d7a9f6e0b151a8c0bc186f0ae4a2a7d9df1db76d32b7f812e80fb71"
+        },
+        {
+          "path": "qa/long-webm-clock-win32-20261112.json",
+          "sha256": "8774a89350973ae9d4c6ea831bda60a2b297badc915b4ccbdef002667eb15f82"
+        }
+      ],
+      "unverified": "自然発生VFR/長尺OGV/他FPS・全codec/複数動画行・色/実GPU/Linuxブラウザー/全Undo・競合/並行SDK時間切れ原因、G3-A短窓・聴感・4codec約5%音量差、G3-C〜F/順3全体、順4の54発話/順5判定・既存ゲート2失敗/依存監査3件",
       "status": "representative_verified_requirement_open"
     }
   ],
@@ -462,17 +509,13 @@
     "normalDelivery": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\2026-11-09-media-evidence"
   },
   "nextTask": {
-    "id": "G3-B2-WebM",
-    "title": "実映像由来の長尺WebM VP9/Opus、元PTS/元区間/分割/画素/PCM/非0Inと保持を検証",
-    "environments": [
-      "Windows Chrome/SDK/native",
-      "Ubuntu SDK/API"
-    ],
+    "id": "G3-B2-OGV",
+    "title": "実映像由来の長尺OGV Theora/Vorbisの元PTS/区間/分割/画素/PCM/非0Inと保持",
     "fps": [
       29.97
     ],
     "outputAudioTarget": 320000,
-    "note": "AAC→Opus変換のためAACpacket同一性を合格条件へ流用しない。自然発生VFR/OGV・全codecやG3-B/順3全体の未完了は維持"
+    "note": "自然発生VFR/全codec・G3-B/順3全体は未完了を維持"
   },
   "remaining": [
     "音声4codec長尺91.4秒の約4.50%/4.99%音量差：3%条件の一般化は未達、原因未診断",
@@ -481,7 +524,8 @@
     "Linuxブラウザー/実GPU/任意codec",
     "G3-C/D/E/F",
     "順4の54発話/候補採用、順5判定、既存証拠ゲート2失敗/依存監査3件",
-    "現行320kの長尺MP4 VFR代表は検証済み、複数動画行/他FPS・長尺WebM/OGVは残る。並行負荷時SDK時間切れ原因未確定"
+    "現行320kの長尺MP4 VFR代表は検証済み、複数動画行/他FPS・長尺WebM/OGVは残る。並行負荷時SDK時間切れ原因未確定",
+    "長尺WebM VP9/Opus代表は-copyts修正後に検証済み。長尺OGV/自然発生VFR/他codec等は残る"
   ],
   "modelCategory": "高性能（証拠照合・試験・判定）、サブエージェントなし",
   "formatAudioQualityResidual": {
@@ -498,7 +542,7 @@
   "evidenceCommit": "3414f8c0b7782c5c15fc413ac88ddfc2349ef45f",
   "pullRequest": 280,
   "evidenceHashScope": "sha256 is over the committed Git blob bytes (LF text); working-tree CRLF is normalized before comparison",
-  "lastUpdated": "2026-11-11",
+  "lastUpdated": "2026-11-12",
   "g3b1HistoricalEvidenceCommit": "2ce37c4b0e6810b561817e53a1c3ebe58d4ecb43",
   "latestPullRequest": 282
 }

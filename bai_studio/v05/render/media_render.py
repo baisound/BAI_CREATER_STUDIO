@@ -728,7 +728,11 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
         script = root / "jobs" / f"{job_id}.filter"
         script.write_text(graph, encoding="utf-8")
         full_duration = _num(job["range_end_exclusive"] / fps)
-        cmd = [ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error", "-nostats",
+        # The graph trims against source PTS. In particular, older FFmpeg
+        # shifts WebM's negative Opus preroll start into positive video/audio
+        # timestamps unless copyts is explicit (7ms in the long WebM case).
+        # Keep source clocks here; the graph sets the final output origin.
+        cmd = [ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error", "-nostats", "-copyts",
                "-progress", str(progress), "-f", "lavfi", "-i",
                f"color=c=black:s={width}x{height}:r={_num(fps)}:d={full_duration}",
                "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo:d={full_duration}"]

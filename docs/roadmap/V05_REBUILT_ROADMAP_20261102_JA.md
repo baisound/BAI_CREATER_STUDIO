@@ -244,3 +244,10 @@ GLB→VMDとモーション編集の残りを[順5詳細設計](R5_GLB_VMD_MOTIO
 ## 2026-11-09 順3のAAC境界品質修正（#81）
 
 2026-11-09、G3-A3の新規MP4をAAC320kb/sへ変更し元音量/時計を保持。目標値をジョブに固定しcapability/出力画面/完成物へ案内。実曲+登録MP3の6924F/29.97fpsで165固有200ms窓（既存117安定+54境界、6重複）を確認。音量差3%以内、時刻差0sample、最小比Win0.974190/Linux0.971968。旧192k完成物2本・原本/index/配置は不変。Windows/Ubuntu各Node2・Python28成功、Win追加5subtests。関連MCP/版管理2成功、DLは初回ソケット不足失敗後に単独1成功、型成功。短窓/全素材/聴感・G3-A/順3全体は未完。docs/v05/AAC_320K_BOUNDARY_FIX_20261109_JA.md
+
+
+## 2026-11-12 G3-B2：長尺WebM代表と入力時計修正
+
+2026-11-12 G3-B2、実214秒CFRコピー由来WebM VP9/Opus（1071F・元PTS最大丸め0.333ms）と別実WAVを分割/移動/保存再読込し、非0In・29.97fps/320kの6879FをWin/Ubuntuで確認。Ubuntu旧FFmpegの負の開始時刻による7ms前倒しを-copytsで修正。全F署名±1F・PCM153窓中有音149窓差0sample/静かな4窓RMS、入力Opus変換106窓も差0sample。Win実Chrome/公式SDK/ネイティブ、Ubuntu SDK/API。自然発生VFR・OGV・全codec/聴感/順3全体は未完。docs/v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md
+
+[測定・不具合・再実行](../v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md)。次はG3-B2の長尺OGV Theora/Vorbis。元の未完と承認順を維持。モデル区分：高性能（診断・実装・検証）、サブエージェントなし。

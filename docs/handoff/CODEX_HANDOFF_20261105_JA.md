@@ -270,3 +270,10 @@ PR #280をmain2637f34へ統合。手元main/codex-next/作業木をffし、8765�
 PR #282はmain f4dbe44へ統合済み。手元main/codex-next/作業木をffし、PID75076の絶対起動元、8765のHTML/render-job-v69.js/webmcp.js全バイト一致と320000目標値を確認。製品Python/JS/HTMLに変更がないため再起動/再読込なし。Chromeタブ1055945654のホーム/既存2作品をCUAで観測して表示を保持。利用者data/exports/studio.zipの515ファイルと変更一覧は前後一致（集約hash89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d）。
 
 [同期数値](../../qa/long-vfr-main-sync-20261111.json)・[Issue結果](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6787848290)。GitHub自動checksの登録なし、ローカル検証と区別。次は長尺WebM VP9/Opus、順3全体と既存の未確認は維持。
+
+
+## 2026-11-12 G3-B2：長尺WebM代表と入力時計修正
+
+2026-11-12 G3-B2、実214秒CFRコピー由来WebM VP9/Opus（1071F・元PTS最大丸め0.333ms）と別実WAVを分割/移動/保存再読込し、非0In・29.97fps/320kの6879FをWin/Ubuntuで確認。Ubuntu旧FFmpegの負の開始時刻による7ms前倒しを-copytsで修正。全F署名±1F・PCM153窓中有音149窓差0sample/静かな4窓RMS、入力Opus変換106窓も差0sample。Win実Chrome/公式SDK/ネイティブ、Ubuntu SDK/API。自然発生VFR・OGV・全codec/聴感/順3全体は未完。docs/v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md
+
+[測定・不具合・再実行](../v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md)。次はG3-B2の長尺OGV Theora/Vorbis。元の未完と承認順を維持。モデル区分：高性能（診断・実装・検証）、サブエージェントなし。

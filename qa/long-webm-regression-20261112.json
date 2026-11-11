@@ -1,0 +1,40 @@
+{
+  "windowsPython": {
+    "command": "python -X utf8 -m pytest -q tests/test_v05_render_fractional_fps.py tests/test_v05_audio_formats.py tests/test_v05_track_audio_mute.py",
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 8.54
+  },
+  "ubuntuPython": {
+    "command": "python3 -X utf8 -m pytest -q tests/test_v05_render_fractional_fps.py tests/test_v05_audio_formats.py tests/test_v05_track_audio_mute.py",
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 8.77
+  },
+  "typecheck": "passed",
+  "nodeSyntax": "passed",
+  "windowsNodeRegression": {
+    "initialBatch": {
+      "passed": 3,
+      "failed": 1,
+      "skipped": 2,
+      "failure": "実Chrome WebAudioプレビューの音量採取1窓。製品MP4の判定ではなく、原因未確定。"
+    },
+    "sameCodeIsolatedMixRetry": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "note": "初回一括は失敗のまま保持。実素材を指定しない任意試験skipを成功に数えない。MP4/WebM/OGV・音声4形式・出力MCPの対象は成功。"
+  },
+  "longWebm": {
+    "windowsPassed": 1,
+    "ubuntuPassed": 1,
+    "failedFinal": 0,
+    "skippedFinal": 0
+  },
+  "productChange": "エンコード起動で-copytsを明示し元PTSを保持",
+  "unchangedGuardDataFiles": 5
+}
