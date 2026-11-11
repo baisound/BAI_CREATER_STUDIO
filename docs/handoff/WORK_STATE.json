@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-12T05:48:03+09:00",
+  "updated_at": "2026-11-12T05:50:28+09:00",
   "updated_by": "codex",
-  "branch": "codex/long-webm-sync-20261112",
-  "head_at_update": "7634275",
+  "branch": "codex/long-webm-main-sync-20261112",
+  "head_at_update": "3af3fe1",
   "current": {
-    "task": "順3 G3-B2 長尺WebMの入力時計補正",
-    "status": "done",
-    "step": "Ubuntu FFmpegで負の開始時刻を持つWebMの切出しが7ms前倒しになる再現を保持し、入力PTSを保存して両OS再検証",
-    "design_doc": "docs/v05/LONG_VFR_SOURCE_WINDOWS_20261111_JA.md"
+    "task": "長尺WebM修正のmainと制作画面の同期を記録",
+    "status": "in_progress",
+    "step": "PR284/main3af3fe1を利用者mainへ反映済み、8765の旧Pythonを所有確認して再起動し表示と保持を確認",
+    "design_doc": "docs/v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md"
   },
   "next_steps": [
     "検証済み長尺WebM修正をPR/mainへ統合し利用者main/8765/開いている制作画面を同期"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-12T05:50:28+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3af3fe1",
+      "text": "長尺WebM修正のmainと制作画面の同期を記録: PR284/main3af3fe1を利用者mainへ反映済み、8765の旧Pythonを所有確認して再起動し表示と保持を確認"
+    },
     {
       "at": "2026-11-12T05:48:03+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "1ab7d08",
       "text": "Issue #81 画像形式対応のmainと表示中画面を同期: main1ab7d08・8765再起動/新画像capabilityとCSS・515ファイル・ChromeとIssue画像を正本へ記録"
-    },
-    {
-      "at": "2026-11-08T20:23:30+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "86dfbe7",
-      "text": "代表画像4形式/EXIF/透過/重なりを確認し撮影枠背景と出力理由を修正。Windows/Ubuntu各Python29・Node2、関連7成功、旧MP4/原本保持を記録"
     }
   ]
 }
