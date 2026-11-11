@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-12T06:48:51+09:00",
+  "updated_at": "2026-11-12T06:51:47+09:00",
   "updated_by": "codex",
   "branch": "codex/clip-history-main-sync-20261112",
-  "head_at_update": "078c1b6",
+  "head_at_update": "9a69e90",
   "current": {
     "task": "素材編集履歴のmain・制作画面同期を記録",
-    "status": "in_progress",
+    "status": "done",
     "step": "PR286を利用者mainへ反映し8765のPythonと開いている画面を更新・保持証拠を保存",
     "design_doc": "docs/v05/CLIP_EDIT_HISTORY_20261112_JA.md"
   },
   "next_steps": [
-    "検証済み編集履歴をmainへ統合し、利用者main/8765/開いている制作画面へ同期する"
+    "G3-D1：出力失敗/中断・再開/旧完成物保持の既存証拠を照合し、実制作に影響する次の不足を選んで進める。OGV長尺は低優先"
   ],
   "unverified": [
     "アプリ全体Undo、別保存の行/ミュート/表情/カメラ、任意実作品/実GPU/Linuxブラウザー・全競合、G3-A/C〜Fと順3全体。長尺OGVはOwner指定で低優先。既存ゲート/依存監査と順4/5を保持"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-12T06:51:47+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9a69e90",
+      "text": "PR286/main078c1b6・8765再起動とHTML/JS/履歴API一致、Chrome新タブの編集ボタン表示、515ファイル保持を確認し正本へ保存"
+    },
     {
       "at": "2026-11-12T06:48:51+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "855e9a6",
       "text": "maincaac129・手元/開発木・8765再起動と動画capability/mainプローブ・表示中Chrome再読込、515ファイル不変、Issue画像3枚を正本へ記録"
-    },
-    {
-      "at": "2026-11-08T21:58:19+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "caac129",
-      "text": "Issue #81 動画形式対応のmainと表示中画面を同期: mainの動画capability/プローブと8765を更新し、515ファイル保持・ChromeとIssue画像3枚を正本へ記録"
     }
   ]
 }

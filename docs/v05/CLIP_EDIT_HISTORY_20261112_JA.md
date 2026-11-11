@@ -60,3 +60,14 @@ PowerShellでCHROMIUM_PATHをChrome実行ファイルへ、BAI_TEST_CONCURRENCY=
 ## 次の位置
 
 G3-Cのクリップ編集履歴の限定経路は検証済み。G3-C全体、行/ミュート/表情/カメラ/全体Undo、任意実作品/実GPU/Linuxブラウザー・全競合は未完。OGV長尺は低優先。次はG3-Dの既存完成物を守る出力失敗/中断・再開の証拠を整理し、実制作に影響する不足を選ぶ。G3-AやG3-E/F、順3全体、順4/5、既存証拠ゲートと依存監査の未解決も保持する。
+
+
+## main・制作画面の同期
+
+[PR #286](https://github.com/baisound/BAI_CREATER_STUDIO/pull/286)をmain078c1b6へ統合。利用者main/既存codex-nextをfast-forwardし、起動元を確認した8765番のPythonをPID21332から34300へ非表示再起動。HTML/asset-workflow-v06.js/webmcp.jsの全バイトがmainと一致し、既存作品のGETに新しいedit_history件数が返ることを確認した。履歴snapshotをGETへ送っていない。
+
+旧Chromeタブ1055945654は取得できなかったため、同じ制作URLを同じChromeの新タブ1055946273で開き、タイムライン編集の新しい2ボタンと既存2クリップを確認して保持した。過去の履歴がない旧作品では両ボタン無効で、新しい編集から保存履歴が作られる。既存作品へ試験編集を加えていない。
+
+利用者data/exports/studio.zipの515ファイルと変更一覧は前後一致。集約SHA-256は89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d。[同期証拠](../../qa/clip-history-main-sync-20261112.json)。[Issueの確認画像](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6807836348)は合成素材だけで、配信PNGと確認原本のバイト一致も確認。
+
+GitHub自動checkの登録なし。ローカル検証と区別する。次はG3-Dの出力失敗/再開・旧完成物保持の不足。OGV長尺は低優先、G3-C/順3全体や既存未解決は維持する。
