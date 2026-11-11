@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-11T14:25:26+09:00",
+  "updated_at": "2026-11-12T05:32:26+09:00",
   "updated_by": "codex",
-  "branch": "codex/long-vfr-sync-20261111",
-  "head_at_update": "081dd2d",
+  "branch": "codex/long-webm-sync-20261112",
+  "head_at_update": "3facd74",
   "current": {
-    "task": "長尺VFR代表のmain同期と制作画面/保持証拠を記録",
-    "status": "done",
-    "step": "PR282/mainf4dbe44・8765のHTML/JS一致とChrome表示・515ファイル保持を正本へ保存",
+    "task": "順3 G3-B2 長尺WebM VP9/Opusの元区間と同期",
+    "status": "in_progress",
+    "step": "実映像由来入力の生成とWin/Ubuntu隔離試験・元PTS/画素/PCM/保存保持",
     "design_doc": "docs/v05/LONG_VFR_SOURCE_WINDOWS_20261111_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-12T05:32:26+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3facd74",
+      "text": "順3 G3-B2 長尺WebM VP9/Opusの元区間と同期: 実映像由来入力の生成とWin/Ubuntu隔離試験・元PTS/画素/PCM/保存保持"
+    },
     {
       "at": "2026-11-11T14:25:26+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "cb157ef",
       "text": "main0c04ed3・手元/開発木・8765再起動と表示中Chrome再読込、新形式API/案内・515ファイル不変・Issue画像表示を正本へ記録"
-    },
-    {
-      "at": "2026-11-08T19:49:26+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0c04ed3",
-      "text": "Issue #81 音声形式対応のmainと表示中ブラウザーを同期: main0c04ed3・8765再起動/新形式capability/変更JS・515ファイル・Chrome表示とIssue画像を正本へ記録"
     }
   ]
 }
