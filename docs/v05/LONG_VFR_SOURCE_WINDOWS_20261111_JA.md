@@ -85,3 +85,10 @@ G3-B2の最初の代表ケース（実映像由来・MP4 VFR/元AAC・別WAV・2
 モデル区分：高性能（比較設計・試験実装・検証）、サブエージェントなし。
 
 証拠/試験コミット `3414f8c`、[PR #282](https://github.com/baisound/BAI_CREATER_STUDIO/pull/282)。12行の証拠はこのGit保存内容のSHA-256で照合。AAC末尾は両OSでdurationの報告形が異なるが、破棄余白を引いた4表は一致。
+
+
+## mainと制作画面の同期
+
+PR #282はmain f4dbe44へ統合済み。手元main/codex-next/作業木をffし、PID75076の絶対起動元、8765のHTML/render-job-v69.js/webmcp.js全バイト一致と320000目標値を確認。製品Python/JS/HTMLに変更がないため再起動/再読込なし。Chromeタブ1055945654のホーム/既存2作品をCUAで観測して表示を保持。利用者data/exports/studio.zipの515ファイルと変更一覧は前後一致（集約hash89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d）。
+
+[同期数値](../../qa/long-vfr-main-sync-20261111.json)・[Issue結果](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6787848290)。GitHub自動checksの登録なし、ローカル検証と区別。次は長尺WebM VP9/Opus、順3全体と既存の未確認は維持。

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-11T14:24:33+09:00",
+  "updated_at": "2026-11-11T14:25:26+09:00",
   "updated_by": "codex",
   "branch": "codex/long-vfr-sync-20261111",
-  "head_at_update": "f4dbe44",
+  "head_at_update": "081dd2d",
   "current": {
     "task": "長尺VFR代表のmain同期と制作画面/保持証拠を記録",
-    "status": "in_progress",
+    "status": "done",
     "step": "PR282/mainf4dbe44・8765のHTML/JS一致とChrome表示・515ファイル保持を正本へ保存",
     "design_doc": "docs/v05/LONG_VFR_SOURCE_WINDOWS_20261111_JA.md"
   },
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-11T14:25:26+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "081dd2d",
+      "text": "長尺MP4 VFR代表はPR282/mainf4dbe44へ統合しmain/codex-next/8765・Chrome表示・515ファイル/変更一覧保持を確認。同期証拠を正本へ保存"
+    },
     {
       "at": "2026-11-11T14:24:33+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "0c04ed3",
       "text": "Issue #81 音声形式対応のmainと表示中ブラウザーを同期: main0c04ed3・8765再起動/新形式capability/変更JS・515ファイル・Chrome表示とIssue画像を正本へ記録"
-    },
-    {
-      "at": "2026-11-08T19:46:52+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "fdc9384",
-      "text": "OGG Vorbis/Opus・FLAC・M4A AACを制作経路へ接続。Windows/Ubuntu各Python50・Node2、短尺30窓差0/長尺92窓最大1sample、回帰24成功1skipを記録"
     }
   ]
 }

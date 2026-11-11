@@ -1,0 +1,49 @@
+{
+  "pullRequest": 282,
+  "evidenceCommit": "3414f8c0b7782c5c15fc413ac88ddfc2349ef45f",
+  "mergedMain": "f4dbe44ec664dcd588d735ccc1cbef9a31dfc45b",
+  "server": {
+    "pid": 75076,
+    "source": "D:\\BAI\\BAI_CREATER_STUDIO\\BAI_Creator_Studio\\server.py",
+    "restarted": false,
+    "reason": "製品Python/JS/HTML変更なし"
+  },
+  "visibleBrowser": {
+    "id": "1055945654",
+    "browser": "Chrome",
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "observedHomeAndTwoExistingProjects": true,
+    "markedDeliverable": true,
+    "reloaded": false
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80",
+      "sameAsMain": true
+    },
+    "studio/v05/js/render-job-v69.js": {
+      "status": 200,
+      "sha256": "e0b371d58600c5a15d46ffa791a6780182294688101a544b779d48a4f23da337",
+      "sameAsMain": true
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sha256": "78f246e81e7abfc5219f2c775bfa41a2f4a54caebe219c24bd13b3ef27ac2a53",
+      "sameAsMain": true
+    }
+  },
+  "dataPreservation": {
+    "files": 515,
+    "aggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "dirtyListUnchanged": true
+  },
+  "main": "f4dbe44ec664dcd588d735ccc1cbef9a31dfc45b",
+  "development": "f4dbe44ec664dcd588d735ccc1cbef9a31dfc45b",
+  "task": "f4dbe44ec664dcd588d735ccc1cbef9a31dfc45b",
+  "capability": {
+    "available": true,
+    "audio_bitrate": 320000
+  }
+}
