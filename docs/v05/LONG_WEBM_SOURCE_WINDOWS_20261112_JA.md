@@ -68,3 +68,10 @@ Windows/Ubuntuの対象Pythonは各31成功・0失敗・0skip。Windowsの型/No
 既存MP424/60fps・WebM29.97fps・OGV30fps、OGG Vorbis/Opus・FLAC・M4Aの登録/保存/復号/出力、出力MCP/旧版保持の対象は成功。Linuxブラウザーは今回も未実施。[回帰数値](../../qa/long-webm-regression-20261112.json)・[一括ログ](../../qa/long-webm-regression-windows-20261112.log)・[単独ログ](../../qa/long-webm-mix-serial-20261112.log)。
 
 151要件IDのJSON/CSVと6IDの同値追記、既存の12行のdetail差異が増えていないこと、13行全証拠hashと文書リンクを照合した。[台帳検査](../../qa/long-webm-ledger-validation-20261112.json)。実行ガードの作業木data5ファイル/exports不在と、原本/index/旧完成物の前後hashが一致。
+
+
+## mainと制作画面の同期
+
+[PR #284](https://github.com/baisound/BAI_CREATER_STUDIO/pull/284)はmain `3af3fe1`へ統合済み。利用者main/既存codex-nextをfast-forwardし、所有パスを確認した8765番のPythonをPID75076から21332へ非表示再起動して、製品の入力PTS保持修正を読み込ませた。HTML/render-job-v69.js/webmcp.jsはmainと全バイト一致、出力capabilityの320000目標値も確認。
+
+Chrome既存タブ1055945654のホームと既存2作品を確認し開いたまま保持。HTML/JS変更がないため画面の強制再読込は不要。利用者data/exports/studio.zipの515ファイルと変更一覧は前後一致（集約hash `89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d`）。[同期数値](../../qa/long-webm-main-sync-20261112.json)。GitHubの自動check登録はなく、ローカル検証と区別。次は長尺OGV。順3全体と他の既存未確認は維持する。

@@ -512,7 +512,7 @@
       "phase_e_wp": "DATA-016/002/008・AUDIO-001・RENDER-001/006、#81/#37/#63/#39",
       "planned_in": "V05-LONG-WEBM-SOURCE-WINDOWS-20261112",
       "status": "partial_verified",
-      "commit": "開始e2be423/修正段階7634275に続く本変更のGit履歴",
+      "commit": "e2f2abe7511373e1e4f556de72885b105fc30e8c / PR #284 / main 3af3fe17b6038a7874b735c4d9dc5e4c5ffd1e23 / qa/long-webm-main-sync-20261112.json",
       "tests": "2026-11-12 G3-B2、実214秒CFRコピー由来WebM VP9/Opus（1071F・元PTS最大丸め0.333ms）と別実WAVを分割/移動/保存再読込し、非0In・29.97fps/320kの6879FをWin/Ubuntuで確認。Ubuntu旧FFmpegの負の開始時刻による7ms前倒しを-copytsで修正。全F署名±1F・PCM153窓中有音149窓差0sample/静かな4窓RMS、入力Opus変換106窓も差0sample。Win実Chrome/公式SDK/ネイティブ、Ubuntu SDK/API。自然発生VFR・OGV・全codec/聴感/順3全体は未完。docs/v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md",
       "unverified": "自然発生VFR/長尺OGV/他FPS・全codec/複数動画行・色/実GPU/Linuxブラウザー/全Undo・競合/並行SDK時間切れ原因、G3-A短窓・聴感・4codec約5%音量差、G3-C〜F/順3全体、順4の54発話/順5判定・既存ゲート2失敗/依存監査3件"
     }
