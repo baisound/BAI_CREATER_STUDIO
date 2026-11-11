@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-11T14:21:27+09:00",
+  "updated_at": "2026-11-11T14:24:33+09:00",
   "updated_by": "codex",
-  "branch": "codex/long-vfr-source-windows-20261111",
-  "head_at_update": "3414f8c",
+  "branch": "codex/long-vfr-sync-20261111",
+  "head_at_update": "f4dbe44",
   "current": {
-    "task": "順3 G3-B2：長尺VFRと元区間・分割境界の同期検証",
-    "status": "done",
-    "step": "214秒実映像由来VFRと元AAC保持を隔離生成し、29.97fps/320kの保存・分割移動・元PTS/画素/PCMをWinとUbuntuで検証",
-    "design_doc": "docs/v05/MEDIA_FORMAT_EVIDENCE_20261109_JA.md"
+    "task": "長尺VFR代表のmain同期と制作画面/保持証拠を記録",
+    "status": "in_progress",
+    "step": "PR282/mainf4dbe44・8765のHTML/JS一致とChrome表示・515ファイル保持を正本へ保存",
+    "design_doc": "docs/v05/LONG_VFR_SOURCE_WINDOWS_20261111_JA.md"
   },
   "next_steps": [
     "G3-B2の次の代表：実映像由来の長尺WebM VP9/Opusを29.97fps/320kで元PTS/分割/保存/画素/PCM/非0In・保持まで検証"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-11T14:24:33+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f4dbe44",
+      "text": "長尺VFR代表のmain同期と制作画面/保持証拠を記録: PR282/mainf4dbe44・8765のHTML/JS一致とChrome表示・515ファイル保持を正本へ保存"
+    },
     {
       "at": "2026-11-11T14:21:27+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "fdc9384",
       "text": "OGG Vorbis/Opus・FLAC・M4A AACを制作経路へ接続。Windows/Ubuntu各Python50・Node2、短尺30窓差0/長尺92窓最大1sample、回帰24成功1skipを記録"
-    },
-    {
-      "at": "2026-11-08T19:29:03+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "37d76e0",
-      "text": "Issue #81 順3のOGG・FLAC・M4A形式別の縦断経路: 非破壊登録と実尺/元区間・プレビュー・MP4を接続し、代表codecと明確な拒否をWindows/Linuxで検証する"
     }
   ]
 }
