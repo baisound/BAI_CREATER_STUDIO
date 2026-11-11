@@ -1,0 +1,63 @@
+{
+  "pullRequest": 286,
+  "evidenceCommit": "a2298d16d5cd1efcd62f56317086bc15c6c4082e",
+  "mergedMain": "078c1b67101748df4b545d98cef1e67aaba9e600",
+  "server": {
+    "oldPid": 21332,
+    "newPid": 34300,
+    "source": "D:/BAI/BAI_CREATER_STUDIO/BAI_Creator_Studio/server.py",
+    "dataDir": "D:/BAI/BAI_CREATER_STUDIO/BAI_Creator_Studio/data",
+    "restarted": true,
+    "reason": "新しい素材編集履歴APIをmainのPythonへ読み込むため"
+  },
+  "http": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80",
+      "sameAsMain": true
+    },
+    "studio/v05/js/asset-workflow-v06.js": {
+      "status": 200,
+      "sha256": "7ecbc51c248164e52809d3c1a137dfbd6ac121e79457d6dbf05f5645045f9021",
+      "sameAsMain": true
+    },
+    "webmcp.js": {
+      "status": 200,
+      "sha256": "fd73f8190265688228fa94785c1e8adc1fdb92f12229864958111b1f9afc2e92",
+      "sameAsMain": true
+    }
+  },
+  "visibleBrowser": {
+    "browser": "Chrome",
+    "id": "1055946273",
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "oldTabUnavailable": "1055945654",
+    "openedNewTab": true,
+    "workspace": "タイムライン編集",
+    "observedNewUndoRedoButtons": true,
+    "existingProjectAndTwoClipsPreserved": true,
+    "buttonsDisabledForProjectWithoutPriorHistory": true,
+    "markedDeliverable": true
+  },
+  "main": "078c1b67101748df4b545d98cef1e67aaba9e600",
+  "development": "078c1b67101748df4b545d98cef1e67aaba9e600",
+  "capability": {
+    "available": true,
+    "audio_bitrate": 320000
+  },
+  "loadedNewHistoryApi": {
+    "historyCounts": {
+      "undo_count": 0,
+      "redo_count": 0
+    },
+    "clipCount": 2,
+    "noPublicHistorySnapshots": true
+  },
+  "dataPreservation": {
+    "files": 515,
+    "aggregate_sha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "head": "078c1b67101748df4b545d98cef1e67aaba9e600"
+  },
+  "dirtyListUnchanged": true
+}

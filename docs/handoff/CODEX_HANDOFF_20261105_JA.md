@@ -293,3 +293,14 @@ Owner後続指定：長尺OGVを必須の次作業にしたのはAgentの判断�
 2026-11-12 G3-C、素材クリップの配置/単体編集/分割/削除/一括移動/従来の対象モデル指定に最大32操作・8MiBの保存Undo/Redoを接続。手動UI/API/公式SDK/ネイティブWebMCP、revision/ロック/削除済み行/異常履歴/書込失敗拒否を検証。Win/Ubuntu各240FのUndo後の復号画素署名・PCMが操作前と一致しRedo後は編集後へ戻る。合成素材と同じ実録画由来MP4の短区間を各OSで確認。行削除選択の再描画リセットも修正。OGV長尺はOwner指定で低優先。G3-C/順3全体は未完。docs/v05/CLIP_EDIT_HISTORY_20261112_JA.md
 
 [操作と境界・検証](../v05/CLIP_EDIT_HISTORY_20261112_JA.md)。G3-C全体・アプリ全体Undoの完了ではない。次はG3-Dの出力失敗/再開・既存完成物保持の欠測を既存証拠から絞る。モデル区分：高性能、サブエージェントなし。
+
+
+## main・制作画面の同期
+
+[PR #286](https://github.com/baisound/BAI_CREATER_STUDIO/pull/286)をmain078c1b6へ統合。利用者main/既存codex-nextをfast-forwardし、起動元を確認した8765番のPythonをPID21332から34300へ非表示再起動。HTML/asset-workflow-v06.js/webmcp.jsの全バイトがmainと一致し、既存作品のGETに新しいedit_history件数が返ることを確認した。履歴snapshotをGETへ送っていない。
+
+旧Chromeタブ1055945654は取得できなかったため、同じ制作URLを同じChromeの新タブ1055946273で開き、タイムライン編集の新しい2ボタンと既存2クリップを確認して保持した。過去の履歴がない旧作品では両ボタン無効で、新しい編集から保存履歴が作られる。既存作品へ試験編集を加えていない。
+
+利用者data/exports/studio.zipの515ファイルと変更一覧は前後一致。集約SHA-256は89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d。[同期証拠](../../qa/clip-history-main-sync-20261112.json)。[Issueの確認画像](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6807836348)は合成素材だけで、配信PNGと確認原本のバイト一致も確認。
+
+GitHub自動checkの登録なし。ローカル検証と区別する。次はG3-Dの出力失敗/再開・旧完成物保持の不足。OGV長尺は低優先、G3-C/順3全体や既存未解決は維持する。
