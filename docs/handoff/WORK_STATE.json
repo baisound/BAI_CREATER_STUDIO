@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T21:30:05+09:00",
+  "updated_at": "2026-11-11T13:59:38+09:00",
   "updated_by": "codex",
-  "branch": "codex/media-evidence-sync-20261109",
-  "head_at_update": "3c30893",
+  "branch": "codex/long-vfr-source-windows-20261111",
+  "head_at_update": "3639dc7",
   "current": {
-    "task": "G3-B1のmain同期と正確なIssue/画像参照を記録",
-    "status": "done",
-    "step": "PR280/main2637f34・8765とChrome表示・515ファイル保持・文書URL404訂正と画像配信一致を正本へ保存",
+    "task": "順3 G3-B2：長尺VFRと元区間・分割境界の同期検証",
+    "status": "in_progress",
+    "step": "214秒実映像由来VFRと元AAC保持を隔離生成し、29.97fps/320kの保存・分割移動・元PTS/画素/PCMをWinとUbuntuで検証",
     "design_doc": "docs/v05/MEDIA_FORMAT_EVIDENCE_20261109_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-11T13:59:38+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "3639dc7",
+      "text": "順3 G3-B2：長尺VFRと元区間・分割境界の同期検証: 214秒実映像由来VFRと元AAC保持を隔離生成し、29.97fps/320kの保存・分割移動・元PTS/画素/PCMをWinとUbuntuで検証"
+    },
     {
       "at": "2026-11-09T21:30:05+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "3cfae54",
       "text": "Issue #81 混音音量一致のmainと制作画面同期を記録: main3cfae54・8765非表示再起動・同一ソース/読み取りChrome・515ファイル保持を正本へ記録"
-    },
-    {
-      "at": "2026-11-08T01:20:37+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4a76c31",
-      "text": "MP4の暗黙正規化を外してプレビュー元音量加算へ一致。Windows/Ubuntu各Python28・Node2、実再生PCM/長尺117窓・旧完成物保持、回帰3成功2skipを記録"
     }
   ]
 }
