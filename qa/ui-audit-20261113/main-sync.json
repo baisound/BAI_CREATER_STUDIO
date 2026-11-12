@@ -1,0 +1,17 @@
+{
+  "pr": 292,
+  "mergedMain": "6575a3a2babbf36a6c2dca2239ab2860345bdbbb",
+  "ownerMainFastForwarded": true,
+  "developmentWorktreeFastForwarded": true,
+  "http8765": {
+    "studio/v05/index.html": "200; bytes match main",
+    "studio/v05/reviews/ui-audit-20261113/index.html": "200; bytes match main",
+    "studio/v05/reviews/ui-audit-20261113/audit.json": "200; bytes match main"
+  },
+  "browser": "Chrome existing production tab 1055946470 displays local export page",
+  "ownerFiles": 515,
+  "ownerFilesAndDirtyListUnchanged": true,
+  "ownerAggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+  "serverRestarted": false,
+  "note": "監査成果物のみの反映。以後Ownerが8件の製品UI修正を全実装より優先して承認。"
+}
