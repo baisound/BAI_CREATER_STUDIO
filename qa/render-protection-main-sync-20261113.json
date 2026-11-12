@@ -1,0 +1,61 @@
+{
+  "status": "passed_limited_scope",
+  "pullRequest": 288,
+  "implementationCommit": "c602c1762eacddeb95ddfa681c90513cf3f4f769",
+  "mainMergeCommit": "0afff1ab0d334ae57c90965517880318cad2d602",
+  "ownerMain": "D:\\BAI\\BAI_CREATER_STUDIO\\BAI_Creator_Studio",
+  "devCheckoutHead": "0afff1ab0d334ae57c90965517880318cad2d602",
+  "server": {
+    "port": 8765,
+    "pid": 4124,
+    "source": "D:\\BAI\\BAI_CREATER_STUDIO\\BAI_Creator_Studio\\server.py",
+    "previousPid34300": "not running; port8765 was free",
+    "dataDir": "D:\\BAI\\BAI_CREATER_STUDIO\\BAI_Creator_Studio\\data",
+    "hidden": true
+  },
+  "served": [
+    {
+      "path": "studio/v05/index.html",
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80",
+      "bytesIdentical": true
+    },
+    {
+      "path": "studio/v05/js/render-job-v69.js",
+      "sha256": "88e9ee7a76438ee2fec75c9e49daca58a1c57a6c8ca2b5564585da2ec8801063",
+      "bytesIdentical": true
+    },
+    {
+      "path": "webmcp.js",
+      "sha256": "fd73f8190265688228fa94785c1e8adc1fdb92f12229864958111b1f9afc2e92",
+      "bytesIdentical": true
+    }
+  ],
+  "api": {
+    "projects": 2,
+    "completedInSelectedProject": 3,
+    "unreadable_count": 0
+  },
+  "browser": {
+    "browserId": "3",
+    "tabId": "1055946470",
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "state": "export page, existing project 操作実演 2026-10-24; 3 completed movies including old version; existing 2 clips",
+    "oldTab": "1055946273 unavailable; no studio URL in current inventory; opened same URL in same Chrome",
+    "deliverableMarked": true,
+    "screenshot": "CUA Page.captureScreenshot timed out; AX verified. Isolated synthetic screenshot is separate; no owner screenshot published"
+  },
+  "ownerData": {
+    "files": 515,
+    "aggregate_sha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "head": "0afff1ab0d334ae57c90965517880318cad2d602"
+  },
+  "issueScreenshot": {
+    "url": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/c602c1762eacddeb95ddfa681c90513cf3f4f769/docs/v05/images/render-retry-20261113.png",
+    "sha256": "6b7b8ddc0d45d272ebdee162d43c56f018083f724533daf23d507a06e171895b",
+    "rawBytesAndPngMimeVerified": true,
+    "comment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6827468757"
+  },
+  "githubChecks": "no checks registered on PR288; local checks are separate",
+  "unverified": "physical disk exhaustion/power loss/all stop windows/Linux browser/arbitrary long works; G3-D and sequence3 overall remain open"
+}

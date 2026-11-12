@@ -121,3 +121,12 @@ GitHub自動checkの登録なし。ローカル検証と区別する。次はG3-
 2026-11-13 G3-D、保存容量/権限/起動失敗からの再試行と旧完成動画を保護。検証済み確定出力の最終状態保存失敗は名前有無とも回収し、一時領域を解放。受取/旧版復元で保存SHA-256を照合し同容量の改変を拒否。書けない中断履歴や名前台帳の破損/ロックがあっても読める完成物を表示。Win Python33成功・Ubuntu31成功/Windows限定2skip。実FFmpeg/実録画短区間30F、Win実Chrome157 UI/SDK/ネイティブWebMCP、Ubuntu SDK/APIで旧MP4/台帳/原本不変と別版再試行を確認。物理ディスク枯渇/電源断/全停止点やG3-D/順3全体は未完。docs/v05/RENDER_FAILURE_PROTECTION_20261112_JA.md
 
 [受け入れ条件・再現手順・結果](../v05/RENDER_FAILURE_PROTECTION_20261112_JA.md)。既存の10分/2GiB・強制再起動の証拠を保持。次はG3-E1で保存した制作状態/構図の順3必須条件と順6の依存を照合し、G3-Fで残る終了条件を整理する。既知未達を完了扱いにしない。モデル区分：高性能（保存安全性の診断・実装・検証）、サブエージェントなし。
+
+
+## mainと制作画面の同期（2026-11-13）
+
+[PR #288](https://github.com/baisound/BAI_CREATER_STUDIO/pull/288)をmain0afff1aへ統合。実装c602c17、ログ書式ca1d77d。利用者mainと既存codex-nextをfast-forward。8765番と以前のPID34300は停止済みで、競合がないことを確認して利用者main/server.pyをPID4124で非表示起動した。HTML/render-job-v69.js/webmcp.jsは利用者mainと配信内容が全バイト一致し、GET完成物一覧に新しいunreadable_count=0が返る。
+
+Chromeの旧タブ1055946273は取得できず、現在の一覧にも制作URLはなかった。同じChromeに同じURLの新タブ1055946470を開き、書き出し画面で既存作品・完成動画3件（旧版を含む）を確認し保持。既存2クリップへ試験編集を加えていない。CUA画面撮影は5秒で時間切れとなったため、実画面の確認はAX表示による。公開した画像は隔離試験の合成素材だけで、利用者素材は投稿していない。
+
+利用者の素材/作品/完成動画/exports/studio.zipの515ファイルとdirty一覧は前後一致。集約SHA-256は89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d。[同期数値](../../qa/render-protection-main-sync-20261113.json)。[IssueのPNG](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6827468757)は公開配信のPNG MIME/内容とOwner確認原本の一致も確認。GitHub自動checkの登録はなく、ローカル検証と区別する。次はG3-E1。G3-D/順3全体や既存未解決は維持し、OGV長尺は低優先のまま。
