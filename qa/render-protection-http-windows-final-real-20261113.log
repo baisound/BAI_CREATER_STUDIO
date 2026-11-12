@@ -1,0 +1,25 @@
+TAP version 13
+# {"actualDownloads":4,"matchingHashes":true,"completedHistory":25,"pageSizes":[20,5],"oldVersion":true,"worksWithoutNewRender":true,"narrowWidth":390}
+# Subtest: completed MP4s download from the list, survive reload/preparation errors and paginate without mixing projects
+ok 1 - completed MP4s download from the list, survive reload/preparation errors and paginate without mixing projects
+  ---
+  duration_ms: 9194.3677
+  type: 'test'
+  ...
+# {"status":"passed","apiOnly":false,"faultKind":"isolated per-operation ENOSPC/launch injection, not physical disk exhaustion","browser":"157.0.8103.51","actualOldDownloadDuringStorageFault":true,"inputKind":"video","inputHash":"c895d1da79dfddb4c93210b778b74d727be225ac5c07a2c5d6c5a399093f89d6","frames":30,"queuedFailureStatus":507,"threadFailureStatus":503,"completedListSurvivesUnwritableJob":true,"failedReplacementKeptOldIndexAndBytes":true,"newVersionRetry":"保存保護-v02.mp4","committedUnnamedRecovered":true,"corruptSameSizeRangeRejected":true,"corruptOldVersionRestoreRejected":true,"tamperedFixtureNotRepaired":true,"healthyOutputsStillDownloadable":true,"sourceUnchanged":true,"native":true}
+# Subtest: storage/launch faults allow retry, committed-state recovery and verified older downloads
+ok 2 - storage/launch faults allow retry, committed-state recovery and verified older downloads
+  ---
+  duration_ms: 9274.8444
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 28700.3267
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

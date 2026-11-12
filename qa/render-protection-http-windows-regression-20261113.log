@@ -1,0 +1,54 @@
+TAP version 13
+# Subtest: completed MP4s download from the list, survive reload/preparation errors and paginate without mixing projects
+not ok 1 - completed MP4s download from the list, survive reload/preparation errors and paginate without mixing projects
+  ---
+  duration_ms: 13672.1929
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-render-downloads.test.cjs:31:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    ブラウザーのエラー 1 件:
+    http://127.0.0.1:9101/studio/v05/index.html console: Failed to load resource: net::ERR_NO_BUFFER_SPACE
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.assertNoErrors (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\helpers\studio-harness.cjs:87:30)
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-render-downloads.test.cjs:122:58)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# {"status":"passed","apiOnly":false,"faultKind":"isolated per-operation ENOSPC/launch injection, not physical disk exhaustion","browser":"157.0.8103.51","actualOldDownloadDuringStorageFault":true,"inputKind":"image","inputHash":"3cbcb3424d559fd71e41c6d47459035b28eb4d19a5537a4d207abc6c5268b345","frames":30,"queuedFailureStatus":507,"threadFailureStatus":503,"completedListSurvivesUnwritableJob":true,"failedReplacementKeptOldIndexAndBytes":true,"newVersionRetry":"保存保護-v02.mp4","committedUnnamedRecovered":true,"corruptSameSizeRangeRejected":true,"corruptOldVersionRestoreRejected":true,"tamperedFixtureNotRepaired":true,"healthyOutputsStillDownloadable":true,"sourceUnchanged":true,"native":true}
+# Subtest: storage/launch faults allow retry, committed-state recovery and verified older downloads
+ok 2 - storage/launch faults allow retry, committed-state recovery and verified older downloads
+  ---
+  duration_ms: 7973.3397
+  type: 'test'
+  ...
+# Subtest: standard MCP and WebMCP render the same saved project and retain both MP4 versions
+ok 3 - standard MCP and WebMCP render the same saved project and retain both MP4 versions
+  ---
+  duration_ms: 4442.0246
+  type: 'test'
+  ...
+# Subtest: same named MP4 proposes a version and explicit replacement keeps a restorable old file
+ok 4 - same named MP4 proposes a version and explicit replacement keeps a restorable old file
+  ---
+  duration_ms: 7084.5029
+  type: 'test'
+  ...
+# {"rejectedFrames":36001,"rejectedSeconds":600.0166666666667,"acceptedFrames":36000,"captureRestart":"interrupted/clean","encodingRestart":"interrupted/clean","retryFrames":10}
+# Subtest: capacity rejection and forced restart during capture/encoding retain old MP4 and allow retry
+ok 5 - capacity rejection and forced restart during capture/encoding retain old MP4 and allow retry
+  ---
+  duration_ms: 15378.0553
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 4
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 74048.9775
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

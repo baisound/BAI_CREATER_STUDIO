@@ -1,0 +1,18 @@
+TAP version 13
+# {"status":"passed","apiOnly":true,"faultKind":"isolated per-operation ENOSPC/launch injection, not physical disk exhaustion","inputKind":"image","inputHash":"3cbcb3424d559fd71e41c6d47459035b28eb4d19a5537a4d207abc6c5268b345","frames":30,"queuedFailureStatus":507,"threadFailureStatus":503,"completedListSurvivesUnwritableJob":true,"failedReplacementKeptOldIndexAndBytes":true,"newVersionRetry":"保存保護-v02.mp4","committedUnnamedRecovered":true,"corruptSameSizeRangeRejected":true,"corruptOldVersionRestoreRejected":true,"tamperedFixtureNotRepaired":true,"healthyOutputsStillDownloadable":true,"sourceUnchanged":true,"native":false}
+# Subtest: storage/launch faults allow retry, committed-state recovery and verified older downloads
+ok 1 - storage/launch faults allow retry, committed-state recovery and verified older downloads
+  ---
+  duration_ms: 3836.0067
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9059.3129
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

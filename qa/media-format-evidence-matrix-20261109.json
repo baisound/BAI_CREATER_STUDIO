@@ -449,7 +449,8 @@
         },
         {
           "path": "bai_studio/v05/render/media_render.py",
-          "sha256": "dafa61e264545d6fe156c0e34e426b52d25c92a8a79e1372ffe381e7264c1d1b"
+          "sha256": "dafa61e264545d6fe156c0e34e426b52d25c92a8a79e1372ffe381e7264c1d1b",
+          "gitCommit": "e2f2abe7511373e1e4f556de72885b105fc30e8c"
         },
         {
           "path": "qa/long-webm-windows-20261112.json",
@@ -509,9 +510,9 @@
     "normalDelivery": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\2026-11-09-media-evidence"
   },
   "nextTask": {
-    "id": "G3-D1",
-    "title": "既存の出力失敗・中断/再開・旧完成物保持の証拠を整理し、実制作に影響する欠測を選ぶ",
-    "note": "G3-Cの素材クリップ履歴は限定検証済み。OGV長尺は低優先。形式総当りを必須の次作業にしない。"
+    "id": "G3-E1",
+    "title": "保存した制作状態・構図の順3必須条件と順6の依存を既存仕様で照合",
+    "note": "G3-Dの今回保存障害は限定検証済み。物理ディスク/電源断/全停止点は未確認。OGV長尺は低優先。G3-A/C〜F・順3全体は未完了。"
   },
   "remaining": [
     "音声4codec長尺91.4秒の約4.50%/4.99%音量差：3%条件の一般化は未達、原因未診断",
@@ -537,8 +538,8 @@
   },
   "evidenceCommit": "3414f8c0b7782c5c15fc413ac88ddfc2349ef45f",
   "pullRequest": 280,
-  "evidenceHashScope": "sha256 is over the committed Git blob bytes (LF text); working-tree CRLF is normalized before comparison",
-  "lastUpdated": "2026-11-12",
+  "evidenceHashScope": "sha256 is over the committed Git blob bytes (LF text); working-tree CRLF is normalized before comparison / G3-Dでmedia_render.pyを変更したためWebM試験当時のソースはe2f2abeのgitCommit参照で保存。過去の長尺証拠を再実行扱いにしない。",
+  "lastUpdated": "2026-11-13",
   "g3b1HistoricalEvidenceCommit": "2ce37c4b0e6810b561817e53a1c3ebe58d4ecb43",
   "latestPullRequest": 282,
   "priorityCorrection": {

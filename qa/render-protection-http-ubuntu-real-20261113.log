@@ -1,0 +1,11 @@
+{"status":"passed","apiOnly":true,"faultKind":"isolated per-operation ENOSPC/launch injection, not physical disk exhaustion","inputKind":"video","inputHash":"c895d1da79dfddb4c93210b778b74d727be225ac5c07a2c5d6c5a399093f89d6","frames":30,"queuedFailureStatus":507,"threadFailureStatus":503,"completedListSurvivesUnwritableJob":true,"failedReplacementKeptOldIndexAndBytes":true,"newVersionRetry":"保存保護-v02.mp4","committedUnnamedRecovered":true,"corruptSameSizeRangeRejected":true,"corruptOldVersionRestoreRejected":true,"tamperedFixtureNotRepaired":true,"healthyOutputsStillDownloadable":true,"sourceUnchanged":true,"native":false}
+✔ storage/launch faults allow retry, committed-state recovery and verified older downloads (14184.66473ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23713.026534
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

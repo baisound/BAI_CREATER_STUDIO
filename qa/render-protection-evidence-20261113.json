@@ -1,0 +1,144 @@
+{
+  "status": "passed_limited_scope",
+  "baselineMain": "44c8afa3c3e22a21b67119268a29796a6fb99f99",
+  "startCommit": "6c664d5",
+  "ids": [
+    "DATA-008",
+    "CORE-004",
+    "CORE-012",
+    "RENDER-001",
+    "RENDER-006"
+  ],
+  "document": "docs/v05/RENDER_FAILURE_PROTECTION_20261112_JA.md",
+  "issue": 81,
+  "faults": "isolated per-operation ENOSPC/EACCES/thread launch; not physical disk full",
+  "python": {
+    "windows": {
+      "passed": 33,
+      "subtestsPassed": 5,
+      "skipped": 0
+    },
+    "ubuntu": {
+      "passed": 31,
+      "skipped": 2,
+      "skipReason": "Windows process scope only"
+    }
+  },
+  "node": {
+    "windowsRegression": {
+      "passed": 4,
+      "failed": 1,
+      "failure": "ERR_NO_BUFFER_SPACE in downloads, isolated rerun passed"
+    },
+    "windowsFinalRealAndDownload": {
+      "passed": 2,
+      "failed": 0
+    },
+    "ubuntuFinalReal": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "reports": {
+    "windowsGenerated": {
+      "status": "passed",
+      "apiOnly": false,
+      "faultKind": "isolated per-operation ENOSPC/launch injection, not physical disk exhaustion",
+      "browser": "157.0.8103.51",
+      "actualOldDownloadDuringStorageFault": true,
+      "inputKind": "image",
+      "inputHash": "3cbcb3424d559fd71e41c6d47459035b28eb4d19a5537a4d207abc6c5268b345",
+      "frames": 30,
+      "queuedFailureStatus": 507,
+      "threadFailureStatus": 503,
+      "completedListSurvivesUnwritableJob": true,
+      "failedReplacementKeptOldIndexAndBytes": true,
+      "newVersionRetry": "保存保護-v02.mp4",
+      "committedUnnamedRecovered": true,
+      "corruptSameSizeRangeRejected": true,
+      "corruptOldVersionRestoreRejected": true,
+      "tamperedFixtureNotRepaired": true,
+      "healthyOutputsStillDownloadable": true,
+      "sourceUnchanged": true,
+      "native": true
+    },
+    "windowsReal": {
+      "status": "passed",
+      "apiOnly": false,
+      "faultKind": "isolated per-operation ENOSPC/launch injection, not physical disk exhaustion",
+      "browser": "157.0.8103.51",
+      "actualOldDownloadDuringStorageFault": true,
+      "inputKind": "video",
+      "inputHash": "c895d1da79dfddb4c93210b778b74d727be225ac5c07a2c5d6c5a399093f89d6",
+      "frames": 30,
+      "queuedFailureStatus": 507,
+      "threadFailureStatus": 503,
+      "completedListSurvivesUnwritableJob": true,
+      "failedReplacementKeptOldIndexAndBytes": true,
+      "newVersionRetry": "保存保護-v02.mp4",
+      "committedUnnamedRecovered": true,
+      "corruptSameSizeRangeRejected": true,
+      "corruptOldVersionRestoreRejected": true,
+      "tamperedFixtureNotRepaired": true,
+      "healthyOutputsStillDownloadable": true,
+      "sourceUnchanged": true,
+      "native": true
+    },
+    "ubuntuReal": {
+      "status": "passed",
+      "apiOnly": true,
+      "faultKind": "isolated per-operation ENOSPC/launch injection, not physical disk exhaustion",
+      "inputKind": "video",
+      "inputHash": "c895d1da79dfddb4c93210b778b74d727be225ac5c07a2c5d6c5a399093f89d6",
+      "frames": 30,
+      "queuedFailureStatus": 507,
+      "threadFailureStatus": 503,
+      "completedListSurvivesUnwritableJob": true,
+      "failedReplacementKeptOldIndexAndBytes": true,
+      "newVersionRetry": "保存保護-v02.mp4",
+      "committedUnnamedRecovered": true,
+      "corruptSameSizeRangeRejected": true,
+      "corruptOldVersionRestoreRejected": true,
+      "tamperedFixtureNotRepaired": true,
+      "healthyOutputsStillDownloadable": true,
+      "sourceUnchanged": true,
+      "native": false
+    }
+  },
+  "typecheck": "passed",
+  "sourceHashes": [
+    {
+      "path": "bai_studio/v05/render/media_render.py",
+      "sha256": "8e03309af6201b87e4f7ef6e5a8dca88ec9a879f9571414a2269fcbbc6beb191"
+    },
+    {
+      "path": "bai_studio/v05/render/render_names.py",
+      "sha256": "01d2650ab37adfb3b16bd728303774e0fce0c25dc2dc568d2cb8847ea4bde91f"
+    },
+    {
+      "path": "studio/v05/js/render-job-v69.js",
+      "sha256": "88e9ee7a76438ee2fec75c9e49daca58a1c57a6c8ca2b5564585da2ec8801063"
+    },
+    {
+      "path": "tests/test_v05_render_failure_protection.py",
+      "sha256": "f2c3bd11bc4799f6468f6f8a60100946f81aab4b171b579109e617da349b494a"
+    },
+    {
+      "path": "tests/studio-v05-render-failure-protection.test.cjs",
+      "sha256": "57560440bb56b9ac66a3628641251e148f41cd8c8c0850d0c02365c62e8b1ec9"
+    },
+    {
+      "path": "tests/helpers/render-failure-injection/sitecustomize.py",
+      "sha256": "416437a77ef9177c4d1d279bcd4f88ef643fb23cbb19526780d9269a076abd30"
+    }
+  ],
+  "unverified": "実ディスク/クォータ枯渇・物理障害/電源断/全停止点・OS再起動、Linuxブラウザー/実GPU/任意長尺実作品、受取中の外部同時改変/ファイル欠損からの自動修復/全サイズのhash遅延。G3-A短窓/聴感/既知約5%音量差、G3-C/E/Fと順3全体、順4/5・既存ゲート/依存監査を保持。OGV長尺は低優先。",
+  "modelCategory": "高性能（保存安全性・診断・実装・検証）、サブエージェントなし",
+  "screenshot": {
+    "path": "docs/v05/images/render-retry-20261113.png",
+    "sha256": "6b7b8ddc0d45d272ebdee162d43c56f018083f724533daf23d507a06e171895b",
+    "ownerOriginal": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113-render-protection\\render-retry.png",
+    "bytesIdentical": true,
+    "syntheticOnly": true
+  }
+}

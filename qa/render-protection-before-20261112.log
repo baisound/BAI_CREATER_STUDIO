@@ -1,0 +1,197 @@
+FFF.FFFF                                                                 [100%]
+================================== FAILURES ===================================
+__ test_same_size_changed_output_is_rejected_without_repair_or_index_change ___
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{8a54d989-c3a1-4647-8080-cc24b65374c0}/Temp/pytest-of-user/pytest-0/test_same_size_changed_output_0')
+
+    def test_same_size_changed_output_is_rejected_without_repair_or_index_change(tmp_path):
+        job,file=completed(tmp_path);modified=b'X'+file.read_bytes()[1:];file.write_bytes(modified)
+        saved=(tmp_path/'jobs'/f"{job['id']}.json").read_bytes()
+>       with pytest.raises(render.RenderError,match='内容|hash|changed'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RenderError
+
+tests\test_v05_render_failure_protection.py:24: Failed
+_______ test_verified_commit_recovers_and_cleans_only_owned_work[False] _______
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{8a54d989-c3a1-4647-8080-cc24b65374c0}/Temp/pytest-of-user/pytest-0/test_verified_commit_recovers_0')
+named = False
+
+    @pytest.mark.parametrize('named',[False,True])
+    def test_verified_commit_recovers_and_cleans_only_owned_work(tmp_path,named):
+        job,file=completed(tmp_path)
+        if named:
+            # Establish a committed name index while keeping the verified output.
+            file.unlink();temp=tmp_path/'files'/'input.part.mp4';temp.write_bytes(b'verified output fixture')
+            names.finalize(tmp_path,'p',names.plan(tmp_path,'p','作品','version',None),job['id'],temp,file)
+        work=tmp_path/'jobs'/f"{job['id']}.frames";work.mkdir();(work/'scene.mkv').write_bytes(b'large temporary fixture')
+        old,old_file=completed(tmp_path,'b'*32,b'older completed output');old_bytes=old_file.read_bytes()
+        job.update(status='running',download_name='作品.mp4' if named else None,
+                   pending_output={k:job[k] for k in ('bytes','sha256','probe')})
+        _atomic(tmp_path/'jobs'/f"{job['id']}.json",job)
+        result=render.status(tmp_path,job['id'])
+>       assert result['status']=='succeeded'
+E       AssertionError: assert 'interrupted' == 'succeeded'
+E         
+E         - succeeded
+E         + interrupted
+
+tests\test_v05_render_failure_protection.py:42: AssertionError
+_______ test_verified_commit_recovers_and_cleans_only_owned_work[True] ________
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{8a54d989-c3a1-4647-8080-cc24b65374c0}/Temp/pytest-of-user/pytest-0/test_verified_commit_recovers_1')
+named = True
+
+    @pytest.mark.parametrize('named',[False,True])
+    def test_verified_commit_recovers_and_cleans_only_owned_work(tmp_path,named):
+        job,file=completed(tmp_path)
+        if named:
+            # Establish a committed name index while keeping the verified output.
+            file.unlink();temp=tmp_path/'files'/'input.part.mp4';temp.write_bytes(b'verified output fixture')
+            names.finalize(tmp_path,'p',names.plan(tmp_path,'p','作品','version',None),job['id'],temp,file)
+        work=tmp_path/'jobs'/f"{job['id']}.frames";work.mkdir();(work/'scene.mkv').write_bytes(b'large temporary fixture')
+        old,old_file=completed(tmp_path,'b'*32,b'older completed output');old_bytes=old_file.read_bytes()
+        job.update(status='running',download_name='作品.mp4' if named else None,
+                   pending_output={k:job[k] for k in ('bytes','sha256','probe')})
+        _atomic(tmp_path/'jobs'/f"{job['id']}.json",job)
+        result=render.status(tmp_path,job['id'])
+        assert result['status']=='succeeded'
+>       assert result['temporary_cleanup']=='complete' and not work.exists()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'temporary_cleanup'
+
+tests\test_v05_render_failure_protection.py:43: KeyError
+_____ test_unwritable_interrupted_record_does_not_hide_completed_history ______
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{8a54d989-c3a1-4647-8080-cc24b65374c0}/Temp/pytest-of-user/pytest-0/test_unwritable_interrupted_re0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021DE5E7C9B0>
+
+    def test_unwritable_interrupted_record_does_not_hide_completed_history(tmp_path,monkeypatch):
+        old,file=completed(tmp_path)
+        bad={'id':'c'*32,'project_id':'p','status':'running','created_at':2}
+        _atomic(tmp_path/'jobs'/f"{bad['id']}.json",bad)
+        atomic=render._atomic
+        def full(path,data):
+            if data.get('id')==bad['id']:raise OSError(errno.ENOSPC,'injected storage full')
+            return atomic(path,data)
+        monkeypatch.setattr(render,'_atomic',full)
+>       result=render.list_jobs(tmp_path,'p',completed_only=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_v05_render_failure_protection.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+bai_studio\v05\render\media_render.py:156: in list_jobs
+    item = status(root, path.stem)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+bai_studio\v05\render\media_render.py:141: in status
+    _save(root, job)
+bai_studio\v05\render\media_render.py:70: in _save
+    _atomic(_job_file(root, job["id"]), job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{8a54d989-c3a1-4647-8080-cc24b65374c0}/Temp/pytest-of-user/pytest-0/test_unwritable_interrupted_re0/jobs/cccccccccccccccccccccccccccccccc.json')
+data = {'id': 'cccccccccccccccccccccccccccccccc', 'project_id': 'p', 'status': 'interrupted', 'created_at': 2, ...}
+
+    def full(path,data):
+>       if data.get('id')==bad['id']:raise OSError(errno.ENOSPC,'injected storage full')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       OSError: [Errno 28] injected storage full
+
+tests\test_v05_render_failure_protection.py:62: OSError
+_____ test_thread_launch_failure_releases_slot_and_retains_failed_record ______
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{8a54d989-c3a1-4647-8080-cc24b65374c0}/Temp/pytest-of-user/pytest-0/test_thread_launch_failure_rel0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021DE5E7F020>
+
+    def test_thread_launch_failure_releases_slot_and_retains_failed_record(tmp_path,monkeypatch):
+        setup_start(tmp_path,monkeypatch);ids=[]
+        class BrokenThread:
+            def __init__(self,target,args,daemon):ids.append(args[1]['id'])
+            def start(self):raise RuntimeError('injected thread launch failure')
+        monkeypatch.setattr(render.threading,'Thread',BrokenThread)
+        try:
+>           with pytest.raises(render.RenderError):render.start(tmp_path,'p',0,0,'720p',[])
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_v05_render_failure_protection.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+bai_studio\v05\render\media_render.py:876: in start
+    thread.start()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <test_v05_render_failure_protection.test_thread_launch_failure_releases_slot_and_retains_failed_record.<locals>.BrokenThread object at 0x0000021DE5E7FB90>
+
+>   def start(self):raise RuntimeError('injected thread launch failure')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: injected thread launch failure
+
+tests\test_v05_render_failure_protection.py:83: RuntimeError
+_ test_queued_record_write_failure_returns_actionable_error_and_no_busy_slot[28-507] _
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{8a54d989-c3a1-4647-8080-cc24b65374c0}/Temp/pytest-of-user/pytest-0/test_queued_record_write_failu0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021DE5DF7D70>
+error = 28, status = 507
+
+    @pytest.mark.parametrize('error,status',[(errno.ENOSPC,507),(errno.EACCES,503)])
+    def test_queued_record_write_failure_returns_actionable_error_and_no_busy_slot(tmp_path,monkeypatch,error,status):
+        setup_start(tmp_path,monkeypatch)
+        def fail(*args):raise OSError(error,'injected job save error')
+        monkeypatch.setattr(render,'_atomic',fail)
+        before=set(render.ACTIVE)
+>       with pytest.raises(render.RenderError) as exc:render.start(tmp_path,'p',0,0,'720p',[])
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_v05_render_failure_protection.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+bai_studio\v05\render\media_render.py:871: in start
+    _save(root, job)
+bai_studio\v05\render\media_render.py:70: in _save
+    _atomic(_job_file(root, job["id"]), job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{8a54d989-c3a1-4647-8080-cc...fe5182fc95.json'), {'schema': 1, 'id': 'a051363aa2fa446dbd6205fe5182fc95', 'project_id': 'p', 'status': 'queued', ...})
+
+>   def fail(*args):raise OSError(error,'injected job save error')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   OSError: [Errno 28] injected job save error
+
+tests\test_v05_render_failure_protection.py:96: OSError
+_ test_queued_record_write_failure_returns_actionable_error_and_no_busy_slot[13-503] _
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{8a54d989-c3a1-4647-8080-cc24b65374c0}/Temp/pytest-of-user/pytest-0/test_queued_record_write_failu1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021DE5E7E2A0>
+error = 13, status = 503
+
+    @pytest.mark.parametrize('error,status',[(errno.ENOSPC,507),(errno.EACCES,503)])
+    def test_queued_record_write_failure_returns_actionable_error_and_no_busy_slot(tmp_path,monkeypatch,error,status):
+        setup_start(tmp_path,monkeypatch)
+        def fail(*args):raise OSError(error,'injected job save error')
+        monkeypatch.setattr(render,'_atomic',fail)
+        before=set(render.ACTIVE)
+>       with pytest.raises(render.RenderError) as exc:render.start(tmp_path,'p',0,0,'720p',[])
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_v05_render_failure_protection.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+bai_studio\v05\render\media_render.py:871: in start
+    _save(root, job)
+bai_studio\v05\render\media_render.py:70: in _save
+    _atomic(_job_file(root, job["id"]), job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{8a54d989-c3a1-4647-8080-cc...c98a6fb0c6.json'), {'schema': 1, 'id': '2cbe2df477c84cd28e8c96c98a6fb0c6', 'project_id': 'p', 'status': 'queued', ...})
+
+>   def fail(*args):raise OSError(error,'injected job save error')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 13] injected job save error
+
+tests\test_v05_render_failure_protection.py:96: PermissionError
+=========================== short test summary info ===========================
+FAILED tests/test_v05_render_failure_protection.py::test_same_size_changed_output_is_rejected_without_repair_or_index_change
+FAILED tests/test_v05_render_failure_protection.py::test_verified_commit_recovers_and_cleans_only_owned_work[False]
+FAILED tests/test_v05_render_failure_protection.py::test_verified_commit_recovers_and_cleans_only_owned_work[True]
+FAILED tests/test_v05_render_failure_protection.py::test_unwritable_interrupted_record_does_not_hide_completed_history
+FAILED tests/test_v05_render_failure_protection.py::test_thread_launch_failure_releases_slot_and_retains_failed_record
+FAILED tests/test_v05_render_failure_protection.py::test_queued_record_write_failure_returns_actionable_error_and_no_busy_slot[28-507]
+FAILED tests/test_v05_render_failure_protection.py::test_queued_record_write_failure_returns_actionable_error_and_no_busy_slot[13-503]
+7 failed, 1 passed in 1.22s
