@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T00:19:38+09:00",
+  "updated_at": "2026-11-13T00:33:48+09:00",
   "updated_by": "codex",
   "branch": "codex/saved-composition-audit-20261113",
-  "head_at_update": "5e5d0b5",
+  "head_at_update": "9ff3726",
   "current": {
     "task": "順3 G3-E1 保存制作状態と構図の一致確認",
-    "status": "in_progress",
+    "status": "done",
     "step": "既存の静止カメラ/自動構図/狭い画面の証拠を照合し、保存再読込と出力に残る不足を隔離検証",
     "design_doc": "docs/v05/SAVED_STATE_COMPOSITION_20261113_JA.md"
   },
   "next_steps": [
-    "G3-E1：保存制作状態/構図の順3必須条件と順6依存を照合し、G3-Fの終了条件を整理。OGV長尺は低優先"
+    "差分/正本の確認後PRをmainへ統合し、利用者main/8765/制作画面を同期",
+    "G3-F1でA〜E証拠・必須未達・環境制限・順6/7依存を対応付ける。OGV長尺は低優先"
   ],
   "unverified": [
-    "G3-D物理ディスク枯渇/電源断/全停止点/Linuxブラウザー/任意実作品/受取中外部改変/全サイズhash遅延。G3-A/C/E/F・順3全体、順4/5と既存ゲート/依存監査。画面撮影時間切れはAX確認と区別"
+    "Linuxブラウザー/実GPU、任意材質/実半透明ステージ/全姿勢、G3-A/C/D/Fと順3全体、順4/5/6/7、既存ゲート/依存監査を保持"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T00:33:48+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9ff3726",
+      "text": "G3-E1の保存再読込/作品切替/静止カメラ/自動構図/半透明6条件を検証し、短い3D出力の末尾1F欠けと正常履歴の誤警告を修正。Win69/Ubuntu68、最終ブラウザー4成功"
+    },
     {
       "at": "2026-11-13T00:19:38+09:00",
       "by": "codex",
@@ -229,13 +237,6 @@
       "event": "done",
       "head": "4e10965",
       "text": "G3-A2の振幅/クリップ対照とビットレート比較を確認。320k対照は両OS54窓3%以内、原本保持。Win384未完走と診断上限を記録"
-    },
-    {
-      "at": "2026-11-09T03:10:22+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "38389c7",
-      "text": "順3 G3-A2：入力振幅とAAC境界差の寄与を分離: 同一参照PCMの振幅1/0.75/0.5・クリップ対照をWindows/Ubuntuで比較し、過大入力とAAC圧縮の影響を分ける"
     }
   ]
 }

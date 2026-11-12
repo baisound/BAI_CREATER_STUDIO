@@ -168,6 +168,9 @@ def list_jobs(root: Path, project_id: str, limit: int = 20, *, offset: int = 0,
     jobs = []
     unreadable = 0
     for path in (root / "jobs").glob("*.json"):
+        # Scene config/manifests share this directory but are not job records.
+        if re.fullmatch(r"[0-9a-f]{32}", path.stem) is None:
+            continue
         try:
             item = status(root, path.stem)
             if item.get("project_id") == project_id and (not completed_only or item.get("status") == "succeeded"):
@@ -591,7 +594,10 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
                  f"trim=start_frame={start_frame}:end_frame={end_exclusive},"
                  f"setpts=PTS-STARTPTS[{'vflat' if scene_input_index is not None else 'vout'}]")
     if scene_input_index is not None:
-        graph.append(f"[{scene_input_index}:v]format=rgba,settb=AVTB,setpts=N/({_num(fps)}*TB)[vscene]")
+        # Matroska's millisecond timestamps are replaced by the exact frame
+        # grid. Microsecond truncation can put the final scene frame just
+        # before the flat frame and shortest=1 then drops that requested frame.
+        graph.append(f"[{scene_input_index}:v]format=rgba,settb=expr=1/({_num(fps)}),setpts=N[vscene]")
         graph.append("[vflat][vscene]overlay=0:0:shortest=1:format=auto[vout]")
     if len(audio_labels) > 1:
         audio.append("".join(f"[{label}]" for label in audio_labels) +

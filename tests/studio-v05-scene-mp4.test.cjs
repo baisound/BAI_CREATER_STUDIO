@@ -138,7 +138,8 @@ test('saved GLB scene is captured at each In/Out frame and composited into a rea
     await page.waitForFunction(() => document.querySelector('#v69status')?.textContent.includes('別名で書き出せます'));
     assert.match(await page.locator('#baiAddRender').getAttribute('title'), /別名MP4を生成/);
     assert.match(await page.locator('#bai-output .baiTitle .pill').textContent(), /限定MP4の実書き出し/);
-    assert.match(await page.locator('#bai-output').textContent(), /MP4書き出し履歴/);
+    assert.match(await page.locator('#bai-output').textContent(), /書き出した動画をダウンロード/);
+    assert.equal((await json(await fetch(`${server.base}/api/studio/v05/render/jobs?project_id=${id}`))).unreadable_count,0);
     assert.doesNotMatch(await page.locator('#bai-output').textContent(), /実動画出力は未接続|実際の動画出力は行いません|実レンダー未接続/);
     assert.match(await page.locator('#v69status').textContent(), /3D実描画720p/);
     await page.locator('#v69result').waitFor({ state: 'visible' });
