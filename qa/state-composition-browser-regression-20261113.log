@@ -1,0 +1,61 @@
+[run-guarded] 警告: 開発用サーバー（127.0.0.1:8765）が動いています。実データに書き込むとハッシュの確認が失敗します
+TAP version 13
+# {"status":"passed","apiOnly":false,"faultKind":"isolated per-operation ENOSPC/launch injection, not physical disk exhaustion","browser":"157.0.8103.51","actualOldDownloadDuringStorageFault":true,"inputKind":"image","inputHash":"3cbcb3424d559fd71e41c6d47459035b28eb4d19a5537a4d207abc6c5268b345","frames":30,"queuedFailureStatus":507,"threadFailureStatus":503,"completedListSurvivesUnwritableJob":true,"failedReplacementKeptOldIndexAndBytes":true,"newVersionRetry":"保存保護-v02.mp4","committedUnnamedRecovered":true,"corruptSameSizeRangeRejected":true,"corruptOldVersionRestoreRejected":true,"tamperedFixtureNotRepaired":true,"healthyOutputsStillDownloadable":true,"sourceUnchanged":true,"native":true}
+# Subtest: storage/launch faults allow retry, committed-state recovery and verified older downloads
+ok 1 - storage/launch faults allow retry, committed-state recovery and verified older downloads
+  ---
+  duration_ms: 7251.2285
+  type: 'test'
+  ...
+# COMPOSITION {"previewCanvas":[622,350],"frameBox":[387,108,622,350],"aspect":1.7771428571428571,"iou":0.8859714928732183,"centerShift":0.004964257875938504,"previewPixels":1220,"mp4Pixels":1294,"renderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)"}
+# Subtest: saved stage transform and saved camera give the same framing in preview and MP4
+ok 2 - saved stage transform and saved camera give the same framing in preview and MP4
+  ---
+  duration_ms: 17589.537
+  type: 'test'
+  ...
+# Subtest: saved GLB scene is captured at each In/Out frame and composited into a real MP4
+not ok 3 - saved GLB scene is captured at each In/Out frame and composited into a real MP4
+  ---
+  duration_ms: 6984.5762
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-scene-mp4.test.cjs:47:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /MP4書き出し履歴/. Input:
+
+    '書き出し形式・範囲・音声を確認してレンダーキューへ限定MP4の実書き出しに対応出力設定形式MP4 / H.264WebMPNG連番解像度1280 × 7201920 × 10803840 × 21601080 × 1920フレームレート60 fps30 fps24 fps出力範囲（タイムラインのイン点〜アウト点）3D実MP4検査 / 60 fps：F 0〜11（12フレーム、終了境界 12）。書き出し条件を下で確認できます。元の範囲メニュー（未接続）作品全体現在のシーン選択した範囲実際に保存する範囲はタイムラインのイン点・アウト点で指定します。 背景を透過する（形式依存）実MP4を書き出す完成物の名前 同じ名前があるとき 新しい版名で保存この名前の完成物を置換（旧版を保存）保存名: BAI-3D実MP4検査.mp4音声: AAC 320 kb/s。入力音量を保って圧縮します。320 kb/sの出力は従来の192 kb/sより音声の容量が増えます。以前の完成物は保持します。MP4 / H.264 + AAC、60 fps、F0〜11、3D実描画720p・自動配置カメラを別名で書き出せます。画像・動画（内包音声を含む）・独立音声は10分以内。保存済み3Dシーンと適用済み動作を含む作品は720p・最大36000フレーム・10分以内、可逆動画の作業領域2GiB以内の実描画に対応します。3Dの保存カメラがあれば同じ視点を使い、未保存なら自動配置します。字幕などの未接続内容は出力へ反映されません。保存済みの未対応クリップは欠落を避けるため拒否します。完成MP4／未出力時は見本画像BAI-1c20ed84-6e2c-4587-818a-256a9101e72e-da504a0c.mp4動画をダウンロード1280×720 / 12F / 71295 bytes / AAC 320 kb/s 安全表示枠構図線なし三分割ダイナミックシンメトリー対角線構図補助線は確認用の画面表示です。通常の書き出しには含めません。書き出した動画をダウンロード作品 3D実MP4検査一覧を更新完成した動画の「ダウンロード」からパソコンへ保存できます。旧版も選べます。完成した動画（2件）一部の書き出し履歴を読み込めません。保存先の空き容量や権限を確認して「一覧を更新」してください。読み込めた完成動画は受け取れます。da504a0c2026/11/13 0:28:10 / 0.07 MB / 1280×720開始時の音声ミュート: なしダウンロード完成映像を確認e79f7a3f2026/11/13 0:28:06 / 0.08 MB / 1280×720開始時の音声ミュート: なしダウンロード完成映像を確認'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: '書き出し形式・範囲・音声を確認してレンダーキューへ限定MP4の実書き出しに対応出力設定形式MP4 / H.264WebMPNG連番解像度1280 × 7201920 × 10803840 × 21601080 × 1920フレームレート60 fps30 fps24 fps出力範囲（タイムラインのイン点〜アウト点）3D実MP4検査 / 60 fps：F 0〜11（12フレーム、終了境界 12）。書き出し条件を下で確認できます。元の範囲メニュー（未接続）作品全体現在のシーン選択した範囲実際に保存する範囲はタイムラインのイン点・アウト点で指定します。 背景を透過する（形式依存）実MP4を書き出す完成物の名前 同じ名前があるとき 新しい版名で保存この名前の完成物を置換（旧版を保存）保存名: BAI-3D実MP4検査.mp4音声: AAC 320 kb/s。入力音量を保って圧縮します。320 kb/sの出力は従来の192 kb/sより音声の容量が増えます。以前の完成物は保持します。MP4 / H.264 + AAC、60 fps、F0〜11、3D実描画720p・自動配置カメラを別名で書き出せます。画像・動画（内包音声を含む）・独立音声は10分以内。保存済み3Dシーンと適用済み動作を含む作品は720p・最大36000フレーム・10分以内、可逆動画の作業領域2GiB以内の実描画に対応します。3Dの保存カメラがあれば同じ視点を使い、未保存なら自動配置します。字幕などの未接続内容は出力へ反映されません。保存済みの未対応クリップは欠落を避けるため拒否します。完成MP4／未出力時は見本画像BAI-1c20ed84-6e2c-4587-818a-256a9101e72e-da504a0c.mp4動画をダウンロード1280×720 / 12F / 71295 bytes / AAC 320 kb/s 安全表示枠構図線なし三分割ダイナミックシンメトリー対角線構図補助線は確認用の画面表示です。通常の書き出しには含めません。書き出した動画をダウンロード作品 3D実MP4検査一覧を更新完成した動画の「ダウンロード」からパソコンへ保存できます。旧版も選べます。完成した動画（2件）一部の書き出し履歴を読み込めません。保存先の空き容量や権限を確認して「一覧を更新」してください。読み込めた完成動画は受け取れます。da504a0c2026/11/13 0:28:10 / 0.07 MB / 1280×720開始時の音声ミュート: なしダウンロード完成映像を確認e79f7a3f2026/11/13 0:28:06 / 0.08 MB / 1280×720開始時の音声ミュート: なしダウンロード完成映像を確認'
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-scene-mp4.test.cjs:141:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: saved 3D camera survives reload and changes the encoded MP4 viewpoint
+ok 4 - saved 3D camera survives reload and changes the encoded MP4 viewpoint
+  ---
+  duration_ms: 8227.4497
+  type: 'test'
+  ...
+# {"pmx_sha256":"542a4daa561f0b0da578fc303af9b8c6dc4acdd8d380771a170e96e95a205488","vmd_sha256":"3ae724f9d1d36a7e74a911d6b1bbfad7d2459e5e256fcac43521ebebd0a3d234","frames":3,"renderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","nonblack":51386,"headDelta":0.17332889139652252,"facePixelChanges":3218,"movedFacePixels":4326,"motionPixelChanges":8955}
+# Subtest: real registered PMX and VMD produce different MP4 pixels at project F0/F240
+ok 5 - real registered PMX and VMD produce different MP4 pixels at project F0/F240
+  ---
+  duration_ms: 34976.2457
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 4
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 90289.323
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

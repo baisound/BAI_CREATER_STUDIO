@@ -1,0 +1,25 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____________ test_scene_sidecars_are_not_unreadable_render_jobs ______________
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{a7655edc-f269-49cb-bf33-7c0c01fb3017}/Temp/pytest-of-user/pytest-0/test_scene_sidecars_are_not_un0')
+
+    def test_scene_sidecars_are_not_unreadable_render_jobs(tmp_path):
+        import json
+        from bai_studio.projects.catalog import _atomic
+        jid='a'*32;(tmp_path/'jobs').mkdir()
+        # These real capture-sidecar names live beside durable job records.
+        for suffix in ['scene-config','scene-manifest']:
+            _atomic(tmp_path/'jobs'/f'{jid}.{suffix}.json',{'projectId':'p'})
+        _atomic(tmp_path/'jobs'/f'{jid}.json',{'id':jid,'project_id':'p','status':'failed','created_at':1})
+        (tmp_path/'jobs'/('b'*32+'.json')).write_text('broken',encoding='utf8')
+        result=render.list_jobs(tmp_path,'p')
+        assert [j['id'] for j in result['jobs']]==[jid]
+>       assert result['unreadable_count']==1  # only the damaged UUID job
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 3 == 1
+
+tests\test_v05_scene_frame_clock.py:18: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_v05_scene_frame_clock.py::test_scene_sidecars_are_not_unreadable_render_jobs
+1 failed, 12 deselected in 0.27s
