@@ -1,6 +1,7 @@
 {
   "status": "passed",
   "cases": [
+    "saved audio initializes placement action without manual reselection",
     "30fps audition fields converted to seconds; start/head/duration saved in one history action",
     "one Undo/Redo and reload preserve source offset; legacy music/dance project untouched",
     "trimmed audio arrangement produces an actual MP4",

@@ -1,0 +1,56 @@
+{
+  "status": "passed",
+  "pr": 293,
+  "implementationCommit": "883bf67810cda6176018d4a2209cf21cfa4a1429",
+  "mergedMain": "1f60e2119f9d65490f6ec3f6ac8b764e5e102ab7",
+  "serverPid": 55972,
+  "serverRestartedFromOwnerMain": true,
+  "http8765": [
+    {
+      "path": "studio/v05/index.html",
+      "status": 200,
+      "sha256": "1ca75f791932338f0ae1c81a6ffe02124c12e2baea033c830935bb27b467b3e9",
+      "matchesMain": true
+    },
+    {
+      "path": "studio/v05/js/ui-clarity-20261113.js",
+      "status": 200,
+      "sha256": "8c936ec6b5391e4217250c1166c45858ff9de692412e85ba681bbf40ac37a4f2",
+      "matchesMain": true
+    },
+    {
+      "path": "studio/v05/js/audio-clarity-20261113.js",
+      "status": 200,
+      "sha256": "6d368766907069fdd643781ca3ea0822b847aea7155fad40860b2c740ef28215",
+      "matchesMain": true
+    },
+    {
+      "path": "studio/v05/css/ui-clarity-20261113.css",
+      "status": 200,
+      "sha256": "78b683dc15f42111317bb6c76d158c28e92af0f10c21ca77b0122e87539f65ca",
+      "matchesMain": true
+    },
+    {
+      "path": "studio/v05/reviews/ui-fixes-20261113/index.html",
+      "status": 200,
+      "sha256": "9c6379950a26ec4431c569ea8476c6765b95a022fa223aba972add3f3836b614",
+      "matchesMain": true
+    },
+    {
+      "path": "studio/v05/reviews/ui-fixes-20261113/implementation.json",
+      "status": 200,
+      "sha256": "532bf528f5badd0a5d465f63d299879c61ee0bb78039d49e916af61792b49879",
+      "matchesMain": true
+    },
+    {
+      "path": "studio/v05/reviews/ui-fixes-20261113/audio-effects-1024.png",
+      "status": 200,
+      "sha256": "f9f04e6a331f649b004d4a647a14a7664df6d68d5f0da0f7b7c1dbca89397d24",
+      "matchesMain": true
+    }
+  ],
+  "ownerFiles": 515,
+  "ownerFilesUnchanged": true,
+  "ownerAggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+  "browser": "pending CUA confirmation"
+}

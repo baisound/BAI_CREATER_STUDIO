@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T02:23:12+09:00",
+  "updated_at": "2026-11-13T02:31:14+09:00",
   "updated_by": "codex",
   "branch": "codex/ui-audit-fixes-20261113",
-  "head_at_update": "883bf67",
+  "head_at_update": "bc608e1",
   "current": {
-    "task": "承認済みUI監査8件の最優先改修",
+    "task": "UI改修のmain同期と保存済み音声の初期配置ボタン修正",
     "status": "done",
-    "step": "保存対象・タイムライン・ナビ/フォーカスから修正し、素材/選択対象/書き出しまで実装・実画面検証する",
+    "step": "本番Chromeで確認した音声初期読込の有効化不足を隔離再現し、2音声試験で修正後にmainへ反映・同期する",
     "design_doc": "docs/v05/UI_FIXES_20261113_JA.md"
   },
   "next_steps": [
-    "PR293をmainへマージし、利用者main/開発木/8765のPython・制作画面と原本保持を同期する",
-    "UI最優先対応の反映後は未完の順3 G3-F1へ戻る"
+    "追加の音声初期表示修正をPR/mainへ反映し、同じChromeタブで配置ボタン有効とDAW表示・比較ページを確認する",
+    "UI改修反映後は未完の順3 G3-F1へ戻る"
   ],
   "unverified": [
     "VSTホスト/ミキサー音量エンジンは未接続。Linuxブラウザー/GPU、全3D組合せ、SR/200%拡大/物理タッチ/初見理解/性能/大量素材は未検証",
@@ -29,6 +29,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T02:31:14+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "bc608e1",
+      "text": "PR293/main1f60e21を利用者main/開発木/8765へ同期。Chromeの保存音声初期読込で配置ボタン無効を再現し、読込通知2箇所を追加。新旧音声2試験成功・原本515保持"
+    },
+    {
+      "at": "2026-11-13T02:28:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1f60e21",
+      "text": "UI改修のmain同期と保存済み音声の初期配置ボタン修正: 本番Chromeで確認した音声初期読込の有効化不足を隔離再現し、2音声試験で修正後にmainへ反映・同期する"
+    },
     {
       "at": "2026-11-13T02:23:12+09:00",
       "by": "codex",
@@ -224,20 +238,6 @@
       "event": "start",
       "head": "3639dc7",
       "text": "順3 G3-B2：長尺VFRと元区間・分割境界の同期検証: 214秒実映像由来VFRと元AAC保持を隔離生成し、29.97fps/320kの保存・分割移動・元PTS/画素/PCMをWinとUbuntuで検証"
-    },
-    {
-      "at": "2026-11-09T21:30:05+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "3c30893",
-      "text": "G3-B1はPR280/main2637f34へ統合しmain/codex-next/8765・Chrome表示・515ファイル不変を確認。文書URL404の誤記訂正とIssue4画像の参照/PNG一致を正本へ保存"
-    },
-    {
-      "at": "2026-11-09T21:29:12+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2637f34",
-      "text": "G3-B1のmain同期と正確なIssue/画像参照を記録: PR280/main2637f34・8765とChrome表示・515ファイル保持・文書URL404訂正と画像配信一致を正本へ保存"
     }
   ]
 }
