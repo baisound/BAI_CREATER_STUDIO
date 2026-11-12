@@ -1,0 +1,46 @@
+{
+  "pull_request": 303,
+  "implementation_main": "f0fb0b8ce1c56b9560c88c602d4675f31f908edf",
+  "local_main_matches_origin": true,
+  "server_port": 8765,
+  "server_pid": 76440,
+  "served_files": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sha256": "0b20fe0dc0643a6839a470f2184d7277d66b98770e3d4de9e2923f70d42540f6"
+    },
+    "studio/v05/js/audio-mixer.js": {
+      "status": 200,
+      "sha256": "bef0cf691dd0b73e61d1a7b0b47b7a28bb1da770909eb3294ca997c6fac858d6"
+    },
+    "studio/v05/js/audio-metering.js": {
+      "status": 200,
+      "sha256": "0351e12f228b066266c464409416b5fe681e390f3faf57c366c3854002ac7e41"
+    },
+    "studio/v05/css/audio-mixer.css": {
+      "status": 200,
+      "sha256": "e201ce162e897f968aa190c24514426831b2127a86a8ba53e4603eca4a1857de"
+    },
+    "studio/v05/reviews/vst-native-editor-20261113/index.html": {
+      "status": 200,
+      "sha256": "b9005cf99e257c27ef7148984f3ac8231df7c269e21e1eb81e68108f08772e35"
+    }
+  },
+  "native_editor_available": true,
+  "detected_plugins": 149,
+  "browser": {
+    "id": "1055946475",
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "reloaded": true,
+    "visible": "音声編集 > エフェクト・ミキサー; Ozone 9 insert direct double-click/Enter hint and master LUFS visible",
+    "production_project_edits": false
+  },
+  "owner_data": {
+    "files": 518,
+    "aggregate_sha256": "f3f9127bb44e14071af0b4174218e2825ecc15cd9b773ee4421a389b72091dab",
+    "unchanged_after_sync": true
+  },
+  "github_checks": "No status checks registered; local gates recorded separately",
+  "native_gui_parameter_end_to_end": "NOT TESTED; see native-first-check.json",
+  "next": "held 3D/camera/motion/expression work and sequence3 remain unfinished"
+}
