@@ -1,0 +1,62 @@
+{
+  "gui_input": "Real TDR Nova output knob drag through CUA; no parameter API writes after fixture setup",
+  "display_before_db": 0,
+  "display_after_db": -3,
+  "changed_parameters": [
+    "output_gain_db"
+  ],
+  "saved_revision": 2,
+  "normalized_before": 0.5,
+  "normalized_after": 0.42389410734176636,
+  "state_id": "372c56fb87e4fa67bc0051f63d648e87ba33d4d22acd367af0434f4f950fcec7",
+  "baseline_audio_id": "e65e3c11fc108a9e5b5012492227459f1a2f70851ed9fe32098828abe33b0fb2",
+  "changed_audio_id": "2feb7afaef3db9a701c074f6907a6c7c4f8563efab5dfdfe0e2188cabee77c4f",
+  "rms_before": 0.07067682043111478,
+  "rms_after": 0.05003535766177069,
+  "amplitude_ratio": 0.7079457926455207,
+  "measured_delta_db": -2.9999998986398952,
+  "expected_ratio": 0.7079457843841379,
+  "lufs_before": -20.00200080871582,
+  "lufs_after": -23.00200080871582,
+  "original_unchanged": true,
+  "original_sha256": "cce65aed81fb77569e1b15019aeb7af18f01fc6537b5ccb472b69a66aaf274df",
+  "prepared_cache_reused": true,
+  "mp4_job_id": "94c31fbabd44486e9b0bfb711dfc78c5",
+  "saved_settings_unchanged_after_processing": true,
+  "mp4_status": "succeeded",
+  "mp4_rms_ratio_to_wet": 1.0000051755783894,
+  "mp4_measured_delta_db": -2.9999549442535245,
+  "mp4_sha256": "6a0569dc358cb30ecb4ddc9771a229b70946ab768bbfae802fd90243e5be90d6",
+  "mp4_size": 308283,
+  "gui_reopen": {
+    "browser_reloaded": true,
+    "opened_with": "Enter on original insert",
+    "displayed_gain_db": -3,
+    "closed_with": "Alt+F4",
+    "saved_revision": 3,
+    "all_parameters_retained_exactly": true,
+    "state_id_after_reopen": "37daa2a95cea92326a63884c58a56b0dc350d8ab199c591485fc7e1089a964e0",
+    "opaque_bytes_identical": false,
+    "pcm_bytes_identical": true
+  },
+  "timeline_playback": {
+    "clock_seconds": 7.98,
+    "processed_current_time_seconds": 8,
+    "processed_muted": false,
+    "original_muted": true,
+    "master_lufs_display": "M -23.0 / S -23.0 / I -23.0 LUFS / TP -23.0 dBTP",
+    "processed_url": "/api/studio/v05/audio/file?id=b39e0649bae79403569aa66c2b785ee9fcbd54459bde1e7b2d84fe18b498e7ac",
+    "pcm_bytes_match_measured_wet": true
+  },
+  "scope": {
+    "plugin": "TDR Nova VST3 Standard Edition MKII",
+    "platform": "Windows/Pedalboard 0.9.26",
+    "all_plugins": false,
+    "hardware_listening": "NOT TESTED",
+    "linux_native_gui": "NOT TESTED",
+    "production_project_modified": false,
+    "obs_plugin_windows_modified": false
+  },
+  "result": "PASS",
+  "implementation_fix_required": false
+}

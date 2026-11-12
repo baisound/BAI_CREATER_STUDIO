@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T06:39:46+09:00",
+  "updated_at": "2026-11-13T08:18:13+09:00",
   "updated_by": "codex",
-  "branch": "codex/vst-native-editor-20261113",
-  "head_at_update": "9708f63",
+  "branch": "codex/vst-gui-audio-verification-20261113",
+  "head_at_update": "ed4e882",
   "current": {
-    "task": "VST固有画面と再生連動メーター・ラウドネス",
+    "task": "VST固有画面のパラメーター変更から実音声への通し検証",
     "status": "done",
-    "step": "別プロセスの固有GUIと安全な状態回収を接続し、共通時刻で各行/バス/マスターを計測表示",
-    "design_doc": "docs/v05/VST_NATIVE_EDITOR_METERS_20261113_JA.md"
+    "step": "隔離した実GUIでゲイン変更、保存復元、WAVとMP4の実振幅を確認し必要箇所を修正",
+    "design_doc": "docs/v05/VST_GUI_AUDIO_E2E_20261113_JA.md"
   },
   "next_steps": [
-    "保全中codex/timeline-scene-runtime-20261113（7ee8669）へ最新mainを安全に統合し、モデル/カメラ/動き・表情の未検証部分から再開する。未検証3Dはmain未反映",
-    "順3 G3-F1と互換性残件は未完のまま保持。OGVはOwner指定で低優先"
+    "保全中codex/timeline-scene-runtime-20261113（7ee8669）に最新mainを安全に統合し、モデル/カメラ/動き・表情の未検証部分を再開する。順3は未完",
+    "全VST/Linux固有GUI/長尺/物理出力の聴感は未検証として保持。OGVはOwner指定で低優先"
   ],
   "unverified": [
-    "実固有GUI内の値変更→保存→DSPの通し操作は画面制御制約で未検証。全VST/Linux実VST/長尺/聴感/実SR、VSTi/低遅延入力/Linux固有GUIは未対応または未検証",
-    "モデル/カメラ/動き・表情の統合、順3全体は未完"
+    "全VST/Linux固有GUI/長尺/物理出力の聴感/実SR。native画面のポータブルPNG保存は未達（CUAで実画面確認済み）",
+    "保全中の3D/カメラ/動き・表情、順3全体は未完"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +29,27 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T08:18:13+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ed4e882",
+      "text": "AUDIO-002：実TDR Nova固有GUIで0→-3dBを変更。保存/再読込・GUI再表示/共通実再生/WAV/MP4の通し検証PASS、処理コード修正不要。検証記録を本PRでmainへ統合して制作画面まで同期する"
+    },
+    {
+      "at": "2026-11-13T08:16:59+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ed4e882",
+      "text": "AUDIO-002：実TDR Nova固有GUIで0→-3dBを変更し保存/再表示/共通実再生/WAV(-3.000000dB)/MP4(-2.999955dB)を通し検証PASS。実装修正不要。実測JSON・手順と台帳を更新、聴感/全VSTは未検証"
+    },
+    {
+      "at": "2026-11-13T07:55:10+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "437ca6e",
+      "text": "VST固有画面のパラメーター変更から実音声への通し検証: 隔離した実GUIでゲイン変更、保存復元、WAVとMP4の実振幅を確認し必要箇所を修正"
+    },
     {
       "at": "2026-11-13T06:39:46+09:00",
       "by": "codex",
@@ -217,27 +238,6 @@
       "event": "start",
       "head": "5e5d0b5",
       "text": "順3 G3-E1 保存制作状態と構図の一致確認: 既存の静止カメラ/自動構図/狭い画面の証拠を照合し、保存再読込と出力に残る不足を隔離検証"
-    },
-    {
-      "at": "2026-11-13T00:16:18+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b8d3073",
-      "text": "PR288をmainへ統合し利用者main/codex-next/8765/Chromeの書出し画面を同期。515ファイルとdirty一覧保持、配信一致を確認"
-    },
-    {
-      "at": "2026-11-13T00:13:32+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0afff1a",
-      "text": "書き出し復旧・完成動画保護のmainと制作画面同期: PR288をmainへ反映。8765起動・開いたChromeと原本保持を確認し記録"
-    },
-    {
-      "at": "2026-11-13T00:10:09+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "6c664d5",
-      "text": "G3-D：保存/起動/最終状態失敗からの復旧・旧動画保持・hash確認を実装。Win33/Ubuntu31・実録画短区間/実Chrome両MCPを限定検証"
     }
   ]
 }

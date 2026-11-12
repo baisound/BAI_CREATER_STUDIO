@@ -1,0 +1,35 @@
+{
+  "files": [
+    {
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113_VST画面から実音声\\baseline.wav",
+      "bytes": 3072128,
+      "sha256": "9486b8f72a8fea6a4fc4ba30edf36bea5110311242067d238eda0770b6d466c1"
+    },
+    {
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113_VST画面から実音声\\gui-minus3.mp4",
+      "bytes": 308283,
+      "sha256": "6a0569dc358cb30ecb4ddc9771a229b70946ab768bbfae802fd90243e5be90d6"
+    },
+    {
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113_VST画面から実音声\\gui-minus3.wav",
+      "bytes": 3072128,
+      "sha256": "c4f682905dd90b66230cf2d5997af996db13028aa47a2dac761c696787f7425a"
+    },
+    {
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113_VST画面から実音声\\native-state-after-gui.bin",
+      "bytes": 5079,
+      "sha256": "372c56fb87e4fa67bc0051f63d648e87ba33d4d22acd367af0434f4f950fcec7"
+    },
+    {
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113_VST画面から実音声\\native-state-after-reopen.bin",
+      "bytes": 4943,
+      "sha256": "37daa2a95cea92326a63884c58a56b0dc350d8ab199c591485fc7e1089a964e0"
+    },
+    {
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113_VST画面から実音声\\original.wav",
+      "bytes": 1536044,
+      "sha256": "cce65aed81fb77569e1b15019aeb7af18f01fc6537b5ccb472b69a66aaf274df"
+    }
+  ],
+  "media_not_committed": true
+}
