@@ -1,0 +1,11 @@
+{
+  "pr":301,
+  "main":"9aba452e7e4bb6ef0c4ab4b92421dea82f181d25",
+  "server_port":8765,
+  "server_pid":68868,
+  "restart_required":false,
+  "static_hash_matches":["studio/v05/css/preview-space.css","studio/js/embedded-v05.js","studio/styles/embedded-v05.css"],
+  "native_browser":{"browser":"Chrome 3","tab":"1055946475","reloaded":true,"outer_header":71.5024,"inner_header":30,"iframe_height":424.4591,"old_model_preview_visible":true,"note":"Read-only display of the existing saved PMX/GLB/audio, no source or placement changes. This does not verify timeline model/camera/motion/expression linkage."},
+  "previous_syncs":[{"pr":299,"main":"22bf6422a5fbf00ed234787a86ecc77b4df2788b","native_channel_widths":[100,100,100,111.9952],"fader_height":150.012},{"pr":300,"main":"1f9e03018224d9a7f9e9f23b99d31c4820e170ad","native_insert_height":121.9952,"native_insert_overflow":"scroll","aria_and_titles_current":true}],
+  "pending":["mixer actual timeline rows and common clock","model/camera/motion/expression timeline linkage","G3-F1"]
+}

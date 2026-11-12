@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T04:32:57+09:00",
+  "updated_at": "2026-11-13T04:35:51+09:00",
   "updated_by": "codex",
-  "branch": "codex/preview-space-scene-20261113",
-  "head_at_update": "e16ed9e",
+  "branch": "codex/mixer-timeline-rows-20261113",
+  "head_at_update": "9aba452",
   "current": {
-    "task": "モデル・カメラ・動き/表情の配置連動と実動作プレビューの高さ改善",
-    "status": "done",
-    "step": "二重ヘッダー/ナビを埋込時だけ畳み実プレビューへ高さを戻す。既存機能の到達を保持し、続けて同一scene計画で配置連動を接続",
-    "design_doc": "docs/v05/TIMELINE_SCENE_LINK_20261113_JA.md"
+    "task": "ミキサーの実トラック・共通時計連動とモデル/カメラ/動き表情の配置接続",
+    "status": "in_progress",
+    "step": "安定行IDと保存済み名称/素材/ミュートを正本にしてミキサーへ接続し、処理・再生位置・出力を検証する。3D連動は続く段階として保持",
+    "design_doc": "docs/v05/MIXER_TIMELINE_LINK_20261113_JA.md"
   },
   "next_steps": [
     "検証済み表示高さをPR/main/制作画面へ同期。続いてミキサーの実トラック/共通時計連動とモデル/カメラ/動き表情のタイムライン接続を実装する"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T04:35:51+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "9aba452",
+      "text": "ミキサーの実トラック・共通時計連動とモデル/カメラ/動き表情の配置接続: 安定行IDと保存済み名称/素材/ミュートを正本にしてミキサーへ接続し、処理・再生位置・出力を検証する。3D連動は続く段階として保持"
+    },
     {
       "at": "2026-11-13T04:32:57+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "69db20f",
       "text": "順3 G3-C 編集の取消・再実行と保存復元: Owner指定で長尺OGVを低優先へ戻し、既存クリップ編集のUndo/Redo不足を同一API・保存・出力まで補う"
-    },
-    {
-      "at": "2026-11-12T05:52:20+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d6dfcb8",
-      "text": "PR284/main3af3fe1・8765のPython再起動とHTML/JS/320k一致、Chrome既存画面と515ファイル保持の同期証拠を記録"
     }
   ]
 }
