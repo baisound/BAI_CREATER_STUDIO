@@ -426,18 +426,19 @@ async function loadInstanceMotion({row,target}){
 function redrawMotionControls(){
   const oldClip=clipSelect.value,oldInstance=targetSelect.value;
   clipSelect.replaceChildren(new Option(tr('chooseMotion'),''));
-  for(const row of motionPlan?.rows||[])clipSelect.add(new Option(row.name+' ['+row.status+']',row.clip_id));
-  if((motionPlan?.rows||[]).some(r=>r.clip_id===oldClip))clipSelect.value=oldClip;
+  for(const row of bindingRows())clipSelect.add(new Option(row.name+' ['+row.status+']',row.clip_id));
+  if((bindingRows()).some(r=>r.clip_id===oldClip))clipSelect.value=oldClip;
   else if(clipSelect.options.length>1)clipSelect.selectedIndex=1;
-  const selected=(motionPlan?.rows||[]).find(r=>r.clip_id===clipSelect.value);
+  const selected=(bindingRows()).find(r=>r.clip_id===clipSelect.value);
   targetSelect.replaceChildren(new Option(tr('unassigned'),''));
-  for(const inst of motionPlan?.instances||[])targetSelect.add(new Option(inst.id,inst.id));
+  for(const inst of motionPlan?.instances||[])targetSelect.add(new Option(inst.name||inst.asset?.name||inst.id,inst.id));
   if(selected?.target_scene_instance_id)targetSelect.value=selected.target_scene_instance_id;
   else if(oldInstance&&(motionPlan?.instances||[]).some(x=>x.id===oldInstance))targetSelect.value=oldInstance;
   assignBtn.disabled=!clipSelect.value||!motionPlan;
   const motionState=motionCoordinator?.status();
   const failure=motionState?.issues.find(issue=>issue.message);
-  motionStatus.textContent=failure
+  const effectFailure=(sceneSnapshot?.timeline_effects||[]).find(row=>row.status!=='ready');
+  motionStatus.textContent=effectFailure?(effectFailure.name+': '+(effectFailure.reason||effectFailure.status)):failure
     ?`モーション未読込: ${failure.message}`
     :motionState?`${tr('motionReady')}: ${motionState.loadedClips.length}`:'';
 }
@@ -817,7 +818,7 @@ function activeFkRow(frame=Number(fkFrame.value)){
     row.model_format==='PMX'&&row.motion_format==='VMD'&&
     row.motion_asset?.source==='mmd'&&
     row.target_scene_instance_id===instanceId&&
-    seconds>=row.start&&seconds<row.start+row.duration&&
+    seconds>=row.start&&seconds<Math.round((row.start+row.duration)*10000)/10000&&
     motionCoordinator?.status().loadedClips.includes(row.clip_id));
   return candidates.length===1?candidates[0]:null;
 }
@@ -1342,6 +1343,37 @@ async function writeFk(action,key=null,row=null,extra={}){
   window.dispatchEvent(new CustomEvent('bai:v106-fk-saved',{detail:{projectId:id,revision:data.revision}}));
   return data;
 }
+let fallbackCamera=null,lastCameraClip=null;
+const cameraSamplers=new Map();
+const activeClip=(row,seconds)=>seconds>=row.start&&seconds<Math.round((row.start+row.duration)*10000)/10000;
+const bindingRows=()=>[...(motionPlan?.rows||[]),...(sceneSnapshot?.timeline_effects||[]).filter(row=>row.track!=='camera')];
+function applyTimelineCamera(seconds){
+  const rows=(sceneSnapshot?.timeline_effects||[]).filter(row=>row.track==='camera'&&activeClip(row,seconds));
+  if(!rows.length){if(lastCameraClip&&fallbackCamera)viewport.applyCameraPose(fallbackCamera);lastCameraClip=null;return;}
+  if(rows.length!==1||rows[0].status!=='ready')throw Error(rows[0]?.reason||'カメラの配置が重複しています');
+  const row=rows[0];let sampler=cameraSamplers.get(row.clip_id);
+  if(!sampler){sampler=window.BAIVmdLocal.createSampler(row.camera_track);cameraSamplers.set(row.clip_id,sampler);}
+  const pose=sampler.preview(Math.max(0,(seconds-row.start)*30)),scale=row.world_scale;
+  viewport.applyCameraPose({...pose,position:pose.position.map(n=>n*scale),target:pose.target.map(n=>n*scale)});lastCameraClip=row.clip_id;
+}
+function applyTimelineMorphs(seconds){
+  const missing=[];
+  for(const row of sceneSnapshot?.timeline_effects||[]){
+    if(row.track==='camera'||!activeClip(row,seconds))continue;
+    if(row.status!=='ready')throw Error(row.reason||'表情を割り当ててください');
+    const target=controller?.getLoaded(row.target_scene_instance_id);
+    if(target?.format!=='PMX')throw Error('表情の対象PMXを読み込めません');
+    const keys=row.morph_keys.map(k=>({instance_id:row.target_scene_instance_id,morph_name:k.name,time:k.frame/30,value:k.weight}));
+    missing.push(...applyFaceKeys(target.object,keys,row.target_scene_instance_id,seconds-row.start));
+  }
+  return missing;
+}
+function applyTimelineVisibility(seconds){
+  for(const instance of sceneSnapshot?.instances||[]){
+    const target=controller?.getLoaded(instance.id);
+    if(target?.root)target.root.visible=instance.visible!==false&&(!instance.timeline_windows||instance.timeline_windows.some(w=>seconds>=w.start&&seconds<Math.round((w.start+w.duration)*10000)/10000));
+  }
+}
 function seekScene(seconds){
   if(!opened||!motionCoordinator)return;
   restoreVrmPreview();
@@ -1354,6 +1386,8 @@ function seekScene(seconds){
       const target=controller?.getLoaded(instance.id);
       if(target?.format==='PMX')resetMorphs(target.object);
     }
+    applyTimelineVisibility(seconds);
+    applyTimelineCamera(seconds);
     const result=motionCoordinator.seek(seconds);
     if(result?.errors?.length)motionStatus.textContent=result.errors.map(x=>String(x.error?.message||x.error)).join('; ');
     const missing=applySavedFace(seconds);
@@ -1460,6 +1494,7 @@ function applySavedFace(seconds){
       (name,frame)=>sourceAt(instance.id,name,frame))]);
   }
   if(samples.size)seekSourceMorphs(seconds);
+  missing.push(...applyTimelineMorphs(seconds));
   for(const [instance,target,lip] of planned){
     for(const [name,value] of lip){
       if(!setMorphValue(target.object,name,value))missing.push(name);
@@ -1490,7 +1525,7 @@ async function setup(){
     scene:viewport.content,
     // Draw once via the viewport's RAF, not an extra direct renderer call.
     renderer:{render:()=>viewport?.invalidate()},
-    camera:viewport.camera,
+    camera:viewport.camera,getCamera:()=>viewport.camera,
     onError:({id,error})=>{progress.textContent=`モデル ${id}: ${String(error?.message||error)}`;}
   });
   if(!shared)throw Error('共有シーン管理を利用できません');
@@ -1604,7 +1639,7 @@ async function reload(){
   fkAdopt.disabled=true;
   fkCandidateLink.hidden=true;
   fkCandidateStatus.textContent='保存済み補正から候補を作成し、実PMXで全フレーム検査できます。';
-  const id=project?.value;
+  const id=project?.value;cameraSamplers.clear();fallbackCamera=null;lastCameraClip=null;
   if(!id){progress.textContent=tr('chooseProject');return;}
   const thisNonce=++nonce;
   reloadReady=false;
@@ -1643,9 +1678,12 @@ async function reload(){
     await loadMorphMaps(id);
     if(thisNonce!==nonce||!opened||id!==project.value)return;
     setFkFrameFromSeek();
+    for(const i of data.instances){const target=controller?.getLoaded(i.id);if(target?.root)target.root.visible=i.visible!==false;}
     viewport.fit?.();
     if(data.camera)viewport.applyCameraPose(data.camera);
+    fallbackCamera=viewport.getCameraPose();
     cameraStatus.textContent=data.camera?'保存済みカメラを反映（視点変更後は再保存）':'カメラ未保存：自動構図で表示・出力';
+    seekScene(currentSeek());
     saveCameraBtn.disabled=controller.status().loaded<1;
     viewport.invalidate?.();
     if(composite)window.BAIStudioMediaPreviewV68?.sceneOverlay?.(true);
@@ -1664,7 +1702,7 @@ async function reload(){
 async function open(options={}){
   const requestedComposite=Boolean(options?.composite);
   if(opened){
-    if(requestedComposite===composite){await reload();return;}
+    if(requestedComposite===composite){await reload();panel.style.display=options.compact?'none':'flex';panel.hidden=Boolean(options.compact);return;}
     close();
   }
   // The legacy viewport owns a globally singleton Three.js host.
@@ -1674,6 +1712,7 @@ async function open(options={}){
   modeBtn.textContent=composite?'単独画面で表示':'同じ画面に重ねる';
   panel.hidden=false;panel.style.display='flex';
   await reload();
+  if(options.compact){panel.hidden=true;panel.style.display='none';}
 }
 function close(){
   nonce++;opened=false;reloadReady=false;
@@ -2227,7 +2266,7 @@ restoreCameraBtn.addEventListener('click',()=>{
   cameraStatus.textContent=sceneSnapshot.camera?'保存済みカメラへ戻しました':'保存カメラがないため自動構図へ戻しました';
 });
 clipSelect.addEventListener('change',()=>{
-  const row=(motionPlan?.rows||[]).find(x=>x.clip_id===clipSelect.value);
+  const row=bindingRows().find(x=>x.clip_id===clipSelect.value);
   targetSelect.value=row?.target_scene_instance_id||'';
 });
 assignBtn.addEventListener('click',async()=>{
@@ -2243,6 +2282,7 @@ assignBtn.addEventListener('click',async()=>{
     const data=await response.json();
     if(!response.ok)throw Error(data.error||'HTTP '+response.status);
     if(project.value!==originalProject)return;
+    await window.BAIStudioV05Arrangement?.refreshArrangement?.();
     await reload();
   }catch(error){motionStatus.textContent=String(error.message||error);}
   finally{assignBtn.disabled=false;}
@@ -2389,6 +2429,8 @@ window.BAIStudioMultiScenePreview=Object.freeze({
   sampleFootContact,
   status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,composite,ready:reloadReady,
     rendererReady:Boolean(viewport),renderer:viewport?.rendererName||null,
+    timelineModels:(sceneSnapshot?.timeline_models||[]).map(row=>({...row,loaded:Boolean(controller?.getLoaded(row.instance_id)),visible:Boolean(controller?.getLoaded(row.instance_id)?.root?.visible)})),
+    timelineEffects:sceneSnapshot?.timeline_effects||[],activeCameraClip:lastCameraClip,
     cameraSaved:Boolean(sceneSnapshot?.camera),camera:viewport?.getCameraPose?.()||null,
     gizmo:rotateGizmo?.probe?.()||null,renderingVerified:false}),
   poseProbe(instanceId,boneNames){
@@ -2518,6 +2560,8 @@ window.BAIStudioMultiScenePreview=Object.freeze({
       const target=controller?.getLoaded(instance.id);
       if(target?.format==='PMX')resetMorphs(target.object);
     }
+    applyTimelineVisibility(frame/fps);
+    applyTimelineCamera(frame/fps);
     const result=motionCoordinator?.seek(frame/fps);
     if(result?.errors?.length)throw Error('3D motion seek failed: '+result.errors.map(x=>String(x.error?.message||x.error)).join('; '));
     const missing=applySavedFace(frame/fps);
@@ -2530,6 +2574,7 @@ window.BAIStudioMultiScenePreview=Object.freeze({
       viewport.camera.aspect=width/height;
       viewport.camera.updateProjectionMatrix();
     }
+    if(viewport.camera.isOrthographicCamera){const h=viewport.camera.top-viewport.camera.bottom;viewport.camera.left=-h*width/height/2;viewport.camera.right=h*width/height/2;viewport.camera.updateProjectionMatrix();}
     viewport.renderer.render(viewport.scene,viewport.camera);
     return viewport.renderer.domElement.toDataURL('image/png');
   },

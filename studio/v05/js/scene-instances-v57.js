@@ -53,13 +53,13 @@
   const refreshSelect=()=>{
     const selectedId=list.value;
     list.replaceChildren();
-    for(const row of state.instances){const entry=new Option(row.id+' · '+row.asset_id+(row.available?'':' ('+t('missing')+')'),row.id);list.add(entry);}
+    for(const row of state.instances){const entry=new Option((row.name||row.asset?.name||row.id)+' · '+row.asset_id+(row.available?'':' ('+t('missing')+')'),row.id);list.add(entry);}
     if(state.instances.some(x=>x.id===selectedId))list.value=selectedId;
     if(list.options.length&&!list.value)list.selectedIndex=0;
     fill(selected()?.transform);
     visibleBox.checked=selected()?.visible ?? true;
     lockedBox.checked=selected()?.locked ?? false;
-    remove.disabled=!selected() || selected().locked;
+    remove.disabled=!selected() || selected().locked||Boolean(selected().timeline_clip_id);remove.title=selected()?.timeline_clip_id?'配置の削除はタイムラインから行います':'';
     save.disabled=!selected();
   };
   async function reload(){
@@ -108,8 +108,9 @@
   remove.addEventListener('click',()=>{const s=selected();if(s&&confirm(t('confirmRemove')))modify('remove',{instance_id:s.id});});
   refresh.addEventListener('click',reload);
   preview.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('bai:v58-preview-open',{detail:{projectId:project.value}})));
-  list.addEventListener('change',()=>{fill(selected()?.transform);visibleBox.checked=selected()?.visible ?? true;lockedBox.checked=selected()?.locked ?? false;save.disabled=!selected();remove.disabled=!selected()||selected().locked;});
+  list.addEventListener('change',()=>{fill(selected()?.transform);visibleBox.checked=selected()?.visible ?? true;lockedBox.checked=selected()?.locked ?? false;save.disabled=!selected();remove.disabled=!selected()||selected().locked||Boolean(selected().timeline_clip_id);});
   project.addEventListener('change',reload);
+  window.addEventListener('bai:v05-arrangement-loaded',()=>void reload());
   window.addEventListener('bai:v58-camera-saved',event=>{
     if(event.detail?.projectId===project.value)void reload();
   });

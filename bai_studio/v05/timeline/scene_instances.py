@@ -6,6 +6,7 @@ GPU scene graph loading is deliberately handled by the browser shared-scene host
 """
 from __future__ import annotations
 import json
+import copy
 import math
 import threading
 import uuid
@@ -49,7 +50,7 @@ def _seed(project_id, legacy):
 
 def _check_record(data, project_id):
     required = {"schema", "project_id", "revision", "legacy_revision", "instances"}
-    if not isinstance(data, dict) or not required <= set(data) or set(data) - required - {"camera", "face_keys", "face_history"} \
+    if not isinstance(data, dict) or not required <= set(data) or set(data) - required - {"camera", "face_keys", "face_history", "timeline_overrides"} \
             or data["schema"] != 1 or data["project_id"] != project_id:
         raise SceneInstancesError("Invalid scene-instances file; original retained")
     if any(type(data[k]) is not int or data[k] < 0 for k in ("revision", "legacy_revision")):
@@ -75,6 +76,18 @@ def _check_record(data, project_id):
         _transform(row["transform"])
     if "camera" in data and data["camera"] is not None:
         _camera(data["camera"])
+
+    overrides=data.get("timeline_overrides",{})
+    if not isinstance(overrides,dict) or len(overrides)>1024:
+        raise SceneInstancesError("Invalid timeline overrides")
+    for rid,value in overrides.items():
+        if (not isinstance(rid,str) or not rid.startswith('timeline:') or not 10<=len(rid)<=100
+                or any(ord(ch)<32 for ch in rid) or not isinstance(value,dict)
+                or set(value)!={'asset_id','transform','visible','locked'}
+                or not isinstance(value['asset_id'],str) or not 1<=len(value['asset_id'])<=300
+                or type(value['visible']) is not bool or type(value['locked']) is not bool):
+            raise SceneInstancesError("Invalid timeline override fields")
+        _transform(value['transform']);ids.add(rid)
     keys = data.get("face_keys", [])
     if not isinstance(keys, list) or len(keys) > 1024:
         raise SceneInstancesError("Invalid face keys; original retained")
@@ -166,7 +179,7 @@ def _face_key(value, require_value):
             result["track"] = value["track"]
     return result
 
-def read(root, legacy_root, catalog, project_id, assets=None):
+def read(root, legacy_root, catalog, project_id, assets=None, *, include_timeline=True, arrangement_root=None):
     legacy = _legacy(legacy_root, catalog, project_id)
     path = Path(root) / (project_id + ".json")
     if not path.exists():
@@ -189,6 +202,11 @@ def read(root, legacy_root, catalog, project_id, assets=None):
             source = lookup.get(row["asset_id"])
             row["available"] = supported_model(source)
             row["asset"] = dict(source) if row["available"] else None
+    if include_timeline:
+        arrangement_root=Path(arrangement_root) if arrangement_root is not None else Path(root).parent/'studio_v05_arrangements'
+        if arrangement_root.exists():
+            from bai_studio.v05.timeline.timeline_scene import project as project_timeline
+            result=project_timeline(result,arrangement_root,catalog,project_id,assets)
     result["renderer_ready"] = False  # persisted state is not proof of actual GPU rendering
     return result
 
@@ -203,10 +221,11 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
     if units is not None and (action != "add" or units != UNITS_LEGACY):
         raise SceneInstancesError("Units can only be set to 'legacy' when adding")
     with _LOCK:
-        current = read(root, legacy_root, catalog, project_id)
+        current = read(root, legacy_root, catalog, project_id,include_timeline=False)
+        effective=read(root,legacy_root,catalog,project_id,assets)
         if current["revision"] != revision:
             raise SceneInstancesError("Revision conflict")
-        rows = current["instances"]
+        rows = effective["instances"]
         history = current["face_history"]
         if action in ("face-undo", "face-redo"):
             if face_key is not _UNSET or camera is not _UNSET or any(x is not None for x in
@@ -349,6 +368,8 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
                                       and transform is None and visible is None):
                 raise SceneInstancesError("Scene instance is locked")
             if action == "remove":
+                if row.get('timeline_clip_id'):
+                    raise SceneInstancesError("Delete the model clip from the timeline to remove this instance")
                 if any(x is not None for x in (asset_id, transform, visible, locked)):
                     raise SceneInstancesError("Removal does not accept additional fields")
                 rows.remove(row)
@@ -369,8 +390,16 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
                     if type(locked) is not bool: raise SceneInstancesError("Invalid locked flag")
                     row["locked"] = locked
         saved = {k: current[k] for k in ("schema", "project_id", "legacy_revision")}
-        saved.update({"revision": revision + 1, "instances": rows,
+        overrides=copy.deepcopy(current.get('timeline_overrides',{}))
+        for row in rows:
+            if row.get('timeline_clip_id'):
+                overrides[row['id']]={k:copy.deepcopy(row[k]) for k in ('asset_id','transform','visible','locked')}
+        persisted=[{k:copy.deepcopy(v) for k,v in row.items() if k in _ROW_KEYS|{'units'}}
+                   for row in rows if not row.get('timeline_clip_id')]
+        saved.update({"revision": revision + 1, "instances": persisted,
                       "camera": current["camera"], "face_keys": current["face_keys"],
                       "face_history": history})
+        if overrides:saved['timeline_overrides']=overrides
+        _check_record(saved,project_id)
         _atomic(Path(root) / (project_id + ".json"), saved)
         return read(root, legacy_root, catalog, project_id, assets)

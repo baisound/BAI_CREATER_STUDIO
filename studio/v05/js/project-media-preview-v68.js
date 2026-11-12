@@ -33,15 +33,20 @@
     return null;
   };
   const clamp = frame => Math.max(0, Math.min(state.outFrame, Math.round(Number(frame) || 0)));
-  const activeAt = (clip, seconds) => seconds >= clip.start && seconds < clip.start + clip.duration;
+  const activeAt = (clip, seconds) => seconds >= clip.start && seconds < Math.round((clip.start + clip.duration)*10000)/10000;
   const pauseElement = element => { try { element.pause(); } catch (_) { /* detached */ } };
+  function visibleIssues(){
+    const handled=new Set((window.BAIStudioMultiScenePreview?.status?.().timelineModels||[]).filter(row=>row.status==='ready'&&row.loaded).map(row=>row.clip_id));
+    return state.issues.filter(issue=>!state.clips.some(c=>handled.has(c.id)&&issue===`${c.name}: ${c.category}はこのプレビューに未接続`));
+  }
   function refreshStage() {
     stage.hidden = !state.clips.length && !state.sceneOverlay;
     if (state.sceneOverlay) $('v68stageNote').hidden = true;
     const sceneLoaded = state.sceneOverlay && window.BAIStudioMultiScenePreview?.status?.().loaded > 0;
     const playable = state.entries.filter(entry => !entry.failed).length;
     $('v68play').disabled = state.playing || !state.ready || !state.audioSettingsReady || (!playable && !sceneLoaded);
-    if (state.ready) message(`${playable}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : state.sceneOverlay ? '3Dを同じ画面に重ねて表示。限定MP4は出力画面で条件を確認。' : '動画内音声も動画とともに再生。限定MP4は出力画面に接続。'}`);
+    const issues=visibleIssues();
+    if (state.ready) message(`${playable}件の画像・動画・音声を同じ作品でプレビュー。${issues.length ? `未接続 ${issues.length}件: ${issues.slice(0, 2).join(' / ')}` : state.sceneOverlay ? '3Dを同じ画面に重ねて表示。限定MP4は出力画面で条件を確認。' : '動画内音声も動画とともに再生。限定MP4は出力画面に接続。'}`);
   }
   function release() {
     cancelAnimationFrame(state.raf);
@@ -321,7 +326,7 @@
     sceneOverlay(active) { state.sceneOverlay = Boolean(active); refreshStage(); setFrame(state.frame); },
     status: () => ({ projectId: state.projectId, frame: state.frame, fps: state.fps,
       ready: state.ready, playing: state.playing, mediaCount: state.entries.length,
-      sceneOverlay: state.sceneOverlay, issues: [...state.issues],
+      sceneOverlay: state.sceneOverlay, issues: visibleIssues(),
       mutedAudioTracks: [...state.audioMuted], audioLayoutRevision: state.layoutRevision,
       audioSettingsReady: state.audioSettingsReady }),
   });
