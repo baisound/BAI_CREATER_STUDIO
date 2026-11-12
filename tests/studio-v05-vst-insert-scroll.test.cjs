@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const h=require('./helpers/studio-harness.cjs'),qa=path.resolve(__dirname,'../qa/mixer-timeline-20261113/scroll');
+const h=require('./helpers/studio-harness.cjs'),qa=process.env.BAI_AUDIO_QA||path.resolve(__dirname,'../qa/mixer-timeline-20261113/scroll');
 async function json(r){const t=await r.text();assert.equal(r.status,200,t);return JSON.parse(t);}
 test('8個のVST一覧だけを内部スクロールし、固定追加・末尾選択・削除・M/Sと長いフェーダーを維持',{timeout:60000},async()=>{
  const s=await h.startServer({port:9286});let browser,page;const report={status:'running',views:[],errors:[]};fs.mkdirSync(qa,{recursive:true});

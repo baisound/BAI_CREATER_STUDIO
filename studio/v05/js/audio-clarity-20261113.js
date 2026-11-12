@@ -64,7 +64,7 @@
     }
     rack.append(legacy);
     function fitRack(){const desk=rack.querySelector('.uiDawDesk');if(!desk||rack.hidden)return;if(innerWidth<=730){desk.style.height='';return;}desk.style.height=Math.max(420,innerHeight-26-desk.getBoundingClientRect().top-12)+'px';}
-    window.addEventListener('resize',fitRack);
+    window.addEventListener('resize',fitRack);window.addEventListener('bai:v05-mixer-layout-changed',()=>requestAnimationFrame(fitRack));
     if(typeof ResizeObserver!=='undefined')new ResizeObserver(fitRack).observe(page.querySelector('.baiToolbar'));
     page.querySelector('.baiToolbar').before(tabs);tabs.append(arrange,effects);
     page.append(rack);

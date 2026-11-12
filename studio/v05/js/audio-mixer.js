@@ -10,6 +10,93 @@
   let settings=null, selected='audio:1', selectedInsert=0, caps=null, dirty=false, busy=false, serial=0;
   const drafts=new Map(), history=[], strips=new Map();
   let timeline=null, rowSerial=0, template, mixer, busesArea, transportToken=0;
+  const editorSessions=new Map(),pendingEditors=new Set();let editorBar;
+  const stable=value=>JSON.stringify(value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.keys(value).sort().map(key=>[key,JSON.parse(stable(value[key]))])):value);
+  const editing=()=>[...editorSessions.values()].some(e=>e.project_id===projectId()&&['opening','editing'].includes(e.status));
+  const blocked=()=>busy||pendingEditors.has(projectId())||editing();
+  function returnEditorFocus(session){if(session.project_id!==projectId()||$('uiAudioRack').hidden||!$('bai-audio').classList.contains('active'))return;const strip=strips.get(session.key);([...strip?.querySelectorAll('.uiInsertSlots button')||[]][session.index]||strip?.querySelector('.uiChannelName'))?.focus();}
+  function selectInsert(key,index){selected=key;selectedInsert=index;for(const [id,strip] of strips){strip.querySelector('.uiChannelName').setAttribute('aria-pressed',String(id===selected));for(const [i,button] of [...strip.querySelectorAll('.uiInsertSlots button')].entries())button.setAttribute('aria-pressed',String(id===selected&&i===selectedInsert));}renderInspector();controls();renderEditors();}
+  function mergeEditorDraft(session,key,index){
+    if(!current()||blocked()||session.project_id!==projectId())return false;
+    const target=config(key).inserts[index];if(target?.plugin_id!==session.plugin_id)return false;
+    edit(()=>{target.parameters=copy(session.parameters);target.state_id=session.state_id;settings.enabled=true;});
+    session.status='draft_merged';renderEditors();say('VST画面の設定を編集内容へ反映しました。作品への保存は未完了です。');returnEditorFocus({...session,key,index});return true;
+  }
+  function renderEditors(){
+    if(!editorBar)return;editorBar.replaceChildren();
+    for(const session of editorSessions.values()){
+      if(['applied','discarded','draft_merged'].includes(session.status))continue;
+      const row=node('div'),labels={opening:'画面を開いています',editing:session.draft?'編集中。閉じると編集内容へ反映（未保存）':'編集中。閉じると作品へ反映',error:'画面を開けません',conflict:'回収した設定を保持中',draft_ready:'回収した設定を保持中（未保存）'};
+      row.append(node('span',session.label+'：'+(labels[session.status]||session.status)));
+      if(session.error)row.append(node('span',session.error));
+      if(['opening','editing'].includes(session.status))for(const [text,mode,play] of [['反映して閉じる','apply',false],[session.draft?'保存して試聴':'反映して試聴','apply',true],['変更を破棄','discard',false]]){const button=node('button',text);button.type='button';button.onclick=async()=>{button.disabled=true;session.playAfter=play;try{await request('editor-close',{id:session.id,mode});}catch(e){say(e.message);button.disabled=false;}};row.append(button);}
+      if(['conflict','draft_ready'].includes(session.status)){
+        if(session.project_id===projectId()){
+          const apply=node('button','選択中の同じVSTへ設定を反映（未保存）');apply.type='button';apply.disabled=blocked()||!current()||config(selected).inserts[selectedInsert]?.plugin_id!==session.plugin_id;apply.onclick=()=>mergeEditorDraft(session,selected,selectedInsert);row.append(apply);
+        }
+        const discard=node('button','回収した変更を破棄');discard.type='button';discard.onclick=async()=>{try{Object.assign(session,await request('editor-close',{id:session.id,mode:'discard'}));renderEditors();render();returnEditorFocus(session);}catch(e){say(e.message);}};row.append(discard);
+      }
+      editorBar.append(row);
+    }
+    window.dispatchEvent(new CustomEvent('bai:v05-mixer-layout-changed'));
+  }
+  async function pollEditor(session){
+    try{
+      const result=await request('editor-status?id='+session.id),changed=result.status!==session.status||result.error!==session.error;
+      Object.assign(session,result);if(changed)renderEditors();
+      if(result.status==='draft_ready'){
+        session.polling=false;
+        const target=current()&&result.project_id===projectId()?config(result.key).inserts[result.index]:null;
+        if(target&&session.initial_insert&&stable(target)===stable(session.initial_insert)&&mergeEditorDraft(session,result.key,result.index)){if(session.playAfter)prepareButton.click();}
+        else {render();renderEditors();}
+        return;
+      }
+      if(result.status==='applied'){
+        session.polling=false;
+        if(result.project_id===projectId()&&current()){
+          if(dirty){session.status='conflict';renderEditors();say('未保存の編集を保持しました。VSTの設定は作品に保存済みです。');return;}
+          const mine=serial,saved=await request('settings?project_id='+encodeURIComponent(result.project_id));
+          if(mine!==serial||result.project_id!==projectId())return;
+          settings=saved;selected=result.key;selectedInsert=result.index;render();renderEditors();
+          window.dispatchEvent(new CustomEvent('bai:v05-mixer-saved',{detail:saved}));returnEditorFocus(session);
+          if(session.playAfter)prepareButton.click();
+          say('VST画面の設定を作品へ保存しました。');
+        }
+        return;
+      }
+      if(['discarded','error','conflict'].includes(result.status)){session.polling=false;render();renderEditors();returnEditorFocus(session);return;}
+    }catch(e){say('VST画面の状態を確認できません：'+e.message);}
+    setTimeout(()=>void pollEditor(session),350);
+  }
+  function startEditorPoll(session){if(session.polling)return;session.polling=true;void pollEditor(session);}
+  async function restoreEditors(){
+    const pid=projectId(),mine=serial;if(!pid)return;
+    try{
+      const result=await request('editor-list?project_id='+encodeURIComponent(pid));if(mine!==serial||pid!==projectId())return;
+      if(current()&&!dirty&&result.settings_revision!==settings.revision){const saved=await request('settings?project_id='+encodeURIComponent(pid));if(mine!==serial||pid!==projectId())return;settings=saved;}
+      for(const record of result.sessions){
+        let session=editorSessions.get(record.id);
+        if(session?.status==='draft_merged')continue;
+        if(!session){session={...record,label:$('v06project').selectedOptions[0]?.textContent+' / '+title(record.key)+' / '+record.name};editorSessions.set(record.id,session);}
+        else Object.assign(session,record);
+        if(['opening','editing','draft_ready'].includes(session.status))startEditorPoll(session);
+      }
+      render();renderEditors();
+    }catch(e){if(mine===serial)say('VST画面の回収情報を読めません：'+e.message);}
+  }
+  async function openEditor(key,index){
+    if(!current()||busy||pendingEditors.has(projectId()))return;
+    const pid=projectId(),mine=serial,label=$('v06project').selectedOptions[0]?.textContent+' / '+title(key),initial=copy(config(key).inserts[index]);
+    const body={project_id:pid,key,index,revision:settings.revision,...(dirty?{draft_insert:initial}:{})};
+    pendingEditors.add(pid);render();
+    try{
+      const result=await request('editor-open',body);
+      let session=editorSessions.get(result.id);
+      if(!session){session={...result,label:label+' / '+result.name};editorSessions.set(result.id,session);startEditorPoll(session);}
+      renderEditors();say('VST画面を開いています。'+(result.draft?'未保存の編集内容から開きます。':'閉じると作品へ反映します。'));
+    }catch(e){if(pid===projectId())say('VST画面を開けません：'+e.message);}
+    finally{pendingEditors.delete(pid);if(pid===projectId()&&mine===serial)render();}
+  }
   const row=key=>timeline?.rows.find(r=>r.key===key);
   const title=key=>row(key)?.name||names[key]||key;
   const config=key=>key.includes(':')?(settings.tracks[key]||={gain_db:0,solo:false,inserts:[]}):settings.channels[key];
@@ -20,7 +107,7 @@
     catch(e){if(mine===rowSerial)say('行情報を読み込めません：'+e.message);}
   }
   async function muteLane(key){
-    if(!current()||busy||!timeline)return;
+    if(!current()||blocked()||!timeline)return;
     const pid=projectId(),mine=serial,target=row(key);busy=true;render();
     try{const result=await request('lane-mute',{project_id:pid,revision:timeline.layout_revision,key,muted:!target.muted});window.dispatchEvent(new CustomEvent('bai:v05-track-layout-changed',{detail:result}));}
     catch(e){if(mine===serial)say('ミュートを保存できません：'+e.message);}
@@ -54,8 +141,8 @@
   function say(text){status.textContent=text;}
   function modified(){dirty=true;history.splice(32);render();say('未保存の変更があります。「作品へ保存」で試聴と出力へ反映します。');}
   function remember(){history.unshift(copy(settings));}
-  function edit(fn){if(!current()||busy)return;const before=copy(settings);fn();if(JSON.stringify(before)===JSON.stringify(settings))return;history.unshift(before);modified();}
-  function controls(){saveButton.disabled=busy||!current()||!dirty;undoButton.disabled=busy||!current()||!history.length;prepareButton.disabled=busy||!current()||!caps?.available;prepareButton.textContent=dirty?'保存してタイムライン再生':'タイムライン再生';$('vstMixerEnabled').disabled=busy||!current();}
+  function edit(fn){if(!current()||blocked())return;const before=copy(settings);fn();if(JSON.stringify(before)===JSON.stringify(settings))return;history.unshift(before);modified();}
+  function controls(){saveButton.disabled=blocked()||!current()||!dirty;undoButton.disabled=blocked()||!current()||!history.length;prepareButton.disabled=blocked()||!current()||!caps?.available;prepareButton.textContent=dirty?'保存してタイムライン再生':'タイムライン再生';$('vstMixerEnabled').disabled=blocked()||!current();}
   function render(){
     const focus=document.activeElement?.dataset.focusKey,valid=current();if(valid)syncStrips();for(const strip of document.querySelectorAll('.uiChannelStrip'))strip.inert=!valid;detail.inert=!valid;$('uiAudioRack').setAttribute('aria-busy',String(busy));
     if(!valid){projectLabel.textContent='対象作品：読み込み中…';controls();return;}projectLabel.textContent='対象作品：'+($('v06project').selectedOptions[0]?.textContent||'');
@@ -65,16 +152,16 @@
       strip.dataset.channel=b;strip.querySelector('strong').textContent=title(b);strip.querySelector('.uiChannelName').title=title(b)+' ('+b+')';
       const name=strip.querySelector('.uiChannelName');name.dataset.focusKey='channel-'+b;name.setAttribute('aria-pressed',String(b===selected));
       const input=strip.querySelector('.uiChannelInput');input.textContent=b==='master'?'全バス → 出力':b==='music'?'全楽曲トラック':b==='audio'?'全音声トラック':'全動画の音声';input.textContent=lane?(lane.clips.map(c=>c.name).join(' / ')||'素材なし'):input.textContent;input.title=lane?input.textContent+'（クリックしてタイムラインへ）':'種類別バス。各行の処理後に適用します';input.disabled=!lane?.clips.length||busy;
-      const range=strip.querySelector('input[type=range]');range.disabled=busy;range.min='-60';range.max='6';range.step='.1';range.value=String(channel.gain_db);attribute(range,'aria-label',title(b)+'の音量（dB）');range.setAttribute('aria-valuetext',channel.gain_db+' dB');
+      const range=strip.querySelector('input[type=range]');range.disabled=blocked();range.min='-60';range.max='6';range.step='.1';range.value=String(channel.gain_db);attribute(range,'aria-label',title(b)+'の音量（dB）');range.setAttribute('aria-valuetext',channel.gain_db+' dB');
       strip.querySelector('.uiGainReadout').textContent=channel.gain_db.toFixed(1)+' dB';attribute(strip.querySelector('.uiGainReadout'),'title','−60〜+6 dB。ミュートで完全に消音します');
       const buttons=strip.querySelectorAll('.uiChannelMute button');
-      for(const [i,field] of ['mute','solo'].entries())if(buttons[i]){buttons[i].textContent=i?'S':'M';buttons[i].disabled=busy||(b==='master'&&i===1)||(!i&&!!lane?.bus_muted);buttons[i].hidden=b==='master'&&i===1;buttons[i].title=!i&&lane?.bus_muted?'種類全体のミュート中。タイムラインの「種類全体ミュート」で解除できます':'';buttons[i].setAttribute('aria-label',title(b)+(i?'をソロ':'をミュート'));buttons[i].setAttribute('aria-pressed',String(field==='mute'&&lane?(lane.muted||lane.bus_muted):channel[field]));}
+      for(const [i,field] of ['mute','solo'].entries())if(buttons[i]){buttons[i].textContent=i?'S':'M';buttons[i].disabled=blocked()||(b==='master'&&i===1)||(!i&&!!lane?.bus_muted);buttons[i].hidden=b==='master'&&i===1;buttons[i].title=!i&&lane?.bus_muted?'種類全体のミュート中。タイムラインの「種類全体ミュート」で解除できます':'';buttons[i].setAttribute('aria-label',title(b)+(i?'をソロ':'をミュート'));buttons[i].setAttribute('aria-pressed',String(field==='mute'&&lane?(lane.muted||lane.bus_muted):channel[field]));}
       const notice=strip.querySelector('.vstTypeMuteNotice');notice.hidden=!lane||!(lane.bus_muted||(settings.enabled&&settings.channels[lane.track].mute));notice.textContent=lane?.bus_muted?'種類全体で消音中':notice.hidden?'':'種類バスで消音中';notice.title='消音の設定へ移動';const slots=strip.querySelector('.uiInsertSlots');slots.replaceChildren();
       for(const [i,insert] of channel.inserts.entries()){
-        const li=node('li'),button=node('button',(insert.bypass?'[OFF] ':'')+(caps?.plugins.find(p=>p.id===insert.plugin_id)?.name||'未検出VST3'));button.type='button';button.disabled=busy;button.dataset.focusKey='insert-'+b+'-'+i;button.title=button.textContent;button.setAttribute('aria-pressed',String(b===selected&&i===selectedInsert));button.onclick=()=>{selected=b;selectedInsert=i;render();};li.append(button);slots.append(li);
+        const li=node('li'),button=node('button',(insert.bypass?'[OFF] ':'')+(caps?.plugins.find(p=>p.id===insert.plugin_id)?.name||'未検出VST3'));button.type='button';button.disabled=busy;button.dataset.focusKey='insert-'+b+'-'+i;button.title=button.textContent;button.setAttribute('aria-pressed',String(b===selected&&i===selectedInsert));button.onclick=()=>selectInsert(b,i);button.ondblclick=()=>void openEditor(b,i);button.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();selectInsert(b,i);void openEditor(b,i);}};button.title+='（ダブルクリックまたはEnterで固有画面）';li.append(button);slots.append(li);
       }
       if(!channel.inserts.length)slots.append(node('li','エフェクトなし'));
-      const add=strip.querySelector('.uiInsertChain>button');add.disabled=busy||!caps?.available||channel.inserts.length>=8;attribute(add,'title','検出したVST3エフェクトを追加');
+      const add=strip.querySelector('.uiInsertChain>button');add.disabled=blocked()||!caps?.available||channel.inserts.length>=8;attribute(add,'title','検出したVST3エフェクトを追加');
     }
     renderInspector();controls();if(focus){const target=[...document.querySelectorAll('[data-focus-key]')].find(e=>e.dataset.focusKey===focus&&!e.disabled&&!e.hidden);(target||strips.get(selected)?.querySelector('.uiChannelName'))?.focus();}
   }
@@ -83,6 +170,7 @@
     const inserts=config(selected).inserts,insert=inserts[selectedInsert];
     if(!insert){detail.append(node('p','「＋ VSTを追加」でエフェクトを選びます。'));return;}
     detail.append(node('h4',caps?.plugins.find(p=>p.id===insert.plugin_id)?.name||'未検出VST3'));
+    const open=node('button','VST画面を開く');open.type='button';open.id='vstNativeEditorOpen';open.dataset.focusKey='native-open';open.disabled=busy||pendingEditors.has(projectId())||!caps?.editor_available;open.onclick=()=>void openEditor(selected,selectedInsert);detail.append(open);
     const actions=node('div');actions.className='vstInsertActions';
     const bypass=node('button',insert.bypass?'有効にする':'バイパス');bypass.type='button';bypass.onclick=()=>edit(()=>{insert.bypass=!insert.bypass;});
     const up=node('button','上へ'),down=node('button','下へ'),remove=node('button','取り外す');
@@ -90,7 +178,7 @@
     for(const [button,delta] of [[up,-1],[down,1]]){button.type='button';button.onclick=()=>edit(()=>{const to=selectedInsert+delta;[inserts[selectedInsert],inserts[to]]=[inserts[to],inserts[selectedInsert]];selectedInsert=to;});}
     remove.type='button';remove.onclick=()=>edit(()=>{inserts.splice(selectedInsert,1);selectedInsert=Math.max(0,selectedInsert-1);});
     actions.append(bypass,up,down,remove);detail.append(actions);
-    for(const [key,button] of [['bypass',bypass],['up',up],['down',down],['remove',remove]]){button.dataset.focusKey=key;if(busy)button.disabled=true;}
+    for(const [key,button] of [['bypass',bypass],['up',up],['down',down],['remove',remove]]){button.dataset.focusKey=key;if(blocked())button.disabled=true;}
     const params=Object.keys(insert.parameters),label=node('label','パラメーター');label.htmlFor='vstParameter';
     const select=node('select');select.id='vstParameter';select.name='vstParameter';for(const id of params)select.append(new Option(id,id));
     const value=node('input');value.type='number';value.min='0';value.max='1';value.step='.001';value.name='vstParameterValue';value.id='vstParameterValue';
@@ -98,7 +186,7 @@
     const description=node('p','VSTが公開する汎用パラメーターです。値は正規化された0〜1です。');
     const show=()=>{value.value=String(insert.parameters[select.value]??0);};select.onchange=show;show();
     value.onchange=()=>{const v=Number(value.value);if(!Number.isFinite(v)||v<0||v>1){say('パラメーターは0〜1で指定してください。');show();return;}remember();insert.parameters[select.value]=v;dirty=true;controls();say('パラメーターを変更しました。作品へ保存してください。');};
-    select.disabled=value.disabled=busy;value.dataset.focusKey='parameter-value';select.dataset.focusKey='parameter-select';const change=value.onchange;value.onchange=e=>{if(!busy)change(e);};
+    select.disabled=value.disabled=blocked();value.dataset.focusKey='parameter-value';select.dataset.focusKey='parameter-select';const change=value.onchange;value.onchange=e=>{if(!blocked())change(e);};
     if(params.length)detail.append(label,select,valueLabel,value,description);
     else detail.append(node('p','このVSTには公開パラメーターがありません。'));
   }
@@ -115,10 +203,10 @@
       settings=drafts.get(pid)||saved;settings.tracks||={};selected='audio:1';dirty=drafts.has(pid);history.length=0;selectedInsert=0;
       say(dirty?'この作品の未保存の変更を復元しました。':'保存済み設定。処理を有効にして音量やVSTを調整します。');
     }catch(e){if(mine===serial){settings=null;say(e.message);}}
-    finally{if(mine===serial){busy=false;await refreshRows();render();controls();}}
+    finally{if(mine===serial){busy=false;await refreshRows();render();controls();renderEditors();await restoreEditors();}}
   }
   async function save(){
-    if(!current()||busy)return false;
+    if(!current()||blocked())return false;
     const mine=serial,pid=settings.project_id,body={project_id:pid,revision:settings.revision,channels:copy(settings.channels),tracks:copy(settings.tracks),enabled:settings.enabled};busy=true;render();say('作品へ保存中…');
     try{
       const result=await request('settings',body);drafts.delete(pid);
@@ -130,16 +218,13 @@
   async function prepareAsset(assetId){
     const pid=projectId();if(!pid)return {enabled:false};
     if(dirty&&settings?.project_id===pid)throw Error('ミキサーに未保存の変更があります。「作品へ保存」を押してください');
-    const result=await request('prepare',{project_id:pid,asset_id:assetId,channel:$('uiAudioTargetTrack')?.value||'audio',lane:Number($('uiAudioTargetLane')?.value||1)});
+    const result=await request('prepare',{project_id:pid,asset_id:assetId,channel:$('uiAudioTargetTrack')?.value||'audio',lane:Number($('uiAudioTargetLane')?.value||1),analysis_only:Boolean(caps?.available)});
     if(pid!==projectId()||assetId!==$('baiAudioSelect').value)throw Error('作品または音声が変わりました。再生し直してください');
-    if(result.enabled)showMeters(result);return result;
+    if(result.id)showMeters(result,'asset');return result;
   }
-  function showMeters(result){
-    for(const [b,strip] of strips){
-      const meter=strip.querySelector('.uiInactiveMeter'),data=result.meters[b];if(!data)continue;
-      meter.style.setProperty('--vst-peak',Math.min(100,Math.max(0,((data.peak_db??-60)+60)/66*100))+'%');meter.classList.add('vstMeasuredMeter');meter.dataset.over=String(data.peak>1);meter.title='処理区間のピーク：'+(data.peak_db===null?'−∞':data.peak_db)+' dBFS（ライブメーターではありません）';meter.setAttribute('role','img');meter.removeAttribute('aria-hidden');meter.setAttribute('aria-label',title(b)+' '+meter.title);
-    }
-    const over=result.meters.master.over_samples;return over?'マスターが0 dBFSを超えています。音量を下げてください。':'';
+  function showMeters(result,kind='timeline'){
+    window.dispatchEvent(new CustomEvent('bai:v05-audio-measured',{detail:{projectId:projectId(),result,kind}}));
+    return result.meters?.master?.over_samples?'マスターが0 dBFSを超えています。音量を下げてください。':'';
   }
   function chooser(b){
     if(!current()||busy)return;
@@ -149,7 +234,7 @@
     const add=node('button','読み込んで追加');add.type='button';add.disabled=!caps.plugins.length;
     const refresh=node('button','再検出');refresh.type='button';refresh.onclick=async()=>{try{caps=await request('capabilities');chooser(b);}catch(e){say(e.message);}};
     add.onclick=async()=>{const pid=projectId(),mine=serial,target=settings,pluginId=select.value;busy=true;render();say('VST3を別プロセスで確認中…');try{const p=await request('inspect',{plugin_id:pluginId});if(pid!==projectId()||mine!==serial||target!==settings)return;remember();settings.enabled=true;config(b).inserts.push({plugin_id:pluginId,bypass:false,parameters:Object.fromEntries(p.parameters.map(v=>[v.id,v.raw]))});selectedInsert=config(b).inserts.length-1;modified();say(p.name+'を追加しました。作品へ保存して試聴できます。');}catch(e){if(mine===serial)say('追加できません：'+e.message+'。別のVST3を選択してください。');}finally{if(mine===serial){busy=false;render();}}};
-    detail.append(label,select,add,refresh,node('p','VST3音声エフェクトを読み込みます。VSTi・VST2・固有画面には未対応です。'));select.focus();
+    detail.append(label,select,add,refresh,node('p','VST3音声エフェクトを読み込みます。固有画面はWindowsで開きます。VSTi・VST2は未対応です。'));select.focus();
   }
   function setup(){
     const rack=$('uiAudioRack');if(!rack)return;
@@ -158,21 +243,22 @@
     projectLabel=node('span');projectLabel.id='vstMixerProject';
     const label=node('label','処理を有効にする'),enabled=node('input');enabled.type='checkbox';enabled.id='vstMixerEnabled';enabled.onchange=()=>edit(()=>{settings.enabled=enabled.checked;});label.prepend(enabled);
     saveButton=node('button','作品へ保存');saveButton.type='button';saveButton.id='vstMixerSave';saveButton.className='primary';saveButton.onclick=()=>void save();
-    undoButton=node('button','変更を戻す');undoButton.type='button';undoButton.id='vstMixerUndo';undoButton.title='音量・VST・Sの変更を戻します。即保存の行Mは含みません';undoButton.onclick=()=>{if(history.length&&!busy){const previous=history.shift();settings={...settings,channels:previous.channels,tracks:previous.tracks,enabled:previous.enabled};modified();}};
-    const reload=node('button','保存済みを読み直す');reload.type='button';reload.onclick=()=>{if(busy)return;if(dirty&&!confirm('未保存のミキサー変更を破棄して読み直しますか？'))return;drafts.delete(projectId());dirty=false;settings=null;void load();};
+    undoButton=node('button','変更を戻す');undoButton.type='button';undoButton.id='vstMixerUndo';undoButton.title='音量・VST・Sの変更を戻します。即保存の行Mは含みません';undoButton.onclick=()=>{if(history.length&&!blocked()){const previous=history.shift();settings={...settings,channels:previous.channels,tracks:previous.tracks,enabled:previous.enabled};modified();}};
+      const reload=node('button','保存済みを読み直す');reload.type='button';reload.onclick=async()=>{if(blocked())return;if(dirty&&!confirm('未保存のミキサー変更を破棄して読み直しますか？'))return;const pid=projectId();try{for(const session of editorSessions.values())if(session.project_id===pid&&session.status==='draft_merged')Object.assign(session,await request('editor-close',{id:session.id,mode:'discard'}));if(pid!==projectId())return;drafts.delete(pid);dirty=false;settings=null;void load();}catch(e){say('未保存のVST変更を破棄できません：'+e.message);}};
     prepareButton=node('button','保存してタイムライン再生');prepareButton.type='button';prepareButton.id='vstMixerPrepare';
-    prepareButton.onclick=async()=>{if(!current()||busy)return;const token=++transportToken,mine=serial,pid=projectId();if(dirty&&!(await save()))return;if(mine!==serial||pid!==projectId()||token!==transportToken)return;busy=true;render();say('共通再生の音声を準備中…');try{const result=await request('prepare',{project_id:pid});if(pid!==projectId()||mine!==serial)return;if(result.enabled){showMeters(result);audio.src=result.url;}await window.BAIStudioMediaPreviewV68.refresh();if(mine!==serial||pid!==projectId()||token!==transportToken)return;if(!rack.hidden&&$('bai-audio').classList.contains('active'))window.BAIStudioMediaPreviewV68.play();say('タイムラインと同じ時刻で再生します。'+(result.enabled?showMeters(result):'音声処理は無効です。'));}catch(e){if(mine===serial)say('再生できません：'+e.message);}finally{if(mine===serial){busy=false;render();}}};
+    prepareButton.onclick=async()=>{if(!current()||busy)return;const token=++transportToken,mine=serial,pid=projectId();if(dirty&&!(await save()))return;if(mine!==serial||pid!==projectId()||token!==transportToken)return;busy=true;render();say('共通再生の音声を準備中…');try{const result=await request('prepare',{project_id:pid,analysis_only:true});if(pid!==projectId()||mine!==serial)return;if(result.id){showMeters(result);audio.src=result.url;}await window.BAIStudioMediaPreviewV68.refresh();if(mine!==serial||pid!==projectId()||token!==transportToken)return;if(!rack.hidden&&$('bai-audio').classList.contains('active'))window.BAIStudioMediaPreviewV68.play();say('タイムラインと同じ時刻で再生します。'+(result.enabled?showMeters(result):'音声処理は無効です。'));}catch(e){if(mine===serial)say('再生できません：'+e.message);}finally{if(mine===serial){busy=false;render();}}};
     toolbar.append(projectLabel,label,saveButton,undoButton,reload);heading.after(toolbar);
+    editorBar=node('section');editorBar.id='vstNativeEditors';editorBar.setAttribute('aria-label','開いているVST画面');toolbar.after(editorBar);
     const playback=node('div');playback.className='vstMixerPlayback';
     const pause=node('button','一時停止'),stop=node('button','停止');pause.type=stop.type='button';pause.id='vstTimelinePause';stop.id='vstTimelineStop';pause.onclick=()=>{++transportToken;window.BAIStudioMediaPreviewV68.pause();};stop.onclick=()=>{++transportToken;void window.BAIStudioMediaPreviewV68.stop();};
     const frameLabel=node('label','再生位置（F）'),frame=node('input');frame.id='vstTimelineFrame';frame.type='number';frame.min='0';frame.step='1';frameLabel.htmlFor=frame.id;frameLabel.append(frame);
-    const seek=node('button','移動'),clock=node('output');seek.type='button';clock.id='vstTimelineClock';seek.onclick=()=>{++transportToken;const n=Number(frame.value);if(Number.isInteger(n)&&n>=0)void window.BAIStudioMediaPreviewV68.seek(n);};
+    const seek=node('button','移動'),clock=node('output');seek.type='button';clock.id='vstTimelineClock';clock.setAttribute('aria-live','off');seek.onclick=()=>{++transportToken;const n=Number(frame.value);if(Number.isInteger(n)&&n>=0)void window.BAIStudioMediaPreviewV68.seek(n);};
     window.addEventListener('bai:v05-media-frame',e=>{if(e.detail.projectId!==projectId())return;const d=e.detail;if(document.activeElement!==frame)frame.value=String(d.frame);clock.textContent=d.seconds.toFixed(2)+' 秒 / '+d.fps+' fps'+(d.playing?'・再生中':'');});
     const audio=node('audio');audio.id='vstMixerAudition';audio.controls=true;audio.setAttribute('aria-label','処理後音声だけを確認（独立試聴）');
     const independent=node('details');independent.append(node('summary','処理後音声だけを確認'),audio);
     status=node('p');status.id='vstMixerStatus';status.setAttribute('role','status');playback.append(prepareButton,pause,stop,frameLabel,seek,clock,status);toolbar.after(playback);
     mixer=$('baiMixer');template=mixer.querySelector('.uiChannelStrip').cloneNode(true);mixer.replaceChildren();
-    const advanced=node('details');advanced.id='vstMixerBuses';advanced.append(node('summary','種類別バス（全行の処理後）'));busesArea=node('div');busesArea.className='vstBusStrips';advanced.append(node('p','Mは即保存、音量・VST・Sは作品へ保存。メーターは処理区間のピークです。'),busesArea,independent);rack.querySelector('.uiDawDesk').after(advanced);
+    const advanced=node('details');advanced.id='vstMixerBuses';advanced.append(node('summary','種類別バス（全行の処理後）'));busesArea=node('div');busesArea.className='vstBusStrips';advanced.append(node('p','Mは即保存、音量・VST・Sは作品へ保存。メーターは保存済み音声の再生位置に追従します。'),busesArea,independent);rack.querySelector('.uiDawDesk').after(advanced);
     inspector=rack.querySelector('.uiEffectInspector');inspector.querySelector('.uiEffectEmpty').remove();inspector.querySelector('.uiHostState').remove();inspector.querySelector('button').remove();
     detail=node('div');detail.className='vstEffectDetail';inspector.append(detail);inspector.querySelector('p').textContent='上から順に処理します。パラメーターは汎用表示です。';
     window.addEventListener('beforeunload',e=>{if(dirty||drafts.size){e.preventDefault();e.returnValue='';}});
