@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T00:16:18+09:00",
+  "updated_at": "2026-11-13T00:19:38+09:00",
   "updated_by": "codex",
-  "branch": "codex/render-protection-main-sync-20261113",
-  "head_at_update": "b8d3073",
+  "branch": "codex/saved-composition-audit-20261113",
+  "head_at_update": "5e5d0b5",
   "current": {
-    "task": "書き出し復旧・完成動画保護のmainと制作画面同期",
-    "status": "done",
-    "step": "PR288をmainへ反映。8765起動・開いたChromeと原本保持を確認し記録",
-    "design_doc": "docs/v05/RENDER_FAILURE_PROTECTION_20261112_JA.md"
+    "task": "順3 G3-E1 保存制作状態と構図の一致確認",
+    "status": "in_progress",
+    "step": "既存の静止カメラ/自動構図/狭い画面の証拠を照合し、保存再読込と出力に残る不足を隔離検証",
+    "design_doc": "docs/v05/SAVED_STATE_COMPOSITION_20261113_JA.md"
   },
   "next_steps": [
     "G3-E1：保存制作状態/構図の順3必須条件と順6依存を照合し、G3-Fの終了条件を整理。OGV長尺は低優先"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T00:19:38+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5e5d0b5",
+      "text": "順3 G3-E1 保存制作状態と構図の一致確認: 既存の静止カメラ/自動構図/狭い画面の証拠を照合し、保存再読込と出力に残る不足を隔離検証"
+    },
     {
       "at": "2026-11-13T00:16:18+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "38389c7",
       "text": "順3 G3-A2：入力振幅とAAC境界差の寄与を分離: 同一参照PCMの振幅1/0.75/0.5・クリップ対照をWindows/Ubuntuで比較し、過大入力とAAC圧縮の影響を分ける"
-    },
-    {
-      "at": "2026-11-08T22:20:45+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "0f57ebc",
-      "text": "mainf7a15ea・手元/開発木と8765実バイト、515ファイル不変を確認。7段階と6作業単位、G3-A1診断済み/次G3-A2を正本へ保存"
     }
   ]
 }
