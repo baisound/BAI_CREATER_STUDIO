@@ -1,0 +1,54 @@
+{
+  "pull_request": 303,
+  "implementation_main": "f0fb0b8ce1c56b9560c88c602d4675f31f908edf",
+  "local_main_matches_origin": true,
+  "server_port": 8765,
+  "server_pid": 76440,
+  "served_files": {
+    "studio/v05/index.html": {
+      "status": 200,
+      "sha256": "0b20fe0dc0643a6839a470f2184d7277d66b98770e3d4de9e2923f70d42540f6"
+    },
+    "studio/v05/js/audio-mixer.js": {
+      "status": 200,
+      "sha256": "bef0cf691dd0b73e61d1a7b0b47b7a28bb1da770909eb3294ca997c6fac858d6"
+    },
+    "studio/v05/js/audio-metering.js": {
+      "status": 200,
+      "sha256": "0351e12f228b066266c464409416b5fe681e390f3faf57c366c3854002ac7e41"
+    },
+    "studio/v05/css/audio-mixer.css": {
+      "status": 200,
+      "sha256": "e201ce162e897f968aa190c24514426831b2127a86a8ba53e4603eca4a1857de"
+    },
+    "studio/v05/reviews/vst-native-editor-20261113/index.html": {
+      "status": 200,
+      "sha256": "b9005cf99e257c27ef7148984f3ac8231df7c269e21e1eb81e68108f08772e35"
+    }
+  },
+  "native_editor_available": true,
+  "detected_plugins": 149,
+  "browser": {
+    "id": "1055946475",
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "reloaded": true,
+    "visible": "音声編集 > エフェクト・ミキサー; Ozone 9 insert direct double-click/Enter hint and master LUFS visible",
+    "production_project_edits": false,
+    "automatic_cache_generation": "Opening the saved enabled mixer prepared post-fader audio and LUFS caches; original assets/settings/completed video were unchanged"
+  },
+  "owner_data": {
+    "baseline_files": 518,
+    "all_baseline_files_unchanged": true,
+    "added_derived_cache_files": [
+      "data/studio_v05_audio/cache/7ff4cba1a9e94459033a923a85ad59fbeb394f870dca727d1f66bae3f66cba00.json",
+      "data/studio_v05_audio/cache/7ff4cba1a9e94459033a923a85ad59fbeb394f870dca727d1f66bae3f66cba00.meters.npz",
+      "data/studio_v05_audio/cache/7ff4cba1a9e94459033a923a85ad59fbeb394f870dca727d1f66bae3f66cba00.wav",
+      "data/studio_v05_audio/cache/r128.txt"
+    ],
+    "current_files": 522,
+    "current_aggregate_sha256": "f20656fbfc625af9d0776c94d184a94ecd32b95cd3ec51b053fdf73075daa373"
+  },
+  "github_checks": "No status checks registered; local gates recorded separately",
+  "native_gui_parameter_end_to_end": "NOT TESTED; see native-first-check.json",
+  "next": "held 3D/camera/motion/expression work and sequence3 remain unfinished"
+}

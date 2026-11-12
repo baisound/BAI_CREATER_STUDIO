@@ -1,0 +1,10 @@
+{
+  "kind": "browser protocol; native window separately tested",
+  "cases": [
+    "double click directly opens; pending locks controls; unrelated dirty gain not auto-saved; close merges native params and returns insert focus",
+    "Enter directly opens; explicit discard clears recovered native draft",
+    "reload discovers conflict and exposes discard without requiring right-side navigation",
+    "two native drafts: closing A while B edits retains recoverable A; after B closes explicit merge preserves gain and native parameters"
+  ],
+  "status": "passed"
+}

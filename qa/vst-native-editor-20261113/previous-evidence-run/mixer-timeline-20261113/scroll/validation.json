@@ -1,0 +1,16 @@
+{
+  "status": "failed",
+  "views": [
+    {
+      "width": 1440,
+      "height": 63,
+      "scroll": 224,
+      "overflow": "scroll",
+      "addButtonFixed": true,
+      "lastInsertReachable": true,
+      "muteSoloVisible": true
+    }
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(b.y+b.height<height-20)\n\n    at TestContext.<anonymous> (D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-vst-insert-scroll.test.cjs:20:71)\n    at async Test.run (node:internal/test_runner/test:1054:7)\n    at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)"
+}

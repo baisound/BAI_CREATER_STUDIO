@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const h=require('./helpers/studio-harness.cjs');
-const qa=path.resolve(__dirname,'../qa/mixer-timeline-20261113');
+const qa=process.env.BAI_AUDIO_QA||path.resolve(__dirname,'../qa/mixer-timeline-20261113');
 async function json(r,status=200){const t=await r.text();assert.equal(r.status,status,t);return JSON.parse(t);}
 async function post(s,p,b,status=200){return json(await fetch(s.base+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}),status);}
 function wav(freq){const n=48000*4,b=Buffer.alloc(44+n*2);b.write('RIFF');b.writeUInt32LE(b.length-8,4);b.write('WAVEfmt ',8);b.writeUInt32LE(16,16);b.writeUInt16LE(1,20);b.writeUInt16LE(1,22);b.writeUInt32LE(48000,24);b.writeUInt32LE(96000,28);b.writeUInt16LE(2,32);b.writeUInt16LE(16,34);b.write('data',36);b.writeUInt32LE(n*2,40);for(let i=0;i<n;i++)b.writeInt16LE(Math.round(Math.sin(2*Math.PI*freq*i/48000)*5000),44+i*2);return b;}
@@ -29,7 +29,7 @@ test('ミキサーは実行名・素材・行ミュート・共通時刻を保�
   await page.locator('#vstTimelineFrame').fill('30');await page.locator('#uiAudioRack').getByRole('button',{name:'移動',exact:true}).click();
   await page.waitForFunction(()=>window.BAIStudioMediaPreviewV68.status().frame===30);await page.locator('#vstMixerPrepare').click();await page.waitForFunction(()=>window.BAIStudioMediaPreviewV68.status().playing);await page.waitForFunction(()=>window.BAIStudioMediaPreviewV68.status().frame>40);await page.locator('#vstTimelinePause').click();
   const head=await page.evaluate(()=>window.BAIStudioMediaPreviewV68.status());assert.ok(head.frame>40);assert.match(await page.locator('#vstTimelineClock').textContent(),new RegExp((head.frame/head.fps).toFixed(2)));assert.equal(await page.locator('#vstMixerAudition').evaluate(e=>e.paused),true);report.cases.push('ミキサーの移動/再生/一時停止は共通時計。独立試聴プレイヤーは再生しない');
-  const shots=path.resolve(__dirname,'../studio/v05/reviews/mixer-timeline-20261113');fs.mkdirSync(shots,{recursive:true});
+  const shots=process.env.BAI_AUDIO_SHOTS||path.resolve(__dirname,'../studio/v05/reviews/mixer-timeline-20261113');fs.mkdirSync(shots,{recursive:true});
   for(const [width,height] of [[1440,900],[1024,768]]){await page.setViewportSize({width,height});await page.screenshot({path:path.join(shots,'linked-'+width+'.png')});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));const add=await lane.locator('.uiInsertChain>button').boundingBox();assert.ok(add.y+add.height<height);}
   // Empty lane addition/rename must refresh even with a dirty mixer draft.
   await lane.locator('input[type=range]').fill('-9');await lane.locator('input[type=range]').dispatchEvent('change');

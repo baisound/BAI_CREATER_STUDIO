@@ -67,11 +67,13 @@ def validate(channels):
         if not isinstance(channel['inserts'], list) or len(channel['inserts']) > 8:
             raise MixerError('インサートは各チャンネル8個までです', 400)
         for insert in channel['inserts']:
-            if (not isinstance(insert, dict) or set(insert) != {'plugin_id', 'parameters', 'bypass'}
+            if (not isinstance(insert, dict) or not {'plugin_id', 'parameters', 'bypass'}<=set(insert) or set(insert)-{'plugin_id','parameters','bypass','state_id'}
                     or not isinstance(insert['plugin_id'], str) or not HEX.fullmatch(insert['plugin_id'])
                     or type(insert['bypass']) is not bool or not isinstance(insert['parameters'], dict)
                     or len(insert['parameters']) > 2048):
                 raise MixerError('VSTの設定が不正です', 400)
+            if 'state_id' in insert and (not isinstance(insert['state_id'],str) or not HEX.fullmatch(insert['state_id'])):
+                raise MixerError('VST状態IDが不正です',400)
             for key, value in insert['parameters'].items():
                 if (not isinstance(key, str) or not 1 <= len(key) <= 256 or type(value) not in (int, float)
                         or not math.isfinite(value) or not 0 <= value <= 1):
@@ -271,10 +273,14 @@ def resolved_inputs(root, pid, inventory, asset_id=None):
 
 
 def prepare(root, pid, inventory=None, *, inputs=None, settings=None, duration=None,
-            muted=None, asset_id=None, channel='audio', lane=1, scope=None):
+            muted=None, asset_id=None, channel='audio', lane=1, scope=None, analysis_only=False):
     settings = copy.deepcopy(settings if settings is not None else read(root, pid))
-    if not settings['enabled']:
+    if type(analysis_only) is not bool:raise MixerError('計測設定が不正です',400)
+    if not settings['enabled'] and not analysis_only:
         return {'enabled': False, 'revision': settings['revision']}
+    enabled=settings['enabled']
+    if not enabled:
+        identity=defaults(pid);settings['channels']=identity['channels'];settings['tracks']={}
     if not capabilities()['available']:
         raise MixerError(capabilities()['reason'], 503)
     if channel not in BUSES[:-1]:
@@ -301,28 +307,34 @@ def prepare(root, pid, inventory=None, *, inputs=None, settings=None, duration=N
             duration = max([c['start'] + c['duration'] for c in all_clips] + [duration])
     if not math.isfinite(duration) or not 0 < duration <= MAX_SECONDS:
         raise MixerError('現在の音声処理は作品の先頭から2時間以内です。配置を確認してください')
+    layout_revision=None
     if muted is None:
         from bai_studio.v05.render.media_render import _audio_settings
         audio = _audio_settings(root, pid)
+        layout_revision=audio['layout_revision']
         muted = [] if asset_id else audio['muted_tracks'] + audio.get('muted_lanes', [])
     active_keys = {s['clip']['track']+':'+str(s['clip'].get('lane',1)) for s in sources}
     plug = _plugin_map({**settings['channels'], **{k:v for k,v in settings.get('tracks',{}).items() if k in active_keys}})
+    from bai_studio.v05.audio.editor import state_file
+    configs={**settings['channels'],**{k:v for k,v in settings.get('tracks',{}).items() if k in active_keys}}
+    states={insert['state_id']:str(state_file(root,insert['state_id'])) for config in configs.values() for insert in config['inserts'] if not insert['bypass'] and insert.get('state_id')}
     body = {'action': 'render', 'settings': settings, 'sources': sources, 'plugins': plug,
-            'duration': duration, 'muted': muted, 'engine': 2}
+            'duration': duration, 'muted': muted, 'states':states,'dry_analysis':not enabled,'engine': 4}
     key = hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
     cache = root / 'studio_v05_audio/cache'
     cache.mkdir(parents=True, exist_ok=True)
     output, manifest = cache / (key + '.wav'), cache / (key + '.json')
     with PROCESS_LOCK:
-        if output.exists() and manifest.exists():
+        if output.exists() and manifest.exists() and output.with_suffix('.meters.npz').exists():
             result = json.loads(manifest.read_text(encoding='utf-8'))
             if sha(output) == result.get('sha256'):
+                result['layout_revision']=layout_revision
                 return result
         body['output'] = str(output)
         result = _child(root / 'studio_v05_audio', body, max(90, min(3600, duration * 6)), scope)
         if any(sha(s['path']) != s['sha256'] for s in sources):
             raise MixerError('処理中に元素材が変わりました。再試行してください', 409)
-        result.update(enabled=True, id=key, revision=settings['revision'], sha256=sha(output),
+        result.update(enabled=enabled, id=key, revision=settings['revision'], sha256=sha(output),meter_step_seconds=.1,layout_revision=layout_revision,
                       url='/api/studio/v05/audio/file?id=' + key)
         _atomic(manifest, result)
         return result

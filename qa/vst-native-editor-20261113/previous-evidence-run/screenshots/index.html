@@ -1,0 +1,9 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ミキサーとタイムラインの連動修正</title>
+<style>body{font:16px/1.7 system-ui;background:#101820;color:#e5edf5;margin:24px auto;padding:0 20px;max-width:1200px}h1{font-size:24px}a{color:#91cdff}.shot{position:relative;margin:12px 0}.shot img{display:block;width:100%}.mark{position:absolute;background:#ffda72;color:#111;border:2px solid #111;border-radius:50%;font-weight:800;width:32px;height:32px;display:grid;place-items:center;box-shadow:0 0 0 2px white}.one{left:37%;top:27%}.two{left:15%;top:38%}.three{left:24%;top:90%}li{margin:10px 0}code{color:#b5dcff}</style>
+<h1>ミキサーをタイムラインの各行と同じ時刻へ接続</h1><p>実装済みの変更。検証用の素材・作品を使った画面です。</p>
+<h2>変更前：種類別バスだけの表示</h2><img style="width:100%" alt="変更前の種類別バスだけのミキサー" src="../vst-mixer-20261113/mixer-processing-1024.png">
+<h2>変更後：実際の行・素材・共通時計</h2><div class="shot"><img alt="音声1と台詞を別々に表示した連動後のミキサー" src="linked-1024.png"><span class="mark one">1</span><span class="mark two">2</span><span class="mark three">3</span></div>
+<ol><li><b>再生位置と操作：</b>作品プレビューと同じフレームで移動・再生・一時停止します。独立試聴は折り畳みに保持。</li><li><b>実トラックと素材：</b>タイムラインの行名と配置素材を表示。同じ音声種類でも行ごとに音量・S・VSTを保存。素材名を押すとタイムラインへ移動。</li><li><b>行ミュート：</b>両画面で同じ保存データを操作。種類全体で消音中なら理由と解除入口を表示。</li></ol>
+<p>旧種類別バスは画面下の「種類別バス」に保持しています。音声は行→種類別バス→マスターの順。Mは即保存、音量・S・VSTは作品へ保存します。</p>
+<p><a href="linked-1440.png">1440pxの画面</a> / <a href="implementation.json">指摘・検証JSON</a></p>
+<p>モデル・カメラ・動き／表情のタイムライン接続は別の未完作業です。今回の修正の完了に含めません。</p></html>

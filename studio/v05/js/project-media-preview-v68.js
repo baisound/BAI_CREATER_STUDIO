@@ -186,6 +186,7 @@
       if (generation !== state.generation) return;
       state.mixed = mix.enabled;
       state.mixerRevision = mix.revision;
+      window.dispatchEvent(new CustomEvent('bai:v05-audio-prepared',{detail:{projectId,result:mix}}));
       applyAudioLayout(layout);
       if (!Array.isArray(inventory.items) || !Number.isFinite(range.fps) || range.fps <= 0 ||
           !Number.isInteger(range.final_frame) || range.final_frame < 0) throw Error(range.error || '保存済み作品の情報が不正です');

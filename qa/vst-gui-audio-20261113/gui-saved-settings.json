@@ -1,0 +1,122 @@
+{
+  "schema": 1,
+  "project_id": "2815db87-3573-470a-acaa-656e17290bcc",
+  "revision": 2,
+  "enabled": true,
+  "tracks": {
+    "audio:1": {
+      "gain_db": 0,
+      "solo": false,
+      "inserts": [
+        {
+          "plugin_id": "aa25dc7678f340c0195c4d327df2db293e647fe0548f7dd2dd4a222d4f9f98f4",
+          "bypass": false,
+          "parameters": {
+            "band_1_selected": 1.0,
+            "band_1_active": 1.0,
+            "band_1_gain_db": 0.5,
+            "band_1_q": 0.33858761191368103,
+            "band_1_frequency_hz": 0.25071486830711365,
+            "band_1_type": 0.5,
+            "band_1_dyn": 0.0,
+            "band_1_threshold_db": 1.0,
+            "band_1_ratio": 0.5,
+            "band_1_split": 1.0,
+            "band_1_attack_ms": 0.4466758668422699,
+            "band_1_release_ms": 0.5252185463905334,
+            "band_2_selected": 0.0,
+            "band_2_active": 1.0,
+            "band_2_gain_db": 0.5,
+            "band_2_q": 0.4376181364059448,
+            "band_2_frequency_hz": 0.4447621703147888,
+            "band_2_type": 0.5,
+            "band_2_dyn": 0.0,
+            "band_2_threshold_db": 1.0,
+            "band_2_ratio": 0.5,
+            "band_2_split": 1.0,
+            "band_2_attack_ms": 0.3751353621482849,
+            "band_2_release_ms": 0.5067464709281921,
+            "band_3_selected": 0.0,
+            "band_3_active": 1.0,
+            "band_3_gain_db": 0.5,
+            "band_3_q": 0.39308804273605347,
+            "band_3_frequency_hz": 0.6503008604049683,
+            "band_3_type": 0.5,
+            "band_3_dyn": 0.0,
+            "band_3_threshold_db": 1.0,
+            "band_3_ratio": 0.5,
+            "band_3_split": 1.0,
+            "band_3_attack_ms": 0.31465035676956177,
+            "band_3_release_ms": 0.48609650135040283,
+            "band_4_selected": 0.0,
+            "band_4_active": 1.0,
+            "band_4_gain_db": 0.5,
+            "band_4_q": 0.4376181364059448,
+            "band_4_frequency_hz": 0.7712673544883728,
+            "band_4_type": 1.0,
+            "band_4_dyn": 0.0,
+            "band_4_threshold_db": 1.0,
+            "band_4_ratio": 0.5,
+            "band_4_split": 1.0,
+            "band_4_attack_ms": 0.2971976399421692,
+            "band_4_release_ms": 0.14602750539779663,
+            "hp_selected": 0.0,
+            "hp_active": 0.0,
+            "hp_frequency_hz": 0.048886265605688095,
+            "hp_type": 0.6666666865348816,
+            "lp_selected": 0.0,
+            "lp_active": 0.0,
+            "lp_frequency_hz": 0.9653146266937256,
+            "lp_type": 0.6666666865348816,
+            "wide_band_gain_db": 0.5,
+            "wide_band_dyn": 0.0,
+            "wide_band_threshold_db": 1.0,
+            "wide_band_ratio": 0.4444444477558136,
+            "wide_band_attack_ms": 0.35455694794654846,
+            "wide_band_release_ms": 0.5252185463905334,
+            "master_bypass": 0.0,
+            "dynamic_delta": 0.0,
+            "dry_mix": 0.0,
+            "output_gain_db": 0.42389410734176636,
+            "eq_auto_gain": 1.0,
+            "quality": 1.0,
+            "channels": 0.1666666716337204,
+            "analyzer_mode": 0.75,
+            "display_eq_range": 0.0,
+            "display_fft_floor": 0.0,
+            "sidechain_mode": 0.0,
+            "analyzer_speed": 0.5,
+            "program": 0.0
+          },
+          "state_id": "372c56fb87e4fa67bc0051f63d648e87ba33d4d22acd367af0434f4f950fcec7"
+        }
+      ]
+    }
+  },
+  "channels": {
+    "music": {
+      "gain_db": 0,
+      "mute": false,
+      "solo": false,
+      "inserts": []
+    },
+    "audio": {
+      "gain_db": 0,
+      "mute": false,
+      "solo": false,
+      "inserts": []
+    },
+    "video": {
+      "gain_db": 0,
+      "mute": false,
+      "solo": false,
+      "inserts": []
+    },
+    "master": {
+      "gain_db": 0,
+      "mute": false,
+      "solo": false,
+      "inserts": []
+    }
+  }
+}

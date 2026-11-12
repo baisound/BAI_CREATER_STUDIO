@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process');
-const h=require('./helpers/studio-harness.cjs'),root=path.resolve(__dirname,'..'),qa=path.join(root,'qa/mixer-timeline-20261113/regression');
+const h=require('./helpers/studio-harness.cjs'),root=path.resolve(__dirname,'..'),qa=process.env.BAI_AUDIO_QA||path.join(root,'qa/mixer-timeline-20261113/regression');
 const body=({project_id,revision,channels,enabled})=>({project_id,revision,channels,enabled});
 async function json(r){const text=await r.text();assert.equal(r.status,200,text);return JSON.parse(text);}
 function standard(base,name,args={}){const run=spawnSync('python',['-X','utf8',path.join(root,'mcp_server.py')],{input:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name,arguments:args}})+'\n',encoding:'utf8',timeout:45000,windowsHide:true,env:{...process.env,MIXAMO_VIEWER_URL:base}});assert.equal(run.status,0,run.stderr);const r=JSON.parse(run.stdout);assert.equal(r.result?.isError,undefined,run.stdout);return JSON.parse(r.result.content[0].text);}
@@ -47,6 +47,11 @@ test('保存と作品切替の競合、VST失敗復旧、両MCPの同一処理�
   const mute=await web('bai_studio_audio_lane_mute',{project_id:a,revision:rows.layout_revision,key:'audio:1',muted:true});rows=await web('bai_studio_audio_tracks',{project_id:a});assert.ok(rows.rows.find(r=>r.key==='audio:1').muted);
   standard(s.base,'bai_studio_audio_lane_mute',{project_id:a,revision:mute.revision,key:'audio:1',muted:false});
   const webMix=await web('bai_studio_audio_prepare',{project_id:a}),stdMix=standard(s.base,'bai_studio_audio_prepare',{project_id:a});assert.equal(webMix.sha256,stdMix.sha256);assert.equal(webMix.id,stdMix.id);result.cases.push('all seven standard MCP and WebMCP tools share settings, canonical lane mutes, real host and PCM cache');
+  assert.deepEqual(await web('bai_studio_audio_editor_list',{project_id:a}),standard(s.base,'bai_studio_audio_editor_list',{project_id:a}));
+  const win={id:webMix.id,start:0,seconds:1};assert.deepEqual(await web('bai_studio_audio_meter_window',win),standard(s.base,'bai_studio_audio_meter_window',win));
+  assert.equal((await web('bai_studio_audio_meter_window',win)).fields[2],'momentary');
+  assert.equal((await web('bai_studio_audio_prepare',{project_id:a,analysis_only:true})).id,stdMix.id);
+  result.cases.push('new native editor recovery listing and bounded LUFS windows share both MCP entry points; GUI open/close is separately native/protocol tested');
   assert.deepEqual(result.errors,[]);result.status='passed';
  }catch(e){result.status='failed';result.failure=e.stack;if(page)await page.screenshot({path:path.join(qa,'edge-failure.png')}).catch(()=>{});throw e;}
  finally{fs.writeFileSync(path.join(qa,'edge-validation.json'),JSON.stringify(result,null,2)+'\n');await browser?.close();await s.stop();}

@@ -1,0 +1,48 @@
+TAP version 13
+# Subtest: 保存と作品切替の競合、VST失敗復旧、両MCPの同一処理を確認する
+ok 1 - 保存と作品切替の競合、VST失敗復旧、両MCPの同一処理を確認する
+  ---
+  duration_ms: 13871.7234
+  type: 'test'
+  ...
+# Subtest: VST3と作品ミキサーを操作し、保存・試聴・プレビュー・実MP4を同じ処理へ接続する
+not ok 2 - VST3と作品ミキサーを操作し、保存・試聴・プレビュー・実MP4を同じ処理へ接続する
+  ---
+  duration_ms: 33509.133
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-audio-mixer.test.cjs:12:1'
+  failureType: 'testCodeFailure'
+  error: 'Asynchronous browser condition did not become true'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Timeout.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\helpers\studio-harness.cjs:234:43)
+    listOnTimeout (node:internal/timers:588:17)
+    process.processTimers (node:internal/timers:523:7)
+  ...
+# Subtest: 音声の試聴結果を同作品へ頭出し付きで一括配置し、保存/履歴/実出力を維持する
+ok 3 - 音声の試聴結果を同作品へ頭出し付きで一括配置し、保存/履歴/実出力を維持する
+  ---
+  duration_ms: 6163.827
+  type: 'test'
+  ...
+# Subtest: ミキサーは実行名・素材・行ミュート・共通時刻を保存済みタイムラインと共有する
+ok 4 - ミキサーは実行名・素材・行ミュート・共通時刻を保存済みタイムラインと共有する
+  ---
+  duration_ms: 7779.3434
+  type: 'test'
+  ...
+# Subtest: 8個のVST一覧だけを内部スクロールし、固定追加・末尾選択・削除・M/Sと長いフェーダーを維持
+ok 5 - 8個のVST一覧だけを内部スクロールし、固定追加・末尾選択・削除・M/Sと長いフェーダーを維持
+  ---
+  duration_ms: 4213.6796
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 4
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 90764.7904
