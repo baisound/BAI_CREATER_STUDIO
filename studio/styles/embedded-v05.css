@@ -1,0 +1,24 @@
+html[data-v05-embed=true] .app{display:flex;flex-direction:column;height:100dvh;min-height:0}
+html[data-v05-embed=true] .main{flex:1;min-height:0}
+html[data-v05-embed=true] .screen-head{display:none}
+.v05-embed-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:30px;padding:3px 10px;border-bottom:1px solid var(--border);font-size:12px;flex:none}
+.v05-embed-bar a{color:var(--text-2)}
+.v05-embed-menu>summary{cursor:pointer;padding:2px 5px}
+.v05-embed-menu-content{position:absolute;top:31px;right:6px;z-index:200;width:min(900px,calc(100vw - 12px));max-height:75vh;overflow:auto;overscroll-behavior:contain;background:var(--surface-1);border:1px solid var(--border-strong);padding:12px;box-shadow:0 6px 20px #0007}
+.v05-embed-menu-content>.topbar{position:static;display:flex;flex-wrap:wrap;height:auto;padding:8px 0;gap:8px}
+.v05-embed-menu-content>.sidebar{display:flex;position:static!important;transform:none!important;inset:auto!important;width:100%;max-height:330px;border:0;box-shadow:none}
+.v05-embed-screen-tools .tools{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.v05-embed-help{font-size:12px}
+html[data-v05-embed=true]:not(.v05-embed-panels) .main[data-screen="10"] .ws{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important;grid-template-areas:"center"!important;gap:0;padding:0}
+html[data-v05-embed=true]:not(.v05-embed-panels) .main[data-screen="10"] .pane-right,
+html[data-v05-embed=true]:not(.v05-embed-panels) .main[data-screen="10"] .pane-bottom{display:none}
+html[data-v05-embed=true] .main[data-screen="10"] .pane-center{border:0!important;border-radius:0;min-height:0}
+html[data-v05-embed=true] .main[data-screen="10"] .pane-center>.pane-head{display:none}
+html[data-v05-embed=true] .main[data-screen="10"] .music-dance-studio{padding:8px;gap:6px;min-height:0}
+html[data-v05-embed=true] .music-dance-source-row{gap:6px}
+html[data-v05-embed=true] .music-dance-main{grid-template-columns:minmax(0,1fr) 210px;min-height:220px;gap:8px;flex-shrink:0}
+html[data-v05-embed=true] .music-dance-editor,html[data-v05-embed=true] .music-dance-source-row,html[data-v05-embed=true] .music-dance-status{flex-shrink:0}
+html[data-v05-embed=true] .music-dance-viewport{min-height:200px}
+html[data-v05-embed=true] .music-dance-side h3{font-size:13px;margin:0}
+html[data-v05-embed=true] .music-dance-side .section-note{font-size:11px;margin:4px 0}
+@media(max-width:800px){html[data-v05-embed=true] .music-dance-main{grid-template-columns:minmax(0,1fr)}html[data-v05-embed=true] .music-dance-side{display:flex;flex-wrap:wrap;gap:5px 10px}}

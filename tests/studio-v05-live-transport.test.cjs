@@ -25,6 +25,7 @@ test('v0.5 transport follows the real music/dance frame clock', async () => {
     const id = (await upload.json()).item.id;
     page = await server.newPage(browser);
     await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.locator('#uiMainNav [data-workspace="edit"]').click();
     await page.locator('[data-page="live-motion"]').first().click();
     await page.waitForFunction(() => document.getElementById('baiLiveFrame')?.contentDocument?.querySelector('[data-role="dance-audio"]'), null, { timeout: 8000 });
     await page.locator('#baiLivePlay').click();
@@ -55,6 +56,11 @@ test('v0.5 transport follows the real music/dance frame clock', async () => {
     await page.locator('#baiLiveStop').click();
     await page.waitForFunction(() => document.getElementById('baiLiveFrameNumber')?.value === '0');
     assert.match(await page.locator('#baiLiveSeconds').textContent(), /0\.00 秒/);
+    await child.locator('body').evaluate(body=>{const w=body.ownerDocument.defaultView,original=w.AudioContext.prototype.resume;w.AudioContext.prototype.resume=function(){return new Promise(resolve=>{w.__releaseResume=()=>original.call(this).then(resolve);});};});
+    await page.locator('#baiLivePlay').click();await page.waitForFunction(()=>typeof document.querySelector('#baiLiveFrame').contentWindow.__releaseResume==='function');
+    await page.locator('#uiMainNav [data-workspace="edit"]').click();
+    await child.locator('body').evaluate(body=>body.ownerDocument.defaultView.__releaseResume());
+    await page.waitForTimeout(150);assert.equal(await page.evaluate(()=>window.BAIStudioLiveWorkspace.status().playing),false,'Leaving the workspace cancels an in-flight audio resume');
     harness.assertNoErrors(page);
   } finally {
     await page?.context().close();

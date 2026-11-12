@@ -68,6 +68,7 @@ export const musicDanceStudio = (ctx) => {
   /** @type {any} */ let placement = null;
   let revision = '', dirty = false, alive = true, selected = 'audio';
   let totalFrames = 330, frame = 0, playing = false, playAnchorFrame = 0, playAnchorTime = 0, raf = 0;
+  let playGeneration = 0;
   let loadGeneration = 0, audioGeneration = 0;
   let lastTransportState = '';
   /** @type {import('../viewport/model-loader.js').Libs|null} */ let libs = null;
@@ -91,6 +92,7 @@ export const musicDanceStudio = (ctx) => {
   function stopSound() { if (sound) { try { sound.stop(); } catch { /* already ended */ } sound.disconnect(); sound = null; } }
   function stopLoop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
   function pausePlayback() {
+    ++playGeneration;
     if (playing) frame = clampFrame(currentFrame());
     playing = false; stopSound(); stopLoop(); drawHead(); play.disabled = !hasAudio() && !hasDance();
   }
@@ -163,10 +165,11 @@ export const musicDanceStudio = (ctx) => {
   }
   async function startPlayback() {
     if (playing || (!hasAudio() && !hasDance())) return;
+    const ticket=++playGeneration;
     if (!audioContext) audioContext = new AudioContext();
     try { await audioContext.resume(); }
     catch { say('音声を開始できません。ブラウザの音声設定を確認してください。', true); return; }
-    if (!alive) return;
+    if (!alive || ticket!==playGeneration) return;
     if (frame >= totalFrames) frame = 0;
     playAnchorFrame = frame; playAnchorTime = audioContext.currentTime + .03;
     playing = true; scheduleSound(frame); raf = requestAnimationFrame(tick); drawHead();

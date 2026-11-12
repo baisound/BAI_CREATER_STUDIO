@@ -1,0 +1,4 @@
+
+> bai-creator-studio@0.0.0-recovery typecheck
+> tsc -p tsconfig.json
+
