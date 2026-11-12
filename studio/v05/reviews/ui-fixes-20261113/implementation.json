@@ -116,7 +116,8 @@
     "ubuntuPython": "66 passed",
     "nativeMcpAndWebMcp": "PASS existing render/version round trip",
     "ownerData": "515 files and dirty list unchanged before integration",
-    "sourceSyntax": "PASS"
+    "sourceSyntax": "PASS",
+    "audioInitialLoadFollowUp": "2 passed after reproducing disabled placement for saved audio; initial failing log retained"
   },
   "reviews": {
     "critic1": "PASS: first action and task hierarchy; image/code review",
@@ -161,7 +162,7 @@
     },
     {
       "file": "studio/v05/js/audio-clarity-20261113.js",
-      "sha256": "6d368766907069fdd643781ca3ea0822b847aea7155fad40860b2c740ef28215"
+      "sha256": "c0d5ebffdbd40cc8b9496e670ac8be77b04bf95e8ebcccf2766b6e75cdb4be94"
     },
     {
       "file": "studio/v05/js/asset-workflow-v06.js",
@@ -173,7 +174,7 @@
     },
     {
       "file": "studio/v05/js/audio-workspace-v65.js",
-      "sha256": "81b023504f17b0420ee7208b8a3433513c82f4730dbc824a60b72d176f2a1183"
+      "sha256": "05fef9bf2ad15719b6798a49210d8530686aa195f3c435d655595950514cb55a"
     },
     {
       "file": "studio/v05/js/pane-layout-v63.js",
@@ -252,5 +253,10 @@
     "candidates": 2,
     "rule": "side-tab",
     "decision": "functional master-strip separation and selected-channel state, not decorative card accents; retained after visual review"
+  },
+  "followUp": {
+    "problem": "saved audio loaded programmatically did not enable placement until manual reselection",
+    "fix": "notify availability after saved selection initializes; refresh placement action",
+    "verification": "PASS: saved audio without reselection + 31F/62F + Undo/Redo/reload/MP4 and legacy audio compatibility"
   }
 }

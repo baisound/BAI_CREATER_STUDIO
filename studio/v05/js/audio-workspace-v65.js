@@ -185,6 +185,7 @@ async function load() {
       say('保存済み音声が見つかりません。原本と参照を確認してください。', true);
     }
     select.value = placement.audio_id || '';
+    window.dispatchEvent(new CustomEvent('bai:v05-audio-availability'));
     startInput.value = String(placement.audio_start_frame);
     sourceInput.value = String(placement.audio_source_frame);
     frame = placement.head_frame;

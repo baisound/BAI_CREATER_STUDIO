@@ -89,7 +89,7 @@
     for(const p of [...placement.querySelectorAll('p')])if(p!==target&&p!==summary&&p!==status&&p.id!=='baiAudioStatus')p.remove();
     const update=()=>{const selected=$('v06project')?.selectedOptions[0];target.textContent='配置先の作品：'+(selected?.textContent || '作品を選択してください');summary.textContent='開始 '+(Number($('baiAudioStart').value)/30).toFixed(2)+' 秒 / 元音声 '+(Number($('baiAudioSource').value)/30).toFixed(2)+' 秒から末尾まで';place.disabled=!selected?.value||!select.value;};
     select.addEventListener('change',update);for(const id of ['baiAudioStart','baiAudioSource'])$(id).addEventListener('input',update);
-    window.addEventListener('bai:v05-workspace-changed',update);window.addEventListener('bai:v05-arrangement-loaded',update);
+    window.addEventListener('bai:v05-workspace-changed',update);window.addEventListener('bai:v05-arrangement-loaded',update);window.addEventListener('bai:v05-audio-availability',update);
     place.addEventListener('click',async()=>{
       const projectId=$('v06project').value,assetId=select.value;
       const startFrame=Number($('baiAudioStart').value),sourceFrame=Number($('baiAudioSource').value);

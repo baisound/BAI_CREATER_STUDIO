@@ -9,10 +9,13 @@ test('音声の試聴結果を同作品へ頭出し付きで一括配置し、�
  try{
   const audio=await json(await fetch(s.base+'/api/library-assets/upload?kind=audio&name=音声見本.wav',{method:'POST',body:wav()}));
   const pid=(await json(await fetch(s.base+'/api/studio/v05/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'音声デモ',kind:'empty'})}))).project.id;
-  const original=await json(await fetch(s.base+'/api/music-dance/project'));
+  let original=await json(await fetch(s.base+'/api/music-dance/project'));
+  await json(await fetch(s.base+'/api/music-dance/project',{method:'POST',headers:{'Content-Type':'application/json','If-Match':original.revision},body:JSON.stringify({...original.project,audio_id:audio.item.id})}));
+  original=await json(await fetch(s.base+'/api/music-dance/project'));
   browser=await h.launchBrowser();page=await s.newPage(browser);page.setDefaultTimeout(7000);page.on('pageerror',e=>result.errors.push(e.stack));
   await page.goto(s.base+'/studio/v05/index.html');await page.locator('#uiMainNav [data-workspace=edit]').click();await page.locator('#nav [data-page=audio]').click();
-  await page.waitForFunction(()=>document.querySelector('#baiAudioSelect').options.length>1);await page.locator('#baiAudioSelect').selectOption(audio.item.id);await page.locator('#baiAudioWaves canvas').waitFor();
+  await page.waitForFunction(()=>document.querySelector('#baiAudioSelect').options.length>1);await page.locator('#baiAudioWaves canvas').waitFor();
+  assert.equal(await page.locator('#baiAudioSelect').inputValue(),audio.item.id);await page.waitForFunction(()=>!document.querySelector('#uiAudioPlace').disabled);result.cases.push('saved audio initializes placement action without manual reselection');
   await page.locator('#baiAudioStart').fill('31');await page.locator('#baiAudioStart').dispatchEvent('change');await page.locator('#baiAudioSource').fill('62');await page.locator('#baiAudioSource').dispatchEvent('change');
   assert.match(await page.locator('#uiAudioTargetProject').innerText(),/音声デモ/);assert.match(await page.locator('#uiAudioPlacementSummary').innerText(),/1.03.*2.07/);
   for(const [width,height] of [[1440,900],[1024,768]]){await page.setViewportSize({width,height});if(shots)await page.screenshot({path:path.join(shots,'audio-placement-'+width+'.png')});const b=await page.locator('#uiAudioPlace').boundingBox();assert.ok(b.y>=0&&b.y+b.height<height-26,'Placement CTA fully inside initial page viewport');}

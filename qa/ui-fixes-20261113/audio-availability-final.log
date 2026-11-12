@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: 音声の試聴結果を同作品へ頭出し付きで一括配置し、保存/履歴/実出力を維持する
+ok 1 - 音声の試聴結果を同作品へ頭出し付きで一括配置し、保存/履歴/実出力を維持する
+  ---
+  duration_ms: 5777.902
+  type: 'test'
+  ...
+# Subtest: v0.5 audio page plays actual WAV, shows its waveform, and saves the shared placement
+ok 2 - v0.5 audio page plays actual WAV, shows its waveform, and saves the shared placement
+  ---
+  duration_ms: 3849.1022
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 19749.7371
