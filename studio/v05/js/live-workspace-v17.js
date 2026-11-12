@@ -7,13 +7,19 @@
   const status = document.getElementById('baiLiveStatus');
   const feedback = document.getElementById('baiLiveFeedback');
   if (!frame || !frameInput || !seconds || !status || !feedback) return;
+  const page=document.getElementById('bai-live-motion'),title=page.querySelector('.baiTitle');
+  title.querySelector('h1').textContent='モデル・ダンスプレビュー';
+  const help=document.createElement('details'),summary=document.createElement('summary');summary.textContent='操作について';help.append(summary,title.querySelector('.baiSub'));title.append(help);
+  const transport=frame.previousElementSibling;transport.classList.add('v05LiveTransport');transport.style.marginBottom='6px';
+  feedback.classList.add('v05LiveFeedback');frame.after(feedback);
+  page.querySelector('label[for=baiLiveFrameNumber]').textContent='位置（F）';
   let loaded = false, requestId = 0, pending = null;
   let state = { frame: 0, totalFrames: 0, fps: 30, playing: false, modelLoaded: false, motionLoaded: false, audioLoaded: false };
 
   function ensureLoaded() {
     if (loaded) return;
     loaded = true;
-    frame.src = '/workspace/10';
+    frame.src = '/workspace/10?v05embed=1';
     status.textContent = '実機能の画面を読み込み中';
   }
   function send(action, fields = {}) {
@@ -35,6 +41,8 @@
   }
   function applyState(data) {
     if (!Number.isFinite(data.frame) || !Number.isFinite(data.fps) || data.fps <= 0) return;
+    if(data.playing&&!page.classList.contains('active')){send('pause');return;}
+    const started=Boolean(data.playing)&&!state.playing;
     state = { frame: Math.round(data.frame), totalFrames: Math.round(data.totalFrames || 0),
       fps: data.fps, playing: Boolean(data.playing), modelLoaded: Boolean(data.modelLoaded),
       motionLoaded: Boolean(data.motionLoaded), audioLoaded: Boolean(data.audioLoaded) };
@@ -43,6 +51,7 @@
     status.textContent = state.playing ? '実プレビューを再生中' : '実プレビューを表示中';
     document.getElementById('baiLivePlay').disabled = state.playing;
     document.getElementById('baiLivePause').disabled = !state.playing;
+    if(started)window.dispatchEvent(new CustomEvent('bai:v05-audio-focus',{detail:{owner:'legacy-preview'}}));
   }
   frame.addEventListener('load', () => {
     frame.dataset.loaded = 'true';
@@ -79,6 +88,8 @@
       seek(Math.round(event.detail.seconds * state.fps));
     }
   });
+  window.addEventListener('bai:v05-workspace-changed',event=>{if(loaded&&event.detail?.workspace!=='live-motion')send('pause');});
+  window.addEventListener('bai:v05-audio-focus',event=>{if(loaded&&event.detail?.owner!=='legacy-preview'&&state.playing)send('pause');});
   root.BAIStudioLiveWorkspace = Object.freeze({ seek, open: ensureLoaded,
     status: () => ({ loaded: frame.dataset.loaded === 'true', pending: Boolean(pending), ...state }) });
 })(window);

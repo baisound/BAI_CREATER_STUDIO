@@ -1,0 +1,138 @@
+{
+  "status": "passed",
+  "views": [
+    {
+      "width": 1440,
+      "height": 900,
+      "header": 72,
+      "frame": {
+        "top": 174,
+        "height": 668,
+        "bottom": 842
+      },
+      "viewport": {
+        "top": 125.875,
+        "height": 223.21875,
+        "bottom": 349.09375
+      },
+      "innerTransportTop": 376.09375,
+      "innerHeader": 30
+    },
+    {
+      "width": 1478,
+      "height": 653,
+      "header": 72,
+      "frame": {
+        "top": 174,
+        "height": 421,
+        "bottom": 595
+      },
+      "viewport": {
+        "top": 125.875,
+        "height": 223.21875,
+        "bottom": 349.09375
+      },
+      "innerTransportTop": 376.09375,
+      "innerHeader": 30
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "header": 72,
+      "frame": {
+        "top": 174,
+        "height": 536,
+        "bottom": 710
+      },
+      "viewport": {
+        "top": 125.875,
+        "height": 257.21875,
+        "bottom": 383.09375
+      },
+      "innerTransportTop": 410.09375,
+      "innerHeader": 30
+    }
+  ],
+  "errors": [],
+  "schema": 1,
+  "requirements": [
+    "UX-001",
+    "UX-003",
+    "UX-006",
+    "UX-008",
+    "AUDIO-001"
+  ],
+  "implementation": "implemented",
+  "findings": [
+    {
+      "id": "PREVIEW-H-01",
+      "priority": "P1",
+      "finding": "内外のヘッダーで表示領域が低い",
+      "fix": "外側72px・内側30px、残り高へiframe",
+      "status": "PASS"
+    },
+    {
+      "id": "PREVIEW-H-02",
+      "priority": "P2",
+      "finding": "低画面で3Dと再生操作が重なる",
+      "fix": "flex-shrink防止と内部スクロール、保存のhit test",
+      "status": "PASS"
+    },
+    {
+      "id": "PREVIEW-H-03",
+      "priority": "P1",
+      "finding": "埋込でモード切替が消える",
+      "fix": "toolsとmode-switchを表示メニューへ移動",
+      "status": "PASS"
+    },
+    {
+      "id": "PREVIEW-H-04",
+      "priority": "P2",
+      "finding": "狭幅のナビが画面外へ隠れる",
+      "fix": "position/transform解除と700px実操作",
+      "status": "PASS"
+    },
+    {
+      "id": "PREVIEW-H-05",
+      "priority": "P1",
+      "finding": "音声resume待ち後に非表示画面が再生する",
+      "fix": "世代照合とinactive通知のpause",
+      "status": "PASS"
+    }
+  ],
+  "review": {
+    "critic1": "limited PASS",
+    "critic2": "limited PASS",
+    "critic3": "limited PASS",
+    "judge": "Root; required findings fixed and tested"
+  },
+  "verification": {
+    "browser": "2 targeted tests + 1 common UI regression passed",
+    "typecheck": "PASS"
+  },
+  "images": [
+    {
+      "file": "before-1478x653.png",
+      "sha256": "c366f684441c9c4f0773731570b32ef8d9fa332857b77b419ad2ccbef8e7389a"
+    },
+    {
+      "file": "preview-space-1478x653.png",
+      "sha256": "624047c7547b6ba09baa1bd86fb62fa330c47e8dff08ad435c2d8cbe28b8c977"
+    },
+    {
+      "file": "preview-space-1440x900.png",
+      "sha256": "346d50f404eda9175554432194193c90aee0df720c811dfdf9554a58153b8f30"
+    },
+    {
+      "file": "preview-space-1024x768.png",
+      "sha256": "37a784469cefb17df4ff993bb2f05ec80a6ba10d22ce513d19dd285f2c289ba4"
+    }
+  ],
+  "not_tested": [
+    "screen reader",
+    "200% zoom/touch",
+    "all embedded workspace routes",
+    "model/camera/motion/expression timeline link (separate pending task)",
+    "per-lane mixer timeline link (separate pending task)"
+  ]
+}

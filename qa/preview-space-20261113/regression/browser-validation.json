@@ -1,0 +1,341 @@
+{
+  "status": "passed",
+  "scope": "isolated demo; same product APIs",
+  "cases": [
+    "full-page background inert and no hidden editor Tab focus",
+    "named library fields, search/detail, actual selection-to-placement entry and PMX/VMD entry",
+    "context editor uses existing API, Undo/Redo and reload retain actual changes",
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "clips": [
+        {
+          "x": 224,
+          "y": 706,
+          "bottom": 736,
+          "right": 270
+        },
+        {
+          "x": 284,
+          "y": 706,
+          "bottom": 736,
+          "right": 330
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        768
+      ],
+      "clips": [
+        {
+          "x": 224,
+          "y": 608,
+          "bottom": 638,
+          "right": 270
+        },
+        {
+          "x": 284,
+          "y": 608,
+          "bottom": 638,
+          "right": 330
+        }
+      ]
+    },
+    "all 11 track types reachable through explicit empty-track toggle",
+    "actual auto-save vs prototype JSON and unconnected global Undo distinguished",
+    "saved arrangement read back from actual API without mutating legacy or current data",
+    "all original 11 workspace entries reached through grouped navigation",
+    {
+      "exportViewport": [
+        1440,
+        900
+      ],
+      "layout": {
+        "v69name": {
+          "top": 184,
+          "bottom": 212,
+          "height": 28
+        },
+        "baiOutputFormat": {
+          "top": 248,
+          "bottom": 280,
+          "height": 32
+        },
+        "v69resolution": {
+          "top": 248,
+          "bottom": 280,
+          "height": 32
+        },
+        "v66OutputRange": {
+          "top": 349,
+          "bottom": 403,
+          "height": 54
+        },
+        "baiAddRender": {
+          "top": 505,
+          "bottom": 543,
+          "height": 38
+        },
+        "v69download": {
+          "top": 533.421875,
+          "bottom": 569.421875,
+          "height": 36
+        },
+        "v69historyCard": {
+          "top": 122,
+          "bottom": 430,
+          "height": 308
+        }
+      }
+    },
+    {
+      "exportViewport": [
+        1024,
+        768
+      ],
+      "layout": {
+        "v69name": {
+          "top": 184,
+          "bottom": 212,
+          "height": 28
+        },
+        "baiOutputFormat": {
+          "top": 248,
+          "bottom": 280,
+          "height": 32
+        },
+        "v69resolution": {
+          "top": 248,
+          "bottom": 280,
+          "height": 32
+        },
+        "v66OutputRange": {
+          "top": 349,
+          "bottom": 421,
+          "height": 72
+        },
+        "baiAddRender": {
+          "top": 549,
+          "bottom": 587,
+          "height": 38
+        },
+        "v69download": {
+          "top": 404.734375,
+          "bottom": 440.734375,
+          "height": 36
+        },
+        "v69historyCard": {
+          "top": 122,
+          "bottom": 446,
+          "height": 324
+        }
+      }
+    },
+    {
+      "realMp4Download": {
+        "bytes": 21671,
+        "sha256": "03fd02e3817041689f0c94b46fb20f34737f4d9ed7bef192297138afa6157a49"
+      }
+    },
+    {
+      "exportButtonContrast": {
+        "color": "rgb(255, 255, 255)",
+        "background": "rgb(36, 108, 172)",
+        "ratio": 5.503505269531072
+      }
+    }
+  ],
+  "screens": [],
+  "errors": [],
+  "writes": [
+    {
+      "url": "/api/studio/v05/audio/prepare",
+      "status": 200,
+      "body": "{\"enabled\": false, \"revision\": 0}"
+    },
+    {
+      "url": "/api/studio/v05/audio/prepare",
+      "status": 200,
+      "body": "{\"enabled\": false, \"revision\": 0}"
+    },
+    {
+      "url": "/api/studio/v05/audio/prepare",
+      "status": 200,
+      "body": "{\"enabled\": false, \"revision\": 0}"
+    },
+    {
+      "url": "/api/studio/v05/arrangement/clip/edit",
+      "status": 200,
+      "body": "{\"action\": \"update\", \"clip_id\": \"21004c3d-04b3-4c8b-994a-a2924b8f4ea1\", \"before\": {\"id\": \"21004c3d-04b3-4c8b-994a-a2924b8f4ea1\", \"asset_id\": \"library:88bfa55a9bfb7e6cfdb0a574\", \"name\": \"制作見本\", \"category\": \"image\", \"track\": \"image\", \"lane\": 1, \"start\": 0, \"duration\": 2}, \"clip\": {\"id\": \"21004c3d-04b3-4c8b-994a-a2924b8f4ea1\", \"asset_id\": \"library:88bfa55a9bfb7e6cfdb0a574\", \"name\": \"制作見本\", \"category\": \"image\", \"track\": \"image\", \"lane\": 1, \"start\": 0.5, \"duration\": 2}, \"revision\": 3, \"legacy_engine_unchanged\": true}"
+    },
+    {
+      "url": "/api/studio/v05/audio/prepare",
+      "status": 200,
+      "body": "{\"enabled\": false, \"revision\": 0}"
+    },
+    {
+      "url": "/api/studio/v05/arrangement/history/undo",
+      "status": 200,
+      "body": "{\"revision\": 4, \"action\": \"undo\", \"edit_history\": {\"undo_count\": 2, \"redo_count\": 1}, \"legacy_engine_unchanged\": true}"
+    },
+    {
+      "url": "/api/studio/v05/audio/prepare",
+      "status": 200,
+      "body": "{\"enabled\": false, \"revision\": 0}"
+    },
+    {
+      "url": "/api/studio/v05/arrangement/history/redo",
+      "status": 200,
+      "body": "{\"revision\": 5, \"action\": \"redo\", \"edit_history\": {\"undo_count\": 3, \"redo_count\": 0}, \"legacy_engine_unchanged\": true}"
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/audio/prepare",
+      "status": 200,
+      "body": "{\"enabled\": false, \"revision\": 0}"
+    },
+    {
+      "url": "/api/studio/v05/audio/prepare",
+      "status": 200,
+      "body": "{\"enabled\": false, \"revision\": 0}"
+    },
+    {
+      "url": "/api/studio/v05/playhead",
+      "status": 200,
+      "body": "{\"schema\": 1, \"project_id\": \"460fb3c6-9a35-4c9e-a8cc-acbeb53e387c\", \"seconds\": 1, \"revision\": 1, \"engine_connected\": false}"
+    }
+  ]
+}

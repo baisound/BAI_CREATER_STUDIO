@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const h=require('./helpers/studio-harness.cjs');
-const root=path.resolve(__dirname,'..'),qa=path.join(root,'qa/ui-fixes-20261113');
+const root=path.resolve(__dirname,'..'),qa=process.env.BAI_UI_FIX_QA||path.join(root,'qa/ui-fixes-20261113');
 const shots=process.env.BAI_UI_FIX_SHOTS;
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 async function json(response,status=200){const text=await response.text();assert.equal(response.status,status,text);return JSON.parse(text);}
