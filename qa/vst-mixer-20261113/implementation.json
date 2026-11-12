@@ -133,5 +133,22 @@
       "sha256": "a67874c1bfabe208ef5df2454cc18d602a0fcb6f7d3f151cc25dd4ac9fba5237"
     }
   ],
-  "originals": "Owner data/exports retained; isolated synthetic sources used for tests"
+  "originals": "Owner data/exports retained; isolated synthetic sources used for tests",
+  "implementation_commit": "f4a6a0c8f439840147f14b83752900eb4123d67e",
+  "pull_request": 298,
+  "source_sha256": {
+    "server.py": "976be2960884bba49eec4eecbd5cfa3fac8ab5f21689227c0b899d7fc8d40137",
+    "mcp_server.py": "a271259f1df3d9c18571c9a5d8e7389dc1eea694ebf1af41414ca0a1dae6a9ff",
+    "webmcp.js": "775e8465495f164e97e0b90810ae84a07249e5bb594da5c2df86ba570d7f6eed",
+    "bai_studio/v05/audio/mixer.py": "5c595b08121035b2d9d0d6205ced06509bec0ba15d4ff9244b20efeb156351c5",
+    "bai_studio/v05/audio/worker.py": "c2db2be97d8c2d3a6e17f3d8a4435855f22490d050203c4e19556cc488da7c87",
+    "bai_studio/v05/render/media_render.py": "00b211ac07802330bb9bdfdfcc265b461316f707dea11496b6f408e5cee1c2d8",
+    "studio/v05/js/audio-mixer.js": "c591c84e9c5532859700c28068d197f3d1cc60a704887e678d57372c2433f3e7",
+    "studio/v05/js/audio-workspace-v65.js": "5cc7038083a50c7a32f2cda3c1f562a17214dae8ef3df68b5ba568a53a23d2d5",
+    "studio/v05/js/project-media-preview-v68.js": "5317e112f0550ac1135d5a726e0f0ff6139464147f175cecb07ded7d9917a329",
+    "studio/v05/js/ui-clarity-20261113.js": "2ca1c9239e08836902dc84e91f4607229e430af8403a8d2464f8daaa8b747612",
+    "studio/v05/js/asset-library-v62.js": "7012634afee9d12a48b17635da5a87d627304b8513d71f3f8e2f4481b3a08c35",
+    "studio/v05/css/audio-mixer.css": "711e1188b3e6fabf14d5fed84a045c2032bcd899c352f92ae876115707f96c09",
+    "studio/v05/css/library-scroll-v64.css": "630cd44efec378db3a4536bb7a3af07d174d8ada0a69c36cc287451de7aa7c01"
+  }
 }

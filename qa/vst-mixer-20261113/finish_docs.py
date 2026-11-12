@@ -28,3 +28,15 @@ state=json.loads((root/'docs/roadmap/FEATURE_REGISTER.json').read_text(encoding=
 assert len({x['id'] for x in state['features']})==152
 assert (root/'docs/roadmap/FEATURE_REGISTER.csv').read_bytes().startswith(b'\xef\xbb\xbf')
 print('Roadmap and 152 requirements read back; original statuses retained')
+
+import subprocess,hashlib
+commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root).decode().strip()
+paths=['server.py','mcp_server.py','webmcp.js','bai_studio/v05/audio/mixer.py','bai_studio/v05/audio/worker.py',
+       'bai_studio/v05/render/media_render.py','studio/v05/js/audio-mixer.js','studio/v05/js/audio-workspace-v65.js',
+       'studio/v05/js/project-media-preview-v68.js','studio/v05/js/ui-clarity-20261113.js','studio/v05/js/asset-library-v62.js',
+       'studio/v05/css/audio-mixer.css','studio/v05/css/library-scroll-v64.css']
+for target in ['qa/vst-mixer-20261113/implementation.json','studio/v05/reviews/vst-mixer-20261113/implementation.json']:
+    p=root/target;data=json.loads(p.read_text(encoding='utf-8'))
+    data['implementation_commit']=commit;data['pull_request']=298
+    data['source_sha256']={name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in paths}
+    p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
