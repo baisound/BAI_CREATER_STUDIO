@@ -20,7 +20,7 @@
   const state = { projectId: '', clips: [], entries: [], fps: 60, inFrame: 0,
     outFrame: 0, frame: 0, ready: false, playing: false, generation: 0,
     startFrame: 0, startTime: 0, raf: 0, issues: [], sceneOverlay: false,
-    audioMuted: [], layoutRevision: -1, audioSettingsReady: false };
+    audioMuted: [], layoutRevision: -1, audioSettingsReady: false, mixerRevision: -1, mixed: false };
   const audioTracks = new Set(['audio', 'music', 'video']);
   const savedTracks = new Set(['audio','camera','effect','expression','image','light','lip','model','motion','music','video']);
   const message = text => { $('v68status').textContent = text; };
@@ -65,7 +65,7 @@
     let visible = 0, sounding = 0, sourceEnded = 0;
     for (const entry of state.entries) {
       const { clip, element, kind } = entry;
-      if (kind !== 'image') element.muted = state.audioMuted.includes(clip.track);
+      if (kind !== 'image') element.muted = entry.mixed ? false : state.mixed || state.audioMuted.includes(clip.track);
       if (entry.failed) { element.hidden = true; pauseElement(element); continue; }
       const active = activeAt(clip, seconds);
       if (kind === 'image') { element.hidden = !active; if (active && element.complete && element.naturalWidth > 0) visible++; continue; }
@@ -135,6 +135,7 @@
   function play() {
     const scene = window.BAIStudioMultiScenePreview?.status?.();
     if (!state.ready || !state.audioSettingsReady || (!state.entries.some(entry => !entry.failed) && !(scene?.opened && scene.loaded > 0))) return;
+    window.dispatchEvent(new CustomEvent('bai:v05-audio-focus',{detail:{owner:'timeline'}}));
     delete $('v68frame').dataset.dirty;
     if (state.frame >= state.outFrame) setFrame(state.inFrame);
     state.startFrame = state.frame;
@@ -173,6 +174,12 @@
       if (![assetsResponse, rangeResponse, headResponse, layoutResponse].every(response => response.ok)) throw Error('素材・範囲・再生位置・音声ミュート設定を取得できません');
       const [inventory, range, head, layout] = await Promise.all([assetsResponse.json(), rangeResponse.json(), headResponse.json(), layoutResponse.json()]);
       if (generation !== state.generation) return;
+      const mixResponse = await fetch('/api/studio/v05/audio/prepare', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId})});
+      const mix = await mixResponse.json();
+      if (!mixResponse.ok) throw Error(mix.error || 'ミキサーの音声処理を完了できません');
+      if (generation !== state.generation) return;
+      state.mixed = mix.enabled;
+      state.mixerRevision = mix.revision;
       applyAudioLayout(layout);
       if (!Array.isArray(inventory.items) || !Number.isFinite(range.fps) || range.fps <= 0 ||
           !Number.isInteger(range.final_frame) || range.final_frame < 0) throw Error(range.error || '保存済み作品の情報が不正です');
@@ -220,6 +227,13 @@
         state.entries.push(entry);
       }
       state.entries.sort((a, b) => (a.clip.lane || 1) - (b.clip.lane || 1) || a.clip.start - b.clip.start || a.clip.id.localeCompare(b.clip.id));
+      if (mix.enabled) {
+        const element=document.createElement('audio');element.src=mix.url;element.preload='auto';element.hidden=true;element.dataset.mixerAudio=mix.id;layers.append(element);
+        const clip={id:'processed-mix',start:0,duration:mix.duration,source_start:0,track:'master'};
+        const entry={clip,kind:'audio',element,failed:false,mixed:true};
+        element.onerror=()=>{entry.failed=true;state.audioSettingsReady=false;pause();refreshStage();message('処理済み音声を再生できません。保存済み作品を再読込してください');};
+        state.entries.push(entry);
+      }
       for (const entry of state.entries) if (entry.kind !== 'audio') layers.append(entry.element);
       state.ready = true;
       refreshStage();
@@ -245,23 +259,28 @@
     state.layoutRevision = layout.revision;
     state.audioMuted = (layout.muted || []).filter(t => audioTracks.has(t));
     state.audioSettingsReady = true;
-    for (const entry of state.entries) if (entry.kind !== 'image') entry.element.muted = state.audioMuted.includes(entry.clip.track);
+    for (const entry of state.entries) if (entry.kind !== 'image') entry.element.muted = entry.mixed ? false : state.mixed || state.audioMuted.includes(entry.clip.track);
     refreshStage();
     return changed;
   }
   window.addEventListener('bai:v05-track-layout-changed', event => {
-    try { applyAudioLayout(event.detail); } catch (error) { state.audioSettingsReady = false; pause(); refreshStage(); message(error.message); }
+    try { if(applyAudioLayout(event.detail)&&state.mixed&&state.ready)void configure({projectId:state.projectId,clips:state.clips}); } catch (error) { state.audioSettingsReady = false; pause(); refreshStage(); message(error.message); }
   });
+  window.addEventListener('bai:v05-mixer-saved',event=>{if(event.detail.project_id===state.projectId)void configure({projectId:state.projectId,clips:state.clips});});
   let layoutPolling = false;
   async function pollAudioLayout() {
     if (layoutPolling || document.hidden || !state.ready || !state.projectId) return;
     const projectId = state.projectId, generation = state.generation;
     layoutPolling = true;
     try {
-      const response = await fetch(`/api/studio/v05/timeline/layout?id=${encodeURIComponent(projectId)}`, { cache: 'no-store' });
+      const [response,mixerResponse] = await Promise.all([fetch(`/api/studio/v05/timeline/layout?id=${encodeURIComponent(projectId)}`, { cache: 'no-store' }),fetch('/api/studio/v05/audio/settings?project_id='+encodeURIComponent(projectId),{cache:'no-store'})]);
       if (!response.ok) throw Error('音声ミュート設定を再確認できません');
       const layout = await response.json();
+      if(!mixerResponse.ok)throw Error('保存済みミキサーを再確認できません');
+      const mixer=await mixerResponse.json();
+      if(generation===state.generation&&mixer.revision!==state.mixerRevision){void configure({projectId:state.projectId,clips:state.clips});return;}
       if (generation === state.generation && projectId === state.projectId && applyAudioLayout(layout)) {
+        if(state.mixed){void configure({projectId:state.projectId,clips:state.clips});return;}
         window.dispatchEvent(new CustomEvent('bai:v05-track-layout-changed', { detail: layout }));
       }
     } catch (error) {
@@ -271,6 +290,7 @@
   const layoutTimer = setInterval(() => { void pollAudioLayout(); }, 2000);
 
   $('v68play').addEventListener('click', play);
+  window.addEventListener('bai:v05-audio-focus',e=>{if(e.detail.owner!=='timeline')pause();});
   $('v68pause').addEventListener('click', () => pause(true));
   $('v68stop').addEventListener('click', () => { void stop(); });
   $('v68back').addEventListener('click', () => { void seek(state.frame - 1); });

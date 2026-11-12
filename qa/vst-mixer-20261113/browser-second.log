@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: VST3と作品ミキサーを操作し、保存・試聴・プレビュー・実MP4を同じ処理へ接続する
+ok 1 - VST3と作品ミキサーを操作し、保存・試聴・プレビュー・実MP4を同じ処理へ接続する
+  ---
+  duration_ms: 10201.6766
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 15263.7105

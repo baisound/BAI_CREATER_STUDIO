@@ -8,7 +8,7 @@ HOST=os.environ.get('MIXAMO_VIEWER_URL','http://127.0.0.1:8765').rstrip('/')
 if not (HOST.startswith('http://127.0.0.1:') or HOST.startswith('http://localhost:')):
     raise SystemExit('Only loopback endpoints are accepted')
 
-def api(path, payload=None, raw=None):
+def api(path, payload=None, raw=None, timeout=None):
     if raw is not None and payload is not None:raise ValueError('Choose JSON or raw body')
     body=(raw if raw is not None else None if payload is None
           else json.dumps(payload,ensure_ascii=False).encode())
@@ -17,7 +17,7 @@ def api(path, payload=None, raw=None):
     req=urllib.request.Request(HOST+path,data=body,headers=headers,
                                method='POST' if body is not None else 'GET')
     try:
-        with urllib.request.urlopen(req,timeout=30 if raw is not None else 12) as res:return json.loads(res.read())
+        with urllib.request.urlopen(req,timeout=timeout or (30 if raw is not None else 12)) as res:return json.loads(res.read())
     except urllib.error.HTTPError as exc:raise ValueError(f'HTTP {exc.code}: {exc.read(600).decode(errors="replace")}')
     except urllib.error.URLError as exc:raise ConnectionError('Mixamo viewer is not running. Start 起動.bat / start.sh first: '+str(exc.reason))
 
@@ -143,6 +143,11 @@ def run(name,a):
     if name=='bai_studio_track_flags_set':return api('/api/studio/v05/timeline/flags',a)
     if name=='bai_studio_clip_target_set':return api('/api/studio/v05/arrangement/clip/target',a)
     if name=='bai_studio_clip_edit':return api('/api/studio/v05/arrangement/clip/edit',a)
+    if name=='bai_studio_audio_capabilities':return api('/api/studio/v05/audio/capabilities')
+    if name=='bai_studio_audio_settings_get':return api('/api/studio/v05/audio/settings?project_id='+urllib.parse.quote(a['project_id'],safe=''))
+    if name=='bai_studio_audio_settings_save':return api('/api/studio/v05/audio/settings',a)
+    if name=='bai_studio_audio_plugin_inspect':return api('/api/studio/v05/audio/inspect',a,timeout=40)
+    if name=='bai_studio_audio_prepare':return api('/api/studio/v05/audio/prepare',a,timeout=3660)
     if name=='bai_studio_clip_split':return api('/api/studio/v05/arrangement/clip/split',a)
     if name=='bai_studio_clip_place':return api('/api/studio/v05/arrangement/place',a)
     if name=='bai_studio_focus_reports_get':return api('/api/studio/v05/focus-reports?id='+urllib.parse.quote(a['project_id']))
@@ -305,6 +310,11 @@ TOOLS=[
 ('bai_studio_clip_target_set','Set or clear a motion clip target model with revision check.',S({'project_id':STR,'clip_id':STR,'revision':INT,'target_model_id':{'type':['string','null']}},['project_id','clip_id','revision','target_model_id'])),
 ('bai_studio_clip_edit','Update or delete saved v0.5 clip metadata and original media window by ID with revision check; legacy engine unchanged.',S({'project_id':STR,'clip_id':STR,'revision':INT,'action':{'type':'string','enum':['update','delete']},'start':{'type':'number'},'duration':{'type':'number'},'track':STR,'source_start':{'type':'number','minimum':0,'description':'Start offset in the original video/audio in seconds, independent of timeline start.'},'lane':{'type':'integer','minimum':1,'description':'Existing image/video/audio/music lane ID; use 1 for other tracks.'}},['project_id','clip_id','revision','action'])),
 ('bai_studio_clip_place','Place registered asset into v0.5 clip arrangement with optimistic revision.',S({'project_id':STR,'asset_id':STR,'track':STR,'start':{'type':'number'},'duration':{'type':'number'},'revision':INT,'lane':{'type':'integer','minimum':1,'description':'Existing image/video/audio/music lane ID; use 1 for other tracks.'}},['project_id','asset_id','track','start','duration','revision'])),
+('bai_studio_audio_capabilities','List local offline VST3 host and detected plugins. Detection does not load plugins.',S({},[])),
+('bai_studio_audio_settings_get','Read saved project music/audio/video/master mixer settings.',S({'project_id':STR},['project_id'])),
+('bai_studio_audio_settings_save','Save project gain dB, mute, solo and ordered VST3 inserts. Read settings first; optimistic revision required.',S({'project_id':STR,'revision':INT,'enabled':{'type':'boolean'},'channels':{'type':'object','description':'Exact music/audio/video/master keys. Each: gain_db (-60..6), mute/solo booleans, inserts array of plugin_id, bypass, parameters (normalized 0..1).'}},['project_id','revision','enabled','channels'])),
+('bai_studio_audio_plugin_inspect','Inspect a detected local VST3 effect in an isolated host process.',S({'plugin_id':STR},['plugin_id'])),
+('bai_studio_audio_prepare','Process saved project or optional single asset through offline VST3 and mixer; returns PCM URL and measured peaks. Does not change original assets.',S({'project_id':STR,'asset_id':STR,'channel':{'type':'string','enum':['music','audio','video']}},['project_id'])),
 ('bai_studio_clip_split','Split a saved video/audio/music clip at a project time in seconds, keeping original source windows. Revision and lock guarded; source file is retained.',S({'project_id':STR,'clip_id':STR,'revision':INT,'split_at':{'type':'number','minimum':0}},['project_id','clip_id','revision','split_at'])),
 ('bai_studio_focus_reports_get','Read saved project focus interval reports.',S({'project_id':STR},['project_id'])),
 ('bai_studio_focus_reports_save','Save completed focus interval report.',S({'project_id':STR,'revision':INT,'report':{'type':'object'}},['project_id','revision','report'])),

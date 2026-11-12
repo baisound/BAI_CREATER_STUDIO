@@ -128,7 +128,7 @@
 
   function renderList() {
     const shown = shownItems();
-    grid.innerHTML = shown.map((item) => `<button type="button" class="baiCard clickable" data-library-id="${esc(item.id)}" style="display:block;width:100%;text-align:left" aria-pressed="${item.id === selectedId}">
+    grid.innerHTML = shown.map((item) => `<button type="button" class="baiCard clickable" data-library-id="${esc(item.id)}" title="${esc(item.name)}" style="display:block;width:100%;text-align:left" aria-pressed="${item.id === selectedId}">
       ${preview(item, true)}<b>${esc(item.name)}</b><p class="baiTiny">${esc(labels[item.category] || item.category)} / ${esc(item.format || '形式不明')}${item.available ? '' : ' / 使用不可'}</p>
     </button>`).join('') || '<p>条件に合う登録素材はありません。</p>';
     $('baiAssetCount').textContent = `${shown.length}件表示 / 登録${items.length}件`;
