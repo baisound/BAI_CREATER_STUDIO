@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-12T06:51:47+09:00",
+  "updated_at": "2026-11-12T23:44:02+09:00",
   "updated_by": "codex",
-  "branch": "codex/clip-history-main-sync-20261112",
-  "head_at_update": "9a69e90",
+  "branch": "codex/render-failure-protection-20261112",
+  "head_at_update": "44c8afa",
   "current": {
-    "task": "素材編集履歴のmain・制作画面同期を記録",
-    "status": "done",
-    "step": "PR286を利用者mainへ反映し8765のPythonと開いている画面を更新・保持証拠を保存",
-    "design_doc": "docs/v05/CLIP_EDIT_HISTORY_20261112_JA.md"
+    "task": "順3 G3-D 出力失敗後の復旧と完成動画保護",
+    "status": "in_progress",
+    "step": "保存障害/確定直後の中断/同容量の改変を隔離再現し、再試行と旧出力保持を修正・検証",
+    "design_doc": "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md"
   },
   "next_steps": [
     "G3-D1：出力失敗/中断・再開/旧完成物保持の既存証拠を照合し、実制作に影響する次の不足を選んで進める。OGV長尺は低優先"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-12T23:44:02+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "44c8afa",
+      "text": "順3 G3-D 出力失敗後の復旧と完成動画保護: 保存障害/確定直後の中断/同容量の改変を隔離再現し、再試行と旧出力保持を修正・検証"
+    },
     {
       "at": "2026-11-12T06:51:47+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "252f34a",
       "text": "ロードマップ現在地と順3細分化・AAC境界の診断に着手: 7段階と順3の終了条件を証拠へ照合し、既存出力のAAC切替前後PCMを再解析して原因を分ける"
-    },
-    {
-      "at": "2026-11-08T22:01:42+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "855e9a6",
-      "text": "maincaac129・手元/開発木・8765再起動と動画capability/mainプローブ・表示中Chrome再読込、515ファイル不変、Issue画像3枚を正本へ記録"
     }
   ]
 }
