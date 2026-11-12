@@ -2,7 +2,7 @@
   "status": "passed",
   "pr": 293,
   "implementationCommit": "883bf67810cda6176018d4a2209cf21cfa4a1429",
-  "mergedMain": "1f60e2119f9d65490f6ec3f6ac8b764e5e102ab7",
+  "mergedMain": "ce9e8b65f5af2c3803cf2e37d6fb0588197da400",
   "serverPid": 55972,
   "serverRestartedFromOwnerMain": true,
   "http8765": [
@@ -21,7 +21,7 @@
     {
       "path": "studio/v05/js/audio-clarity-20261113.js",
       "status": 200,
-      "sha256": "6d368766907069fdd643781ca3ea0822b847aea7155fad40860b2c740ef28215",
+      "sha256": "c0d5ebffdbd40cc8b9496e670ac8be77b04bf95e8ebcccf2766b6e75cdb4be94",
       "matchesMain": true
     },
     {
@@ -39,7 +39,7 @@
     {
       "path": "studio/v05/reviews/ui-fixes-20261113/implementation.json",
       "status": 200,
-      "sha256": "532bf528f5badd0a5d465f63d299879c61ee0bb78039d49e916af61792b49879",
+      "sha256": "f6540b022c376e57495b6cdbb07a0ad5810d57e8538898a1a1f4c991e0d88365",
       "matchesMain": true
     },
     {
@@ -52,5 +52,52 @@
   "ownerFiles": 515,
   "ownerFilesUnchanged": true,
   "ownerAggregateSha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
-  "browser": "pending CUA confirmation"
+  "browser": {
+    "provider": "Chrome 3",
+    "productionTab": "1055946475",
+    "productionUrl": "http://127.0.0.1:8765/studio/v05/index.html",
+    "observed": [
+      "4 grouped navigation entries",
+      "saved audio selected and placement action enabled without reselection",
+      "effect/mixer tab selected with master and effect inspector",
+      "VST and gain remain explicitly unconnected"
+    ],
+    "comparisonTab": "1055946489",
+    "comparisonUrl": "http://127.0.0.1:8765/studio/v05/reviews/ui-fixes-20261113/index.html",
+    "comparisonScreenshotObserved": true,
+    "tabsKeptOpen": true,
+    "actions": "reload and view/navigation only; no owner clip/source save"
+  },
+  "followUpPr": 294,
+  "followUpCommit": "9329a730123caa6d56f6936509b06fd0e2cc0bdc",
+  "ownerGuardAfterBrowser": {
+    "files": 515,
+    "aggregate_sha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "head": "ce9e8b65f5af2c3803cf2e37d6fb0588197da400"
+  },
+  "note": "PR293のPythonをmainから再起動。PR294はJS通知修正のため同じPID55972を継続。最新main/開発木/8765/Chromeを同期。",
+  "publicIssueImages": [
+    {
+      "file": "edit-1440.png",
+      "url": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/9329a730123caa6d56f6936509b06fd0e2cc0bdc/studio/v05/reviews/ui-fixes-20261113/edit-1440.png",
+      "mime": "image/png",
+      "sha256": "9ca645ddee2e2e66d445810e03fa6e6d49624f5c2d345534b29b95df205b3682",
+      "matchesCommittedDemoScreenshot": true
+    },
+    {
+      "file": "audio-placement-1024.png",
+      "url": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/9329a730123caa6d56f6936509b06fd0e2cc0bdc/studio/v05/reviews/ui-fixes-20261113/audio-placement-1024.png",
+      "mime": "image/png",
+      "sha256": "f81ebf9dc42afa876fe4150b05afaa6f94a9cc9e7cbd74df1cb75113684c3f79",
+      "matchesCommittedDemoScreenshot": true
+    },
+    {
+      "file": "audio-effects-1024.png",
+      "url": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/9329a730123caa6d56f6936509b06fd0e2cc0bdc/studio/v05/reviews/ui-fixes-20261113/audio-effects-1024.png",
+      "mime": "image/png",
+      "sha256": "f9f04e6a331f649b004d4a647a14a7664df6d68d5f0da0f7b7c1dbca89397d24",
+      "matchesCommittedDemoScreenshot": true
+    }
+  ]
 }

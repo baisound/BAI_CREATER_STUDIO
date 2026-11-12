@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T02:31:14+09:00",
+  "updated_at": "2026-11-13T02:36:16+09:00",
   "updated_by": "codex",
   "branch": "codex/ui-audit-fixes-20261113",
-  "head_at_update": "bc608e1",
+  "head_at_update": "ce9e8b6",
   "current": {
     "task": "UI改修のmain同期と保存済み音声の初期配置ボタン修正",
     "status": "done",
@@ -11,12 +11,11 @@
     "design_doc": "docs/v05/UI_FIXES_20261113_JA.md"
   },
   "next_steps": [
-    "追加の音声初期表示修正をPR/mainへ反映し、同じChromeタブで配置ボタン有効とDAW表示・比較ページを確認する",
-    "UI改修反映後は未完の順3 G3-F1へ戻る"
+    "順3 G3-F1：終了条件と残件の正本整理へ戻る。OGV長尺は低優先のまま"
   ],
   "unverified": [
-    "VSTホスト/ミキサー音量エンジンは未接続。Linuxブラウザー/GPU、全3D組合せ、SR/200%拡大/物理タッチ/初見理解/性能/大量素材は未検証",
-    "追加source_startのMCP入力スキーマ露出は今回追加していない。順3全体・G3-F1・順4〜7は未完"
+    "VSTホスト/ミキサー音量エンジンは未接続。Linuxブラウザー/GPU、全3D組合せ、SR/200%拡大/タッチ/初見理解/性能/大量素材は未検証",
+    "追加source_startのMCP入力スキーマ露出は未追加。順3全体・G3-F1・順4〜7は未完"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T02:36:16+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ce9e8b6",
+      "text": "UI修正PR293/294をmaince9e8b6へ統合。8765/Python55972・既存Chrome6475の保存音声配置有効/DAW表示・比較6489を同期。515ファイル/dirty不変、Issue69に3画像を保存"
+    },
     {
       "at": "2026-11-13T02:31:14+09:00",
       "by": "codex",
@@ -231,13 +237,6 @@
       "event": "done",
       "head": "0b21686",
       "text": "G3-B2の長尺MP4 VFR代表は両OS成功：6879F・有音149窓差0/静かな4窓RMS、元AAC10033packet/PTS保持。測定器3失敗と並行SDK時間切れを区別し製品コード変更なし"
-    },
-    {
-      "at": "2026-11-11T13:59:38+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3639dc7",
-      "text": "順3 G3-B2：長尺VFRと元区間・分割境界の同期検証: 214秒実映像由来VFRと元AAC保持を隔離生成し、29.97fps/320kの保存・分割移動・元PTS/画素/PCMをWinとUbuntuで検証"
     }
   ]
 }
