@@ -19,8 +19,9 @@ test('shared editor panes resize, persist across tabs and reload, and reset', as
   const page = await server.newPage(browser);
   try {
     await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('#baiLeftPaneHandle').waitFor();
-    assert.equal(await page.locator('#nav [data-workspace="assets"]').count(), 0);
+    assert.equal(await page.locator('#nav [data-workspace="assets"]').count(), 1);
     const left = page.locator('.main .left');
     const timeline = page.locator('.main .timeline');
     const initialLeft = (await left.boundingBox()).width;
@@ -48,6 +49,7 @@ test('shared editor panes resize, persist across tabs and reload, and reset', as
       assert.ok(Math.abs((await timeline.boundingBox()).height - changedBottom) < 2);
     }
     await page.reload();
+    await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('#baiLeftPaneHandle').waitFor();
     await page.locator('#nav [data-workspace="edit"]').click();
     assert.ok(Math.abs((await left.boundingBox()).width - changedLeft) < 2);
@@ -59,7 +61,8 @@ test('shared editor panes resize, persist across tabs and reload, and reset', as
     await page.locator('#baiLeftPaneHandle').focus();
     await page.keyboard.press('ArrowRight');
     assert.ok((await left.boundingBox()).width > changedLeft + 10);
-    await page.locator('#baiPaneReset').click();
+    await page.locator('#uiTimelineSettings>summary').click();
+    await page.locator('#uiTimelineSettings').getByRole('button',{name:'パネル配置を戻す',exact:true}).click();
     assert.ok(Math.abs((await left.boundingBox()).width - initialLeft) < 2);
     assert.ok(Math.abs((await timeline.boundingBox()).height - initialBottom) < 2);
     assert.equal(await page.evaluate(() => localStorage.getItem('bai.v05.paneLayout.v1')), null);

@@ -306,7 +306,7 @@
       ]);
       if (seq !== requestSeq || projectId !== activeProject()) return;
       $('v69audioQuality').textContent = Number.isInteger(caps.audio_bitrate) && caps.audio_bitrate > 0
-        ? `音声: AAC ${caps.audio_bitrate / 1000} kb/s。入力音量を保って圧縮します。320 kb/sの出力は従来の192 kb/sより音声の容量が増えます。以前の完成物は保持します。`
+        ? `音声: AAC ${caps.audio_bitrate / 1000} kb/s`
         : '';
       const hasScene = scene.instances.some(instance => instance.visible);
       context = { projectId, range, arrangement, sceneRevision: hasScene ? scene.revision : null };

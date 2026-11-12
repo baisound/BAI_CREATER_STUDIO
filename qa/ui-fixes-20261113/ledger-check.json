@@ -1,0 +1,17 @@
+{
+  "ids": 151,
+  "duplicateIds": 0,
+  "formalStatusesChanged": false,
+  "updatedEvidenceIds": [
+    "AUDIO-001",
+    "DATA-008",
+    "UX-001",
+    "UX-002",
+    "UX-003",
+    "UX-004",
+    "UX-005",
+    "UX-006",
+    "UX-008"
+  ],
+  "preexistingDetailDifferencesPreserved": 12
+}

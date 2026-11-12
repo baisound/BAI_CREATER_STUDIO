@@ -1,0 +1,352 @@
+{
+  "status": "passed",
+  "scope": "isolated demo; same product APIs",
+  "cases": [
+    "full-page background inert and no hidden editor Tab focus",
+    "named library fields, search/detail, actual selection-to-placement entry and PMX/VMD entry",
+    "context editor uses existing API, Undo/Redo and reload retain actual changes",
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "clips": [
+        {
+          "x": 224,
+          "y": 706,
+          "bottom": 736,
+          "right": 270
+        },
+        {
+          "x": 284,
+          "y": 706,
+          "bottom": 736,
+          "right": 330
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        768
+      ],
+      "clips": [
+        {
+          "x": 224,
+          "y": 608,
+          "bottom": 638,
+          "right": 270
+        },
+        {
+          "x": 284,
+          "y": 608,
+          "bottom": 638,
+          "right": 330
+        }
+      ]
+    },
+    "all 11 track types reachable through explicit empty-track toggle",
+    "actual auto-save vs prototype JSON and unconnected global Undo distinguished",
+    "saved arrangement read back from actual API without mutating legacy or current data",
+    "all original 11 workspace entries reached through grouped navigation",
+    {
+      "exportViewport": [
+        1440,
+        900
+      ],
+      "layout": {
+        "v69name": {
+          "top": 215,
+          "bottom": 243,
+          "height": 28
+        },
+        "baiOutputFormat": {
+          "top": 279,
+          "bottom": 311,
+          "height": 32
+        },
+        "v69resolution": {
+          "top": 279,
+          "bottom": 311,
+          "height": 32
+        },
+        "v66OutputRange": {
+          "top": 380,
+          "bottom": 434,
+          "height": 54
+        },
+        "baiAddRender": {
+          "top": 562,
+          "bottom": 600,
+          "height": 38
+        },
+        "v69download": {
+          "top": 560.3125,
+          "bottom": 596.3125,
+          "height": 36
+        },
+        "v69historyCard": {
+          "top": 153,
+          "bottom": 461,
+          "height": 308
+        }
+      }
+    },
+    {
+      "exportViewport": [
+        1024,
+        768
+      ],
+      "layout": {
+        "v69name": {
+          "top": 205,
+          "bottom": 233,
+          "height": 28
+        },
+        "baiOutputFormat": {
+          "top": 269,
+          "bottom": 301,
+          "height": 32
+        },
+        "v69resolution": {
+          "top": 269,
+          "bottom": 301,
+          "height": 32
+        },
+        "v66OutputRange": {
+          "top": 370,
+          "bottom": 442,
+          "height": 72
+        },
+        "baiAddRender": {
+          "top": 570,
+          "bottom": 608,
+          "height": 38
+        },
+        "v69download": {
+          "top": 425.734375,
+          "bottom": 461.734375,
+          "height": 36
+        },
+        "v69historyCard": {
+          "top": 143,
+          "bottom": 467,
+          "height": 324
+        }
+      }
+    },
+    {
+      "realMp4Download": {
+        "bytes": 21671,
+        "sha256": "03fd02e3817041689f0c94b46fb20f34737f4d9ed7bef192297138afa6157a49"
+      }
+    },
+    {
+      "exportButtonContrast": {
+        "color": "rgb(255, 255, 255)",
+        "background": "rgb(36, 108, 172)",
+        "ratio": 5.503505269531072
+      }
+    }
+  ],
+  "screens": [
+    {
+      "key": "home-1440",
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113-ui-fixes\\home-1440.png",
+      "sha256": "00a958902f8d1af66da698e65b940a389c078e13d9e39587e1895b9795a73163"
+    },
+    {
+      "key": "library-1440",
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113-ui-fixes\\library-1440.png",
+      "sha256": "66dfd663f34075baf8ab64d0e56d219b91908d8680b8739d8fda28be214c6781"
+    },
+    {
+      "key": "output-1440",
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113-ui-fixes\\output-1440.png",
+      "sha256": "ace0b8536a7af9755ec85b3b64358f2b8f01930bca8ffcaee39e8b1161996c5d"
+    },
+    {
+      "key": "library-selected-1440",
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113-ui-fixes\\library-selected-1440.png",
+      "sha256": "76e8f690246993a5919ffef736556954d2758bc66b66a7ee45a748bc525c2ebc"
+    },
+    {
+      "key": "edit-1440",
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113-ui-fixes\\edit-1440.png",
+      "sha256": "9ca645ddee2e2e66d445810e03fa6e6d49624f5c2d345534b29b95df205b3682"
+    },
+    {
+      "key": "edit-1024",
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113-ui-fixes\\edit-1024.png",
+      "sha256": "6da06d573b39b5433448a6976a56440ddf55c577c8bab67a6756ed235c687609"
+    },
+    {
+      "key": "track-settings-1440",
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113-ui-fixes\\track-settings-1440.png",
+      "sha256": "c4ddbdac689759df373b9efbbaa23d1cdfca3d1ef92d43e00162ef68976866ba"
+    },
+    {
+      "key": "output-1440",
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113-ui-fixes\\output-1440.png",
+      "sha256": "9e67eb45dfdc16498d8466f7c7f268a8490b6687671df81b609d571b39d4f83d"
+    },
+    {
+      "key": "output-1024",
+      "path": "D:\\BAI\\BAI_CREATER_STUDIO\\_Claude確認画像\\20261113-ui-fixes\\output-1024.png",
+      "sha256": "f8c4bd5b22a1b92aa7e45e21a1457093329b90d6638327af754c0aa1ef2e435f"
+    }
+  ],
+  "errors": [],
+  "writes": [
+    {
+      "url": "/api/studio/v05/arrangement/clip/edit",
+      "status": 200,
+      "body": "{\"action\": \"update\", \"clip_id\": \"77c9b21d-136e-44db-8c2b-e9083c53ddad\", \"before\": {\"id\": \"77c9b21d-136e-44db-8c2b-e9083c53ddad\", \"asset_id\": \"library:88bfa55a9bfb7e6cfdb0a574\", \"name\": \"制作見本\", \"category\": \"image\", \"track\": \"image\", \"lane\": 1, \"start\": 0, \"duration\": 2}, \"clip\": {\"id\": \"77c9b21d-136e-44db-8c2b-e9083c53ddad\", \"asset_id\": \"library:88bfa55a9bfb7e6cfdb0a574\", \"name\": \"制作見本\", \"category\": \"image\", \"track\": \"image\", \"lane\": 1, \"start\": 0.5, \"duration\": 2}, \"revision\": 3, \"legacy_engine_unchanged\": true}"
+    },
+    {
+      "url": "/api/studio/v05/arrangement/history/undo",
+      "status": 200,
+      "body": "{\"revision\": 4, \"action\": \"undo\", \"edit_history\": {\"undo_count\": 2, \"redo_count\": 1}, \"legacy_engine_unchanged\": true}"
+    },
+    {
+      "url": "/api/studio/v05/arrangement/history/redo",
+      "status": 200,
+      "body": "{\"revision\": 5, \"action\": \"redo\", \"edit_history\": {\"undo_count\": 3, \"redo_count\": 0}, \"legacy_engine_unchanged\": true}"
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/diagnostic",
+      "status": 200,
+      "body": null
+    },
+    {
+      "url": "/api/studio/v05/playhead",
+      "status": 200,
+      "body": "{\"schema\": 1, \"project_id\": \"2e1efed4-3de8-463c-a54a-48ec654ed2c5\", \"seconds\": 1, \"revision\": 1, \"engine_connected\": false}"
+    }
+  ]
+}

@@ -182,6 +182,9 @@
       ${videoOutputNote(item)}
       ${item.available ? '<button type="button" id="baiPlaceSelected">この素材をタイムラインで選ぶ</button>' : ''}
       <p class="baiTiny">原本は変更しません。配置後の実再生は素材形式ごとに確認が必要です。</p>`;
+    // Keep the next step before metadata, in the initial detail viewport.
+    const place = $('baiPlaceSelected');
+    if (place) detail.querySelector('h2').after(place);
     if (supports3d(item)) modelImport().mountDetail($('baiDetail3d'), item, items);
     watchDetailMedia();
     detail.querySelectorAll('[data-v188-thumb]').forEach(fillThumbnail); // the selected item, not only when scrolled into view

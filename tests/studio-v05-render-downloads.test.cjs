@@ -52,7 +52,7 @@ test('completed MP4s download from the list, survive reload/preparation errors a
       const a = await create('ダウンロード作品A'), b = await create('ダウンロード作品B');
       browser = await server.launchBrowser(); page = await server.newPage(browser, { acceptDownloads: true });
       await page.goto(server.base + '/studio/v05/index.html');
-      await page.locator('#v06project').selectOption(a.id);
+      await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v06project').selectOption(a.id);
       await page.locator('#nav [data-workspace="export"]').click();
       await page.waitForFunction(() => !document.querySelector('#baiAddRender').disabled);
       await page.locator('#v69name').fill('完成動画A');
@@ -70,7 +70,7 @@ test('completed MP4s download from the list, survive reload/preparation errors a
       await page.waitForSelector(`.v69job[data-job-id="${original.id}"] button:has-text("この旧版を復元")`);
       await downloadAndCheck(page, page.locator(`.v69job[data-job-id="${original.id}"]`), server, original,
         `完成動画A-旧版-${original.id.slice(0, 8)}.mp4`);
-      await page.reload(); await page.locator('#v06project').selectOption(a.id);
+      await page.reload(); await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v06project').selectOption(a.id);
       await page.locator('#nav [data-workspace="export"]').click();
       await page.waitForSelector(`.v69job[data-job-id="${current.id}"] a[data-action="download"]`);
       assert.equal(await page.locator(`.v69job[data-job-id="${other.id}"]`).count(), 0);
@@ -107,7 +107,7 @@ test('completed MP4s download from the list, survive reload/preparation errors a
       await page.waitForSelector(`.v69job[data-job-id="${current.id}"] a[data-action="download"]`);
       await page.route('**/api/studio/v05/render/capabilities', route => route.fulfill({
         status: 503, contentType: 'application/json', body: JSON.stringify({ error: '試験用: 新規出力の準備不可' }) }));
-      await page.reload(); await page.locator('#v06project').selectOption(a.id);
+      await page.reload(); await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v06project').selectOption(a.id);
       await page.locator('#nav [data-workspace="export"]').click();
       await page.waitForFunction(() => document.querySelector('#v69status').textContent.includes('書き出し準備に失敗'));
       assert.equal(await page.locator('#baiAddRender').isDisabled(), true);
@@ -123,7 +123,7 @@ test('completed MP4s download from the list, survive reload/preparation errors a
       if (process.env.BAI_RENDER_DOWNLOAD_SHOTS) {
         await page.unroute('**/api/studio/v05/render/capabilities');
         await page.setViewportSize({ width: 1280, height: 900 });
-        await page.reload(); await page.locator('#v06project').selectOption(a.id);
+        await page.reload(); await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v06project').selectOption(a.id);
         await page.locator('#nav [data-workspace="export"]').click();
         await page.waitForSelector(`.v69job[data-job-id="${current.id}"] a[data-action="download"]`);
         fs.mkdirSync(process.env.BAI_RENDER_DOWNLOAD_SHOTS, { recursive: true });

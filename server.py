@@ -1593,12 +1593,12 @@ class Handler(BaseHTTPRequestHandler):
                 if not 0<length<=8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
                 required={'project_id','asset_id','track','start','duration','revision'}
-                if not isinstance(body,dict) or not required<=set(body) or set(body)-required-{'lane'}:return self.bad(400,'Invalid arrangement request')
+                if not isinstance(body,dict) or not required<=set(body) or set(body)-required-{'lane','source_start'}:return self.bad(400,'Invalid arrangement request')
                 items=unified_assets()
                 from bai_studio.v05.timeline.arrangement import classify
                 entry=next((a for a in items if a.get('id')==body['asset_id'] and a.get('available')),None)
                 media=media_info(DATA,body['asset_id'],items) if entry and classify(entry) in ('video','audio','music') else None
-                result=place(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['asset_id'],body['track'],body['start'],body['duration'],body['revision'],items,layout_root=DATA/'studio_v05_track_layouts',lane=body.get('lane',1),source_duration=media['duration_seconds'] if media else None,source_has_audio=media['has_audio'] if media else None)
+                result=place(DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',body['project_id'],body['asset_id'],body['track'],body['start'],body['duration'],body['revision'],items,layout_root=DATA/'studio_v05_track_layouts',lane=body.get('lane',1),source_duration=media['duration_seconds'] if media else None,source_has_audio=media['has_audio'] if media else None,source_start=body.get('source_start',0))
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except ArrangementError as exc:self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
             except RenderError as exc:self.bad(exc.status,str(exc))

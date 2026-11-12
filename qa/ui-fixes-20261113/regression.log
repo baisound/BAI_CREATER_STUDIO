@@ -1,0 +1,81 @@
+TAP version 13
+# Subtest: v0.5 audio page plays actual WAV, shows its waveform, and saves the shared placement
+ok 1 - v0.5 audio page plays actual WAV, shows its waveform, and saves the shared placement
+  ---
+  duration_ms: 4854.6728
+  type: 'test'
+  ...
+# Subtest: drag registered image to saved timeline, move/resize, add lane, then reload
+not ok 2 - drag registered image to saved timeline, move/resize, add lane, then reload
+  ---
+  duration_ms: 33783.375
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-direct-timeline.test.cjs:10:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('#v07timeline [data-track="image"][data-lane="3"]') to be visible[22m
+    [2m    62 × locator resolved to hidden <div data-lane="3" data-track="image" aria-label="画像 3 トラック" data-i18n-original-aria-label="画像 3 トラック">…</div>[22m
+    
+  code: 'ERR_TEST_FAILURE'
+  name: 'TimeoutError'
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-direct-timeline.test.cjs:84:76)
+  ...
+# Subtest: shared editor panes resize, persist across tabs and reload, and reset
+not ok 3 - shared editor panes resize, persist across tabs and reload, and reset
+  ---
+  duration_ms: 33465.7596
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-pane-layout.test.cjs:18:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    locator.click: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('#uiTimelineSettings>summary')[22m
+    
+  code: 'ERR_TEST_FAILURE'
+  name: 'TimeoutError'
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-pane-layout.test.cjs:64:55)
+  ...
+# Subtest: completed MP4s download from the list, survive reload/preparation errors and paginate without mixing projects
+not ok 4 - completed MP4s download from the list, survive reload/preparation errors and paginate without mixing projects
+  ---
+  duration_ms: 9069.8975
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-render-downloads.test.cjs:31:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    ブラウザーのエラー 1 件:
+    http://127.0.0.1:9101/studio/v05/index.html console: Failed to load resource: net::ERR_NO_BUFFER_SPACE
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.assertNoErrors (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\helpers\studio-harness.cjs:87:30)
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-render-downloads.test.cjs:122:58)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# {"status":"passed","apiOnly":false,"faultKind":"isolated per-operation ENOSPC/launch injection, not physical disk exhaustion","browser":"157.0.8103.51","actualOldDownloadDuringStorageFault":true,"inputKind":"image","inputHash":"3cbcb3424d559fd71e41c6d47459035b28eb4d19a5537a4d207abc6c5268b345","frames":30,"queuedFailureStatus":507,"threadFailureStatus":503,"completedListSurvivesUnwritableJob":true,"failedReplacementKeptOldIndexAndBytes":true,"newVersionRetry":"保存保護-v02.mp4","committedUnnamedRecovered":true,"corruptSameSizeRangeRejected":true,"corruptOldVersionRestoreRejected":true,"tamperedFixtureNotRepaired":true,"healthyOutputsStillDownloadable":true,"sourceUnchanged":true,"native":true}
+# Subtest: storage/launch faults allow retry, committed-state recovery and verified older downloads
+ok 5 - storage/launch faults allow retry, committed-state recovery and verified older downloads
+  ---
+  duration_ms: 6890.8108
+  type: 'test'
+  ...
+# Subtest: same named MP4 proposes a version and explicit replacement keeps a restorable old file
+ok 6 - same named MP4 proposes a version and explicit replacement keeps a restorable old file
+  ---
+  duration_ms: 7139.8031
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 3
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 125789.3133

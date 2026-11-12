@@ -55,7 +55,7 @@ test('storage/launch faults allow retry, committed-state recovery and verified o
   fs.writeFileSync(path.join(renderRoot,'jobs',interruptedId+'.json'),JSON.stringify({id:interruptedId,project_id:id,status:'running',created_at:Date.now()/1000}));
   fault('all-job-writes');const partial=await sdk('bai_studio_render_jobs_list',{project_id:id,completed_only:true});
   assert.ok(partial.unreadable_count>=1);assert.ok(partial.jobs.some(j=>j.id===old.id));assert.deepEqual(await download(old),oldBytes);
-  if(page){await page.reload();await page.locator('#v06project').selectOption(id);await page.locator('#nav [data-workspace="export"]').click();
+  if(page){await page.reload();await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v06project').selectOption(id);await page.locator('#nav [data-workspace="export"]').click();
    await page.locator('#v69historyWarning').waitFor();await page.locator(`.v69job[data-job-id="${old.id}"] a[data-action="download"]`).waitFor();
    const d=page.waitForEvent('download');await page.locator(`.v69job[data-job-id="${old.id}"] a[data-action="download"]`).click();
    const file=await(await d).path();assert.equal(sha(fs.readFileSync(file)),old.sha256);report.actualOldDownloadDuringStorageFault=true;}
