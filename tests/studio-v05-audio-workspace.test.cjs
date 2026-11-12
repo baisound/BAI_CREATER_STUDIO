@@ -33,11 +33,13 @@ test('v0.5 audio page plays actual WAV, shows its waveform, and saves the shared
     browser = await server.launchBrowser();
     page = await server.newPage(browser);
     await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('#nav [data-workspace="assets"]').click();
     assert.equal(await page.locator('#assetPanel').isVisible(), true);
     await page.locator('#nav [data-workspace="export"]').click();
     assert.equal(await page.locator('#baiLegacyOutputRange').isDisabled(), true);
     assert.equal(await page.locator('#baiAddRender').isDisabled(), true);
+    await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('[data-page="audio"]').click();
     await page.waitForFunction(() => document.querySelector('#baiAudioSelect')?.options.length > 1);
     assert.equal(await page.locator('#baiEq').isDisabled(), true);
@@ -73,7 +75,10 @@ test('v0.5 audio page plays actual WAV, shows its waveform, and saves the shared
     await page.locator('#baiAudioStart').dispatchEvent('change');
     await page.locator('#baiAudioSource').fill('2');
     await page.locator('#baiAudioSource').dispatchEvent('change');
+    await page.locator('#uiAudioEffectsTab').click();
+    await page.locator('#uiLegacyAudio').evaluate(e=>e.open=true);
     await page.locator('#baiAudioSave').click();
+    await page.locator('#uiAudioArrangeTab').click();
     await page.waitForFunction(() => document.querySelector('#baiAudioStatus')?.textContent.includes('保存しました'));
     const result = await (await fetch(`${server.base}/api/music-dance/project`)).json();
     assert.equal(result.project.audio_id, id);
@@ -83,6 +88,7 @@ test('v0.5 audio page plays actual WAV, shows its waveform, and saves the shared
     assert.equal(result.project.motion_id, preserved.motion_id);
     assert.equal(result.project.motion_start_frame, 42);
     await page.reload();
+    await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('[data-page="audio"]').click();
     await page.waitForFunction((expected) => document.querySelector('#baiAudioSelect')?.value === expected, id);
     assert.equal(await page.locator('#baiAudioStart').inputValue(), '30');
@@ -98,11 +104,17 @@ test('v0.5 audio page plays actual WAV, shows its waveform, and saves the shared
     harness.expectErrors(page, [/Failed to load resource:.*409 \(Conflict\)/]);
     await page.locator('#baiAudioStart').fill('60');
     await page.locator('#baiAudioStart').dispatchEvent('change');
+    await page.locator('#uiAudioEffectsTab').click();
+    await page.locator('#uiLegacyAudio').evaluate(e=>e.open=true);
     await page.locator('#baiAudioSave').click();
+    await page.locator('#uiAudioArrangeTab').click();
     await page.waitForFunction(() => document.querySelector('#baiAudioStatus')?.textContent.includes('別画面で配置が変更'));
     const protectedProject = await (await fetch(`${server.base}/api/music-dance/project`)).json();
     assert.equal(protectedProject.project.audio_start_frame, 45);
+    await page.locator('#uiAudioEffectsTab').click();
+    await page.locator('#uiLegacyAudio').evaluate(e=>e.open=true);
     await page.locator('#baiAudioReload').click();
+    await page.locator('#uiAudioArrangeTab').click();
     await page.waitForFunction(() => document.querySelector('#baiAudioStart')?.value === '45');
     harness.assertNoErrors(page);
   } finally {

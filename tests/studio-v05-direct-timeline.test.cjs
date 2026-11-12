@@ -22,11 +22,14 @@ test('drag registered image to saved timeline, move/resize, add lane, then reloa
     browser = await server.launchBrowser();
     page = await server.newPage(browser);
     await page.goto(`${server.base}/studio/v05/index.html`);
-    await page.locator('#v06project').selectOption(id);
+    await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('#v06cat').selectOption('image');
     await page.waitForFunction(() => document.querySelector('#v06results [draggable="true"]'));
     assert.equal(await page.locator('#v77TimelineShell #v07timeline').count(), 1);
+    await page.locator('#uiTimelineSettings>summary').click();
+    await page.locator('#uiShowEmptyTracks').check();
+    await page.locator('#uiTimelineSettings>summary').click();
     const source = page.locator('#v06results [draggable="true"]').first();
     const lane1 = page.locator('#v07timeline [data-track="image"][data-lane="1"]');
     await source.dragTo(lane1, { targetPosition: { x: 120, y: 15 } });
@@ -55,13 +58,13 @@ test('drag registered image to saved timeline, move/resize, add lane, then reloa
     await page.waitForFunction(() => Number(document.querySelector('#v07timeline [data-clip-id]')?.title.match(/\/ ([\d.]+)秒/)?.[1]) >= 6.9);
     await source.dragTo(lane1, { targetPosition: { x: 480, y: 15 } });
     await harness.waitForAsync(page, async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips.length === 2, id);
-    await page.getByRole('button', { name: '＋ 画像トラック' }).click();
+    await page.locator('#uiTimelineSettings').evaluate(e=>e.open=true);await page.getByRole('button', { name: '＋ 画像トラック' }).click();
     const lane2 = page.locator('#v07timeline [data-track="image"][data-lane="2"]');
     await lane2.waitFor();
     await source.dragTo(lane2, { targetPosition: { x: 0, y: 15 } });
     await harness.waitForAsync(page, async projectId => (await (await fetch(`/api/studio/v05/arrangement?id=${projectId}`)).json()).clips.length === 3, id);
     await page.reload();
-    await page.locator('#v06project').selectOption(id);
+    await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="edit"]').click();
     await lane2.waitFor();
     data = await json(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`));
@@ -77,7 +80,7 @@ test('drag registered image to saved timeline, move/resize, add lane, then reloa
       window.BAIStudioMediaPreviewV68.status().projectId === projectId &&
       window.BAIStudioMediaPreviewV68.status().mediaCount === 3, id);
     assert.equal(await page.locator('#v68layers img').count(), 3);
-    await page.getByRole('button', { name: '＋ 画像トラック' }).click();
+    await page.locator('#uiTimelineSettings').evaluate(e=>e.open=true);await page.getByRole('button', { name: '＋ 画像トラック' }).click();
     await page.locator('#v07timeline [data-track="image"][data-lane="3"]').waitFor();
     const lane2Clip = data.clips.find(c => c.lane === 2);
     await page.locator(`#v07timeline [data-clip-id="${lane2Clip.id}"]`).dblclick();
@@ -93,10 +96,10 @@ test('drag registered image to saved timeline, move/resize, add lane, then reloa
     try { await page.waitForFunction(() => !document.querySelector('#v07timeline [data-track="image"][data-lane="2"]')); }
     catch (error) { throw new Error(`${error.message}; status=${await page.locator('#v06status').innerText()}; selected=${await page.locator('#v80RemoveLane').inputValue()}; layout=${JSON.stringify(await json(await fetch(`${server.base}/api/studio/v05/timeline/layout?id=${id}`)))}; clips=${JSON.stringify((await json(await fetch(`${server.base}/api/studio/v05/arrangement?id=${id}`))).clips)}`); }
     assert.equal(await page.locator('#v07timeline [data-track="image"][data-lane="3"]').count(), 1);
-    await page.getByRole('button', { name: '＋ 画像トラック' }).click();
+    await page.locator('#uiTimelineSettings').evaluate(e=>e.open=true);await page.getByRole('button', { name: '＋ 画像トラック' }).click();
     await page.locator('#v07timeline [data-track="image"][data-lane="4"]').waitFor();
     await page.reload();
-    await page.locator('#v06project').selectOption(id);
+    await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="edit"]').click();
     const layout = await json(await fetch(`${server.base}/api/studio/v05/timeline/layout?id=${id}`));
     assert.deepEqual(layout.image_lane_ids, [1, 3, 4]);

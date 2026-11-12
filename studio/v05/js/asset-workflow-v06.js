@@ -39,13 +39,22 @@
    } catch(err) {status('接続検査失敗: '+err.message)}
  });
 
- async function request(url,opt){const res=await fetch(url,opt);const data=await res.json();if(!res.ok)throw Error(data.error||'HTTP '+res.status);return data}
+ const mutationRevisions=new Map(), pendingMutations=new Map();let timelineDrawSeq=0;
+ async function request(url,opt){
+  const writing=opt?.method==='POST'&&url.includes('/arrangement/');
+  const pid=writing?JSON.parse(opt.body).project_id:null;
+  if(writing){pendingMutations.set(pid,(pendingMutations.get(pid)||0)+1);if(pid===$('v06project').value){for(const id of ['vClipUndo','vClipRedo'])if($(id))$(id).disabled=true;}window.dispatchEvent(new CustomEvent('bai:v05-save-state',{detail:{projectId:pid,state:'saving'}}));}
+  try{const res=await fetch(url,opt);const data=await res.json();if(!res.ok)throw Error(data.error||'HTTP '+res.status);
+   if(writing&&Number.isInteger(data.revision)){mutationRevisions.set(pid,data.revision);window.dispatchEvent(new CustomEvent('bai:v05-save-state',{detail:{projectId:pid,state:'saved'}}));}return data;
+  }catch(error){if(writing)window.dispatchEvent(new CustomEvent('bai:v05-save-state',{detail:{projectId:pid,state:'error'}}));throw error;}
+  finally{if(writing)pendingMutations.set(pid,Math.max(0,(pendingMutations.get(pid)||1)-1));}
+ }
  const sourceMeta=new Map();
  async function mediaInfo(assetId){if(!sourceMeta.has(assetId))sourceMeta.set(assetId,request('/api/studio/v05/media-info?id='+encodeURIComponent(assetId)).catch(error=>{sourceMeta.delete(assetId);throw error}));return sourceMeta.get(assetId)}
  const timed=c=>['video','audio','music'].includes(c.category);
  function status(s){$('v06status').textContent=s}
  async function projects(){try{const d=await request('/api/studio/v05/projects');$('v06project').innerHTML=d.projects.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('');if(d.projects.some(x=>x.id===desiredProjectId))$('v06project').value=desiredProjectId;desiredProjectId=$('v06project').value;await arrangement()}catch(e){status('作品取得不可: '+e.message)}}
- async function arrangement(){const id=$('v06project').value,token=++arrangementSeq;if(!id)return;remoteSync?.select(id);selectedClips.clear();try{const d=await request('/api/studio/v05/arrangement?id='+encodeURIComponent(id));if(token!==arrangementSeq||$('v06project').value!==id)return;revision=d.revision;window.dispatchEvent(new CustomEvent('bai:v05-arrangement-loaded',{detail:{projectId:id,revision:d.revision,clips:d.clips}}));await window.BAIStudioPersistedSeek?.configure(id,d.clips);if(token!==arrangementSeq||$('v06project').value!==id)return;$('v06clips').innerHTML='<h4>配置履歴（保存済み）</h4>'+d.clips.map(c=>`<p>${esc(c.name)}: ${c.start}s / ${c.duration}s → ${esc(c.track)}</p>`).join('');await loadLayout(id);if(token!==arrangementSeq||$('v06project').value!==id)return;await loadPlayhead(id);if(token!==arrangementSeq||$('v06project').value!==id)return;await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'persisted-restore');await drawTimeline()}catch(e){if(token===arrangementSeq&&$('v06project').value===id)status('配置読み込み失敗: '+e.message)}}
+ async function arrangement(){const id=$('v06project').value,token=++arrangementSeq;if(!id)return;remoteSync?.select(id);selectedClips.clear();try{const d=await request('/api/studio/v05/arrangement?id='+encodeURIComponent(id));if(token!==arrangementSeq||$('v06project').value!==id)return;revision=d.revision;window.dispatchEvent(new CustomEvent('bai:v05-arrangement-loaded',{detail:{projectId:id,revision:d.revision,clips:d.clips}}));await window.BAIStudioPersistedSeek?.configure(id,d.clips);if(token!==arrangementSeq||$('v06project').value!==id)return;window.dispatchEvent(new CustomEvent('bai:v05-clip-selected',{detail:{clip:null,projectId:id}}));$('v06clips').innerHTML='<h4>配置履歴（保存済み）</h4>'+d.clips.map(c=>`<p>${esc(c.name)}: ${c.start}s / ${c.duration}s → ${esc(c.track)}</p>`).join('');await loadLayout(id);if(token!==arrangementSeq||$('v06project').value!==id)return;await loadPlayhead(id);if(token!==arrangementSeq||$('v06project').value!==id)return;await window.BAIStudioPersistedSeek?.evaluate(playheadSeconds,'persisted-restore');await drawTimeline()}catch(e){if(token===arrangementSeq&&$('v06project').value===id)status('配置読み込み失敗: '+e.message)}}
  let playheadSeconds=0,playheadRevision=0;
  const remoteSync=window.BAIStudioRemotePlayhead?.create({
    read:id=>request('/api/studio/v05/playhead?id='+encodeURIComponent(id)),
@@ -118,7 +127,7 @@
  $('v20targetsave').addEventListener('click',async()=>{if(!currentClip||currentClip.category!=='motion')return;try{await request('/api/studio/v05/arrangement/clip/target',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:$('v06project').value,clip_id:currentClip.id,revision,target_model_id:$('v20target').value||null})});$('v08dialog').close();status('対象モデルを保存しました');await arrangement()}catch(e){status('対象モデル保存失敗: '+e.message);await arrangement()}});
  $('v08save').addEventListener('click',()=>editClip('update'));$('v08delete').addEventListener('click',()=>editClip('delete'));
  async function drawTimeline(){
-  const el=$('v07timeline'),id=$('v06project').value;if(!id){el.replaceChildren();return}
+  const drawToken=++timelineDrawSeq;const el=$('v07timeline'),id=$('v06project').value;if(!id){el.replaceChildren();window.BAIStudioUI20261113?.emptyTimeline(el);return}
   const previousLeft=el.scrollLeft,previousTop=el.scrollTop,previousScale=timelineRenderedScale,previousProject=timelineRenderedProject;
   try{
    const [d,faceScene]=await Promise.all([
@@ -126,7 +135,8 @@
      request('/api/studio/v05/scene/instances?id='+encodeURIComponent(id)).catch(()=>null)
    ]);lastClips=d.tracks.flatMap(t=>t.clips);
    await Promise.all(lastClips.filter(c=>timed(c)&&!c.source_duration).map(async c=>{try{c.source_duration=(await mediaInfo(c.asset_id)).duration_seconds}catch(error){c.media_error=error.message}}));
-   if($('v06project').value!==id)return;
+   if($('v06project').value!==id||drawToken!==timelineDrawSeq||d.revision<(mutationRevisions.get(id)||0))return;
+   el.dataset.arrangementRevision=String(d.revision);
    const faceEnd=Math.max(0,...(faceScene?.face_keys||[]).map(key=>key.time+1));
    const scale=timelineZoom,duration=Math.max(30,Math.ceil(Math.max(d.duration,faceEnd)/10)*10),width=Math.ceil(duration*scale);
    const imageLaneToRemove=previousProject===id?Number($('v80RemoveLane')?.value):null;
@@ -146,7 +156,7 @@
    const clipHistoryBar=document.createElement('div');clipHistoryBar.style.cssText='display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:5;background:#18283a;padding:6px';el.prepend(clipHistoryBar);
    for(const [action,label] of [['undo','素材編集を戻す'],['redo','素材編集をやり直す']]){
      const button=document.createElement('button');button.type='button';button.textContent=label;button.id=action==='undo'?'vClipUndo':'vClipRedo';
-     button.disabled=!(d.edit_history?.[action+'_count']);button.title='この作品の素材の配置・移動・長さ変更・分割・削除を'+(action==='undo'?'取り消します':'やり直します')+'。保存して開き直した後も使えます。';
+     button.disabled=!!pendingMutations.get(id)||!(d.edit_history?.[action+'_count']);button.title='この作品の素材の配置・移動・長さ変更・分割・削除を'+(action==='undo'?'取り消します':'やり直します')+'。保存して開き直した後も使えます。';
      button.addEventListener('click',async()=>{
        button.disabled=true;
        try{await request('/api/studio/v05/arrangement/history/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,revision:d.revision})});status(label+'：保存しました');await arrangement()}
@@ -244,10 +254,11 @@
      clip.addEventListener('pointercancel',()=>{drag=null;drawTimeline()});
      clip.addEventListener('keydown',e=>{if(e.key==='Escape'&&drag){drag=null;drawTimeline();e.preventDefault()}else if(editMode==='cut'&&timed(c)&&(e.key==='Enter'||e.key===' ')){e.preventDefault();void splitAt(c,roundSnap(playheadSeconds))}});
      clip.addEventListener('lostpointercapture',()=>{if(drag){drag=null;drawTimeline()}});
-     clip.addEventListener('dblclick',()=>{if(!dragBusy)openClip(c)});if(selectedClips.has(c.id))clip.style.outline='3px solid #ffd167';lane.append(clip)});const rowCursor=document.createElement('div');rowCursor.className='v89-cursor';rowCursor.style.cssText='position:absolute;pointer-events:none;left:'+playheadSeconds*scale+'px;top:0;bottom:0;border-left:2px solid #ffcc63;z-index:5';lane.append(rowCursor);wrap.append(lane);el.append(wrap)});
+     clip.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('bai:v05-clip-selected',{detail:{clip:c,projectId:id}})));clip.addEventListener('focus',()=>window.dispatchEvent(new CustomEvent('bai:v05-clip-selected',{detail:{clip:c,projectId:id}})));clip.addEventListener('dblclick',()=>{if(!dragBusy)openClip(c)});if(selectedClips.has(c.id))clip.style.outline='3px solid #ffd167';lane.append(clip)});const rowCursor=document.createElement('div');rowCursor.className='v89-cursor';rowCursor.style.cssText='position:absolute;pointer-events:none;left:'+playheadSeconds*scale+'px;top:0;bottom:0;border-left:2px solid #ffcc63;z-index:5';lane.append(rowCursor);wrap.append(lane);el.append(wrap)});
    timelineRenderedScale=scale;timelineRenderedProject=id;
    el.scrollLeft=previousProject===id?previousLeft/previousScale*scale:0;
    el.scrollTop=previousProject===id?previousTop:0;
+   window.BAIStudioUI20261113?.organizeTimeline({el,header,toolbar,help,actions,transport,clipHistoryBar,videoTools,audioTools,snapLabel,undo,addImage,removeLabel,removeImage,hasFaceKeys:faceEnd>0});
    showTimelineHead(playheadSeconds);
    window.dispatchEvent(new CustomEvent('bai:v98-timeline-drawn',{
      detail:{projectId:id,scale,scene:faceScene,snapEnabled,snapSeconds,
@@ -278,6 +289,8 @@
  window.addEventListener('bai:v57-scene-changed',event=>{if(event.detail?.projectId===$('v06project').value)void drawTimeline()});
  window.BAIStudioV05Arrangement=Object.freeze({
    commitPreviewPlayhead:(projectId,seconds)=>$('v06project').value===projectId?setPlayhead(seconds):Promise.resolve(false),
+   editClipById:clipId=>{const clip=lastClips.find(item=>item.id===clipId);if(clip)void openClip(clip);},
+   refreshArrangement:arrangement,
    refreshTimeline:drawTimeline
  });
  projects();search();

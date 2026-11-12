@@ -143,7 +143,10 @@ def read(root,catalog,project_id):
     _project(catalog,project_id)
     path=Path(root)/(project_id+'.json')
     if not path.exists():return {'schema':1,'project_id':project_id,'clips':[],'revision':0}
-    data=json.loads(path.read_text(encoding='utf-8'))
+    # On Windows an overlapping read handle can prevent atomic replacement.
+    # Use the same reentrant lock as clip writes/Undo while the file is open.
+    with LOCK:
+        data=json.loads(path.read_text(encoding='utf-8'))
     if data.get('schema')!=1 or data.get('project_id')!=project_id or not isinstance(data.get('clips'),list) or not isinstance(data.get('revision'),int):raise ArrangementError('Invalid arrangement; original retained')
     return data
 
@@ -166,14 +169,14 @@ def _source_window(category, source_start, duration, source_duration):
             raise ArrangementError('Invalid source duration')
         if source_start+duration>source_duration+0.02:raise ArrangementError('Clip exceeds source media duration')
 
-def place(root,catalog,project_id,asset_id,track,start,duration,revision,items,*,layout_root=None,lane=1,source_duration=None,source_has_audio=None):
+def place(root,catalog,project_id,asset_id,track,start,duration,revision,items,*,layout_root=None,lane=1,source_duration=None,source_has_audio=None,source_start=0):
     if track not in TRACKS:raise ArrangementError('Unsupported track')
     if not isinstance(asset_id,str) or len(asset_id)>300:raise ArrangementError('Invalid asset ID')
     if any(isinstance(x,bool) or not isinstance(x,(int,float)) or not math.isfinite(x) for x in (start,duration)) or start<0 or duration<=0 or start+duration>24*60*60:raise ArrangementError('Invalid time range')
     if not isinstance(revision,int) or isinstance(revision,bool):raise ArrangementError('Revision required')
     found=next((a for a in inventory(items)['items'] if a['id']==asset_id and a['available']),None)
     if not found:raise ArrangementError('Asset is not registered or available')
-    _source_window(found['category'],0,duration,source_duration)
+    _source_window(found['category'],source_start,duration,source_duration)
     with LOCK:
         data=read(root,catalog,project_id)
         if data['revision']!=revision:raise ArrangementError('Revision conflict')
@@ -186,7 +189,7 @@ def place(root,catalog,project_id,asset_id,track,start,duration,revision,items,*
         if len(data['clips'])>=2000:raise ArrangementError('Clip limit reached')
         clip={'id':str(uuid.uuid4()),'asset_id':asset_id,'name':found['name'],'category':found['category'],'track':track,'lane':lane,'start':round(start,4),'duration':round(duration,4)}
         if found['category'] in {'video','audio','music'}:
-            clip['source_start']=0
+            clip['source_start']=round(source_start,4)
             if source_duration is not None:clip['source_duration']=round(source_duration,4)
             if source_has_audio is not None:clip['source_has_audio']=bool(source_has_audio)
         before=copy.deepcopy(data['clips']);data['clips'].append(clip);_record_edit(data,before,'place')

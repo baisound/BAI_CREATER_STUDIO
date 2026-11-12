@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: drag registered image to saved timeline, move/resize, add lane, then reload
+ok 1 - drag registered image to saved timeline, move/resize, add lane, then reload
+  ---
+  duration_ms: 5740.9125
+  type: 'test'
+  ...
+# Subtest: shared editor panes resize, persist across tabs and reload, and reset
+not ok 2 - shared editor panes resize, persist across tabs and reload, and reset
+  ---
+  duration_ms: 3581.6147
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-pane-layout.test.cjs:18:1'
+  failureType: 'testCodeFailure'
+  error: 'false == true'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-pane-layout.test.cjs:67:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# {"actualDownloads":4,"matchingHashes":true,"completedHistory":25,"pageSizes":[20,5],"oldVersion":true,"worksWithoutNewRender":true,"narrowWidth":390}
+# Subtest: completed MP4s download from the list, survive reload/preparation errors and paginate without mixing projects
+ok 3 - completed MP4s download from the list, survive reload/preparation errors and paginate without mixing projects
+  ---
+  duration_ms: 8301.3972
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 2
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 32944.4969

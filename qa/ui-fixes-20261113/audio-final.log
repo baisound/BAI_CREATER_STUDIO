@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: 音声の試聴結果を同作品へ頭出し付きで一括配置し、保存/履歴/実出力を維持する
+ok 1 - 音声の試聴結果を同作品へ頭出し付きで一括配置し、保存/履歴/実出力を維持する
+  ---
+  duration_ms: 5015.2736
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10076.8527

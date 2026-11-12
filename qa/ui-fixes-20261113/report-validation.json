@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "interactivePanels": 5,
+  "imageHashes": 10,
+  "sourceHashes": 13,
+  "localReferences": 23,
+  "jsErrors": [],
+  "scope": "report and source correspondence; product functionality verified separately"
+}

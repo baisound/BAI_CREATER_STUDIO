@@ -29,7 +29,7 @@ function say(message, error = false) {
   status.textContent = message;
   status.dataset.kind = error ? 'error' : 'info';
 }
-function markDirty() { dirty = true; say('未保存の配置があります。［配置を保存］で確定します。'); }
+function markDirty() { dirty = true; say('試聴位置を変更しました。「この作品に配置」で作品へ追加できます。'); }
 function endFrame() {
   if (!placement || !decoded) return 0;
   return clampFrame(placement.audio_start_frame +

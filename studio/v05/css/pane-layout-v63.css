@@ -1,6 +1,6 @@
 .main.baiResizable {
   --bai-pane-left: 256px;
-  --bai-pane-bottom: 275px;
+  --bai-pane-bottom: 300px;
   --bai-pane-right: 300px;
   position: relative;
   grid-template-columns: var(--bai-pane-left) minmax(0, 1fr) var(--bai-pane-right);

@@ -8,7 +8,7 @@
   const storageKey = 'bai.v05.paneLayout.v1';
   const desktop = () => window.innerWidth > 730;
   const defaultLeft = () => window.innerWidth <= 1000 ? 195 : 256;
-  const defaultBottom = 275;
+  const defaultBottom = 300;
   const clamp = (value, low, high) => Math.min(Math.max(value, low), high);
   let saved = null;
   try {
@@ -53,6 +53,9 @@
     };
   }
   function apply() {
+    // Full-page workspaces hide the editor. Zero geometry must never shrink a
+    // saved/default pane layout; apply it when the editor becomes visible again.
+    if (main.hidden || !main.getBoundingClientRect().height) return;
     if (!customized) left = defaultLeft();
     const limit = bounds();
     left = clamp(left, limit.leftMin, limit.leftMax);

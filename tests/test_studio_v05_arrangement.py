@@ -15,9 +15,47 @@ class Tests(unittest.TestCase):
  def test_place_and_reopen(self):
   result=place(self.root/'arr',self.cat,self.project['id'],'lib:abc','motion',3.5,6,0,self.items)
   self.assertEqual(result['revision'],1);self.assertEqual(read(self.root/'arr',self.cat,self.project['id'])['clips'][0]['start'],3.5)
+ def test_place_trimmed_audio_atomically_and_reject_invalid_source(self):
+  from bai_studio.v05.timeline.arrangement import edit_history
+  items=[{'id':'lib:audio','name':'voice.wav','kind':'audio','available':True}]
+  root=self.root/'arr';pid=self.project['id']
+  for bad in [-1,True,float('nan'),9.5]:
+   with self.assertRaises(ArrangementError):place(root,self.cat,pid,'lib:audio','audio',2,1,0,items,source_start=bad,source_duration=10)
+   self.assertEqual(read(root,self.cat,pid)['revision'],0)
+  result=place(root,self.cat,pid,'lib:audio','audio',2,8.5,0,items,source_start=1.5,source_duration=10)
+  self.assertEqual(result['clip']['source_start'],1.5)
+  stored=read(root,self.cat,pid);self.assertEqual(stored['revision'],1)
+  self.assertEqual(stored['clips'][0]['duration'],8.5)
+  undo=edit_history(root,self.cat,pid,1,'undo')
+  self.assertEqual(read(root,self.cat,pid)['clips'],[])
+  edit_history(root,self.cat,pid,undo['revision'],'redo')
+  self.assertEqual(read(root,self.cat,pid)['clips'][0]['source_start'],1.5)
  def test_revision_conflict(self):
   place(self.root/'arr',self.cat,self.project['id'],'lib:abc','motion',0,3,0,self.items)
   with self.assertRaisesRegex(ArrangementError,'conflict'):place(self.root/'arr',self.cat,self.project['id'],'lib:abc','motion',0,3,0,self.items)
+ def test_history_write_during_arrangement_file_read(self):
+  # Windows cannot replace an open Python file. A UI refresh and an Undo must
+  # serialize file access, rather than failing a user's valid save with HTTP500.
+  import threading
+  from concurrent.futures import ThreadPoolExecutor
+  from unittest.mock import patch
+  from bai_studio.v05.timeline.arrangement import edit_history
+  root=self.root/'arr';pid=self.project['id'];target=root/(pid+'.json')
+  place(root,self.cat,pid,'lib:abc','motion',0,3,0,self.items)
+  opened=threading.Event();release=threading.Event();original=Path.read_text
+  def holding_read(path,*args,**kwargs):
+   if path!=target or opened.is_set():return original(path,*args,**kwargs)
+   with path.open('r',encoding='utf8') as stream:
+    opened.set();release.wait(2);return stream.read()
+  with ThreadPoolExecutor(max_workers=2) as pool,patch.object(Path,'read_text',holding_read):
+   reader=pool.submit(read,root,self.cat,pid)
+   self.assertTrue(opened.wait(2))
+   writer=pool.submit(edit_history,root,self.cat,pid,1,'undo')
+   try:self.assertFalse(threading.Event().wait(.1) or writer.done(),'Write must wait until the arrangement reader closes its file')
+   finally:release.set()
+   self.assertEqual(reader.result()['revision'],1)
+   self.assertEqual(writer.result()['revision'],2)
+  self.assertEqual(read(root,self.cat,pid)['clips'],[])
  def test_unregistered_no_mutation(self):
   with self.assertRaises(ArrangementError):place(self.root/'arr',self.cat,self.project['id'],'unregistered','motion',0,5,0,self.items)
   self.assertEqual(read(self.root/'arr',self.cat,self.project['id'])['clips'],[])

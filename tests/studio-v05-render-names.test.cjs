@@ -79,7 +79,7 @@ test('same named MP4 proposes a version and explicit replacement keeps a restora
     browser = await server.launchBrowser();
     page = await server.newPage(browser);
     await page.goto(`${server.base}/studio/v05/index.html`);
-    await page.locator('#v06project').selectOption(id);
+    await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="export"]').click();
     await page.locator('#v69name').fill('作品');
     await page.locator('#v69name').press('Tab');

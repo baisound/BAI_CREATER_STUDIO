@@ -1,0 +1,133 @@
+...........................................................F...F.F  [100%]
+================================== FAILURES ===================================
+__________ test_failed_recovery_write_keeps_checkpoint_for_next_read __________
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Temp/pytest-of-user/pytest-2019/test_failed_recovery_write_kee0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D141B221B0>
+
+    def test_failed_recovery_write_keeps_checkpoint_for_next_read(tmp_path,monkeypatch):
+        job,file=completed(tmp_path)
+        job.update(status='running',pending_output={k:job[k] for k in ('bytes','sha256','probe')})
+        _atomic(tmp_path/'jobs'/f"{job['id']}.json",job)
+        atomic=render._atomic;fail=[True]
+        def full_once(path,data):
+            if data['status']=='succeeded' and fail[0]:
+                fail[0]=False;raise OSError(errno.ENOSPC,'injected recovered-state write failure')
+            return atomic(path,data)
+        monkeypatch.setattr(render,'_atomic',full_once)
+        render.status(tmp_path,job['id'])
+>       saved=json.loads((tmp_path/'jobs'/f"{job['id']}.json").read_text())
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_v05_render_failure_protection.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/user/AppData/Local/Temp/pytest-of-user/pytest-2019/test_failed_recovery_write_kee0/jobs/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json')
+encoding = 'locale', errors = None
+
+    def read_text(self, encoding=None, errors=None):
+        """
+        Open the file in text mode, read it, and close the file.
+        """
+        encoding = io.text_encoding(encoding)
+        with self.open(mode='r', encoding=encoding, errors=errors) as f:
+>           return f.read()
+                   ^^^^^^^^
+E           UnicodeDecodeError: 'cp932' codec can't decode byte 0x83 in position 482: illegal multibyte sequence
+
+C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\pathlib.py:1028: UnicodeDecodeError
+_ test_real_committed_output_recovers_after_final_state_failure[False-final-stat] _
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Temp/pytest-of-user/pytest-2019/test_real_committed_output_rec1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D141B3E450>
+failure = 'final-stat', named = False
+
+    @pytest.mark.parametrize('failure',['job-save','final-stat'])
+    @pytest.mark.parametrize('named',[False,True])
+    def test_real_committed_output_recovers_after_final_state_failure(tmp_path,monkeypatch,failure,named):
+        jid='d'*32;atomic=render._atomic;stat=Path.stat;injected=[False]
+        if failure=='job-save':
+            def fail(path,data):
+                if data.get('id')==jid and data.get('status')=='succeeded' and not injected[0]:
+                    injected[0]=True;raise OSError(errno.ENOSPC,'injected final-state save full')
+                return atomic(path,data)
+            monkeypatch.setattr(render,'_atomic',fail)
+        else:
+            def fail(path,*args,**kwargs):
+                info=stat(path,*args,**kwargs)
+                if path.name==jid+'.mp4' and info.st_size>0 and not injected[0]:
+                    injected[0]=True;raise PermissionError(errno.EACCES,'injected final-stat lock')
+                return info
+            monkeypatch.setattr(Path,'stat',fail)
+        real_worker(tmp_path,jid,names.plan(tmp_path,'p','�m�蕜��','version',None) if named else None)
+        assert injected[0]
+>       checkpoint=json.loads((tmp_path/'jobs'/f'{jid}.json').read_text())
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_v05_render_failure_protection.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/user/AppData/Local/Temp/pytest-of-user/pytest-2019/test_real_committed_output_rec1/jobs/dddddddddddddddddddddddddddddddd.json')
+encoding = 'locale', errors = None
+
+    def read_text(self, encoding=None, errors=None):
+        """
+        Open the file in text mode, read it, and close the file.
+        """
+        encoding = io.text_encoding(encoding)
+        with self.open(mode='r', encoding=encoding, errors=errors) as f:
+>           return f.read()
+                   ^^^^^^^^
+E           UnicodeDecodeError: 'cp932' codec can't decode byte 0x85 in position 859: illegal multibyte sequence
+
+C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\pathlib.py:1028: UnicodeDecodeError
+_ test_real_committed_output_recovers_after_final_state_failure[True-final-stat] _
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Temp/pytest-of-user/pytest-2019/test_real_committed_output_rec3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D141D53B00>
+failure = 'final-stat', named = True
+
+    @pytest.mark.parametrize('failure',['job-save','final-stat'])
+    @pytest.mark.parametrize('named',[False,True])
+    def test_real_committed_output_recovers_after_final_state_failure(tmp_path,monkeypatch,failure,named):
+        jid='d'*32;atomic=render._atomic;stat=Path.stat;injected=[False]
+        if failure=='job-save':
+            def fail(path,data):
+                if data.get('id')==jid and data.get('status')=='succeeded' and not injected[0]:
+                    injected[0]=True;raise OSError(errno.ENOSPC,'injected final-state save full')
+                return atomic(path,data)
+            monkeypatch.setattr(render,'_atomic',fail)
+        else:
+            def fail(path,*args,**kwargs):
+                info=stat(path,*args,**kwargs)
+                if path.name==jid+'.mp4' and info.st_size>0 and not injected[0]:
+                    injected[0]=True;raise PermissionError(errno.EACCES,'injected final-stat lock')
+                return info
+            monkeypatch.setattr(Path,'stat',fail)
+        real_worker(tmp_path,jid,names.plan(tmp_path,'p','�m�蕜��','version',None) if named else None)
+        assert injected[0]
+>       checkpoint=json.loads((tmp_path/'jobs'/f'{jid}.json').read_text())
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_v05_render_failure_protection.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/user/AppData/Local/Temp/pytest-of-user/pytest-2019/test_real_committed_output_rec3/jobs/dddddddddddddddddddddddddddddddd.json')
+encoding = 'locale', errors = None
+
+    def read_text(self, encoding=None, errors=None):
+        """
+        Open the file in text mode, read it, and close the file.
+        """
+        encoding = io.text_encoding(encoding)
+        with self.open(mode='r', encoding=encoding, errors=errors) as f:
+>           return f.read()
+                   ^^^^^^^^
+E           UnicodeDecodeError: 'cp932' codec can't decode byte 0x85 in position 1032: illegal multibyte sequence
+
+C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\pathlib.py:1028: UnicodeDecodeError
+=========================== short test summary info ===========================
+FAILED tests/test_v05_render_failure_protection.py::test_failed_recovery_write_keeps_checkpoint_for_next_read
+FAILED tests/test_v05_render_failure_protection.py::test_real_committed_output_recovers_after_final_state_failure[False-final-stat]
+FAILED tests/test_v05_render_failure_protection.py::test_real_committed_output_recovers_after_final_state_failure[True-final-stat]
+3 failed, 63 passed, 5 subtests passed in 8.29s

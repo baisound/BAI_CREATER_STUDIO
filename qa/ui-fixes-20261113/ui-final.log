@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: 承認UI改修：表示・フォーカス・保存・Undo/Redo・実動画の受取を隔離作品で確認
+ok 1 - 承認UI改修：表示・フォーカス・保存・Undo/Redo・実動画の受取を隔離作品で確認
+  ---
+  duration_ms: 6920.4395
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 11975.8814

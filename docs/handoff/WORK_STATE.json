@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T01:26:26+09:00",
+  "updated_at": "2026-11-13T02:21:30+09:00",
   "updated_by": "codex",
   "branch": "codex/ui-audit-fixes-20261113",
-  "head_at_update": "6575a3a",
+  "head_at_update": "72e37df",
   "current": {
     "task": "承認済みUI監査8件の最優先改修",
-    "status": "in_progress",
+    "status": "done",
     "step": "保存対象・タイムライン・ナビ/フォーカスから修正し、素材/選択対象/書き出しまで実装・実画面検証する",
     "design_doc": "docs/v05/UI_FIXES_20261113_JA.md"
   },
   "next_steps": [
-    "UI監査成果物のPRをmainへ統合し、8765の比較レポート表示と利用者データ保持を確認する",
-    "順3 G3-F1の終了条件と残件整理を再開。UI改修案は未実装、OGV長尺は低優先"
+    "UI改修をPR/mainへ統合し、8765のPython再起動・制作画面/比較ページ・原本保持を確認する",
+    "最優先UI改修の反映後は未完の順3 G3-F1へ戻る。OGV長尺は低優先"
   ],
   "unverified": [
-    "提案UIの実装・全機能到達性・1024px提案表示、性能、スクリーンリーダー、物理タッチ、初見ユーザーテスト",
-    "順3 G3-F1と順3全体、順4〜7は未完。既存未達・未検証を維持"
+    "VSTホスト/ミキサー音量エンジンは未接続。Linuxブラウザー/GPU、全3D組合せ、SR/200%拡大/物理タッチ/初見理解/性能/大量素材は未検証",
+    "追加source_startのMCP入力スキーマ露出は今回追加していない。順3全体・G3-F1・順4〜7は未完"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T02:21:30+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "72e37df",
+      "text": "承認UI監査8件と追加音声導線/DAW配置を実装。最終ブラウザー9成功、Windows66+5sub/Ubuntu66、Critic3視点PASS。原本515ファイル保持、正式151IDのstatus変更なし"
+    },
     {
       "at": "2026-11-13T01:26:26+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "2ce37c4",
       "text": "G3-B1を2ce37c4/PR280へ記録。証拠11行はGit保存内容LFのhashで可搬照合。現行320k代表のWin/Ubuntu各4固有ケース成功と初回1失敗/約5%音量差を区別、次B2の終了条件を確定"
-    },
-    {
-      "at": "2026-11-09T21:22:49+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "d0719c9",
-      "text": "G3-B1の11行を証拠hashで照合。現行320kの動画3形式/音声4codecは各OS4固有ケース成功、Win初回音声1失敗と待機修正を保持。長尺実コピーの全PTSはCFR30fps。全媒体の完成には昇格しない"
     }
   ]
 }

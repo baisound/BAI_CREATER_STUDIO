@@ -1,0 +1,256 @@
+{
+  "schema": 1,
+  "scope": "implemented UI changes; representative workflow verification; not overall product completion",
+  "baselineMain": "6575a3a2babbf36a6c2dca2239ab2860345bdbbb",
+  "auditProductMain": "f62a74c250c49dda4fce87c28d68b51534fceecb",
+  "findingNamespace": "ui-audit-20261113; distinct from formal UX-001 IDs",
+  "findings": [
+    {
+      "id": "UX-08",
+      "severityAtAudit": "P1",
+      "resolution": "implemented",
+      "verification": "PASS: observed representative workflows",
+      "change": "自動保存の対象を明示し実APIで保存状態を確認。試作JSON/未接続共通Undoを詳細へ。",
+      "formalRequirements": [
+        "UX-004",
+        "UX-005",
+        "DATA-008"
+      ]
+    },
+    {
+      "id": "UX-01",
+      "severityAtAudit": "P1",
+      "resolution": "implemented",
+      "verification": "PASS: observed representative workflows",
+      "change": "常用操作を集約し、空行を段階表示。クリップとIn/Outを初期表示。",
+      "formalRequirements": [
+        "UX-001",
+        "UX-002",
+        "UX-004"
+      ]
+    },
+    {
+      "id": "UX-02",
+      "severityAtAudit": "P1",
+      "resolution": "implemented",
+      "verification": "PASS: observed representative workflows",
+      "change": "4分類と用途別タブ。旧11入口の実到達を確認。",
+      "formalRequirements": [
+        "UX-001",
+        "UX-006"
+      ]
+    },
+    {
+      "id": "UX-03",
+      "severityAtAudit": "P2",
+      "resolution": "implemented",
+      "verification": "PASS: observed representative workflows",
+      "change": "画像・音声等の選択クリップに名前/開始/長さ/元区間と実編集入口を表示。旧カメラは詳細に保持。",
+      "formalRequirements": [
+        "UX-001",
+        "UX-004"
+      ]
+    },
+    {
+      "id": "UX-04",
+      "severityAtAudit": "P1",
+      "resolution": "implemented",
+      "verification": "PASS: observed representative workflows",
+      "change": "全画面では編集領域をhidden/inert化。背後フォーカスとハンドルを除外。",
+      "formalRequirements": [
+        "UX-003",
+        "UX-006"
+      ]
+    },
+    {
+      "id": "UX-05",
+      "severityAtAudit": "P1",
+      "resolution": "implemented",
+      "verification": "PASS: observed representative workflows",
+      "change": "カテゴリを一系統化し入力名を追加。素材の配置ボタンを詳細上部へ。",
+      "formalRequirements": [
+        "UX-003",
+        "UX-004",
+        "UX-006"
+      ]
+    },
+    {
+      "id": "UX-06",
+      "severityAtAudit": "P2",
+      "resolution": "implemented",
+      "verification": "PASS: observed representative workflows",
+      "change": "名前/形式/範囲を実行前へ。完成物・旧版・失敗履歴を隣の一覧へ。",
+      "formalRequirements": [
+        "UX-002",
+        "UX-004",
+        "UX-005"
+      ]
+    },
+    {
+      "id": "UX-07",
+      "severityAtAudit": "P1",
+      "resolution": "implemented",
+      "verification": "PASS: observed representative workflows",
+      "change": "主ボタン白文字、操作文字と状態表示を調整。実コントラスト5.50:1。",
+      "formalRequirements": [
+        "UX-006"
+      ]
+    }
+  ],
+  "additionalOwnerRequests": [
+    {
+      "id": "UI-AUDIO-PLACE",
+      "change": "音声の31F/62F試聴設定を秒へ変換し、同作品に単一配置/Undoとして保存",
+      "verification": "PASS: actual waveform, placement, Undo/Redo, reload, MP4, legacy project unchanged"
+    },
+    {
+      "id": "UI-AUDIO-MIXER",
+      "change": "一定幅の縦長ストリップ・上部インサート・長いフェーダー・右マスター/選択FX。暗色/青の独自表現。",
+      "verification": "PASS:1440/1024 layout geometry and channel selection",
+      "vstProcessing": "NOT IMPLEMENTED; controls disabled; no processing claimed"
+    }
+  ],
+  "tests": {
+    "browser": "9 passed, final sequential suite",
+    "windowsPython": "66 passed + 5 subtests, UTF-8 mode",
+    "ubuntuPython": "66 passed",
+    "nativeMcpAndWebMcp": "PASS existing render/version round trip",
+    "ownerData": "515 files and dirty list unchanged before integration",
+    "sourceSyntax": "PASS"
+  },
+  "reviews": {
+    "critic1": "PASS: first action and task hierarchy; image/code review",
+    "critic2": "PASS after fixing floating-point rejection of valid 31F/62F; workflow review",
+    "critic3": "PASS: hierarchy/visibility; final narrow-strip DAW layout reviewed",
+    "judge": "PASS for this UI integration; no remaining P0/P1 in reviewed scope",
+    "independentCritics": 3,
+    "judgeRole": "root, final integration judgement",
+    "resolvedFindings": [
+      "素材CTAの旧リンク遮蔽",
+      "初期パネル高さの縮小/リセット不一致",
+      "有効な整数フレームの浮動小数誤拒否",
+      "保存応答直後の古い履歴ボタン",
+      "Windowsのarrangement読込とatomic置換の競合"
+    ]
+  },
+  "notTested": [
+    "VST native hosting/processing and mixer gain engine (unconnected)",
+    "screen-reader full workflows, physical touch, 200% zoom, first-user 5-second study",
+    "runtime performance, huge libraries/long names",
+    "Linux browser/GPU and all 3D material/pose/camera combinations"
+  ],
+  "formalRequirementStatusesChanged": false,
+  "originalRoadmap": "G3-F1 remains unfinished; UI priority per explicit Owner instruction; OGV long remains low",
+  "sourceHashNormalization": "UTF-8 source CRLF to LF",
+  "sources": [
+    {
+      "file": "server.py",
+      "sha256": "0305ec66b0603215885d713dee0828ddbf287a9b1655387d05f2069fed6e2448"
+    },
+    {
+      "file": "bai_studio/v05/timeline/arrangement.py",
+      "sha256": "6b7d44a2f0c1cb1782c2e52143b2c61c83f3bf0a85d484819b5ab705a6d2278e"
+    },
+    {
+      "file": "studio/v05/index.html",
+      "sha256": "1ca75f791932338f0ae1c81a6ffe02124c12e2baea033c830935bb27b467b3e9"
+    },
+    {
+      "file": "studio/v05/js/ui-clarity-20261113.js",
+      "sha256": "8c936ec6b5391e4217250c1166c45858ff9de692412e85ba681bbf40ac37a4f2"
+    },
+    {
+      "file": "studio/v05/js/audio-clarity-20261113.js",
+      "sha256": "6d368766907069fdd643781ca3ea0822b847aea7155fad40860b2c740ef28215"
+    },
+    {
+      "file": "studio/v05/js/asset-workflow-v06.js",
+      "sha256": "49aa0928635887342d284f392a9a37b14b7103e4731dcb4921c26a98948387ae"
+    },
+    {
+      "file": "studio/v05/js/asset-library-v62.js",
+      "sha256": "7415dcf41377367315b844c3af6ac44a91ece83bee20d4078281321fb891a494"
+    },
+    {
+      "file": "studio/v05/js/audio-workspace-v65.js",
+      "sha256": "81b023504f17b0420ee7208b8a3433513c82f4730dbc824a60b72d176f2a1183"
+    },
+    {
+      "file": "studio/v05/js/pane-layout-v63.js",
+      "sha256": "b5e75a9396ca240f3b8f10164b4000b3d998ea15ddcb7766b0d3280bfb3fd80a"
+    },
+    {
+      "file": "studio/v05/js/render-job-v69.js",
+      "sha256": "9317f80be1f4fb2dc712294a082d4512e63c3ecce62637ba64d851574b80b1c3"
+    },
+    {
+      "file": "studio/v05/js/workspaces-v05.js",
+      "sha256": "100a227c06b0ce6ff659ccf3f2a93419f9b691070131a1708f06ea4ee18c113c"
+    },
+    {
+      "file": "studio/v05/css/pane-layout-v63.css",
+      "sha256": "aa02910b72fc9ba59c35b4ef2b1db5126d0814fa1f50c9e396dba87943ec1dcb"
+    },
+    {
+      "file": "studio/v05/css/ui-clarity-20261113.css",
+      "sha256": "78b683dc15f42111317bb6c76d158c28e92af0f10c21ca77b0122e87539f65ca"
+    }
+  ],
+  "assets": [
+    {
+      "file": "audio-effects-1024.png",
+      "sha256": "f9f04e6a331f649b004d4a647a14a7664df6d68d5f0da0f7b7c1dbca89397d24",
+      "kind": "implemented_product_isolated_demo_screenshot"
+    },
+    {
+      "file": "audio-effects-1440.png",
+      "sha256": "ba50c7e70b6fd8c4fd809d044eed41033eb74b0cb4dc46d35a75cf9b49e98697",
+      "kind": "implemented_product_isolated_demo_screenshot"
+    },
+    {
+      "file": "audio-placement-1024.png",
+      "sha256": "f81ebf9dc42afa876fe4150b05afaa6f94a9cc9e7cbd74df1cb75113684c3f79",
+      "kind": "implemented_product_isolated_demo_screenshot"
+    },
+    {
+      "file": "audio-placement-1440.png",
+      "sha256": "8ede8d6c0cbb66f2c179cebcb5fe3b18b77ad9c021094dc8e70539b961863e75",
+      "kind": "implemented_product_isolated_demo_screenshot"
+    },
+    {
+      "file": "edit-1024.png",
+      "sha256": "6da06d573b39b5433448a6976a56440ddf55c577c8bab67a6756ed235c687609",
+      "kind": "implemented_product_isolated_demo_screenshot"
+    },
+    {
+      "file": "edit-1440.png",
+      "sha256": "9ca645ddee2e2e66d445810e03fa6e6d49624f5c2d345534b29b95df205b3682",
+      "kind": "implemented_product_isolated_demo_screenshot"
+    },
+    {
+      "file": "home-1440.png",
+      "sha256": "00a958902f8d1af66da698e65b940a389c078e13d9e39587e1895b9795a73163",
+      "kind": "implemented_product_isolated_demo_screenshot"
+    },
+    {
+      "file": "library-selected-1440.png",
+      "sha256": "76e8f690246993a5919ffef736556954d2758bc66b66a7ee45a748bc525c2ebc",
+      "kind": "implemented_product_isolated_demo_screenshot"
+    },
+    {
+      "file": "output-1024.png",
+      "sha256": "f8c4bd5b22a1b92aa7e45e21a1457093329b90d6638327af754c0aa1ef2e435f",
+      "kind": "implemented_product_isolated_demo_screenshot"
+    },
+    {
+      "file": "output-1440.png",
+      "sha256": "9e67eb45dfdc16498d8466f7c7f268a8490b6687671df81b609d571b39d4f83d",
+      "kind": "implemented_product_isolated_demo_screenshot"
+    }
+  ],
+  "detectorAdjudication": {
+    "candidates": 2,
+    "rule": "side-tab",
+    "decision": "functional master-strip separation and selected-channel state, not decorative card accents; retained after visual review"
+  }
+}
