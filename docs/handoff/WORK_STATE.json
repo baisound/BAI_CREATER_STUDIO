@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T00:38:58+09:00",
+  "updated_at": "2026-11-13T00:46:57+09:00",
   "updated_by": "codex",
-  "branch": "codex/state-composition-main-sync-20261113",
-  "head_at_update": "32138db",
+  "branch": "codex/sequence3-acceptance-20261113",
+  "head_at_update": "f62a74c",
   "current": {
-    "task": "保存制作状態・構図のmainと制作画面同期",
-    "status": "done",
-    "step": "PR290のPythonを8765へ読み込み、既存Chromeと原本保持を確認・記録",
-    "design_doc": "docs/v05/SAVED_STATE_COMPOSITION_20261113_JA.md"
+    "task": "順3 G3-F1 終了条件と残件の正本整理",
+    "status": "in_progress",
+    "step": "Owner指定の基本動画経路をA〜E証拠へ対応付け、既知未達/未検証/順6・7依存/低優先を明記する",
+    "design_doc": "docs/roadmap/SEQUENCE3_ACCEPTANCE_20261113_JA.md"
   },
   "next_steps": [
     "G3-F1：順3A〜Eの証拠、必須未達、環境制限、順6/7依存を対応付けて終了条件を整理。OGV長尺は低優先"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T00:46:57+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f62a74c",
+      "text": "順3 G3-F1 終了条件と残件の正本整理: Owner指定の基本動画経路をA〜E証拠へ対応付け、既知未達/未検証/順6・7依存/低優先を明記する"
+    },
     {
       "at": "2026-11-13T00:38:58+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "c1f5f8b",
       "text": "AAC320k修正のmainと表示中制作画面を同期: main/開発木をffし、8765の新しい目標320000とJS・Chrome再読込・515ファイル保持/Issue画像を記録"
-    },
-    {
-      "at": "2026-11-09T03:28:30+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9b7f5cf",
-      "text": "AAC320kを新規MP4へ固定し画面案内。両OS165窓/54境界の差3%以内・lag0、Node各2/Python各28、関連最終3成功。旧出力/原本保持と途中失敗を記録"
     }
   ]
 }
