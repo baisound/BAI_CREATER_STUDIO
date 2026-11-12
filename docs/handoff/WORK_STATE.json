@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T02:21:30+09:00",
+  "updated_at": "2026-11-13T02:23:12+09:00",
   "updated_by": "codex",
   "branch": "codex/ui-audit-fixes-20261113",
-  "head_at_update": "72e37df",
+  "head_at_update": "883bf67",
   "current": {
     "task": "承認済みUI監査8件の最優先改修",
     "status": "done",
@@ -11,8 +11,8 @@
     "design_doc": "docs/v05/UI_FIXES_20261113_JA.md"
   },
   "next_steps": [
-    "UI改修をPR/mainへ統合し、8765のPython再起動・制作画面/比較ページ・原本保持を確認する",
-    "最優先UI改修の反映後は未完の順3 G3-F1へ戻る。OGV長尺は低優先"
+    "PR293をmainへマージし、利用者main/開発木/8765のPython・制作画面と原本保持を同期する",
+    "UI最優先対応の反映後は未完の順3 G3-F1へ戻る"
   ],
   "unverified": [
     "VSTホスト/ミキサー音量エンジンは未接続。Linuxブラウザー/GPU、全3D組合せ、SR/200%拡大/物理タッチ/初見理解/性能/大量素材は未検証",
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T02:23:12+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "883bf67",
+      "text": "UI改修883bf67/PR293を記録。最終ブラウザー9・Windows66+5sub/Ubuntu66成功、比較5画面/13ソースhash/10画像整合。台帳CSVの既存UTF-8 BOMを維持"
+    },
     {
       "at": "2026-11-13T02:21:30+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "start",
       "head": "2637f34",
       "text": "G3-B1のmain同期と正確なIssue/画像参照を記録: PR280/main2637f34・8765とChrome表示・515ファイル保持・文書URL404訂正と画像配信一致を正本へ保存"
-    },
-    {
-      "at": "2026-11-09T21:24:47+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2ce37c4",
-      "text": "G3-B1を2ce37c4/PR280へ記録。証拠11行はGit保存内容LFのhashで可搬照合。現行320k代表のWin/Ubuntu各4固有ケース成功と初回1失敗/約5%音量差を区別、次B2の終了条件を確定"
     }
   ]
 }

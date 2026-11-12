@@ -1,4 +1,4 @@
-id,group,phase,name,detail,status,dependency
+﻿id,group,phase,name,detail,status,dependency
 CORE-001,CORE,1,AI無しの全機能手動操作,AIクレジット・MCP停止時もUI使用可,要検証,
 CORE-002,CORE,1,WebMCP共通操作,全機能の命令型ツール化と対応検査,要検証,
 CORE-003,CORE,1,標準MCP（Codex/Claude Code）,STDIO接続とツール体系,要検証,
