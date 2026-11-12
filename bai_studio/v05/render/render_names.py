@@ -115,11 +115,9 @@ def plan(root: Path, project_id: str, name: str, mode: str,
 
 
 def _check_output(root: Path, job_id: str) -> None:
-    from bai_studio.v05.render.media_render import output_file, status, _sha
+    from bai_studio.v05.render.media_render import output_file
     try:
-        path = output_file(root, job_id)
-        if _sha(path) != status(root, job_id).get("sha256"):
-            raise ValueError("completed MP4 hash changed")
+        output_file(root, job_id)  # includes the saved size and SHA-256 check
     except Exception as exc:
         raise NameError("置換前の完成物を読めません。旧版を保持します") from exc
 

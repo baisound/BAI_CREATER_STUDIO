@@ -93,6 +93,7 @@
       video.id = 'v69video';
       video.controls = true;
       video.preload = 'metadata';
+      video.addEventListener('error',()=>status('完成動画を読み込めません。別の完成版を選ぶか、保存先を確認して一覧を更新してください。'));
       preview.prepend(video);
     }
     video.src = url;
@@ -117,6 +118,11 @@
     const heading = document.createElement('h3');
     heading.textContent = `完成した動画（${completed.total}件）`;
     queue.append(heading);
+    if(completed.unreadable_count){
+      const warning=document.createElement('p');warning.className='baiTiny';warning.id='v69historyWarning';
+      warning.textContent='一部の書き出し履歴を読み込めません。保存先の空き容量や権限を確認して「一覧を更新」してください。読み込めた完成動画は受け取れます。';
+      queue.append(warning);
+    }
     const finished = document.createElement('div');
     finished.id = 'v69completed';
     queue.append(finished);
@@ -132,7 +138,7 @@
     attemptHeading.textContent = '処理中・失敗した履歴（最新20件まで）';
     attempts.append(attemptHeading);
     const pending = items.filter(job => job.status !== 'succeeded');
-    attempts.open = pending.some(job => ['queued', 'running'].includes(job.status));
+    attempts.open = pending.some(job => ['queued', 'running'].includes(job.status)) || ['failed','interrupted'].includes(pending[0]?.status);
     if (pending.length) queue.append(attempts);
     const states = { succeeded: '完成', queued: '順番待ち', running: '書き出し中', failed: '失敗', interrupted: '中断' };
     for (const job of [...completed.jobs, ...pending]) {
@@ -210,6 +216,7 @@
         error.textContent = job.error;
         row.append(error);
       }
+      if(job.delivery_error){const warning=document.createElement('small');warning.textContent=job.delivery_error;row.append(warning);}
       (job.status === 'succeeded' ? finished : attempts).append(row);
     }
     const pager = document.createElement('div');

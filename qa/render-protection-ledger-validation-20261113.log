@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "featureIds": 151,
+  "changedIds": 5,
+  "existingDetailDifferencesUnchanged": 12,
+  "sourceHashes": 6,
+  "historicalMediaEvidenceRows": 13,
+  "links": "passed",
+  "nextTask": "G3-E1; OGV remains low priority"
+}

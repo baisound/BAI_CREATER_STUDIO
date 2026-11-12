@@ -6,6 +6,7 @@ silently omitted from a claimed render.
 from __future__ import annotations
 
 import hashlib
+import errno
 import json
 import math
 import os
@@ -43,6 +44,14 @@ class RenderError(ValueError):
     def __init__(self, message: str, status: int = 422):
         super().__init__(message)
         self.status = status
+
+
+def _storage_error(exc: OSError) -> RenderError:
+    if exc.errno in {errno.ENOSPC, getattr(errno, 'EDQUOT', -1)}:
+        return RenderError('保存先の空き容量が不足しています。以前の完成動画は保持しています。空き容量を確保してから、もう一度書き出してください。', 507)
+    if exc.errno in {errno.EACCES, errno.EPERM}:
+        return RenderError('保存先に書き込めません。以前の完成動画は保持しています。保存先の権限や使用中のファイルを確認してから、もう一度書き出してください。', 503)
+    return RenderError('素材または保存先を読み書きできません。以前の完成動画は保持しています。素材の所在と保存先の状態を確認してから、もう一度書き出してください。', 503)
 
 
 def _sha(path: Path) -> str:
@@ -115,29 +124,35 @@ def status(root: Path, job_id: str) -> dict:
             raise RenderError("Saved render job is invalid", 422)
         interrupted = (job.get("status") in {"queued", "running"} or
                        (job.get("status") == "interrupted" and job.get("temporary_cleanup") != "complete")) and job_id not in ACTIVE
+    pending = job.get("pending_output")
+    if (job_id not in ACTIVE and job.get('status') in {'queued','running','interrupted','failed'}
+            and isinstance(pending, dict)):
+        # This checkpoint is saved only after full output verification. Named
+        # jobs additionally require their committed name-index reference.
+        from bai_studio.v05.render.render_names import state as name_state
+        final = root / "files" / f"{job_id}.mp4"
+        try:
+            indexed = (name_state(root, job["project_id"], job["download_name"], job_id)
+                       if job.get('download_name') else 'unnamed')
+            if (indexed in {"current", "archived", "unnamed"} and final.is_file() and
+                    final.stat().st_size == pending.get("bytes") and
+                    _sha(final) == pending.get("sha256")):
+                recovered = {**job, 'status':'succeeded', 'completed_at':time.time(), 'progress_percent':100,
+                             'bytes':pending['bytes'], 'sha256':pending['sha256'],
+                             'probe':pending['probe'], 'error':None}
+                recovered.pop('pending_output', None)
+                recovered['temporary_cleanup'] = 'complete' if _cleanup_temporary(root, job_id) else 'pending'
+                _save(root, recovered)
+                return _public(recovered)
+        except (OSError, ValueError, KeyError):
+            pass
     if interrupted:
-        pending = job.get("pending_output")
-        if isinstance(pending, dict) and job.get("download_name"):
-            from bai_studio.v05.render.render_names import state as name_state
-            final = root / "files" / f"{job_id}.mp4"
-            try:
-                indexed = name_state(root, job["project_id"], job["download_name"], job_id)
-                if (indexed in {"current", "archived"} and final.is_file() and
-                        final.stat().st_size == pending.get("bytes") and
-                        _sha(final) == pending.get("sha256")):
-                    job.update(status="succeeded", completed_at=time.time(), progress_percent=100,
-                               bytes=pending["bytes"], sha256=pending["sha256"],
-                               probe=pending["probe"], error=None)
-                    job.pop("pending_output", None)
-                    _save(root, job)
-                    return _public(job)
-            except (OSError, ValueError, KeyError):
-                pass
         cleaned = _cleanup_temporary(root, job_id)
         job = {**job, "status": "interrupted", "temporary_cleanup": "complete" if cleaned else "pending",
                "error": "サーバー再起動で処理が中断されました。原本と以前の出力は保持しています。" +
                         ("一時ファイルを回収しました。" if cleaned else "一時ファイルの回収は次回再試行します。")}
-        job.pop("pending_output", None)
+        # Retain a verified checkpoint if an index/file is temporarily locked;
+        # the next status read can retry without promoting unverified bytes.
         _save(root, job)
     elif job.get("temporary_cleanup") == "pending" and job_id not in ACTIVE:
         job["temporary_cleanup"] = "complete" if _cleanup_temporary(root, job_id) else "pending"
@@ -151,20 +166,29 @@ def list_jobs(root: Path, project_id: str, limit: int = 20, *, offset: int = 0,
     if type(limit) is not int or not 1 <= limit <= 100 or type(offset) is not int or offset < 0:
         raise RenderError("Invalid render history page", 400)
     jobs = []
+    unreadable = 0
     for path in (root / "jobs").glob("*.json"):
         try:
             item = status(root, path.stem)
             if item.get("project_id") == project_id and (not completed_only or item.get("status") == "succeeded"):
-                item["delivery_state"] = name_state(root, project_id, item.get("download_name"), item["id"])
+                try:
+                    item["delivery_state"] = name_state(root, project_id, item.get("download_name"), item["id"])
+                except (ValueError, OSError):
+                    # A damaged/locked name index must not hide immutable files.
+                    # Their download endpoint still verifies each job's bytes.
+                    item['delivery_state'] = 'unknown'
+                    item['delivery_error'] = '版の情報を読めません。保存先を確認してください。完成ファイルは変更していません。'
                 if item.get("status") == "succeeded":
                     output = root / "files" / f"{item['id']}.mp4"
                     item["file_available"] = output.is_file() and output.stat().st_size == item.get("bytes")
                 jobs.append(item)
-        except RenderError:
+        except (RenderError, OSError):
+            unreadable += 1
             continue
     jobs.sort(key=lambda item: item.get("created_at", 0), reverse=True)
     return {"jobs": jobs[offset:offset + limit], "project_id": project_id,
-            "total": len(jobs), "offset": offset, "has_more": offset + limit < len(jobs)}
+            "total": len(jobs), "offset": offset, "has_more": offset + limit < len(jobs),
+            "unreadable_count": unreadable}
 
 
 def output_file(root: Path, job_id: str) -> Path:
@@ -174,6 +198,8 @@ def output_file(root: Path, job_id: str) -> Path:
     path = root / "files" / f"{job_id}.mp4"
     if not path.is_file() or path.stat().st_size != job.get("bytes"):
         raise RenderError("Completed MP4 is missing or changed", 422)
+    if _sha(path) != job.get('sha256'):
+        raise RenderError('完成動画の内容が保存時から変わっています。ファイルは変更していません。別の完成版を選ぶか、もう一度書き出してください。', 422)
     return path
 
 
@@ -793,13 +819,23 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                    bytes=final.stat().st_size, sha256=digest, probe=info, error=None)
         job.pop("pending_output", None)
     except Exception as exc:
-        job.update(status="failed", completed_at=time.time(), error=str(exc)[:1200])
-        job.pop("pending_output", None)
+        job.update(status="failed", completed_at=time.time(), error=str(_storage_error(exc) if isinstance(exc, OSError) else exc)[:1200])
+        # A final file/name index may already be committed. Preserve the saved
+        # verification checkpoint so status() can recover that exact file.
     finally:
         if process_scope is not None:
             process_scope.close()
         job["temporary_cleanup"] = "complete" if _cleanup_temporary(root, job_id) else "pending"
-        try: _save(root, job)
+        try:
+            _save(root, job)
+        except OSError as exc:
+            # Storage may also reject the failure record. The last durable
+            # checkpoint remains recoverable once writes become possible.
+            try:
+                from bai_studio.core.diagnostic_logging import event
+                event('v05_render_state_write_failed', level='error', job_id=job_id, errno=exc.errno)
+            except Exception:
+                pass
         finally:
             with LOCK: ACTIVE.discard(job_id)
 
@@ -849,8 +885,11 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
     with LOCK:
         if ACTIVE:
             raise RenderError("別の動画書き出しが実行中です。完了後に再試行してください", 429)
-        root.joinpath("jobs").mkdir(parents=True, exist_ok=True)
-        root.joinpath("files").mkdir(parents=True, exist_ok=True)
+        try:
+            root.joinpath("jobs").mkdir(parents=True, exist_ok=True)
+            root.joinpath("files").mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            raise _storage_error(exc) from exc
         job_id = uuid.uuid4().hex
         while _job_file(root, job_id).exists() or (root / "files" / f"{job_id}.mp4").exists():
             job_id = uuid.uuid4().hex
@@ -868,10 +907,22 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
                "scene_revision": scene_revision, "phase": "queued",
                "progress_percent": 0, "error": None, "bytes": None, "sha256": None,
                "probe": None}
-        _save(root, job)
+        try:
+            _save(root, job)
+        except OSError as exc:
+            raise _storage_error(exc) from exc
         ACTIVE.add(job_id)
-        thread = threading.Thread(target=_worker,
-                                  args=(root, job, clips, ffmpeg, ffprobe, scene_inputs, server_port,
-                                        caps["filter_complex_option"]), daemon=True)
-        thread.start()
+        try:
+            thread = threading.Thread(target=_worker,
+                                      args=(root, job, clips, ffmpeg, ffprobe, scene_inputs, server_port,
+                                            caps["filter_complex_option"]), daemon=True)
+            thread.start()
+        except Exception as exc:
+            ACTIVE.discard(job_id)
+            job.update(status='failed', completed_at=time.time(), error='書き出し処理を開始できませんでした。以前の完成動画は保持しています。もう一度書き出してください。')
+            try:
+                _save(root, job)
+            except OSError:
+                pass
+            raise RenderError(job['error'], 503) from exc
     return _public(job)
