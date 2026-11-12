@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T02:23:12+09:00",
+  "updated_at": "2026-11-13T02:28:22+09:00",
   "updated_by": "codex",
   "branch": "codex/ui-audit-fixes-20261113",
-  "head_at_update": "883bf67",
+  "head_at_update": "1f60e21",
   "current": {
-    "task": "承認済みUI監査8件の最優先改修",
-    "status": "done",
-    "step": "保存対象・タイムライン・ナビ/フォーカスから修正し、素材/選択対象/書き出しまで実装・実画面検証する",
+    "task": "UI改修のmain同期と保存済み音声の初期配置ボタン修正",
+    "status": "in_progress",
+    "step": "本番Chromeで確認した音声初期読込の有効化不足を隔離再現し、2音声試験で修正後にmainへ反映・同期する",
     "design_doc": "docs/v05/UI_FIXES_20261113_JA.md"
   },
   "next_steps": [
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T02:28:22+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1f60e21",
+      "text": "UI改修のmain同期と保存済み音声の初期配置ボタン修正: 本番Chromeで確認した音声初期読込の有効化不足を隔離再現し、2音声試験で修正後にmainへ反映・同期する"
+    },
     {
       "at": "2026-11-13T02:23:12+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "3c30893",
       "text": "G3-B1はPR280/main2637f34へ統合しmain/codex-next/8765・Chrome表示・515ファイル不変を確認。文書URL404の誤記訂正とIssue4画像の参照/PNG一致を正本へ保存"
-    },
-    {
-      "at": "2026-11-09T21:29:12+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2637f34",
-      "text": "G3-B1のmain同期と正確なIssue/画像参照を記録: PR280/main2637f34・8765とChrome表示・515ファイル保持・文書URL404訂正と画像配信一致を正本へ保存"
     }
   ]
 }
