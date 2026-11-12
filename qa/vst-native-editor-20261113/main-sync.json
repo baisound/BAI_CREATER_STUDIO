@@ -33,12 +33,20 @@
     "url": "http://127.0.0.1:8765/studio/v05/index.html",
     "reloaded": true,
     "visible": "音声編集 > エフェクト・ミキサー; Ozone 9 insert direct double-click/Enter hint and master LUFS visible",
-    "production_project_edits": false
+    "production_project_edits": false,
+    "automatic_cache_generation": "Opening the saved enabled mixer prepared post-fader audio and LUFS caches; original assets/settings/completed video were unchanged"
   },
   "owner_data": {
-    "files": 518,
-    "aggregate_sha256": "f3f9127bb44e14071af0b4174218e2825ecc15cd9b773ee4421a389b72091dab",
-    "unchanged_after_sync": true
+    "baseline_files": 518,
+    "all_baseline_files_unchanged": true,
+    "added_derived_cache_files": [
+      "data/studio_v05_audio/cache/7ff4cba1a9e94459033a923a85ad59fbeb394f870dca727d1f66bae3f66cba00.json",
+      "data/studio_v05_audio/cache/7ff4cba1a9e94459033a923a85ad59fbeb394f870dca727d1f66bae3f66cba00.meters.npz",
+      "data/studio_v05_audio/cache/7ff4cba1a9e94459033a923a85ad59fbeb394f870dca727d1f66bae3f66cba00.wav",
+      "data/studio_v05_audio/cache/r128.txt"
+    ],
+    "current_files": 522,
+    "current_aggregate_sha256": "f20656fbfc625af9d0776c94d184a94ecd32b95cd3ec51b053fdf73075daa373"
   },
   "github_checks": "No status checks registered; local gates recorded separately",
   "native_gui_parameter_end_to_end": "NOT TESTED; see native-first-check.json",
