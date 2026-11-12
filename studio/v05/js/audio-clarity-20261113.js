@@ -78,7 +78,11 @@
     const target=el('p');target.id='uiAudioTargetProject';placement.querySelector('h2').after(target);
     const trackLabel=el('label','配置先');trackLabel.htmlFor='uiAudioTargetTrack';
     const track=el('select');track.id='uiAudioTargetTrack';track.append(new Option('音声トラック','audio'),new Option('楽曲トラック','music'));
-    target.after(trackLabel,track);
+    const laneLabel=el('label','行'),lane=el('select');lane.id='uiAudioTargetLane';laneLabel.htmlFor=lane.id;lane.append(new Option('1','1'));
+    target.after(trackLabel,track,laneLabel,lane);
+    let rows=[];
+    const updateLanes=()=>{const previous=lane.value;lane.replaceChildren();for(const r of rows.filter(r=>r.track===track.value))lane.append(new Option(r.name,String(r.lane)));if(!lane.options.length)lane.append(new Option('1','1'));if([...lane.options].some(o=>o.value===previous))lane.value=previous;};
+    track.addEventListener('change',updateLanes);window.addEventListener('bai:v05-audio-rows',e=>{if(e.detail.project_id!==$('v06project').value)return;rows=e.detail.rows;updateLanes();});
     document.querySelector('label[for=baiAudioStart]').textContent='作品上の開始（30fps基準・フレーム）';
     document.querySelector('label[for=baiAudioSource]').textContent='頭出し（30fps基準・フレーム）';
     const summary=el('p');summary.id='uiAudioPlacementSummary';summary.className='baiTiny';
@@ -102,7 +106,7 @@
         const duration=Math.round((media.duration_seconds-sourceStart)*10000)/10000;
         if(!(duration>0))throw Error('頭出し位置は音声の末尾より前を指定してください。');
         if($('v06project').value!==projectId||select.value!==assetId)throw Error('作品または音声が変わりました。配置先を確認して再実行してください。');
-        const result=await request('/api/studio/v05/arrangement/place',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,asset_id:assetId,track:track.value,lane:1,start,duration,source_start:sourceStart,revision:arrangement.revision})});
+        const result=await request('/api/studio/v05/arrangement/place',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,asset_id:assetId,track:track.value,lane:Number(lane.value),start,duration,source_start:sourceStart,revision:arrangement.revision})});
         status.textContent='この作品に配置しました。頭出しと開始位置は保存済みです。';
         window.dispatchEvent(new CustomEvent('bai:v05-save-state',{detail:{projectId,state:'saved'}}));
         if($('v06project').value===projectId){window.baiGo('edit');await window.BAIStudioV05Arrangement.refreshArrangement();window.dispatchEvent(new CustomEvent('bai:v05-clip-selected',{detail:{projectId,clip:result.clip}}));}

@@ -1,0 +1,27 @@
+.........................................................F.............. [ 80%]
+.................                                                   [100%]
+================================== FAILURES ===================================
+____________________ test_cleanup_rejects_junction_escape _____________________
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{f98c70d6-0af2-47c5-b55e-a8f7780fd44c}/Temp/pytest-of-user/pytest-0/test_cleanup_rejects_junction_0')
+
+    def test_cleanup_rejects_junction_escape(tmp_path):
+        root, owner = tmp_path / "renders", tmp_path / "owner-input"
+        owner.mkdir()
+        protected = owner / "source.bin"
+        protected.write_bytes(b"owner original")
+        job_id = "d" * 32
+        saved_job(root, job_id)
+        link = root / "jobs" / f"{job_id}.frames"
+        if os.name == "nt":
+            r = subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(owner)], capture_output=True)
+>           assert r.returncode == 0, r.stderr
+E           AssertionError: b'Access is denied.\r
+E             '
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['cmd', '/c', 'mklink', '/J', 'C:\\Users\\user\\AppData\\Local\\Packages\\OpenAI.Codex_2p2nqsd0c...r\\pytest-0\\test_cleanup_rejects_junction_0\\owner-input'], returncode=1, stdout=b'', stderr=b'Access is denied.\r\n').returncode
+
+tests\test_v05_render_recovery.py:145: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_v05_render_recovery.py::test_cleanup_rejects_junction_escape
+1 failed, 88 passed, 5 subtests passed in 32.40s

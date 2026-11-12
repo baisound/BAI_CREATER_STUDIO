@@ -536,7 +536,8 @@ def _audio_settings(data_root: Path, project_id: str) -> dict:
                 or len(set(muted)) != len(muted)):
             raise ValueError("Invalid muted tracks")
         return {"layout_revision": layout["revision"],
-                "muted_tracks": sorted(set(muted) & {"audio", "music", "video"})}
+                "muted_tracks": sorted(set(muted) & {"audio", "music", "video"}),
+                **({'muted_lanes':list(layout['muted_lanes'])} if layout.get('muted_lanes') else {})}
     except (OSError, ValueError, KeyError, TypeError) as exc:
         raise RenderError("保存済みの音声ミュート設定を読めません。再読込して確認してください") from exc
 
@@ -767,7 +768,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             try:
                 processed=mixer.prepare(root.parent,job['project_id'],inputs=clips,
                     settings=job['mixer_settings'],duration=job['range_end_exclusive']/fps,
-                    muted=job['audio_settings']['muted_tracks'],scope=process_scope)
+                    muted=job['audio_settings']['muted_tracks']+job['audio_settings'].get('muted_lanes',[]),scope=process_scope)
                 mixed_path=mixer.output_file(root.parent,processed['id'])
                 mixed_index=2+len(clips)+(1 if scene_index is not None else 0)
                 job['processed_audio']=processed
@@ -900,7 +901,8 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
     except mixer.MixerError as exc:
         raise RenderError(str(exc),exc.status) from exc
     # Job-local copies freeze the saved state. Later track changes affect the next job.
-    clips = [{**item, "audio_muted": item["clip"]["track"] in audio_settings["muted_tracks"]}
+    clips = [{**item, "audio_muted": item["clip"]["track"] in audio_settings["muted_tracks"] or
+              item['clip']['track']+':'+str(item['clip'].get('lane',1)) in audio_settings.get('muted_lanes',[])}
              for item in clips]
     if scene_inputs is not None and render_range["frame_count"] > MAX_SCENE_FRAMES:
         raise RenderError(f"3Dを含む限定MP4は現在{MAX_SCENE_FRAMES}フレーム以内です")

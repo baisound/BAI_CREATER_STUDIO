@@ -1,0 +1,17 @@
+TAP version 13
+# Subtest: ミキサーは実行名・素材・行ミュート・共通時刻を保存済みタイムラインと共有する
+not ok 1 - ミキサーは実行名・素材・行ミュート・共通時刻を保存済みタイムラインと共有する
+  ---
+  duration_ms: 257.4195
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-mixer-timeline.test.cjs:8:1'
+  failureType: 'testCodeFailure'
+  error: 's.close is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-mixer-timeline.test.cjs:39:118)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...

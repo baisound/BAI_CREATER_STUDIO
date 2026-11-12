@@ -44,6 +44,44 @@ def render(body):
     output = Path(body['output'])
     base = [ffmpeg, '-hide_banner', '-nostdin', '-loglevel', 'error', '-y']
     meters = {}
+    if shutil.disk_usage(output.parent).free < frames*8*7+32*1024*1024:
+        raise ValueError('音声処理用の空き容量が足りません。出力先の容量を確保してください')
+
+    def process_buffer(data, config, silent, meter_key):
+        plugins = []
+        for insert in config.get('inserts', []):
+            if insert['bypass']:
+                continue
+            plugin = open_plugin(body['plugins'][insert['plugin_id']]['path'])
+            params = plugin.parameters
+            for key, value in insert['parameters'].items():
+                if key not in params:
+                    raise ValueError('VSTパラメーターが変わりました。挿し直してください：' + key)
+                params[key].raw_value = value
+            plugins.append(plugin)
+        board = Pedalboard(plugins)
+        gain = 0 if silent else 10 ** (config.get('gain_db', 0) / 20)
+        written, peak, clipped = 0, 0., 0
+        # Output never extends beyond consumed input, so a copied input chunk
+        # allows safe in-place streaming even when native latency buffers it.
+        for at in range(0, frames + rate * 10, chunk):
+            block = np.array(data[at:min(frames, at+chunk)].T, order='C') if at < frames else np.zeros((2, chunk), dtype='float32')
+            out = board(block, rate, reset=(at == 0)) if plugins else block
+            count = min(out.shape[1], frames - written)
+            if count:
+                out = out[:, :count] * gain
+                if not np.isfinite(out).all():
+                    raise ValueError('VSTから不正な音声値が返りました')
+                peak = max(peak, float(np.max(np.abs(out))))
+                clipped += int(np.count_nonzero(np.abs(out) > 1))
+                data[written:written+count] = out.T
+                written += count
+            if written >= frames:
+                break
+        if written != frames:
+            raise ValueError('VSTの遅延音声を最後まで取得できません')
+        meters[meter_key] = {'peak':peak,'peak_db':round(20*math.log10(peak),2) if peak > 0 else None,'over_samples':clipped}
+
     with tempfile.TemporaryDirectory(prefix='pcm-', dir=output.parent) as temp, ExitStack() as cleanup:
         temp = Path(temp)
         maps = {name: np.memmap(temp / (name + '.raw'), mode='w+', dtype='float32', shape=(frames, 2))
@@ -51,83 +89,64 @@ def render(body):
         for data in maps.values():
             cleanup.callback(data._mmap.close)
             data[:] = 0
-        for index, source in enumerate(sources):
-            clip = source['clip']
-            raw = temp / (str(index) + '.raw')
-            clock = 'asetpts=PTS-STARTPTS,' if source['kind'] == 'audio' else ''
-            length = math.ceil(clip['duration'] * rate)
-            source_start = clip.get('source_start', 0)
-            # Decode even muted inputs, so damaged sources cannot silently pass.
-            run(base + ['-copyts', '-i', source['path'], '-vn', '-af',
+        groups = {}
+        for source in sources:
+            c = source['clip']
+            groups.setdefault(c['track']+':'+str(c.get('lane',1)), []).append(source)
+        configs = settings.get('tracks', {})
+        lane_solo = any(configs.get(key, {}).get('solo', False) for key in groups)
+        for key, group in groups.items():
+            track = key.split(':')[0]
+            lane_buffer = np.memmap(temp/'lane.raw', mode='w+', dtype='float32', shape=(frames,2))
+            try:
+                lane_buffer[:] = 0
+                for source in group:
+                    clip = source['clip']
+                    raw = temp/'source.raw'
+                    clock = 'asetpts=PTS-STARTPTS,' if source['kind'] == 'audio' else ''
+                    length = math.ceil(clip['duration'] * rate)
+                    source_start = clip.get('source_start', 0)
+                    # Decode muted inputs too; missing/damaged originals fail.
+                    run(base + ['-copyts','-i',source['path'],'-vn','-af',
                         f'{clock}atrim=start={source_start:.8f}:duration={clip["duration"]:.8f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo',
-                        '-f', 'f32le', '-c:a', 'pcm_f32le', str(raw)])
-            count = raw.stat().st_size // 8
-            if count < length - 1024:
-                raise ValueError('元音声を配置の末尾まで読み込めません')
-            if count:
-                pcm = np.memmap(raw, mode='r', dtype='float32', shape=(count, 2))
-                try:
-                    if not source['muted'] and clip['track'] not in body['muted']:
-                        start = round(clip['start'] * rate)
-                        count = min(count, length, max(0, frames - start))
-                        for at in range(0, count, chunk):
-                            stop = min(count, at + chunk)
-                            maps[clip['track']][start+at:start+stop] += pcm[at:stop]
-                finally:
-                    pcm._mmap.close()
-                del pcm
-            raw.unlink()
-
+                        '-f','f32le','-c:a','pcm_f32le',str(raw)])
+                    count = raw.stat().st_size // 8
+                    if count < length - 1024:
+                        raise ValueError('元音声を配置の末尾まで読み込めません')
+                    if count:
+                        pcm = np.memmap(raw,mode='r',dtype='float32',shape=(count,2))
+                        try:
+                            if not source['muted']:
+                                start = round(clip['start']*rate)
+                                count = min(count,length,max(0,frames-start))
+                                for at in range(0,count,chunk):
+                                    stop = min(count,at+chunk)
+                                    lane_buffer[start+at:start+stop] += pcm[at:stop]
+                        finally:
+                            pcm._mmap.close()
+                        del pcm
+                    raw.unlink()
+                config = configs.get(key, {})
+                silent = key in body['muted'] or track in body['muted'] or (lane_solo and not config.get('solo',False))
+                process_buffer(lane_buffer,config,silent,key)
+                for at in range(0,frames,chunk):
+                    maps[track][at:at+chunk] += lane_buffer[at:at+chunk]
+            finally:
+                lane_buffer._mmap.close()
+            del lane_buffer
         solo = any(settings['channels'][b]['solo'] for b in ('music', 'audio', 'video'))
         for name in ('music', 'audio', 'video', 'master'):
             config = settings['channels'][name]
-            plugins = []
-            for insert in config['inserts']:
-                if insert['bypass']:
-                    continue
-                plugin = open_plugin(body['plugins'][insert['plugin_id']]['path'])
-                params = plugin.parameters
-                for key, value in insert['parameters'].items():
-                    if key not in params:
-                        raise ValueError('VSTパラメーターが変わりました。挿し直してください：' + key)
-                    params[key].raw_value = value
-                plugins.append(plugin)
-            board = Pedalboard(plugins)
-            silent = config['mute'] or (name != 'master' and solo and not config['solo'])
-            gain = 0 if silent else 10 ** (config['gain_db'] / 20)
+            silent = config['mute'] or name in body['muted'] or (name != 'master' and solo and not config['solo'])
             data = maps[name]
-            # Separate output permits latency-buffered processors to emit fewer
-            # samples without overwriting unconsumed input.
-            processed = np.memmap(temp / (name + '-fx.raw'), mode='w+', dtype='float32', shape=(frames, 2))
-            cleanup.callback(processed._mmap.close)
-            written = 0
-            peak, clipped = 0., 0
-            for at in range(0, frames + rate * 10, chunk):
-                block = np.array(data[at:min(frames, at+chunk)].T, order='C') if at < frames else np.zeros((2, chunk), dtype='float32')
-                out = board(block, rate, reset=(at == 0)) if plugins else block
-                count = min(out.shape[1], frames - written)
-                if count:
-                    out = out[:, :count] * gain
-                    if not np.isfinite(out).all():
-                        raise ValueError('VSTから不正な音声値が返りました')
-                    peak = max(peak, float(np.max(np.abs(out))))
-                    clipped += int(np.count_nonzero(np.abs(out) > 1))
-                    processed[written:written+count] = out.T
-                    written += count
-                if written >= frames:
-                    break
-            if written != frames:
-                raise ValueError('VSTの遅延音声を最後まで取得できません')
-            meters[name] = {'peak': peak, 'peak_db': round(20*math.log10(peak), 2) if peak > 0 else None,
-                            'over_samples': clipped}
+            process_buffer(data,config,silent,name)
             if name != 'master':
                 for at in range(0, frames, chunk):
-                    maps['master'][at:at+chunk] += processed[at:at+chunk]
+                    maps['master'][at:at+chunk] += data[at:at+chunk]
             else:
-                processed.flush()
-                run(base + ['-f', 'f32le', '-ar', str(rate), '-ac', '2', '-i', str(temp / (name + '-fx.raw')),
+                data.flush()
+                run(base + ['-f', 'f32le', '-ar', str(rate), '-ac', '2', '-i', str(temp / 'master.raw'),
                             '-c:a', 'pcm_f32le', '-rf64', 'auto', str(output)])
-            del processed
         for key in list(maps):
             maps[key].flush()
             del maps[key]

@@ -1,0 +1,97 @@
+{
+  "requirements": [
+    "AUDIO-002",
+    "DATA-002",
+    "DATA-008",
+    "UX-006",
+    "RENDER-006"
+  ],
+  "issues": [
+    69,
+    63
+  ],
+  "status": "implemented_representative_validation",
+  "findings": [
+    {
+      "id": "MIX-TL-01",
+      "priority": "P1",
+      "target": "audio mixer rows",
+      "evidence": "種類別3バスだけで実タイムラインの行・素材と対応しなかった",
+      "change": "安定行ID、行名と素材、独立gain/solo/VST、素材から配置位置への移動",
+      "validation": "PASS"
+    },
+    {
+      "id": "MIX-TL-02",
+      "priority": "P1",
+      "target": "transport",
+      "evidence": "独立audioプレイヤーに再生位置が分岐していた",
+      "change": "共通preview時計でplay/pause/stop/seek、同一PCMをMP4へ",
+      "validation": "PASS"
+    },
+    {
+      "id": "MIX-TL-03",
+      "priority": "P2",
+      "target": "mute",
+      "evidence": "種類全体ミュートが行Mを上書きしていた",
+      "change": "canonical muted_lanes、理由の可視化と全体解除設定への入口",
+      "validation": "PASS"
+    },
+    {
+      "id": "MIX-TL-04",
+      "priority": "P2",
+      "target": "focus and recovery",
+      "evidence": "再描画でフォーカス喪失、削除済み行の欠落VSTが全体処理を停止し得た",
+      "change": "DOM順序変更時だけ移動、安定focusキー、実sourcesだけ行VSTを解決",
+      "validation": "PASS"
+    }
+  ],
+  "tests": {
+    "windows": {
+      "passed": 89,
+      "subtests": 5,
+      "log": "python-regression-native.log"
+    },
+    "lane_final": {
+      "passed": 7,
+      "log": "python-lanes-final.log"
+    },
+    "ubuntu": {
+      "passed": 87,
+      "skipped": 2,
+      "subtests": 5,
+      "log": "linux.log",
+      "limitations": [
+        "Windows native VST",
+        "Windows lock test"
+      ]
+    },
+    "chrome": {
+      "passed": 5,
+      "log": "acceptance.log"
+    },
+    "typecheck": "typecheck.log"
+  },
+  "reviews": {
+    "critic1": "limited_PASS: first action, visible mute reason, Undo scope",
+    "critic2": "limited_PASS: real row UI, canonical mute, orphan VST recovery",
+    "critic3": "limited_PASS: focus and 1024 M/S visible",
+    "judge": "PASS for this bounded audio lane change; broader AUDIO-002 and 3D linkage remain partial"
+  },
+  "not_tested": [
+    "all VSTs",
+    "Linux native plugin",
+    "listening",
+    "long duration load",
+    "screen reader",
+    "touch"
+  ],
+  "retained_failures": {
+    "python-regression.log": "Junction creation denied in restricted environment; native rerun passed",
+    "browser-final.log": "Intermediate 3/4; hidden track settings was not opened by test. Corrected real UI sequence passed acceptance.log"
+  },
+  "pending": [
+    "timeline model/camera/motion/expression linkage (separate stage)"
+  ],
+  "models": "Main agent for investigation/implementation and final judgment; standard models for three independent critics",
+  "public_images": "Only isolated synthetic test projects; no original Owner attachment uploaded"
+}

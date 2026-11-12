@@ -45,4 +45,15 @@
 #uiAudioRack .uiInsertSlots::-webkit-scrollbar-thumb{background:#6a8299;border-radius:3px}
 #uiAudioRack .vstEffectDetail h4{margin:0;color:#e8f0fa;font-size:13px;overflow-wrap:anywhere}
 .vstMixerToolbar input,.uiGainReadout{font-variant-numeric:tabular-nums}
+.vstMixerPlayback label{display:flex;align-items:center;gap:5px;font-size:12px;margin:0}
+.vstMixerPlayback input{width:80px}
+.vstMixerPlayback output{font-size:12px;font-variant-numeric:tabular-nums}
+.vstMixerPlayback>details{margin-left:auto;font-size:12px}
+.vstMixerPlayback>p{flex-basis:100%}
+#vstMixerBuses{margin:8px 0;font-size:12px}
+.vstBusStrips{display:flex;gap:8px;overflow:auto;padding-top:6px}
+.vstBusStrips .uiChannelStrip{flex:none;width:100px;padding:7px}
+#uiAudioRack .uiChannelName{min-width:0;overflow:hidden}
+#uiAudioRack .uiChannelName strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#uiAudioRack .vstTypeMuteNotice{padding:2px;font-size:10px;color:#ffe1a3;white-space:normal}
 @media(max-width:1100px){.vstMixerPlayback audio{width:200px}.vstMixerToolbar{gap:6px}.vstMixerToolbar>span{max-width:160px}}

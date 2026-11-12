@@ -129,3 +129,58 @@ def test_worker_failure_never_falls_back(project):
     if not mixer.capabilities()['available']:pytest.skip('Optional host unavailable')
     with pytest.raises(mixer.MixerError,match='処理できません'):
         mixer._child(root,{'action':'inspect','plugin':{'path':str(root/'missing.vst3'),'id':'0'*64}},10)
+
+
+def test_independent_same_type_lanes_and_vst_routing(pcm):
+    import numpy as np
+    root,pid,inputs=pcm
+    inputs=copy.deepcopy(inputs)
+    for i,item in enumerate(inputs):item['clip'].update(track='audio',lane=i+1)
+    settings=mixer.defaults(pid);settings['enabled']=True
+    def render(muted=()):
+        return read_pcm(root,mixer.prepare(root,pid,inputs=inputs,settings=settings,muted=list(muted),duration=2))
+    def amps(data):
+        signal=data[24000:48000,0];t=np.arange(len(signal))/48000
+        return [float(2*abs(np.sum(signal*np.exp(-2j*np.pi*hz*t)))/len(signal)) for hz in (440,880)]
+    dry=amps(render())
+    settings['tracks']={'audio:1':{'gain_db':-6,'solo':False,'inserts':[]},'audio:2':{'gain_db':3,'solo':False,'inserts':[]}}
+    got=amps(render())
+    assert np.allclose(np.array(got)/dry,[10**(-6/20),10**(3/20)],atol=1e-5)
+    settings['tracks']['audio:2']['solo']=True
+    solo=amps(render());assert solo[0]<1e-7 and solo[1]>.1
+    assert np.max(np.abs(render(['audio:2'])))==0
+    settings['tracks']['audio:2']['solo']=False
+    muted=amps(render(['audio:1']));assert muted[0]<1e-7 and muted[1]>.1
+    assert np.max(np.abs(render(['audio'])))==0
+    # Removed/empty lanes retain their settings but must not load absent VSTs.
+    settings['tracks']['audio:99']={'gain_db':0,'solo':True,'inserts':[{'plugin_id':'0'*64,'bypass':False,'parameters':{}}]}
+    assert np.allclose(amps(render()),got,atol=1e-6)
+    plugin=next((p for p in mixer.plugins() if p['name']=='TDR Nova'),None)
+    if plugin:
+        params={p['id']:p['raw'] for p in mixer.inspect(root,plugin['id'])['parameters']};params['output_gain_db']=.25
+        settings['tracks']['audio:1']['inserts']=[{'plugin_id':plugin['id'],'parameters':params,'bypass':False}]
+        wet=amps(render());assert .2<wet[0]/got[0]<.8
+        assert abs(wet[1]/got[1]-1)<1e-5  # second lane must not pass through lane 1's VST
+
+
+def test_timeline_rows_labels_and_shared_lane_mute(project):
+    from bai_studio.v05.timeline.track_layout import add_audio_music_lane,set_label,set_lane_mute,get,set_flags
+    from bai_studio.v05.timeline.arrangement import place
+    root,pid=project;catalog=root/'studio_v05_catalog.json';layout=root/'studio_v05_track_layouts'
+    d=add_audio_music_lane(layout,catalog,pid,0,'audio')
+    d=set_label(layout,catalog,pid,d['revision'],'audio:2','台詞')
+    inventory=[{'id':'lib:one','name':'声A.wav','kind':'audio','available':True}]
+    place(root/'studio_v05_arrangements',catalog,pid,'lib:one','audio',1,2,0,inventory,layout_root=layout,lane=2,source_duration=4)
+    d=set_lane_mute(layout,catalog,pid,d['revision'],'audio:2',True)
+    row=next(r for r in mixer.timeline_tracks(root,pid)['rows'] if r['key']=='audio:2')
+    assert row['name']=='台詞' and row['clips'][0]['name']=='声A.wav' and row['muted']
+    d=set_flags(layout,catalog,pid,d['revision'],[],['music'])
+    assert get(layout,catalog,pid)['muted_lanes']==['audio:2']
+    with pytest.raises(ValueError,match='conflict'):set_lane_mute(layout,catalog,pid,0,'audio:2',False)
+    with pytest.raises(ValueError):set_lane_mute(layout,catalog,pid,d['revision'],'audio:999',False)
+    assert get(layout,catalog,pid)['revision']==d['revision']
+    state=mixer.defaults(pid);state['tracks']={'audio:2':{'gain_db':-3,'solo':False,'inserts':[]}}
+    saved=mixer.save(root,pid,0,state['channels'],True,state['tracks'])
+    # Older clients that send only the bus fields retain per-lane settings.
+    result=mixer.save(root,pid,saved['revision'],saved['channels'],True)
+    assert result['tracks']==state['tracks']
