@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: インサートから直接開き、未保存・起動待ち・再読込・回収を保持する（GUI通信は隔離スタブ）
+ok 1 - インサートから直接開き、未保存・起動待ち・再読込・回収を保持する（GUI通信は隔離スタブ）
+  ---
+  duration_ms: 7687.6345
+  type: 'test'
+  ...
+# Subtest: 実PCMのステレオピーク・LUFSを共通時計、停止、シーク、行ミュート、素材待機へ追従
+ok 2 - 実PCMのステレオピーク・LUFSを共通時計、停止、シーク、行ミュート、素材待機へ追従
+  ---
+  duration_ms: 11036.6567
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23794.5344

@@ -1,0 +1,10 @@
+{
+  "cases": [
+    "real prepared stereo left/right differ 6 dB; M/S/I + true peak; pause zeros peak while retaining cursor loudness; live announcements off",
+    "seek into silent tail reads correct 100ms bins",
+    "canonical saved row mute recalculates actual zero signal",
+    "asset audition waiting before placed start does not display future audio"
+  ],
+  "errors": [],
+  "status": "passed"
+}

@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "cases": [
+    "A save completes before delayed B load: B controls remain inert and A/B settings never cross",
+    "A→B→A while native inspect waits: stale plugin response is discarded",
+    "VST parameters cannot change while a delayed save is in flight",
+    "native parameter failure is explicit; removing final insert restores keyboard focus and processing",
+    "all seven standard MCP and WebMCP tools share settings, canonical lane mutes, real host and PCM cache",
+    "new native editor recovery listing and bounded LUFS windows share both MCP entry points; GUI open/close is separately native/protocol tested"
+  ],
+  "errors": []
+}

@@ -1,0 +1,13 @@
+{
+  "scope": "isolated TDR Nova editor",
+  "double_click_open": "PASS",
+  "native_ui_displayed": "PASS",
+  "window_title": "Pedalboard",
+  "apply_and_close": "PASS",
+  "saved_revision": 2,
+  "native_state_saved": true,
+  "parameter_interaction": "NOT TESTED in this pass: target was occluded by Codex; coordinate input safely refused",
+  "computer_use_sdk": "not started: kernel assets path missing, same result after reset",
+  "other_obs_vst_window": "not touched",
+  "production_project_modified": false
+}

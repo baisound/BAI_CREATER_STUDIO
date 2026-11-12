@@ -1,0 +1,34 @@
+.......F......                                                           [100%]
+================================== FAILURES ===================================
+____ test_native_opaque_state_restores_dsp_and_generic_values_can_override ____
+
+pcm = (WindowsPath('C:/Users/user/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/AC/#!sandbox.{ff22c359-ebe0-4678-b35e-eb...22f2a625}/Temp/pytest-of-user/pytest-0/test_native_opaque_state_resto0/two.wav'), 'kind': 'audio', 'has_audio': True}])
+
+    def test_native_opaque_state_restores_dsp_and_generic_values_can_override(pcm):
+        import numpy as np
+        import hashlib
+        import pedalboard
+        root,pid,inputs=pcm
+        plugin=next((p for p in mixer.plugins() if p['name']=='TDR Nova'),None)
+        if not plugin:pytest.skip('Real installed TDR Nova required')
+        native=pedalboard.load_plugin(plugin['path']);native.parameters['output_gain_db'].raw_value=.25
+        raw=native.raw_state;sid=hashlib.sha256(raw).hexdigest();folder=root/'studio_v05_audio/states';folder.mkdir(parents=True)
+        (folder/(sid+'.bin')).write_bytes(raw)
+        state=mixer.defaults(pid);state['enabled']=True
+        def process():return read_pcm(root,mixer.prepare(root,pid,inputs=inputs,settings=state,muted=[],duration=2))
+        dry=process()
+        insert={'plugin_id':plugin['id'],'bypass':False,'parameters':{},'state_id':sid};state['channels']['music']['inserts']=[insert]
+        wet=process()
+        # Musical lane carries 440Hz, independent voice lane 880Hz.
+        def amp(data,hz):
+            a=data[24000:48000,0];t=np.arange(len(a))/48000
+            return float(2*abs(np.sum(a*np.exp(-2j*np.pi*hz*t)))/len(a))
+>       assert .2<amp(wet,440)/amp(dry,440)<.8
+E       assert (0.10788211581294471 / 0.1078821157380706) < 0.8
+E        +  where 0.10788211581294471 = <function test_native_opaque_state_restores_dsp_and_generic_values_can_override.<locals>.amp at 0x000001845BDCBC40>(array([[0., 0.],\n       [0., 0.],\n       [0., 0.],\n       ...,\n       [0., 0.],\n       [0., 0.],\n       [0., 0.]], shape=(96000, 2), dtype=float32), 440)
+E        +  and   0.1078821157380706 = <function test_native_opaque_state_restores_dsp_and_generic_values_can_override.<locals>.amp at 0x000001845BDCBC40>(array([[0., 0.],\n       [0., 0.],\n       [0., 0.],\n       ...,\n       [0., 0.],\n       [0., 0.],\n       [0., 0.]], shape=(96000, 2), dtype=float32), 440)
+
+tests\test_studio_v05_audio_mixer.py:208: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_studio_v05_audio_mixer.py::test_native_opaque_state_restores_dsp_and_generic_values_can_override
+1 failed, 13 passed in 31.02s

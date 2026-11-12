@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "cases": [
+    "WAV selected in material library is placed and saved into the same project through manual UI",
+    "UI -6 dB save produces measured PCM gain ratio 0.5011885785905011",
+    "Undo after a successful save retains current revision and can be saved again",
+    "real native VST changes PCM; cache, saved raw parameter and project reload verified",
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "mixerVisible": true
+    },
+    {
+      "viewport": [
+        1024,
+        768
+      ],
+      "mixerVisible": true
+    },
+    "material audition feeds processed VST PCM to a real Web Audio source",
+    "project preview plays processed PCM with every original media voice muted (no doubled dry audio)",
+    "actual MP4 decodes to processed audio level within 3%; uploaded original bytes unchanged",
+    "saved channel mute produces zero PCM",
+    "missing native plugin fails the new render explicitly and preserves the completed MP4"
+  ],
+  "errors": [],
+  "nativeRatio": 0.31563872475214905,
+  "mp4GainRatio": 1.0000108736305984
+}

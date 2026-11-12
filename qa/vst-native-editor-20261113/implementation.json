@@ -1,0 +1,80 @@
+{
+  "requirement_ids": [
+    "AUDIO-002",
+    "UX-006",
+    "DATA-002",
+    "RENDER-006"
+  ],
+  "findings": [
+    {
+      "id": "VST-NATIVE-01",
+      "priority": "P1",
+      "target": ".uiInsertSlots button",
+      "reason": "固有GUIに到達できず調整できなかった",
+      "change": "同じインサートをダブルクリック/Enterで直接開く",
+      "status": "IMPLEMENTED",
+      "verification": "PASS: native-first-check + native-protocol; actual GUI parameter interaction NOT TESTED"
+    },
+    {
+      "id": "VST-NATIVE-02",
+      "priority": "P1",
+      "target": "native editor session/draft",
+      "reason": "未保存編集・再読込・複数GUIで回収を失わない",
+      "change": "draft非保存・revision guard・回収一覧・破棄・他GUI編集中の回収保留",
+      "status": "IMPLEMENTED",
+      "verification": "PASS: Python6 + browser two-session protocol"
+    },
+    {
+      "id": "METER-01",
+      "priority": "P1",
+      "target": ".uiInactiveMeter/.vstLoudness",
+      "reason": "再生連動しない静的ピークだった",
+      "change": "実処理後の100ms左右ピークとカーソル時点M/S/I LUFS、マスターTP",
+      "status": "IMPLEMENTED",
+      "verification": "PASS: real PCM, pause, seek, row mute, asset wait; mono dry calibration"
+    },
+    {
+      "id": "METER-02",
+      "priority": "P2",
+      "target": "output/focus/low-height",
+      "reason": "読み上げ連打・フォーカス喪失・M/S見切れを防ぐ",
+      "change": "aria-live off・同値更新抑制・元insertへfocus・重複見出し圧縮・内部scroll",
+      "status": "IMPLEMENTED",
+      "verification": "PASS: Chrome1024/1440, 8inserts; real screen reader NOT TESTED"
+    }
+  ],
+  "reviews": {
+    "critic1": {
+      "verdict": "PASS",
+      "scope": "dirty non-save and discard",
+      "real_gui": "NOT TESTED"
+    },
+    "critic2": {
+      "verdict": "PASS",
+      "scope": "reload/pending/asset wait/multi editor; first P1 fixed and re-reviewed"
+    },
+    "critic3": {
+      "verdict": "PASS",
+      "scope": "focus/live output/layout",
+      "screen_reader": "NOT TESTED"
+    },
+    "judge": {
+      "verdict": "PASS for bounded Windows implementation",
+      "release_complete": false,
+      "reason": "mandatory review findings fixed and browser covered; native parameter GUI interaction and broad platform compatibility remain explicitly unverified"
+    }
+  },
+  "tests": {
+    "windows_python": "59 passed",
+    "ubuntu_python": "57 passed / 2 skipped",
+    "browser": "7 distinct gates passed across final + recheck",
+    "typecheck": "PASS"
+  },
+  "limitations": [
+    "Native GUI value-change to DSP end-to-end NOT TESTED (occluded target; safe input refusal)",
+    "Linux native editor unavailable; Linux VST plugin untested",
+    "All plugins, listening, long timelines, hardware audio latency and real screen reader untested",
+    "3D/camera/motion/expression work on held branch, not included"
+  ],
+  "implementation_commit": "23aa248"
+}
