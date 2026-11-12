@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T04:13:42+09:00",
+  "updated_at": "2026-11-13T04:15:57+09:00",
   "updated_by": "codex",
-  "branch": "codex/vst-insert-scroll-20261113",
-  "head_at_update": "2a5d9b6",
+  "branch": "codex/preview-space-scene-20261113",
+  "head_at_update": "1f9e030",
   "current": {
-    "task": "VST一覧の見切れ防止とモデル・カメラ・動き/表情のタイムライン連動",
-    "status": "done",
-    "step": "Owner追加指摘：8インサートの内部スクロールと固定追加ボタンを先行検証し、その後3D連動/二重ヘッダーを続ける",
+    "task": "モデル・カメラ・動き/表情の配置連動と実動作プレビューの高さ改善",
+    "status": "in_progress",
+    "step": "二重ヘッダー/ナビを埋込時だけ畳み実プレビューへ高さを戻す。既存機能の到達を保持し、続けて同一scene計画で配置連動を接続",
     "design_doc": "docs/v05/TIMELINE_SCENE_LINK_20261113_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T04:15:57+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1f9e030",
+      "text": "モデル・カメラ・動き/表情の配置連動と実動作プレビューの高さ改善: 二重ヘッダー/ナビを埋込時だけ畳み実プレビューへ高さを戻す。既存機能の到達を保持し、続けて同一scene計画で配置連動を接続"
+    },
     {
       "at": "2026-11-13T04:13:42+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "3af3fe1",
       "text": "長尺WebM修正のmainと制作画面の同期を記録: PR284/main3af3fe1を利用者mainへ反映済み、8765の旧Pythonを所有確認して再起動し表示と保持を確認"
-    },
-    {
-      "at": "2026-11-12T05:48:03+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "7634275",
-      "text": "長尺WebMの7ms入力時計差を修正しWin/Ubuntu各6879F・149有音窓差0sampleを確認。各Python31と既存形式/MCP対象成功。Chrome音量一括1失敗は同一コード単独成功、原因未確定として保持。"
     }
   ]
 }
