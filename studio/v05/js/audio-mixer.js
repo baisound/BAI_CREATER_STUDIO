@@ -5,6 +5,7 @@
   const names={music:'楽曲',audio:'音声',video:'映像音',master:'マスター'};
   const node=(tag,text)=>{const e=document.createElement(tag);if(text)e.textContent=text;return e;};
   const copy=x=>JSON.parse(JSON.stringify(x));
+  const attribute=(element,name,value)=>{element.setAttribute('data-i18n-original-'+name,value);element.setAttribute(name,value);};
   async function request(path,body){const r=await fetch('/api/studio/v05/audio/'+path,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{cache:'no-store'});const data=await r.json();if(!r.ok)throw Error(data.error||'音声処理に失敗しました');return data;}
   let settings=null, selected='music', selectedInsert=0, caps=null, dirty=false, busy=false, serial=0;
   const drafts=new Map(), history=[];
@@ -25,8 +26,8 @@
       strip.dataset.channel=b;strip.querySelector('strong').textContent=names[b];
       const name=strip.querySelector('.uiChannelName');name.dataset.focusKey='channel-'+b;name.setAttribute('aria-pressed',String(b===selected));
       const input=strip.querySelector('.uiChannelInput');input.textContent=b==='master'?'全バス → 出力':b==='music'?'全楽曲トラック':b==='audio'?'全音声トラック':'全動画の音声';input.title='保存済み作品のトラック種類ごとにまとめます';
-      const range=strip.querySelector('input[type=range]');range.disabled=busy;range.min='-60';range.max='6';range.step='.1';range.value=String(config.gain_db);range.setAttribute('aria-label',names[b]+'の音量（dB）');range.setAttribute('aria-valuetext',config.gain_db+' dB');
-      strip.querySelector('.uiGainReadout').textContent=config.gain_db.toFixed(1)+' dB';strip.querySelector('.uiGainReadout').title='−60〜+6 dB。ミュートで完全に消音します';
+      const range=strip.querySelector('input[type=range]');range.disabled=busy;range.min='-60';range.max='6';range.step='.1';range.value=String(config.gain_db);attribute(range,'aria-label',names[b]+'の音量（dB）');range.setAttribute('aria-valuetext',config.gain_db+' dB');
+      strip.querySelector('.uiGainReadout').textContent=config.gain_db.toFixed(1)+' dB';attribute(strip.querySelector('.uiGainReadout'),'title','−60〜+6 dB。ミュートで完全に消音します');
       const buttons=strip.querySelectorAll('.uiChannelMute button');
       for(const [i,field] of ['mute','solo'].entries())if(buttons[i]){buttons[i].textContent=i?'S':'M';buttons[i].disabled=busy||(b==='master'&&i===1);buttons[i].hidden=b==='master'&&i===1;buttons[i].setAttribute('aria-label',names[b]+(i?'をソロ':'をミュート'));buttons[i].setAttribute('aria-pressed',String(config[field]));}
       const slots=strip.querySelector('.uiInsertSlots');slots.replaceChildren();
@@ -34,7 +35,7 @@
         const li=node('li'),button=node('button',(insert.bypass?'[OFF] ':'')+(caps?.plugins.find(p=>p.id===insert.plugin_id)?.name||'未検出VST3'));button.type='button';button.disabled=busy;button.dataset.focusKey='insert-'+b+'-'+i;button.title=button.textContent;button.setAttribute('aria-pressed',String(b===selected&&i===selectedInsert));button.onclick=()=>{selected=b;selectedInsert=i;render();};li.append(button);slots.append(li);
       }
       if(!config.inserts.length)slots.append(node('li','エフェクトなし'));
-      const add=strip.querySelector('.uiInsertChain>button');add.disabled=busy||!caps?.available||config.inserts.length>=8;add.title='検出したVST3エフェクトを追加';
+      const add=strip.querySelector('.uiInsertChain>button');add.disabled=busy||!caps?.available||config.inserts.length>=8;attribute(add,'title','検出したVST3エフェクトを追加');
     }
     renderInspector();controls();if(focus){const target=[...document.querySelectorAll('[data-focus-key]')].find(e=>e.dataset.focusKey===focus&&!e.disabled&&!e.hidden);(target||document.querySelector('.uiChannelStrip[data-channel='+selected+'] .uiChannelName'))?.focus();}
   }
@@ -42,6 +43,7 @@
     inspector.querySelector('h3').textContent=names[selected]+'のエフェクト';detail.replaceChildren();
     const inserts=settings.channels[selected].inserts,insert=inserts[selectedInsert];
     if(!insert){detail.append(node('p','「＋ VSTを追加」でエフェクトを選びます。'));return;}
+    detail.append(node('h4',caps?.plugins.find(p=>p.id===insert.plugin_id)?.name||'未検出VST3'));
     const actions=node('div');actions.className='vstInsertActions';
     const bypass=node('button',insert.bypass?'有効にする':'バイパス');bypass.type='button';bypass.onclick=()=>edit(()=>{insert.bypass=!insert.bypass;});
     const up=node('button','上へ'),down=node('button','下へ'),remove=node('button','取り外す');
