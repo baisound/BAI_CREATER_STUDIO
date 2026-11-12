@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T06:30:08+09:00",
+  "updated_at": "2026-11-13T06:39:46+09:00",
   "updated_by": "codex",
   "branch": "codex/vst-native-editor-20261113",
-  "head_at_update": "635d40c",
+  "head_at_update": "9708f63",
   "current": {
     "task": "VST固有画面と再生連動メーター・ラウドネス",
     "status": "done",
@@ -11,12 +11,12 @@
     "design_doc": "docs/v05/VST_NATIVE_EDITOR_METERS_20261113_JA.md"
   },
   "next_steps": [
-    "PRで検証済み音声変更をmainへ統合し、8765/開いている制作画面を同期する",
-    "保全中codex/timeline-scene-runtime-20261113のモデル/カメラ/動き・表情の未検証統合を再開する。順3 G3-F1は未完"
+    "保全中codex/timeline-scene-runtime-20261113（7ee8669）へ最新mainを安全に統合し、モデル/カメラ/動き・表情の未検証部分から再開する。未検証3Dはmain未反映",
+    "順3 G3-F1と互換性残件は未完のまま保持。OGVはOwner指定で低優先"
   ],
   "unverified": [
-    "実固有GUI内の値変更から保存/DSPまでの通し操作（画面制御制約）、全VST/Linux実VST/長尺/聴感/実SR、VSTi/低遅延入力/Linux固有GUI未対応",
-    "保全中の3D/カメラ/動き・表情はこの音声PRに含めず未完"
+    "実固有GUI内の値変更→保存→DSPの通し操作は画面制御制約で未検証。全VST/Linux実VST/長尺/聴感/実SR、VSTi/低遅延入力/Linux固有GUIは未対応または未検証",
+    "モデル/カメラ/動き・表情の統合、順3全体は未完"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T06:39:46+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "9708f63",
+      "text": "AUDIO-002のVST直接起動とLUFS代表実装をPR303でmain統合。PR304に同期証跡、PR305で説明リンクを修正。ローカルmain28620f7/8765/Chrome同期済み、既存518ファイル不変・派生キャッシュ4追加を区別"
+    },
     {
       "at": "2026-11-13T06:30:08+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "done",
       "head": "6c664d5",
       "text": "G3-D：保存/起動/最終状態失敗からの復旧・旧動画保持・hash確認を実装。Win33/Ubuntu31・実録画短区間/実Chrome両MCPを限定検証"
-    },
-    {
-      "at": "2026-11-12T23:44:02+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "44c8afa",
-      "text": "順3 G3-D 出力失敗後の復旧と完成動画保護: 保存障害/確定直後の中断/同容量の改変を隔離再現し、再試行と旧出力保持を修正・検証"
     }
   ]
 }
