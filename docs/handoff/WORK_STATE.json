@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T06:39:46+09:00",
+  "updated_at": "2026-11-13T07:55:10+09:00",
   "updated_by": "codex",
-  "branch": "codex/vst-native-editor-20261113",
-  "head_at_update": "9708f63",
+  "branch": "codex/vst-gui-audio-verification-20261113",
+  "head_at_update": "437ca6e",
   "current": {
-    "task": "VST固有画面と再生連動メーター・ラウドネス",
-    "status": "done",
-    "step": "別プロセスの固有GUIと安全な状態回収を接続し、共通時刻で各行/バス/マスターを計測表示",
-    "design_doc": "docs/v05/VST_NATIVE_EDITOR_METERS_20261113_JA.md"
+    "task": "VST固有画面のパラメーター変更から実音声への通し検証",
+    "status": "in_progress",
+    "step": "隔離した実GUIでゲイン変更、保存復元、WAVとMP4の実振幅を確認し必要箇所を修正",
+    "design_doc": "docs/v05/VST_GUI_AUDIO_E2E_20261113_JA.md"
   },
   "next_steps": [
     "保全中codex/timeline-scene-runtime-20261113（7ee8669）へ最新mainを安全に統合し、モデル/カメラ/動き・表情の未検証部分から再開する。未検証3Dはmain未反映",
@@ -29,6 +29,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T07:55:10+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "437ca6e",
+      "text": "VST固有画面のパラメーター変更から実音声への通し検証: 隔離した実GUIでゲイン変更、保存復元、WAVとMP4の実振幅を確認し必要箇所を修正"
+    },
     {
       "at": "2026-11-13T06:39:46+09:00",
       "by": "codex",
@@ -231,13 +238,6 @@
       "event": "start",
       "head": "0afff1a",
       "text": "書き出し復旧・完成動画保護のmainと制作画面同期: PR288をmainへ反映。8765起動・開いたChromeと原本保持を確認し記録"
-    },
-    {
-      "at": "2026-11-13T00:10:09+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "6c664d5",
-      "text": "G3-D：保存/起動/最終状態失敗からの復旧・旧動画保持・hash確認を実装。Win33/Ubuntu31・実録画短区間/実Chrome両MCPを限定検証"
     }
   ]
 }
