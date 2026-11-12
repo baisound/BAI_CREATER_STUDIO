@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T05:11:12+09:00",
+  "updated_at": "2026-11-13T05:11:42+09:00",
   "updated_by": "codex",
-  "branch": "codex/mixer-timeline-rows-20261113",
-  "head_at_update": "567ceec",
+  "branch": "codex/timeline-scene-runtime-20261113",
+  "head_at_update": "d2edbed",
   "current": {
     "task": "モデル・カメラ・動き／表情のタイムライン接続",
     "status": "in_progress",
-    "step": "既存sceneインスタンスと配置clipを非破壊で統合し、共通時計の表示・動き・カメラ・表情と実出力を接続",
+    "step": "既存sceneと配置clipを非破壊で統合し、共通時計の表示・動き・カメラ・表情と実出力を接続",
     "design_doc": "docs/v05/TIMELINE_SCENE_LINK_20261113_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T05:11:42+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "d2edbed",
+      "text": "モデル・カメラ・動き／表情のタイムライン接続: 既存sceneと配置clipを非破壊で統合し、共通時計の表示・動き・カメラ・表情と実出力を接続"
+    },
     {
       "at": "2026-11-13T05:11:12+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "44c8afa",
       "text": "順3 G3-D 出力失敗後の復旧と完成動画保護: 保存障害/確定直後の中断/同容量の改変を隔離再現し、再試行と旧出力保持を修正・検証"
-    },
-    {
-      "at": "2026-11-12T06:51:47+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9a69e90",
-      "text": "PR286/main078c1b6・8765再起動とHTML/JS/履歴API一致、Chrome新タブの編集ボタン表示、515ファイル保持を確認し正本へ保存"
     }
   ]
 }
