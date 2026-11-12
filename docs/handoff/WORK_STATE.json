@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T04:35:51+09:00",
+  "updated_at": "2026-11-13T05:05:59+09:00",
   "updated_by": "codex",
   "branch": "codex/mixer-timeline-rows-20261113",
-  "head_at_update": "9aba452",
+  "head_at_update": "7030296",
   "current": {
     "task": "ミキサーの実トラック・共通時計連動とモデル/カメラ/動き表情の配置接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "安定行IDと保存済み名称/素材/ミュートを正本にしてミキサーへ接続し、処理・再生位置・出力を検証する。3D連動は続く段階として保持",
     "design_doc": "docs/v05/MIXER_TIMELINE_LINK_20261113_JA.md"
   },
   "next_steps": [
-    "検証済み表示高さをPR/main/制作画面へ同期。続いてミキサーの実トラック/共通時計連動とモデル/カメラ/動き表情のタイムライン接続を実装する"
+    "PR/mainへ統合し8765と制作画面を同期。続いてモデル/カメラ/動き・表情のタイムライン連動を実装"
   ],
   "unverified": [
-    "ミキサー各行連動と3D/カメラ/表情連動は未実装。SR/拡大/タッチ/全workspace組合せは未検証。添付原本公開は自動レビュー拒否のため行わず"
+    "全VST・Linux実プラグイン・聴感・長尺・SR・タッチ。3D/カメラ/表情連動は未実装"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T05:05:59+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "7030296",
+      "text": "AUDIO-002の実タイムライン行と共通時計を接続。Windows89+5subtests、Ubuntu87+2skip+5subtests、Chrome5試験と型検査。3視点の必須指摘を修正"
+    },
     {
       "at": "2026-11-13T04:35:51+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "a9ae727",
       "text": "素材クリップの保存Undo/Redoを手動UI/両MCPとWin/Ubuntuの240F画素・PCMで検証。各Python141＋追加1、既存Chrome回帰5成功。画像行削除の選択リセットも修正。"
-    },
-    {
-      "at": "2026-11-12T06:22:23+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "69db20f",
-      "text": "順3 G3-C 編集の取消・再実行と保存復元: Owner指定で長尺OGVを低優先へ戻し、既存クリップ編集のUndo/Redo不足を同一API・保存・出力まで補う"
     }
   ]
 }

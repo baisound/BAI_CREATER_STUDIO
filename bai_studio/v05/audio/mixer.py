@@ -24,6 +24,7 @@ PROCESS_LOCK = threading.Lock()
 BUSES = ('music', 'audio', 'video', 'master')
 HEX = re.compile(r'^[0-9a-f]{64}$')
 MAX_SECONDS = 7200
+LANE = re.compile(r'^(music|audio|video):([1-9][0-9]{0,9})$')
 
 
 class MixerError(ValueError):
@@ -48,6 +49,7 @@ def project(root, pid):
 
 def defaults(pid):
     return {'schema': 1, 'project_id': pid, 'revision': 0, 'enabled': False,
+            'tracks': {},
             'channels': {b: {'gain_db': 0, 'mute': False, 'solo': False, 'inserts': []} for b in BUSES}}
 
 
@@ -77,6 +79,22 @@ def validate(channels):
     return copy.deepcopy(channels)
 
 
+def validate_tracks(tracks):
+    if not isinstance(tracks, dict) or len(tracks) > 128:
+        raise MixerError('行ごとの音声設定が不正です', 400)
+    result = {}
+    for key, value in tracks.items():
+        if (not isinstance(key, str) or not LANE.fullmatch(key) or int(key.split(':')[1]) > 2147483646
+                or not isinstance(value, dict) or set(value) != {'gain_db', 'solo', 'inserts'}):
+            raise MixerError('安定した音声/楽曲/動画の行IDが必要です', 400)
+        check = defaults('validation')['channels']
+        check['music'] = {**value, 'mute': False}
+        validated = validate(check)['music']
+        validated.pop('mute')
+        result[key] = validated
+    return result
+
+
 def read(root, pid):
     with LOCK:
         path = project(root, pid)
@@ -88,22 +106,48 @@ def read(root, pid):
                     or data['revision'] < 0 or type(data['enabled']) is not bool):
                 raise ValueError()
             validate(data['channels'])
+            data['tracks'] = validate_tracks(data.get('tracks', {}))
             return data
         except (ValueError, KeyError, TypeError) as exc:
             raise MixerError('保存済みミキサーを読めません。原本を保持しています') from exc
 
 
-def save(root, pid, revision, channels, enabled=True):
+def save(root, pid, revision, channels, enabled=True, tracks=None):
     channels = validate(channels)
+    if tracks is not None:
+        tracks = validate_tracks(tracks)
     if type(revision) is not int or revision < 0 or type(enabled) is not bool:
         raise MixerError('保存revisionが必要です', 400)
     with LOCK:
         old = read(root, pid)
         if old['revision'] != revision:
             raise MixerError('他の画面で設定が変わりました。保存済みを読み直してください', 409)
-        result = {**old, 'revision': revision + 1, 'channels': channels, 'enabled': enabled}
+        result = {**old, 'revision': revision + 1, 'channels': channels, 'enabled': enabled,
+                  'tracks': old['tracks'] if tracks is None else tracks}
         _atomic(project(root, pid), result)
         return result
+
+
+def timeline_tracks(root, pid):
+    from bai_studio.v05.timeline.arrangement import read as arrangement
+    from bai_studio.v05.timeline.track_layout import get as layout_read
+    project(root, pid)
+    layout = layout_read(root / 'studio_v05_track_layouts', root / 'studio_v05_catalog.json', pid)
+    arranged = arrangement(root / 'studio_v05_arrangements', root / 'studio_v05_catalog.json', pid)
+    rows = []
+    names = {'music':'楽曲','audio':'音声','video':'映像音'}
+    for track in layout['order']:
+        if track not in names:
+            continue
+        for lane in layout[track + '_lane_ids']:
+            key = track + ':' + str(lane)
+            clips = [copy.deepcopy(c) for c in arranged['clips'] if c['track'] == track and c.get('lane',1) == lane]
+            name = layout.get('labels',{}).get(key) or (layout.get('labels',{}).get(track) if lane == 1 else None) or names[track]+' '+str(lane)
+            rows.append({'key':key,'track':track,'lane':lane,'name':name,'clips':clips,
+                         'muted':key in layout.get('muted_lanes',[]),
+                         'bus_muted':track in layout.get('muted',[])})
+    return {'project_id':pid,'arrangement_revision':arranged['revision'],'layout_revision':layout['revision'],
+            'rows':rows,'duration':max([c['start']+c['duration'] for c in arranged['clips']]+[0])}
 
 
 def plugins():
@@ -222,12 +266,12 @@ def resolved_inputs(root, pid, inventory, asset_id=None):
             c['duration'] = info['duration']
         if c.get('source_start', 0) + c['duration'] > info['duration'] + .02:
             raise MixerError('音声の配置が元素材の末尾を超えています')
-        inputs.append({'clip': c, 'path': str(path), 'kind': 'video' if c['track'] == 'video' else 'audio', 'has_audio': True})
+        inputs.append({'clip': c, 'path': str(path), 'kind': 'video' if entry.get('category',entry.get('kind')) == 'video' or c['track'] == 'video' else 'audio', 'has_audio': True})
     return data['revision'], inputs
 
 
 def prepare(root, pid, inventory=None, *, inputs=None, settings=None, duration=None,
-            muted=None, asset_id=None, channel='audio', scope=None):
+            muted=None, asset_id=None, channel='audio', lane=1, scope=None):
     settings = copy.deepcopy(settings if settings is not None else read(root, pid))
     if not settings['enabled']:
         return {'enabled': False, 'revision': settings['revision']}
@@ -235,6 +279,8 @@ def prepare(root, pid, inventory=None, *, inputs=None, settings=None, duration=N
         raise MixerError(capabilities()['reason'], 503)
     if channel not in BUSES[:-1]:
         raise MixerError('素材の送信先が不正です', 400)
+    if type(lane) is not int or not 1 <= lane <= 2147483646:
+        raise MixerError('音声の送信先行IDが不正です', 400)
     if inputs is None:
         _, inputs = resolved_inputs(root, pid, inventory, asset_id)
     sources = []
@@ -244,6 +290,7 @@ def prepare(root, pid, inventory=None, *, inputs=None, settings=None, duration=N
         clip = copy.deepcopy(item['clip'])
         if asset_id:
             clip['track'] = channel
+            clip['lane'] = lane
         sources.append({'clip': clip, 'path': str(item['path']), 'kind': item['kind'],
                         'sha256': sha(item['path']), 'muted': bool(item.get('audio_muted'))})
     if duration is None:
@@ -256,10 +303,12 @@ def prepare(root, pid, inventory=None, *, inputs=None, settings=None, duration=N
         raise MixerError('現在の音声処理は作品の先頭から2時間以内です。配置を確認してください')
     if muted is None:
         from bai_studio.v05.render.media_render import _audio_settings
-        muted = [] if asset_id else _audio_settings(root, pid)['muted_tracks']
-    plug = _plugin_map(settings['channels'])
+        audio = _audio_settings(root, pid)
+        muted = [] if asset_id else audio['muted_tracks'] + audio.get('muted_lanes', [])
+    active_keys = {s['clip']['track']+':'+str(s['clip'].get('lane',1)) for s in sources}
+    plug = _plugin_map({**settings['channels'], **{k:v for k,v in settings.get('tracks',{}).items() if k in active_keys}})
     body = {'action': 'render', 'settings': settings, 'sources': sources, 'plugins': plug,
-            'duration': duration, 'muted': muted, 'engine': 1}
+            'duration': duration, 'muted': muted, 'engine': 2}
     key = hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
     cache = root / 'studio_v05_audio/cache'
     cache.mkdir(parents=True, exist_ok=True)

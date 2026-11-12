@@ -1,0 +1,32 @@
+TAP version 13
+# Subtest: ミキサーは実行名・素材・行ミュート・共通時刻を保存済みタイムラインと共有する
+not ok 1 - ミキサーは実行名・素材・行ミュート・共通時刻を保存済みタイムラインと共有する
+  ---
+  duration_ms: 3331.6332
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-mixer-timeline.test.cjs:8:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /台詞.wav/. Input:
+    
+    '台詞'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: '台詞'
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-mixer-timeline.test.cjs:21:160)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8398.9667

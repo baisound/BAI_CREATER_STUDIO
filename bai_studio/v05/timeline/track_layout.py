@@ -4,6 +4,7 @@ from pathlib import Path
 from bai_studio.v05.timeline.arrangement import TRACKS, _project, ArrangementError
 from bai_studio.projects.catalog import _atomic
 import json
+import re
 LOCK=threading.RLock()
 def _label_text(label):
     if not isinstance(label,str) or not 1<=len(label.strip())<=40 or label!=label.strip():raise ArrangementError('Invalid track label')
@@ -33,7 +34,7 @@ def get(root,catalog,project_id):
     _project(catalog,project_id)
     p=Path(root)/(project_id+'.json')
     if not p.exists():return _media_lanes({'project_id':project_id,'revision':0,'order':sorted(TRACKS),'heights':{},'locked':[],'muted':[],'image_lanes':1,'image_lane_ids':[1],'next_image_lane_id':2,'labels':{}})
-    d=json.loads(p.read_text(encoding='utf-8'))
+    with LOCK:d=json.loads(p.read_text(encoding='utf-8'))
     if d.get('project_id')!=project_id or type(d.get('revision')) is not int or not isinstance(d.get('order'),list) or set(d['order'])!=TRACKS or len(d['order'])!=len(TRACKS) or not isinstance(d.get('heights'),dict):raise ArrangementError('Invalid track layout')
     if any(k not in TRACKS or type(v) is not int or not 28<=v<=160 for k,v in d['heights'].items()):raise ArrangementError('Invalid track heights')
     if type(d.get('image_lanes',1)) is not int or not 1<=d.get('image_lanes',1)<=16:raise ArrangementError('Invalid image lane count')
@@ -51,7 +52,25 @@ def get(root,catalog,project_id):
     _media_lanes(d)
     for key,label in labels.items():_label_key(key,ids,d['video_lane_ids'],d['audio_lane_ids'],d['music_lane_ids']);_label_text(label)
     d['labels']=labels
+    lane_mutes=d.get('muted_lanes',[])
+    if (not isinstance(lane_mutes,list) or len(lane_mutes)>128 or any(type(key) is not str or (not re.fullmatch(r'(audio|music|video):[1-9][0-9]{0,9}',key) or int(key.split(':')[1])>2147483646) for key in lane_mutes) or len(set(lane_mutes))!=len(lane_mutes)):
+        raise ArrangementError('Invalid lane mutes')
     return d
+
+def set_lane_mute(root,catalog,project_id,revision,key,muted):
+    if type(revision) is not int or revision<0 or type(muted) is not bool or type(key) is not str:
+        raise ArrangementError('Invalid lane mute request')
+    with LOCK:
+        d=get(root,catalog,project_id)
+        if d['revision']!=revision:raise ArrangementError('Revision conflict')
+        keys={track+':'+str(lane) for track in ('audio','music','video') for lane in d[track+'_lane_ids']}
+        if key not in keys:raise ArrangementError('Audio lane does not exist')
+        values=set(d.get('muted_lanes',[]))
+        if muted:values.add(key)
+        else:values.discard(key)
+        result={**d,'revision':revision+1,'muted_lanes':sorted(values)}
+        _atomic(Path(root)/(project_id+'.json'),result)
+        return result
 def update(root,catalog,project_id,revision,order,heights):
     if type(revision) is not int or revision<0:raise ArrangementError('Invalid revision')
     if not isinstance(order,list) or len(order)!=len(TRACKS) or set(order)!=TRACKS or any(type(x) is not str for x in order):raise ArrangementError('Invalid track order')
@@ -149,7 +168,7 @@ def remove_video_lane(root,catalog,arrangement_root,project_id,revision,lane):
         if any(c.get('track')=='video' and c.get('lane',1)==lane for c in arrangement['clips']):
             raise ArrangementError('Move or remove clips before removing this video lane')
         d['video_lane_ids'].remove(lane);d['video_lanes']=len(d['video_lane_ids'])
-        d['labels'].pop('video:'+str(lane),None);d['revision']+=1
+        d['labels'].pop('video:'+str(lane),None);d['muted_lanes']=[k for k in d.get('muted_lanes',[]) if k!='video:'+str(lane)];d['revision']+=1
         _atomic(Path(root)/(project_id+'.json'),d)
         return d
 
@@ -182,6 +201,6 @@ def remove_audio_music_lane(root,catalog,arrangement_root,project_id,revision,la
         if any(c.get('track')==track and c.get('lane',1)==lane for c in arrangement['clips']):
             raise ArrangementError('Move or remove clips before removing this audio lane')
         d[track+'_lane_ids'].remove(lane);d[track+'_lanes']=len(d[track+'_lane_ids'])
-        d['labels'].pop(track+':'+str(lane),None);d['revision']+=1
+        d['labels'].pop(track+':'+str(lane),None);d['muted_lanes']=[k for k in d.get('muted_lanes',[]) if k!=track+':'+str(lane)];d['revision']+=1
         _atomic(Path(root)/(project_id+'.json'),d)
         return d

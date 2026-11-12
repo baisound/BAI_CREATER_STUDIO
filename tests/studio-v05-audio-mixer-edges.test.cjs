@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process');
-const h=require('./helpers/studio-harness.cjs'),root=path.resolve(__dirname,'..'),qa=path.join(root,'qa/vst-mixer-20261113');
+const h=require('./helpers/studio-harness.cjs'),root=path.resolve(__dirname,'..'),qa=path.join(root,'qa/mixer-timeline-20261113/regression');
 const body=({project_id,revision,channels,enabled})=>({project_id,revision,channels,enabled});
 async function json(r){const text=await r.text();assert.equal(r.status,200,text);return JSON.parse(text);}
 function standard(base,name,args={}){const run=spawnSync('python',['-X','utf8',path.join(root,'mcp_server.py')],{input:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name,arguments:args}})+'\n',encoding:'utf8',timeout:45000,windowsHide:true,env:{...process.env,MIXAMO_VIEWER_URL:base}});assert.equal(run.status,0,run.stderr);const r=JSON.parse(run.stdout);assert.equal(r.result?.isError,undefined,run.stdout);return JSON.parse(r.result.content[0].text);}
@@ -11,7 +11,7 @@ test('保存と作品切替の競合、VST失敗復旧、両MCPの同一処理�
   const a=await make('競合確認A'),b=await make('競合確認B');
   browser=await h.launchBrowser();page=await s.newPage(browser);page.setDefaultTimeout(10000);page.on('pageerror',e=>result.errors.push(e.message));
   await page.goto(s.base+'/studio/v05/index.html');
-  const choose=async pid=>{await page.locator('#uiMainNav [data-workspace=edit]').click();await page.locator('#v06project').selectOption(pid);await page.locator('#nav [data-page=audio]').click();await page.locator('#uiAudioEffectsTab').click();};
+  const choose=async pid=>{await page.locator('#uiMainNav [data-workspace=edit]').click();await page.locator('#v06project').selectOption(pid);await page.locator('#nav [data-page=audio]').click();await page.locator('#uiAudioEffectsTab').click();await page.locator('#vstMixerBuses').evaluate(e=>e.open=true);};
   await choose(a);await page.waitForFunction(()=>!document.querySelector('#vstMixerEnabled').disabled);
   const gain=page.locator('.uiChannelStrip[data-channel=audio] input[type=range]');await gain.fill('-4');await gain.dispatchEvent('change');
   let releasePost,releaseGet;const postGate=new Promise(r=>releasePost=r),getGate=new Promise(r=>releaseGet=r);let observedPost=false,observedGet=false;
@@ -43,7 +43,10 @@ test('保存と作品切替の競合、VST失敗復旧、両MCPの同一処理�
   const web=async(name,args={})=>{const r=await page.evaluate(async x=>window.__mcpTools.find(t=>t.name===x.name).execute(x.args),{name,args});assert.equal(r.isError,undefined,JSON.stringify(r));return JSON.parse(r.content[0].text);};
   assert.equal((await web('bai_studio_audio_capabilities')).available,true);assert.equal((await web('bai_studio_audio_plugin_inspect',{plugin_id:plugin.id})).plugin_id,plugin.id);
   saved=await web('bai_studio_audio_settings_get',{project_id:a});saved.channels.master.gain_db=-3;const newState=await web('bai_studio_audio_settings_save',body(saved));assert.equal(standard(s.base,'bai_studio_audio_settings_get',{project_id:a}).revision,newState.revision);
-  const webMix=await web('bai_studio_audio_prepare',{project_id:a}),stdMix=standard(s.base,'bai_studio_audio_prepare',{project_id:a});assert.equal(webMix.sha256,stdMix.sha256);assert.equal(webMix.id,stdMix.id);result.cases.push('all five standard MCP and WebMCP tools use the same server settings, real host and PCM cache');
+  let rows=standard(s.base,'bai_studio_audio_tracks',{project_id:a});assert.ok(rows.rows.some(r=>r.key==='audio:1'));
+  const mute=await web('bai_studio_audio_lane_mute',{project_id:a,revision:rows.layout_revision,key:'audio:1',muted:true});rows=await web('bai_studio_audio_tracks',{project_id:a});assert.ok(rows.rows.find(r=>r.key==='audio:1').muted);
+  standard(s.base,'bai_studio_audio_lane_mute',{project_id:a,revision:mute.revision,key:'audio:1',muted:false});
+  const webMix=await web('bai_studio_audio_prepare',{project_id:a}),stdMix=standard(s.base,'bai_studio_audio_prepare',{project_id:a});assert.equal(webMix.sha256,stdMix.sha256);assert.equal(webMix.id,stdMix.id);result.cases.push('all seven standard MCP and WebMCP tools share settings, canonical lane mutes, real host and PCM cache');
   assert.deepEqual(result.errors,[]);result.status='passed';
  }catch(e){result.status='failed';result.failure=e.stack;if(page)await page.screenshot({path:path.join(qa,'edge-failure.png')}).catch(()=>{});throw e;}
  finally{fs.writeFileSync(path.join(qa,'edge-validation.json'),JSON.stringify(result,null,2)+'\n');await browser?.close();await s.stop();}

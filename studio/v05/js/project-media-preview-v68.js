@@ -20,7 +20,7 @@
   const state = { projectId: '', clips: [], entries: [], fps: 60, inFrame: 0,
     outFrame: 0, frame: 0, ready: false, playing: false, generation: 0,
     startFrame: 0, startTime: 0, raf: 0, issues: [], sceneOverlay: false,
-    audioMuted: [], layoutRevision: -1, audioSettingsReady: false, mixerRevision: -1, mixed: false };
+    audioMuted: [], mutedLanes: [], layoutRevision: -1, audioSettingsReady: false, mixerRevision: -1, mixed: false };
   const audioTracks = new Set(['audio', 'music', 'video']);
   const savedTracks = new Set(['audio','camera','effect','expression','image','light','lip','model','motion','music','video']);
   const message = text => { $('v68status').textContent = text; };
@@ -65,7 +65,7 @@
     let visible = 0, sounding = 0, sourceEnded = 0;
     for (const entry of state.entries) {
       const { clip, element, kind } = entry;
-      if (kind !== 'image') element.muted = entry.mixed ? false : state.mixed || state.audioMuted.includes(clip.track);
+      if (kind !== 'image') element.muted = entry.mixed ? false : state.mixed || state.audioMuted.includes(clip.track)||state.mutedLanes.includes(clip.track+':'+(clip.lane||1));
       if (entry.failed) { element.hidden = true; pauseElement(element); continue; }
       const active = activeAt(clip, seconds);
       if (kind === 'image') { element.hidden = !active; if (active && element.complete && element.naturalWidth > 0) visible++; continue; }
@@ -152,6 +152,7 @@
     if (typeof projectId !== 'string' || !projectId) return;
     const generation = ++state.generation;
     pause();
+    const keepSeconds=detail.keepHead&&state.projectId===projectId?state.frame/state.fps:null;
     release();
     delete $('v68frame').dataset.dirty;
     state.projectId = projectId;
@@ -237,7 +238,7 @@
       for (const entry of state.entries) if (entry.kind !== 'audio') layers.append(entry.element);
       state.ready = true;
       refreshStage();
-      state.frame = clamp(Math.round(Number(head.seconds || 0) * state.fps));
+      state.frame = clamp(Math.round(Number(keepSeconds??head.seconds??0) * state.fps));
       setFrame(state.frame);
       refreshStage();
     } catch (error) {
@@ -258,15 +259,17 @@
     const changed = layout.revision > state.layoutRevision || !state.audioSettingsReady;
     state.layoutRevision = layout.revision;
     state.audioMuted = (layout.muted || []).filter(t => audioTracks.has(t));
+    if(layout.muted_lanes!==undefined&&(!Array.isArray(layout.muted_lanes)||layout.muted_lanes.some(key=>typeof key!=='string'||!/^(audio|music|video):[1-9][0-9]*$/.test(key))))throw Error('行ミュート設定が不正です');
+    state.mutedLanes=layout.muted_lanes||[];
     state.audioSettingsReady = true;
-    for (const entry of state.entries) if (entry.kind !== 'image') entry.element.muted = entry.mixed ? false : state.mixed || state.audioMuted.includes(entry.clip.track);
+    for (const entry of state.entries) if (entry.kind !== 'image') entry.element.muted = entry.mixed ? false : state.mixed || state.audioMuted.includes(entry.clip.track)||state.mutedLanes.includes(entry.clip.track+':'+(entry.clip.lane||1));
     refreshStage();
     return changed;
   }
   window.addEventListener('bai:v05-track-layout-changed', event => {
-    try { if(applyAudioLayout(event.detail)&&state.mixed&&state.ready)void configure({projectId:state.projectId,clips:state.clips}); } catch (error) { state.audioSettingsReady = false; pause(); refreshStage(); message(error.message); }
+    try { if(applyAudioLayout(event.detail)&&state.mixed&&state.ready)void configure({projectId:state.projectId,clips:state.clips,keepHead:true}); } catch (error) { state.audioSettingsReady = false; pause(); refreshStage(); message(error.message); }
   });
-  window.addEventListener('bai:v05-mixer-saved',event=>{if(event.detail.project_id===state.projectId)void configure({projectId:state.projectId,clips:state.clips});});
+  window.addEventListener('bai:v05-mixer-saved',event=>{if(event.detail.project_id===state.projectId)void configure({projectId:state.projectId,clips:state.clips,keepHead:true});});
   let layoutPolling = false;
   async function pollAudioLayout() {
     if (layoutPolling || document.hidden || !state.ready || !state.projectId) return;
@@ -278,9 +281,9 @@
       const layout = await response.json();
       if(!mixerResponse.ok)throw Error('保存済みミキサーを再確認できません');
       const mixer=await mixerResponse.json();
-      if(generation===state.generation&&mixer.revision!==state.mixerRevision){void configure({projectId:state.projectId,clips:state.clips});return;}
+      if(generation===state.generation&&mixer.revision!==state.mixerRevision){void configure({projectId:state.projectId,clips:state.clips,keepHead:true});return;}
       if (generation === state.generation && projectId === state.projectId && applyAudioLayout(layout)) {
-        if(state.mixed){void configure({projectId:state.projectId,clips:state.clips});return;}
+        if(state.mixed){void configure({projectId:state.projectId,clips:state.clips,keepHead:true});return;}
         window.dispatchEvent(new CustomEvent('bai:v05-track-layout-changed', { detail: layout }));
       }
     } catch (error) {
@@ -314,6 +317,7 @@
   window.addEventListener('pagehide', () => { clearInterval(layoutTimer); ++state.generation; pause(); release(); }, { once: true });
   window.BAIStudioMediaPreviewV68 = Object.freeze({
     play, pause: () => pause(true), stop, seek,
+    refresh:()=>configure({projectId:state.projectId,clips:state.clips,keepHead:true}),
     sceneOverlay(active) { state.sceneOverlay = Boolean(active); refreshStage(); setFrame(state.frame); },
     status: () => ({ projectId: state.projectId, frame: state.frame, fps: state.fps,
       ready: state.ready, playing: state.playing, mediaCount: state.entries.length,
