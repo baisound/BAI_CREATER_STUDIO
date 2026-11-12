@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T00:10:09+09:00",
+  "updated_at": "2026-11-13T00:13:32+09:00",
   "updated_by": "codex",
-  "branch": "codex/render-failure-protection-20261112",
-  "head_at_update": "6c664d5",
+  "branch": "codex/render-protection-main-sync-20261113",
+  "head_at_update": "0afff1a",
   "current": {
-    "task": "順3 G3-D 出力失敗後の復旧と完成動画保護",
-    "status": "done",
-    "step": "保存障害/確定直後の中断/同容量の改変を隔離再現し、再試行と旧出力保持を修正・検証",
-    "design_doc": "docs/roadmap/CURRENT_POSITION_AND_TASKS_20261108_JA.md"
+    "task": "書き出し復旧・完成動画保護のmainと制作画面同期",
+    "status": "in_progress",
+    "step": "PR288をmainへ反映。8765起動・開いたChromeと原本保持を確認し記録",
+    "design_doc": "docs/v05/RENDER_FAILURE_PROTECTION_20261112_JA.md"
   },
   "next_steps": [
     "差分/台帳/証拠をレビューしPRをmainへ統合。利用者main/8765/開いた制作画面を同期",
@@ -28,6 +28,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T00:13:32+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0afff1a",
+      "text": "書き出し復旧・完成動画保護のmainと制作画面同期: PR288をmainへ反映。8765起動・開いたChromeと原本保持を確認し記録"
+    },
     {
       "at": "2026-11-13T00:10:09+09:00",
       "by": "codex",
@@ -230,13 +237,6 @@
       "event": "start",
       "head": "f7a15ea",
       "text": "ロードマップとAAC診断のmain同期・次工程を記録: 手元/開発木のfast-forward・8765配信と515ファイル保持を確認し、G3-A1診断済み/次G3-A2を正本へ記録"
-    },
-    {
-      "at": "2026-11-08T22:17:28+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a0f9aa6",
-      "text": "7段階の現在地と順3を6作業単位へ整理。G3-A1のAAC差を両OSで再現し、直接AAC対照と各162窓のPCM一致、原本/索引/旧完成物保持を確認"
     }
   ]
 }
