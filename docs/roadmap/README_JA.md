@@ -3,6 +3,7 @@
 **このフォルダーは「提案と実装報告の取りこぼしを防ぐ」ための文書専用コミットです。**
 
 - [`CURRENT_POSITION_AND_TASKS_20261108_JA.md`](CURRENT_POSITION_AND_TASKS_20261108_JA.md) — 最新の7段階一覧・順3現在地・細分化と着手タスク
+- [`../v05/UI_AUDIT_20261113_JA.md`](../v05/UI_AUDIT_20261113_JA.md) — Owner指定のUI監査と番号付き現状/修正案。改修未実装、順3 G3-F1は未完のまま保持
 - [`00_OVERVIEW_JA.md`](00_OVERVIEW_JA.md) — フェーズ別の概要と機能リンク
 - [`FEATURE_DETAIL_JA.md`](FEATURE_DETAIL_JA.md) — 全機能IDの詳細・受け入れ条件
 - [`FEATURE_REGISTER.csv`](FEATURE_REGISTER.csv) / [`FEATURE_REGISTER.json`](FEATURE_REGISTER.json) — 機械可読の機能台帳

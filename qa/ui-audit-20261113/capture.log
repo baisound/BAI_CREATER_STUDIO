@@ -1,0 +1,4 @@
+Error: {"error": "file contents do not match its extension"}
+    at json (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\qa\ui-audit-20261113\capture.cjs:8:85)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\qa\ui-audit-20261113\capture.cjs:14:15

@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "findings": 8,
+  "p1": 6,
+  "p2": 2,
+  "routingEntries": 11,
+  "assetHashes": 12,
+  "resolvedLocalLinks": 28,
+  "productSourceChanged": false,
+  "featureLedgerChanged": false,
+  "productUIFixesTested": false,
+  "scope": "audit report artifact validation only"
+}

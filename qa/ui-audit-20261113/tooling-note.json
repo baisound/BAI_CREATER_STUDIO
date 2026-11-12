@@ -1,0 +1,7 @@
+{
+  "reportStorageHelper": "NOT AVAILABLE",
+  "attempt": "impeccable audit-storage write studio/v05/index.html <temporary report>",
+  "observed": "Unknown command: audit-storage",
+  "effect": "No product change; requested durable report is saved directly in docs/v05 and qa/ui-audit-20261113",
+  "automaticHookRepair": false
+}
