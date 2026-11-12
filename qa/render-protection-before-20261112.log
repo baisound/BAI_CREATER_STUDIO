@@ -32,7 +32,7 @@ named = False
         result=render.status(tmp_path,job['id'])
 >       assert result['status']=='succeeded'
 E       AssertionError: assert 'interrupted' == 'succeeded'
-E         
+E
 E         - succeeded
 E         + interrupted
 
@@ -78,7 +78,7 @@ monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021DE5E7C9B0>
 >       result=render.list_jobs(tmp_path,'p',completed_only=True)
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests\test_v05_render_failure_protection.py:65: 
+tests\test_v05_render_failure_protection.py:65:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 bai_studio\v05\render\media_render.py:156: in list_jobs
     item = status(root, path.stem)
@@ -113,7 +113,7 @@ monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021DE5E7F020>
 >           with pytest.raises(render.RenderError):render.start(tmp_path,'p',0,0,'720p',[])
                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests\test_v05_render_failure_protection.py:86: 
+tests\test_v05_render_failure_protection.py:86:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 bai_studio\v05\render\media_render.py:876: in start
     thread.start()
@@ -141,7 +141,7 @@ error = 28, status = 507
 >       with pytest.raises(render.RenderError) as exc:render.start(tmp_path,'p',0,0,'720p',[])
                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests\test_v05_render_failure_protection.py:99: 
+tests\test_v05_render_failure_protection.py:99:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 bai_studio\v05\render\media_render.py:871: in start
     _save(root, job)
@@ -171,7 +171,7 @@ error = 13, status = 503
 >       with pytest.raises(render.RenderError) as exc:render.start(tmp_path,'p',0,0,'720p',[])
                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests\test_v05_render_failure_protection.py:99: 
+tests\test_v05_render_failure_protection.py:99:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 bai_studio\v05\render\media_render.py:871: in start
     _save(root, job)
