@@ -259,9 +259,19 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 path=urlsplit(self.path).path.rsplit('/',1)[-1]
                 q=parse_qs(urlsplit(self.path).query)
-                if path=='capabilities':result=mixer.capabilities()
+                if path=='capabilities':
+                    result=mixer.capabilities();result['editor_available']=result['available'] and os.name=='nt'
+                elif path=='editor-status':
+                    from bai_studio.v05.audio.editor import status
+                    result=status(DATA,q.get('id',[''])[0])
+                elif path=='editor-list':
+                    from bai_studio.v05.audio.editor import list_editors
+                    result=list_editors(DATA,q.get('project_id',[''])[0])
                 elif path=='settings':result=mixer.read(DATA,q.get('project_id',[''])[0])
                 elif path=='tracks':result=mixer.timeline_tracks(DATA,q.get('project_id',[''])[0])
+                elif path=='meter-window':
+                    from bai_studio.v05.audio.metering import window
+                    result=window(DATA,q.get('id',[''])[0],float(q.get('start',['0'])[0]),float(q.get('seconds',['8'])[0]))
                 elif path=='file':
                     self.send_library_file(mixer.output_file(DATA,q.get('id',[''])[0]),'audio/wav');return
                 else:return self.bad(404,'Unknown audio endpoint')
@@ -968,7 +978,16 @@ class Handler(BaseHTTPRequestHandler):
                 body=json.loads(self.rfile.read(length))
                 if not isinstance(body,dict):return self.bad(400,'Invalid audio request')
                 path=urlsplit(self.path).path.rsplit('/',1)[-1]
-                if path=='settings' and {'project_id','revision','channels','enabled'}<=set(body) and not set(body)-{'project_id','revision','channels','enabled','tracks'}:
+                if path=='editor-open' and {'project_id','key','index','revision'}<=set(body) and not set(body)-{'project_id','key','index','revision','draft_insert'}:
+                    from bai_studio.v05.audio.editor import open_editor
+                    result=open_editor(DATA,body['project_id'],body['key'],body['index'],body['revision'],body.get('draft_insert'))
+                elif path=='editor-close' and set(body)=={'id','mode'}:
+                    from bai_studio.v05.audio.editor import close_editor
+                    result=close_editor(DATA,body['id'],body['mode'])
+                elif path=='editor-recover' and set(body)=={'id','key','index','revision'}:
+                    from bai_studio.v05.audio.editor import recover
+                    result=recover(DATA,body['id'],body['key'],body['index'],body['revision'])
+                elif path=='settings' and {'project_id','revision','channels','enabled'}<=set(body) and not set(body)-{'project_id','revision','channels','enabled','tracks'}:
                     result=mixer.save(DATA,body['project_id'],body['revision'],body['channels'],body['enabled'],body.get('tracks'))
                     event('v05_audio_settings_saved',project_id=body['project_id'],revision=result['revision'])
                 elif path=='inspect' and set(body)=={'plugin_id'}:result=mixer.inspect(DATA,body['plugin_id'])
@@ -977,9 +996,9 @@ class Handler(BaseHTTPRequestHandler):
                     try:result=set_lane_mute(DATA/'studio_v05_track_layouts',DATA/'studio_v05_catalog.json',**body)
                     except ValueError as exc:raise mixer.MixerError(str(exc),409 if 'conflict' in str(exc).lower() else 400) from exc
                     event('v05_audio_lane_mute_saved',project_id=body['project_id'],revision=result['revision'])
-                elif path=='prepare' and {'project_id'}<=set(body) and not set(body)-{'project_id','asset_id','channel','lane'}:
+                elif path=='prepare' and {'project_id'}<=set(body) and not set(body)-{'project_id','asset_id','channel','lane','analysis_only'}:
                     if 'asset_id' in body and (not isinstance(body['asset_id'],str) or not body['asset_id']):return self.bad(400,'音声素材IDが必要です')
-                    result=mixer.prepare(DATA,body['project_id'],unified_assets(),asset_id=body.get('asset_id'),channel=body.get('channel','audio'),lane=body.get('lane',1))
+                    result=mixer.prepare(DATA,body['project_id'],unified_assets(),asset_id=body.get('asset_id'),channel=body.get('channel','audio'),lane=body.get('lane',1),analysis_only=body.get('analysis_only',False))
                     event('v05_audio_prepared',project_id=body['project_id'],audio_id=result.get('id'),revision=result['revision'])
                 else:return self.bad(400,'Invalid audio operation or fields')
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())

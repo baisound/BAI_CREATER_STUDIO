@@ -1,0 +1,56 @@
+TAP version 13
+# Subtest: 保存と作品切替の競合、VST失敗復旧、両MCPの同一処理を確認する
+ok 1 - 保存と作品切替の競合、VST失敗復旧、両MCPの同一処理を確認する
+  ---
+  duration_ms: 14617.6975
+  type: 'test'
+  ...
+# Subtest: VST3と作品ミキサーを操作し、保存・試聴・プレビュー・実MP4を同じ処理へ接続する
+ok 2 - VST3と作品ミキサーを操作し、保存・試聴・プレビュー・実MP4を同じ処理へ接続する
+  ---
+  duration_ms: 20581.5989
+  type: 'test'
+  ...
+# Subtest: 音声の試聴結果を同作品へ頭出し付きで一括配置し、保存/履歴/実出力を維持する
+ok 3 - 音声の試聴結果を同作品へ頭出し付きで一括配置し、保存/履歴/実出力を維持する
+  ---
+  duration_ms: 5306.7937
+  type: 'test'
+  ...
+# Subtest: ミキサーは実行名・素材・行ミュート・共通時刻を保存済みタイムラインと共有する
+ok 4 - ミキサーは実行名・素材・行ミュート・共通時刻を保存済みタイムラインと共有する
+  ---
+  duration_ms: 7909.0896
+  type: 'test'
+  ...
+# Subtest: 8個のVST一覧だけを内部スクロールし、固定追加・末尾選択・削除・M/Sと長いフェーダーを維持
+not ok 5 - 8個のVST一覧だけを内部スクロールし、固定追加・末尾選択・削除・M/Sと長いフェーダーを維持
+  ---
+  duration_ms: 3952.7996
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-vst-insert-scroll.test.cjs:5:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(b.y+b.height<height-20)
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-vst-insert-scroll.test.cjs:20:71)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 4
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 77609.4244

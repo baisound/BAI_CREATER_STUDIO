@@ -1,0 +1,67 @@
+{
+  "status": "passed",
+  "cases": [
+    "saved audio initializes placement action without manual reselection",
+    "30fps audition fields converted to seconds; start/head/duration saved in one history action",
+    "one Undo/Redo and reload preserve source offset; legacy music/dance project untouched",
+    "trimmed audio arrangement produces an actual MP4",
+    {
+      "mixerViewport": [
+        1440,
+        900
+      ],
+      "strips": [
+        {
+          "width": 100,
+          "height": 572.703125,
+          "fader": 266.703125
+        },
+        {
+          "width": 100,
+          "height": 572.703125,
+          "fader": 266.703125
+        },
+        {
+          "width": 100,
+          "height": 572.703125,
+          "fader": 266.703125
+        },
+        {
+          "width": 112,
+          "height": 572.703125,
+          "fader": 266.703125
+        }
+      ]
+    },
+    {
+      "mixerViewport": [
+        1024,
+        768
+      ],
+      "strips": [
+        {
+          "width": 100,
+          "height": 572.703125,
+          "fader": 266.703125
+        },
+        {
+          "width": 100,
+          "height": 572.703125,
+          "fader": 266.703125
+        },
+        {
+          "width": 100,
+          "height": 572.703125,
+          "fader": 266.703125
+        },
+        {
+          "width": 112,
+          "height": 572.703125,
+          "fader": 266.703125
+        }
+      ]
+    },
+    "four slim effect/channel strips, real host availability, preserved legacy VST/EQ and compatibility save"
+  ],
+  "errors": []
+}

@@ -75,6 +75,17 @@ def process(pcm,channels=None,inputs=None):
     return mixer.prepare(root,pid,inputs=inputs or original,settings=settings,muted=[],duration=2)
 
 
+def test_disabled_analysis_matches_browser_mono_duplication(pcm):
+    import numpy as np
+    root,pid,inputs=pcm
+    result=mixer.prepare(root,pid,inputs=inputs[:1],settings=mixer.defaults(pid),muted=[],duration=2,analysis_only=True)
+    assert result['enabled'] is False
+    decoded=read_pcm(root,result)
+    # HTML/Web Audio mono speaker upmix duplicates the source at unity in L/R.
+    assert abs(float(np.max(np.abs(decoded)))-5000/32768)<1e-6
+    assert np.array_equal(decoded[:,0],decoded[:,1])
+
+
 def test_real_gain_mute_solo_and_trim(pcm):
     import numpy as np
     root,pid,inputs=pcm
@@ -184,3 +195,31 @@ def test_timeline_rows_labels_and_shared_lane_mute(project):
     # Older clients that send only the bus fields retain per-lane settings.
     result=mixer.save(root,pid,saved['revision'],saved['channels'],True)
     assert result['tracks']==state['tracks']
+
+
+def test_native_opaque_state_restores_dsp_and_generic_values_can_override(pcm):
+    import numpy as np
+    import hashlib
+    import pedalboard
+    root,pid,inputs=pcm
+    plugin=next((p for p in mixer.plugins() if p['name']=='TDR Nova'),None)
+    if not plugin:pytest.skip('Real installed TDR Nova required')
+    native=pedalboard.load_plugin(plugin['path']);native.parameters['output_gain_db'].raw_value=.25
+    raw=native.raw_state;sid=hashlib.sha256(raw).hexdigest();folder=root/'studio_v05_audio/states';folder.mkdir(parents=True)
+    (folder/(sid+'.bin')).write_bytes(raw)
+    state=mixer.defaults(pid);state['enabled']=True
+    def process():return read_pcm(root,mixer.prepare(root,pid,inputs=inputs,settings=state,muted=[],duration=2))
+    dry=process()
+    insert={'plugin_id':plugin['id'],'bypass':False,'parameters':{},'state_id':sid};state['channels']['music']['inserts']=[insert]
+    wet=process()
+    # Musical lane carries 880Hz, independent voice lane 440Hz.
+    def amp(data,hz):
+        a=data[24000:48000,0];t=np.arange(len(a))/48000
+        return float(2*abs(np.sum(a*np.exp(-2j*np.pi*hz*t)))/len(a))
+    assert .2<amp(wet,880)/amp(dry,880)<.8
+    assert abs(amp(wet,440)/amp(dry,440)-1)<1e-5
+    insert['parameters']={'output_gain_db':.5}
+    restored=process();assert abs(amp(restored,880)/amp(dry,880)-1)<.01
+    (folder/(sid+'.bin')).write_bytes(b'corrupt')
+    with pytest.raises(mixer.MixerError,match='状態'):
+        process()
