@@ -1,0 +1,71 @@
+{
+  "status": "passed_limited_scope",
+  "pullRequest": 290,
+  "implementationCommit": "4f2d9d40290ef6d7a4cb3a2fe8c35425ef9dea68",
+  "mainMergeCommit": "f3d93d1e7013d5993db6bb933193dba44ca217c9",
+  "server": {
+    "port": 8765,
+    "previousPid": 4124,
+    "pid": 26668,
+    "source": "D:\\BAI\\BAI_CREATER_STUDIO\\BAI_Creator_Studio\\server.py",
+    "dataDir": "D:\\BAI\\BAI_CREATER_STUDIO\\BAI_Creator_Studio\\data",
+    "hidden": true,
+    "noRunningOwnerJobBeforeRestart": true,
+    "pythonModule": "bai_studio/v05/render/media_render.py",
+    "moduleSha256": "152d18acd9cf27a7b75b8bdf314ddae83eade5542cfa2a5cd0d9be46775a0a2c"
+  },
+  "served": [
+    {
+      "path": "studio/v05/index.html",
+      "sha256": "42fd4642fb78fb5083e12425679f7b89a22a97ec9c77142465db93c515754a80",
+      "bytesIdentical": true
+    },
+    {
+      "path": "studio/v05/js/render-job-v69.js",
+      "sha256": "88e9ee7a76438ee2fec75c9e49daca58a1c57a6c8ca2b5564585da2ec8801063",
+      "bytesIdentical": true
+    },
+    {
+      "path": "webmcp.js",
+      "sha256": "fd73f8190265688228fa94785c1e8adc1fdb92f12229864958111b1f9afc2e92",
+      "bytesIdentical": true
+    }
+  ],
+  "api": {
+    "projects": 2,
+    "selectedProjectCompleted": 3,
+    "unreadable_count": 0
+  },
+  "browser": {
+    "browserId": "3",
+    "tabId": "1055946470",
+    "url": "http://127.0.0.1:8765/studio/v05/index.html",
+    "operation": "existing export tab retained; clicked history refresh after server restart",
+    "project": "操作実演 2026-10-24",
+    "completed": 3,
+    "existingClips": 2,
+    "ownerDataEdited": false,
+    "deliverableMarked": true
+  },
+  "ownerData": {
+    "files": 515,
+    "aggregate_sha256": "89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d",
+    "unchanged": true,
+    "head": "f3d93d1e7013d5993db6bb933193dba44ca217c9"
+  },
+  "publishedImages": [
+    {
+      "url": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/4f2d9d40290ef6d7a4cb3a2fe8c35425ef9dea68/docs/v05/images/state-composition-saved-transparent-wide.png",
+      "sha256": "76f0e751d7ca31f0663bb25add3f1d0dcfe813dd21053a97544b9472d7d7d984",
+      "pngAndOwnerOriginalMatch": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/baisound/BAI_CREATER_STUDIO/4f2d9d40290ef6d7a4cb3a2fe8c35425ef9dea68/docs/v05/images/state-composition-saved-transparent-mp4.png",
+      "sha256": "7b55b1feb5faf607c09efd17470a78a6a7b222ef3f0d5c06b10703b5994f9999",
+      "pngAndOwnerOriginalMatch": true
+    }
+  ],
+  "issueComment": "https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6828062009",
+  "githubChecks": "none registered, local validation separate",
+  "unverified": "Linuxブラウザー/GPU・任意材質/シェーダー/半透明実ステージ・複雑な実作品/全姿勢の構図、既存のG3-A短窓/聴感/約5%音量差、G3-C全Undo/競合・G3-D物理枯渇/電源断/全停止点、G3-F/順3全体。時刻付きカメラ/旧カメラ取込/大型ステージ初期構図/レール/DOFは順6、字幕は順7。RENDER-005のPNG連番納品は未実装。OGV長尺は低優先。"
+}
