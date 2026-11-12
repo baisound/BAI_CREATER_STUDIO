@@ -54,3 +54,12 @@ Windowsの実Chromeは `C:/Program Files/Google/Chrome/Application/chrome.exe`�
 実ディスク/クォータ枯渇、物理故障・電源断・全停止点、Linuxブラウザー、任意長尺実作品は未確認。受取開始ごとに全ファイルhashを再計算するため、大容量では開始待ち時間が増える可能性がある。全サイズの遅延測定、受取中の外部同時改変防止、破損ファイルの自動復元は保証しない。既存データ形式の移行は不要。保存先が回復するまでは失敗履歴自体を書けない場合がある。
 
 次はG3-E1で保存した制作状態・構図の順3必須条件と順6の依存を照合し、G3-Fの終了判定へ証拠をまとめる。G3-A短窓/聴感/既知音量差、G3-C/E/F、順3全体・順4/5・既存ゲート/依存監査は未完のまま。コード・試験の固定hashは[数値証拠](../../qa/render-protection-evidence-20261113.json)。Issue [#81](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81)を閉じない。
+
+
+## mainと制作画面の同期（2026-11-13）
+
+[PR #288](https://github.com/baisound/BAI_CREATER_STUDIO/pull/288)をmain0afff1aへ統合。実装c602c17、ログ書式ca1d77d。利用者mainと既存codex-nextをfast-forward。8765番と以前のPID34300は停止済みで、競合がないことを確認して利用者main/server.pyをPID4124で非表示起動した。HTML/render-job-v69.js/webmcp.jsは利用者mainと配信内容が全バイト一致し、GET完成物一覧に新しいunreadable_count=0が返る。
+
+Chromeの旧タブ1055946273は取得できず、現在の一覧にも制作URLはなかった。同じChromeに同じURLの新タブ1055946470を開き、書き出し画面で既存作品・完成動画3件（旧版を含む）を確認し保持。既存2クリップへ試験編集を加えていない。CUA画面撮影は5秒で時間切れとなったため、実画面の確認はAX表示による。公開した画像は隔離試験の合成素材だけで、利用者素材は投稿していない。
+
+利用者の素材/作品/完成動画/exports/studio.zipの515ファイルとdirty一覧は前後一致。集約SHA-256は89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d。[同期数値](../../qa/render-protection-main-sync-20261113.json)。[IssueのPNG](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6827468757)は公開配信のPNG MIME/内容とOwner確認原本の一致も確認。GitHub自動checkの登録はなく、ローカル検証と区別する。次はG3-E1。G3-D/順3全体や既存未解決は維持し、OGV長尺は低優先のまま。
