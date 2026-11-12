@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T00:33:48+09:00",
+  "updated_at": "2026-11-13T00:38:58+09:00",
   "updated_by": "codex",
-  "branch": "codex/saved-composition-audit-20261113",
-  "head_at_update": "9ff3726",
+  "branch": "codex/state-composition-main-sync-20261113",
+  "head_at_update": "32138db",
   "current": {
-    "task": "順3 G3-E1 保存制作状態と構図の一致確認",
+    "task": "保存制作状態・構図のmainと制作画面同期",
     "status": "done",
-    "step": "既存の静止カメラ/自動構図/狭い画面の証拠を照合し、保存再読込と出力に残る不足を隔離検証",
+    "step": "PR290のPythonを8765へ読み込み、既存Chromeと原本保持を確認・記録",
     "design_doc": "docs/v05/SAVED_STATE_COMPOSITION_20261113_JA.md"
   },
   "next_steps": [
-    "差分/正本の確認後PRをmainへ統合し、利用者main/8765/制作画面を同期",
-    "G3-F1でA〜E証拠・必須未達・環境制限・順6/7依存を対応付ける。OGV長尺は低優先"
+    "G3-F1：順3A〜Eの証拠、必須未達、環境制限、順6/7依存を対応付けて終了条件を整理。OGV長尺は低優先"
   ],
   "unverified": [
-    "Linuxブラウザー/実GPU、任意材質/実半透明ステージ/全姿勢、G3-A/C/D/Fと順3全体、順4/5/6/7、既存ゲート/依存監査を保持"
+    "Linuxブラウザー/実GPU・任意材質/半透明実ステージ/全姿勢、G3-A/C/D/Fと順3全体、順4/5/6/7・既存ゲート/依存監査"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T00:38:58+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "32138db",
+      "text": "PR290をmainへ統合。利用者main/codex-next/8765のPythonと既存Chrome書出し画面を同期し、515ファイル保持/配信一致を確認"
+    },
+    {
+      "at": "2026-11-13T00:36:39+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "f3d93d1",
+      "text": "保存制作状態・構図のmainと制作画面同期: PR290のPythonを8765へ読み込み、既存Chromeと原本保持を確認・記録"
+    },
     {
       "at": "2026-11-13T00:33:48+09:00",
       "by": "codex",
@@ -223,20 +236,6 @@
       "event": "done",
       "head": "9b7f5cf",
       "text": "AAC320kを新規MP4へ固定し画面案内。両OS165窓/54境界の差3%以内・lag0、Node各2/Python各28、関連最終3成功。旧出力/原本保持と途中失敗を記録"
-    },
-    {
-      "at": "2026-11-09T03:21:14+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9470ee3",
-      "text": "順3 G3-A3：音量を保つAAC320kの実MP4境界修正: 新規ジョブAAC320k固定/画面案内を接続し、既知210秒を含む54境界窓と117安定窓・両MCP/ミュートと原本保持を検証"
-    },
-    {
-      "at": "2026-11-09T03:20:43+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "4e10965",
-      "text": "G3-A2の振幅/クリップ対照とビットレート比較を確認。320k対照は両OS54窓3%以内、原本保持。Win384未完走と診断上限を記録"
     }
   ]
 }

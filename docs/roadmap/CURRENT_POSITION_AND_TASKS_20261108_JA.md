@@ -137,3 +137,12 @@ Chromeの旧タブ1055946273は取得できず、現在の一覧にも制作URL�
 2026-11-13 G3-E1、保存配置/表示/固定/静止カメラを作品切替・再読込後にUI/API/公式SDK/ネイティブWebMCPで照合。合成GLBの保存カメラ有無・半透明を通常/縦長欄の6条件で非0In15〜17F/30fpsの実MP4と比較し、IoU>0.85/重心差<0.01/内部RGB平均差<=8を確認。3D中間層のマイクロ秒丸めで末尾1Fが欠ける不具合をFPSの正確な時刻単位へ修正。24/29.97/30/60fps×1/3/17Fと時系列色を検証。正常3Dの内部記録を未読履歴に数える不具合も修正。Win Python69成功/Ubuntu68成功・Win限定1skip、Win実Chrome157/RTX4070SUPERの最終Node4成功。実PMX/S01と動作/保存障害回帰も確認。順3全体は未完。docs/v05/SAVED_STATE_COMPOSITION_20261113_JA.md
 
 [契約・依存照合・実測と失敗記録](../v05/SAVED_STATE_COMPOSITION_20261113_JA.md)。静止カメラ/自動構図の既存合格を保持。順6の旧カメラ取込はOwnerが時刻付きで写すと決定済みで、判断待ちの再質問は不要。大型S01は旧の大きさ優先を維持し初期構図は順6。次はG3-F1でA〜Eの証拠/必須未達/環境制限/後段依存を対応付け、順3の終了判定を整理する。未解決を残したまま順3全体を完了にしない。モデル区分：高性能（仕様照合・不具合診断・実装・検証）、サブエージェントなし。
+
+
+## main・制作画面の同期（2026-11-13）
+
+[PR #290](https://github.com/baisound/BAI_CREATER_STUDIO/pull/290)をmainf3d93d1へ統合。実装4f2d9d4。利用者mainと既存codex-nextをfast-forwardし、実行中のOwnerジョブが無いことと起動元を確認した8765番のPythonをPID4124から26668へ非表示再起動。変更したPythonモジュールのバイトはmainと一致。HTML/render-job-v69.js/webmcp.jsも利用者mainと配信全バイト一致、既存作品のGETは完成3件・unreadable_count=0を返した。
+
+開いていたChromeタブ1055946470の書き出し画面をそのまま使い、「一覧を更新」で新サーバーへ同期。既存作品・完成3件（旧版を含む）と配置済み2クリップの表示を確認して保持した。既存作品の素材/構図/範囲へ試験編集を加えていない。利用者のdata/exports/studio.zipの515ファイルとdirty一覧は前後一致、集約SHA-256は89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d。[同期数値](../../qa/state-composition-main-sync-20261113.json)。
+
+[Issueの合成画像](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6828062009)2枚は公開配信のPNG/バイトとOwner確認原本の一致も確認。実素材画像は公開していない。GitHub自動checkの登録なし、ローカル検証と区別する。次はG3-F1。G3-Eの任意条件や順3全体の完了にせず、G3-A/C/D・順6/7依存とOGV低優先を保持する。

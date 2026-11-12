@@ -539,7 +539,7 @@
       "phase_e_wp": "DATA-008/CORE-004/CORE-012/RENDER-001/RENDER-006/CAM-015、#81/#63/#69",
       "planned_in": "V05-SAVED-STATE-COMPOSITION-20261113",
       "status": "partial_verified",
-      "commit": "開始9ff3726 / 実装とmain同期は docs/v05/SAVED_STATE_COMPOSITION_20261113_JA.md",
+      "commit": "4f2d9d40290ef6d7a4cb3a2fe8c35425ef9dea68 / PR #290 / main f3d93d1e7013d5993db6bb933193dba44ca217c9 / qa/state-composition-main-sync-20261113.json",
       "tests": "2026-11-13 G3-E1、保存配置/表示/固定/静止カメラを作品切替・再読込後にUI/API/公式SDK/ネイティブWebMCPで照合。合成GLBの保存カメラ有無・半透明を通常/縦長欄の6条件で非0In15〜17F/30fpsの実MP4と比較し、IoU>0.85/重心差<0.01/内部RGB平均差<=8を確認。3D中間層のマイクロ秒丸めで末尾1Fが欠ける不具合をFPSの正確な時刻単位へ修正。24/29.97/30/60fps×1/3/17Fと時系列色を検証。正常3Dの内部記録を未読履歴に数える不具合も修正。Win Python69成功/Ubuntu68成功・Win限定1skip、Win実Chrome157/RTX4070SUPERの最終Node4成功。実PMX/S01と動作/保存障害回帰も確認。順3全体は未完。docs/v05/SAVED_STATE_COMPOSITION_20261113_JA.md",
       "unverified": "Linuxブラウザー/GPU・任意材質/シェーダー/半透明実ステージ・複雑な実作品/全姿勢の構図、既存のG3-A短窓/聴感/約5%音量差、G3-C全Undo/競合・G3-D物理枯渇/電源断/全停止点、G3-F/順3全体。時刻付きカメラ/旧カメラ取込/大型ステージ初期構図/レール/DOFは順6、字幕は順7。RENDER-005のPNG連番納品は未実装。OGV長尺は低優先。"
     }

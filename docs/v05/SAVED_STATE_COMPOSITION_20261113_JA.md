@@ -68,3 +68,12 @@ Linuxブラウザー/実GPU、任意材質・半透明実ステージ・全姿�
 G3-Eの今回の代表条件は確認できた。次はG3-F1でA〜Eの証拠・順3必須の未達・環境制限・順6/7依存を一つの受け入れ表へ対応付ける。大型ステージの初期構図、旧時刻カメラ、レール/DOFや字幕の未完を、静止カメラが使えるという理由で消さない。順3全体の完了ではない。OGV長尺はOwner指定の低優先を維持する。
 
 固定コード/試験hashと数値：[証拠JSON](../../qa/state-composition-evidence-20261113.json)。前の保存障害試験のhashはその実装コミットc602c17時点の履歴で、今回のコードを試した証拠へ書き換えない。
+
+
+## main・制作画面の同期（2026-11-13）
+
+[PR #290](https://github.com/baisound/BAI_CREATER_STUDIO/pull/290)をmainf3d93d1へ統合。実装4f2d9d4。利用者mainと既存codex-nextをfast-forwardし、実行中のOwnerジョブが無いことと起動元を確認した8765番のPythonをPID4124から26668へ非表示再起動。変更したPythonモジュールのバイトはmainと一致。HTML/render-job-v69.js/webmcp.jsも利用者mainと配信全バイト一致、既存作品のGETは完成3件・unreadable_count=0を返した。
+
+開いていたChromeタブ1055946470の書き出し画面をそのまま使い、「一覧を更新」で新サーバーへ同期。既存作品・完成3件（旧版を含む）と配置済み2クリップの表示を確認して保持した。既存作品の素材/構図/範囲へ試験編集を加えていない。利用者のdata/exports/studio.zipの515ファイルとdirty一覧は前後一致、集約SHA-256は89b7599826236e16936fcb87ea33d705d29801d3515c1d8e78474896cfe4286d。[同期数値](../../qa/state-composition-main-sync-20261113.json)。
+
+[Issueの合成画像](https://github.com/baisound/BAI_CREATER_STUDIO/issues/81#issuecomment-6828062009)2枚は公開配信のPNG/バイトとOwner確認原本の一致も確認。実素材画像は公開していない。GitHub自動checkの登録なし、ローカル検証と区別する。次はG3-F1。G3-Eの任意条件や順3全体の完了にせず、G3-A/C/D・順6/7依存とOGV低優先を保持する。
