@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "pr": 298,
+  "merge_commit": "0d72fb2fc067ab1918c46b706c82a29254b34dae",
+  "owner_main": "D:/BAI/BAI_CREATER_STUDIO/BAI_Creator_Studio",
+  "server": {"port":8765,"pid":68868,"backend":"owner main; hidden Python process","host_available":true,"detected_plugins":149},
+  "static_sha256_matches": ["js/audio-mixer.js","css/library-scroll-v64.css","reviews/vst-mixer-20261113/index.html"],
+  "native_browser": {"browser":"Chrome 3","tab":"1055946475","reloaded":true,"mixer_enabled_faders":4,"vst_add_enabled":true,"channels":["楽曲","音声","映像音","マスター"],"library_grid_height":284.6995,"library_card_height":203.6539,"thumbnail_fits":true,"advanced_in_sidebar":true},
+  "owner_data": {"files":515,"unchanged_across_merge_restart_browser_sync":true,"aggregate_sha256":"110e6e65f334e028cd44050f6e74bcdba08b6aa74bbbdb4271730c6c698e6b23","note":"Owner added placements/playhead/layout during testing. The original baseline detected those 3 changes; a separate immediately-before-sync baseline retains them. No user data reset or cleanup."},
+  "remaining_authorized_work": ["モデル・カメラ・動き/表情のタイムライン連動","実動作プレビュー内側の二重ヘッダーと表示高さ","G3-F1（後続Owner優先作業の後）"]
+}

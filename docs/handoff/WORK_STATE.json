@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T03:53:07+09:00",
+  "updated_at": "2026-11-13T03:57:06+09:00",
   "updated_by": "codex",
-  "branch": "codex/vst-mixer-processing-20261113",
-  "head_at_update": "2e181ef",
+  "branch": "codex/timeline-scene-link-20261113",
+  "head_at_update": "0d72fb2",
   "current": {
-    "task": "VSTとミキサーの実音声処理を試聴・書き出しへ接続",
-    "status": "done",
-    "step": "実ホストの検証と処理・保存・プレビュー・出力の接続設計",
-    "design_doc": "docs/v05/VST_MIXER_PROCESSING_20261113_JA.md"
+    "task": "モデル・カメラ・動き/表情のタイムライン連動とプレビュー表示領域の改善",
+    "status": "in_progress",
+    "step": "既存の実3D/VMD/カメラ再生経路を調べ、タイムライン配置からの欠落と内側ヘッダーを接続する",
+    "design_doc": "docs/v05/TIMELINE_SCENE_LINK_20261113_JA.md"
   },
   "next_steps": [
     "この検証済み段階をPR/main/8765へ同期。続いてOwner追加のモデル・カメラ・動き/表情の配置連動と実動作プレビュー二重ヘッダー圧縮を進める。G3-F1は保持"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T03:57:06+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0d72fb2",
+      "text": "モデル・カメラ・動き/表情のタイムライン連動とプレビュー表示領域の改善: 既存の実3D/VMD/カメラ再生経路を調べ、タイムライン配置からの欠落と内側ヘッダーを接続する"
+    },
     {
       "at": "2026-11-13T03:53:07+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "081dd2d",
       "text": "長尺MP4 VFR代表はPR282/mainf4dbe44へ統合しmain/codex-next/8765・Chrome表示・515ファイル/変更一覧保持を確認。同期証拠を正本へ保存"
-    },
-    {
-      "at": "2026-11-11T14:24:33+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f4dbe44",
-      "text": "長尺VFR代表のmain同期と制作画面/保持証拠を記録: PR282/mainf4dbe44・8765のHTML/JS一致とChrome表示・515ファイル保持を正本へ保存"
     }
   ]
 }
