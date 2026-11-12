@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-13",
+  "skills": [
+    {
+      "name": "impeccable",
+      "version": "4.8.2",
+      "upstream": "https://github.com/pbakaus/impeccable",
+      "upstreamCommit": "b4bff1626c344067788c2679f048a20057c7cc5a",
+      "action": "installed",
+      "skillSha256": "c6921e830b7a565ebbe9aabe11516d34092062cd7fa2b442f030134857bf86a8"
+    },
+    {
+      "name": "web-design-guidelines",
+      "version": "1.0.0",
+      "upstream": "https://github.com/vercel-labs/web-interface-guidelines",
+      "upstreamCommit": "434b7f91364665f2f733b310ec54809bf8f37937",
+      "action": "existing wrapper retained; fresh guide retrieved",
+      "skillSha256": "f4647ca866a3accf763777f83e7682954f0187cd6bea7eea0399796652414e8f",
+      "freshGuideSha256": "d246b026f4f29b5823a9cc857f9edf3d2507002e055e32040cadeaf3b38e0234"
+    },
+    {
+      "name": "bai-ux-guard",
+      "version": "1.0.0",
+      "action": "installed from Owner archive without executing archive instructions",
+      "skillSha256": "a0cd875bccbd0898e26694ecd6f45007c84c02723cb03f8536a7b63f89c892d6",
+      "archiveSha256": "e65a2816d04a21d1b371d765c72ae6db68d10ea6d4a8b79b533b0053d042b79c",
+      "ownerAuthorized": "導入して監査にも使う"
+    }
+  ],
+  "guardArchiveUnchanged": true,
+  "globalPreviousContentPreserved": true,
+  "globalPolicyMarkerPresent": true,
+  "globalAgentsSha256": "b7c91d0582d01f74131d313c5f87622898a7f63b227f5abd71cbbb5d0a5fb196",
+  "privateArchiveOrGlobalFullTextPublished": false,
+  "globalPreviousBytesPreserved": false,
+  "globalContentComparison": "UTF-8 BOM/CRLF normalized; prior text retained as prefix"
+}

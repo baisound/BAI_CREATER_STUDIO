@@ -1,0 +1,559 @@
+{
+  "schema": 1,
+  "status": "audit_and_proposal_only",
+  "productMain": "f62a74c250c49dda4fce87c28d68b51534fceecb",
+  "productCodeChanged": false,
+  "method": {
+    "skills": [
+      "bai-ux-guard",
+      "impeccable audit",
+      "web-design-guidelines"
+    ],
+    "review": "single agent, three perspectives: first action / task flow / visual accessibility; not independent multi-agent critique",
+    "data": "isolated demo state, same product source; no owner edit",
+    "browser": "Chrome157",
+    "viewports": [
+      [
+        1440,
+        900
+      ],
+      [
+        1024,
+        768
+      ]
+    ],
+    "detector": "static source scan, exit2=primary findings; candidates manually adjudicated",
+    "performance": "NOT TESTED; no runtime performance score",
+    "touchAndScreenReader": "NOT TESTED"
+  },
+  "topTasks": [
+    {
+      "task": "素材を登録/選択し同じ作品へ置く",
+      "entry": "素材管理→登録/検索→制作の素材欄",
+      "completion": "配置クリップと作品保存状態"
+    },
+    {
+      "task": "編集してプレビューする",
+      "entry": "制作→タイムライン",
+      "completion": "同じ作品のクリップ・フレームを確認"
+    },
+    {
+      "task": "書き出して受け取る",
+      "entry": "書き出し→範囲/名前確認",
+      "completion": "完成物DL、旧版/失敗からの復帰"
+    }
+  ],
+  "scores": {
+    "accessibility": 2,
+    "theming": 2,
+    "responsive": 1,
+    "implementationIntegrity": 2,
+    "performance": null,
+    "total": 7,
+    "denominator": 16,
+    "note": "暫定7/16。性能未計測を0点や満点へ置換しない。認知5秒判定/ユーザーテストも未実施。"
+  },
+  "findings": [
+    {
+      "id": "UX-08",
+      "severity": "P1",
+      "title": "上部の保存・Undoと実際の制作保存が別物",
+      "screen": "edit",
+      "box": [
+        1312,
+        0,
+        126,
+        64
+      ],
+      "marker": [
+        1410,
+        57
+      ],
+      "current": "隔離作品で上部保存を押すとBAI_UI_mock_project.json（objects/tracks）を取得。保存済みarrangementは変わらず、上部Undoは未接続の通知。実クリップの保存/Undoとは別経路。",
+      "proposal": "保存メニューに対象を明記し、試作JSONは詳細へ。素材配置の自動保存状態と実Undo/Redoをタイムラインに表示。共通Undoは未接続と明示して入口を保持。",
+      "acceptance": "「何が保存されたか」を表示と保存API再取得で照合。試作JSONを作品の全体保存と誤認させない。",
+      "source": "studio/v05/index.html",
+      "line": 50,
+      "category": "integrity",
+      "verification": {
+        "current": "verified_in_isolated_current_product",
+        "proposedFix": "NOT TESTED; not implemented",
+        "evidence": "measurements.json and current screenshots; source reference"
+      }
+    },
+    {
+      "id": "UX-01",
+      "severity": "P1",
+      "title": "操作群でタイムラインが埋まり、クリップが見えない",
+      "screen": "edit",
+      "box": [
+        0,
+        600,
+        1140,
+        273
+      ],
+      "marker": [
+        26,
+        616
+      ],
+      "current": "1440×900でもタイムライン275pxの大部分が範囲・Undo・倍率・行操作で占められ、配置済みクリップは初期表示より下。",
+      "proposal": "常用操作を2行へ集約。行追加・削除・細かい設定はトラック設定へ。保存済み2クリップを初期表示に出す。",
+      "acceptance": "1440×900と1024×768で主要な2クリップと再生位置をスクロールなしで確認。高度操作も2手以内に到達。",
+      "source": "studio/v05/js/asset-workflow-v06.js",
+      "line": 121,
+      "category": "responsive",
+      "verification": {
+        "current": "verified_in_isolated_current_product",
+        "proposedFix": "NOT TESTED; not implemented",
+        "evidence": "measurements.json and current screenshots; source reference"
+      }
+    },
+    {
+      "id": "UX-02",
+      "severity": "P1",
+      "title": "上部の選択肢が多く、狭い幅で保存操作が縦崩れ",
+      "screen": "edit",
+      "box": [
+        330,
+        0,
+        1100,
+        64
+      ],
+      "marker": [
+        1358,
+        30
+      ],
+      "current": "同階層のタブ11個と右側操作が競合。1024pxでは「元に戻す」「設定」が縦に折り返す。",
+      "proposal": "全体ナビを作品・素材・制作・書き出しへ整理。音声/動き/カメラ/実動作は制作内の用途別タブ。保存とUndoは位置を固定。",
+      "acceptance": "1024pxで主要ボタンの日本語が1行表示。旧11入口の対応表を満たし、機能を削除しない。",
+      "source": "studio/v05/index.html",
+      "line": 9,
+      "category": "responsive",
+      "verification": {
+        "current": "verified_in_isolated_current_product",
+        "proposedFix": "NOT TESTED; not implemented",
+        "evidence": "measurements.json and current screenshots; source reference"
+      }
+    },
+    {
+      "id": "UX-03",
+      "severity": "P2",
+      "title": "画像編集中にもカメラの試作設定が主役になる",
+      "screen": "edit",
+      "box": [
+        1141,
+        105,
+        298,
+        765
+      ],
+      "marker": [
+        1409,
+        129
+      ],
+      "current": "画像2件の作品でも右欄はCamera01の試作設定。下部は「エンジン未接続」と表示し、実MP4等の接続状況と区別しづらい。",
+      "proposal": "右欄を選択対象に連動。未選択なら編集案内、画像選択なら配置/元区間/長さ。旧カメラ・試作設定は専用タブに保持して未接続を局所表示。",
+      "acceptance": "画像/動画/3D/未選択の右欄が対応し、旧カメラと未接続機能への入口を維持。",
+      "source": "studio/v05/index.html",
+      "line": 21,
+      "category": "integrity",
+      "verification": {
+        "current": "verified_in_isolated_current_product",
+        "proposedFix": "NOT TESTED; not implemented",
+        "evidence": "measurements.json and current screenshots; source reference"
+      }
+    },
+    {
+      "id": "UX-04",
+      "severity": "P1",
+      "title": "画面の裏にある編集UIへTabが移る",
+      "screen": "home",
+      "box": [
+        0,
+        63,
+        256,
+        810
+      ],
+      "marker": [
+        254,
+        599
+      ],
+      "current": "ホームでTabを進めると、28〜32番目のフォーカスが上の画面に覆われた編集操作へ移る。編集用の縦/横境界線もホーム・素材・書き出しを横断する。",
+      "proposal": "フルページ画面では背後の編集パネルをinert/非表示にし、リサイズハンドルも編集時のみ表示。保存データやパネル寸法は保持。",
+      "acceptance": "ホーム/素材/書き出しの全Tab移動が見える操作だけを巡り、編集へ戻ると以前のパネル状態を復元。",
+      "source": "studio/v05/js/pane-layout-v63.js",
+      "line": 34,
+      "category": "accessibility",
+      "verification": {
+        "current": "verified_in_isolated_current_product",
+        "proposedFix": "NOT TESTED; not implemented",
+        "evidence": "measurements.json and current screenshots; source reference"
+      }
+    },
+    {
+      "id": "UX-05",
+      "severity": "P1",
+      "title": "素材の絞り込みが重複し、入力名も不足",
+      "screen": "assets",
+      "box": [
+        58,
+        276,
+        1050,
+        154
+      ],
+      "marker": [
+        1090,
+        345
+      ],
+      "current": "左カテゴリと上のカテゴリ選択が重複。検索/カテゴリ/並び順にlabel・aria-labelがないことをDOMで確認。",
+      "proposal": "カテゴリを一つの絞り込み系統にし、検索/並び順に見えるラベルを付ける。登録、PMX/VMD登録、再リンク、お気に入りは到達可能なまま整理。",
+      "acceptance": "各入力に一意のアクセス可能な名前。キーボードで検索→選択→同じ作品へ配置が通る。",
+      "source": "studio/v05/index.html",
+      "line": 14,
+      "category": "accessibility",
+      "verification": {
+        "current": "verified_in_isolated_current_product",
+        "proposedFix": "NOT TESTED; not implemented",
+        "evidence": "measurements.json and current screenshots; source reference"
+      }
+    },
+    {
+      "id": "UX-06",
+      "severity": "P2",
+      "title": "書き出し設定の順序と完成物一覧が離れている",
+      "screen": "export",
+      "box": [
+        58,
+        191,
+        224,
+        681
+      ],
+      "marker": [
+        284,
+        690
+      ],
+      "current": "狭い設定欄で書き出しボタンの後に名前/衝突時操作が続く。動画プレビューが大きく、履歴と旧版の一覧は初期表示より下。",
+      "proposal": "作品名・出力範囲・名前・形式を先にまとめ、下端に実行を固定。右側へ完成動画/旧版/再試行を独立した一覧で置く。",
+      "acceptance": "初期表示で名前・範囲・実行・完成物DLが見える。旧版復元と失敗理由/再試行は一覧から到達。",
+      "source": "studio/v05/js/render-job-v69.js",
+      "line": 25,
+      "category": "layout",
+      "verification": {
+        "current": "verified_in_isolated_current_product",
+        "proposedFix": "NOT TESTED; not implemented",
+        "evidence": "measurements.json and current screenshots; source reference"
+      }
+    },
+    {
+      "id": "UX-07",
+      "severity": "P1",
+      "title": "小さな文字と主ボタンのコントラスト",
+      "screen": "export",
+      "box": [
+        76,
+        676,
+        190,
+        34
+      ],
+      "marker": [
+        271,
+        707
+      ],
+      "current": "主ボタンの実スタイル#dfe8f5/#246cacは約4.45:1（通常文字AA4.5:1に僅かに未達）。11px前後の操作文字、10pxの状態表示も多い。",
+      "proposal": "現行の暗色/青の系統を保ち、主ボタン文字を白へ調整。常用操作13〜14px、補足12pxを基準に、密なデータは用途別に調整。",
+      "acceptance": "通常文字4.5:1以上、拡大時も欠けない。12px未満を一律違反とは扱わず、役割と実測で判断。",
+      "source": "studio/v05/index.html",
+      "line": 2,
+      "category": "accessibility",
+      "verification": {
+        "current": "verified_in_isolated_current_product",
+        "proposedFix": "NOT TESTED; not implemented",
+        "evidence": "measurements.json and current screenshots; source reference"
+      }
+    }
+  ],
+  "contrast": {
+    "foreground": "#dfe8f5",
+    "background": "#246cac",
+    "ratio": 4.454892168763849,
+    "required": 4.5,
+    "proposedForeground": "#ffffff",
+    "proposedRatio": 5.503505269531072
+  },
+  "detectorDisposition": [
+    {
+      "rules": [
+        "tiny-text",
+        "undersized-ui-text",
+        "low-contrast"
+      ],
+      "decision": "measured style and screenshot support readability work; no blanket WCAG pixel-size claim"
+    },
+    {
+      "rules": [
+        "codex-grid-background",
+        "repeating-stripes-gradient"
+      ],
+      "decision": "not adopted as a defect: timeline measurement grid is functional; preserve"
+    },
+    {
+      "rules": [
+        "overused-font"
+      ],
+      "decision": "not adopted: keep incumbent UI type family, fix scale/hierarchy"
+    },
+    {
+      "rules": [
+        "cramped-padding"
+      ],
+      "decision": "candidate only; grouped with header/controls, not an independent accessibility violation"
+    }
+  ],
+  "positiveFindings": [
+    "実MP4・完成物DL・旧版保持は既に接続。削除せず見つけやすくする。",
+    "基本ナビに2pxのfocus-visibleがあり、8連続Tabで確認。全キーボード動作の合格ではない。",
+    "素材検索・カテゴリ・詳細の基本構成、暗色と青の現行系統を維持。"
+  ],
+  "gates": [
+    {
+      "gate": "最初の一手が分かる",
+      "result": "NOT TESTED",
+      "why": "初見ユーザーの5秒テストは未実施。画面観察では競合がある。"
+    },
+    {
+      "gate": "主な編集領域が初期表示に出る",
+      "result": "FAIL",
+      "finding": "UX-01"
+    },
+    {
+      "gate": "見える操作だけへキーボード移動",
+      "result": "FAIL",
+      "finding": "UX-04"
+    },
+    {
+      "gate": "素材検索の入力名",
+      "result": "FAIL",
+      "finding": "UX-05"
+    },
+    {
+      "gate": "主ボタンの文字コントラスト",
+      "result": "FAIL",
+      "finding": "UX-07"
+    },
+    {
+      "gate": "横スクロールなし",
+      "result": "PASS",
+      "scope": "1440/1024の5キャプチャでdocument幅=viewport。内容の見切れや折返し改善は別。"
+    },
+    {
+      "gate": "既存機能の到達性保持",
+      "result": "NOT TESTED",
+      "why": "提案の対応表は作成。実装変更は未実施。"
+    }
+  ],
+  "implementationPlan": [
+    {
+      "order": 1,
+      "ids": [
+        "UX-08",
+        "UX-01",
+        "UX-02",
+        "UX-04"
+      ],
+      "change": "編集領域とヘッダー/画面切替を先に直す",
+      "risk": "パネル寸法・スクロール・フォーカスの保存に注意"
+    },
+    {
+      "order": 2,
+      "ids": [
+        "UX-03",
+        "UX-05",
+        "UX-07"
+      ],
+      "change": "選択対象、ラベル、読みやすさを整理",
+      "risk": "旧機能/未接続操作を削除しない"
+    },
+    {
+      "order": 3,
+      "ids": [
+        "UX-06"
+      ],
+      "change": "書き出し設定と完成物一覧を再配置",
+      "risk": "名前・旧版・復旧の現行APIを維持"
+    }
+  ],
+  "next": "採用後に小さなPRで実装し、最後にimpeccable polish相当の再確認。今回は未実装。",
+  "headerActions": {
+    "currentSave": "試作objects/tracks JSONのダウンロード",
+    "currentGlobalUndo": "未接続の通知",
+    "actualClipUndoRedo": "タイムラインに保持",
+    "proposal": "保存対象のメニュー/状態を明記。試作と実保存を混同させない。"
+  },
+  "featureRouting": [
+    {
+      "current": "ホーム",
+      "proposed": "ホーム",
+      "removed": false,
+      "implementation": "proposal_only"
+    },
+    {
+      "current": "ダッシュボード",
+      "proposed": "作品→概要",
+      "removed": false,
+      "implementation": "proposal_only"
+    },
+    {
+      "current": "プロジェクト一覧",
+      "proposed": "作品→一覧",
+      "removed": false,
+      "implementation": "proposal_only"
+    },
+    {
+      "current": "素材管理",
+      "proposed": "素材",
+      "removed": false,
+      "implementation": "proposal_only"
+    },
+    {
+      "current": "音声編集",
+      "proposed": "制作→音声",
+      "removed": false,
+      "implementation": "proposal_only"
+    },
+    {
+      "current": "実動作プレビュー",
+      "proposed": "制作→実動作プレビュー",
+      "removed": false,
+      "implementation": "proposal_only"
+    },
+    {
+      "current": "簡易素材",
+      "proposed": "制作→左の素材パネル",
+      "removed": false,
+      "implementation": "proposal_only"
+    },
+    {
+      "current": "タイムライン編集",
+      "proposed": "制作→タイムライン",
+      "removed": false,
+      "implementation": "proposal_only"
+    },
+    {
+      "current": "動き・表情",
+      "proposed": "制作→動き・表情",
+      "removed": false,
+      "implementation": "proposal_only"
+    },
+    {
+      "current": "カメラ・演出",
+      "proposed": "制作→カメラ・演出",
+      "removed": false,
+      "implementation": "proposal_only"
+    },
+    {
+      "current": "書き出し",
+      "proposed": "書き出し",
+      "removed": false,
+      "implementation": "proposal_only"
+    }
+  ],
+  "assets": [
+    {
+      "file": "assets-1440.png",
+      "sha256": "d43268a5c26a0d324fb918dab59543718269585bed5e9316c80cbcdbc293406e",
+      "kind": "current_product_screenshot"
+    },
+    {
+      "file": "edit-1024.png",
+      "sha256": "8150646466e213df787c43904dfaa8281486c345056c698597407a9a02f69da9",
+      "kind": "current_product_screenshot"
+    },
+    {
+      "file": "edit-1440.png",
+      "sha256": "b2b943fea928debc0df7f207a29d9b2e0c091ca8a5f411d0a093c282bffc5a6d",
+      "kind": "current_product_screenshot"
+    },
+    {
+      "file": "export-1440.png",
+      "sha256": "2f15bc7fb2cb54cdf1b100e1d515572a60ad8717863f11d69c1984f600f8a3a4",
+      "kind": "current_product_screenshot"
+    },
+    {
+      "file": "home-1440.png",
+      "sha256": "ae3789dfcd514827431f9c2f243946bbc1738a225898b861bd8c4487d72dfe5f",
+      "kind": "current_product_screenshot"
+    },
+    {
+      "file": "marked-assets.png",
+      "sha256": "83078d6fe05b8b9ca94aa069262f3324822b216ecf81178282134a6539f826e9",
+      "kind": "current_with_explanatory_markers"
+    },
+    {
+      "file": "marked-edit.png",
+      "sha256": "f36404449259155caf78852c7d5e47114821e2ec96a47efa7b472359263d491f",
+      "kind": "current_with_explanatory_markers"
+    },
+    {
+      "file": "marked-export.png",
+      "sha256": "c0803db2cf20e12270887e0f5b22f096b04e7917a872dc589275de124b537010",
+      "kind": "current_with_explanatory_markers"
+    },
+    {
+      "file": "preview-crop.png",
+      "sha256": "c7b563658043432819f4ec5493ef5eca7f9c821192a2d7b50a9f975e43259e6d",
+      "kind": "crop_from_current_screenshot"
+    },
+    {
+      "file": "proposal-assets.png",
+      "sha256": "89c4b3361f7108192adf1d9131cac3284404d0941f4c3a1bf41d7445dca8879a",
+      "kind": "proposal_not_implemented"
+    },
+    {
+      "file": "proposal-edit.png",
+      "sha256": "280c6ef29c67fa4072ec3ce0f6fe65af83db571d06f04b8a3a284c54afa252dc",
+      "kind": "proposal_not_implemented"
+    },
+    {
+      "file": "proposal-export.png",
+      "sha256": "8ac89011440af19a3fced1aafca655a0c96e2df6ca21ade1ba3430de04738530",
+      "kind": "proposal_not_implemented"
+    }
+  ],
+  "requirementMapping": {
+    "UX-08": [
+      "UX-004",
+      "UX-005",
+      "DATA-008"
+    ],
+    "UX-01": [
+      "UX-001",
+      "UX-002",
+      "UX-004"
+    ],
+    "UX-02": [
+      "UX-001",
+      "UX-006"
+    ],
+    "UX-03": [
+      "UX-001",
+      "UX-004"
+    ],
+    "UX-04": [
+      "UX-003",
+      "UX-006"
+    ],
+    "UX-05": [
+      "UX-003",
+      "UX-004",
+      "UX-006"
+    ],
+    "UX-06": [
+      "UX-002",
+      "UX-004",
+      "UX-005"
+    ],
+    "UX-07": [
+      "UX-006"
+    ]
+  },
+  "formalFeatureStatusesChanged": false
+}
