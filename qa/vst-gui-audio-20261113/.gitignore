@@ -1,0 +1,5 @@
+# Regenerated local media and machine-specific fixture location
+*.wav
+*.mp4
+fixture-local.json
+pending-render.json

@@ -1,0 +1,7 @@
+{
+  "initial_input": "One stale-input rejection; fresh observation retry succeeded. Text-entry attempt did not change gain. Actual successful change was output knob drag.",
+  "caption_ax_close": "AX caption click did not close; browser Apply-and-close succeeded. Reopened GUI Alt+F4 also saved correctly.",
+  "opaque_hash_check": "An initial exact opaque-state hash equality assertion failed after reopening. All published parameters and actual PCM bytes were identical. Opaque state serialization can vary; acceptance uses restored values and actual sound, not opaque-byte equality.",
+  "computer_use_sdk": "Initialization failed: missing kernel assets path. CUA runtime operated the real window successfully.",
+  "native_screenshots": "Real native UI was visually inspected in CUA at 0.0 and -3.0 dB, including reopening. Portable native screenshot was not saved: clipboard image not available to Paint; data: image navigation rejected by browser URL policy. No workaround after rejection."
+}

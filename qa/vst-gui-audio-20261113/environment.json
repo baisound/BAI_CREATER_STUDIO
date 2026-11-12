@@ -1,0 +1,10 @@
+{
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "pedalboard": "0.9.26",
+  "numpy": "2.5.2",
+  "ffmpeg": "ffmpeg version N-125994-gf944afd040-20260808 Copyright (c) 2000-2026 the FFmpeg developers",
+  "test_server_port": 9293,
+  "production_port_not_used_for_testing": 8765,
+  "baseline_application_main": "437ca6e654b621cb342986ba128d495967c35b8e"
+}

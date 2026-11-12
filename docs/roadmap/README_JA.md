@@ -2,6 +2,7 @@
 
 **このフォルダーは「提案と実装報告の取りこぼしを防ぐ」ための文書専用コミットです。**
 
+- [`../v05/VST_GUI_AUDIO_E2E_20261113_JA.md`](../v05/VST_GUI_AUDIO_E2E_20261113_JA.md) — 実VST固有GUIのゲイン変更から保存/再表示・実再生・WAV/MP4まで追加通し検証PASS
 - [`../v05/VST_NATIVE_EDITOR_METERS_20261113_JA.md`](../v05/VST_NATIVE_EDITOR_METERS_20261113_JA.md) — インサート直接起動・固有GUI状態回収と再生連動ピーク/LUFS。代表検証と未達を区別
 - [`CURRENT_POSITION_AND_TASKS_20261108_JA.md`](CURRENT_POSITION_AND_TASKS_20261108_JA.md) — 最新の7段階一覧・順3現在地・細分化と着手タスク
 - [`../v05/VST_MIXER_PROCESSING_20261113_JA.md`](../v05/VST_MIXER_PROCESSING_20261113_JA.md) — Owner指定のVST3・作品ミキサー実処理、試聴/MP4/両MCPと素材一覧高さの修正。後続のモデル/カメラ/動き・表情の配置連動と二重ヘッダー改善は別途進行

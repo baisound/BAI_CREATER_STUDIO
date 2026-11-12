@@ -267,3 +267,6 @@ Owner後続指定：長尺OGVを必須の次作業にしたのはAgentの判断�
 
 
 2026-11-13 Owner追加修正を優先：AUDIO-002のVST固有GUI直接起動と再生連動ピーク/LUFS。Windows表示/状態保存・実DSP・Win/Ubuntu計算・Chrome代表操作を限定検証。固有GUI内値変更からDSPの通し操作は未検証。順3 G3-F1およびモデル/カメラ/動き・表情の統合は未完のまま保持。[実装・証跡](../v05/VST_NATIVE_EDITOR_METERS_20261113_JA.md)。
+
+
+2026-11-13追加検証：AUDIO-002 / DATA-002 / RENDER-006。実TDR Nova固有GUIで0→−3dBを変更、閉じて保存・再読込/再表示・共通再生・WAV/MP4実音声の通し検証PASS。音声処理コードの修正不要。物理出力の聴感/全VST/Linux固有GUI/長尺は未検証。[実測と制限](../v05/VST_GUI_AUDIO_E2E_20261113_JA.md)。順3と保全中の3Dは未完。
