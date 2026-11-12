@@ -1,0 +1,30 @@
+.vstMixerToolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+#bai-audio:has(#uiAudioEffectsTab[aria-selected=true])>.baiToolbar{display:none}
+.vstMixerToolbar label{display:flex;gap:6px;align-items:center;margin:0;font-size:12px}
+.vstMixerToolbar button{padding:5px 9px;font-size:12px}
+.vstMixerToolbar>span{font-size:12px;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vstMixerPlayback{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.vstMixerPlayback p{font-size:12px;flex:1;min-width:200px;margin:0;color:#c3d7e9}
+.vstMixerPlayback audio{height:32px;width:240px}
+.vstMixerPlayback small{font-size:11px;color:#b1c3d6;width:100%}
+.vstEffectDetail{overflow:auto;min-height:0;overscroll-behavior:contain;display:flex;flex-direction:column;gap:8px}
+.vstEffectDetail select,.vstEffectDetail input{width:100%;min-width:0;background:#101b29;color:#eaf2fa;border:1px solid #526a82;border-radius:4px;padding:6px}
+.vstEffectDetail label{font-size:12px;color:#c3d7e9}
+.vstEffectDetail button{font-size:12px;padding:5px}
+.vstInsertActions{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+#uiAudioRack .uiInsertSlots{overflow:auto;height:62px;display:block;overscroll-behavior:contain}
+#uiAudioRack .uiInsertSlots li{padding:0;height:25px;margin-bottom:3px;color:#b1c3d6;white-space:nowrap}
+#uiAudioRack .uiInsertSlots li>button{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;border-style:solid;text-align:left;padding:3px 5px;min-height:23px;width:100%}
+#uiAudioRack .uiChannelMute [aria-pressed=true]{background:#335b79;border-color:#a7cee8;color:#fff}
+#uiAudioRack .vstMeasuredMeter{opacity:1;position:relative;background:#142333}
+#uiAudioRack .vstMeasuredMeter i{background:linear-gradient(to top,#63baa6 var(--vst-peak),#233548 var(--vst-peak));border-color:#668197}
+#uiAudioRack .vstMeasuredMeter[data-over=true] i{background:linear-gradient(to top,#efb274 var(--vst-peak),#233548 var(--vst-peak))}
+#uiAudioRack .uiEffectInspector{overflow:hidden}
+#uiAudioRack .uiChannelStrip .uiInsertChain{height:100px;min-height:100px;display:flex;flex-direction:column;gap:4px}
+#uiAudioRack .uiInsertChain h3{flex:none;line-height:14px}
+#uiAudioRack .uiInsertSlots{flex:1;height:auto;min-height:24px;margin:0}
+#uiAudioRack .uiInsertChain>button{flex:none}
+#uiAudioRack .uiFaderSection{min-height:166px}
+#uiAudioRack .uiFaderSection input[type=range]{min-height:150px}
+.vstMixerToolbar input,.uiGainReadout{font-variant-numeric:tabular-nums}
+@media(max-width:1100px){.vstMixerPlayback audio{width:200px}.vstMixerToolbar{gap:6px}.vstMixerToolbar>span{max-width:160px}}

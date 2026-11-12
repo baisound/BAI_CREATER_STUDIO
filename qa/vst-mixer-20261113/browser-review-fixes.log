@@ -1,0 +1,25 @@
+TAP version 13
+# Subtest: VST3と作品ミキサーを操作し、保存・試聴・プレビュー・実MP4を同じ処理へ接続する
+not ok 1 - VST3と作品ミキサーを操作し、保存・試聴・プレビュー・実MP4を同じ処理へ接続する
+  ---
+  duration_ms: 34483.8219
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-audio-mixer.test.cjs:12:1'
+  failureType: 'testCodeFailure'
+  error: 'Asynchronous browser condition did not become true'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.waitForAsync (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\helpers\studio-harness.cjs:227:39)
+    async TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-audio-mixer.test.cjs:31:91)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 39538.6198

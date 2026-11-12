@@ -189,9 +189,10 @@
     const select = $('baiAssetCatSelect'), categoryLabel = document.querySelector('label[for="baiAssetCatSelect"]');
     const cats = $('baiCats'); cats.before(categoryLabel, select);
     cats.classList.add('uiCategoryButtons');
-    const advanced = $('bai-library').querySelector('details');
     const sidebar = cats.closest('.baiCard');
-    if (advanced && !advanced.contains(sidebar)) sidebar.append(advanced);
+    const moveLibraryAdvanced=()=>{const advanced=$('v54-assets');if(advanced&&!advanced.contains(sidebar)&&advanced.parentElement!==sidebar)sidebar.append(advanced);};
+    moveLibraryAdvanced();
+    new MutationObserver(moveLibraryAdvanced).observe($('bai-library'),{childList:true});
     // Details stay reachable; retain the uploader, PMX/VMD link and favourites.
     const picker = $('v06AssetPicker'), panel = $('assetPanel');
     const revealPlacementTrack=()=>{visibleEmptyTracks.add($('v06track').value);void window.BAIStudioV05Arrangement?.refreshTimeline();};

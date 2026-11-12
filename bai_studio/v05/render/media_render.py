@@ -542,7 +542,8 @@ def _audio_settings(data_root: Path, project_id: str) -> dict:
 
 
 def _graph(clips: list[dict], fps: float, width: int, height: int,
-           start_frame: int, end_exclusive: int, scene_input_index: int | None = None) -> tuple[str, int, float]:
+           start_frame: int, end_exclusive: int, scene_input_index: int | None = None,
+           mixed_audio_index: int | None = None) -> tuple[str, int, float]:
     end_seconds = end_exclusive / fps
     start_seconds = start_frame / fps
     duration = (end_exclusive - start_frame) / fps
@@ -574,7 +575,7 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
             graph.append(f"[{base}][{label}]overlay=0:0:eof_action=pass:shortest=0:"
                          f"enable='gte(t,{_num(cstart)})*lt(t,{_num(cend)})'[{next_base}]")
             base = next_base
-        if item["kind"] in {"audio", "video"} and item.get("has_audio"):
+        if mixed_audio_index is None and item["kind"] in {"audio", "video"} and item.get("has_audio"):
             label = f"audio{order}"
             delay = round(cstart * 1000)
             # Match the preview's unity-gain media elements. Muting an input
@@ -605,6 +606,9 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
         source = "amixed"
     else:
         source = "asilence"
+    if mixed_audio_index is not None:
+        audio.append(f"[{source}]anullsink")
+        source = f"{mixed_audio_index}:a"
     audio.append(f"[{source}]atrim=start={_num(start_seconds)}:end={_num(end_seconds)},asetpts=PTS-STARTPTS[aout]")
     return ";".join(graph + audio), end_exclusive - start_frame, duration
 
@@ -755,8 +759,22 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             scene_index = 2 + len(clips)
             job["phase"] = "encoding"
             _save(root, job)
+        mixed_index, mixed_path = None, None
+        if job.get('mixer_settings', {}).get('enabled'):
+            from bai_studio.v05.audio import mixer
+            job['phase']='audio_processing'
+            _save(root,job)
+            try:
+                processed=mixer.prepare(root.parent,job['project_id'],inputs=clips,
+                    settings=job['mixer_settings'],duration=job['range_end_exclusive']/fps,
+                    muted=job['audio_settings']['muted_tracks'],scope=process_scope)
+                mixed_path=mixer.output_file(root.parent,processed['id'])
+                mixed_index=2+len(clips)+(1 if scene_index is not None else 0)
+                job['processed_audio']=processed
+            except mixer.MixerError as exc:
+                raise RenderError(str(exc),exc.status) from exc
         graph, frames, duration = _graph(clips, fps, width, height,
-                                         job["range_start_frame"], job["range_end_exclusive"], scene_index)
+                                         job["range_start_frame"], job["range_end_exclusive"], scene_index,mixed_index)
         script = root / "jobs" / f"{job_id}.filter"
         script.write_text(graph, encoding="utf-8")
         full_duration = _num(job["range_end_exclusive"] / fps)
@@ -776,6 +794,8 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                 cmd += ["-i", str(item["path"])]
         if scene_index is not None:
             cmd += ["-i", str(scene_video)]
+        if mixed_path is not None:
+            cmd += ["-i",str(mixed_path)]
         cmd += [filter_complex_option, str(script), "-map", "[vout]", "-map", "[aout]",
                 "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
                 "-c:a", "aac", "-b:a", str(job.get("audio_bitrate", AAC_BITRATE)), "-movflags", "+faststart",
@@ -874,6 +894,11 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
     render_range, clips = _snapshot(data_root, project_id, range_revision,
                                     arrangement_revision, resolution, inventory, ffprobe, motion_ids)
     audio_settings = _audio_settings(data_root, project_id)
+    from bai_studio.v05.audio import mixer
+    try:
+        mixer_settings=mixer.read(data_root,project_id)
+    except mixer.MixerError as exc:
+        raise RenderError(str(exc),exc.status) from exc
     # Job-local copies freeze the saved state. Later track changes affect the next job.
     clips = [{**item, "audio_muted": item["clip"]["track"] in audio_settings["muted_tracks"]}
              for item in clips]
@@ -903,6 +928,7 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
                "created_at": time.time(), "started_at": None, "completed_at": None,
                "arrangement_revision": arrangement_revision, "range_revision": range_revision,
                "audio_settings": audio_settings,
+               "mixer_settings": mixer_settings,
                "audio_bitrate": AAC_BITRATE,
                "range_start_frame": render_range["range_start_frame"],
                "range_end_exclusive": render_range["range_end_exclusive"],

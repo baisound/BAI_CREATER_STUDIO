@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T03:16:07+09:00",
+  "updated_at": "2026-11-13T03:53:07+09:00",
   "updated_by": "codex",
-  "branch": "codex/ui-audit-fixes-20261113",
-  "head_at_update": "1f18f2a",
+  "branch": "codex/vst-mixer-processing-20261113",
+  "head_at_update": "2e181ef",
   "current": {
     "task": "VSTとミキサーの実音声処理を試聴・書き出しへ接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "実ホストの検証と処理・保存・プレビュー・出力の接続設計",
     "design_doc": "docs/v05/VST_MIXER_PROCESSING_20261113_JA.md"
   },
   "next_steps": [
-    "順3 G3-F1：終了条件と残件の正本整理へ戻る。OGV長尺は低優先のまま"
+    "この検証済み段階をPR/main/8765へ同期。続いてOwner追加のモデル・カメラ・動き/表情の配置連動と実動作プレビュー二重ヘッダー圧縮を進める。G3-F1は保持"
   ],
   "unverified": [
-    "VSTホスト/ミキサー音量エンジンは未接続。Linuxブラウザー/GPU、全3D組合せ、SR/200%拡大/タッチ/初見理解/性能/大量素材は未検証",
-    "追加source_startのMCP入力スキーマ露出は未追加。順3全体・G3-F1・順4〜7は未完"
+    "全VST互換、VST固有GUI/VSTi/VST2/低遅延入力、Linux実プラグイン/ブラウザー、聴感、長尺負荷、SR/拡大/タッチ。順3全体と後続3D連動は未完"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -28,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T03:53:07+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2e181ef",
+      "text": "VST3と作品ミキサーを試聴・共通プレビュー・MP4と両MCPへ接続。素材一覧の潰れ/高さを修正。Windows87/Ubuntu85成功と2skip、Chrome対象4＋既存回帰4を確認"
+    },
     {
       "at": "2026-11-13T03:16:07+09:00",
       "by": "codex",
@@ -230,13 +236,6 @@
       "event": "start",
       "head": "f4dbe44",
       "text": "長尺VFR代表のmain同期と制作画面/保持証拠を記録: PR282/mainf4dbe44・8765のHTML/JS一致とChrome表示・515ファイル保持を正本へ保存"
-    },
-    {
-      "at": "2026-11-11T14:21:27+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "3414f8c",
-      "text": "長尺VFR代表の実測/試験3414f8cとPR282を正本へ結合。両OS6879F/有音149窓差0+静かな4窓、AAC末尾表現差は破棄余白を引いて4表一致を確認"
     }
   ]
 }

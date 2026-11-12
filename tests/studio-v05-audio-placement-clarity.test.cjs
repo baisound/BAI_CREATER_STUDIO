@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const h=require('./helpers/studio-harness.cjs');
-const qa=path.resolve(__dirname,'../qa/ui-fixes-20261113'),shots=process.env.BAI_UI_FIX_SHOTS;
+const qa=process.env.BAI_UI_FIX_QA||path.resolve(__dirname,'../qa/ui-fixes-20261113'),shots=process.env.BAI_UI_FIX_SHOTS;
 function wav(){const n=24000,b=Buffer.alloc(44+n*2);b.write('RIFF');b.writeUInt32LE(36+n*2,4);b.write('WAVEfmt ',8);b.writeUInt32LE(16,16);b.writeUInt16LE(1,20);b.writeUInt16LE(1,22);b.writeUInt32LE(8000,24);b.writeUInt32LE(16000,28);b.writeUInt16LE(2,32);b.writeUInt16LE(16,34);b.write('data',36);b.writeUInt32LE(n*2,40);for(let i=0;i<n;i++)b.writeInt16LE(Math.round(Math.sin(i/8)*5000),44+i*2);return b;}
 async function json(r,status=200){const b=await r.text();assert.equal(r.status,status,b);return JSON.parse(b);}
 test('音声の試聴結果を同作品へ頭出し付きで一括配置し、保存/履歴/実出力を維持する',{timeout:120000},async()=>{
@@ -30,10 +30,11 @@ test('音声の試聴結果を同作品へ頭出し付きで一括配置し、�
   const range=await json(await fetch(s.base+'/api/studio/v05/timeline/range?id='+pid));
   let job=await json(await fetch(s.base+'/api/studio/v05/render/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:pid,arrangement_revision:a.revision,range_revision:range.revision,resolution:'720p',name:'頭出し確認'})}),202);
   const until=Date.now()+30000;while(['queued','running'].includes(job.status)&&Date.now()<until){await new Promise(r=>setTimeout(r,100));job=await json(await fetch(s.base+'/api/studio/v05/render/jobs?id='+job.id));}assert.equal(job.status,'succeeded',job.error);result.cases.push('trimmed audio arrangement produces an actual MP4');
-  await page.locator('#nav [data-page=audio]').click();await page.locator('#uiAudioEffectsTab').click();assert.match(await page.locator('#uiAudioRack').innerText(),/VSTホスト・音量処理は未接続/);
-  assert.equal(await page.locator('#uiAudioRack .uiChannelStrip').count(),4);for(const e of await page.locator('#uiAudioRack .uiInsertChain button').all())assert.equal(await e.isDisabled(),true);
+  await page.locator('#nav [data-page=audio]').click();await page.locator('#uiAudioEffectsTab').click();assert.match(await page.locator('#uiAudioRack').innerText(),/入力 → VST3 → 音量 → マスター/);
+  const host=await json(await fetch(s.base+'/api/studio/v05/audio/capabilities'));
+  assert.equal(await page.locator('#uiAudioRack .uiChannelStrip').count(),4);for(const e of await page.locator('#uiAudioRack .uiInsertChain>button').all())assert.equal(await e.isDisabled(),!host.available);
   for(const [width,height] of [[1440,900],[1024,768]]){await page.setViewportSize({width,height});if(shots)await page.screenshot({path:path.join(shots,'audio-effects-'+width+'.png')});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));const sizes=await page.locator('.uiChannelStrip').evaluateAll(es=>es.map(e=>({width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height,fader:e.querySelector('input[type=range]').getBoundingClientRect().height})));for(const b of sizes){assert.ok(b.width>=110&&b.width<=190,'Fixed narrow DAW strip');assert.ok(b.height/b.width>=2.6&&b.fader>=150,'Tall strip and usable long fader');}result.cases.push({mixerViewport:[width,height],strips:sizes});}
-  await page.locator('.uiChannelName').filter({hasText:'ボーカル'}).click();assert.match(await page.locator('.uiEffectInspector h3').innerText(),/ボーカル/);
+  await page.locator('.uiChannelName').filter({hasText:'音声'}).click();assert.match(await page.locator('.uiEffectInspector h3').innerText(),/音声/);
   await page.locator('#uiLegacyAudio>summary').click();assert.equal(await page.locator('#baiVst').isDisabled(),true);assert.equal(await page.locator('#baiEq').isDisabled(),true);result.cases.push('four vertical effect/channel strips, explicit unconnected processing, preserved legacy VST/EQ and compatibility save');
   assert.deepEqual(result.errors,[]);result.status='passed';
  }catch(e){result.status='failed';result.failure=e.stack;if(page)await page.screenshot({path:path.join(qa,'audio-failure.png')}).catch(()=>{});throw e;}

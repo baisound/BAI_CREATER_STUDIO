@@ -1,0 +1,249 @@
+{
+  "status": "passed",
+  "views": [
+    {
+      "width": 1440,
+      "height": 525.40625,
+      "top": 313.59375,
+      "bottom": 839,
+      "scrollHeight": 852,
+      "cards": [
+        {
+          "top": 313.59375,
+          "bottom": 517.59375,
+          "height": 204,
+          "imageBottom": 438.59375,
+          "imageTop": 328.59375,
+          "descriptionBottom": 502.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 313.59375,
+          "bottom": 517.59375,
+          "height": 204,
+          "imageBottom": 438.59375,
+          "imageTop": 328.59375,
+          "descriptionBottom": 502.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 313.59375,
+          "bottom": 517.59375,
+          "height": 204,
+          "imageBottom": 438.59375,
+          "imageTop": 328.59375,
+          "descriptionBottom": 502.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 313.59375,
+          "bottom": 517.59375,
+          "height": 204,
+          "imageBottom": 438.59375,
+          "imageTop": 328.59375,
+          "descriptionBottom": 502.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 313.59375,
+          "bottom": 517.59375,
+          "height": 204,
+          "imageBottom": 438.59375,
+          "imageTop": 328.59375,
+          "descriptionBottom": 502.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 529.59375,
+          "bottom": 733.59375,
+          "height": 204,
+          "imageBottom": 654.59375,
+          "imageTop": 544.59375,
+          "descriptionBottom": 718.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 529.59375,
+          "bottom": 733.59375,
+          "height": 204,
+          "imageBottom": 654.59375,
+          "imageTop": 544.59375,
+          "descriptionBottom": 718.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 529.59375,
+          "bottom": 733.59375,
+          "height": 204,
+          "imageBottom": 654.59375,
+          "imageTop": 544.59375,
+          "descriptionBottom": 718.59375,
+          "fit": "contain"
+        }
+      ]
+    },
+    {
+      "width": 1478,
+      "height": 280.40625,
+      "top": 311.59375,
+      "bottom": 592,
+      "scrollHeight": 852,
+      "cards": [
+        {
+          "top": 311.59375,
+          "bottom": 515.59375,
+          "height": 204,
+          "imageBottom": 436.59375,
+          "imageTop": 326.59375,
+          "descriptionBottom": 500.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 311.59375,
+          "bottom": 515.59375,
+          "height": 204,
+          "imageBottom": 436.59375,
+          "imageTop": 326.59375,
+          "descriptionBottom": 500.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 311.59375,
+          "bottom": 515.59375,
+          "height": 204,
+          "imageBottom": 436.59375,
+          "imageTop": 326.59375,
+          "descriptionBottom": 500.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 311.59375,
+          "bottom": 515.59375,
+          "height": 204,
+          "imageBottom": 436.59375,
+          "imageTop": 326.59375,
+          "descriptionBottom": 500.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 311.59375,
+          "bottom": 515.59375,
+          "height": 204,
+          "imageBottom": 436.59375,
+          "imageTop": 326.59375,
+          "descriptionBottom": 500.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 527.59375,
+          "bottom": 731.59375,
+          "height": 204,
+          "imageBottom": 652.59375,
+          "imageTop": 542.59375,
+          "descriptionBottom": 716.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 527.59375,
+          "bottom": 731.59375,
+          "height": 204,
+          "imageBottom": 652.59375,
+          "imageTop": 542.59375,
+          "descriptionBottom": 716.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 527.59375,
+          "bottom": 731.59375,
+          "height": 204,
+          "imageBottom": 652.59375,
+          "imageTop": 542.59375,
+          "descriptionBottom": 716.59375,
+          "fit": "contain"
+        }
+      ]
+    },
+    {
+      "width": 1024,
+      "height": 409.40625,
+      "top": 301.59375,
+      "bottom": 711,
+      "scrollHeight": 1284,
+      "cards": [
+        {
+          "top": 301.59375,
+          "bottom": 505.59375,
+          "height": 204,
+          "imageBottom": 426.59375,
+          "imageTop": 316.59375,
+          "descriptionBottom": 490.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 301.59375,
+          "bottom": 505.59375,
+          "height": 204,
+          "imageBottom": 426.59375,
+          "imageTop": 316.59375,
+          "descriptionBottom": 490.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 301.59375,
+          "bottom": 505.59375,
+          "height": 204,
+          "imageBottom": 426.59375,
+          "imageTop": 316.59375,
+          "descriptionBottom": 490.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 517.59375,
+          "bottom": 721.59375,
+          "height": 204,
+          "imageBottom": 642.59375,
+          "imageTop": 532.59375,
+          "descriptionBottom": 706.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 517.59375,
+          "bottom": 721.59375,
+          "height": 204,
+          "imageBottom": 642.59375,
+          "imageTop": 532.59375,
+          "descriptionBottom": 706.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 517.59375,
+          "bottom": 721.59375,
+          "height": 204,
+          "imageBottom": 642.59375,
+          "imageTop": 532.59375,
+          "descriptionBottom": 706.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 733.59375,
+          "bottom": 937.59375,
+          "height": 204,
+          "imageBottom": 858.59375,
+          "imageTop": 748.59375,
+          "descriptionBottom": 922.59375,
+          "fit": "contain"
+        },
+        {
+          "top": 733.59375,
+          "bottom": 937.59375,
+          "height": 204,
+          "imageBottom": 858.59375,
+          "imageTop": 748.59375,
+          "descriptionBottom": 922.59375,
+          "fit": "contain"
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

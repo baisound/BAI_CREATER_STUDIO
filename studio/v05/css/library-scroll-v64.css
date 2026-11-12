@@ -25,5 +25,16 @@
     align-content: start;
     padding-right: 4px;
     scrollbar-gutter: stable;
+    grid-auto-rows: max-content;
   }
 }
+
+/* Cards keep their content height even when only one row fits the viewport. */
+#baiLibraryGrid{grid-auto-rows:max-content;align-items:start}
+#baiLibraryGrid>.baiCard{min-height:196px;height:auto;overflow:hidden;padding:10px}
+#baiLibraryGrid>.baiCard img{display:block;width:100%;height:110px;object-fit:contain;margin:0 0 8px}
+#baiLibraryGrid>.baiCard>.baiWarning{height:110px;min-height:110px;margin:0 0 8px;padding:8px;display:grid;place-items:center;font-size:12px}
+#baiLibraryGrid>.baiCard>b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px;line-height:17px;overflow-wrap:anywhere}
+#baiLibraryGrid>.baiCard>p{margin:6px 0 0}
+#bai-library>.baiTitle{margin-bottom:12px;gap:12px}
+#bai-library>.baiTitle .baiSub{margin:4px 0 0}

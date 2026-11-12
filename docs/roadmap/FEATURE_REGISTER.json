@@ -1360,6 +1360,15 @@
       "detail": "右にメイン透視を保ち、左に選択した六方向の平行投影を同時表示。補助ビューの描画中だけ閉鎖型ステージの手前外殻を隠し、ライトと素材を確認する",
       "status": "要検証",
       "dependency": "NF-014,LIGHT-001,UX-001"
+    },
+    {
+      "id": "AUDIO-002",
+      "group": "AUDIO",
+      "phase": 5,
+      "name": "作品ミキサー・VST3音声処理",
+      "detail": "Owner 2026-11-13指定。作品別のmusic/audio/video/masterバス、dB音量・ミュート・ソロ、VST3エフェクトの追加/順序/バイパス/汎用パラメーターを保存。別プロセスの処理後PCMを素材試聴・作品プレビュー・MP4で共有。実TDR Nova、ゲイン比、原本/完成物保護、両MCP、別作品競合を限定検証。docs/v05/VST_MIXER_PROCESSING_20261113_JA.md",
+      "status": "部分実装・代表検証。Windows実VST3、Windows/UbuntuのPCM計算と既存出力回帰を確認。全VST/Linuxプラグイン/固有GUI/VSTi/低遅延入力/聴感/長尺負荷は未検証・未対応",
+      "dependency": "AUDIO-001,DATA-002,DATA-008,RENDER-006"
     }
   ],
   "integration_review": {

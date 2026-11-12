@@ -1,0 +1,2 @@
+# Optional local offline VST3 host. GPL-3.0; do not bundle third-party plugins.
+pedalboard==0.9.26

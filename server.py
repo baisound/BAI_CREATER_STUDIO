@@ -254,6 +254,21 @@ class Handler(BaseHTTPRequestHandler):
         event(name,level='error',error_type=type(exc).__name__,error=str(exc)[:200])
         self.bad(500,'旧保存の取込の処理を完了できませんでした。診断ZIPを保存して開発者に渡してください。','INTERNAL_ERROR')
     def do_GET(self):
+        if urlsplit(self.path).path.startswith('/api/studio/v05/audio/'):
+            from bai_studio.v05.audio import mixer
+            try:
+                path=urlsplit(self.path).path.rsplit('/',1)[-1]
+                q=parse_qs(urlsplit(self.path).query)
+                if path=='capabilities':result=mixer.capabilities()
+                elif path=='settings':result=mixer.read(DATA,q.get('project_id',[''])[0])
+                elif path=='file':
+                    self.send_library_file(mixer.output_file(DATA,q.get('id',[''])[0]),'audio/wav');return
+                else:return self.bad(404,'Unknown audio endpoint')
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except mixer.MixerError as exc:self.bad(exc.status,str(exc))
+            except (ValueError,TypeError,KeyError,OSError) as exc:
+                event('v05_audio_read_failed',level='error',error=str(exc)[:200]);self.bad(422,'音声設定を読めません。再読込してください')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/lip/vmd-candidate/file':
             from bai_studio.v05.lip.lip_vmd_candidate import candidate_file, LipVmdError
 
@@ -944,6 +959,28 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/favicon.ico':self.send(204,b'');return
         self.bad(404,'not found')
     def do_POST(self):
+        if urlsplit(self.path).path.startswith('/api/studio/v05/audio/'):
+            from bai_studio.v05.audio import mixer
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=1024*1024:return self.bad(413,'Audio request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict):return self.bad(400,'Invalid audio request')
+                path=urlsplit(self.path).path.rsplit('/',1)[-1]
+                if path=='settings' and set(body)=={'project_id','revision','channels','enabled'}:
+                    result=mixer.save(DATA,body['project_id'],body['revision'],body['channels'],body['enabled'])
+                    event('v05_audio_settings_saved',project_id=body['project_id'],revision=result['revision'])
+                elif path=='inspect' and set(body)=={'plugin_id'}:result=mixer.inspect(DATA,body['plugin_id'])
+                elif path=='prepare' and {'project_id'}<=set(body) and not set(body)-{'project_id','asset_id','channel'}:
+                    if 'asset_id' in body and (not isinstance(body['asset_id'],str) or not body['asset_id']):return self.bad(400,'音声素材IDが必要です')
+                    result=mixer.prepare(DATA,body['project_id'],unified_assets(),asset_id=body.get('asset_id'),channel=body.get('channel','audio'))
+                    event('v05_audio_prepared',project_id=body['project_id'],audio_id=result.get('id'),revision=result['revision'])
+                else:return self.bad(400,'Invalid audio operation or fields')
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except mixer.MixerError as exc:self.bad(exc.status,str(exc))
+            except (ValueError,TypeError,KeyError,OSError) as exc:
+                event('v05_audio_processing_failed',level='error',error=str(exc)[:200]);self.bad(422,'音声を処理できません。素材と設定を確認して再試行してください')
+            return
         if urlsplit(self.path).path == '/api/studio/v05/lip/adoptions':
             from bai_studio.v05.lip.lip_adoptions import mutate as mutate_lip_adoption, LipAdoptionError
 

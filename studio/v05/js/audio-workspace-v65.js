@@ -19,6 +19,7 @@ const saveButton = /** @type {HTMLButtonElement} */ (byId('baiAudioSave'));
 /** @type {Record<string, any>|null} */ let placement = null;
 let revision = '', dirty = false, loaded = false, active = false, loadSeq = 0, projectSeq = 0;
 let frame = 0, playing = false, anchorFrame = 0, anchorTime = 0, raf = 0;
+let playSeq = 0;
 /** @type {AudioContext|null} */ let context = null;
 /** @type {AudioBuffer|null} */ let decoded = null;
 /** @type {AudioBufferSourceNode|null} */ let sound = null;
@@ -46,6 +47,7 @@ function stopSound() {
   sound.disconnect(); sound = null;
 }
 function pause() {
+  ++playSeq;
   if (playing) frame = clampFrame(currentFrame());
   playing = false;
   stopSound();
@@ -97,6 +99,21 @@ async function play() {
   if (playing) return;
   if (!decoded || !placement) { say('登録した音声を選択してください。', true); return; }
   if (!context) context = new AudioContext();
+  const ticket=++playSeq;
+  let playbackBuffer = decoded;
+  const mine = loadSeq, assetId = placement.audio_id;
+  try {
+    if (window.BAIStudioAudioMixer) {
+      say('保存済みのミキサー設定で音声を準備しています…');
+      const prepared = await window.BAIStudioAudioMixer.prepareAsset(assetId);
+      if (prepared.enabled) {
+        const response = await fetch(prepared.url);
+        if (!response.ok) throw Error('処理済み音声を取得できません');
+        playbackBuffer = await context.decodeAudioData(await response.arrayBuffer());
+      }
+    }
+  } catch (error) { say('試聴できません：' + error.message, true); return; }
+  if (ticket!==playSeq || mine !== loadSeq || assetId !== placement.audio_id || !active || playing) return;
   try { await context.resume(); }
   catch { say('音声を開始できません。ブラウザの音声設定を確認してください。', true); return; }
   if (frame >= endFrame()) frame = 0;
@@ -105,7 +122,8 @@ async function play() {
     placement.audio_source_frame, decoded.duration, anchorTime);
   if (!plan) { say('この位置から再生できる音声がありません。', true); return; }
   const node = context.createBufferSource();
-  node.buffer = decoded; node.connect(context.destination);
+  window.dispatchEvent(new CustomEvent('bai:v05-audio-focus',{detail:{owner:'asset'}}));
+  node.buffer = playbackBuffer; node.connect(context.destination);
   node.start(plan.when, plan.offset, plan.duration);
   sound = node; playing = true;
   raf = requestAnimationFrame(tick); draw();
@@ -238,6 +256,8 @@ select.addEventListener('change', () => {
 startInput.addEventListener('change', () => updateFrameField(startInput, 'audio_start_frame'));
 sourceInput.addEventListener('change', () => updateFrameField(sourceInput, 'audio_source_frame'));
 playButton.addEventListener('click', () => { void play(); });
+window.addEventListener('bai:v05-audio-focus',e=>{if(e.detail.owner!=='asset')pause();});
+window.addEventListener('bai:v05-workspace-changed',()=>pause());
 pauseButton.addEventListener('click', pause);
 byId('baiAudioStop').addEventListener('click', () => { pause(); seek(0); });
 byId('baiAudioBack').addEventListener('click', () => seek(Math.max(0, Math.round(currentFrame()) - 1)));

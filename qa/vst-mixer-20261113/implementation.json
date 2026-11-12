@@ -1,0 +1,137 @@
+{
+  "schema": 1,
+  "date": "2026-11-13",
+  "issues": [
+    296,
+    297
+  ],
+  "requirements": [
+    "AUDIO-002",
+    "RENDER-006",
+    "DATA-002",
+    "DATA-008",
+    "UX-006",
+    "UX-008"
+  ],
+  "implementation": "implemented",
+  "processing_mode": "offline VST3; saved settings applied to material audition, project preview and MP4",
+  "review": {
+    "critic_1": "first action",
+    "critic_2": "workflow/state",
+    "critic_3": "visual/accessibility",
+    "judge": "root; remaining fixes verified with delayed routes and keyboard tests"
+  },
+  "findings": [
+    {
+      "id": "VST-UX-01",
+      "priority": "P1",
+      "target": "保存後Undoのrevision",
+      "fix": "channels/enabledだけ戻し、保存revisionを維持",
+      "verification": "Undo後の再保存",
+      "status": "PASS"
+    },
+    {
+      "id": "VST-UX-02",
+      "priority": "P1",
+      "target": "試聴音声の重なり",
+      "fix": "3プレイヤーの排他と画面切替時停止",
+      "verification": "素材→ミキサー→タイムライン",
+      "status": "PASS"
+    },
+    {
+      "id": "VST-UX-03",
+      "priority": "P2",
+      "target": "保存中のパラメーター変更",
+      "fix": "入力無効・busyガード",
+      "verification": "遅延保存",
+      "status": "PASS"
+    },
+    {
+      "id": "VST-UX-04",
+      "priority": "P2",
+      "target": "試聴に伴う保存が不明",
+      "fix": "未保存時「保存して処理・試聴」",
+      "verification": "ラベルと保存経路",
+      "status": "PASS"
+    },
+    {
+      "id": "VST-UX-05",
+      "priority": "P2",
+      "target": "停止後の再生中表示",
+      "fix": "準備完了表示へ変更",
+      "verification": "処理後の状態表示",
+      "status": "PASS"
+    },
+    {
+      "id": "VST-UX-06",
+      "priority": "P2",
+      "target": "M/Sの下端欠け",
+      "fix": "素材用transport非表示と150px以上のフェーダー",
+      "verification": "1024/1440実測",
+      "status": "PASS"
+    },
+    {
+      "id": "VST-UX-07",
+      "priority": "P1",
+      "target": "作品切替と旧応答の競合",
+      "fix": "作品ID・世代・モデル一致の照合",
+      "verification": "A保存→B読込/A→B→A検査",
+      "status": "PASS"
+    },
+    {
+      "id": "VST-UX-08",
+      "priority": "P2",
+      "target": "再描画後のフォーカス喪失",
+      "fix": "安定キーと選択チャンネルへのfallback",
+      "verification": "バイパス・最終インサート削除",
+      "status": "PASS"
+    },
+    {
+      "id": "LIB-HEIGHT-01",
+      "priority": "P1",
+      "target": "素材カードの潰れと低い一覧",
+      "fix": "内容高の行・196pxカード・高度設定の遅延移動",
+      "verification": "1478×653/1024×768/1440×900",
+      "status": "PASS"
+    }
+  ],
+  "numeric": {
+    "gain_minus_6_db": 0.5011885785905011,
+    "real_tdr_nova_ratio": 0.31563872475214905,
+    "mp4_to_processed_pcm_ratio": 1.0000108736305984
+  },
+  "tests": {
+    "windows_python": "87 passed + 5 subtests",
+    "ubuntu_python": "85 passed, 2 skipped + 5 subtests; native Windows VST and Windows-only lock test excluded",
+    "browser": "see browser-release.log",
+    "typecheck": "PASS"
+  },
+  "not_tested": [
+    "all third-party VST3 compatibility",
+    "Linux native plugin/browser",
+    "physical output listening",
+    "VSTi/VST2/native plugin GUI",
+    "low latency live input",
+    "screen reader/200% zoom/touch",
+    "2-hour processing stress"
+  ],
+  "images": [
+    {
+      "file": "mixer-processing-1440.png",
+      "sha256": "7225abcb0164ac589adb859999ca229494dcf588f140e2179a61d2a75d2ddea4"
+    },
+    {
+      "file": "mixer-processing-1024.png",
+      "sha256": "707452391ea74b3d56453f08b02a608e10edf9ef5b7e0c58a3f399907a7cd29f"
+    },
+    {
+      "file": "library-height-1478x653.png",
+      "sha256": "1d183730f01f90984d8d17e80f1cef64703e089b7422893e4b7b807ab08f43a5"
+    },
+    {
+      "file": "library-height-1024x768.png",
+      "sha256": "a67874c1bfabe208ef5df2454cc18d602a0fcb6f7d3f151cc25dd4ac9fba5237"
+    }
+  ],
+  "originals": "Owner data/exports retained; isolated synthetic sources used for tests"
+}
