@@ -10,7 +10,7 @@ not ok 1 - ミキサーは実行名・素材・行ミュート・共通時刻を
     locator.click: Timeout 12000ms exceeded.
     Call log:
     [2m  - waiting for locator('#nav [data-page=edit]')[22m
-    
+
   code: 'ERR_TEST_FAILURE'
   name: 'TimeoutError'
   stack: |-

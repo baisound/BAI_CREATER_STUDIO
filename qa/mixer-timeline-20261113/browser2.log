@@ -8,9 +8,9 @@ not ok 1 - ミキサーは実行名・素材・行ミュート・共通時刻を
   failureType: 'testCodeFailure'
   error: |-
     The input did not match the regular expression /台詞.wav/. Input:
-    
+
     '台詞'
-    
+
   code: 'ERR_ASSERTION'
   name: 'AssertionError'
   expected:

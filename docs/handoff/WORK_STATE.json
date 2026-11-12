@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T05:05:59+09:00",
+  "updated_at": "2026-11-13T05:07:22+09:00",
   "updated_by": "codex",
   "branch": "codex/mixer-timeline-rows-20261113",
-  "head_at_update": "7030296",
+  "head_at_update": "54e5930",
   "current": {
     "task": "ミキサーの実トラック・共通時計連動とモデル/カメラ/動き表情の配置接続",
     "status": "done",
@@ -11,10 +11,10 @@
     "design_doc": "docs/v05/MIXER_TIMELINE_LINK_20261113_JA.md"
   },
   "next_steps": [
-    "PR/mainへ統合し8765と制作画面を同期。続いてモデル/カメラ/動き・表情のタイムライン連動を実装"
+    "PR/mainへ統合し8765と開いている制作画面を同期。モデル/カメラ/動き・表情の連動を継続"
   ],
   "unverified": [
-    "全VST・Linux実プラグイン・聴感・長尺・SR・タッチ。3D/カメラ/表情連動は未実装"
+    "全VST・Linux実VST・聴感・長尺・SR・タッチと、別段階の3D/カメラ/表情連動"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T05:07:22+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "54e5930",
+      "text": "実行ミキサー連動54e5930、Chrome受け入れ5/5。検証ログの書式を整理、JSONへ最終合格と途中失敗を区別して保存"
+    },
     {
       "at": "2026-11-13T05:05:59+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "078c1b6",
       "text": "素材編集履歴のmain・制作画面同期を記録: PR286を利用者mainへ反映し8765のPythonと開いている画面を更新・保持証拠を保存"
-    },
-    {
-      "at": "2026-11-12T06:46:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "a9ae727",
-      "text": "素材クリップの保存Undo/Redoを手動UI/両MCPとWin/Ubuntuの240F画素・PCMで検証。各Python141＋追加1、既存Chrome回帰5成功。画像行削除の選択リセットも修正。"
     }
   ]
 }

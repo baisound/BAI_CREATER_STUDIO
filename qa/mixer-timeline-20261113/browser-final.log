@@ -36,7 +36,7 @@ not ok 3 - ミキサーは実行名・素材・行ミュート・共通時刻を
     [2m       - element is not visible[22m
     [2m     - retrying click action[22m
     [2m       - waiting 500ms[22m
-    
+
   code: 'ERR_TEST_FAILURE'
   name: 'TimeoutError'
   stack: |-
