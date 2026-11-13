@@ -61,3 +61,5 @@ Blender起動には既存の`MIXAMO_BLENDER`設定を使う。プロセス・設
 モデル区分：原因調査・設計・実装・実機検証は親担当の高性能モデル、既存Criticを3視点の批評に再利用。新規実装ワーカーなし。
 
 追加確認：標準MCPのZIP検査・準備、ChromeネイティブWebMCPの登録・準備、両MCPのBake候補受取/同一候補ID・一覧/起動拒否を実呼出で照合。3個の同一区間コピーを識別して選べることを確認。MCPの登録解除ツールの実呼出はNOT TESTED（同じサービスの参照拒否/解除はPythonと手動APIで検証）。
+
+実装`76d6293`は[PR #314](https://github.com/baisound/BAI_CREATER_STUDIO/pull/314)でmainへ統合。[公開用統合記録](../../qa/cinemaoperator-integration-20261113.json)。手元の同期/登録/保全の詳細はOwner指定Evidenceだけへ保持する。

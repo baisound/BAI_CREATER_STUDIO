@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "requirement": "CAM-019",
+  "unit": "CinemaOperator static GLB bridge",
+  "implementation_commit": "76d62934913e50d16ab17269624396a0bd93b059",
+  "implementation_pr": 314,
+  "merge_commit": "995436be25008d19f27ea8c0828096fcbe20ad1a",
+  "status": "integrated_partial_verified",
+  "tests": "docs/v05/CINEMAOPERATOR_BRIDGE_STATUS_20261113.json",
+  "scope": "registry/explicit local Blender launch/native Bake snapshot/B1 comparison and adoption/MP4 for supported static GLB scenes",
+  "unverified": [
+    "PMX/VRM/FBX and assigned motion/expression/lip bridge",
+    "general addons/other releases/all drivers/DOF/long footage",
+    "Linux browser/GPU/MP4",
+    "CAM-019 overall and sequence3 overall"
+  ],
+  "local_evidence": "Detailed local synchronization, registration and preservation evidence is held only in Owner-designated Evidence; no owner runtime metadata is published."
+}
