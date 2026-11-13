@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T05:46:04+09:00",
+  "updated_at": "2026-11-14T06:22:43+09:00",
   "updated_by": "codex",
-  "branch": "codex/cinemaoperator-animated-scene-20261114",
-  "head_at_update": "29055c0",
+  "branch": "codex/timeline-pmx-physics-20261114",
+  "head_at_update": "015c4dc",
   "current": {
-    "task": "CAM-019：PMX・動き・表情を含むCinemaOperatorシーン連携",
-    "status": "done",
-    "step": "Studioの評価済み形状を別名Blenderコピーへ渡す方式を調査し、同時刻・物理・表情とBake往復を実検証する",
-    "design_doc": "docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md"
+    "task": "MOTION-019/CAM-019：タイムラインのPMX二次物理をプレビュー・撮影コピー・MP4へ接続",
+    "status": "in_progress",
+    "step": "既存MMD物理を同じ保存シーンと固定刻みキャッシュへ接続する設計・実装。非0開始/逆シーク/再読込/原本保持を検証する。",
+    "design_doc": "docs/v05/CINEMAOPERATOR_ANIMATED_SCENE_20261114_JA.md"
   },
   "next_steps": [
     "CAM-019の残件（PMXタイムライン二次物理・FBX・全VRM/GLB/親子/材質・長尺・Linux nativeGUI/実GPU等）と順3既存残件を保持。優先度は次のOwner指定に従う。"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T06:22:43+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "015c4dc",
+      "text": "MOTION-019/CAM-019：タイムラインのPMX二次物理をプレビュー・撮影コピー・MP4へ接続: 既存MMD物理を同じ保存シーンと固定刻みキャッシュへ接続する設計・実装。非0開始/逆シーク/再読込/原本保持を検証する。"
+    },
     {
       "at": "2026-11-14T05:46:04+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "e16ed9e",
       "text": "実プレビュー外側72px/内側30pxへ圧縮し低画面の操作重なりを解消。内部保存到達・狭幅ナビ・モード維持・再生競合を対象2+回帰1と型検査で確認"
-    },
-    {
-      "at": "2026-11-13T04:15:57+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1f9e030",
-      "text": "モデル・カメラ・動き/表情の配置連動と実動作プレビューの高さ改善: 二重ヘッダー/ナビを埋込時だけ畳み実プレビューへ高さを戻す。既存機能の到達を保持し、続けて同一scene計画で配置連動を接続"
     }
   ]
 }
