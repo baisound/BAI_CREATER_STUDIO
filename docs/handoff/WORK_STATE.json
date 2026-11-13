@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T10:54:22+09:00",
+  "updated_at": "2026-11-13T11:30:28+09:00",
   "updated_by": "codex",
-  "branch": "codex/target-model-contact-fit-20261113",
-  "head_at_update": "230d9a2",
+  "branch": "codex/blender-camera-import-20261113",
+  "head_at_update": "848ee85",
   "current": {
-    "task": "MOTION-011/012：元モデル不明のVMDを対象PMXの足裏とIKで区間補正する",
-    "status": "done",
-    "step": "PR308/main/8765/制作画面同期済み。3視点批評済みのTARGET_MODEL_CONTACT_FIT設計に従い、原本hash付き読込、対象/区間/床を確認した接地補正候補、原子的な保存/Undo/両MCPとMP4検証を実装。Blender CAM-019-B1の差込みは現制作補正の次へ保持。",
-    "design_doc": "docs/v05/TIMELINE_SCENE_LINK_20261113_JA.md"
+    "task": "CAM-019-B1：Blenderの評価済みカメラを取込み、比較・採用から同じタイムライン/MP4へ接続",
+    "status": "in_progress",
+    "step": "Issue238/承認済み設計を再開。元Blenderと旧カメラを保持し、小さな実Blender fixtureで経路/座標/画角/投影/FPS/カットを確定し3視点設計批評後に実装。",
+    "design_doc": "docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md"
   },
   "next_steps": [
     "次の承認済み項目はCAM-019-B1 / Issue #238：既存Blenderカメラの取込・同じ作品時刻への接続。設計CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.mdの直接取込を先に進める。"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T11:30:28+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "848ee85",
+      "text": "CAM-019-B1：Blenderの評価済みカメラを取込み、比較・採用から同じタイムライン/MP4へ接続: Issue238/承認済み設計を再開。元Blenderと旧カメラを保持し、小さな実Blender fixtureで経路/座標/画角/投影/FPS/カットを確定し3視点設計批評後に実装。"
+    },
     {
       "at": "2026-11-13T10:54:22+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "72e37df",
       "text": "承認UI監査8件と追加音声導線/DAW配置を実装。最終ブラウザー9成功、Windows66+5sub/Ubuntu66、Critic3視点PASS。原本515ファイル保持、正式151IDのstatus変更なし"
-    },
-    {
-      "at": "2026-11-13T01:26:26+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "6575a3a",
-      "text": "承認済みUI監査8件の最優先改修: 保存対象・タイムライン・ナビ/フォーカスから修正し、素材/選択対象/書き出しまで実装・実画面検証する"
     }
   ]
 }
