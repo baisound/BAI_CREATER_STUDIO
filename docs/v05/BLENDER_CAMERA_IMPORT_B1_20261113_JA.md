@@ -87,4 +87,4 @@ blender --background --factory-startup --disable-autoexec camera.blend --python-
 
 最終確認：Windows/Ubuntu Python各64成功、Node関連5成功＋既存VMD/表情/口の回帰1成功、型成功。既存回帰の並行GPU実行時のcapture読込待ち時間切れは残し、単独再実行で成功を確認した。一括初回は5成功1失敗のまま記録する。
 
-main同期：実装`54a5ec9`を[PR #311](https://github.com/baisound/BAI_CREATER_STUDIO/pull/311) / main `6983469`へ統合。Owner mainを安全にFFし、8765番の6ファイル実バイト/新API2作品・既存Chrome制作画面/保存済みLiveプレビュー復帰を確認。保全対象522ファイルと既存変更は不変。[同期記録](../../qa/blender-camera-main-sync-20261113.json)。
+実装`54a5ec9`を[PR #311](https://github.com/baisound/BAI_CREATER_STUDIO/pull/311)へ統合。公開用の[統合記録](../../qa/blender-camera-main-sync-20261113.json)とローカル確認の詳細を分け、後者はOwner指定Evidenceへ保持する。

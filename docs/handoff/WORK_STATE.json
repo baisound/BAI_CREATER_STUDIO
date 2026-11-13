@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T12:44:48+09:00",
+  "updated_at": "2026-11-13T12:48:44+09:00",
   "updated_by": "codex",
   "branch": "codex/blender-camera-import-20261113",
-  "head_at_update": "6983469",
+  "head_at_update": "2fb5784",
   "current": {
     "task": "CAM-019-B1：Blenderの評価済みカメラを取込み、比較・採用から同じタイムライン/MP4へ接続",
     "status": "done",
-    "step": "Issue238/承認済み設計を再開。元Blenderと旧カメラを保持し、小さな実Blender fixtureで経路/座標/画角/投影/FPS/カットを確定し3視点設計批評後に実装。",
+    "step": "CAM-019-B1の実装・試験・PR/main統合済み。詳細な利用環境の確認記録はOwner指定Evidenceへ保持。",
     "design_doc": "docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md"
   },
   "next_steps": [
@@ -28,18 +28,25 @@
   ],
   "history": [
     {
+      "at": "2026-11-13T12:48:44+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2fb5784",
+      "text": "CAM-019-B1の公開用記録は製品機能・生成fixtureの試験・統合コミットに限定。利用環境や素材の集約値など詳細はOwner指定ローカルEvidenceへ保持し、製品コードは変更していない。"
+    },
+    {
       "at": "2026-11-13T12:44:48+09:00",
       "by": "codex",
       "event": "done",
       "head": "6983469",
-      "text": "CAM-019-B1をPR311/main6983469へ統合。Owner main/8765の6ファイル実バイト・新API2作品、既存Chromeの取込口と元Liveプレビュー/保存済みを確認。522保全ファイルと既存変更不変。番号付き生成画像/MP4/JSONはOwner確認フォルダーへ保存・読み戻し。"
+      "text": "CAM-019-B1の実装・試験をPR311へ統合。ローカル確認詳細はOwner指定Evidenceへ保持。公開記録は製品機能・試験・統合コミットに限定。"
     },
     {
       "at": "2026-11-13T12:40:18+09:00",
       "by": "codex",
       "event": "done",
       "head": "54a5ec9",
-      "text": "CAM-019-B1の実装/試験/正式台帳を54a5ec9へコミットしてpush済み。CSVの既存UTF-8 BOMを維持し、記録へ実装コミットを明記。"
+      "text": "CAM-019-B1の実装・試験をPR311へ統合。ローカル確認詳細はOwner指定Evidenceへ保持。公開記録は製品機能・試験・統合コミットに限定。"
     },
     {
       "at": "2026-11-13T12:38:32+09:00",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "ce9e8b6",
       "text": "UI修正PR293/294をmaince9e8b6へ統合。8765/Python55972・既存Chrome6475の保存音声配置有効/DAW表示・比較6489を同期。515ファイル/dirty不変、Issue69に3画像を保存"
-    },
-    {
-      "at": "2026-11-13T02:31:14+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "bc608e1",
-      "text": "PR293/main1f60e21を利用者main/開発木/8765へ同期。Chromeの保存音声初期読込で配置ボタン無効を再現し、読込通知2箇所を追加。新旧音声2試験成功・原本515保持"
     }
   ]
 }
