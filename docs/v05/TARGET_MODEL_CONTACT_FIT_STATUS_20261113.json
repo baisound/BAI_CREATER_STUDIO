@@ -54,5 +54,17 @@
   ],
   "evidence_policy": "実素材画像・原本hash・実制作識別子は非公開ローカルのみ。公開画像は生成fixtureのみ。",
   "model_usage": "高性能: 原因調査・設計・実装・検証。UI3視点は既存独立担当。",
-  "test_attempt_notes": "最初の5件一括は既存FK試験の旧UI選択で失敗。現行UIに合わせた選択後、接続拒否1件を含む試行は未合格として保持し、FKと実接地を再実行して2件PASS。他の接地/タイムライン/物理は個別PASS。一括成功と読み替えない。"
+  "test_attempt_notes": "最初の5件一括は既存FK試験の旧UI選択で失敗。現行UIに合わせた選択後、接続拒否1件を含む試行は未合格として保持し、FKと実接地を再実行して2件PASS。他の接地/タイムライン/物理は個別PASS。一括成功と読み替えない。",
+  "delivery": {
+    "implementation_commit": "cc2a2536b92649e861fc6a11cdbc6ec6de97bee5",
+    "pull_request": 309,
+    "implementation_main_merge": "230d9a217f63fbadb2d2f3457a4374f8f3a0025e",
+    "owner_main_synced": true,
+    "local_server_port": 8765,
+    "served_module_hashes_match": 5,
+    "context_route_verified": true,
+    "opened_production_view_refreshed": true,
+    "saved_state_visible": true,
+    "owner_material_project_export_data_unchanged": true
+  }
 }

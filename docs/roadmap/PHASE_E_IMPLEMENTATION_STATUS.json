@@ -575,7 +575,7 @@
       "phase_e_wp": "MOTION-011/012・MOTION-010・RENDER-006、#39/#63",
       "planned_in": "TARGET-MODEL-CONTACT-FIT-20261113",
       "status": "partial_verified",
-      "commit": "codex/target-model-contact-fit-20261113 / WORK_STATEとPRへ紐付け",
+      "commit": "cc2a2536b92649e861fc6a11cdbc6ec6de97bee5 / PR #309 / main 230d9a217f63fbadb2d2f3457a4374f8f3a0025e。Owner main/8765/開いた制作画面の同期・保存状態・保全対象不変を確認",
       "tests": "対象脚長/実足裏/足IKを使う2秒以内の候補作成・比較・原子的保存/Undo・共通MP4。Win/Ubuntu Python各26、Node2・型、生成PMX2体/同じVMDと実PMX/VMD1組、実GPU、ネイティブWebMCP/標準MCPを限定検証。詳細docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md",
       "unverified": "全PMX/VMD/特殊ウェイト/全尺、元体格の復元・接地区間自動認識・全身/歩幅編集、GLB/FBX別経路、タイムライン物理ON、Linuxブラウザー/GPU、別名VMDのMMD再現、順3全体。次は既承認CAM-019-B1 / #238を維持"
     }
