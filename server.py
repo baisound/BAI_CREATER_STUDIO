@@ -327,6 +327,18 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:
                 self.bad(500, 'VMD candidate read failed')
             return
+        if urlsplit(self.path).path == '/api/studio/v05/motion-edits/context':
+            from bai_studio.v05.motion.motion_edits import contact_context, MotionEditError
+            try:
+                query=parse_qs(urlsplit(self.path).query)
+                result=contact_context(DATA/'studio_v05_motion_edits',DATA,
+                    DATA/'studio_v05_scene_instances',DATA/'studio_v05_scene_models',
+                    DATA/'studio_v05_arrangements',DATA/'studio_v05_catalog.json',
+                    query.get('id',[''])[0],unified_assets(),
+                    query.get('instance_id',[''])[0],query.get('clip_id',[''])[0])
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (MotionEditError,ValueError,OSError) as exc:self.bad(422,str(exc))
+            return
         if urlsplit(self.path).path == '/api/studio/v05/motion-edits':
             from bai_studio.v05.motion.motion_edits import view, MotionEditError
             try:
@@ -1277,10 +1289,10 @@ class Handler(BaseHTTPRequestHandler):
             from bai_studio.v05.motion.motion_edits import mutate as edit_motion, MotionEditError
             try:
                 length=int(self.headers.get('Content-Length','0'))
-                if not 0<length<=8192:return self.bad(413,'Request too large')
+                if not 0<length<=256*1024:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
                 allowed={'project_id','revision','action','instance_id','clip_id','key','keys',
-                         'layer_id','settings','to_frame','limb','mode'}
+                         'layer_id','settings','to_frame','limb','mode','expected','contact'}
                 if not isinstance(body,dict) or not {'project_id','revision','action'}<=set(body) or set(body)-allowed:
                     return self.bad(400,'Invalid motion edit fields')
                 result=edit_motion(DATA/'studio_v05_motion_edits',DATA,

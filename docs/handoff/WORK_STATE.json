@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T09:53:21+09:00",
+  "updated_at": "2026-11-13T10:47:24+09:00",
   "updated_by": "codex",
-  "branch": "codex/timeline-scene-runtime-20261113",
-  "head_at_update": "b0ba58d",
+  "branch": "codex/target-model-contact-fit-20261113",
+  "head_at_update": "03e7244",
   "current": {
-    "task": "タイムライン3D連動と追加の素材別体格補正・髪/アクセサリーの伸び修正",
+    "task": "MOTION-011/012：元モデル不明のVMDを対象PMXの足裏とIKで区間補正する",
     "status": "done",
-    "step": "3D連動の代表検証と台帳同期まで完了。追加報告のGLB動作+PMX物理ONの伸びを隔離再現し、素材ごとの元骨格/体格調整を調査。検証前のmain統合は保留。Blender CAM-019-B1を統合/同期直後の次へ保持。",
+    "step": "PR308/main/8765/制作画面同期済み。3視点批評済みのTARGET_MODEL_CONTACT_FIT設計に従い、原本hash付き読込、対象/区間/床を確認した接地補正候補、原子的な保存/Undo/両MCPとMP4検証を実装。Blender CAM-019-B1の差込みは現制作補正の次へ保持。",
     "design_doc": "docs/v05/TIMELINE_SCENE_LINK_20261113_JA.md"
   },
   "next_steps": [
-    "検証済み3D連動と髪/紐修正をPR/main/Owner制作画面へ同期。その後、MOTION-011/012対象PMX接地補正を実装・検証する。現制作連動の完了/同期直後のBlender CAM-019-B1の差込みを保持"
+    "検証済み接地補正をPR/mainへ反映し、Owner main/8765/開いた制作画面を同期。同期後の次は既承認CAM-019-B1 / #238。"
   ],
   "unverified": [
-    "対象PMX接地補正は設計のみ、全VMDの体格自動復元不可。全モデル/骨名/物理、タイムラインへのMMD物理出力、Linuxブラウザ/GPU、長尺の動くカメラと表情、順3全体は未完。"
+    "全PMX/VMD/全身・歩幅の適合、元体格復元、GLB/FBX別経路、全尺/物理ON、Linuxブラウザー/GPU、別名VMDのMMD再現、スクリーンリーダー、順3全体。"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T10:47:24+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "03e7244",
+      "text": "MOTION-011/012：対象PMXの実足裏・IKによる区間補正を実装。候補比較/原子的保存/Undo・共通MP4、原本hash/配置revision照合、3D固定領域。Win/Ubuntu Python各26、Node2・型・生成2体/実PMX1組・実GPU・両MCPを限定検証。3視点の必須指摘を修正し限定PASS。"
+    },
+    {
+      "at": "2026-11-13T10:11:18+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0a5e011",
+      "text": "MOTION-011/012：元モデル不明のVMDを対象PMXの足裏とIKで区間補正する: PR308/main/8765/制作画面同期済み。3視点批評済みのTARGET_MODEL_CONTACT_FIT設計に従い、原本hash付き読込、対象/区間/床を確認した接地補正候補、原子的な保存/Undo/両MCPとMP4検証を実装。Blender CAM-019-B1の差込みは現制作補正の次へ保持。"
+    },
     {
       "at": "2026-11-13T09:53:21+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "done",
       "head": "78b5439",
       "text": "Owner指定3スキルと共通UI方針を導入。現行UIの指摘8件を実測し、番号付き画像・未実装3画面案・JSONを作成。製品コード/正式台帳状態は変更なし"
-    },
-    {
-      "at": "2026-11-13T00:56:03+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "14cc3db",
-      "text": "Creator Studio UI監査と視覚的な修正案: Owner指定の3スキルを導入し、実画面に番号を付けた現状/提案と監査JSONを作る。UI実装は変更しない"
-    },
-    {
-      "at": "2026-11-13T00:46:57+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f62a74c",
-      "text": "順3 G3-F1 終了条件と残件の正本整理: Owner指定の基本動画経路をA〜E証拠へ対応付け、既知未達/未検証/順6・7依存/低優先を明記する"
     }
   ]
 }

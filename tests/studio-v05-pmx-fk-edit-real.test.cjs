@@ -43,7 +43,7 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
           clip_id:placement.clip.id,revision:placement.revision,instance_id:instanceId})}));
       browser=await server.launchBrowser();page=await server.newPage(browser);
       await page.goto(`${server.base}/studio/v05/index.html`);
-      await page.locator('#v06project').selectOption(projectId);
+      await page.locator('#v06project').selectOption(projectId,{force:true});
       await page.locator('#nav [data-workspace="edit"]').click();
       await page.locator('#v70sceneOpen').click();
       await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&window.BAIStudioMultiScenePreview?.status().loaded===1&&
@@ -108,7 +108,7 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
       assert.equal(stale.status,409);
       await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());
       await page.reload();
-      await page.locator('#v06project').selectOption(projectId);
+      await page.locator('#v06project').selectOption(projectId,{force:true});
       await page.locator('#nav [data-workspace="edit"]').click();
       await page.waitForFunction(()=>document.querySelector('#v70sceneOpen'),null,{timeout:10000})
         .catch(error=>{throw new Error(`Scene bridge missing after reload: ${error.message}; browser errors: ${page.__monitor.errors.join(' | ')}`);});
@@ -245,7 +245,7 @@ test('real PMX FK correction previews, saves, reloads and undo/redoes without ch
       editRevision=updated.revision;
       await page.evaluate(()=>window.BAIStudioMultiScenePreview.close());
       await page.goto(`${server.base}/studio/v05/index.html?scene_capture=1`);
-      await page.locator('#v06project').selectOption(projectId);
+      await page.locator('#v06project').selectOption(projectId,{force:true});
       await page.evaluate(()=>window.BAIStudioMultiScenePreview.open({composite:true}));
       await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&window.BAIStudioMultiScenePreview?.status().loaded===1&&
         window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});

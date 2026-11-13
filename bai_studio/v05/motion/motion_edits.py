@@ -93,7 +93,9 @@ def _context(data_root, scene_root, legacy_root, arrangement_root, catalog, proj
     return {'instance_id': instance_id, 'clip_id': clip_id,
             'model_asset_id': model_id, 'motion_asset_id': motion_id,
             'model_sha256': _digest(model), 'motion_sha256': _digest(motion),
-            'fps': fps, 'start': start, 'duration': duration, 'model_path': model}
+            'fps': fps, 'start': start, 'duration': duration, 'model_path': model,
+            'scene_revision': plan['scene_revision'],
+            'arrangement_revision': plan['arrangement_revision']}
 
 
 def _identity(layer):
@@ -304,11 +306,111 @@ def view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, pr
             'can_undo': bool(current['history']['undo']), 'can_redo': bool(current['history']['redo'])}
 
 
+def contact_context(root, data_root, scene_root, legacy_root, arrangement_root,
+                    catalog, project_id, assets, instance_id, clip_id):
+    """Read-only identity of the exact loaded sources/placement to be compared by the client."""
+    context = _context(data_root, scene_root, legacy_root, arrangement_root,
+                       catalog, project_id, assets, instance_id, clip_id)
+    return {**_identity(context), 'scene_revision': context['scene_revision'],
+            'arrangement_revision': context['arrangement_revision'],
+            'revision': read(root, catalog, project_id)['revision']}
+
+
+def _contact_set(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
+                 project_id, revision, assets, instance_id, clip_id, keys, expected, contact):
+    # The batch is one history operation. Hold placement and scene locks as well as
+    # edits so another UI/MCP action cannot change the evaluated context mid-save.
+    from bai_studio.v05.timeline.arrangement import LOCK as arrangement_lock
+    from bai_studio.v05.timeline.scene_instances import _LOCK as scene_lock
+    # Normal FK writes hold edits -> arrangement-read; scene writes hold
+    # scene -> arrangement-read. Never acquire edits/scene after arrangement.
+    with LOCK, scene_lock, arrangement_lock:
+        now = contact_context(root, data_root, scene_root, legacy_root, arrangement_root,
+                              catalog, project_id, assets, instance_id, clip_id)
+        if not isinstance(expected, dict) or set(expected) != set(now) or expected != now \
+                or any(isinstance(expected[k], bool) for k in now if isinstance(now[k], (int, float))) \
+                or type(revision) is not int or revision != now['revision']:
+            raise MotionEditError('Contact candidate context changed; recreate candidate')
+        if not isinstance(contact, dict) or set(contact) != {'side', 'start_frame', 'end_frame', 'ground_y'}:
+            raise MotionEditError('Invalid contact interval fields')
+        side, first, end, floor = (contact[k] for k in ('side', 'start_frame', 'end_frame', 'ground_y'))
+        fade = math.ceil(now['fps'] * .1)
+        low, high = _bounds(now)
+        if side not in ('左', '右') or type(first) is not int or type(end) is not int \
+                or not low <= first < end <= high or end - first > math.ceil(now['fps'] * 2) \
+                or end - first - 2 * fade < 2 or type(floor) not in (int, float) \
+                or not math.isfinite(floor) or abs(floor) > 100000:
+            raise MotionEditError('Invalid contact interval: at most two seconds with interior frames required')
+        current = read(root, catalog, project_id)
+        if current.get('fk_ik_modes', {}).get(instance_id, {}).get(
+                'left_leg' if side == '左' else 'right_leg', 'IK') != 'IK':
+            raise MotionEditError('Contact correction requires IK leg mode')
+        matching = [l for l in current['layers'] if l['instance_id'] == instance_id and l['clip_id'] == clip_id]
+        if any(_identity(l) != _identity(now) for l in matching) or any(l.get('solo') for l in matching):
+            raise MotionEditError('Correction layers changed or solo is active')
+        if len(current['layers']) >= MAX_LAYERS:
+            raise MotionEditError('Motion edit layer limit reached')
+        context = _context(data_root, scene_root, legacy_root, arrangement_root,
+                           catalog, project_id, assets, instance_id, clip_id)
+        raw = context['model_path'].read_bytes()
+        if hashlib.sha256(raw).hexdigest() != now['model_sha256']:
+            raise MotionEditError('PMX source changed')
+        bones = parse_pmx(raw)['bones_detail']
+        def unique(name):
+            found = [i for i, b in enumerate(bones) if b['name'] == name]
+            if len(found) != 1:
+                raise MotionEditError('Canonical PMX leg/IK target is unavailable')
+            return found[0]
+        hip, knee, ankle = [unique(side + suffix) for suffix in ('足', 'ひざ', '足首')]
+        targets = [b for b in bones if b['name'] in (side + '足ＩＫ', side + '足IK')
+                   and b.get('ik', {}).get('target_index') == ankle
+                   and {link['bone_index'] for link in b['ik'].get('links', [])} == {hip, knee}]
+        if len(targets) != 1 or bones[knee]['parent_index'] != hip or bones[ankle]['parent_index'] != knee:
+            raise MotionEditError('Canonical PMX leg/IK target is unavailable')
+        leg = math.dist(bones[hip]['position'], bones[knee]['position']) + math.dist(
+            bones[knee]['position'], bones[ankle]['position'])
+        if not math.isfinite(leg) or leg <= 0:
+            raise MotionEditError('Invalid PMX leg length')
+        if not isinstance(keys, list) or len(keys) != end - first or len(keys) > MAX_KEYS:
+            raise MotionEditError('One contact translation key per interval frame required')
+        checked = [_key(k) for k in keys]
+        if [k['frame'] for k in checked] != list(range(first, end)) or any(
+                k['bone'] != targets[0]['name'] or k['rotation'] != [0, 0, 0, 1]
+                or 'position' not in k or math.dist(k['position'], [0, 0, 0]) > leg * .100001
+                for k in checked):
+            raise MotionEditError('Contact keys must be bounded translations of the selected foot IK')
+        layer = {**_identity(now), 'id': str(uuid.uuid4()), 'name': f'{side}足の接地 Y={floor:g}',
+                 'weight': 1.0, 'muted': False, 'solo': False, 'keys': checked,
+                 'start_frame': first, 'end_frame': end,
+                 'fade_in_frames': fade, 'fade_out_frames': fade}
+        before = copy.deepcopy(current['layers'])
+        current['layers'].append(layer)
+        current['history']['undo'].append(before)
+        del current['history']['undo'][:-MAX_HISTORY]
+        current['history']['redo'] = []
+        current['revision'] += 1
+        # File replacement/FPS changes outside our locks must also fail closed.
+        again = contact_context(root, data_root, scene_root, legacy_root, arrangement_root,
+                                catalog, project_id, assets, instance_id, clip_id)
+        if again != now:
+            raise MotionEditError('Contact candidate context changed; recreate candidate')
+        _save(root, project_id, current)
+        return view(root, data_root, scene_root, legacy_root, arrangement_root, catalog, project_id, assets)
+
+
 def mutate(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
            project_id, revision, action, assets, *, instance_id=None, clip_id=None,
-           key=None, keys=None, layer_id=None, settings=None, to_frame=None, limb=None, mode=None):
+           key=None, keys=None, layer_id=None, settings=None, to_frame=None, limb=None, mode=None,
+           expected=None, contact=None):
     if type(revision) is not int or revision < 0:
         raise MotionEditError('Revision required')
+    if action == 'contact-set':
+        if any(v is not None for v in (key, layer_id, settings, to_frame, limb, mode)):
+            raise MotionEditError('Unexpected contact batch fields')
+        return _contact_set(root, data_root, scene_root, legacy_root, arrangement_root, catalog,
+                            project_id, revision, assets, instance_id, clip_id, keys, expected, contact)
+    if expected is not None or contact is not None:
+        raise MotionEditError('Contact fields belong to contact-set only')
     if action not in ('set', 'arm-set', 'remove', 'move', 'layer-create',
                        'layer-update', 'layer-delete', 'mode-set', 'undo', 'redo'):
         raise MotionEditError('Unknown motion edit action')
