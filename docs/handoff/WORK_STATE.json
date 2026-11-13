@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T12:48:44+09:00",
+  "updated_at": "2026-11-13T13:26:15+09:00",
   "updated_by": "codex",
-  "branch": "codex/blender-camera-import-20261113",
-  "head_at_update": "2fb5784",
+  "branch": "codex/cinemaoperator-bridge-20261113",
+  "head_at_update": "62961ba",
   "current": {
-    "task": "CAM-019-B1：Blenderの評価済みカメラを取込み、比較・採用から同じタイムライン/MP4へ接続",
-    "status": "done",
-    "step": "CAM-019-B1の実装・試験・PR/main統合済み。詳細な利用環境の確認記録はOwner指定Evidenceへ保持。",
+    "task": "CAM-019：CinemaOperator本体の登録・起動・Bake結果連携",
+    "status": "in_progress",
+    "step": "Issue238の既承認A〜Dを再開。配布ZIPを静的検査し、別名作業コピーと対応形式を確定。実アドオンの可視UI/Bakeから既存カメラ候補へ戻す。",
     "design_doc": "docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T13:26:15+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "62961ba",
+      "text": "CAM-019：CinemaOperator本体の登録・起動・Bake結果連携: Issue238の既承認A〜Dを再開。配布ZIPを静的検査し、別名作業コピーと対応形式を確定。実アドオンの可視UI/Bakeから既存カメラ候補へ戻す。"
+    },
     {
       "at": "2026-11-13T12:48:44+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "1f18f2a",
       "text": "VSTとミキサーの実音声処理を試聴・書き出しへ接続: 実ホストの検証と処理・保存・プレビュー・出力の接続設計"
-    },
-    {
-      "at": "2026-11-13T02:36:16+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ce9e8b6",
-      "text": "UI修正PR293/294をmaince9e8b6へ統合。8765/Python55972・既存Chrome6475の保存音声配置有効/DAW表示・比較6489を同期。515ファイル/dirty不変、Issue69に3画像を保存"
     }
   ]
 }
