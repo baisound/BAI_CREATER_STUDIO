@@ -42,3 +42,12 @@ def test_dependency_hashes_cover_source_texture_and_project_modes(tmp_path,monke
 
 def test_capture_requires_local_runtime_without_running_node(tmp_path):
     with pytest.raises(a.AddonError,match='ローカル'):cache.capture(tmp_path,None)
+
+
+def test_project_owned_candidate_payload_is_in_dependency_closure(tmp_path,monkeypatch):
+    monkeypatch.setattr(cache,'evaluator_hash',lambda:'v1')
+    folder=tmp_path/'studio_v05_lip_vmd_candidates'/'project';folder.mkdir(parents=True)
+    (folder/'candidate.json').write_text('{}');payload=folder/'candidate.vmd';payload.write_bytes(b'vmd')
+    before=cache.dependencies(tmp_path,'project',[])
+    payload.write_bytes(b'changed VMD')
+    assert cache.dependencies(tmp_path,'project',[])!=before

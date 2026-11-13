@@ -33,7 +33,7 @@ Blenderは撮影用の形状コピーです。骨・表情の元編集はStudio�
 
 ## 検証結果
 
-- Windows/Ubuntu：関連Python各82成功。既存静的GLBの保護・B1・配置/表情/接地/FK回帰を含む。型チェック成功。
+- Windows/Ubuntu：関連Python各83成功。既存静的GLBの保護・B1・配置/表情/接地/FK回帰を含む。型チェック成功。
 - Windows：関連Node7成功、最終の形状キャッシュ試験1成功を追加。Ubuntu：形状キャッシュの実ブラウザー試験1成功。両OSで実Blender5.2.2/CinemaOperator0.7.183のBake、両MCP、B1採用、60F MP4まで実行。スキップなし。
 - 生成PMX：VMD骨移動・表情・口、途中出現/消失、F0–59とF9–38の全頂点一致、Blenderで表示中の頂点差<1e-6、逆シーク再現、30fpsと29.97fpsの別区間準備。modifier/MDD/UV/材質/culling/action/muteの変更拒否と復元、表情VMD/画像/口採用/FKデータだけの変更拒否を検査。
 - 実登録PMX（非公開）：実モデルの60Fをコピー。実GUIで50mmへ変更し、nativeBake/現在状態送信/Studio比較/採用/保存/60F720p MP4を確認。Windows RTX4070SUPER。素材原本の前後hashを照合。実データや実アドオンはGitへ含めない。
@@ -49,3 +49,5 @@ NOT TESTED/未対応：タイムラインで未有効のPMX二次物理、FBX、
 機械記録：`CINEMAOPERATOR_ANIMATED_SCENE_STATUS_20261114.json`。公開画像は生成fixtureだけ、実PMX/ローカルパス付き画像はOwner確認フォルダーへ保持する。
 
 台帳確認：153件のID順序/重複なし、CAM-019のJSON/CSV内容一致、他要件不変。既存mainにはdetail欄のJSON/CSV不一致12件があり、この変更では対象外として保持した。
+
+実装コミット：`edbe1eef33559367bad872309673be889c40146b`、[PR #316](https://github.com/baisound/BAI_CREATER_STUDIO/pull/316)。最終レビューでproject所有の口候補VMD等も依存集合へ追加し、設定JSONが同じでも候補本体が変更された場合の拒否を検査。

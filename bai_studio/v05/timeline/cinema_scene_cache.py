@@ -34,7 +34,7 @@ def dependencies(data,project_id,inputs):
         direct=directory/(project_id+'.json')
         if direct.is_file():paths.add(direct.resolve())
         project_folder=directory/project_id
-        if project_folder.is_dir():paths.update(p.resolve() for p in project_folder.rglob('*.json') if p.is_file())
+        if project_folder.is_dir():paths.update(p.resolve() for p in project_folder.rglob('*') if p.is_file())
     result=[]
     for path in sorted(paths):
         if not path.is_relative_to(data):raise ValueError('登録素材の参照が保存領域外です')

@@ -4,15 +4,15 @@
   "date": "2026-11-14",
   "status": "partial_verified",
   "scope": "PMX motion/face/lip evaluated shooting copy -> native CinemaOperator Bake -> camera adoption/MP4",
-  "implementation_commit": "pending",
+  "implementation_commit": "edbe1eef33559367bad872309673be889c40146b",
   "tests": {
     "python_windows": {
-      "passed": 82,
+      "passed": 83,
       "failed": 0,
       "skipped": 0
     },
     "python_ubuntu": {
-      "passed": 82,
+      "passed": 83,
       "failed": 0,
       "skipped": 0
     },
@@ -111,5 +111,6 @@
     "implemented": "studio/v05/reviews/cinemaoperator-20261114/pmx-flow-marked.png",
     "public_only_generated": true
   },
-  "models": "high-capability investigation/implementation; three review perspectives reused"
+  "models": "high-capability investigation/implementation; three review perspectives reused",
+  "pull_request": 316
 }
