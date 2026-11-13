@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T05:42:22+09:00",
+  "updated_at": "2026-11-14T05:46:04+09:00",
   "updated_by": "codex",
   "branch": "codex/cinemaoperator-animated-scene-20261114",
-  "head_at_update": "edbe1ee",
+  "head_at_update": "29055c0",
   "current": {
     "task": "CAM-019：PMX・動き・表情を含むCinemaOperatorシーン連携",
     "status": "done",
@@ -11,10 +11,10 @@
     "design_doc": "docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md"
   },
   "next_steps": [
-    "PR316の最新確認後mainへ統合し、8765と開いている制作画面を同期。PMX二次物理/FBX/全VRM・親子等と順3の残件を保持。"
+    "CAM-019の残件（PMXタイムライン二次物理・FBX・全VRM/GLB/親子/材質・長尺・Linux nativeGUI/実GPU等）と順3既存残件を保持。優先度は次のOwner指定に従う。"
   ],
   "unverified": [
-    "タイムラインのPMX二次物理、FBX、全VRM/GLB/親子/材質の網羅、120秒実測、Linux GUI/実GPU/実PMX、全Tab/SR/200%拡大、Blender5.1/別版/一般アドオン/DOF、CAM-019全体・順3全体。"
+    "PMXタイムライン二次物理、FBX、全VRM/GLB/親子/材質の網羅、120秒実測、Linux nativeGUI/実GPU/実PMX、全Tab/SR/200%拡大、Blender5.1/別版/一般アドオン/DOF、CAM-019全体・順3全体。"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T05:46:04+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "29055c0",
+      "text": "PR316をmain a27545bへ統合し、8765のmain応答/登録版保持と既存制作画面の更新を確認。両OS各83・Win Node7/最終cache・Ubuntu最終E2E、実PMX GUI/MP4成功。"
+    },
     {
       "at": "2026-11-14T05:42:22+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "1f9e030",
       "text": "モデル・カメラ・動き/表情の配置連動と実動作プレビューの高さ改善: 二重ヘッダー/ナビを埋込時だけ畳み実プレビューへ高さを戻す。既存機能の到達を保持し、続けて同一scene計画で配置連動を接続"
-    },
-    {
-      "at": "2026-11-13T04:13:42+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2a5d9b6",
-      "text": "8インサートの内部スクロールと固定追加・末尾選択/削除・150pxフェーダー/M/Sを1440/1024で確認。古い未接続ラベル復元も修正"
     }
   ]
 }
