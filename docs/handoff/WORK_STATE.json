@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T09:05:46+09:00",
+  "updated_at": "2026-11-13T09:53:21+09:00",
   "updated_by": "codex",
   "branch": "codex/timeline-scene-runtime-20261113",
-  "head_at_update": "ba0d74c",
+  "head_at_update": "b0ba58d",
   "current": {
     "task": "タイムライン3D連動と追加の素材別体格補正・髪/アクセサリーの伸び修正",
-    "status": "in_progress",
+    "status": "done",
     "step": "3D連動の代表検証と台帳同期まで完了。追加報告のGLB動作+PMX物理ONの伸びを隔離再現し、素材ごとの元骨格/体格調整を調査。検証前のmain統合は保留。Blender CAM-019-B1を統合/同期直後の次へ保持。",
     "design_doc": "docs/v05/TIMELINE_SCENE_LINK_20261113_JA.md"
   },
   "next_steps": [
-    "差分/必要チェックを確認してPRをmainへ統合し、Owner main・8765・開いている制作画面を同期する。その直後の承認済み次タスクはCAM-019-B1（#238）"
+    "検証済み3D連動と髪/紐修正をPR/main/Owner制作画面へ同期。その後、MOTION-011/012対象PMX接地補正を実装・検証する。現制作連動の完了/同期直後のBlender CAM-019-B1の差込みを保持"
   ],
   "unverified": [
-    "Linuxブラウザ/GPU、全形式/全VMD、長尺の動くカメラ/表情、物理/DOF/レール/シフト、200%拡大/スクリーンリーダー、順3全体。Blenderカメラ取込はロードマップ追加のみ・実装未着手。既存音声/長尺/全Undo等の未完は保持。"
+    "対象PMX接地補正は設計のみ、全VMDの体格自動復元不可。全モデル/骨名/物理、タイムラインへのMMD物理出力、Linuxブラウザ/GPU、長尺の動くカメラと表情、順3全体は未完。"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T09:53:21+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "b0ba58d",
+      "text": "配置モデル/カメラ/動き/表情の代表検証に加え、髪/紐のPMX物理を基準姿勢構築と長さ保持付き回転へ修正。元データ不変、合成物理・時計/retarget/連動の回帰6と型成功。元モデル不明VMDの接地補正は3視点設計批評の指摘を採用、未実装。"
+    },
     {
       "at": "2026-11-13T09:05:46+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "f62a74c",
       "text": "順3 G3-F1 終了条件と残件の正本整理: Owner指定の基本動画経路をA〜E証拠へ対応付け、既知未達/未検証/順6・7依存/低優先を明記する"
-    },
-    {
-      "at": "2026-11-13T00:38:58+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "32138db",
-      "text": "PR290をmainへ統合。利用者main/codex-next/8765のPythonと既存Chrome書出し画面を同期し、515ファイル保持/配信一致を確認"
     }
   ]
 }

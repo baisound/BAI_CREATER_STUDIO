@@ -560,6 +560,15 @@
       "commit": "既存設計145a54dを復帰し最新Owner指定を追記",
       "tests": "計画のみ。優先キュー・受入条件・台帳153件のCSV/JSON ID一致を確認。実装・Blender実機は未着手",
       "unverified": "Blenderから取込/比較/採用/保存復元/出力、追加アドオン利用、手動/API/両MCP、Windows/Linuxの全実装・実機検証"
+    },
+    {
+      "item": "Owner追加：髪/紐のPMX物理プレビュー修正",
+      "phase_e_wp": "AUDIO-001・MOTION-010/019、#39/#63",
+      "planned_in": "PMX-ACCESSORY-PHYSICS-20261113",
+      "status": "partial_verified",
+      "commit": "codex/timeline-scene-runtime-20261113 / WORK_STATEとPRへ紐付け",
+      "tests": "2026-11-13 #39/#63：GLB/PMX実プレビューの髪・紐の伸びを、基準姿勢での物理構築と対象アクセサリーの位置合わせ付き回転物理で修正。元PMX/GLB/テクスチャ不変、合成物理と時計/retarget/連動6件・型成功。実素材の前後/全尺証跡は非公開ローカル。全モデル/骨名/物理は未検証。docs/v05/PMX_ACCESSORY_PHYSICS_FIX_20261113_JA.md",
+      "unverified": "全PMX/骨名/全物理、Linuxブラウザー、タイムラインへのMMD物理出力。対象PMX接地補正は設計中"
     }
   ]
 }

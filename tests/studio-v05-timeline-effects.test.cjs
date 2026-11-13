@@ -100,7 +100,3 @@ test('同じタイムラインのPMX・動き・表情・口・カメラを半�
   assert.deepEqual(report.errors,[]);report.status='passed';
  }catch(e){report.status='failed';report.error=e.stack;if(page)await page.screenshot({path:path.join(qa,'failure.png')}).catch(()=>{});throw e;}finally{fs.writeFileSync(path.join(qa,'browser.json'),JSON.stringify(report,null,2)+'\n');await browser?.close();await s.stop();}
 });
-
-
-
-

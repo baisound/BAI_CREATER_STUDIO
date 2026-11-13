@@ -26,6 +26,16 @@ async function ensureAmmo() {
 export async function createPmxPhysicsPreview(pmx, motionPreview) {
   const mmd = pmx?.geometry?.userData?.MMD;
   if (!Array.isArray(mmd?.rigidBodies) || !Array.isArray(mmd?.constraints)) throw new Error('PMXに物理情報がありません。');
+  if(!pmx?.isSkinnedMesh||!pmx.skeleton?.bones?.length)throw new Error('PMXの骨格がありません。');
+  // Hair/cord chains should rotate with physics without stretching their skin.
+  // PMX's native type 2 keeps the animated bone position and applies dynamic
+  // rotation. Adapt only these accessory bodies, on copies of the metadata.
+  let lengthPreservedBodies=0;
+  const rigidBodies=mmd.rigidBodies.map((/** @type {any} */ body)=>{
+    const name=pmx.skeleton.bones[body.boneIndex]?.name||'';
+    if(body.type===1&&/髪|紐|hair|cord|ribbon|string/i.test(name)){lengthPreservedBodies++;return {...body,type:2};}
+    return {...body};
+  });
   const dynamicBodies = mmd.rigidBodies.filter((/** @type {any} */ body) => body.type !== 0).length;
   if (!dynamicBodies) throw new Error('PMXに揺れを計算する剛体がありません。');
   const Ammo = await ensureAmmo();
@@ -40,7 +50,19 @@ export async function createPmxPhysicsPreview(pmx, motionPreview) {
   const world = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
   const gravity = new Ammo.btVector3(0, -98, 0);
   world.setGravity(gravity); Ammo.destroy(gravity);
-  const physics = new MMDPhysics(pmx, mmd.rigidBodies, mmd.constraints, { world });
+  // PMX joint coordinates describe the bind pose. Building constraint frames
+  // after a retargeted frame has been applied bakes that pose's displacement
+  // into the joint offsets, pulling hair/accessory chains apart on every step.
+  const posedBones=pmx.skeleton.bones.map((/** @type {any} */ bone)=>({bone,
+    position:bone.position.clone(),quaternion:bone.quaternion.clone(),scale:bone.scale.clone()}));
+  let physics;
+  try {
+    pmx.skeleton.pose();pmx.updateMatrixWorld(true);
+    physics = new MMDPhysics(pmx, rigidBodies, mmd.constraints, { world });
+  } finally {
+    for(const pose of posedBones){pose.bone.position.copy(pose.position);pose.bone.quaternion.copy(pose.quaternion);pose.bone.scale.copy(pose.scale);}
+    pmx.updateMatrixWorld(true);
+  }
   const zero = new Ammo.btVector3(0, 0, 0);
   let lastTime = NaN;
   // MMDPhysics.update() temporarily removes the mesh scale because PMX rigid
@@ -81,6 +103,7 @@ export async function createPmxPhysicsPreview(pmx, motionPreview) {
   }
   return {
     dynamicBodies,
+    lengthPreservedBodies,
     constraints: mmd.constraints.length,
     /** @param {number} seconds @param {boolean} continuous */
     seek(seconds, continuous) {

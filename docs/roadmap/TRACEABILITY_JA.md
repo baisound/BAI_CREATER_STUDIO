@@ -189,3 +189,8 @@ AUDIO-002 / UX-006 / DATA-002 / RENDER-006（追加Owner指定）：インサー
 
 - #63 / DATA-001/006・CAM-001/015・LIP-009・RENDER-006：モデル配置から対象別の動き/表情/口、カメラVMDを同じ作品時刻へ接続。docs/v05/TIMELINE_SCENE_LINK_20261113_JA.md。代表検証と一般完成を区別。
 - #238 / CAM-019-B1：Blenderカメラ取込をロードマップの次へ差込むOwner直接指定。未マージ設計145a54dを正本へ復帰し、追加アドオン不要の既存カメラ取込を先に実施。CinemaOperator実アドオン利用を保持。docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md。実装未着手。
+
+
+Owner追加 #39/#63：2026-11-13 #39/#63：GLB/PMX実プレビューの髪・紐の伸びを、基準姿勢での物理構築と対象アクセサリーの位置合わせ付き回転物理で修正。元PMX/GLB/テクスチャ不変、合成物理と時計/retarget/連動6件・型成功。実素材の前後/全尺証跡は非公開ローカル。全モデル/骨名/物理は未検証。docs/v05/PMX_ACCESSORY_PHYSICS_FIX_20261113_JA.md
+
+対象PMXでの調整（MOTION-005/010/011/012/019）：2026-11-13 Owner追加：元モデルがVMDごとに異なり不明なため、対象PMXの実脚長/足裏/IKを使う区間指定の接地補正を既存差分層へ接続する設計を3視点批評。実装は未着手。docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md
