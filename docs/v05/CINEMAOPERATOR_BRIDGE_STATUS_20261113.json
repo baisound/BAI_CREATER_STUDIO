@@ -5,7 +5,7 @@
   "issue": 238,
   "branch": "codex/cinemaoperator-bridge-20261113",
   "status": "partial_verified",
-  "commit_reference": "同じコードコミットのWORK_STATE/historyとPRへ紐付け",
+  "commit_reference": "76d6293 / PR #314 / main 995436be25008d19f27ea8c0828096fcbe20ad1a",
   "supported": {
     "addon": "CinemaOperator0.7.183",
     "adapter": "cinemaoperator-0.7.183-v1",
@@ -227,5 +227,6 @@
     },
     "privacy": "generated GLB and test project only; no addon code package, real owner assets, runtime paths or logs published"
   },
-  "model_usage": "parent high-capability model for diagnosis/design/implementation/runtime QA; existing3 Critic agents reused; no new implementation worker"
+  "model_usage": "parent high-capability model for diagnosis/design/implementation/runtime QA; existing3 Critic agents reused; no new implementation worker",
+  "integration_record": "../../qa/cinemaoperator-integration-20261113.json"
 }

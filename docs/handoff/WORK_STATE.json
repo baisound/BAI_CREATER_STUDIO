@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T14:16:23+09:00",
+  "updated_at": "2026-11-13T14:27:27+09:00",
   "updated_by": "codex",
   "branch": "codex/cinemaoperator-bridge-20261113",
-  "head_at_update": "f2b4e7e",
+  "head_at_update": "995436b",
   "current": {
     "task": "CAM-019：CinemaOperator本体の登録・起動・Bake結果連携",
     "status": "done",
@@ -11,7 +11,7 @@
     "design_doc": "docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md"
   },
   "next_steps": [
-    "PRで公開差分と必要試験を確認してmain統合。Owner main/8765/開いている制作画面を同期し、実素材を保持。CAM-019のPMX/動作等の橋渡しと順3残件は未完として保持。"
+    "次の既承認残件はCAM-019のPMX/VRM/FBX・割当動作/表情/口など同一シーン橋渡し。静的GLBの本体登録/起動/Bake代表経路は統合済み。順3 G3-F1等の残件も保持。"
   ],
   "unverified": [
     "PMX/VRM/FBX・割当動作/表情/口・親子配置/複雑なGLB/拡張、一般アドオン/別版/Blender5.1実機/全ドライバー/長尺、DOF、Linuxブラウザー/GPU/MP4、実SR/200%拡大/全Tab、CAM-019と順3全体。"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T14:27:27+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "995436b",
+      "text": "CAM-019静的GLBのCinemaOperator登録/起動/実Bake連携をPR314/main995436bへ統合。手元の同期・本体登録・制作画面・素材保全の詳細はOwner指定Evidenceへ保持。公開記録を機能/試験/統合コミットに限定。"
+    },
     {
       "at": "2026-11-13T14:16:23+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "0d72fb2",
       "text": "モデル・カメラ・動き/表情のタイムライン連動とプレビュー表示領域の改善: 既存の実3D/VMD/カメラ再生経路を調べ、タイムライン配置からの欠落と内側ヘッダーを接続する"
-    },
-    {
-      "at": "2026-11-13T03:53:07+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2e181ef",
-      "text": "VST3と作品ミキサーを試聴・共通プレビュー・MP4と両MCPへ接続。素材一覧の潰れ/高さを修正。Windows87/Ubuntu85成功と2skip、Chrome対象4＋既存回帰4を確認"
     }
   ]
 }
