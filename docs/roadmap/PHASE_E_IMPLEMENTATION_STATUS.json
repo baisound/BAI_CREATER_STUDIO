@@ -602,7 +602,7 @@
       "phase_e_wp": "MOTION-019/CAM-019、#238",
       "planned_in": "TIMELINE-PMX-PHYSICS-20261114",
       "status": "partial_verified",
-      "commit": "2d440a5 + final review corrections / docs/v05/TIMELINE_PMX_PHYSICS_STATUS_20261114.json",
+      "commit": "2d440a5 + 4acfa75 / PR318 / main bbd990efe76f12e5d11aadcf784aeeb6aaa7d060 / qa/timeline-pmx-physics-integration-20261114.json",
       "tests": "2026-11-14 MOTION-019/CAM-019：PMX別に物理を保存し、作品先頭から固定60Hzで準備した同じ揺れを任意シーク・CinemaOperator形状コピー・MP4へ接続。既存作品OFFを保持。逆シーク/静的再準備/複数PMX/保存通知/取消・失敗OFF復帰・両MCP・45F MP4を確認。実Blender Bake/60F MP4はWindows/Ubuntu各1成功。Python Windows85成功/Ubuntu84成功・Windows専用1スキップ、Node計算3/実Ammo UI・45F MP4 1/アクセサリー回帰1・型成功。実PMXのnative Bake/手動採用/60F MP4も限定確認。最大600秒/合計128MiB、独立world、XYZ同倍率・X/Z配置回転0。全物理品質・全モデル・長尺/CAM-019全体は未完。docs/v05/TIMELINE_PMX_PHYSICS_20261114_JA.md",
       "unverified": "all PMX/VRM/GLB/FBX, long duration, Linux hardware GPU/native GUI/actual PMX, SR/200% zoom, general addons/DOF, CAM-019 overall"
     }
