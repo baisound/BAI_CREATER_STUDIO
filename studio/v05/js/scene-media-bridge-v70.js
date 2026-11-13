@@ -15,7 +15,8 @@
   const controls = document.createElement('div');
   controls.id = 'v70sceneTransport';
   controls.innerHTML = '<strong>作品の共通時刻</strong><button type="button" id="v70back">−1F</button><button type="button" id="v70play">▶ 再生</button><button type="button" id="v70pause">❚❚ 一時停止</button><button type="button" id="v70stop">■ 停止</button><button type="button" id="v70forward">＋1F</button><span id="v70sceneStatus" role="status">作品を選んでください。</span>';
-  panel.insertBefore(controls, canvas);
+  const stack=panel.querySelector('#v58-control-stack');
+  if(stack)stack.prepend(controls);else canvas.parentNode.insertBefore(controls,canvas);
   const $ = id => document.getElementById(id);
   const media = () => window.BAIStudioMediaPreviewV68;
   const scene = () => window.BAIStudioMultiScenePreview;

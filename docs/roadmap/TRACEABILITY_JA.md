@@ -193,4 +193,7 @@ AUDIO-002 / UX-006 / DATA-002 / RENDER-006（追加Owner指定）：インサー
 
 Owner追加 #39/#63：2026-11-13 #39/#63：GLB/PMX実プレビューの髪・紐の伸びを、基準姿勢での物理構築と対象アクセサリーの位置合わせ付き回転物理で修正。元PMX/GLB/テクスチャ不変、合成物理と時計/retarget/連動6件・型成功。実素材の前後/全尺証跡は非公開ローカル。全モデル/骨名/物理は未検証。docs/v05/PMX_ACCESSORY_PHYSICS_FIX_20261113_JA.md
 
-対象PMXでの調整（MOTION-005/010/011/012/019）：2026-11-13 Owner追加：元モデルがVMDごとに異なり不明なため、対象PMXの実脚長/足裏/IKを使う区間指定の接地補正を既存差分層へ接続する設計を3視点批評。実装は未着手。docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md
+対象PMXでの調整（MOTION-005/010/011/012/019）：2026-11-13 Owner追加：対象PMXの区間接地補正はMOTION-011/012へ限定接続。元モデル不明VMDの正確な体格復元や全動作適合は未完。docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md
+
+
+MOTION-011/012 / #39/#63：2026-11-13 Owner追加：元モデル不明のVMDを対象PMXの脚長・実足裏・足IKで区間補正。2秒以内/左右指定/床Y/内側フェード、候補比較・原子的保存・Undo/Redo・共通MP4へ限定接続。全VMDの元体格復元や歩幅編集全体の完成ではない。docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md 試験・制限・3視点判定は同書と機械可読のTARGET_MODEL_CONTACT_FIT_STATUS_20261113.json。

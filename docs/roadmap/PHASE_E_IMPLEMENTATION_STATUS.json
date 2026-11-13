@@ -568,7 +568,16 @@
       "status": "partial_verified",
       "commit": "codex/timeline-scene-runtime-20261113 / WORK_STATEとPRへ紐付け",
       "tests": "2026-11-13 #39/#63：GLB/PMX実プレビューの髪・紐の伸びを、基準姿勢での物理構築と対象アクセサリーの位置合わせ付き回転物理で修正。元PMX/GLB/テクスチャ不変、合成物理と時計/retarget/連動6件・型成功。実素材の前後/全尺証跡は非公開ローカル。全モデル/骨名/物理は未検証。docs/v05/PMX_ACCESSORY_PHYSICS_FIX_20261113_JA.md",
-      "unverified": "全PMX/骨名/全物理、Linuxブラウザー、タイムラインへのMMD物理出力。対象PMX接地補正は設計中"
+      "unverified": "全PMX/骨名/全物理、Linuxブラウザー、タイムラインへのMMD物理出力。対象PMX接地補正の限定実装は別記、全体適合は未完"
+    },
+    {
+      "item": "Owner追加：元モデル不明VMDの対象PMX区間接地補正",
+      "phase_e_wp": "MOTION-011/012・MOTION-010・RENDER-006、#39/#63",
+      "planned_in": "TARGET-MODEL-CONTACT-FIT-20261113",
+      "status": "partial_verified",
+      "commit": "codex/target-model-contact-fit-20261113 / WORK_STATEとPRへ紐付け",
+      "tests": "対象脚長/実足裏/足IKを使う2秒以内の候補作成・比較・原子的保存/Undo・共通MP4。Win/Ubuntu Python各26、Node2・型、生成PMX2体/同じVMDと実PMX/VMD1組、実GPU、ネイティブWebMCP/標準MCPを限定検証。詳細docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md",
+      "unverified": "全PMX/VMD/特殊ウェイト/全尺、元体格の復元・接地区間自動認識・全身/歩幅編集、GLB/FBX別経路、タイムライン物理ON、Linuxブラウザー/GPU、別名VMDのMMD再現、順3全体。次は既承認CAM-019-B1 / #238を維持"
     }
   ]
 }

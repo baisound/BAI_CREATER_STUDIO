@@ -442,7 +442,7 @@ Issues #63/#69（2026-11-04）：旧Studioの保存状態をv0.5の作品IDへ�
 
 ### MOTION-005
 
-2026-11-13 Owner追加：元モデルがVMDごとに異なり不明なため、対象PMXの実脚長/足裏/IKを使う区間指定の接地補正を既存差分層へ接続する設計を3視点批評。実装は未着手。docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md
+2026-11-13 Owner追加：対象PMXの区間接地補正はMOTION-011/012へ限定接続。元モデル不明VMDの正確な体格復元や全動作適合は未完。docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md
 **機能:** ボーンマッピングの手動修正とモデル別プロファイル  
 **優先:** Phase 03  
 **依存:** CORE,DATA  
@@ -610,7 +610,7 @@ Issues #63/#69（2026-11-04）：旧Studioの保存状態をv0.5の作品IDへ�
 
 ### MOTION-011
 
-2026-11-13 Owner追加：元モデルがVMDごとに異なり不明なため、対象PMXの実脚長/足裏/IKを使う区間指定の接地補正を既存差分層へ接続する設計を3視点批評。実装は未着手。docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md
+2026-11-13 Owner追加：元モデル不明のVMDを対象PMXの脚長・実足裏・足IKで区間補正。2秒以内/左右指定/床Y/内側フェード、候補比較・原子的保存・Undo/Redo・共通MP4へ限定接続。全VMDの元体格復元や歩幅編集全体の完成ではない。docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md
 **機能:** 足IK・接地・床貫通修正  
 **優先:** Phase 03  
 **依存:** CORE,DATA  
@@ -626,7 +626,7 @@ Issues #63/#69（2026-11-04）：旧Studioの保存状態をv0.5の作品IDへ�
 
 ### MOTION-012
 
-2026-11-13 Owner追加：元モデルがVMDごとに異なり不明なため、対象PMXの実脚長/足裏/IKを使う区間指定の接地補正を既存差分層へ接続する設計を3視点批評。実装は未着手。docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md
+2026-11-13 Owner追加：元モデル不明のVMDを対象PMXの脚長・実足裏・足IKで区間補正。2秒以内/左右指定/床Y/内側フェード、候補比較・原子的保存・Undo/Redo・共通MP4へ限定接続。全VMDの元体格復元や歩幅編集全体の完成ではない。docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md
 **機能:** フットステップ・歩幅編集  
 **優先:** Phase 03  
 **依存:** CORE,DATA  

@@ -1,6 +1,6 @@
 // @ts-check
 // ④ GLB/VRM/PMX/FBX の取得と解析（P2 設計 §2.4(c)）。three と各ローダーは 3D 画面を開いたときだけ読み込む。
-// 取得は api.js の getBinary（GLB/VRM/FBX）。PMX は MMDLoader が自分で取得する（テクスチャを相対パスで読むため）。
+// 解析と照合には同じ取得バイトを使う。PMXのテクスチャ基準URLは保持する。
 import { getBinary } from '../api.js';
 
 /** @typedef {{THREE: any, OrbitControls: any, GLTFLoader: any, FBXLoader: any, MMDLoader: any, MMDAnimationHelper: any}} Libs */
@@ -76,6 +76,13 @@ export function collectBones(object) {
 /** @param {any} e */
 export const isNotFound = (e) => !!e && ((e.response && e.response.status === 404) || /responded with 404/.test(String(e.message || '')));
 
+/** 解析した原本の照合用。Web Cryptoのない環境でも表示は継続する。 @param {ArrayBuffer} bytes */
+export async function sourceDigest(bytes) {
+  if (!globalThis.crypto?.subtle) return null;
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
 /**
  * 素材を読み込んで three のオブジェクトにする。
  * @param {ModelItem} item @param {Libs} libs
@@ -87,17 +94,15 @@ export async function loadModel(item, libs) {
   /** @type {any[]} */ let animations = [];
   /** @type {any} */ let vrmTargets = null;
   /** @type {string|null} */ let sourceHash = null;
+  const r = await getBinary(url);
+  if (!r.ok) throw r.status === 404 ? new NotFoundError() : new Error(r.message);
+  sourceHash = await sourceDigest(r.data);
   if (format === 'PMX') {
-    object = await new Promise((resolve, reject) => {
-      new libs.MMDLoader().load(url, resolve, undefined, (/** @type {any} */ e) => reject(isNotFound(e) ? new NotFoundError() : e));
-    });
+    const loader = new libs.MMDLoader();
+    const parsed = loader._getParser().parsePmx(r.data, true);
+    const resourcePath = url.slice(0, url.lastIndexOf('/') + 1);
+    object = loader.meshBuilder.setCrossOrigin(loader.crossOrigin).build(parsed, resourcePath);
   } else {
-    const r = await getBinary(url);
-    if (!r.ok) throw r.status === 404 ? new NotFoundError() : new Error(r.message);
-    if (format === 'VRM' && globalThis.crypto?.subtle) {
-      const digest = await globalThis.crypto.subtle.digest('SHA-256', r.data);
-      sourceHash = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
-    }
     if (format === 'FBX') {
       object = new libs.FBXLoader().parse(r.data, '');
       animations = object.animations || [];

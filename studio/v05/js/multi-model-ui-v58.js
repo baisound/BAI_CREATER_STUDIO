@@ -3,6 +3,7 @@ import {createPmxBonePicker} from './pmx-bone-picker-v110.js';
 import {createPmxFkRotate} from './pmx-fk-rotate-v111.js';
 import {solveArmLocalRotations} from './arm-ik-rotation-v135.mjs';
 import {listPmxIkTargets} from './pmx-ik-targets-v114.js';
+import {buildContactCandidate,contactRig} from './target-contact-fit.mjs';
 /* v58 - real multi-instance Three.js preview.
  * Uses a single viewport renderer and physically separate loaded objects
  * (including skeletons) per scene instance. Animation wiring is stage 59.
@@ -41,6 +42,7 @@ let vmdCandidate=null,candidateValidation=null,candidateReport=null;
 let morphAnalysis=null,morphAnalysisNonce=0,morphMaps=null,morphMapNonce=0;
 let morphPreview=null;
 let morphCandidates=null;
+let contactCandidate=null,contactPreviewLayer=null,contactBusy=false,contactEpoch=0,floorMarker=null;
 let vrmAnalysis=null,vrmAnalysisNonce=0,vrmMaps=null,vrmPreview=null;
 const panel=document.createElement('section');
 panel.id='v58-multi-preview';
@@ -71,9 +73,9 @@ const faceControls=document.createElement('div');faceControls.id='v96-face-contr
 faceControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid #435a73;padding-top:6px';
 const footControls=document.createElement('details');footControls.id='v105-foot-qa';
 footControls.style.cssText='border-top:1px solid #435a73;padding-top:4px';
-const footSummary=document.createElement('summary');footSummary.textContent='実動作の足接地を診断（読み取りのみ）';
+const footSummary=document.createElement('summary');footSummary.textContent='体格・接地の補正';
 const footGround=document.createElement('input');footGround.id='v105-ground-y';
-footGround.type='number';footGround.step='0.01';footGround.value='0';footGround.style.width='75px';
+footGround.type='number';footGround.step='any';footGround.value='0';footGround.style.width='95px';
 footGround.setAttribute('aria-label','床のY座標（シーン単位）');
 const footRun=document.createElement('button');footRun.id='v105-foot-run';footRun.type='button';
 footRun.textContent='現在位置から2秒を診断';
@@ -84,6 +86,38 @@ const footDetails=document.createElement('pre');footDetails.id='v105-foot-detail
 footDetails.style.cssText='white-space:pre-wrap;max-height:160px;overflow:auto;font-size:11px';
 footControls.append(footSummary,document.createTextNode('床のY '),footGround,footRun,
   document.createTextNode(' 左右のつま先骨を測定。足裏の形状・接触力・IKは評価しません。'),footStatus,footDetails);
+const contactRow=document.createElement('div');
+contactRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0';
+const contactSide=document.createElement('select');contactSide.id='v-contact-side';
+contactSide.setAttribute('aria-label','接地させる足');
+contactSide.add(new Option('左足','左'));contactSide.add(new Option('右足','右'));
+const contactFirst=document.createElement('input'),contactEnd=document.createElement('input');
+for(const [input,id,label] of [[contactFirst,'v-contact-first','開始F'],[contactEnd,'v-contact-end','終了F（含まない）']]){
+  input.id=id;input.type='number';input.min='0';input.step='1';input.value=id.endsWith('first')?'0':'60';
+  input.style.width='80px';input.setAttribute('aria-label',label);
+  const wrap=document.createElement('label');wrap.append(document.createTextNode(label+' '),input);contactRow.append(wrap);
+}
+const contactHere=document.createElement('button');contactHere.type='button';contactHere.textContent='現在位置から1秒';
+const contactMake=document.createElement('button');contactMake.id='v-contact-make';contactMake.type='button';contactMake.textContent='補正候補を作成';
+const contactBefore=document.createElement('button');contactBefore.id='v-contact-before';contactBefore.type='button';contactBefore.textContent='補正前';
+const contactAfter=document.createElement('button');contactAfter.id='v-contact-after';contactAfter.type='button';contactAfter.textContent='候補を表示';
+const contactSave=document.createElement('button');contactSave.id='v-contact-save';contactSave.type='button';contactSave.textContent='補正を保存';
+const contactDiscard=document.createElement('button');contactDiscard.id='v-contact-discard';contactDiscard.type='button';contactDiscard.textContent='候補を破棄';
+const contactStatus=document.createElement('span');contactStatus.id='v-contact-status';contactStatus.setAttribute('role','status');contactStatus.textContent='未作成';
+contactStatus.tabIndex=-1;
+const contactContext=document.createElement('small');contactContext.id='v-contact-context';
+contactContext.style.cssText='display:block;overflow-wrap:anywhere';
+const contactReport=document.createElement('details');const contactReportTitle=document.createElement('summary');contactReportTitle.textContent='補正の測定結果';
+const contactReportText=document.createElement('pre');contactReportText.style.cssText='white-space:pre-wrap;max-height:140px;overflow:auto';contactReport.append(contactReportTitle,contactReportText);
+contactRow.prepend(contactSide);contactRow.append(contactHere,contactMake,contactBefore,contactAfter,contactSave,contactDiscard,contactStatus);
+const contactHint=document.createElement('small');contactHint.textContent='元モデル不明のVMDを対象PMXの足裏とIKで補正。作品Fの[開始, 終了)のみ変更、前後0.1秒はなじませます。床Yは世界座標のシーン単位。';
+const floorLabel=document.createElement('label');floorLabel.append(document.createTextNode('床Y '),footGround);
+contactRow.insertBefore(floorLabel,contactHere);
+const footDiagnostic=document.createElement('details'),footDiagnosticTitle=document.createElement('summary');
+footDiagnosticTitle.textContent='つま先骨の診断（読み取りのみ）';
+footDiagnostic.append(footDiagnosticTitle,footRun,document.createTextNode('左右のつま先骨の測定です。この診断は足裏形状・接触力・IKを評価しません。'),footStatus,footDetails);
+footControls.replaceChildren(footSummary,contactHint,contactContext,contactRow,contactReport,footDiagnostic);
+for(const button of [contactBefore,contactAfter,contactSave,contactDiscard])button.disabled=true;
 const fkControls=document.createElement('details');fkControls.id='v106-fk-edit';
 fkControls.style.cssText='border-top:1px solid #435a73;padding-top:4px';
 const fkSummary=document.createElement('summary');fkSummary.textContent='リグ：PMX骨の回転・位置補正（IKターゲット含む）';
@@ -329,7 +363,18 @@ const hint=document.createElement('small');
 hint.textContent=tr('renderingNote');
 footer.append(progress,cameraStatus,hint);
 if(captureMode){saveCameraBtn.hidden=true;restoreCameraBtn.hidden=true;}
-panel.append(heading,motionControls,faceControls,analysisControls,vrmControls,fkControls,footControls,canvasParent,footer);
+const previewLayout=document.createElement('div');previewLayout.className='v58-preview-layout';
+const controlStack=document.createElement('div');controlStack.id='v58-control-stack';
+controlStack.style.cssText='min-width:0;overflow:auto;padding-right:6px';
+controlStack.append(motionControls,faceControls,footControls,fkControls,analysisControls,vrmControls);
+previewLayout.append(controlStack,canvasParent);
+const layoutStyle=document.createElement('style');
+layoutStyle.textContent=`.v58-preview-layout{display:grid;grid-template-columns:minmax(260px,34%) minmax(0,1fr);gap:10px;flex:1;min-height:0}
+ #v58-control-stack :is(select,input){max-width:100%;box-sizing:border-box} #v58-control-stack>div,#v58-control-stack>details{margin-bottom:8px}
+ @media(max-width:760px){.v58-preview-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,40%) minmax(230px,1fr)}}`;
+document.head.append(layoutStyle);
+canvasParent.style.minWidth='0';canvasParent.style.minHeight='0';
+panel.append(heading,previewLayout,footer);
 if(captureMode){footControls.hidden=true;fkControls.hidden=true;analysisControls.hidden=true;vrmControls.hidden=true;}
 document.body.append(panel);
 panel.hidden=true;panel.style.display='none';
@@ -345,12 +390,14 @@ function mountComposite(){
   // so the saved camera frames the preview exactly like the MP4 capture.
   canvasParent.className='v68frame';
   canvasParent.style.cssText='min-height:0;background:transparent;border:0;overflow:hidden;z-index:2';
+  previewLayout.style.display='contents';controlStack.style.overflow='visible';controlStack.style.paddingRight='0';
   panel.style.cssText='position:absolute;top:8px;right:8px;left:auto;bottom:auto;z-index:3;width:min(320px,calc(100% - 16px));max-height:82%;overflow:auto;background:#172231ee;border:1px solid #6584a0;border-radius:9px;padding:8px;box-shadow:0 8px 28px #0009;display:flex;flex-direction:column;gap:5px';
   return true;
 }
 function unmountComposite(){
   window.BAIStudioMediaPreviewV68?.sceneOverlay?.(false);
-  panel.insertBefore(canvasParent,footer);
+  previewLayout.append(canvasParent);
+  previewLayout.style.display='';controlStack.style.overflow='auto';controlStack.style.paddingRight='6px';
   document.body.append(panel);
   canvasParent.className='';
   canvasParent.style.cssText=normalCanvasStyle;
@@ -399,11 +446,12 @@ async function loadInstanceMotion({row,target}){
   const asset=row.motion_asset,libs=target.libs;
   const modelFormat=String(target.format||'').toUpperCase();
   const motionFormat=String(asset.format||'').toUpperCase();
-  let source,player;
+  let source,player,motionHash=null;
   try{
     if(motionFormat==='VMD'){
       if(modelFormat!=='PMX')throw Error('このモデルにVMDは適用できません');
       const vmd=await loadVmdClip(libs,vmdUrl(asset),target.object);
+      motionHash=vmd.sourceHash;
       player=createPmxVmdPreview(libs.THREE,libs.MMDAnimationHelper,target.object,vmd,asset.id);
     }else if(motionFormat==='GLB'||motionFormat==='FBX'){
       source=await loadModel(asset,libs);
@@ -415,6 +463,7 @@ async function loadInstanceMotion({row,target}){
     let closed=false;
     return {
       duration:player.duration,
+      sourceHash:motionHash||source?.sourceHash||null,
       setCorrectionLayers(layers,preview){player.setCorrectionLayers?.(layers,preview);},
       seek(seconds){
         if(closed)return;
@@ -951,6 +1000,7 @@ function worldPoseDifference(before,after){
   return difference;
 }
 function redrawFkControls(){
+  contactReadout();
   const instanceId=choose.value||selectedId;
   const target=controller?.getLoaded(instanceId);
   const boneNames=target?.format==='PMX'?target.object.skeleton.bones.map(bone=>bone.name):[];
@@ -1295,6 +1345,8 @@ function applyAllMotionEdits(){
       if(!layers.some(layer=>layer.id===layerId))layers.push({
         id:layerId,start:row.start,duration:row.duration,fps:projectFps,weight:1,muted:false,keys:[]});
     }
+    if(contactPreviewLayer?.clip_id===row.clip_id&&contactPreviewLayer.instance_id===row.target_scene_instance_id)
+      layers.push(contactPreviewLayer);
     motionCoordinator.setCorrectionLayers(row.clip_id,layers,preview);
   }
 }
@@ -1391,6 +1443,10 @@ function applyTimelineVisibility(seconds){
   }
 }
 function seekScene(seconds){
+  if(contactCandidate){
+    try{contactCandidate.assertCurrent();}
+    catch(error){clearContact('拒否: '+String(error.message||error),false);applyAllMotionEdits();}
+  }
   if(!opened||!motionCoordinator)return;
   timelineIssue=null;
   restoreVrmPreview();
@@ -1477,6 +1533,139 @@ async function sampleFootContact(instanceId,groundY){
     arrangementRevision:motionPlan.arrangement_revision,fps,startFrame,lastFrame,
     groundY,samples,point:'PMX 左つま先 / 右つま先（足裏の代理点）'};
 }
+function contactReadout(){
+  const row=activeFkRow(Number(contactFirst.value)),instance=(motionPlan?.instances||[]).find(i=>i.id===(choose.value||selectedId));
+  const first=Number(contactFirst.value),end=Number(contactEnd.value);
+  contactContext.textContent=`${instance?.asset?.name||instance?.name||'実PMXを選択'} / ${row?.name||'指定位置のVMDを確認'} / ${projectFps} fps / ${first}–${end}F (${(first/projectFps).toFixed(3)}–${(end/projectFps).toFixed(3)}秒)・終了Fを含まない`;
+}
+function removeFloorMarker(){
+  if(!floorMarker)return;
+  floorMarker.removeFromParent();floorMarker.geometry.dispose();floorMarker.material.dispose();floorMarker=null;
+  viewport?.invalidate();
+}
+function showContactFloor(target,layer){
+  removeFloorMarker();if(captureMode||!viewport||!target)return;
+  const THREE=target.libs.THREE,size=layer?.report?.legLength||1;
+  floorMarker=new THREE.GridHelper(size*2,10,0x73d6ff,0x47778e);
+  const position=target.object.getWorldPosition(new THREE.Vector3());
+  const y=Number(footGround.value);if(!Number.isFinite(y))return;
+  floorMarker.position.set(position.x,y,position.z);
+  floorMarker.name='接地補正の床Y（操作用）';
+  viewport.scene.add(floorMarker);viewport.invalidate();
+}
+function clearContact(message='未作成',restore=true){
+  contactEpoch++;contactCandidate=null;contactPreviewLayer=null;
+  contactStatus.textContent=message;contactReportText.textContent='';removeFloorMarker();
+  for(const button of [contactBefore,contactAfter,contactSave,contactDiscard])button.disabled=true;
+  if(restore){applyAllMotionEdits();if(opened)seekScene(Number(seekInput.value)||currentSeek());}
+}
+async function createContact(){
+  if(contactBusy)throw Error('接地補正を計算中です');
+  clearContact('計算中');contactReadout();
+  const first=Number(contactFirst.value),end=Number(contactEnd.value),floor=Number(footGround.value),side=contactSide.value;
+  for(const [input,label,integer] of [[contactFirst,'開始F',true],[contactEnd,'終了F',true],[footGround,'床Y',false]]){
+    input.removeAttribute('aria-invalid');
+    if(input.value.trim()===''||!Number.isFinite(Number(input.value))||(integer&&!Number.isInteger(Number(input.value)))){
+      input.setAttribute('aria-invalid','true');const error=Error(label+'を'+(integer?'整数':'数値')+'で入力してください');error.field=input;throw error;
+    }
+  }
+  const row=activeFkRow(first),instanceId=choose.value||selectedId,target=controller?.getLoaded(instanceId);
+  if(!row||!target)throw Error('指定位置に割り当て済みの実PMX/VMDを読み込んでください');
+  if(previewFk||previewArm||morphPreview||vrmPreview)throw Error('他の一時補正を保存または破棄してください');
+  if(motionEdits?.issues?.length||fkLayersFor(row).some(l=>l.solo))throw Error('保存済み補正の不一致、またはSoloを先に解決してください');
+  const limb=side==='左'?'left_leg':'right_leg';
+  if((motionEdits?.fk_ik_modes?.[instanceId]?.[limb]||'IK')!=='IK')throw Error('足をIKモードへ戻してから作成してください');
+  const id=project.value,token=nonce,epoch=contactEpoch,revision=motionEdits.revision;
+  const sceneRevision=sceneSnapshot.revision,arrangementRevision=motionPlan.arrangement_revision;
+  const inputSignature=JSON.stringify([first,end,floor,side]);
+  const originalTime=Number(seekInput.value)||currentSeek();
+  const assertCurrent=()=>{
+    if(!opened||nonce!==token||contactEpoch!==epoch||project.value!==id||controller?.getLoaded(instanceId)!==target||
+      (choose.value||selectedId)!==instanceId||motionEdits?.revision!==revision||sceneSnapshot?.revision!==sceneRevision||
+      motionPlan?.arrangement_revision!==arrangementRevision||previewFk||previewArm||morphPreview||
+      JSON.stringify([Number(contactFirst.value),Number(contactEnd.value),Number(footGround.value),contactSide.value])!==inputSignature||
+      window.BAIStudioMediaPreviewV68?.status?.()?.playing)
+      throw Error('作品・区間・補正・再生状態が変わりました。停止して候補を作り直してください');
+  };
+  contactBusy=true;contactMake.disabled=true;
+  try{
+    assertCurrent();
+    const expected=await request('/api/studio/v05/motion-edits/context?'+new URLSearchParams({id,instance_id:instanceId,clip_id:row.clip_id}));
+    assertCurrent();
+    if(!target.sourceHash||expected.model_sha256!==target.sourceHash||
+      expected.motion_sha256!==motionCoordinator.sourceHash(row.clip_id)||expected.revision!==revision||
+      expected.scene_revision!==sceneRevision||expected.arrangement_revision!==arrangementRevision||expected.fps!==projectFps)
+      throw Error('読み込み済み原本と保存データが一致しません。配置を再読み込みしてください');
+    const identity=Object.fromEntries(['instance_id','clip_id','model_asset_id','motion_asset_id','model_sha256',
+      'motion_sha256','fps','start','duration'].map(k=>[k,expected[k]]));
+    const evaluate=seconds=>{seekScene(seconds);if(timelineIssue)throw Error(timelineIssue);};
+    const result=await buildContactCandidate({THREE:target.libs.THREE,mesh:target.object,side,first,end,floor,fps:projectFps,
+      identity,evaluate,assertCurrent,setLayer(layer){contactPreviewLayer=layer;applyAllMotionEdits();},
+      yieldFrame:()=>new Promise(resolve=>requestAnimationFrame(resolve))});
+    assertCurrent();
+    contactCandidate={...result,expected,row,id,token,epoch,assertCurrent,target};
+    contactStatus.textContent='候補・未保存（候補を表示中）';contactAfter.setAttribute('aria-pressed','true');contactBefore.setAttribute('aria-pressed','false');
+    const r=result.report,n=value=>value.toFixed(6);
+    contactReportText.textContent=`完全接地 ${r.interiorFrames}F / 許容 ${n(r.tolerance)} シーン単位\n`+
+      `足裏の高さ: ${n(r.beforeHeight)} → ${n(r.maxHeight)}\n滑り: ${n(r.beforeSlide)} → ${n(r.maxSlide)}\n`+
+      `IK残差: ${n(r.maxIkResidual)} / 対象外の最大変化: ${n(r.maxOtherChange)}\n`+
+      `脚長: ${n(r.legLength)} / 最大補正: ${n(r.maxCorrection)} / 足の実頂点: ${r.vertexCount}`;
+    for(const button of [contactBefore,contactAfter,contactSave,contactDiscard])button.disabled=false;
+    showContactFloor(target,result);
+    return {contact:result.contact,report:result.report,state:'候補・未保存'};
+  }catch(error){
+    clearContact('拒否: '+String(error.message||error)+' 床高・区間を確認するか、リグの手動IKで調整してください。',false);
+    throw error;
+  }finally{
+    contactBusy=false;contactMake.disabled=false;
+    if(opened&&nonce===token&&project.value===id&&controller?.getLoaded(instanceId)===target){
+      applyAllMotionEdits();
+      const compareTime=contactCandidate&&(originalTime*projectFps<first+Math.ceil(projectFps*.1)||
+        originalTime*projectFps>end-Math.ceil(projectFps*.1))?(first+Math.ceil(projectFps*.1))/projectFps:originalTime;
+      seekScene(compareTime);
+    }
+  }
+}
+function compareContact(candidate){
+  if(!contactCandidate)throw Error('補正候補を先に作成してください');
+  contactCandidate.assertCurrent();contactPreviewLayer=candidate?contactCandidate.layer:null;
+  applyAllMotionEdits();seekScene(Number(seekInput.value)||currentSeek());
+  contactBefore.setAttribute('aria-pressed',String(!candidate));contactAfter.setAttribute('aria-pressed',String(candidate));
+  contactStatus.textContent='候補・未保存（'+(candidate?'候補':'補正前')+'を表示中）';
+}
+async function saveContact(){
+  if(!contactCandidate||contactBusy)throw Error('保存できる補正候補がありません');
+  const candidate=contactCandidate;candidate.assertCurrent();contactSave.disabled=true;
+  try{
+    const response=await fetch('/api/studio/v05/motion-edits',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({project_id:candidate.id,revision:candidate.expected.revision,action:'contact-set',
+        instance_id:candidate.layer.instance_id,clip_id:candidate.layer.clip_id,
+        expected:candidate.expected,contact:candidate.contact,keys:candidate.layer.keys})});
+    const data=await response.json();if(!response.ok)throw Error(data.error||`HTTP ${response.status}`);
+    if(opened&&nonce===candidate.token&&project.value===candidate.id){
+      clearContact('保存済み',false);motionEdits=data;applyAllMotionEdits();seekScene(Number(seekInput.value)||currentSeek());redrawFkControls();
+      contactMake.focus();
+      window.dispatchEvent(new CustomEvent('bai:v106-fk-saved',{detail:{projectId:candidate.id,revision:data.revision}}));
+    }
+    return data;
+  }catch(error){clearContact('拒否: '+String(error.message||error));contactStatus.focus();throw error;}
+}
+contactHere.addEventListener('click',()=>{
+  clearContact();contactFirst.value=String(Math.max(0,Math.round((Number(seekInput.value)||currentSeek())*projectFps)));
+  contactEnd.value=String(Number(contactFirst.value)+Math.round(projectFps));contactReadout();
+});
+for(const input of [contactFirst,contactEnd,footGround,contactSide])input.addEventListener('input',()=>{
+  clearContact();contactReadout();if(footControls.open)showContactFloor(controller?.getLoaded(choose.value||selectedId));
+});
+contactMake.addEventListener('click',()=>createContact().catch(error=>{
+  if(!contactStatus.textContent.startsWith('拒否:'))contactStatus.textContent='拒否: '+String(error.message||error);
+  (error.field||contactStatus).focus();
+}));
+contactBefore.addEventListener('click',()=>{try{compareContact(false);}catch(error){clearContact('拒否: '+error.message);}});
+contactAfter.addEventListener('click',()=>{try{compareContact(true);}catch(error){clearContact('拒否: '+error.message);}});
+contactSave.addEventListener('click',()=>saveContact().catch(()=>{}));
+contactDiscard.addEventListener('click',()=>{clearContact();contactMake.focus();});
+footControls.addEventListener('toggle',()=>{contactReadout();if(!footControls.open)removeFloorMarker();else if(contactCandidate)showContactFloor(contactCandidate.target,contactCandidate);});
 function seekSourceMorphs(seconds){
   // Source motion only: every PMX starts from zero morphs, then the assigned clip.
   for(const instance of sceneSnapshot?.instances||[]){
@@ -1584,7 +1773,7 @@ async function setup(){
   // v61: common XYZ inspector acts on actual scene instance roots.
   // Persist only through the existing revisioned v57 scene API.
   if(!captureMode)spatialEditor=createSpatialEditor({
-    panel,viewport,controller,project,
+    panel:controlStack,viewport,controller,project,
     getSceneData:()=>sceneSnapshot,
     async saveTransform(instanceId,transform){
       const id=project?.value;
@@ -1649,6 +1838,7 @@ async function setup(){
   });
 }
 async function reload(){
+  clearContact('未作成',false);
   if(!opened)return;
   morphMapNonce++;morphMaps=null;
   clearMorphAnalysis();
@@ -1738,6 +1928,7 @@ async function open(options={}){
   panel.hidden=!controlsVisible;panel.style.display=controlsVisible?'flex':'none';
 }
 function close(){
+  clearContact('未作成',false);
   nonce++;opened=false;controlsVisible=false;reloadReady=false;
   morphMapNonce++;morphMaps=null;
   clearMorphAnalysis();
@@ -2453,6 +2644,22 @@ window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
   sampleFootContact,
+  async contactCreate({side,start_frame,end_frame,ground_y}){
+    if(captureMode||contactBusy)throw Error('操作用の停止したプレビューで作成してください');
+    clearContact();contactSide.value=side;contactFirst.value=String(start_frame);
+    contactEnd.value=String(end_frame);footGround.value=String(ground_y);footControls.open=true;
+    return createContact();
+  },
+  contactCompare:compareContact,contactSave:saveContact,
+  contactDiscard(){clearContact();contactMake.focus();return {state:'未作成'};},
+  contactState(){return {state:contactStatus.textContent,report:contactCandidate?.report||null};},
+  contactProbe(instanceId,side){
+    const target=controller?.getLoaded(instanceId);
+    if(!target)throw Error('実PMXを読み込んでください');
+    const rig=contactRig(target.libs.THREE,target.object,side),s=rig.sample();
+    return {sole:s.sole.toArray(),ankle:s.ankle.toArray(),target:s.target.toArray(),legLength:rig.leg,
+      tolerance:rig.tolerance,morphs:s.morphs,vertexCount:rig.vertexCount};
+  },
   status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,composite,controlsVisible,ready:reloadReady,
     rendererReady:Boolean(viewport),renderer:viewport?.rendererName||null,
     timelineModels:(sceneSnapshot?.timeline_models||[]).map(row=>({...row,loaded:Boolean(controller?.getLoaded(row.instance_id)),visible:Boolean(controller?.getLoaded(row.instance_id)?.root?.visible)})),
@@ -2646,6 +2853,19 @@ if(document.modelContext?.registerTool){
      readOnly:true,inputSchema:{type:'object',properties:{project_id:{type:'string'}},
        required:['project_id'],additionalProperties:false},
      async execute({project_id}){return request('/api/studio/v05/motion-edits?id='+encodeURIComponent(project_id));}},
+    {name:'bai_studio_pmx_contact_candidate',description:'Create/compare/save/discard a target-PMX foot contact candidate in the stopped local 3D browser. Measures real weighted sole vertices and all interval frames; never recovers the unknown source skeleton.',
+     inputSchema:{type:'object',properties:{project_id:{type:'string'},instance_id:{type:'string'},
+       action:{type:'string',enum:['create','before','after','save','discard']},side:{type:'string',enum:['左','右']},
+       start_frame:{type:'integer'},end_frame:{type:'integer'},ground_y:{type:'number'}},
+       required:['project_id','instance_id','action'],additionalProperties:false},
+     async execute(input){
+       if(captureMode||!opened||project?.value!==input.project_id||(choose.value||selectedId)!==input.instance_id)
+         throw Error('同じ作品・対象モデルの停止した3Dプレビューを開いてください');
+       if(input.action==='create')return window.BAIStudioMultiScenePreview.contactCreate(input);
+       if(input.action==='save')return saveContact();
+       if(input.action==='discard')return window.BAIStudioMultiScenePreview.contactDiscard();
+       compareContact(input.action==='after');return window.BAIStudioMultiScenePreview.contactState();
+     }},
     {name:'bai_studio_pmx_fk_edits_mutate',description:'Save/remove/move a PMX correction key in a selected layer, create/update/delete correction layers, edit limb mode, or undo/redo with revision.',
      inputSchema:{type:'object',properties:{project_id:{type:'string'},revision:{type:'integer'},
        action:{type:'string',enum:['set','arm-set','remove','move','layer-create','layer-update','layer-delete','mode-set','undo','redo']},instance_id:{type:'string'},clip_id:{type:'string'},

@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "requirement_ids": [
+    "MOTION-011",
+    "MOTION-012",
+    "MOTION-010",
+    "RENDER-006"
+  ],
+  "issues": [
+    39,
+    63
+  ],
+  "branch": "codex/target-model-contact-fit-20261113",
+  "status": "partial_verified",
+  "scope": "元モデル不明VMDの対象PMXによる2秒以内の区間接地補正",
+  "tests": {
+    "windows_python": {
+      "status": "PASS",
+      "passed": 26
+    },
+    "ubuntu_python": {
+      "status": "PASS",
+      "passed": 26
+    },
+    "node_rig": {
+      "status": "PASS",
+      "passed": 2
+    },
+    "typecheck": "PASS",
+    "generated_models_contact_save_history_mp4_mcp": "PASS",
+    "real_pmx_vmd_gpu_contact_source_preservation": "PASS",
+    "width_1024_keyboard_focus": "PASS",
+    "timeline_effects_regression": "PASS",
+    "synthetic_accessory_physics_regression": "PASS",
+    "legacy_fk_regression": "PASS"
+  },
+  "review": {
+    "C1-input-order": "PASS",
+    "C1-diagnostic-wording": "PASS",
+    "C2-lock-order": "PASS",
+    "C2-independent-protected-points": "PASS",
+    "C3-save-focus": "PASS",
+    "C3-rejection-focus": "PASS",
+    "judge": "限定採用。機能全体の完成ではない"
+  },
+  "not_tested": [
+    "全PMX/VMD/特殊ウェイト",
+    "元体格復元/全身適合/一般の歩幅編集",
+    "タイムライン物理ON",
+    "Linuxブラウザー/GPU",
+    "別名VMDのMMD再現",
+    "スクリーンリーダー",
+    "順3全体"
+  ],
+  "evidence_policy": "実素材画像・原本hash・実制作識別子は非公開ローカルのみ。公開画像は生成fixtureのみ。",
+  "model_usage": "高性能: 原因調査・設計・実装・検証。UI3視点は既存独立担当。",
+  "test_attempt_notes": "最初の5件一括は既存FK試験の旧UI選択で失敗。現行UIに合わせた選択後、接続拒否1件を含む試行は未合格として保持し、FKと実接地を再実行して2件PASS。他の接地/タイムライン/物理は個別PASS。一括成功と読み替えない。"
+}

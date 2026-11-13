@@ -145,7 +145,8 @@
       return true;
     }
     function dispose(){if(closed)return;clear();closed=true;notify();}
-    return {reconcile,seek,setCorrectionLayers,clear,dispose,status};
+    function sourceHash(clipId){return players.get(clipId)?.player.sourceHash||null;}
+    return {reconcile,seek,setCorrectionLayers,clear,dispose,status,sourceHash};
   }
   return {createCoordinator,activeAt};
 });
