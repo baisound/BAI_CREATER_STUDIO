@@ -557,7 +557,7 @@
       "phase_e_wp": "CAM-019/CAM-015・RENDER-001/006、#238",
       "planned_in": "CAM-019-B1",
       "status": "partial_verified",
-      "commit": "codex/blender-camera-import-20261113（同じコードコミットのWORK_STATE/history・PRへ紐付け）",
+      "commit": "54a5ec9 / PR #311 / main 6983469612cff945d259a863947a941c7c7f0223 / qa/blender-camera-main-sync-20261113.json",
       "tests": "2026-11-13 CAM-019-B1：追加アドオン不要の.blend/評価済みJSONを別名候補として取込み、同じ作品で比較・明示採用、カメラ行/保存復元/Undo・共通時計/MP4へ限定接続。実Blender5.2.2 Windows/Ubuntuの親・制約・ロール・センサーFit・シフト/透視/平行・カット、30/29.97相当→作品60fps、撮影比率/非正方ピクセルを代表検証。Windows実Chrome/RTX4070SUPER、7時刻NDCと60F MP4の目印を実Blender画像と照合。DOFは値保持/未適用了承、パノラマ等は拒否。CinemaOperator実アドオンとCAM-019全体は未完。docs/v05/BLENDER_CAMERA_IMPORT_B1_20261113_JA.md Python Windows/Ubuntu各64成功・型成功。最終ブラウザー回帰はB1記録を参照。",
       "unverified": "Linuxブラウザー/GPU/StudioのMP4、全Blender版/全制約/全ドライバー、長尺・任意実制作.blend、DOF再現/パノラマ、カメラ分割、CinemaOperator登録/起動/Bake/往復。順3全体は未完"
     },
