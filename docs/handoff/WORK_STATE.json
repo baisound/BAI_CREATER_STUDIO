@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T09:53:21+09:00",
+  "updated_at": "2026-11-13T10:11:18+09:00",
   "updated_by": "codex",
-  "branch": "codex/timeline-scene-runtime-20261113",
-  "head_at_update": "b0ba58d",
+  "branch": "codex/target-model-contact-fit-20261113",
+  "head_at_update": "0a5e011",
   "current": {
-    "task": "タイムライン3D連動と追加の素材別体格補正・髪/アクセサリーの伸び修正",
-    "status": "done",
-    "step": "3D連動の代表検証と台帳同期まで完了。追加報告のGLB動作+PMX物理ONの伸びを隔離再現し、素材ごとの元骨格/体格調整を調査。検証前のmain統合は保留。Blender CAM-019-B1を統合/同期直後の次へ保持。",
+    "task": "MOTION-011/012：元モデル不明のVMDを対象PMXの足裏とIKで区間補正する",
+    "status": "in_progress",
+    "step": "PR308/main/8765/制作画面同期済み。3視点批評済みのTARGET_MODEL_CONTACT_FIT設計に従い、原本hash付き読込、対象/区間/床を確認した接地補正候補、原子的な保存/Undo/両MCPとMP4検証を実装。Blender CAM-019-B1の差込みは現制作補正の次へ保持。",
     "design_doc": "docs/v05/TIMELINE_SCENE_LINK_20261113_JA.md"
   },
   "next_steps": [
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T10:11:18+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "0a5e011",
+      "text": "MOTION-011/012：元モデル不明のVMDを対象PMXの足裏とIKで区間補正する: PR308/main/8765/制作画面同期済み。3視点批評済みのTARGET_MODEL_CONTACT_FIT設計に従い、原本hash付き読込、対象/区間/床を確認した接地補正候補、原子的な保存/Undo/両MCPとMP4検証を実装。Blender CAM-019-B1の差込みは現制作補正の次へ保持。"
+    },
     {
       "at": "2026-11-13T09:53:21+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "14cc3db",
       "text": "Creator Studio UI監査と視覚的な修正案: Owner指定の3スキルを導入し、実画面に番号を付けた現状/提案と監査JSONを作る。UI実装は変更しない"
-    },
-    {
-      "at": "2026-11-13T00:46:57+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f62a74c",
-      "text": "順3 G3-F1 終了条件と残件の正本整理: Owner指定の基本動画経路をA〜E証拠へ対応付け、既知未達/未検証/順6・7依存/低優先を明記する"
     }
   ]
 }
