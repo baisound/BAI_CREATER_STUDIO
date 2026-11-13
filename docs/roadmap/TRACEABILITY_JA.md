@@ -203,3 +203,10 @@ CAM-019-B1 / Issue #238：2026-11-13 CAM-019-B1：追加アドオン不要の.bl
 
 
 CAM-019 / Issue #238：2026-11-13 CAM-019本体連携：CinemaOperator0.7.183のZIP静的検査/版別登録・静的GLBの別名Blenderコピー・ローカル明示起動・実アドオンBake/snapshot返却をB1比較/採用・MP4へ接続。Windows/Ubuntu Python各79、関連Node6、型、Win可視UI50mm操作と実60F MP4、Ubuntu実Blender往復を限定検証。被写体変更/古い条件は拒否。PMX/VRM/FBX・割当動作/表情等の橋渡し、一般アドオン互換/DOF/Linuxブラウザー・MP4/CAM-019全体は未完。docs/v05/CINEMAOPERATOR_BRIDGE_20261113_JA.md
+
+
+## CAM-019のPMX・動作シーン連携（2026-11-14）
+
+2026-11-14 CAM-019：PMX/VMDの動き・表情/口をStudio評価済み形状コピーへ固定し、実CinemaOperator BakeからB1比較/採用/60F MP4へ接続。Windows/Ubuntu Python各82、Windows関連Node7+最終cache1/Ubuntu cache E2E1、型成功。実PMXのGUI50mm/Bake/採用/60F MP4も確認。PMX二次物理/FBX/全VRM等/材質完全一致/長尺/全GUI/CAM-019全体・順3全体は未完。docs/v05/CINEMAOPERATOR_ANIMATED_SCENE_20261114_JA.md
+
+[操作・実装範囲・試験](../v05/CINEMAOPERATOR_ANIMATED_SCENE_20261114_JA.md)。モデル/動き/表情は撮影用形状として固定し、カメラだけを戻す。タイムラインの二次物理やFBX/全形式網羅は残件。元素材/完成動画を保持し、順3全体は完了にしない。

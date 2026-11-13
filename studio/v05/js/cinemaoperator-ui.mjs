@@ -7,12 +7,12 @@ panel.innerHTML=`<h3>CinemaOperatorで撮影する</h3>
  <div id="co-inspected" hidden><label for="co-inner">登録するインストール用ZIP</label><select id="co-inner"></select><p id="co-inspect-info"></p><button id="co-register" type="button">この版を登録</button></div>
  <label for="co-addon">登録済みアドオン</label><select id="co-addon"></select><p id="co-support"></p>
  <details><summary>版・権利の詳細</summary><p id="co-license"></p><code id="co-hash"></code><button id="co-remove" type="button">参照のない版を登録解除</button></details>
- <h4>Blenderへ渡す作品</h4><p id="co-project"></p><p>静的GLBに対応。PMX・動きなど未対応の構成は準備時に表示します。音声・画像・動画はStudio側で合成します。</p>
+ <h4>Blenderへ渡す作品</h4><p id="co-project"></p><p>PMX・GLB・VRMの動き・表情・口を撮影用コピーへ固定します。Blenderではカメラを編集し、カメラだけをStudioへ戻します。音声・画像・動画はStudio側で合成します。</p>
  <div class="co-range"><label>開始F<input id="co-start" type="number" min="0" step="1" value="0"></label><label>終了F（含む）<input id="co-end" type="number" min="0" step="1" value="59"></label></div>
- <button id="co-prepare" type="button">別名の作業コピーを準備</button>
+ <details><summary>撮影コピーの対応範囲</summary><p>骨の編集はできません。形状はタイムラインと同じ評価結果です。タイムライン未対応の二次物理は含みません。撮影用テクスチャは最大4096pxです。トゥーン・輪郭線・照明はBlenderとStudioで異なり、Studio出力は元の素材を使います。</p><p>0.1〜120秒・形状512MiB以内。容量や時間を超えたら終了Fを短くし、頂点100万・メッシュ256個を超えたら対象モデルを減らして準備してください。</p></details><button id="co-prepare" type="button">別名の作業コピーを準備</button><p id="co-progress" role="status"></p>
  <label for="co-session">作業コピー・再開</label><select id="co-session"></select><p id="co-session-info"></p>
  <label><input id="co-ack" type="checkbox">この登録版のPythonコードをBlenderで実行する</label>
- <button id="co-open" type="button">Blenderで編集</button>
+ <button id="co-open" type="button">Blenderで撮影を編集</button>
  <p>BlenderのStudioタブからCinemaOperatorを開き、撮影を編集 → Bake Camera to Keyframes →「現在のBakeを候補へ送る」。現在の画面を別名保存します。</p>
  <button id="co-return" type="button">送信済みBakeを受け取る</button>
  <button id="co-reload" type="button">登録版・作業コピーを再読込</button>
@@ -51,7 +51,7 @@ async function reload(keepSession=$('session').value,keepAddon=$('addon').value)
 async function run(action){
  if(busy)return;const trigger=document.activeElement;busy=true;update();let focus=null;
  try{focus=await action();}catch(error){$('status').textContent=String(error.message||error);focus=error.field||$('status');}
- finally{busy=false;update();(focus||trigger)?.focus();}
+ finally{$('progress').textContent='';panel.removeAttribute('aria-busy');busy=false;update();(focus||trigger)?.focus();}
 }
 function frames(){
  const result=[];for(const name of ['start','end']){const input=$(name),value=Number(input.value);input.removeAttribute('aria-invalid');if(input.value.trim()===''||!Number.isInteger(value)||value<0){input.setAttribute('aria-invalid','true');const e=Error('開始F・終了Fは0以上の整数にしてください');e.field=input;throw e;}result.push(value);}return result;
@@ -66,8 +66,9 @@ $('inner').addEventListener('change',()=>{$('inspect-info').textContent=choices.
 $('register').addEventListener('click',()=>void run(async()=>{const added=await request('/register?'+new URLSearchParams({member:$('inner').value}),sourceFile);await reload('',added.id);$('inspected').hidden=true;sourceFile=null;$('file').value='';$('status').textContent=added.supported?'登録しました。作品と区間を確認し、作業コピーを準備してください。':added.reason;return added.supported?$('start'):$('status');}));
 $('prepare').addEventListener('click',()=>void run(async()=>{
  const [start_frame,end_frame]=frames(),pid=project.value;$('status').textContent='別名のBlender作業コピーを準備中…';
+ $('progress').textContent='形状を準備中… モデルの量と区間に応じて数分かかります。';panel.setAttribute('aria-busy','true');
  const result=await request('/prepare',{project_id:pid,addon_id:$('addon').value,start_frame,end_frame});if(pid!==project.value)return;
- await reload(result.id);$('ack').checked=false;$('status').textContent=`準備済み：作品F ${result.start_frame}–${result.end_frame}。Blenderで編集する版を確認してください。`;return $('ack');
+ await reload(result.id);$('ack').checked=false;$('status').textContent=`準備済み：作品F ${result.start_frame}–${result.end_frame}。Blenderで撮影する版を確認してください。`;return $('ack');
 }));
 $('session').addEventListener('change',()=>{const s=selectedSession();if(s){$('start').value=String(s.start_frame);$('end').value=String(s.end_frame);$('addon').value=s.addon_id;}$('ack').checked=false;update();});
 for(const el of [$('start'),$('end'),$('addon')])el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{$('session').value='';$('ack').checked=false;update();});

@@ -83,3 +83,10 @@ CinemaOperatorのPythonコードは `bpy`、`VIEW_3D` の領域、マウスの�
 
 - 添付配布セットの `START_HERE.txt`、`LICENSING.txt`、内側の `cinema_operator/__init__.py`、`bake.py`、`sequencer.py`（上記SHA-256に固定）。素材本体はGitへ追加しない。
 - [Blender 5.2 LTSのアドオンZIP導入手順](https://docs.blender.org/manual/en/5.2/editors/preferences/extensions.html)、[Blender Python APIの画面コンテキスト制約](https://docs.blender.org/api/5.0/info_gotchas_operators.html)、[Blenderの別プロセス実行](https://docs.blender.org/api/5.1/info_tips_and_tricks.html)。
+
+
+## CAM-019のPMX・動作シーン連携（2026-11-14）
+
+2026-11-14 CAM-019：PMX/VMDの動き・表情/口をStudio評価済み形状コピーへ固定し、実CinemaOperator BakeからB1比較/採用/60F MP4へ接続。Windows/Ubuntu Python各82、Windows関連Node7+最終cache1/Ubuntu cache E2E1、型成功。実PMXのGUI50mm/Bake/採用/60F MP4も確認。PMX二次物理/FBX/全VRM等/材質完全一致/長尺/全GUI/CAM-019全体・順3全体は未完。docs/v05/CINEMAOPERATOR_ANIMATED_SCENE_20261114_JA.md
+
+[操作・実装範囲・試験](../v05/CINEMAOPERATOR_ANIMATED_SCENE_20261114_JA.md)。モデル/動き/表情は撮影用形状として固定し、カメラだけを戻す。タイムラインの二次物理やFBX/全形式網羅は残件。元素材/完成動画を保持し、順3全体は完了にしない。

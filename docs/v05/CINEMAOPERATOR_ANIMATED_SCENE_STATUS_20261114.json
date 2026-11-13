@@ -1,0 +1,115 @@
+{
+  "requirement": "CAM-019",
+  "issue": 238,
+  "date": "2026-11-14",
+  "status": "partial_verified",
+  "scope": "PMX motion/face/lip evaluated shooting copy -> native CinemaOperator Bake -> camera adoption/MP4",
+  "implementation_commit": "pending",
+  "tests": {
+    "python_windows": {
+      "passed": 82,
+      "failed": 0,
+      "skipped": 0
+    },
+    "python_ubuntu": {
+      "passed": 82,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node_windows_related": {
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node_windows_final_cache": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node_ubuntu_cache_e2e": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "typecheck": "PASS",
+    "actual_pmx_windows_gui_bake_adoption_mp4_60f": "PASS",
+    "generated_vertex_absolute_frame_and_visible_blender_delta_lt_1e_6": "PASS",
+    "source_dependency_and_cache_material_tamper_refusal": "PASS"
+  },
+  "entrypoints": {
+    "manual_ui": "PASS",
+    "standard_mcp_prepare_import": "PASS",
+    "native_webmcp_prepare_import": "PASS",
+    "mcp_open": "local_action_required"
+  },
+  "findings": [
+    {
+      "id": "COA-001",
+      "priority": "P2",
+      "target": "cinemaoperator-ui.mjs",
+      "evidence": "read-only shooting copy could be mistaken for rig editing",
+      "change": "camera-only return copy and shooting button label",
+      "verification": "PASS"
+    },
+    {
+      "id": "COA-002",
+      "priority": "P2",
+      "target": "cinemaoperator-ui.mjs",
+      "evidence": "long scene preparation",
+      "change": "near-button role=status and distinct recovery for size vs vertices",
+      "verification": "PASS"
+    },
+    {
+      "id": "COA-003",
+      "priority": "P2",
+      "target": "cinemaoperator_cached_subjects.py",
+      "evidence": "NodeTree action influence and mute affect material evaluation",
+      "change": "hash action state and node mute; real Blender negative tests",
+      "verification": "PASS"
+    },
+    {
+      "id": "COA-004",
+      "priority": "P2",
+      "target": "geometry capture worker",
+      "evidence": "MDD-only budget missed JSON/textures; per-material UV duplication on real PMX",
+      "change": "all cache artifacts in 512MiB; shared UV/hash textures; max4096 shooting textures",
+      "verification": "PASS"
+    }
+  ],
+  "reviews": {
+    "first_action": "limited_PASS",
+    "workflow": "limited_PASS",
+    "visual": "limited_PASS",
+    "root_judge": "PASS within recorded scope"
+  },
+  "limits": {
+    "seconds": [
+      0.1,
+      120
+    ],
+    "cache_bytes": 536870912,
+    "vertices": 1000000,
+    "meshes": 256,
+    "shooting_texture_long_edge": 4096,
+    "copy_is_editable_rig": false,
+    "return": "camera_only",
+    "physics": "current timeline evaluator has physics:false; no secondary physics claim"
+  },
+  "not_tested": [
+    "FBX",
+    "PMX secondary physics in timeline",
+    "all VRM/GLB and parent combinations",
+    "all shaders and alpha/wrap behavior",
+    "120s maximum stress",
+    "Linux native GUI/hardware GPU/actual PMX",
+    "all Tab, screen reader, 200% zoom",
+    "Blender5.1 and all drivers",
+    "general addons/other versions/DOF",
+    "CAM-019 and sequence3 completion"
+  ],
+  "screenshots": {
+    "implemented": "studio/v05/reviews/cinemaoperator-20261114/pmx-flow-marked.png",
+    "public_only_generated": true
+  },
+  "models": "high-capability investigation/implementation; three review perspectives reused"
+}

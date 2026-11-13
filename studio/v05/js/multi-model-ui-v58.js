@@ -1,3 +1,4 @@
+import {evaluatedGeometry} from './cinemaoperator-geometry.mjs';
 import {createSpatialEditor} from './spatial-ui-v61.js';
 import {createPmxBonePicker} from './pmx-bone-picker-v110.js';
 import {createPmxFkRotate} from './pmx-fk-rotate-v111.js';
@@ -2843,6 +2844,11 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     if(!viewport.importedCameraActive&&viewport.camera.isOrthographicCamera){const h=viewport.camera.top-viewport.camera.bottom;viewport.camera.left=-h*width/height/2;viewport.camera.right=h*width/height/2;viewport.camera.updateProjectionMatrix();}
     viewport.renderNow();
     return viewport.renderer.domElement.toDataURL('image/png');
+  },
+  captureGeometry(frame,fps,topology=false){
+    // Exactly the MP4 evaluation path: motion, face/voice overlays and saved corrections.
+    window.BAIStudioMultiScenePreview.captureFrame(frame,fps,16,16);
+    return evaluatedGeometry(sceneSnapshot.instances,id=>controller.getLoaded(id),{topology});
   },
   frameProbe(instanceId){
     const target=controller?.getLoaded(instanceId);
