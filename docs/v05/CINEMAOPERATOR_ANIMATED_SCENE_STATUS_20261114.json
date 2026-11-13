@@ -4,7 +4,7 @@
   "date": "2026-11-14",
   "status": "partial_verified",
   "scope": "PMX motion/face/lip evaluated shooting copy -> native CinemaOperator Bake -> camera adoption/MP4",
-  "implementation_commit": "edbe1eef33559367bad872309673be889c40146b",
+  "implementation_commit": "29055c06e48144bfe03787d9b216c6d22e2b5fc1",
   "tests": {
     "python_windows": {
       "passed": 83,
@@ -24,12 +24,14 @@
     "node_windows_final_cache": {
       "passed": 1,
       "failed": 0,
-      "skipped": 0
+      "skipped": 0,
+      "final_dependency_guard": "PASS"
     },
     "node_ubuntu_cache_e2e": {
       "passed": 1,
       "failed": 0,
-      "skipped": 0
+      "skipped": 0,
+      "final_dependency_guard": "PASS"
     },
     "typecheck": "PASS",
     "actual_pmx_windows_gui_bake_adoption_mp4_60f": "PASS",
@@ -112,5 +114,10 @@
     "public_only_generated": true
   },
   "models": "high-capability investigation/implementation; three review perspectives reused",
-  "pull_request": 316
+  "pull_request": 316,
+  "implementation_commits": [
+    "edbe1eef33559367bad872309673be889c40146b",
+    "29055c06e48144bfe03787d9b216c6d22e2b5fc1"
+  ],
+  "implementation_merge": "a27545bd85c2e484cec77e538b9e3b520a9eec9e"
 }

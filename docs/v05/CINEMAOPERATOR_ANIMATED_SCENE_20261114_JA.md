@@ -51,3 +51,5 @@ NOT TESTED/未対応：タイムラインで未有効のPMX二次物理、FBX、
 台帳確認：153件のID順序/重複なし、CAM-019のJSON/CSV内容一致、他要件不変。既存mainにはdetail欄のJSON/CSV不一致12件があり、この変更では対象外として保持した。
 
 実装コミット：`edbe1eef33559367bad872309673be889c40146b`、[PR #316](https://github.com/baisound/BAI_CREATER_STUDIO/pull/316)。最終レビューでproject所有の口候補VMD等も依存集合へ追加し、設定JSONが同じでも候補本体が変更された場合の拒否を検査。
+
+統合：PR #316、最終依存保護コミット`29055c0`、main `a27545bd85c2e484cec77e538b9e3b520a9eec9e`。同期の確認は`qa/cinemaoperator-animated-integration-20261114.json`。ローカルの実行情報と実データの保護記録はOwner確認フォルダーに保存し、公開記録には含めない。
