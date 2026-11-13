@@ -1,0 +1,25 @@
+{
+  "requirement_count": 153,
+  "unique_ids": true,
+  "csv_json_id_order_equal": true,
+  "unrelated_rows_unchanged": true,
+  "blender_next": "CAM-019-B1 / #238",
+  "blender_implementation": "not_started",
+  "code_base": "ba0d74c; held scene 7ee8669 + main a6e1b95",
+  "tests": {
+    "windows_python": 66,
+    "ubuntu_python": 66,
+    "regression_browser_pass": 7,
+    "regression_browser_optional_skip": 1,
+    "real_face_supplement_pass": 1,
+    "integrated_scene_pass": 1,
+    "real_head_and_dance_pass": 2,
+    "typecheck": "passed"
+  },
+  "unverified": [
+    "Linux browser/GPU",
+    "all formats / VMD / full long moving-camera sequence",
+    "physics / DOF / rail / shift",
+    "screen reader / 200% zoom"
+  ]
+}

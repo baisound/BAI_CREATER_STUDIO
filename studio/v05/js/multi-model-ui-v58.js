@@ -34,7 +34,7 @@ const tr=(key)=>locale[key]||({
   legacyUnits:'（旧の大きさ）',legacyUnitsHint:'旧画面と同じ大きさで置いています（旧保存の取込で置いたもの）'
 })[key]||key;
 const section=document.getElementById('v57-scene-instances');
-let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,reloadReady=false,nonce=0,selectedId='';
+let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,controlsVisible=false,reloadReady=false,nonce=0,selectedId='';
 let unitsById=new Map();
 let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,lipAdoptions=null,projectFps=60,previewFk=null,previewArm=null,activePole=null,activeArm=null;
 let vmdCandidate=null,candidateValidation=null,candidateReport=null;
@@ -60,7 +60,7 @@ const modeBtn=document.createElement('button');modeBtn.type='button';modeBtn.tex
 const closeBtn=document.createElement('button');closeBtn.textContent=tr('close');
 const progress=document.createElement('span');progress.setAttribute('role','status');progress.style.cssText='color:#c8d9ea';
 const cameraStatus=document.createElement('small');cameraStatus.setAttribute('role','status');
-const clipSelect=document.createElement('select');clipSelect.setAttribute('aria-label','モーション');
+const clipSelect=document.createElement('select');clipSelect.setAttribute('aria-label','動き・表情・口のクリップ');
 const targetSelect=document.createElement('select');targetSelect.setAttribute('aria-label','適用するモデル');
 const assignBtn=document.createElement('button');assignBtn.type='button';
 const seekInput=document.createElement('input');seekInput.type='number';seekInput.min='0';seekInput.step='0.03333';seekInput.value='0';seekInput.style.width='75px';
@@ -345,7 +345,7 @@ function mountComposite(){
   // so the saved camera frames the preview exactly like the MP4 capture.
   canvasParent.className='v68frame';
   canvasParent.style.cssText='min-height:0;background:transparent;border:0;overflow:hidden;z-index:2';
-  panel.style.cssText='position:absolute;top:8px;right:8px;left:auto;bottom:auto;z-index:3;width:min(320px,38%);max-height:82%;overflow:auto;background:#172231ee;border:1px solid #6584a0;border-radius:9px;padding:8px;box-shadow:0 8px 28px #0009;display:flex;flex-direction:column;gap:5px';
+  panel.style.cssText='position:absolute;top:8px;right:8px;left:auto;bottom:auto;z-index:3;width:min(320px,calc(100% - 16px));max-height:82%;overflow:auto;background:#172231ee;border:1px solid #6584a0;border-radius:9px;padding:8px;box-shadow:0 8px 28px #0009;display:flex;flex-direction:column;gap:5px';
   return true;
 }
 function unmountComposite(){
@@ -359,7 +359,7 @@ function unmountComposite(){
 function setBoneEditPanel(enabled,context){
   if(!composite)return;
   if(!enabled){
-    panel.style.width='min(320px,38%)';panel.style.maxHeight='82%';
+    panel.style.width='min(320px,calc(100% - 16px))';panel.style.maxHeight='82%';
     panel.style.left='auto';panel.style.right='8px';return;
   }
   const bone=context?.bone,THREE=context?.target?.libs?.THREE;
@@ -385,7 +385,8 @@ function updateStatus(s,issues=[]){
   choose.replaceChildren(new Option(tr('choose'),''));
   for(const id of s.ids){
     const legacy=unitsById.get(id)===LEGACY_UNITS;
-    const option=new Option(id+(legacy?tr('legacyUnits'):''),id);
+    const instance=sceneSnapshot?.instances?.find(row=>row.id===id);
+    const option=new Option((instance?.name||instance?.asset?.name||id)+(legacy?tr('legacyUnits'):''),id);
     if(legacy)option.title=tr('legacyUnitsHint');
     choose.add(option);
   }
@@ -426,7 +427,9 @@ async function loadInstanceMotion({row,target}){
 function redrawMotionControls(){
   const oldClip=clipSelect.value,oldInstance=targetSelect.value;
   clipSelect.replaceChildren(new Option(tr('chooseMotion'),''));
-  for(const row of bindingRows())clipSelect.add(new Option(row.name+' ['+row.status+']',row.clip_id));
+  const trackNames={motion:'動き',expression:'表情',lip:'口'};
+  const states={ready:'割当済み',unassigned:'未割当',unready:'要確認',overlap:'重複'};
+  for(const row of bindingRows())clipSelect.add(new Option(`${trackNames[row.track]||'動き'}：${row.name} / ${row.start}秒〜 [${states[row.status]||row.status}]`,row.clip_id));
   if((bindingRows()).some(r=>r.clip_id===oldClip))clipSelect.value=oldClip;
   else if(clipSelect.options.length>1)clipSelect.selectedIndex=1;
   const selected=(bindingRows()).find(r=>r.clip_id===clipSelect.value);
@@ -1343,18 +1346,31 @@ async function writeFk(action,key=null,row=null,extra={}){
   window.dispatchEvent(new CustomEvent('bai:v106-fk-saved',{detail:{projectId:id,revision:data.revision}}));
   return data;
 }
-let fallbackCamera=null,lastCameraClip=null;
+let fallbackCamera=null,lastCameraClip=null,timelineIssue=null;
 const cameraSamplers=new Map();
 const activeClip=(row,seconds)=>seconds>=row.start&&seconds<Math.round((row.start+row.duration)*10000)/10000;
 const bindingRows=()=>[...(motionPlan?.rows||[]),...(sceneSnapshot?.timeline_effects||[]).filter(row=>row.track!=='camera')];
+function timelineProblems(){
+  const problems=new Map((sceneSnapshot?.timeline_effects||[]).filter(row=>row.status!=='ready').map(row=>[row.clip_id,{clip_id:row.clip_id,name:row.name,reason:row.reason||row.status}]));
+  const reasons={unassigned:'対象モデルを割り当ててください',missing_instance:'割当先モデルがありません。モデルを配置し直すか再割当してください',motion_unavailable:'動きの登録素材を読み込めません',model_unavailable:'対象モデルの登録素材を読み込めません',unsupported_combination:'このモデルと動きの組合せには対応していません',overlapping_motion:'同じモデルの動きが重なっています',model_not_loaded:'対象モデルを読み込めません',model_changed_during_load:'モデルが変更されました。配置を再読み込みしてください',motion_load_failed:'動きを読み込めません'};
+  for(const issue of motionCoordinator?.status().issues||[]){const row=motionPlan?.rows?.find(row=>row.clip_id===issue.clipId);if(row)problems.set(row.clip_id,{clip_id:row.clip_id,name:row.name,reason:issue.message||reasons[issue.reason]||issue.reason});}
+  return [...problems.values()];
+}
 function applyTimelineCamera(seconds){
   const rows=(sceneSnapshot?.timeline_effects||[]).filter(row=>row.track==='camera'&&activeClip(row,seconds));
   if(!rows.length){if(lastCameraClip&&fallbackCamera)viewport.applyCameraPose(fallbackCamera);lastCameraClip=null;return;}
-  if(rows.length!==1||rows[0].status!=='ready')throw Error(rows[0]?.reason||'カメラの配置が重複しています');
-  const row=rows[0];let sampler=cameraSamplers.get(row.clip_id);
-  if(!sampler){sampler=window.BAIVmdLocal.createSampler(row.camera_track);cameraSamplers.set(row.clip_id,sampler);}
-  const pose=sampler.preview(Math.max(0,(seconds-row.start)*30)),scale=row.world_scale;
-  viewport.applyCameraPose({...pose,position:pose.position.map(n=>n*scale),target:pose.target.map(n=>n*scale)});lastCameraClip=row.clip_id;
+  if(rows.length!==1||rows[0].status!=='ready'){
+    if(lastCameraClip&&fallbackCamera)viewport.applyCameraPose(fallbackCamera);
+    lastCameraClip=null;throw Error(rows[0]?.reason||'カメラの配置が重複しています');
+  }
+  if(!lastCameraClip)fallbackCamera={...viewport.getCameraPose(),up:viewport.camera.up.toArray(),perspective:viewport.camera.isOrthographicCamera?1:0};
+  const row=rows[0];
+  try{
+    let sampler=cameraSamplers.get(row.clip_id);
+    if(!sampler){sampler=window.BAIVmdLocal.createSampler(row.camera_track);cameraSamplers.set(row.clip_id,sampler);}
+    const pose=sampler.preview(Math.max(0,(seconds-row.start)*30)),scale=row.world_scale;
+    viewport.applyCameraPose({...pose,position:pose.position.map(n=>n*scale),target:pose.target.map(n=>n*scale)});lastCameraClip=row.clip_id;
+  }catch(error){if(fallbackCamera)viewport.applyCameraPose(fallbackCamera);lastCameraClip=null;throw error;}
 }
 function applyTimelineMorphs(seconds){
   const missing=[];
@@ -1376,6 +1392,7 @@ function applyTimelineVisibility(seconds){
 }
 function seekScene(seconds){
   if(!opened||!motionCoordinator)return;
+  timelineIssue=null;
   restoreVrmPreview();
   if(morphPreview){
     morphPreview=null;mapRestoreButton.disabled=true;
@@ -1387,13 +1404,16 @@ function seekScene(seconds){
       if(target?.format==='PMX')resetMorphs(target.object);
     }
     applyTimelineVisibility(seconds);
-    applyTimelineCamera(seconds);
+    const problems=[];
+    try{applyTimelineCamera(seconds);}catch(error){problems.push(String(error.message||error));}
     const result=motionCoordinator.seek(seconds);
-    if(result?.errors?.length)motionStatus.textContent=result.errors.map(x=>String(x.error?.message||x.error)).join('; ');
-    const missing=applySavedFace(seconds);
-    if(missing.length)motionStatus.textContent='未読込の表情モーフ: '+missing.join(', ');
+    if(result?.errors?.length)problems.push(...result.errors.map(x=>String(x.error?.message||x.error)));
+    try{const missing=applySavedFace(seconds);if(missing.length)problems.push('未読込の表情モーフ: '+missing.join(', '));}
+    catch(error){problems.push(String(error.message||error));}
+    timelineIssue=problems.join('; ')||null;
+    if(timelineIssue)motionStatus.textContent=timelineIssue;
     seekInput.value=String(seconds);
-  }catch(error){motionStatus.textContent=String(error.message||error);}
+  }catch(error){timelineIssue=String(error.message||error);motionStatus.textContent=timelineIssue;}
 }
 async function sampleFootContact(instanceId,groundY){
   if(!opened||!controller||!motionCoordinator||!sceneSnapshot||!motionPlan||
@@ -1639,7 +1659,7 @@ async function reload(){
   fkAdopt.disabled=true;
   fkCandidateLink.hidden=true;
   fkCandidateStatus.textContent='保存済み補正から候補を作成し、実PMXで全フレーム検査できます。';
-  const id=project?.value;cameraSamplers.clear();fallbackCamera=null;lastCameraClip=null;
+  const id=project?.value;cameraSamplers.clear();fallbackCamera=null;lastCameraClip=null;timelineIssue=null;
   if(!id){progress.textContent=tr('chooseProject');return;}
   const thisNonce=++nonce;
   reloadReady=false;
@@ -1671,7 +1691,6 @@ async function reload(){
     applyAllMotionEdits();
     updateStatus(controller.status(),[...(result.issues||[]),...(motionResult.issues||[])]);
     redrawMotionControls();
-    seekScene(currentSeek());
     redrawFaceControls();
     clearMorphAnalysis();
     clearVrmAnalysis();
@@ -1679,15 +1698,19 @@ async function reload(){
     if(thisNonce!==nonce||!opened||id!==project.value)return;
     setFkFrameFromSeek();
     for(const i of data.instances){const target=controller?.getLoaded(i.id);if(target?.root)target.root.visible=i.visible!==false;}
+    // Establish the outside-clip view before sampling a camera VMD. An active
+    // orthographic clip must not become the automatic fallback on reload.
+    viewport.setViewMode('perspective');
+    viewport.camera.up.set(0,1,0);
     viewport.fit?.();
     if(data.camera)viewport.applyCameraPose(data.camera);
-    fallbackCamera=viewport.getCameraPose();
+    fallbackCamera={...viewport.getCameraPose(),up:viewport.camera.up.toArray(),perspective:viewport.camera.isOrthographicCamera?1:0};
     cameraStatus.textContent=data.camera?'保存済みカメラを反映（視点変更後は再保存）':'カメラ未保存：自動構図で表示・出力';
     seekScene(currentSeek());
     saveCameraBtn.disabled=controller.status().loaded<1;
     viewport.invalidate?.();
-    if(composite)window.BAIStudioMediaPreviewV68?.sceneOverlay?.(true);
     reloadReady=true;
+    if(composite)window.BAIStudioMediaPreviewV68?.sceneOverlay?.(true);
     window.dispatchEvent(new CustomEvent('bai:v58-scene-reloaded',{detail:{projectId:id,loaded:controller.status().loaded}}));
   }catch(error){
     if(thisNonce===nonce&&opened){
@@ -1702,20 +1725,20 @@ async function reload(){
 async function open(options={}){
   const requestedComposite=Boolean(options?.composite);
   if(opened){
-    if(requestedComposite===composite){await reload();panel.style.display=options.compact?'none':'flex';panel.hidden=Boolean(options.compact);return;}
+    if(requestedComposite===composite){controlsVisible=!options.compact;await reload();panel.style.display=controlsVisible?'flex':'none';panel.hidden=!controlsVisible;return;}
     close();
   }
   // The legacy viewport owns a globally singleton Three.js host.
   // End it first; never overlap two GL contexts and two animation owners.
   window.BAIStudioScenePreview?.close();
-  opened=true;composite=requestedComposite&&mountComposite();
+  opened=true;controlsVisible=!options.compact;composite=requestedComposite&&mountComposite();
   modeBtn.textContent=composite?'単独画面で表示':'同じ画面に重ねる';
   panel.hidden=false;panel.style.display='flex';
   await reload();
-  if(options.compact){panel.hidden=true;panel.style.display='none';}
+  panel.hidden=!controlsVisible;panel.style.display=controlsVisible?'flex':'none';
 }
 function close(){
-  nonce++;opened=false;reloadReady=false;
+  nonce++;opened=false;controlsVisible=false;reloadReady=false;
   morphMapNonce++;morphMaps=null;
   clearMorphAnalysis();
   clearVrmAnalysis();
@@ -2309,7 +2332,10 @@ window.addEventListener('bai:remote-playhead-updated',event=>{
   if(opened&&event.detail?.projectId===project?.value&&Number.isFinite(event.detail?.seconds))
     seekScene(event.detail.seconds);
 });
-closeBtn.addEventListener('click',close);
+closeBtn.addEventListener('click',()=>{
+  if(composite){controlsVisible=false;panel.hidden=true;panel.style.display='none';document.getElementById('v70sceneOpen')?.focus();}
+  else close();
+});
 modeBtn.addEventListener('click',()=>{open({composite:!composite}).catch(e=>progress.textContent=e.message);});
 footRun.addEventListener('click',async()=>{
   if(!footGround.value.trim()||!Number.isFinite(Number(footGround.value))){
@@ -2427,11 +2453,12 @@ window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
   sampleFootContact,
-  status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,composite,ready:reloadReady,
+  status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,composite,controlsVisible,ready:reloadReady,
     rendererReady:Boolean(viewport),renderer:viewport?.rendererName||null,
     timelineModels:(sceneSnapshot?.timeline_models||[]).map(row=>({...row,loaded:Boolean(controller?.getLoaded(row.instance_id)),visible:Boolean(controller?.getLoaded(row.instance_id)?.root?.visible)})),
-    timelineEffects:sceneSnapshot?.timeline_effects||[],activeCameraClip:lastCameraClip,
+    timelineEffects:sceneSnapshot?.timeline_effects||[],timelineProblems:timelineProblems(),activeCameraClip:lastCameraClip,timelineIssue,
     cameraSaved:Boolean(sceneSnapshot?.camera),camera:viewport?.getCameraPose?.()||null,
+    cameraProjection:viewport?.camera?.isOrthographicCamera?'orthographic':'perspective',cameraUp:viewport?.camera?.up?.toArray()||null,
     gizmo:rotateGizmo?.probe?.()||null,renderingVerified:false}),
   poseProbe(instanceId,boneNames){
     if(!opened||!controller||!Array.isArray(boneNames)||boneNames.length>16||

@@ -23,6 +23,8 @@
   function update() {
     const current = media()?.status();
     const active = scene()?.status();
+    const needsAttention=(active?.timelineProblems||[]).length;
+    button.textContent='3Dの操作・割当を開く'+(needsAttention?`（要確認 ${needsAttention}件）`:'');
     const same = Boolean(current?.ready && current.projectId === selectedProject() && active?.opened);
     for (const id of ['v70back', 'v70play', 'v70pause', 'v70stop', 'v70forward']) $(id).disabled = !same;
     if (!active?.opened) return;
@@ -38,6 +40,7 @@
       if (!active?.opened) throw Error('3Dシーンを開けません');
       if (!active.loaded) $('v70sceneStatus').textContent = '保存済み3Dモデルがありません。左の「複数モデル」で追加してください。';
       else update();
+      panel.querySelector('select[aria-label="動き・表情・口のクリップ"]')?.focus();
     } catch (error) { $('v68status').textContent = `3Dシーンを開けません: ${error.message}`; }
     finally { button.disabled = false; }
   });
@@ -47,7 +50,7 @@
     const hasModels=latest.clips?.some(c=>c.track==='model'&&c.category==='model');
     if(!hasModels){if(autoOpened){autoOpened=false;scene()?.close();}return;}
     autoOpened=true;
-    try{await scene()?.open({composite:true,compact:true});update();}catch(e){$('v68status').textContent='配置モデルを表示できません: '+e.message;}
+    try{await scene()?.open({composite:true,compact:!scene()?.status().controlsVisible});update();}catch(e){$('v68status').textContent='配置モデルを表示できません: '+e.message;}
   }
   window.addEventListener('bai:v05-arrangement-loaded',()=>void syncTimeline());
   if(latest)void syncTimeline();

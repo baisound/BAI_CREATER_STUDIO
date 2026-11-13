@@ -36,8 +36,18 @@
   const activeAt = (clip, seconds) => seconds >= clip.start && seconds < Math.round((clip.start + clip.duration)*10000)/10000;
   const pauseElement = element => { try { element.pause(); } catch (_) { /* detached */ } };
   function visibleIssues(){
-    const handled=new Set((window.BAIStudioMultiScenePreview?.status?.().timelineModels||[]).filter(row=>row.status==='ready'&&row.loaded).map(row=>row.clip_id));
-    return state.issues.filter(issue=>!state.clips.some(c=>handled.has(c.id)&&issue===`${c.name}: ${c.category}はこのプレビューに未接続`));
+    const scene=window.BAIStudioMultiScenePreview?.status?.();
+    if(!scene?.ready||scene.projectId!==state.projectId)return [...state.issues];
+    const handled=new Set((scene.timelineModels||[]).filter(row=>row.status==='ready'&&row.loaded).map(row=>row.clip_id));
+    for(const id of scene.motion?.loadedClips||[])handled.add(id);
+    for(const row of scene.timelineEffects||[])if(row.status==='ready'&&(row.track==='camera'||scene.ids?.includes(row.target_scene_instance_id)))handled.add(row.clip_id);
+    const issues=state.issues.filter(issue=>!state.clips.some(c=>handled.has(c.id)&&issue===`${c.name}: ${c.category}はこのプレビューに未接続`));
+    for(const row of scene.timelineProblems||[]){
+      const clip=state.clips.find(c=>c.id===row.clip_id),generic=clip&&`${clip.name}: ${clip.category}はこのプレビューに未接続`;
+      const index=issues.indexOf(generic);if(index>=0)issues[index]=`${row.name}: ${row.reason}`;
+    }
+    if(scene.timelineIssue)issues.unshift(scene.timelineIssue);
+    return issues;
   }
   function refreshStage() {
     stage.hidden = !state.clips.length && !state.sceneOverlay;
@@ -96,6 +106,7 @@
     if (state.ready) window.dispatchEvent(new CustomEvent('bai:v05-media-frame', {
       detail: { projectId: state.projectId, frame: state.frame, seconds, fps: state.fps, playing: state.playing },
     }));
+    if(state.ready&&state.sceneOverlay)refreshStage();
   }
   function pause(commit = false) {
     if (!state.playing) return;

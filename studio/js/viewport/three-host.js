@@ -270,7 +270,7 @@ export function createViewport(container, libs, o = {}) {
       return true;
     },
     getCameraPose() {
-      return { position: camera.position.toArray(), target: controls.target.toArray(), fov: camera.fov };
+      return { position: activeCamera.position.toArray(), target: controls.target.toArray(), fov: camera.fov };
     },
     applyCameraPose(pose) {
       const parallel=pose.perspective===1;

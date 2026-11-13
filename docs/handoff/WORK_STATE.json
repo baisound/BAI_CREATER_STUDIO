@@ -1,22 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T08:23:48+09:00",
+  "updated_at": "2026-11-13T09:05:46+09:00",
   "updated_by": "codex",
   "branch": "codex/timeline-scene-runtime-20261113",
-  "head_at_update": "7ee8669",
+  "head_at_update": "ba0d74c",
   "current": {
-    "task": "タイムラインのモデル・カメラ・動き・表情を同じ実プレビューと出力へ接続",
+    "task": "タイムライン3D連動と追加の素材別体格補正・髪/アクセサリーの伸び修正",
     "status": "in_progress",
-    "step": "保全ブランチに最新mainを統合し、モデル投影と未検証のカメラ/モーション/モーフ評価を実描画・保存復元・MP4で検証して完成へ進める",
+    "step": "3D連動の代表検証と台帳同期まで完了。追加報告のGLB動作+PMX物理ONの伸びを隔離再現し、素材ごとの元骨格/体格調整を調査。検証前のmain統合は保留。Blender CAM-019-B1を統合/同期直後の次へ保持。",
     "design_doc": "docs/v05/TIMELINE_SCENE_LINK_20261113_JA.md"
   },
   "next_steps": [
-    "保全中codex/timeline-scene-runtime-20261113（7ee8669）に最新mainを安全に統合し、モデル/カメラ/動き・表情の未検証部分を再開する。順3は未完",
-    "全VST/Linux固有GUI/長尺/物理出力の聴感は未検証として保持。OGVはOwner指定で低優先"
+    "差分/必要チェックを確認してPRをmainへ統合し、Owner main・8765・開いている制作画面を同期する。その直後の承認済み次タスクはCAM-019-B1（#238）"
   ],
   "unverified": [
-    "全VST/Linux固有GUI/長尺/物理出力の聴感/実SR。native画面のポータブルPNG保存は未達（CUAで実画面確認済み）",
-    "保全中の3D/カメラ/動き・表情、順3全体は未完"
+    "Linuxブラウザ/GPU、全形式/全VMD、長尺の動くカメラ/表情、物理/DOF/レール/シフト、200%拡大/スクリーンリーダー、順3全体。Blenderカメラ取込はロードマップ追加のみ・実装未着手。既存音声/長尺/全Undo等の未完は保持。"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -29,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T09:05:46+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "ba0d74c",
+      "text": "タイムライン3D連動と追加の素材別体格補正・髪/アクセサリーの伸び修正: 3D連動の代表検証と台帳同期まで完了。追加報告のGLB動作+PMX物理ONの伸びを隔離再現し、素材ごとの元骨格/体格調整を調査。検証前のmain統合は保留。Blender CAM-019-B1を統合/同期直後の次へ保持。"
+    },
+    {
+      "at": "2026-11-13T08:58:08+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "ba0d74c",
+      "text": "DATA-001/006・CAM-001/015・LIP-009・RENDER-006：配置モデル/動き/表情/口/カメラを同じ時計とMP4へ接続。Win/Ubuntu各66、実GPU/実PMX/実ダンスとカメラVMD、60Fと実3F、両MCPと3視点レビューを限定検証。CAM-019の既承認設計を復帰しBlenderカメラ取込B1を次へ差込む。"
+    },
     {
       "at": "2026-11-13T08:23:48+09:00",
       "by": "codex",
@@ -224,20 +236,6 @@
       "event": "done",
       "head": "32138db",
       "text": "PR290をmainへ統合。利用者main/codex-next/8765のPythonと既存Chrome書出し画面を同期し、515ファイル保持/配信一致を確認"
-    },
-    {
-      "at": "2026-11-13T00:36:39+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "f3d93d1",
-      "text": "保存制作状態・構図のmainと制作画面同期: PR290のPythonを8765へ読み込み、既存Chromeと原本保持を確認・記録"
-    },
-    {
-      "at": "2026-11-13T00:33:48+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9ff3726",
-      "text": "G3-E1の保存再読込/作品切替/静止カメラ/自動構図/半透明6条件を検証し、短い3D出力の末尾1F欠けと正常履歴の誤警告を修正。Win69/Ubuntu68、最終ブラウザー4成功"
     }
   ]
 }

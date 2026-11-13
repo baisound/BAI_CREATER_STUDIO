@@ -77,9 +77,9 @@ test('saved 3D scene and WAV share a frame clock; incompatible dance reports its
     }));
     browser = await server.launchBrowser();
     page = await server.newPage(browser);
-    await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.goto(`${server.base}/studio/v05/index.html`);await page.locator('#uiMainNav [data-workspace=edit]').click();
     await page.locator('#v06project').selectOption(id);
-    await page.locator('#nav [data-workspace="edit"]').click();
+    await page.locator('#uiMainNav [data-workspace="edit"]').click();
     await page.waitForFunction(() => window.BAIStudioMediaPreviewV68?.status().ready &&
       window.BAIStudioMediaPreviewV68?.status().projectId === document.querySelector('#v06project')?.value);
     await page.locator('#v70sceneOpen').click();
@@ -120,9 +120,9 @@ test('saved 3D scene and WAV share a frame clock; incompatible dance reports its
     await page.locator('#v70stop').click();
     await page.waitForFunction(() => window.BAIStudioMediaPreviewV68.status().frame === 0);
     assert.equal(Number(await page.locator('#v58-motion-seek').inputValue()), 0);
-    await page.reload();
+    await page.reload();await page.locator('#uiMainNav [data-workspace=edit]').click();
     await page.locator('#v06project').selectOption(id);
-    await page.locator('#nav [data-workspace="edit"]').click();
+    await page.locator('#uiMainNav [data-workspace="edit"]').click();
     await page.waitForFunction(() => window.BAIStudioMediaPreviewV68?.status().ready &&
       window.BAIStudioMediaPreviewV68?.status().projectId === document.querySelector('#v06project')?.value);
     await page.locator('#v70sceneOpen').click();

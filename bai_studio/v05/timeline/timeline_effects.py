@@ -30,7 +30,8 @@ def plan(data_root,scene,clips,assets):
                 native=decode_camera_track(raw[:50]+b'\0'*8+tail[:4+count*61])
                 if any(any(n>127 for n in key['interpolation']) or not 5<=key['fov']<=150 for key in native['keys']):raise ValueError('カメラの補間または画角が対応範囲外です')
                 row['camera_track']=native
-                row['world_scale']=.08 if any(i.get('asset',{}).get('format')=='PMX' for i in instances.values()) else 1
+                # VMD stores MMD units regardless of the formats sharing the scene.
+                row['world_scale']=.08
             else:
                 if not target:raise ValueError('対象モデルを割り当ててください')
                 if target.get('asset',{}).get('format')!='PMX':raise ValueError('表情VMDにはPMXが必要です')
@@ -45,9 +46,9 @@ def plan(data_root,scene,clips,assets):
             row['status']='unready';row['reason']=str(exc)
         rows.append(row)
     # Ambiguous camera ownership and same-morph overlays are explicit conflicts.
-    for i,a in enumerate(rows):
-        for b in rows[i+1:]:
-            if a['status']!='ready' or b['status']!='ready':continue
+    ready=[row for row in rows if row['status']=='ready']
+    for i,a in enumerate(ready):
+        for b in ready[i+1:]:
             if max(a['start'],b['start'])>=round(min(a['start']+a['duration'],b['start']+b['duration']),4):continue
             conflict=a['track']==b['track']=='camera'
             if a['track']!='camera' and b['track']!='camera' and a['target_scene_instance_id']==b['target_scene_instance_id']:

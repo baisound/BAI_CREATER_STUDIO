@@ -131,7 +131,7 @@ def classify(item):
         if kind in ('stage','prop'):return 'model'
         if kind in ('material','image'):return 'image'
         if kind in ('audio','video'):return kind
-    if 'camera' in kind or name.endswith('.vmd') and 'camera' in name:return 'camera'
+    if 'camera' in kind or name.endswith('.vmd') and ('camera' in name or 'カメラ' in name):return 'camera'
     if 'motion' in kind or name.endswith(('.vmd','.bvh')):return 'motion'
     if name.endswith(('.vrm','.glb','.gltf','.fbx','.pmx','.pmd')):return 'model'
     if name.endswith(('.mp3','.wav','.ogg','.flac','.m4a')):return 'audio'
