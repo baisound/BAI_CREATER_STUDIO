@@ -32,15 +32,15 @@ def _f(*values):
     return struct.pack('<' + 'f' * len(values), *values)
 
 
-def build_pmx():
+def build_pmx(physics=False):
     out = bytearray()
     # ヘッダー：署名・版・グローバル8項目（文字コード UTF-16LE=0、追加UV 0、各インデックスのサイズ 1）
     out += b'PMX ' + _f(2.0) + bytes([8, 0, 0, 1, 1, 1, 1, 1, 1])
     out += _text('最小テスト') + _text('minimal test') + _text('BAI 自動テスト用（生成物）') + _text('generated for tests')
     # 頂点：位置・法線・UV・変形 BDEF1（ボーン0）・エッジ倍率
     out += struct.pack('<i', len(VERTICES))
-    for pos, normal, uv in VERTICES:
-        out += _f(*pos, *normal, *uv) + bytes([0]) + struct.pack('<b', 0) + _f(1.0)
+    for index,(pos, normal, uv) in enumerate(VERTICES):
+        out += _f(*pos, *normal, *uv) + bytes([0]) + struct.pack('<b', 1 if physics and index==2 else 0) + _f(1.0)
     # 面：頂点インデックスの数（3）と、各インデックス（頂点は符号なし1バイト）
     out += struct.pack('<i', len(FACE)) + bytes(FACE)
     # テクスチャ
@@ -55,9 +55,11 @@ def build_pmx():
     out += bytes([1, 0])  # 共有トゥーン toon01
     out += _text('') + struct.pack('<i', len(FACE))
     # ボーン：名前・位置・親(-1)・変形階層・フラグ（回転可・表示・操作可、接続先は位置オフセット）・接続先
-    out += struct.pack('<i', 1)
+    out += struct.pack('<i', 2 if physics else 1)
     out += _text(BONE_NAME) + _text('center') + _f(0.0, 0.0, 0.0) + struct.pack('<b', -1)
     out += struct.pack('<i', 0) + struct.pack('<H', 0x0002 | 0x0008 | 0x0010) + _f(0.0, 1.0, 0.0)
+    if physics:
+        out += _text('髪1') + _text('hair') + _f(0,.5,0) + struct.pack('<b',0) + struct.pack('<iH',0,0x0002|0x0008|0x0010) + _f(.3,.5,0)
     # モーフ：名前・パネル（3=口）・種類（1=頂点）・オフセット数・（頂点・移動量）
     out += struct.pack('<i', 1)
     out += _text(MORPH_NAME) + _text('a') + bytes([3, 1]) + struct.pack('<i', 1) + bytes([2]) + _f(*MORPH_OFFSET)
@@ -66,7 +68,12 @@ def build_pmx():
     out += _text('Root') + _text('Root') + bytes([1]) + struct.pack('<i', 1) + bytes([0]) + struct.pack('<b', 0)
     out += _text('表情') + _text('Exp') + bytes([1]) + struct.pack('<i', 1) + bytes([1]) + struct.pack('<b', 0)
     # 剛体・ジョイント
-    out += struct.pack('<i', 0) + struct.pack('<i', 0)
+    if physics:
+        out += struct.pack('<i',2)
+        for index,pos,kind in [(0,(0,0,0),0),(1,(.3,.8,0),1)]:
+            out += _text('生成剛体'+str(index))+_text('body')+struct.pack('<bBH',index,0,0)+bytes([0])+_f(.1,.1,.1)+_f(*pos)+_f(0,0,.2 if index else 0)+_f(1,.2,.2,0,.5)+bytes([kind])
+        out += struct.pack('<i',1)+_text('生成ジョイント')+_text('joint')+bytes([0])+struct.pack('<bb',0,1)+_f(0,.5,0)+_f(0,0,0)+_f(0,0,0)+_f(0,0,0)+_f(-.5,-.5,-.5)+_f(.5,.5,.5)+_f(0,0,0)+_f(1,1,1)
+    else:out += struct.pack('<i', 0) + struct.pack('<i', 0)
     return bytes(out)
 
 

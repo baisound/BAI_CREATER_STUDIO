@@ -24,13 +24,14 @@ async function main(){
   await page.locator('#v06project').selectOption(m.project_id);
   await page.waitForFunction(()=>!!window.BAIStudioMultiScenePreview?.open);
   await page.evaluate(()=>window.BAIStudioMultiScenePreview.open({composite:true}));
+  const physicsFailure=await page.evaluate(()=>window.BAIStudioMultiScenePreview.status().physics);if(physicsFailure?.state==='failed'||physicsFailure?.state==='cancelled')throw Error('PMX物理: '+(physicsFailure.error||'準備を中止しました。')+' 3Dの操作・割当から再準備、または物理OFFで保存してください。');
   await page.waitForFunction(id=>{const s=window.BAIStudioMultiScenePreview.status();return s.ready&&s.loaded>0&&s.projectId===id;},m.project_id);
   const check=()=>page.evaluate(async m=>{
    const urls=['scene/instances?id=','arrangement?id=','scene/multi-motion-plan?id=','motion-edits?id=','pmx/morph-map?project_id=','vrm/expression-map?project_id=','lip/adoptions?project_id='];
    const values=await Promise.all(urls.map(async u=>{const r=await fetch('/api/studio/v05/'+u+encodeURIComponent(m.project_id),{cache:'no-store'});if(!r.ok)throw Error('Scene dependency read failed');return r.json();}));
    const [scene,arrangement,plan,edits]=values,s=window.BAIStudioMultiScenePreview.status();
    if(scene.revision!==m.scene_revision||arrangement.revision!==m.arrangement_revision||s.loaded!==scene.instances.length||s.timelineProblems.length||s.motion?.issues?.length||s.motion?.loadedClips?.length!==plan.ready_count||edits.issues?.some(i=>i.kind!=='baked_into_candidate'))throw Error('A saved model/motion/face/voice cannot be evaluated');
-   return {dependencies:values,renderer:s.renderer};
+   return {dependencies:values,renderer:s.renderer,physics:s.physics};
   },m);
   const before=await check(),rows=[],frameCount=m.end_frame-m.start_frame+1;
   let previous=null,total=0;const textures=new Map();
@@ -63,7 +64,7 @@ async function main(){
   for(const row of rows){row.sha256=sha(fs.readFileSync(path.join(folder,row.file)));for(const [index,material] of row.materials.entries()){
    if(material.map){const raw=Buffer.from(material.map.split(',')[1],'base64');if(raw.length>32*1024*1024)throw Error('テクスチャが大きすぎます。');const hash=sha(raw),filename=`texture-${hash}.png`;if(!textures.has(hash)){fs.writeFileSync(path.join(folder,filename),raw,{flag:'wx'});textures.set(hash,raw.length);}material.map=filename;material.map_sha256=hash;}
   }}
-  const geometry=JSON.stringify({schema:1,meshes:rows,frame_count:frameCount,fps:m.fps,renderer:before.renderer});
+  const geometry=JSON.stringify({schema:1,meshes:rows,frame_count:frameCount,fps:m.fps,renderer:before.renderer,physics:before.physics});
   if(Buffer.byteLength(geometry)+[...textures.values()].reduce((a,b)=>a+b,0)+rows.reduce((sum,row)=>sum+fs.statSync(path.join(folder,row.file)).size,0)>512*1024*1024)throw Error('形状コピーが512MiBを超えます。終了Fを短くして再準備してください。');
   fs.writeFileSync(path.join(folder,'geometry.json'),geometry,{flag:'wx'});
  }finally{for(const fd of handles)fs.closeSync(fd);await browser.close();}

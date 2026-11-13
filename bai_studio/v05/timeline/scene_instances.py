@@ -27,6 +27,12 @@ _UNSET = object()
 class SceneInstancesError(ValueError):
     pass
 
+def _physics_transform(value):
+    scale=value['scale'];rotation=value['rotation']
+    if max(scale)-min(scale)>1e-6 or abs(rotation[0])>1e-6 or abs(rotation[2])>1e-6:
+        raise SceneInstancesError('MMD物理はXYZが同じ倍率、配置のX/Z回転が0のモデルで使ってください')
+
+
 def _legacy(legacy_root, catalog, project_id):
     try:
         return read_legacy(legacy_root, catalog, project_id)
@@ -46,11 +52,11 @@ def _seed(project_id, legacy):
         })
     return {"schema": 1, "project_id": project_id, "revision": 0,
             "legacy_revision": legacy["revision"], "instances": items, "camera": None,
-            "face_keys": []}
+            "face_keys": [], "physics": {}}
 
 def _check_record(data, project_id):
     required = {"schema", "project_id", "revision", "legacy_revision", "instances"}
-    if not isinstance(data, dict) or not required <= set(data) or set(data) - required - {"camera", "face_keys", "face_history", "timeline_overrides"} \
+    if not isinstance(data, dict) or not required <= set(data) or set(data) - required - {"camera", "face_keys", "face_history", "timeline_overrides", "physics"} \
             or data["schema"] != 1 or data["project_id"] != project_id:
         raise SceneInstancesError("Invalid scene-instances file; original retained")
     if any(type(data[k]) is not int or data[k] < 0 for k in ("revision", "legacy_revision")):
@@ -88,6 +94,12 @@ def _check_record(data, project_id):
                 or type(value['visible']) is not bool or type(value['locked']) is not bool):
             raise SceneInstancesError("Invalid timeline override fields")
         _transform(value['transform']);ids.add(rid)
+    physics=data.get('physics',{})
+    if not isinstance(physics,dict) or len(physics)>1024:raise SceneInstancesError('Invalid saved physics')
+    for rid,setting in physics.items():
+        if (rid not in ids or not isinstance(setting,dict) or set(setting)!={'enabled','asset_id','solver'}
+            or type(setting['enabled']) is not bool or not isinstance(setting['asset_id'],str)
+            or setting['solver']!='mmd-fixed60-v1'):raise SceneInstancesError('Invalid saved physics setting')
     keys = data.get("face_keys", [])
     if not isinstance(keys, list) or len(keys) > 1024:
         raise SceneInstancesError("Invalid face keys; original retained")
@@ -195,7 +207,7 @@ def read(root, legacy_root, catalog, project_id, assets=None, *, include_timelin
               "face_history": data.get("face_history", {"undo": [], "redo": []}),
               "face_keys": [{**row, "track": row.get("track", "expression")}
                             for row in data.get("face_keys", [])],
-              "instances": [dict(row) for row in data["instances"]]}
+              "instances": [dict(row) for row in data["instances"]], "physics": copy.deepcopy(data.get("physics",{}))}
     if assets is not None:
         lookup = {row.get("id"): row for row in assets if isinstance(row, dict)}
         for row in result["instances"]:
@@ -212,14 +224,15 @@ def read(root, legacy_root, catalog, project_id, assets=None, *, include_timelin
 
 def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
            instance_id=None, asset_id=None, transform=None, visible=None, locked=None,
-           camera=_UNSET, face_key=_UNSET, morph_lookup=None, layout_root=None, units=None):
+           camera=_UNSET, face_key=_UNSET, morph_lookup=None, layout_root=None, units=None, physics_enabled=None):
     if type(revision) is not int or revision < 0:
         raise SceneInstancesError("Revision required")
     if action not in ("add", "update", "remove", "camera", "face-set", "face-remove", "face-move",
-                      "face-undo", "face-redo"):
+                      "face-undo", "face-redo", "physics"):
         raise SceneInstancesError("Unknown scene instance action")
     if units is not None and (action != "add" or units != UNITS_LEGACY):
         raise SceneInstancesError("Units can only be set to 'legacy' when adding")
+    if action!='physics' and physics_enabled is not None:raise SceneInstancesError('Physics is a separate scene action')
     with _LOCK:
         current = read(root, legacy_root, catalog, project_id,include_timeline=False)
         effective=read(root,legacy_root,catalog,project_id,assets)
@@ -227,7 +240,16 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
             raise SceneInstancesError("Revision conflict")
         rows = effective["instances"]
         history = current["face_history"]
-        if action in ("face-undo", "face-redo"):
+        if action=='physics':
+            if type(physics_enabled) is not bool or camera is not _UNSET or face_key is not _UNSET or any(x is not None for x in (asset_id,transform,visible,locked)):
+                raise SceneInstancesError('Physics action needs the target instance and enabled flag only')
+            row=next((x for x in rows if x['id']==instance_id),None)
+            source=next((x for x in assets if row and x.get('id')==row['asset_id']),None)
+            if not row or row['locked'] or physics_enabled and (not source or source.get('format')!='PMX' or not source.get('available')):
+                raise SceneInstancesError('未ロックの登録済みPMXを選んでください')
+            if physics_enabled:_physics_transform(row['transform'])
+            current.setdefault('physics',{})[instance_id]={'enabled':physics_enabled,'asset_id':row['asset_id'],'solver':'mmd-fixed60-v1'}
+        elif action in ("face-undo", "face-redo"):
             if face_key is not _UNSET or camera is not _UNSET or any(x is not None for x in
                 (instance_id, asset_id, transform, visible, locked)):
                 raise SceneInstancesError("Face history action requires only project and revision")
@@ -373,6 +395,7 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
                 if any(x is not None for x in (asset_id, transform, visible, locked)):
                     raise SceneInstancesError("Removal does not accept additional fields")
                 rows.remove(row)
+                current.get("physics",{}).pop(instance_id,None)
                 current["face_keys"] = [key for key in current["face_keys"]
                                         if key["instance_id"] != instance_id]
                 history = {"undo": [], "redo": []}
@@ -383,6 +406,7 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
                     raise SceneInstancesError("No scene instance changes provided")
                 if transform is not None:
                     row["transform"] = _transform(transform)
+                    if current.get("physics",{}).get(instance_id,{}).get("enabled"):_physics_transform(row["transform"])
                 if visible is not None:
                     if type(visible) is not bool: raise SceneInstancesError("Invalid visible flag")
                     row["visible"] = visible
@@ -398,7 +422,7 @@ def mutate(root, legacy_root, catalog, project_id, action, revision, assets,
                    for row in rows if not row.get('timeline_clip_id')]
         saved.update({"revision": revision + 1, "instances": persisted,
                       "camera": current["camera"], "face_keys": current["face_keys"],
-                      "face_history": history})
+                      "face_history": history, "physics": current.get("physics",{})})
         if overrides:saved['timeline_overrides']=overrides
         _check_record(saved,project_id)
         _atomic(Path(root) / (project_id + ".json"), saved)

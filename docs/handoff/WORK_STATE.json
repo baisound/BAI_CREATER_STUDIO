@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T05:46:04+09:00",
+  "updated_at": "2026-11-14T07:07:20+09:00",
   "updated_by": "codex",
-  "branch": "codex/cinemaoperator-animated-scene-20261114",
-  "head_at_update": "29055c0",
+  "branch": "codex/timeline-pmx-physics-20261114",
+  "head_at_update": "2d440a5",
   "current": {
-    "task": "CAM-019：PMX・動き・表情を含むCinemaOperatorシーン連携",
-    "status": "done",
-    "step": "Studioの評価済み形状を別名Blenderコピーへ渡す方式を調査し、同時刻・物理・表情とBake往復を実検証する",
-    "design_doc": "docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md"
+    "task": "MOTION-019/CAM-019：PMX物理のPR/main統合と制作画面同期",
+    "status": "in_progress",
+    "step": "全レビュー修正と両OS/実PMXの限定検証成功。PR差分・checkを確認してmainへ統合し利用環境を同期する。",
+    "design_doc": "docs/v05/TIMELINE_PMX_PHYSICS_20261114_JA.md"
   },
   "next_steps": [
-    "CAM-019の残件（PMXタイムライン二次物理・FBX・全VRM/GLB/親子/材質・長尺・Linux nativeGUI/実GPU等）と順3既存残件を保持。優先度は次のOwner指定に従う。"
+    "PRレビューとmain統合、8765と制作画面を同期"
   ],
   "unverified": [
-    "PMXタイムライン二次物理、FBX、全VRM/GLB/親子/材質の網羅、120秒実測、Linux nativeGUI/実GPU/実PMX、全Tab/SR/200%拡大、Blender5.1/別版/一般アドオン/DOF、CAM-019全体・順3全体。"
+    "全モデル物理品質・長尺上限・FBX/全材質・Linux実GPU/nativeGUI/実PMX・SR/200%/全Tab・別版/DOF・CAM-019/順3全体"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,41 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T07:07:20+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "2d440a5",
+      "text": "MOTION-019/CAM-019：PMX物理のPR/main統合と制作画面同期: 全レビュー修正と両OS/実PMXの限定検証成功。PR差分・checkを確認してmainへ統合し利用環境を同期する。"
+    },
+    {
+      "at": "2026-11-14T07:07:19+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2d440a5",
+      "text": "PMX物理をWindows/Ubuntu実Blender・CinemaOperator Bake/60F MP4、実PMX手動採用/MP4で限定検証。Win85/Ubuntu84+Win専用1skip、Node計算3/UI1/既存物理1、型成功。3視点の必須指摘を修正。"
+    },
+    {
+      "at": "2026-11-14T06:48:07+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "1b8c6a1",
+      "text": "MOTION-019/CAM-019：タイムラインPMX物理の通し検証とmain同期: 基本物理・静的再準備・保存通知再生成の回帰成功。実Blender/実PMX/両OS/UIレビューを確認する。"
+    },
+    {
+      "at": "2026-11-14T06:48:06+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "1b8c6a1",
+      "text": "MOTION-019/CAM-019：固定60Hz物理cache、PMX別保存/UI/両MCP/出力を実装。型/新Python1/Node計算3/実Ammo・逆seek・静的再準備・45F MP4 1成功。実Blender往復と両OS回帰は次段階。"
+    },
+    {
+      "at": "2026-11-14T06:22:43+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "015c4dc",
+      "text": "MOTION-019/CAM-019：タイムラインのPMX二次物理をプレビュー・撮影コピー・MP4へ接続: 既存MMD物理を同じ保存シーンと固定刻みキャッシュへ接続する設計・実装。非0開始/逆シーク/再読込/原本保持を検証する。"
+    },
     {
       "at": "2026-11-14T05:46:04+09:00",
       "by": "codex",
@@ -201,41 +236,6 @@
       "event": "start",
       "head": "3a53297",
       "text": "VST固有画面と再生連動メーター・ラウドネス: 別プロセスの固有GUIと安全な状態回収を接続し、共通時刻で各行/バス/マスターを計測表示"
-    },
-    {
-      "at": "2026-11-13T05:07:22+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "54e5930",
-      "text": "実行ミキサー連動54e5930、Chrome受け入れ5/5。検証ログの書式を整理、JSONへ最終合格と途中失敗を区別して保存"
-    },
-    {
-      "at": "2026-11-13T05:05:59+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "7030296",
-      "text": "AUDIO-002の実タイムライン行と共通時計を接続。Windows89+5subtests、Ubuntu87+2skip+5subtests、Chrome5試験と型検査。3視点の必須指摘を修正"
-    },
-    {
-      "at": "2026-11-13T04:35:51+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "9aba452",
-      "text": "ミキサーの実トラック・共通時計連動とモデル/カメラ/動き表情の配置接続: 安定行IDと保存済み名称/素材/ミュートを正本にしてミキサーへ接続し、処理・再生位置・出力を検証する。3D連動は続く段階として保持"
-    },
-    {
-      "at": "2026-11-13T04:32:57+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "e16ed9e",
-      "text": "実プレビュー外側72px/内側30pxへ圧縮し低画面の操作重なりを解消。内部保存到達・狭幅ナビ・モード維持・再生競合を対象2+回帰1と型検査で確認"
-    },
-    {
-      "at": "2026-11-13T04:15:57+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1f9e030",
-      "text": "モデル・カメラ・動き/表情の配置連動と実動作プレビューの高さ改善: 二重ヘッダー/ナビを埋込時だけ畳み実プレビューへ高さを戻す。既存機能の到達を保持し、続けて同一scene計画で配置連動を接続"
     }
   ]
 }

@@ -1946,3 +1946,8 @@ CAM-019 / Issue #238：2026-11-13 CAM-019本体連携：CinemaOperator0.7.183の
 2026-11-14 CAM-019：PMX/VMDの動き・表情/口をStudio評価済み形状コピーへ固定し、実CinemaOperator BakeからB1比較/採用/60F MP4へ接続。Windows/Ubuntu Python各83、Windows関連Node7+最終cache1/Ubuntu cache E2E1、型成功。実PMXのGUI50mm/Bake/採用/60F MP4も確認。PMX二次物理/FBX/全VRM等/材質完全一致/長尺/全GUI/CAM-019全体・順3全体は未完。docs/v05/CINEMAOPERATOR_ANIMATED_SCENE_20261114_JA.md
 
 [操作・実装範囲・試験](../v05/CINEMAOPERATOR_ANIMATED_SCENE_20261114_JA.md)。モデル/動き/表情は撮影用形状として固定し、カメラだけを戻す。タイムラインの二次物理やFBX/全形式網羅は残件。元素材/完成動画を保持し、順3全体は完了にしない。
+
+
+## 2026-11-14：タイムラインPMX物理
+
+2026-11-14 MOTION-019/CAM-019：PMX別に物理を保存し、作品先頭から固定60Hzで準備した同じ揺れを任意シーク・CinemaOperator形状コピー・MP4へ接続。既存作品OFFを保持。逆シーク/静的再準備/複数PMX/保存通知/取消・失敗OFF復帰・両MCP・45F MP4を確認。実Blender Bake/60F MP4はWindows/Ubuntu各1成功。Python Windows85成功/Ubuntu84成功・Windows専用1スキップ、Node計算3/実Ammo UI・45F MP4 1/アクセサリー回帰1・型成功。実PMXのnative Bake/手動採用/60F MP4も限定確認。最大600秒/合計128MiB、独立world、XYZ同倍率・X/Z配置回転0。全物理品質・全モデル・長尺/CAM-019全体は未完。docs/v05/TIMELINE_PMX_PHYSICS_20261114_JA.md

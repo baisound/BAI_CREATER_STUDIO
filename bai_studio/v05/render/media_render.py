@@ -761,7 +761,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                     stream.get("width") != width or stream.get("height") != height):
                 raise RenderError("3D可逆動画のフレーム数・透過形式が一致しません")
             job["scene_capture"] = {"frames": job["frame_count"], "renderer": manifest.get("renderer"),
-                                    "motion_clips": manifest.get("motion_clips"),
+                                    "motion_clips": manifest.get("motion_clips"), "physics": manifest.get("physics"),
                                     "motion_edits_revision": manifest["motion_edits_revision"],
                                     "pose_sample": manifest.get("pose_sample"),
                                     "manifest_sha256": _sha(manifest_path),

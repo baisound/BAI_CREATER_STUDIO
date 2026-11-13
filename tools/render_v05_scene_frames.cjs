@@ -57,6 +57,7 @@ async function main() {
     await page.locator('#v06project').selectOption(config.projectId);
     await page.waitForFunction(() => typeof window.BAIStudioMultiScenePreview?.open === 'function');
     await page.evaluate(() => window.BAIStudioMultiScenePreview.open({ composite: true }));
+  const physicsFailure=await page.evaluate(()=>window.BAIStudioMultiScenePreview.status().physics);if(physicsFailure?.state==='failed'||physicsFailure?.state==='cancelled')throw Error('PMX物理: '+(physicsFailure.error||'準備を中止しました。')+' 3Dの操作・割当から再準備、または物理OFFで保存してください。');
     await page.waitForFunction(id => {
       const scene = window.BAIStudioMultiScenePreview?.status?.();
       return scene?.opened && scene.ready && scene.composite && scene.projectId === id && scene.loaded > 0;
@@ -84,7 +85,7 @@ async function main() {
           status.motion?.loadedClips?.length !== motionPlan.ready_count ||
           status.motion?.projectId !== expected.projectId)
         throw Error('A saved 3D model or motion could not be loaded');
-      return { renderer: status.renderer, loaded: status.loaded,
+      return { renderer: status.renderer, loaded: status.loaded, physics: status.physics,
         motionEditsRevision: motionEdits.revision,
         sampleInstanceId: scene.instances.find(row => row.visible)?.id || null,
         motionClips: status.motion?.loadedClips?.length || 0 };
@@ -127,7 +128,7 @@ async function main() {
       motion_edits_revision: checked.motionEditsRevision,
       start_frame: config.startFrame, frame_count: config.frameCount,
       width: config.width, height: config.height, fps: config.fps,
-      renderer: checked.renderer, loaded: checked.loaded, motion_clips: checked.motionClips,
+      renderer: checked.renderer, loaded: checked.loaded, physics: checked.physics, motion_clips: checked.motionClips,
       frame_sha256: hashes, captured_bytes: totalBytes, pose_sample: poseSample };
     fs.writeFileSync(config.manifest, JSON.stringify(manifest), { flag: 'wx' });
 
