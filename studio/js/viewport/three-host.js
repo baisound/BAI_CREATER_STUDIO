@@ -155,7 +155,22 @@ export function createViewport(container, libs, o = {}) {
   let disposed = false;
   let raf = 0;
   /** @type {Set<() => void>} */ const invalidateListeners = new Set();
-  const draw = () => { raf = 0; if (disposed) return; controls.update(); renderer.render(scene, activeCamera); };
+  /** @type {any} */ let importedCamera=null;
+  let importedAspect=1,priorControlsEnabled=true;
+  const renderNow=()=>{
+    if(!importedCamera){renderer.render(scene,activeCamera);return;}
+    const size=renderer.getSize(new THREE.Vector2()),viewportBefore=renderer.getViewport(new THREE.Vector4());
+    const scissorBefore=renderer.getScissor(new THREE.Vector4()),testBefore=renderer.getScissorTest();
+    let w=size.x,h=size.y;
+    if(w/h>importedAspect)w=h*importedAspect;else h=w/importedAspect;
+    const x=(size.x-w)/2,y=(size.y-h)/2;
+    try{
+      renderer.setScissorTest(false);renderer.setViewport(0,0,size.x,size.y);renderer.clear();
+      renderer.setViewport(x,y,w,h);renderer.setScissor(x,y,w,h);renderer.setScissorTest(true);
+      renderer.render(scene,importedCamera);
+    }finally{renderer.setViewport(viewportBefore);renderer.setScissor(scissorBefore);renderer.setScissorTest(testBefore);}
+  };
+  const draw = () => { raf = 0; if (disposed) return; if(!importedCamera)controls.update();renderNow(); };
   const invalidate = () => {
     if (disposed) return;
     if (!raf) raf = requestAnimationFrame(draw);
@@ -212,7 +227,7 @@ export function createViewport(container, libs, o = {}) {
         controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN;
       }
       viewMode = mode;
-      api.camera = activeCamera;
+      api.camera = importedCamera||activeCamera;
       resize();
       controls.update();
       const helpText = navHelp.querySelector('span');
@@ -270,9 +285,49 @@ export function createViewport(container, libs, o = {}) {
       return true;
     },
     getCameraPose() {
+      if(importedCamera){
+        const direction=new THREE.Vector3(0,0,-1).applyQuaternion(importedCamera.quaternion);
+        return {position:importedCamera.position.toArray(),target:importedCamera.position.clone().add(direction).toArray(),
+          fov:importedCamera.fov||50};
+      }
       return { position: activeCamera.position.toArray(), target: controls.target.toArray(), fov: camera.fov };
     },
+    get importedCameraActive(){return Boolean(importedCamera);},
+    captureCameraState(){
+      return {perspective:camera.clone(),parallel:orthographic.clone(),viewMode,orthoHeight,
+        target:controls.target.clone(),perspectiveTarget:perspectiveTarget.clone(),enabled:controls.enabled};
+    },
+    restoreCameraState(saved){
+      api.clearImportedCamera();camera.copy(saved.perspective);orthographic.copy(saved.parallel);
+      viewMode=saved.viewMode;orthoHeight=saved.orthoHeight;
+      activeCamera=viewMode==='perspective'?camera:orthographic;api.camera=activeCamera;
+      controls.object=activeCamera;controls.target.copy(saved.target);perspectiveTarget.copy(saved.perspectiveTarget);
+      controls.enabled=saved.enabled;controls.enableRotate=viewMode==='perspective';
+      controls.mouseButtons.MIDDLE=viewMode==='perspective'?THREE.MOUSE.ROTATE:THREE.MOUSE.PAN;
+      resize();activeCamera.updateMatrixWorld(true);invalidate();
+    },
+    applyImportedCamera(pose){
+      if(!importedCamera)priorControlsEnabled=controls.enabled;
+      if(!importedCamera||(pose.type==='ORTHO')!==Boolean(importedCamera.isOrthographicCamera))
+        importedCamera=pose.type==='ORTHO'?new THREE.OrthographicCamera():new THREE.PerspectiveCamera();
+      importedAspect=pose.aspect;
+      importedCamera.matrix.fromArray(pose.world);importedCamera.matrixWorld.copy(importedCamera.matrix);
+      importedCamera.matrixWorldInverse.copy(importedCamera.matrixWorld).invert();
+      importedCamera.matrix.decompose(importedCamera.position,importedCamera.quaternion,importedCamera.scale);
+      importedCamera.up.set(0,1,0).applyQuaternion(importedCamera.quaternion);
+      importedCamera.matrixAutoUpdate=false;importedCamera.matrixWorldAutoUpdate=false;
+      importedCamera.near=pose.near;importedCamera.far=pose.far;
+      importedCamera.projectionMatrix.fromArray(pose.projection);
+      importedCamera.projectionMatrixInverse.copy(importedCamera.projectionMatrix).invert();
+      if(importedCamera.isPerspectiveCamera)importedCamera.fov=2*Math.atan(1/pose.projection[5])*180/Math.PI;
+      api.camera=importedCamera;controls.enabled=false;invalidate();
+    },
+    clearImportedCamera(){
+      if(!importedCamera)return;
+      importedCamera=null;api.camera=activeCamera;controls.enabled=priorControlsEnabled;invalidate();
+    },
     applyCameraPose(pose) {
+      api.clearImportedCamera();
       const parallel=pose.perspective===1;
       if(parallel){if(viewMode==='perspective')api.setViewMode('front');}
       else if(viewMode!=='perspective')api.setViewMode('perspective');
@@ -290,7 +345,7 @@ export function createViewport(container, libs, o = {}) {
       controls.update();
       invalidate();
     },
-    resize, invalidate,
+    resize, invalidate,renderNow,
     /** シーンが更新されたら補助ビューも再描画する。 @param {() => void} listener */
     onInvalidate(listener) { invalidateListeners.add(listener); return () => invalidateListeners.delete(listener); },
     /** 呼び出し側が現在の状態を書き込む（getState に出る）。 @param {Record<string, any>} patch */

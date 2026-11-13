@@ -92,7 +92,7 @@ test('同じタイムラインのPMX・動き・表情・口・カメラを半�
   await page.evaluate(()=>window.BAIStudioV05Arrangement.refreshArrangement());await page.waitForFunction(()=>window.BAIStudioMultiScenePreview.status().ready);assert.equal((await seek(30)).state.timelineIssue,null);
   report.cases.push('1024px割当パネル横はみ出しなし、Enterで閉じて入口へフォーカス復帰。重複カメラの具体的エラーと出力拒否、標準MCP Undoで回復');
   arranged=await post(s,'arrangement/clip/edit',{project_id:pid,clip_id:camera.id,revision:arranged.revision,action:'delete'});await place('mmd:vmd:zero-camera.vmd','camera',0,1.5);
-  await page.evaluate(()=>window.BAIStudioV05Arrangement.refreshArrangement());await page.waitForFunction(()=>window.BAIStudioMultiScenePreview.status().ready);await seek(0);const invalid=await seek(15);assert.equal(invalid.state.activeCameraClip,null);assert.match(invalid.state.timelineIssue,/Unsupported VMD camera pose/);assert.ok(invalid.state.camera.position.every((v,i)=>Math.abs(v-[0,.04,.64][i])<1e-9));
+  await page.evaluate(()=>window.BAIStudioV05Arrangement.refreshArrangement());await page.waitForFunction(()=>window.BAIStudioMultiScenePreview.status().ready);await seek(0);const invalid=await seek(15);assert.equal(invalid.state.activeCameraClip,null);assert.match(invalid.state.timelineIssue,/Unsupported VMD camera pose/);assert.ok(invalid.state.camera.position.every((v,i)=>Math.abs(v-[0,.04,.64][i])<1e-9),JSON.stringify(invalid.state.camera));
   assert.ok(invalid.pose.bones['センター'].position[1]>.2,'カメラ失敗でも有効な動きは評価する');
   await cap.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());await assert.rejects(()=>cap.evaluate(()=>window.BAIStudioMultiScenePreview.captureFrame(15,30,320,180)),/Unsupported VMD camera pose/);
   report.cases.push('動き/表情/口の未割当3件を通常画面と入口へ表示。途中で距離0になるVMD評価失敗でも旧フレームを残さず保存視点へ復帰し、出力キャプチャは拒否');

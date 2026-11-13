@@ -161,13 +161,14 @@ def _lane(lane,track,layout):
 def _source_window(category, source_start, duration, source_duration):
     if type(source_start) not in (int,float) or not math.isfinite(source_start) or source_start<0:
         raise ArrangementError('Invalid source start')
-    if category not in {'video','audio','music'}:
+    if category not in {'video','audio','music'} and not (category=='camera' and source_duration is not None):
         if source_start!=0:raise ArrangementError('Only timed media supports a source start')
         return
     if source_duration is not None:
         if type(source_duration) not in (int,float) or not math.isfinite(source_duration) or source_duration<=0:
             raise ArrangementError('Invalid source duration')
-        if source_start+duration>source_duration+0.02:raise ArrangementError('Clip exceeds source media duration')
+        tolerance=.0001 if category=='camera' else .02
+        if source_start+duration>source_duration+tolerance:raise ArrangementError('Clip exceeds source media duration')
 
 def place(root,catalog,project_id,asset_id,track,start,duration,revision,items,*,layout_root=None,lane=1,source_duration=None,source_has_audio=None,source_start=0):
     if track not in TRACKS:raise ArrangementError('Unsupported track')
@@ -236,7 +237,7 @@ def edit_clip(root,catalog,project_id,clip_id,revision,action,*,start=None,durat
         if action=='delete':data['clips'].remove(clip)
         else:
             clip.update(start=round(start,4),duration=round(duration,4),track=track,lane=clip.get('lane',1) if lane is None and track in {'image','video','audio','music'} and track==clip['track'] else (1 if lane is None else lane))
-            if clip.get('category') in {'video','audio','music'}:
+            if clip.get('category') in {'video','audio','music'} or clip.get('category')=='camera' and 'source_duration' in clip:
                 clip['source_start']=round(effective_source,4)
                 if effective_duration is not None:clip['source_duration']=round(effective_duration,4)
         _record_edit(data,history_before,action)

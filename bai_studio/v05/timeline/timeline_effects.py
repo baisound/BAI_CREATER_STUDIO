@@ -19,6 +19,17 @@ def plan(data_root,scene,clips,assets):
              'track':track,'start':clip['start'],'duration':clip['duration'],
              'target_scene_instance_id':clip.get('target_scene_instance_id'),'status':'ready'}
         try:
+            if track=='camera' and asset and asset.get('source')=='blender_camera':
+                from bai_studio.v05.timeline.blender_camera import get,validate,mapping,_project
+                native=get(root,asset['id'].split(':',1)[1]);fps=_project(root,scene['project_id'])
+                if native['sample_fps']!=fps:raise ValueError('作品FPSが変わりました。Blenderカメラを再取込みしてください')
+                offset=clip.get('source_start',0)
+                if type(offset) not in (int,float) or offset<0 or offset+clip['duration']>native['duration']+.0001:
+                    raise ValueError('Blenderカメラの元区間を超えています。長さを戻してください')
+                row.update(camera_track=native['track'],camera_format=native['track']['format'],
+                    source_sha256=native['sha256'],mapping=mapping(clip.get('blender_mapping',{'scale':native['unit_scale'],'offset':[0,0,0]})),source_start=offset)
+                rows.append(row)
+                continue
             if not asset or not asset.get('available') or str(asset.get('format','')).upper()!='VMD':raise ValueError('登録済みVMDが必要です')
             source=_source(asset,root/'library_assets',root/'studio_v05_asset_sources',root/'asset_inbox',root/'integrated_v02/assets')
             if source is None or source.stat().st_size>32*1024*1024:raise ValueError('VMDを読み込めません')

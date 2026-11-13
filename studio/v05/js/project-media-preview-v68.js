@@ -32,7 +32,9 @@
     if (asset.source === 'integrated' && asset.filename) return `/api/integrated-v02/asset/${encodeURIComponent(asset.filename)}`;
     return null;
   };
-  const clamp = frame => Math.max(0, Math.min(state.outFrame, Math.round(Number(frame) || 0)));
+  let comparisonWindow=null;
+  const outFrame=()=>Math.max(state.outFrame,comparisonWindow?.projectId===state.projectId?comparisonWindow.endFrame:0);
+  const clamp = frame => Math.max(0, Math.min(outFrame(), Math.round(Number(frame) || 0)));
   const activeAt = (clip, seconds) => seconds >= clip.start && seconds < Math.round((clip.start + clip.duration)*10000)/10000;
   const pauseElement = element => { try { element.pause(); } catch (_) { /* detached */ } };
   function visibleIssues(){
@@ -111,7 +113,7 @@
   function pause(commit = false) {
     if (!state.playing) return;
     const elapsed = (performance.now() - state.startTime) / 1000;
-    const current = Math.min(state.outFrame, state.startFrame + Math.floor(elapsed * state.fps));
+    const current = Math.min(outFrame(), state.startFrame + Math.floor(elapsed * state.fps));
     cancelAnimationFrame(state.raf);
     state.playing = false;
     $('v68play').disabled = !state.ready;
@@ -122,18 +124,18 @@
   }
   async function saveHead() {
     const id = state.projectId;
-    if (!id || !state.ready) return;
+    if (!id || !state.ready || comparisonWindow?.projectId===id) return;
     const saved = await window.BAIStudioV05Arrangement?.commitPreviewPlayhead(id, state.frame / state.fps);
     if (saved === false && id === state.projectId) message('再生位置を保存できません。タイムラインを再読込してください。');
   }
   function tick() {
     if (!state.playing) return;
     const frame = state.startFrame + Math.floor((performance.now() - state.startTime) * state.fps / 1000);
-    if (frame >= state.outFrame) {
+    if (frame >= outFrame()) {
       state.playing = false;
       $('v68play').disabled = !state.ready;
       $('v68pause').disabled = true;
-      setFrame(state.outFrame);
+      setFrame(outFrame());
       refreshStage();
       void saveHead();
       return;
@@ -153,7 +155,7 @@
     if (!state.ready || !state.audioSettingsReady || (!state.entries.some(entry => !entry.failed) && !(scene?.opened && scene.loaded > 0))) return;
     window.dispatchEvent(new CustomEvent('bai:v05-audio-focus',{detail:{owner:'timeline'}}));
     delete $('v68frame').dataset.dirty;
-    if (state.frame >= state.outFrame) setFrame(state.inFrame);
+    if (state.frame >= outFrame()) setFrame(state.inFrame);
     state.startFrame = state.frame;
     state.startTime = performance.now();
     state.playing = true;
@@ -172,6 +174,7 @@
     release();
     delete $('v68frame').dataset.dirty;
     state.projectId = projectId;
+    if(comparisonWindow?.projectId!==projectId)comparisonWindow=null;
     state.ready = false;
     state.layoutRevision = -1;
     state.audioMuted = [];
@@ -205,7 +208,7 @@
       // Render In/Out markers belong to export. Preview traverses the full saved arrangement.
       state.inFrame = 0;
       state.outFrame = range.final_frame;
-      $('v68frame').max = String(state.outFrame);
+      $('v68frame').max = String(outFrame());
       const byId = new Map(inventory.items.map(item => [item.id, item]));
       for (const clip of state.clips) {
         if (!supported.has(clip.category)) { state.issues.push(`${clip.name}: ${clip.category}はこのプレビューに未接続`); continue; }
@@ -334,10 +337,24 @@
   window.addEventListener('pagehide', () => { clearInterval(layoutTimer); ++state.generation; pause(); release(); }, { once: true });
   window.BAIStudioMediaPreviewV68 = Object.freeze({
     play, pause: () => pause(true), stop, seek,
+    comparisonRange(value){
+      pause();
+      if(value){
+        if(value.projectId!==state.projectId||!Number.isInteger(value.endFrame)||value.endFrame<0||value.endFrame>86400*state.fps)
+          throw Error('比較用の作品範囲が不正です');
+        comparisonWindow={projectId:state.projectId,endFrame:value.endFrame,
+          originalFrame:comparisonWindow?.projectId===state.projectId?comparisonWindow.originalFrame:state.frame};
+      }else{
+        const previous=comparisonWindow;comparisonWindow=null;
+        if(previous?.projectId===state.projectId)setFrame(previous.originalFrame);
+      }
+      $('v68frame').max=String(outFrame());
+    },
     refresh:()=>configure({projectId:state.projectId,clips:state.clips,keepHead:true}),
     sceneOverlay(active) { state.sceneOverlay = Boolean(active); refreshStage(); setFrame(state.frame); },
     status: () => ({ projectId: state.projectId, frame: state.frame, fps: state.fps,
       ready: state.ready, playing: state.playing, mediaCount: state.entries.length,
+      comparison:comparisonWindow?.projectId===state.projectId,outFrame:outFrame(),
       sceneOverlay: state.sceneOverlay, issues: visibleIssues(),
       mutedAudioTracks: [...state.audioMuted], audioLayoutRevision: state.layoutRevision,
       audioSettingsReady: state.audioSettingsReady }),

@@ -20,7 +20,7 @@
 - [`../specs/SPEC_PROGRESS_JA.md`](../specs/SPEC_PROGRESS_JA.md) — 承認済みバックログの仕様・UIモック進捗と未検証点
 
 - [`../v05/TIMELINE_SCENE_LINK_20261113_JA.md`](../v05/TIMELINE_SCENE_LINK_20261113_JA.md) — タイムライン由来モデルとカメラ・動き・表情/口の実評価・MP4、番号付き実画面と検証限界
-- [`CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md`](CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md) — CAM-019の既存承認設計を正本へ復帰。Owner指定でBlenderカメラ取込B1を現連動の次へ繰上げ、未実装
+- [`CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md`](CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md) — CAM-019の既存承認設計を正本へ復帰。Owner指定でBlenderカメラ取込B1を現連動の次へ繰上げ。B1直接取込は代表検証済み、実アドオン連携は未実装
 
 - [`../v05/PMX_ACCESSORY_PHYSICS_FIX_20261113_JA.md`](../v05/PMX_ACCESSORY_PHYSICS_FIX_20261113_JA.md) — 実動作プレビューの髪/紐の伸び対策。元データを保持し、物理の回転と骨長を両立
 - [`../v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md`](../v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md) — 元モデル不明VMDを適用先PMXで調整する設計。3視点批評を反映、未実装
@@ -40,3 +40,5 @@
 ## 全開発エージェント・UI/UX設計の入口
 - [`../../AGENTS.md`](../../AGENTS.md) — ローカル開発者・Codex向けの最初に読む規則
 - [`UI_UX_DESIGN_STANDARD_JA.md`](UI_UX_DESIGN_STANDARD_JA.md) — 新規決定された横断UI/UX基準（UX-001〜008）
+
+- [Blenderカメラ取込B1の操作・試験・制限](../v05/BLENDER_CAMERA_IMPORT_B1_20261113_JA.md) — `.blend`/評価済みJSON→比較/採用→同じカメラ行/MP4。

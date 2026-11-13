@@ -4,6 +4,7 @@ import {createPmxFkRotate} from './pmx-fk-rotate-v111.js';
 import {solveArmLocalRotations} from './arm-ik-rotation-v135.mjs';
 import {listPmxIkTargets} from './pmx-ik-targets-v114.js';
 import {buildContactCandidate,contactRig} from './target-contact-fit.mjs';
+import {createBlenderCameraSampler} from './blender-camera-runtime.mjs';
 /* v58 - real multi-instance Three.js preview.
  * Uses a single viewport renderer and physically separate loaded objects
  * (including skeletons) per scene instance. Animation wiring is stage 59.
@@ -36,7 +37,7 @@ const tr=(key)=>locale[key]||({
 })[key]||key;
 const section=document.getElementById('v57-scene-instances');
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,controlsVisible=false,reloadReady=false,nonce=0,selectedId='';
-let unitsById=new Map();
+let unitsById=new Map(),viewLibs=null;
 let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,lipAdoptions=null,projectFps=60,previewFk=null,previewArm=null,activePole=null,activeArm=null;
 let vmdCandidate=null,candidateValidation=null,candidateReport=null;
 let morphAnalysis=null,morphAnalysisNonce=0,morphMaps=null,morphMapNonce=0;
@@ -1398,7 +1399,7 @@ async function writeFk(action,key=null,row=null,extra={}){
   window.dispatchEvent(new CustomEvent('bai:v106-fk-saved',{detail:{projectId:id,revision:data.revision}}));
   return data;
 }
-let fallbackCamera=null,lastCameraClip=null,timelineIssue=null;
+let fallbackCamera=null,fallbackView=null,lastCameraClip=null,timelineIssue=null,cameraCandidate=null;
 const cameraSamplers=new Map();
 const activeClip=(row,seconds)=>seconds>=row.start&&seconds<Math.round((row.start+row.duration)*10000)/10000;
 const bindingRows=()=>[...(motionPlan?.rows||[]),...(sceneSnapshot?.timeline_effects||[]).filter(row=>row.track!=='camera')];
@@ -1409,20 +1410,28 @@ function timelineProblems(){
   return [...problems.values()];
 }
 function applyTimelineCamera(seconds){
-  const rows=(sceneSnapshot?.timeline_effects||[]).filter(row=>row.track==='camera'&&activeClip(row,seconds));
-  if(!rows.length){if(lastCameraClip&&fallbackCamera)viewport.applyCameraPose(fallbackCamera);lastCameraClip=null;return;}
+  const preview=cameraCandidate?.projectId===project?.value&&activeClip(cameraCandidate.row,seconds)?cameraCandidate.row:null;
+  const rows=preview?[preview]:(sceneSnapshot?.timeline_effects||[]).filter(row=>row.track==='camera'&&activeClip(row,seconds));
+  const restore=()=>{if(fallbackView)viewport.restoreCameraState(fallbackView);else if(fallbackCamera)viewport.applyCameraPose(fallbackCamera);else viewport.clearImportedCamera();saveCameraBtn.disabled=false;focusBtn.disabled=false;};
+  if(!rows.length){if(lastCameraClip)restore();else viewport.clearImportedCamera();saveCameraBtn.disabled=false;focusBtn.disabled=false;lastCameraClip=null;return;}
   if(rows.length!==1||rows[0].status!=='ready'){
-    if(lastCameraClip&&fallbackCamera)viewport.applyCameraPose(fallbackCamera);
+    if(lastCameraClip)restore();
     lastCameraClip=null;throw Error(rows[0]?.reason||'カメラの配置が重複しています');
   }
-  if(!lastCameraClip)fallbackCamera={...viewport.getCameraPose(),up:viewport.camera.up.toArray(),perspective:viewport.camera.isOrthographicCamera?1:0};
+  if(!lastCameraClip){fallbackView=viewport.captureCameraState();fallbackCamera={...viewport.getCameraPose(),up:viewport.camera.up.toArray(),perspective:viewport.camera.isOrthographicCamera?1:0};}
   const row=rows[0];
   try{
     let sampler=cameraSamplers.get(row.clip_id);
+    if(row.camera_track?.format==='bai-blender-camera-v1'){
+      if(!sampler){sampler=createBlenderCameraSampler(viewLibs.THREE,row.camera_track,row.mapping);cameraSamplers.set(row.clip_id,sampler);}
+      viewport.applyImportedCamera(sampler(Math.max(0,seconds-row.start+(row.source_start||0))));
+      saveCameraBtn.disabled=true;focusBtn.disabled=true;lastCameraClip=row.clip_id;return;
+    }
+    saveCameraBtn.disabled=false;focusBtn.disabled=false;
     if(!sampler){sampler=window.BAIVmdLocal.createSampler(row.camera_track);cameraSamplers.set(row.clip_id,sampler);}
     const pose=sampler.preview(Math.max(0,(seconds-row.start)*30)),scale=row.world_scale;
     viewport.applyCameraPose({...pose,position:pose.position.map(n=>n*scale),target:pose.target.map(n=>n*scale)});lastCameraClip=row.clip_id;
-  }catch(error){if(fallbackCamera)viewport.applyCameraPose(fallbackCamera);lastCameraClip=null;throw error;}
+  }catch(error){restore();lastCameraClip=null;throw error;}
 }
 function applyTimelineMorphs(seconds){
   const missing=[];
@@ -1727,6 +1736,7 @@ async function loadLipAdoptions(id){
 async function setup(){
   const token=nonce;
   const libs=await loadLibs();
+  viewLibs=libs;
   if(token!==nonce||!opened)throw Error('プレビューは閉じられました');
   viewport=createViewport(canvasParent,libs,{freeDolly:true,transparent:composite,
     preserveDrawingBuffer:captureMode});
@@ -1838,6 +1848,7 @@ async function setup(){
   });
 }
 async function reload(){
+  cameraCandidate=null;viewport?.clearImportedCamera();
   clearContact('未作成',false);
   if(!opened)return;
   morphMapNonce++;morphMaps=null;
@@ -1849,7 +1860,7 @@ async function reload(){
   fkAdopt.disabled=true;
   fkCandidateLink.hidden=true;
   fkCandidateStatus.textContent='保存済み補正から候補を作成し、実PMXで全フレーム検査できます。';
-  const id=project?.value;cameraSamplers.clear();fallbackCamera=null;lastCameraClip=null;timelineIssue=null;
+  const id=project?.value;cameraSamplers.clear();fallbackCamera=null;fallbackView=null;lastCameraClip=null;timelineIssue=null;
   if(!id){progress.textContent=tr('chooseProject');return;}
   const thisNonce=++nonce;
   reloadReady=false;
@@ -1895,9 +1906,12 @@ async function reload(){
     viewport.fit?.();
     if(data.camera)viewport.applyCameraPose(data.camera);
     fallbackCamera={...viewport.getCameraPose(),up:viewport.camera.up.toArray(),perspective:viewport.camera.isOrthographicCamera?1:0};
+    // Clock events may arrive while the asynchronous scene reload is in flight.
+    // Capture the established outside-clip view, never an old sampled camera.
+    fallbackView=viewport.captureCameraState();lastCameraClip=null;
     cameraStatus.textContent=data.camera?'保存済みカメラを反映（視点変更後は再保存）':'カメラ未保存：自動構図で表示・出力';
     seekScene(currentSeek());
-    saveCameraBtn.disabled=controller.status().loaded<1;
+    saveCameraBtn.disabled=controller.status().loaded<1||viewport.importedCameraActive;
     viewport.invalidate?.();
     reloadReady=true;
     if(composite)window.BAIStudioMediaPreviewV68?.sceneOverlay?.(true);
@@ -1928,6 +1942,7 @@ async function open(options={}){
   panel.hidden=!controlsVisible;panel.style.display=controlsVisible?'flex':'none';
 }
 function close(){
+  cameraCandidate=null;
   clearContact('未作成',false);
   nonce++;opened=false;controlsVisible=false;reloadReady=false;
   morphMapNonce++;morphMaps=null;
@@ -2643,6 +2658,23 @@ window.addEventListener('bai:v106-fk-key-select',async event=>{
 window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
+  setCameraCandidate(value){
+    if(captureMode||!opened||!viewport)throw Error('操作用の3Dプレビューを開いてください');
+    if(value&&value.projectId!==project.value)throw Error('候補の作品が一致しません');
+    if(cameraCandidate)cameraSamplers.delete(cameraCandidate.row.clip_id);
+    cameraCandidate=value?{projectId:value.projectId,row:{...value.row,status:'ready',track:'camera',clip_id:'candidate:'+crypto.randomUUID()}}:null;
+    seekScene(Number(seekInput.value)||currentSeek());
+    if(timelineIssue)throw Error(timelineIssue);
+    return {preview:!!cameraCandidate,inside:!!cameraCandidate&&activeClip(cameraCandidate.row,Number(seekInput.value)||currentSeek())};
+  },
+  cameraProbe(points=[]){
+    if(!viewport||!Array.isArray(points)||points.length>64)throw Error('カメラがありません');
+    const camera=viewport.camera;
+    return {world:camera.matrixWorld.toArray(),projection:camera.projectionMatrix.toArray(),
+      inverse:camera.projectionMatrixInverse.toArray(),imported:viewport.importedCameraActive,
+      type:camera.isOrthographicCamera?'ORTHO':'PERSP',
+      ndc:points.map(p=>new viewLibs.THREE.Vector3(...p).project(camera).toArray())};
+  },
   sampleFootContact,
   async contactCreate({side,start_frame,end_frame,ground_y}){
     if(captureMode||contactBusy)throw Error('操作用の停止したプレビューで作成してください');
@@ -2804,12 +2836,12 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     // exact motion seek; preserveDrawingBuffer keeps the transparent pixels.
     viewport.renderer.setPixelRatio(1);
     viewport.renderer.setSize(width,height,false);
-    if(viewport.camera.isPerspectiveCamera){
+    if(!viewport.importedCameraActive&&viewport.camera.isPerspectiveCamera){
       viewport.camera.aspect=width/height;
       viewport.camera.updateProjectionMatrix();
     }
-    if(viewport.camera.isOrthographicCamera){const h=viewport.camera.top-viewport.camera.bottom;viewport.camera.left=-h*width/height/2;viewport.camera.right=h*width/height/2;viewport.camera.updateProjectionMatrix();}
-    viewport.renderer.render(viewport.scene,viewport.camera);
+    if(!viewport.importedCameraActive&&viewport.camera.isOrthographicCamera){const h=viewport.camera.top-viewport.camera.bottom;viewport.camera.left=-h*width/height/2;viewport.camera.right=h*width/height/2;viewport.camera.updateProjectionMatrix();}
+    viewport.renderNow();
     return viewport.renderer.domElement.toDataURL('image/png');
   },
   frameProbe(instanceId){

@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T11:30:28+09:00",
+  "updated_at": "2026-11-13T12:38:32+09:00",
   "updated_by": "codex",
   "branch": "codex/blender-camera-import-20261113",
-  "head_at_update": "848ee85",
+  "head_at_update": "98216a9",
   "current": {
     "task": "CAM-019-B1：Blenderの評価済みカメラを取込み、比較・採用から同じタイムライン/MP4へ接続",
-    "status": "in_progress",
+    "status": "done",
     "step": "Issue238/承認済み設計を再開。元Blenderと旧カメラを保持し、小さな実Blender fixtureで経路/座標/画角/投影/FPS/カットを確定し3視点設計批評後に実装。",
     "design_doc": "docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md"
   },
   "next_steps": [
-    "次の承認済み項目はCAM-019-B1 / Issue #238：既存Blenderカメラの取込・同じ作品時刻への接続。設計CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.mdの直接取込を先に進める。"
+    "PRを作成し差分/公開情報/最終試験を確認、mainへ統合。Owner main/8765/開いている制作画面を同期し、522ファイル保全を照合する。"
   ],
   "unverified": [
-    "全PMX/VMD/全身・歩幅適合、元体格復元、GLB/FBX別経路、全尺/物理ON、Linuxブラウザー/GPU、別名VMDのMMD再現、スクリーンリーダー、順3全体。Blenderカメラ取込は未着手。"
+    "Linux Studioブラウザー/GPU/MP4、全Blender版/制約/ドライバー/任意実制作blend/長尺、DOF再現/パノラマ/カメラ分割、CinemaOperator実アドオン登録/起動/Bake/往復、スクリーンリーダー/200%拡大、CAM-019と順3全体。"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T12:38:32+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "98216a9",
+      "text": "CAM-019-B1を実装。実Blender Windows/Ubuntu生成カメラ→候補比較/採用/保存Undo・共通時計/60F MP4を検証。Python各64、Node関連5+既存VMD回帰1、型成功。3視点必須指摘と再読込時VMD復帰を修正、限定PASS。詳細BLENDER_CAMERA_IMPORT_B1_20261113_JA.md/STATUS JSON。"
+    },
     {
       "at": "2026-11-13T11:30:28+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "883bf67",
       "text": "UI改修883bf67/PR293を記録。最終ブラウザー9・Windows66+5sub/Ubuntu66成功、比較5画面/13ソースhash/10画像整合。台帳CSVの既存UTF-8 BOMを維持"
-    },
-    {
-      "at": "2026-11-13T02:21:30+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "72e37df",
-      "text": "承認UI監査8件と追加音声導線/DAW配置を実装。最終ブラウザー9成功、Windows66+5sub/Ubuntu66、Critic3視点PASS。原本515ファイル保持、正式151IDのstatus変更なし"
     }
   ]
 }
