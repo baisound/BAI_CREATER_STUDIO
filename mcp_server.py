@@ -81,6 +81,16 @@ def run(name,a):
     if name=='bai_studio_asset_capabilities':return api('/api/studio/v05/assets/capabilities')
     if name=='bai_studio_scene_multi_motion_plan':return api('/api/studio/v05/scene/multi-motion-plan?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_scene_motion_target_set':return api('/api/studio/v05/scene/motion-target',a)
+    if name=='bai_studio_blender_addons_list':return api('/api/studio/v05/blender-addons?'+urllib.parse.urlencode(a))
+    if name in ('bai_studio_blender_addon_inspect','bai_studio_blender_addon_register'):
+        encoded=a.get('archive_base64')
+        if not isinstance(encoded,str) or not 0<len(encoded)<=((32*1024*1024+2)//3)*4:raise ValueError('Addon ZIP must be 1 byte to 32 MiB')
+        raw=base64.b64decode(encoded,validate=True)
+        route='/register?'+urllib.parse.urlencode({'member':a['member']}) if name.endswith('_register') else '/inspect'
+        return api('/api/studio/v05/blender-addons'+route,raw=raw)
+    if name=='bai_studio_blender_addon_open':return {'requires_local_action':True,'message':'Studioの「Blenderで編集」から対象版と作品を確認して起動してください'}
+    if name in ('bai_studio_blender_addon_prepare','bai_studio_blender_addon_import_bake','bai_studio_blender_addon_remove'):
+        return api('/api/studio/v05/blender-addons/'+{'bai_studio_blender_addon_prepare':'prepare','bai_studio_blender_addon_import_bake':'import-bake','bai_studio_blender_addon_remove':'remove'}[name],a,timeout=120)
     if name=='bai_studio_blender_camera_candidates':return api('/api/studio/v05/blender-camera?'+urllib.parse.urlencode(a))
     if name in ('bai_studio_blender_camera_import_json','bai_studio_blender_camera_preview','bai_studio_blender_camera_adopt'):
         route={'bai_studio_blender_camera_import_json':'import-json','bai_studio_blender_camera_preview':'preview','bai_studio_blender_camera_adopt':'adopt'}[name]
@@ -274,6 +284,13 @@ TOOLS=[
 ('bai_studio_asset_capabilities','Read supported v0.5 import types and searchable categories.',S()),
 ('bai_studio_scene_multi_motion_plan','Read validated scene-instance-specific motion assignments and readiness.',S({'project_id':STR},['project_id'])),
 ('bai_studio_scene_motion_target_set','Assign a motion, expression or lip clip to a saved or timeline-derived model instance, with revision check and arrangement undo.',S({'project_id':STR,'clip_id':STR,'revision':INT,'instance_id':{'type':['string','null']}},['project_id','clip_id','revision','instance_id'])),
+('bai_studio_blender_addons_list','Read statically registered addons and project shooting sessions.',S({'project_id':STR},['project_id'])),
+('bai_studio_blender_addon_inspect','Statically inspect ZIP bytes; never execute addon code.',S({'archive_base64':STR},['archive_base64'])),
+('bai_studio_blender_addon_register','Register the selected inner ZIP as an immutable version; does not execute code.',S({'archive_base64':STR,'member':STR},['archive_base64','member'])),
+('bai_studio_blender_addon_prepare','Prepare supported static GLB scene as a separate Blender working copy; reject omitted/unsupported content.',S({'project_id':STR,'addon_id':STR,'start_frame':INT,'end_frame':INT},['project_id','addon_id','start_frame','end_frame'])),
+('bai_studio_blender_addon_open','Requires a manual local action in Studio; MCP never executes addon code.',S({'session_id':STR},['session_id'])),
+('bai_studio_blender_addon_import_bake','Read explicitly sent baked snapshot as separate camera candidate; comparison and adoption remain explicit.',S({'session_id':STR},['session_id'])),
+('bai_studio_blender_addon_remove','Unregister an unused version, preserving files. Shooting sessions block removal.',S({'addon_id':STR},['addon_id'])),
 ('bai_studio_blender_camera_candidates','Read project camera candidates and optionally evaluated JSON; no active timeline changes.',S({'project_id':STR,'candidate_id':STR},['project_id'])),
 ('bai_studio_blender_camera_import_json','Import evaluated Blender camera JSON as a separate candidate; does not open arbitrary local paths or control Blender GUI.',S({'project_id':STR,'name':STR,'track':{'type':'object'}},['project_id','name','track'])),
 ('bai_studio_blender_camera_preview','Prepare the exact camera comparison context and evaluated track. This standard MCP endpoint does not render the 3D browser.',S({'project_id':STR,'candidate_id':STR,'start_frame':INT,'mapping':S({'scale':{'type':'number'},'offset':{'type':'array','items':{'type':'number'},'minItems':3,'maxItems':3}},['scale','offset'])},['project_id','candidate_id','start_frame','mapping'])),

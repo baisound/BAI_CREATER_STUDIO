@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T12:48:44+09:00",
+  "updated_at": "2026-11-13T14:16:23+09:00",
   "updated_by": "codex",
-  "branch": "codex/blender-camera-import-20261113",
-  "head_at_update": "2fb5784",
+  "branch": "codex/cinemaoperator-bridge-20261113",
+  "head_at_update": "f2b4e7e",
   "current": {
-    "task": "CAM-019-B1：Blenderの評価済みカメラを取込み、比較・採用から同じタイムライン/MP4へ接続",
+    "task": "CAM-019：CinemaOperator本体の登録・起動・Bake結果連携",
     "status": "done",
-    "step": "CAM-019-B1の実装・試験・PR/main統合済み。詳細な利用環境の確認記録はOwner指定Evidenceへ保持。",
+    "step": "Issue238の既承認A〜Dを再開。配布ZIPを静的検査し、別名作業コピーと対応形式を確定。実アドオンの可視UI/Bakeから既存カメラ候補へ戻す。",
     "design_doc": "docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md"
   },
   "next_steps": [
-    "次の承認済み範囲はIssue238のCinemaOperator実アドオン登録/起動/Bake/往復。CAM-019-B1の代表経路は統合済み。順3 G3-F1等の残件も保持する。"
+    "PRで公開差分と必要試験を確認してmain統合。Owner main/8765/開いている制作画面を同期し、実素材を保持。CAM-019のPMX/動作等の橋渡しと順3残件は未完として保持。"
   ],
   "unverified": [
-    "Linux Studioブラウザー/GPU/MP4、全Blender版/制約/ドライバー/任意実制作blend/長尺、DOF再現/パノラマ/カメラ分割、CinemaOperator実アドオン登録/起動/Bake/往復、スクリーンリーダー/200%拡大、CAM-019と順3全体。"
+    "PMX/VRM/FBX・割当動作/表情/口・親子配置/複雑なGLB/拡張、一般アドオン/別版/Blender5.1実機/全ドライバー/長尺、DOF、Linuxブラウザー/GPU/MP4、実SR/200%拡大/全Tab、CAM-019と順3全体。"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-13T14:16:23+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "f2b4e7e",
+      "text": "CAM-019：CinemaOperator本体の静的ZIP検査/版別登録・静的GLB作業コピー・ローカル明示起動・実nativeBake/snapshotをB1比較採用/MP4へ接続。Win/Ubuntu Python各79・Node関連6・型、実GUI50mm操作、Win/Ubuntu4被写体負例、A/B切替と60F MP4を限定検証。3視点の必須指摘解消。"
+    },
+    {
+      "at": "2026-11-13T13:26:15+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "62961ba",
+      "text": "CAM-019：CinemaOperator本体の登録・起動・Bake結果連携: Issue238の既承認A〜Dを再開。配布ZIPを静的検査し、別名作業コピーと対応形式を確定。実アドオンの可視UI/Bakeから既存カメラ候補へ戻す。"
+    },
     {
       "at": "2026-11-13T12:48:44+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "done",
       "head": "2e181ef",
       "text": "VST3と作品ミキサーを試聴・共通プレビュー・MP4と両MCPへ接続。素材一覧の潰れ/高さを修正。Windows87/Ubuntu85成功と2skip、Chrome対象4＋既存回帰4を確認"
-    },
-    {
-      "at": "2026-11-13T03:16:07+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "1f18f2a",
-      "text": "VSTとミキサーの実音声処理を試聴・書き出しへ接続: 実ホストの検証と処理・保存・プレビュー・出力の接続設計"
-    },
-    {
-      "at": "2026-11-13T02:36:16+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ce9e8b6",
-      "text": "UI修正PR293/294をmaince9e8b6へ統合。8765/Python55972・既存Chrome6475の保存音声配置有効/DAW表示・比較6489を同期。515ファイル/dirty不変、Issue69に3画像を保存"
     }
   ]
 }

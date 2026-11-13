@@ -200,3 +200,6 @@ MOTION-011/012 / #39/#63：2026-11-13 Owner追加：元モデル不明のVMDを�
 
 
 CAM-019-B1 / Issue #238：2026-11-13 CAM-019-B1：追加アドオン不要の.blend/評価済みJSONを別名候補として取込み、同じ作品で比較・明示採用、カメラ行/保存復元/Undo・共通時計/MP4へ限定接続。実Blender5.2.2 Windows/Ubuntuの親・制約・ロール・センサーFit・シフト/透視/平行・カット、30/29.97相当→作品60fps、撮影比率/非正方ピクセルを代表検証。Windows実Chrome/RTX4070SUPER、7時刻NDCと60F MP4の目印を実Blender画像と照合。DOFは値保持/未適用了承、パノラマ等は拒否。CinemaOperator実アドオンとCAM-019全体は未完。docs/v05/BLENDER_CAMERA_IMPORT_B1_20261113_JA.md
+
+
+CAM-019 / Issue #238：2026-11-13 CAM-019本体連携：CinemaOperator0.7.183のZIP静的検査/版別登録・静的GLBの別名Blenderコピー・ローカル明示起動・実アドオンBake/snapshot返却をB1比較/採用・MP4へ接続。Windows/Ubuntu Python各79、関連Node6、型、Win可視UI50mm操作と実60F MP4、Ubuntu実Blender往復を限定検証。被写体変更/古い条件は拒否。PMX/VRM/FBX・割当動作/表情等の橋渡し、一般アドオン互換/DOF/Linuxブラウザー・MP4/CAM-019全体は未完。docs/v05/CINEMAOPERATOR_BRIDGE_20261113_JA.md

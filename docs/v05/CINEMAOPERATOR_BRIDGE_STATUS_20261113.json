@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "requirement": "CAM-019",
+  "unit": "CinemaOperator registry/open/native Bake bridge",
+  "issue": 238,
+  "branch": "codex/cinemaoperator-bridge-20261113",
+  "status": "partial_verified",
+  "commit_reference": "同じコードコミットのWORK_STATE/historyとPRへ紐付け",
+  "supported": {
+    "addon": "CinemaOperator0.7.183",
+    "adapter": "cinemaoperator-0.7.183-v1",
+    "blender_allowed": [
+      "5.1",
+      "5.2"
+    ],
+    "blender_tested": [
+      "Windows5.2.2 LTS",
+      "Ubuntu5.2.2 LTS"
+    ],
+    "subjects": "static GLB, normalized/legacy units, placement transform, half-open timeline visibility",
+    "range_seconds": [
+      0.1,
+      120
+    ]
+  },
+  "tests": [
+    {
+      "id": "CO-PY-WIN",
+      "status": "PASS",
+      "count": 79,
+      "command": "python -X utf8 -m pytest tests/test_blender_addons.py tests/test_blender_camera_import.py tests/test_studio_v05_arrangement.py tests/test_v05_timeline_scene.py tests/test_v05_timeline_effects.py tests/test_target_contact_fit.py tests/test_studio_v05_motion_edits.py -q"
+    },
+    {
+      "id": "CO-PY-LINUX",
+      "status": "PASS",
+      "count": 79,
+      "command": "same pytest set, Ubuntu WSL2"
+    },
+    {
+      "id": "CO-NODE",
+      "status": "PASS",
+      "count": 6,
+      "command": "node --test --test-concurrency=1 tests/studio-v05-cinemaoperator.test.cjs tests/studio-v05-blender-camera.test.cjs tests/studio-v05-timeline-effects.test.cjs tests/blender-camera-runtime.test.mjs"
+    },
+    {
+      "id": "CO-TYPE",
+      "status": "PASS",
+      "command": "npm run typecheck"
+    },
+    {
+      "id": "CO-NATIVE-WIN",
+      "status": "PASS",
+      "cases": [
+        "manual distribution ZIP selection/registration and focus",
+        "static GLB normalization/transforms and half-open timeline visibility in real Blender",
+        "native addon Bake/current-memory snapshot/B1 comparison/adoption/60F MP4",
+        "stdio/native WebMCP listing and execution refusal",
+        "reload, missing Bake, linked version removal, stale source context refusal, source ZIP unchanged"
+      ],
+      "additional_cases": [
+        "A/B PROGRAM2 camera markers at native1/31",
+        "mesh move/untagged parent/parent inverse/visibility mute refuse before receipt; restore then export succeeds",
+        "same candidate context rechecked at B1 preview/adopt"
+      ]
+    },
+    {
+      "id": "CO-GUI",
+      "status": "PASS",
+      "cases": [
+        "manual Studio open, actual addon console",
+        "native50mm button changed composition",
+        "native Bake range and dialog,60 source frames",
+        "memory snapshot without prior Ctrl-S, return/compare/adopt",
+        "working blend saved separately and verification windows closed"
+      ]
+    },
+    {
+      "id": "CO-NATIVE-LINUX",
+      "status": "PASS",
+      "cases": [
+        "prepare real Blender copy",
+        "actual native Bake and4 subject mutation refusals",
+        "current-memory snapshot, candidate context and adoption"
+      ],
+      "browser_mp4": "NOT TESTED"
+    },
+    {
+      "id": "CO-SCREEN",
+      "status": "PASS",
+      "widths": [
+        1440,
+        1024
+      ],
+      "cases": [
+        "no horizontal overflow",
+        "inspect innerZIP focus",
+        "prepare acknowledgement focus",
+        "return to B1 comparison focus",
+        "snapshot timestamp and source copy identity"
+      ]
+    },
+    {
+      "id": "CO-MCP-EXTENDED",
+      "status": "PASS",
+      "cases": [
+        "stdio ZIP inspect/prepare",
+        "native WebMCP register/prepare",
+        "stdio/native import_bake returns same candidate ID",
+        "three same-range copies have distinct selection labels",
+        "both MCP open refuse execution"
+      ],
+      "remove_tool_actual_call": "NOT TESTED (shared service covered)"
+    }
+  ],
+  "pixel_comparison": {
+    "method": "dominant-color centroid, same1280x720; geometry/composition only, not color-management equality",
+    "frames": [
+      0,
+      15,
+      30,
+      59
+    ],
+    "limit": 0.01,
+    "results": [
+      {
+        "frame": 0,
+        "error": 0.00030127307621685695
+      },
+      {
+        "frame": 15,
+        "error": 0.0008246448702126652
+      },
+      {
+        "frame": 30,
+        "error": 0.0003998105203601998
+      },
+      {
+        "frame": 59,
+        "error": 0.0002469975747061426
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "CO-UX-01",
+      "priority": "P2",
+      "evidence": "Critic1",
+      "target": "Blender bootstrap / Studio receive",
+      "proposal": "Distinguish current memory from last-sent snapshot; expose real Bake entry",
+      "implemented": true,
+      "verification": "PASS actual GUI and export"
+    },
+    {
+      "id": "CO-UX-02",
+      "priority": "P2",
+      "evidence": "Critic1",
+      "target": "B1 bc-snapshot",
+      "proposal": "Show exported timestamp and source working-copy identity",
+      "implemented": true,
+      "verification": "PASS code and browser assertion"
+    },
+    {
+      "id": "CO-UX-03",
+      "priority": "P2",
+      "evidence": "Critic3",
+      "target": "co-session/info",
+      "proposal": "Unique shortID/date/version and full selected detail",
+      "implemented": true,
+      "verification": "PASS code/1440/1024"
+    },
+    {
+      "id": "CO-ORIGIN-01",
+      "priority": "P1",
+      "evidence": "Critic2",
+      "target": "check_origin/B1prepare/adopt",
+      "proposal": "Carry original revision/asset/ZIP/manifest hashes through comparison and adoption",
+      "implemented": true,
+      "verification": "PASS unit and actual stale context refusal"
+    },
+    {
+      "id": "CO-TIME-01",
+      "priority": "P1",
+      "evidence": "Critic2",
+      "target": "scene copy/export",
+      "proposal": "projectF+1 native frame, one normalization, exact FPS/windows/cuts",
+      "implemented": true,
+      "verification": "PASS actual GLB transforms/windows and A/B MP4"
+    },
+    {
+      "id": "CO-SUBJECT-01",
+      "priority": "P2",
+      "evidence": "Critic2",
+      "target": "cinemaoperator_subjects.py",
+      "proposal": "Fingerprint geometry/transform/parent inverse/visibility evaluation; refuse changed subjects",
+      "implemented": true,
+      "verification": "PASS4 real Blender negative cases both OS"
+    }
+  ],
+  "review": {
+    "critic1": "limited PASS, code review; own runtime NOT TESTED",
+    "critic2": "limited PASS, required findings resolved in code; runtime by parent",
+    "critic3": "limited PASS, code and1440/1024 images; SR/200%/allTab NOT TESTED",
+    "root_judge": "required findings resolved; accept only representative static GLB workflow"
+  },
+  "initial_failures_retained": [
+    "Windows ZIP filename normalization bypass fixed with orig_filename",
+    "native console direct entry disabled until real VIEW action and initial shot; fixed and actual GUI verified",
+    "Blender AGX vs Studio color threshold failed; use dominant-color geometry mask, do not claim color equality",
+    "Linux verification helper import/path/inventory conversion corrected; product format limits retained",
+    "Multiple-copy test incorrectly assumed original copy was latest; corrected ID existence assertion, product order unchanged"
+  ],
+  "unverified": [
+    "PMX/VRM/FBX and assigned motion/expression/lip bridge",
+    "general addons/other releases/Blender5.1 actual runtime/all drivers/large GLB/extensions/long cameras",
+    "DOF effect and all native filming features",
+    "Linux browser/GPU/MP4",
+    "screen reader/200% zoom/allTab",
+    "CAM-019 overall/sequence3 overall"
+  ],
+  "evidence": {
+    "image": "../../studio/v05/reviews/cinemaoperator-20261113/addon-marked.png",
+    "markers": {
+      "1": "inspect/register ZIP",
+      "2": "prepare separate working copy",
+      "3": "open actual Blender/addon locally",
+      "4": "receive explicitly sent Bake snapshot"
+    },
+    "privacy": "generated GLB and test project only; no addon code package, real owner assets, runtime paths or logs published"
+  },
+  "model_usage": "parent high-capability model for diagnosis/design/implementation/runtime QA; existing3 Critic agents reused; no new implementation worker"
+}

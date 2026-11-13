@@ -144,3 +144,6 @@
 - 2026-11-13：順3G3-Dの保存障害復旧/旧完成物保持を限定検証。2026-11-13 G3-D、保存容量/権限/起動失敗からの再試行と旧完成動画を保護。検証済み確定出力の最終状態保存失敗は名前有無とも回収し、一時領域を解放。受取/旧版復元で保存SHA-256を照合し同容量の改変を拒否。書けない中断履歴や名前台帳の破損/ロックがあっても読める完成物を表示。Win Python33成功・Ubuntu31成功/Windows限定2skip。実FFmpeg/実録画短区間30F、Win実Chrome157 UI/SDK/ネイティブWebMCP、Ubuntu SDK/APIで旧MP4/台帳/原本不変と別版再試行を確認。物理ディスク枯渇/電源断/全停止点やG3-D/順3全体は未完。docs/v05/RENDER_FAILURE_PROTECTION_20261112_JA.md
 
 - 2026-11-13 G3-E1：2026-11-13 G3-E1、保存配置/表示/固定/静止カメラを作品切替・再読込後にUI/API/公式SDK/ネイティブWebMCPで照合。合成GLBの保存カメラ有無・半透明を通常/縦長欄の6条件で非0In15〜17F/30fpsの実MP4と比較し、IoU>0.85/重心差<0.01/内部RGB平均差<=8を確認。3D中間層のマイクロ秒丸めで末尾1Fが欠ける不具合をFPSの正確な時刻単位へ修正。24/29.97/30/60fps×1/3/17Fと時系列色を検証。正常3Dの内部記録を未読履歴に数える不具合も修正。Win Python69成功/Ubuntu68成功・Win限定1skip、Win実Chrome157/RTX4070SUPERの最終Node4成功。実PMX/S01と動作/保存障害回帰も確認。順3全体は未完。docs/v05/SAVED_STATE_COMPOSITION_20261113_JA.md 次はG3-F1。順6/7依存を保持。
+
+
+CAM-019 / Issue #238：2026-11-13 CAM-019本体連携：CinemaOperator0.7.183のZIP静的検査/版別登録・静的GLBの別名Blenderコピー・ローカル明示起動・実アドオンBake/snapshot返却をB1比較/採用・MP4へ接続。Windows/Ubuntu Python各79、関連Node6、型、Win可視UI50mm操作と実60F MP4、Ubuntu実Blender往復を限定検証。被写体変更/古い条件は拒否。PMX/VRM/FBX・割当動作/表情等の橋渡し、一般アドオン互換/DOF/Linuxブラウザー・MP4/CAM-019全体は未完。docs/v05/CINEMAOPERATOR_BRIDGE_20261113_JA.md

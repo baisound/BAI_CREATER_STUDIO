@@ -8,7 +8,7 @@ panel.innerHTML=`<h3>Blenderカメラを取り込む</h3>
  <div class="bc-actions"><button id="bc-import" type="button">.blend / カメラJSONを選ぶ…</button><button id="bc-reload" type="button">候補を再読込</button></div>
  <label for="bc-candidate">取込候補</label><select id="bc-candidate"><option value="">候補がありません</option></select>
  <label for="bc-start">配置開始F（作品上）</label><div class="bc-actions"><input id="bc-start" type="number" min="0" step="1" value="0"><button id="bc-here" type="button">現在位置</button></div>
- <p id="bc-time"></p>
+ <p id="bc-time"></p><p id="bc-snapshot" hidden></p>
  <details><summary>単位・原点を合わせる</summary><label for="bc-scale">Blender 1単位 → シーン単位</label><input id="bc-scale" type="number" min="0.000001" step="any" value="1">
  <div class="bc-offset">${['X','Y','Z'].map(axis=>`<label>${axis}オフセット<input id="bc-${axis}" type="number" step="any" value="0"></label>`).join('')}</div><small>BlenderのZ-upをY-upへ変換します。配置済みモデルは動かしません。</small></details>
  <div class="bc-actions"><button id="bc-before" type="button" aria-pressed="true">現在のカメラ</button><button id="bc-after" type="button" aria-pressed="false">取込候補を比較</button><button id="bc-go" type="button">候補の開始位置へ</button></div>
@@ -59,6 +59,9 @@ function info(){
   $('candidate').title=c?.name||'';
   $('time').textContent=c?`元F${c.source_start_frame} → 作品F${$('start').value} / 作品 ${c.sample_fps} fps / 終了F ${(Number($('start').value)+c.duration*c.sample_fps).toFixed(3)}（含まない） / 元 ${c.source_fps}/${c.source_fps_base} fps`:'候補を選ぶと元の時刻と作品上の配置を確認できます。';
   $('warnings').hidden=!c?.warnings?.length;$('warning-text').textContent=(c?.warnings||[]).join('、');
+  const origin=c?.provenance;$('snapshot').hidden=!origin;
+  if(origin){const date=value=>new Intl.DateTimeFormat('ja-JP',{dateStyle:'short',timeStyle:'medium'}).format(new Date(value*1000));
+    $('snapshot').textContent=`Blender送信日時：${date(origin.exported_at)} / 作業コピー：作品F ${origin.start_frame}–${origin.end_frame}（作成 ${date(origin.session_created_at)}・${origin.session_id.slice(0,8)}）`;}
 }
 async function reload(selected){
   const id=pid(),token=epoch;if(!id)return;
@@ -140,7 +143,9 @@ if(!mount()){const observer=new MutationObserver(()=>{if(mount())observer.discon
 new MutationObserver(workspace).observe(document.body,{attributes:true,attributeFilter:['data-workspace']});
 window.addEventListener('bai:v05-project-changed',()=>{endComparison('未取込');candidates=[];$('candidate').replaceChildren();info();reload().catch(error=>{status.textContent=error.message;});});
 window.addEventListener('bai:v58-scene-reloaded',()=>{if(prepared)endComparison('3Dを再読込しました。現在の条件で取込候補を再比較してください。');});
-window.BAIStudioBlenderCamera=Object.freeze({preview,adopt,reload,state:()=>({projectId:pid(),candidateId:current()?.id,compared:verified,status:status.textContent})});
+window.BAIStudioBlenderCamera=Object.freeze({preview,adopt,reload,cancelComparison:endComparison,
+  async selectCandidate(id,frame){endComparison();await reload(id);$('start').value=String(frame);$('scale').value=String(current()?.unit_scale||1);for(const axis of ['X','Y','Z'])$(axis).value='0';$('ack').checked=false;info();status.textContent='送信済みBakeの候補・未採用：同じ時刻で比較してから配置してください';disable();$('go').focus();},
+  state:()=>({projectId:pid(),candidateId:current()?.id,compared:verified,status:status.textContent})});
 
 async function register(){
   if(!document.modelContext?.registerTool)return;
