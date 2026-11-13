@@ -9,7 +9,7 @@ panel.innerHTML=`<h3>CinemaOperatorで撮影する</h3>
  <details><summary>版・権利の詳細</summary><p id="co-license"></p><code id="co-hash"></code><button id="co-remove" type="button">参照のない版を登録解除</button></details>
  <h4>Blenderへ渡す作品</h4><p id="co-project"></p><p>PMX・GLB・VRMの動き・表情・口を撮影用コピーへ固定します。Blenderではカメラを編集し、カメラだけをStudioへ戻します。音声・画像・動画はStudio側で合成します。</p>
  <div class="co-range"><label>開始F<input id="co-start" type="number" min="0" step="1" value="0"></label><label>終了F（含む）<input id="co-end" type="number" min="0" step="1" value="59"></label></div>
- <details><summary>撮影コピーの対応範囲</summary><p>骨の編集はできません。形状はタイムラインと同じ評価結果です。タイムライン未対応の二次物理は含みません。撮影用テクスチャは最大4096pxです。トゥーン・輪郭線・照明はBlenderとStudioで異なり、Studio出力は元の素材を使います。</p><p>0.1〜120秒・形状512MiB以内。容量や時間を超えたら終了Fを短くし、頂点100万・メッシュ256個を超えたら対象モデルを減らして準備してください。</p></details><button id="co-prepare" type="button">別名の作業コピーを準備</button><p id="co-progress" role="status"></p>
+ <details><summary>撮影コピーの対応範囲</summary><p>骨の編集はできません。形状はタイムラインと同じ評価結果です。作品に保存したPMX物理も形状へ含めます。撮影用テクスチャは最大4096pxです。トゥーン・輪郭線・照明はBlenderとStudioで異なり、Studio出力は元の素材を使います。</p><p>0.1〜120秒・形状512MiB以内。容量や時間を超えたら終了Fを短くし、頂点100万・メッシュ256個を超えたら対象モデルを減らして準備してください。</p></details><button id="co-prepare" type="button">別名の作業コピーを準備</button><p id="co-progress" role="status"></p><button id="co-physics-settings" type="button">PMXの物理設定</button>
  <label for="co-session">作業コピー・再開</label><select id="co-session"></select><p id="co-session-info"></p>
  <label><input id="co-ack" type="checkbox">この登録版のPythonコードをBlenderで実行する</label>
  <button id="co-open" type="button">Blenderで撮影を編集</button>
@@ -70,6 +70,7 @@ $('prepare').addEventListener('click',()=>void run(async()=>{
  const result=await request('/prepare',{project_id:pid,addon_id:$('addon').value,start_frame,end_frame});if(pid!==project.value)return;
  await reload(result.id);$('ack').checked=false;$('status').textContent=`準備済み：作品F ${result.start_frame}–${result.end_frame}。Blenderで撮影する版を確認してください。`;return $('ack');
 }));
+$('physics-settings').addEventListener('click',()=>window.BAIStudioMultiScenePreview.openPhysicsSettings());
 $('session').addEventListener('change',()=>{const s=selectedSession();if(s){$('start').value=String(s.start_frame);$('end').value=String(s.end_frame);$('addon').value=s.addon_id;}$('ack').checked=false;update();});
 for(const el of [$('start'),$('end'),$('addon')])el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{$('session').value='';$('ack').checked=false;update();});
 $('ack').addEventListener('change',update);

@@ -1381,7 +1381,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not 0 < length <= 8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
                 allowed={'project_id','action','revision','instance_id','asset_id',
-                         'transform','visible','locked','camera','face_key'}
+                         'transform','visible','locked','camera','face_key','physics_enabled'}
                 if not isinstance(body,dict) or not {'project_id','action','revision'} <= set(body) or set(body)-allowed:
                     return self.bad(400,'Invalid scene instances fields')
                 result=mutate(DATA/'studio_v05_scene_instances',DATA/'studio_v05_scene_models',

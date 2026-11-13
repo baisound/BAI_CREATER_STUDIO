@@ -1,0 +1,9 @@
+{
+  "requirements": ["MOTION-019", "CAM-019"],
+  "issue": 238,
+  "status": "in_progress",
+  "implementation_commit": "initial implementation checkpoint; see Git history",
+  "verified": {"python_new": 1, "node_logic": 3, "node_real_ammo_seek_reload_mp4": 1, "typecheck": "PASS"},
+  "unverified": ["final Blender round trip", "Ubuntu", "actual PMX final Bake/MP4", "multi-model", "long duration", "screen reader and 200% zoom"],
+  "release_complete": false
+}

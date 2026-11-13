@@ -1,3 +1,4 @@
+import {buildTimelinePhysics} from './timeline-pmx-physics.mjs';
 import {evaluatedGeometry} from './cinemaoperator-geometry.mjs';
 import {createSpatialEditor} from './spatial-ui-v61.js';
 import {createPmxBonePicker} from './pmx-bone-picker-v110.js';
@@ -10,7 +11,7 @@ import {createBlenderCameraSampler} from './blender-camera-runtime.mjs';
  * Uses a single viewport renderer and physically separate loaded objects
  * (including skeletons) per scene instance. Animation wiring is stage 59.
  */
-import {loadLibs,loadModel,disposeObject} from '../../js/viewport/model-loader.js';
+import {loadLibs,loadModel,disposeObject,modelSource,sourceDigest} from '../../js/viewport/model-loader.js';
 import {placeInstanceObject,LEGACY_UNITS} from './instance-units-v189.mjs';
 import {createViewport} from '../../js/viewport/three-host.js';
 import {createGenericGlbPreview} from '../../js/motion/generic-glb-preview.js';
@@ -37,6 +38,7 @@ const tr=(key)=>locale[key]||({
   legacyUnits:'（旧の大きさ）',legacyUnitsHint:'旧画面と同じ大きさで置いています（旧保存の取込で置いたもの）'
 })[key]||key;
 const section=document.getElementById('v57-scene-instances');
+let physicsCache=null,physicsState={state:'off'};
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,controlsVisible=false,reloadReady=false,nonce=0,selectedId='';
 let unitsById=new Map(),viewLibs=null;
 let spatialEditor=null,bonePicker=null,rotateGizmo=null,sceneSnapshot=null,motionEdits=null,lipAdoptions=null,projectFps=60,previewFk=null,previewArm=null,activePole=null,activeArm=null;
@@ -64,6 +66,27 @@ const modeBtn=document.createElement('button');modeBtn.type='button';modeBtn.tex
 const closeBtn=document.createElement('button');closeBtn.textContent=tr('close');
 const progress=document.createElement('span');progress.setAttribute('role','status');progress.style.cssText='color:#c8d9ea';
 const cameraStatus=document.createElement('small');cameraStatus.setAttribute('role','status');
+const physicsControls=document.createElement('details');physicsControls.id='v58-physics-controls';
+physicsControls.innerHTML='<summary>PMXの物理</summary><p id="v58-physics-target"></p><label><input type="checkbox" id="v58-physics-enabled">このモデルでMMD物理を使う</label><button type="button" id="v58-physics-save">物理設定を保存・準備</button><button type="button" id="v58-physics-retry">再準備</button><button type="button" id="v58-physics-cancel">準備を中止</button><button type="button" id="v58-physics-off">物理OFFで保存</button><p id="v58-physics-status" role="status"></p><small>この作品のモデルごとに保存します。実動作プレビューの設定とは別です。配置はXYZ同倍率・X/Z回転0、最大600秒・全モデル合計128MiBです。</small>';
+const physicsField=physicsControls.querySelector('#v58-physics-enabled'),physicsSave=physicsControls.querySelector('#v58-physics-save'),physicsRetry=physicsControls.querySelector('#v58-physics-retry'),physicsCancel=physicsControls.querySelector('#v58-physics-cancel'),physicsOff=physicsControls.querySelector('#v58-physics-off'),physicsMessage=physicsControls.querySelector('#v58-physics-status');physicsMessage.tabIndex=-1;
+let physicsDirty=false;
+function redrawPhysics(){
+ const row=sceneSnapshot?.instances?.find(r=>r.id===choose.value),target=controller?.getLoaded(choose.value),valid=target?.format==='PMX'||row?.asset?.format==='PMX';
+ physicsControls.hidden=!valid;physicsControls.querySelector('#v58-physics-target').textContent=row?.name||row?.asset?.name||'対象PMXを選択';
+ if(!physicsDirty)physicsField.checked=!!sceneSnapshot?.physics?.[choose.value]?.enabled;
+ const building=physicsState.state==='building';physicsField.disabled=!valid||row?.locked||building;physicsSave.disabled=!valid||row?.locked||building;
+ physicsOff.disabled=!valid||row?.locked;physicsRetry.disabled=building;physicsCancel.disabled=!building;
+ physicsMessage.textContent=physicsDirty?'変更あり・未保存':physicsState.state==='failed'?physicsState.error:building?'物理を準備中…':physicsState.state==='cancelled'?'準備を中止しました。再準備か物理OFFで保存してください。':previewFk||previewArm?'仮編集のため物理を一時停止中。保存後に再準備します。':sceneSnapshot?.physics?.[choose.value]?.enabled?'物理を使用可能（固定60Hz）':'物理OFF（保存済み）';
+}
+async function savePhysics(enabled){
+ const id=project.value,row=sceneSnapshot?.instances?.find(r=>r.id===choose.value);if(!row)return;
+ physicsSave.disabled=true;
+ try{const response=await fetch('/api/studio/v05/scene/instances',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,action:'physics',revision:sceneSnapshot.revision,instance_id:row.id,physics_enabled:enabled})});const body=await response.json();if(!response.ok)throw Error(body.error||'物理設定を保存できません。');physicsDirty=false;await reload();physicsField.focus();}
+ catch(error){physicsState={state:'failed',error:String(error.message||error)};redrawPhysics();physicsMessage.focus();}
+ finally{redrawPhysics();}
+}
+physicsField.addEventListener('change',()=>{physicsDirty=true;redrawPhysics();});physicsSave.addEventListener('click',()=>savePhysics(physicsField.checked));physicsOff.addEventListener('click',()=>savePhysics(false));physicsRetry.addEventListener('click',()=>reload());physicsCancel.addEventListener('click',()=>{nonce++;physicsState={state:'cancelled'};reloadReady=false;redrawPhysics();physicsRetry.focus();});
+
 const clipSelect=document.createElement('select');clipSelect.setAttribute('aria-label','動き・表情・口のクリップ');
 const targetSelect=document.createElement('select');targetSelect.setAttribute('aria-label','適用するモデル');
 const assignBtn=document.createElement('button');assignBtn.type='button';
@@ -368,7 +391,7 @@ if(captureMode){saveCameraBtn.hidden=true;restoreCameraBtn.hidden=true;}
 const previewLayout=document.createElement('div');previewLayout.className='v58-preview-layout';
 const controlStack=document.createElement('div');controlStack.id='v58-control-stack';
 controlStack.style.cssText='min-width:0;overflow:auto;padding-right:6px';
-controlStack.append(motionControls,faceControls,footControls,fkControls,analysisControls,vrmControls);
+controlStack.append(physicsControls,motionControls,faceControls,footControls,fkControls,analysisControls,vrmControls);
 previewLayout.append(controlStack,canvasParent);
 const layoutStyle=document.createElement('style');
 layoutStyle.textContent=`.v58-preview-layout{display:grid;grid-template-columns:minmax(260px,34%) minmax(0,1fr);gap:10px;flex:1;min-height:0}
@@ -1452,6 +1475,19 @@ function applyTimelineVisibility(seconds){
     if(target?.root)target.root.visible=instance.visible!==false&&(!instance.timeline_windows||instance.timeline_windows.some(w=>seconds>=w.start&&seconds<Math.round((w.start+w.duration)*10000)/10000));
   }
 }
+async function verifyPhysicsSources(scene,plan){
+ const enabled=new Set(Object.entries(scene.physics||{}).filter(([,s])=>s.enabled).map(([id])=>id)),sources=new Map();
+ for(const instance of scene.instances.filter(row=>enabled.has(row.id))){const target=controller.getLoaded(instance.id);sources.set(modelSource(instance.asset).url,target?.sourceHash);}
+ for(const row of plan.rows.filter(row=>enabled.has(row.target_scene_instance_id)&&row.status==='ready'))sources.set(row.motion_format==='VMD'?vmdUrl(row.motion_asset):modelSource(row.motion_asset).url,motionCoordinator.sourceHash(row.clip_id));
+ for(const [url,expected] of sources){const response=await fetch(url,{cache:'no-store'});if(!response.ok||!expected||await sourceDigest(await response.arrayBuffer())!==expected)throw Error('物理の元PMXまたは動作が変わりました。再読込して準備し直してください。');}
+}
+function samplePhysicsPose(seconds){
+ for(const instance of sceneSnapshot?.instances||[]){const target=controller?.getLoaded(instance.id);if(target?.format==='PMX'){target.resetPose?.();resetMorphs(target.object);}}
+ applyTimelineVisibility(seconds);
+ const result=motionCoordinator.seek(seconds);
+ if(result?.errors?.length)throw Error(result.errors.map(x=>String(x.error?.message||x.error)).join('; '));
+ const missing=applySavedFace(seconds);if(missing.length)throw Error('物理の元姿勢に未読込の表情があります: '+missing.join(', '));
+}
 function seekScene(seconds){
   if(contactCandidate){
     try{contactCandidate.assertCurrent();}
@@ -1467,7 +1503,7 @@ function seekScene(seconds){
   try{
     for(const instance of sceneSnapshot?.instances||[]){
       const target=controller?.getLoaded(instance.id);
-      if(target?.format==='PMX')resetMorphs(target.object);
+      if(target?.format==='PMX'){if(sceneSnapshot?.physics?.[instance.id]?.enabled)target.resetPose?.();resetMorphs(target.object);}
     }
     applyTimelineVisibility(seconds);
     const problems=[];
@@ -1476,6 +1512,8 @@ function seekScene(seconds){
     if(result?.errors?.length)problems.push(...result.errors.map(x=>String(x.error?.message||x.error)));
     try{const missing=applySavedFace(seconds);if(missing.length)problems.push('未読込の表情モーフ: '+missing.join(', '));}
     catch(error){problems.push(String(error.message||error));}
+    if(!previewFk&&!previewArm){try{physicsCache?.apply(seconds);}catch(error){problems.push(String(error.message||error));}}
+    if(previewFk||previewArm)redrawPhysics();
     timelineIssue=problems.join('; ')||null;
     if(timelineIssue)motionStatus.textContent=timelineIssue;
     seekInput.value=String(seconds);
@@ -1852,6 +1890,9 @@ async function reload(){
   cameraCandidate=null;viewport?.clearImportedCamera();
   clearContact('未作成',false);
   if(!opened)return;
+  physicsCache?.dispose();physicsCache=null;reloadReady=false;
+  if(Object.values(sceneSnapshot?.physics||{}).some(setting=>setting.enabled)){physicsState={state:'building'};redrawPhysics();}
+  canvasParent.style.visibility='hidden';
   morphMapNonce++;morphMaps=null;
   clearMorphAnalysis();
   clearVrmAnalysis();
@@ -1898,6 +1939,24 @@ async function reload(){
     clearVrmAnalysis();
     await loadMorphMaps(id);
     if(thisNonce!==nonce||!opened||id!==project.value)return;
+    if(Object.values(data.physics||{}).some(setting=>setting.enabled)){
+      physicsState={state:'building'};redrawPhysics();
+      const arranged=await request('/api/studio/v05/arrangement?id='+encodeURIComponent(id));
+      if(arranged.revision!==plan.arrangement_revision)throw Error('物理の準備前に配置が変わりました。再読込してください。');
+      await verifyPhysicsSources(data,plan);
+      const mapBefore=await Promise.all([request('/api/studio/v05/pmx/morph-map?project_id='+encodeURIComponent(id)),request('/api/studio/v05/vrm/expression-map?project_id='+encodeURIComponent(id))]);
+      canvasParent.style.visibility='hidden';
+      try{
+        let announced=-1;
+        const cache=await buildTimelinePhysics({scene:data,arrangement:arranged,getLoaded:instanceId=>controller.getLoaded(instanceId),sample:samplePhysicsPose,isCurrent:()=>thisNonce===nonce&&opened,onProgress:value=>{const percent=Math.floor(value*10)*10;if(percent!==announced){announced=percent;progress.textContent='MMD物理を準備中… '+percent+'%';}}});
+        if(thisNonce!==nonce||!opened){cache.dispose();return;}
+        const [afterScene,afterPlan,afterEdits,afterLip]=await Promise.all([request('/api/studio/v05/scene/instances?id='+encodeURIComponent(id)),request('/api/studio/v05/scene/multi-motion-plan?id='+encodeURIComponent(id)),request('/api/studio/v05/motion-edits?id='+encodeURIComponent(id)),loadLipAdoptions(id)]);
+        if(afterScene.revision!==data.revision||afterPlan.arrangement_revision!==plan.arrangement_revision||JSON.stringify(afterEdits)!==JSON.stringify(edits)||JSON.stringify(afterLip)!==JSON.stringify(adoptions)){cache.dispose();throw Error('物理の準備中に作品が変わりました。再準備してください。');}
+        try{await verifyPhysicsSources(data,plan);const mapAfter=await Promise.all([request('/api/studio/v05/pmx/morph-map?project_id='+encodeURIComponent(id)),request('/api/studio/v05/vrm/expression-map?project_id='+encodeURIComponent(id))]);if(JSON.stringify(mapBefore)!==JSON.stringify(mapAfter)||thisNonce!==nonce||!opened)throw Error('物理の準備中に作品が変わりました。再準備してください。');}catch(error){cache.dispose();throw error;}
+        physicsCache=cache;physicsState={state:'ready',models:cache.models,bytes:cache.bytes,hz:60,solver:'mmd-fixed60-v1'};
+      }finally{/* Only the successful full scene reload publishes the canvas. */}
+    }else physicsState={state:'off'};
+    physicsDirty=false;redrawPhysics();
     setFkFrameFromSeek();
     for(const i of data.instances){const target=controller?.getLoaded(i.id);if(target?.root)target.root.visible=i.visible!==false;}
     // Establish the outside-clip view before sampling a camera VMD. An active
@@ -1912,6 +1971,7 @@ async function reload(){
     fallbackView=viewport.captureCameraState();lastCameraClip=null;
     cameraStatus.textContent=data.camera?'保存済みカメラを反映（視点変更後は再保存）':'カメラ未保存：自動構図で表示・出力';
     seekScene(currentSeek());
+    canvasParent.style.visibility='';
     saveCameraBtn.disabled=controller.status().loaded<1||viewport.importedCameraActive;
     viewport.invalidate?.();
     reloadReady=true;
@@ -1919,6 +1979,8 @@ async function reload(){
     window.dispatchEvent(new CustomEvent('bai:v58-scene-reloaded',{detail:{projectId:id,loaded:controller.status().loaded}}));
   }catch(error){
     if(thisNonce===nonce&&opened){
+      physicsCache?.dispose();physicsCache=null;physicsState=Object.values(sceneSnapshot?.physics||{}).some(setting=>setting.enabled)?{state:'failed',error:'物理の準備失敗: '+String(error.message||error)}:{state:'off'};redrawPhysics();
+      if(physicsState.state==='failed'&&!captureMode){physicsControls.open=true;physicsMessage.focus();}
       motionEdits=null;lipAdoptions=null;previewFk=null;previewArm=null;motionPlan=null;
       motionCoordinator?.clear();
       for(const instance of sceneSnapshot?.instances||[])controller?.getLoaded(instance.id)?.resetPose?.();
@@ -1943,6 +2005,7 @@ async function open(options={}){
   panel.hidden=!controlsVisible;panel.style.display=controlsVisible?'flex':'none';
 }
 function close(){
+  canvasParent.style.visibility='';physicsCache?.dispose();physicsCache=null;physicsState={state:'off'};
   cameraCandidate=null;
   clearContact('未作成',false);
   nonce++;opened=false;controlsVisible=false;reloadReady=false;
@@ -1966,7 +2029,7 @@ refreshBtn.addEventListener('click',reload);
 choose.addEventListener('change',()=>{
   discardFkPreview();
   activeArm=null;
-  selectedId=choose.value;
+  selectedId=choose.value;physicsDirty=false;redrawPhysics();
   spatialEditor?.select(selectedId);
   redrawFaceControls();
   clearMorphAnalysis();
@@ -2613,7 +2676,9 @@ window.addEventListener('bai:v98-face-key-select',async event=>{
 });
 window.addEventListener('bai:v106-fk-saved',async event=>{
   const id=event.detail?.projectId;
-  if(!opened||!id||project?.value!==id||motionEdits?.revision===event.detail?.revision)return;
+  if(!opened||!id||project?.value!==id)return;
+  if(Object.values(sceneSnapshot?.physics||{}).some(setting=>setting.enabled)){await reload();return;}
+  if(motionEdits?.revision===event.detail?.revision)return;
   try{
     const data=await request('/api/studio/v05/motion-edits?id='+encodeURIComponent(id));
     if(!opened||project?.value!==id)return;
@@ -2624,6 +2689,7 @@ window.addEventListener('bai:v106-fk-saved',async event=>{
 window.addEventListener('bai:v199-lip-adoption-changed',async event=>{
   const id=event.detail?.projectId,token=nonce;
   if(!opened||!id||project?.value!==id)return;
+  if(Object.values(sceneSnapshot?.physics||{}).some(setting=>setting.enabled)){await reload();return;}
   try{
     const fresh=await loadLipAdoptions(id);
     if(!opened||nonce!==token||project?.value!==id)return;
@@ -2659,6 +2725,7 @@ window.addEventListener('bai:v106-fk-key-select',async event=>{
 window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
+  async openPhysicsSettings(){await open({composite:true});physicsControls.open=true;redrawPhysics();physicsField.focus();},
   setCameraCandidate(value){
     if(captureMode||!opened||!viewport)throw Error('操作用の3Dプレビューを開いてください');
     if(value&&value.projectId!==project.value)throw Error('候補の作品が一致しません');
@@ -2693,7 +2760,7 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     return {sole:s.sole.toArray(),ankle:s.ankle.toArray(),target:s.target.toArray(),legLength:rig.leg,
       tolerance:rig.tolerance,morphs:s.morphs,vertexCount:rig.vertexCount};
   },
-  status:()=>({...controller?.status(),motion:motionCoordinator?.status(),opened,composite,controlsVisible,ready:reloadReady,
+  status:()=>({...controller?.status(),physics:{...physicsState},motion:motionCoordinator?.status(),opened,composite,controlsVisible,ready:reloadReady,
     rendererReady:Boolean(viewport),renderer:viewport?.rendererName||null,
     timelineModels:(sceneSnapshot?.timeline_models||[]).map(row=>({...row,loaded:Boolean(controller?.getLoaded(row.instance_id)),visible:Boolean(controller?.getLoaded(row.instance_id)?.root?.visible)})),
     timelineEffects:sceneSnapshot?.timeline_effects||[],timelineProblems:timelineProblems(),activeCameraClip:lastCameraClip,timelineIssue,
@@ -2825,7 +2892,7 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     if(motion?.issues?.length)throw Error('3D motion has unresolved issues');
     for(const instance of sceneSnapshot?.instances||[]){
       const target=controller?.getLoaded(instance.id);
-      if(target?.format==='PMX')resetMorphs(target.object);
+      if(target?.format==='PMX'){if(sceneSnapshot?.physics?.[instance.id]?.enabled)target.resetPose?.();resetMorphs(target.object);}
     }
     applyTimelineVisibility(frame/fps);
     applyTimelineCamera(frame/fps);
@@ -2833,6 +2900,7 @@ window.BAIStudioMultiScenePreview=Object.freeze({
     if(result?.errors?.length)throw Error('3D motion seek failed: '+result.errors.map(x=>String(x.error?.message||x.error)).join('; '));
     const missing=applySavedFace(frame/fps);
     if(missing.length)throw Error('Saved face morph not found: '+missing.join(', '));
+    physicsCache?.apply(frame/fps);
     // The capture page has no transform gizmo. Render synchronously after the
     // exact motion seek; preserveDrawingBuffer keeps the transparent pixels.
     viewport.renderer.setPixelRatio(1);

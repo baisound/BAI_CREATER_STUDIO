@@ -103,6 +103,7 @@ export async function createPmxPhysicsPreview(pmx, motionPreview) {
   }
   return {
     dynamicBodies,
+    dynamicBones: [...new Map(rigidBodies.filter(body=>body.type!==0&&body.boneIndex>=0).map(body=>[body.boneIndex,{index:body.boneIndex,preservePosition:body.type===2}])).values()],
     lengthPreservedBodies,
     constraints: mmd.constraints.length,
     /** @param {number} seconds @param {boolean} continuous */

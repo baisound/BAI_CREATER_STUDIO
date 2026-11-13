@@ -2,6 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {spawnSync}=require('node:child_process'),h=require('./helpers/studio-harness.cjs');
 const blender=process.env.MIXAMO_BLENDER,zip=process.env.BAI_CINEMA_ADDON_ZIP;
+const physics=process.env.BAI_CINEMA_PHYSICS==='1';
 const out=path.resolve(process.env.BAI_CINEMA_ANIMATED_OUTPUT||'../test-temp/cinemaoperator-animated');
 async function json(r,status=200){const text=await r.text();assert.equal(r.status,status,text);return JSON.parse(text);}
 async function post(s,route,body,status=200){return json(await fetch(s.base+'/api/studio/v05/'+route,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}),status);}
@@ -11,6 +12,7 @@ test('PMX motion/face/lip evaluated movie -> real CinemaOperator Bake -> B1/MP4,
  {skip:(!blender||!zip)&&'real Blender/addon required',timeout:480000},async()=>{
  const generated=spawnSync(h.python,['-X','utf8','-m','tests.helpers.timeline-scene-fixture'],{encoding:'utf8',windowsHide:true});assert.equal(generated.status,0,generated.stderr);
  const input=JSON.parse(generated.stdout),seed=Object.fromEntries(Object.entries(input.seed).map(([key,value])=>[key,Buffer.from(value,'base64')]));
+ if(physics){const pmx=spawnSync(h.python,['-c','import sys;from tools.make_test_pmx import build_pmx;sys.stdout.buffer.write(build_pmx(physics=True))'],{windowsHide:true});assert.equal(pmx.status,0);seed['mmd/A/timeline.pmx']=pmx.stdout;}
  const s=await h.startServer({port:Number(process.env.BAI_CINEMA_TEST_PORT)||8925,seed});fs.mkdirSync(out,{recursive:true});let browser,page;const report={status:'running'};
  try{
   const pid=(await post(s,'projects',{name:'PMX撮影コピーの検証',kind:'empty'})).project.id;
@@ -19,7 +21,8 @@ test('PMX motion/face/lip evaluated movie -> real CinemaOperator Bake -> B1/MP4,
   const model=await place('mmd:A:timeline.pmx','model',.25,1.5),rid='timeline:'+model.id;
   const motion=await place('mmd:vmd:body.vmd','motion',.25,1.5),face=await place('mmd:vmd:face.vmd','expression',.5,.5),lip=await place('mmd:vmd:lip.vmd','lip',1,.5);
   for(const clip of [motion,face,lip])arranged=await post(s,'scene/motion-target',{project_id:pid,revision:arranged.revision,clip_id:clip.id,instance_id:rid});
-  const scene=await post(s,'scene/instances',{project_id:pid,action:'camera',revision:0,camera:{position:[0,.04,.64],target:[0,.04,0],fov:45}});
+  let scene=await post(s,'scene/instances',{project_id:pid,action:'camera',revision:0,camera:{position:[0,.04,.64],target:[0,.04,0],fov:45}});
+  if(physics)scene=await post(s,'scene/instances',{project_id:pid,action:'physics',revision:scene.revision,instance_id:rid,physics_enabled:true});
   const inspected=await json(await fetch(s.base+'/api/studio/v05/blender-addons/inspect',{method:'POST',body:fs.readFileSync(zip)}));
   const addon=await json(await fetch(s.base+'/api/studio/v05/blender-addons/register?'+new URLSearchParams({member:inspected.choices[0].member}),{method:'POST',body:fs.readFileSync(zip)}));
   const baseline=JSON.parse(JSON.stringify(await json(await fetch(s.base+'/api/studio/v05/arrangement?id='+pid))));
@@ -32,6 +35,7 @@ test('PMX motion/face/lip evaluated movie -> real CinemaOperator Bake -> B1/MP4,
   assert.match(await page.locator('#co-status').innerText(),/^準備済み/);const sid=await page.locator('#co-session').inputValue();assert.ok(sid);
   const folder=path.join(s.dataDir,'studio_v05_blender_sessions',sid),m=JSON.parse(fs.readFileSync(path.join(folder,'manifest.json'),'utf8')),movie=JSON.parse(fs.readFileSync(path.join(folder,'geometry.json'),'utf8'));
   assert.equal(m.capture_mode,'evaluated');assert.equal(movie.frame_count,60);assert.equal(movie.meshes.length,1);
+  if(physics)assert.equal(movie.physics.state,'ready');
   assert.equal(await page.locator('#co-ack').evaluate(e=>document.activeElement===e),true);
   await page.screenshot({path:path.join(out,'scene-copy-1440.png')});await page.setViewportSize({width:1024,height:768});assert.ok(await page.locator('#cinemaoperator-panel').evaluate(e=>e.scrollWidth<=e.clientWidth+2));await page.screenshot({path:path.join(out,'scene-copy-1024.png')});await page.setViewportSize({width:1440,height:900});
   // Absolute-time sampling agrees for full and nonzero-start subranges.
@@ -67,10 +71,11 @@ test('PMX motion/face/lip evaluated movie -> real CinemaOperator Bake -> B1/MP4,
   // Fractional FPS and nonzero beginning, through the native cache modifier.
   const fractional=(await post(s,'projects',{name:'29.97fps撮影コピー',kind:'empty'})).project.id;
   await post(s,'project/fps',{project_id:fractional,fps:29.97});
-  await post(s,'arrangement/place',{project_id:fractional,revision:0,asset_id:'mmd:A:timeline.pmx',track:'model',start:0,duration:2});
+  const fractionalModel=await post(s,'arrangement/place',{project_id:fractional,revision:0,asset_id:'mmd:A:timeline.pmx',track:'model',start:0,duration:2});
+  if(physics)await post(s,'scene/instances',{project_id:fractional,action:'physics',revision:0,instance_id:'timeline:'+fractionalModel.clip.id,physics_enabled:true});
   const fraction=await post(s,'blender-addons/prepare',{project_id:fractional,addon_id:addon.id,start_frame:9,end_frame:38});
   const fractionManifest=JSON.parse(fs.readFileSync(path.join(s.dataDir,'studio_v05_blender_sessions',fraction.id,'manifest.json'),'utf8'));assert.equal(fractionManifest.fps,29.97);assert.equal(fractionManifest.start_frame,9);
-  report.status='passed';report.vertex_probes=probes;report.mp4_frames=60;report.case_count=movie.frame_count;report.renderer=movie.renderer;
+  report.status='passed';report.physics=movie.physics;report.vertex_probes=probes;report.mp4_frames=60;report.case_count=movie.frame_count;report.renderer=movie.renderer;
   fs.writeFileSync(path.join(out,'private-state.json'),JSON.stringify({data:s.dataDir,pid,folder,session:sid,addon:addon.id}));h.assertNoErrors(page);
  }catch(e){report.status='failed';report.error=e.stack;await page?.screenshot({path:path.join(out,'failure.png')}).catch(()=>{});throw e;}
  finally{fs.writeFileSync(path.join(out,'result.json'),JSON.stringify(report,null,2));await browser?.close();await s.stop();}
