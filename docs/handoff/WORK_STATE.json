@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T07:07:20+09:00",
+  "updated_at": "2026-11-14T07:12:18+09:00",
   "updated_by": "codex",
   "branch": "codex/timeline-pmx-physics-20261114",
-  "head_at_update": "2d440a5",
+  "head_at_update": "4acfa75",
   "current": {
     "task": "MOTION-019/CAM-019：PMX物理のPR/main統合と制作画面同期",
-    "status": "in_progress",
+    "status": "done",
     "step": "全レビュー修正と両OS/実PMXの限定検証成功。PR差分・checkを確認してmainへ統合し利用環境を同期する。",
     "design_doc": "docs/v05/TIMELINE_PMX_PHYSICS_20261114_JA.md"
   },
   "next_steps": [
-    "PRレビューとmain統合、8765と制作画面を同期"
+    "承認済みロードマップの残件を保持。CAM-019全体/順3全体・全形式/長尺/全物理品質は未完。次のOwner指定から再開。"
   ],
   "unverified": [
     "全モデル物理品質・長尺上限・FBX/全材質・Linux実GPU/nativeGUI/実PMX・SR/200%/全Tab・別版/DOF・CAM-019/順3全体"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T07:12:18+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4acfa75",
+      "text": "PR318/main bbd990eへPMX物理を統合。ローカルmain/8765の実ソース/登録版と既存Live制作画面を同期し利用者データ保持を確認。両OSと実PMXの限定検証記録を確定。"
+    },
     {
       "at": "2026-11-14T07:07:20+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "635d40c",
       "text": "AUDIO-002：インサート直接起動・Windows固有GUI状態回収と共通時計のピーク/LUFSを代表検証。Win59成功/Ubuntu57成功2skip/Chrome7種類/typecheck成功。全体完了ではない"
-    },
-    {
-      "at": "2026-11-13T05:33:26+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "3a53297",
-      "text": "VST固有画面と再生連動メーター・ラウドネス: 別プロセスの固有GUIと安全な状態回収を接続し、共通時刻で各行/バス/マスターを計測表示"
     }
   ]
 }
