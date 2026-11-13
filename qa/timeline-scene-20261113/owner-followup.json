@@ -1,0 +1,12 @@
+{
+  "requirements": [
+    "素材ごとに元骨格が異なるVMDの体格差補正",
+    "GLB動作+PMX物理での髪/アクセサリー伸びの修正"
+  ],
+  "status": "investigation_in_progress",
+  "private_reproduction_details": "kept locally; not included in public records",
+  "current_boundary": "VMD: IK/grant + manual corrections; GLB: rest-relative rotations + mesh-height root scaling. Precise proportion correction unverified",
+  "next": "隔離した実物理/補助骨の再現と素材別補正。Blender CAM-019-B1の承認済み差込みを保持",
+  "merge": "pending; do not treat unresolved visual defect as complete",
+  "source_model_clarification": "Owner: 元VMD制作モデルは不明。対象モデル側の骨長/可動範囲で接地・到達を補正し素材/モデルごとに保存する。元体格の正確な復元と混同しない"
+}

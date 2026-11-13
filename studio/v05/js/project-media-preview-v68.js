@@ -33,15 +33,30 @@
     return null;
   };
   const clamp = frame => Math.max(0, Math.min(state.outFrame, Math.round(Number(frame) || 0)));
-  const activeAt = (clip, seconds) => seconds >= clip.start && seconds < clip.start + clip.duration;
+  const activeAt = (clip, seconds) => seconds >= clip.start && seconds < Math.round((clip.start + clip.duration)*10000)/10000;
   const pauseElement = element => { try { element.pause(); } catch (_) { /* detached */ } };
+  function visibleIssues(){
+    const scene=window.BAIStudioMultiScenePreview?.status?.();
+    if(!scene?.ready||scene.projectId!==state.projectId)return [...state.issues];
+    const handled=new Set((scene.timelineModels||[]).filter(row=>row.status==='ready'&&row.loaded).map(row=>row.clip_id));
+    for(const id of scene.motion?.loadedClips||[])handled.add(id);
+    for(const row of scene.timelineEffects||[])if(row.status==='ready'&&(row.track==='camera'||scene.ids?.includes(row.target_scene_instance_id)))handled.add(row.clip_id);
+    const issues=state.issues.filter(issue=>!state.clips.some(c=>handled.has(c.id)&&issue===`${c.name}: ${c.category}はこのプレビューに未接続`));
+    for(const row of scene.timelineProblems||[]){
+      const clip=state.clips.find(c=>c.id===row.clip_id),generic=clip&&`${clip.name}: ${clip.category}はこのプレビューに未接続`;
+      const index=issues.indexOf(generic);if(index>=0)issues[index]=`${row.name}: ${row.reason}`;
+    }
+    if(scene.timelineIssue)issues.unshift(scene.timelineIssue);
+    return issues;
+  }
   function refreshStage() {
     stage.hidden = !state.clips.length && !state.sceneOverlay;
     if (state.sceneOverlay) $('v68stageNote').hidden = true;
     const sceneLoaded = state.sceneOverlay && window.BAIStudioMultiScenePreview?.status?.().loaded > 0;
     const playable = state.entries.filter(entry => !entry.failed).length;
     $('v68play').disabled = state.playing || !state.ready || !state.audioSettingsReady || (!playable && !sceneLoaded);
-    if (state.ready) message(`${playable}件の画像・動画・音声を同じ作品でプレビュー。${state.issues.length ? `未接続 ${state.issues.length}件: ${state.issues.slice(0, 2).join(' / ')}` : state.sceneOverlay ? '3Dを同じ画面に重ねて表示。限定MP4は出力画面で条件を確認。' : '動画内音声も動画とともに再生。限定MP4は出力画面に接続。'}`);
+    const issues=visibleIssues();
+    if (state.ready) message(`${playable}件の画像・動画・音声を同じ作品でプレビュー。${issues.length ? `未接続 ${issues.length}件: ${issues.slice(0, 2).join(' / ')}` : state.sceneOverlay ? '3Dを同じ画面に重ねて表示。限定MP4は出力画面で条件を確認。' : '動画内音声も動画とともに再生。限定MP4は出力画面に接続。'}`);
   }
   function release() {
     cancelAnimationFrame(state.raf);
@@ -91,6 +106,7 @@
     if (state.ready) window.dispatchEvent(new CustomEvent('bai:v05-media-frame', {
       detail: { projectId: state.projectId, frame: state.frame, seconds, fps: state.fps, playing: state.playing },
     }));
+    if(state.ready&&state.sceneOverlay)refreshStage();
   }
   function pause(commit = false) {
     if (!state.playing) return;
@@ -322,7 +338,7 @@
     sceneOverlay(active) { state.sceneOverlay = Boolean(active); refreshStage(); setFrame(state.frame); },
     status: () => ({ projectId: state.projectId, frame: state.frame, fps: state.fps,
       ready: state.ready, playing: state.playing, mediaCount: state.entries.length,
-      sceneOverlay: state.sceneOverlay, issues: [...state.issues],
+      sceneOverlay: state.sceneOverlay, issues: visibleIssues(),
       mutedAudioTracks: [...state.audioMuted], audioLayoutRevision: state.layoutRevision,
       audioSettingsReady: state.audioSettingsReady }),
   });

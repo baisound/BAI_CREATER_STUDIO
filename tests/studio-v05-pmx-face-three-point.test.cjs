@@ -72,9 +72,9 @@ test('real PMX expression and mouth keys survive F0, middle, tail, reload and MP
       headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,clip_id:placed.clip.id,
         revision:placed.revision,instance_id:instanceId})}));
     browser=await server.launchBrowser();page=await server.newPage(browser);
-    await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.goto(`${server.base}/studio/v05/index.html`);await page.locator('#uiMainNav [data-workspace=edit]').click();
     await page.locator('#v06project').selectOption(id);
-    await page.locator('#nav [data-workspace="edit"]').click();
+    await page.locator('#uiMainNav [data-workspace="edit"]').click();
     await page.locator('#v70sceneOpen').click();
     const loaded=()=>page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
       window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
@@ -155,8 +155,8 @@ test('real PMX expression and mouth keys survive F0, middle, tail, reload and MP
     assert.deepEqual(stored.face_keys.map(key=>[key.morph_name,key.time,key.value,key.track]),
       points.flatMap(point=>[['まばたき',point.seconds,point.eye,'expression'],
         ['あ',point.seconds,point.mouth,'lip']]).sort((a,b)=>a[0].localeCompare(b[0],'ja')||a[1]-b[1]));
-    await page.reload();await page.locator('#v06project').selectOption(id);
-    await page.locator('#nav [data-workspace="edit"]').click();await page.locator('#v70sceneOpen').click();await loaded();
+    await page.reload();await page.locator('#uiMainNav [data-workspace=edit]').click();await page.locator('#v06project').selectOption(id);
+    await page.locator('#uiMainNav [data-workspace="edit"]').click();await page.locator('#v70sceneOpen').click();await loaded();
     await assertLayout();
     const keyed=[];
     for(const point of points){

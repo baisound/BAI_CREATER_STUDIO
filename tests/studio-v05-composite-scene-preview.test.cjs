@@ -48,9 +48,9 @@ test('saved 3D canvas overlays the same project image with transparent backgroun
     }));
     browser = await server.launchBrowser();
     page = await server.newPage(browser);
-    await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.goto(`${server.base}/studio/v05/index.html`);await page.locator('#uiMainNav [data-workspace=edit]').click();
     await page.locator('#v06project').selectOption(id);
-    await page.locator('#nav [data-workspace="edit"]').click();
+    await page.locator('#uiMainNav [data-workspace="edit"]').click();
     await page.waitForFunction(projectId => window.BAIStudioMediaPreviewV68?.status().ready &&
       window.BAIStudioMediaPreviewV68.status().projectId === projectId &&
       document.querySelector('#v68layers img')?.naturalWidth > 0, id);
@@ -82,9 +82,9 @@ test('saved 3D canvas overlays the same project image with transparent backgroun
     await page.locator('#v68frame').fill('60');
     await page.locator('#v68seek').click();
     await page.waitForFunction(() => window.BAIStudioMediaPreviewV68.status().frame === 60);
-    await page.reload();
+    await page.reload();await page.locator('#uiMainNav [data-workspace=edit]').click();
     await page.locator('#v06project').selectOption(id);
-    await page.locator('#nav [data-workspace="edit"]').click();
+    await page.locator('#uiMainNav [data-workspace="edit"]').click();
     await page.locator('#v70sceneOpen').click();
     await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().loaded === 1 &&
       window.BAIStudioMultiScenePreview.status().composite === true);

@@ -306,7 +306,7 @@ export const musicDanceStudio = (ctx) => {
           const prepared = await createPmxPhysicsPreview(actor, preview);
           if (!alive || my !== loadGeneration) { prepared.dispose(); return; }
           physics = prepared;
-          physicsStatus.textContent = `MMD物理を適用中：動的剛体 ${physics.dynamicBodies}、ジョイント ${physics.constraints}。`;
+          physicsStatus.textContent = `MMD物理を適用中：動的剛体 ${physics.dynamicBodies}、ジョイント ${physics.constraints}。${physics.lengthPreservedBodies?' 髪・紐は長さを保持して揺らします。':''}`;
           physicsStatus.dataset.kind = 'info'; physicsOn.disabled = false;
         } catch (e) {
           if (!alive || my !== loadGeneration) return;

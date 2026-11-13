@@ -427,7 +427,7 @@ def _snapshot(data_root: Path, project_id: str, range_revision: int, arrangement
     files = {entry.get("id"): entry for entry in inventory if isinstance(entry, dict)}
     resolved = []
     for clip in clips:
-        if clip.get("category") == "motion" and scene_motion_ids is not None:
+        if clip.get("track") in {"model","motion","expression","lip","camera"} and scene_motion_ids is not None:
             if clip.get("id") not in scene_motion_ids:
                 raise RenderError(f"{clip.get('name', 'Motion')}: 3Dシーンへ適用できない動作です")
             continue  # the captured scene contains this motion at saved frame times
@@ -490,8 +490,12 @@ def _scene_snapshot(data_root: Path, project_id: str, scene_revision: int,
     if any(row["status"] != "ready" for row in plan["rows"]):
         raise RenderError("未割当または読込不能な3D動作があります。書き出し前に解決してください")
     assets = {entry.get("id"): entry for entry in inventory if isinstance(entry, dict)}
+    effect_rows=scene.get('timeline_effects',[])
+    if any(row['status']!='ready' for row in effect_rows):
+        raise RenderError('カメラ・表情の未割当、重なり、読込失敗を解決してください')
     selected_ids = {row["asset_id"] for row in visible}
     selected_ids.update(row["asset_id"] for row in plan["rows"])
+    selected_ids.update(row['asset_id'] for row in effect_rows)
     inputs = []
     for asset_id in sorted(selected_ids):
         entry = assets.get(asset_id)
@@ -518,7 +522,10 @@ def _scene_snapshot(data_root: Path, project_id: str, scene_revision: int,
                     inputs.append({"asset_id": asset_id, "kind": "scene_texture", "path": texture,
                                    "bytes": texture.stat().st_size, "registered_sha256": None,
                                    "clip": {"id": "scene:" + asset_id}})
-    return {row["clip_id"] for row in plan["rows"]}, inputs
+    model_rows=scene.get('timeline_models',[])
+    if any(row['status']!='ready' for row in model_rows):
+        raise RenderError('タイムラインの3Dモデルを読み込めません')
+    return {row["clip_id"] for row in plan["rows"]}|{row['clip_id'] for row in model_rows}|{row['clip_id'] for row in effect_rows}, inputs
 
 
 def _num(value: float) -> str:

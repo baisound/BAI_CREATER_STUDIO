@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: 24fps project evaluates legacy 30fps camera at the same seconds and holds its tail
+ok 1 - 24fps project evaluates legacy 30fps camera at the same seconds and holds its tail
+  ---
+  duration_ms: 2845.4823
+  type: 'test'
+  ...
+# Subtest: 24/60fps projects cross half-open 30fps camera cuts at the same seconds
+ok 2 - 24/60fps projects cross half-open 30fps camera cuts at the same seconds
+  ---
+  duration_ms: 2009.8919
+  type: 'test'
+  ...
+# Subtest: long project holds the last visible half-open camera shot
+ok 3 - long project holds the last visible half-open camera shot
+  ---
+  duration_ms: 1661.2504
+  type: 'test'
+  ...
+# composite pixels: {"width":914,"height":404,"center_changed":49185,"corner_mean":0}
+# Subtest: saved 3D canvas overlays the same project image with transparent background and shared seek
+ok 4 - saved 3D canvas overlays the same project image with transparent background and shared seek
+  ---
+  duration_ms: 5668.643
+  type: 'test'
+  ...
+# Subtest: real PMX expression and mouth keys survive F0, middle, tail, reload and MP4
+ok 5 - real PMX expression and mouth keys survive F0, middle, tail, reload and MP4 # SKIP BAI_REAL_MMD_DATA に実PMX/VMDがありません
+  ---
+  duration_ms: 0.7874
+  type: 'test'
+  ...
+# Subtest: saved 3D scene and WAV share a frame clock; incompatible dance reports its failure
+ok 6 - saved 3D scene and WAV share a frame clock; incompatible dance reports its failure
+  ---
+  duration_ms: 6181.7665
+  type: 'test'
+  ...
+# Subtest: 同じタイムラインのPMX・動き・表情・口・カメラを半開区間/保存復元/実MP4へ接続する
+ok 7 - 同じタイムラインのPMX・動き・表情・口・カメラを半開区間/保存復元/実MP4へ接続する
+  ---
+  duration_ms: 19919.1425
+  type: 'test'
+  ...
+# Subtest: モデルを配置しただけで画像の上へ描画し、配置の時間範囲・削除Undo・実MP4まで反映する
+ok 8 - モデルを配置しただけで画像の上へ描画し、配置の時間範囲・削除Undo・実MP4まで反映する
+  ---
+  duration_ms: 8893.1711
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 1
+# todo 0
+# duration_ms 72525.4887

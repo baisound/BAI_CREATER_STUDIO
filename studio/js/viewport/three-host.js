@@ -270,18 +270,23 @@ export function createViewport(container, libs, o = {}) {
       return true;
     },
     getCameraPose() {
-      return { position: camera.position.toArray(), target: controls.target.toArray(), fov: camera.fov };
+      return { position: activeCamera.position.toArray(), target: controls.target.toArray(), fov: camera.fov };
     },
     applyCameraPose(pose) {
-      if (viewMode !== 'perspective') api.setViewMode('perspective');
-      camera.position.fromArray(pose.position);
+      const parallel=pose.perspective===1;
+      if(parallel){if(viewMode==='perspective')api.setViewMode('front');}
+      else if(viewMode!=='perspective')api.setViewMode('perspective');
+      const posed=parallel?orthographic:camera;
+      posed.position.fromArray(pose.position);
+      posed.up.fromArray(pose.up||[0,1,0]);
       controls.target.fromArray(pose.target);
       perspectiveTarget.copy(controls.target);
       camera.fov = pose.fov;
-      const distance = camera.position.distanceTo(controls.target);
-      camera.near = Math.max(0.01, distance / 10000);
-      camera.far = Math.max(500, distance * 100);
-      camera.updateProjectionMatrix();
+      const distance = posed.position.distanceTo(controls.target);
+      posed.near = Math.max(0.01, distance / 10000);
+      posed.far = Math.max(500, distance * 100);
+      if(parallel){orthoHeight=2*distance*Math.tan(pose.fov*Math.PI/360);resize();}
+      posed.updateProjectionMatrix();
       controls.update();
       invalidate();
     },

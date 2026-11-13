@@ -51,6 +51,7 @@ async function main() {
     });
     const origin = `http://127.0.0.1:${config.port}`;
     await page.goto(`${origin}/studio/v05/index.html?scene_capture=1`, { waitUntil: 'domcontentloaded' });
+    await page.locator('#uiMainNav [data-workspace=edit]').click();
     await page.waitForFunction(id => [...document.querySelector('#v06project')?.options || []]
       .some(option => option.value === id), config.projectId);
     await page.locator('#v06project').selectOption(config.projectId);

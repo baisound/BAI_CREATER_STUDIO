@@ -14,7 +14,7 @@
     for(const row of rows){
       if(row?.status!=='ready'||!row.target_scene_instance_id)continue;
       if(!Number.isFinite(row.start)||!Number.isFinite(row.duration)||row.duration<=0)continue;
-      if(seconds>=row.start&&seconds<row.start+row.duration){
+      if(seconds>=row.start&&seconds<Math.round((row.start+row.duration)*10000)/10000){
         const id=row.target_scene_instance_id;
         if(targets[id])throw Error('Overlapping motion for scene instance '+id);
         targets[id]={...row,offsetSeconds:seconds-row.start};

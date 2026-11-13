@@ -6,7 +6,7 @@
   global.BAIStudioSharedSceneV57 = api;
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
-  function createHost({ scene, renderer, camera, onError = () => {} }) {
+  function createHost({ scene, renderer, camera, getCamera = null, onError = () => {} }) {
     if (!scene?.add || !scene?.remove || !renderer?.render || !camera)
       throw Error('Shared scene requires scene, renderer and camera');
     const entries = new Map();
@@ -61,7 +61,7 @@
           onError({ id, error });
         }
       }
-      renderer.render(scene, camera); // exactly once per global time evaluation
+      renderer.render(scene, getCamera ? getCamera() : camera); // exactly once per global time evaluation
       return { time, rendered: true, evaluated: entries.size, errors };
     }
     function nextGeneration() {

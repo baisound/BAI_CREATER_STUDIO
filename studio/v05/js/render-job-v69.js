@@ -317,9 +317,9 @@
         if (!custom) { custom = document.createElement('option'); custom.dataset.projectFps = 'true'; fpsSelect.prepend(custom); }
         custom.value = String(range.fps); custom.textContent = `${range.fps} fps（作品設定）`; fpsSelect.value = custom.value;
       }
-      const allowed = hasScene ? ['image', 'video', 'audio', 'music', 'motion'] : ['image', 'video', 'audio', 'music'];
+      const allowed = hasScene ? ['image', 'video', 'audio', 'music', 'motion', 'model', 'camera', 'expression', 'lip'] : ['image', 'video', 'audio', 'music'];
       const unsupported = arrangement.clips.find(clip => !allowed.includes(clip.category));
-      const unreadyMotion = hasScene && motion.rows.find(row => row.status !== 'ready');
+      const unreadyMotion = hasScene && [...motion.rows,...(scene.timeline_effects||[])].find(row => row.status !== 'ready');
       if (hasScene && resolution.value !== '720p') resolution.value = '720p';
       for (const option of resolution.options) if (option.value === '1080p') option.disabled = hasScene;
       const reason = !caps.available ? caps.reason : !range.valid ? range.error :

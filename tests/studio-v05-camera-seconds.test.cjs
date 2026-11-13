@@ -39,7 +39,7 @@ test('24fps project evaluates legacy 30fps camera at the same seconds and holds 
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({project_id:projectId,fps:24})}));
       browser=await server.launchBrowser();page=await server.newPage(browser);
-      await page.goto(`${server.base}/studio/v05/index.html`);
+      await page.goto(`${server.base}/studio/v05/index.html`);await page.locator('#uiMainNav [data-workspace=edit]').click();
       await page.locator('#v06project').selectOption(projectId);
       await page.waitForFunction(()=>window.BAIStudioCameraV29Runtime?.getFrameRate()===24);
       const at4=await seekCamera(page,4,96,120);
@@ -95,7 +95,7 @@ test('24/60fps projects cross half-open 30fps camera cuts at the same seconds',
         body:JSON.stringify({name:'CAM-015 カット境界60fps',kind:'empty'})}));
       const project60Id=created60.project.id;
       browser=await server.launchBrowser();page=await server.newPage(browser);
-      await page.goto(`${server.base}/studio/v05/index.html`);
+      await page.goto(`${server.base}/studio/v05/index.html`);await page.locator('#uiMainNav [data-workspace=edit]').click();
       await page.locator('#v06project').selectOption(projectId);
       await page.waitForFunction(()=>window.BAIStudioCameraV29Runtime?.getFrameRate()===24);
       const cases=[
@@ -158,7 +158,7 @@ test('long project holds the last visible half-open camera shot',
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({project_id:projectId,fps:24})}));
       browser=await server.launchBrowser();page=await server.newPage(browser);
-      await page.goto(`${server.base}/studio/v05/index.html`);
+      await page.goto(`${server.base}/studio/v05/index.html`);await page.locator('#uiMainNav [data-workspace=edit]').click();
       await page.locator('#v06project').selectOption(projectId);
       await page.waitForFunction(()=>window.BAIStudioCameraV29Runtime?.getFrameRate()===24);
       await page.evaluate(()=>{

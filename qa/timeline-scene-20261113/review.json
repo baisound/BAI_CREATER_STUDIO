@@ -1,0 +1,156 @@
+{
+  "scope": "タイムラインのモデル・カメラ・動き・表情/口の連動。全機能完成の判定ではない",
+  "skills": [
+    "impeccable (Operate / harden / craft-floor; context engine unavailable, direct context fallback)",
+    "web-design-guidelines (current primary guideline read)",
+    "bai-ux-guard"
+  ],
+  "top_tasks": [
+    {
+      "task": "配置したモデルを見る",
+      "entry": "制作 > タイムライン > 素材配置",
+      "feedback": "同じ背景の上へ自動合成、配置前後は非表示"
+    },
+    {
+      "task": "動き・表情・口をモデルへ割当",
+      "entry": "共通再生操作付近の3Dの操作・割当を開く",
+      "feedback": "種類/開始秒/対象モデル/保存状態と具体的な失敗理由"
+    },
+    {
+      "task": "同じ時刻を確認して動画出力",
+      "entry": "共通再生/フレーム移動 > 書き出し",
+      "feedback": "同じカメラ/姿勢/モーフを保存復元とMP4で照合"
+    }
+  ],
+  "critics": [
+    {
+      "role": "Critic1",
+      "agent": "/root/ui_critic_first_action",
+      "perspective": "最初の一手・認知負荷",
+      "findings": [
+        "SCENE-C1-01",
+        "SCENE-C1-02"
+      ]
+    },
+    {
+      "role": "Critic2",
+      "agent": "/root/ui_critic_workflow",
+      "perspective": "機能到達性・実作業経路",
+      "findings": [
+        "C2-3D-01",
+        "C2-3D-02"
+      ]
+    },
+    {
+      "role": "Critic3",
+      "agent": "/root/ui_critic_visual",
+      "perspective": "視覚階層・アクセシビリティ",
+      "findings": [
+        "C3-FOCUS-01"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "SCENE-C1-01",
+      "priority": "P2",
+      "required": true,
+      "evidence": "閉じた操作パネル内だけに理由が留まる。再批評で動きの未割当が集計対象外と確認",
+      "target": [
+        "scene-media-bridge-v70.js",
+        "project-media-preview-v68.js",
+        "multi-model-ui-v58.js"
+      ],
+      "fix": "動きのplan/browser load issueと表情/口/カメラをclipIDで一意集計し、通常statusで理由・入口で件数を表示",
+      "status": "PASS",
+      "validation": "effects-browser-release4.log: 初期未割当3件の理由/入口、重複理由/要確認とUndoを実Chromeで確認"
+    },
+    {
+      "id": "SCENE-C1-02",
+      "priority": "P2",
+      "required": false,
+      "evidence": "割当候補に英語statusと種類の区別がない",
+      "fix": "種類/開始秒/日本語状態とモデル素材名を表示",
+      "status": "PASS (assignment scope)",
+      "remaining": "タイムラインの英語内部行名の全体翻訳は未実施"
+    },
+    {
+      "id": "C2-3D-01",
+      "priority": "P2",
+      "required": true,
+      "evidence": "実評価errors/不足モーフが通常画面へ伝わらない",
+      "fix": "timelineIssueへ集約し通常statusの先頭へ表示",
+      "status": "PASS",
+      "validation": "重複/途中distance=0の実評価エラーの通常表示、capture拒否"
+    },
+    {
+      "id": "C2-3D-02",
+      "priority": "P2",
+      "required": true,
+      "evidence": "sampler例外で前フレームのカメラが残る",
+      "fix": "評価/適用全体のcatchでfallback復帰・activeCameraClip解除、正常な動きの評価は継続",
+      "status": "PASS",
+      "validation": "distance=0の実VMD fixtureで保存視点一致、頭/センターの実動作継続、capture拒否"
+    },
+    {
+      "id": "C3-FOCUS-01",
+      "priority": "P2",
+      "required": true,
+      "evidence": "パネル閉じる後のfocus復帰先がない",
+      "fix": "Enterで閉じると3D入口へ戻し、入口から割当元へfocus",
+      "status": "PASS",
+      "validation": "実Chrome Enter/activeElement。1024pxで横はみ出しなし"
+    }
+  ],
+  "judge": {
+    "role": "Root Judge",
+    "decision": "PASS for tested representative Windows workflow; retain NOT TESTED scope",
+    "required_open_findings": 0,
+    "basis": [
+      "effects/browser.json",
+      "effects-browser-release4.log",
+      "regression-browser2.log",
+      "regression-python-elevated.log",
+      "regression-ubuntu.log",
+      "typecheck.log"
+    ],
+    "implementation_state": "representative timeline linkage passed; owner-reported GLB+PMX physics deformation and per-asset fit investigation in progress; PR/main pending",
+    "not_tested": [
+      "Linux browser/GPU",
+      "full format/model/VMD matrix",
+      "long moving camera + morph output",
+      "physics / DOF / rail / shift",
+      "screen reader / 200% zoom / full Tab order",
+      "first-time human usability study"
+    ],
+    "local_evidence": "実素材の結果/原本hashは公開Gitへ含めずOwner確認フォルダーへ保存"
+  },
+  "screenshots": [
+    {
+      "file": "studio/v05/reviews/timeline-scene-20261113/timeline-effects-marked.png",
+      "markers": {
+        "1": "同じモデル/背景合成",
+        "2": "操作・割当入口",
+        "3": "保存された配置と同じ時刻"
+      }
+    },
+    {
+      "file": "studio/v05/reviews/timeline-scene-20261113/timeline-assignment-marked.png",
+      "markers": {
+        "1": "動き・表情・口の割当元",
+        "2": "対象モデル"
+      }
+    },
+    {
+      "file": "studio/v05/reviews/timeline-scene-20261113/timeline-assignment-1024.png",
+      "purpose": "狭幅の内部スクロールと横はみ出し確認"
+    }
+  ],
+  "proposals": [],
+  "next_approved_task": {
+    "requirement_id": "CAM-019-B1",
+    "issue": 238,
+    "status": "planned_unverified",
+    "priority": "immediately after current scene PR/main and production UI sync"
+  }
+}

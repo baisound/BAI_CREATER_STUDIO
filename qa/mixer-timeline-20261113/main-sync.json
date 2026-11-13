@@ -1,0 +1,53 @@
+{
+  "pr": 302,
+  "main": "3a53297b8d856d4185b823c3362f3d28c42daadd",
+  "server_pid": 76484,
+  "checks": [
+    {
+      "path": "studio/v05/js/audio-mixer.js",
+      "status": 200,
+      "sha256": "51f4a48ec754b902497d3c8813871f5b683aaa41dd34c267c4e8c3699ab63b1d",
+      "matches_main": true
+    },
+    {
+      "path": "studio/v05/js/project-media-preview-v68.js",
+      "status": 200,
+      "sha256": "90e2b30d6f98e13c8715952c0771aa88ab3e10428ffd90f9eb2a7b23116943a0",
+      "matches_main": true
+    },
+    {
+      "path": "studio/v05/css/audio-mixer.css",
+      "status": 200,
+      "sha256": "6cdf2f1846305318b677ce8a347f0e5073af23d23c9aa50c8e53e7cb0b2dea5f",
+      "matches_main": true
+    },
+    {
+      "path": "studio/v05/reviews/mixer-timeline-20261113/index.html",
+      "status": 200,
+      "sha256": "28eee096479260562d4053b164a6ba861ac8dae709c920ff9a87efec2e88d1a4",
+      "matches_main": true
+    }
+  ],
+  "audio_rows_api": {
+    "status": "PASS",
+    "rows": 3,
+    "has_saved_audio_clips": true
+  },
+  "native_browser": {
+    "tab": "1055946475",
+    "status": "PASS",
+    "observed": [
+      "real timeline row name",
+      "saved source material name",
+      "shared frame 0 / 60fps",
+      "lane gain/M/S",
+      "legacy bus disclosure"
+    ],
+    "owner_settings_changed": false
+  },
+  "data_guard": {
+    "files": 515,
+    "aggregate_sha256": "2882c11e2405e2d4cb5d5f23ccb951ad210dcf15ef54f08d3c8cbee6cd9489bf",
+    "unchanged": true
+  }
+}

@@ -1,9 +1,10 @@
 """Stage 59: revision-guarded motion clip -> scene instance association.
 Readiness is only format-level. Rendering/retarget success is browser-local.
 """
+import copy
 from pathlib import Path
 from bai_studio.projects.catalog import _atomic
-from bai_studio.v05.timeline.arrangement import read as arrangement_read, LOCK, ArrangementError, classify
+from bai_studio.v05.timeline.arrangement import read as arrangement_read, LOCK, ArrangementError, classify, _record_edit
 from bai_studio.v05.timeline.scene_instances import read as scene_read, SceneInstancesError
 from bai_studio.v05.motion.motion_plan import compatible
 
@@ -11,7 +12,7 @@ class MultiMotionError(ValueError): pass
 
 def plan(arrangement_root, scene_root, legacy_root, catalog, project_id, assets):
     arrangement = arrangement_read(arrangement_root, catalog, project_id)
-    scene = scene_read(scene_root, legacy_root, catalog, project_id, assets)
+    scene = scene_read(scene_root, legacy_root, catalog, project_id, assets, arrangement_root=arrangement_root)
     models = {i["id"]: i for i in scene["instances"]}
     asset_map = {a["id"]: a for a in assets if isinstance(a, dict) and isinstance(a.get("id"), str)}
     rows = []
@@ -65,12 +66,13 @@ def assign(arrangement_root, scene_root, legacy_root, catalog, project_id, clip_
         if revision!=arrangement["revision"]:raise MultiMotionError("Revision conflict")
         clip = next((c for c in arrangement["clips"] if c.get("id")==clip_id),None)
         if not clip:raise MultiMotionError("Clip not found")
-        if clip.get("track")!="motion" or clip.get("category")!="motion":raise MultiMotionError("Motion clip required")
+        if clip.get("track") not in {"motion","expression","lip"} or clip.get("category") not in {"motion","expression","lip"}:raise MultiMotionError("Motion or face clip required")
         if layout_root is not None:
             from bai_studio.v05.timeline.track_layout import get as get_layout
             if clip["track"] in get_layout(layout_root,catalog,project_id).get("locked",[]):
                 raise MultiMotionError("Track locked")
-        scene=scene_read(scene_root,legacy_root,catalog,project_id,assets)
+        scene=scene_read(scene_root,legacy_root,catalog,project_id,assets,arrangement_root=arrangement_root)
+        before=copy.deepcopy(arrangement['clips'])
         if instance_id is not None:
             instance=next((x for x in scene["instances"] if x["id"]==instance_id),None)
             if instance is None: raise MultiMotionError("Scene instance not found")
@@ -79,13 +81,12 @@ def assign(arrangement_root, scene_root, legacy_root, catalog, project_id, clip_
             motion=next((x for x in assets if x.get("id")==clip["asset_id"]),None)
             if not model or not motion or not motion.get("available") or classify(motion)!="motion":
                 raise MultiMotionError("Model or motion unavailable")
-            if not compatible(model.get("format"),motion.get("format")):
+            if not compatible(model.get("format"),motion.get("format")) or (clip['track'] in {'expression','lip'} and (model.get('format')!='PMX' or motion.get('format')!='VMD')):
                 raise MultiMotionError("Unsupported model/motion combination")
             clip["target_scene_instance_id"]=instance_id
         else:
             clip.pop("target_scene_instance_id",None)
-        arrangement["revision"]+=1
-        arrangement.pop("undo",None)
+        _record_edit(arrangement,before,"scene-target")
         _atomic(Path(arrangement_root)/(project_id+".json"),arrangement)
         return {"project_id":project_id,"clip_id":clip_id,
                 "target_scene_instance_id":instance_id,"revision":arrangement["revision"],

@@ -1,6 +1,7 @@
 /* One saved project clock drives the existing multi-model GPU scene and media preview. */
 (() => {
   'use strict';
+  let latest=null;window.addEventListener('bai:v05-arrangement-loaded',e=>{latest=e.detail;});
   function connect() {
   const transport = document.querySelector('#v68transport');
   const panel = document.querySelector('#v58-multi-preview');
@@ -9,7 +10,7 @@
   const button = document.createElement('button');
   button.id = 'v70sceneOpen';
   button.type = 'button';
-  button.textContent = '同じ作品の3Dを画面に重ねる';
+  button.textContent = '3Dの操作・割当を開く';
   transport.append(button);
   const controls = document.createElement('div');
   controls.id = 'v70sceneTransport';
@@ -22,6 +23,8 @@
   function update() {
     const current = media()?.status();
     const active = scene()?.status();
+    const needsAttention=(active?.timelineProblems||[]).length;
+    button.textContent='3Dの操作・割当を開く'+(needsAttention?`（要確認 ${needsAttention}件）`:'');
     const same = Boolean(current?.ready && current.projectId === selectedProject() && active?.opened);
     for (const id of ['v70back', 'v70play', 'v70pause', 'v70stop', 'v70forward']) $(id).disabled = !same;
     if (!active?.opened) return;
@@ -37,9 +40,21 @@
       if (!active?.opened) throw Error('3Dシーンを開けません');
       if (!active.loaded) $('v70sceneStatus').textContent = '保存済み3Dモデルがありません。左の「複数モデル」で追加してください。';
       else update();
+      panel.querySelector('select[aria-label="動き・表情・口のクリップ"]')?.focus();
     } catch (error) { $('v68status').textContent = `3Dシーンを開けません: ${error.message}`; }
     finally { button.disabled = false; }
   });
+  let autoOpened=false;
+  async function syncTimeline(){
+    if(!latest||latest.projectId!==selectedProject())return;
+    const hasModels=latest.clips?.some(c=>c.track==='model'&&c.category==='model');
+    if(!hasModels){if(autoOpened){autoOpened=false;scene()?.close();}return;}
+    autoOpened=true;
+    try{await scene()?.open({composite:true,compact:!scene()?.status().controlsVisible});update();}catch(e){$('v68status').textContent='配置モデルを表示できません: '+e.message;}
+  }
+  window.addEventListener('bai:v05-arrangement-loaded',()=>void syncTimeline());
+  if(latest)void syncTimeline();
+  else if(selectedProject())fetch('/api/studio/v05/arrangement?id='+encodeURIComponent(selectedProject()),{cache:'no-store'}).then(r=>r.json()).then(d=>{latest={projectId:d.project_id,clips:d.clips};void syncTimeline();}).catch(()=>{});
   $('v70play').addEventListener('click', () => { media()?.play(); update(); });
   $('v70pause').addEventListener('click', () => { media()?.pause(); update(); });
   $('v70stop').addEventListener('click', () => { void media()?.stop().then(update); });
