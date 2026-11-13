@@ -302,6 +302,9 @@ def capabilities(ffmpeg: str | None = None, ffprobe: str | None = None,
 
 def _source(entry: dict, library_root: Path, source_root: Path, inbox_root: Path, integrated_root: Path) -> Path | None:
     source = entry.get("source")
+    if source == 'blender_camera':
+        from bai_studio.v05.timeline.blender_camera import file_for
+        return file_for(library_root.parent,entry.get('id'))
     if source == "library":
         import bai_studio.assets.library_assets as library_assets
         found = library_assets.file_for(library_root, entry["id"])
@@ -504,7 +507,7 @@ def _scene_snapshot(data_root: Path, project_id: str, scene_revision: int,
         if not entry or not entry.get("available") or not path or not path.is_file():
             raise RenderError("3Dモデル・動作の登録原本が見つかりません")
         ext = path.suffix.lower()
-        if ext not in {".glb", ".vrm", ".pmx", ".vmd"}:
+        if ext not in {".glb", ".vrm", ".pmx", ".vmd"} and entry.get('source')!='blender_camera':
             raise RenderError(f"{entry.get('name', asset_id)}: この3D形式は限定MP4へ未接続です")
         inputs.append({"asset_id": asset_id, "kind": "scene", "path": path,
                        "bytes": path.stat().st_size, "registered_sha256": entry.get("sha256"),

@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "requirement": "CAM-019-B1",
+  "issue": 238,
+  "branch": "codex/blender-camera-import-20261113",
+  "status": "partial_verified",
+  "commit_reference": "54a5ec9（実装/試験/台帳）。後続PR・main同期記録へ紐付け",
+  "scope": [
+    "追加アドオン不要の.blend/評価済みJSON",
+    "不変候補/読取専用比較/明示採用",
+    "カメラ行/保存復元/UndoRedo/元区間編集",
+    "原投影と元撮影比率/共通時刻/MP4",
+    "手動UI/API/標準STDIO MCP/ChromeネイティブWebMCP"
+  ],
+  "tests": [
+    {
+      "id": "BC-PY-WIN",
+      "status": "PASS",
+      "count": 64,
+      "command": "python -X utf8 -m pytest tests/test_blender_camera_import.py tests/test_studio_v05_arrangement.py tests/test_v05_timeline_scene.py tests/test_v05_timeline_effects.py tests/test_target_contact_fit.py tests/test_studio_v05_motion_edits.py -q"
+    },
+    {
+      "id": "BC-PY-LINUX",
+      "status": "PASS",
+      "count": 64,
+      "environment": "Ubuntu WSL2",
+      "command": "same Python set"
+    },
+    {
+      "id": "BC-JS",
+      "status": "PASS",
+      "count": 5,
+      "command": "node --test --test-concurrency=1 tests/blender-camera-runtime.test.mjs tests/studio-v05-blender-camera.test.cjs tests/studio-v05-target-contact.test.cjs",
+      "environment": "Windows Chrome/RTX4070SUPER; both actual Blender reference matrices; Ubuntu generated .blend/JSON/reference images through Windows Studio"
+    },
+    {
+      "id": "BC-VMD-REGRESSION",
+      "status": "PASS",
+      "count": 1,
+      "command": "node --test tests/studio-v05-timeline-effects.test.cjs",
+      "notes": "初回は保存視点復帰失敗。修正後のGPU並行実行ではcapture頁の読込待ち時間切れ、単独で全ケース成功。一括失敗を成功へ書換えない。"
+    },
+    {
+      "id": "BC-TYPE",
+      "status": "PASS",
+      "command": "npm run typecheck"
+    },
+    {
+      "id": "BC-ACTUAL-BLENDER",
+      "status": "PASS",
+      "versions": [
+        "Windows5.2.2 LTS",
+        "Ubuntu5.2.2 LTS"
+      ],
+      "fixture": "tests/helpers/blender_camera_fixture.py",
+      "scenarios": [
+        "30fps/16:9/pixel1→60fps",
+        "30/1.0010000467300415 fps/4:3/pixelX1.20000004768→60fps",
+        "親アニメ/TrackTo/ロール/レンズ変化/HORIZONTAL・VERTICAL/shift/透視・平行/カット",
+        "元開始F11/切替F26/元終了F40/原本hash不変"
+      ]
+    },
+    {
+      "id": "BC-UI",
+      "status": "PASS",
+      "cases": [
+        "手動blend/JSONファイル選択",
+        "同時刻before/after・元区間外復帰・resize・reload・UndoRedo",
+        "Enter比較/候補再読込/採用後focus",
+        "折畳み内不正入力/aria-invalid/focus",
+        "DOF未適用表示・了承前は採用不可・開始F変更で比較無効",
+        "元終端後F300比較の非保存・採用後F301共通seek",
+        "標準MCPとネイティブWebMCPのJSON取込/条件読取/採用"
+      ]
+    },
+    {
+      "id": "BC-MP4",
+      "status": "PASS",
+      "frames_per_output": 60,
+      "resolution": [
+        1280,
+        720
+      ],
+      "sample_frames": [
+        0,
+        15,
+        29,
+        30,
+        31,
+        58,
+        59
+      ],
+      "ndc_tolerance": 2e-05,
+      "landmark_limit": 0.008,
+      "notes": "実Blender PNG対実MP4の色目印の重心/外接箱。各fixtureの実測値を下に保存。"
+    }
+  ],
+  "findings": [
+    {
+      "id": "BC-UX-01",
+      "priority": "P2",
+      "target": "blender-camera-ui.mjs values/run",
+      "evidence": "Critic1/3",
+      "proposal": "折畳み内不正入力を開いてfocus",
+      "implemented": true,
+      "verification": "PASS code + actual Chrome"
+    },
+    {
+      "id": "BC-UX-02",
+      "priority": "P2",
+      "target": "blender-camera-ui.mjs run",
+      "evidence": "Critic3",
+      "proposal": "busy解除後にEnterの元操作へfocus",
+      "implemented": true,
+      "verification": "PASS code + actual Chrome"
+    },
+    {
+      "id": "BC-CLOCK-01",
+      "priority": "P1",
+      "target": "manual/WebMCP adopt and project-media-preview",
+      "evidence": "Critic2",
+      "proposal": "共通時計を配置から再読込、比較時だけ非保存の一時終端",
+      "implemented": true,
+      "verification": "PASS code + actual F300/301"
+    },
+    {
+      "id": "BC-TIME-02",
+      "priority": "P2",
+      "target": "arrangement._source_window",
+      "evidence": "Critic2",
+      "proposal": "camera元尺の許容を.0001へ揃える",
+      "implemented": true,
+      "verification": "PASS Python rejects1.01sec"
+    },
+    {
+      "id": "BC-CAMERA-03",
+      "priority": "P1",
+      "target": "multi-model reload / viewport snapshot",
+      "evidence": "既存VMD回帰で復帰位置x0.012→期待x0を検出",
+      "proposal": "再読込で確定した保存視点をsnapshot、旧active clip解除",
+      "implemented": true,
+      "verification": "PASS existing VMD/PMX/morph/MP4 regression"
+    }
+  ],
+  "review": {
+    "critic_first_action": "限定PASS（ソース確認、本人の再操作はNOT TESTED）",
+    "critic_workflow": "限定PASS（ソース確認、最終回帰は親担当）",
+    "critic_visual": "限定PASS（1440/1024画像・コード、スクリーンリーダー等はNOT TESTED）",
+    "root_judge": "必須指摘解消。対象自動試験/実Blender/Chrome/MP4範囲に限定して統合可。要件全体の完成ではない"
+  },
+  "visual": {
+    "file": "../../studio/v05/reviews/blender-camera-20261113/candidate-marked.png",
+    "state": "implemented",
+    "markers": {
+      "1": "Blender/JSON取込",
+      "2": "同じ時刻で候補比較",
+      "3": "カメラ行へ配置・保存"
+    },
+    "privacy": "生成した色付き立方体とカメラのみ。実制作の素材/識別子なし"
+  },
+  "unverified": [
+    "Linux Studioブラウザー/GPU/MP4",
+    "全Blender版/全制約/全ドライバー/任意実制作blend/長尺",
+    "DOFのボケ/パノラマ/反転せん断カメラ/カメラ分割",
+    "CinemaOperator実アドオン登録/起動/編集/Bake/往復",
+    "スクリーンリーダー/200%拡大/全Tab順",
+    "CAM-019全体/順3全体"
+  ],
+  "model_usage": "親担当の高性能モデルで原因調査・設計・実装/実機確認。規定の3視点批評に既存Criticを再利用。新規実装workerなし",
+  "pixel_results": {
+    "Windows30": [
+      {
+        "frame": 0,
+        "maxNormalizedError": 0.0019536279184541594
+      },
+      {
+        "frame": 15,
+        "maxNormalizedError": 0.002777777777777768
+      },
+      {
+        "frame": 29,
+        "maxNormalizedError": 0.002777777777777768
+      },
+      {
+        "frame": 30,
+        "maxNormalizedError": 0.002777777777777768
+      },
+      {
+        "frame": 31,
+        "maxNormalizedError": 0.002777777777777768
+      },
+      {
+        "frame": 58,
+        "maxNormalizedError": 0.002777777777777768
+      },
+      {
+        "frame": 59,
+        "maxNormalizedError": 0.002777777777777768
+      }
+    ],
+    "Ubuntu29_97": [
+      {
+        "frame": 0,
+        "maxNormalizedError": 0.002031253185123205
+      },
+      {
+        "frame": 15,
+        "maxNormalizedError": 0.002777777777777768
+      },
+      {
+        "frame": 29,
+        "maxNormalizedError": 0.002083333333333437
+      },
+      {
+        "frame": 30,
+        "maxNormalizedError": 0.002083333333333326
+      },
+      {
+        "frame": 31,
+        "maxNormalizedError": 0.002187500335276149
+      },
+      {
+        "frame": 58,
+        "maxNormalizedError": 0.002187500335276149
+      },
+      {
+        "frame": 59,
+        "maxNormalizedError": 0.002187500335276149
+      }
+    ]
+  }
+}

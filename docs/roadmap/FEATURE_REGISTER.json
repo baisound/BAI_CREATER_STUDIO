@@ -844,8 +844,8 @@
       "group": "CAM",
       "phase": 6,
       "name": "Blenderカメラ取込・アドオン/CinemaOperator撮影結果連携",
-      "detail": "ZIP登録から実Blenderでアドオンを使用し、Bake済みカメラを別名候補として同じ作品へ取り込む。初期アダプターはCinemaOperator。汎用アドオン実行は保証しない。2026-11-13 Owner指定で現3D連動の統合/同期直後の次タスクへ繰上げ。まずCAM-019-B1として追加アドオン不要の既存Blenderカメラを別名候補→比較/採用→同じ作品のタイムライン/保存復元/プレビュー/MP4へ接続。実装未着手。docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md",
-      "status": "計画・未検証",
+      "detail": "ZIP登録から実Blenderでアドオンを使用し、Bake済みカメラを別名候補として同じ作品へ取り込む。初期アダプターはCinemaOperator。汎用アドオン実行は保証しない。2026-11-13 Owner指定で現3D連動の統合/同期直後の次タスクへ繰上げ。まずCAM-019-B1として追加アドオン不要の既存Blenderカメラを別名候補→比較/採用→同じ作品のタイムライン/保存復元/プレビュー/MP4へ接続。B1は代表検証済み。docs/roadmap/CINEMAOPERATOR_BLENDER_ADDON_IMPORT_DESIGN_20261106_JA.md 2026-11-13 CAM-019-B1：追加アドオン不要の.blend/評価済みJSONを別名候補として取込み、同じ作品で比較・明示採用、カメラ行/保存復元/Undo・共通時計/MP4へ限定接続。実Blender5.2.2 Windows/Ubuntuの親・制約・ロール・センサーFit・シフト/透視/平行・カット、30/29.97相当→作品60fps、撮影比率/非正方ピクセルを代表検証。Windows実Chrome/RTX4070SUPER、7時刻NDCと60F MP4の目印を実Blender画像と照合。DOFは値保持/未適用了承、パノラマ等は拒否。CinemaOperator実アドオンとCAM-019全体は未完。docs/v05/BLENDER_CAMERA_IMPORT_B1_20261113_JA.md",
+      "status": "部分実装・限定検証（B1）。アドオン連携は未実装",
       "dependency": "CORE,DATA,MOTION,CAM-001,CAM-015"
     },
     {

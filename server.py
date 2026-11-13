@@ -151,6 +151,8 @@ def unified_assets():
     with LIBRARY_LOCK:result.extend(library_assets.public_items(LIBRARY_ROOT))
     from bai_studio.v05.assets.asset_sources import listing as v05_sources_listing
     result.extend(v05_sources_listing(V05_SOURCE_ROOT,V05_INBOX_ROOT)['items'])
+    from bai_studio.v05.timeline.blender_camera import inventory as camera_inventory
+    result.extend(camera_inventory(DATA))
     for entry in result:
         source=character_source(entry)
         if source is None:continue
@@ -326,6 +328,16 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(422, str(exc))
             except OSError:
                 self.bad(500, 'VMD candidate read failed')
+            return
+        if urlsplit(self.path).path == '/api/studio/v05/blender-camera':
+            from bai_studio.v05.timeline.blender_camera import listing,get,CameraImportError,_project
+            try:
+                query=parse_qs(urlsplit(self.path).query);pid=query.get('project_id',[''])[0]
+                _project(DATA,pid)
+                candidate=query.get('candidate_id',[''])[0]
+                result=get(DATA,candidate,pid) if candidate else {'candidates':listing(DATA,pid)}
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (CameraImportError,ValueError,OSError) as exc:self.bad(422,str(exc))
             return
         if urlsplit(self.path).path == '/api/studio/v05/motion-edits/context':
             from bai_studio.v05.motion.motion_edits import contact_context, MotionEditError
@@ -1284,6 +1296,28 @@ class Handler(BaseHTTPRequestHandler):
                          ('conflict', 'locked', 'changed')) else 422, str(exc))
             except OSError:
                 self.bad(500, 'VMD placement failed; originals retained')
+            return
+        if urlsplit(self.path).path in ('/api/studio/v05/blender-camera/import','/api/studio/v05/blender-camera/import-json','/api/studio/v05/blender-camera/preview','/api/studio/v05/blender-camera/adopt'):
+            from bai_studio.v05.timeline.blender_camera import import_file,import_track,prepare,adopt,CameraImportError,MAX_BLEND,MAX_JSON
+            try:
+                route=urlsplit(self.path).path.rsplit('/',1)[-1];length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=(MAX_BLEND if route=='import' else MAX_JSON):return self.bad(413,'カメラ入力のサイズ上限を超えています')
+                raw=self.rfile.read(length)
+                if route=='import':
+                    query=parse_qs(urlsplit(self.path).query)
+                    result=import_file(DATA,query.get('project_id',[''])[0],query.get('name',[''])[0],raw,os.environ.get('MIXAMO_BLENDER','blender'))
+                else:
+                    body=json.loads(raw)
+                    fields={'import-json':{'project_id','name','track'},'preview':{'project_id','candidate_id','start_frame','mapping'},'adopt':{'project_id','candidate_id','start_frame','mapping','expected','allow_unsupported'}}[route]
+                    if not isinstance(body,dict) or set(body)!=fields:return self.bad(400,'Invalid camera fields')
+                    if route=='import-json':result=import_track(DATA,**body)
+                    else:
+                        body['transform']=body.pop('mapping')
+                        result=(prepare if route=='preview' else adopt)(DATA,assets=unified_assets(),**body)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except CameraImportError as exc:self.bad(409 if any(x in str(exc) for x in ('変更','重なり','ロック')) else 422,str(exc))
+            except (ValueError,TypeError,KeyError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'カメラを保存できません。既存の作品は保持しています')
             return
         if urlsplit(self.path).path == '/api/studio/v05/motion-edits':
             from bai_studio.v05.motion.motion_edits import mutate as edit_motion, MotionEditError

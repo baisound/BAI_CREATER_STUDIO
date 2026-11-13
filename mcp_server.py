@@ -81,6 +81,10 @@ def run(name,a):
     if name=='bai_studio_asset_capabilities':return api('/api/studio/v05/assets/capabilities')
     if name=='bai_studio_scene_multi_motion_plan':return api('/api/studio/v05/scene/multi-motion-plan?id='+urllib.parse.quote(a['project_id']))
     if name=='bai_studio_scene_motion_target_set':return api('/api/studio/v05/scene/motion-target',a)
+    if name=='bai_studio_blender_camera_candidates':return api('/api/studio/v05/blender-camera?'+urllib.parse.urlencode(a))
+    if name in ('bai_studio_blender_camera_import_json','bai_studio_blender_camera_preview','bai_studio_blender_camera_adopt'):
+        route={'bai_studio_blender_camera_import_json':'import-json','bai_studio_blender_camera_preview':'preview','bai_studio_blender_camera_adopt':'adopt'}[name]
+        return api('/api/studio/v05/blender-camera/'+route,a)
     if name=='bai_studio_pmx_contact_context':return api('/api/studio/v05/motion-edits/context?'+urllib.parse.urlencode({'id':a['project_id'],'instance_id':a['instance_id'],'clip_id':a['clip_id']}))
     if name=='bai_studio_pmx_contact_save':return api('/api/studio/v05/motion-edits',{**a,'action':'contact-set'})
     if name=='bai_studio_pmx_fk_edits_get':return api('/api/studio/v05/motion-edits?id='+urllib.parse.quote(a['project_id']))
@@ -270,6 +274,10 @@ TOOLS=[
 ('bai_studio_asset_capabilities','Read supported v0.5 import types and searchable categories.',S()),
 ('bai_studio_scene_multi_motion_plan','Read validated scene-instance-specific motion assignments and readiness.',S({'project_id':STR},['project_id'])),
 ('bai_studio_scene_motion_target_set','Assign a motion, expression or lip clip to a saved or timeline-derived model instance, with revision check and arrangement undo.',S({'project_id':STR,'clip_id':STR,'revision':INT,'instance_id':{'type':['string','null']}},['project_id','clip_id','revision','instance_id'])),
+('bai_studio_blender_camera_candidates','Read project camera candidates and optionally evaluated JSON; no active timeline changes.',S({'project_id':STR,'candidate_id':STR},['project_id'])),
+('bai_studio_blender_camera_import_json','Import evaluated Blender camera JSON as a separate candidate; does not open arbitrary local paths or control Blender GUI.',S({'project_id':STR,'name':STR,'track':{'type':'object'}},['project_id','name','track'])),
+('bai_studio_blender_camera_preview','Prepare the exact camera comparison context and evaluated track. This standard MCP endpoint does not render the 3D browser.',S({'project_id':STR,'candidate_id':STR,'start_frame':INT,'mapping':S({'scale':{'type':'number'},'offset':{'type':'array','items':{'type':'number'},'minItems':3,'maxItems':3}},['scale','offset'])},['project_id','candidate_id','start_frame','mapping'])),
+('bai_studio_blender_camera_adopt','Explicitly adopt a camera candidate with the same conditions returned by preview; atomic timeline placement, existing cameras retained, one undo step.',S({'project_id':STR,'candidate_id':STR,'start_frame':INT,'mapping':S({'scale':{'type':'number'},'offset':{'type':'array','items':{'type':'number'},'minItems':3,'maxItems':3}},['scale','offset']),'expected':{'type':'object'},'allow_unsupported':{'type':'boolean'}},['project_id','candidate_id','start_frame','mapping','expected','allow_unsupported'])),
 ('bai_studio_pmx_contact_context','Read source SHA256, FPS and placement/edit revisions for a loaded target-PMX contact candidate. Does not calculate foot geometry.',S({'project_id':STR,'instance_id':STR,'clip_id':STR},['project_id','instance_id','clip_id'])),
 ('bai_studio_pmx_contact_save','Save one bounded foot-IK translation layer with one undo step. Requires keys measured/verified in the local 3D browser; server checks source identity, revisions, canonical leg, bounds and magnitude, not geometric contact.',S({'project_id':STR,'revision':INT,'instance_id':STR,'clip_id':STR,
  'expected':S({**{k:STR for k in ('instance_id','clip_id','model_asset_id','motion_asset_id','model_sha256','motion_sha256')},**{k:{'type':'number'} for k in ('fps','start','duration')},**{k:INT for k in ('revision','scene_revision','arrangement_revision')}},['instance_id','clip_id','model_asset_id','motion_asset_id','model_sha256','motion_sha256','fps','start','duration','revision','scene_revision','arrangement_revision']),

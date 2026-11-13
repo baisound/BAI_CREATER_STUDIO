@@ -197,3 +197,6 @@ Owner追加 #39/#63：2026-11-13 #39/#63：GLB/PMX実プレビューの髪・紐
 
 
 MOTION-011/012 / #39/#63：2026-11-13 Owner追加：元モデル不明のVMDを対象PMXの脚長・実足裏・足IKで区間補正。2秒以内/左右指定/床Y/内側フェード、候補比較・原子的保存・Undo/Redo・共通MP4へ限定接続。全VMDの元体格復元や歩幅編集全体の完成ではない。docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md 試験・制限・3視点判定は同書と機械可読のTARGET_MODEL_CONTACT_FIT_STATUS_20261113.json。
+
+
+CAM-019-B1 / Issue #238：2026-11-13 CAM-019-B1：追加アドオン不要の.blend/評価済みJSONを別名候補として取込み、同じ作品で比較・明示採用、カメラ行/保存復元/Undo・共通時計/MP4へ限定接続。実Blender5.2.2 Windows/Ubuntuの親・制約・ロール・センサーFit・シフト/透視/平行・カット、30/29.97相当→作品60fps、撮影比率/非正方ピクセルを代表検証。Windows実Chrome/RTX4070SUPER、7時刻NDCと60F MP4の目印を実Blender画像と照合。DOFは値保持/未適用了承、パノラマ等は拒否。CinemaOperator実アドオンとCAM-019全体は未完。docs/v05/BLENDER_CAMERA_IMPORT_B1_20261113_JA.md
