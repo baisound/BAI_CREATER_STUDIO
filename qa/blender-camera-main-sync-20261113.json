@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "requirement": "CAM-019-B1",
+  "issue": 238,
+  "implementation_pr": 311,
+  "implementation_commit": "54a5ec9",
+  "merge_commit": "6983469612cff945d259a863947a941c7c7f0223",
+  "date": "2026-11-13",
+  "status": "synced",
+  "checks": {
+    "local_main_matches_origin": true,
+    "port": 8765,
+    "server_owned_root_verified": true,
+    "active_render_jobs_before_restart": 0,
+    "server_pid_after_restart": 55164,
+    "new_camera_api_projects": 2,
+    "blender_environment_set": true,
+    "browser": "既存のChrome制作タブを再読込。カメラ・演出の取込口を確認後、元の実動作プレビュー0Fへ戻し、同じ保存素材・59骨・物理63剛体/99ジョイント・保存済みを確認",
+    "project_or_material_edits": false
+  },
+  "source_bytes": {
+    "studio/v05/index.html": "879eb6fa44fdffdd2c148e97f56d11d93e3a9b110bb785bb93737ee5bc84a111",
+    "studio/v05/js/blender-camera-ui.mjs": "7cd648288cfa711598a4069117626f41ffe9d99324dc9b8c003dbeb1137807e4",
+    "studio/v05/js/blender-camera-runtime.mjs": "092a697d9fa4c56e15eb51c637d8bd734c568c20672971384bbac0923a322be8",
+    "studio/v05/js/multi-model-ui-v58.js": "b23aa6e98723e3d55866fcc9fccc2062ef0a57f85349c42178b5a7664f7b24f0",
+    "studio/v05/js/project-media-preview-v68.js": "bf573f1baf25dcf8ba5aa110dd3c2e35bbc43da8e15723099ddb3d7986c2a771",
+    "studio/js/viewport/three-host.js": "47ea09c097c79a84c2bed97bfe400b4a6637b13a5dd1781609844ee959504901"
+  },
+  "preservation": {
+    "files": 522,
+    "aggregate_sha256": "33b94884918b40b14eb37d56305de9584e9acd9d4fe9ec76247ee0a2bf95c58c",
+    "unchanged": true,
+    "tracked_user_change_preserved": true
+  },
+  "evidence": "docs/v05/BLENDER_CAMERA_IMPORT_B1_STATUS_20261113.json",
+  "owner_evidence": "Owner確認画像フォルダーへ番号付き画像/生成検証MP4/JSONを保存・読み戻し。実制作の識別子/画像/生ログは公開しない",
+  "unverified": [
+    "Linux Studio browser/GPU/MP4",
+    "arbitrary Blender files/versions/drivers/long cameras",
+    "DOF effect/panorama/camera split",
+    "CinemaOperator real addon registration/launch/Bake/roundtrip",
+    "CAM-019 overall and sequence3 overall"
+  ]
+}
