@@ -4,7 +4,7 @@
   "issue": 238,
   "branch": "codex/blender-camera-import-20261113",
   "status": "partial_verified",
-  "commit_reference": "同じコードコミットのWORK_STATE/historyとPR。CAM-019全体/Issue238は継続",
+  "commit_reference": "54a5ec9（実装/試験/台帳）。後続PR・main同期記録へ紐付け",
   "scope": [
     "追加アドオン不要の.blend/評価済みJSON",
     "不変候補/読取専用比較/明示採用",
