@@ -1318,7 +1318,7 @@ class Handler(BaseHTTPRequestHandler):
                     fields={'remove':{'addon_id'},'prepare':{'project_id','addon_id','start_frame','end_frame'},'open':{'session_id','acknowledged'},'import-bake':{'session_id'}}[route]
                     if not isinstance(body,dict) or set(body)!=fields:return self.bad(400,'Invalid addon fields')
                     if route=='remove':result=addons.remove(DATA,body['addon_id'])
-                    elif route=='prepare':result=addons.prepare(DATA,assets=unified_assets(),blender=os.environ.get('MIXAMO_BLENDER','blender'),**body)
+                    elif route=='prepare':result=addons.prepare(DATA,assets=unified_assets(),blender=os.environ.get('MIXAMO_BLENDER','blender'),server_port=self.server.server_port,**body)
                     elif route=='import-bake':result=addons.import_bake(DATA,body['session_id'],unified_assets())
                     else:
                         origin=self.headers.get('Origin','');host=self.headers.get('Host','')

@@ -108,13 +108,9 @@ def test_session_fixed_source_revision_candidate_compare_and_adoption(tmp_path,m
 
 def test_prepare_rejects_unsupported_content_and_failed_build_preserves_source(tmp_path,monkeypatch):
     pid,addon,scene,arranged,path,assets=fixture(tmp_path,monkeypatch);original=path.read_bytes()
-    for field,value in [('parent_id','parent'),('motion_asset',{'id':'motion'})]:
-        scene['instances'][0][field]=value
-        with pytest.raises(a.AddonError,match='静的GLB'):a.prepare(tmp_path,pid,addon['id'],0,59,assets,'mock')
-        scene['instances'][0].pop(field)
-    arranged['clips']=[{'track':'motion'}]
-    with pytest.raises(a.AddonError,match='動き'):a.prepare(tmp_path,pid,addon['id'],0,59,assets,'mock')
-    arranged['clips']=[]
+    scene['instances'][0]['asset']['format']='FBX'
+    with pytest.raises(a.AddonError,match='FBX'):a.prepare(tmp_path,pid,addon['id'],0,59,assets,'mock')
+    scene['instances'][0]['asset']['format']='GLB'
     scene['timeline_models']=[{'status':'model_unavailable'}]
     with pytest.raises(a.AddonError,match='省略'):a.prepare(tmp_path,pid,addon['id'],0,59,assets,'mock')
     scene.pop('timeline_models')

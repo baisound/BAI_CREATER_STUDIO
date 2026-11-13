@@ -183,10 +183,11 @@ def process_alive(pid):
     except PermissionError:return True
 
 
-def run(exe,args,timeout=90,env=None):
+def run(exe,args,timeout=90,env=None,log_file=None):
     try:
         r=subprocess.run([exe,*args],stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=timeout,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0),env=env)
     except (OSError,subprocess.TimeoutExpired) as e:raise AddonError('execution_failed','Blender処理が完了しませんでした。作業コピーを保持して再試行してください') from e
+    if log_file:Path(log_file).write_bytes(r.stdout+b'\n'+r.stderr)
     if r.returncode:fail('execution_failed','Blender処理に失敗しました。対応形式・ファイルと区間を確認してください')
     return r
 
@@ -230,41 +231,69 @@ def check_origin(data,origin,assets):
     lookup={a['id']:a for a in assets}
     for item in s['assets']:
         entry=lookup.get(item['asset_id']);path=_source(entry,Path(data)/'library_assets',Path(data)/'studio_v05_asset_sources',Path(data)/'asset_inbox',Path(data)/'integrated_v02/assets') if entry else None
-        if not path or not path.is_file() or digest(path.read_bytes())!=item['sha256']:fail('scene_asset_unavailable','元GLBが変更または不足しています。作業コピーを準備し直してください')
+        if not path or not path.is_file() or digest(path.read_bytes())!=item['sha256']:fail('scene_asset_unavailable','元モデルが変更または不足しています。作業コピーを準備し直してください')
+    if s.get('dependencies'):
+        from .cinema_scene_cache import dependencies
+        from ..render.media_render import _scene_snapshot
+        try:
+            _,inputs=_scene_snapshot(Path(data),s['project_id'],s['scene_revision'],s['arrangement_revision'],assets)
+            if dependencies(data,s['project_id'],inputs)!=s['dependencies']:fail('project_revision_conflict','動作・表情・口・評価器または元素材が変わりました。作業コピーを準備し直してください')
+        except (ValueError,OSError) as error:
+            if isinstance(error,AddonError):raise
+            raise AddonError('project_revision_conflict','シーンの依存データが変わりました。作業コピーを準備し直してください') from error
     return s
 
 
-def prepare(data,project_id,addon_id,start_frame,end_frame,assets,blender):
+def prepare(data,project_id,addon_id,start_frame,end_frame,assets,blender,*,server_port=None):
     meta=addon(data,addon_id)
     if not meta['supported']:fail('addon_unsupported',meta['reason'])
     fps=camera._project(data,project_id)
     if any(type(f) is not int for f in (start_frame,end_frame)) or not 0<=start_frame<=end_frame<86400*fps or not .1<=(end_frame-start_frame+1)/fps<=120:fail('range_invalid','0.1〜120秒の開始F・終了Fを指定してください（終了Fを含む）')
     scene,arranged=context(data,project_id,assets)
     if any(row.get('status')!='ready' for row in scene.get('timeline_models',[])):fail('scene_asset_unavailable','配置したモデルに不足または未対応があります。素材を省略せず、準備を止めました')
-    if not scene['instances']:fail('scene_asset_unavailable','撮影する静的GLBを同じ作品へ配置してください')
-    if scene.get('face_keys') or any(c['track'] in ('motion','expression','lip') for c in arranged['clips']):fail('scene_asset_unsupported','動き・表情・口の橋渡しは未対応です。素材を省略せず、作業コピーの準備を止めました')
-    if len(scene['instances'])>32:fail('scene_asset_unsupported','初期橋渡しは32個以内の静的GLBです')
+    if not scene['instances']:fail('scene_asset_unavailable','撮影するモデルを同じ作品へ配置してください')
+    evaluated=bool(scene.get('face_keys') or any(c['track'] in ('motion','expression','lip') for c in arranged['clips']))
+    if len(scene['instances'])>32:fail('scene_asset_unsupported','対象モデルを32個以内にしてください')
     from ..render.media_render import _source
     inputs=[];total=0
     for row in scene['instances']:
         entry=row.get('asset')
-        if not entry or entry.get('format')!='GLB' or row.get('parent_id') or row.get('motion_asset') or row.get('motion_binding'):
-            fail('scene_asset_unsupported',f"{row.get('name') or row['asset_id']}: 初期橋渡しは親子配置・動作のない静的GLBです。PMX/VRM/FBXは未対応です")
+        if not entry or entry.get('format') not in ('GLB','PMX','VRM'):fail('scene_asset_unsupported','撮影コピーはGLB・PMX・VRMに対応しています。FBXは未対応です')
+        evaluated=evaluated or entry.get('format')!='GLB' or bool(row.get('parent_id') or row.get('motion_asset') or row.get('motion_binding'))
         path=_source(entry,Path(data)/'library_assets',Path(data)/'studio_v05_asset_sources',Path(data)/'asset_inbox',Path(data)/'integrated_v02/assets')
-        if not path or not path.is_file() or path.stat().st_size>100*1024*1024:fail('scene_asset_unavailable','100MiB以内の元GLBが必要です')
+        if not path or not path.is_file() or path.stat().st_size>100*1024*1024:fail('scene_asset_unavailable','100MiB以内の元モデルが必要です')
         raw=path.read_bytes();total+=len(raw)
-        if total>200*1024*1024:fail('scene_asset_unsupported','GLB合計は200MiB以内にしてください')
-        glb_check(raw);inputs.append((row,path,raw))
+        if total>200*1024*1024:fail('scene_asset_unsupported','モデル合計は200MiB以内にしてください')
+        if entry.get('format')=='GLB':
+            try:glb_check(raw)
+            except AddonError as error:
+                if error.code!='scene_asset_unsupported':raise
+                evaluated=True
+        inputs.append((row,path,raw))
     exe=executable(blender);sid=str(uuid.uuid4());folder=session_root(data)/sid;folder.mkdir(parents=True)
     manifest={'schema_version':1,'id':sid,'project_id':project_id,'addon_id':addon_id,'scene_revision':scene['revision'],'arrangement_revision':arranged['revision'],'fps':fps,'start_frame':start_frame,'end_frame':end_frame,'resolution':[1280,720],'camera':scene.get('camera'),'assets':[],'normalization':'Studio height2/foot/centerXZ; legacy=1; Blender=Z-up,meters; mapping scale1 offset0'}
     for i,(row,path,raw) in enumerate(inputs):
-        filename=f'asset-{i}.glb';(folder/filename).write_bytes(raw)
+        filename=f"asset-{i}.{row['asset']['format'].lower()}";(folder/filename).write_bytes(raw)
         manifest['assets'].append({'asset_id':row['asset_id'],'instance_id':row['id'],'file':filename,'sha256':digest(raw),'transform':row['transform'],'visible':row.get('visible',True),'units':row.get('units'),'windows':row.get('timeline_windows',[])})
+    dependency_state=None
+    if evaluated:
+        from .cinema_scene_cache import capture,dependencies
+        from ..render.media_render import _scene_snapshot
+        try:
+            _,source_inputs=_scene_snapshot(Path(data),project_id,scene['revision'],arranged['revision'],assets)
+            dependency_state=dependencies(data,project_id,source_inputs)
+        except ValueError as error:raise AddonError('scene_asset_unsupported',str(error)) from error
+        manifest.update(capture_mode='evaluated',server_port=server_port,dependencies=dependency_state)
     _atomic(folder/'manifest.json',manifest)
-    run(exe,['--background','--factory-startup','--disable-autoexec','--python-exit-code','1','--python',str(script('cinemaoperator_scene.py')),'--','--session',str(folder)],env=profile_env(folder))
+    if evaluated:
+        capture(folder,server_port)
+        if dependencies(data,project_id,source_inputs)!=dependency_state:fail('project_revision_conflict','作品が準備中に変わりました。再準備してください')
+    run(exe,['--background','--factory-startup','--disable-autoexec','--python-exit-code','1','--python',str(script('cinemaoperator_scene.py')),'--','--session',str(folder)],env=profile_env(folder),log_file=folder/'scene-build.log')
     if not (folder/'work.blend').is_file():fail('execution_failed','Blender作業コピーがありません。再準備してください')
     result=json.loads((folder/'scene-result.json').read_text(encoding='utf-8'))
     state={**{k:manifest[k] for k in ('id','project_id','addon_id','scene_revision','arrangement_revision','fps','start_frame','end_frame','assets')},'manifest_sha256':digest((folder/'manifest.json').read_bytes()),'subject_sha256':result['subject_sha256'],'created_at':time.time(),'status':'prepared','candidate_id':None}
+    if evaluated:
+        state['capture_mode']='evaluated';state['dependencies']=dependency_state
     _atomic(folder/'session.json',state)
     return state
 

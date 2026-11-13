@@ -26,7 +26,10 @@ def build(folder):
     scene.unit_settings.system='METRIC';scene.unit_settings.scale_length=1
     basis=Matrix(((1,0,0,0),(0,0,-1,0),(0,1,0,0),(0,0,0,1)))
     result=[]
-    for item in m['assets']:
+    if m.get('capture_mode')=='evaluated':
+        from cinemaoperator_cached_scene import load
+        result=load(folder,m)
+    for item in ([] if m.get('capture_mode')=='evaluated' else m['assets']):
         before=set(scene.objects);bpy.ops.import_scene.gltf(filepath=str(folder/item['file']))
         imported=set(scene.objects)-before
         if not imported or any(o.type in ('ARMATURE','CAMERA') for o in imported):raise ValueError('静的メッシュGLBが必要です')

@@ -90,7 +90,7 @@ def run(name,a):
         return api('/api/studio/v05/blender-addons'+route,raw=raw)
     if name=='bai_studio_blender_addon_open':return {'requires_local_action':True,'message':'Studioの「Blenderで編集」から対象版と作品を確認して起動してください'}
     if name in ('bai_studio_blender_addon_prepare','bai_studio_blender_addon_import_bake','bai_studio_blender_addon_remove'):
-        return api('/api/studio/v05/blender-addons/'+{'bai_studio_blender_addon_prepare':'prepare','bai_studio_blender_addon_import_bake':'import-bake','bai_studio_blender_addon_remove':'remove'}[name],a,timeout=120)
+        return api('/api/studio/v05/blender-addons/'+{'bai_studio_blender_addon_prepare':'prepare','bai_studio_blender_addon_import_bake':'import-bake','bai_studio_blender_addon_remove':'remove'}[name],a,timeout=720)
     if name=='bai_studio_blender_camera_candidates':return api('/api/studio/v05/blender-camera?'+urllib.parse.urlencode(a))
     if name in ('bai_studio_blender_camera_import_json','bai_studio_blender_camera_preview','bai_studio_blender_camera_adopt'):
         route={'bai_studio_blender_camera_import_json':'import-json','bai_studio_blender_camera_preview':'preview','bai_studio_blender_camera_adopt':'adopt'}[name]
@@ -287,7 +287,7 @@ TOOLS=[
 ('bai_studio_blender_addons_list','Read statically registered addons and project shooting sessions.',S({'project_id':STR},['project_id'])),
 ('bai_studio_blender_addon_inspect','Statically inspect ZIP bytes; never execute addon code.',S({'archive_base64':STR},['archive_base64'])),
 ('bai_studio_blender_addon_register','Register the selected inner ZIP as an immutable version; does not execute code.',S({'archive_base64':STR,'member':STR},['archive_base64','member'])),
-('bai_studio_blender_addon_prepare','Prepare supported static GLB scene as a separate Blender working copy; reject omitted/unsupported content.',S({'project_id':STR,'addon_id':STR,'start_frame':INT,'end_frame':INT},['project_id','addon_id','start_frame','end_frame'])),
+('bai_studio_blender_addon_prepare','Prepare supported PMX/GLB/VRM scene with evaluated motion/face geometry as a separate Blender shooting copy; return cameras only; reject unsupported content.',S({'project_id':STR,'addon_id':STR,'start_frame':INT,'end_frame':INT},['project_id','addon_id','start_frame','end_frame'])),
 ('bai_studio_blender_addon_open','Requires a manual local action in Studio; MCP never executes addon code.',S({'session_id':STR},['session_id'])),
 ('bai_studio_blender_addon_import_bake','Read explicitly sent baked snapshot as separate camera candidate; comparison and adoption remain explicit.',S({'session_id':STR},['session_id'])),
 ('bai_studio_blender_addon_remove','Unregister an unused version, preserving files. Shooting sessions block removal.',S({'addon_id':STR},['addon_id'])),

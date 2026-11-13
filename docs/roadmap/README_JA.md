@@ -44,3 +44,5 @@
 - [Blenderカメラ取込B1の操作・試験・制限](../v05/BLENDER_CAMERA_IMPORT_B1_20261113_JA.md) — `.blend`/評価済みJSON→比較/採用→同じカメラ行/MP4。
 
 - [CinemaOperator本体の登録・起動・Bake連携](../v05/CINEMAOPERATOR_BRIDGE_20261113_JA.md) — 静的GLBの代表経路を検証。PMX/動作等の橋渡しは未完。
+
+- [CinemaOperatorのPMX・動き・表情の撮影コピー](../v05/CINEMAOPERATOR_ANIMATED_SCENE_20261114_JA.md) — 両OSのBake/両MCP/60F MP4とWindows実PMX GUIを代表検証。二次物理など残件を保持。

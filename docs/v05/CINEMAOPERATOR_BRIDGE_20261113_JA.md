@@ -63,3 +63,8 @@ Blender起動には既存の`MIXAMO_BLENDER`設定を使う。プロセス・設
 追加確認：標準MCPのZIP検査・準備、ChromeネイティブWebMCPの登録・準備、両MCPのBake候補受取/同一候補ID・一覧/起動拒否を実呼出で照合。3個の同一区間コピーを識別して選べることを確認。MCPの登録解除ツールの実呼出はNOT TESTED（同じサービスの参照拒否/解除はPythonと手動APIで検証）。
 
 実装`76d6293`は[PR #314](https://github.com/baisound/BAI_CREATER_STUDIO/pull/314)でmainへ統合。[公開用統合記録](../../qa/cinemaoperator-integration-20261113.json)。手元の同期/登録/保全の詳細はOwner指定Evidenceだけへ保持する。
+
+
+## 後続更新（2026-11-14）
+
+PMX・動き/表情/口の撮影用形状コピーを追加。最新の操作/検証/制限は[2026-11-14の記録](CINEMAOPERATOR_ANIMATED_SCENE_20261114_JA.md)。上の静的GLBのみの記述は初回実装時の範囲を示す履歴。
