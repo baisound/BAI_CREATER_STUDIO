@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T06:48:07+09:00",
+  "updated_at": "2026-11-14T07:07:20+09:00",
   "updated_by": "codex",
   "branch": "codex/timeline-pmx-physics-20261114",
-  "head_at_update": "1b8c6a1",
+  "head_at_update": "2d440a5",
   "current": {
-    "task": "MOTION-019/CAM-019：タイムラインPMX物理の通し検証とmain同期",
+    "task": "MOTION-019/CAM-019：PMX物理のPR/main統合と制作画面同期",
     "status": "in_progress",
-    "step": "基本物理・静的再準備・保存通知再生成の回帰成功。実Blender/実PMX/両OS/UIレビューを確認する。",
+    "step": "全レビュー修正と両OS/実PMXの限定検証成功。PR差分・checkを確認してmainへ統合し利用環境を同期する。",
     "design_doc": "docs/v05/TIMELINE_PMX_PHYSICS_20261114_JA.md"
   },
   "next_steps": [
-    "PMX物理の実Blender往復・実PMX・両OS回帰とUI批評の完了後PR/main同期"
+    "PRレビューとmain統合、8765と制作画面を同期"
   ],
   "unverified": [
-    "実Blender物理往復、実PMX Bake/MP4、Ubuntu、複数モデル/クリップ切替、長尺・全モデル/実SR/200%拡大は未検証"
+    "全モデル物理品質・長尺上限・FBX/全材質・Linux実GPU/nativeGUI/実PMX・SR/200%/全Tab・別版/DOF・CAM-019/順3全体"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T07:07:20+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "2d440a5",
+      "text": "MOTION-019/CAM-019：PMX物理のPR/main統合と制作画面同期: 全レビュー修正と両OS/実PMXの限定検証成功。PR差分・checkを確認してmainへ統合し利用環境を同期する。"
+    },
+    {
+      "at": "2026-11-14T07:07:19+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2d440a5",
+      "text": "PMX物理をWindows/Ubuntu実Blender・CinemaOperator Bake/60F MP4、実PMX手動採用/MP4で限定検証。Win85/Ubuntu84+Win専用1skip、Node計算3/UI1/既存物理1、型成功。3視点の必須指摘を修正。"
+    },
     {
       "at": "2026-11-14T06:48:07+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "start",
       "head": "3a53297",
       "text": "VST固有画面と再生連動メーター・ラウドネス: 別プロセスの固有GUIと安全な状態回収を接続し、共通時刻で各行/バス/マスターを計測表示"
-    },
-    {
-      "at": "2026-11-13T05:07:22+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "54e5930",
-      "text": "実行ミキサー連動54e5930、Chrome受け入れ5/5。検証ログの書式を整理、JSONへ最終合格と途中失敗を区別して保存"
-    },
-    {
-      "at": "2026-11-13T05:05:59+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "7030296",
-      "text": "AUDIO-002の実タイムライン行と共通時計を接続。Windows89+5subtests、Ubuntu87+2skip+5subtests、Chrome5試験と型検査。3視点の必須指摘を修正"
     }
   ]
 }

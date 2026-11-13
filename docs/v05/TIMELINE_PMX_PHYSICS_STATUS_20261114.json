@@ -1,9 +1,37 @@
 {
   "requirements": ["MOTION-019", "CAM-019"],
   "issue": 238,
-  "status": "in_progress",
-  "implementation_commit": "initial implementation checkpoint; see Git history",
-  "verified": {"python_new": 1, "node_logic": 3, "node_real_ammo_seek_reload_mp4": 1, "typecheck": "PASS"},
-  "unverified": ["final Blender round trip", "Ubuntu", "actual PMX final Bake/MP4", "multi-model", "long duration", "screen reader and 200% zoom"],
-  "release_complete": false
+  "status": "partial_verified",
+  "implementation_commits": ["2d440a5", "same branch final review corrections"],
+  "tests": {
+    "python_windows": {"passed":85,"skipped":0},
+    "python_ubuntu": {"passed":84,"skipped":1,"skip_reason":"Windows kill-on-owner-exit contract"},
+    "node_cache_logic":3,
+    "node_windows_real_ammo_ui_mp4":1,
+    "node_accessory_bind_regression":1,
+    "node_windows_native_blender_roundtrip":1,
+    "node_ubuntu_native_blender_roundtrip":1,
+    "typecheck":"PASS",
+    "actual_pmx_bake_manual_adoption_mp4":"PASS",
+    "actual_pmx_accessory_length_reverse_seek_original_preservation":"PASS"
+  },
+  "scenarios": ["legacy OFF","ON/OFF persistence","both MCPs","fixed absolute time","reverse seek/reload","static PMX reprepare","saved edit invalidation","multiple independent PMXs","30/60fps same time","29.97fps and nonzero-start Blender copy","cancel/OFF recovery","failed preparation focus and OFF recovery","45F MP4 preview pixel comparison","native Bake/B1 adoption/60F MP4","source and evaluator changes refused"],
+  "ui_review": {
+    "first_action":"scoped PASS; code and updated images",
+    "visual_accessibility":"scoped PASS; code and updated images",
+    "workflow":"scoped PASS; code and reported regressions",
+    "judge":"root scoped PASS",
+    "findings":[
+      {"id":"PHYS-01","priority":"P1","target":"saved correction invalidation","fix":"reload before same-revision early return; invalidate face/transform/lip notifications too","status":"FIXED"},
+      {"id":"PHYS-02","priority":"P1","target":"static PMX initialization","fix":"restore rest bones before raw animation and physics preparation","status":"FIXED"},
+      {"id":"PHYS-03","priority":"P2","target":"multiple-model failure","fix":"name and select failed PMX; OFF applies to that instance","status":"FIXED"},
+      {"id":"PHYS-04","priority":"P2","target":"save failure focus","fix":"retain error focus after failed preparation","status":"FIXED"},
+      {"id":"PHYS-05","priority":"P2","target":"CinemaOperator settings entry","fix":"select PMX or explain missing PMX and focus selector","status":"FIXED"}
+    ]
+  },
+  "screenshots":{"implemented_mark_1":"studio/v05/reviews/timeline-physics-20261114/physics-marked.png","widths":[1440,1024],"public_only_generated":true},
+  "limits":{"max_seconds":600,"aggregate_cache_mib":128,"hz":60,"uniform_scale_only":true,"placement_x_z_rotation":0,"inter_model_collision":false},
+  "unverified":["all model and physics quality combinations","long-duration maximum stress","FBX and all VRM/GLB/parent/material combinations","Linux hardware GPU/native GUI/actual PMX","screen reader/200% zoom/all Tab order","other Blender/addon versions/DOF","CAM-019 and sequence3 completion"],
+  "release_complete":false,
+  "models":"high-capability investigation and cross-module implementation; three separate review perspectives"
 }

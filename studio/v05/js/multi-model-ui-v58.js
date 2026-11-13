@@ -81,7 +81,7 @@ function redrawPhysics(){
 async function savePhysics(enabled){
  const id=project.value,row=sceneSnapshot?.instances?.find(r=>r.id===choose.value);if(!row)return;
  physicsSave.disabled=true;
- try{const response=await fetch('/api/studio/v05/scene/instances',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,action:'physics',revision:sceneSnapshot.revision,instance_id:row.id,physics_enabled:enabled})});const body=await response.json();if(!response.ok)throw Error(body.error||'物理設定を保存できません。');physicsDirty=false;await reload();physicsField.focus();}
+ try{const response=await fetch('/api/studio/v05/scene/instances',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:id,action:'physics',revision:sceneSnapshot.revision,instance_id:row.id,physics_enabled:enabled})});const body=await response.json();if(!response.ok)throw Error(body.error||'物理設定を保存できません。');physicsDirty=false;await reload();if(physicsState.state==='failed')physicsMessage.focus();else physicsField.focus();}
  catch(error){physicsState={state:'failed',error:String(error.message||error)};redrawPhysics();physicsMessage.focus();}
  finally{redrawPhysics();}
 }
@@ -1957,6 +1957,7 @@ async function reload(){
       }finally{/* Only the successful full scene reload publishes the canvas. */}
     }else physicsState={state:'off'};
     physicsDirty=false;redrawPhysics();
+    if(physicsState.state==='ready')progress.textContent='MMD物理の準備完了（'+physicsState.models+'モデル・固定60Hz）';
     setFkFrameFromSeek();
     for(const i of data.instances){const target=controller?.getLoaded(i.id);if(target?.root)target.root.visible=i.visible!==false;}
     // Establish the outside-clip view before sampling a camera VMD. An active
@@ -1979,6 +1980,7 @@ async function reload(){
     window.dispatchEvent(new CustomEvent('bai:v58-scene-reloaded',{detail:{projectId:id,loaded:controller.status().loaded}}));
   }catch(error){
     if(thisNonce===nonce&&opened){
+      if(error.instanceId&&[...choose.options].some(option=>option.value===error.instanceId)){choose.value=error.instanceId;selectedId=error.instanceId;spatialEditor?.select(error.instanceId);}
       physicsCache?.dispose();physicsCache=null;physicsState=Object.values(sceneSnapshot?.physics||{}).some(setting=>setting.enabled)?{state:'failed',error:'物理の準備失敗: '+String(error.message||error)}:{state:'off'};redrawPhysics();
       if(physicsState.state==='failed'&&!captureMode){physicsControls.open=true;physicsMessage.focus();}
       motionEdits=null;lipAdoptions=null;previewFk=null;previewArm=null;motionPlan=null;
@@ -2648,6 +2650,9 @@ footRun.addEventListener('click',async()=>{
 project?.addEventListener('change',()=>{if(opened)reload();});
 window.addEventListener('bai:v58-preview-open',()=>{open().catch(e=>progress.textContent=e.message);});
 window.addEventListener('bai:v57-scene-changed',()=>{if(opened)reload();});
+for(const name of ['bai:v96-face-saved','bai:v61-transform-saved'])window.addEventListener(name,event=>{
+  if(opened&&event.detail?.projectId===project?.value&&Object.values(sceneSnapshot?.physics||{}).some(setting=>setting.enabled))void reload();
+});
 window.addEventListener('bai:v98-face-moved',event=>{
   if(opened&&event.detail?.projectId===project?.value)void reload();
 });
@@ -2725,7 +2730,7 @@ window.addEventListener('bai:v106-fk-key-select',async event=>{
 window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
-  async openPhysicsSettings(){await open({composite:true});physicsControls.open=true;redrawPhysics();physicsField.focus();},
+  async openPhysicsSettings(){await open({composite:true});if(controller?.getLoaded(choose.value)?.format!=='PMX'){const pmx=sceneSnapshot?.instances?.find(row=>controller?.getLoaded(row.id)?.format==='PMX'||row.asset?.format==='PMX');if(!pmx){progress.textContent='この作品にはPMXがありません。PMXを配置してから物理を設定してください。';choose.focus();return;}choose.value=pmx.id;selectedId=pmx.id;spatialEditor?.select(pmx.id);}physicsControls.open=true;redrawPhysics();if(physicsState.state==='failed')physicsMessage.focus();else physicsField.focus();},
   setCameraCandidate(value){
     if(captureMode||!opened||!viewport)throw Error('操作用の3Dプレビューを開いてください');
     if(value&&value.projectId!==project.value)throw Error('候補の作品が一致しません');

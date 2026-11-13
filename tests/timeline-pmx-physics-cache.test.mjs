@@ -22,7 +22,7 @@ test('oversized duration, aggregate budget and nonuniform scale reject before cr
  for(const mode of ['duration','budget','scale']){
   const f=fixture(),instance=f.options.scene.instances[0];if(mode==='duration')instance.timeline_windows[0].duration=601;
   if(mode==='scale')instance.transform.scale=[1,2,1];
-  if(mode==='budget'){instance.timeline_windows[0].duration=600;f.target.object.geometry.userData.MMD.rigidBodies=Array.from({length:200},(_,boneIndex)=>({boneIndex,type:2}));}
-  await assert.rejects(buildTimelinePhysics(f.options));assert.equal(f.disposed,0);
+  if(mode==='budget'){instance.timeline_windows[0].duration=600;f.target.object.skeleton.bones=Array(200).fill(f.bone);f.target.object.geometry.userData.MMD.rigidBodies=Array.from({length:200},(_,boneIndex)=>({boneIndex,type:2}));}
+  await assert.rejects(buildTimelinePhysics(f.options),error=>error.instanceId==='model'&&error.message.includes(mode==='budget'?'128MiB':mode==='duration'?'600秒':'倍率'));assert.equal(f.disposed,0);
  }
 });
