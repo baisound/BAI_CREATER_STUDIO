@@ -1936,3 +1936,6 @@ AUDIO-002 / UX-006 / DATA-002 / RENDER-006（追加Owner指定）：インサー
 Blenderカメラ取込・アドオン/CinemaOperator撮影結果連携。2026-11-13 Owner指定：現在のモデル・カメラ・動き・表情の連動を検証・main統合・制作画面同期した直後に、**Blenderカメラ取込 CAM-019-B1 / Issue #238**へ着手する。既存Blenderカメラの位置/回転/画角/投影/時刻・カットを同じ作品へ取り込み、タイムライン・プレビュー・保存復元・MP4へ接続する。追加アドオンを必須にしない。CinemaOperator実アドオン利用の既承認要件をその後へ保持する。旧「順6まで待つ」の記載はこの後続指定で更新。B1の.blend/評価済みJSON取込は代表検証済み。[実装・試験と未完範囲](../v05/BLENDER_CAMERA_IMPORT_B1_20261113_JA.md)。CinemaOperator実アドオン連携は未完。
 
 状態：計画・未検証。元blend/素材/旧カメラを保持。センサーフィット/アスペクト/座標・縮尺・fpsと切替境界を照合し、未対応のDOF等は元値と理由を保持する。手動UI/API/両MCP、保存復元/Undo/競合とWindows/Linuxの検証範囲を記録する。
+
+
+CAM-019 / Issue #238：2026-11-13 CAM-019本体連携：CinemaOperator0.7.183のZIP静的検査/版別登録・静的GLBの別名Blenderコピー・ローカル明示起動・実アドオンBake/snapshot返却をB1比較/採用・MP4へ接続。Windows/Ubuntu Python各79、関連Node6、型、Win可視UI50mm操作と実60F MP4、Ubuntu実Blender往復を限定検証。被写体変更/古い条件は拒否。PMX/VRM/FBX・割当動作/表情等の橋渡し、一般アドオン互換/DOF/Linuxブラウザー・MP4/CAM-019全体は未完。docs/v05/CINEMAOPERATOR_BRIDGE_20261113_JA.md

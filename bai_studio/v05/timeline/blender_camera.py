@@ -151,7 +151,7 @@ def file_for(data,asset_id):
     return _root(data)/(suffix+'.camera.json') if _id(suffix) else None
 
 
-def import_track(data,project_id,name,track,*,source_sha256=None):
+def import_track(data,project_id,name,track,*,source_sha256=None,provenance=None):
     fps=_project(data,project_id);summary=validate(track)
     if abs(summary['sample_fps']-fps)>1e-8:raise CameraImportError('作品FPSで書き出したJSONが必要です。再取込みしてください')
     if not isinstance(name,str) or not name.strip() or len(name)>240:raise CameraImportError('ファイル名が不正です')
@@ -163,6 +163,7 @@ def import_track(data,project_id,name,track,*,source_sha256=None):
         'source_sha256':source_sha256 or hashlib.sha256(raw).hexdigest(),'created_at':time.time(),**summary,
         'source_start_frame':track['source_start_frame'],'source_end_frame':track['source_end_frame'],
         'source_fps':track['source_fps'],'source_fps_base':track['source_fps_base'],'unit_scale':track['unit_scale']}
+    if provenance is not None:meta['provenance']=provenance
     path=root/(cid+'.camera.json')
     with path.open('xb') as f:f.write(raw)
     _atomic(root/(cid+'.meta.json'),meta)
@@ -210,6 +211,10 @@ def mapping(value):
 
 def prepare(data,project_id,candidate_id,start_frame,transform,assets):
     fps=_project(data,project_id);candidate=get(data,candidate_id,project_id);transform=mapping(transform)
+    if candidate.get('provenance'):
+        from .blender_addons import check_origin,AddonError
+        try:check_origin(data,candidate['provenance'],assets)
+        except AddonError as error:raise CameraImportError('制作条件が変更されています。'+str(error)) from error
     if candidate['sample_fps']!=fps:raise CameraImportError('作品FPSが変わりました。カメラを再取込みしてください')
     if type(start_frame) is not int or not 0<=start_frame<=86400*fps:raise CameraImportError('配置開始Fを0以上の整数で指定してください')
     if start_frame/fps+candidate['duration']>86400:raise CameraImportError('作品の時間上限を超えます')

@@ -329,6 +329,14 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:
                 self.bad(500, 'VMD candidate read failed')
             return
+        if urlsplit(self.path).path == '/api/studio/v05/blender-addons':
+            from bai_studio.v05.timeline.blender_addons import listing,sessions,AddonError
+            try:
+                query=parse_qs(urlsplit(self.path).query);pid=query.get('project_id',[''])[0]
+                result={'addons':listing(DATA),'sessions':sessions(DATA,pid) if pid else []}
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except (AddonError,ValueError,OSError) as exc:self.bad(422,str(exc))
+            return
         if urlsplit(self.path).path == '/api/studio/v05/blender-camera':
             from bai_studio.v05.timeline.blender_camera import listing,get,CameraImportError,_project
             try:
@@ -1296,6 +1304,31 @@ class Handler(BaseHTTPRequestHandler):
                          ('conflict', 'locked', 'changed')) else 422, str(exc))
             except OSError:
                 self.bad(500, 'VMD placement failed; originals retained')
+            return
+        if urlsplit(self.path).path in ('/api/studio/v05/blender-addons/inspect','/api/studio/v05/blender-addons/register','/api/studio/v05/blender-addons/remove','/api/studio/v05/blender-addons/prepare','/api/studio/v05/blender-addons/open','/api/studio/v05/blender-addons/import-bake'):
+            from bai_studio.v05.timeline import blender_addons as addons
+            try:
+                route=urlsplit(self.path).path.rsplit('/',1)[-1];length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=addons.MAX_ZIP:return self.bad(413,'アドオン入力は32MiB以内にしてください')
+                raw=self.rfile.read(length);query=parse_qs(urlsplit(self.path).query)
+                if route=='inspect':result=addons.describe(raw)
+                elif route=='register':result=addons.register(DATA,raw,query.get('member',[''])[0])
+                else:
+                    body=json.loads(raw)
+                    fields={'remove':{'addon_id'},'prepare':{'project_id','addon_id','start_frame','end_frame'},'open':{'session_id','acknowledged'},'import-bake':{'session_id'}}[route]
+                    if not isinstance(body,dict) or set(body)!=fields:return self.bad(400,'Invalid addon fields')
+                    if route=='remove':result=addons.remove(DATA,body['addon_id'])
+                    elif route=='prepare':result=addons.prepare(DATA,assets=unified_assets(),blender=os.environ.get('MIXAMO_BLENDER','blender'),**body)
+                    elif route=='import-bake':result=addons.import_bake(DATA,body['session_id'],unified_assets())
+                    else:
+                        origin=self.headers.get('Origin','');host=self.headers.get('Host','')
+                        local=origin==f'http://{host}' and host in (f'127.0.0.1:{self.server.server_port}',f'localhost:{self.server.server_port}') and self.headers.get('X-BAI-Local-Action')=='cinemaoperator' and body['acknowledged'] is True
+                        result=addons.open_session(DATA,body['session_id'],unified_assets(),os.environ.get('MIXAMO_BLENDER','blender'),local_action=local)
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except addons.AddonError as exc:
+                self.send(409 if exc.code in ('project_revision_conflict','addon_in_use','session_running','addon_changed') else 422,json.dumps({'error':str(exc),'error_code':exc.code},ensure_ascii=False).encode())
+            except (ValueError,TypeError,KeyError) as exc:self.bad(400,str(exc))
+            except OSError:self.bad(500,'処理できませんでした。既存の作品と作業コピーは保持します')
             return
         if urlsplit(self.path).path in ('/api/studio/v05/blender-camera/import','/api/studio/v05/blender-camera/import-json','/api/studio/v05/blender-camera/preview','/api/studio/v05/blender-camera/adopt'):
             from bai_studio.v05.timeline.blender_camera import import_file,import_track,prepare,adopt,CameraImportError,MAX_BLEND,MAX_JSON

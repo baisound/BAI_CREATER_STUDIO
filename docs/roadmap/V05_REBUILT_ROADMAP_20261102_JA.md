@@ -50,7 +50,7 @@
 
 ## 次の実施順と各ゲート
 
-**最新の直近キュー（Owner指定・2026-11-13）**：モデル/カメラ/動き・表情連動の検証・PR/main・画面同期 → **CAM-019-B1 Blenderカメラ取込（代表検証済み）** → 既承認のCinemaOperator登録/起動/Bake/往復（未実装）。順3 G3-F1等の残件も保持する。以下は元の7段階の全体順であり、この最新の差込みを優先する。
+**最新の直近キュー（Owner指定・2026-11-13）**：モデル/カメラ/動き・表情連動の検証・PR/main・画面同期 → **CAM-019-B1 Blenderカメラ取込（代表検証済み）** → CinemaOperator登録/起動/Bake/往復（静的GLBを代表検証済み、PMX/割当動作等は未完）。順3 G3-F1等の残件も保持する。以下は元の7段階の全体順であり、この最新の差込みを優先する。
 
 1. **最短縦断の再現試験を固定する（順1〜3、[#37](https://github.com/baisound/BAI_CREATER_STUDIO/issues/37)/[#63](https://github.com/baisound/BAI_CREATER_STUDIO/issues/63)/[#69](https://github.com/baisound/BAI_CREATER_STUDIO/issues/69)）。** 既存登録PMX＋VMD＋WAVと、新しく登録した画像を一つの隔離作品に置く。実ID、原本hash、作品FPS、配置F、モデル割当、In/Outを保存・再読込する。開始・中間・終了の3点で3D/画像/音を同じ時計で観測し、短い3D入りMP4を別名出力してフレーム数・画素・PCM・原本不変を確認する。既存試験の寄せ集めで済ませず、最初から最後まで同一作品IDの一つの試験で通す。ここで不足が出た既存要件だけを修正する。
 2. **素材形式と旧作品の対応範囲を埋める（順1、`DATA-016/008`、[#37](https://github.com/baisound/BAI_CREATER_STUDIO/issues/37)/[#50](https://github.com/baisound/BAI_CREATER_STUDIO/issues/50)）。** PMX/VRM/FBX/GLB、VMD/FBX/GLB動作、WAV、GLBステージ、画像・動画の入口・見本・再読込を形式別に表にする。v0.5（③）から②の `/workspace/08` へ誘導する形式はその操作と結果を実機確認し、旧作品は元IDとhashを保って読み直す。未対応は画面に理由を示し、サーバー上の登録だけで使える扱いにしない。
@@ -280,3 +280,6 @@ Owner後続指定：長尺OGVを必須の次作業にしたのはAgentの判断�
 
 
 2026-11-13 Owner追加：MOTION-011/012、元モデル不明VMDの対象PMX接地補正を限定実装。実足裏/IK・指定区間のみの候補比較/保存/Undo・同じMP4経路を検証。元体格の復元・全動作の自動適合・一般の歩幅編集は未完。詳細と検証状況は[接地補正](../v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md)。現在の制作修正をmain/8765へ同期後の次は既承認CAM-019-B1 / #238（Blenderカメラ取込）。順3全体は未完。
+
+
+2026-11-13 CAM-019本体連携：CinemaOperator0.7.183のZIP静的検査/版別登録・静的GLBの別名Blenderコピー・ローカル明示起動・実アドオンBake/snapshot返却をB1比較/採用・MP4へ接続。Windows/Ubuntu Python各79、関連Node6、型、Win可視UI50mm操作と実60F MP4、Ubuntu実Blender往復を限定検証。被写体変更/古い条件は拒否。PMX/VRM/FBX・割当動作/表情等の橋渡し、一般アドオン互換/DOF/Linuxブラウザー・MP4/CAM-019全体は未完。docs/v05/CINEMAOPERATOR_BRIDGE_20261113_JA.md

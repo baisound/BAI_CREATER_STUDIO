@@ -578,6 +578,15 @@
       "commit": "cc2a2536b92649e861fc6a11cdbc6ec6de97bee5 / PR #309 / main 230d9a217f63fbadb2d2f3457a4374f8f3a0025e。Owner main/8765/開いた制作画面の同期・保存状態・保全対象不変を確認",
       "tests": "対象脚長/実足裏/足IKを使う2秒以内の候補作成・比較・原子的保存/Undo・共通MP4。Win/Ubuntu Python各26、Node2・型、生成PMX2体/同じVMDと実PMX/VMD1組、実GPU、ネイティブWebMCP/標準MCPを限定検証。詳細docs/v05/TARGET_MODEL_CONTACT_FIT_20261113_JA.md",
       "unverified": "全PMX/VMD/特殊ウェイト/全尺、元体格の復元・接地区間自動認識・全身/歩幅編集、GLB/FBX別経路、タイムライン物理ON、Linuxブラウザー/GPU、別名VMDのMMD再現、順3全体。次は既承認CAM-019-B1 / #238を維持"
+    },
+    {
+      "item": "CAM-019：CinemaOperator本体登録・起動・Bake連携",
+      "phase_e_wp": "CAM-019/CAM-015・RENDER-001/006、#238",
+      "planned_in": "CAM-019-CINEMAOPERATOR-BRIDGE",
+      "status": "partial_verified",
+      "commit": "codex/cinemaoperator-bridge-20261113（同じ実装コミットのWORK_STATE/history・PRへ紐付け）",
+      "tests": "2026-11-13 CAM-019本体連携：CinemaOperator0.7.183のZIP静的検査/版別登録・静的GLBの別名Blenderコピー・ローカル明示起動・実アドオンBake/snapshot返却をB1比較/採用・MP4へ接続。Windows/Ubuntu Python各79、関連Node6、型、Win可視UI50mm操作と実60F MP4、Ubuntu実Blender往復を限定検証。被写体変更/古い条件は拒否。PMX/VRM/FBX・割当動作/表情等の橋渡し、一般アドオン互換/DOF/Linuxブラウザー・MP4/CAM-019全体は未完。docs/v05/CINEMAOPERATOR_BRIDGE_20261113_JA.md",
+      "unverified": "PMX/VRM/FBX・割当動作/表情/口・親子配置/複雑なGLB、全撮影/別版/ドライバー/長尺、DOF、Linuxブラウザー/GPU/MP4、実SR/200%拡大/全Tab順、CAM-019全体/順3全体"
     }
   ]
 }
