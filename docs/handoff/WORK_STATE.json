@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T20:13:34+09:00",
+  "updated_at": "2026-11-14T20:42:49+09:00",
   "updated_by": "codex",
   "branch": "codex/png-sequence-resume-20261114",
-  "head_at_update": "fe16717",
+  "head_at_update": "0ab629a",
   "current": {
     "task": "#327 検証済みPNG連番からの再開",
-    "status": "in_progress",
+    "status": "done",
     "step": "保持領域と同一性照合・別ジョブ再開を設計し、実装と隔離試験へ進む",
     "design_doc": "docs/v05/PNG_RESUME_20261114_JA.md"
   },
   "next_steps": [
-    "順3の既承認残件：検証済みフレーム/連番からの再開の設計と現状照合へ。EXR/アルファ動画/他codec/全操作・環境/専門機能依存、低優先OGVを保持"
+    "検証済み差分のPR・main統合後、8765と既存制作画面を同期。その後は順3既承認残件を正本で照合"
   ],
   "unverified": [
-    "長尺PNG/実2GiB ZIP/全モデル材質GPU・実SR/全Tab/200%・Linux実PMX/実GPU/設定画面・EXR/アルファ動画/途中再開・順3全体"
+    "長尺/実2GiB・全モデル材質GPU・Linux実PMX/UI/native・SR/全Tab/200%・MP4/3D撮影途中再開・EXR/他codec・順3全体"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T20:42:49+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "0ab629a",
+      "text": "#327 検証済みPNG/元FFV1保持からの別ジョブ再開を実装。Win85/Ubuntu84+1skip・5subtests、Win E2E3/Ubuntu E2E1・型PASS。原本保持、未確認を正本へ記録"
+    },
     {
       "at": "2026-11-14T20:13:34+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "2fb5784",
       "text": "CAM-019-B1の公開用記録は製品機能・生成fixtureの試験・統合コミットに限定。利用環境や素材の集約値など詳細はOwner指定ローカルEvidenceへ保持し、製品コードは変更していない。"
-    },
-    {
-      "at": "2026-11-13T12:44:48+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "6983469",
-      "text": "CAM-019-B1の実装・試験をPR311へ統合。ローカル確認詳細はOwner指定Evidenceへ保持。公開記録は製品機能・試験・統合コミットに限定。"
     }
   ]
 }

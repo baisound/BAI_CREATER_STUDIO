@@ -64,7 +64,7 @@
     button.disabled=exportBusy||dirty()||Boolean(bad)||!context||Boolean(context.reason)||Boolean(context.running);
     button.textContent=format.value==='png_rgba_zip'?'PNG連番＋WAVを書き出す':'実MP4を書き出す';
   }
-  function applySettings(d){exportSaved=d;format.value=d.preset;$('v69background').value=d.background.kind;$('v69backgroundColor').value=d.background.color;settingsChanged();}
+  function applySettings(d){exportSaved=d;format.value=d.preset;$('v69background').value=d.background.kind;$('v69backgroundColor').value=d.background.color;settingsChanged();void previewName();}
   function returnSettingsFocus(pid,trigger){if(pid===activeProject()&&(document.activeElement===trigger||document.activeElement===document.body))format.focus();}
   async function reloadSettings(){const pid=activeProject(),trigger=$('v69reloadSettings');exportBusy=true;settingsChanged();let error=null;try{const d=await get('/api/studio/v05/render/settings?project_id='+encodeURIComponent(pid));if(pid===activeProject())applySettings(d);}catch(e){error=e.message;}finally{exportBusy=false;settingsChanged();if(error&&pid===activeProject())$('v69settingsStatus').textContent=error+' 「保存済みを再読込」で再試行してください。';returnSettingsFocus(pid,trigger);}}
   for(const el of [format,$('v69background'),$('v69backgroundColor')])el.addEventListener(el.tagName==='INPUT'?'input':'change',()=>{settingsChanged();void previewName();});
@@ -160,6 +160,12 @@
     const png=preview.querySelector('#v69pngPreview');if(png){png.hidden=true;png.removeAttribute('src');}preview.classList.remove('v69alphaPreview');
   }
   function renderJobs(items, completed) {
+    const oldAttempts = queue.querySelector('#v69attempts');
+    const oldOpen = oldAttempts?.open;
+    const focused = queue.contains(document.activeElement) ? document.activeElement : null;
+    const focusJob = focused?.closest('[data-job-id]')?.dataset.jobId;
+    const focusAction = focused?.dataset.action;
+    const focusSummary = focused?.tagName === 'SUMMARY';
     queue.replaceChildren();
     const heading = document.createElement('h3');
     heading.textContent = `完成したファイル（${completed.total}件）`;
@@ -184,7 +190,7 @@
     attemptHeading.textContent = '処理中・失敗した履歴（最新20件まで）';
     attempts.append(attemptHeading);
     const pending = items.filter(job => job.status !== 'succeeded');
-    attempts.open = pending.some(job => ['queued', 'running'].includes(job.status)) || ['failed','interrupted'].includes(pending[0]?.status);
+    attempts.open = oldOpen ?? (pending.some(job => ['queued', 'running'].includes(job.status)) || ['failed','interrupted'].includes(pending[0]?.status));
     if (pending.length) queue.append(attempts);
     const states = { succeeded: '完成', queued: '順番待ち', running: '書き出し中', failed: '失敗', interrupted: '中断' };
     for (const job of [...completed.jobs, ...pending]) {
@@ -192,6 +198,7 @@
       row.className = 'v69job';
       row.dataset.jobId = job.id;
       row.dataset.status = job.status;
+      row.tabIndex = -1;
       const label = document.createElement('span');
       label.className = 'v69filename';
       label.textContent = `${job.preset==='png_rgba_zip'?'[PNG＋WAV] ':''}${job.download_name || job.id.slice(0, 8)}${job.delivery_state === 'archived' ? '（旧版）' : ''}`;
@@ -262,6 +269,59 @@
         error.textContent = job.error;
         row.append(error);
       }
+      if (job.preset === 'png_rgba_zip' && ['failed', 'interrupted'].includes(job.status)) {
+        const retained = document.createElement('small');
+        retained.className = 'v69resumeNote';
+        retained.textContent = job.resume_available
+          ? `検証済み連番 ${job.verified_frames} / ${job.frame_count}枚を保持。再開時に保存状態と原素材を照合します。`
+          : (job.resume_error || '再利用できる検証済み連番はありません。先頭から書き出してください。');
+        row.append(retained);
+        if (job.resume_available) {
+          const resumeNote = document.createElement('small');
+          resumeNote.className = 'v69resumeNote';
+          resumeNote.textContent = '3Dは保持した同じ撮影データを使い、WAVは全範囲を再生成します。元の連番を残して別ジョブへ複製するため、使用容量が増えます（保持領域は各ジョブ2GiB以内）。';
+          row.append(resumeNote);
+          const resumeButton = document.createElement('button');
+          resumeButton.type = 'button'; resumeButton.dataset.action = 'resume';
+          resumeButton.textContent = '検証済み連番から再開';
+          resumeButton.setAttribute('aria-label', `${job.download_name || job.id.slice(0,8)}の検証済み${job.verified_frames}枚から再開`);
+          resumeButton.addEventListener('click', async () => {
+            const pid = activeProject();
+            if (pid !== job.project_id) return;
+            if (exportBusy || dirty()) { status('形式・背景の変更を保存するか「保存済みを再読込」してから再開してください。'); return; }
+            resumeButton.disabled = true;
+            status('保持した連番と保存状態を照合中…');
+            try {
+              const response = await fetch('/api/studio/v05/render/jobs', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ project_id: pid, range_revision: job.range_revision,
+                  arrangement_revision: job.arrangement_revision, resolution: job.resolution,
+                  preset: job.preset, settings_revision: job.settings_revision,
+                  scene_revision: job.scene_revision, resume_job_id: job.id,
+                  name: (job.download_name || '再開').replace(/\.zip$/i,''), collision_mode: 'version' }),
+              });
+              const result = await response.json();
+              if (!response.ok) throw Error(result.error || `HTTP ${response.status}`);
+              if (pid !== activeProject()) return;
+              if (context?.projectId === pid) { context.running = true; settingsChanged(); }
+              status(`検証済み${job.verified_frames}枚から再開しました。3Dは同じ撮影データを使い、WAVは全範囲を生成します。`);
+              await jobs(pid);
+              const activeRow = queue.querySelector(`[data-job-id="${result.id}"]`);
+              if (activeRow && pid === activeProject()) { queue.querySelector('#v69attempts').open = true; activeRow.focus(); }
+              watch(result.id, pid);
+            } catch (error) {
+              if (pid === activeProject()) { status(`再開できません: ${error.message}`); resumeButton.disabled = false; resumeButton.focus(); }
+            }
+          });
+          row.append(resumeButton);
+        }
+      }
+      if (job.reused_frames) {
+        const reused = document.createElement('small');
+        reused.className = 'v69resumeNote';
+        reused.textContent = `検証済み${job.reused_frames}枚を再利用。元の連番も保持しています。`;
+        row.append(reused);
+      }
       if(job.delivery_error){const warning=document.createElement('small');warning.textContent=job.delivery_error;row.append(warning);}
       (job.status === 'succeeded' ? finished : attempts).append(row);
     }
@@ -284,6 +344,11 @@
     const selected = selectedJobId && completed.jobs.find(job => job.id === selectedJobId && job.file_available !== false);
     const wanted = selected || newest;
     if (wanted && preview.querySelector('#v69video')?.dataset.jobId !== wanted.id) showVideo(wanted);
+    if (focused && document.activeElement === document.body) {
+      const restore = focusSummary ? attempts.querySelector('summary') :
+        focusJob ? queue.querySelector(`[data-job-id="${focusJob}"]${focusAction ? ` [data-action="${focusAction}"]` : ''}`) : null;
+      restore?.focus({ preventScroll: true });
+    }
   }
   async function jobs(projectId) {
     if (!projectId) return [];

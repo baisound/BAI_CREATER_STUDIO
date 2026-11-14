@@ -862,7 +862,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "背景色/クロマキー/アルファ",
-      "detail": "グリーン・ブルー・任意色・透過。初期透過出力はRGBA PNG連番。2026-11-14 G3-F1の終了条件/残件照合はSEQUENCE3_EXIT_REVIEW_STATUS_20261114.json。順3全体未完、納品用RGBA PNG連番は未実装。2026-11-14 #324：作品別の形式/背景保存とRGBA PNG連番＋別PCM WAV ZIP、既存版管理/復元を接続。限定検証と未検証はPNG_SEQUENCE_STATUS_20261114.json、順3全体/EXR/アルファ動画/途中再開は未完",
+      "detail": "グリーン・ブルー・任意色・透過。初期透過出力はRGBA PNG連番。2026-11-14 G3-F1の終了条件/残件照合はSEQUENCE3_EXIT_REVIEW_STATUS_20261114.json。順3全体未完、納品用RGBA PNG連番は未実装。2026-11-14 #324：作品別の形式/背景保存とRGBA PNG連番＋別PCM WAV ZIP、既存版管理/復元を接続。限定検証と未検証はPNG_SEQUENCE_STATUS_20261114.json、順3全体/EXR/アルファ動画/途中再開は未完。2026-11-14 #327：検証済み先頭PNGと元3D撮影を保持/再照合して別ジョブへ続きから再開。PNG_RESUME_STATUS_20261114.jsonに検証と制限を記録。MP4/3D撮影途中からの再開・EXR/他codec・順3全体は未完",
       "status": "部分実装・代表検証",
       "dependency": "CORE,DATA,CAM"
     },
@@ -889,7 +889,7 @@
       "group": "RENDER",
       "phase": 7,
       "name": "PNG・EXR連番出力",
-      "detail": "透過初期受入はRGBA PNG連番。3D限定MP4の内部中間PNG連番は作成・寸法/hash確認後に削除し、納品用PNG連番やEXRの受入は未接続。2026-11-14 G3-F1の終了条件/残件照合はSEQUENCE3_EXIT_REVIEW_STATUS_20261114.json。順3全体未完、納品用RGBA PNG連番は未実装。2026-11-14 #324：作品別の形式/背景保存とRGBA PNG連番＋別PCM WAV ZIP、既存版管理/復元を接続。限定検証と未検証はPNG_SEQUENCE_STATUS_20261114.json、順3全体/EXR/アルファ動画/途中再開は未完",
+      "detail": "透過初期受入はRGBA PNG連番。3D限定MP4の内部中間PNG連番は作成・寸法/hash確認後に削除し、納品用PNG連番やEXRの受入は未接続。2026-11-14 G3-F1の終了条件/残件照合はSEQUENCE3_EXIT_REVIEW_STATUS_20261114.json。順3全体未完、納品用RGBA PNG連番は未実装。2026-11-14 #324：作品別の形式/背景保存とRGBA PNG連番＋別PCM WAV ZIP、既存版管理/復元を接続。限定検証と未検証はPNG_SEQUENCE_STATUS_20261114.json、順3全体/EXR/アルファ動画/途中再開は未完。2026-11-14 #327：検証済み先頭PNGと元3D撮影を保持/再照合して別ジョブへ続きから再開。PNG_RESUME_STATUS_20261114.jsonに検証と制限を記録。MP4/3D撮影途中からの再開・EXR/他codec・順3全体は未完",
       "status": "部分実装・代表検証",
       "dependency": "CORE,DATA,CAM"
     },
