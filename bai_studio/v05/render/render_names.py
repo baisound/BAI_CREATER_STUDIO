@@ -27,21 +27,24 @@ class NameError(ValueError):
         self.status = status
 
 
-def normalize(name: str) -> str:
+def normalize(name: str, extension: str | None = None) -> str:
     if not isinstance(name, str):
         raise NameError("完成物の名前を入力してください", 400)
     name = unicodedata.normalize("NFC", name.strip())
     if not name or len(name) > 84 or BAD_NAME.search(name) or name.endswith((" ", ".")):
         raise NameError("完成物の名前は80文字以内で、パス記号や末尾の点を含めないでください", 400)
-    if name.lower().endswith(".mp4"):
+    extension = extension or ('.zip' if name.lower().endswith('.zip') else '.mp4')
+    if extension not in {'.mp4','.zip'}:
+        raise NameError('未対応の完成物形式です',400)
+    if name.lower().endswith(extension):
         stem = name[:-4]
     elif "." in name:
-        raise NameError("完成物の形式はMP4のみです", 400)
+        raise NameError(f"完成物の拡張子は{extension}にしてください", 400)
     else:
         stem = name
     if not stem or len(stem) > 80 or RESERVED.fullmatch(stem):
         raise NameError("完成物の名前を変更してください", 400)
-    return stem + ".mp4"
+    return stem + extension
 
 
 def _path(root: Path, project_id: str) -> Path:
@@ -78,14 +81,14 @@ def _suggest(names: dict, requested: str) -> str:
     stem = requested[:-4]
     for version in range(2, 10000):
         suffix = f"-v{version:02d}"
-        candidate = stem[:80 - len(suffix)] + suffix + ".mp4"
+        candidate = stem[:80 - len(suffix)] + suffix + requested[-4:]
         if candidate.casefold() not in names:
             return candidate
     raise NameError("新しい版名を提案できません")
 
 
-def preview(root: Path, project_id: str, name: str) -> dict:
-    requested = normalize(name)
+def preview(root: Path, project_id: str, name: str, extension: str | None = None) -> dict:
+    requested = normalize(name,extension)
     with LOCK:
         data = _read(root, project_id)
         current = data["names"].get(requested.casefold())
@@ -96,11 +99,11 @@ def preview(root: Path, project_id: str, name: str) -> dict:
 
 
 def plan(root: Path, project_id: str, name: str, mode: str,
-         replace_job_id: str | None) -> dict:
+         replace_job_id: str | None, extension: str = '.mp4') -> dict:
     if mode not in {"version", "replace"}:
         raise NameError("同名時の操作を選んでください", 400)
     with LOCK:
-        info = preview(root, project_id, name)
+        info = preview(root, project_id, name,extension)
         if mode == "replace":
             if not info["exists"] or replace_job_id != info["current_job_id"]:
                 raise NameError("置換する完成物が変わりました。名前を確認し直してください", 409)

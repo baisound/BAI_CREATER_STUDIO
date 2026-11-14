@@ -1,0 +1,23 @@
+TAP version 13
+# Subtest: v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D
+ok 1 - v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D
+  ---
+  duration_ms: 12271.9007
+  type: 'test'
+  ...
+# {"status":"passed","scope":"generated GLB static state, nonzero In 15..17 at30fps; not arbitrary shaders/moving camera","cases":[{"label":"saved-opaque","alpha":1,"savedCamera":true,"sceneRevision":4,"shapes":[{"shape":"wide","boxes":[[263,72,740,416],[263,72,740,416]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9687814702920443,"centerShift":0.0048514719530932705,"allMae":1.9446082662063675,"colorMae":2.5325596389426175,"colorSamples":1551},{"shape":"tall","boxes":[[0,300,600,338],[0,300,600,338]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9775561097256857,"centerShift":0.0029036750156568535,"allMae":1.9685941695435367,"colorMae":2.569146700294241,"colorSamples":1586}],"captureRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","outputHash":"da5b2dc79408df71c9c063435497289ab6aace868a5cb73e5be1165fb6c0cfee"},{"label":"auto-opaque","alpha":1,"savedCamera":false,"sceneRevision":2,"shapes":[{"shape":"wide","boxes":[[263,72,740,416],[263,72,740,416]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9722189933744043,"centerShift":0.0020536054628069633,"allMae":2.2014648062907556,"colorMae":1.896741523557904,"colorSamples":7570},{"shape":"tall","boxes":[[0,300,600,338],[0,300,600,338]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9696090940726134,"centerShift":0.0032196110311064007,"allMae":2.1728998849252013,"colorMae":1.9015381903124862,"colorSamples":7563}],"captureRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","outputHash":"6bf3010cb8de34903da90a4f3b7726f3cbb3fa2e49963685291ff8231b9a803b"},{"label":"saved-transparent","alpha":0.5,"savedCamera":true,"sceneRevision":4,"shapes":[{"shape":"wide","boxes":[[263,72,740,416],[263,72,740,416]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9656218402426694,"centerShift":0.004805120828174719,"allMae":1.8682992903720752,"colorMae":2.061335067186823,"colorSamples":1538},{"shape":"tall","boxes":[[0,300,600,338],[0,300,600,338]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9630738522954092,"centerShift":0.0026601443393187455,"allMae":1.8897978998849252,"colorMae":2.0445300792121603,"colorSamples":1557}],"captureRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","outputHash":"50211878d70bccd0272325ce58fb8989c4a7a89ee06dd5db20a1adb3b2a8cae4"}],"browser":"157.0.8103.51","fixtureUnchanged":true}
+# Subtest: saved state survives project switch/reload and matches opaque/transparent MP4 in both pane shapes
+ok 2 - saved state survives project switch/reload and matches opaque/transparent MP4 in both pane shapes
+  ---
+  duration_ms: 31779.1991
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 54331.6925

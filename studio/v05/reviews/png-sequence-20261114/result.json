@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "scope": "generated RGBA image/translucent3D + real encoded WAV, settings/revisions, nonzero29.97 range3F, ZIP/MP4 versions/restore, SDK and optional native/UI",
+  "ui_native": true,
+  "review_cases": "invalid-color recovery/Enter focus/delayed other-project read/native settings and PNG start",
+  "measured": {
+    "count": 3,
+    "start": 7,
+    "fps": {
+      "numerator": 2997,
+      "denominator": 100
+    },
+    "alpha_mode": "straight",
+    "clear": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "half": [
+      200,
+      80,
+      40,
+      128
+    ],
+    "opaque": [
+      10,
+      210,
+      90,
+      255
+    ],
+    "samples": 4805,
+    "start_sample": 11211,
+    "end_sample": 16016
+  },
+  "scene": {
+    "frames": 3,
+    "alpha_min": 0,
+    "alpha_max": 191
+  }
+}

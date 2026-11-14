@@ -225,3 +225,8 @@ CAM-019 / Issue #238：2026-11-13 CAM-019本体連携：CinemaOperator0.7.183の
 ## 2026-11-14 順3の終了条件と残件（#81/#69/#63）
 
 DATA-008、AUDIO-001/002、RENDER-001/002/004/005/006。G3-F1で追加UI/3D/VST/CinemaOperatorを含む15行を[終了条件表](../v05/SEQUENCE3_EXIT_REVIEW_20261114_JA.md)と同STATUS JSONへ照合。現行実GPUの実PMX/VMD/WAV+新画像の縦断3F MP4/保存復元1成功。先行は旧画面導線で1失敗。製品コード変更なし、全体完成状態を変更しない。納品用RGBA PNG連番は内部撮影データと別で未実装、次の既承認RENDER-002/005へ。途中チェックポイント再開、他codec能力選択、短窓/聴感・全操作/環境・順4〜7依存を保持。OGV長尺は低優先。
+
+
+## 2026-11-14 RGBA PNG連番と別WAV（#324）
+
+RENDER-001/002/005/006・DATA-008・CORE-004、承認済みO-RENDER-03 A。作品別の形式/背景設定と保存revision、同じ撮影snapshotからのRGBA PNG連番＋別PCM WAV ZIP、実再読込/フレームhash/アルファ/標本境界、既存MP4と別名版管理・回収/復元、手動/両MCPを接続。初期の限定検証と最終回帰/未検証は[実装記録](../v05/PNG_SEQUENCE_20261114_JA.md)・同STATUS JSON。EXR/アルファ動画/途中フレーム再開・順3全体は未完。

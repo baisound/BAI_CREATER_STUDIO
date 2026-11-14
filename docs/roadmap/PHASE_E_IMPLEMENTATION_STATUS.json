@@ -623,6 +623,15 @@
       "commit": "same commit as docs/v05/SEQUENCE3_EXIT_REVIEW_STATUS_20261114.json",
       "tests": "固定した既存証拠と現コード/要件を照合。現行実GPUで実PMX/VMD/WAV+新画像の同一作品保存再読込/姿勢/時刻/3F MP4受取1成功。旧画面導線の先行1失敗を保持。製品コード変更なし。",
       "unverified": "順3全体は未完。納品用RGBA PNG連番/背景設定、検証済みチェックポイント再開、他codec能力選択、全操作/実SR・全環境等を未達/未検証/後段依存に分けて保持"
+    },
+    {
+      "item": "RENDER-002/005：RGBA PNG連番＋別WAV ZIP受取",
+      "phase_e_wp": "RENDER-001/002/005/006・DATA-008・CORE-004、#324/#81",
+      "planned_in": "PNG-SEQUENCE-20261114",
+      "status": "partial_verified",
+      "commit": "same commit as docs/v05/PNG_SEQUENCE_STATUS_20261114.json",
+      "tests": "Windows Python68/Ubuntu67+Win専用1skip、各5subtests。Win PNG UI/SDK/native/GLB1・実PMX/VMD/曲1、Ubuntu PNG SDK/GLB1。24/60fps1F無音・29.97fps非0In3F/標本一致、PNG実画素/ZIP回収・版復元。旧MP44種類それぞれ成功（初回5件ゲート3成功2旧試験失敗を保持、修正2件成功）、型成功。3視点必須指摘解消。",
+      "unverified": "long PNG sequence/real2GiB ZIP stress; all models/materials/GPUs; all Tab order/screen reader/200% zoom; Linux owner PMX/hardware GPU/native GUI; EXR/alpha-video/checkpoint frame resume; overall sequence3 completion"
     }
   ]
 }

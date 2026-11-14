@@ -634,6 +634,14 @@ class Handler(BaseHTTPRequestHandler):
         if urlsplit(self.path).path=='/api/studio/v05/render/capabilities':
             from bai_studio.v05.render.media_render import capabilities
             self.send(200,json.dumps(capabilities(probe_root=DATA/'studio_v05_media_renders'/'probe'),ensure_ascii=False).encode());return
+        if urlsplit(self.path).path=='/api/studio/v05/render/settings':
+            from bai_studio.v05.render.png_sequence import read,SequenceError
+            try:
+                q=parse_qs(urlsplit(self.path).query)
+                self.send(200,json.dumps(read(DATA,q.get('project_id',[''])[0]),ensure_ascii=False).encode())
+            except SequenceError as exc:self.bad(exc.status,str(exc))
+            except (OSError,ValueError,KeyError):self.bad(422,'書き出し設定を読めません。保存先を確認してください。')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/render/name':
             from bai_studio.v05.render.render_names import preview, NameError
             from bai_studio.projects.catalog import load
@@ -642,18 +650,29 @@ class Handler(BaseHTTPRequestHandler):
                 project_id=q.get('project_id',[''])[0]
                 if not any(p['id']==project_id for p in load(DATA/'studio_v05_catalog.json')['projects']):
                     return self.bad(404,'Unknown project ID')
-                result=preview(DATA/'studio_v05_media_renders',project_id,q.get('name',[''])[0])
+                preset=q.get('preset',[None])[0]
+                if preset not in {None,'mp4_h264_aac','png_rgba_zip'}:return self.bad(400,'Invalid output format')
+                result=preview(DATA/'studio_v05_media_renders',project_id,q.get('name',[''])[0],None if preset is None else '.zip' if preset=='png_rgba_zip' else '.mp4')
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except NameError as exc:self.bad(exc.status,str(exc))
             except (ValueError,KeyError,OSError):self.bad(422,'Cannot read render names')
             return
-        if urlsplit(self.path).path in ('/api/studio/v05/render/jobs','/api/studio/v05/render/file'):
+        if urlsplit(self.path).path in ('/api/studio/v05/render/jobs','/api/studio/v05/render/file','/api/studio/v05/render/preview'):
             from bai_studio.v05.render.media_render import status, list_jobs, output_file, RenderError
             path=urlsplit(self.path).path
             q=parse_qs(urlsplit(self.path).query)
             try:
-                if path.endswith('/file'):
-                    self.send_library_file(output_file(DATA/'studio_v05_media_renders',q.get('id',[''])[0]),'video/mp4')
+                if path.endswith('/preview'):
+                    import zipfile
+                    file=output_file(DATA/'studio_v05_media_renders',q.get('id',[''])[0])
+                    if file.suffix!='.zip':return self.bad(422,'PNG連番を選んでください。')
+                    with zipfile.ZipFile(file) as archive:
+                        info=archive.getinfo('frame_000001.png')
+                        if info.file_size>16*1024*1024:return self.bad(422,'確認画像が大きすぎます。ZIPを取得してください。')
+                        self.send(200,archive.read(info),'image/png')
+                elif path.endswith('/file'):
+                    file=output_file(DATA/'studio_v05_media_renders',q.get('id',[''])[0])
+                    self.send_library_file(file,'application/zip' if file.suffix=='.zip' else 'video/mp4')
                 elif 'id' in q:
                     self.send(200,json.dumps(status(DATA/'studio_v05_media_renders',q['id'][0]),ensure_ascii=False).encode())
                 else:
@@ -1532,6 +1551,18 @@ class Handler(BaseHTTPRequestHandler):
                 self.bad(409 if 'conflict' in str(exc).lower() else 400,str(exc))
             except OSError:self.bad(500,'Render range write failed')
             return
+        if urlsplit(self.path).path=='/api/studio/v05/render/settings':
+            from bai_studio.v05.render.png_sequence import update,SequenceError
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0<length<=4096:return self.bad(413,'Request too large')
+                body=json.loads(self.rfile.read(length))
+                if not isinstance(body,dict) or set(body)!={'project_id','revision','preset','background'}:return self.bad(400,'Invalid export settings')
+                self.send(200,json.dumps(update(DATA,**body),ensure_ascii=False).encode())
+            except SequenceError as exc:self.bad(exc.status,str(exc))
+            except (ValueError,KeyError,TypeError):self.bad(400,'Invalid export settings')
+            except OSError:self.bad(503,'書き出し設定を保存できません。保存先の権限と空き容量を確認してください。')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/render/jobs':
             from bai_studio.v05.render.media_render import start, RenderError
             try:
@@ -1539,7 +1570,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not 0<length<=8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
                 required={'project_id','range_revision','arrangement_revision','resolution'}
-                if not isinstance(body,dict) or not required.issubset(body) or set(body)-required-{'scene_revision','name','collision_mode','replace_job_id'}:
+                if not isinstance(body,dict) or not required.issubset(body) or set(body)-required-{'scene_revision','name','collision_mode','replace_job_id','preset','settings_revision'}:
                     return self.bad(400,'Invalid render request')
                 result=start(DATA,inventory=unified_assets(),server_port=self.server.server_port,**body)
                 event('v05_render_started',project_id=body['project_id'],job_id=result['id'])

@@ -1,0 +1,191 @@
+TAP version 13
+# Subtest: v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D
+not ok 1 - v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D
+  ---
+  duration_ms: 40271.2695
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-media-render.test.cjs:23:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    locator.selectOption: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('#v06project')[22m
+    [2m    - locator resolved to <select id="v06project">…</select>[22m
+    [2m  - attempting select option action[22m
+    [2m    2 × waiting for element to be visible and enabled[22m
+    [2m      - element is not visible[22m
+    [2m    - retrying select option action[22m
+    [2m    - waiting 20ms[22m
+    [2m    2 × waiting for element to be visible and enabled[22m
+    [2m      - element is not visible[22m
+    [2m    - retrying select option action[22m
+    [2m      - waiting 100ms[22m
+    [2m    59 × waiting for element to be visible and enabled[22m
+    [2m       - element is not visible[22m
+    [2m     - retrying select option action[22m
+    [2m       - waiting 500ms[22m
+
+  code: 'ERR_TEST_FAILURE'
+  name: 'TimeoutError'
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-media-render.test.cjs:213:39)
+  ...
+# Subtest: saved PNG/background choices through UI/SDK/native; real ZIP RGBA/sample bounds/versions and MP4 retention
+ok 2 - saved PNG/background choices through UI/SDK/native; real ZIP RGBA/sample bounds/versions and MP4 retention
+  ---
+  duration_ms: 16625.0827
+  type: 'test'
+  ...
+# {"actualDownloads":4,"matchingHashes":true,"completedHistory":25,"pageSizes":[20,5],"oldVersion":true,"worksWithoutNewRender":true,"narrowWidth":390}
+# Subtest: completed MP4s download from the list, survive reload/preparation errors and paginate without mixing projects
+ok 3 - completed MP4s download from the list, survive reload/preparation errors and paginate without mixing projects
+  ---
+  duration_ms: 9767.4624
+  type: 'test'
+  ...
+# {"status":"passed","apiOnly":false,"faultKind":"isolated per-operation ENOSPC/launch injection, not physical disk exhaustion","browser":"157.0.8103.51","actualOldDownloadDuringStorageFault":true,"inputKind":"image","inputHash":"3cbcb3424d559fd71e41c6d47459035b28eb4d19a5537a4d207abc6c5268b345","frames":30,"queuedFailureStatus":507,"threadFailureStatus":503,"completedListSurvivesUnwritableJob":true,"failedReplacementKeptOldIndexAndBytes":true,"newVersionRetry":"保存保護-v02.mp4","committedUnnamedRecovered":true,"corruptSameSizeRangeRejected":true,"corruptOldVersionRestoreRejected":true,"tamperedFixtureNotRepaired":true,"healthyOutputsStillDownloadable":true,"sourceUnchanged":true,"native":true}
+# Subtest: storage/launch faults allow retry, committed-state recovery and verified older downloads
+ok 4 - storage/launch faults allow retry, committed-state recovery and verified older downloads
+  ---
+  duration_ms: 7029.6896
+  type: 'test'
+  ...
+# Subtest: saved state survives project switch/reload and matches opaque/transparent MP4 in both pane shapes
+not ok 5 - saved state survives project switch/reload and matches opaque/transparent MP4 in both pane shapes
+  ---
+  duration_ms: 14307.9402
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-state-composition.test.cjs:33:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+
+      {
+    +   arrangement_revision: 1,
+    -   arrangement_revision: 0,
+        camera: null,
+        face_history: {
+          redo: [],
+          undo: []
+        },
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    schema: 1
+    project_id: 'a8f22055-c839-46c2-b691-593f1920dedc'
+    legacy_revision: 0
+    revision: 2
+    instances:
+      0:
+        id: 'd2541bff2ddb47078bdcaf4f3cf1464d'
+        asset_id: 'library:54a6841c64af2c3903d20d77'
+        transform:
+          position:
+            0: 0.4
+            1: 0
+            2: -0.2
+          rotation:
+            0: 0
+            1: 25
+            2: 0
+          scale:
+            0: 1.2
+            1: 0.8
+            2: 0.7
+        visible: true
+        locked: true
+        parent_id: ~
+        available: true
+        asset:
+          id: 'library:54a6841c64af2c3903d20d77'
+          kind: 'stage'
+          format: 'GLB'
+          source: 'library'
+          filename: '9b9cfdfd75e8863ec5ba46626b14d7be35444a7c14991df19c21c1188cf688d5.glb'
+          originalName: 'auto-opaque.glb'
+          bytes: 3580
+          sha256: '9b9cfdfd75e8863ec5ba46626b14d7be35444a7c14991df19c21c1188cf688d5'
+          mime: 'model/gltf-binary'
+          name: 'auto-opaque'
+          titleSource: 'filename'
+          available: true
+          previewable: true
+          thumbnailUrl: ~
+    camera: ~
+    face_keys:
+    face_history:
+      undo:
+      redo:
+    physics:
+    timeline_models:
+    arrangement_revision: 0
+    timeline_effects:
+    renderer_ready: false
+  actual:
+    schema: 1
+    project_id: 'a8f22055-c839-46c2-b691-593f1920dedc'
+    legacy_revision: 0
+    revision: 2
+    instances:
+      0:
+        id: 'd2541bff2ddb47078bdcaf4f3cf1464d'
+        asset_id: 'library:54a6841c64af2c3903d20d77'
+        transform:
+          position:
+            0: 0.4
+            1: 0
+            2: -0.2
+          rotation:
+            0: 0
+            1: 25
+            2: 0
+          scale:
+            0: 1.2
+            1: 0.8
+            2: 0.7
+        visible: true
+        locked: true
+        parent_id: ~
+        available: true
+        asset:
+          id: 'library:54a6841c64af2c3903d20d77'
+          kind: 'stage'
+          format: 'GLB'
+          source: 'library'
+          filename: '9b9cfdfd75e8863ec5ba46626b14d7be35444a7c14991df19c21c1188cf688d5.glb'
+          originalName: 'auto-opaque.glb'
+          bytes: 3580
+          sha256: '9b9cfdfd75e8863ec5ba46626b14d7be35444a7c14991df19c21c1188cf688d5'
+          mime: 'model/gltf-binary'
+          name: 'auto-opaque'
+          titleSource: 'filename'
+          available: true
+          previewable: true
+          thumbnailUrl: ~
+    camera: ~
+    face_keys:
+    face_history:
+      undo:
+      redo:
+    physics:
+    timeline_models:
+    arrangement_revision: 1
+    timeline_effects:
+    renderer_ready: false
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-state-composition.test.cjs:71:89)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 3
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 113560.316

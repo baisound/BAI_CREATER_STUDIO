@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T15:58:20+09:00",
+  "updated_at": "2026-11-14T19:52:55+09:00",
   "updated_by": "codex",
-  "branch": "codex/sequence3-exit-audit-20261114",
-  "head_at_update": "dc45c0d",
+  "branch": "codex/rgba-png-sequence-20261114",
+  "head_at_update": "8e5a06e",
   "current": {
-    "task": "順3 G3-F1：終了条件と最新検証証拠・残件を照合",
-    "status": "done",
-    "step": "PR321/322のmain・制作画面同期は完了済み。A〜Eと追加3D/VST/CinemaOperatorの証拠を固定し、未達・後段依存・次の縦断試験を明示する",
-    "design_doc": "docs/v05/SEQUENCE3_EXIT_REVIEW_20261114_JA.md"
+    "task": "#324 PNG連番のPR/main統合と制作画面同期",
+    "status": "in_progress",
+    "step": "実装/限定検証/記録を完了。差分・チェックを確認しmainへ統合、既存データを保って8765と制作画面を同期する",
+    "design_doc": "docs/v05/PNG_SEQUENCE_20261114_JA.md"
   },
   "next_steps": [
-    "既承認O-RENDER-03 / RENDER-002/005：納品用RGBA PNG連番の保存・受取を既存snapshot/逐次描画へ接続する設計・実装へ。G3-A〜E/順4〜7の残件と低優先OGVは保持"
+    "PR差分と記録を確認してmain統合、所有サーバー8765再起動/配信バイトと開いた制作画面・原本保持を確認する"
   ],
   "unverified": [
-    "納品用PNG連番/背景設定・途中フレーム再開・他codec能力選択は未達。全操作/環境・短窓/聴感・Linux実素材縦断・専門機能依存・順3全体は未完"
+    "長尺PNG/実2GiB ZIP/全モデル材質GPU・実SR/全Tab/200%・Linux実PMX/実GPU・EXR/アルファ動画/途中再開・順3全体"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,41 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T19:52:55+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8e5a06e",
+      "text": "#324 PNG連番のPR/main統合と制作画面同期: 実装/限定検証/記録を完了。差分・チェックを確認しmainへ統合、既存データを保って8765と制作画面を同期する"
+    },
+    {
+      "at": "2026-11-14T19:52:54+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8e5a06e",
+      "text": "#324：RGBA PNG連番＋別WAVと背景設定を限定検証。Win68/Ubuntu67+1skip、各5subtests。Win UI/SDK/native/GLB1・実PMX/VMD/曲1、Ubuntu SDK/GLB1、既存MP44種類・型成功。3視点必須指摘を解消。"
+    },
+    {
+      "at": "2026-11-14T19:50:47+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "fc1ed67",
+      "text": "#324 PNG連番の最終回帰・実PMX・main同期: PNG実装と3視点必須修正を完了。旧試験の現行導線/派生revision照合を保ち最終回帰、実PMX、台帳/画像とPR/main同期を確定する"
+    },
+    {
+      "at": "2026-11-14T19:50:46+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "fc1ed67",
+      "text": "#324：形式/背景保存とRGBA PNG＋別WAV ZIPを共通ジョブ/版管理/両MCPへ実装。Win UI/SDK/nativeとUbuntu API/SDK、半透明3D・標本一致を限定確認。レビュー必須指摘を修正。最終回帰/実PMX/同期は次段階。"
+    },
+    {
+      "at": "2026-11-14T19:15:30+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5b52bcd",
+      "text": "RENDER-002/005：RGBA PNG連番と背景設定・ZIP受取: 既存snapshot/FFV1撮影・完成物/版管理へPNG連番を接続する設計。透明エッジ/音声/容量/保存競合を隔離検証する"
+    },
     {
       "at": "2026-11-14T15:58:20+09:00",
       "by": "codex",
@@ -201,41 +236,6 @@
       "event": "done",
       "head": "98216a9",
       "text": "CAM-019-B1を実装。実Blender Windows/Ubuntu生成カメラ→候補比較/採用/保存Undo・共通時計/60F MP4を検証。Python各64、Node関連5+既存VMD回帰1、型成功。3視点必須指摘と再読込時VMD復帰を修正、限定PASS。詳細BLENDER_CAMERA_IMPORT_B1_20261113_JA.md/STATUS JSON。"
-    },
-    {
-      "at": "2026-11-13T11:30:28+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "848ee85",
-      "text": "CAM-019-B1：Blenderの評価済みカメラを取込み、比較・採用から同じタイムライン/MP4へ接続: Issue238/承認済み設計を再開。元Blenderと旧カメラを保持し、小さな実Blender fixtureで経路/座標/画角/投影/FPS/カットを確定し3視点設計批評後に実装。"
-    },
-    {
-      "at": "2026-11-13T10:54:22+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "230d9a2",
-      "text": "MOTION-011/012の対象PMX区間接地補正をPR309/main 230d9a2へ統合済み。Owner main/8765の5モジュール実バイト・context API・Chrome実動作プレビュー/保存済み表示と保全対象不変を確認。実素材の画像/JSONはOwner確認フォルダーへ非公開保存・読み戻し済み。"
-    },
-    {
-      "at": "2026-11-13T10:47:24+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "03e7244",
-      "text": "MOTION-011/012：対象PMXの実足裏・IKによる区間補正を実装。候補比較/原子的保存/Undo・共通MP4、原本hash/配置revision照合、3D固定領域。Win/Ubuntu Python各26、Node2・型・生成2体/実PMX1組・実GPU・両MCPを限定検証。3視点の必須指摘を修正し限定PASS。"
-    },
-    {
-      "at": "2026-11-13T10:11:18+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "0a5e011",
-      "text": "MOTION-011/012：元モデル不明のVMDを対象PMXの足裏とIKで区間補正する: PR308/main/8765/制作画面同期済み。3視点批評済みのTARGET_MODEL_CONTACT_FIT設計に従い、原本hash付き読込、対象/区間/床を確認した接地補正候補、原子的な保存/Undo/両MCPとMP4検証を実装。Blender CAM-019-B1の差込みは現制作補正の次へ保持。"
-    },
-    {
-      "at": "2026-11-13T09:53:21+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b0ba58d",
-      "text": "配置モデル/カメラ/動き/表情の代表検証に加え、髪/紐のPMX物理を基準姿勢構築と長さ保持付き回転へ修正。元データ不変、合成物理・時計/retarget/連動の回帰6と型成功。元モデル不明VMDの接地補正は3視点設計批評の指摘を採用、未実装。"
     }
   ]
 }
