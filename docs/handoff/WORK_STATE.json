@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T19:50:47+09:00",
+  "updated_at": "2026-11-14T19:52:55+09:00",
   "updated_by": "codex",
   "branch": "codex/rgba-png-sequence-20261114",
-  "head_at_update": "fc1ed67",
+  "head_at_update": "8e5a06e",
   "current": {
-    "task": "#324 PNG連番の最終回帰・実PMX・main同期",
+    "task": "#324 PNG連番のPR/main統合と制作画面同期",
     "status": "in_progress",
-    "step": "PNG実装と3視点必須修正を完了。旧試験の現行導線/派生revision照合を保ち最終回帰、実PMX、台帳/画像とPR/main同期を確定する",
+    "step": "実装/限定検証/記録を完了。差分・チェックを確認しmainへ統合、既存データを保って8765と制作画面を同期する",
     "design_doc": "docs/v05/PNG_SEQUENCE_20261114_JA.md"
   },
   "next_steps": [
-    "最終の1F/無音・既存MP4/構図・実PMXとLinux/Python、型/台帳/画像を確認してPR/main/8765/制作画面へ同期"
+    "PR差分と記録を確認してmain統合、所有サーバー8765再起動/配信バイトと開いた制作画面・原本保持を確認する"
   ],
   "unverified": [
-    "長尺PNG/実2GiB ZIP/全材質GPU・実SR/全Tab/200%・Linux実PMX/実GPU・EXR/アルファ動画/途中再開・順3全体"
+    "長尺PNG/実2GiB ZIP/全モデル材質GPU・実SR/全Tab/200%・Linux実PMX/実GPU・EXR/アルファ動画/途中再開・順3全体"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,20 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T19:52:55+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "8e5a06e",
+      "text": "#324 PNG連番のPR/main統合と制作画面同期: 実装/限定検証/記録を完了。差分・チェックを確認しmainへ統合、既存データを保って8765と制作画面を同期する"
+    },
+    {
+      "at": "2026-11-14T19:52:54+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "8e5a06e",
+      "text": "#324：RGBA PNG連番＋別WAVと背景設定を限定検証。Win68/Ubuntu67+1skip、各5subtests。Win UI/SDK/native/GLB1・実PMX/VMD/曲1、Ubuntu SDK/GLB1、既存MP44種類・型成功。3視点必須指摘を解消。"
+    },
     {
       "at": "2026-11-14T19:50:47+09:00",
       "by": "codex",
@@ -222,20 +236,6 @@
       "event": "done",
       "head": "98216a9",
       "text": "CAM-019-B1を実装。実Blender Windows/Ubuntu生成カメラ→候補比較/採用/保存Undo・共通時計/60F MP4を検証。Python各64、Node関連5+既存VMD回帰1、型成功。3視点必須指摘と再読込時VMD復帰を修正、限定PASS。詳細BLENDER_CAMERA_IMPORT_B1_20261113_JA.md/STATUS JSON。"
-    },
-    {
-      "at": "2026-11-13T11:30:28+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "848ee85",
-      "text": "CAM-019-B1：Blenderの評価済みカメラを取込み、比較・採用から同じタイムライン/MP4へ接続: Issue238/承認済み設計を再開。元Blenderと旧カメラを保持し、小さな実Blender fixtureで経路/座標/画角/投影/FPS/カットを確定し3視点設計批評後に実装。"
-    },
-    {
-      "at": "2026-11-13T10:54:22+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "230d9a2",
-      "text": "MOTION-011/012の対象PMX区間接地補正をPR309/main 230d9a2へ統合済み。Owner main/8765の5モジュール実バイト・context API・Chrome実動作プレビュー/保存済み表示と保全対象不変を確認。実素材の画像/JSONはOwner確認フォルダーへ非公開保存・読み戻し済み。"
     }
   ]
 }

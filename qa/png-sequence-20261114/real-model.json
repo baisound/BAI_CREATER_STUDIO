@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "scope": "real PMX/VMD/song read-only isolated copies; nonzero120..122 at29.97; not all models/full length",
+  "frames": 3,
+  "alpha_min": 0,
+  "alpha_max": 255,
+  "source_unchanged": true
+}

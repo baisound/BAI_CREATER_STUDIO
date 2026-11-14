@@ -9,7 +9,7 @@
     "RENDER-006"
   ],
   "baseline_main": "5b52bcdd98cf62393cf960279beff2b848490fbd",
-  "status": "implemented_partial_verified_final_regression_pending",
+  "status": "partial_verified",
   "release_complete": false,
   "sequence3_complete": false,
   "features": [
@@ -24,18 +24,11 @@
     "settings saved/draft/invalid/retry state",
     "both MCPs"
   ],
-  "verified_so_far": {
-    "windows_png_ui_sdk_native_and_3d": "PASS; final1F/review rerun recorded separately",
-    "ubuntu_png_sdk_and_3d": "PASS; no UI/native",
-    "windows_python": 68,
-    "ubuntu_python": "final in progress",
-    "typecheck": "PASS; repeat after final copy"
-  },
   "reviews": {
-    "first_action": "P2 fixed in source",
-    "workflow": "P2 project guard fixed in source",
-    "visual_accessibility": "P2 color recovery/focus fixed in source",
-    "judge": "pending final gates"
+    "first_action": "scoped PASS source; reviewer runtime NOT TESTED",
+    "workflow": "scoped PASS source; delayed other-project test PASS by Root",
+    "visual_accessibility": "scoped PASS source; Enter focus/colors and width captures PASS by Root; full a11y NOT TESTED",
+    "judge": "scoped PASS for executed gates; broad release not complete"
   },
   "failed_attempts": [
     "test FPS endpoint spelling",
@@ -55,5 +48,205 @@
     "overall sequence3 completion"
   ],
   "document": "docs/v05/PNG_SEQUENCE_20261114_JA.md",
-  "model_category": "high capability; three existing standard critics"
+  "model_category": "high capability; three existing standard critics",
+  "verified": {
+    "windows_python": {
+      "passed": 68,
+      "skipped": 0,
+      "additional_subtests": 5
+    },
+    "ubuntu_python": {
+      "passed": 67,
+      "skipped": 1,
+      "skip_reason": "Windows-only junction/process scope",
+      "additional_subtests": 5
+    },
+    "windows_png_ui_sdk_native_3d": 1,
+    "ubuntu_png_sdk_3d": 1,
+    "windows_real_pmx_vmd_song_png": 1,
+    "windows_distinct_mp4_regressions_succeeded": 4,
+    "mp4_initial_5_test_gate": {
+      "passed": 3,
+      "failed": 2,
+      "note": "old navigation/derived snapshot assertions; corrected two tests rerun both PASS; do not relabel original batch"
+    },
+    "typecheck": "PASS",
+    "current_png_cases": [
+      "24/60fps 1F with silent separate WAV",
+      "29.97fps nonzero7..9 3F",
+      "RGBA clear0/half128/opaque255, half RGB exact200/80/40",
+      "WAV exact source samples11211..16016 =>4805",
+      "translucent GLB alpha max191 Windows/192 Ubuntu",
+      "saved green background reaches actual MP4",
+      "same-name MP4/ZIP independent, replace/restore old ZIP, old MP4 bytes unchanged",
+      "settings conflict and implicit legacy MP4 compatibility",
+      "UI/native/SDK settings and render",
+      "invalid color recovery, Enter save/reload focus, same-revision delayed other-project read guard",
+      "ZIP preview shows actual PNG without video loading",
+      "PNG gaps/corrupt/RGB/dimensions/audio/capacity/index failure/verified checkpoint recovery/tamper rejection"
+    ]
+  },
+  "measurements": {
+    "windows": {
+      "status": "PASS",
+      "scope": "generated RGBA image/translucent3D + real encoded WAV, settings/revisions, nonzero29.97 range3F, ZIP/MP4 versions/restore, SDK and optional native/UI",
+      "ui_native": true,
+      "review_cases": "invalid-color recovery/Enter focus/delayed other-project read/native settings and PNG start",
+      "measured": {
+        "count": 3,
+        "start": 7,
+        "fps": {
+          "numerator": 2997,
+          "denominator": 100
+        },
+        "alpha_mode": "straight",
+        "clear": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "half": [
+          200,
+          80,
+          40,
+          128
+        ],
+        "opaque": [
+          10,
+          210,
+          90,
+          255
+        ],
+        "samples": 4805,
+        "start_sample": 11211,
+        "end_sample": 16016
+      },
+      "scene": {
+        "frames": 3,
+        "alpha_min": 0,
+        "alpha_max": 191
+      }
+    },
+    "ubuntu": {
+      "status": "PASS",
+      "scope": "generated RGBA image/translucent3D + real encoded WAV, settings/revisions, nonzero29.97 range3F, ZIP/MP4 versions/restore, SDK and optional native/UI",
+      "ui_native": false,
+      "review_cases": "not tested",
+      "measured": {
+        "count": 3,
+        "start": 7,
+        "fps": {
+          "numerator": 2997,
+          "denominator": 100
+        },
+        "alpha_mode": "straight",
+        "clear": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "half": [
+          200,
+          80,
+          40,
+          128
+        ],
+        "opaque": [
+          10,
+          210,
+          90,
+          255
+        ],
+        "samples": 4805,
+        "start_sample": 11211,
+        "end_sample": 16016
+      },
+      "scene": {
+        "frames": 3,
+        "alpha_min": 0,
+        "alpha_max": 192
+      }
+    },
+    "real_model": {
+      "status": "PASS",
+      "scope": "real PMX/VMD/song read-only isolated copies; nonzero120..122 at29.97; not all models/full length",
+      "frames": 3,
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "source_unchanged": true
+    }
+  },
+  "findings": [
+    {
+      "id": "PNG-01",
+      "priority": "P2",
+      "target": "format/background draft",
+      "fix": "require save; explicit MP4 transparency rejection",
+      "verification": "PASS"
+    },
+    {
+      "id": "PNG-02",
+      "priority": "P2",
+      "target": "invalid color and keyboard focus",
+      "fix": "keep color repairable; conditional same-project focus return after save/reload",
+      "verification": "PASS"
+    },
+    {
+      "id": "PNG-03",
+      "priority": "P2",
+      "target": "project switch/settings",
+      "fix": "clear mismatched saved state and guard project_id at button and handler",
+      "verification": "PASS same revision and delayed response"
+    },
+    {
+      "id": "PNG-04",
+      "priority": "P1",
+      "target": "alpha/audio/format boundaries",
+      "fix": "RGBA RGB composition, exact absolute sample endpoints, separate extensions/ZIP MIME/player",
+      "verification": "PASS actual PNG/WAV/3D/versions"
+    },
+    {
+      "id": "PNG-05",
+      "priority": "P2",
+      "target": "Linux capability probe",
+      "fix": "finite synthetic color and separate bounded PNG/WAV probes; MCP capability wait180s",
+      "verification": "PASS Ubuntu actual FFmpeg"
+    },
+    {
+      "id": "PNG-06",
+      "priority": "P1",
+      "target": "completion recovery",
+      "fix": "verify all PNG/WAV, archive reread, final pending receipt and existing name transaction",
+      "verification": "PASS failure injection/ZIP recovery/tamper and MP4 regressions"
+    }
+  ],
+  "implementation_commits": [
+    "8e5a06e",
+    "final verification record same branch"
+  ],
+  "screenshots": {
+    "folder": "studio/v05/reviews/png-sequence-20261114/",
+    "before": "before.png",
+    "implemented": "completed-marked.png",
+    "marks": {
+      "1": "background and save",
+      "2": "PNG/WAV export",
+      "3": "actual first PNG and ZIP download"
+    },
+    "public_generated_only": true
+  },
+  "verified_source_sha256_git_lf": {
+    "bai_studio/v05/render/media_render.py": "5253664fade8315aa724b4611dd74ed5812b4249948b86b2528b9e077e0a03ca",
+    "bai_studio/v05/render/png_sequence.py": "37980627c50de8fc32aa75b94ec0b8a423211293200d0d152718c5d7373f90b7",
+    "bai_studio/v05/render/render_names.py": "2fba39c7000435f3b3541a1021c1d5ded1b162277735729b824aed2d74db8537",
+    "server.py": "b89bed5f98c19921c7904d3d3454351c54dd621d7d93f57ed0a1da9813c39bbc",
+    "mcp_server.py": "9f8344d9dc800eaca305d4bfeb85c4bf06d6b6d5c31817deec93abf66cb55664",
+    "webmcp.js": "8e5834635c18af9ced0e7b5f35e5643983f02887d79e22438593eae5257d6887",
+    "studio/v05/js/render-job-v69.js": "5d1f7b0274ca3cf3e649644b5cd457d78e22c22c8e8295141cb8b0a360f425d2",
+    "tests/studio-v05-png-sequence.test.cjs": "a55276a543d2cbcb45f096bddaf088824a5b065c5d89f682744adfdaf6f0f18a",
+    "tests/studio-v05-png-real-model.test.cjs": "69f29a7832279dce6dfeb0888a0a67fa584f089260128a3931f1391e10447074",
+    "tests/test_v05_png_sequence.py": "c5adb19aecba20c68e7656f423ecef87650e577a91ee9ede5ad323ae70ed6132"
+  }
 }

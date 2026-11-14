@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: real registered PMX/VMD and song produce a separate verified RGBA PNG/WAV archive without source edits
+ok 1 - real registered PMX/VMD and song produce a separate verified RGBA PNG/WAV archive without source edits
+  ---
+  duration_ms: 16355.9081
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 21124.0827
