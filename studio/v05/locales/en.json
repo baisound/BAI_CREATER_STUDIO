@@ -282,8 +282,8 @@
     "preview": "Preview 3D"
   },
   "v58": {
-    "title": "Multi-model 3D preview",
-    "renderingNote": "Each model is loaded separately into one scene. Verify real WebGL rendering on your machine.",
+    "title": "3D editor",
+    "renderingNote": "Closing clears temporary previews. Saved settings are retained.",
     "select": "Select scene model",
     "refresh": "Reload placements",
     "focus": "Focus selected model",

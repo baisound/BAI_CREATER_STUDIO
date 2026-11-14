@@ -1,0 +1,9 @@
+{
+  "issue":320,
+  "requirements":["DATA-006","MOTION-004","UX-001","UX-002","UX-003","UX-004","UX-005","UX-006","UX-007","UX-008"],
+  "status":"in_progress",
+  "verified":{"windows_serial_ui_and_existing_composite_clock_contact":4,"windows_focus_ui":1,"physics_regression":1},
+  "failed_attempts":["old UI selectors before tab migration","test reload catalog and nonidle polling assumptions","parallel browser resource connection refusal and legacy install error; serial four passed"],
+  "unverified":["final gates","Ubuntu","CinemaOperator after layout change","real screen reader/all Tab order/200% zoom"],
+  "release_complete":false
+}

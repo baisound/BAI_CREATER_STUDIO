@@ -46,7 +46,7 @@ test('target PMX sole contact: two proportions, bounded preview/save/undo/reload
       await page.evaluate(()=>window.BAIStudioMultiScenePreview.open());
       const ready=()=>page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready&&window.BAIStudioMultiScenePreview.status().motion.loadedClips.length===1,null,{timeout:120000});
       await ready();
-      await page.locator('#v105-foot-qa summary').first().click();
+      await page.getByRole('tab',{name:'リグ・接地',exact:true}).click();await page.locator('#v105-foot-qa summary').first().click();
       await page.locator('#v-contact-first').fill('6');await page.locator('#v-contact-end').fill('66');
       await page.locator('#v105-ground-y').fill('0');
       await page.locator('#v-contact-make').focus();await page.keyboard.press('Enter');
@@ -135,7 +135,7 @@ test('target PMX sole contact: two proportions, bounded preview/save/undo/reload
       await page.evaluate(()=>window.BAIStudioMultiScenePreview.refresh());await ready();
       const fkReject=await page.evaluate(async()=>{try{await window.BAIStudioMultiScenePreview.contactCreate({side:'左',start_frame:6,end_frame:66,ground_y:0});return null;}catch(e){return e.message;}});
       assert.match(fkReject,/IKモード/);assert.deepEqual(await json(await fetch(s.base+'/api/studio/v05/motion-edits?id='+id)),mode);
-      await page.locator('#v105-foot-qa summary').first().click();
+      await page.getByRole('tab',{name:'リグ・接地',exact:true}).click();await page.locator('#v105-foot-qa summary').first().click();
       // The details may already be open after the browser tool. Ensure inputs are reachable.
       await page.locator('#v105-foot-qa').evaluate(el=>el.open=true);
       await page.locator('#v105-ground-y').fill('');await page.locator('#v-contact-make').click();
