@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T19:52:55+09:00",
+  "updated_at": "2026-11-14T19:59:22+09:00",
   "updated_by": "codex",
   "branch": "codex/rgba-png-sequence-20261114",
-  "head_at_update": "8e5a06e",
+  "head_at_update": "30ec7b4",
   "current": {
     "task": "#324 PNG連番のPR/main統合と制作画面同期",
-    "status": "in_progress",
+    "status": "done",
     "step": "実装/限定検証/記録を完了。差分・チェックを確認しmainへ統合、既存データを保って8765と制作画面を同期する",
     "design_doc": "docs/v05/PNG_SEQUENCE_20261114_JA.md"
   },
   "next_steps": [
-    "PR差分と記録を確認してmain統合、所有サーバー8765再起動/配信バイトと開いた制作画面・原本保持を確認する"
+    "順3の既承認残件：検証済みフレーム/連番からの再開の設計と現状照合へ。EXR/アルファ動画/他codec/全操作・環境/専門機能依存、低優先OGVを保持"
   ],
   "unverified": [
-    "長尺PNG/実2GiB ZIP/全モデル材質GPU・実SR/全Tab/200%・Linux実PMX/実GPU・EXR/アルファ動画/途中再開・順3全体"
+    "長尺PNG/実2GiB ZIP/全モデル材質GPU・実SR/全Tab/200%・Linux実PMX/実GPU/設定画面・EXR/アルファ動画/途中再開・順3全体"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T19:59:22+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "30ec7b4",
+      "text": "PR325/main744e5aeへRGBA PNG＋別WAV ZIPを統合。利用者main/8765再起動と4配信ファイル/PNG・MP4能力/開いた制作画面を同期し、素材・作品・既存完成物の不変を確認。限定検証・画像・未検証を正本へ記録。"
+    },
     {
       "at": "2026-11-14T19:52:55+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "54a5ec9",
       "text": "CAM-019-B1の実装・試験をPR311へ統合。ローカル確認詳細はOwner指定Evidenceへ保持。公開記録は製品機能・試験・統合コミットに限定。"
-    },
-    {
-      "at": "2026-11-13T12:38:32+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "98216a9",
-      "text": "CAM-019-B1を実装。実Blender Windows/Ubuntu生成カメラ→候補比較/採用/保存Undo・共通時計/60F MP4を検証。Python各64、Node関連5+既存VMD回帰1、型成功。3視点必須指摘と再読込時VMD復帰を修正、限定PASS。詳細BLENDER_CAMERA_IMPORT_B1_20261113_JA.md/STATUS JSON。"
     }
   ]
 }
