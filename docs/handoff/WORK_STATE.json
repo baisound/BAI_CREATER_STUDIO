@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T13:21:22+09:00",
+  "updated_at": "2026-11-14T15:48:53+09:00",
   "updated_by": "codex",
-  "branch": "codex/motion-assignment-workspace-20261114",
-  "head_at_update": "6c1a602",
+  "branch": "codex/sequence3-exit-audit-20261114",
+  "head_at_update": "08762e0",
   "current": {
-    "task": "#320 モーション割当と3D編集改善のPR/main統合・画面同期",
-    "status": "done",
-    "step": "両OSと既存描画/補正/物理/Bakeの限定検証済み。公開画像と正本をPRへまとめmain/8765/制作画面へ同期する。",
-    "design_doc": "docs/v05/MOTION_ASSIGNMENT_WORKSPACE_20261114_JA.md"
+    "task": "順3 G3-F1：終了条件と最新検証証拠・残件を照合",
+    "status": "in_progress",
+    "step": "PR321/322のmain・制作画面同期は完了済み。A〜Eと追加3D/VST/CinemaOperatorの証拠を固定し、未達・後段依存・次の縦断試験を明示する",
+    "design_doc": "docs/v05/SEQUENCE3_EXIT_REVIEW_20261114_JA.md"
   },
   "next_steps": [
     "未割当案内と統合記録の追補PRを統合して最終制作画面を同期。順3全体/CAM-019の未検証は保持"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T15:48:53+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "08762e0",
+      "text": "順3 G3-F1：終了条件と最新検証証拠・残件を照合: PR321/322のmain・制作画面同期は完了済み。A〜Eと追加3D/VST/CinemaOperatorの証拠を固定し、未達・後段依存・次の縦断試験を明示する"
+    },
     {
       "at": "2026-11-14T13:21:22+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "ba0d74c",
       "text": "タイムライン3D連動と追加の素材別体格補正・髪/アクセサリーの伸び修正: 3D連動の代表検証と台帳同期まで完了。追加報告のGLB動作+PMX物理ONの伸びを隔離再現し、素材ごとの元骨格/体格調整を調査。検証前のmain統合は保留。Blender CAM-019-B1を統合/同期直後の次へ保持。"
-    },
-    {
-      "at": "2026-11-13T08:58:08+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ba0d74c",
-      "text": "DATA-001/006・CAM-001/015・LIP-009・RENDER-006：配置モデル/動き/表情/口/カメラを同じ時計とMP4へ接続。Win/Ubuntu各66、実GPU/実PMX/実ダンスとカメラVMD、60Fと実3F、両MCPと3視点レビューを限定検証。CAM-019の既承認設計を復帰しBlenderカメラ取込B1を次へ差込む。"
     }
   ]
 }
