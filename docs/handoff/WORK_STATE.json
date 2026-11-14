@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T21:38:29+09:00",
+  "updated_at": "2026-11-14T21:42:56+09:00",
   "updated_by": "codex",
   "branch": "codex/codec-selection-20261114",
-  "head_at_update": "1f060eb",
+  "head_at_update": "13aa65c",
   "current": {
     "task": "#330 コーデック対応確認と選択",
     "status": "done",
-    "step": "固定候補と環境/解像度/FPS別の実測・保存・実出力を設計し実装する",
+    "step": "実装・限定検証・PR #331 main統合・8765/開いている制作画面の同期を完了。未検証と残件を保持",
     "design_doc": "docs/v05/CODEC_SELECTION_20261114_JA.md"
   },
   "next_steps": [
-    "PR/main統合し8765/既存制作タブを同期。その後は順3の既承認残件を正本で照合"
+    "順3の次の既承認残件を正本で照合。EXR/アルファ動画/MP4途中再開、長尺/全条件/全環境と順4〜7依存・低優先OGVは未完を保持"
   ],
   "unverified": [
     "長尺/実2GiB・全モデル材質/ICC/HDR/全条件・聴感/HW encoder・Linux実PMX/UI/native・SR/全Tab/200%・EXR/アルファ動画/MP4途中再開・順3全体"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T21:42:56+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "13aa65c",
+      "text": "#330 PR #331をmain f3affd9へマージ。8765で5codec720p/60fpsと配信一致、既存制作画面の選択/保存/履歴を同期。原本/旧完成物/dirty不変"
+    },
     {
       "at": "2026-11-14T21:38:29+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "ae37cdd",
       "text": "CAM-019のPMX/VMD動き・表情/口の形状コピーとnativeBake往復を限定検証。Windows/Ubuntu Python各82、Win関連Node7+最終cache1/Ubuntu E2E1・型成功。実PMX GUI50mm/Bake/採用/60F MP4も確認。PR/main同期待ち。"
-    },
-    {
-      "at": "2026-11-14T04:55:47+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "2d38a4e",
-      "text": "CAM-019：PMX・動き・表情を含むCinemaOperatorシーン連携: Studioの評価済み形状を別名Blenderコピーへ渡す方式を調査し、同時刻・物理・表情とBake往復を実検証する"
     }
   ]
 }

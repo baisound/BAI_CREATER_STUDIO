@@ -7,7 +7,7 @@
     "CORE-004"
   ],
   "baseline_main": "fef8e92eaedc66bf0aaf4c214929cbb50b4d039c",
-  "stage": "scoped final gates PASS; PR/main/screen integration next",
+  "stage": "PR331 merged to main;8765 and existing production tab synchronized",
   "scoped_codec_selection_complete": true,
   "release_complete": false,
   "presets": [
@@ -144,7 +144,17 @@
     "studio/v05/js/render-job-v69.js": "8680bcacc50a1f5956b6eca0f56eb3465a6a6748d471dc2047c451157563131b",
     "studio/v05/css/render-job-v69.css": "b036e241449779100bb5b2e4200012d5d75aea8d3de849954023ff5f850a59a2"
   },
-  "integration": null,
+  "integration": {
+    "pr": 331,
+    "main_commit": "f3affd9344ee06bdf804e4bd7c630b71d8fbd092",
+    "port": 8765,
+    "source_http_match": true,
+    "production_probe": "all five software presets PASS at720p/60fps",
+    "existing_tab_reloaded": true,
+    "default_h264_and_saved_settings_preserved": true,
+    "owner_sources_and_completed_files_unchanged": true,
+    "owner_test_jobs_created": false
+  },
   "model_categories": {
     "design_implementation": "high capability",
     "three_ui_critics": "standard"

@@ -39,3 +39,8 @@ before.pngは基点main fef8e92の出力JSを隔離ページへルーティン�
 最終ゲート：Windows Python113成功、Ubuntu112成功/Windows専用1skip、各5subtests。Windows E2E最終3成功（新codec UI/SDK/native、PNG再開、旧MP4）、Ubuntu E2E1成功（codec SDK/API/実Chromium3D）、型成功。5候補のF7〜9/29.97fpsでは音声開始11211標本、要求4805標本、ゼロずれ相関>.99/RMS差3%以内、旧ファイル不変/MOV旧版復元を確認。過去の構図6条件も別ゲートで成功（最終movie_timescale/force再確認のleaf変更前として記録）。1440/1024/600幅、保存/再読込、720↔1080再検査・503回復とEnter focus・非対応時の保存形式保持を実測。
 
 最後の文言修正ではProResの進捗もMOVと表示し、MCPの説明を全動画/連番へ一般化。直接の手動MOV完了を追加した同じコーデック試験を再実行して1成功。最終3種類とは重複計上しない。
+
+
+## mainと開いている制作画面の同期
+
+PR #331 / main f3affd9。利用者mainをfast-forwardし、進行中出力0件とコマンド行で確認した所有サーバーを更新mainから非表示で起動。8765でHTML/出力JS/CSS/WebMCPのバイト一致、新codec APIの720p/60fpsで5候補すべての可用を確認した。既存制作タブを再読込して選択肢、実測結果、H.264の保存済み設定と旧完成履歴を確認。Owner作品へ試験ジョブ/設定は保存せず、既存の未割当モーションは原状の理由を保持。素材/作品/旧完成物と既存dirty変更は不変。公開同期記録はqa/codec-selection-20261114/integration.json、実画面と保全詳細はOwner確認先。
