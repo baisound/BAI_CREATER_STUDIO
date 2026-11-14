@@ -108,8 +108,8 @@ test('one saved project joins existing PMX/VMD/WAV with a new image through prev
       browser = await server.launchBrowser();
       page = await server.newPage(browser, { expectErrors: [/unknown char code \d+\./] });
       await page.goto(`${server.base}/studio/v05/index.html`);
+      await page.getByRole('button', { name: '制作', exact: true }).click();
       await page.locator('#v06project').selectOption(id);
-      await page.locator('#nav [data-workspace="edit"]').click();
       await page.locator('#v70sceneOpen').click();
       await page.waitForFunction(projectId => window.BAIStudioMediaPreviewV68?.status().projectId === projectId &&
         window.BAIStudioMediaPreviewV68.status().mediaCount === 2 &&
@@ -139,8 +139,8 @@ test('one saved project joins existing PMX/VMD/WAV with a new image through prev
       assert.ok(bones.some(name => samples[0].pose.bones[name] && samples[1].pose.bones[name] &&
         poseDelta(samples[0].pose.bones[name], samples[1].pose.bones[name]) > 1e-3), 'VMD姿勢が変化しません');
       await page.reload();
+      await page.getByRole('button', { name: '制作', exact: true }).click();
       await page.locator('#v06project').selectOption(id);
-      await page.locator('#nav [data-workspace="edit"]').click();
       await page.locator('#v70sceneOpen').click();
       await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().loaded === 1 &&
         window.BAIStudioMultiScenePreview.status().motion?.loadedClips.length === 1,
