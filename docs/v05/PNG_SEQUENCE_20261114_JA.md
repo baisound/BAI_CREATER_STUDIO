@@ -48,3 +48,8 @@ Python：設定/競合・形式/透過拒否、PNG欠番/破損/サイズ・改�
 ![①背景と保存、②出力、③受取（生成素材）](../../studio/v05/reviews/png-sequence-20261114/completed-marked.png)
 
 変更前は同フォルダーの `before.png`。main5b52bcdの出力JSを隔離ページへ読み込んだ基準画像で、元の無効なPNG項目とMP4のみの導線を示す。公開画像は生成素材だけ。
+
+
+## mainと制作画面の同期
+
+PR #325 / main `744e5ae140ab3c15583cfea2440625ef7869d214`。利用者mainをfast-forwardし、進行中のOwner出力がないことと起動元を確認した8765の所有サーバーを更新。変更HTML/出力JS/CSS/WebMCPの配信バイトがmainと一致し、実能力検査でMP4/PNGが有効。既存Chrome制作タブを再読込し、PNG形式の有効化と背景/保存済み設定を確認した。作品へ試験設定や素材を保存せず、既存の未割当モーションは理由を保持。素材/作品/旧完成物と既存dirty変更は不変。詳細はOwner確認先、公開の同期記録はqa/png-sequence-20261114/integration.json。

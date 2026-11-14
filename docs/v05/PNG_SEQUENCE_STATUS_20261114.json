@@ -224,7 +224,8 @@
   ],
   "implementation_commits": [
     "8e5a06e",
-    "final verification record same branch"
+    "3ee9bfe",
+    "30ec7b4"
   ],
   "screenshots": {
     "folder": "studio/v05/reviews/png-sequence-20261114/",
@@ -248,5 +249,22 @@
     "tests/studio-v05-png-sequence.test.cjs": "a55276a543d2cbcb45f096bddaf088824a5b065c5d89f682744adfdaf6f0f18a",
     "tests/studio-v05-png-real-model.test.cjs": "69f29a7832279dce6dfeb0888a0a67fa584f089260128a3931f1391e10447074",
     "tests/test_v05_png_sequence.py": "c5adb19aecba20c68e7656f423ecef87650e577a91ee9ede5ad323ae70ed6132"
+  },
+  "integration": {
+    "issue": 324,
+    "pr": 325,
+    "main_implementation": "744e5ae140ab3c15583cfea2440625ef7869d214",
+    "local_main_fast_forward": "PASS",
+    "http_four_changed_files_exact_bytes": "PASS",
+    "real_capabilities": {
+      "mp4": true,
+      "png_rgba_zip": true
+    },
+    "open_production_screen": "reloaded existing tab; PNG option enabled; background/settings loaded; no project mutation",
+    "owner_sources_projects_and_existing_outputs": "unchanged; detailed guard and actual model evidence only in Owner folder",
+    "production_restart": "owned server restarted from local main; no active owner render jobs",
+    "release_complete": false,
+    "sequence3_complete": false,
+    "next": "approved frame/checkpoint resume remains unimplemented; keep sequence3 requirements and low-priority OGV"
   }
 }
