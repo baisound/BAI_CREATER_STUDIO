@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T15:58:20+09:00",
+  "updated_at": "2026-11-14T19:15:30+09:00",
   "updated_by": "codex",
-  "branch": "codex/sequence3-exit-audit-20261114",
-  "head_at_update": "dc45c0d",
+  "branch": "codex/rgba-png-sequence-20261114",
+  "head_at_update": "5b52bcd",
   "current": {
-    "task": "順3 G3-F1：終了条件と最新検証証拠・残件を照合",
-    "status": "done",
-    "step": "PR321/322のmain・制作画面同期は完了済み。A〜Eと追加3D/VST/CinemaOperatorの証拠を固定し、未達・後段依存・次の縦断試験を明示する",
-    "design_doc": "docs/v05/SEQUENCE3_EXIT_REVIEW_20261114_JA.md"
+    "task": "RENDER-002/005：RGBA PNG連番と背景設定・ZIP受取",
+    "status": "in_progress",
+    "step": "既存snapshot/FFV1撮影・完成物/版管理へPNG連番を接続する設計。透明エッジ/音声/容量/保存競合を隔離検証する",
+    "design_doc": "docs/v05/PNG_SEQUENCE_20261114_JA.md"
   },
   "next_steps": [
     "既承認O-RENDER-03 / RENDER-002/005：納品用RGBA PNG連番の保存・受取を既存snapshot/逐次描画へ接続する設計・実装へ。G3-A〜E/順4〜7の残件と低優先OGVは保持"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T19:15:30+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "5b52bcd",
+      "text": "RENDER-002/005：RGBA PNG連番と背景設定・ZIP受取: 既存snapshot/FFV1撮影・完成物/版管理へPNG連番を接続する設計。透明エッジ/音声/容量/保存競合を隔離検証する"
+    },
     {
       "at": "2026-11-14T15:58:20+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "0a5e011",
       "text": "MOTION-011/012：元モデル不明のVMDを対象PMXの足裏とIKで区間補正する: PR308/main/8765/制作画面同期済み。3視点批評済みのTARGET_MODEL_CONTACT_FIT設計に従い、原本hash付き読込、対象/区間/床を確認した接地補正候補、原子的な保存/Undo/両MCPとMP4検証を実装。Blender CAM-019-B1の差込みは現制作補正の次へ保持。"
-    },
-    {
-      "at": "2026-11-13T09:53:21+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "b0ba58d",
-      "text": "配置モデル/カメラ/動き/表情の代表検証に加え、髪/紐のPMX物理を基準姿勢構築と長さ保持付き回転へ修正。元データ不変、合成物理・時計/retarget/連動の回帰6と型成功。元モデル不明VMDの接地補正は3視点設計批評の指摘を採用、未実装。"
     }
   ]
 }
