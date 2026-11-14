@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T20:49:28+09:00",
+  "updated_at": "2026-11-14T21:04:35+09:00",
   "updated_by": "codex",
-  "branch": "codex/png-sequence-resume-20261114",
-  "head_at_update": "2072c33",
+  "branch": "codex/codec-selection-20261114",
+  "head_at_update": "fef8e92",
   "current": {
-    "task": "#327 検証済みPNG連番からの再開",
-    "status": "done",
-    "step": "実装/限定検証/PR #328 main統合・8765/既存制作画面同期を完了。残件と未検証を保持",
-    "design_doc": "docs/v05/PNG_RESUME_20261114_JA.md"
+    "task": "#330 コーデック対応確認と選択",
+    "status": "in_progress",
+    "step": "固定候補と環境/解像度/FPS別の実測・保存・実出力を設計し実装する",
+    "design_doc": "docs/v05/CODEC_SELECTION_20261114_JA.md"
   },
   "next_steps": [
     "順3の次の既承認残件を正本で照合（codec能力/選択・EXR等）。MP4/3D撮影途中再開、長尺/全環境、順4〜7依存と低優先OGVを保持"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T21:04:35+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "fef8e92",
+      "text": "#330 コーデック対応確認と選択: 固定候補と環境/解像度/FPS別の実測・保存・実出力を設計し実装する"
+    },
     {
       "at": "2026-11-14T20:49:28+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "f2b4e7e",
       "text": "CAM-019：CinemaOperator本体の静的ZIP検査/版別登録・静的GLB作業コピー・ローカル明示起動・実nativeBake/snapshotをB1比較採用/MP4へ接続。Win/Ubuntu Python各79・Node関連6・型、実GUI50mm操作、Win/Ubuntu4被写体負例、A/B切替と60F MP4を限定検証。3視点の必須指摘解消。"
-    },
-    {
-      "at": "2026-11-13T13:26:15+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "62961ba",
-      "text": "CAM-019：CinemaOperator本体の登録・起動・Bake結果連携: Issue238の既承認A〜Dを再開。配布ZIPを静的検査し、別名作業コピーと対応形式を確定。実アドオンの可視UI/Bakeから既存カメラ候補へ戻す。"
     }
   ]
 }
