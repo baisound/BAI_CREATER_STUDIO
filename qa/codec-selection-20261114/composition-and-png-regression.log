@@ -1,0 +1,25 @@
+[run-guarded] 警告: 開発用サーバー（127.0.0.1:8765）が動いています。実データに書き込むとハッシュの確認が失敗します
+TAP version 13
+# Subtest: real failed PNG prefix resumes through SDK/native/UI; exact PNG/WAV and saved-state refusals
+ok 1 - real failed PNG prefix resumes through SDK/native/UI; exact PNG/WAV and saved-state refusals
+  ---
+  duration_ms: 67400.0714
+  type: 'test'
+  ...
+# {"status":"passed","scope":"generated GLB static state, nonzero In 15..17 at30fps; not arbitrary shaders/moving camera","cases":[{"label":"saved-opaque","alpha":1,"savedCamera":true,"sceneRevision":4,"shapes":[{"shape":"wide","boxes":[[263,72,740,416],[263,72,740,416]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9687814702920443,"centerShift":0.0048514719530932705,"allMae":1.9446082662063675,"colorMae":2.5325596389426175,"colorSamples":1551},{"shape":"tall","boxes":[[0,300,600,338],[0,300,600,338]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9775561097256857,"centerShift":0.0029036750156568535,"allMae":1.9685941695435367,"colorMae":2.569146700294241,"colorSamples":1586}],"captureRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","outputHash":"ee6f6631b9dd4589688a9b02dd0aac49d088bb8b2624535a67d699a6e194627e"},{"label":"auto-opaque","alpha":1,"savedCamera":false,"sceneRevision":2,"shapes":[{"shape":"wide","boxes":[[263,72,740,416],[263,72,740,416]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9722189933744043,"centerShift":0.0020536054628069633,"allMae":2.2014648062907556,"colorMae":1.896741523557904,"colorSamples":7570},{"shape":"tall","boxes":[[0,300,600,338],[0,300,600,338]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9696090940726134,"centerShift":0.0032196110311064007,"allMae":2.1728998849252013,"colorMae":1.9015381903124862,"colorSamples":7563}],"captureRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","outputHash":"a12b346f58f638a84bc2ca328266a78819c494c7900199382304269e7fa2aa8b"},{"label":"saved-transparent","alpha":0.5,"savedCamera":true,"sceneRevision":4,"shapes":[{"shape":"wide","boxes":[[263,72,740,416],[263,72,740,416]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9656218402426694,"centerShift":0.004805120828174719,"allMae":1.8682992903720752,"colorMae":2.061335067186823,"colorSamples":1538},{"shape":"tall","boxes":[[0,300,600,338],[0,300,600,338]],"previewRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","iou":0.9630738522954092,"centerShift":0.0026601443393187455,"allMae":1.8897978998849252,"colorMae":2.0445300792121603,"colorSamples":1557}],"captureRenderer":"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)","outputHash":"4e62c95d7823195da69b4b3352c3c43a84e7aa336424d378c0df2a7bd851b4c9"}],"browser":"157.0.8103.51","fixtureUnchanged":true}
+# Subtest: saved state survives project switch/reload and matches opaque/transparent MP4 in both pane shapes
+ok 2 - saved state survives project switch/reload and matches opaque/transparent MP4 in both pane shapes
+  ---
+  duration_ms: 39337.9952
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 117125.0412
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

@@ -1,0 +1,16 @@
+..................                                                  [100%]
+================================== FAILURES ===================================
+___ RenderNamesSafetyTest.test_unsafe_names_are_rejected (name='wrong.mov') ___
+
+self = <test_studio_v05_render_names.RenderNamesSafetyTest testMethod=test_unsafe_names_are_rejected>
+
+    def test_unsafe_names_are_rejected(self):
+        for name in ("../escape", "CON.mp4", "wrong.mov", "bad|name", "name."):
+>           with self.subTest(name=name), self.assertRaises(names.NameError):
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: NameError not raised
+
+tests\test_studio_v05_render_names.py:100: AssertionError
+=========================== short test summary info ===========================
+SUBFAILED(name='wrong.mov') tests/test_studio_v05_render_names.py::RenderNamesSafetyTest::test_unsafe_names_are_rejected
+1 failed, 18 passed, 4 subtests passed in 1.63s

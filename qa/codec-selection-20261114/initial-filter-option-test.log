@@ -1,0 +1,25 @@
+......................F............................................ [ 59%]
+..............................................                           [100%]
+================================== FAILURES ===================================
+__________ test_high_bitrate_output_limit_stops_and_keeps_old_movie ___________
+
+tmp_path = WindowsPath('C:/Users/user/AppData/Local/Temp/pytest-of-user/pytest-2048/test_high_bitrate_output_limit0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000112E986DEB0>
+
+    def test_high_bitrate_output_limit_stops_and_keeps_old_movie(tmp_path,monkeypatch):
+        (tmp_path/'files').mkdir();(tmp_path/'jobs').mkdir()
+        old=tmp_path/'files'/('a'*32+'.mp4');old.write_bytes(b'old completed movie')
+        monkeypatch.setattr(render,'MAX_OUTPUT_BYTES',1024)
+        job={'id':'b'*32,'project_id':'qa','resolution':'720p','fps':30,'scene_revision':None,
+             'arrangement_revision':1,'range_revision':1,'range_start_frame':7,
+             'range_end_exclusive':10,'frame_count':3,'preset':'mov_prores_pcm'}
+        render._worker(tmp_path,job,[],shutil.which('ffmpeg'),shutil.which('ffprobe'),filter_complex_option='-filter_complex_script')
+>       assert job['status']=='failed' and '2GiB' in job['error']
+E       assert ('failed' == 'failed'
+E
+E           failed and '2GiB' in "FFmpeg exited 2880417800: Unrecognized option 'filter_complex_script'.\nError splitting the argument list: Option not found\n")
+
+tests\test_v05_codec_presets.py:88: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_v05_codec_presets.py::test_high_bitrate_output_limit_stops_and_keeps_old_movie
+1 failed, 112 passed, 5 subtests passed in 42.79s

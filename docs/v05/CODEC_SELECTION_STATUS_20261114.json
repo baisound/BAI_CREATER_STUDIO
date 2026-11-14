@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "issue": 330,
+  "requirements": [
+    "RENDER-004",
+    "RENDER-006",
+    "CORE-004"
+  ],
+  "baseline_main": "fef8e92eaedc66bf0aaf4c214929cbb50b4d039c",
+  "stage": "scoped final gates PASS; PR/main/screen integration next",
+  "scoped_codec_selection_complete": true,
+  "release_complete": false,
+  "presets": [
+    "mp4_h264_aac",
+    "mp4_hevc_aac",
+    "mp4_vp9_aac",
+    "mp4_av1_aac",
+    "mov_prores_pcm",
+    "png_rgba_zip"
+  ],
+  "probe_contract": {
+    "encoder_listing": true,
+    "real_encode_and_video_audio_decode": true,
+    "key": "tool path/stat + preset table + exact resolution/fps; cache16 condition sets",
+    "explicit_recheck_bypasses_cache": true,
+    "total_probe_deadline_seconds": 145,
+    "target_conditions": "720p/29.97fps Windows/Ubuntu,1080p/29.97fps Windows UI; other 24/60fps 64x64 clock regression"
+  },
+  "output_contract": {
+    "fixed_encoders_only": true,
+    "video_opaque": true,
+    "mp4_audio": "AAC320kb/s,48kHz/stereo",
+    "mov_audio": "24bit PCM,48kHz/stereo",
+    "movie_timescale": 48000,
+    "audio_duration_tolerance_samples": 16,
+    "max_video_bytes": 2147483648,
+    "exact_video_trim_in_filter": true,
+    "saved_resolution_required_with_settings_revision": true,
+    "old_mp4_png_and_completed_files_preserved": true
+  },
+  "gates": {
+    "python_windows": {
+      "pass": 113,
+      "skip": 0,
+      "subtests_pass": 5
+    },
+    "python_ubuntu": {
+      "pass": 112,
+      "skip": 1,
+      "subtests_pass": 5,
+      "skip_reason": "Windows-only process-tree check"
+    },
+    "windows_e2e_final": {
+      "pass": 3,
+      "scope": "new codec manual/SDK/native, PNG checkpoint resume, legacy MP4"
+    },
+    "ubuntu_e2e_final": {
+      "pass": 1,
+      "scope": "all codecs SDK/API + real Chromium 3D ProRes; UI/native not tested"
+    },
+    "typecheck": "PASS",
+    "composition_regression": "2 tests including PNG resume and saved composition PASS before final movie-timescale/cache-force leaf changes; not counted in final three tests"
+  },
+  "measurements": {
+    "windows": "qa/codec-selection-20261114/windows.json",
+    "ubuntu": "qa/codec-selection-20261114/ubuntu.json",
+    "nonzero_range": "F7..9,29.97fps,3frames,absolute audio start11211,4805 requested samples",
+    "all_codec_audio": "zero-lag correlation>.99 and RMS ratio within3%; not general listening/all-codec quality guarantee"
+  },
+  "findings": [
+    {
+      "id": "CDC-01",
+      "priority": "P2",
+      "problem": "reload could use measurements from another resolution",
+      "fix": "invalidate + rerun; require measured project/resolution/fps match",
+      "verification": "PASS actual UI720/1080/reload + API409"
+    },
+    {
+      "id": "CDC-02",
+      "priority": "P2",
+      "problem": "failed probe kept old available options/results",
+      "fix": "clear at start and failure, keep old downloads reachable",
+      "verification": "PASS simulated503 UI recovery"
+    },
+    {
+      "id": "CDC-03",
+      "priority": "P2",
+      "problem": "recheck button focus lost on disabled state",
+      "fix": "conditional same-project focus restoration",
+      "verification": "PASS real Enter success/failure"
+    },
+    {
+      "id": "CDC-04",
+      "priority": "P1",
+      "problem": "frames:v stopped a3F movie audio at4096/4805samples",
+      "fix": "exact video graph trim, flush full audio; verify audio duration and actual decode",
+      "verification": "PASS all five real output codecs and frame/sample regression"
+    },
+    {
+      "id": "CDC-05",
+      "priority": "P2",
+      "problem": "Ubuntu1F movie audio time quantization",
+      "fix": "movie_timescale48000; preserve16sample gate",
+      "verification": "PASS24/29.97/60fps1/3/17/60F"
+    },
+    {
+      "id": "CDC-06",
+      "priority": "P2",
+      "problem": "high bitrate ProRes can exhaust output work area",
+      "fix": "2GiB bound during/after encode; stop children and keep old movies",
+      "verification": "PASS real ProRes with injected lower bound; actual2GiB stress NOT TESTED"
+    }
+  ],
+  "reviews": {
+    "first_action": "source scoped PASS after fixes",
+    "workflow": "source scoped PASS after fixes",
+    "visual_accessibility": "source scoped PASS after fixes",
+    "judge": "Root scoped PASS using separate actual tests; broad release false"
+  },
+  "unverified": [
+    "long and actual2GiB stress",
+    "all models/materials/ICC/HDR",
+    "all resolution/fps combinations",
+    "listening/hardware encoders",
+    "Linux real PMX/UI/native WebMCP",
+    "real SR/full Tab/200%",
+    "EXR/alpha video/MP4 mid-encode resume",
+    "sequence3 overall"
+  ],
+  "source_lf_sha256": {
+    "bai_studio/v05/render/codec_presets.py": "1fbd3b73882a80edfba68f16d0bbed31aa928790e842821cc443fc799a993d93",
+    "bai_studio/v05/render/media_render.py": "6a200e6b90320ade42cf742b8e55584d84d8696eb11aeaeab22fbaaab1c6e892",
+    "bai_studio/v05/render/png_sequence.py": "09eae760d0986cdef0c3fbd6787ad5c219c6579cdf9d306beb9994a94460e942",
+    "bai_studio/v05/render/render_names.py": "32bd0bc542a9e4cf39f50639512e7c3c68f00c17b9ad9f3fccd9ca036a8d5340",
+    "server.py": "09392ed1cb4faf0eda7157397825db7bd17d1cf7b8b71d1d1887eadb6e6b88df",
+    "mcp_server.py": "3f7f06a5c61a24399e9717558c37c0ddc9c67eb1e647befccae02eb3ba45ba62",
+    "webmcp.js": "8609fc0a3c0e99c03760adaa997d4116a9ff267a897b776c720824e77d834aaf",
+    "studio/v05/index.html": "31209ad5542a322693502f3fbd019677263ec391e629a4f908fdf10ab16d804c",
+    "studio/v05/js/render-job-v69.js": "ac9a2cc5c2eb0a434e08209869b4289add9ba1547fb3cf007e0fc32f42f2663b",
+    "studio/v05/css/render-job-v69.css": "b036e241449779100bb5b2e4200012d5d75aea8d3de849954023ff5f850a59a2"
+  },
+  "integration": null,
+  "model_categories": {
+    "design_implementation": "high capability",
+    "three_ui_critics": "standard"
+  }
+}

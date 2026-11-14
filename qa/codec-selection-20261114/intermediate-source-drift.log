@@ -1,0 +1,50 @@
+[run-guarded] 警告: 開発用サーバー（127.0.0.1:8765）が動いています。実データに書き込むとハッシュの確認が失敗します
+TAP version 13
+# Subtest: measured codec choices persist and produce actual video/audio, safe MOV versions and real UI/SDK/native
+ok 1 - measured codec choices persist and produce actual video/audio, safe MOV versions and real UI/SDK/native
+  ---
+  duration_ms: 30803.942
+  type: 'test'
+  ...
+# Subtest: v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D
+ok 2 - v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D
+  ---
+  duration_ms: 19163.3444
+  type: 'test'
+  ...
+# Subtest: real failed PNG prefix resumes through SDK/native/UI; exact PNG/WAV and saved-state refusals
+not ok 3 - real failed PNG prefix resumes through SDK/native/UI; exact PNG/WAV and saved-state refusals
+  ---
+  duration_ms: 7417.9317
+  type: 'test'
+  location: 'D:\\BAI\\BAI_CREATER_STUDIO\\worktrees\\v05-render-real\\tests\\studio-v05-png-resume.test.cjs:9:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    出力中に保存状態または描画環境が変わりました。完成物は確定しません。
+    + actual - expected
+
+    + 'failed'
+    - 'succeeded'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'succeeded'
+  actual: 'failed'
+  operator: 'strictEqual'
+  stack: |-
+    wait (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-png-resume.test.cjs:12:216)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async TestContext.<anonymous> (D:\BAI\BAI_CREATER_STUDIO\worktrees\v05-render-real\tests\studio-v05-png-resume.test.cjs:22:16)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 2
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 72896.1584
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

@@ -33,8 +33,8 @@ def normalize(name: str, extension: str | None = None) -> str:
     name = unicodedata.normalize("NFC", name.strip())
     if not name or len(name) > 84 or BAD_NAME.search(name) or name.endswith((" ", ".")):
         raise NameError("完成物の名前は80文字以内で、パス記号や末尾の点を含めないでください", 400)
-    extension = extension or ('.zip' if name.lower().endswith('.zip') else '.mp4')
-    if extension not in {'.mp4','.zip'}:
+    extension = extension or ('.zip' if name.lower().endswith('.zip') else '.mov' if name.lower().endswith('.mov') else '.mp4')
+    if extension not in {'.mp4','.zip','.mov'}:
         raise NameError('未対応の完成物形式です',400)
     if name.lower().endswith(extension):
         stem = name[:-4]
