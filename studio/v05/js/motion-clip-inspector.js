@@ -6,7 +6,7 @@
  const el=(tag,text)=>{const node=document.createElement(tag);if(text)node.textContent=text;return node;};
  async function request(route,body){const response=await fetch('/api/studio/v05/'+route,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{cache:'no-store'});const data=await response.json();if(!response.ok)throw Error(data.error||'取得できません');return data;}
  function mount(inspector,clip,projectId){
-  const token=++generation;if(!clip||!['motion','expression','lip'].includes(clip.track)&&clip.category!=='motion'){activeKey=focusAfter=null;return;}
+  const token=++generation;if(!clip||!['motion','expression','lip'].includes(clip.track)){activeKey=focusAfter=null;return;}
   const key=projectId+':'+clip.id,host=el('section');host.className='uiMotionAssignment';host.id='uiMotionAssignment';
   if(activeKey!==key)focusAfter=null;activeKey=key;
   const title=el('h3','このクリップの適用先'),label=el('label','適用するモデル'),select=el('select');select.id='uiMotionTarget';select.name='motion_target';label.htmlFor=select.id;

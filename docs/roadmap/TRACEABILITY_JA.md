@@ -215,3 +215,8 @@ CAM-019 / Issue #238：2026-11-13 CAM-019本体連携：CinemaOperator0.7.183の
 ## 2026-11-14：タイムラインPMX物理
 
 2026-11-14 MOTION-019/CAM-019：PMX別に物理を保存し、作品先頭から固定60Hzで準備した同じ揺れを任意シーク・CinemaOperator形状コピー・MP4へ接続。既存作品OFFを保持。逆シーク/静的再準備/複数PMX/保存通知/取消・失敗OFF復帰・両MCP・45F MP4を確認。実Blender Bake/60F MP4はWindows/Ubuntu各1成功。Python Windows85成功/Ubuntu84成功・Windows専用1スキップ、Node計算3/実Ammo UI・45F MP4 1/アクセサリー回帰1・型成功。実PMXのnative Bake/手動採用/60F MP4も限定確認。最大600秒/合計128MiB、独立world、XYZ同倍率・X/Z配置回転0。全物理品質・全モデル・長尺/CAM-019全体は未完。docs/v05/TIMELINE_PMX_PHYSICS_20261114_JA.md
+
+
+## 2026-11-14：選択モーションの適用先と3D編集
+
+2026-11-14 #320：選択した動き/表情/口クリップ欄から適用先を明示保存・解除。既存共通API/Undoを保持。3D編集を広いビュー・固定終了/共通時計・4設定タブへ整理。遅延選択/保存競合/読込中終了、Enter focus、同素材2体、狭幅/低高さ、終了後のMP4と既存物理/接地/カメラ往復を限定検証。全ユーザビリティ/SR/全Tab/200%拡大・全形式は未完。docs/v05/MOTION_ASSIGNMENT_WORKSPACE_20261114_JA.md
