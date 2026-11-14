@@ -24,7 +24,7 @@ not ok 1 - v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D
     [2m       - element is not visible[22m
     [2m     - retrying select option action[22m
     [2m       - waiting 500ms[22m
-    
+
   code: 'ERR_TEST_FAILURE'
   name: 'TimeoutError'
   stack: |-
@@ -60,7 +60,7 @@ not ok 5 - saved state survives project switch/reload and matches opaque/transpa
   error: |-
     Expected values to be strictly deep-equal:
     + actual - expected
-    
+
       {
     +   arrangement_revision: 1,
     -   arrangement_revision: 0,
@@ -69,7 +69,7 @@ not ok 5 - saved state survives project switch/reload and matches opaque/transpa
           redo: [],
           undo: []
         },
-    
+
   code: 'ERR_ASSERTION'
   name: 'AssertionError'
   expected:
