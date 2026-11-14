@@ -48,7 +48,7 @@
       const clip=state.clips.find(c=>c.id===row.clip_id),generic=clip&&`${clip.name}: ${clip.category}はこのプレビューに未接続`;
       const index=issues.indexOf(generic);if(index>=0)issues[index]=`${row.name}: ${row.reason}`;
     }
-    if(scene.timelineIssue)issues.unshift(scene.timelineIssue);
+    if(scene.timelineIssue&&!issues.includes(scene.timelineIssue))issues.unshift(scene.timelineIssue);
     return issues;
   }
   function refreshStage() {

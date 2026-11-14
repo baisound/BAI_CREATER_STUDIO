@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T07:12:18+09:00",
+  "updated_at": "2026-11-14T13:08:05+09:00",
   "updated_by": "codex",
-  "branch": "codex/timeline-pmx-physics-20261114",
-  "head_at_update": "4acfa75",
+  "branch": "codex/motion-assignment-workspace-20261114",
+  "head_at_update": "4b91028",
   "current": {
-    "task": "MOTION-019/CAM-019：PMX物理のPR/main統合と制作画面同期",
-    "status": "done",
-    "step": "全レビュー修正と両OS/実PMXの限定検証成功。PR差分・checkを確認してmainへ統合し利用環境を同期する。",
-    "design_doc": "docs/v05/TIMELINE_PMX_PHYSICS_20261114_JA.md"
+    "task": "#320 モーション割当と3D編集改善のPR/main統合・画面同期",
+    "status": "in_progress",
+    "step": "両OSと既存描画/補正/物理/Bakeの限定検証済み。公開画像と正本をPRへまとめmain/8765/制作画面へ同期する。",
+    "design_doc": "docs/v05/MOTION_ASSIGNMENT_WORKSPACE_20261114_JA.md"
   },
   "next_steps": [
-    "承認済みロードマップの残件を保持。CAM-019全体/順3全体・全形式/長尺/全物理品質は未完。次のOwner指定から再開。"
+    "PR差分/チェックを確認してmainへ統合、8765と開いている制作画面を同期"
   ],
   "unverified": [
-    "全モデル物理品質・長尺上限・FBX/全材質・Linux実GPU/nativeGUI/実PMX・SR/200%/全Tab・別版/DOF・CAM-019/順3全体"
+    "全Tab/SR/200%/利用者テスト・全形式/モデル/GPU/長尺・Linux実GPU/nativeGUI/実PMX・CAM-019/順3全体"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,41 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T13:08:05+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "4b91028",
+      "text": "#320 モーション割当と3D編集改善のPR/main統合・画面同期: 両OSと既存描画/補正/物理/Bakeの限定検証済み。公開画像と正本をPRへまとめmain/8765/制作画面へ同期する。"
+    },
+    {
+      "at": "2026-11-14T13:08:05+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "4b91028",
+      "text": "選択欄の割当/解除と大画面3D/4タブ/固定終了を限定検証。Win/Ubuntu Python各37、Win直列5・Ubuntu UI1、両OS CinemaOperator物理Bake/MP4各1・型成功。3視点必須指摘解消。"
+    },
+    {
+      "at": "2026-11-14T12:56:20+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "cfa9b6b",
+      "text": "モーション割当・3D編集UIの最終検証とmain同期: 基本経路と3視点の必須指摘を反映済み。最終の両OS・物理/カメラ/Bake・型・記録を確認してPR/main同期へ進む。"
+    },
+    {
+      "at": "2026-11-14T12:56:20+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "cfa9b6b",
+      "text": "その場割当と広い3D編集/4タブ/固定閉じるを実装。直列UI・合成/時計/接地4、物理1、focus1で限定確認。並列のresource失敗を区別し、最終両OS/Bake/型とmain同期は次段階。"
+    },
+    {
+      "at": "2026-11-14T12:26:25+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "432f4b0",
+      "text": "選択モーションのその場割当と3D編集UIの再構成: 選択欄へ共通APIの割当UI、広い3D編集と固定閉じる/設定整理を設計。既存保存・合成・物理/カメラ/FKを保持して検証する。"
+    },
     {
       "at": "2026-11-14T07:12:18+09:00",
       "by": "codex",
@@ -201,41 +236,6 @@
       "event": "start",
       "head": "7ee8669",
       "text": "タイムラインのモデル・カメラ・動き・表情を同じ実プレビューと出力へ接続: 保全ブランチに最新mainを統合し、モデル投影と未検証のカメラ/モーション/モーフ評価を実描画・保存復元・MP4で検証して完成へ進める"
-    },
-    {
-      "at": "2026-11-13T08:18:13+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ed4e882",
-      "text": "AUDIO-002：実TDR Nova固有GUIで0→-3dBを変更。保存/再読込・GUI再表示/共通実再生/WAV/MP4の通し検証PASS、処理コード修正不要。検証記録を本PRでmainへ統合して制作画面まで同期する"
-    },
-    {
-      "at": "2026-11-13T08:16:59+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ed4e882",
-      "text": "AUDIO-002：実TDR Nova固有GUIで0→-3dBを変更し保存/再表示/共通実再生/WAV(-3.000000dB)/MP4(-2.999955dB)を通し検証PASS。実装修正不要。実測JSON・手順と台帳を更新、聴感/全VSTは未検証"
-    },
-    {
-      "at": "2026-11-13T07:55:10+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "437ca6e",
-      "text": "VST固有画面のパラメーター変更から実音声への通し検証: 隔離した実GUIでゲイン変更、保存復元、WAVとMP4の実振幅を確認し必要箇所を修正"
-    },
-    {
-      "at": "2026-11-13T06:39:46+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "9708f63",
-      "text": "AUDIO-002のVST直接起動とLUFS代表実装をPR303でmain統合。PR304に同期証跡、PR305で説明リンクを修正。ローカルmain28620f7/8765/Chrome同期済み、既存518ファイル不変・派生キャッシュ4追加を区別"
-    },
-    {
-      "at": "2026-11-13T06:30:08+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "635d40c",
-      "text": "AUDIO-002：インサート直接起動・Windows固有GUI状態回収と共通時計のピーク/LUFSを代表検証。Win59成功/Ubuntu57成功2skip/Chrome7種類/typecheck成功。全体完了ではない"
     }
   ]
 }

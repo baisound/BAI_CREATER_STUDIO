@@ -9,6 +9,7 @@
   let settingsOpen = false;
   const visibleEmptyTracks = new Set();
   let latestClip = null;
+  let latestClipProject = null;
 
   function organizeTimeline(parts) {
     const {el, header, toolbar, help, actions, transport, clipHistoryBar, videoTools, audioTools, snapLabel, undo, addImage, removeLabel, removeImage, hasFaceKeys} = parts;
@@ -52,7 +53,7 @@
     }
   }
   function emptyTimeline(el){el.replaceChildren(text('p','作品を選ぶと保存済みのタイムラインを表示します。'),button('作品を作成・選択',()=>window.baiGo('projects')));const settings=disclosure('uiTimelineSettings','表示設定');settings.append(button('パネル配置を戻す',()=>$('baiPaneReset')?.click()));el.append(settings);}
-  window.BAIStudioUI20261113 = Object.freeze({organizeTimeline,emptyTimeline});
+  window.BAIStudioUI20261113 = Object.freeze({organizeTimeline,emptyTimeline,currentClip:id=>latestClipProject===id?latestClip:null});
 
   function setup() {
     const nav = $('nav'), top = document.querySelector('.top');
@@ -158,7 +159,7 @@
     legacy.append(...right.childNodes);
     const inspector = document.createElement('section'); inspector.id = 'uiSelectedInspector'; inspector.setAttribute('aria-label','選択したクリップ');
     right.append(inspector, legacy);
-    window.addEventListener('bai:v05-clip-selected', e => { if (e.detail.projectId === $('v06project')?.value) { latestClip = e.detail.clip; updateInspector(); } });
+    window.addEventListener('bai:v05-clip-selected', e => { if (e.detail.projectId === $('v06project')?.value) { latestClip = e.detail.clip; latestClipProject=e.detail.projectId; updateInspector(); } });
     window.addEventListener('bai:v05-project-changed', () => { latestClip = null; updateInspector(); });
   }
   function updateInspector() {
@@ -170,8 +171,9 @@
     } else if (!latestClip) {
       inspector.append(text('h2','選択したクリップ'), text('p','タイムラインでクリップを選ぶと、保存された配置を確認できます。'));
     } else {
-      const c = latestClip, types = {image:'画像',video:'動画',audio:'音声',music:'楽曲',model:'3Dモデル',motion:'動き',camera:'カメラ'};
-      inspector.append(text('h2',(types[c.category] || types[c.track] || '素材') + 'クリップ'), text('h3',c.name));
+      const c = latestClip, types = {image:'画像',video:'動画',audio:'音声',music:'楽曲',model:'3Dモデル',motion:'動き',camera:'カメラ',expression:'表情',lip:'口の動き'};
+      inspector.append(text('h2',(['camera','expression','lip'].includes(c.track)?types[c.track]:types[c.category] || types[c.track] || '素材') + 'クリップ'), text('h3',c.name));
+      window.BAIStudioMotionAssignment?.mount(inspector,c,$('v06project')?.value);
       const dl = document.createElement('dl');
       for (const [name,value] of [['開始',c.start+' 秒'],['長さ',c.duration+' 秒'],['配置先',c.track+(c.lane ? ' '+c.lane : '')], ...(['video','audio','music'].includes(c.category) ? [['元素材の開始',(c.source_start || 0)+' 秒']] : [])]) dl.append(text('dt',name),text('dd',value));
       inspector.append(dl, button('配置・長さを編集', () => window.BAIStudioV05Arrangement.editClipById(c.id)));

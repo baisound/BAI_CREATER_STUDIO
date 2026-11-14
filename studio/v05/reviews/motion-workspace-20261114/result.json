@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "mp4_frames": 30,
+  "viewports": [
+    1440,
+    1024,
+    800,
+    540
+  ],
+  "closed_preview_not_omitted": true
+}

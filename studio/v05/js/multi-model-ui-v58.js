@@ -37,6 +37,7 @@ const tr=(key)=>locale[key]||({
   loading:'3Dモデルを読み込み中…',loadFailed:'読み込み失敗',runtimeError:'描画できません',mismatch:'作品が一致しません',
   legacyUnits:'（旧の大きさ）',legacyUnitsHint:'旧画面と同じ大きさで置いています（旧保存の取込で置いたもの）'
 })[key]||key;
+const instanceLabel=instance=>(instance?.name||instance?.asset?.name||instance?.id||'モデル')+' — '+(instance?.timeline_clip_id?'タイムライン':'シーン')+' '+((sceneSnapshot?.instances||[]).findIndex(row=>row.id===instance?.id)+1);
 const section=document.getElementById('v57-scene-instances');
 let physicsCache=null,physicsState={state:'off'};
 let controller=null,viewport=null,motionCoordinator=null,motionPlan=null,opened=false,composite=false,controlsVisible=false,reloadReady=false,nonce=0,selectedId='';
@@ -54,6 +55,7 @@ panel.hidden=true;
 panel.style.cssText='position:fixed;inset:9% 8%;z-index:1100;background:#172231;border:1px solid #6584a0;border-radius:11px;padding:12px;box-shadow:0 20px 80px #000d;display:flex;flex-direction:column;gap:8px;';
 panel.setAttribute('aria-label','複数モデル3Dプレビュー');
 const heading=document.createElement('div');
+heading.className='v58-editor-header';
 heading.style.cssText='display:flex;gap:10px;align-items:center;flex-wrap:wrap';
 const title=document.createElement('strong');title.textContent=tr('title');
 const choose=document.createElement('select');choose.setAttribute('aria-label',tr('select'));
@@ -63,7 +65,7 @@ const saveCameraBtn=document.createElement('button');saveCameraBtn.type='button'
 const restoreCameraBtn=document.createElement('button');restoreCameraBtn.type='button';restoreCameraBtn.textContent=tr('restoreCamera');
 saveCameraBtn.id='v58-save-camera';restoreCameraBtn.id='v58-restore-camera';
 const modeBtn=document.createElement('button');modeBtn.type='button';modeBtn.textContent='同じ画面に重ねる';
-const closeBtn=document.createElement('button');closeBtn.textContent=tr('close');
+const closeBtn=document.createElement('button');closeBtn.type='button';closeBtn.id='v58-editor-close';closeBtn.textContent=tr('close');closeBtn.title='3D編集を閉じてタイムラインへ戻る（Esc）';
 const progress=document.createElement('span');progress.setAttribute('role','status');progress.style.cssText='color:#c8d9ea';
 const cameraStatus=document.createElement('small');cameraStatus.setAttribute('role','status');
 const physicsControls=document.createElement('details');physicsControls.id='v58-physics-controls';
@@ -93,7 +95,7 @@ const assignBtn=document.createElement('button');assignBtn.type='button';
 const seekInput=document.createElement('input');seekInput.type='number';seekInput.min='0';seekInput.step='0.03333';seekInput.value='0';seekInput.style.width='75px';
 seekInput.id='v58-motion-seek';
 const seekBtn=document.createElement('button');seekBtn.type='button';
-const motionStatus=document.createElement('span');motionStatus.setAttribute('role','status');
+const motionStatus=document.createElement('span');motionStatus.id='v58-motion-status';motionStatus.setAttribute('role','status');
 const faceControls=document.createElement('div');faceControls.id='v96-face-controls';
 faceControls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid #435a73;padding-top:6px';
 const footControls=document.createElement('details');footControls.id='v105-foot-qa';
@@ -391,7 +393,14 @@ if(captureMode){saveCameraBtn.hidden=true;restoreCameraBtn.hidden=true;}
 const previewLayout=document.createElement('div');previewLayout.className='v58-preview-layout';
 const controlStack=document.createElement('div');controlStack.id='v58-control-stack';
 controlStack.style.cssText='min-width:0;overflow:auto;padding-right:6px';
-controlStack.append(physicsControls,motionControls,faceControls,footControls,fkControls,analysisControls,vrmControls);
+const tabs=document.createElement('div');tabs.id='v58-editor-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','3D編集の設定');
+const tabNames=['モデル・動き','表情・口','リグ・接地','配置・視点'],tabPanes=tabNames.map((name,index)=>{const pane=document.createElement('div');pane.id='v58-editor-pane-'+index;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby','v58-editor-tab-'+index);const tab=document.createElement('button');tab.type='button';tab.id='v58-editor-tab-'+index;tab.textContent=name;tab.setAttribute('role','tab');tab.setAttribute('aria-controls',pane.id);tab.addEventListener('click',()=>selectEditorTab(index,true));tab.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();selectEditorTab(event.key==='Home'?0:event.key==='End'?3:(index+(event.key==='ArrowRight'?1:3))%4,true);}});tabs.append(tab);return pane;});
+function selectEditorTab(index,focus=false){tabPanes.forEach((pane,i)=>{pane.hidden=i!==index;tabs.children[i].setAttribute('aria-selected',String(i===index));tabs.children[i].tabIndex=i===index?0:-1;});if(focus)tabs.children[index].focus();}
+function revealControl(node){const index=tabPanes.findIndex(pane=>pane.contains(node));if(index>=0)selectEditorTab(index);}
+tabPanes[0].append(motionControls,physicsControls);tabPanes[1].append(faceControls,analysisControls,vrmControls);tabPanes[2].append(footControls,fkControls);
+const cameraTools=document.createElement('div');cameraTools.className='v58-camera-tools';cameraTools.append(refreshBtn,focusBtn,saveCameraBtn,restoreCameraBtn);tabPanes[3].append(cameraTools);
+controlStack.append(tabs,...tabPanes);selectEditorTab(0);
+for(const node of [physicsControls,footControls,fkControls,analysisControls,vrmControls])node.addEventListener('toggle',()=>{if(node.open)revealControl(node);});
 previewLayout.append(controlStack,canvasParent);
 const layoutStyle=document.createElement('style');
 layoutStyle.textContent=`.v58-preview-layout{display:grid;grid-template-columns:minmax(260px,34%) minmax(0,1fr);gap:10px;flex:1;min-height:0}
@@ -400,11 +409,23 @@ layoutStyle.textContent=`.v58-preview-layout{display:grid;grid-template-columns:
 document.head.append(layoutStyle);
 canvasParent.style.minWidth='0';canvasParent.style.minHeight='0';
 panel.append(heading,previewLayout,footer);
+heading.append(title,choose,modeBtn,closeBtn);
 if(captureMode){footControls.hidden=true;fkControls.hidden=true;analysisControls.hidden=true;vrmControls.hidden=true;}
 document.body.append(panel);
 panel.hidden=true;panel.style.display='none';
 const normalPanelStyle=panel.style.cssText;
 const normalCanvasStyle=canvasParent.style.cssText;
+let presentationEpoch=0;const inertBackground=new Map();
+function setEditorFocus(active){
+ panel.setAttribute('role',active?'dialog':'region');if(active)panel.setAttribute('aria-modal','true');else panel.removeAttribute('aria-modal');
+ if(active){for(const node of document.body.children)if(node!==panel&&!['SCRIPT','STYLE','LINK'].includes(node.tagName)){if(!inertBackground.has(node))inertBackground.set(node,node.inert);node.inert=true;}}
+ else{for(const [node,value]of inertBackground)node.inert=value;inertBackground.clear();}
+}
+function closeEditor(){const projectId=project?.value;window.BAIStudioBlenderCamera?.cancelComparison?.('3D編集を閉じました。再表示して比較してください。');close();window.dispatchEvent(new CustomEvent('bai:v58-user-closed',{detail:{projectId}}));document.getElementById('v70sceneOpen')?.focus();}
+panel.addEventListener('keydown',event=>{
+ if(event.key==='Escape'&&!event.defaultPrevented){if(event.target.matches('input,select,textarea,[contenteditable="true"]')){event.preventDefault();closeBtn.focus();return;}event.preventDefault();closeEditor();}
+ if(event.key==='Tab'&&!composite){const nodes=[...panel.querySelectorAll('button,select,input,textarea,summary,a[href],[tabindex="0"]')].filter(node=>!node.disabled&&node.getClientRects().length);const first=nodes[0],last=nodes.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}
+});
 
 function mountComposite(){
   const stage=document.getElementById('v68stage');
@@ -458,7 +479,7 @@ function updateStatus(s,issues=[]){
   for(const id of s.ids){
     const legacy=unitsById.get(id)===LEGACY_UNITS;
     const instance=sceneSnapshot?.instances?.find(row=>row.id===id);
-    const option=new Option((instance?.name||instance?.asset?.name||id)+(legacy?tr('legacyUnits'):''),id);
+    const option=new Option(instanceLabel(instance)+(legacy?tr('legacyUnits'):''),id);
     if(legacy)option.title=tr('legacyUnitsHint');
     choose.add(option);
   }
@@ -508,7 +529,7 @@ function redrawMotionControls(){
   else if(clipSelect.options.length>1)clipSelect.selectedIndex=1;
   const selected=(bindingRows()).find(r=>r.clip_id===clipSelect.value);
   targetSelect.replaceChildren(new Option(tr('unassigned'),''));
-  for(const inst of motionPlan?.instances||[])targetSelect.add(new Option(inst.name||inst.asset?.name||inst.id,inst.id));
+  for(const inst of motionPlan?.instances||[])targetSelect.add(new Option(instanceLabel(inst),inst.id));
   if(selected?.target_scene_instance_id)targetSelect.value=selected.target_scene_instance_id;
   else if(oldInstance&&(motionPlan?.instances||[]).some(x=>x.id===oldInstance))targetSelect.value=oldInstance;
   assignBtn.disabled=!clipSelect.value||!motionPlan;
@@ -1461,7 +1482,7 @@ function applyTimelineMorphs(seconds){
   const missing=[];
   for(const row of sceneSnapshot?.timeline_effects||[]){
     if(row.track==='camera'||!activeClip(row,seconds))continue;
-    if(row.status!=='ready')throw Error(row.reason||'表情を割り当ててください');
+    if(row.status!=='ready')throw Error(row.name+': '+(row.reason||'表情を割り当ててください'));
     const target=controller?.getLoaded(row.target_scene_instance_id);
     if(target?.format!=='PMX')throw Error('表情の対象PMXを読み込めません');
     const keys=row.morph_keys.map(k=>({instance_id:row.target_scene_instance_id,morph_name:k.name,time:k.frame/30,value:k.weight}));
@@ -1772,8 +1793,8 @@ async function loadLipAdoptions(id){
   }));
   return {...summary,tracks};
 }
-async function setup(){
-  const token=nonce;
+async function setup(expectedNonce){
+  const token=expectedNonce;
   const libs=await loadLibs();
   viewLibs=libs;
   if(token!==nonce||!opened)throw Error('プレビューは閉じられました');
@@ -1822,7 +1843,7 @@ async function setup(){
   // v61: common XYZ inspector acts on actual scene instance roots.
   // Persist only through the existing revisioned v57 scene API.
   if(!captureMode)spatialEditor=createSpatialEditor({
-    panel:controlStack,viewport,controller,project,
+    panel:tabPanes[3],viewport,controller,project,
     getSceneData:()=>sceneSnapshot,
     async saveTransform(instanceId,transform){
       const id=project?.value;
@@ -1849,7 +1870,7 @@ async function setup(){
     onSelect(name){
       discardFkPreview();
       fkBone.value=name;activeArm=null;
-      fkControls.open=true;
+      revealControl(fkControls);fkControls.open=true;
       redrawFkControls();
     }
   });
@@ -1908,7 +1929,7 @@ async function reload(){
   reloadReady=false;
   progress.textContent=tr('loading');
   try{
-    if(!controller)await setup();
+    if(!controller)await setup(thisNonce);
     if(thisNonce!==nonce||!opened)return;
     const data=await request('/api/studio/v05/scene/instances?id='+encodeURIComponent(id));
     if(thisNonce!==nonce||!opened||id!==project.value)return;
@@ -1982,7 +2003,7 @@ async function reload(){
     if(thisNonce===nonce&&opened){
       if(error.instanceId&&[...choose.options].some(option=>option.value===error.instanceId)){choose.value=error.instanceId;selectedId=error.instanceId;spatialEditor?.select(error.instanceId);}
       physicsCache?.dispose();physicsCache=null;physicsState=Object.values(sceneSnapshot?.physics||{}).some(setting=>setting.enabled)?{state:'failed',error:'物理の準備失敗: '+String(error.message||error)}:{state:'off'};redrawPhysics();
-      if(physicsState.state==='failed'&&!captureMode){physicsControls.open=true;physicsMessage.focus();}
+      if(physicsState.state==='failed'&&!captureMode){revealControl(physicsControls);physicsControls.open=true;physicsMessage.focus();}
       motionEdits=null;lipAdoptions=null;previewFk=null;previewArm=null;motionPlan=null;
       motionCoordinator?.clear();
       for(const instance of sceneSnapshot?.instances||[])controller?.getLoaded(instance.id)?.resetPose?.();
@@ -1992,21 +2013,27 @@ async function reload(){
   }
 }
 async function open(options={}){
+  const presentation=++presentationEpoch;
   const requestedComposite=Boolean(options?.composite);
   if(opened){
-    if(requestedComposite===composite){controlsVisible=!options.compact;await reload();panel.style.display=controlsVisible?'flex':'none';panel.hidden=!controlsVisible;return;}
+    if(requestedComposite===composite){controlsVisible=!options.compact;await reload();if(presentation!==presentationEpoch||!opened)return;panel.style.display=controlsVisible?'flex':'none';panel.hidden=!controlsVisible;setEditorFocus(!composite&&controlsVisible);return;}
     close();
   }
+  const currentPresentation=++presentationEpoch;
   // The legacy viewport owns a globally singleton Three.js host.
   // End it first; never overlap two GL contexts and two animation owners.
   window.BAIStudioScenePreview?.close();
   opened=true;controlsVisible=!options.compact;composite=requestedComposite&&mountComposite();
-  modeBtn.textContent=composite?'単独画面で表示':'同じ画面に重ねる';
+  modeBtn.textContent=composite?'大きく編集':'タイムラインへ戻る';
   panel.hidden=false;panel.style.display='flex';
+  setEditorFocus(!composite&&!options.compact);
   await reload();
+  if(currentPresentation!==presentationEpoch||!opened)return;
   panel.hidden=!controlsVisible;panel.style.display=controlsVisible?'flex':'none';
+  if(!captureMode&&!options.compact){window.dispatchEvent(new CustomEvent('bai:v58-user-open',{detail:{projectId:project?.value}}));choose.focus();}
 }
 function close(){
+  presentationEpoch++;setEditorFocus(false);
   canvasParent.style.visibility='';physicsCache?.dispose();physicsCache=null;physicsState={state:'off'};
   cameraCandidate=null;
   clearContact('未作成',false);
@@ -2195,7 +2222,7 @@ ikChoose.addEventListener('click',()=>{
   }
   discardFkPreview();fkBone.value=selected.name;
   activePole=null;activeArm=null;
-  fkControls.open=true;rotateGizmo?.setMode('translate');redrawFkControls();
+  revealControl(fkControls);fkControls.open=true;rotateGizmo?.setMode('translate');redrawFkControls();
   ikStatus.textContent=`${selected.name}を選択。${selected.effector}の追従は仮表示で確認してください。`;
 });
 poleChoose.addEventListener('click',()=>{
@@ -2216,7 +2243,7 @@ poleChoose.addEventListener('click',()=>{
   fkAxes.forEach((input,index)=>input.value=String(euler?[euler.x,euler.y,euler.z][index]*180/Math.PI:0));
   fkPosition.forEach((input,index)=>input.value=String(key?.position?.[index]??0));
   activeArm=null;activePole={projectId:project.value,instanceId,clipId:row.clip_id,frame,bone:pole.thigh.name};
-  fkControls.open=true;rotateGizmo?.setMode('pole');redrawFkControls();
+  revealControl(fkControls);fkControls.open=true;rotateGizmo?.setMode('pole');redrawFkControls();
   ikStatus.textContent=`${pole.knee.name}の現在位置を膝方向ハンドルに設定。ドラッグ後は仮表示を確認し、キー化してください。`;
 });
 armSelect.addEventListener('change',()=>{activeArm=null;redrawFkControls();});
@@ -2231,7 +2258,7 @@ function chooseArmHandle(kind){
   discardFkPreview();fkBone.value=bones.arm.name;activePole=null;
   activeArm={projectId:project.value,instanceId,clipId:row.clip_id,frame,
     bone:bones.arm.name,side:armSelect.value};
-  fkControls.open=true;rotateGizmo?.setMode(kind);
+  revealControl(fkControls);fkControls.open=true;rotateGizmo?.setMode(kind);
   redrawFkControls();
   armStatus.textContent=kind==='arm-hand'?
     `${armSelect.value}手首の3Dハンドルを表示して動かしてください。`:
@@ -2605,10 +2632,9 @@ window.addEventListener('bai:remote-playhead-updated',event=>{
     seekScene(event.detail.seconds);
 });
 closeBtn.addEventListener('click',()=>{
-  if(composite){controlsVisible=false;panel.hidden=true;panel.style.display='none';document.getElementById('v70sceneOpen')?.focus();}
-  else close();
+  closeEditor();
 });
-modeBtn.addEventListener('click',()=>{open({composite:!composite}).catch(e=>progress.textContent=e.message);});
+modeBtn.addEventListener('click',()=>{window.BAIStudioBlenderCamera?.cancelComparison?.('表示を切り替えました。再比較してください。');open({composite:!composite,compact:!composite}).then(()=>{if(composite)document.getElementById('v70sceneOpen')?.focus();}).catch(e=>progress.textContent=e.message);});
 footRun.addEventListener('click',async()=>{
   if(!footGround.value.trim()||!Number.isFinite(Number(footGround.value))){
     footStatus.textContent='床のY座標を数値で指定してください';return;
@@ -2666,12 +2692,13 @@ window.addEventListener('bai:v98-face-key-select',async event=>{
   const key=event.detail?.key,projectId=event.detail?.projectId;
   if(captureMode||!key||projectId!==project?.value)return;
   try{
-    await open({composite:true});
+    await open({composite:false});
     if(project?.value!==projectId||!opened)return;
     choose.value=key.instance_id;
     selectedId=key.instance_id;
     spatialEditor?.select(selectedId);
     redrawFaceControls();
+    revealControl(faceControls);
     const index=sceneSnapshot?.face_keys?.findIndex(row=>row.instance_id===key.instance_id&&
       row.morph_name===key.morph_name&&row.time===key.time);
     if(index>=0){faceSaved.value=String(index);faceSaved.dispatchEvent(new Event('change'));}
@@ -2711,13 +2738,13 @@ window.addEventListener('bai:v106-fk-key-select',async event=>{
   const {projectId,instanceId,clipId,layerId,key} = event.detail||{};
   if(captureMode||projectId!==project?.value||!key)return;
   try{
-    await open({composite:true});
+    await open({composite:false});
     if(!opened||project.value!==projectId)return;
     choose.value=instanceId;selectedId=instanceId;spatialEditor?.select(instanceId);
     fkFrame.value=String(key.frame);fkBone.value=key.bone;
     if(window.BAIStudioTimeline?.seek)await window.BAIStudioTimeline.seek(key.frame/projectFps,'fk-key');
     else seekScene(key.frame/projectFps);
-    fkControls.open=true;redrawFkControls();
+    revealControl(fkControls);fkControls.open=true;redrawFkControls();
     if(layerId&&[...fkLayerSelect.options].some(option=>option.value===layerId)){
       fkLayerSelect.value=layerId;redrawFkControls();
     }
@@ -2730,7 +2757,8 @@ window.addEventListener('bai:v106-fk-key-select',async event=>{
 window.addEventListener('pagehide',close,{once:true});
 window.BAIStudioMultiScenePreview=Object.freeze({
   open,refresh:reload,close,
-  async openPhysicsSettings(){await open({composite:true});if(controller?.getLoaded(choose.value)?.format!=='PMX'){const pmx=sceneSnapshot?.instances?.find(row=>controller?.getLoaded(row.id)?.format==='PMX'||row.asset?.format==='PMX');if(!pmx){progress.textContent='この作品にはPMXがありません。PMXを配置してから物理を設定してください。';choose.focus();return;}choose.value=pmx.id;selectedId=pmx.id;spatialEditor?.select(pmx.id);}physicsControls.open=true;redrawPhysics();if(physicsState.state==='failed')physicsMessage.focus();else physicsField.focus();},
+  async editMotion({clipId,instanceId}){await open({composite:false});if(!opened)return;if(instanceId&&[...choose.options].some(o=>o.value===instanceId)){choose.value=instanceId;choose.dispatchEvent(new Event('change'));}selectEditorTab(0);if([...clipSelect.options].some(o=>o.value===clipId)){clipSelect.value=clipId;clipSelect.dispatchEvent(new Event('change'));}clipSelect.focus();},
+  async openPhysicsSettings(){await open({composite:false});if(controller?.getLoaded(choose.value)?.format!=='PMX'){const pmx=sceneSnapshot?.instances?.find(row=>controller?.getLoaded(row.id)?.format==='PMX'||row.asset?.format==='PMX');if(!pmx){progress.textContent='この作品にはPMXがありません。PMXを配置してから物理を設定してください。';choose.focus();return;}choose.value=pmx.id;selectedId=pmx.id;spatialEditor?.select(pmx.id);}revealControl(physicsControls);physicsControls.open=true;redrawPhysics();if(physicsState.state==='failed')physicsMessage.focus();else physicsField.focus();},
   setCameraCandidate(value){
     if(captureMode||!opened||!viewport)throw Error('操作用の3Dプレビューを開いてください');
     if(value&&value.projectId!==project.value)throw Error('候補の作品が一致しません');
@@ -2752,7 +2780,7 @@ window.BAIStudioMultiScenePreview=Object.freeze({
   async contactCreate({side,start_frame,end_frame,ground_y}){
     if(captureMode||contactBusy)throw Error('操作用の停止したプレビューで作成してください');
     clearContact();contactSide.value=side;contactFirst.value=String(start_frame);
-    contactEnd.value=String(end_frame);footGround.value=String(ground_y);footControls.open=true;
+    contactEnd.value=String(end_frame);footGround.value=String(ground_y);revealControl(footControls);footControls.open=true;
     return createContact();
   },
   contactCompare:compareContact,contactSave:saveContact,
@@ -2863,7 +2891,7 @@ window.BAIStudioMultiScenePreview=Object.freeze({
         before[index].rotation.angleTo(after[index].rotation))));
       if(!Number.isFinite(residual)||residual>1e-3||drift>1e-4)
         throw Error(`腕IK仮評価で手首残差 ${residual}、未編集骨差 ${drift} が上限を超えました。`);
-      fkFrame.value=String(probe.frame);fkControls.open=true;redrawFkControls();
+      fkFrame.value=String(probe.frame);revealControl(fkControls);fkControls.open=true;redrawFkControls();
       fkStatus.textContent=`${side}腕IKの2キーを仮表示中。手首残差 ${residual.toExponential(2)} シーン単位。保存は「このFをキー化」、破棄はEscです。`;
       return {frame:probe.frame,residual,unrelatedDrift:drift,keys:probe.keys,
         reachable:probe.reachable,unreachableDistance:probe.unreachableDistance,

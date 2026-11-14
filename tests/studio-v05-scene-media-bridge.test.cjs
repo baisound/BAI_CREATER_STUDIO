@@ -97,7 +97,7 @@ test('saved 3D scene and WAV share a frame clock; incompatible dance reports its
     assert.equal(motionState.loadedClips.length, 0);
     assert.equal(motionState.issues[0].reason, 'motion_load_failed');
     assert.match(motionState.issues[0].message, /人体骨対応は不足/);
-    assert.match(await page.locator('#v58-motion-seek').locator('xpath=..').textContent(), /モーション未読込: .*人体骨対応は不足/);
+    assert.match(await page.locator('#v58-motion-status').textContent(), /モーション未読込: .*人体骨対応は不足/);
     assert.equal(await page.locator('#v58-canvas canvas').count(), 1);
     assert.ok((await page.locator('#v58-canvas canvas').boundingBox()).width > 100);
     const framing = await page.evaluate(instanceId => window.BAIStudioMultiScenePreview.frameProbe(instanceId), scene.instances[0].id);
@@ -129,13 +129,13 @@ test('saved 3D scene and WAV share a frame clock; incompatible dance reports its
     await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().loaded === 1 &&
       window.BAIStudioMultiScenePreview?.status().motion?.issues.length > 0);
     await page.waitForFunction(() => document.querySelector('#v70sceneStatus')?.textContent.includes('3D読込 1件'));
-    await page.locator('#v06project').selectOption(secondId);
+    await page.getByRole('button',{name:'タイムラインへ戻る',exact:true}).click();await page.locator('#v06project').selectOption(secondId);
     await page.waitForFunction(expected => window.BAIStudioMediaPreviewV68?.status().projectId === expected &&
       window.BAIStudioMediaPreviewV68?.status().ready, secondId);
     await page.waitForFunction(expected => window.BAIStudioMultiScenePreview?.status().projectId === expected &&
       window.BAIStudioMultiScenePreview?.status().loaded === 1, secondId);
     assert.equal((await page.evaluate(() => window.BAIStudioMediaPreviewV68.status())).mediaCount, 0);
-    await page.locator('#v70play').click();
+    await page.locator('#v70sceneOpen').click();await page.waitForFunction(()=>window.BAIStudioMultiScenePreview.status().ready);await page.locator('#v70play').click();
     await page.waitForFunction(() => window.BAIStudioMediaPreviewV68.status().frame >= 6);
     await page.locator('#v70pause').click();
   } finally { await page?.close(); await browser?.close(); await server.stop(); }

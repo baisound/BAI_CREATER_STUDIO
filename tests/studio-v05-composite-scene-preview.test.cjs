@@ -57,7 +57,7 @@ test('saved 3D canvas overlays the same project image with transparent backgroun
     const before = path.join(server.dataDir, 'before.png');
     const after = path.join(server.dataDir, 'after.png');
     await page.locator('#v68stage').screenshot({ path: before });
-    await page.locator('#v70sceneOpen').click();
+    await page.locator('#v70sceneOpen').click();await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready);await page.getByRole('button',{name:'タイムラインへ戻る',exact:true}).click();
     await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().loaded === 1 &&
       window.BAIStudioMultiScenePreview.status().composite === true &&
       document.querySelector('#v68stage #v58-canvas canvas'));
@@ -85,18 +85,16 @@ test('saved 3D canvas overlays the same project image with transparent backgroun
     await page.reload();await page.locator('#uiMainNav [data-workspace=edit]').click();
     await page.locator('#v06project').selectOption(id);
     await page.locator('#uiMainNav [data-workspace="edit"]').click();
-    await page.locator('#v70sceneOpen').click();
+    await page.locator('#v70sceneOpen').click();await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().ready);await page.getByRole('button',{name:'タイムラインへ戻る',exact:true}).click();
     await page.waitForFunction(() => window.BAIStudioMultiScenePreview?.status().loaded === 1 &&
       window.BAIStudioMultiScenePreview.status().composite === true);
     assert.equal((await page.evaluate(() => window.BAIStudioMediaPreviewV68.status())).frame, 60);
     assert.equal((await page.evaluate(() => window.BAIStudioMultiScenePreview.status())).projectId, id);
     await page.setViewportSize({ width: 900, height: 700 });
     const stageBox = await page.locator('#v68stage').boundingBox();
-    const panelBox = await page.locator('#v58-multi-preview').boundingBox();
-    assert.ok(stageBox && panelBox && panelBox.x > stageBox.x + stageBox.width * .5,
-      `狭い画面の中央プレビューを操作パネルが覆っています: ${JSON.stringify({ stageBox, panelBox })}`);
-    await page.locator('#v58-save-camera').scrollIntoViewIfNeeded();
-    assert.equal(await page.locator('#v58-save-camera').isVisible(), true);
+    assert.ok(stageBox.width>200);assert.equal(await page.locator('#v58-multi-preview').isVisible(),false);
+    await page.locator('#v70sceneOpen').click();await page.waitForFunction(()=>window.BAIStudioMultiScenePreview.status().ready);await page.getByRole('tab',{name:'配置・視点',exact:true}).click();await page.locator('#v58-save-camera').scrollIntoViewIfNeeded();
+    assert.equal(await page.locator('#v58-save-camera').isVisible(),true);
     assert.equal(scene.instances.length, 1);
   } finally { await page?.close(); await browser?.close(); await server.stop(); }
 });
