@@ -1,0 +1,59 @@
+{
+  "issue": 324,
+  "requirements": [
+    "CORE-004",
+    "DATA-008",
+    "RENDER-001",
+    "RENDER-002",
+    "RENDER-005",
+    "RENDER-006"
+  ],
+  "baseline_main": "5b52bcdd98cf62393cf960279beff2b848490fbd",
+  "status": "implemented_partial_verified_final_regression_pending",
+  "release_complete": false,
+  "sequence3_complete": false,
+  "features": [
+    "saved project settings/revision",
+    "explicit MP4 transparency rejection",
+    "bounded RGBA PNG/PCM WAV ZIP",
+    "integer frame and absolute rational sample endpoints",
+    "actual PNG/WAV and archive reread/hash",
+    "legacy MP4 and ZIP separate name/version/restore",
+    "ZIP recovery with verified checkpoint",
+    "thumbnail of first PNG and explicit separate audio",
+    "settings saved/draft/invalid/retry state",
+    "both MCPs"
+  ],
+  "verified_so_far": {
+    "windows_png_ui_sdk_native_and_3d": "PASS; final1F/review rerun recorded separately",
+    "ubuntu_png_sdk_and_3d": "PASS; no UI/native",
+    "windows_python": 68,
+    "ubuntu_python": "final in progress",
+    "typecheck": "PASS; repeat after final copy"
+  },
+  "reviews": {
+    "first_action": "P2 fixed in source",
+    "workflow": "P2 project guard fixed in source",
+    "visual_accessibility": "P2 color recovery/focus fixed in source",
+    "judge": "pending final gates"
+  },
+  "failed_attempts": [
+    "test FPS endpoint spelling",
+    "legacy hidden project selectors and new tab placement",
+    "native tool registry readiness after page reload",
+    "test route unroute race",
+    "Linux unbounded synthetic color probe and MCP12s timeout; finite probe and180s bounded capability wait added",
+    "old composition expected pre-placement derived arrangement revision",
+    "browser ERR_NO_BUFFER_SPACE in overlapping runs; retry standalone"
+  ],
+  "unverified": [
+    "long PNG sequence/real2GiB ZIP stress",
+    "all models/materials/GPUs",
+    "all Tab order/screen reader/200% zoom",
+    "Linux owner PMX/hardware GPU/native GUI",
+    "EXR/alpha-video/checkpoint frame resume",
+    "overall sequence3 completion"
+  ],
+  "document": "docs/v05/PNG_SEQUENCE_20261114_JA.md",
+  "model_category": "high capability; three existing standard critics"
+}

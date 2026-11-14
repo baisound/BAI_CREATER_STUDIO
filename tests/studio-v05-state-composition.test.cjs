@@ -55,14 +55,17 @@ test('saved state survives project switch/reload and matches opaque/transparent 
    if(savedCamera)scene=await sdk('bai_studio_scene_instances_mutate',{project_id:id,action:'camera',revision:scene.revision,camera});
    const a=await sdk('bai_studio_clip_place',{project_id:id,revision:0,asset_id:image.item.id,track:'image',start:0,duration:2});
    const range=await sdk('bai_studio_render_range_set',{project_id:id,revision:0,arrangement_revision:a.revision,in_frame:15,out_frame:17});
-   async function open(projectId){await page.locator('#v06project').selectOption(projectId);await page.locator('#nav [data-workspace="edit"]').click();
-    if(!await page.locator('#v58-canvas').isVisible())await page.locator('#v70sceneOpen').click();
+   scene=await sdk('bai_studio_scene_instances_get',{project_id:id}); // include the current derived arrangement revision
+   async function open(projectId){await page.getByRole('button',{name:'制作',exact:true}).click();await page.locator('#v06project').selectOption(projectId);
+    await page.locator('#v70sceneOpen').click();
     await page.waitForFunction(id=>{const x=window.BAIStudioMultiScenePreview?.status();return x?.ready&&x.projectId===id&&x.loaded===1;},projectId);
+    await page.getByRole('button',{name:'タイムラインへ戻る',exact:true}).click();
    }
    await page.reload();await open(id);await page.evaluate(()=>window.BAIStudioMediaPreviewV68.seek(.5));
-   if(savedCamera){await page.locator('#v58-save-camera').click();await page.waitForFunction(()=>document.querySelector('#v58-multi-preview').textContent.includes('撮影視点を作品へ保存しました'));
+   if(savedCamera){await page.locator('#v70sceneOpen').click();await page.getByRole('tab',{name:'配置・視点',exact:true}).click();await page.locator('#v58-save-camera').click();await page.waitForFunction(()=>document.querySelector('#v58-multi-preview').textContent.includes('撮影視点を作品へ保存しました'));
     scene=await sdk('bai_studio_scene_instances_get',{project_id:id});
     await page.evaluate(()=>window.BAIStudioMultiScenePreview.refit());await page.locator('#v58-restore-camera').click();
+    await page.getByRole('button',{name:'タイムラインへ戻る',exact:true}).click();
    }
    if(previous){await open(previous);await open(id);}
    await page.reload();await open(id);await page.evaluate(()=>window.BAIStudioMediaPreviewV68.seek(.5));

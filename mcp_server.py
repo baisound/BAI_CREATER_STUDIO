@@ -133,10 +133,12 @@ def run(name,a):
     if name=='bai_studio_lip_adoption_mutate':return api('/api/studio/v05/lip/adoptions',a)
     if name=='bai_studio_lip_adoptions_get':return api('/api/studio/v05/lip/adoptions?project_id='+urllib.parse.quote(a['project_id'],safe='')+'&instance_id='+urllib.parse.quote(a['instance_id'],safe=''))
     if name=='bai_studio_lip_composite_candidate_create':return api('/api/studio/v05/lip/composite-candidate',a)
-    if name=='bai_studio_render_capabilities':return api('/api/studio/v05/render/capabilities')
+    if name=='bai_studio_render_settings_get':return api('/api/studio/v05/render/settings?project_id='+urllib.parse.quote(a['project_id'],safe=''))
+    if name=='bai_studio_render_settings_save':return api('/api/studio/v05/render/settings',a)
+    if name=='bai_studio_render_capabilities':return api('/api/studio/v05/render/capabilities',timeout=180)
     if name=='bai_studio_render_range_get':return api('/api/studio/v05/timeline/range?id='+urllib.parse.quote(a['project_id'],safe=''))
     if name=='bai_studio_render_range_set':return api('/api/studio/v05/timeline/range',a)
-    if name=='bai_studio_render_name_preview':return api('/api/studio/v05/render/name?project_id='+urllib.parse.quote(a['project_id'],safe='')+'&name='+urllib.parse.quote(a['name'],safe=''))
+    if name=='bai_studio_render_name_preview':return api('/api/studio/v05/render/name?project_id='+urllib.parse.quote(a['project_id'],safe='')+'&name='+urllib.parse.quote(a['name'],safe='')+('&preset='+urllib.parse.quote(a['preset'],safe='') if 'preset' in a else ''))
     if name=='bai_studio_render_jobs_list':
         query={key:a[key] for key in ('project_id','limit','offset') if key in a}
         if 'completed_only' in a:
@@ -144,14 +146,14 @@ def run(name,a):
             query['completed']=int(a['completed_only'])
         return api('/api/studio/v05/render/jobs?'+urllib.parse.urlencode(query))
     if name=='bai_studio_render_job_get':return api('/api/studio/v05/render/jobs?id='+urllib.parse.quote(a['job_id'],safe=''))
-    if name=='bai_studio_render_job_start':return api('/api/studio/v05/render/jobs',a)
+    if name=='bai_studio_render_job_start':return api('/api/studio/v05/render/jobs',a,timeout=180)
     if name=='bai_studio_render_restore':return api('/api/studio/v05/render/restore',a)
     if name=='bai_studio_render_file_link':
         job=api('/api/studio/v05/render/jobs?id='+urllib.parse.quote(a['job_id'],safe=''))
         if job.get('status')!='succeeded':raise ValueError('Completed MP4 not available')
         return {'job_id':job['id'],'project_id':job['project_id'],'download_name':job.get('download_name'),
                 'url':HOST+'/api/studio/v05/render/file?id='+urllib.parse.quote(job['id'],safe=''),
-                'note':'The file endpoint validates the completed MP4 when downloaded.'}
+                'note':'The file endpoint validates the completed file when downloaded.'}
     if name=='bai_studio_batch_move':return api('/api/studio/v05/arrangement/batch-move',a)
     if name=='bai_studio_batch_undo':return api('/api/studio/v05/arrangement/undo',a)
     if name=='bai_studio_clip_undo':return api('/api/studio/v05/arrangement/history/undo',a)
@@ -331,13 +333,15 @@ TOOLS=[
 ('bai_studio_lip_adoption_mutate','Explicitly adopt, remove, undo, or redo a VMD candidate for a scene instance with revision protection.',S({'project_id':STR,'revision':INT,'action':{'type':'string','enum':['adopt','remove','undo','redo']},'instance_id':STR,'candidate_id':STR},['project_id','revision','action'])),
 ('bai_studio_lip_adoptions_get','Read the adopted lip track and revision for one saved scene instance.',S({'project_id':STR,'instance_id':STR},['project_id','instance_id'])),
 ('bai_studio_lip_composite_candidate_create','Compare the saved VMD clip, adopted lip and manual face keys; dry_run checks without writing, otherwise creates a distinct review-only VMD. Download revalidates project inputs.',S({'project_id':STR,'instance_id':STR,'clip_id':STR,'adoption_revision':INT,'scene_revision':INT,'arrangement_revision':INT,'dry_run':{'type':'boolean'}},['project_id','instance_id','clip_id','adoption_revision','scene_revision','arrangement_revision','dry_run'])),
+('bai_studio_render_settings_get','Read saved per-project output format and background with revision.',S({'project_id':STR},['project_id'])),
+('bai_studio_render_settings_save','Save MP4/PNG format and solid/transparent background. PNG ZIP includes separate PCM WAV.',S({'project_id':STR,'revision':INT,'preset':{'type':'string','enum':['mp4_h264_aac','png_rgba_zip']},'background':{'type':'object','properties':{'kind':{'type':'string','enum':['solid','transparent']},'color':{'type':'string','pattern':'^#[0-9a-fA-F]{6}$'}},'required':['kind','color'],'additionalProperties':False}},['project_id','revision','preset','background'])),
 ('bai_studio_render_capabilities','Read tested local MP4 encoder and 3D capture limits.',S()),
 ('bai_studio_render_range_get','Read the saved In/Out range, FPS, and revisions.',S({'project_id':STR},['project_id'])),
 ('bai_studio_render_range_set','Save integer In/Out frames using both range and arrangement revisions.',S({'project_id':STR,'revision':INT,'arrangement_revision':INT,'in_frame':{'type':['integer','null']},'out_frame':{'type':['integer','null']}},['project_id','revision','arrangement_revision','in_frame','out_frame'])),
-('bai_studio_render_name_preview','Read current finished-MP4 name and proposed new version before starting or restoring.',S({'project_id':STR,'name':STR},['project_id','name'])),
+('bai_studio_render_name_preview','Read current finished-MP4 name and proposed new version before starting or restoring.',S({'project_id':STR,'name':STR,'preset':{'type':'string','enum':['mp4_h264_aac','png_rgba_zip']}},['project_id','name'])),
 ('bai_studio_render_jobs_list','List saved MP4 jobs for one project; filter completed videos and page older downloads.',S({'project_id':STR,'completed_only':{'type':'boolean'},'limit':{'type':'integer','minimum':1,'maximum':100},'offset':{'type':'integer','minimum':0}},['project_id'])),
 ('bai_studio_render_job_get','Read one MP4 job status and output metadata.',S({'job_id':STR},['job_id'])),
-('bai_studio_render_job_start','Start a bounded MP4 from the saved project, range, arrangement, and optional 3D scene revisions. Use name preview before replacement.',S({'project_id':STR,'range_revision':INT,'arrangement_revision':INT,'resolution':{'type':'string','enum':['720p','1080p']},'scene_revision':{'type':['integer','null']},'name':STR,'collision_mode':{'type':'string','enum':['version','replace']},'replace_job_id':{'type':['string','null']}},['project_id','range_revision','arrangement_revision','resolution'])),
+('bai_studio_render_job_start','Start a bounded MP4 or PNG/WAV ZIP from the saved project, range, arrangement, and optional 3D scene revisions. Use name preview before replacement.',S({'project_id':STR,'range_revision':INT,'arrangement_revision':INT,'resolution':{'type':'string','enum':['720p','1080p']},'scene_revision':{'type':['integer','null']},'name':STR,'collision_mode':{'type':'string','enum':['version','replace']},'replace_job_id':{'type':['string','null']},'preset':{'type':'string','enum':['mp4_h264_aac','png_rgba_zip']},'settings_revision':INT},['project_id','range_revision','arrangement_revision','resolution'])),
 ('bai_studio_render_restore','Restore an archived finished MP4 by exact job and name revision; retain the displaced version.',S({'project_id':STR,'name':STR,'job_id':STR,'revision':INT,'current_job_id':STR},['project_id','name','job_id','revision','current_job_id'])),
 ('bai_studio_render_file_link','Get the loopback download URL for a succeeded MP4; the file endpoint validates its bytes.',S({'job_id':STR},['job_id'])),
 ('bai_studio_batch_move','Atomically move multiple saved clips.',S({'project_id':STR,'revision':INT,'edits':{'type':'array','items':{'type':'object'}}},['project_id','revision','edits'])),

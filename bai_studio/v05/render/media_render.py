@@ -68,6 +68,10 @@ def _job_file(root: Path, job_id: str) -> Path:
     return root / "jobs" / f"{job_id}.json"
 
 
+def _extension(job: dict) -> str:
+    return '.zip' if job.get('preset') == 'png_rgba_zip' else '.mp4'
+
+
 def _public(job: dict) -> dict:
     return {key: value for key, value in job.items() if key not in {"source_paths", "command", "delivery_plan", "pending_output"}}
 
@@ -88,7 +92,8 @@ def _cleanup_temporary(root: Path, job_id: str) -> bool:
     _job_file(root, job_id)
     complete = True
     for parent, name, directory in [(root / "jobs", f"{job_id}.frames", True),
-                                    (root / "files", f"{job_id}.part.mp4", False)]:
+                                    (root / "files", f"{job_id}.part.mp4", False),
+                                    (root / "files", f"{job_id}.part.zip", False)]:
         target = parent / name
         try:
             # Resolve before deleting, including Windows junction/reparse paths.
@@ -130,7 +135,7 @@ def status(root: Path, job_id: str) -> dict:
         # This checkpoint is saved only after full output verification. Named
         # jobs additionally require their committed name-index reference.
         from bai_studio.v05.render.render_names import state as name_state
-        final = root / "files" / f"{job_id}.mp4"
+        final = root / "files" / (job_id + _extension(job))
         try:
             indexed = (name_state(root, job["project_id"], job["download_name"], job_id)
                        if job.get('download_name') else 'unnamed')
@@ -182,7 +187,7 @@ def list_jobs(root: Path, project_id: str, limit: int = 20, *, offset: int = 0,
                     item['delivery_state'] = 'unknown'
                     item['delivery_error'] = '版の情報を読めません。保存先を確認してください。完成ファイルは変更していません。'
                 if item.get("status") == "succeeded":
-                    output = root / "files" / f"{item['id']}.mp4"
+                    output = root / "files" / (item["id"] + _extension(item))
                     item["file_available"] = output.is_file() and output.stat().st_size == item.get("bytes")
                 jobs.append(item)
         except (RenderError, OSError):
@@ -198,7 +203,7 @@ def output_file(root: Path, job_id: str) -> Path:
     job = status(root, job_id)
     if job.get("status") != "succeeded":
         raise RenderError("Completed MP4 not available", 404)
-    path = root / "files" / f"{job_id}.mp4"
+    path = root / "files" / (job_id + _extension(job))
     if not path.is_file() or path.stat().st_size != job.get("bytes"):
         raise RenderError("Completed MP4 is missing or changed", 422)
     if _sha(path) != job.get('sha256'):
@@ -242,7 +247,7 @@ def _scene_capture_available() -> bool:
                 any(p and Path(p).is_file() for p in browser_candidates))
 
 
-def capabilities(ffmpeg: str | None = None, ffprobe: str | None = None,
+def _mp4_capabilities(ffmpeg: str | None = None, ffprobe: str | None = None,
                  probe_root: Path | None = None) -> dict:
     global _CAP_CACHE, _CAP_KEY
     ffmpeg = ffmpeg or shutil.which("ffmpeg")
@@ -298,6 +303,18 @@ def capabilities(ffmpeg: str | None = None, ffprobe: str | None = None,
     with LOCK:
         _CAP_KEY, _CAP_CACHE = key, result
     return dict(result)
+
+
+def capabilities(ffmpeg=None, ffprobe=None, probe_root=None):
+    from .png_sequence import capability
+    ffmpeg=ffmpeg or shutil.which('ffmpeg');ffprobe=ffprobe or shutil.which('ffprobe')
+    result=_mp4_capabilities(ffmpeg,ffprobe,probe_root)
+    png=capability(ffmpeg,ffprobe,probe_root)
+    return {**result,**png,'mp4_available':result['available'],
+            'presets':list(result['presets'])+(['png_rgba_zip'] if png['png_available'] else []),
+            'png_max_bytes':2*1024**3,'max_duration_seconds':MAX_SECONDS,
+            'max_scene_frames':MAX_SCENE_FRAMES,
+            'scene_capture_available':result.get('scene_capture_available',False) or (png.get('png_ffv1_available',False) and _scene_capture_available())}
 
 
 def _source(entry: dict, library_root: Path, source_root: Path, inbox_root: Path, integrated_root: Path) -> Path | None:
@@ -554,11 +571,14 @@ def _audio_settings(data_root: Path, project_id: str) -> dict:
 
 def _graph(clips: list[dict], fps: float, width: int, height: int,
            start_frame: int, end_exclusive: int, scene_input_index: int | None = None,
-           mixed_audio_index: int | None = None) -> tuple[str, int, float]:
+           mixed_audio_index: int | None = None, background: dict | None = None) -> tuple[str, int, float]:
     end_seconds = end_exclusive / fps
     start_seconds = start_frame / fps
     duration = (end_exclusive - start_frame) / fps
-    graph = ["[0:v]format=yuva420p[base]"]
+    rgba = background is not None
+    pix = 'rgba' if rgba else 'yuva420p'
+    clear = ',colorchannelmixer=aa=0' if rgba and background['kind']=='transparent' else ''
+    graph = [f"[0:v]format={pix}{clear}[base]"]
     base = "base"
     audio = ["[1:a]anull[asilence]"]
     audio_labels = ["asilence"]
@@ -578,13 +598,13 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
             graph.append(f"[{idx}:v]settb=AVTB,setpts=PTS-{_num(source_start)}/TB,"
                          f"fps={_num(fps)}:start_time=0:round=up,trim=duration={_num(length)},"
                          f"scale={width}:{height}:force_original_aspect_ratio=decrease,"
-                         f"pad={width}:{height}:(ow-iw)/2:(oh-ih)/2:color=black@0,"
+                         f"format={pix},pad={width}:{height}:(ow-iw)/2:(oh-ih)/2:color=black@0,"
                          # fps resets the timebase. Restore microseconds before
                          # adding the saved start, or 1s at 29.97fps floors to 29F.
-                         f"format=yuva420p,settb=AVTB,setpts=PTS+{_num(cstart)}/TB[{label}]")
+                         f"format={pix},settb=AVTB,setpts=PTS+{_num(cstart)}/TB[{label}]")
             next_base = f"overlay{order}"
             graph.append(f"[{base}][{label}]overlay=0:0:eof_action=pass:shortest=0:"
-                         f"enable='gte(t,{_num(cstart)})*lt(t,{_num(cend)})'[{next_base}]")
+                         f"enable='gte(t,{_num(cstart)})*lt(t,{_num(cend)})'"+ (":format=auto:alpha=straight" if rgba else "") + f"[{next_base}]")
             base = next_base
         if mixed_audio_index is None and item["kind"] in {"audio", "video"} and item.get("has_audio"):
             label = f"audio{order}"
@@ -620,7 +640,13 @@ def _graph(clips: list[dict], fps: float, width: int, height: int,
     if mixed_audio_index is not None:
         audio.append(f"[{source}]anullsink")
         source = f"{mixed_audio_index}:a"
-    audio.append(f"[{source}]atrim=start={_num(start_seconds)}:end={_num(end_seconds)},asetpts=PTS-STARTPTS[aout]")
+    if rgba:
+        from fractions import Fraction
+        exact=Fraction(str(fps))
+        first=round(Fraction(start_frame*48000)/exact);last=round(Fraction(end_exclusive*48000)/exact)
+        audio.append(f"[{source}]aresample=48000,atrim=start_sample={first}:end_sample={last},asetpts=PTS-STARTPTS[aout]")
+    else:
+        audio.append(f"[{source}]atrim=start={_num(start_seconds)}:end={_num(end_seconds)},asetpts=PTS-STARTPTS[aout]")
     return ";".join(graph + audio), end_exclusive - start_frame, duration
 
 
@@ -658,8 +684,9 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             scene_inputs: list[dict] | None = None, server_port: int | None = None,
             filter_complex_option: str = "-/filter_complex") -> None:
     job_id = job["id"]
-    temp = root / "files" / f"{job_id}.part.mp4"
-    final = root / "files" / f"{job_id}.mp4"
+    sequence = job.get('preset') == 'png_rgba_zip'
+    temp = root / "files" / (job_id + '.part' + _extension(job))
+    final = root / "files" / (job_id + _extension(job))
     progress = root / "jobs" / f"{job_id}.progress"
     log = root / "jobs" / f"{job_id}.log"
     frames_dir = root / "jobs" / f"{job_id}.frames"
@@ -785,7 +812,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             except mixer.MixerError as exc:
                 raise RenderError(str(exc),exc.status) from exc
         graph, frames, duration = _graph(clips, fps, width, height,
-                                         job["range_start_frame"], job["range_end_exclusive"], scene_index,mixed_index)
+                                         job["range_start_frame"], job["range_end_exclusive"], scene_index, mixed_index, job["background"] if sequence else None)
         script = root / "jobs" / f"{job_id}.filter"
         script.write_text(graph, encoding="utf-8")
         full_duration = _num(job["range_end_exclusive"] / fps)
@@ -795,7 +822,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
         # Keep source clocks here; the graph sets the final output origin.
         cmd = [ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error", "-nostats", "-copyts",
                "-progress", str(progress), "-f", "lavfi", "-i",
-               f"color=c=black:s={width}x{height}:r={_num(fps)}:d={full_duration}",
+               f"color=c={job.get('background',{}).get('color','#000000').replace('#','0x')}:s={width}x{height}:r={_num(fps)}:d={full_duration}",
                "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo:d={full_duration}"]
         for item in clips:
             if item["kind"] == "image":
@@ -807,10 +834,19 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             cmd += ["-i", str(scene_video)]
         if mixed_path is not None:
             cmd += ["-i",str(mixed_path)]
-        cmd += [filter_complex_option, str(script), "-map", "[vout]", "-map", "[aout]",
-                "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
-                "-c:a", "aac", "-b:a", str(job.get("audio_bitrate", AAC_BITRATE)), "-movflags", "+faststart",
-                "-frames:v", str(frames), "-t", _num(duration), "-f", "mp4", "-n", str(temp)]
+        if sequence:
+            from .png_sequence import check_size
+            sequence_dir=frames_dir/'sequence'
+            sequence_dir.mkdir(parents=True,exist_ok=False)
+            cmd += [filter_complex_option,str(script),'-map','[vout]','-an','-c:v','png','-pix_fmt','rgba',
+                    '-threads','2','-frames:v',str(frames),'-fps_mode','passthrough','-start_number','1',
+                    '-f','image2','-n',str(sequence_dir/'frame_%06d.png'),
+                    '-map','[aout]','-vn','-c:a','pcm_s24le','-f','wav','-n',str(sequence_dir/'audio.wav')]
+        else:
+            cmd += [filter_complex_option, str(script), "-map", "[vout]", "-map", "[aout]",
+                    "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
+                    "-c:a", "aac", "-b:a", str(job.get("audio_bitrate", AAC_BITRATE)), "-movflags", "+faststart",
+                    "-frames:v", str(frames), "-t", _num(duration), "-f", "mp4", "-n", str(temp)]
         job["phase"] = "encoding"
         _save(root, job)
         with log.open("w", encoding="utf-8") as err:
@@ -819,6 +855,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             deadline = time.monotonic() + max(120, min(3600, duration * 12))
             last_progress = -1
             while process.poll() is None:
+                if sequence:check_size(sequence_dir)
                 if time.monotonic() > deadline:
                     process.kill()
                     process.wait()
@@ -841,7 +878,12 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
         for item in all_inputs:
             if item["path"].stat().st_size != item["bytes"] or _sha(item["path"]) != item["sha256"]:
                 raise RenderError("原素材が出力中に変わりました。完成物は確定しません")
-        info = _verify(ffprobe, temp, frames, duration, width, height, fps, process_scope)
+        if sequence:
+            from .png_sequence import package
+            job['phase']='verifying_sequence';_save(root,job)
+            info=package(sequence_dir,temp,job,width,height)
+        else:
+            info = _verify(ffprobe, temp, frames, duration, width, height, fps, process_scope)
         digest = _sha(temp)
         job["pending_output"] = {"bytes": temp.stat().st_size, "sha256": digest, "probe": info}
         _save(root, job)
@@ -880,13 +922,25 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
 def start(data_root: Path, project_id: str, range_revision: int, arrangement_revision: int,
           resolution: str, inventory: list[dict], scene_revision: int | None = None,
           server_port: int | None = None, name: str | None = None,
-          collision_mode: str = "version", replace_job_id: str | None = None) -> dict:
+          collision_mode: str = "version", replace_job_id: str | None = None,
+          preset: str = "mp4_h264_aac", settings_revision: int | None = None) -> dict:
     root = data_root / "studio_v05_media_renders"
     ffmpeg = shutil.which("ffmpeg")
     ffprobe = shutil.which("ffprobe")
     caps = capabilities(ffmpeg, ffprobe, root / "probe")
-    if not caps["available"]:
-        raise RenderError(caps["reason"], 503)
+    from . import png_sequence
+    if preset not in png_sequence.PRESETS:raise RenderError('未対応の書き出し形式です',400)
+    saved={'preset':'mp4_h264_aac','background':{'kind':'solid','color':'#000000'},'revision':0}
+    if settings_revision is not None:
+        try:saved=png_sequence.read(data_root,project_id)
+        except png_sequence.SequenceError as exc:raise RenderError(str(exc),exc.status) from exc
+        if type(settings_revision) is not int or saved['revision']!=settings_revision or saved['preset']!=preset:
+            raise RenderError('書き出し設定が変わりました。再読込して保存し直してください。',409)
+    elif preset!='mp4_h264_aac':raise RenderError('PNG連番の形式と背景を先に保存してください。',400)
+    if preset=='png_rgba_zip':
+        if not caps.get('png_available'):raise RenderError(caps.get('png_reason','RGBA PNG環境を確認してください。'),503)
+    elif not caps.get('mp4_available',caps['available']):
+        raise RenderError(caps['reason'],503)
     scene_inputs = None
     motion_ids = None
     if scene_revision is not None:
@@ -920,7 +974,7 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
     if name is not None:
         from bai_studio.v05.render.render_names import plan, NameError
         try:
-            delivery_plan = plan(root, project_id, name, collision_mode, replace_job_id)
+            delivery_plan = plan(root, project_id, name, collision_mode, replace_job_id, ".zip" if preset=="png_rgba_zip" else ".mp4")
         except NameError as exc:
             raise RenderError(str(exc), exc.status) from exc
     elif collision_mode != "version" or replace_job_id is not None:
@@ -941,11 +995,12 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
                "arrangement_revision": arrangement_revision, "range_revision": range_revision,
                "audio_settings": audio_settings,
                "mixer_settings": mixer_settings,
-               "audio_bitrate": AAC_BITRATE,
+               "audio_bitrate": AAC_BITRATE if preset=='mp4_h264_aac' else None,
                "range_start_frame": render_range["range_start_frame"],
                "range_end_exclusive": render_range["range_end_exclusive"],
                "frame_count": render_range["frame_count"], "fps": render_range["fps"],
-               "resolution": resolution, "preset": "mp4_h264_aac", "inputs": [],
+               "resolution": resolution, "preset": preset, "inputs": [],
+               "settings_revision":saved['revision'],"background":saved['background'],
                "download_name": delivery_plan["download_name"] if delivery_plan else None,
                "delivery_plan": delivery_plan,
                "scene_revision": scene_revision, "phase": "queued",
@@ -959,7 +1014,7 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
         try:
             thread = threading.Thread(target=_worker,
                                       args=(root, job, clips, ffmpeg, ffprobe, scene_inputs, server_port,
-                                            caps["filter_complex_option"]), daemon=True)
+                                            caps["png_filter_option"] if preset=='png_rgba_zip' else caps["filter_complex_option"]), daemon=True)
             thread.start()
         except Exception as exc:
             ACTIVE.discard(job_id)

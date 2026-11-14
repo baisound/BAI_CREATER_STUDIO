@@ -104,6 +104,7 @@ test('v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D', asyn
     browser = await server.launchBrowser();
     page = await server.newPage(browser);
     await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.getByRole('button',{name:'制作',exact:true}).click();
     await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="export"]').click();
     await page.waitForFunction(() => !document.querySelector('#baiAddRender')?.disabled);
@@ -123,6 +124,7 @@ test('v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D', asyn
     assert.equal(secondJobs.jobs.filter(job => job.status === 'succeeded').length, 2);
     assert.notEqual(secondJobs.jobs[0].id, started.id);
     await page.reload();
+    await page.getByRole('button',{name:'制作',exact:true}).click();
     await page.locator('#v06project').selectOption(id);
     await page.locator('#nav [data-workspace="export"]').click();
     await page.locator('#v69result').waitFor({ state: 'visible' });
@@ -208,6 +210,7 @@ test('v0.5 saved In/Out exports real H.264/AAC MP4 and rejects omitted 3D', asyn
     assert.ok(sourceRmsAt(0.6) < 80 && sourceRmsAt(1.1) > 200, 'fixture must contain lead silence and later tone');
     assert.ok(atSixTenths > 200, `embedded audio must follow the trimmed source and video start: RMS ${atSixTenths}`);
     await page.reload();
+    await page.getByRole('button',{name:'制作',exact:true}).click();
     await page.locator('#v06project').selectOption(secondId);
     await page.waitForFunction(() => !!document.querySelector('#v68layers video'));
     assert.equal(await page.locator('#v68layers video').evaluate(video => video.muted), false);
