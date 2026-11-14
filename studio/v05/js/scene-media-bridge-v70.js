@@ -42,7 +42,7 @@
       await scene()?.open({ composite: false });
       const active = scene()?.status();
       if (!active?.opened) throw Error('3Dシーンを開けません');
-      if (!active.loaded) $('v70sceneStatus').textContent = '保存済み3Dモデルがありません。左の「複数モデル」で追加してください。';
+      if (!active.loaded) $('v70sceneStatus').textContent = 'モデルがありません。いったん閉じ、タイムラインへ3Dモデルを配置してください。';
       else update();
       panel.querySelector('select[aria-label="動き・表情・口のクリップ"]')?.focus();
     } catch (error) { $('v68status').textContent = `3Dシーンを開けません: ${error.message}`; }
