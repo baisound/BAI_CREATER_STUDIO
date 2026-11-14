@@ -59,7 +59,12 @@
       "scope": "all codecs SDK/API + real Chromium 3D ProRes; UI/native not tested"
     },
     "typecheck": "PASS",
-    "composition_regression": "2 tests including PNG resume and saved composition PASS before final movie-timescale/cache-force leaf changes; not counted in final three tests"
+    "composition_regression": "2 tests including PNG resume and saved composition PASS before final movie-timescale/cache-force leaf changes; not counted in final three tests",
+    "last_leaf_ui_rerun": {
+      "pass": 1,
+      "changes": "ProRes progress wording and generic video/output MCP descriptions only; direct manual MOV completion added; same distinct codec test rerun",
+      "log": "qa/codec-selection-20261114/prores-manual-final.log"
+    }
   },
   "measurements": {
     "windows": "qa/codec-selection-20261114/windows.json",
@@ -133,10 +138,10 @@
     "bai_studio/v05/render/png_sequence.py": "09eae760d0986cdef0c3fbd6787ad5c219c6579cdf9d306beb9994a94460e942",
     "bai_studio/v05/render/render_names.py": "32bd0bc542a9e4cf39f50639512e7c3c68f00c17b9ad9f3fccd9ca036a8d5340",
     "server.py": "09392ed1cb4faf0eda7157397825db7bd17d1cf7b8b71d1d1887eadb6e6b88df",
-    "mcp_server.py": "3f7f06a5c61a24399e9717558c37c0ddc9c67eb1e647befccae02eb3ba45ba62",
-    "webmcp.js": "8609fc0a3c0e99c03760adaa997d4116a9ff267a897b776c720824e77d834aaf",
+    "mcp_server.py": "7ee0506fd801374eff655f69ee10353bae81637af4509c47b2e3715ccdd2312e",
+    "webmcp.js": "43fa223d43820190045db6ab47e1afa9f2da2f34c41e7ad358a2df281018ed9d",
     "studio/v05/index.html": "31209ad5542a322693502f3fbd019677263ec391e629a4f908fdf10ab16d804c",
-    "studio/v05/js/render-job-v69.js": "ac9a2cc5c2eb0a434e08209869b4289add9ba1547fb3cf007e0fc32f42f2663b",
+    "studio/v05/js/render-job-v69.js": "8680bcacc50a1f5956b6eca0f56eb3465a6a6748d471dc2047c451157563131b",
     "studio/v05/css/render-job-v69.css": "b036e241449779100bb5b2e4200012d5d75aea8d3de849954023ff5f850a59a2"
   },
   "integration": null,

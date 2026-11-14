@@ -405,8 +405,8 @@
         const job = await get(`/api/studio/v05/render/jobs?id=${encodeURIComponent(jobId)}`);
         if (projectId !== activeProject()) { stopPolling(); return; }
         const message=job.status === 'running' || job.status === 'queued'
-          ? `${job.phase === 'capturing_3d' ? '3Dフレームを実描画中' : job.preset==='png_rgba_zip'?'PNG連番とWAVを生成・検品中':'実MP4を生成中'}: ${job.progress_percent || 0}%` :
-            job.status === 'succeeded' ? (job.preset==='png_rgba_zip'?'PNG連番とWAVを完成・再読込しました。ZIPを受け取れます。':'実MP4を完成・再読込しました。') : `書き出し失敗: ${job.error || job.status}`;
+          ? `${job.phase === 'capturing_3d' ? '3Dフレームを実描画中' : job.preset==='png_rgba_zip'?'PNG連番とWAVを生成・検品中':job.preset==='mov_prores_pcm'?'ProRes MOVを生成中':'実MP4を生成中'}: ${job.progress_percent || 0}%` :
+            job.status === 'succeeded' ? (job.preset==='png_rgba_zip'?'PNG連番とWAVを完成・再読込しました。ZIPを受け取れます。':job.preset==='mov_prores_pcm'?'ProRes MOVを完成・再読込しました。':'実MP4を完成・再読込しました。') : `書き出し失敗: ${job.error || job.status}`;
         await jobs(projectId);
         if(projectId!==activeProject())return;
         status(message);
@@ -520,7 +520,7 @@
       if (!response.ok) throw Error(job.error || `HTTP ${response.status}`);
       created = true;
       if(activeProject()!==submitted.projectId)return;
-      status(savedChoice.preset==='png_rgba_zip'?'PNG連番とWAVの書き出しを開始しました。':'実MP4の書き出しを開始しました。');
+      status(savedChoice.preset==='png_rgba_zip'?'PNG連番とWAVの書き出しを開始しました。':savedChoice.preset==='mov_prores_pcm'?'ProRes MOVの書き出しを開始しました。':'実MP4の書き出しを開始しました。');
       context.running=true;settingsChanged();
       await jobs(submitted.projectId);
       watch(job.id, submitted.projectId);
