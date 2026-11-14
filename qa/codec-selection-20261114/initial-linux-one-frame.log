@@ -1,0 +1,119 @@
+......................F..F......................................... [ 59%]
+.....................s.......................                            [100%]
+=================================== FAILURES ===================================
+_____ test_graph_frame_trim_flushes_audio_without_output_frame_cap[24-7-1] _____
+
+tmp_path = PosixPath('/tmp/pytest-of-baisound/pytest-0/test_graph_frame_trim_flushes_0')
+fps = 24, start = 7, count = 1
+
+    @pytest.mark.parametrize('fps,start,count',[(24,7,1),(29.97,7,3),(29.97,1234,17),(60,7,1),(60,7,60)])
+    def test_graph_frame_trim_flushes_audio_without_output_frame_cap(tmp_path,fps,start,count):
+        ffmpeg,ffprobe=shutil.which('ffmpeg'),shutil.which('ffprobe')
+        graph,frames,duration=render._graph([],fps,64,64,start,start+count)
+        script=tmp_path/'graph.filter';script.write_text(graph,encoding='utf-8');target=tmp_path/'completed.mp4'
+        full=(start+count)/fps
+        caps=codecs.measure(ffmpeg,ffprobe,64,64,fps,tmp_path,render._run)
+        selected=next(x for x in caps if x['id']=='mp4_h264_aac');assert selected['available'],selected['reason']
+        result=render._run([ffmpeg,'-v','error','-nostdin','-f','lavfi','-i',f'color=s=64x64:r={fps}:d={full}',
+            '-f','lavfi','-i',f'anullsrc=r=48000:cl=stereo:d={full}',selected['filter_complex_option'],str(script),
+            '-map','[vout]','-map','[aout]',*codecs.arguments('mp4_h264_aac'),'-fps_mode','passthrough',
+            '-t',str(duration),'-f','mp4',str(target)],30)
+        assert result.returncode==0,result.stderr
+>       verified=codecs.verify(render._run,ffprobe,target,frames,duration,64,64,fps,'mp4_h264_aac')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_v05_codec_presets.py:93:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+run = <function _run at 0x7fa5e7e0a0c0>, ffprobe = '/usr/bin/ffprobe'
+path = PosixPath('/tmp/pytest-of-baisound/pytest-0/test_graph_frame_trim_flushes_0/completed.mp4')
+frames = 1, duration = 0.041666666666666664, width = 64, height = 64, fps = 24
+preset = 'mp4_h264_aac'
+
+    def verify(run,ffprobe,path,frames,duration,width,height,fps,preset):
+        s=spec(preset)
+        result=run([ffprobe,'-v','error','-count_frames','-show_entries',
+            'stream=codec_name,codec_type,width,height,nb_read_frames,avg_frame_rate,duration,sample_rate,channels:format=duration',
+            '-of','json',str(path)],max(60,min(1200,duration*2)))
+        if result.returncode:raise ValueError('完成ファイルを再読込できません')
+        try:
+            data=json.loads(result.stdout)
+            video=next(x for x in data['streams'] if x['codec_type']=='video')
+            audio=next(x for x in data['streams'] if x['codec_type']=='audio')
+            actual_duration=float(data['format']['duration'])
+            actual_fps=float(Fraction(video['avg_frame_rate']))
+            count=int(video['nb_read_frames'])
+            audio_duration=float(audio['duration'])
+            audio_rate=int(audio['sample_rate'])
+        except (ValueError,TypeError,KeyError,StopIteration,ZeroDivisionError) as exc:
+            raise ValueError('映像・音声のcodec/FPS/フレーム数を確認できません') from exc
+        if (video['codec_name']!=s['video'] or audio['codec_name']!=s['audio'] or
+                video['width']!=width or video['height']!=height or count!=frames or
+                abs(actual_fps-fps)>max(.001,fps*.00001) or not math.isfinite(actual_duration) or
+                audio_rate!=48000 or audio.get('channels')!=2 or not math.isfinite(audio_duration) or
+                abs(audio_duration-duration)>16/48000 or
+                abs(actual_duration-duration)>max(.1,2/fps)):
+>           raise ValueError('完成ファイルのcodec・寸法・FPS・フレーム数・長さが要求と違います')
+E           ValueError: 完成ファイルのcodec・寸法・FPS・フレーム数・長さが要求と違います
+
+bai_studio/v05/render/codec_presets.py:63: ValueError
+_____ test_graph_frame_trim_flushes_audio_without_output_frame_cap[60-7-1] _____
+
+tmp_path = PosixPath('/tmp/pytest-of-baisound/pytest-0/test_graph_frame_trim_flushes_3')
+fps = 60, start = 7, count = 1
+
+    @pytest.mark.parametrize('fps,start,count',[(24,7,1),(29.97,7,3),(29.97,1234,17),(60,7,1),(60,7,60)])
+    def test_graph_frame_trim_flushes_audio_without_output_frame_cap(tmp_path,fps,start,count):
+        ffmpeg,ffprobe=shutil.which('ffmpeg'),shutil.which('ffprobe')
+        graph,frames,duration=render._graph([],fps,64,64,start,start+count)
+        script=tmp_path/'graph.filter';script.write_text(graph,encoding='utf-8');target=tmp_path/'completed.mp4'
+        full=(start+count)/fps
+        caps=codecs.measure(ffmpeg,ffprobe,64,64,fps,tmp_path,render._run)
+        selected=next(x for x in caps if x['id']=='mp4_h264_aac');assert selected['available'],selected['reason']
+        result=render._run([ffmpeg,'-v','error','-nostdin','-f','lavfi','-i',f'color=s=64x64:r={fps}:d={full}',
+            '-f','lavfi','-i',f'anullsrc=r=48000:cl=stereo:d={full}',selected['filter_complex_option'],str(script),
+            '-map','[vout]','-map','[aout]',*codecs.arguments('mp4_h264_aac'),'-fps_mode','passthrough',
+            '-t',str(duration),'-f','mp4',str(target)],30)
+        assert result.returncode==0,result.stderr
+>       verified=codecs.verify(render._run,ffprobe,target,frames,duration,64,64,fps,'mp4_h264_aac')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_v05_codec_presets.py:93:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+run = <function _run at 0x7fa5e7e0a0c0>, ffprobe = '/usr/bin/ffprobe'
+path = PosixPath('/tmp/pytest-of-baisound/pytest-0/test_graph_frame_trim_flushes_3/completed.mp4')
+frames = 1, duration = 0.016666666666666666, width = 64, height = 64, fps = 60
+preset = 'mp4_h264_aac'
+
+    def verify(run,ffprobe,path,frames,duration,width,height,fps,preset):
+        s=spec(preset)
+        result=run([ffprobe,'-v','error','-count_frames','-show_entries',
+            'stream=codec_name,codec_type,width,height,nb_read_frames,avg_frame_rate,duration,sample_rate,channels:format=duration',
+            '-of','json',str(path)],max(60,min(1200,duration*2)))
+        if result.returncode:raise ValueError('完成ファイルを再読込できません')
+        try:
+            data=json.loads(result.stdout)
+            video=next(x for x in data['streams'] if x['codec_type']=='video')
+            audio=next(x for x in data['streams'] if x['codec_type']=='audio')
+            actual_duration=float(data['format']['duration'])
+            actual_fps=float(Fraction(video['avg_frame_rate']))
+            count=int(video['nb_read_frames'])
+            audio_duration=float(audio['duration'])
+            audio_rate=int(audio['sample_rate'])
+        except (ValueError,TypeError,KeyError,StopIteration,ZeroDivisionError) as exc:
+            raise ValueError('映像・音声のcodec/FPS/フレーム数を確認できません') from exc
+        if (video['codec_name']!=s['video'] or audio['codec_name']!=s['audio'] or
+                video['width']!=width or video['height']!=height or count!=frames or
+                abs(actual_fps-fps)>max(.001,fps*.00001) or not math.isfinite(actual_duration) or
+                audio_rate!=48000 or audio.get('channels')!=2 or not math.isfinite(audio_duration) or
+                abs(audio_duration-duration)>16/48000 or
+                abs(actual_duration-duration)>max(.1,2/fps)):
+>           raise ValueError('完成ファイルのcodec・寸法・FPS・フレーム数・長さが要求と違います')
+E           ValueError: 完成ファイルのcodec・寸法・FPS・フレーム数・長さが要求と違います
+
+bai_studio/v05/render/codec_presets.py:63: ValueError
+=========================== short test summary info ============================
+FAILED tests/test_v05_codec_presets.py::test_graph_frame_trim_flushes_audio_without_output_frame_cap[24-7-1]
+FAILED tests/test_v05_codec_presets.py::test_graph_frame_trim_flushes_audio_without_output_frame_cap[60-7-1]
+2 failed, 109 passed, 1 skipped, 5 subtests passed in 83.71s (0:01:23)

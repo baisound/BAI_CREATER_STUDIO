@@ -32,6 +32,7 @@ MAX_CLIPS = 80
 AAC_BITRATE = 320000  # preserve unity gain while reducing measured AAC boundary loss
 MAX_SCENE_FRAMES = 36000  # 10 minutes at 60fps; bounded lossless intermediate
 MAX_SCENE_BYTES = 2 * 1024 * 1024 * 1024
+MAX_OUTPUT_BYTES = 2 * 1024 * 1024 * 1024
 RESOLUTIONS = {"720p": (1280, 720), "1080p": (1920, 1080)}
 IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 VIDEO_EXT = {".mp4", ".webm", ".ogv"}
@@ -69,7 +70,8 @@ def _job_file(root: Path, job_id: str) -> Path:
 
 
 def _extension(job: dict) -> str:
-    return '.zip' if job.get('preset') == 'png_rgba_zip' else '.mp4'
+    from .codec_presets import extension
+    return extension(job.get('preset'))
 
 
 def _public(job: dict) -> dict:
@@ -93,7 +95,8 @@ def _cleanup_temporary(root: Path, job_id: str) -> bool:
     complete = True
     for parent, name, directory in [(root / "jobs", f"{job_id}.frames", True),
                                     (root / "files", f"{job_id}.part.mp4", False),
-                                    (root / "files", f"{job_id}.part.zip", False)]:
+                                    (root / "files", f"{job_id}.part.zip", False),
+                                    (root / "files", f"{job_id}.part.mov", False)]:
         target = parent / name
         try:
             # Resolve before deleting, including Windows junction/reparse paths.
@@ -316,14 +319,21 @@ def _mp4_capabilities(ffmpeg: str | None = None, ffprobe: str | None = None,
     return dict(result)
 
 
-def capabilities(ffmpeg=None, ffprobe=None, probe_root=None):
+def capabilities(ffmpeg=None, ffprobe=None, probe_root=None, resolution='720p', fps=30, refresh=False):
     from .png_sequence import capability
+    from .codec_presets import measure
+    if resolution not in RESOLUTIONS or type(fps) not in (int,float) or not math.isfinite(fps) or not 1<=fps<=240:
+        raise RenderError('対応確認の解像度/FPSが不正です',400)
     ffmpeg=ffmpeg or shutil.which('ffmpeg');ffprobe=ffprobe or shutil.which('ffprobe')
     result=_mp4_capabilities(ffmpeg,ffprobe,probe_root)
     png=capability(ffmpeg,ffprobe,probe_root)
-    return {**result,**png,'mp4_available':result['available'],
-            'presets':list(result['presets'])+(['png_rgba_zip'] if png['png_available'] else []),
+    codecs=measure(ffmpeg,ffprobe,*RESOLUTIONS[resolution],fps,probe_root,_run,refresh=refresh)
+    h264=next(x for x in codecs if x['id']=='mp4_h264_aac')
+    return {**result,**png,'mp4_available':h264['available'],'available':h264['available'],
+            'reason':h264['reason'],'codec_options':codecs,'tested_resolution':resolution,'tested_fps':fps,
+            'presets':[x['id'] for x in codecs if x['available']]+(['png_rgba_zip'] if png['png_available'] else []),
             'png_max_bytes':2*1024**3,'max_duration_seconds':MAX_SECONDS,
+            'max_video_bytes':MAX_OUTPUT_BYTES,
             'max_scene_frames':MAX_SCENE_FRAMES,
             'scene_capture_available':result.get('scene_capture_available',False) or (png.get('png_ffv1_available',False) and _scene_capture_available())}
 
@@ -691,6 +701,11 @@ def _check_scene_capacity(size: int) -> None:
         raise RenderError("3D可逆動画の作業領域が2GiBを超えました")
 
 
+def _check_output_capacity(size: int) -> None:
+    if size>MAX_OUTPUT_BYTES:
+        raise RenderError('動画の作業ファイルが2GiBを超えました。In/Outを短くして書き出してください。以前の完成物は保持しています。')
+
+
 def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             scene_inputs: list[dict] | None = None, server_port: int | None = None,
             filter_complex_option: str = "-/filter_complex") -> None:
@@ -884,10 +899,13 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                         '-f','image2','-n',str(sequence_dir/'frame_%06d.png')]
             cmd += ['-map','[aout]','-vn','-c:a','pcm_s24le','-f','wav','-n',str(sequence_dir/'audio.wav')]
         else:
+            from .codec_presets import arguments,spec
+            selected=spec(job.get('preset','mp4_h264_aac'))
             cmd += [filter_complex_option, str(script), "-map", "[vout]", "-map", "[aout]",
-                    "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
-                    "-c:a", "aac", "-b:a", str(job.get("audio_bitrate", AAC_BITRATE)), "-movflags", "+faststart",
-                    "-frames:v", str(frames), "-t", _num(duration), "-f", "mp4", "-n", str(temp)]
+                    *arguments(job.get('preset','mp4_h264_aac')),
+                    # The filter has an exact frame trim. A single-container
+                    # -frames:v cap can end encoding before audio is flushed.
+                    "-fps_mode", "passthrough", "-t", _num(duration), "-f", selected['container'], "-n", str(temp)]
         job["phase"] = "encoding"
         _save(root, job)
         with log.open("w", encoding="utf-8") as err:
@@ -898,6 +916,8 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             while process.poll() is None:
                 if sequence:
                     checkpoint.seal(root,job,checkpoint_record,writing=True)
+                elif temp.exists():
+                    _check_output_capacity(temp.stat().st_size)
                 if time.monotonic() > deadline:
                     process.kill()
                     process.wait()
@@ -928,7 +948,12 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             job['phase']='verifying_sequence';_save(root,job)
             info=package(sequence_dir,temp,job,width,height)
         else:
-            info = _verify(ffprobe, temp, frames, duration, width, height, fps, process_scope)
+            from .codec_presets import verify
+            _check_output_capacity(temp.stat().st_size)
+            info=verify(process_scope.run,ffprobe,temp,frames,duration,width,height,fps,job.get('preset','mp4_h264_aac'))
+            decoded=process_scope.run([ffmpeg,'-v','error','-xerror','-nostdin','-i',str(temp),
+                '-map','0:v:0','-map','0:a:0','-f','null','-'],max(60,min(1200,duration*2)))
+            if decoded.returncode:raise RenderError('完成映像または音声を復号できません。以前の完成物を保持します。')
         digest = _sha(temp)
         job["pending_output"] = {"bytes": temp.stat().st_size, "sha256": digest, "probe": info}
         _save(root, job)
@@ -995,20 +1020,28 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
             raise RenderError(resume.get('resume_error','検証済み連番がありません。先頭から書き出してください。'),409)
     ffmpeg = shutil.which("ffmpeg")
     ffprobe = shutil.which("ffprobe")
-    caps = capabilities(ffmpeg, ffprobe, root / "probe")
+    from .codec_presets import SPECS,extension,spec
+    from bai_studio.projects.catalog import load
+    project=next((p for p in load(data_root/'studio_v05_catalog.json')['projects'] if p['id']==project_id),{})
     from . import png_sequence
     if preset not in png_sequence.PRESETS:raise RenderError('未対応の書き出し形式です',400)
     saved={'preset':'mp4_h264_aac','background':{'kind':'solid','color':'#000000'},'revision':0}
     if settings_revision is not None:
         try:saved=png_sequence.read(data_root,project_id)
         except png_sequence.SequenceError as exc:raise RenderError(str(exc),exc.status) from exc
-        if type(settings_revision) is not int or saved['revision']!=settings_revision or saved['preset']!=preset:
+        if (type(settings_revision) is not int or saved['revision']!=settings_revision or saved['preset']!=preset
+                or saved.get('resolution','720p')!=resolution):
             raise RenderError('書き出し設定が変わりました。再読込して保存し直してください。',409)
     elif preset!='mp4_h264_aac':raise RenderError('PNG連番の形式と背景を先に保存してください。',400)
+    caps = capabilities(ffmpeg, ffprobe, root / "probe",resolution,project.get('fps',30))
     if preset=='png_rgba_zip':
         if not caps.get('png_available'):raise RenderError(caps.get('png_reason','RGBA PNG環境を確認してください。'),503)
-    elif not caps.get('mp4_available',caps['available']):
-        raise RenderError(caps['reason'],503)
+    else:
+        selected_cap=next((x for x in caps.get('codec_options',[]) if x['id']==preset),None)
+        if selected_cap is not None:
+            if not selected_cap['available']:raise RenderError(selected_cap['reason'],503)
+        elif preset!='mp4_h264_aac' or not caps.get('mp4_available',caps['available']):
+            raise RenderError(caps.get('reason','コーデックの対応確認を完了できません'),503)
     scene_inputs = None
     motion_ids = None
     if scene_revision is not None:
@@ -1042,7 +1075,7 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
     if name is not None:
         from bai_studio.v05.render.render_names import plan, NameError
         try:
-            delivery_plan = plan(root, project_id, name, collision_mode, replace_job_id, ".zip" if preset=="png_rgba_zip" else ".mp4")
+            delivery_plan = plan(root, project_id, name, collision_mode, replace_job_id, extension(preset))
         except NameError as exc:
             raise RenderError(str(exc), exc.status) from exc
     elif collision_mode != "version" or replace_job_id is not None:
@@ -1063,7 +1096,7 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
                "arrangement_revision": arrangement_revision, "range_revision": range_revision,
                "audio_settings": audio_settings,
                "mixer_settings": mixer_settings,
-               "audio_bitrate": AAC_BITRATE if preset=='mp4_h264_aac' else None,
+               "audio_bitrate": AAC_BITRATE if preset in SPECS and SPECS[preset]['audio']=='aac' else None,
                "range_start_frame": render_range["range_start_frame"],
                "range_end_exclusive": render_range["range_end_exclusive"],
                "frame_count": render_range["frame_count"], "fps": render_range["fps"],
@@ -1074,6 +1107,7 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
                "scene_revision": scene_revision, "phase": "queued",
                "progress_percent": 0, "error": None, "bytes": None, "sha256": None,
                "probe": None}
+        if preset in SPECS:job['codec_spec']=spec(preset)
         if preset == 'png_rgba_zip':
             from . import sequence_checkpoint as checkpoint
             try:
@@ -1092,7 +1126,8 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
         try:
             thread = threading.Thread(target=_worker,
                                       args=(root, job, clips, ffmpeg, ffprobe, scene_inputs, server_port,
-                                            caps["png_filter_option"] if preset=='png_rgba_zip' else caps["filter_complex_option"]), daemon=True)
+                                            caps["png_filter_option"] if preset=='png_rgba_zip' else
+                                            selected_cap['filter_complex_option'] if selected_cap is not None else caps["filter_complex_option"]), daemon=True)
             thread.start()
         except Exception as exc:
             ACTIVE.discard(job_id)

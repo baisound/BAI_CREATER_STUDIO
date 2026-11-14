@@ -96,7 +96,7 @@ class RenderNamesSafetyTest(unittest.TestCase):
         self.assertEqual(names.preview(self.root, self.project, "完成"), before)
 
     def test_unsafe_names_are_rejected(self):
-        for name in ("../escape", "CON.mp4", "wrong.mov", "bad|name", "name."):
+        for name in ("../escape", "CON.mp4", "wrong.avi", "bad|name", "name."):
             with self.subTest(name=name), self.assertRaises(names.NameError):
                 names.normalize(name)
 

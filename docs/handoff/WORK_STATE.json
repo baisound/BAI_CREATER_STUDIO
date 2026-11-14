@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T20:49:28+09:00",
+  "updated_at": "2026-11-14T21:38:29+09:00",
   "updated_by": "codex",
-  "branch": "codex/png-sequence-resume-20261114",
-  "head_at_update": "2072c33",
+  "branch": "codex/codec-selection-20261114",
+  "head_at_update": "1f060eb",
   "current": {
-    "task": "#327 検証済みPNG連番からの再開",
+    "task": "#330 コーデック対応確認と選択",
     "status": "done",
-    "step": "実装/限定検証/PR #328 main統合・8765/既存制作画面同期を完了。残件と未検証を保持",
-    "design_doc": "docs/v05/PNG_RESUME_20261114_JA.md"
+    "step": "固定候補と環境/解像度/FPS別の実測・保存・実出力を設計し実装する",
+    "design_doc": "docs/v05/CODEC_SELECTION_20261114_JA.md"
   },
   "next_steps": [
-    "順3の次の既承認残件を正本で照合（codec能力/選択・EXR等）。MP4/3D撮影途中再開、長尺/全環境、順4〜7依存と低優先OGVを保持"
+    "PR/main統合し8765/既存制作タブを同期。その後は順3の既承認残件を正本で照合"
   ],
   "unverified": [
-    "長尺/実2GiB・全モデル材質GPU・Linux実PMX/UI/native・SR/全Tab/200%・MP4/3D撮影途中再開・EXR/他codec・順3全体"
+    "長尺/実2GiB・全モデル材質/ICC/HDR/全条件・聴感/HW encoder・Linux実PMX/UI/native・SR/全Tab/200%・EXR/アルファ動画/MP4途中再開・順3全体"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,27 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T21:38:29+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "1f060eb",
+      "text": "#330 5codec実測/保存/実出力と最終Win113/Ubuntu112+1skip・E2E3/1・型成功。ProResの手動MOV完了/進捗文言とMCP説明も追加再検証PASS"
+    },
+    {
+      "at": "2026-11-14T21:33:48+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "649f2bb",
+      "text": "#330 固定5動画codecの解像度/FPS別実測・保存/実出力・MOV復元を実装。Win113/Ubuntu112+1skip・各5subtests、最終Win E2E3/Ubuntu1・型成功。未検証を正本へ保持"
+    },
+    {
+      "at": "2026-11-14T21:04:35+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "fef8e92",
+      "text": "#330 コーデック対応確認と選択: 固定候補と環境/解像度/FPS別の実測・保存・実出力を設計し実装する"
+    },
     {
       "at": "2026-11-14T20:49:28+09:00",
       "by": "codex",
@@ -215,27 +236,6 @@
       "event": "start",
       "head": "2d38a4e",
       "text": "CAM-019：PMX・動き・表情を含むCinemaOperatorシーン連携: Studioの評価済み形状を別名Blenderコピーへ渡す方式を調査し、同時刻・物理・表情とBake往復を実検証する"
-    },
-    {
-      "at": "2026-11-13T14:27:27+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "995436b",
-      "text": "CAM-019静的GLBのCinemaOperator登録/起動/実Bake連携をPR314/main995436bへ統合。手元の同期・本体登録・制作画面・素材保全の詳細はOwner指定Evidenceへ保持。公開記録を機能/試験/統合コミットに限定。"
-    },
-    {
-      "at": "2026-11-13T14:16:23+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "f2b4e7e",
-      "text": "CAM-019：CinemaOperator本体の静的ZIP検査/版別登録・静的GLB作業コピー・ローカル明示起動・実nativeBake/snapshotをB1比較採用/MP4へ接続。Win/Ubuntu Python各79・Node関連6・型、実GUI50mm操作、Win/Ubuntu4被写体負例、A/B切替と60F MP4を限定検証。3視点の必須指摘解消。"
-    },
-    {
-      "at": "2026-11-13T13:26:15+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "62961ba",
-      "text": "CAM-019：CinemaOperator本体の登録・起動・Bake結果連携: Issue238の既承認A〜Dを再開。配布ZIPを静的検査し、別名作業コピーと対応形式を確定。実アドオンの可視UI/Bakeから既存カメラ候補へ戻す。"
     }
   ]
 }

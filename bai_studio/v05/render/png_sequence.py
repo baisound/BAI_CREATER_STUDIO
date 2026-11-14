@@ -17,7 +17,8 @@ from bai_studio.projects.catalog import _atomic, load
 
 LOCK = threading.RLock()
 MAX_BYTES = 2 * 1024**3
-PRESETS = {'mp4_h264_aac', 'png_rgba_zip'}
+from .codec_presets import SPECS
+PRESETS = set(SPECS) | {'png_rgba_zip'}
 _CAP_KEY = None
 _CAP_RESULT = None
 
@@ -74,7 +75,7 @@ def validate(preset, background):
         raise SequenceError('書き出し形式と背景を選んでください。',400)
     if background['kind'] not in {'transparent','solid'} or not isinstance(background['color'],str) or not re.fullmatch('#[0-9a-fA-F]{6}',background['color']):
         raise SequenceError('背景は透過または単色、色は#RRGGBBで指定してください。',400)
-    if preset == 'mp4_h264_aac' and background['kind'] == 'transparent':
+    if preset != 'png_rgba_zip' and background['kind'] == 'transparent':
         raise SequenceError('MP4は透過できません。PNG連番を選ぶか、単色背景を選んで保存してください。')
     return {'kind':background['kind'],'color':background['color'].lower()}
 
@@ -83,24 +84,28 @@ def read(data_root, project_id):
     with LOCK:
         p = _path(data_root,project_id)
         if not p.exists():
-            return {'schema':1,'project_id':project_id,'revision':0,'preset':'mp4_h264_aac','background':{'kind':'solid','color':'#000000'}}
+            return {'schema':1,'project_id':project_id,'revision':0,'preset':'mp4_h264_aac','resolution':'720p','background':{'kind':'solid','color':'#000000'}}
         try:
             d=json.loads(p.read_text(encoding='utf-8'))
             if d.get('schema')!=1 or d.get('project_id')!=project_id or type(d.get('revision')) is not int or d['revision']<0:
                 raise ValueError()
             validate(d['preset'],d['background'])
+            if d.get('resolution','720p') not in {'720p','1080p'}:raise ValueError()
+            d.setdefault('resolution','720p')
             return d
         except (ValueError,KeyError,TypeError) as exc:
             raise SequenceError('保存した書き出し設定を読めません。原本を保持して停止しました。') from exc
 
 
-def update(data_root, project_id, revision, preset, background):
+def update(data_root, project_id, revision, preset, background, resolution=None):
     background=validate(preset,background)
     with LOCK:
         old=read(data_root,project_id)
         if type(revision) is not int or revision!=old['revision']:
             raise SequenceError('書き出し設定が更新されました。再読込してから保存してください。',409)
-        d={'schema':1,'project_id':project_id,'revision':revision+1,'preset':preset,'background':background}
+        resolution=old['resolution'] if resolution is None else resolution
+        if resolution not in {'720p','1080p'}:raise SequenceError('解像度を選んでください。',400)
+        d={'schema':1,'project_id':project_id,'revision':revision+1,'preset':preset,'resolution':resolution,'background':background}
         _atomic(_path(data_root,project_id),d)
         return d
 

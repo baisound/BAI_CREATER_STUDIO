@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "ui_native": true,
+  "codec_results": [
+    {
+      "preset": "mp4_h264_aac",
+      "video": "h264",
+      "audio": "aac",
+      "frames": 3,
+      "measured": {
+        "samples": 4805,
+        "decoded_samples": 4805,
+        "zero_lag_correlation": 0.9999934787674941,
+        "rms_ratio": 0.9991401531998818,
+        "start_sample": 11211
+      }
+    },
+    {
+      "preset": "mp4_hevc_aac",
+      "video": "hevc",
+      "audio": "aac",
+      "frames": 3,
+      "measured": {
+        "samples": 4805,
+        "decoded_samples": 4805,
+        "zero_lag_correlation": 0.9999934787674941,
+        "rms_ratio": 0.9991401531998818,
+        "start_sample": 11211
+      }
+    },
+    {
+      "preset": "mp4_vp9_aac",
+      "video": "vp9",
+      "audio": "aac",
+      "frames": 3,
+      "measured": {
+        "samples": 4805,
+        "decoded_samples": 4805,
+        "zero_lag_correlation": 0.9999934787674941,
+        "rms_ratio": 0.9991401531998818,
+        "start_sample": 11211
+      }
+    },
+    {
+      "preset": "mp4_av1_aac",
+      "video": "av1",
+      "audio": "aac",
+      "frames": 3,
+      "measured": {
+        "samples": 4805,
+        "decoded_samples": 4805,
+        "zero_lag_correlation": 0.9999934787674941,
+        "rms_ratio": 0.9991401531998818,
+        "start_sample": 11211
+      }
+    },
+    {
+      "preset": "mov_prores_pcm",
+      "video": "prores",
+      "audio": "pcm_s24le",
+      "frames": 3,
+      "measured": {
+        "samples": 4805,
+        "decoded_samples": 4805,
+        "zero_lag_correlation": 1,
+        "rms_ratio": 1,
+        "start_sample": 11211
+      }
+    }
+  ],
+  "scene": {
+    "frames": 3,
+    "video": "prores"
+  },
+  "old_outputs_unchanged": true,
+  "mov_replacement_restore": true,
+  "saved_resolution_mismatch_refused": true,
+  "reload_condition_and_probe_failure_focus_tested": true,
+  "unsupported_ui_simulated": true
+}

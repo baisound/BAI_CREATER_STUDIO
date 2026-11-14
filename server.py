@@ -632,8 +632,16 @@ class Handler(BaseHTTPRequestHandler):
             except (RenderRangeError,ValueError,KeyError,OSError) as exc:self.bad(422,str(exc))
             return
         if urlsplit(self.path).path=='/api/studio/v05/render/capabilities':
-            from bai_studio.v05.render.media_render import capabilities
-            self.send(200,json.dumps(capabilities(probe_root=DATA/'studio_v05_media_renders'/'probe'),ensure_ascii=False).encode());return
+            from bai_studio.v05.render.media_render import capabilities,RenderError
+            try:
+                q=parse_qs(urlsplit(self.path).query)
+                refresh=q.get('refresh',['0'])[0]
+                if refresh not in {'0','1','false','true'}:return self.bad(400,'Invalid capability refresh')
+                result=capabilities(probe_root=DATA/'studio_v05_media_renders'/'probe',resolution=q.get('resolution',['720p'])[0],fps=float(q.get('fps',['30'])[0]),refresh=refresh in {'1','true'})
+                self.send(200,json.dumps(result,ensure_ascii=False).encode())
+            except RenderError as exc:self.bad(exc.status,str(exc))
+            except (ValueError,TypeError):self.bad(400,'Invalid capability conditions')
+            return
         if urlsplit(self.path).path=='/api/studio/v05/render/settings':
             from bai_studio.v05.render.png_sequence import read,SequenceError
             try:
@@ -651,8 +659,10 @@ class Handler(BaseHTTPRequestHandler):
                 if not any(p['id']==project_id for p in load(DATA/'studio_v05_catalog.json')['projects']):
                     return self.bad(404,'Unknown project ID')
                 preset=q.get('preset',[None])[0]
-                if preset not in {None,'mp4_h264_aac','png_rgba_zip'}:return self.bad(400,'Invalid output format')
-                result=preview(DATA/'studio_v05_media_renders',project_id,q.get('name',[''])[0],None if preset is None else '.zip' if preset=='png_rgba_zip' else '.mp4')
+                from bai_studio.v05.render.png_sequence import PRESETS
+                from bai_studio.v05.render.codec_presets import extension
+                if preset is not None and preset not in PRESETS:return self.bad(400,'Invalid output format')
+                result=preview(DATA/'studio_v05_media_renders',project_id,q.get('name',[''])[0],None if preset is None else extension(preset))
                 self.send(200,json.dumps(result,ensure_ascii=False).encode())
             except NameError as exc:self.bad(exc.status,str(exc))
             except (ValueError,KeyError,OSError):self.bad(422,'Cannot read render names')
@@ -672,7 +682,7 @@ class Handler(BaseHTTPRequestHandler):
                         self.send(200,archive.read(info),'image/png')
                 elif path.endswith('/file'):
                     file=output_file(DATA/'studio_v05_media_renders',q.get('id',[''])[0])
-                    self.send_library_file(file,'application/zip' if file.suffix=='.zip' else 'video/mp4')
+                    self.send_library_file(file,'application/zip' if file.suffix=='.zip' else 'video/quicktime' if file.suffix=='.mov' else 'video/mp4')
                 elif 'id' in q:
                     self.send(200,json.dumps(status(DATA/'studio_v05_media_renders',q['id'][0]),ensure_ascii=False).encode())
                 else:
@@ -1552,12 +1562,22 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:self.bad(500,'Render range write failed')
             return
         if urlsplit(self.path).path=='/api/studio/v05/render/settings':
-            from bai_studio.v05.render.png_sequence import update,SequenceError
+            from bai_studio.v05.render.png_sequence import update,read,validate,SequenceError
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=4096:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
-                if not isinstance(body,dict) or set(body)!={'project_id','revision','preset','background'}:return self.bad(400,'Invalid export settings')
+                if not isinstance(body,dict) or not {'project_id','revision','preset','background'}<=set(body) or set(body)-{'project_id','revision','preset','background','resolution'}:return self.bad(400,'Invalid export settings')
+                validate(body['preset'],body['background'])
+                if body['preset']!='png_rgba_zip':
+                    from bai_studio.v05.render.media_render import capabilities
+                    from bai_studio.projects.catalog import load
+                    project=next((p for p in load(DATA/'studio_v05_catalog.json')['projects'] if p['id']==body['project_id']),None)
+                    if project is None:return self.bad(404,'Unknown project ID')
+                    resolution=body.get('resolution',read(DATA,body['project_id'])['resolution'])
+                    caps=capabilities(probe_root=DATA/'studio_v05_media_renders'/'probe',resolution=resolution,fps=project.get('fps',30))
+                    available=next((x for x in caps['codec_options'] if x['id']==body['preset']),None)
+                    if available is None or not available['available']:return self.bad(422,available['reason'] if available else '未対応のコーデックです')
                 self.send(200,json.dumps(update(DATA,**body),ensure_ascii=False).encode())
             except SequenceError as exc:self.bad(exc.status,str(exc))
             except (ValueError,KeyError,TypeError):self.bad(400,'Invalid export settings')

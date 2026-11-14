@@ -1,0 +1,18 @@
+[run-guarded] 警告: 開発用サーバー（127.0.0.1:8765）が動いています。実データに書き込むとハッシュの確認が失敗します
+TAP version 13
+# Subtest: measured codec choices persist and produce actual video/audio, safe MOV versions and real UI/SDK/native
+ok 1 - measured codec choices persist and produce actual video/audio, safe MOV versions and real UI/SDK/native
+  ---
+  duration_ms: 39334.5427
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 44993.52
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）
