@@ -66,7 +66,7 @@ const restoreCameraBtn=document.createElement('button');restoreCameraBtn.type='b
 saveCameraBtn.id='v58-save-camera';restoreCameraBtn.id='v58-restore-camera';
 const modeBtn=document.createElement('button');modeBtn.type='button';modeBtn.textContent='同じ画面に重ねる';
 const closeBtn=document.createElement('button');closeBtn.type='button';closeBtn.id='v58-editor-close';closeBtn.textContent=tr('close');closeBtn.title='3D編集を閉じてタイムラインへ戻る（Esc）';
-const progress=document.createElement('span');progress.setAttribute('role','status');progress.style.cssText='color:#c8d9ea';
+const progress=document.createElement('span');progress.id='v58-progress';progress.setAttribute('role','status');progress.style.cssText='color:#c8d9ea';
 const cameraStatus=document.createElement('small');cameraStatus.setAttribute('role','status');
 const physicsControls=document.createElement('details');physicsControls.id='v58-physics-controls';
 physicsControls.innerHTML='<summary>PMXの物理</summary><p id="v58-physics-target"></p><label><input type="checkbox" id="v58-physics-enabled">このモデルでMMD物理を使う</label><button type="button" id="v58-physics-save">物理設定を保存・準備</button><button type="button" id="v58-physics-retry">再準備</button><button type="button" id="v58-physics-cancel">準備を中止</button><button type="button" id="v58-physics-off">物理OFFで保存</button><p id="v58-physics-status" role="status"></p><small>この作品のモデルごとに保存します。実動作プレビューの設定とは別です。配置はXYZ同倍率・X/Z回転0、最大600秒・全モデル合計128MiBです。</small>';
@@ -472,7 +472,7 @@ const request=async(url)=>{
   return data;
 };
 function updateStatus(s,issues=[]){
-  progress.textContent=`${tr('loadedCount')}: ${s.loaded}`+(issues.length?` / ${tr('problems')}: ${issues.map(x=>x.reason+'('+x.id+')').join(', ')}`:'');
+  progress.textContent=`${tr('loadedCount')}: ${s.loaded}`+(issues.length?` / ${issues.map(x=>x.message||(x.reason==='unassigned'?'モーションの適用先を選んでください':x.reason||'内容を確認してください')).join(', ')}`:'');
   if(!opened)return;
   const old=choose.value||selectedId;
   choose.replaceChildren(new Option(tr('choose'),''));

@@ -1,0 +1,30 @@
+{
+  "issue": 320,
+  "requirements": [
+    "DATA-006",
+    "MOTION-004",
+    "UX-001",
+    "UX-002",
+    "UX-003",
+    "UX-004",
+    "UX-005",
+    "UX-006",
+    "UX-007",
+    "UX-008"
+  ],
+  "implementation_pr": 321,
+  "main": "b7d9f73195637e5863a58035350f256444ff2eb7",
+  "local_main_fast_forward": "PASS",
+  "port_8765_changed_source_bytes": "PASS; six files matched local main SHA256",
+  "open_production_screen": "PASS; selected existing motion, inline target selector, large 3D, close; no owner project save",
+  "owner_data_preservation": "PASS; detailed inventory and real-model screenshots retained only in Owner Evidence",
+  "followup": "Unassigned status wording corrected after main UI inspection; Windows full new-UI regression and typecheck PASS. Follow-up PR/Issue records carry its final main sync.",
+  "release_complete": false,
+  "unverified": [
+    "real screen reader/all Tab order/200% zoom/user usability study",
+    "all formats/models/drivers",
+    "long duration",
+    "Linux hardware GPU/native GUI/actual owner PMX",
+    "CAM-019 and sequence3 overall"
+  ]
+}

@@ -1,28 +1,161 @@
 {
-  "issue":320,
-  "requirements":["DATA-006","MOTION-004","UX-001","UX-002","UX-003","UX-004","UX-005","UX-006","UX-007","UX-008"],
-  "status":"partial_verified",
-  "implementation_commits":["4b91028","same branch final inspection fixes"],
-  "verified":{"python_windows":37,"python_ubuntu":37,"windows_serial_ui_composite_clock_contact_physics":5,"ubuntu_ui":1,"windows_cinemaoperator_physics_bake_mp4":1,"ubuntu_cinemaoperator_physics_bake_mp4":1,"typecheck":"PASS","skipped":0},
-  "scenarios":["two independent PMX instances and real pose difference","motion/expression assignment and explicit null removal","Undo/Redo and reload","draft retention across clip selection","stale GET discarded","captured save target after another selection","pending save blocks resubmission","revision conflict/retry","Enter save/reload focus","wide/narrow/low-height layout","tab arrows and focus containment","close/reopen and Escape","close during delayed load","closed state does not omit saved 3D from 30F MP4","model missing and incompatible GLB disabled","camera VMD does not show model-assignment field","transparent image/video composite","FK/contact and physics retained","native Bake and 60F MP4"],
-  "reviews":{
-    "first_action":"scoped PASS; code and generated screenshots; reviewer did not independently operate the app",
-    "workflow":"scoped PASS; code and reported regression results",
-    "visual_accessibility":"mandatory findings resolved in code; generated width captures checked; reviewer runtime not tested",
-    "root_judge":"scoped PASS for the executed gates; full usability not claimed"
-  },
-  "findings":[
-    {"id":"MW-01","priority":"P1","target":"selected motion inspector","evidence":"assignment required separate 3D panel","fix":"inline revisioned assignment save/unassign; capture project/clip/target/revision","verification":"PASS"},
-    {"id":"MW-02","priority":"P1","target":"3D window layout","evidence":"small overlaid panel and scroll-hidden close","fix":"large explicit editor, fixed header/clock, four settings tabs","verification":"PASS 1440/1024/800x500/540x720"},
-    {"id":"MW-03","priority":"P1","target":"close and asynchronous reload","evidence":"late responses and auto reopen can defeat dismissal","fix":"presentation epoch and per-project display suppression; capture page independent","verification":"PASS delayed close and MP4 after close"},
-    {"id":"MW-04","priority":"P2","target":"3D confirmation before saving","evidence":"draft target looked previewable but saved target was opened","fix":"disable confirmation until target saved","verification":"PASS"},
-    {"id":"MW-05","priority":"P2","target":"save/retry focus","evidence":"disabled/rebuilt focused buttons lost focus","fix":"restore current clip selector after Enter action, avoid stealing another selection/inert editor focus","verification":"PASS"},
-    {"id":"MW-06","priority":"P2","target":"3D entry in low height and async startup","evidence":"pane separator overlapped entry; entry absent on initialization race","fix":"entry first in transport; observe late mount until connected","verification":"PASS composite/clock regressions"}
+  "issue": 320,
+  "requirements": [
+    "DATA-006",
+    "MOTION-004",
+    "UX-001",
+    "UX-002",
+    "UX-003",
+    "UX-004",
+    "UX-005",
+    "UX-006",
+    "UX-007",
+    "UX-008"
   ],
-  "feature_routes":{"model_motion":"assignment/physics","expression_lip":"morphs/PMX and VRM mapping","rig_contact":"FK/IK/contact/conversion candidates","placement_view":"XYZ/reload/focus/camera save/restore","shared_transport":"outside tab panels"},
-  "screenshots":{"folder":"studio/v05/reviews/motion-workspace-20261114/","before":["before-assignment.png","before-editor.png"],"implemented":["assignment-marked.png","editor-marked.png"],"marks":{"1":"selected clip assignment/save","2":"large 3D view","3":"close/Escape","4":"settings tabs"},"public_only_generated":true},
-  "failed_attempts":["old UI selectors before tab migration","test reload catalog and nonidle polling assumptions","parallel browser resource connection refusal and legacy install error; serial four passed"],
-  "unverified":["real screen reader/all Tab order/200% zoom/user usability study","all formats/models/drivers","long duration","Linux hardware GPU/native GUI/actual owner PMX","CAM-019 and sequence3 overall"],
-  "release_complete":false,
-  "models":"high-capability investigation/design/implementation; three separate critique perspectives"
+  "status": "partial_verified",
+  "implementation_commits": [
+    "4b91028",
+    "6c9a5eab1fa2d579916119ef3f978f452e790e76",
+    "6c1a602cafb7981afd053e1008ffc0d3899c27a2"
+  ],
+  "verified": {
+    "python_windows": 37,
+    "python_ubuntu": 37,
+    "windows_serial_ui_composite_clock_contact_physics": 5,
+    "ubuntu_ui": 1,
+    "windows_cinemaoperator_physics_bake_mp4": 1,
+    "ubuntu_cinemaoperator_physics_bake_mp4": 1,
+    "typecheck": "PASS",
+    "skipped": 0,
+    "windows_unassigned_guidance_regression": 1
+  },
+  "scenarios": [
+    "two independent PMX instances and real pose difference",
+    "motion/expression assignment and explicit null removal",
+    "Undo/Redo and reload",
+    "draft retention across clip selection",
+    "stale GET discarded",
+    "captured save target after another selection",
+    "pending save blocks resubmission",
+    "revision conflict/retry",
+    "Enter save/reload focus",
+    "wide/narrow/low-height layout",
+    "tab arrows and focus containment",
+    "close/reopen and Escape",
+    "close during delayed load",
+    "closed state does not omit saved 3D from 30F MP4",
+    "model missing and incompatible GLB disabled",
+    "camera VMD does not show model-assignment field",
+    "transparent image/video composite",
+    "FK/contact and physics retained",
+    "native Bake and 60F MP4"
+  ],
+  "reviews": {
+    "first_action": "scoped PASS; code and generated screenshots; reviewer did not independently operate the app",
+    "workflow": "scoped PASS; code and reported regression results",
+    "visual_accessibility": "mandatory findings resolved in code; generated width captures checked; reviewer runtime not tested",
+    "root_judge": "scoped PASS for the executed gates; full usability not claimed"
+  },
+  "findings": [
+    {
+      "id": "MW-01",
+      "priority": "P1",
+      "target": "selected motion inspector",
+      "evidence": "assignment required separate 3D panel",
+      "fix": "inline revisioned assignment save/unassign; capture project/clip/target/revision",
+      "verification": "PASS"
+    },
+    {
+      "id": "MW-02",
+      "priority": "P1",
+      "target": "3D window layout",
+      "evidence": "small overlaid panel and scroll-hidden close",
+      "fix": "large explicit editor, fixed header/clock, four settings tabs",
+      "verification": "PASS 1440/1024/800x500/540x720"
+    },
+    {
+      "id": "MW-03",
+      "priority": "P1",
+      "target": "close and asynchronous reload",
+      "evidence": "late responses and auto reopen can defeat dismissal",
+      "fix": "presentation epoch and per-project display suppression; capture page independent",
+      "verification": "PASS delayed close and MP4 after close"
+    },
+    {
+      "id": "MW-04",
+      "priority": "P2",
+      "target": "3D confirmation before saving",
+      "evidence": "draft target looked previewable but saved target was opened",
+      "fix": "disable confirmation until target saved",
+      "verification": "PASS"
+    },
+    {
+      "id": "MW-05",
+      "priority": "P2",
+      "target": "save/retry focus",
+      "evidence": "disabled/rebuilt focused buttons lost focus",
+      "fix": "restore current clip selector after Enter action, avoid stealing another selection/inert editor focus",
+      "verification": "PASS"
+    },
+    {
+      "id": "MW-06",
+      "priority": "P2",
+      "target": "3D entry in low height and async startup",
+      "evidence": "pane separator overlapped entry; entry absent on initialization race",
+      "fix": "entry first in transport; observe late mount until connected",
+      "verification": "PASS composite/clock regressions"
+    },
+    {
+      "id": "MW-07",
+      "priority": "P2",
+      "target": "3D status footer",
+      "evidence": "main UI showed unassigned(undefined) without an action",
+      "fix": "show Japanese target-selection guidance, honor existing issue messages",
+      "verification": "PASS Windows full new-UI regression and typecheck; follow-up integration recorded in linked PR"
+    }
+  ],
+  "feature_routes": {
+    "model_motion": "assignment/physics",
+    "expression_lip": "morphs/PMX and VRM mapping",
+    "rig_contact": "FK/IK/contact/conversion candidates",
+    "placement_view": "XYZ/reload/focus/camera save/restore",
+    "shared_transport": "outside tab panels"
+  },
+  "screenshots": {
+    "folder": "studio/v05/reviews/motion-workspace-20261114/",
+    "before": [
+      "before-assignment.png",
+      "before-editor.png"
+    ],
+    "implemented": [
+      "assignment-marked.png",
+      "editor-marked.png"
+    ],
+    "marks": {
+      "1": "selected clip assignment/save",
+      "2": "large 3D view",
+      "3": "close/Escape",
+      "4": "settings tabs"
+    },
+    "public_only_generated": true
+  },
+  "failed_attempts": [
+    "old UI selectors before tab migration",
+    "test reload catalog and nonidle polling assumptions",
+    "parallel browser resource connection refusal and legacy install error; serial four passed"
+  ],
+  "unverified": [
+    "real screen reader/all Tab order/200% zoom/user usability study",
+    "all formats/models/drivers",
+    "long duration",
+    "Linux hardware GPU/native GUI/actual owner PMX",
+    "CAM-019 and sequence3 overall"
+  ],
+  "release_complete": false,
+  "models": "high-capability investigation/design/implementation; three separate critique perspectives",
+  "integration": {
+    "pr": 321,
+    "main": "b7d9f73195637e5863a58035350f256444ff2eb7",
+    "record": "qa/motion-workspace-integration-20261114.json"
+  }
 }
