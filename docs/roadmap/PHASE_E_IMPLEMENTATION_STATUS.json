@@ -614,6 +614,15 @@
       "commit": "4b91028 + 6c9a5ea + 6c1a602 / PR321 / main b7d9f73195637e5863a58035350f256444ff2eb7 / qa/motion-workspace-integration-20261114.json",
       "tests": "Windows/Ubuntu Python各37、Windows UI/合成/共通時計/接地/物理5、Ubuntu UI1、両OS実CinemaOperator Bake/60F MP4各1、型成功。docs/v05/MOTION_ASSIGNMENT_WORKSPACE_20261114_JA.md",
       "unverified": "all model/format/driver combinations; all Tab, screen reader, 200% zoom; long duration; CAM-019 and sequence3 overall"
+    },
+    {
+      "item": "順3 G3-F1：終了条件と追加3D/音声の証拠・残件照合",
+      "phase_e_wp": "DATA-008/RENDER-001/002/004/005/006・AUDIO-001/002、#69/#81/#63",
+      "planned_in": "G3-F1-EXIT-REVIEW-20261114",
+      "status": "evidence_audit_complete_requirement_open",
+      "commit": "same commit as docs/v05/SEQUENCE3_EXIT_REVIEW_STATUS_20261114.json",
+      "tests": "固定した既存証拠と現コード/要件を照合。現行実GPUで実PMX/VMD/WAV+新画像の同一作品保存再読込/姿勢/時刻/3F MP4受取1成功。旧画面導線の先行1失敗を保持。製品コード変更なし。",
+      "unverified": "順3全体は未完。納品用RGBA PNG連番/背景設定、検証済みチェックポイント再開、他codec能力選択、全操作/実SR・全環境等を未達/未検証/後段依存に分けて保持"
     }
   ]
 }

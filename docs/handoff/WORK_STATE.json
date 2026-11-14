@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T15:48:53+09:00",
+  "updated_at": "2026-11-14T15:58:20+09:00",
   "updated_by": "codex",
   "branch": "codex/sequence3-exit-audit-20261114",
-  "head_at_update": "08762e0",
+  "head_at_update": "dc45c0d",
   "current": {
     "task": "順3 G3-F1：終了条件と最新検証証拠・残件を照合",
-    "status": "in_progress",
+    "status": "done",
     "step": "PR321/322のmain・制作画面同期は完了済み。A〜Eと追加3D/VST/CinemaOperatorの証拠を固定し、未達・後段依存・次の縦断試験を明示する",
     "design_doc": "docs/v05/SEQUENCE3_EXIT_REVIEW_20261114_JA.md"
   },
   "next_steps": [
-    "未割当案内と統合記録の追補PRを統合して最終制作画面を同期。順3全体/CAM-019の未検証は保持"
+    "既承認O-RENDER-03 / RENDER-002/005：納品用RGBA PNG連番の保存・受取を既存snapshot/逐次描画へ接続する設計・実装へ。G3-A〜E/順4〜7の残件と低優先OGVは保持"
   ],
   "unverified": [
-    "実SR/全Tab/200%・全形式/モデル/GPU/長尺・Linux実GPU/nativeGUI/実PMX・CAM-019/順3全体"
+    "納品用PNG連番/背景設定・途中フレーム再開・他codec能力選択は未達。全操作/環境・短窓/聴感・Linux実素材縦断・専門機能依存・順3全体は未完"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T15:58:20+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "dc45c0d",
+      "text": "G3-F1：15行の終了条件と固定証拠24件・現行ソース5件を照合。現行実GPUで実PMX/VMD/WAV+新画像の保存復元/3F MP4受取1成功、旧導線の先行1失敗を保持。153ID/CSV・型成功。順3全体は未完。"
+    },
     {
       "at": "2026-11-14T15:48:53+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "b0ba58d",
       "text": "配置モデル/カメラ/動き/表情の代表検証に加え、髪/紐のPMX物理を基準姿勢構築と長さ保持付き回転へ修正。元データ不変、合成物理・時計/retarget/連動の回帰6と型成功。元モデル不明VMDの接地補正は3視点設計批評の指摘を採用、未実装。"
-    },
-    {
-      "at": "2026-11-13T09:05:46+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "ba0d74c",
-      "text": "タイムライン3D連動と追加の素材別体格補正・髪/アクセサリーの伸び修正: 3D連動の代表検証と台帳同期まで完了。追加報告のGLB動作+PMX物理ONの伸びを隔離再現し、素材ごとの元骨格/体格調整を調査。検証前のmain統合は保留。Blender CAM-019-B1を統合/同期直後の次へ保持。"
     }
   ]
 }

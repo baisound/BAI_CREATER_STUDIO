@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "scope": "G3-F1 evidence/link/register audit, not product requirement completion",
+  "rows": 15,
+  "fixed_unique_evidence_snapshots": 24,
+  "current_product_sources_unchanged_from_baseline": 5,
+  "historical_snapshot_differs_from_current_worktree": [
+    "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md"
+  ],
+  "drift_reason": "This task added the new current-position note; baseline git blob hash remains fixed. First validator detected this intentional document change; current runtime is not inferred from it.",
+  "registry_ids": 153,
+  "changed_details_only": [
+    "AUDIO-001",
+    "AUDIO-002",
+    "DATA-008",
+    "RENDER-001",
+    "RENDER-002",
+    "RENDER-004",
+    "RENDER-005",
+    "RENDER-006"
+  ],
+  "existing_statuses_unchanged": true,
+  "csv_bom_retained": true,
+  "historical_reports_reexecuted": false,
+  "current_real_vertical_test": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "initial_navigation_attempt_failed": 1
+  },
+  "typecheck": "PASS",
+  "png_sequence": "NOT IMPLEMENTED",
+  "sequence3_complete": false,
+  "ubuntu_real_vertical_current": "NOT TESTED"
+}

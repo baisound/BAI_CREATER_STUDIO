@@ -1,0 +1,493 @@
+{
+  "schema_version": 1,
+  "task": "G3-F1",
+  "issues": [
+    81,
+    69,
+    63
+  ],
+  "review_baseline_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+  "audit_complete": true,
+  "sequence3_complete": false,
+  "release_complete": false,
+  "decision": "do_not_close_sequence3",
+  "document": "docs/v05/SEQUENCE3_EXIT_REVIEW_20261114_JA.md",
+  "method": "Requirement/evidence/code cross-check. Historical report hashes fix the bytes read at baseline, not the original tested code revision. Current runtime is separately identified. No totals pooled across runs.",
+  "rows": [
+    {
+      "id": "S3-A1",
+      "group": "A",
+      "requirements": [
+        "AUDIO-001",
+        "RENDER-006"
+      ],
+      "status": "limited_verified",
+      "verified_scope": "AAC320k: 165 unique 200ms windows, <=3%, 0 sample offset; Windows/Ubuntu",
+      "remaining": "Short windows/listening/all sources untested; not a universal 3% contract",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/v05/AAC_320K_BOUNDARY_FIX_20261109_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "4f68ee6744297b81d08c924279770eb3edc067cd1bf047caf29ec7e19ac37f3a",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "qa/aac-320k-mix-linux-20261109.json",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "19fe4fec48ffa94ea8f9553187dbd97690623384d72f1b56d40c823c29728189",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-A2",
+      "group": "A",
+      "requirements": [
+        "DATA-016",
+        "AUDIO-001"
+      ],
+      "status": "diagnostic_open",
+      "verified_scope": "Four representative audio codecs, source time max1sample/48kHz",
+      "remaining": "91.4s ratio about0.95 meets source7% contract; stricter G3-A generalization/diagnosis incomplete",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/v05/AUDIO_FORMATS_20261108_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "45e938f88cf467ea529de4d485b4f8f9909052496df25d5f14cfc050a947ca99",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "qa/media-evidence-320k-audio-real-linux-20261109.json",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "3456d7fa1749b32a87fdfc20ecbe1a63fbf76f363c53abef7a931452dcabd449",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-B1",
+      "group": "B",
+      "requirements": [
+        "DATA-016",
+        "RENDER-006"
+      ],
+      "status": "limited_verified",
+      "verified_scope": "Short formats and real-footage-derived VFR MP4/long WebM at29.97 nonzeroIn",
+      "remaining": "Natural VFR/all codecs untested; long OGV low priority",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/v05/LONG_WEBM_SOURCE_WINDOWS_20261112_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "a8bf6df4d25a078233dc6036efc98ca07ae08bb67d71681b668491774aa0f848",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "qa/media-format-evidence-matrix-20261109.json",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "495a63343d166cb6667b776ff5234cd610a9c74de4bc616888c3aec2f98f50ef",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-B2",
+      "group": "B",
+      "requirements": [
+        "DATA-002",
+        "DATA-016"
+      ],
+      "status": "limited_verified",
+      "verified_scope": "PNG JPEG WebP BMP plus rotation/alpha/unsupported reasons",
+      "remaining": "All ICC/HDR/EXIF/animated images not verified",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/v05/IMAGE_FORMATS_20261108_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "1f35959f378baf943b3c1e2c291353c6b24f15ca521dee82c6faa90b2049d9ba",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-C1",
+      "group": "C",
+      "requirements": [
+        "DATA-002",
+        "DATA-008"
+      ],
+      "status": "limited_verified",
+      "verified_scope": "Persisted clip UndoRedo with revision/lock and UI/SDK/native routes",
+      "remaining": "Not app-wide Undo for every store/operation",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/v05/CLIP_EDIT_HISTORY_20261112_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "9694c94a52a785901f9c75366b3ffea8fb40bdafb2092ca8d0b4ebdcf8813938",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "qa/clip-history-evidence-20261112.json",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "39c8afed2da6f3a877c898f66a1528810b8f288d3ef0e0d58a0b605e58debb7e",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-C2",
+      "group": "C",
+      "requirements": [
+        "DATA-006",
+        "MOTION-004",
+        "CAM-015"
+      ],
+      "status": "limited_verified",
+      "verified_scope": "Inline assignment, two instances, poses, save/reload/races, MP4 after close",
+      "remaining": "Not all formats/long motions/screen reader/all Tab/200%",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/v05/MOTION_ASSIGNMENT_WORKSPACE_20261114_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "7823d459203ee25d25c8817aab9977a5e2ac0c3d0a0f85e04efa6061a562e484",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "docs/v05/MOTION_ASSIGNMENT_WORKSPACE_STATUS_20261114.json",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "249f49ae23fd146a8794978b1841c6cf31871c160d459a2251b36f9a37a0269b",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-D1",
+      "group": "D",
+      "requirements": [
+        "RENDER-006",
+        "DATA-008"
+      ],
+      "status": "limited_verified",
+      "verified_scope": "Isolated failure injections, recovery finalization, old output hashes/retry",
+      "remaining": "Physical full disk/power loss/concurrent external edit during receipt not tested",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/v05/RENDER_FAILURE_PROTECTION_20261112_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "bc455e3f9ebe1db9429dc4a560d2ad2d165b7e6348609218082b14f8fb782573",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "qa/render-protection-evidence-20261113.json",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "d2aaa1cbc502b595dbf693882426f1942f5f6f37d76e3a4c5b29466be98ac916",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-D2",
+      "group": "D",
+      "requirements": [
+        "RENDER-001",
+        "RENDER-006"
+      ],
+      "status": "partial_implementation",
+      "verified_scope": "36000F/600s and actual intermediate2GiB overrun; Windows termination/retry",
+      "remaining": "Linux kill descendant cleanup/all stop points unverified; verified checkpoint resume not implemented",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/v05/RENDER_LIMITS_RECOVERY_20261106_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "9428d27b9609732341d93b1e8fb8eae7329993cf7467e0acc2149fd08a881f91",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "docs/specs/RENDER_EXPORT_SPEC_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "71fc35065c5ecc27a41edca92df4ba52bda4c1e14a3758e5df596217bc80f34d",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-E1",
+      "group": "E",
+      "requirements": [
+        "DATA-008",
+        "RENDER-001"
+      ],
+      "status": "limited_verified",
+      "verified_scope": "Saved/auto camera, generated opaque/translucent GLB, wide/tall, real PMX/S01 representative",
+      "remaining": "Not arbitrary shader/poses/large stage initial framing",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/v05/SAVED_STATE_COMPOSITION_20261113_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "aee51540edb1bd307fba384d7eb75c7970679100f76a984ec0331681e2b185a0",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "qa/state-composition-evidence-20261113.json",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "51bb34b2eebb3d18d39e57844d042e3016d097890c73ecb1d1328ce3192ef0e8",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-E2",
+      "group": "E",
+      "requirements": [
+        "CAM-019",
+        "CAM-015",
+        "MOTION-019"
+      ],
+      "status": "limited_verified",
+      "verified_scope": "PMX body/face/lip/physics copy to real CinemaOperator Bake/adoption/60F MP4 both OS",
+      "remaining": "Not all formats/addons/full-length/DOF reproduction",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/v05/CINEMAOPERATOR_ANIMATED_SCENE_20261114_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "3bf611c9c7c68f6181964780339aa506862f5036cd917843e15fc186f255013e",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "docs/v05/TIMELINE_PMX_PHYSICS_STATUS_20261114.json",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "ea7ec63d030a16a36bb5952532e15f2f7079645227683425c61ad840c1ddff31",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "docs/v05/TIMELINE_SCENE_LINK_20261113_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "fd4fd7a48197822a762f1bc2d9ffa1c6c3b05fecd905cb96b00b99277322abd4",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-E3",
+      "group": "E",
+      "requirements": [
+        "AUDIO-002",
+        "RENDER-006"
+      ],
+      "status": "limited_verified",
+      "verified_scope": "Windows real TDR Nova GUI -3dB through recall/playback/WAV/MP4 PCM LUFS",
+      "remaining": "Not all VST/Linux native GUI/low latency/physical listening",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/v05/VST_GUI_AUDIO_E2E_20261113_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "d4d648fc7861eefa05683d2be705ad52414da18a8978dae2e2b6a1fe36907c01",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "qa/vst-gui-audio-20261113/measurements.json",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "5c26b36f03ea25e98e60900e4f41e0bc65f435f580babafd8c9efb6f675a537e",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-F1",
+      "group": "F",
+      "requirements": [
+        "DATA-008",
+        "RENDER-001",
+        "RENDER-006"
+      ],
+      "status": "current_limited_verified",
+      "verified_scope": "Current real PMX/VMD/WAV plus new image in one isolated project, reload/preview/3F MP4/download",
+      "remaining": "API setup, UI preview; not fully manual creation or long/all-feature integration",
+      "requirement_complete": false,
+      "evidence": [],
+      "current_run": {
+        "result": "PASS_LIMITED",
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "os": "Windows",
+        "test": "tests/studio-v05-vertical-real-media.test.cjs",
+        "test_sha256": "7f7601f01a570e13b2806f23f70c07fcc8689ec51b6c5e296036c49b4e0a45d8",
+        "product_baseline_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+        "product_changed": false,
+        "setup": "API registration/placement; real UI preview and reload; API render and download",
+        "frames": 3,
+        "changed_pixels": 10287,
+        "audio_rms": 2430.2719426023086,
+        "preview_seconds": [
+          0,
+          2,
+          4
+        ],
+        "hardware_gpu": true,
+        "owner_sources_unchanged": true,
+        "initial_attempt": {
+          "passed": 0,
+          "failed": 1,
+          "reason": "stale navigation tried hidden project selector on home; current Create tab navigation used for rerun"
+        },
+        "private_raw_log": "Owner Evidence: g3-f1-vertical-current2.log",
+        "not_tested": [
+          "Ubuntu real-source vertical run",
+          "end-to-end UI-only registration/placement",
+          "long duration",
+          "all current features combined",
+          "listening"
+        ]
+      }
+    },
+    {
+      "id": "S3-F2",
+      "group": "F",
+      "requirements": [
+        "RENDER-004",
+        "RENDER-006"
+      ],
+      "status": "partial_implementation",
+      "verified_scope": "H264/AAC capability performs short encode and probe before enabling MP4",
+      "remaining": "Other codec adapters/probed selection incomplete",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/specs/A2_RENDER_DECISIONS_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "456d8821451d24138d9ad39990448a5d56f488d5dddd0d6c8ba67eb9f9ce23d0",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-F3",
+      "group": "F",
+      "requirements": [
+        "RENDER-002",
+        "RENDER-005"
+      ],
+      "status": "not_implemented",
+      "verified_scope": "Internal capture buffers/FFV1 intermediate only",
+      "remaining": "Deliverable RGBA PNG sequence/background settings/alpha verification missing; next implementation",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/specs/A2_RENDER_DECISIONS_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "456d8821451d24138d9ad39990448a5d56f488d5dddd0d6c8ba67eb9f9ce23d0",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "docs/specs/RENDER_EXPORT_SPEC_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "71fc35065c5ecc27a41edca92df4ba52bda4c1e14a3758e5df596217bc80f34d",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        },
+        {
+          "path": "docs/v05/SAVED_STATE_COMPOSITION_20261113_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "aee51540edb1bd307fba384d7eb75c7970679100f76a984ec0331681e2b185a0",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    },
+    {
+      "id": "S3-X1",
+      "group": "dependency",
+      "requirements": [
+        "CAM-015",
+        "CAM-019",
+        "LIP-001",
+        "LYRIC-001"
+      ],
+      "status": "later_phase_dependency",
+      "verified_scope": "Preserve approved requirements without reprioritization",
+      "remaining": "Legacy timed camera migration/large stage view/DOF rail lighting/subtitles/natural lip remain in sequence4-7",
+      "requirement_complete": false,
+      "evidence": [
+        {
+          "path": "docs/roadmap/V05_REBUILT_ROADMAP_20261102_JA.md",
+          "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+          "sha256": "29fa5a2d7a132c9152be18b4bfaf74eb7f3fa2688b0ea72a7c334ca6438e0238",
+          "kind": "historical_report_snapshot_not_a_current_runtime_result"
+        }
+      ]
+    }
+  ],
+  "current_product_sources": [
+    {
+      "path": "bai_studio/v05/render/media_render.py",
+      "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+      "sha256": "c9b7c598e47cfcea48761af4384197d99c270605eeedf30c9a075a3073875c0d",
+      "kind": "current_product_source_snapshot_not_a_runtime_result"
+    },
+    {
+      "path": "studio/v05/js/render-job-v69.js",
+      "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+      "sha256": "2d4d4c155804a1d61ba9eb05730155aaf32c71efda90f6d5da85f676471a8e5f",
+      "kind": "current_product_source_snapshot_not_a_runtime_result"
+    },
+    {
+      "path": "studio/v05/js/multi-model-ui-v58.js",
+      "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+      "sha256": "736f1a618fd50054736e7a2727b1acfd2c1dce6114ec2b39dc8e47a943dfc630",
+      "kind": "current_product_source_snapshot_not_a_runtime_result"
+    },
+    {
+      "path": "studio/v05/js/project-media-preview-v68.js",
+      "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+      "sha256": "2f36d0a425021e86fa57f9c4e8e52de6b4910730e2c6ecedf06e3a9bb733e65a",
+      "kind": "current_product_source_snapshot_not_a_runtime_result"
+    },
+    {
+      "path": "studio/v05/js/scene-media-bridge-v70.js",
+      "snapshot_commit": "08762e083ef60f43a95c4e9b0894e5e41b52629c",
+      "sha256": "797625d5cb7eb7ebb7132e16695dbedb600cd8694f97bcd94c028ae0c972c25d",
+      "kind": "current_product_source_snapshot_not_a_runtime_result"
+    }
+  ],
+  "next_task": {
+    "id": "S3-F3",
+    "requirements": [
+      "RENDER-002",
+      "RENDER-005"
+    ],
+    "owner_decision": "O-RENDER-03 A: initial alpha deliverable is RGBA PNG sequence",
+    "status": "approved_not_started",
+    "acceptance": [
+      "reuse saved snapshot and integer frame evaluation",
+      "background/alpha configuration save/reload",
+      "nonzero In and rational FPS expected count/no gaps/dimensions/frame hashes",
+      "transparent and translucent edges; alphaMode straight/premultiplied recorded",
+      "named deliverable reread/download",
+      "failure/retry and old versions/source preservation",
+      "manual UI/SDK/native WebMCP and Windows/Linux scopes recorded",
+      "audio delivery semantics explicit; no silent opaque MP4 substitution"
+    ],
+    "scope_exclusions": [
+      "unverified EXR/alpha video must remain unavailable",
+      "no mandatory long OGV",
+      "no new feature requirements"
+    ]
+  },
+  "other_open": [
+    "audio short-window/listening and known stricter-level diagnosis",
+    "all-store Undo and unchecked route combinations",
+    "verified checkpoint resume and Linux forced-stop cleanup",
+    "other codec capability selection",
+    "legacy timed camera migration and sequence4-7 dependencies"
+  ],
+  "model_category": "high capability; no subagents"
+}
