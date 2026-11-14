@@ -611,7 +611,7 @@
       "phase_e_wp": "MOTION-004/DATA-006/UX-001..008",
       "planned_in": "MOTION-ASSIGNMENT-WORKSPACE-20261114",
       "status": "partial_verified",
-      "commit": "4b91028 + final verification record",
+      "commit": "4b91028 + 6c9a5ea + 6c1a602 / PR321 / main b7d9f73195637e5863a58035350f256444ff2eb7 / qa/motion-workspace-integration-20261114.json",
       "tests": "Windows/Ubuntu Python各37、Windows UI/合成/共通時計/接地/物理5、Ubuntu UI1、両OS実CinemaOperator Bake/60F MP4各1、型成功。docs/v05/MOTION_ASSIGNMENT_WORKSPACE_20261114_JA.md",
       "unverified": "all model/format/driver combinations; all Tab, screen reader, 200% zoom; long duration; CAM-019 and sequence3 overall"
     }

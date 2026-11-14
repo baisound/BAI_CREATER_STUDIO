@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T13:08:05+09:00",
+  "updated_at": "2026-11-14T13:21:22+09:00",
   "updated_by": "codex",
   "branch": "codex/motion-assignment-workspace-20261114",
-  "head_at_update": "4b91028",
+  "head_at_update": "6c1a602",
   "current": {
     "task": "#320 モーション割当と3D編集改善のPR/main統合・画面同期",
-    "status": "in_progress",
+    "status": "done",
     "step": "両OSと既存描画/補正/物理/Bakeの限定検証済み。公開画像と正本をPRへまとめmain/8765/制作画面へ同期する。",
     "design_doc": "docs/v05/MOTION_ASSIGNMENT_WORKSPACE_20261114_JA.md"
   },
   "next_steps": [
-    "PR差分/チェックを確認してmainへ統合、8765と開いている制作画面を同期"
+    "未割当案内と統合記録の追補PRを統合して最終制作画面を同期。順3全体/CAM-019の未検証は保持"
   ],
   "unverified": [
-    "全Tab/SR/200%/利用者テスト・全形式/モデル/GPU/長尺・Linux実GPU/nativeGUI/実PMX・CAM-019/順3全体"
+    "実SR/全Tab/200%・全形式/モデル/GPU/長尺・Linux実GPU/nativeGUI/実PMX・CAM-019/順3全体"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T13:21:22+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "6c1a602",
+      "text": "PR321/main b7d9f73へその場割当・大きい3D編集を統合しmain/8765/開いた制作画面と保全対象不変を確認。実画面で見つけた未割当表記も日本語化し新UI回帰1/型成功。"
+    },
     {
       "at": "2026-11-14T13:08:05+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "ba0d74c",
       "text": "DATA-001/006・CAM-001/015・LIP-009・RENDER-006：配置モデル/動き/表情/口/カメラを同じ時計とMP4へ接続。Win/Ubuntu各66、実GPU/実PMX/実ダンスとカメラVMD、60Fと実3F、両MCPと3視点レビューを限定検証。CAM-019の既承認設計を復帰しBlenderカメラ取込B1を次へ差込む。"
-    },
-    {
-      "at": "2026-11-13T08:23:48+09:00",
-      "by": "codex",
-      "event": "start",
-      "head": "7ee8669",
-      "text": "タイムラインのモデル・カメラ・動き・表情を同じ実プレビューと出力へ接続: 保全ブランチに最新mainを統合し、モデル投影と未検証のカメラ/モーション/モーフ評価を実描画・保存復元・MP4で検証して完成へ進める"
     }
   ]
 }
