@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "issue": 327,
+  "base_main": "fe167171f97b2f1ceddfd4f4f07d207a7ec2040f",
+  "requirements": [
+    "RENDER-002",
+    "RENDER-005",
+    "CORE-004"
+  ],
+  "stage": "implementation and scoped final gates PASS; PR/main integration next",
+  "release_complete": false,
+  "scoped_resume_complete": true,
+  "operation": [
+    "書き出し",
+    "処理中・失敗した履歴",
+    "保持枚数を確認",
+    "検証済み連番から再開",
+    "完成ZIPを取得"
+  ],
+  "safety": {
+    "new_uuid": true,
+    "original_checkpoint_immutable": true,
+    "completed_outputs_immutable": true,
+    "original_3d_capture_reused": true,
+    "audio": "full-range regenerate using original absolute sample boundaries",
+    "status_history": "metadata/stat only; resume performs full image and capture decode/hash",
+    "stored_limit_bytes": 2147483648,
+    "archive_limit_bytes": 2147483648,
+    "automatic_checkpoint_cleanup": false
+  },
+  "gates": {
+    "python_windows": {
+      "pass": 85,
+      "skip": 0,
+      "subtests_pass": 5,
+      "log": "qa/png-resume-20261114/python-windows.log"
+    },
+    "python_ubuntu": {
+      "pass": 84,
+      "skip": 1,
+      "subtests_pass": 5,
+      "skip_reason": "Windows-only process-tree test",
+      "log": "qa/png-resume-20261114/python-ubuntu.log"
+    },
+    "typecheck": "PASS",
+    "windows_ui_sdk_native": "PASS final Windows three-test gate (new generated flow, real PMX physics, old MP4)",
+    "ubuntu_sdk_capture": "PASS",
+    "real_pmx_vmd_physics_windows": "PASS; repeat source-capture PNG/WAV equality; source preserved",
+    "screens": [
+      "1440x900",
+      "1024x768",
+      "600x720"
+    ],
+    "windows_e2e_distinct_tests": 3,
+    "ubuntu_e2e_distinct_tests": 1
+  },
+  "findings": [
+    {
+      "id": "RSM-01",
+      "priority": "P1",
+      "target": "sequence_checkpoint.identity",
+      "problem": "render dependency coverage missed mjs and legacy motion",
+      "fix": "recursive JS/MJS/WASM and Python, actual tools and Three bytes",
+      "verification": "PASS three dependency digest mutations refuse409 without source-checkpoint modification"
+    },
+    {
+      "id": "RSM-02",
+      "priority": "P2",
+      "target": "render-job-v69.js resume row",
+      "problem": "capacity increase and reconstruction cost not explained before starting",
+      "fix": "retained same 3D capture and full WAV, extra copy and per-job2GiB stated before button",
+      "verification": "PASS source and rendered screenshot"
+    },
+    {
+      "id": "RSM-03",
+      "priority": "P2",
+      "target": "renderJobs",
+      "problem": "refresh removes open state and keyboard focus",
+      "fix": "preserve details and focused history row/action; focus new job after starting",
+      "verification": "PASS real Chrome Enter/focus/collapsed refresh"
+    },
+    {
+      "id": "RSM-04",
+      "priority": "P1",
+      "target": "3D resume input",
+      "problem": "independent PMX physics recaptures were not byte identical",
+      "fix": "retain verified original FFV1, hash/duplicate it, use the same capture for all remaining PNGs",
+      "verification": "PASS actual PMX/VMD physics ON, retained prefix and original capture SHA, repeat full PNG/WAV equality"
+    },
+    {
+      "id": "RSM-05",
+      "priority": "P1",
+      "target": "media_render.status",
+      "problem": "Ubuntu mounted-filesystem atomic-save existence check could return transient404",
+      "fix": "existence check serialized with writer LOCK",
+      "verification": "PASS threaded regression and Ubuntu real E2E rerun"
+    }
+  ],
+  "reviews": {
+    "first_action": "source scoped PASS after fixes",
+    "workflow": "source scoped PASS after FFV1 retain/lock fixes",
+    "visual_accessibility": "source scoped PASS",
+    "judge": "Root; scoped real gates, broad release remains false",
+    "reviewer_runtime": "NOT TESTED; Root acceptance runs are separate"
+  },
+  "unverified": [
+    "long PNG and actual2GiB stress",
+    "all models/materials/GPU and listening",
+    "Linux real PMX/hardware GPU/settings UI/native WebMCP",
+    "screen reader/full Tab/200% zoom",
+    "MP4 mid-render resume",
+    "mid-3D-capture resume",
+    "EXR/alpha video/other codecs",
+    "sequence3 overall"
+  ],
+  "source_lf_sha256": {
+    "bai_studio/v05/render/media_render.py": "d56636691660be21dc4b3329d8b50226a06aaaa22f3268b4446ef7eba521d93a",
+    "bai_studio/v05/render/png_sequence.py": "01f772bce61033d638f07ab1ad566fdb0e6f8294bbbde069f68858dbb5d68793",
+    "bai_studio/v05/render/sequence_checkpoint.py": "b3225587bfd248464fa842316e0c71c51b84ae7673de8d0302eab62cc8d82222",
+    "server.py": "2f9f2708eef10c553728f2de394fc87c4f77d7058bc7b8be8845a9b16bcefd72",
+    "mcp_server.py": "aaaa4cdcdb21477368d9a837e465606f5839fea97e90a870603f2ff945a7469e",
+    "webmcp.js": "bdbadb6faf36cf78ed7f654a5e02782c89c83a31b7e56be5f1be2d5c642134c7",
+    "studio/v05/js/render-job-v69.js": "d27987d82f756ade9542e47a46d18c5c56c4646033d2ab2711140c87527b6f2c",
+    "studio/v05/css/render-job-v69.css": "73f381ef194290f7b08c4c7afa54e26943498e84868336f0df78c19bdeca485b"
+  },
+  "integration": null,
+  "model_categories": {
+    "design_implementation": "high capability",
+    "three_ui_critics": "standard"
+  }
+}

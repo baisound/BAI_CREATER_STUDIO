@@ -1,0 +1,10 @@
+✔ real failed PNG prefix resumes through SDK/native/UI; exact PNG/WAV and saved-state refusals (261468.178282ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 267303.86536
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

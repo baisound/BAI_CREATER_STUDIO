@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "ui_native": false,
+  "reused_frames": 2,
+  "full_repack": 6,
+  "source_checkpoint_immutable": true,
+  "scene": {
+    "reused_frames": 2,
+    "retained_capture_frames": 3,
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+  },
+  "measurements": {
+    "frames": 6,
+    "all_png_and_wav_bytes_equal": true,
+    "audio": {
+      "file": "audio.wav",
+      "embedded_in_png": false,
+      "codec": "pcm_s24le",
+      "channels": 2,
+      "sample_rate": 48000,
+      "samples": 9610,
+      "project_start_sample": 11211,
+      "project_end_sample_exclusive": 20821,
+      "note": "PNGに音声は含みません。音声のない作品は無音WAVです。",
+      "sha256": "137795414234564c33fd229437a636d31fb6e9c16156836d9ba018f4fa30be43"
+    },
+    "start": 7
+  },
+  "refusals": [
+    "tamper",
+    "other project",
+    "resolution",
+    "settings revision"
+  ],
+  "restart": "durable two-frame prefix only"
+}

@@ -1570,7 +1570,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not 0<length<=8192:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
                 required={'project_id','range_revision','arrangement_revision','resolution'}
-                if not isinstance(body,dict) or not required.issubset(body) or set(body)-required-{'scene_revision','name','collision_mode','replace_job_id','preset','settings_revision'}:
+                if not isinstance(body,dict) or not required.issubset(body) or set(body)-required-{'scene_revision','name','collision_mode','replace_job_id','preset','settings_revision','resume_job_id'}:
                     return self.bad(400,'Invalid render request')
                 result=start(DATA,inventory=unified_assets(),server_port=self.server.server_port,**body)
                 event('v05_render_started',project_id=body['project_id'],job_id=result['id'])

@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "scope": "real PMX/VMD/song, physics ON6sec, nonzero120..122 at29.97; two-frame prefix preserved and identical capture reused; WAV matches normal output; independent physics captures can differ; source read-only",
+  "reused_frames": 2,
+  "physics": "ready",
+  "retained_prefix_bytes_equal": true,
+  "original_capture_sha256_preserved": true,
+  "same_capture_repeat_all_png_wav_equal": true,
+  "wav_bytes_equal": true,
+  "frames": 3,
+  "alpha_min": 0,
+  "alpha_max": 255,
+  "source_unchanged": true
+}

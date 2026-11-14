@@ -108,7 +108,7 @@ def update(data_root, project_id, revision, preset, background):
 def check_size(folder):
     total=sum(p.stat().st_size for p in folder.iterdir() if p.is_file())
     if total>MAX_BYTES:
-        raise SequenceError('PNG連番とWAVの作業領域が2GiBを超えました。In/Outを短くして再試行してください。')
+        raise SequenceError('PNG・WAV・再開用3Dの作業領域が2GiBを超えました。In/Outを短くして再試行してください。')
     return total
 
 

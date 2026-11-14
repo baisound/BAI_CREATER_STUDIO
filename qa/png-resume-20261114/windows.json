@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "ui_native": true,
+  "reused_frames": 2,
+  "full_repack": 6,
+  "source_checkpoint_immutable": true,
+  "scene": {
+    "reused_frames": 2,
+    "retained_capture_frames": 3,
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "measurements": {
+    "frames": 6,
+    "all_png_and_wav_bytes_equal": true,
+    "audio": {
+      "file": "audio.wav",
+      "embedded_in_png": false,
+      "codec": "pcm_s24le",
+      "channels": 2,
+      "sample_rate": 48000,
+      "samples": 9610,
+      "project_start_sample": 11211,
+      "project_end_sample_exclusive": 20821,
+      "note": "PNGに音声は含みません。音声のない作品は無音WAVです。",
+      "sha256": "944d3c5a914429f5369f2c5006a6f07ff1e3ca07fce344f685067ed3aa06b177"
+    },
+    "start": 7
+  },
+  "refusals": [
+    "tamper",
+    "other project",
+    "resolution",
+    "settings revision"
+  ],
+  "restart": "durable two-frame prefix only"
+}
