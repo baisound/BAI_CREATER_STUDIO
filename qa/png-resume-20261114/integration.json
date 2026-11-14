@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "pr": 328,
+  "main_commit": "35bbc84ba527cc0f5db3997f7e5d6d2fd3e20877",
+  "production_port": 8765,
+  "http_source_matches_main": true,
+  "mp4_png_available": true,
+  "resume_api_invalid_id_refused_before_job_creation": true,
+  "existing_tab_reloaded": true,
+  "saved_settings_and_old_completed_outputs_preserved": true,
+  "owner_assets_settings_jobs_not_modified": true,
+  "runtime_process_note": "Listener PID introspection was unavailable behind the local proxy. Exact command lines identified the old and temporary owned servers; after checking zero active jobs, both were stopped and a single updated main server started. Updated API behavior was verified.",
+  "unverified": "long2GiB/all models/environments, SR/full Tab/200%, Linux owner PMX/UI/native, MP4 or mid-capture resume; sequence3 overall incomplete"
+}

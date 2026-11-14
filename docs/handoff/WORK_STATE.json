@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T20:42:49+09:00",
+  "updated_at": "2026-11-14T20:49:28+09:00",
   "updated_by": "codex",
   "branch": "codex/png-sequence-resume-20261114",
-  "head_at_update": "0ab629a",
+  "head_at_update": "2072c33",
   "current": {
     "task": "#327 検証済みPNG連番からの再開",
     "status": "done",
-    "step": "保持領域と同一性照合・別ジョブ再開を設計し、実装と隔離試験へ進む",
+    "step": "実装/限定検証/PR #328 main統合・8765/既存制作画面同期を完了。残件と未検証を保持",
     "design_doc": "docs/v05/PNG_RESUME_20261114_JA.md"
   },
   "next_steps": [
-    "検証済み差分のPR・main統合後、8765と既存制作画面を同期。その後は順3既承認残件を正本で照合"
+    "順3の次の既承認残件を正本で照合（codec能力/選択・EXR等）。MP4/3D撮影途中再開、長尺/全環境、順4〜7依存と低優先OGVを保持"
   ],
   "unverified": [
     "長尺/実2GiB・全モデル材質GPU・Linux実PMX/UI/native・SR/全Tab/200%・MP4/3D撮影途中再開・EXR/他codec・順3全体"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-14T20:49:28+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "2072c33",
+      "text": "#327 PR #328をmain35bbc84へマージ。8765の更新API/配信バイトと既存制作タブを同期。既存データ・完成物・dirty変更不変。限定検証の結果と制限を確定"
+    },
     {
       "at": "2026-11-14T20:42:49+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "62961ba",
       "text": "CAM-019：CinemaOperator本体の登録・起動・Bake結果連携: Issue238の既承認A〜Dを再開。配布ZIPを静的検査し、別名作業コピーと対応形式を確定。実アドオンの可視UI/Bakeから既存カメラ候補へ戻す。"
-    },
-    {
-      "at": "2026-11-13T12:48:44+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "2fb5784",
-      "text": "CAM-019-B1の公開用記録は製品機能・生成fixtureの試験・統合コミットに限定。利用環境や素材の集約値など詳細はOwner指定ローカルEvidenceへ保持し、製品コードは変更していない。"
     }
   ]
 }

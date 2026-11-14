@@ -7,7 +7,7 @@
     "RENDER-005",
     "CORE-004"
   ],
-  "stage": "implementation and scoped final gates PASS; PR/main integration next",
+  "stage": "scoped implementation/verification merged to main; 8765 and existing production tab synchronized",
   "release_complete": false,
   "scoped_resume_complete": true,
   "operation": [
@@ -123,7 +123,18 @@
     "studio/v05/js/render-job-v69.js": "d27987d82f756ade9542e47a46d18c5c56c4646033d2ab2711140c87527b6f2c",
     "studio/v05/css/render-job-v69.css": "73f381ef194290f7b08c4c7afa54e26943498e84868336f0df78c19bdeca485b"
   },
-  "integration": null,
+  "integration": {
+    "pr": 328,
+    "main_commit": "35bbc84ba527cc0f5db3997f7e5d6d2fd3e20877",
+    "server_port": 8765,
+    "source_http_match": true,
+    "resume_api_verified": true,
+    "production_tab_reloaded": true,
+    "saved_project_settings_preserved": true,
+    "original_assets_and_outputs_unchanged": true,
+    "owner_test_jobs_created": false,
+    "evidence": "qa/png-resume-20261114/integration.json"
+  },
   "model_categories": {
     "design_implementation": "high capability",
     "three_ui_critics": "standard"

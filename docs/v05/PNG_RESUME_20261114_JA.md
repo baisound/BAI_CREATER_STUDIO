@@ -33,3 +33,8 @@ PythonはWindows85成功・Ubuntu84成功/Windows専用1skip、各追加5subtest
 手動UIは1440/1024/600幅、Enter再開・成功後の新ジョブfocus・履歴開状態、標準MCPと本物のネイティブWebMCPをWindowsで確認。UbuntuはSDKと実Chromium撮影を確認し、設定UI/native/実PMXは未検証。3視点のソース批評は限定PASS、実操作はRootのゲートとして別記する。
 
 ![①保持枚数、②続きから再開（実装済み・生成素材）](../../studio/v05/reviews/png-resume-20261114/resume-marked.png)
+
+
+## mainと制作画面の同期
+
+PR #328 / main35bbc84。利用者mainをfast-forwardし、更新後HTML/出力JS/CSS/WebMCPの配信バイト一致、PNG/MP4能力、新resume APIの不正ID拒否を確認。待受PID情報を取得できないローカルプロキシ環境だったため、コマンド行で自分の旧/仮サーバーだけを特定し、進行中出力0件を再確認して1つの更新mainサーバーへ揃えた。既存制作タブを再読込し、保存済み設定と完成履歴を確認。Owner作品へ試験ジョブや設定を保存していない。既存の未割当モーションは未割当の理由を保持し、勝手に割り当てていない。素材/作品/旧完成物と既存dirty変更は不変。詳細な画面/保全記録はOwner確認先、公開同期記録はqa/png-resume-20261114/integration.json。
