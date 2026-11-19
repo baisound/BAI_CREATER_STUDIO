@@ -1,0 +1,81 @@
+{
+  "status": "PASS",
+  "platform": "linux",
+  "apiOnly": true,
+  "measured": {
+    "pixels": [
+      [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          200,
+          80,
+          40,
+          129
+        ],
+        [
+          10,
+          210,
+          90,
+          255
+        ]
+      ],
+      [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          200,
+          80,
+          40,
+          129
+        ],
+        [
+          10,
+          210,
+          90,
+          255
+        ]
+      ],
+      [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          200,
+          80,
+          40,
+          129
+        ],
+        [
+          10,
+          210,
+          90,
+          255
+        ]
+      ]
+    ],
+    "samples": 4805,
+    "frames": 3,
+    "audio_exact": true
+  },
+  "sceneAlpha": {
+    "alpha_min": 0,
+    "alpha_max": 255,
+    "visible_pixels": 338781
+  },
+  "sdk": true,
+  "native": false,
+  "manual": false,
+  "old_output_unchanged": true
+}

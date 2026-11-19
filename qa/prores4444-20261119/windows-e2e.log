@@ -1,0 +1,17 @@
+TAP version 13
+# Subtest: 4444 alpha/color/PCM roundtrip, saved UI/SDK/native and transparent 3D MOV
+ok 1 - 4444 alpha/color/PCM roundtrip, saved UI/SDK/native and transparent 3D MOV
+  ---
+  duration_ms: 13579.6197
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 18780.5365
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

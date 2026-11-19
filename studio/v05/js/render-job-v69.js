@@ -15,7 +15,7 @@
   let pngOption=[...format.options].find(o=>/PNG/i.test(o.textContent));
   if(!pngOption){pngOption=new Option('PNG連番＋WAV（ZIP）','png_rgba_zip');format.add(pngOption,1);}
   pngOption.value='png_rgba_zip';pngOption.textContent='PNG連番（ZIP）';pngOption.disabled=false;
-  for(const [id,label] of [['mp4_hevc_aac','MP4 / H.265 + AAC'],['mp4_vp9_aac','MP4 / VP9 + AAC'],['mp4_av1_aac','MP4 / AV1 + AAC'],['mov_prores_pcm','MOV / ProRes 422 HQ + PCM']]){
+  for(const [id,label] of [['mp4_hevc_aac','MP4 / H.265 + AAC'],['mp4_vp9_aac','MP4 / VP9 + AAC'],['mp4_av1_aac','MP4 / AV1 + AAC'],['mov_prores_pcm','MOV / ProRes 422 HQ + PCM'],['mov_prores4444_pcm','MOV / ProRes 4444 + PCM（透過対応）']]){
     const option=new Option(label,id);option.disabled=true;format.add(option);
   }
   format.disabled = false;
@@ -49,13 +49,13 @@
   const nameInput = $('v69name'), nameMode = $('v69nameMode'), nameHint = $('v69nameHint');
   settings.querySelector('input[type=checkbox][disabled]')?.closest('p')?.remove();
   const exportOptions=document.createElement('div');exportOptions.id='v69exportOptions';
-  exportOptions.innerHTML='<label for="v69background">背景</label><select id="v69background"><option value="solid">単色</option><option value="transparent">透過（PNG連番）</option></select><label for="v69backgroundColor">背景色（#RRGGBB）</label><input id="v69backgroundColor" type="text" value="#000000" maxlength="7" autocomplete="off" spellcheck="false" aria-describedby="v69settingsStatus"><div class="baiRow"><button type="button" id="v69saveSettings">形式・背景を保存</button><button type="button" id="v69reloadSettings">保存済みを再読込</button></div><p id="v69settingsStatus" class="baiTiny" role="status"></p><p id="v69sequenceHelp" class="baiTiny" hidden>ZIPにRGBA PNG連番と別ファイルのWAVを保存します。PNGに音声は含みません。音声のない作品は無音WAVです。PNG＋WAV・ZIPは各2GiB以内です。</p>';
+  exportOptions.innerHTML='<label for="v69background">背景</label><select id="v69background"><option value="solid">単色</option><option value="transparent">透過（PNG / ProRes 4444）</option></select><label for="v69backgroundColor">背景色（#RRGGBB）</label><input id="v69backgroundColor" type="text" value="#000000" maxlength="7" autocomplete="off" spellcheck="false" aria-describedby="v69settingsStatus"><div class="baiRow"><button type="button" id="v69saveSettings">形式・背景を保存</button><button type="button" id="v69reloadSettings">保存済みを再読込</button></div><p id="v69settingsStatus" class="baiTiny" role="status"></p><p id="v69sequenceHelp" class="baiTiny" hidden>ZIPにRGBA PNG連番と別ファイルのWAVを保存します。PNGに音声は含みません。音声のない作品は無音WAVです。PNG＋WAV・ZIPは各2GiB以内です。</p>';
   format.parentNode.insertBefore(exportOptions,format.nextSibling);
   exportOptions.insertAdjacentHTML('beforebegin','<p id="v69codecStatus" class="baiTiny" role="status">コーデックを確認中…</p><button id="v69checkCodecs" type="button">対応状況を再確認</button><details id="v69codecDetails"><summary>各コーデックの確認結果</summary><div id="v69codecResults"></div></details>');
   let exportSaved=null,exportBusy=false,codecBusy=true,codecSeq=0,codecRows=[],pngAvailable=false,measuredContext=null;
   const choice=()=>({preset:format.value,resolution:resolution.value,background:{kind:$('v69background').value,color:$('v69backgroundColor').value.toLowerCase()}});
   const dirty=()=>!exportSaved||JSON.stringify(choice())!==JSON.stringify({preset:exportSaved.preset,resolution:exportSaved.resolution||'720p',background:exportSaved.background});
-  const invalidChoice=()=>!/^#[0-9a-f]{6}$/i.test($('v69backgroundColor').value)?'背景色を#RRGGBBで入力してください。':format.value!=='png_rgba_zip'&&$('v69background').value==='transparent'?'MP4/MOVは透過できません。単色背景を選んで保存するか、PNG連番を選んでください。':null;
+  const invalidChoice=()=>!/^#[0-9a-f]{6}$/i.test($('v69backgroundColor').value)?'背景色を#RRGGBBで入力してください。':!['png_rgba_zip','mov_prores4444_pcm'].includes(format.value)&&$('v69background').value==='transparent'?'この形式は透過できません。PNG連番かProRes 4444を選ぶか、単色背景を選んで保存してください。':null;
   function settingsChanged(){
     const bad=invalidChoice();
     $('v69backgroundColor').disabled=exportBusy;
@@ -68,10 +68,10 @@
     $('v69saveSettings').disabled=exportBusy||codecBusy||!available||!exportSaved||exportSaved.project_id!==activeProject()||!dirty()||Boolean(bad);
     $('v69reloadSettings').disabled=exportBusy;
     button.disabled=exportBusy||codecBusy||!available||dirty()||Boolean(bad)||!context||Boolean(context.reason)||Boolean(context.running);
-    button.textContent=format.value==='png_rgba_zip'?'PNG連番＋WAVを書き出す':format.value==='mov_prores_pcm'?'ProRes MOVを書き出す':'実MP4を書き出す';
+    button.textContent=format.value==='png_rgba_zip'?'PNG連番＋WAVを書き出す':format.value.startsWith('mov_prores')?'ProRes MOVを書き出す':'実MP4を書き出す';
     $('v69checkCodecs').disabled=codecBusy||!context;
     if(!codecBusy){const row=codecRows.find(r=>r.id===format.value);$('v69codecStatus').textContent=format.value==='png_rgba_zip'?(pngAvailable?'PNG連番＋別WAV：利用できます':'PNG連番の対応環境を確認してください'):row?(row.available?`${row.label}：${row.width}×${row.height} / ${row.fps} fpsで試験出力・復号済み`:row.reason):'この形式は未対応です。対応済みの形式を選んでください。';}
-    if($('v69audioQuality'))$('v69audioQuality').textContent=format.value==='png_rgba_zip'?'別WAV：48kHz・24bit PCM（PNGに音声は含みません）':format.value==='mov_prores_pcm'?'音声：48kHz・24bit PCM':'音声：AAC 320 kb/s';
+    if($('v69audioQuality'))$('v69audioQuality').textContent=format.value==='png_rgba_zip'?'別WAV：48kHz・24bit PCM（PNGに音声は含みません）':format.value.startsWith('mov_prores')?'音声：48kHz・24bit PCM':'音声：AAC 320 kb/s';
   }
   function applySettings(d){exportSaved=d;format.value=d.preset;resolution.value=d.resolution||'720p';$('v69background').value=d.background.kind;$('v69backgroundColor').value=d.background.color;settingsChanged();void previewName();}
   async function checkCodecs(refresh=false){
@@ -109,7 +109,7 @@
   $('v69status').insertAdjacentHTML('beforebegin', '<p id="v69audioQuality" class="baiTiny"></p>');
   const activeProject = () => $('v06project')?.value || '';
   const downloadName = job => {
-    const filename = job.download_name || `BAI-${job.project_id}-${job.id.slice(0, 8)}${job.preset==='png_rgba_zip'?'.zip':job.preset==='mov_prores_pcm'?'.mov':'.mp4'}`;
+    const filename = job.download_name || `BAI-${job.project_id}-${job.id.slice(0, 8)}${job.preset==='png_rgba_zip'?'.zip':job.preset?.startsWith('mov_prores')?'.mov':'.mp4'}`;
     return job.delivery_state === 'archived' ? filename.replace(/(\.mp4|\.zip|\.mov)$/i, `-旧版-${job.id.slice(0, 8)}$1`) : filename;
   };
   const sizeLabel = bytes => Number.isFinite(bytes) ? `${(bytes / 1024 / 1024).toFixed(2)} MB` : '容量不明';
@@ -168,7 +168,7 @@
     if(isSequence)png.src=`/api/studio/v05/render/preview?id=${encodeURIComponent(job.id)}`;else png.removeAttribute('src');
     video.pause();
     const codec=job.probe?.video_codec||'h264';
-    const mime=codec==='prores'?'video/quicktime; codecs="apch"':codec==='hevc'?'video/mp4; codecs="hvc1"':codec==='av1'?'video/mp4; codecs="av01.0.05M.08"':codec==='vp9'?'video/mp4; codecs="vp09.00.10.08"':'video/mp4; codecs="avc1.42E01E"';
+    const mime=codec==='prores'?(job.preset==='mov_prores4444_pcm'?'video/quicktime; codecs="ap4h"':'video/quicktime; codecs="apch"'):codec==='hevc'?'video/mp4; codecs="hvc1"':codec==='av1'?'video/mp4; codecs="av01.0.05M.08"':codec==='vp9'?'video/mp4; codecs="vp09.00.10.08"':'video/mp4; codecs="avc1.42E01E"';
     const unsupported=!isSequence&&!video.canPlayType(mime);
     let note=preview.querySelector('#v69playbackNote');if(!note){note=document.createElement('p');note.id='v69playbackNote';note.className='baiTiny';note.setAttribute('role','status');preview.append(note);}
     note.hidden=!unsupported;note.textContent=unsupported?'このブラウザでは再生できない形式です。完成ファイルを取得して、対応する編集・再生アプリで確認してください。':'';
@@ -405,8 +405,8 @@
         const job = await get(`/api/studio/v05/render/jobs?id=${encodeURIComponent(jobId)}`);
         if (projectId !== activeProject()) { stopPolling(); return; }
         const message=job.status === 'running' || job.status === 'queued'
-          ? `${job.phase === 'capturing_3d' ? '3Dフレームを実描画中' : job.preset==='png_rgba_zip'?'PNG連番とWAVを生成・検品中':job.preset==='mov_prores_pcm'?'ProRes MOVを生成中':'実MP4を生成中'}: ${job.progress_percent || 0}%` :
-            job.status === 'succeeded' ? (job.preset==='png_rgba_zip'?'PNG連番とWAVを完成・再読込しました。ZIPを受け取れます。':job.preset==='mov_prores_pcm'?'ProRes MOVを完成・再読込しました。':'実MP4を完成・再読込しました。') : `書き出し失敗: ${job.error || job.status}`;
+          ? `${job.phase === 'capturing_3d' ? '3Dフレームを実描画中' : job.preset==='png_rgba_zip'?'PNG連番とWAVを生成・検品中':job.preset?.startsWith('mov_prores')?'ProRes MOVを生成中':'実MP4を生成中'}: ${job.progress_percent || 0}%` :
+            job.status === 'succeeded' ? (job.preset==='png_rgba_zip'?'PNG連番とWAVを完成・再読込しました。ZIPを受け取れます。':job.preset?.startsWith('mov_prores')?'ProRes MOVを完成・再読込しました。':'実MP4を完成・再読込しました。') : `書き出し失敗: ${job.error || job.status}`;
         await jobs(projectId);
         if(projectId!==activeProject())return;
         status(message);
@@ -520,7 +520,7 @@
       if (!response.ok) throw Error(job.error || `HTTP ${response.status}`);
       created = true;
       if(activeProject()!==submitted.projectId)return;
-      status(savedChoice.preset==='png_rgba_zip'?'PNG連番とWAVの書き出しを開始しました。':savedChoice.preset==='mov_prores_pcm'?'ProRes MOVの書き出しを開始しました。':'実MP4の書き出しを開始しました。');
+      status(savedChoice.preset==='png_rgba_zip'?'PNG連番とWAVの書き出しを開始しました。':savedChoice.preset.startsWith('mov_prores')?'ProRes MOVの書き出しを開始しました。':'実MP4の書き出しを開始しました。');
       context.running=true;settingsChanged();
       await jobs(submitted.projectId);
       watch(job.id, submitted.projectId);

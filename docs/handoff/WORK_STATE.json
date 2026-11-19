@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-19T15:25:56+09:00",
+  "updated_at": "2026-11-19T15:37:19+09:00",
   "updated_by": "codex",
   "branch": "codex/prores4444-roadmap-20261119",
-  "head_at_update": "99336be",
+  "head_at_update": "99e1899",
   "current": {
     "task": "ロードマップ一覧の更新と順3 ProRes4444透過動画",
-    "status": "in_progress",
+    "status": "done",
     "step": "既承認RENDER-002/004/005/006の一単位を実装・代表検証。網羅試験や他形式へ拡張しない",
     "design_doc": "docs/v05/PRORES4444_20261119_JA.md"
   },
   "next_steps": [
-    "順3の次の既承認残件を正本で照合。EXR/アルファ動画/MP4途中再開、長尺/全条件/全環境と順4〜7依存・低優先OGVは未完を保持"
+    "順3の既承認必須残件：MP4を検証済みフレームから再エンコードして復旧する単位へ。全codec/モデル/長尺の網羅へ広げず、必要範囲後は順4 PMX表情・口へ進む"
   ],
   "unverified": [
-    "長尺/実2GiB・全モデル材質/ICC/HDR/全条件・聴感/HW encoder・Linux実PMX/UI/native・SR/全Tab/200%・EXR/アルファ動画/MP4途中再開・順3全体"
+    "順3全体、EXR、MP4再エンコード復旧、全材質/モデル/FPS/解像度/長尺/聴感、外部編集アプリ往復、Linux手動/native、SR/全Tab/200%"
   ],
   "blockers": [],
   "owner_questions": [],
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-19T15:37:19+09:00",
+      "by": "codex",
+      "event": "done",
+      "head": "99e1899",
+      "text": "#333 ProRes4444透過MOVの実装・代表検証済み。main統合/8765同期の結果はIssue333とOwner確認Evidenceへ記録"
+    },
     {
       "at": "2026-11-19T15:25:56+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "29055c0",
       "text": "PR316をmain a27545bへ統合し、8765のmain応答/登録版保持と既存制作画面の更新を確認。両OS各83・Win Node7/最終cache・Ubuntu最終E2E、実PMX GUI/MP4成功。"
-    },
-    {
-      "at": "2026-11-14T05:42:22+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "edbe1ee",
-      "text": "PR316：PMX/VMDの動き・表情/口の撮影コピーとnativeBake往復を限定検証。Windows/Ubuntu Python各83、Windows関連Node7と最終cache、Ubuntu E2E、型成功。実PMX GUI50mm/Bake/採用/60F MP4。依存保護の最終確認後main同期。"
     }
   ]
 }

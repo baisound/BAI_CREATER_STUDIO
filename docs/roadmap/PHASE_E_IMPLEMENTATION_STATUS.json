@@ -222,6 +222,15 @@
       "id": "F-DOF-01",
       "implementation_assessment": "Phase Fへ繰越・実DOFレンダリング未検証",
       "release_complete": false
+    },
+    {
+      "item": "ProRes4444透過MOVとロードマップ一覧",
+      "phase_e_wp": "RENDER-002/004/005/006、#333",
+      "planned_in": "PRORES4444-20261119",
+      "status": "partial_verified",
+      "commit": "same commit as docs/v05/PRORES4444_STATUS_20261119.json",
+      "tests": "Windows/Ubuntu各Python44成功、Win UI/SDK/native/3D1・既存5codec回帰1、Ubuntu SDK/API/3D1。型成功。先行UI待機1失敗を保存、完了待機へ修正して成功。非0In F7..9/29.97fps、RGBA全3F・PCM4805samples完全一致、旧MOV保持。",
+      "unverified": "長尺/全モデル/全解像度/FPS/GPU・編集ソフト相互運用・Linux手動UI/native、HDR/高精度入力、EXR/MP4再エンコード復旧、順3全体"
     }
   ],
   "recovery_notes": [

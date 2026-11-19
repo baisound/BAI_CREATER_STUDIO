@@ -863,7 +863,8 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             except mixer.MixerError as exc:
                 raise RenderError(str(exc),exc.status) from exc
         graph, frames, duration = _graph(clips, fps, width, height,
-                                         job["range_start_frame"], job["range_end_exclusive"], scene_index, mixed_index, job["background"] if sequence else None)
+                                         job["range_start_frame"], job["range_end_exclusive"], scene_index, mixed_index,
+                                         job["background"] if sequence or job.get('codec_spec',{}).get('alpha') else None)
         if sequence and reused:
             graph = graph.replace('[vout]', '[vfull]')
             graph += (';[vfull]nullsink' if reused == frames else
