@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-19T16:50:25+09:00",
+  "updated_at": "2026-11-19T17:03:54+09:00",
   "updated_by": "codex",
-  "branch": "codex/mp4-frame-recovery-20261119",
-  "head_at_update": "ffd1af6",
+  "branch": "codex/lip-segment-editor-20261119",
+  "head_at_update": "93eae05",
   "current": {
-    "task": "順3 検証済み連番からMP4を再生成して復旧",
-    "status": "done",
-    "step": "既存PNG checkpointを任意のMP4復旧へ接続。代表検証・main/8765同期まで。網羅へ拡張しない",
-    "design_doc": "docs/v05/MP4_FRAME_RECOVERY_20261119_JA.md"
+    "task": "順4 PMX口形下書きの区間分割・削除・取消",
+    "status": "in_progress",
+    "step": "既存LIP-001/003の下書き編集を一単位で実用化。保存/VMD/実PMXの代表検証とmain同期まで",
+    "design_doc": "docs/v05/LIP_SEGMENT_EDITOR_20261119_JA.md"
   },
   "next_steps": [
     "順4：PMXの表情・口の編集と実用化の既承認残件へ進む。順3のEXR/他codec復旧/全条件等は保持し、網羅試験を次への停止条件に追加しない"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-19T17:03:54+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "93eae05",
+      "text": "順4 PMX口形下書きの区間分割・削除・取消: 既存LIP-001/003の下書き編集を一単位で実用化。保存/VMD/実PMXの代表検証とmain同期まで"
+    },
     {
       "at": "2026-11-19T16:50:25+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "start",
       "head": "1b8c6a1",
       "text": "MOTION-019/CAM-019：タイムラインPMX物理の通し検証とmain同期: 基本物理・静的再準備・保存通知再生成の回帰成功。実Blender/実PMX/両OS/UIレビューを確認する。"
-    },
-    {
-      "at": "2026-11-14T06:48:06+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "1b8c6a1",
-      "text": "MOTION-019/CAM-019：固定60Hz物理cache、PMX別保存/UI/両MCP/出力を実装。型/新Python1/Node計算3/実Ammo・逆seek・静的再準備・45F MP4 1成功。実Blender往復と両OS回帰は次段階。"
     }
   ]
 }
