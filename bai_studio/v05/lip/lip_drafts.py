@@ -95,7 +95,7 @@ def read(root, catalog, source_root, reading_root, project_id):
         source_by_id = {source['id']: source for source in sources}
         reading_by_key = {(row['srtSourceId'], row['srtIndex']): row for row in readings}
         project = next(row for row in load_catalog(catalog)['projects'] if row.get('id') == project_id)
-        fps = project.get('fps', 30)
+        fps = project.get('fps', 60)
         result = []
         for row in data['drafts']:
             source = source_by_id.get(row['srtSourceId'])

@@ -44,6 +44,7 @@ test('v0.5 SRT UI adopts lip VMD over original motion while keeping manual face 
     const project=await json(await fetch(`${server.base}/api/studio/v05/projects`,{method:'POST',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'口形VMD実PMX隔離',kind:'empty'})}));
     const projectId=project.project.id,assetId=`mmd:A:${modelName}`;
+    await json(await fetch(`${server.base}/api/studio/v05/project/fps`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,fps:30})}));
     const scene=await json(await fetch(`${server.base}/api/studio/v05/scene/instances`,{method:'POST',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,action:'add',revision:0,
         asset_id:assetId,transform:{position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]}})}));
@@ -63,8 +64,8 @@ test('v0.5 SRT UI adopts lip VMD over original motion while keeping manual face 
         entries:entriesByShape,confirmed:true})}));
     browser=await server.launchBrowser();page=await server.newPage(browser);
     await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.getByRole('button',{name:'制作',exact:true}).click();
     await page.locator('#v06project').selectOption(projectId);
-    await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('#v187-srt-panel > summary').click();
     await page.waitForFunction(()=>document.querySelector('#v187-status')?.textContent.includes('0件'));
     const originalSrt=Buffer.from('1\r\n00:00:01,000 --> 00:00:03,000\r\nあい\r\n');
@@ -159,14 +160,16 @@ test('v0.5 SRT UI adopts lip VMD over original motion while keeping manual face 
       composedBytes.byteOffset,composedBytes.byteOffset+composedBytes.byteLength),false);
     const compositeMouth=new Map(composedMotion.morphs.map(row=>[`${row.morphName}:${row.frameNum}`,row.weight]));
     await page.reload();
+    await page.getByRole('button',{name:'制作',exact:true}).click();
     await page.locator('#v06project').selectOption(projectId);
-    await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('#v187-srt-panel > summary').click();
     await page.waitForFunction(()=>document.querySelector('#v199-adoption-status')?.textContent.includes('採用中'));
     await page.locator('#v197-export-panel > summary').click();
     await page.locator('#v70sceneOpen').click();
     await page.waitForFunction(()=>window.BAIStudioMultiScenePreview?.status().loaded===1&&
       window.BAIStudioMultiScenePreview?.status().motion?.loadedClips.length===1,null,{timeout:120000});
+    await page.getByRole('button',{name:'タイムラインへ戻る',exact:true}).click();
+    await page.waitForFunction(()=>window.BAIStudioMultiScenePreview.status().composite&&window.BAIStudioMultiScenePreview.status().ready);
     const read=async frame=>{
       await page.evaluate(frame=>window.BAIStudioTimeline.seek(frame/30,'lip-vmd-real-test'),frame);
       await page.waitForTimeout(250);

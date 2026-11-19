@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "date": "2026-11-19",
+  "issue": 187,
+  "requirement_ids": [
+    "LIP-001",
+    "LIP-003"
+  ],
+  "baseline_main": "93eae052e0514eebae1f7a7d3e2e22c798c2ce63",
+  "status": "representative_verified_requirement_open",
+  "scope": "同一発話の口形下書きの分割・削除・32操作の取消/再実行と既存保存/VMD/PMX/MP4経路",
+  "source_lf_sha256": {
+    "studio/v05/js/lip-draft-edit.mjs": "f831e3772630d3afa71ba294783da63f8c0eb34495cfbb936f95ce7b85404f45",
+    "studio/v05/js/srt-source-ui-v187.js": "19616daf24387703d009fcb5821a8ee50b85879af1a6c177b56bdc153304dc5b",
+    "studio/v05/css/srt-source-v187.css": "3acb6b639dd7236014154cf64ec0748daa50105f52d7d33c01c61214b2fad0c5",
+    "bai_studio/v05/lip/lip_candidates.py": "00a8ab10ea660e86a69b2cf0eb61ef10299987df065351b3681d0f3b42c9aa7a",
+    "bai_studio/v05/lip/lip_drafts.py": "b1b586a99ab400e13e0c448bee6e396cd30808c31533e554d648b394fdb7d440"
+  },
+  "gates": {
+    "local_history": {
+      "pass": 3
+    },
+    "python_windows": {
+      "pass": 34,
+      "skip": 1
+    },
+    "python_ubuntu": {
+      "pass": 34,
+      "skip": 1
+    },
+    "windows_ui_sdk_native_pmx_mp4": {
+      "pass": 1
+    },
+    "ubuntu_ui_sdk_pmx_mp4": {
+      "pass": 1,
+      "native": "NOT TESTED"
+    },
+    "windows_existing_srt_and_pmx_export_regression": {
+      "pass": 2
+    },
+    "typecheck": "PASS",
+    "ui_detector": "PASS []"
+  },
+  "skip_reason": "既存実歌声入力試験のBAI_REAL_LIP_VMD未指定。別の実PMX表示/候補出力は実施して成功。",
+  "fps_fix": {
+    "before": "fps未保存作品では口形30fps、映像60fps",
+    "after": "両者60fps、明示FPSを保持",
+    "existing_draft": "既存30fps下書きはfps_changedで失効表示。保存値/ファイルを自動変換しない。"
+  },
+  "ui_findings": [
+    {
+      "id": "LSE-01",
+      "priority": "P1",
+      "target": "口形下書き行/操作列",
+      "proposal": "同じ行で分割・削除、同じパネルで取消/再実行",
+      "implementation": "done",
+      "verification": "PASS Windows/Ubuntuの保存再読込・競合・取消・SDK、Windows native"
+    },
+    {
+      "id": "LSE-02",
+      "priority": "P1",
+      "target": "srt-source-v187.css draft row",
+      "proposal": "4列から2列にしてサイドバーの開始/終了欄を表示",
+      "implementation": "done",
+      "verification": "PASS 1440/1024 screenshots inspected"
+    },
+    {
+      "id": "LSE-03",
+      "priority": "P1",
+      "target": "lip_candidates/lip_drafts default project FPS",
+      "proposal": "映像と同じ60fps既定に揃え既存下書きを失効保護",
+      "implementation": "done",
+      "verification": "PASS missing/24/29.97/30/60 and old draft bytes; actual PMX/MP4 default60"
+    }
+  ],
+  "initial_failures": [
+    {
+      "evidence": "Owner evidence / raw_logs / python-windows-sandbox-failure.log",
+      "cause": "sandbox socket WinError10013",
+      "resolution": "同一試験を昇格実行、最終成功"
+    },
+    {
+      "evidence": "Owner evidence / raw_logs / windows-e2e-initial.log",
+      "cause": "試験のブラウザー述語でNode page参照",
+      "resolution": "試験修正後成功"
+    },
+    {
+      "evidence": "Owner evidence / raw_logs / windows-e2e-clock-wait.log",
+      "cause": "PMX口形の反映待機タイムアウト",
+      "resolution": "FPS不一致を特定して修正"
+    },
+    {
+      "evidence": "Owner evidence / raw_logs / windows-e2e-fps-mismatch.log / ubuntu-e2e-fps-mismatch.log",
+      "cause": "製品のFPS未指定30/60不一致",
+      "resolution": "既定値を揃え最終両OS成功。private診断はOwner evidenceに保持"
+    },
+    {
+      "evidence": "Owner evidence / raw_logs / python-old-fps-fixture.log",
+      "cause": "旧試験が明示30fpsを前提としたfixture",
+      "resolution": "既存試験へ明示30fpsを追加。既定値は別の実経路で60fps確認"
+    },
+    {
+      "evidence": "Owner evidence / raw_logs / regression-old-modal-entry.log",
+      "cause": "旧試験が大きい3D画面を閉じず外側の操作へ進んだ",
+      "resolution": "現行の「タイムラインへ戻る」を経由して最終回帰成功"
+    }
+  ],
+  "evidence": [
+    "qa/lip-segment-editor-20261119/windows.json",
+    "qa/lip-segment-editor-20261119/ubuntu.json",
+    "studio/v05/reviews/lip-segment-editor-20261119/segments-1440.png",
+    "studio/v05/reviews/lip-segment-editor-20261119/segments-1024.png"
+  ],
+  "unverified": [
+    "実歌詞54発話の読み確定・新規採用と自然さ",
+    "全PMX/全FPS/長尺/全編集操作の組合せ",
+    "LinuxネイティブWebMCP・Windows以外の実機GUI",
+    "全Tab順・スクリーンリーダー・200%拡大",
+    "旧30fps下書きの自動変換（実装しない）",
+    "順4全体と順3の広い未完要件"
+  ],
+  "integration": "same implementation commit; final PR/main/8765 receipt in Issue187 and Owner FINAL_MAIN.json",
+  "next": "順4の既承認PMX表情・口の残る実用経路を一単位で進める。境界網羅へ拡張しない。",
+  "model_category": "high; no subagents",
+  "publication_review": {
+    "initial": "auto-review rejected commit/push because failed-run logs may expose model metadata",
+    "resolution": "All failed-run/raw diagnostic logs excluded from Git; originals retained only under Owner evidence. Final public logs read back and checked for model identifiers and paths."
+  }
+}
