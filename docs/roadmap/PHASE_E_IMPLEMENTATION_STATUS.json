@@ -240,6 +240,15 @@
       "commit": "same commit as docs/v05/MP4_FRAME_RECOVERY_STATUS_20261119.json",
       "tests": "Windows/Ubuntuの設定/連番対象Python、Win手動/SDK/nativeとUbuntu SDK/API、実短縮PNG/encoder失敗/worker終了＋server再起動、先頭2/6枚再利用、旧checkpointとMP4保持、3D元撮影再利用。詳細ゲートはSTATUS JSON。",
       "unverified": "全条件/長尺/全環境、Linux手動/native、実PMX物理の再試験、外部同時改変、他codec/未保持旧ジョブ/3D撮影途中、EXR、順3全体"
+    },
+    {
+      "item": "順4 口形下書きの区間分割・削除・取消と同一FPS",
+      "phase_e_wp": "LIP-001/003、#187",
+      "planned_in": "LIP-SEGMENT-EDITOR-20261119",
+      "status": "partial_verified",
+      "commit": "same commit as docs/v05/LIP_SEGMENT_EDITOR_STATUS_20261119.json",
+      "tests": "Windows/Ubuntu各Python34成功1skip。Win/Ubuntu UI/SDK/実PMX/VMD/1F MP4各1成功、Win native成功。ローカル履歴3、既存SRT/合成出力回帰2、型/検出器成功。既存試験fixture・旧導線失敗とFPS製品不具合を記録し修正。",
+      "unverified": "実歌詞54発話の読み確定・新規採用と自然さ / 全PMX/全FPS/長尺/全編集操作の組合せ / LinuxネイティブWebMCP・Windows以外の実機GUI / 全Tab順・スクリーンリーダー・200%拡大 / 旧30fps下書きの自動変換（実装しない） / 順4全体と順3の広い未完要件"
     }
   ],
   "recovery_notes": [

@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "platform": "win32",
+  "split": [
+    60,
+    90,
+    120
+  ],
+  "saved_segments": 3,
+  "local_history": true,
+  "save_lock": true,
+  "conflict_preserves_local": true,
+  "source_unchanged": true,
+  "model_unchanged": true,
+  "sdk": true,
+  "native": true,
+  "vmd_morph_keys": 6,
+  "pmx_values": [
+    {
+      "frame": 30,
+      "weight": 0.8
+    },
+    {
+      "frame": 45,
+      "weight": 0.3
+    },
+    {
+      "frame": 60,
+      "weight": 0.7
+    }
+  ],
+  "mp4_frames": 1
+}

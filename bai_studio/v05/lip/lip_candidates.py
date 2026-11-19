@@ -110,7 +110,7 @@ def propose(catalog, source_root, reading_root, project_id, source_id, srt_index
     project = next((row for row in load_catalog(catalog)['projects'] if row.get('id') == project_id), None)
     if not project:
         raise LipCandidateError('Project not found', 404)
-    fps = project.get('fps', 30)
+    fps = project.get('fps', 60)
     try:
         sources = read_sources(source_root, catalog, project_id)['sources']
         readings = read_readings(reading_root, catalog, source_root, project_id)['utterances']

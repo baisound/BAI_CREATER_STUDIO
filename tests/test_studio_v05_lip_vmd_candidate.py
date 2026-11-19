@@ -192,6 +192,7 @@ def test_real_registered_pmx_morph_names_roundtrip(tmp_path):
     data = tmp_path/'data'
     catalog = data/'studio_v05_catalog.json'
     project_id = create(catalog, '実PMX口形VMD')['id']
+    set_fps(catalog, project_id, 30)  # This fixture explicitly tests 30fps morph output.
     asset = {'id': 'mmd:A:real.pmx', 'format': 'PMX', 'available': True}
     assets = [asset]
     source_for = lambda row: model if row is asset else None

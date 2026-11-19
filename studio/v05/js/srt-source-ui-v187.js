@@ -1,4 +1,5 @@
 // LIP-001: source-preserving SRT import and separate utterance reading edits.
+import {splitSegment, removeSegment, createSegmentHistory} from './lip-draft-edit.mjs';
 const picker = document.getElementById('v06AssetPicker');
 const project = document.getElementById('v06project');
 
@@ -38,6 +39,8 @@ if (picker && project) {
         <div id="v194-draft-panel" hidden>
           <strong>口形の下書き（未採用）</strong>
           <p id="v194-draft-status" role="status"></p>
+          <div class="v187-actions"><button id="v194-draft-undo" type="button" disabled>区間編集を戻す</button>
+            <button id="v194-draft-redo" type="button" disabled>やり直す</button></div>
           <div id="v194-draft-list" aria-label="口形の下書き編集"></div>
           <button id="v194-draft-save" type="button">下書きを保存</button>
         </div>
@@ -90,6 +93,8 @@ if (picker && project) {
   let loadedProject = '', selectedId = '', selectedCueIndex = null;
   let page = 0, sequence = 0, candidateSequence = 0, busy = false;
   let draftBase = null;
+  const draftHistory = createSegmentHistory();
+  let draftSaving = false;
   let exportSequence = 0, exportBusy = false, checkedExport = null;
   let exportIssues = [], exportIssuePage = 0;
   let latestCandidate = null, adoptionBusy = false, compositeBusy = false;
@@ -179,13 +184,37 @@ if (picker && project) {
     $('v192-candidate-list').replaceChildren();
     $('v192-candidate-status').textContent = '保存済みの読みから、未採用の候補を計算できます。';
     draftBase = null;
+    draftHistory.reset([]);
     $('v194-draft-panel').hidden = true;
     $('v194-draft-list').replaceChildren();
+    updateDraftControls();
   }
   function drawDraft(base, segments, message) {
     draftBase = base;
     $('v194-draft-panel').hidden = false;
     $('v194-draft-status').textContent = message;
+    renderDraftRows(segments);
+    draftHistory.reset(readDraftRows());
+    updateDraftControls();
+  }
+  function readDraftRows() {
+    return [...$('v194-draft-list').querySelectorAll('.v194-draft-row')].map(row =>
+      Object.fromEntries(['startFrame','endFrame','mouthShape','weight'].map(key => [key,row.querySelector(`[data-field="${key}"]`).value])));
+  }
+  function updateDraftControls() {
+    const rows = readDraftRows(), blocked = draftSaving || !draftBase || currentSource()?.sourceStatus !== 'valid';
+    $('v194-draft-panel').setAttribute('aria-busy',String(draftSaving));
+    $('v194-draft-undo').disabled = blocked || !(draftHistory.canUndo || draftHistory.differs(rows));
+    $('v194-draft-redo').disabled = blocked || !draftHistory.canRedo || draftHistory.differs(rows);
+    $('v194-draft-save').disabled = blocked;
+    for (const row of $('v194-draft-list').querySelectorAll('.v194-draft-row')) {
+      for (const input of row.querySelectorAll('input,select')) input.disabled = blocked;
+      const first = row.querySelector('[data-field="startFrame"]').value, last = row.querySelector('[data-field="endFrame"]').value;
+      row.querySelector('[data-draft-action="split"]').disabled = blocked || rows.length >= 1000 || first === '' || last === '' || !Number.isInteger(Number(first)) || !Number.isInteger(Number(last)) || Number(first)<0 || Number(last)>1000000 || Number(last)-Number(first)<2;
+      row.querySelector('[data-draft-action="remove"]').disabled = blocked || rows.length <= 1;
+    }
+  }
+  function renderDraftRows(segments) {
     const list = $('v194-draft-list');
     list.replaceChildren();
     for (const [index, segment] of segments.entries()) {
@@ -209,9 +238,15 @@ if (picker && project) {
       const select = document.createElement('select'); select.dataset.field = 'mouthShape';
       for (const shape of ['A', 'I', 'U', 'E', 'O', 'Closed', 'Rest']) select.add(new Option(shape, shape));
       select.value = segment.mouthShape;
-      field.append(select); row.append(field); list.append(row);
+      field.append(select); row.append(field);
+      const actions = document.createElement('div'); actions.className='v194-row-actions';
+      for (const [action,label,title] of [['split','分割','整数フレームの中央で分けます。2フレーム以上の区間で使えます。'],['remove','削除','この区間を下書きから削除します。最後の1区間は残します。']]) {
+        const button=document.createElement('button');button.type='button';button.dataset.draftAction=action;button.textContent=label;
+        button.title=title;button.setAttribute('aria-label',`区間${index+1}を${label}`);actions.append(button);
+      }
+      row.append(actions);list.append(row);
     }
-    $('v194-draft-save').disabled = !base || currentSource()?.sourceStatus !== 'valid';
+    updateDraftControls();
   }
   function markReadingDirty() {
     clearCandidate();
@@ -536,7 +571,35 @@ if (picker && project) {
   $('v194-draft-list').addEventListener('input', () => {
     clearExport();
     if (draftBase) $('v194-draft-status').textContent = '未保存の変更があります。';
+    updateDraftControls();
   });
+  $('v194-draft-list').addEventListener('change', () => { draftHistory.commit(readDraftRows()); updateDraftControls(); });
+  function focusDraftRow(index) {
+    $('v194-draft-list').querySelector(`.v194-draft-row[data-index="${index}"] [data-field="mouthShape"]`)?.focus();
+  }
+  function editedDraft(rows, message) {
+    renderDraftRows(rows);draftHistory.commit(readDraftRows());clearExport();
+    $('v194-draft-status').textContent=message+' 下書きは未保存です。';updateDraftControls();
+  }
+  $('v194-draft-list').addEventListener('click', event => {
+    const target=event.target instanceof Element ? event.target.closest('[data-draft-action]') : null;
+    if (!target || target.disabled || draftSaving || !draftBase) return;
+    const index=Number(target.closest('.v194-draft-row').dataset.index), rows=readDraftRows();
+    try {
+      draftHistory.commit(rows);
+      const split=target.dataset.draftAction==='split';
+      editedDraft(split?splitSegment(rows,index):removeSegment(rows,index),split?'区間を分割しました。':'区間を削除しました。');
+      focusDraftRow(Math.min(split?index+1:index,readDraftRows().length-1));
+    } catch(error) { $('v194-draft-status').textContent=error.message; }
+  });
+  for (const [id,action] of [['v194-draft-undo','undo'],['v194-draft-redo','redo']]) {
+    $(id).addEventListener('click',()=>{
+      if(draftSaving||!draftBase)return;
+      draftHistory.commit(readDraftRows());const rows=draftHistory[action]();if(!rows)return;
+      renderDraftRows(rows);clearExport();$('v194-draft-status').textContent='区間編集を'+(action==='undo'?'戻しました。':'やり直しました。')+' 下書きを保存すると反映します。';
+      updateDraftControls();if($(id).disabled)focusDraftRow(0);else $(id).focus();
+    });
+  }
   $('v194-draft-save').addEventListener('click', async () => {
     const source = currentSource(), id = project.value, cueIndex = selectedCueIndex;
     if (!source || !draftBase || !drafts || cueIndex === null || busy) return;
@@ -550,7 +613,8 @@ if (picker && project) {
       || !Number.isFinite(row.weight))) {
       $('v194-draft-status').textContent = '整数フレームと有限な強さを入力してください。'; return;
     }
-    busy = true; $('v194-draft-save').disabled = true;
+    draftHistory.commit(readDraftRows());
+    busy = true; draftSaving = true; updateDraftControls();
     $('v194-draft-status').textContent = '下書きを保存しています…';
     try {
       const saved = await request('/api/studio/v05/lip/drafts', {method: 'POST',
@@ -567,7 +631,7 @@ if (picker && project) {
       say(`発話 #${cueIndex} の口形下書きを保存しました。`);
     } catch (error) {
       if (project.value === id) $('v194-draft-status').textContent = `下書きの保存に失敗: ${error.message}`;
-    } finally { busy = false; $('v194-draft-save').disabled = !draftBase || currentSource()?.sourceStatus !== 'valid'; }
+    } finally { busy = false; draftSaving = false; updateDraftControls(); }
   });
   $('v190-reading-save').addEventListener('click', async () => {
     const source = currentSource(), id = project.value, cueIndex = selectedCueIndex;

@@ -18,10 +18,11 @@ test('v0.5 SRT panel imports originals and saves readings separately from source
       assert.equal(response.status,200);return (await response.json()).project.id;
     };
     const a=await create('SRT画面A'),b=await create('SRT画面B');
+    for(const project_id of [a,b])await fetch(`${server.base}/api/studio/v05/project/fps`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id,fps:30})});
     browser=await server.launchBrowser();page=await server.newPage(browser);
     await page.goto(`${server.base}/studio/v05/index.html`);
+    await page.getByRole('button',{name:'制作',exact:true}).click();
     await page.locator('#v06project').selectOption(a);
-    await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('#v187-srt-panel > summary').click();
     await page.waitForFunction(()=>document.querySelector('#v187-status')?.textContent.includes('0件'));
     assert.equal(await page.locator('#v197-export-check').isDisabled(),true,'PMX対応なしで出力を開始しない');
@@ -124,8 +125,8 @@ test('v0.5 SRT panel imports originals and saves readings separately from source
     assert.equal((await(await fetch(`${server.base}/api/studio/v05/lip/readings?project_id=${a}`)).json()).revision,2);
 
     await page.reload();
+    await page.getByRole('button',{name:'制作',exact:true}).click();
     await page.locator('#v06project').selectOption(a);
-    await page.locator('#nav [data-workspace="edit"]').click();
     await page.locator('#v187-srt-panel > summary').click();
     await page.waitForFunction(()=>document.querySelector('#v187-source-info')?.textContent.includes('2発話'));
     assert.match(await page.locator('#v187-cues').textContent(),/歌詞/);
@@ -133,10 +134,12 @@ test('v0.5 SRT panel imports originals and saves readings separately from source
     assert.equal(await page.locator('#v190-reading-kana').inputValue(),'アイウ');
     await page.locator('#v187-cues [data-index="2"]').click();
     assert.equal(await page.locator('#v190-explicit-silence').isChecked(),true);
+    await page.getByRole('button',{name:'制作',exact:true}).click();
     await page.locator('#v06project').selectOption(b);
     await page.waitForFunction(()=>document.querySelector('#v187-source-info')?.textContent.includes('ありません'));
     assert.equal(await page.locator('#v190-reading-editor').isVisible(),false);
     assert.equal((await(await fetch(`${server.base}/api/studio/v05/lip/drafts?project_id=${b}`)).json()).drafts.length,0);
+    await page.getByRole('button',{name:'制作',exact:true}).click();
     await page.locator('#v06project').selectOption(a);
     await page.waitForFunction(()=>document.querySelector('#v187-source-info')?.textContent.includes('2発話'));
     fs.writeFileSync(source,'changed');
