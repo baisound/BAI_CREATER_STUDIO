@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14T21:42:56+09:00",
+  "updated_at": "2026-11-19T15:25:56+09:00",
   "updated_by": "codex",
-  "branch": "codex/codec-selection-20261114",
-  "head_at_update": "13aa65c",
+  "branch": "codex/prores4444-roadmap-20261119",
+  "head_at_update": "99336be",
   "current": {
-    "task": "#330 コーデック対応確認と選択",
-    "status": "done",
-    "step": "実装・限定検証・PR #331 main統合・8765/開いている制作画面の同期を完了。未検証と残件を保持",
-    "design_doc": "docs/v05/CODEC_SELECTION_20261114_JA.md"
+    "task": "ロードマップ一覧の更新と順3 ProRes4444透過動画",
+    "status": "in_progress",
+    "step": "既承認RENDER-002/004/005/006の一単位を実装・代表検証。網羅試験や他形式へ拡張しない",
+    "design_doc": "docs/v05/PRORES4444_20261119_JA.md"
   },
   "next_steps": [
     "順3の次の既承認残件を正本で照合。EXR/アルファ動画/MP4途中再開、長尺/全条件/全環境と順4〜7依存・低優先OGVは未完を保持"
@@ -27,6 +27,13 @@
     "docs/handoff/TESTING_GUIDE_JA.md"
   ],
   "history": [
+    {
+      "at": "2026-11-19T15:25:56+09:00",
+      "by": "codex",
+      "event": "start",
+      "head": "99336be",
+      "text": "ロードマップ一覧の更新と順3 ProRes4444透過動画: 既承認RENDER-002/004/005/006の一単位を実装・代表検証。網羅試験や他形式へ拡張しない"
+    },
     {
       "at": "2026-11-14T21:42:56+09:00",
       "by": "codex",
@@ -229,13 +236,6 @@
       "event": "done",
       "head": "edbe1ee",
       "text": "PR316：PMX/VMDの動き・表情/口の撮影コピーとnativeBake往復を限定検証。Windows/Ubuntu Python各83、Windows関連Node7と最終cache、Ubuntu E2E、型成功。実PMX GUI50mm/Bake/採用/60F MP4。依存保護の最終確認後main同期。"
-    },
-    {
-      "at": "2026-11-14T05:36:09+09:00",
-      "by": "codex",
-      "event": "done",
-      "head": "ae37cdd",
-      "text": "CAM-019のPMX/VMD動き・表情/口の形状コピーとnativeBake往復を限定検証。Windows/Ubuntu Python各82、Win関連Node7+最終cache1/Ubuntu E2E1・型成功。実PMX GUI50mm/Bake/採用/60F MP4も確認。PR/main同期待ち。"
     }
   ]
 }
