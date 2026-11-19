@@ -92,12 +92,14 @@ def read(data_root, project_id):
             validate(d['preset'],d['background'])
             if d.get('resolution','720p') not in {'720p','1080p'}:raise ValueError()
             d.setdefault('resolution','720p')
+            if type(d.get('retain_frames',False)) is not bool or (d.get('retain_frames') and d['preset']!='mp4_h264_aac'):
+                raise ValueError()
             return d
         except (ValueError,KeyError,TypeError) as exc:
             raise SequenceError('保存した書き出し設定を読めません。原本を保持して停止しました。') from exc
 
 
-def update(data_root, project_id, revision, preset, background, resolution=None):
+def update(data_root, project_id, revision, preset, background, resolution=None, retain_frames=None):
     background=validate(preset,background)
     with LOCK:
         old=read(data_root,project_id)
@@ -105,7 +107,11 @@ def update(data_root, project_id, revision, preset, background, resolution=None)
             raise SequenceError('書き出し設定が更新されました。再読込してから保存してください。',409)
         resolution=old['resolution'] if resolution is None else resolution
         if resolution not in {'720p','1080p'}:raise SequenceError('解像度を選んでください。',400)
+        retain_frames=old.get('retain_frames',False) if retain_frames is None else retain_frames
+        if type(retain_frames) is not bool or (retain_frames and preset!='mp4_h264_aac'):
+            raise SequenceError('再生成用データの保持はH.264 MP4で選んでください。',400)
         d={'schema':1,'project_id':project_id,'revision':revision+1,'preset':preset,'resolution':resolution,'background':background}
+        if retain_frames:d['retain_frames']=True
         _atomic(_path(data_root,project_id),d)
         return d
 

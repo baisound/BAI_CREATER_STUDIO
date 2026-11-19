@@ -1,0 +1,10 @@
+✔ retained MP4 prefix/full checkpoint survives encode failure and restart; UI/SDK/native reencode with unchanged old outputs (246761.085266ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 253564.383959
+[run-guarded] 実データのハッシュは前後で一致しました（data: 5 ファイル、exports: 無し）

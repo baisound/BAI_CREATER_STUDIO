@@ -41,6 +41,7 @@ def identity(data_root, job, inputs, ffmpeg, ffprobe):
         'range_start_frame', 'range_end_exclusive', 'frame_count', 'range_revision',
         'arrangement_revision', 'scene_revision', 'settings_revision', 'background',
         'audio_settings', 'mixer_settings')}
+    if job.get('retain_frames'):selected['retain_frames']=True
     selected['inputs'] = sorted([{
         'asset_id': i['asset_id'], 'path': str(i['path'].resolve()), 'kind': i['kind'],
         'clip': i['clip'], 'audio_muted': i.get('audio_muted'),

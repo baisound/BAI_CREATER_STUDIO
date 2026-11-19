@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "issue": 335,
+  "date": "2026-11-19",
+  "requirement_ids": [
+    "RENDER-006",
+    "RENDER-010"
+  ],
+  "baseline_main": "a80129b68b18792a9ecd3e86451ad3c5e5779542",
+  "status": "representative_verified_requirement_open",
+  "scope": "Optional H264 retained frames; immutable prior checkpoint; new MP4 encode, no byte continuation",
+  "settings": {
+    "schema": 1,
+    "retain_frames": "optional boolean, default false, H264 only",
+    "capacity": "2GiB per retained job; existing output limits unchanged"
+  },
+  "source_lf_sha256": {
+    "bai_studio/v05/render/frame_video.py": "e842dc76a170deb74dfdc3cb9da57fb562b516fb131ca524737762e27af69cdc",
+    "bai_studio/v05/render/media_render.py": "e9eb0516a5e401df5e6cce8e673e24ef10043aa81d880cdc3aa9969ed2a2bb8a",
+    "bai_studio/v05/render/png_sequence.py": "86489aff2bacb46970cb817cf87912c9a581d9f0b2ca7b9adaff1dc9dba6eebc",
+    "bai_studio/v05/render/sequence_checkpoint.py": "8becfc72077bf704e3b79b4dacb9422b04fa23de5c0c93509d879f26c391be71",
+    "server.py": "7285b93f29a7e582f7c8d604fab923aa647ffdf7ae5ba2c44f69a9ba1a2625c2",
+    "mcp_server.py": "4639b15237824e81788146a00253e068634950846de893e5783b6c96da5693eb",
+    "webmcp.js": "204e8d0f51f8d705f76233b4a7775a782728dcac64cbe1252fd557396fb5948b",
+    "studio/v05/js/render-job-v69.js": "513f9126adddf8c22484f3bd911d2c68fd12f810d619ac18b7322e2a43846dc2",
+    "studio/v05/js/ui-clarity-20261113.js": "a733e3d0dce89006c1666431a2ab46f5115c5d77df08a3e4b58690450fc0fd70"
+  },
+  "gates": {
+    "python_windows": {
+      "pass": 74,
+      "source": "final"
+    },
+    "python_ubuntu": {
+      "pass": 74,
+      "source": "final"
+    },
+    "windows_ui_sdk_native_3d": {
+      "status": "PASS",
+      "source": "final"
+    },
+    "ubuntu_sdk_api_3d": {
+      "status": "PASS",
+      "source_note": "Before final error copy only; encode/state/recovery logic unchanged",
+      "frame_video_lf_sha256": "c77cfc56fd99ec009ece34b77533ef6b7c010f9c09131e0a1ee534f2819b7dc5"
+    },
+    "existing_png_prores_regression": {
+      "pass": 2,
+      "source_note": "Final UI and processing logic; before error-copy-only leaf in frame_video (unused by these two tests)"
+    },
+    "typecheck": "PASS",
+    "ui_detector": "PASS []",
+    "initial_ui": "FAIL: existing checkbox heuristic moved real export settings into legacy details. Fixed by excluding v69exportOptions; final real UI PASS"
+  },
+  "ui_findings": [
+    {
+      "id": "MFR-01",
+      "priority": "P1",
+      "target": "ui-clarity-20261113.js setupExport",
+      "proposal": "keep connected export settings visible when adding retention checkbox",
+      "implementation": "done",
+      "verification": "PASS actual manual checkbox save/reload and existing PNG/ProRes UI regression"
+    },
+    {
+      "id": "MFR-02",
+      "priority": "P2",
+      "target": "render-job-v69.js settings and failed history",
+      "proposal": "optional retained-data choice and direct MP4 regeneration button with saved count",
+      "implementation": "done",
+      "verification": "PASS 1440/1024 screenshot inspection and Enter action; SR/fullTab/200% NOT TESTED"
+    }
+  ],
+  "evidence": [
+    "qa/mp4-frame-recovery-20261119/windows.json",
+    "qa/mp4-frame-recovery-20261119/ubuntu.json"
+  ],
+  "unverified": [
+    "long duration/2GiB stress",
+    "all sources/materials/models/GPUs/fps/resolutions",
+    "Linux manual UI/native WebMCP",
+    "real PMX/physics rerun for this task",
+    "external simultaneous intermediate-file edits",
+    "full screen-reader/Tab/200%",
+    "recovery for nonretained old jobs or other video codecs",
+    "resume mid 3D capture",
+    "EXR and sequence3 overall"
+  ],
+  "next": "approved step4 PMX expression/mouth usability; retain broad render requirements without endless coverage expansion",
+  "model_category": "high; no subagents"
+}

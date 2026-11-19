@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "platform": "linux",
+  "apiOnly": true,
+  "measured": {
+    "frames": 6,
+    "fps": 29.97,
+    "start_frame": 7,
+    "audio_samples": 9610,
+    "lag_samples": 0,
+    "correlation": 0.9999858845031987,
+    "rms_ratio": 0.9996986894279692
+  },
+  "partial_frames_reused": 2,
+  "full_frames_reused": 6,
+  "abrupt_worker_exit_and_server_restart": true,
+  "original_checkpoint_unchanged": true,
+  "old_output_unchanged": true,
+  "scene_capture_reused": true,
+  "manual": false,
+  "native": false,
+  "sdk": true
+}
