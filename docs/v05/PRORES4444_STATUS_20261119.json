@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "issue": 333,
+  "date": "2026-11-19",
+  "requirement_ids": [
+    "RENDER-002",
+    "RENDER-004",
+    "RENDER-005",
+    "RENDER-006"
+  ],
+  "status": "representative_verified_requirement_open",
+  "baseline_main": "99336bee5389a8a59fda7898e475d76bb3f4084a",
+  "scope": "Existing output settings only; no new screens; one roadmap unit",
+  "preset": "mov_prores4444_pcm",
+  "alpha_mode": "straight",
+  "source_precision": "RGBA8 existing compositor; no HDR/high precision claim",
+  "source_lf_sha256": {
+    "bai_studio/v05/render/codec_presets.py": "0d699a6796bf0c0cdfab101e63c40d33145f82ba1687c743c03058b5e6355511",
+    "bai_studio/v05/render/media_render.py": "e1f60d5a454aba367f86be050ece86f0127d6b50970ab7ad2e3a3e97a7af7943",
+    "bai_studio/v05/render/png_sequence.py": "f487c4bb87804b1f402d6d1cae7158afbbfe695d2dcc03c740356a3267c5e540",
+    "studio/v05/js/render-job-v69.js": "1774dfd3be90a99789f853d7f3c685198bb3441b7e6d5497b50bf0cfecb28972",
+    "mcp_server.py": "d2597a2424abdb560a2fb77f2d81be7cd5428f0c29be5f642c2aefe84e774b7d",
+    "webmcp.js": "6634f349f86201659afa996c0d85a42343b7b5e52f35b9491221111704d46940"
+  },
+  "gates": {
+    "python_windows": {
+      "pass": 44
+    },
+    "python_ubuntu": {
+      "pass": 44
+    },
+    "windows_ui_sdk_native_3d": "PASS",
+    "windows_previous_five_codec_regression": "PASS",
+    "ubuntu_sdk_api_3d": "PASS",
+    "typecheck": "PASS",
+    "initial_ui_wait": "FAIL: saved label appeared before asynchronous refresh completed; test now also waits for export enabled",
+    "detector": "PASS []"
+  },
+  "ui_findings": [
+    {
+      "id": "P4444-01",
+      "target": "existing format/background selectors",
+      "priority": "P2",
+      "proposal": "add measured 4444 and label transparency availability",
+      "implementation": "done",
+      "verification": "PASS Windows manual save/reload, 1440/1024 screenshot inspection; existing labeled native selects and status region preserved"
+    },
+    {
+      "id": "P4444-02",
+      "target": "finished file playback",
+      "priority": "P1",
+      "proposal": "use ap4h codec check and download guidance if unsupported",
+      "implementation": "done",
+      "verification": "PASS actual Windows Chrome unsupported message and download retained"
+    }
+  ],
+  "unverified": [
+    "long duration/2GiB stress",
+    "all material/model/resolution/fps/GPU conditions",
+    "Linux manual UI/native WebMCP",
+    "screen reader/full Tab/200% zoom",
+    "external editor interoperability",
+    "EXR",
+    "MP4 checkpoint re-encode recovery",
+    "sequence3 overall"
+  ],
+  "model_category": "high; no subagents"
+}

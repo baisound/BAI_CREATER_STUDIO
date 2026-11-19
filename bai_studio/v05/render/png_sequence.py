@@ -75,8 +75,8 @@ def validate(preset, background):
         raise SequenceError('書き出し形式と背景を選んでください。',400)
     if background['kind'] not in {'transparent','solid'} or not isinstance(background['color'],str) or not re.fullmatch('#[0-9a-fA-F]{6}',background['color']):
         raise SequenceError('背景は透過または単色、色は#RRGGBBで指定してください。',400)
-    if preset != 'png_rgba_zip' and background['kind'] == 'transparent':
-        raise SequenceError('MP4は透過できません。PNG連番を選ぶか、単色背景を選んで保存してください。')
+    if preset not in {'png_rgba_zip','mov_prores4444_pcm'} and background['kind'] == 'transparent':
+        raise SequenceError('この形式は透過できません。PNG連番かProRes 4444を選ぶか、単色背景を選んで保存してください。')
     return {'kind':background['kind'],'color':background['color'].lower()}
 
 

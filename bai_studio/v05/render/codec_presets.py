@@ -17,6 +17,7 @@ SPECS = {
     'mp4_vp9_aac': dict(label='MP4 / VP9 + AAC', extension='.mp4', container='mp4', video='vp9', audio='aac', encoder='libvpx-vp9', audio_encoder='aac', pixel_format='yuv420p', args=['-deadline','realtime','-cpu-used','6','-crf','30','-b:v','0']),
     'mp4_av1_aac': dict(label='MP4 / AV1 + AAC', extension='.mp4', container='mp4', video='av1', audio='aac', encoder='libaom-av1', audio_encoder='aac', pixel_format='yuv420p', args=['-cpu-used','8','-crf','30','-b:v','0']),
     'mov_prores_pcm': dict(label='MOV / ProRes 422 HQ + PCM', extension='.mov', container='mov', video='prores', audio='pcm_s24le', encoder='prores_ks', audio_encoder='pcm_s24le', pixel_format='yuv422p10le', args=['-profile:v','3']),
+    'mov_prores4444_pcm': dict(label='MOV / ProRes 4444 + PCM（透過対応）', extension='.mov', container='mov', video='prores', audio='pcm_s24le', encoder='prores_ks', audio_encoder='pcm_s24le', pixel_format='yuva444p10le', alpha=True, args=['-profile:v','4','-alpha_bits','16','-tag:v','ap4h']),
 }
 LOCK = threading.RLock()
 CACHE = {}
@@ -40,7 +41,7 @@ def arguments(preset):
 def verify(run,ffprobe,path,frames,duration,width,height,fps,preset):
     s=spec(preset)
     result=run([ffprobe,'-v','error','-count_frames','-show_entries',
-        'stream=codec_name,codec_type,width,height,nb_read_frames,avg_frame_rate,duration,sample_rate,channels:format=duration',
+        'stream=codec_name,codec_type,profile,pix_fmt,width,height,nb_read_frames,avg_frame_rate,duration,sample_rate,channels:format=duration',
         '-of','json',str(path)],max(60,min(1200,duration*2)))
     if result.returncode:raise ValueError('完成ファイルを再読込できません')
     try:
@@ -61,8 +62,11 @@ def verify(run,ffprobe,path,frames,duration,width,height,fps,preset):
             abs(audio_duration-duration)>16/48000 or
             abs(actual_duration-duration)>max(.1,2/fps)):
         raise ValueError('完成ファイルのcodec・寸法・FPS・フレーム数・長さが要求と違います')
+    if s.get('alpha') and (video.get('profile') != '4444' or not video.get('pix_fmt','').startswith('yuva444p')):
+        raise ValueError('完成ファイルにProRes 4444のアルファがありません')
     return dict(video_codec=s['video'],audio_codec=s['audio'],frames=count,fps=actual_fps,
-                duration_seconds=actual_duration,width=width,height=height)
+                duration_seconds=actual_duration,width=width,height=height,
+                **({'pixel_format':video['pix_fmt'],'alpha_mode':'straight','profile':'4444'} if s.get('alpha') else {}))
 
 
 def measure(ffmpeg,ffprobe,width,height,fps,probe_root,run,*,refresh=False):
@@ -90,7 +94,7 @@ def measure(ffmpeg,ffprobe,width,height,fps,probe_root,run,*,refresh=False):
         for preset,s in SPECS.items():
             row=dict(id=preset,label=s['label'],extension=s['extension'],encoder=s['encoder'],
                      video_codec=s['video'],audio_codec=s['audio'],width=width,height=height,fps=fps,
-                     available=False,reason=None)
+                     alpha_supported=bool(s.get('alpha')),available=False,reason=None)
             missing=[x for x in [s['encoder'],s['audio_encoder']] if not re.search(r'\b'+re.escape(x)+r'\b',encoders.stdout)]
             if missing:
                 row['reason']='このFFmpegに '+', '.join(missing)+' がありません。'
@@ -100,9 +104,12 @@ def measure(ffmpeg,ffprobe,width,height,fps,probe_root,run,*,refresh=False):
                     target=Path(folder)/('probe'+s['extension']);script=Path(folder)/'probe.filter'
                     script.write_text('[0:v]trim=end_frame=3,setpts=PTS-STARTPTS[v];[1:a]anull[a]',encoding='utf-8')
                     duration=3/float(fps)
+                    source = (f"nullsrc=s={width}x{height}:r={fps}:d={duration},format=rgba,"
+                              "geq=r=80:g=160:b=220:a='if(lt(X,W/3),0,if(lt(X,2*W/3),128,255))'"
+                              if s.get('alpha') else f'testsrc2=s={width}x{height}:r={fps}:d={duration}')
                     for option in ['-/filter_complex','-filter_complex_script']:
                         attempt=run([ffmpeg,'-v','error','-nostdin','-y','-f','lavfi','-i',
-                            f'testsrc2=s={width}x{height}:r={fps}:d={duration}',
+                            source,
                             '-f','lavfi','-i',f'sine=frequency=997:sample_rate=48000:duration={duration}',
                             option,str(script),'-map','[v]','-map','[a]',*arguments(preset),
                             '-fps_mode','passthrough','-t',str(duration),'-f',s['container'],str(target)],45)
@@ -111,6 +118,14 @@ def measure(ffmpeg,ffprobe,width,height,fps,probe_root,run,*,refresh=False):
                         decoded=run([ffmpeg,'-v','error','-xerror','-nostdin','-i',str(target),
                             '-map','0:v:0','-map','0:a:0','-f','null','-'],30)
                         if decoded.returncode:raise ValueError('映像または音声の実復号に失敗しました')
+                        if s.get('alpha'):
+                            alpha=Path(folder)/'alpha.raw'
+                            decoded=run([ffmpeg,'-v','error','-nostdin','-y','-i',str(target),
+                                '-vf','alphaextract,format=gray','-frames:v','1','-f','rawvideo',str(alpha)],30)
+                            values=alpha.read_bytes() if decoded.returncode==0 else b''
+                            positions=[height//2*width+int(width*x) for x in (1/6,1/2,5/6)]
+                            if len(values)!=width*height or any(abs(values[p]-v)>2 for p,v in zip(positions,(0,128,255))):
+                                raise ValueError('透明・半透明・不透明の実復号が一致しません')
                         row.update(available=True,filter_complex_option=option);break
                     if not row['available']:row['reason']='この解像度/FPSで映像・音声の試験出力に失敗しました。'
             except (OSError,ValueError,subprocess.TimeoutExpired):

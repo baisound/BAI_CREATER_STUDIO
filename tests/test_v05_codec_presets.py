@@ -65,9 +65,28 @@ def test_mov_names_isolated_from_mp4_and_dangerous_paths_refused(tmp_path):
     with pytest.raises(ValueError):render_names.normalize('作品.mp4','.mov')
 
 
-@pytest.mark.parametrize('preset',list(codecs.SPECS))
+@pytest.mark.parametrize('preset',[p for p,s in codecs.SPECS.items() if not s.get('alpha')])
 def test_video_presets_reject_alpha(preset):
     with pytest.raises(ValueError):png_sequence.validate(preset,{'kind':'transparent','color':'#000000'})
+
+
+def test_4444_accepts_transparent_but_refuses_stream_with_alpha_dropped(tmp_path):
+    assert png_sequence.validate('mov_prores4444_pcm',{'kind':'transparent','color':'#AABBCC'})['color']=='#aabbcc'
+    data={'streams':[{'codec_type':'video','codec_name':'prores','profile':'HQ','pix_fmt':'yuv422p10le','width':64,'height':64,'nb_read_frames':'3','avg_frame_rate':'30/1'},
+                     {'codec_type':'audio','codec_name':'pcm_s24le','sample_rate':'48000','channels':2,'duration':'0.1'}],'format':{'duration':'0.1'}}
+    with pytest.raises(ValueError,match='アルファ'):
+        codecs.verify(lambda *a:subprocess.CompletedProcess([],0,json.dumps(data),''),'probe',tmp_path/'x.mov',3,.1,64,64,30,'mov_prores4444_pcm')
+
+
+def test_4444_probe_refuses_success_exit_with_wrong_alpha(tmp_path):
+    codecs.CACHE.clear()
+    def run(args,timeout):
+        if 'alphaextract,format=gray' in args:
+            Path(args[-1]).write_bytes(bytes([255])*64*64)
+            return subprocess.CompletedProcess(args,0,'','')
+        return render._run(args,timeout)
+    row=next(x for x in codecs.measure(shutil.which('ffmpeg'),shutil.which('ffprobe'),64,64,30,tmp_path,run) if x['id']=='mov_prores4444_pcm')
+    assert not row['available'] and row['reason']
 
 
 def test_mov_partial_cleanup_keeps_completed_and_checkpoint(tmp_path):
