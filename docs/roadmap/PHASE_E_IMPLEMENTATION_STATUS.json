@@ -231,6 +231,15 @@
       "commit": "same commit as docs/v05/PRORES4444_STATUS_20261119.json",
       "tests": "Windows/Ubuntu各Python44成功、Win UI/SDK/native/3D1・既存5codec回帰1、Ubuntu SDK/API/3D1。型成功。先行UI待機1失敗を保存、完了待機へ修正して成功。非0In F7..9/29.97fps、RGBA全3F・PCM4805samples完全一致、旧MOV保持。",
       "unverified": "長尺/全モデル/全解像度/FPS/GPU・編集ソフト相互運用・Linux手動UI/native、HDR/高精度入力、EXR/MP4再エンコード復旧、順3全体"
+    },
+    {
+      "item": "検証済み連番からのH.264 MP4再生成",
+      "phase_e_wp": "RENDER-006/010、#335",
+      "planned_in": "MP4-FRAME-RECOVERY-20261119",
+      "status": "partial_verified",
+      "commit": "same commit as docs/v05/MP4_FRAME_RECOVERY_STATUS_20261119.json",
+      "tests": "Windows/Ubuntuの設定/連番対象Python、Win手動/SDK/nativeとUbuntu SDK/API、実短縮PNG/encoder失敗/worker終了＋server再起動、先頭2/6枚再利用、旧checkpointとMP4保持、3D元撮影再利用。詳細ゲートはSTATUS JSON。",
+      "unverified": "全条件/長尺/全環境、Linux手動/native、実PMX物理の再試験、外部同時改変、他codec/未保持旧ジョブ/3D撮影途中、EXR、順3全体"
     }
   ],
   "recovery_notes": [

@@ -1567,7 +1567,7 @@ class Handler(BaseHTTPRequestHandler):
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=4096:return self.bad(413,'Request too large')
                 body=json.loads(self.rfile.read(length))
-                if not isinstance(body,dict) or not {'project_id','revision','preset','background'}<=set(body) or set(body)-{'project_id','revision','preset','background','resolution'}:return self.bad(400,'Invalid export settings')
+                if not isinstance(body,dict) or not {'project_id','revision','preset','background'}<=set(body) or set(body)-{'project_id','revision','preset','background','resolution','retain_frames'}:return self.bad(400,'Invalid export settings')
                 validate(body['preset'],body['background'])
                 if body['preset']!='png_rgba_zip':
                     from bai_studio.v05.render.media_render import capabilities

@@ -228,7 +228,7 @@
     // still convey current values and can be enabled by the async render context.
     const legacyRange = $('baiLegacyOutputRange');
     for (const e of [...settings.children]) {
-      if (e === legacyRange || e.htmlFor === 'baiLegacyOutputRange' || e.matches('input[type=checkbox],input[type=checkbox]+label') || e.querySelector?.('input[type=checkbox]') || (e.tagName === 'P' && !e.id)) advanced.append(e);
+      if (e.id !== 'v69exportOptions' && (e === legacyRange || e.htmlFor === 'baiLegacyOutputRange' || e.matches('input[type=checkbox],input[type=checkbox]+label') || e.querySelector?.('input[type=checkbox]') || (e.tagName === 'P' && !e.id))) advanced.append(e);
     }
     const realFormat = $('baiOutputFormat'), resolution = $('v69resolution');
     const realFields = document.createElement('div'); realFields.className = 'uiOutputFields';

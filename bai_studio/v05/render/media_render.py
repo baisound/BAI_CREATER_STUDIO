@@ -167,7 +167,7 @@ def status(root: Path, job_id: str) -> dict:
     elif job.get("temporary_cleanup") == "pending" and job_id not in ACTIVE:
         job["temporary_cleanup"] = "complete" if _cleanup_temporary(root, job_id) else "pending"
         _save(root, job)
-    if job_id not in ACTIVE and job.get('preset') == 'png_rgba_zip' and job.get('checkpoint_identity') and job.get('status') != 'succeeded':
+    if job_id not in ACTIVE and (job.get('preset') == 'png_rgba_zip' or job.get('retain_frames')) and job.get('checkpoint_identity') and job.get('status') != 'succeeded':
         from . import sequence_checkpoint as checkpoint
         try:
             record = checkpoint.load(root, job_id, job['checkpoint_identity'], verify=False)
@@ -711,6 +711,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             filter_complex_option: str = "-/filter_complex") -> None:
     job_id = job["id"]
     sequence = job.get('preset') == 'png_rgba_zip'
+    checkpointed = sequence or bool(job.get('retain_frames'))
     temp = root / "files" / (job_id + '.part' + _extension(job))
     final = root / "files" / (job_id + _extension(job))
     progress = root / "jobs" / f"{job_id}.progress"
@@ -733,7 +734,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                           "sha256": item["sha256"], "clip_id": item["clip"]["id"]} for item in all_inputs]
         _save(root, job)
         width, height = RESOLUTIONS[job["resolution"]]
-        if sequence:
+        if checkpointed:
             from . import sequence_checkpoint as checkpoint
             job['checkpoint_width'], job['checkpoint_height'] = width, height
             fingerprint = checkpoint.identity(root.parent, job, all_inputs, ffmpeg, ffprobe)
@@ -747,7 +748,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             _save(root, job)
         fps = job["fps"]
         scene_index = None
-        if scene_inputs is not None and sequence and job.get('resume_job_id'):
+        if scene_inputs is not None and checkpointed and job.get('resume_job_id'):
             if not checkpoint_record.get('scene'):
                 raise RenderError('同じ3D撮影データを確認できません。先頭から書き出してください。',409)
             scene_video = checkpoint.folder(root,job_id)/'scene.mkv'
@@ -843,7 +844,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                                     "manifest_sha256": _sha(manifest_path),
                                     "intermediate_sha256": _sha(scene_video), "intermediate_bytes": scene_video.stat().st_size,
                                     "storage": "ffv1_bgra_stream"}
-            if sequence:
+            if checkpointed:
                 checkpoint.retain_scene(root,job,checkpoint_record,scene_video)
             scene_index = 2 + len(clips)
             job["phase"] = "encoding"
@@ -864,8 +865,8 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                 raise RenderError(str(exc),exc.status) from exc
         graph, frames, duration = _graph(clips, fps, width, height,
                                          job["range_start_frame"], job["range_end_exclusive"], scene_index, mixed_index,
-                                         job["background"] if sequence or job.get('codec_spec',{}).get('alpha') else None)
-        if sequence and reused:
+                                         job["background"] if checkpointed or job.get('codec_spec',{}).get('alpha') else None)
+        if checkpointed and reused:
             graph = graph.replace('[vout]', '[vfull]')
             graph += (';[vfull]nullsink' if reused == frames else
                       f';[vfull]trim=start_frame={reused},setpts=PTS-STARTPTS[vout]')
@@ -890,7 +891,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             cmd += ["-i", str(scene_video)]
         if mixed_path is not None:
             cmd += ["-i",str(mixed_path)]
-        if sequence:
+        if checkpointed:
             from .png_sequence import check_size
             sequence_dir=checkpoint.folder(root,job_id)
             cmd += [filter_complex_option,str(script)]
@@ -907,7 +908,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
                     # The filter has an exact frame trim. A single-container
                     # -frames:v cap can end encoding before audio is flushed.
                     "-fps_mode", "passthrough", "-t", _num(duration), "-f", selected['container'], "-n", str(temp)]
-        job["phase"] = "encoding"
+        job["phase"] = "building_recovery_frames" if checkpointed and not sequence else "encoding"
         _save(root, job)
         with log.open("w", encoding="utf-8") as err:
             process = process_scope.spawn(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
@@ -915,7 +916,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
             deadline = time.monotonic() + max(120, min(3600, duration * 12))
             last_progress = -1
             while process.poll() is None:
-                if sequence:
+                if checkpointed:
                     checkpoint.seal(root,job,checkpoint_record,writing=True)
                 elif temp.exists():
                     _check_output_capacity(temp.stat().st_size)
@@ -941,14 +942,21 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
         for item in all_inputs:
             if item["path"].stat().st_size != item["bytes"] or _sha(item["path"]) != item["sha256"]:
                 raise RenderError("原素材が出力中に変わりました。完成物は確定しません")
-        if sequence:
-            from .png_sequence import package
+        if checkpointed:
             checkpoint.seal(root,job,checkpoint_record)
             if checkpoint.identity(root.parent,job,all_inputs,ffmpeg,ffprobe) != job['checkpoint_identity']:
                 raise RenderError('出力中に保存状態または描画環境が変わりました。完成物は確定しません。',409)
+        if sequence:
+            from .png_sequence import package
             job['phase']='verifying_sequence';_save(root,job)
             info=package(sequence_dir,temp,job,width,height)
         else:
+            if checkpointed:
+                from .frame_video import encode
+                job['phase']='encoding_from_frames';_save(root,job)
+                encode(process_scope,ffmpeg,root,job,temp,_check_output_capacity)
+                if checkpoint.identity(root.parent,job,all_inputs,ffmpeg,ffprobe) != job['checkpoint_identity']:
+                    raise RenderError('MP4再生成中に保存状態または原素材が変わりました。完成物は確定しません。',409)
             from .codec_presets import verify
             _check_output_capacity(temp.stat().st_size)
             info=verify(process_scope.run,ffprobe,temp,frames,duration,width,height,fps,job.get('preset','mp4_h264_aac'))
@@ -975,7 +983,7 @@ def _worker(root: Path, job: dict, clips: list[dict], ffmpeg: str, ffprobe: str,
     finally:
         if process_scope is not None:
             process_scope.close()
-        if sequence and checkpoint_record is not None:
+        if checkpointed and checkpoint_record is not None:
             try:
                 try:
                     unchanged = checkpoint.identity(root.parent,job,all_inputs,ffmpeg,ffprobe) == job['checkpoint_identity']
@@ -1014,9 +1022,9 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
     resume = None
     if resume_job_id is not None:
         resume = status(root,resume_job_id)
-        if (resume.get('project_id') != project_id or preset != 'png_rgba_zip' or
+        if (resume.get('project_id') != project_id or not (preset == 'png_rgba_zip' or (preset == 'mp4_h264_aac' and resume.get('retain_frames'))) or
                 resume.get('preset') != preset or resume.get('status') not in {'failed','interrupted'}):
-            raise RenderError('同じ作品の失敗・中断したPNG連番を選んでください。',409)
+            raise RenderError('同じ作品の失敗・中断した連番保持ジョブを選んでください。',409)
         if not resume.get('resume_available'):
             raise RenderError(resume.get('resume_error','検証済み連番がありません。先頭から書き出してください。'),409)
     ffmpeg = shutil.which("ffmpeg")
@@ -1034,6 +1042,8 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
                 or saved.get('resolution','720p')!=resolution):
             raise RenderError('書き出し設定が変わりました。再読込して保存し直してください。',409)
     elif preset!='mp4_h264_aac':raise RenderError('PNG連番の形式と背景を先に保存してください。',400)
+    if resume is not None and preset=='mp4_h264_aac' and not saved.get('retain_frames'):
+        raise RenderError('再生成用データを保持した元の書き出し設定を指定してください。',409)
     caps = capabilities(ffmpeg, ffprobe, root / "probe",resolution,project.get('fps',30))
     if preset=='png_rgba_zip':
         if not caps.get('png_available'):raise RenderError(caps.get('png_reason','RGBA PNG環境を確認してください。'),503)
@@ -1043,6 +1053,8 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
             if not selected_cap['available']:raise RenderError(selected_cap['reason'],503)
         elif preset!='mp4_h264_aac' or not caps.get('mp4_available',caps['available']):
             raise RenderError(caps.get('reason','コーデックの対応確認を完了できません'),503)
+    if saved.get('retain_frames') and not caps.get('png_available'):
+        raise RenderError(caps.get('png_reason','再生成用PNG/WAVの対応環境を確認してください。'),503)
     scene_inputs = None
     motion_ids = None
     if scene_revision is not None:
@@ -1109,7 +1121,8 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
                "progress_percent": 0, "error": None, "bytes": None, "sha256": None,
                "probe": None}
         if preset in SPECS:job['codec_spec']=spec(preset)
-        if preset == 'png_rgba_zip':
+        if saved.get('retain_frames'):job['retain_frames']=True
+        if preset == 'png_rgba_zip' or job.get('retain_frames'):
             from . import sequence_checkpoint as checkpoint
             try:
                 job['checkpoint_identity'] = checkpoint.identity(data_root, job, clips+(scene_inputs or []), ffmpeg, ffprobe)
@@ -1127,7 +1140,7 @@ def start(data_root: Path, project_id: str, range_revision: int, arrangement_rev
         try:
             thread = threading.Thread(target=_worker,
                                       args=(root, job, clips, ffmpeg, ffprobe, scene_inputs, server_port,
-                                            caps["png_filter_option"] if preset=='png_rgba_zip' else
+                                            caps["png_filter_option"] if preset=='png_rgba_zip' or job.get('retain_frames') else
                                             selected_cap['filter_complex_option'] if selected_cap is not None else caps["filter_complex_option"]), daemon=True)
             thread.start()
         except Exception as exc:
